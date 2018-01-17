@@ -1,0 +1,14 @@
+DOCUMENT
+{1:{
+relativeHeight:{answers:[{
+  text:"....",
+  time:...
+  votes:['peter'],
+  comments:[
+  {time:...,text:...,}
+  ]
+},...]},
+{}
+}}
+USER
+{points:100,id:...}
