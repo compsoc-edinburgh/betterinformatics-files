@@ -1,0 +1,8 @@
+deployment_app_name: hello_vis
+
+deployments:
+  test:
+    deployment_name: local
+    deployment_user_group: vis
+    deployment_domain: localhost
+    deployment_endpoint: /
