@@ -5,8 +5,8 @@ variables:
   VIS_CI_DEPLOYMENT_SUBDOMAIN: "communitysolution"
   VIS_CI_ENABLE_MONGODB: "true"
   VIS_CI_ENABLE_MINIO: "true"
-  VIS_CI_LIVENESS_PATH: "/uploadpdf"
-  VIS_CI_READINESS_PATH: "/uploadpdf"
+  VIS_CI_LIVENESS_PROBE_PATH: "/uploadpdf"
+  VIS_CI_READINESS_PROBE_PATH: "/uploadpdf"
 
 stages:
   - build
