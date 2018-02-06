@@ -30,7 +30,7 @@ app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
 
-minioClient = Minio(os.environ['RUNTIME_MINIO_URL']+":80",
+minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER']+":80",
                 access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
                 secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
                 secure=False)
