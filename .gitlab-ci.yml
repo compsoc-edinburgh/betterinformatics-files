@@ -1,0 +1,55 @@
+variables:
+  VIS_CI_IMAGE_NAME: "cit/vis-examsolutionexchange"
+  VIS_CI_APP_NAME: "examsolutionexchange"
+  VIS_APP_NAME: "examsolutionexchange"
+  VIS_CI_DEPLOYMENT_SUBDOMAIN: "communitysolution"
+  VIS_CI_ENABLE_POSTGRES: "true"
+  VIS_CI_ENABLE_MONGODB: "true"
+  VIS_CI_ENABLE_MINIO: "true"
+
+
+stages:
+  - build
+  - staging
+  - cleanup
+
+build:
+  tags:
+    - docker-runner
+  stage: build
+  script:
+    - do_default_build
+
+staging:
+  tags:
+    - docker-runner
+  stage: staging
+  environment:
+    name: $VIS_APP_NAME-staging
+    url: https://$VIS_CI_DEPLOYMENT_SUBDOMAIN.svis.ethz.ch
+  script:
+    - do_staging
+  only:
+    refs:
+      - staging
+
+cleanup:
+  tags:
+    - docker-runner
+  stage: cleanup
+  script:
+    - do_cleanup
+  when: manual
+  only:
+    refs:
+      - staging
+      - prod
+
+.auto_devops: &auto_devops |
+  git clone --depth 1 git@gitlab.vis.ethz.ch:vis/vis-ci-base.git
+  source vis-ci-base/ciscript.sh
+
+before_script:
+  - docker info
+  - *auto_devops
+
