@@ -24,4 +24,4 @@ COPY --from=0 /usr/src/app/build/index.html ./templates/index.html
 COPY --from=0 /usr/src/app/build/static ./static
 COPY ./src/hellovis.py .
 
-CMD python3 hellovis.py 
+CMD ["/usr/bin/python3", "hellovis.py"]

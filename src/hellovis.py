@@ -1,3 +1,4 @@
+import sys
 from flask import Flask, g, request, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 import json, re
@@ -13,7 +14,7 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
 from passlib.apps import custom_app_context as pwd_context
 
 from os import listdir
-print("HELLO")
+print("HELLO", file=sys.stderr)
 #raise Exception(listdir("templates"))
 
 app = Flask(__name__, static_url_path="/static")
@@ -29,7 +30,7 @@ minioClient = Minio(os.environ['RUNTIME_MINIO_URL']+":80",
                 secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
                 secure=False)
 
-
+print(os.environ['RUNTIME_MINIO_URL']+":80",os.environ['RUNTIME_MINIO_ACCESS_KEY'],os.environ['RUNTIME_MINIO_SECRET_KEY'],file=sys.stderr)
 try:
     minioClient.make_bucket("pdfs")
 except BucketAlreadyOwnedByYou as err:
