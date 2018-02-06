@@ -18,7 +18,12 @@ print("HELLO", file=sys.stderr)
 #raise Exception(listdir("templates"))
 
 app = Flask(__name__, static_url_path="/static")
-serverurl = os.environ['RUNTIME_MONGO_DB_SERVER']
+mongourl = "mongodb://{}:{}@{}:{}/{}".format(
+    os.environ['RUNTIME_MONGO_DB_USER'],
+    os.environ['RUNTIME_MONGO_DB_PW'],
+    os.environ['RUNTIME_MONGO_DB_SERVER'],
+    os.environ['RUNTIME_MONGO_DB_PORT'],
+    os.environ['RUNTIME_MONGO_DB_NAME'])
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
@@ -40,7 +45,7 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-mongoClient = MongoClient(serverurl, 27017)
+mongoClient = MongoClient(mongourl, 27017)
 mongodb = mongoClient.examDataBase
 answersections = mongodb.answersections
 examAnswerSections = mongodb.examAnswerSections
