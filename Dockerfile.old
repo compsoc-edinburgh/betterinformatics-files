@@ -1,9 +1,0 @@
-FROM python:3
-
-WORKDIR /srv
-ADD ./src/static /srv/static
-ADD ./src/requirements.txt /srv/requirements.txt
-RUN pip install -r requirements.txt 
-ADD ./src/hellovis.py /srv
-
-CMD [ "python", "./hellovis.py" ]

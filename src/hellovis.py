@@ -12,19 +12,23 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 
-template_dir = os.path.abspath('../frontend/build')
-app = Flask(__name__, static_url_path='',template_folder=template_dir)
-serverurl = os.environ['RUNTIME_MONGODB_DB_URL']
+from os import listdir
+print("HELLO")
+#raise Exception(listdir("templates"))
+
+app = Flask(__name__, static_url_path="/static")
+serverurl = os.environ['RUNTIME_MONGO_DB_URL']
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
 
-minioClient = Minio(os.environ['RUNTIME_OBJECT_STORAGE_URL']+":9000",
-                access_key=os.environ['RUNTIME_OBJECT_STORAGE_ACCESS_KEY'],
-                secret_key=os.environ['RUNTIME_OBJECT_STORAGE_SECRET_KEY'],
+minioClient = Minio(os.environ['RUNTIME_MINIO_URL']+":80",
+                access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
+                secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
                 secure=False)
+
 
 try:
     minioClient.make_bucket("pdfs")
@@ -37,10 +41,8 @@ except ResponseError as err:
 
 mongoClient = MongoClient(serverurl, 27017)
 mongodb = mongoClient.examDataBase
-cuts = mongodb.cuts
 answersections = mongodb.answersections
 examAnswerSections = mongodb.examAnswerSections
-
 """
 date_handler = lambda obj: (
     obj.isoformat()
@@ -63,6 +65,10 @@ def getUserId():
 def getUserDisplayName():
     return "Samuel Müller"
 
+@app.route("/test")
+def test():
+    return "Server is running"
+
 @app.route('/<filename>')
 def index(filename):
     cursor = answersections.find({"filename":filename},{"relHeight":1,"pageNum":1})
@@ -77,7 +83,7 @@ def index(filename):
         else:
             cuts[pageNum] = [relHeight]
     return render_template('index.html',pdfLink="pdf/"+filename,userId=getUserId(),userDisplayName=getUserDisplayName(),
-                           cuts=cuts)
+                           cuts=cuts,templated="True")
 
 @app.route("/favicon.ico")
 def favicon():
@@ -279,4 +285,4 @@ def pdf(filename):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=443)
+    app.run(host="0.0.0.0", port=80)

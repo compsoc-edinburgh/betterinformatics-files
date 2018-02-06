@@ -13,16 +13,17 @@
   window.__pdfLink__ = '{{pdfLink}}';
   window.__userId__ = "{{userId}}";
   window.__userDisplayName__ = "{{userDisplayName}}";
-  //window.__cuts__ = {{cuts|tojson|safe}};
-  window.__urlPrefix__ = ""
-  if (window.__pdfLink__ == '{'+"{pdfLink}}") {
+  window.__urlPrefix__ = "";
+  window.__templated__ = "{{templated}}";
+  if (window.__templated__.length!="True".length) {
     console.log("HI");
     window.__pdfLink__ = 'exam10.pdf';
     window.__userId__ = "muelsamu";
     window.__userDisplayName__ = "muelsamu";
     window.__cuts__ = {1: [0.21298495645288995]};
-    window.__urlPrefix__ = "localhost:8080"
+    window.__urlPrefix__ = "http://localhost:8080"
   }else{
+    window.__cuts__ = {{cuts|tojson|safe}};
   }
 </script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
