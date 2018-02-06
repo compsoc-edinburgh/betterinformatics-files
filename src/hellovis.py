@@ -18,7 +18,7 @@ print("HELLO", file=sys.stderr)
 #raise Exception(listdir("templates"))
 
 app = Flask(__name__, static_url_path="/static")
-serverurl = os.environ['RUNTIME_MONGO_DB_URL']
+serverurl = os.environ['RUNTIME_MONGO_DB_SERVER']
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
