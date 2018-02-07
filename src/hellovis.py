@@ -1,5 +1,6 @@
 import sys
 from flask import Flask, g, request, redirect, url_for, send_from_directory
+from flask_httpauth import HTTPBasicAuth
 from werkzeug.utils import secure_filename
 import json, re
 from pymongo import MongoClient
@@ -18,24 +19,35 @@ print("HELLO", file=sys.stderr)
 #raise Exception(listdir("templates"))
 
 app = Flask(__name__, static_url_path="/static")
-mongourl = "mongodb://{}:{}@{}:{}/{}".format(
-    os.environ['RUNTIME_MONGO_DB_USER'],
-    os.environ['RUNTIME_MONGO_DB_PW'],
-    os.environ['RUNTIME_MONGO_DB_SERVER'],
-    os.environ['RUNTIME_MONGO_DB_PORT'],
-    os.environ['RUNTIME_MONGO_DB_NAME'])
+auth = HTTPBasicAuth()
+
+if "RUNTIME_MONGO_DB_SERVER" in os.environ:
+    mongourl = "mongodb://{}:{}@{}:{}/{}".format(
+        os.environ['RUNTIME_MONGO_DB_USER'],
+        os.environ['RUNTIME_MONGO_DB_PW'],
+        os.environ['RUNTIME_MONGO_DB_SERVER'],
+        os.environ['RUNTIME_MONGO_DB_PORT'],
+        os.environ['RUNTIME_MONGO_DB_NAME'])
+else:
+    mongourl = os.environ['RUNTIME_MONGO_DB_URL']
+
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
-
-minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER'],
+if "RUNTIME_MINIO_SERVER" in os.environ:
+    minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER'],
+                    access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
+                    secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
+                    secure=False)
+else:
+    minioClient = Minio(os.environ['RUNTIME_MINIO_URL'],
                 access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
                 secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
                 secure=False)
 
-print(os.environ['RUNTIME_MINIO_URL']+":80",os.environ['RUNTIME_MINIO_ACCESS_KEY'],os.environ['RUNTIME_MINIO_SECRET_KEY'],file=sys.stderr)
+#print(os.environ['RUNTIME_MINIO_URL']+":80",os.environ['RUNTIME_MINIO_ACCESS_KEY'],os.environ['RUNTIME_MINIO_SECRET_KEY'],file=sys.stderr)
 try:
     minioClient.make_bucket("pdfs")
 except BucketAlreadyOwnedByYou as err:
@@ -66,17 +78,19 @@ def date_handler(obj):
         return obj
 
 
-def getUserId():
-    return "muelsamu"
-def getUserDisplayName():
-    return "Samuel Müller"
+
+@auth.verify_password
+def verify_pw(username, password):
+    return username == "m" and password == "m"
 
 @app.route("/test")
 def test():
     return "Server is running"
 
 @app.route('/<filename>')
+@auth.login_required
 def index(filename):
+    print("recieved")
     cursor = answersections.find({"filename":filename},{"relHeight":1,"pageNum":1})
 
     cuts = {}
@@ -88,7 +102,8 @@ def index(filename):
             cuts[pageNum].sort(key=float)
         else:
             cuts[pageNum] = [relHeight]
-    return render_template('index.html',pdfLink="pdf/"+filename,userId=getUserId(),userDisplayName=getUserDisplayName(),
+    print("cuts computed")
+    return render_template('index.html',pdfLink="pdf/"+filename,userId=auth.username(),userDisplayName=auth.username(),
                            cuts=cuts,templated="True")
 
 @app.route("/favicon.ico")
@@ -101,40 +116,45 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/uploadpdf",methods=['POST','GET'])
+@auth.login_required
 def upload_pdf():
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            return redirect(request.url)
-        file = request.files['file']
-        # if user does not select file, browser also
-        # submit a empty part without filename
-        if file.filename == '':
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
-            try:
-                minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+    if hasAdminrights(auth.username):
+        if request.method == 'POST':
+            # check if the post request has the file part
+            if 'file' not in request.files:
+                return redirect(request.url)
+            file = request.files['file']
+            # if user does not select file, browser also
+            # submit a empty part without filename
+            if file.filename == '':
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+                try:
+                    minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
 
-            except ResponseError as err:
-                print(err)
-            return redirect(url_for('',
-                                    filename=filename))
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    '''
+                except ResponseError as err:
+                    print(err)
+                return redirect(url_for('',
+                                        filename=filename))
+        return '''
+        <!doctype html>
+        <title>Upload new File</title>
+        <h1>Upload new File</h1>
+        <form method=post enctype=multipart/form-data>
+          <p><input type=file name=file>
+             <input type=submit value=Upload>
+        </form>
+        '''
+    else:
+        return {"err":"no permission"}
 
 def hasAdminRights(userId):
-    return userId == "muelsamu"
+    return userId == "m"
 
 @app.route("/api/<filename>/answersection")
+@auth.login_required
 def getAnswersection(filename):
     pageNum = request.args.get("pageNum","")
     relHeight = request.args.get("relHeight","")
@@ -155,11 +175,12 @@ def getAnswersection(filename):
     #],"asker":"fo2r3b8g23g823g"}"""
 
 @app.route("/api/<filename>/newanswersection")
+@auth.login_required
 def newAnswersection(filename):
-    if hasAdminRights(getUserId()):
+    if hasAdminRights(auth.username()):
         pageNum = request.args.get("pageNum", "")
         relHeight = request.args.get("relHeight", "")
-        userId = getUserId()
+        userId = auth.username()
         answersecQueryResult = answersections.find({"filename": filename, "pageNum": pageNum, "relHeight": relHeight},
                                                    {"_id": 1}).limit(1)
         if answersecQueryResult.count() == 0:
@@ -169,26 +190,30 @@ def newAnswersection(filename):
         else:
             return json.dumps(answersecQueryResult[0]["answersection"],default=date_handler)
     else:
-        return "NOT ALLOWED"
+        return {"err":"NOT ALLOWED"}
 
 
 @app.route("/api/<filename>/removeanswersection")
+@auth.login_required
 def removeAnswersection(filename):
-    if hasAdminRights(getUserId()):
+    if hasAdminRights(auth.username()):
         pageNum = request.args.get("pageNum", "")
         relHeight = request.args.get("relHeight", "")
-        userId = getUserId()
+        userId = auth.username()
         if answersections.delete_one({"pageNum":pageNum,"filename":filename,"relHeight":relHeight}).deleted_count > 0:
             return json.dumps({"status":"success"},default=date_handler)
         else:
             return json.dumps({"status":"error"},default=date_handler)
+    else:
+        return {"err":"NOT ALLOWED"}
 
 @app.route("/api/<filename>/togglelike")
+@auth.login_required
 def toggleLike(filename):
     pageNum = request.args.get("pageNum", "")
     relHeight = request.args.get("relHeight", "")
     oid = ObjectId(request.args.get("oid",""))
-    userId = getUserId()
+    userId = auth.username()
     answer = \
     answersections.find({"answersection.answers.oid": oid}, {"_id": 0, 'answersection.answers.$': 1})[0][
         "answersection"]["answers"][0]
@@ -203,10 +228,11 @@ def toggleLike(filename):
     return json.dumps(answersections.find({"pageNum":pageNum,"relHeight":relHeight,"filename":filename}).limit(1)[0]["answersection"],default=date_handler)
 
 @app.route("/api/<filename>/setanswer",methods=["POST"])
+@auth.login_required
 def setAnswer(filename):
     pageNum = request.args.get("pageNum", "")
     relHeight = request.args.get("relHeight", "")
-    userId = getUserId()
+    userId = auth.username()
     content = request.get_json()
     if "oid" in content:
         content["oid"] = ObjectId(content["oid"])
@@ -225,11 +251,12 @@ def setAnswer(filename):
 
 
 @app.route("/api/<filename>/addcomment",methods=["POST"])
+@auth.login_required
 def addComment(filename):
     pageNum = request.args.get("pageNum", "")
     relHeight = request.args.get("relHeight", "")
     answerOid = ObjectId(request.args.get("answerOid", ""))
-    userId = getUserId()
+    userId = auth.username()
     content = request.get_json()
     answer = \
         answersections\
@@ -244,6 +271,7 @@ def addComment(filename):
     return json.dumps(answersections.find({"pageNum":pageNum,"relHeight":relHeight,"filename":filename}).limit(1)[0]["answersection"],default=date_handler)
 
 @app.route("/api/<filename>/removecomment")
+@auth.login_required
 def removeComment(filename):
     commentOid = ObjectId(request.args.get("oid", ""))
     pageNum = request.args.get("pageNum", "")
@@ -257,7 +285,7 @@ def removeComment(filename):
         if c["oid"] == ObjectId(commentOid):
             comment = c
             break
-    if comment["authorId"] == getUserId():
+    if comment["authorId"] == auth.username():
         answersections.update_one(
             {'answersection.answers.comments.oid': ObjectId(commentOid)},
             {"$pull": {'answersection.answers.$.comments': {'oid': ObjectId(commentOid)}}}
@@ -266,11 +294,12 @@ def removeComment(filename):
 
 
 @app.route("/api/<filename>/removeanswer")
+@auth.login_required
 def removeanswer(filename):
     pageNum = request.args.get("pageNum", "")
     relHeight = request.args.get("relHeight", "")
     oid = request.args.get("oid","")
-    userId = getUserId()
+    userId = auth.username()
     if answersections.find({"answersection.answers.oid": ObjectId(oid)}, {"_id": 0, 'answersection.answers.$': 1}).limit(1)[0]["answersection"]["answers"][0]["authorId"] == userId:
         answersections.update_one(
             {'answersection.answers.oid': ObjectId(oid)},
@@ -280,6 +309,7 @@ def removeanswer(filename):
 
 
 @app.route("/pdf/<filename>")
+@auth.login_required
 def pdf(filename):
 
     try:

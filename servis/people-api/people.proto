@@ -1,0 +1,103 @@
+syntax = "proto3";
+package people;
+
+import "google/api/annotations.proto";
+
+service People {
+    rpc GetVisLegacyPerson (GetPersonRequest) returns (VisLegacyPerson) {
+        option (google.api.http) = {
+            get: "/v1/vis_legacy/people/{username}"
+        };
+    }
+    rpc AuthVisLegacyPerson (AuthPersonRequest) returns (AuthPersonResponse) {
+        option (google.api.http) = {
+            post: "/v1/vis_legacy/people/{username}/auth"
+            body: "*"
+        };
+    }
+    rpc ListVisLegacyPeopleStream (ListPeopleRequest) returns (stream VisLegacyPerson);
+    rpc ListVisLegacyPeople (ListPeopleRequest) returns (ListVisLegacyPeopleResponse) {
+        option (google.api.http) = {
+            get: "/v1/vis_legacy/people"
+        };
+    }
+    rpc GetEthPerson (GetPersonRequest) returns (EthPerson) {
+        option (google.api.http) = {
+            get: "/v1/eth/people/{username}"
+        };
+    }
+    rpc AuthEthPerson (AuthPersonRequest) returns (AuthPersonResponse) {
+        option (google.api.http) = {
+            post: "/v1/eth/people/{username}/auth"
+            body: "*"
+        };
+    }
+    rpc CheckLiveness (Empty) returns (Empty) {
+        option (google.api.http) = {
+            get: "/v1/liveness"
+        };
+    }
+    rpc CheckReadiness (Empty) returns (Empty) {
+        option (google.api.http) = {
+            get: "/v1/readiness"
+        };
+    }
+}
+
+message GetPersonRequest {
+    string username = 1;
+}
+
+message ListPeopleRequest {
+}
+
+message ListVisLegacyPeopleResponse {
+    repeated VisLegacyPerson results = 1;
+}
+
+message AuthPersonRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message AuthPersonResponse {
+    bool ok = 1;
+}
+
+message Empty {
+}
+
+enum MembershipType {
+    NONE = 0;
+    ACTIVE = 1;
+    PASSIVE = 2;
+    HONORARY = 3;
+    ORDINARY = 4;
+}
+
+enum Language {
+    GERMAN = 0;
+    FRENCH = 1;
+    ITALIAN = 2;
+    ENGLISH = 3;
+}
+
+message VisLegacyPerson {
+    string first_name = 1;
+    string last_name = 2;
+    MembershipType vis_membership = 3;
+    repeated string vis_groups = 4; 
+    string vis_name = 5;
+}
+
+message EthPerson {
+    string first_name = 1;
+    string last_name = 2;
+    MembershipType vis_membership = 3;
+    string nethz = 5;
+    string email = 6;
+    Language preferred_language = 7;
+    int32 unique_id_nr = 8;
+    string unique_id = 9;
+    // TODO birthdate
+}

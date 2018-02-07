@@ -20,7 +20,7 @@ function recievedAnswers(pageNum,relHeight,answers){
 export function fetchAnswers(pageNum,relHeight){
   return dispatch => {
     dispatch(requestedAnswers(pageNum,relHeight));
-    fetch(urlPrefix+"/api/"+filename+"/answersection?pageNum="+pageNum+"&relHeight="+relHeight)
+    fetch(urlPrefix+"/api/"+filename+"/answersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
     .then(response => response.json())
     .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)));
   }
@@ -35,7 +35,7 @@ export function fetchAnswers(pageNum,relHeight){
 export function addAnswersection(pageNum,relHeight){ //Also has online part will at first give empty answer and then update with what is online
   return dispatch => {
     dispatch(requestedNewAnswersection(pageNum,relHeight))
-    fetch(urlPrefix+"/api/"+filename+"/newanswersection?pageNum="+pageNum+"&relHeight="+relHeight)
+    fetch(urlPrefix+"/api/"+filename+"/newanswersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
     .then(response => response.json())
     .then(json =>dispatch(newAnswersection(pageNum,relHeight,json)))
   }
@@ -48,7 +48,7 @@ function newAnswersection(pageNum,relHeight,answersection){
 }
 export function wantRemoveAnswersection(pageNum,relHeight){
   return dispatch =>{
-    fetch(urlPrefix+"/api/"+filename+"/removeanswersection?pageNum="+pageNum+"&relHeight="+relHeight)
+    fetch(urlPrefix+"/api/"+filename+"/removeanswersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
     .then(response => response.json())
     .then(response => response.status==="success"?dispatch(removeAnswersection(pageNum,relHeight)):undefined);
   }
@@ -64,7 +64,7 @@ export function wantDeleteComment(pageNum,relHeight,answerIndex,commentIndex){
     var comment = answer["comments"][commentIndex];
     if (_.has(comment,'oid')){
       console.log(comment.oid);
-      fetch(urlPrefix+"/api/"+filename+"/removecomment?pageNum="+pageNum+"&relHeight="+relHeight+"&oid="+comment.oid)
+      fetch(urlPrefix+"/api/"+filename+"/removecomment?pageNum="+pageNum+"&relHeight="+relHeight+"&oid="+comment.oid, {credentials: "same-origin"})
       .then(response => response.json())
       .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)))
     }else{
@@ -87,7 +87,8 @@ export function wantAddComment(pageNum,relHeight,answerIndex,text){
     fetch(urlPrefix+"/api/"+filename+"/addcomment?pageNum="+pageNum+"&relHeight="+relHeight+"&answerOid="+oid,
     {headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      "credentials": "same-origin"
     },
     method: "POST",
     body: JSON.stringify(content)}
@@ -102,7 +103,7 @@ export function wantToggleLike(pageNum,relHeight,answerIndex,userId){
     var answer = state.answers[pageNum+""][relHeight+""]["answers"][answerIndex+""];
     var likes = $.inArray(userId,state.answers[pageNum+""][relHeight+""].answers[answerIndex].upvotes)>-1
     if (_.has(answer,'oid')){
-      fetch(urlPrefix+"/api/"+filename+"/togglelike?pageNum="+pageNum+"&relHeight="+relHeight+"&oid="+answer.oid)
+      fetch(urlPrefix+"/api/"+filename+"/togglelike?pageNum="+pageNum+"&relHeight="+relHeight+"&oid="+answer.oid, {credentials: "same-origin"})
       .then(response => response.json())
       .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)))
     }
@@ -122,7 +123,8 @@ export function wantToSetAnswer(pageNum,relHeight,answerIndex,text){
     fetch(urlPrefix+"/api/"+filename+"/setanswer?pageNum="+pageNum+"&relHeight="+relHeight,
     {headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      credentials: "same-origin"
     },
     method: "POST",
     body: JSON.stringify(answer)}
