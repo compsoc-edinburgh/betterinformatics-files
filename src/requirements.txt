@@ -1,4 +1,5 @@
 Flask-HTTPAuth
+grpcio-tools
 pymongo
 flask
 Minio

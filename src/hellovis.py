@@ -15,8 +15,13 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
 from passlib.apps import custom_app_context as pwd_context
 
 from os import listdir
-print("HELLO", file=sys.stderr)
-#raise Exception(listdir("templates"))
+import grpc
+import people_pb2
+import people_pb2_grpc
+
+peopleChannel = grpc.insecure_channel(os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"]+":"+os.environ["RUNTIME_SERVIS_PEOPLE_API_PORT"])
+peopleClient = people_pb2_grpc.PeopleStub(peopleChannel)
+peopleMetadata = [("authorization",os.environ["RUNTIME_SERVIS_PEOPLE_API_KEY"])]
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
@@ -81,7 +86,14 @@ def date_handler(obj):
 
 @auth.verify_password
 def verify_pw(username, password):
-    return username == "m" and password == "m"
+    print(username,password,file=sys.stderr)
+    try:
+        req = people_pb2.AuthPersonRequest(password=password,username=username)
+        res = peopleClient.AuthEthPerson(req,metadata=peopleMetadata)
+    except grpc.RpcError as e:
+        print("Verify Password throws:",e,file=sys.stderr)
+        return False
+    return res.ok
 
 @app.route("/test")
 def test():

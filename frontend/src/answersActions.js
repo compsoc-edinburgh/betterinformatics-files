@@ -88,8 +88,8 @@ export function wantAddComment(pageNum,relHeight,answerIndex,text){
     {headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      "credentials": "same-origin"
     },
+    "credentials": "same-origin",
     method: "POST",
     body: JSON.stringify(content)}
     )
@@ -124,8 +124,8 @@ export function wantToSetAnswer(pageNum,relHeight,answerIndex,text){
     {headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      credentials: "same-origin"
     },
+    credentials: "same-origin",
     method: "POST",
     body: JSON.stringify(answer)}
     )

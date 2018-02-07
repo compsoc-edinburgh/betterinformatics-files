@@ -1,47 +1,17 @@
 syntax = "proto3";
 package people;
 
-import "google/api/annotations.proto";
-
 service People {
-    rpc GetVisLegacyPerson (GetPersonRequest) returns (VisLegacyPerson) {
-        option (google.api.http) = {
-            get: "/v1/vis_legacy/people/{username}"
-        };
-    }
-    rpc AuthVisLegacyPerson (AuthPersonRequest) returns (AuthPersonResponse) {
-        option (google.api.http) = {
-            post: "/v1/vis_legacy/people/{username}/auth"
-            body: "*"
-        };
-    }
+    rpc GetVisLegacyPerson (GetPersonRequest) returns (VisLegacyPerson);
+    rpc AuthVisLegacyPerson (AuthPersonRequest) returns (AuthPersonResponse);
     rpc ListVisLegacyPeopleStream (ListPeopleRequest) returns (stream VisLegacyPerson);
-    rpc ListVisLegacyPeople (ListPeopleRequest) returns (ListVisLegacyPeopleResponse) {
-        option (google.api.http) = {
-            get: "/v1/vis_legacy/people"
-        };
-    }
-    rpc GetEthPerson (GetPersonRequest) returns (EthPerson) {
-        option (google.api.http) = {
-            get: "/v1/eth/people/{username}"
-        };
-    }
-    rpc AuthEthPerson (AuthPersonRequest) returns (AuthPersonResponse) {
-        option (google.api.http) = {
-            post: "/v1/eth/people/{username}/auth"
-            body: "*"
-        };
-    }
-    rpc CheckLiveness (Empty) returns (Empty) {
-        option (google.api.http) = {
-            get: "/v1/liveness"
-        };
-    }
-    rpc CheckReadiness (Empty) returns (Empty) {
-        option (google.api.http) = {
-            get: "/v1/readiness"
-        };
-    }
+    rpc ListVisLegacyPeople (ListPeopleRequest) returns (ListVisLegacyPeopleResponse);
+
+    rpc GetEthPerson (GetPersonRequest) returns (EthPerson);
+    rpc AuthEthPerson (AuthPersonRequest) returns (AuthPersonResponse);
+
+    rpc CheckLiveness (Empty) returns (Empty);
+    rpc CheckReadiness (Empty) returns (Empty);
 }
 
 message GetPersonRequest {

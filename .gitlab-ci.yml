@@ -7,7 +7,7 @@ variables:
   VIS_CI_ENABLE_MINIO: "true"
   VIS_CI_LIVENESS_PROBE_PATH: "/uploadpdf"
   VIS_CI_READINESS_PROBE_PATH: "/uploadpdf"
-  VIS_SERVIS_PYTHON_OUT: "./servis-gen"
+  VIS_SERVIS_PYTHON_OUT: "./temp-gen"
 
 stages:
   - build
@@ -19,6 +19,8 @@ build:
     - docker-runner
   stage: build
   script:
+    - curl https://ser.vis.ethz.ch/static/servis-cli-linux-amd64 > servis-cli
+    - ./servis-cli generate
     - do_default_build
 
 staging:
