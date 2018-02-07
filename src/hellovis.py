@@ -52,7 +52,6 @@ else:
                 secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
                 secure=False)
 
-#print(os.environ['RUNTIME_MINIO_URL']+":80",os.environ['RUNTIME_MINIO_ACCESS_KEY'],os.environ['RUNTIME_MINIO_SECRET_KEY'],file=sys.stderr)
 try:
     minioClient.make_bucket("pdfs")
 except BucketAlreadyOwnedByYou as err:
@@ -86,7 +85,6 @@ def date_handler(obj):
 
 @auth.verify_password
 def verify_pw(username, password):
-    print(username,password,file=sys.stderr)
     try:
         req = people_pb2.AuthPersonRequest(password=password,username=username)
         res = peopleClient.AuthEthPerson(req,metadata=peopleMetadata)
@@ -95,7 +93,7 @@ def verify_pw(username, password):
         return False
     return res.ok
 
-@app.route("/test")
+@app.route("/health")
 def test():
     return "Server is running"
 
