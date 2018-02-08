@@ -13,8 +13,16 @@ import store from "./store.js";
 var scale = 1.5;
 var pageheight = 0;
 const pdfLink = window.__pdfLink__;//"exam10.pdf"
-var cuts = _.mapValues(window.__cuts__, arr => arr.map(parseFloat));
-console.log("cuts:",cuts)
+var cuts = _.mapValues(window.__cuts__, arr => 
+        (arr.map(tup => 
+                 (parseFloat(tup[0]),tup[1]))));
+var cutIds = _.mapValues(cuts,cutsOnPage => 
+        _.reduce(cutsOnPage, (dic,tup) => 
+            {var n = dic; n[tup[0]]=tup[1]; return n},{}));
+
+var cuts = _.mapValues(cuts,cutsOnPage =>
+        cutsOnPage.map(tup => tup[0]));
+
 //exclusive cut itself
 function increaseAllAfter(pageNum,cut){
   var id = "canvas-"+pageNum+"-";
@@ -74,7 +82,7 @@ function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew){
   insertAfter(newSection,element);
   //newSection.removeClass("beforeanswersection");
   ReactDOM.render((<Provider store={store}>
-    <Answersection pageNum={pageNum} relHeight={relHeight} makeNew={makeNew}/></Provider>),
+    <Answersection _id={!makeNew ? cutIds[pageNum][relHeight] : null} pageNum={pageNum} relHeight={relHeight} makeNew={makeNew}/></Provider>),
     newSection
   );
   newSection.offsetWidth;

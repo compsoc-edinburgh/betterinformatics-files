@@ -63,6 +63,7 @@ except ResponseError as err:
 
 mongoClient = MongoClient(mongourl, 27017)
 mongodb = mongoClient.examDataBase
+
 answersections = mongodb.answersections
 examAnswerSections = mongodb.examAnswerSections
 """
@@ -93,6 +94,15 @@ def verify_pw(username, password):
         return False
     return res.ok
 
+def hasAdminrights(username):
+    try:
+        req = people_pb2.GetPersonRequest(username=username)
+        res = peopleClient.GetVisLegacyPerson(req,metadata=peopleMetadata)
+    except grpc.RpcError as e:
+        print("failed getting user groups with:",e,file=sys.stderr)
+        return False
+    return max("vorstand" == group for group in res.vis_groups)
+
 @app.route("/health")
 def test():
     return "Server is running"
@@ -105,13 +115,14 @@ def index(filename):
 
     cuts = {}
     for cut in cursor:
+        _id = cut["_id"] 
         relHeight = (cut["relHeight"])
         pageNum = (cut["pageNum"])
         if pageNum in cuts:
-            cuts[pageNum].append(relHeight)
-            cuts[pageNum].sort(key=float)
+            cuts[pageNum].append([relHeight,str(_id)])
+            cuts[pageNum].sort(key=lambda x: float(x[0]))
         else:
-            cuts[pageNum] = [relHeight]
+            cuts[pageNum] = [(relHeight,str(_id))]
     print("cuts computed")
     return render_template('index.html',pdfLink="pdf/"+filename,userId=auth.username(),userDisplayName=auth.username(),
                            cuts=cuts,templated="True")
@@ -160,8 +171,6 @@ def upload_pdf():
     else:
         return {"err":"no permission"}
 
-def hasAdminRights(userId):
-    return userId == "m"
 
 @app.route("/api/<filename>/answersection")
 @auth.login_required
@@ -170,7 +179,7 @@ def getAnswersection(filename):
     relHeight = request.args.get("relHeight","")
     answersecQueryResult = answersections.find({"filename": filename,"pageNum":pageNum,"relHeight":relHeight}, {"answersection": 1}).limit(1)
     if answersecQueryResult.count() == 0:
-        return "NOT FOUND"
+        return json.dumps({"err":"NOT FOUND"})
     else:
         answersec = answersecQueryResult[0]["answersection"]
         return json.dumps(answersec,default=date_handler)
@@ -187,11 +196,10 @@ def getAnswersection(filename):
 @app.route("/api/<filename>/newanswersection")
 @auth.login_required
 def newAnswersection(filename):
-    if hasAdminRights(auth.username()):
-        pageNum = request.args.get("pageNum", "")
-        relHeight = request.args.get("relHeight", "")
+    if hasAdminrights(auth.username()):
+        _id = request.args.get("oid", "")
         userId = auth.username()
-        answersecQueryResult = answersections.find({"filename": filename, "pageNum": pageNum, "relHeight": relHeight},
+        answersecQueryResult = answersections.find({"_id":_id},
                                                    {"_id": 1}).limit(1)
         if answersecQueryResult.count() == 0:
             answersection = {"answers":[],"asker":userId}
@@ -200,13 +208,13 @@ def newAnswersection(filename):
         else:
             return json.dumps(answersecQueryResult[0]["answersection"],default=date_handler)
     else:
-        return {"err":"NOT ALLOWED"}
+        return json.dumps({"err":"NOT ALLOWED"},default=date_handler)
 
 
 @app.route("/api/<filename>/removeanswersection")
 @auth.login_required
 def removeAnswersection(filename):
-    if hasAdminRights(auth.username()):
+    if hasAdminrights(auth.username()):
         pageNum = request.args.get("pageNum", "")
         relHeight = request.args.get("relHeight", "")
         userId = auth.username()

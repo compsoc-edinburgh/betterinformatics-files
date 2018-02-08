@@ -33,7 +33,7 @@ class Answersection extends Component {
       this.props.dispatch(addAnswersection(this.props.pageNum,this.props.relHeight));
       this.setState({makeNew:false});
     }else{
-      this.props.dispatch(fetchAnswers(this.props.pageNum,this.props.relHeight));
+      this.props.dispatch(fetchAnswers(this.props.pageNum,this.props.relHeight,this.props._id));
     }
   }
   removeThis(){

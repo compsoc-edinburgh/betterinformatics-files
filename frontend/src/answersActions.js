@@ -17,10 +17,10 @@ function recievedAnswers(pageNum,relHeight,answers){
   return {type:"RECIEVED_ANSWERS",pageNum,relHeight,value:answers}
 }
 
-export function fetchAnswers(pageNum,relHeight){
+export function fetchAnswers(pageNum,relHeight,_id){
   return dispatch => {
     dispatch(requestedAnswers(pageNum,relHeight));
-    fetch(urlPrefix+"/api/"+filename+"/answersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
+    fetch(urlPrefix+"/api/"+filename+"/answersection?oid="+_id, {credentials: "same-origin"})
     .then(response => response.json())
     .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)));
   }
