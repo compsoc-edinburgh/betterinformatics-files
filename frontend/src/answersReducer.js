@@ -12,7 +12,7 @@ export default function reducer(state={},action){
     case "REQEUSTED_NEW_ANSWERSECTION":
       return stateLocal.toJS();
     case "RECIEVED_ANSWERS":
-      return stateLocal.updateIn([action.pageNum+"",action.relHeight+""],()=>action.value).toJS();
+      return stateLocal.updateIn([action.pageNum+"",action.relHeight+""],()=>immutable.fromJS(action.value["answersection"]).set("oid",action.value["oid"])).toJS();
     case "TOGGLE_LIKE":
       if ($.inArray(action.userId,state[action.pageNum+""][action.relHeight+""].answers[action.answerIndex].upvotes)>-1){
         return stateLocal.updateIn([action.pageNum+"",action.relHeight+"","answers",action.answerIndex+"","upvotes"],(arr)=>{return arr.filter(e => e !== action.userId);}).toJS();
@@ -25,8 +25,6 @@ export default function reducer(state={},action){
       return stateLocal.updateIn([action.pageNum+"",action.relHeight+"","answers",action.answerIndex,"comments"],(comments)=>comments.delete(action.commentIndex)).toJS();
     case "NEW_ANSWER":
       return stateLocal.updateIn([action.pageNum+"",action.relHeight+"","answers"],(answers)=>answers.push({"text":"","authorId":"me","time":1488893168,"upvotes":[],"edit":true,"comments":[]})).toJS();
-    case "NEW_ANSWERSECTION":
-      return stateLocal.updateIn([action.pageNum+"",action.relHeight+""],()=>action.value).toJS();
     case "REMOVE_ANSWERSECTION":
       return stateLocal.updateIn([action.pageNum+"",action.relHeight+"","removed"],()=>true).toJS();
     case "EDITED_ANSWER":

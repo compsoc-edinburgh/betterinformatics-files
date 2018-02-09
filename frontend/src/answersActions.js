@@ -17,10 +17,10 @@ function recievedAnswers(pageNum,relHeight,answers){
   return {type:"RECIEVED_ANSWERS",pageNum,relHeight,value:answers}
 }
 
-export function fetchAnswers(pageNum,relHeight,_id){
-  return dispatch => {
+export function fetchAnswers(pageNum,relHeight,oid){
+  return (dispatch,getState) =>{
     dispatch(requestedAnswers(pageNum,relHeight));
-    fetch(urlPrefix+"/api/"+filename+"/answersection?oid="+_id, {credentials: "same-origin"})
+    fetch(urlPrefix+"/api/"+filename+"/answersection?oid="+oid, {credentials: "same-origin"})
     .then(response => response.json())
     .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)));
   }
@@ -37,18 +37,17 @@ export function addAnswersection(pageNum,relHeight){ //Also has online part will
     dispatch(requestedNewAnswersection(pageNum,relHeight))
     fetch(urlPrefix+"/api/"+filename+"/newanswersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
     .then(response => response.json())
-    .then(json =>dispatch(newAnswersection(pageNum,relHeight,json)))
+    .then(json =>dispatch(recievedAnswers(pageNum,relHeight,json)))
   }
 }
 function requestedNewAnswersection(pageNum,relHeight){
   return {type:"REQEUSTED_NEW_ANSWERSECTION",pageNum,relHeight};
 }
-function newAnswersection(pageNum,relHeight,answersection){
-  return {type:"NEW_ANSWERSECTION",pageNum:pageNum,relHeight:relHeight,value:answersection};
-}
 export function wantRemoveAnswersection(pageNum,relHeight){
-  return dispatch =>{
-    fetch(urlPrefix+"/api/"+filename+"/removeanswersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
+  return (dispatch,getState) =>{
+    var state = getState();
+    var answerSectionId = state.answers[pageNum+""][relHeight+""]["oid"];
+    fetch(urlPrefix+"/api/"+filename+"/removeanswersection?oid="+answerSectionId, {credentials: "same-origin"})
     .then(response => response.json())
     .then(response => response.status==="success"?dispatch(removeAnswersection(pageNum,relHeight)):undefined);
   }
@@ -57,14 +56,14 @@ function removeAnswersection(pageNum,relHeight){
   return {type:"REMOVE_ANSWERSECTION",pageNum:pageNum,relHeight:relHeight,deleted:true};
 }
 export function wantDeleteComment(pageNum,relHeight,answerIndex,commentIndex){
-  console.log("wantDeleteComment called");
   return (dispatch,getState) =>{
     var state = getState();
     var answer = state.answers[pageNum+""][relHeight+""]["answers"][answerIndex+""];
+    var answersectionId = state.answers[pageNum+""][relHeight+""]["oid"];
     var comment = answer["comments"][commentIndex];
     if (_.has(comment,'oid')){
       console.log(comment.oid);
-      fetch(urlPrefix+"/api/"+filename+"/removecomment?pageNum="+pageNum+"&relHeight="+relHeight+"&oid="+comment.oid, {credentials: "same-origin"})
+      fetch(urlPrefix+"/api/"+filename+"/removecomment?answersectionoid="+answersectionId+"&oid="+comment.oid, {credentials: "same-origin"})
       .then(response => response.json())
       .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)))
     }else{
@@ -81,10 +80,11 @@ export function wantAddComment(pageNum,relHeight,answerIndex,text){
   return (dispatch,getState) =>{
     var state = getState();
     var answer = state.answers[pageNum+""][relHeight+""]["answers"][answerIndex+""];
+    var answerSectionId = state.answers[pageNum+""][relHeight+""]["oid"];
     var oid = answer["oid"];
     var content = {};
     content["text"] = text;
-    fetch(urlPrefix+"/api/"+filename+"/addcomment?pageNum="+pageNum+"&relHeight="+relHeight+"&answerOid="+oid,
+    fetch(urlPrefix+"/api/"+filename+"/addcomment?answersectionoid="+answerSectionId+"&answerOid="+oid,
     {headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -101,9 +101,10 @@ export function wantToggleLike(pageNum,relHeight,answerIndex,userId){
   return (dispatch,getState) =>{
     var state = getState();
     var answer = state.answers[pageNum+""][relHeight+""]["answers"][answerIndex+""];
+    var answerSectionId = state.answers[pageNum+""][relHeight+""]["oid"];
     var likes = $.inArray(userId,state.answers[pageNum+""][relHeight+""].answers[answerIndex].upvotes)>-1
     if (_.has(answer,'oid')){
-      fetch(urlPrefix+"/api/"+filename+"/togglelike?pageNum="+pageNum+"&relHeight="+relHeight+"&oid="+answer.oid, {credentials: "same-origin"})
+      fetch(urlPrefix+"/api/"+filename+"/togglelike?answersectionoid="+answerSectionId+"&oid="+answer.oid, {credentials: "same-origin"})
       .then(response => response.json())
       .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)))
     }
@@ -119,8 +120,9 @@ export function wantToSetAnswer(pageNum,relHeight,answerIndex,text){
   return (dispatch,getState) =>{
     var state = getState();
     var answer = state.answers[pageNum+""][relHeight+""]["answers"][answerIndex+""];
+    var answerSectionId = state.answers[pageNum+""][relHeight+""]["oid"];
     answer["text"] = text;
-    fetch(urlPrefix+"/api/"+filename+"/setanswer?pageNum="+pageNum+"&relHeight="+relHeight,
+    fetch(urlPrefix+"/api/"+filename+"/setanswer?answersectionoid="+answerSectionId,
     {headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

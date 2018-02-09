@@ -40,14 +40,18 @@ class Answersection extends Component {
     this.props.dispatch(wantRemoveAnswersection(this.props.pageNum,this.props.relHeight));
   }
   render() {
-    if(this.props.answersection !== null && this.props.user !== null && this.props.user !== undefined){
+    if(this.props.answersection !== null && this.props.answersection !== undefined && this.props.user !== null && this.props.user !== undefined){
       if(this.props.answersection !== undefined && this.props.answersection.removed == true){
         return <p className="removedtag">REMOVED</p>
       }else{
         var cutdata = this.props.answersection;
         var answers = cutdata["answers"];
         var userId = this.props.user.id;
-        answers = answers.sort((a,b)=>b.upvotes.length-a.upvotes.length);
+        if(answers){
+            answers = answers.sort((a,b)=>b.upvotes.length-a.upvotes.length);
+        }else{
+            answers = [];
+        }
         var answerElements = answers.map(
           (answer,count)=>{
             return <Answer startediting={()=>this.startEditingOf(count)} deleteComment={(commCount)=>this.deleteCommentOf(count,commCount)} editable={answer.authorId===userId || answer.authorId==="me"} key={count} index={count} data={answer} userId={userId} submitComment={(text)=>this.props.dispatch(wantAddComment(this.props.pageNum,this.props.relHeight,count,text))} submitAnswer={(text) => {return this.props.dispatch(wantToSetAnswer(this.props.pageNum,this.props.relHeight,count,text));} } toggleLike={()=>{this.toggleLikeOf(count)}}/>});

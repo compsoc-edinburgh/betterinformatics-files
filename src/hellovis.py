@@ -111,11 +111,12 @@ def test():
 @auth.login_required
 def index(filename):
     print("recieved")
-    cursor = answersections.find({"filename":filename},{"relHeight":1,"pageNum":1})
+    cursor = answersections.find({"filename":filename},{"oid":1,"relHeight":1,"pageNum":1})
 
     cuts = {}
     for cut in cursor:
-        _id = cut["_id"] 
+        print(cut, file=sys.stderr)
+        _id = cut["oid"] 
         relHeight = (cut["relHeight"])
         pageNum = (cut["pageNum"])
         if pageNum in cuts:
@@ -175,13 +176,12 @@ def upload_pdf():
 @app.route("/api/<filename>/answersection")
 @auth.login_required
 def getAnswersection(filename):
-    pageNum = request.args.get("pageNum","")
-    relHeight = request.args.get("relHeight","")
-    answersecQueryResult = answersections.find({"filename": filename,"pageNum":pageNum,"relHeight":relHeight}, {"answersection": 1}).limit(1)
+    _id = request.args.get("oid","")
+    answersecQueryResult = answersections.find({"oid":ObjectId(_id)}, {"oid":1,"answersection": 1}).limit(1)
     if answersecQueryResult.count() == 0:
         return json.dumps({"err":"NOT FOUND"})
     else:
-        answersec = answersecQueryResult[0]["answersection"]
+        answersec = answersecQueryResult[0]
         return json.dumps(answersec,default=date_handler)
     #return """
     #{"answers":
@@ -197,16 +197,17 @@ def getAnswersection(filename):
 @auth.login_required
 def newAnswersection(filename):
     if hasAdminrights(auth.username()):
-        _id = request.args.get("oid", "")
+        pageNum = request.args.get("pageNum", "")
+        relHeight = request.args.get("relHeight", "")
         userId = auth.username()
-        answersecQueryResult = answersections.find({"_id":_id},
-                                                   {"_id": 1}).limit(1)
+        answersecQueryResult = answersections.find({"pageNum":pageNum,"filename":filename,"relHeight":relHeight}).limit(1)
         if answersecQueryResult.count() == 0:
             answersection = {"answers":[],"asker":userId}
-            answersections.insert_one({"filename": filename, "pageNum": pageNum, "relHeight": relHeight,"answersection": {"answers":[],"asker":userId}})
-            return json.dumps(answersection,default=date_handler)
+            newDoc = {"filename": filename, "pageNum": pageNum, "relHeight": relHeight,"answersection": answersection,"oid":ObjectId()};
+            answersections.insert_one(newDoc)
+            return json.dumps(newDoc,default=date_handler)
         else:
-            return json.dumps(answersecQueryResult[0]["answersection"],default=date_handler)
+            return json.dumps(answersecQueryResult[0],default=date_handler)
     else:
         return json.dumps({"err":"NOT ALLOWED"},default=date_handler)
 
@@ -215,10 +216,9 @@ def newAnswersection(filename):
 @auth.login_required
 def removeAnswersection(filename):
     if hasAdminrights(auth.username()):
-        pageNum = request.args.get("pageNum", "")
-        relHeight = request.args.get("relHeight", "")
+        oid = ObjectId(request.args.get("oid", ""))
         userId = auth.username()
-        if answersections.delete_one({"pageNum":pageNum,"filename":filename,"relHeight":relHeight}).deleted_count > 0:
+        if answersections.delete_one({"oid":oid}).deleted_count > 0:
             return json.dumps({"status":"success"},default=date_handler)
         else:
             return json.dumps({"status":"error"},default=date_handler)
@@ -228,8 +228,7 @@ def removeAnswersection(filename):
 @app.route("/api/<filename>/togglelike")
 @auth.login_required
 def toggleLike(filename):
-    pageNum = request.args.get("pageNum", "")
-    relHeight = request.args.get("relHeight", "")
+    answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
     oid = ObjectId(request.args.get("oid",""))
     userId = auth.username()
     answer = \
@@ -243,13 +242,12 @@ def toggleLike(filename):
         {'answersection.answers.oid': oid},
         {"$set": {'answersection.answers.$': answer}}
     )
-    return json.dumps(answersections.find({"pageNum":pageNum,"relHeight":relHeight,"filename":filename}).limit(1)[0]["answersection"],default=date_handler)
+    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
 
 @app.route("/api/<filename>/setanswer",methods=["POST"])
 @auth.login_required
 def setAnswer(filename):
-    pageNum = request.args.get("pageNum", "")
-    relHeight = request.args.get("relHeight", "")
+    answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
     userId = auth.username()
     content = request.get_json()
     if "oid" in content:
@@ -264,15 +262,14 @@ def setAnswer(filename):
     else:
         answer = {"authorId": userId, "text": content["text"], "comments": [], "upvotes": [], "time": datetime.utcnow(),
                   "oid": ObjectId()}
-        answersections.update_one({"pageNum":pageNum,"relHeight":relHeight,"filename":filename},{'$push':{"answersection.answers":answer}})
-    return json.dumps(answersections.find({"pageNum":pageNum,"relHeight":relHeight,"filename":filename}).limit(1)[0]["answersection"],default=date_handler)
+        answersections.update_one({"oid":answersectionOid},{'$push':{"answersection.answers":answer}})
+    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
 
 
 @app.route("/api/<filename>/addcomment",methods=["POST"])
 @auth.login_required
 def addComment(filename):
-    pageNum = request.args.get("pageNum", "")
-    relHeight = request.args.get("relHeight", "")
+    answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
     answerOid = ObjectId(request.args.get("answerOid", ""))
     userId = auth.username()
     content = request.get_json()
@@ -286,11 +283,12 @@ def addComment(filename):
         {'answersection.answers.oid': answerOid},
         {"$set": {'answersection.answers.$': answer}}
     )
-    return json.dumps(answersections.find({"pageNum":pageNum,"relHeight":relHeight,"filename":filename}).limit(1)[0]["answersection"],default=date_handler)
+    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
 
 @app.route("/api/<filename>/removecomment")
 @auth.login_required
 def removeComment(filename):
+    answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
     commentOid = ObjectId(request.args.get("oid", ""))
     pageNum = request.args.get("pageNum", "")
     relHeight = request.args.get("relHeight", "")
@@ -308,14 +306,13 @@ def removeComment(filename):
             {'answersection.answers.comments.oid': ObjectId(commentOid)},
             {"$pull": {'answersection.answers.$.comments': {'oid': ObjectId(commentOid)}}}
         )
-    return json.dumps(answersections.find({"pageNum":pageNum,"relHeight":relHeight,"filename":filename}).limit(1)[0]["answersection"],default=date_handler)
+    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
 
 
 @app.route("/api/<filename>/removeanswer")
 @auth.login_required
 def removeanswer(filename):
-    pageNum = request.args.get("pageNum", "")
-    relHeight = request.args.get("relHeight", "")
+    answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
     oid = request.args.get("oid","")
     userId = auth.username()
     if answersections.find({"answersection.answers.oid": ObjectId(oid)}, {"_id": 0, 'answersection.answers.$': 1}).limit(1)[0]["answersection"]["answers"][0]["authorId"] == userId:
@@ -323,7 +320,7 @@ def removeanswer(filename):
             {'answersection.answers.oid': ObjectId(oid)},
             {"$pull": {'answersection.answers': {'oid': ObjectId(oid)}}}
         )
-    return json.dumps(answersections.find({"pageNum":pageNum,"relHeight":relHeight,"filename":filename}).limit(1)[0]["answersection"],default=date_handler)
+    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
 
 
 @app.route("/pdf/<filename>")
