@@ -9,33 +9,7 @@
   MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']],displayMath: false
 }});
 </script>
-<script>
-  window.__pdfLink__ = '{{pdfLink}}';
-  window.__userId__ = "{{userId}}";
-  window.__userDisplayName__ = "{{userDisplayName}}";
-  window.__urlPrefix__ = "";
-  window.__templated__ = "{{templated}}";
-  if (window.__templated__.length!="True".length) {
-    console.log("HI");
-    window.__pdfLink__ = 'exam10.pdf';
-    window.__userId__ = "muelsamu";
-    window.__userDisplayName__ = "muelsamu";
-    window.__cuts__ = {1: [0.21298495645288995]};
-    window.__urlPrefix__ = "http://localhost:8080"
-  }else{
-    window.__cuts__ = {{cuts|tojson|safe}};
-  }
-</script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML"></script>
-<style>
-  #toplink {
-    position: fixed;
-    top: 0;
-    right: 0;
-    background-color: #DDD;
-    padding: 5px 10px 5px 10px;
-  }
-</style>
    <!--
       Notice the use of %PUBLIC_URL% in the tag above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -48,11 +22,11 @@
     <title>Prüfung</title>
   </head>
   <body>
-    <p id="toplink">Logged in as {{userDisplayName}}</p>
+    <div id="controlpanel"></div>
     <!--<div id="root"></div>-->
     <!--
       This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+      div you open it directly in the browser, you will see an empty page.
 
       You can add webfonts, meta tags, or analytics to this file.
       The build step will place the bundled scripts into the <body> tag.

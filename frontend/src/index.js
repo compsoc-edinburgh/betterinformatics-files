@@ -9,21 +9,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from "react-redux";
 import store from "./store.js";
+import Controlpanel from "./Controlpanel";
 // In production, the bundled pdf.js shall be used instead of RequireJS.
 var scale = 1.5;
 var pageheight = 0;
-const pdfLink = window.__pdfLink__;//"exam10.pdf"
-var cuts = _.mapValues(window.__cuts__, arr => 
-        (arr.map(tup => 
-                 [parseFloat(tup[0]),tup[1]])));
-console.log("PRint cuts:",cuts);
-var cutIds = _.mapValues(cuts,cutsOnPage => 
-        _.reduce(cutsOnPage, (dic,tup) => 
-            {var n = dic; n[tup[0]]=tup[1]; return n},{}));
-console.log(cutIds);
-var cuts = _.mapValues(cuts,cutsOnPage =>
-        cutsOnPage.map(tup => tup[0]));
-console.log(cuts);
 //exclusive cut itself
 function increaseAllAfter(pageNum,cut){
   var id = "canvas-"+pageNum+"-";
@@ -40,9 +29,18 @@ function increaseAllAfter(pageNum,cut){
   }
 }
 
-
-
-// create function, it expects 2 values.
+if (window.location.host == "localhost:3000"){
+    window.__urlPrefix__ = "localhost:8080";
+    window.__pdfLink__ = "/pdf/exam10.pdf";
+    window.__filename__ = "exam10.pdf";
+}else{
+    window.__filename__ = window.location.pathname.substring(1);
+    window.__urlPrefix__ = "";
+}
+const filename = window.__filename__;
+window.__pdfLink__ = "/pdf/"+filename;
+const pdfLink = window.__pdfLink__;
+    // create function, it expects 2 values.
 function insertAfter(newElement,targetElement) {
     // target is what you want it to go after. Look for this elements parent.
     var parent = targetElement.parentNode;
@@ -74,7 +72,7 @@ function copyCanvasToNewCanvasBelow(oldCanvas,start,end,newId,className){
 }
 
 
-function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew){
+function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew,cutIds){
   console.log("relHeight:",relHeight)
   var newSection = document.createElement('div');
 
@@ -90,12 +88,28 @@ function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew){
   $(newSection).addClass("answersectionheight");
 
 }
-
-//require(['pdfjs/display/api', 'pdfjs/display/global'], function (api, global) {
-  // In production, change this to point to the built `pdf.worker.js` file.
+ReactDOM.render((<Provider store={store}>
+    <Controlpanel />
+</Provider>),
+document.getElementById("controlpanel")
+);
+console.log(window.__urlPrefix__+"/api/"+filename+"/cuts");
+fetch(window.__urlPrefix__+"/api/"+filename+"/cuts", {credentials: "same-origin"})
+.then(response => response.json())
+.then(response => renderPage(response));
+function renderPage(cuts){
+    var cuts = _.mapValues(cuts, arr => 
+            (arr.map(tup => 
+                     [parseFloat(tup[0]),tup[1]])));
+    var cutIds = _.mapValues(cuts,cutsOnPage => 
+            _.reduce(cutsOnPage, (dic,tup) => 
+                {var n = dic; n[tup[0]]=tup[1]; return n},{}));
+    console.log(cutIds);
+    cuts = _.mapValues(cuts,cutsOnPage =>
+            cutsOnPage.map(tup => tup[0]));
   var searchingCutPoint = false;
   //global.PDFJS.workerSrc = '../../src/worker_loader.js';
-
+  console.log(pdfLink);
   // Fetch the PDF document from the URL using promises.
   PDFJS.getDocument(pdfLink).then(function (pdf) {
     // Fetch the page.
@@ -138,7 +152,7 @@ function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew){
           copyCanvasToNewCanvasBelow(oldCanvas,0,(y-oldY)*pageheight,oldId,"paper");
           oldCanvas.remove();
           console.log("Y1",y);
-          makeNewAnswerSectionAfter(document.getElementById(oldId),pageNum,y,true);
+          makeNewAnswerSectionAfter(document.getElementById(oldId),pageNum,y,true,cutIds);
           $("#"+nextId).addClass("paper");
 
         }else{
@@ -178,7 +192,7 @@ function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew){
           newContext.drawImage(oldCanvas,0,y*pageheight,oldCanvas.width,height, 0, 0,oldCanvas.width,height);
           insertAfter(newCanvas, document.getElementById("canvas-"+pageNum+"-1"));
           oldCanvas.remove();
-          makeNewAnswerSectionAfter(document.getElementById("canvas-"+pageNum+"-1"),pageNum,y,true);
+          makeNewAnswerSectionAfter(document.getElementById("canvas-"+pageNum+"-1"),pageNum,y,true,cutIds);
           $(newCanvas).addClass("paper");
           //document.body.appendChild(newCanvas);
         }else{
@@ -253,7 +267,7 @@ function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew){
             //set dimensions
             var height = (thisCut-prevCut)*pageheight;
             if (prevCanvas != null && prevCut != 1.){
-              makeNewAnswerSectionAfter(prevCanvas,pageNum,prevCut,false);
+              makeNewAnswerSectionAfter(prevCanvas,pageNum,prevCut,false,cutIds);
             }
             //apply the old canvas to the new one
             newContext.drawImage(oldCanvas,0,prevCut*pageheight,oldCanvas.width,height, 0, 0,oldCanvas.width,height);
@@ -349,5 +363,5 @@ function makeNewAnswerSectionAfter(element,pageNum,relHeight,makeNew){
   },function(error){
     console.log("ERROR:",error);
   });
-
+}
 //});

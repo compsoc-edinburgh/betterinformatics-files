@@ -1,15 +1,6 @@
 import $ from "jquery";
 import _ from "lodash";
 
-var urlPrefix = window.__urlPrefix__;
-
-if (urlPrefix != ""){
-  var filename = "exam10.pdf";
-}else{
-  var filename = window.location.pathname.substring(1);
-
-}
-
 function requestedAnswers(pageNum,relHeight){
   return{type:"REQUESTED_ANSWERS",pageNum,relHeight}
 }
@@ -20,7 +11,7 @@ function recievedAnswers(pageNum,relHeight,answers){
 export function fetchAnswers(pageNum,relHeight,oid){
   return (dispatch,getState) =>{
     dispatch(requestedAnswers(pageNum,relHeight));
-    fetch(urlPrefix+"/api/"+filename+"/answersection?oid="+oid, {credentials: "same-origin"})
+    fetch(window.__urlPrefix__+"/api/"+window.__filename__+"/answersection?oid="+oid, {credentials: "same-origin"})
     .then(response => response.json())
     .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)));
   }
@@ -35,7 +26,7 @@ export function fetchAnswers(pageNum,relHeight,oid){
 export function addAnswersection(pageNum,relHeight){ //Also has online part will at first give empty answer and then update with what is online
   return dispatch => {
     dispatch(requestedNewAnswersection(pageNum,relHeight))
-    fetch(urlPrefix+"/api/"+filename+"/newanswersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
+    fetch(window.__urlPrefix__+"/api/"+window.__filename__+"/newanswersection?pageNum="+pageNum+"&relHeight="+relHeight, {credentials: "same-origin"})
     .then(response => response.json())
     .then(json =>dispatch(recievedAnswers(pageNum,relHeight,json)))
   }
@@ -47,7 +38,7 @@ export function wantRemoveAnswersection(pageNum,relHeight){
   return (dispatch,getState) =>{
     var state = getState();
     var answerSectionId = state.answers[pageNum+""][relHeight+""]["oid"];
-    fetch(urlPrefix+"/api/"+filename+"/removeanswersection?oid="+answerSectionId, {credentials: "same-origin"})
+    fetch(window.__urlPrefix__+"/api/"+window.__filename__+"/removeanswersection?oid="+answerSectionId, {credentials: "same-origin"})
     .then(response => response.json())
     .then(response => response.status==="success"?dispatch(removeAnswersection(pageNum,relHeight)):undefined);
   }
@@ -63,7 +54,7 @@ export function wantDeleteComment(pageNum,relHeight,answerIndex,commentIndex){
     var comment = answer["comments"][commentIndex];
     if (_.has(comment,'oid')){
       console.log(comment.oid);
-      fetch(urlPrefix+"/api/"+filename+"/removecomment?answersectionoid="+answersectionId+"&oid="+comment.oid, {credentials: "same-origin"})
+      fetch(window.__urlPrefix__+"/api/"+window.__filename__+"/removecomment?answersectionoid="+answersectionId+"&oid="+comment.oid, {credentials: "same-origin"})
       .then(response => response.json())
       .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)))
     }else{
@@ -84,7 +75,7 @@ export function wantAddComment(pageNum,relHeight,answerIndex,text){
     var oid = answer["oid"];
     var content = {};
     content["text"] = text;
-    fetch(urlPrefix+"/api/"+filename+"/addcomment?answersectionoid="+answerSectionId+"&answerOid="+oid,
+    fetch(window.__urlPrefix__+"/api/"+window.__filename__+"/addcomment?answersectionoid="+answerSectionId+"&answerOid="+oid,
     {headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -104,7 +95,7 @@ export function wantToggleLike(pageNum,relHeight,answerIndex,userId){
     var answerSectionId = state.answers[pageNum+""][relHeight+""]["oid"];
     var likes = $.inArray(userId,state.answers[pageNum+""][relHeight+""].answers[answerIndex].upvotes)>-1
     if (_.has(answer,'oid')){
-      fetch(urlPrefix+"/api/"+filename+"/togglelike?answersectionoid="+answerSectionId+"&oid="+answer.oid, {credentials: "same-origin"})
+      fetch(window.__urlPrefix__+"/api/"+window.__filename__+"/togglelike?answersectionoid="+answerSectionId+"&oid="+answer.oid, {credentials: "same-origin"})
       .then(response => response.json())
       .then(json => dispatch(recievedAnswers(pageNum,relHeight,json)))
     }
@@ -122,7 +113,7 @@ export function wantToSetAnswer(pageNum,relHeight,answerIndex,text){
     var answer = state.answers[pageNum+""][relHeight+""]["answers"][answerIndex+""];
     var answerSectionId = state.answers[pageNum+""][relHeight+""]["oid"];
     answer["text"] = text;
-    fetch(urlPrefix+"/api/"+filename+"/setanswer?answersectionoid="+answerSectionId,
+    fetch(window.__urlPrefix__+"/api/"+window.__filename__+"/setanswer?answersectionoid="+answerSectionId,
     {headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

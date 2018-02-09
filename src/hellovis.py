@@ -107,26 +107,13 @@ def hasAdminrights(username):
 def test():
     return "Server is running"
 
+
 @app.route('/<filename>')
 @auth.login_required
 def index(filename):
     print("recieved")
     cursor = answersections.find({"filename":filename},{"oid":1,"relHeight":1,"pageNum":1})
-
-    cuts = {}
-    for cut in cursor:
-        print(cut, file=sys.stderr)
-        _id = cut["oid"] 
-        relHeight = (cut["relHeight"])
-        pageNum = (cut["pageNum"])
-        if pageNum in cuts:
-            cuts[pageNum].append([relHeight,str(_id)])
-            cuts[pageNum].sort(key=lambda x: float(x[0]))
-        else:
-            cuts[pageNum] = [(relHeight,str(_id))]
-    print("cuts computed")
-    return render_template('index.html',pdfLink="pdf/"+filename,userId=auth.username(),userDisplayName=auth.username(),
-                           cuts=cuts,templated="True")
+    return render_template('index.html')
 
 @app.route("/favicon.ico")
 def favicon():
@@ -172,6 +159,10 @@ def upload_pdf():
     else:
         return {"err":"no permission"}
 
+@app.route("/api/user")
+@auth.login_required
+def getUser():
+    return json.dumps({"username":auth.username(),"displayname":auth.username()})  
 
 @app.route("/api/<filename>/answersection")
 @auth.login_required
@@ -192,6 +183,25 @@ def getAnswersection(filename):
     #  "upvotes":["fo2r3b8g23g823g"],
     #  "time":1488893168}
     #],"asker":"fo2r3b8g23g823g"}"""
+
+
+@app.route("/api/<filename>/cuts")
+@auth.login_required
+def getCuts(filename):
+    cursor = answersections.find({"filename":filename},{"oid":1,"relHeight":1,"pageNum":1})
+
+    cuts = {}
+    for cut in cursor:
+        print(cut, file=sys.stderr)
+        _id = cut["oid"] 
+        relHeight = (cut["relHeight"])
+        pageNum = (cut["pageNum"])
+        if pageNum in cuts:
+            cuts[pageNum].append([relHeight,str(_id)])
+            cuts[pageNum].sort(key=lambda x: float(x[0]))
+        else:
+            cuts[pageNum] = [(relHeight,str(_id))]
+    return json.dumps(cuts,default=date_handler)
 
 @app.route("/api/<filename>/newanswersection")
 @auth.login_required
