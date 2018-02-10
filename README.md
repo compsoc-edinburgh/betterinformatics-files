@@ -14,3 +14,4 @@ Setup with visdev test:
 
 > open -a Google\ Chrome --args --disable-web-security --user-data-dir
 
+**When going into production move to real ser.vis and change from dummyVerfiy to verify_pw**

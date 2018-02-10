@@ -13,6 +13,7 @@ import Controlpanel from "./Controlpanel";
 // In production, the bundled pdf.js shall be used instead of RequireJS.
 var scale = 1.5;
 var pageheight = 0;
+var rawcuts = {};
 //exclusive cut itself
 function increaseAllAfter(pageNum,cut){
   var id = "canvas-"+pageNum+"-";
@@ -93,11 +94,15 @@ ReactDOM.render((<Provider store={store}>
 </Provider>),
 document.getElementById("controlpanel")
 );
+
+
+
 console.log(window.__urlPrefix__+"/api/"+filename+"/cuts");
 fetch(window.__urlPrefix__+"/api/"+filename+"/cuts", {credentials: "same-origin"})
 .then(response => response.json())
 .then(response => renderPage(response));
 function renderPage(cuts){
+    rawcuts = cuts;
     var cuts = _.mapValues(cuts, arr => 
             (arr.map(tup => 
                      [parseFloat(tup[0]),tup[1]])));
