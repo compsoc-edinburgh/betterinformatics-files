@@ -3,6 +3,7 @@
 Setup with visdev test:
 
 1. Create Bucket pdfs on Minio Browser.
+
 2. Start: Depends on what mode you want to run:
 
     a)  Database based: final version and good for backend updates run with: visdev test .  
