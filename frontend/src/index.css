@@ -28,13 +28,26 @@ textarea {
   resize: none; /* user can resize vertically, but width is fixed */
 }
 .answer{
-  margin-top: 10px;
+  margin-top: 20px;
   margin-bottom: 10px;
 }
-.answerauthor{
+.editbutton{
+    float: right;
+    display: block;
+}
+.deletebutton{
+    float: right;
+}
+.author{
+  background-color: #ffffe0;
   display: block;
   float: right;
   margin-right: 20px;
+  padding: 5px 10px 5px 10px;
+}
+.comment{
+    border-top: 1px solid grey;
+    padding-top: 20px;
 }
 .vote {
   display: block;
@@ -53,23 +66,6 @@ textarea {
 .voter.disabled{
   opacity: 0.5;
 }
-/*
-.voter {
-  width: 40px; /* Floated elements technically need a width specified. */
-  /*
-  height: 60px;
-  vertical-align: middle;
-  margin-left: -40px;
-  float: left;
-  background-color: green;
-
-}
-
-.answertext {
-  height: 40px;
-  background-color: blue;
-}
-*/
 .livepreview{
   border: 1px solid grey;
 }

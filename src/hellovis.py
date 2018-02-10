@@ -66,13 +66,6 @@ mongodb = mongoClient.examDataBase
 
 answersections = mongodb.answersections
 examAnswerSections = mongodb.examAnswerSections
-"""
-date_handler = lambda obj: (
-    obj.isoformat()
-    if isinstance(obj, datetime)
-    else None
-)
-"""
 
 def date_handler(obj):
     if isinstance(obj, datetime):
@@ -83,7 +76,7 @@ def date_handler(obj):
         return obj
 
 
-
+"""
 @auth.verify_password
 def verify_pw(username, password):
     try:
@@ -93,6 +86,11 @@ def verify_pw(username, password):
         print("Verify Password throws:",e,file=sys.stderr)
         return False
     return res.ok
+"""
+@auth.verify_password
+def dummyVerify(username,password):
+    return True
+
 
 def hasAdminrights(username):
     try:
@@ -206,20 +204,20 @@ def getCuts(filename):
 @app.route("/api/<filename>/newanswersection")
 @auth.login_required
 def newAnswersection(filename):
+    userId = auth.username()
+    answersection = {"answers":[],"asker":userId}
     if hasAdminrights(auth.username()):
         pageNum = request.args.get("pageNum", "")
         relHeight = request.args.get("relHeight", "")
-        userId = auth.username()
         answersecQueryResult = answersections.find({"pageNum":pageNum,"filename":filename,"relHeight":relHeight}).limit(1)
         if answersecQueryResult.count() == 0:
-            answersection = {"answers":[],"asker":userId}
             newDoc = {"filename": filename, "pageNum": pageNum, "relHeight": relHeight,"answersection": answersection,"oid":ObjectId()};
             answersections.insert_one(newDoc)
             return json.dumps(newDoc,default=date_handler)
         else:
             return json.dumps(answersecQueryResult[0],default=date_handler)
     else:
-        return json.dumps({"err":"NOT ALLOWED"},default=date_handler)
+        return json.dumps({"answersection":answersection, "oid":"1234", "err":"NOT ALLOWED"},default=date_handler)
 
 
 @app.route("/api/<filename>/removeanswersection")

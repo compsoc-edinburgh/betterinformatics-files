@@ -30,7 +30,7 @@ function increaseAllAfter(pageNum,cut){
 }
 
 if (window.location.host == "localhost:3000"){
-    window.__urlPrefix__ = "localhost:8080";
+    window.__urlPrefix__ = "http://localhost:8080";
     window.__pdfLink__ = "/pdf/exam10.pdf";
     window.__filename__ = "exam10.pdf";
 }else{
@@ -39,7 +39,7 @@ if (window.location.host == "localhost:3000"){
 }
 const filename = window.__filename__;
 window.__pdfLink__ = "/pdf/"+filename;
-const pdfLink = window.__pdfLink__;
+const pdfLink = window.__urlPrefix__ + window.__pdfLink__;
     // create function, it expects 2 values.
 function insertAfter(newElement,targetElement) {
     // target is what you want it to go after. Look for this elements parent.

@@ -6,13 +6,13 @@ import EditComment from './EditComment.js';
 class Comment extends Component {
   render(){
       return(
-        <div className="container-fluid">
+        <div className="comment container-fluid">
           <div className="row">
             <Latex source={this.props.text}/>
           </div>
           <div className="row">
-            {(this.props.deletable)?(<button onClick={this.props.deleteComment} className="col-xs-1 col-xs-offset-7">delete</button>):("")}
-            <p className="answerauthor col-xs-3">by {this.props.authorId}</p>
+            <p className="author">by {this.props.authorId}</p>
+            {(this.props.deletable)?(<button onClick={this.props.deleteComment} className="col-xs-2 deletebutton">delete</button>):("")}
           </div>
 
         </div>);

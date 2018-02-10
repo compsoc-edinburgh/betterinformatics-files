@@ -59,7 +59,7 @@ class Answersection extends Component {
           <div className="answerlist container-fluid">
             <div className="row">
               {(userId==cutdata.asker || "me"==cutdata.asker)?<button className="col-xs-2 col-xs-offset-7" onClick={this.removeThis.bind(this)}>Remove</button>:""}
-              <p className="col-xs-3">Marked by {cutdata["asker"]}</p>
+              <p className="author">Marked by {cutdata["asker"]}</p>
             </div>
             {answerElements}
             <div className="row"><button onClick={()=>this.props.dispatch(newAnswer(this.props.pageNum,this.props.relHeight))} className="col-xs-12 addanswer">Add Answer</button></div>

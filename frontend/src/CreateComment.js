@@ -38,9 +38,9 @@ class EditComment extends Component {
                   <Textarea type="text" className="answertext col-xs-12" value={this.state.text} onChange={this.handleChange.bind(this)} />
                 </div>
                 <div className="row">
-                  <p className="col-xs-7 col-xs-offset-2">Use $\$$..$\$$ for inline TeX math</p>
-                  <button type="button" onClick={this.toggleLivePreview.bind(this)} className="col-xs-2">{this.state.livepreview?"Stop Live Preview":"Live Preview"}</button>
-                  <input type="submit" className="col-xs-1" value="Fertig"/>
+                  <p className="col-xs-6">Use $\$$..$\$$ for inline TeX math</p>
+                  <button type="button" onClick={this.toggleLivePreview.bind(this)} className="col-xs-3 col-xs-offset-1">{this.state.livepreview?"Stop Live Preview":"Live Preview"}</button>
+                  <input type="submit" className="col-xs-2" value="Fertig"/>
 
                 </div>
                 {livepreview}
