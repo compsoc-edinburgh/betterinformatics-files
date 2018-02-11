@@ -86,12 +86,6 @@ def verify_pw(username, password):
         print("Verify Password throws:",e,file=sys.stderr)
         return False
     return res.ok
-"""
-@auth.verify_password
-def dummyVerify(username,password):
-    return True
-"""
-
 
 def hasAdminrights(username):
     try:
@@ -100,6 +94,13 @@ def hasAdminrights(username):
     except grpc.RpcError as e:
         return False
     return max(("vorstand" == group or "cit" == group or "cat" == group) for group in res.vis_groups)
+"""
+@auth.verify_password
+def dummyVerify(username,password):
+    return True
+def hasAdminrights(username):
+    return True
+"""
 
 @app.route("/health")
 def test():
@@ -119,8 +120,7 @@ def overview():
 @auth.login_required
 def index(filename):
     print("recieved")
-    cursor = answersections.find({"filename":filename},{"oid":1,"relHeight":1,"pageNum":1})
-    if len(list(cursor))>0:
+    if list(minioClient.list_objects("pdfs", prefix=filename)) != []:
         return render_template('index.html')
     else:
         return "There is no file "+filename
@@ -367,7 +367,7 @@ def pdf(filename):
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
-    print('Unhandled Exception: %s', (e))
+    print('Unhandled Exception: %s', (e), file=sys.stderr)
     return "Sadly, we experienced an internal Error!", 500
 
 if __name__ == '__main__':
