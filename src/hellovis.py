@@ -163,8 +163,11 @@ def upload_pdf():
                     print("j", file=sys.stderr)
                     try:
                         print("k", file=sys.stderr)
+                        size = file.stream.seek(0, 2)
+                        file.stream.seek(0, 0)
+                        print("using size", size)
                         print("using filename", filename, file=sys.stderr)
-                        minioClient.put_object('pdfs', filename, file.stream, -1)
+                        minioClient.put_object('pdfs', filename, file.stream, size)
                         print("l", file=sys.stderr)
                     except ResponseError as err:
                         print(err)
