@@ -163,8 +163,11 @@ def upload_pdf():
                     print("j", file=sys.stderr)
                     try:
                         print("k", file=sys.stderr)
-                        minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+                        print("using filename", filename, file=sys.stderr)
+                        minioClient.put_object('pdfs', filename, file, 0)
                         print("l", file=sys.stderr)
+                        minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+                        print("m", file=sys.stderr)
                     except ResponseError as err:
                         print(err)
                     return redirect(url_for('index',
