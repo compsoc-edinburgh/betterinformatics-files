@@ -19,9 +19,9 @@ import grpc
 import people_pb2
 import people_pb2_grpc
 
-peopleChannel = grpc.insecure_channel(os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"]+":"+os.environ["RUNTIME_SERVIS_PEOPLE_API_PORT"])
+peopleChannel = grpc.insecure_channel(os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_SERVER"]+":"+os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_PORT"])
 peopleClient = people_pb2_grpc.PeopleStub(peopleChannel)
-peopleMetadata = [("authorization",os.environ["RUNTIME_SERVIS_PEOPLE_API_KEY"])]
+peopleMetadata = [("authorization",os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_KEY"])]
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
