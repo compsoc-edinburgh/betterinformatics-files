@@ -76,7 +76,7 @@ def date_handler(obj):
     else:
         return obj
 
-"""
+
 @auth.verify_password
 def verify_pw(username, password):
     try:
@@ -100,7 +100,7 @@ def dummyVerify(username,password):
     return True
 def hasAdminrights(username):
     return True
-
+"""
 
 @app.route("/health")
 def test():
