@@ -156,11 +156,15 @@ def upload_pdf():
             if file and allowed_file(file.filename):
                 print("g", file=sys.stderr)
                 filename = secure_filename(file.filename)
+                print("h", file=sys.stderr)
                 if list(minioClient.list_objects("pdfs", prefix=filename)) == []:
+                    print("i", file=sys.stderr)
                     file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+                    print("j", file=sys.stderr)
                     try:
+                        print("k", file=sys.stderr)
                         minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
-
+                        print("l", file=sys.stderr)
                     except ResponseError as err:
                         print(err)
                     return redirect(url_for('index',
