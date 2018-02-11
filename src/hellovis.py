@@ -76,7 +76,6 @@ def date_handler(obj):
         return obj
 
 
-"""
 @auth.verify_password
 def verify_pw(username, password):
     try:
@@ -86,10 +85,6 @@ def verify_pw(username, password):
         print("Verify Password throws:",e,file=sys.stderr)
         return False
     return res.ok
-"""
-@auth.verify_password
-def dummyVerify(username,password):
-    return True
 
 
 def hasAdminrights(username):
