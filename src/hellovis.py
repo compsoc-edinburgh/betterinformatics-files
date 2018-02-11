@@ -173,7 +173,7 @@ def upload_pdf():
                         file.stream.seek(0, 0)
                         print("using filename", filename)
                         tracer = trace.Trace(count=False, trace=True)
-                        tracer.Run('minioClient.put_object("pdfs", filename, file.stream, size)')
+                        tracer.run('minioClient.put_object("pdfs", filename, file.stream, size)')
                         print("l", file=sys.stderr)
                     except ResponseError as err:
                         print("took exception branch")
