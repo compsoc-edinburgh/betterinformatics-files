@@ -119,8 +119,7 @@ def overview():
 @auth.login_required
 def index(filename):
     print("recieved")
-    cursor = answersections.find({"filename":filename},{"oid":1,"relHeight":1,"pageNum":1})
-    if len(list(cursor))>0:
+    if list(minioClient.list_objects("pdfs", prefix=filename)) == []:
         return render_template('index.html')
     else:
         return "There is no file "+filename
