@@ -13,7 +13,7 @@ from bson.objectid import ObjectId
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
-import random
+import trace
 
 from os import listdir
 import grpc
@@ -172,10 +172,13 @@ def upload_pdf():
                         print("finshed reading, length:", len(data))
                         file.stream.seek(0, 0)
                         print("using filename", filename)
-                        minioClient.put_object('pdfs', filename, file.stream, size)
+                        tracer = trace.Trace(count=False, trace=True)
+                        tracer.Run('minioClient.put_object("pdfs", filename, file.stream, size)')
                         print("l", file=sys.stderr)
                     except ResponseError as err:
+                        print("took exception branch")
                         print(err)
+                    print("pre-redirect")
                     return redirect(url_for('index',
                                             filename=filename))
                 else:
