@@ -365,7 +365,8 @@ def pdf(filename):
         print(minioClient.fget_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)))
     except NoSuchKey as n:
         return "There is no such PDF saved here :("
-    except:
+    except Exception as e:
+        print("unexpected error from minio", e)
         return "ERROR"
     return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
 
