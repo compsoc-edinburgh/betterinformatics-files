@@ -9,7 +9,7 @@ minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER'],
                     secure=False)
 
 print("listing files")
-files = list(minioClient.list_objects("pdfs", prefix=filename))
+files = list(minioClient.list_objects("pdfs"))
 print(files)
 
 print("making data")
