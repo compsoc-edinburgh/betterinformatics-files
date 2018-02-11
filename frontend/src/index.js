@@ -14,6 +14,7 @@ import Controlpanel from "./Controlpanel";
 var scale = 1.5;
 var pageheight = 0;
 var rawcuts = {};
+var addButtonRequested = false;
 //exclusive cut itself
 function increaseAllAfter(pageNum,cut){
   var id = "canvas-"+pageNum+"-";
@@ -35,7 +36,8 @@ if (window.location.host == "localhost:3000"){
     window.__pdfLink__ = "/pdf/exam10.pdf";
     window.__filename__ = "exam10.pdf";
 }else{
-    window.__filename__ = window.location.pathname.substring(1);
+    var pathArray = window.location.pathname.split("/");
+    window.__filename__ = pathArray[pathArray.length-1];
     window.__urlPrefix__ = "";
 }
 const filename = window.__filename__;
@@ -307,9 +309,15 @@ function renderPage(cuts){
           pdf.getPage(currPage).then( handlePages );
       }else{
         currPage = 1;
-        if(!$("#add").length){
-          $("body").append("<div id='add'>+</div>");
-          $("#add").click(function (){
+        if(!addButtonRequested){
+          addButtonRequested = true;  
+          fetch(window.__urlPrefix__+"/api/user", {credentials: "same-origin"})
+          .then(response => response.json())
+          .then(response =>{ 
+            console.log(response);
+            if (response.adminrights) {
+            $("body").append("<div id='add'>+</div>");
+            $("#add").click(function (){
             if(!searchingCutPoint){
               $(".paper").css("cursor","crosshair");
               $(".paper").click(function(e){
@@ -359,6 +367,7 @@ function renderPage(cuts){
               searchingCutPoint = !searchingCutPoint;
             }
           });
+          }});
         }
 
       }

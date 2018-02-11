@@ -12,6 +12,7 @@
     cursor: pointer;
     text-align: center;
     user-select: none;
+    background-color: green;
     -moz-user-select: none;
     -khtml-user-select: none;
     -webkit-user-select: none;

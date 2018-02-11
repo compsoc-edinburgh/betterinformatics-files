@@ -1,5 +1,5 @@
 import sys
-from flask import Flask, g, request, redirect, url_for, send_from_directory
+from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.utils import secure_filename
 import json, re
@@ -8,7 +8,7 @@ from datetime import datetime
 import os
 from flask import send_from_directory, render_template
 from minio import Minio
-from minio.error import ResponseError,BucketAlreadyExists,BucketAlreadyOwnedByYou
+from minio.error import ResponseError,BucketAlreadyExists,BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
@@ -76,7 +76,6 @@ def date_handler(obj):
         return obj
 
 
-"""
 @auth.verify_password
 def verify_pw(username, password):
     try:
@@ -90,7 +89,7 @@ def verify_pw(username, password):
 @auth.verify_password
 def dummyVerify(username,password):
     return True
-
+"""
 
 def hasAdminrights(username):
     try:
@@ -99,19 +98,31 @@ def hasAdminrights(username):
     except grpc.RpcError as e:
         print("failed getting user groups with:",e,file=sys.stderr)
         return False
-    return max("vorstand" == group for group in res.vis_groups)
+    return max(("vorstand" == group or "cit" == group or "cat" == group) for group in res.vis_groups)
 
 @app.route("/health")
 def test():
     return "Server is running"
 
+@app.route("/")
+def overview():
+    return """
+    Hey,
 
-@app.route('/<filename>')
+    This is a page which is not used! You can check out an exam solution under: /sol/&lt;exam-name&gt;
+    Or you can upload one, if you have the permissions (are a member of cit, cat oder vorstand), under: /uploadpdf
+    """
+    
+
+@app.route('/sol/<filename>')
 @auth.login_required
 def index(filename):
     print("recieved")
     cursor = answersections.find({"filename":filename},{"oid":1,"relHeight":1,"pageNum":1})
-    return render_template('index.html')
+    if len(list(cursor))>0:
+        return render_template('index.html')
+    else:
+        return "There is no file "+filename
 
 @app.route("/favicon.ico")
 def favicon():
@@ -125,7 +136,7 @@ def allowed_file(filename):
 @app.route("/uploadpdf",methods=['POST','GET'])
 @auth.login_required
 def upload_pdf():
-    if hasAdminrights(auth.username):
+    if hasAdminrights(auth.username()):
         if request.method == 'POST':
             # check if the post request has the file part
             if 'file' not in request.files:
@@ -137,14 +148,17 @@ def upload_pdf():
                 return redirect(request.url)
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
-                try:
-                    minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+                if list(minioClient.list_objects("pdfs", prefix=filename)) == []:
+                    file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+                    try:
+                        minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
 
-                except ResponseError as err:
-                    print(err)
-                return redirect(url_for('',
-                                        filename=filename))
+                    except ResponseError as err:
+                        print(err)
+                    return redirect(url_for('index',
+                                            filename=filename))
+                else:
+                    return "There is a file with this name already!"
         return '''
         <!doctype html>
         <title>Upload new File</title>
@@ -155,12 +169,12 @@ def upload_pdf():
         </form>
         '''
     else:
-        return {"err":"no permission"}
+        return jsonify({"err":"no permission"}), 403
 
 @app.route("/api/user")
 @auth.login_required
 def getUser():
-    return json.dumps({"username":auth.username(),"displayname":auth.username()})  
+    return json.dumps({"adminrights": hasAdminrights(auth.username()), "username":auth.username(),"displayname":auth.username()})  
 
 @app.route("/api/<filename>/answersection")
 @auth.login_required
@@ -337,8 +351,9 @@ def pdf(filename):
 
     try:
         print(minioClient.fget_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)))
-    except ResponseError as err:
-        print(err)
+    except NoSuchKey as n:
+        return "There is no such PDF saved here :("
+    except:
         return "ERROR"
     return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
 
