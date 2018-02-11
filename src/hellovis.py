@@ -367,8 +367,8 @@ def pdf(filename):
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
-    app.logger.error('Unhandled Exception: %s', (e))
-        return "Unhandled Exception {}".format(e), 500
+    print('Unhandled Exception: %s', (e))
+    return "Sadly, we experienced an internal Error!", 500
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80)
