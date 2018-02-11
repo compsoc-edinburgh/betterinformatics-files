@@ -23,9 +23,11 @@ RUN pip3 install -r requirements.txt
 COPY --from=0 /usr/src/app/build/index.html ./templates/index.html
 COPY --from=0 /usr/src/app/build/static ./static
 COPY ./src/hellovis.py .
+COPY ./src/test.py .
 COPY ./src/people_pb2.py .
 COPY ./src/people_pb2_grpc.py .
 
 ADD https://people.api.svis.ethz.ch/people-fake-linux-amd64 people-fake-server
 
-CMD ["/usr/local/bin/gunicorn", "hellovis:app", "-b", "0.0.0.0:80", "-w", "4", "--log-level", "debug"]
+# CMD ["/usr/local/bin/gunicorn", "hellovis:app", "-b", "0.0.0.0:80", "-w", "4", "--log-level", "debug"]
+CMD ["/usr/bin/python3", "test.py"]
