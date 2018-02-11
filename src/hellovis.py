@@ -163,7 +163,8 @@ def upload_pdf():
                     print("j", file=sys.stderr)
                     try:
                         print("k", file=sys.stderr)
-                        size = file.stream.seek(0, 2)
+                        file.stream.seek(0, 2)
+                        size = file.stream.tell()
                         file.stream.seek(0, 0)
                         print("using size", size)
                         print("using filename", filename, file=sys.stderr)
