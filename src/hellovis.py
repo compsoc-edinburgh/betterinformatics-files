@@ -99,9 +99,6 @@ def hasAdminrights(username):
     except grpc.RpcError as e:
         print("failed getting user groups with:",e,file=sys.stderr)
         return False
-    if bool(random.getrandbits(1)):
-        print("randomly making {} an admin".format(username))
-        return True
     return max("vorstand" == group for group in res.vis_groups)
 
 @app.route("/health")
