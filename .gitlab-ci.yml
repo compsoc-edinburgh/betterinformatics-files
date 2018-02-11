@@ -1,7 +1,6 @@
 variables:
   VIS_CI_IMAGE_NAME: "cit/vis-examsolutionexchange"
   VIS_CI_APP_NAME: "vis-exam-solution-exchange"
-  VIS_APP_NAME: "vis-exam-solution-exchange"
   VIS_CI_DEPLOYMENT_SUBDOMAIN: "sol"
   VIS_CI_ENABLE_MONGODB: "true"
   VIS_CI_ENABLE_MINIO: "true"
