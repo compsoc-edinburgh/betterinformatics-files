@@ -81,9 +81,7 @@ def date_handler(obj):
 def verify_pw(username, password):
     try:
         req = people_pb2.AuthPersonRequest(password=password,username=username)
-        print("DEBUG: verify_pw, before rpc", file=sys.stderr)
         res = peopleClient.AuthEthPerson(req,metadata=peopleMetadata)
-        print("DEBUG: verify_pw, after rpc", file=sys.stderr)
     except grpc.RpcError as e:
         print("Verify Password throws:",e,file=sys.stderr)
         return False
@@ -93,11 +91,8 @@ def verify_pw(username, password):
 def hasAdminrights(username):
     try:
         req = people_pb2.GetPersonRequest(username=username)
-        print("DEBUG: hasAdminrights, before rpc", file=sys.stderr)
         res = peopleClient.GetVisLegacyPerson(req,metadata=peopleMetadata)
-        print("DEBUG: hasAdminrights, after rpc", file=sys.stderr)
     except grpc.RpcError as e:
-        print("failed getting user groups with:",e,file=sys.stderr)
         return False
     return max("vorstand" == group for group in res.vis_groups)
 
