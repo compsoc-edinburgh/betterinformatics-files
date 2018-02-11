@@ -165,9 +165,13 @@ def upload_pdf():
                         print("k", file=sys.stderr)
                         file.stream.seek(0, 2)
                         size = file.stream.tell()
-                        file.stream.seek(0, 0)
                         print("using size", size)
-                        print("using filename", filename, file=sys.stderr)
+                        file.stream.seek(0, 0)
+                        print("attempting to read file")
+                        data = file.stream.read(size) # for testing
+                        print("finshed reading, length:", len(data))
+                        file.stream.seek(0, 0)
+                        print("using filename", filename)
                         minioClient.put_object('pdfs', filename, file.stream, size)
                         print("l", file=sys.stderr)
                     except ResponseError as err:
