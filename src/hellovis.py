@@ -367,7 +367,7 @@ def pdf(filename):
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
-    print('Unhandled Exception: %s', (e))
+    print('Unhandled Exception: %s', (e), file=sys.stderr)
     return "Sadly, we experienced an internal Error!", 500
 
 if __name__ == '__main__':
