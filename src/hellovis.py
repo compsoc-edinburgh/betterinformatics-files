@@ -120,26 +120,36 @@ def allowed_file(filename):
 @app.route("/uploadpdf",methods=['POST','GET'])
 @auth.login_required
 def upload_pdf():
+    print("a", file=sys.stderr)
     if hasAdminrights(auth.username()):
+        print("b", file=sys.stderr)
         if request.method == 'POST':
+            print("c", file=sys.stderr)
             # check if the post request has the file part
             if 'file' not in request.files:
+                print("d", file=sys.stderr)
                 return redirect(request.url)
             file = request.files['file']
+            print("e", file=sys.stderr)
             # if user does not select file, browser also
             # submit a empty part without filename
             if file.filename == '':
+                print("f", file=sys.stderr)
                 return redirect(request.url)
             if file and allowed_file(file.filename):
+                print("g", file=sys.stderr)
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+                print("h", file=sys.stderr)
                 try:
                     minioClient.fput_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
 
                 except ResponseError as err:
+                    print("i", file=sys.stderr)
                     print(err)
                 return redirect(url_for('',
                                         filename=filename))
+        print("j", file=sys.stderr)
         return '''
         <!doctype html>
         <title>Upload new File</title>
@@ -150,6 +160,7 @@ def upload_pdf():
         </form>
         '''
     else:
+        print("k", file=sys.stderr)
         return jsonify({"err":"forbidden"}), 403
 
 @app.route("/api/user")
