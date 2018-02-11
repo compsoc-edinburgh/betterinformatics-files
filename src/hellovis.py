@@ -1,5 +1,5 @@
 import sys
-from flask import Flask, g, request, redirect, url_for, send_from_directory
+from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.utils import secure_filename
 import json, re
