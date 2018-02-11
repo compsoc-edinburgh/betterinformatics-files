@@ -13,15 +13,16 @@ from bson.objectid import ObjectId
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
+import random
 
 from os import listdir
 import grpc
 import people_pb2
 import people_pb2_grpc
 
-peopleChannel = grpc.insecure_channel(os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"]+":"+os.environ["RUNTIME_SERVIS_PEOPLE_API_PORT"])
+peopleChannel = grpc.insecure_channel(os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_SERVER"]+":"+os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_PORT"])
 peopleClient = people_pb2_grpc.PeopleStub(peopleChannel)
-peopleMetadata = [("authorization",os.environ["RUNTIME_SERVIS_PEOPLE_API_KEY"])]
+peopleMetadata = [("authorization",os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_KEY"])]
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
@@ -91,12 +92,12 @@ def dummyVerify(username,password):
     return True
 """
 
+
 def hasAdminrights(username):
     try:
         req = people_pb2.GetPersonRequest(username=username)
         res = peopleClient.GetVisLegacyPerson(req,metadata=peopleMetadata)
     except grpc.RpcError as e:
-        print("failed getting user groups with:",e,file=sys.stderr)
         return False
     return max(("vorstand" == group or "cit" == group or "cat" == group) for group in res.vis_groups)
 
@@ -136,17 +137,24 @@ def allowed_file(filename):
 @app.route("/uploadpdf",methods=['POST','GET'])
 @auth.login_required
 def upload_pdf():
+    print("a", file=sys.stderr)
     if hasAdminrights(auth.username()):
+        print("b", file=sys.stderr)
         if request.method == 'POST':
+            print("c", file=sys.stderr)
             # check if the post request has the file part
             if 'file' not in request.files:
+                print("d", file=sys.stderr)
                 return redirect(request.url)
             file = request.files['file']
+            print("e", file=sys.stderr)
             # if user does not select file, browser also
             # submit a empty part without filename
             if file.filename == '':
+                print("f", file=sys.stderr)
                 return redirect(request.url)
             if file and allowed_file(file.filename):
+                print("g", file=sys.stderr)
                 filename = secure_filename(file.filename)
                 if list(minioClient.list_objects("pdfs", prefix=filename)) == []:
                     file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
@@ -169,7 +177,7 @@ def upload_pdf():
         </form>
         '''
     else:
-        return jsonify({"err":"no permission"}), 403
+        return jsonify({"err":"forbidden"}), 403
 
 @app.route("/api/user")
 @auth.login_required

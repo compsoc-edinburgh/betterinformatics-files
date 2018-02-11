@@ -7,7 +7,8 @@ variables:
   VIS_CI_ENABLE_MINIO: "true"
   VIS_CI_LIVENESS_PROBE_PATH: "/health"
   VIS_CI_READINESS_PROBE_PATH: "/health"
-  VIS_SERVIS_PYTHON_OUT: "./temp-gen"
+  VIS_CI_SERVIS_DEPENDENCIES: "vis-people-api"
+  VIS_CI_SERVIS_PYTHON_OUT: "./src"
 
 stages:
   - build
@@ -29,7 +30,7 @@ staging:
     - docker-runner
   stage: staging
   environment:
-    name: $VIS_APP_NAME-staging
+    name: $VIS_CI_APP_NAME-staging
     url: https://$VIS_CI_DEPLOYMENT_SUBDOMAIN.svis.ethz.ch
   script:
     - do_staging

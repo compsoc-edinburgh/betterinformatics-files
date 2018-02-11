@@ -23,15 +23,9 @@ RUN pip3 install -r requirements.txt
 COPY --from=0 /usr/src/app/build/index.html ./templates/index.html
 COPY --from=0 /usr/src/app/build/static ./static
 COPY ./src/hellovis.py .
-COPY ./start.sh .
-COPY ./temp-gen/people-api/people_pb2.py .
-COPY ./temp-gen/people-api/people_pb2_grpc.py ./
+COPY ./src/people_pb2.py .
+COPY ./src/people_pb2_grpc.py .
 
 ADD https://people.api.svis.ethz.ch/people-fake-linux-amd64 people-fake-server
 
-ENV RUNTIME_SERVIS_PEOPLE_API_SERVER localhost
-ENV RUNTIME_SERVIS_PEOPLE_API_PORT 6781
-ENV RUNTIME_SERVIS_PEOPLE_API_KEY xktstqash
-
-CMD ["/bin/sh","start.sh"]
-#CMD ["/usr/bin/python3", "hellovis.py"]
+CMD ["/usr/local/bin/gunicorn", "hellovis:app", "-b", "0.0.0.0:80", "-w", "4"]
