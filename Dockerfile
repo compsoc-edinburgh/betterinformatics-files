@@ -8,10 +8,11 @@ COPY ./frontend/src ./src
 COPY ./frontend/public ./public
 RUN npm run build
 
+
 FROM registry.vis.ethz.ch/cit/vis-base:bravo
 LABEL maintainer 'muelsamu@vis.ethz.ch'
 
-RUN mkdir intermediate_pdf_storage && chmod 777 intermediate_pdf_storage
+RUN mkdir intermediate_pdf_storage
 
 RUN apt-get update && apt-get install -y \
 	python3 python3-pip python3-dev 
@@ -27,4 +28,4 @@ COPY ./src/people_pb2_grpc.py .
 
 ADD https://people.api.svis.ethz.ch/people-fake-linux-amd64 people-fake-server
 
-CMD ["/usr/local/bin/gunicorn", "hellovis:app", "-b", "0.0.0.0:80", "-w", "4", "--chdir", "/app"]
+CMD ["/usr/local/bin/gunicorn", "hellovis:app", "-b", "0.0.0.0:80", "-w", "4", "--log-level", "debug"]
