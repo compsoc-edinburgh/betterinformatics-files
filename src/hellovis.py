@@ -120,7 +120,7 @@ def allowed_file(filename):
 @app.route("/uploadpdf",methods=['POST','GET'])
 @auth.login_required
 def upload_pdf():
-    if hasAdminrights(auth.username):
+    if hasAdminrights(auth.username()):
         if request.method == 'POST':
             # check if the post request has the file part
             if 'file' not in request.files:
@@ -150,7 +150,7 @@ def upload_pdf():
         </form>
         '''
     else:
-        return {"err":"no permission"}
+        return jsonify({"err":"forbidden"}), 403
 
 @app.route("/api/user")
 @auth.login_required
