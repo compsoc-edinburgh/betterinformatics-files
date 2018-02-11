@@ -365,6 +365,10 @@ def pdf(filename):
         return "ERROR"
     return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
 
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    app.logger.error('Unhandled Exception: %s', (e))
+        return "Unhandled Exception {}".format(e), 500
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80)
