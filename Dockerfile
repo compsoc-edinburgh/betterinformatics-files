@@ -28,4 +28,5 @@ COPY ./src/people_pb2_grpc.py .
 
 ADD https://people.api.svis.ethz.ch/people-fake-linux-amd64 people-fake-server
 
-CMD ["/usr/local/bin/gunicorn", "hellovis:app", "-b", "0.0.0.0:80", "-w", "4", "--log-level", "debug"]
+# CMD ["/usr/local/bin/gunicorn", "hellovis:app", "-b", "0.0.0.0:80", "-w", "4"]
+CMD ["/usr/bin/python3", "hellovis.py"]
