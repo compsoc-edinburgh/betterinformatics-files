@@ -36,9 +36,10 @@ minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER'],
                 access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
                 secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
                 secure=True)
+minioBucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 try:
-    minioClient.make_bucket("pdfs")
+    minioClient.make_bucket(minioBucket)
 except BucketAlreadyOwnedByYou as err:
     pass
 except BucketAlreadyExists as err:
@@ -111,7 +112,7 @@ def overview():
 @auth.login_required
 def index(filename):
     print("recieved")
-    if list(minioClient.list_objects("pdfs", prefix=filename)) != []:
+    if list(minioClient.list_objects(minioBucket, prefix=filename)) != []:
         return render_template('index.html')
     else:
         return "There is no file "+filename
@@ -128,47 +129,25 @@ def allowed_file(filename):
 @app.route("/uploadpdf",methods=['POST','GET'])
 @auth.login_required
 def upload_pdf():
-    print("a", file=sys.stderr)
     if hasAdminrights(auth.username()):
-        print("b", file=sys.stderr)
         if request.method == 'POST':
-            print("c", file=sys.stderr)
             # check if the post request has the file part
             if 'file' not in request.files:
-                print("d", file=sys.stderr)
                 return redirect(request.url)
             file = request.files['file']
-            print("e", file=sys.stderr)
             # if user does not select file, browser also
             # submit a empty part without filename
             if file.filename == '':
-                print("f", file=sys.stderr)
                 return redirect(request.url)
             if file and allowed_file(file.filename):
-                print("g", file=sys.stderr)
                 filename = secure_filename(file.filename)
-                print("h", file=sys.stderr)
-                if list(minioClient.list_objects("pdfs", prefix=filename)) == []:
-                    print("i", file=sys.stderr)
-                    file.save(os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
-                    print("j", file=sys.stderr)
+                if list(minioClient.list_objects(minioBucket, prefix=filename)) == []:
+                    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
+                    file.save(temp_file_path)
                     try:
-                        print("k", file=sys.stderr)
-                        file.stream.seek(0, 2)
-                        size = file.stream.tell()
-                        print("using size", size)
-                        file.stream.seek(0, 0)
-                        print("attempting to read file")
-                        data = file.stream.read(size) # for testing
-                        print("finshed reading, length:", len(data))
-                        file.stream.seek(0, 0)
-                        print("using filename", filename)
-                        minioClient.put_object("pdfs", filename, file.stream, size)
-                        print("l", file=sys.stderr)
+                        minioClient.fput_object(minioBucket, filename, temp_file_path)
                     except ResponseError as err:
-                        print("took exception branch")
                         print(err)
-                    print("pre-redirect")
                     return redirect(url_for('index',
                                             filename=filename))
                 else:
