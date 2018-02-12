@@ -41,16 +41,10 @@ ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
-if "RUNTIME_MINIO_SERVER" in os.environ:
-    minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER'],
-                    access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
-                    secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-                    secure=False)
-else:
-    minioClient = Minio(os.environ['RUNTIME_MINIO_URL'],
+minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER'],
                 access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
                 secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-                secure=False)
+                secure=True)
 
 try:
     minioClient.make_bucket("pdfs")
