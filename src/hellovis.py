@@ -13,6 +13,7 @@ from bson.objectid import ObjectId
 from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
+import traceback
 
 from os import listdir
 import grpc
@@ -376,7 +377,7 @@ def pdf(filename):
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
-    print('Unhandled Exception: %s', (e), file=sys.stderr)
+    print('Unhandled Exception', e, traceback.format_exc(), file=sys.stderr)
     return "Sadly, we experienced an internal Error!", 500
 
 if __name__ == '__main__':
