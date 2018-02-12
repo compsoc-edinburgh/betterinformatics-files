@@ -51,7 +51,8 @@ mongourl = "mongodb://{}:{}@{}:{}/".format(
     os.environ['RUNTIME_MONGO_DB_USER'],
     os.environ['RUNTIME_MONGO_DB_PW'],
     os.environ['RUNTIME_MONGO_DB_SERVER'],
-    os.environ['RUNTIME_MONGO_DB_PORT'])
+    os.environ['RUNTIME_MONGO_DB_PORT'],
+    os.environ['RUNTIME_MONGO_DB_NAME'])
 mongoClient = MongoClient(mongourl)
 mongodb = mongoClient[os.environ['RUNTIME_MONGO_DB_NAME']]
 
