@@ -343,7 +343,7 @@ def removeanswer(filename):
 def pdf(filename):
 
     try:
-        print(minioClient.fget_object('pdfs', filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)))
+        print(minioClient.fget_object(minioBucket, filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)))
     except NoSuchKey as n:
         return "There is no such PDF saved here :("
     except Exception as e:
