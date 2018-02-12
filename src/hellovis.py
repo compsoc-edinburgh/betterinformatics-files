@@ -27,13 +27,6 @@ peopleMetadata = [("authorization",os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_KEY
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
 
-mongourl = "mongodb://{}:{}@{}:{}/{}".format(
-    os.environ['RUNTIME_MONGO_DB_USER'],
-    os.environ['RUNTIME_MONGO_DB_PW'],
-    os.environ['RUNTIME_MONGO_DB_SERVER'],
-    os.environ['RUNTIME_MONGO_DB_PORT'],
-    os.environ['RUNTIME_MONGO_DB_NAME'])
-
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
@@ -53,7 +46,13 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-mongoClient = MongoClient(mongourl, os.environ['RUNTIME_MONGO_DB_PORT'])
+
+mongourl = "mongodb://{}:{}@{}:{}/".format(
+    os.environ['RUNTIME_MONGO_DB_USER'],
+    os.environ['RUNTIME_MONGO_DB_PW'],
+    os.environ['RUNTIME_MONGO_DB_SERVER'],
+    os.environ['RUNTIME_MONGO_DB_PORT'])
+mongoClient = MongoClient(mongourl)
 mongodb = mongoClient[os.environ['RUNTIME_MONGO_DB_NAME']]
 
 answersections = mongodb.answersections
