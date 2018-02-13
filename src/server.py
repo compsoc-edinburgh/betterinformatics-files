@@ -70,6 +70,14 @@ def date_handler(obj):
         return obj
 
 
+def make_json_response(obj):
+    return make_json_response(obj)
+
+
+def make_answer_section_response(oid):
+    return make_json_response(answer_sections.find({"oid": oid}).limit(1)[0])
+
+
 @auth.verify_password
 def verify_pw(username, password):
     try:
@@ -171,10 +179,13 @@ def upload_pdf():
 @app.route("/api/user")
 @auth.login_required
 def get_user():
-    return json.dumps({
-        "adminrights": has_admin_rights(auth.username()),
-        "username": auth.username(),
-        "displayname": auth.username()
+    return make_json_response({
+        "adminrights":
+        has_admin_rights(auth.username()),
+        "username":
+        auth.username(),
+        "displayname":
+        auth.username()
     })
 
 
@@ -189,8 +200,8 @@ def get_answer_section(filename):
         "answersection": 1
     }).limit(1)
     if results.count() == 0:
-        return json.dumps({"err": "Not found"}), 404
-    return json.dumps(results[0], default=date_handler)
+        return make_json_response({"err": "Not found"}), 404
+    return make_json_response(results[0])
 
 
 @app.route("/api/<filename>/cuts")
@@ -210,7 +221,7 @@ def get_cuts(filename):
         cuts[cut["pageNum"]] = group
     for group in cuts.values():
         group.sort(key=lambda x: float(x[0]))
-    return json.dumps(cuts, default=date_handler)
+    return make_json_response(cuts)
 
 
 @app.route("/api/<filename>/newanswersection")
@@ -219,7 +230,7 @@ def new_answer_section(filename):
     username = auth.username()
     answer_section = {"answers": [], "asker": username}
     if not has_admin_rights(auth.username()):
-        return json.dumps({"err": "Not allowed"}), 403
+        return make_json_response({"err": "Not allowed"}), 403
     page_num = request.args["pageNum"]
     rel_height = request.args["relHeight"]
     result = answer_sections.find({
@@ -228,7 +239,7 @@ def new_answer_section(filename):
         "relHeight": rel_height
     }).limit(1)
     if result.count() > 0:
-        return json.dumps(result[0], default=date_handler)
+        return make_json_response(result[0])
     new_doc = {
         "filename": filename,
         "pageNum": page_num,
@@ -237,7 +248,7 @@ def new_answer_section(filename):
         "oid": ObjectId()
     }
     answer_sections.insert_one(new_doc)
-    return json.dumps(new_doc, default=date_handler)
+    return make_json_response(new_doc)
 
 
 @app.route("/api/<filename>/removeanswersection")
@@ -247,9 +258,9 @@ def remove_answer_section(filename):
         oid = ObjectId(request.args.get("oid", ""))
         username = auth.username()
         if answer_sections.delete_one({"oid": oid}).deleted_count > 0:
-            return json.dumps({"status": "success"}, default=date_handler)
+            return make_json_response({"status": "success"})
         else:
-            return json.dumps({"status": "error"}, default=date_handler)
+            return make_json_response({"status": "error"})
     else:
         return {"err": "NOT ALLOWED"}
 
@@ -275,94 +286,88 @@ def toggle_like(filename):
     }, {"$set": {
         'answersection.answers.$': answer
     }})
-    return json.dumps(
-        answer_sections.find({
-            "oid": answer_section_oid
-        }).limit(1)[0],
-        default=date_handler)
+    return make_answer_section_response(answer_section_oid)
 
 
 @app.route("/api/<filename>/setanswer", methods=["POST"])
 @auth.login_required
 def set_answer(filename):
-    answer_section_oid = ObjectId(request.args.get("answersectionoid", ""))
+    answer_section_oid = ObjectId(request.args["answersectionoid"])
+    request = request.get_json()
+    answer_oid = ObjectId(request["oid"]) if "oid" in request else None
     username = auth.username()
-    content = request.get_json()
-    if "oid" in content:
-        content["oid"] = ObjectId(content["oid"])
-        answer = answer_sections.find(
-            {
-                "answersection.answers.oid": content["oid"]
-            }, {
-                "_id": 0,
-                'answersection.answers.$': 1
-            })[0]["answersection"]["answers"][0]
-        answer["text"] = content["text"]
-        if answer["authorId"] == username:
-            answer_sections.update_one(
-                {
-                    'answersection.answers.oid': content["oid"]
-                }, {"$set": {
-                    'answersection.answers.$': answer
-                }})
+    if answer_oid is None:
+        add_answer(answer_section_oid, username, request["text"])
     else:
-        answer = {
-            "authorId": username,
-            "text": content["text"],
-            "comments": [],
-            "upvotes": [],
-            "time": datetime.utcnow(),
-            "oid": ObjectId()
-        }
-        answer_sections.update_one({
-            "oid": answer_section_oid
-        }, {'$push': {
-            "answersection.answers": answer
-        }})
-    return json.dumps(
-        answer_sections.find({
-            "oid": answer_section_oid
-        }).limit(1)[0],
-        default=date_handler)
+        modify_answer(answer_oid, username, request["text"])
+    return make_answer_section_response(answer_section_oid)
+
+
+def modify_answer(answer_oid, username, text):
+    answer = answer_sections.find({
+        "answersection.answers.oid": answer_oid
+    }, {
+        "_id": 0,
+        'answersection.answers.$': 1
+    })[0]["answersection"]["answers"][0]
+    answer["text"] = text
+    if answer["authorId"] == username:
+        raise RuntimeError("Cant modify other users answer")
+    answer_sections.update_one({
+        'answersection.answers.oid': answer_oid
+    }, {"$set": {
+        'answersection.answers.$': answer
+    }})
+
+
+def add_answer(answer_section_oid, username, text):
+    answer = {
+        "authorId": username,
+        "text": text,
+        "comments": [],
+        "upvotes": [],
+        "time": datetime.utcnow(),
+        "oid": ObjectId()
+    }
+    answer_sections.update_one({
+        "oid": answer_section_oid
+    }, {'$push': {
+        "answersection.answers": answer
+    }})
 
 
 @app.route("/api/<filename>/addcomment", methods=["POST"])
 @auth.login_required
 def add_comment(filename):
-    answer_section_oid = ObjectId(request.args.get("answersectionoid", ""))
-    answer_oid = ObjectId(request.args.get("answerOid", ""))
+    answer_section_oid = ObjectId(request.args["answersectionoid"])
+    answer_oid = ObjectId(request.args["answerOid"])
     username = auth.username()
     content = request.get_json()
     answer = \
         answer_sections\
         .find({"answersection.answers.oid": answer_oid}, {"_id": 0, 'answersection.answers.$': 1})\
         [0]['answersection']["answers"][0]
-    comment = {
+    answer["comments"].append({
         "text": content["text"],
         "authorId": username,
         "time": datetime.utcnow(),
         "oid": ObjectId()
-    }
-    answer["comments"].append(comment)
+    })
     answer_sections.update_one({
         'answersection.answers.oid': answer_oid
     }, {"$set": {
         'answersection.answers.$': answer
     }})
-    return json.dumps(
-        answer_sections.find({
-            "oid": answer_section_oid
-        }).limit(1)[0],
-        default=date_handler)
+    return make_answer_section_response(answer_section_oid)
 
 
 @app.route("/api/<filename>/removecomment")
 @auth.login_required
 def remove_comment(filename):
-    answer_section_oid = ObjectId(request.args.get("answersectionoid", ""))
-    comment_oid = ObjectId(request.args.get("oid", ""))
-    page_num = request.args.get("pageNum", "")
-    rel_height = request.args.get("relHeight", "")
+    answer_section_oid = ObjectId(request.args["answersectionoid"])
+    comment_oid = ObjectId(request.args["oid"])
+    page_num = request.args["pageNum"]
+    rel_height = request.args["relHeight"]
     comments = \
         answer_sections \
         .find_one({"answersection.answers": {"$elemMatch": {"comments.oid": ObjectId(comment_oid)}}}, \
@@ -383,11 +388,7 @@ def remove_comment(filename):
                     }
                 }
             })
-    return json.dumps(
-        answer_sections.find({
-            "oid": answer_section_oid
-        }).limit(1)[0],
-        default=date_handler)
+    return make_answer_section_response(answer_section_oid)
 
 
 @app.route("/api/<filename>/removeanswer")
@@ -409,28 +410,18 @@ def remove_answer(filename):
                 'oid': ObjectId(oid)
             }
         }})
-    return json.dumps(
-        answer_sections.find({
-            "oid": answer_section_oid
-        }).limit(1)[0],
-        default=date_handler)
+    return make_answer_section_response(answer_section_oid)
 
 
 @app.route("/pdf/<filename>")
 @auth.login_required
 def pdf(filename):
-
     try:
-        print(
-            minio_client.fget_object(
-                minio_bucket, filename,
-                os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'],
-                             filename)))
+        minio_client.fget_object(
+            minio_bucket, filename,
+            os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
     except NoSuchKey as n:
-        return "There is no such PDF saved here :("
-    except Exception as e:
-        print("unexpected error from minio", e)
-        return "ERROR"
+        return "There is no such PDF saved here :(", 404
     return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'],
                                filename)
 
