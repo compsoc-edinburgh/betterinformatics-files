@@ -1,7 +1,7 @@
 import sys
 from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.utils import make_secure_filename as make_make_secure_filename
+from werkzeug.utils import secure_filename as make_secure_filename
 import json, re
 from pymongo import MongoClient
 from datetime import datetime
@@ -257,7 +257,7 @@ def remove_answer_section(filename):
 @app.route("/api/<filename>/togglelike")
 @auth.login_required
 def toggle_like(filename):
-    answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
+    answer_section_oid = ObjectId(request.args.get("answersectionoid", ""))
     oid = ObjectId(request.args.get("oid", ""))
     username = auth.username()
     answer = answer_sections.find({
@@ -277,7 +277,7 @@ def toggle_like(filename):
     }})
     return json.dumps(
         answer_sections.find({
-            "oid": answersectionOid
+            "oid": answer_section_oid
         }).limit(1)[0],
         default=date_handler)
 
