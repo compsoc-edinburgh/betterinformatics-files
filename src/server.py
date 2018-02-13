@@ -8,10 +8,10 @@ from datetime import datetime
 import os
 from flask import send_from_directory, render_template
 from minio import Minio
-from minio.error import ResponseError,BucketAlreadyExists,BucketAlreadyOwnedByYou, NoSuchKey
+from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
-from itsdangerous import (TimedJSONWebSignatureSerializer
-                          as Serializer, BadSignature, SignatureExpired)
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
+                          BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 import traceback
 
@@ -20,9 +20,12 @@ import grpc
 import people_pb2
 import people_pb2_grpc
 
-peopleChannel = grpc.insecure_channel(os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_SERVER"]+":"+os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_PORT"])
+peopleChannel = grpc.insecure_channel(
+    os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_SERVER"] + ":" +
+    os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_PORT"])
 peopleClient = people_pb2_grpc.PeopleStub(peopleChannel)
-peopleMetadata = [("authorization",os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_KEY"])]
+peopleMetadata = [("authorization",
+                   os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_KEY"])]
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
@@ -30,12 +33,13 @@ auth = HTTPBasicAuth()
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024 #MAX FILE SIZE IS 32 MB
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
-minioClient = Minio(os.environ['RUNTIME_MINIO_SERVER'],
-                access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
-                secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-                secure=True)
+minioClient = Minio(
+    os.environ['RUNTIME_MINIO_SERVER'],
+    access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
+    secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
+    secure=True)
 minioBucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 try:
@@ -47,23 +51,20 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-
 mongourl = "mongodb://{}:{}@{}:{}/{}?auth_source={}".format(
-    os.environ['RUNTIME_MONGO_DB_USER'],
-    os.environ['RUNTIME_MONGO_DB_PW'],
-    os.environ['RUNTIME_MONGO_DB_SERVER'],
-    os.environ['RUNTIME_MONGO_DB_PORT'],
-    os.environ['RUNTIME_MONGO_DB_NAME'],
-    os.environ['RUNTIME_MONGO_DB_NAME'])
+    os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
+    os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
+    os.environ['RUNTIME_MONGO_DB_NAME'], os.environ['RUNTIME_MONGO_DB_NAME'])
 mongodb = MongoClient(mongourl).get_database()
 
 answersections = mongodb.answersections
 examAnswerSections = mongodb.examAnswerSections
 
+
 def date_handler(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
-    elif isinstance(obj,ObjectId):
+    elif isinstance(obj, ObjectId):
         return str(obj)
     else:
         return obj
@@ -72,20 +73,25 @@ def date_handler(obj):
 @auth.verify_password
 def verify_pw(username, password):
     try:
-        req = people_pb2.AuthPersonRequest(password=password,username=username)
-        res = peopleClient.AuthEthPerson(req,metadata=peopleMetadata)
+        req = people_pb2.AuthPersonRequest(
+            password=password, username=username)
+        res = peopleClient.AuthEthPerson(req, metadata=peopleMetadata)
     except grpc.RpcError as e:
-        print("Verify Password throws:",e,file=sys.stderr)
+        print("Verify Password throws:", e, file=sys.stderr)
         return False
     return res.ok
+
 
 def hasAdminrights(username):
     try:
         req = people_pb2.GetPersonRequest(username=username)
-        res = peopleClient.GetVisLegacyPerson(req,metadata=peopleMetadata)
+        res = peopleClient.GetVisLegacyPerson(req, metadata=peopleMetadata)
     except grpc.RpcError as e:
         return False
-    return max(("vorstand" == group or "cit" == group or "cat" == group) for group in res.vis_groups)
+    return max(("vorstand" == group or "cit" == group or "cat" == group)
+               for group in res.vis_groups)
+
+
 """
 @auth.verify_password
 def dummyVerify(username,password):
@@ -94,9 +100,11 @@ def hasAdminrights(username):
     return True
 """
 
+
 @app.route("/health")
 def test():
     return "Server is running"
+
 
 @app.route("/")
 def overview():
@@ -106,7 +114,7 @@ def overview():
     This is a page which is not used! You can check out an exam solution under: /sol/&lt;exam-name&gt;
     Or you can upload one, if you have the permissions (are a member of cit, cat oder vorstand), under: /uploadpdf
     """
-    
+
 
 @app.route('/sol/<filename>')
 @auth.login_required
@@ -115,18 +123,20 @@ def index(filename):
     if list(minioClient.list_objects(minioBucket, prefix=filename)) != []:
         return render_template('index.html')
     else:
-        return "There is no file "+filename
+        return "There is no file " + filename
+
 
 @app.route("/favicon.ico")
 def favicon():
-    return send_from_directory('favicon.ico',"")
+    return send_from_directory('favicon.ico', "")
 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route("/uploadpdf",methods=['POST','GET'])
+
+@app.route("/uploadpdf", methods=['POST', 'GET'])
 @auth.login_required
 def upload_pdf():
     if hasAdminrights(auth.username()):
@@ -141,15 +151,18 @@ def upload_pdf():
                 return redirect(request.url)
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                if list(minioClient.list_objects(minioBucket, prefix=filename)) == []:
-                    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
+                if list(
+                        minioClient.list_objects(minioBucket,
+                                                 prefix=filename)) == []:
+                    temp_file_path = os.path.join(
+                        app.config['INTERMEDIATE_PDF_STORAGE'], filename)
                     file.save(temp_file_path)
                     try:
-                        minioClient.fput_object(minioBucket, filename, temp_file_path)
+                        minioClient.fput_object(minioBucket, filename,
+                                                temp_file_path)
                     except ResponseError as err:
                         print(err)
-                    return redirect(url_for('index',
-                                            filename=filename))
+                    return redirect(url_for('index', filename=filename))
                 else:
                     return "There is a file with this name already!"
         return '''
@@ -162,23 +175,34 @@ def upload_pdf():
         </form>
         '''
     else:
-        return jsonify({"err":"forbidden"}), 403
+        return jsonify({"err": "forbidden"}), 403
+
 
 @app.route("/api/user")
 @auth.login_required
 def getUser():
-    return json.dumps({"adminrights": hasAdminrights(auth.username()), "username":auth.username(),"displayname":auth.username()})  
+    return json.dumps({
+        "adminrights": hasAdminrights(auth.username()),
+        "username": auth.username(),
+        "displayname": auth.username()
+    })
+
 
 @app.route("/api/<filename>/answersection")
 @auth.login_required
 def getAnswersection(filename):
-    _id = request.args.get("oid","")
-    answersecQueryResult = answersections.find({"oid":ObjectId(_id)}, {"oid":1,"answersection": 1}).limit(1)
+    _id = request.args.get("oid", "")
+    answersecQueryResult = answersections.find({
+        "oid": ObjectId(_id)
+    }, {
+        "oid": 1,
+        "answersection": 1
+    }).limit(1)
     if answersecQueryResult.count() == 0:
-        return json.dumps({"err":"NOT FOUND"})
+        return json.dumps({"err": "NOT FOUND"})
     else:
         answersec = answersecQueryResult[0]
-        return json.dumps(answersec,default=date_handler)
+        return json.dumps(answersec, default=date_handler)
     #return """
     #{"answers":
     #[
@@ -193,38 +217,61 @@ def getAnswersection(filename):
 @app.route("/api/<filename>/cuts")
 @auth.login_required
 def getCuts(filename):
-    cursor = answersections.find({"filename":filename},{"oid":1,"relHeight":1,"pageNum":1})
+    cursor = answersections.find({
+        "filename": filename
+    }, {
+        "oid": 1,
+        "relHeight": 1,
+        "pageNum": 1
+    })
 
     cuts = {}
     for cut in cursor:
         print(cut, file=sys.stderr)
-        _id = cut["oid"] 
+        _id = cut["oid"]
         relHeight = (cut["relHeight"])
         pageNum = (cut["pageNum"])
         if pageNum in cuts:
-            cuts[pageNum].append([relHeight,str(_id)])
+            cuts[pageNum].append([relHeight, str(_id)])
             cuts[pageNum].sort(key=lambda x: float(x[0]))
         else:
-            cuts[pageNum] = [(relHeight,str(_id))]
-    return json.dumps(cuts,default=date_handler)
+            cuts[pageNum] = [(relHeight, str(_id))]
+    return json.dumps(cuts, default=date_handler)
+
 
 @app.route("/api/<filename>/newanswersection")
 @auth.login_required
 def newAnswersection(filename):
     userId = auth.username()
-    answersection = {"answers":[],"asker":userId}
+    answersection = {"answers": [], "asker": userId}
     if hasAdminrights(auth.username()):
         pageNum = request.args.get("pageNum", "")
         relHeight = request.args.get("relHeight", "")
-        answersecQueryResult = answersections.find({"pageNum":pageNum,"filename":filename,"relHeight":relHeight}).limit(1)
+        answersecQueryResult = answersections.find({
+            "pageNum": pageNum,
+            "filename": filename,
+            "relHeight": relHeight
+        }).limit(1)
         if answersecQueryResult.count() == 0:
-            newDoc = {"filename": filename, "pageNum": pageNum, "relHeight": relHeight,"answersection": answersection,"oid":ObjectId()};
+            newDoc = {
+                "filename": filename,
+                "pageNum": pageNum,
+                "relHeight": relHeight,
+                "answersection": answersection,
+                "oid": ObjectId()
+            }
             answersections.insert_one(newDoc)
-            return json.dumps(newDoc,default=date_handler)
+            return json.dumps(newDoc, default=date_handler)
         else:
-            return json.dumps(answersecQueryResult[0],default=date_handler)
+            return json.dumps(answersecQueryResult[0], default=date_handler)
     else:
-        return json.dumps({"answersection":answersection, "oid":"1234", "err":"NOT ALLOWED"},default=date_handler)
+        return json.dumps(
+            {
+                "answersection": answersection,
+                "oid": "1234",
+                "err": "NOT ALLOWED"
+            },
+            default=date_handler)
 
 
 @app.route("/api/<filename>/removeanswersection")
@@ -233,18 +280,19 @@ def removeAnswersection(filename):
     if hasAdminrights(auth.username()):
         oid = ObjectId(request.args.get("oid", ""))
         userId = auth.username()
-        if answersections.delete_one({"oid":oid}).deleted_count > 0:
-            return json.dumps({"status":"success"},default=date_handler)
+        if answersections.delete_one({"oid": oid}).deleted_count > 0:
+            return json.dumps({"status": "success"}, default=date_handler)
         else:
-            return json.dumps({"status":"error"},default=date_handler)
+            return json.dumps({"status": "error"}, default=date_handler)
     else:
-        return {"err":"NOT ALLOWED"}
+        return {"err": "NOT ALLOWED"}
+
 
 @app.route("/api/<filename>/togglelike")
 @auth.login_required
 def toggleLike(filename):
     answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
-    oid = ObjectId(request.args.get("oid",""))
+    oid = ObjectId(request.args.get("oid", ""))
     userId = auth.username()
     answer = \
     answersections.find({"answersection.answers.oid": oid}, {"_id": 0, 'answersection.answers.$': 1})[0][
@@ -253,13 +301,19 @@ def toggleLike(filename):
         answer["upvotes"].remove(userId)
     else:
         answer["upvotes"].append(userId)
-    answersections.update_one(
-        {'answersection.answers.oid': oid},
-        {"$set": {'answersection.answers.$': answer}}
-    )
-    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
+    answersections.update_one({
+        'answersection.answers.oid': oid
+    }, {"$set": {
+        'answersection.answers.$': answer
+    }})
+    return json.dumps(
+        answersections.find({
+            "oid": answersectionOid
+        }).limit(1)[0],
+        default=date_handler)
 
-@app.route("/api/<filename>/setanswer",methods=["POST"])
+
+@app.route("/api/<filename>/setanswer", methods=["POST"])
 @auth.login_required
 def setAnswer(filename):
     answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
@@ -267,21 +321,43 @@ def setAnswer(filename):
     content = request.get_json()
     if "oid" in content:
         content["oid"] = ObjectId(content["oid"])
-        answer = answersections.find({"answersection.answers.oid": content["oid"]}, {"_id": 0, 'answersection.answers.$': 1})[0]["answersection"]["answers"][0]
+        answer = answersections.find(
+            {
+                "answersection.answers.oid": content["oid"]
+            }, {
+                "_id": 0,
+                'answersection.answers.$': 1
+            })[0]["answersection"]["answers"][0]
         answer["text"] = content["text"]
         if answer["authorId"] == userId:
             answersections.update_one(
-                {'answersection.answers.oid': content["oid"]},
-                {"$set":{'answersection.answers.$': answer}}
-            )
+                {
+                    'answersection.answers.oid': content["oid"]
+                }, {"$set": {
+                    'answersection.answers.$': answer
+                }})
     else:
-        answer = {"authorId": userId, "text": content["text"], "comments": [], "upvotes": [], "time": datetime.utcnow(),
-                  "oid": ObjectId()}
-        answersections.update_one({"oid":answersectionOid},{'$push':{"answersection.answers":answer}})
-    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
+        answer = {
+            "authorId": userId,
+            "text": content["text"],
+            "comments": [],
+            "upvotes": [],
+            "time": datetime.utcnow(),
+            "oid": ObjectId()
+        }
+        answersections.update_one({
+            "oid": answersectionOid
+        }, {'$push': {
+            "answersection.answers": answer
+        }})
+    return json.dumps(
+        answersections.find({
+            "oid": answersectionOid
+        }).limit(1)[0],
+        default=date_handler)
 
 
-@app.route("/api/<filename>/addcomment",methods=["POST"])
+@app.route("/api/<filename>/addcomment", methods=["POST"])
 @auth.login_required
 def addComment(filename):
     answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
@@ -292,13 +368,24 @@ def addComment(filename):
         answersections\
         .find({"answersection.answers.oid": answerOid}, {"_id": 0, 'answersection.answers.$': 1})\
         [0]['answersection']["answers"][0]
-    comment = {"text":content["text"],"authorId":userId,"time": datetime.utcnow(),"oid":ObjectId()}
+    comment = {
+        "text": content["text"],
+        "authorId": userId,
+        "time": datetime.utcnow(),
+        "oid": ObjectId()
+    }
     answer["comments"].append(comment)
-    answersections.update_one(
-        {'answersection.answers.oid': answerOid},
-        {"$set": {'answersection.answers.$': answer}}
-    )
-    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
+    answersections.update_one({
+        'answersection.answers.oid': answerOid
+    }, {"$set": {
+        'answersection.answers.$': answer
+    }})
+    return json.dumps(
+        answersections.find({
+            "oid": answersectionOid
+        }).limit(1)[0],
+        default=date_handler)
+
 
 @app.route("/api/<filename>/removecomment")
 @auth.login_required
@@ -311,31 +398,53 @@ def removeComment(filename):
         answersections \
         .find_one({"answersection.answers": {"$elemMatch": {"comments.oid": ObjectId(commentOid)}}}, \
         {"_id":0, "answersection.answers.$.comments": 1})["answersection"]["answers"][0]["comments"]
-    comment = {"authorId":""}
+    comment = {"authorId": ""}
     for c in comments:
         if c["oid"] == ObjectId(commentOid):
             comment = c
             break
     if comment["authorId"] == auth.username():
         answersections.update_one(
-            {'answersection.answers.comments.oid': ObjectId(commentOid)},
-            {"$pull": {'answersection.answers.$.comments': {'oid': ObjectId(commentOid)}}}
-        )
-    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
+            {
+                'answersection.answers.comments.oid': ObjectId(commentOid)
+            }, {
+                "$pull": {
+                    'answersection.answers.$.comments': {
+                        'oid': ObjectId(commentOid)
+                    }
+                }
+            })
+    return json.dumps(
+        answersections.find({
+            "oid": answersectionOid
+        }).limit(1)[0],
+        default=date_handler)
 
 
 @app.route("/api/<filename>/removeanswer")
 @auth.login_required
 def removeanswer(filename):
     answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
-    oid = request.args.get("oid","")
+    oid = request.args.get("oid", "")
     userId = auth.username()
-    if answersections.find({"answersection.answers.oid": ObjectId(oid)}, {"_id": 0, 'answersection.answers.$': 1}).limit(1)[0]["answersection"]["answers"][0]["authorId"] == userId:
-        answersections.update_one(
-            {'answersection.answers.oid': ObjectId(oid)},
-            {"$pull": {'answersection.answers': {'oid': ObjectId(oid)}}}
-        )
-    return json.dumps(answersections.find({"oid":answersectionOid}).limit(1)[0],default=date_handler)
+    if answersections.find({
+            "answersection.answers.oid": ObjectId(oid)
+    }, {
+            "_id": 0,
+            'answersection.answers.$': 1
+    }).limit(1)[0]["answersection"]["answers"][0]["authorId"] == userId:
+        answersections.update_one({
+            'answersection.answers.oid': ObjectId(oid)
+        }, {"$pull": {
+            'answersection.answers': {
+                'oid': ObjectId(oid)
+            }
+        }})
+    return json.dumps(
+        answersections.find({
+            "oid": answersectionOid
+        }).limit(1)[0],
+        default=date_handler)
 
 
 @app.route("/pdf/<filename>")
@@ -343,18 +452,25 @@ def removeanswer(filename):
 def pdf(filename):
 
     try:
-        print(minioClient.fget_object(minioBucket, filename, os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)))
+        print(
+            minioClient.fget_object(
+                minioBucket, filename,
+                os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'],
+                             filename)))
     except NoSuchKey as n:
         return "There is no such PDF saved here :("
     except Exception as e:
         print("unexpected error from minio", e)
         return "ERROR"
-    return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
+    return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'],
+                               filename)
+
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
     print('Unhandled Exception', e, traceback.format_exc(), file=sys.stderr)
     return "Sadly, we experienced an internal Error!", 500
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80)
