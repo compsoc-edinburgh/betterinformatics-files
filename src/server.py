@@ -1,7 +1,7 @@
 import sys
 from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.utils import secure_filename
+from werkzeug.utils import make_secure_filename as make_make_secure_filename
 import json, re
 from pymongo import MongoClient
 from datetime import datetime
@@ -136,46 +136,36 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def is_pdf_in_minio(name):
+    return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
+
+
 @app.route("/uploadpdf", methods=['POST', 'GET'])
 @auth.login_required
 def upload_pdf():
-    if has_admin_rights(auth.username()):
-        if request.method == 'POST':
-            # check if the post request has the file part
-            if 'file' not in request.files:
-                return redirect(request.url)
-            file = request.files['file']
-            # if user does not select file, browser also
-            # submit a empty part without filename
-            if file.filename == '':
-                return redirect(request.url)
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                if list(
-                        minio_client.list_objects(
-                            minio_bucket, prefix=filename)) == []:
-                    temp_file_path = os.path.join(
-                        app.config['INTERMEDIATE_PDF_STORAGE'], filename)
-                    file.save(temp_file_path)
-                    try:
-                        minio_client.fput_object(minio_bucket, filename,
-                                                 temp_file_path)
-                    except ResponseError as err:
-                        print(err)
-                    return redirect(url_for('index', filename=filename))
-                else:
-                    return "There is a file with this name already!"
+    if not has_admin_rights(auth.username()):
+        return jsonify({"err": "forbidden"}), 403
+    if request.method == "GET":
         return '''
         <!doctype html>
         <title>Upload new File</title>
         <h1>Upload new File</h1>
         <form method=post enctype=multipart/form-data>
-          <p><input type=file name=file>
-             <input type=submit value=Upload>
+            <p><input type=file name=file>
+                <input type=submit value=Upload>
         </form>
         '''
-    else:
-        return jsonify({"err": "forbidden"}), 403
+    file = request.files.get('file', None)
+    if file is None or file.filename == '' or not allowed_file(file.filename):
+        return redirect(request.url)
+    secure_filename = make_secure_filename(file.filename)
+    if is_pdf_in_minio(secure_filename):
+        return "There is a file with this name already!"
+    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'],
+                                  secure_filename)
+    file.save(temp_file_path)
+    minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
+    return redirect(url_for('index', filename=secure_filename))
 
 
 @app.route("/api/user")
@@ -192,41 +182,34 @@ def get_user():
 @auth.login_required
 def get_answer_section(filename):
     oid = request.args.get("oid", "")
-    result = answer_sections.find({
+    results = answer_sections.find({
         "oid": ObjectId(oid)
     }, {
         "oid": 1,
         "answersection": 1
     }).limit(1)
-    if result.count() == 0:
-        return json.dumps({"err": "NOT FOUND"})
-    else:
-        answer_section = result[0]
-        return json.dumps(answer_section, default=date_handler)
+    if results.count() == 0:
+        return json.dumps({"err": "Not found"}), 404
+    return json.dumps(results[0], default=date_handler)
 
 
 @app.route("/api/<filename>/cuts")
 @auth.login_required
-def getCuts(filename):
-    cursor = answer_sections.find({
+def get_cuts(filename):
+    results = answer_sections.find({
         "filename": filename
     }, {
         "oid": 1,
         "relHeight": 1,
         "pageNum": 1
     })
-
     cuts = {}
-    for cut in cursor:
-        print(cut, file=sys.stderr)
-        oid = cut["oid"]
-        rel_height = (cut["relHeight"])
-        page_num = (cut["pageNum"])
-        if page_num in cuts:
-            cuts[page_num].append([rel_height, str(oid)])
-            cuts[page_num].sort(key=lambda x: float(x[0]))
-        else:
-            cuts[page_num] = [(rel_height, str(oid))]
+    for cut in results:
+        group = cuts.get(cut["pageNum"], [])
+        group.append([cut["relHeight"], str(cut["oid"])])
+        cuts[cut["pageNum"]] = group
+    for group in cuts:
+        group.sort(key=lambda x: float(x[0]))
     return json.dumps(cuts, default=date_handler)
 
 
@@ -235,34 +218,26 @@ def getCuts(filename):
 def new_answer_section(filename):
     username = auth.username()
     answer_section = {"answers": [], "asker": username}
-    if has_admin_rights(auth.username()):
-        page_num = request.args.get("pageNum", "")
-        rel_height = request.args.get("relHeight", "")
-        result = answer_sections.find({
-            "pageNum": page_num,
-            "filename": filename,
-            "relHeight": rel_height
-        }).limit(1)
-        if result.count() == 0:
-            newDoc = {
-                "filename": filename,
-                "pageNum": page_num,
-                "relHeight": rel_height,
-                "answersection": answer_section,
-                "oid": ObjectId()
-            }
-            answer_sections.insert_one(newDoc)
-            return json.dumps(newDoc, default=date_handler)
-        else:
-            return json.dumps(result[0], default=date_handler)
-    else:
-        return json.dumps(
-            {
-                "answersection": answer_section,
-                "oid": "1234",
-                "err": "NOT ALLOWED"
-            },
-            default=date_handler)
+    if not has_admin_rights(auth.username()):
+        return json.dumps({"err": "Not allowed"}), 403
+    page_num = request.args["pageNum"]
+    rel_height = request.args["relHeight"]
+    result = answer_sections.find({
+        "pageNum": page_num,
+        "filename": filename,
+        "relHeight": rel_height
+    }).limit(1)
+    if result.count() > 0:
+        return json.dumps(result[0], default=date_handler)
+    new_doc = {
+        "filename": filename,
+        "pageNum": page_num,
+        "relHeight": rel_height,
+        "answersection": answer_section,
+        "oid": ObjectId()
+    }
+    answer_sections.insert_one(new_doc)
+    return json.dumps(new_doc, default=date_handler)
 
 
 @app.route("/api/<filename>/removeanswersection")
@@ -285,9 +260,12 @@ def toggle_like(filename):
     answersectionOid = ObjectId(request.args.get("answersectionoid", ""))
     oid = ObjectId(request.args.get("oid", ""))
     username = auth.username()
-    answer = \
-    answer_sections.find({"answersection.answers.oid": oid}, {"_id": 0, 'answersection.answers.$': 1})[0][
-        "answersection"]["answers"][0]
+    answer = answer_sections.find({
+        "answersection.answers.oid": oid
+    }, {
+        "_id": 0,
+        'answersection.answers.$': 1
+    })[0]["answersection"]["answers"][0]
     if username in answer["upvotes"]:
         answer["upvotes"].remove(username)
     else:
