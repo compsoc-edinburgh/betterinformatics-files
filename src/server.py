@@ -71,7 +71,7 @@ def date_handler(obj):
 
 
 def make_json_response(obj):
-    return make_json_response(obj)
+    return json.dumps(obj, default=date_handler)
 
 
 def make_answer_section_response(oid):
