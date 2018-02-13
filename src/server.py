@@ -208,7 +208,7 @@ def get_cuts(filename):
         group = cuts.get(cut["pageNum"], [])
         group.append([cut["relHeight"], str(cut["oid"])])
         cuts[cut["pageNum"]] = group
-    for group in cuts:
+    for group in cuts.values():
         group.sort(key=lambda x: float(x[0]))
     return json.dumps(cuts, default=date_handler)
 
