@@ -293,13 +293,13 @@ def toggle_like(filename):
 @auth.login_required
 def set_answer(filename):
     answer_section_oid = ObjectId(request.args["answersectionoid"])
-    request = request.get_json()
-    answer_oid = ObjectId(request["oid"]) if "oid" in request else None
+    req_body = request.get_json()
+    answer_oid = ObjectId(req_body["oid"]) if "oid" in req_body else None
     username = auth.username()
     if answer_oid is None:
-        add_answer(answer_section_oid, username, request["text"])
+        add_answer(answer_section_oid, username, req_body["text"])
     else:
-        modify_answer(answer_oid, username, request["text"])
+        modify_answer(answer_oid, username, req_body["text"])
     return make_answer_section_response(answer_section_oid)
 
 
@@ -342,13 +342,13 @@ def add_comment(filename):
     answer_section_oid = ObjectId(request.args["answersectionoid"])
     answer_oid = ObjectId(request.args["answerOid"])
     username = auth.username()
-    content = request.get_json()
+    req_body = request.get_json()
     answer = \
         answer_sections\
         .find({"answersection.answers.oid": answer_oid}, {"_id": 0, 'answersection.answers.$': 1})\
         [0]['answersection']["answers"][0]
     answer["comments"].append({
-        "text": content["text"],
+        "text": req_body["text"],
         "authorId": username,
         "time": datetime.utcnow(),
         "oid": ObjectId()
@@ -394,8 +394,8 @@ def remove_comment(filename):
 @app.route("/api/<filename>/removeanswer")
 @auth.login_required
 def remove_answer(filename):
-    answer_section_oid = ObjectId(request.args.get("answersectionoid", ""))
-    oid = request.args.get("oid", "")
+    answer_section_oid = ObjectId(request.args["answersectionoid"])
+    oid = request.args["oid"]
     username = auth.username()
     if answer_sections.find({
             "answersection.answers.oid": ObjectId(oid)
