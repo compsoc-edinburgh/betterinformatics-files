@@ -50,7 +50,7 @@ cleanup:
       - prod
 
 .auto_devops: &auto_devops |
-  git clone --depth 1 git@gitlab.vis.ethz.ch:vis_cit/ci-framework.git
+  git clone --depth 1 git@gitlab.vis.ethz.ch:vis_cit/vis-ci-base.git
   source vis-ci-base/ciscript.sh
 
 before_script:
