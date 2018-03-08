@@ -20,8 +20,6 @@ import grpc
 import people_pb2
 import people_pb2_grpc
 
-print(os.environ)
-
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
     os.environ["RUNTIME_SERVIS_PEOPLE_API_PORT"])
