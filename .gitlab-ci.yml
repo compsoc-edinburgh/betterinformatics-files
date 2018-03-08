@@ -6,7 +6,7 @@ variables:
   VIS_CI_ENABLE_MINIO: "true"
   VIS_CI_LIVENESS_PROBE_PATH: "/health"
   VIS_CI_READINESS_PROBE_PATH: "/health"
-  VIS_CI_SERVIS_DEPENDENCIES: "vis-people-api"
+  VIS_CI_SERVIS_DEPENDENCIES: "people-api"
   VIS_CI_SERVIS_PYTHON_OUT: "./src"
 
 stages:

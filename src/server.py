@@ -20,12 +20,14 @@ import grpc
 import people_pb2
 import people_pb2_grpc
 
+print(os.environ)
+
 people_channel = grpc.insecure_channel(
-    os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_SERVER"] + ":" +
-    os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_PORT"])
+    os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
+    os.environ["RUNTIME_SERVIS_PEOPLE_API_PORT"])
 people_client = people_pb2_grpc.PeopleStub(people_channel)
 people_metadata = [("authorization",
-                    os.environ["RUNTIME_SERVIS_VIS_PEOPLE_API_KEY"])]
+                    os.environ["RUNTIME_SERVIS_PEOPLE_API_KEY"])]
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
@@ -51,10 +53,10 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-mongo_url = "mongodb://{}:{}@{}:{}/{}?auth_source={}".format(
+mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
     os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
     os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
-    os.environ['RUNTIME_MONGO_DB_NAME'], os.environ['RUNTIME_MONGO_DB_NAME'])
+    os.environ['RUNTIME_MONGO_DB_NAME'])
 mongo_db = MongoClient(mongo_url).get_database()
 
 answer_sections = mongo_db.answersections
@@ -95,6 +97,7 @@ def has_admin_rights(username):
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisLegacyPerson(req, metadata=people_metadata)
     except grpc.RpcError as e:
+        print("RPC error while checking admin rights", e)
         return False
     return max(("vorstand" == group or "cit" == group or "cat" == group)
                for group in res.vis_groups)
