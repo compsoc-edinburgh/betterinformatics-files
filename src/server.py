@@ -35,11 +35,12 @@ ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
+minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
 minio_client = Minio(
     os.environ['RUNTIME_MINIO_SERVER'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
     secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-    secure=True)
+    secure=minio_is_https)
 minio_bucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 try:
@@ -99,15 +100,6 @@ def has_admin_rights(username):
         return False
     return max(("vorstand" == group or "cit" == group or "cat" == group)
                for group in res.vis_groups)
-
-
-"""
-@auth.verify_password
-def dummyVerify(username,password):
-    return True
-def has_admin_rights(username):
-    return True
-"""
 
 
 @app.route("/health")
