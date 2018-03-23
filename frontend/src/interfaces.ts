@@ -16,6 +16,6 @@ export interface PdfSection {
 }
 
 export interface CutPosition {
-  page: number;
+  page: number; // the first page is 1
   position: number;
 }

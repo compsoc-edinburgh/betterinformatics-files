@@ -21,7 +21,13 @@ const SECTIONS: Section[] = [
 ];
 const RENDERER = new DocumentRenderer();
 
-export default class App extends React.Component<{}> {
+interface State {
+  renderer?: DocumentRenderer;
+}
+
+export default class App extends React.Component<{}, State> {
+  state: State = {};
+
   render() {
     return <Exam sections={SECTIONS} renderer={RENDERER} />;
   }
