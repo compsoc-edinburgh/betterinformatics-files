@@ -30,17 +30,18 @@ people_metadata = [("authorization",
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
 
+HACK_IS_PROD = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
+
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
-minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
 minio_client = Minio(
     os.environ['RUNTIME_MINIO_SERVER'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
     secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-    secure=minio_is_https)
+    secure=HACK_IS_PROD)
 minio_bucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 try:
@@ -52,10 +53,17 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
-    os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
-    os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
-    os.environ['RUNTIME_MONGO_DB_NAME'])
+if HACK_IS_PROD:
+    mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
+        os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
+        os.environ['RUNTIME_MONGO_DB_SERVER'],
+        os.environ['RUNTIME_MONGO_DB_PORT'],
+        os.environ['RUNTIME_MONGO_DB_NAME'])
+else:
+    mongo_url = "mongodb://{}:{}/{}".format(
+        os.environ['RUNTIME_MONGO_DB_SERVER'],
+        os.environ['RUNTIME_MONGO_DB_PORT'],
+        os.environ['RUNTIME_MONGO_DB_NAME'])
 mongo_db = MongoClient(mongo_url).get_database()
 
 answer_sections = mongo_db.answersections
