@@ -1,0 +1,14 @@
+{% extends "master.html" %}
+
+{% block title %}
+Exams
+{% endblock %}
+
+{% block body %}
+<h1>Available Exams</h1>
+<ul>
+  {% for pdf in pdfs %}
+  <li><a href="{{ url_for('index', filename=pdf) }}">{{ pdf }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

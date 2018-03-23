@@ -6,7 +6,8 @@ import json, re
 from pymongo import MongoClient
 from datetime import datetime
 import os
-from flask import send_from_directory, render_template
+from flask import send_from_directory, render_template, send_file
+from flask_cors import CORS
 from minio import Minio
 from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
@@ -29,6 +30,7 @@ people_metadata = [("authorization",
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
+CORS(app)
 
 HACK_IS_PROD = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
 
@@ -86,9 +88,14 @@ def make_json_response(obj):
 def make_answer_section_response(oid):
     return make_json_response(answer_sections.find({"oid": oid}).limit(1)[0])
 
+# ------------------------------------------- #
+#  auth                                       #
+# ------------------------------------------- #
 
 @auth.verify_password
 def verify_pw(username, password):
+    if not HACK_IS_PROD:
+        return True
     try:
         req = people_pb2.AuthPersonRequest(
             password=password, username=username)
@@ -100,6 +107,8 @@ def verify_pw(username, password):
 
 
 def has_admin_rights(username):
+    if not HACK_IS_PROD:
+        return True
     try:
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisLegacyPerson(req, metadata=people_metadata)
@@ -109,6 +118,9 @@ def has_admin_rights(username):
     return max(("vorstand" == group or "cit" == group or "cat" == group)
                for group in res.vis_groups)
 
+# ------------------------------------------- #
+#  general stuff                              #
+# ------------------------------------------- #
 
 @app.route("/health")
 def test():
@@ -117,36 +129,12 @@ def test():
 
 @app.route("/")
 def overview():
-    return """
-    Hey,
-
-    This is a page which is not used! You can check out an exam solution under: /sol/&lt;exam-name&gt;
-    Or you can upload one, if you have the permissions (are a member of cit, cat oder vorstand), under: /uploadpdf
-    """
-
-
-@app.route('/sol/<filename>')
-@auth.login_required
-def index(filename):
-    print("recieved")
-    if list(minio_client.list_objects(minio_bucket, prefix=filename)) != []:
-        return render_template('index.html')
-    else:
-        return "There is no file " + filename
+    return render_template('welcome.html', username=auth.username())
 
 
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory('favicon.ico', "")
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def is_pdf_in_minio(name):
-    return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
 
 
 @app.route("/uploadpdf", methods=['POST', 'GET'])
@@ -155,27 +143,30 @@ def upload_pdf():
     if not has_admin_rights(auth.username()):
         return jsonify({"err": "forbidden"}), 403
     if request.method == "GET":
-        return '''
-        <!doctype html>
-        <title>Upload new File</title>
-        <h1>Upload new File</h1>
-        <form method=post enctype=multipart/form-data>
-            <p><input type=file name=file>
-                <input type=submit value=Upload>
-        </form>
-        '''
+        return render_template("upload.html")
     file = request.files.get('file', None)
     if file is None or file.filename == '' or not allowed_file(file.filename):
         return redirect(request.url)
-    secure_filename = make_secure_filename(file.filename)
+    filename = request.form.get('filename', '') or file.filename
+    secure_filename = make_secure_filename(filename)
     if is_pdf_in_minio(secure_filename):
-        return "There is a file with this name already!"
-    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'],
-                                  secure_filename)
+        return render_template("upload.html", errormsg="There is a file with this name already!")
+    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], secure_filename)
     file.save(temp_file_path)
     minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
     return redirect(url_for('index', filename=secure_filename))
 
+@app.route('/list')
+@auth.login_required
+def list_pdfs():
+    pdfs = []
+    for pdf in minio_client.list_objects(minio_bucket):
+        pdfs.append(pdf.object_name)
+    return render_template("listpdfs.html", pdfs=pdfs)
+
+# ------------------------------------------- #
+#  general api                                #
+# ------------------------------------------- #
 
 @app.route("/api/user")
 @auth.login_required
@@ -188,6 +179,28 @@ def get_user():
         "displayname":
         auth.username()
     })
+
+# ------------------------------------------- #
+#  show and edit an exam                      #
+# ------------------------------------------- #
+
+@app.route('/sol/<filename>')
+@auth.login_required
+def index(filename):
+    print("received")
+    if list(minio_client.list_objects(minio_bucket, prefix=filename)) != []:
+        return render_template('index.html')
+    else:
+        return "There is no file " + filename
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def is_pdf_in_minio(name):
+    return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
 
 
 @app.route("/api/<filename>/answersection")
@@ -416,7 +429,7 @@ def remove_answer(filename):
 
 @app.route("/pdf/<filename>")
 @auth.login_required
-def pdf(filename):
+def pdf_old(filename):
     try:
         minio_client.fget_object(
             minio_bucket, filename,
@@ -425,6 +438,15 @@ def pdf(filename):
         return "There is no such PDF saved here :(", 404
     return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'],
                                filename)
+
+
+@app.route("/pdfnew/<filename>")
+@auth.login_required
+def pdf(filename):
+    try:
+        return send_file(minio_client.get_object(minio_bucket, filename))
+    except NoSuchKey as n:
+        return "There is no such PDF saved here :(", 404
 
 
 @app.errorhandler(Exception)

@@ -33,7 +33,7 @@ function increaseAllAfter(pageNum,cut){
 
 if (window.location.host == "localhost:3000"){
     window.__urlPrefix__ = "http://localhost:8080";
-    window.__pdfLink__ = "/pdf/exam10.pdf";
+    window.__pdfLink__ = "exam10.pdf";
     window.__filename__ = "exam10.pdf";
 }else{
     var pathArray = window.location.pathname.split("/");
@@ -105,11 +105,11 @@ fetch(window.__urlPrefix__+"/api/"+filename+"/cuts", {credentials: "same-origin"
 .then(response => renderPage(response));
 function renderPage(cuts){
     rawcuts = cuts;
-    var cuts = _.mapValues(cuts, arr => 
-            (arr.map(tup => 
+    var cuts = _.mapValues(cuts, arr =>
+            (arr.map(tup =>
                      [parseFloat(tup[0]),tup[1]])));
-    var cutIds = _.mapValues(cuts,cutsOnPage => 
-            _.reduce(cutsOnPage, (dic,tup) => 
+    var cutIds = _.mapValues(cuts,cutsOnPage =>
+            _.reduce(cutsOnPage, (dic,tup) =>
                 {var n = dic; n[tup[0]]=tup[1]; return n},{}));
     console.log(cutIds);
     cuts = _.mapValues(cuts,cutsOnPage =>
@@ -310,10 +310,10 @@ function renderPage(cuts){
       }else{
         currPage = 1;
         if(!addButtonRequested){
-          addButtonRequested = true;  
+          addButtonRequested = true;
           fetch(window.__urlPrefix__+"/api/user", {credentials: "same-origin"})
           .then(response => response.json())
-          .then(response =>{ 
+          .then(response =>{
             console.log(response);
             if (response.adminrights) {
             $("body").append("<div id='add'>+</div>");
