@@ -1,6 +1,7 @@
 import * as React from "react";
 import { PdfSection } from "./interfaces";
 import { SectionRenderer, Dimensions } from "./split-render";
+import { css } from "glamor";
 
 interface Props {
   section: PdfSection;
@@ -8,6 +9,12 @@ interface Props {
   width: number;
   dpr: number; // Device Pixel Ratio
 }
+
+const styles = {
+  canvas: css({
+    display: "block",
+  }),
+};
 
 const contentRelevantProps: Array<keyof Props> = [
   "section",
@@ -36,26 +43,20 @@ export default class PdfSectionComp extends React.Component<Props> {
   }
 
   render() {
-    const { section, dpr } = this.props;
+    const { dpr } = this.props;
     const rawDim = this.sectionDimensions();
-    const w = Math.ceil(rawDim.width);
-    const h = Math.ceil(rawDim.height);
     return (
-      <div>
-        PDF section: {JSON.stringify(section, null, 2)}
-        <canvas
-          ref={this.saveCanvasRef}
-          width={w * dpr}
-          height={h * dpr}
-          style={{ width: w, height: h }}
-        />
-      </div>
+      <canvas
+        ref={this.saveCanvasRef}
+        width={Math.ceil(rawDim.width * dpr)}
+        height={Math.ceil(rawDim.height * dpr)}
+        style={{
+          width: Math.ceil(rawDim.width),
+          height: Math.ceil(rawDim.height),
+        }}
+        {...styles.canvas}
+      />
     );
-  }
-
-  sectionDimensions(): Dimensions {
-    const { section, renderer, width } = this.props;
-    return renderer.sectionDimensions(section.start, section.end, width);
   }
 
   renderCanvas() {
@@ -72,6 +73,11 @@ export default class PdfSectionComp extends React.Component<Props> {
       section.start,
       section.end,
     );
+  }
+
+  sectionDimensions(): Dimensions {
+    const { section, renderer, width } = this.props;
+    return renderer.sectionDimensions(section.start, section.end, width);
   }
 
   saveCanvasRef = (c: HTMLCanvasElement) => {
