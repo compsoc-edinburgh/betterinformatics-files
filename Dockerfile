@@ -9,7 +9,7 @@ COPY ./frontend/public ./public
 RUN npm run build
 
 
-FROM registry.vis.ethz.ch/cit/vis-base:bravo
+FROM registry.vis.ethz.ch/public/vis-base:bravo
 LABEL maintainer 'muelsamu@vis.ethz.ch'
 
 RUN mkdir intermediate_pdf_storage
