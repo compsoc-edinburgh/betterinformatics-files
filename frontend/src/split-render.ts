@@ -8,37 +8,44 @@ interface RenderTarget {
   height: number;
 }
 
-export class DocumentRenderer {
-  renderedPages?: {
-    canvas: HTMLCanvasElement;
-    context: CanvasRenderingContext2D;
-    proxy: pdfjs.PDFPageProxy;
-  }[];
+interface RenderedPage {
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
+  viewport: pdfjs.PDFPageViewport;
+}
 
-  constructor(private pdf: pdfjs.PDFDocumentProxy) {
-    this.pdf = pdf;
+export interface Dimensions {
+  width: number;
+  height: number;
+}
+
+interface StartSizeRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+function sourceDimensions(
+  page: RenderedPage,
+  start: CutPosition,
+  end: CutPosition,
+): StartSizeRect {
+  const { width: w, height: h } = page.viewport;
+  return {
+    x: Math.floor(0),
+    y: Math.floor(h * start.position),
+    w: Math.floor(w),
+    h: Math.floor(h * (end.position - start.position)),
+  };
+}
+
+export class SectionRenderer {
+  constructor(private renderedPages: RenderedPage[]) {
+    this.renderedPages = renderedPages;
   }
 
-  async render(): Promise<undefined> {
-    this.renderedPages = await Promise.all(
-      times(this.pdf.numPages, async i => {
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        if (!context) {
-          throw new Error("failed to create context");
-        }
-        const page = await this.pdf.getPage(i + 1);
-        const proxy = await page.render({ canvasContext: context });
-        return { canvas, context, proxy };
-      }),
-    );
-    return undefined;
-  }
-
-  renderSection(target: RenderTarget, start: CutPosition, end: CutPosition) {
-    if (!this.renderedPages) {
-      throw new Error("must call render() first");
-    }
+  private getPage(start: CutPosition, end: CutPosition): RenderedPage {
     if (start.page !== end.page) {
       throw new Error("start and end must be on the same page");
     }
@@ -46,18 +53,22 @@ export class DocumentRenderer {
     if (!page) {
       throw new Error("page out of range");
     }
-    const full = {
-      x1: page.proxy.view[0],
-      y1: page.proxy.view[1],
-      x2: page.proxy.view[2],
-      y2: page.proxy.view[3],
-    };
-    const src = {
-      x: Math.floor(full.x1),
-      y: Math.floor(full.y1 + (full.y2 - full.y1) * start.position),
-      w: Math.floor(full.x2 - full.x1),
-      h: Math.floor((full.y2 - full.y1) * (end.position - start.position)),
-    };
+    return page;
+  }
+
+  sectionDimensions(
+    start: CutPosition,
+    end: CutPosition,
+    width: number,
+  ): Dimensions {
+    const page = this.getPage(start, end);
+    const src = sourceDimensions(page, start, end);
+    return { width, height: src.h / src.w * width };
+  }
+
+  render(target: RenderTarget, start: CutPosition, end: CutPosition) {
+    const page = this.getPage(start, end);
+    const src = sourceDimensions(page, start, end);
     const dst = {
       x: 0,
       y: 0,
@@ -76,4 +87,27 @@ export class DocumentRenderer {
       dst.h,
     );
   }
+}
+
+export async function renderDocument(
+  pdf: pdfjs.PDFDocumentProxy,
+  targetWidth: number,
+): Promise<SectionRenderer> {
+  const rendered = await Promise.all(
+    times(pdf.numPages, async i => {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (!context) {
+        throw new Error("failed to create context");
+      }
+      const page = await pdf.getPage(i + 1);
+      let viewport = page.getViewport(1);
+      viewport = page.getViewport(targetWidth / viewport.width);
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: context, viewport });
+      return { canvas, context, viewport };
+    }),
+  );
+  return new SectionRenderer(rendered);
 }

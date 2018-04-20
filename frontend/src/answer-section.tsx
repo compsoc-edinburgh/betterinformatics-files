@@ -3,6 +3,7 @@ import { AnswerSection } from "./interfaces";
 
 interface Props {
   section: AnswerSection;
+  width: number;
 }
 
 export default ({ section }: Props) => (

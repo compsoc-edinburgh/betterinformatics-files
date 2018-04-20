@@ -1,13 +1,16 @@
 import * as React from "react";
-import { DocumentRenderer } from "./split-render";
+import { renderDocument, SectionRenderer } from "./split-render";
 import { Section, SectionKind } from "./interfaces";
 import Exam from "./exam";
+import * as pdfjs from "pdfjs-dist";
 
 const SECTIONS: Section[] = [
   {
+    key: 0,
     kind: SectionKind.Answer,
   },
   {
+    key: 1,
     kind: SectionKind.Pdf,
     start: {
       page: 1,
@@ -19,16 +22,28 @@ const SECTIONS: Section[] = [
     },
   },
 ];
-const RENDERER = new DocumentRenderer();
+
+const WIDTH = 800;
 
 interface State {
-  renderer?: DocumentRenderer;
+  renderer?: SectionRenderer;
 }
 
 export default class App extends React.Component<{}, State> {
   state: State = {};
 
+  async componentWillMount() {
+    // tslint:disable-next-line:no-any
+    const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
+    const pdf = await PDFJS.getDocument("/exam10.pdf");
+    this.setState({ renderer: await renderDocument(pdf, WIDTH) });
+  }
+
   render() {
-    return <Exam sections={SECTIONS} renderer={RENDERER} />;
+    const { renderer } = this.state;
+    if (!renderer) {
+      return <div>Loading...</div>;
+    }
+    return <Exam sections={SECTIONS} renderer={renderer} width={WIDTH} />;
   }
 }

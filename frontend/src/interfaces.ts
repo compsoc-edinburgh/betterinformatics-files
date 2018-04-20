@@ -6,10 +6,12 @@ export enum SectionKind {
 }
 
 export interface AnswerSection {
+  key: React.Key;
   kind: SectionKind.Answer;
 }
 
 export interface PdfSection {
+  key: React.Key;
   kind: SectionKind.Pdf;
   start: CutPosition;
   end: CutPosition;
