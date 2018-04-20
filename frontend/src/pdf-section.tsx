@@ -5,11 +5,16 @@ import { SectionRenderer, Dimensions } from "./split-render";
 interface Props {
   section: PdfSection;
   renderer: SectionRenderer;
-  test?: string;
   width: number;
+  dpr: number; // Device Pixel Ratio
 }
 
-const contentRelevantProps: Array<keyof Props> = ["section", "renderer"];
+const contentRelevantProps: Array<keyof Props> = [
+  "section",
+  "renderer",
+  "width",
+  "dpr",
+];
 
 export default class PdfSectionComp extends React.Component<Props> {
   private ctx?: CanvasRenderingContext2D;
@@ -26,17 +31,24 @@ export default class PdfSectionComp extends React.Component<Props> {
     this.renderCanvas();
   }
 
-  componentDidRender() {
+  componentDidUpdate() {
     this.renderCanvas();
   }
 
   render() {
-    const { section } = this.props;
-    const { width, height } = this.sectionDimensions();
+    const { section, dpr } = this.props;
+    const rawDim = this.sectionDimensions();
+    const w = Math.ceil(rawDim.width);
+    const h = Math.ceil(rawDim.height);
     return (
       <div>
         PDF section: {JSON.stringify(section, null, 2)}
-        <canvas ref={this.saveCanvasRef} width={width} height={height} />
+        <canvas
+          ref={this.saveCanvasRef}
+          width={w * dpr}
+          height={h * dpr}
+          style={{ width: w, height: h }}
+        />
       </div>
     );
   }
@@ -53,9 +65,13 @@ export default class PdfSectionComp extends React.Component<Props> {
     this.lastCtx = this.ctx;
     this.propsChanged = false;
 
-    const { section, renderer } = this.props;
+    const { section, renderer, dpr } = this.props;
     const dim = this.sectionDimensions();
-    renderer.render({ ...dim, context: this.ctx }, section.start, section.end);
+    renderer.render(
+      { context: this.ctx, width: dim.width * dpr, height: dim.height * dpr },
+      section.start,
+      section.end,
+    );
   }
 
   saveCanvasRef = (c: HTMLCanvasElement) => {

@@ -26,24 +26,54 @@ const SECTIONS: Section[] = [
 const WIDTH = 800;
 
 interface State {
+  pdf?: pdfjs.PDFDocumentProxy;
   renderer?: SectionRenderer;
+  dpr: number;
 }
 
 export default class App extends React.Component<{}, State> {
-  state: State = {};
+  state: State = {
+    dpr: window.devicePixelRatio,
+  };
+  updateInverval: NodeJS.Timer;
 
   async componentWillMount() {
+    this.updateInverval = setInterval(this.updateZoom, 500);
+
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
     const pdf = await PDFJS.getDocument("/exam10.pdf");
-    this.setState({ renderer: await renderDocument(pdf, WIDTH) });
+    this.renderDocument(pdf);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.updateInverval);
+  }
+
+  updateZoom = () => {
+    const dpr = window.devicePixelRatio;
+    if (dpr === this.state.dpr) {
+      return;
+    }
+    this.setState({ dpr });
+    const { pdf } = this.state;
+    if (pdf) {
+      this.renderDocument(pdf);
+    }
+  };
+
+  async renderDocument(pdf: pdfjs.PDFDocumentProxy) {
+    const w = WIDTH * this.state.dpr;
+    this.setState({ pdf, renderer: await renderDocument(pdf, w) });
   }
 
   render() {
-    const { renderer } = this.state;
+    const { renderer, dpr } = this.state;
     if (!renderer) {
       return <div>Loading...</div>;
     }
-    return <Exam sections={SECTIONS} renderer={renderer} width={WIDTH} />;
+    return (
+      <Exam sections={SECTIONS} renderer={renderer} width={WIDTH} dpr={dpr} />
+    );
   }
 }

@@ -8,9 +8,10 @@ interface Props {
   renderer: SectionRenderer;
   sections: Section[];
   width: number;
+  dpr: number; // Device Pixel Ratio
 }
 
-export default ({ renderer, sections, width }: Props) => (
+export default ({ renderer, sections, width, dpr }: Props) => (
   <div>
     {sections.map(e => {
       switch (e.kind) {
@@ -23,6 +24,7 @@ export default ({ renderer, sections, width }: Props) => (
               section={e}
               renderer={renderer}
               width={width}
+              dpr={dpr}
             />
           );
         default:
