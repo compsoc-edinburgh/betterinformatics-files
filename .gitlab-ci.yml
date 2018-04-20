@@ -32,7 +32,7 @@ staging:
     name: $VIS_CI_APP_NAME-staging
     url: https://$VIS_CI_DEPLOYMENT_SUBDOMAIN.svis.ethz.ch
   script:
-    - do_staging
+    - do_deployment
   only:
     refs:
       - staging
