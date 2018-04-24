@@ -16,7 +16,7 @@ const lexer = moo.compile({
 %}
 @lexer lexer
 
-Main -> Decl (__ Decl):* {% e => R.filter(v => v, R.flatten(e)) %}
+Main -> _ Decl (__ Decl):* _ {% e => R.filter(v => v, R.flatten(e)) %}
 Decl -> RpcDecl | TypeDecl
 
 Builtin -> ("string" | "int32" | "bool" | "Timestamp") {% e => ({name: e[0][0].value, primitive: true}) %}

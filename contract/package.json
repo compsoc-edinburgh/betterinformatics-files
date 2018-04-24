@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "lodash": "^4.17.10",
     "moo": "^0.4.3",
     "nearley": "^2.13.0",
     "ramda": "^0.25.0"
