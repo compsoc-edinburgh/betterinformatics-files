@@ -1,0 +1,15 @@
+{
+  "name": "gen-contract",
+  "version": "1.0.0",
+  "main": "generate.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "moo": "^0.4.3",
+    "nearley": "^2.13.0",
+    "ramda": "^0.25.0"
+  },
+  "scripts": {
+    "generate": "nearleyc grammar.ne -o grammar.js && node generate.js"
+  }
+}
