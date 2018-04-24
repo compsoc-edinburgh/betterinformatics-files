@@ -1,6 +1,6 @@
 import * as React from "react";
-import { PdfSection } from "./interfaces";
-import { SectionRenderer, Dimensions } from "./split-render";
+import { PdfSection } from "../interfaces";
+import { SectionRenderer, Dimensions } from "../split-render";
 import { css } from "glamor";
 
 interface Props {

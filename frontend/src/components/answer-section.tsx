@@ -1,5 +1,5 @@
 import * as React from "react";
-import { AnswerSection } from "./interfaces";
+import { AnswerSection } from "../interfaces";
 import { css } from "glamor";
 import Answer from "./answer";
 

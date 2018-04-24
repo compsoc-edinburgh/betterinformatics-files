@@ -12,6 +12,8 @@ const styles = {
   }),
 };
 
+// TODO Actually format inline math
+
 export default ({ value }: Props) => {
   return <div {...styles.wrapper}>{value}</div>;
 };

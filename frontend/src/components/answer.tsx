@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Answer } from "./interfaces";
+import { Answer } from "../interfaces";
 import Comment from "./comment";
 import { css } from "glamor";
 import MathText from "./math-text";
