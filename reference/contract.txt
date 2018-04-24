@@ -1,0 +1,46 @@
+rpc ListDocuments Empty []DocumentInfo
+rpc GetDocument GetDocumentRequest Document
+rpc GetOwnUserInfo Empty UserInfo
+
+type Empty {}
+
+type DocumentInfo {
+  string id;
+  string name;
+}
+
+type GetDocumentRequest {
+  string id;
+}
+
+type Document {
+  DocumentInfo info;
+  []AnswerSection answer_sections;
+}
+
+type UserInfo {
+  string username;
+  bool is_admin;
+}
+
+type AnswerSection {
+  string id;
+  string creator_username;
+  []Answer answers;
+}
+
+type Answer {
+  string id;
+  string creator_username;
+  Timestamp created_at;
+  int32 upvotes;
+  string text;
+  []Comment comments;
+}
+
+type Comment {
+  string id;
+  string creator_username;
+  Timestamp created_at;
+  string text;
+}
