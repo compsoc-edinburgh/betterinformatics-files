@@ -8,6 +8,8 @@
     "@types/react": "^16.0.37",
     "@types/react-dom": "^16.0.4",
     "@types/react-router-dom": "^4.2.6",
+    "babel-core": "^6.26.3",
+    "babel-runtime": "^6.23.0",
     "glamor": "^2.20.40",
     "lodash": "^4.17.5",
     "pdfjs-dist": "^2.0.489",
@@ -16,7 +18,8 @@
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",
     "react-scripts-ts": "2.15.1",
-    "typescript": "^2.8.3"
+    "typescript": "^2.8.3",
+    "webpack": "^3.0.0"
   },
   "scripts": {
     "start": "react-scripts-ts start",

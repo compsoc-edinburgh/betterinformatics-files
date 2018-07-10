@@ -37,7 +37,7 @@ app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
 minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
 minio_client = Minio(
-    os.environ['RUNTIME_MINIO_SERVER'],
+    os.environ['RUNTIME_MINIO_HOST'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
     secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
     secure=minio_is_https)
