@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import { css } from "glamor";
 
 interface Props {
@@ -15,7 +16,7 @@ const styles = {
 
 export default ({ username }: Props) => (
   <div {...styles.wrapper}>
-    <div>Exam App</div>
+    <div><Link to="/">Exam App</Link></div>
     <div>{username}</div>
   </div>
 );

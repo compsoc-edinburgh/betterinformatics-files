@@ -11,14 +11,49 @@ const styles = {
   }),
 };
 
-export default () => (
-  <div>
-    <Header username="Fake User" />
-    <div {...styles.inner}>
-      <Switch>
-        <Route path="/exams/fake" component={Exam} />
-        <Route component={Home} />
-      </Switch>
-    </div>
-  </div>
-);
+interface State {
+  username: string;
+  displayname: string;
+  isAdmin: boolean;
+}
+
+export default class App extends React.Component<{}, State> {
+
+  state: State = {
+    username: "loading...",
+    displayname: "loading...",
+    isAdmin: false,
+  };
+
+  async componentWillMount() {
+    fetch("/api/user")
+      .then(res => res.json())
+      .then(
+        (res) => {
+          this.setState({
+            username: res.username,
+            displayname: res.displayname,
+            isAdmin: res.adminrights,
+          });
+        },
+        (error) => {
+          this.setState({displayname: "error"});
+          console.log(error);
+        }
+      );
+  }
+
+  render() {
+    return (
+      <div>
+        <Header username={this.state.displayname} />
+        <div {...styles.inner}>
+          <Switch>
+            <Route path="/exams/fake" component={Exam} />
+            <Route component={Home} />
+          </Switch>
+        </div>
+      </div>
+    )
+  }
+}

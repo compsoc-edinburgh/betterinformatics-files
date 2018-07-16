@@ -26,6 +26,7 @@ RUN pip3 install -r requirements.txt
 ENV PYTHONUNBUFFERED True
 
 COPY --from=0 /usr/src/app/build/index.html ./templates/index.html
+COPY --from=0 /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=0 /usr/src/app/build/static ./static
 COPY ./src/server.py .
 COPY ./src/people_pb2.py .

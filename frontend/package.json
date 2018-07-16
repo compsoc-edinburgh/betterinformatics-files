@@ -2,6 +2,13 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:8080",
+      "auth": "visdev:pass",
+      "changeOrigin": true
+    }
+  },
   "dependencies": {
     "@types/lodash": "^4.14.106",
     "@types/pdfjs-dist": "^0.1.2",

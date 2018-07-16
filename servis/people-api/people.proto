@@ -1,45 +1,109 @@
 syntax = "proto3";
 package people;
 
+// An API key must be provided in an "authorization" header in GRPC metadata.
+
 service People {
-    rpc GetVisLegacyPerson (GetPersonRequest) returns (VisLegacyPerson);
-    rpc AuthVisLegacyPerson (AuthPersonRequest) returns (AuthPersonResponse);
-    rpc ListVisLegacyPeopleStream (ListPeopleRequest) returns (stream VisLegacyPerson);
-    rpc ListVisLegacyPeople (ListPeopleRequest) returns (ListVisLegacyPeopleResponse);
+
+// ETH person
 
     rpc GetEthPerson (GetPersonRequest) returns (EthPerson);
+
     rpc AuthEthPerson (AuthPersonRequest) returns (AuthPersonResponse);
 
+
+// VIS person
+
+    rpc GetVisPerson (GetPersonRequest) returns (VisPerson);
+
+    rpc AuthVisPerson (AuthPersonRequest) returns (AuthPersonResponse);
+
+    rpc ListVisPeople (ListPeopleRequest) returns (stream VisPerson);
+
+    rpc CreateVisPerson (CreateVisPersonRequest) returns (Empty); // requires privileged API key
+
+    rpc ModifyVisPerson (ModifyVisPersonRequest) returns (Empty); // requires privileged API key
+
+    // DeletePreserveVisPerson deletes the specified VIS internal account.
+    // The deletion which moves the person to a "preserved" section in the
+    // storage backend, instead of actually deleting them.
+    // *Preserved people loose all their group memberships.*
+    // Preserved people look deleted in all API calls, except UndeletePreserveVisPerson.
+    // Background jobs or manual intervention may or may not eventually delete the person.
+    // If only a sort time has passed, it should normally be possible to recover the
+    // preserved person using UndeletePreservedVisPerson.
+    // If the person doesn't exist or is already "preserved" this RPC will fail.
+    rpc DeletePreserveVisPerson (WrappedUsername) returns (Empty); // requires privileged API key
+
+    // UndeletePreservedVisPerson reverses the effect of DeletePreserveVisPerson
+    // (except that all group memberships are lost).
+    // If the person has already been permanently deleted (eg. manually directly
+    // in the data store, or by a cleanup service), undeletion will fail.
+    // If the person doesn't exist this RPC will fail.
+    // When a person is preserved, their username stays reserved (no new user can be
+    // created with that username, until the preserved user is permanently deleted).
+    // Due to implementation constraints, *calling this on preserved Alumni users
+    // will convert them to VIS users, do not do this.*
+    rpc UndeletePreservedVisPerson (WrappedUsername) returns (Empty); // requires privileged API key
+
+
+// Alumni person (VIS alumni)
+
+    rpc GetAlumniPerson (GetPersonRequest) returns (AlumniPerson);
+
+    rpc AuthAlumniPerson (AuthPersonRequest) returns (AuthPersonResponse);
+
+    rpc ListAlumniPeople (ListPeopleRequest) returns (stream AlumniPerson);
+
+    rpc CreateAlumniPerson (CreateAlumniPersonRequest) returns (Empty); // requires privileged API key
+
+    rpc ModifyAlumniPerson (ModifyAlumniPersonRequest) returns (Empty); // requires privileged API key
+
+    // DeletePreserveAlumniPerson deletes the specified VIS internal account.
+    // The deletion which moves the person to a "preserved" section in the
+    // storage backend, instead of actually deleting them.
+    // *Preserved people loose all their group memberships.*
+    // Preserved people look deleted in all API calls, except UndeletePreserveAlumniPerson.
+    // Background jobs or manual intervention may or may not eventually delete the person.
+    // If only a sort time has passed, it should normally be possible to recover the
+    // preserved person using UndeletePreservedAlumniPerson.
+    // If the person doesn't exist or is already "preserved" this RPC will fail.
+    rpc DeletePreserveAlumniPerson (WrappedUsername) returns (Empty); // requires privileged API key
+
+    // UndeletePreservedAlumniPerson reverses the effect of DeletePreserveAlumniPerson
+    // (except that all group memberships are lost).
+    // If the person has already been permanently deleted (eg. manually directly
+    // in the data store, or by a cleanup service), undeletion will fail.
+    // If the person doesn't exist this RPC will fail.
+    // When a person is preserved, their username stays reserved (no new user can be
+    // created with that username, until the preserved user is permanently deleted).
+    // Due to implementation constraints, *calling this on preserved VIS users
+    // will convert them to Alumni users, do not do this.*
+    rpc UndeletePreservedAlumniPerson (WrappedUsername) returns (Empty); // requires privileged API key
+
+
+// Service account
+
+    // ModifyServiceAccount is not something you should use.
+    // It is made specifically for mailman to update email addresses in
+    // FreeIPA which are required to correctly route emails for mailing lists.
+    rpc ModifyServiceAccount(ModifyServiceAccountRequest) returns (Empty);
+
+
+// Miscellaneous
+
     rpc CheckLiveness (Empty) returns (Empty);
+
     rpc CheckReadiness (Empty) returns (Empty);
+
 }
 
-message GetPersonRequest {
-    string username = 1;
-}
 
-message ListPeopleRequest {
-}
-
-message ListVisLegacyPeopleResponse {
-    repeated VisLegacyPerson results = 1;
-}
-
-message AuthPersonRequest {
-    string username = 1;
-    string password = 2;
-}
-
-message AuthPersonResponse {
-    bool ok = 1;
-}
-
-message Empty {
-}
+// Shared
 
 enum MembershipType {
     NONE = 0;
-    ACTIVE = 1;
+    ACTIVE_DO_NOT_USE = 1 [deprecated = true];
     PASSIVE = 2;
     HONORARY = 3;
     ORDINARY = 4;
@@ -52,22 +116,143 @@ enum Language {
     ENGLISH = 3;
 }
 
-message VisLegacyPerson {
-    string first_name = 1;
-    string last_name = 2;
-    MembershipType vis_membership = 3;
-    repeated string vis_groups = 4; 
-    string vis_name = 5;
+// RepeatedStringValue just wraps a repeated string.
+// It is useful when it is used as field type (eg. `RepeatedStringValue emails = 1`), since it can be null.
+// This allows differentiating between no value (no RepeatedStringValue supplied) and an
+// empty list of strings (RepeatedStringValue supplied, but `repeated string value = 1` is empty).
+// See also: https://github.com/google/protobuf/blob/master/src/google/protobuf/wrappers.proto
+message RepeatedStringValue {
+    repeated string value = 1;
 }
+
+// StringValue is used for differentiating between no supplied value and an explicitly empty string.
+message StringValue {
+    string value = 1;
+}
+
+message Empty {}
+
+
+// Generic person
+
+message GetPersonRequest {
+    string username = 1;
+}
+
+message ListPeopleRequest {}
+
+message DeletePersonRequest {
+    string username = 1;
+}
+
+message AuthPersonRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message AuthPersonResponse {
+    bool ok = 1;
+}
+
+message WrappedUsername {
+    string username = 1;
+}
+
+
+// ETH person
 
 message EthPerson {
     string first_name = 1;
     string last_name = 2;
-    MembershipType vis_membership = 3;
-    string nethz = 5;
+    reserved 3;
+    MembershipType vis_membership = 10;
+    bool vis_active = 11;
+    string username = 5;
     string email = 6;
     Language preferred_language = 7;
-    int32 unique_id_nr = 8;
-    string unique_id = 9;
-    // TODO birthdate
+    int32 unique_id_nr = 8; // requires privileged API key
+    string unique_id = 9; // requires privileged API key
+}
+
+
+// VIS person
+
+message VisPerson {
+    string first_name = 1;
+    string last_name = 2;
+    string username = 5; // nethz
+    MembershipType vis_membership = 3;
+    bool vis_active = 6;
+    repeated string vis_groups = 4; 
+    string primary_email = 8; // official VIS email
+    repeated string alternative_emails = 7; // default comes from eth ldap (not student email), UI to change, required on create
+}
+
+message CreateVisPersonRequest {
+    string first_name = 1;
+    string last_name = 2;
+    string username = 5; // nethz
+    reserved 4;
+    repeated string alternative_emails = 7;
+}
+
+message ModifyVisPersonRequest {
+    string username = 1;
+
+    // updated if set:
+    string password = 2;
+    RepeatedStringValue alternative_emails = 3;
+    
+    // add_to_group contains the name of one group to add the user to.
+    // If add_to_group is not set (empty), nothing is done.
+    // If the user is already in that group, then nothing is changed and
+    // no error is returned. If the group doesn't exist, this fails.
+    string add_to_group = 4;
+    
+    // add_to_group contains the name of one group to remove the user from.
+    // If add_to_group is not set (empty), nothing is done.
+    // If the user is already not in that group, then nothing is changed and
+    // no error is returned. If the group doesn't exist, this fails.
+    string remove_from_group = 5;
+    
+    // Note: add_to_group and remove_from_group can not be equal.
+}
+
+
+// Alumni person
+
+message AlumniPerson {
+    string first_name = 1;
+    string last_name = 2;
+    string username = 5; // nethz
+    string primary_email = 8; // official VIS alumni email
+    repeated string alternative_emails = 7; // not eth student email
+    string street_address = 3;
+}
+
+message CreateAlumniPersonRequest {
+    string first_name = 1;
+    string last_name = 2;
+    string username = 5; // nethz
+    repeated string alternative_emails = 7; // not eth student email
+    string street_address = 3;
+}
+
+message ModifyAlumniPersonRequest {
+    string username = 1; 
+
+    // updated if set:
+    string password = 2;
+    RepeatedStringValue alternative_emails = 3;
+    StringValue street_address = 4;
+}
+
+
+// Service account
+
+message ModifyServiceAccountRequest {
+    string username = 1; 
+
+    // updated if set:
+    RepeatedStringValue alternative_emails = 3;
 }

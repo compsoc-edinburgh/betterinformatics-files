@@ -35,7 +35,8 @@ ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
-minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
+# Minio seems to run unsecured on port 80
+minio_is_https = False # os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
 minio_client = Minio(
     os.environ['RUNTIME_MINIO_HOST'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
@@ -78,9 +79,21 @@ def make_json_response(obj):
 def make_answer_section_response(oid):
     return make_json_response(answer_sections.find({"oid": oid}).limit(1)[0])
 
+def not_allowed():
+    return make_json_response({"err": "Not allowed"}), 403
+
+def not_found():
+    return make_json_response({"err": "Not found"}), 404
+
 
 @auth.verify_password
 def verify_pw(username, password):
+    if not username or not password:
+        return False
+    # TODO: REMOVE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if request.host == "localhost:8080" and username == "visdev":
+        return True
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     try:
         req = people_pb2.AuthPersonRequest(
             password=password, username=username)
@@ -94,7 +107,7 @@ def verify_pw(username, password):
 def has_admin_rights(username):
     try:
         req = people_pb2.GetPersonRequest(username=username)
-        res = people_client.GetVisLegacyPerson(req, metadata=people_metadata)
+        res = people_client.GetVisPerson(req, metadata=people_metadata)
     except grpc.RpcError as e:
         print("RPC error while checking admin rights", e)
         return False
@@ -108,28 +121,20 @@ def test():
 
 
 @app.route("/")
-def overview():
-    return """
-    Hey,
-
-    This is a page which is not used! You can check out an exam solution under: /sol/&lt;exam-name&gt;
-    Or you can upload one, if you have the permissions (are a member of cit, cat oder vorstand), under: /uploadpdf
-    """
-
-
-@app.route('/sol/<filename>')
 @auth.login_required
-def index(filename):
-    print("recieved")
-    if list(minio_client.list_objects(minio_bucket, prefix=filename)) != []:
-        return render_template('index.html')
-    else:
-        return "There is no file " + filename
+def index():
+    return render_template("index.html")
+
+
+@app.route('/exams/<filename>')
+@auth.login_required
+def exams(filename):
+    return index()
 
 
 @app.route("/favicon.ico")
 def favicon():
-    return send_from_directory('favicon.ico', "")
+    return send_from_directory('.', 'favicon.ico')
 
 
 def allowed_file(filename):
@@ -141,6 +146,7 @@ def is_pdf_in_minio(name):
     return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
 
 
+# TODO: change to api call, everything should go through react
 @app.route("/uploadpdf", methods=['POST', 'GET'])
 @auth.login_required
 def upload_pdf():
@@ -173,12 +179,9 @@ def upload_pdf():
 @auth.login_required
 def get_user():
     return make_json_response({
-        "adminrights":
-        has_admin_rights(auth.username()),
-        "username":
-        auth.username(),
-        "displayname":
-        auth.username()
+        "adminrights": has_admin_rights(auth.username()),
+        "username": auth.username(),
+        "displayname": auth.username()
     })
 
 
@@ -193,7 +196,7 @@ def get_answer_section(filename):
         "answersection": 1
     }).limit(1)
     if results.count() == 0:
-        return make_json_response({"err": "Not found"}), 404
+        return not_found()
     return make_json_response(results[0])
 
 
@@ -223,7 +226,7 @@ def new_answer_section(filename):
     username = auth.username()
     answer_section = {"answers": [], "asker": username}
     if not has_admin_rights(auth.username()):
-        return make_json_response({"err": "Not allowed"}), 403
+        return not_allowed()
     page_num = request.args["pageNum"]
     rel_height = request.args["relHeight"]
     result = answer_sections.find({
@@ -255,7 +258,7 @@ def remove_answer_section(filename):
         else:
             return make_json_response({"status": "error"})
     else:
-        return {"err": "NOT ALLOWED"}
+        return not_allowed()
 
 
 @app.route("/api/<filename>/togglelike")
@@ -304,8 +307,8 @@ def modify_answer(answer_oid, username, text):
         'answersection.answers.$': 1
     })[0]["answersection"]["answers"][0]
     answer["text"] = text
-    if answer["authorId"] == username:
-        raise RuntimeError("Cant modify other users answer")
+    if answer["authorId"] != username:
+        return not_allowed()
     answer_sections.update_one({
         'answersection.answers.oid': answer_oid
     }, {"$set": {
