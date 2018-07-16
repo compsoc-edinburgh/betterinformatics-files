@@ -1,9 +1,14 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
-export default () => (
+interface Props {
+  isAdmin?: boolean
+}
+
+export default ({ isAdmin }: Props) => (
   <div>
-    This is the home page. <br />
-    See the <Link to="/exams/fake">fake exam</Link>.
+    <p>This is the home page.</p>
+    <p>See the <Link to="/exams/fake">fake exam</Link>.</p>
+    {isAdmin && <p><Link to="/uploadpdf">Upload new exam</Link>.</p>}
   </div>
 );

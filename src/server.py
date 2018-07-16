@@ -85,15 +85,15 @@ def not_allowed():
 def not_found():
     return make_json_response({"err": "Not found"}), 404
 
+def not_possible(msg):
+    # TODO better HTTP Status Code
+    return make_json_response({"err": msg}), 418
+
 
 @auth.verify_password
 def verify_pw(username, password):
     if not username or not password:
         return False
-    # TODO: REMOVE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    if request.host == "localhost:8080" and username == "visdev":
-        return True
-    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     try:
         req = people_pb2.AuthPersonRequest(
             password=password, username=username)
@@ -146,35 +146,6 @@ def is_pdf_in_minio(name):
     return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
 
 
-# TODO: change to api call, everything should go through react
-@app.route("/uploadpdf", methods=['POST', 'GET'])
-@auth.login_required
-def upload_pdf():
-    if not has_admin_rights(auth.username()):
-        return jsonify({"err": "forbidden"}), 403
-    if request.method == "GET":
-        return '''
-        <!doctype html>
-        <title>Upload new File</title>
-        <h1>Upload new File</h1>
-        <form method=post enctype=multipart/form-data>
-            <p><input type=file name=file>
-                <input type=submit value=Upload>
-        </form>
-        '''
-    file = request.files.get('file', None)
-    if file is None or file.filename == '' or not allowed_file(file.filename):
-        return redirect(request.url)
-    secure_filename = make_secure_filename(file.filename)
-    if is_pdf_in_minio(secure_filename):
-        return "There is a file with this name already!"
-    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'],
-                                  secure_filename)
-    file.save(temp_file_path)
-    minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
-    return redirect(url_for('index', filename=secure_filename))
-
-
 @app.route("/api/user")
 @auth.login_required
 def get_user():
@@ -185,7 +156,7 @@ def get_user():
     })
 
 
-@app.route("/api/<filename>/answersection")
+@app.route("/api/exam/<filename>/answersection")
 @auth.login_required
 def get_answer_section(filename):
     oid = request.args.get("oid", "")
@@ -200,7 +171,7 @@ def get_answer_section(filename):
     return make_json_response(results[0])
 
 
-@app.route("/api/<filename>/cuts")
+@app.route("/api/exam/<filename>/cuts")
 @auth.login_required
 def get_cuts(filename):
     results = answer_sections.find({
@@ -220,7 +191,7 @@ def get_cuts(filename):
     return make_json_response(cuts)
 
 
-@app.route("/api/<filename>/newanswersection")
+@app.route("/api/exam/<filename>/newanswersection")
 @auth.login_required
 def new_answer_section(filename):
     username = auth.username()
@@ -247,7 +218,7 @@ def new_answer_section(filename):
     return make_json_response(new_doc)
 
 
-@app.route("/api/<filename>/removeanswersection")
+@app.route("/api/exam/<filename>/removeanswersection")
 @auth.login_required
 def remove_answer_section(filename):
     if has_admin_rights(auth.username()):
@@ -261,7 +232,7 @@ def remove_answer_section(filename):
         return not_allowed()
 
 
-@app.route("/api/<filename>/togglelike")
+@app.route("/api/exam/<filename>/togglelike")
 @auth.login_required
 def toggle_like(filename):
     answer_section_oid = ObjectId(request.args.get("answersectionoid", ""))
@@ -285,7 +256,7 @@ def toggle_like(filename):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/<filename>/setanswer", methods=["POST"])
+@app.route("/api/exam/<filename>/setanswer", methods=["POST"])
 @auth.login_required
 def set_answer(filename):
     answer_section_oid = ObjectId(request.args["answersectionoid"])
@@ -332,7 +303,7 @@ def add_answer(answer_section_oid, username, text):
     }})
 
 
-@app.route("/api/<filename>/addcomment", methods=["POST"])
+@app.route("/api/exam/<filename>/addcomment", methods=["POST"])
 @auth.login_required
 def add_comment(filename):
     answer_section_oid = ObjectId(request.args["answersectionoid"])
@@ -357,7 +328,7 @@ def add_comment(filename):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/<filename>/removecomment")
+@app.route("/api/exam/<filename>/removecomment")
 @auth.login_required
 def remove_comment(filename):
     answer_section_oid = ObjectId(request.args["answersectionoid"])
@@ -387,7 +358,7 @@ def remove_comment(filename):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/<filename>/removeanswer")
+@app.route("/api/exam/<filename>/removeanswer")
 @auth.login_required
 def remove_answer(filename):
     answer_section_oid = ObjectId(request.args["answersectionoid"])
@@ -409,7 +380,30 @@ def remove_answer(filename):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/pdf/<filename>")
+@app.route("/api/uploadpdf", methods=['POST'])
+@auth.login_required
+def uploadpdf():
+    if not has_admin_rights(auth.username()):
+        return not_allowed()
+    file = request.files.get('file', None)
+    if not file or not file.filename or not allowed_file(file.filename):
+        return not_possible("No valid file found")
+    filename = request.form.get("filename", "") or file.filename
+    if not allowed_file(filename):
+        return not_possible("Invalid file name")
+    secure_filename = make_secure_filename(filename)
+    if is_pdf_in_minio(secure_filename):
+        return not_possible("File already exists")
+    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], secure_filename)
+    file.save(temp_file_path)
+    minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
+    return make_json_response({
+        "result": "success",
+        "href": "/exams/" + secure_filename
+    })
+
+
+@app.route("/api/pdf/<filename>")
 @auth.login_required
 def pdf(filename):
     try:

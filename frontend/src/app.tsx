@@ -1,5 +1,6 @@
 import * as React from "react";
 import Exam from "./pages/exam";
+import UploadPDF from "./pages/uploadpdf";
 import Home from "./pages/home";
 import { Route, Switch } from "react-router";
 import Header from "./components/header";
@@ -50,10 +51,11 @@ export default class App extends React.Component<{}, State> {
         <div {...styles.inner}>
           <Switch>
             <Route path="/exams/fake" component={Exam} />
-            <Route component={Home} />
+            <Route path="/uploadpdf" component={UploadPDF} />
+            <Route render={(props) => (<Home isAdmin={this.state.isAdmin} />)} />
           </Switch>
         </div>
       </div>
     )
   }
-}
+};
