@@ -11,6 +11,7 @@ export interface AnswerSection {
   answers: Answer[];
   removed: boolean; // whether this section has been logically "removed"
   asker: string; // username of person who created section
+  oid: string; //TODO some unique ID?
 }
 
 export interface Answer {
@@ -39,4 +40,9 @@ export interface PdfSection {
 export interface CutPosition {
   page: number; // the first page is 1
   position: number;
+}
+
+export interface ServerCutPosition {
+  relHeight: number;
+  oid: string;
 }

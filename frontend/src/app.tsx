@@ -39,6 +39,7 @@ export default class App extends React.Component<{}, State> {
         },
         (error) => {
           this.setState({displayname: "error"});
+          // TODO implement proper error handling
           console.log(error);
         }
       );
@@ -50,9 +51,9 @@ export default class App extends React.Component<{}, State> {
         <Header username={this.state.displayname} />
         <div {...styles.inner}>
           <Switch>
-            <Route path="/exams/fake" component={Exam} />
+            <Route path="/exams/:filename" render={(props) => (<Exam {...props} filename={props.match.params.filename} />)} />
             <Route path="/uploadpdf" component={UploadPDF} />
-            <Route render={(props) => (<Home isAdmin={this.state.isAdmin} />)} />
+            <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} />)} />
           </Switch>
         </div>
       </div>

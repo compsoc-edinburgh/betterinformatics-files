@@ -18,6 +18,7 @@ export const SECTIONS: Section[] = [
     kind: SectionKind.Answer,
     removed: false,
     asker: "testusera",
+    oid: "123",
     answers: [
       {
         authorId: "testusera",
@@ -74,6 +75,7 @@ export const SECTIONS: Section[] = [
     kind: SectionKind.Answer,
     removed: true,
     asker: "testuserb",
+    oid: "1234",
     answers: [
       {
         authorId: "testuserb",

@@ -1,12 +1,12 @@
 import * as React from "react";
 import { renderDocument, SectionRenderer } from "../split-render";
-import { SectionKind } from "../interfaces";
+import { loadSections } from "../exam-loader";
+import { Section, SectionKind } from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
 import { debounce } from "lodash";
 import { css } from "glamor";
 import PdfSection from "../components/pdf-section";
-import AnswerSection from "../components/answer-section";
-import { SECTIONS } from "../fake-exam";
+import AnswerSectionComponent from "../components/answer-section";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -18,11 +18,16 @@ const styles = {
   }),
 };
 
+interface Props {
+  filename: string;
+}
+
 interface State {
   pdf?: pdfjs.PDFDocumentProxy;
   renderer?: SectionRenderer;
   width: number;
   dpr: number;
+  sections?: Section[];
 }
 
 function widthFromWindow(): number {
@@ -31,7 +36,7 @@ function widthFromWindow(): number {
   return Math.max(0, Math.min(MAX_WIDTH, document.body.clientWidth - 16));
 }
 
-export default class Exam extends React.Component<{}, State> {
+export default class Exam extends React.Component<Props, State> {
   state: State = {
     width: widthFromWindow(),
     dpr: window.devicePixelRatio,
@@ -46,8 +51,17 @@ export default class Exam extends React.Component<{}, State> {
 
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
-    const pdf = await PDFJS.getDocument("/exam10.pdf");
-    this.renderDocument(pdf);
+    try {
+      const pdf = await PDFJS.getDocument("/api/pdf/" + this.props.filename);
+      this.renderDocument(pdf);
+
+      loadSections(this.props.filename, pdf.numPages).then((sections) => {
+        this.setState({ sections: sections });
+      });
+    } catch (e) {
+      // TODO implement proper error handling
+      console.log(e);
+    }
   }
 
   componentWillUnmount() {
@@ -85,16 +99,16 @@ export default class Exam extends React.Component<{}, State> {
   }
 
   render() {
-    const { renderer, width, dpr } = this.state;
-    if (!renderer) {
+    const { renderer, width, dpr, sections } = this.state;
+    if (!renderer || !sections) {
       return <div>Loading...</div>;
     }
     return (
       <div style={{ width: width }} {...styles.wrapper}>
-        {SECTIONS.map(e => {
+        {sections.map(e => {
           switch (e.kind) {
             case SectionKind.Answer:
-              return <AnswerSection key={e.key} section={e} width={width} />;
+              return <AnswerSectionComponent key={e.key} filename={this.props.filename} oid={e.oid} width={width} />;
             case SectionKind.Pdf:
               return (
                 <PdfSection
