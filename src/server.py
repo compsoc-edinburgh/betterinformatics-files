@@ -3,9 +3,11 @@ from flask import Flask, g, request, redirect, url_for, send_from_directory, jso
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.utils import secure_filename as make_secure_filename
 import json, re
+import pymongo
 from pymongo import MongoClient
 from datetime import datetime
 import os
+from functools import wraps
 from flask import send_from_directory, render_template
 from minio import Minio
 from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
@@ -15,7 +17,6 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
 from passlib.apps import custom_app_context as pwd_context
 import traceback
 
-from os import listdir
 import grpc
 import people_pb2
 import people_pb2_grpc
@@ -61,6 +62,17 @@ mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
 mongo_db = MongoClient(mongo_url).get_database()
 
 answer_sections = mongo_db.answersections
+exam_categories = mongo_db.examcategories
+
+
+def require_admin(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        username = auth.username()
+        if not has_admin_rights(username):
+            return not_allowed()
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def date_handler(obj):
@@ -71,10 +83,8 @@ def date_handler(obj):
     else:
         return obj
 
-
 def make_json_response(obj):
     return json.dumps(obj, default=date_handler)
-
 
 def make_answer_section_response(oid):
     return success(value=answer_sections.find({"oid": oid}).limit(1)[0])
@@ -149,7 +159,11 @@ def allowed_file(filename):
 
 
 def is_pdf_in_minio(name):
-    return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
+    try:
+        minio_client.stat_object(minio_bucket, name)
+        return True
+    except NoSuchKey:
+        return False
 
 
 @app.route("/api/user")
@@ -215,6 +229,7 @@ def get_answer_section(filename, oid):
 
 @app.route("/api/exam/<filename>/newanswersection", methods=["POST"])
 @auth.login_required
+@require_admin
 def new_answer_section(filename):
     """
     Adds a new answersection to 'filename'.
@@ -222,8 +237,6 @@ def new_answer_section(filename):
     """
     username = auth.username()
     answer_section = {"answers": [], "asker": username}
-    if not has_admin_rights(username):
-        return not_allowed()
     page_num = request.form.get("pageNum", None)
     rel_height = request.form.get("relHeight", None)
     if page_num is None or rel_height is None:
@@ -253,14 +266,12 @@ def new_answer_section(filename):
 
 @app.route("/api/exam/<filename>/removeanswersection", methods=["POST"])
 @auth.login_required
+@require_admin
 def remove_answer_section(filename):
     """
     Delete the answersection with the given oid.
     POST Parameter 'oid'.
     """
-    username = auth.username()
-    if not has_admin_rights(username):
-        return not_allowed()
     oid_str = request.form.get("oid", None)
     if oid_str is None:
         return not_possible("Missing argument")
@@ -341,7 +352,7 @@ def set_answer(filename, sectionoid):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/exam/<filename>/removeanswer/<sectionoid>")
+@app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=["POST"])
 @auth.login_required
 def remove_answer(filename, sectionoid):
     """
@@ -416,28 +427,98 @@ def remove_comment(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
+@app.route("/api/listcategories")
+@auth.login_required
+def list_categories():
+    include_exams = 1 if request.args.get('exams', "1") != "0" else 0
+    projection = { "_id": 0, "name": 1 }
+    if request.args.get('exams', "1") != "0":
+        projection["exams"] = 1
+    results = exam_categories.find({
+    }, projection).sort([("name", pymongo.ASCENDING)])
+    return success(value=list(results))
+
+
+@app.route("/api/category/<category>/list")
+@auth.login_required
+def list_category(category):
+    results = exam_categories.find_one({
+        "name": category
+    }, {
+        "exams": 1
+    })
+    return success(value=results["exams"])
+
+
+
+@app.route("/api/category/<category>/add", methods=["POST"])
+@auth.login_required
+@require_admin
+def add_exam_category_api(category):
+    add_exam_category(category, request.form["exam"])
+    return success()
+
+
+def add_exam_category(category, exam):
+    """
+    Add the exam to the given category
+    """
+    exam_categories.update_one({
+        "name": category
+    }, {
+        "$set": {
+            "name": category
+        },
+        "$addToSet": {
+            "exams": exam
+        }
+    }, upsert=True)
+
+
+@app.route("/api/category/<category>/remove", methods=["POST"])
+@auth.login_required
+@require_admin
+def remove_exam_category_api(category):
+    remove_exam_category(category, request.form["exam"])
+    return success()
+
+
+def remove_exam_category(category, exam):
+    """
+    Remove the exam from the given category
+    """
+    exam_categories.update_one({
+        "name": category
+    }, {
+        "$pull": {
+            "exams": exam
+        }
+    })
+
+
 @app.route("/api/uploadpdf", methods=['POST'])
 @auth.login_required
+@require_admin
 def uploadpdf():
     """
     Allows uploading a new pdf.
     File as 'file'.
     Optional POST Parameter 'filename' with filename to use.
     """
-    if not has_admin_rights(auth.username()):
-        return not_allowed()
     file = request.files.get('file', None)
     if not file or not file.filename or not allowed_file(file.filename):
         return not_possible("No valid file found")
     filename = request.form.get("filename", "") or file.filename
     if not allowed_file(filename):
         return not_possible("Invalid file name")
+    category = request.form.get("category", "") or "default"
     secure_filename = make_secure_filename(filename)
     if is_pdf_in_minio(secure_filename):
         return not_possible("File already exists")
     temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], secure_filename)
     file.save(temp_file_path)
     minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
+    add_exam_category(category, secure_filename)
     return success(href="/exams/" + secure_filename)
 
 

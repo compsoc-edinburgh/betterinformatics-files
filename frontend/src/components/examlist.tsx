@@ -1,8 +1,13 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 
+interface Category {
+  name: string,
+  exams: string[]
+}
+
 interface State {
-  exams?: string[]
+  categories?: Category[]
 }
 
 export default class ExamList extends React.Component<{}, State> {
@@ -11,9 +16,9 @@ export default class ExamList extends React.Component<{}, State> {
 
   async componentWillMount() {
     try {
-      const res = await (await fetch('/api/listexams')).json();
+      const res = await (await fetch('/api/listcategories')).json();
       this.setState({
-        exams: res.value
+        categories: res.value
       });
     } catch (e) {
       // TODO implement proper error handling
@@ -22,15 +27,18 @@ export default class ExamList extends React.Component<{}, State> {
   }
 
   render() {
-    const exams = this.state.exams;
-    if (exams) {
-      return (
-        <ul>
-          {exams.map(exam => (
-            <li><Link to={"/exams/" + exam}>exam</Link></li>
-          ))}
-        </ul>
-      );
+    const categories = this.state.categories;
+    if (categories) {
+      return categories.map(category => (
+        <div key={category.name}>
+          <p>{category.name}</p>
+          <ul>
+            {category.exams.map(exam => (
+              <li key={exam}><Link to={"/exams/" + exam}>{ exam }</Link></li>
+            ))}
+          </ul>
+        </div>
+      ));
     } else {
       return (<p>Loading exam list...</p>);
     }
