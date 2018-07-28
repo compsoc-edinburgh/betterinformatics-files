@@ -42,12 +42,12 @@ export default class Exam extends React.Component<Props, State> {
     dpr: window.devicePixelRatio,
   };
   updateInverval: NodeJS.Timer;
-  debouncedRender: this["renderDocument"];
+  debouncedRender: (this["renderDocumentToState"]);
 
   async componentWillMount() {
     this.updateInverval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
-    this.debouncedRender = debounce(this.renderDocument, RERENDER_INTERVAL);
+    this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
 
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
@@ -55,7 +55,7 @@ export default class Exam extends React.Component<Props, State> {
       const pdf = await PDFJS.getDocument("/api/pdf/" + this.props.filename);
 
       await Promise.all([
-        this.renderDocument(pdf),
+        this.renderDocumentToState(pdf),
         loadSections(this.props.filename, pdf.numPages).then((sections) => {
           this.setState({ sections: sections });
         })
@@ -69,6 +69,10 @@ export default class Exam extends React.Component<Props, State> {
   componentWillUnmount() {
     clearInterval(this.updateInverval);
     window.removeEventListener("resize", this.onResize);
+    this.setState({
+      pdf: undefined,
+      renderer: undefined
+    });
   }
 
   onResize = () => {
@@ -91,11 +95,11 @@ export default class Exam extends React.Component<Props, State> {
     this.setState({ dpr });
     const { pdf } = this.state;
     if (pdf) {
-      this.renderDocument(pdf);
+      this.renderDocumentToState(pdf);
     }
   };
 
-  async renderDocument(pdf: pdfjs.PDFDocumentProxy) {
+  async renderDocumentToState(pdf: pdfjs.PDFDocumentProxy) {
     const w = this.state.width * this.state.dpr;
     this.setState({ pdf, renderer: await renderDocument(pdf, w) });
   }

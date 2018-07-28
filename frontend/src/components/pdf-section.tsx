@@ -81,6 +81,9 @@ export default class PdfSectionComp extends React.Component<Props> {
   }
 
   saveCanvasRef = (c: HTMLCanvasElement) => {
+    if (!c) {
+      return;
+    }
     const ctx = c.getContext("2d");
     if (!ctx) {
       // tslint:disable-next-line:no-console
