@@ -435,6 +435,7 @@ def list_categories():
     if request.args.get('exams', "1") != "0":
         projection["exams"] = 1
     results = exam_categories.find({
+        "exams": { "$gt": [] }
     }, projection).sort([("name", pymongo.ASCENDING)])
     return success(value=list(results))
 
@@ -443,7 +444,8 @@ def list_categories():
 @auth.login_required
 def list_category(category):
     results = exam_categories.find_one({
-        "name": category
+        "name": category,
+        "exams": { "$gt": [] }
     }, {
         "exams": 1
     })

@@ -12,5 +12,6 @@ export default ({ isAdmin }: Props) => (
     <p>Available exams:</p>
     <ExamList />
     {isAdmin && <p><Link to="/uploadpdf">Upload new exam</Link>.</p>}
+    {isAdmin && <p><Link to="/categorize">Categorize exams</Link>.</p>}
   </div>
 );

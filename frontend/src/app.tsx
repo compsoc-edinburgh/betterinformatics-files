@@ -1,6 +1,7 @@
 import * as React from "react";
 import Exam from "./pages/exam";
 import UploadPDF from "./pages/uploadpdf";
+import Categorize from "./pages/categorize";
 import Home from "./pages/home";
 import { Route, Switch } from "react-router";
 import Header from "./components/header";
@@ -49,6 +50,7 @@ export default class App extends React.Component<{}, State> {
           <Switch>
             <Route path="/exams/:filename" render={(props) => (<Exam {...props} filename={props.match.params.filename} />)} />
             <Route path="/uploadpdf" component={UploadPDF} />
+            <Route path="/categorize" component={Categorize} />
             <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} />)} />
           </Switch>
         </div>

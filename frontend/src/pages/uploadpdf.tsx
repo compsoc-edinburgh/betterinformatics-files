@@ -38,7 +38,7 @@ export default class UploadPDF extends React.Component<{}, State> {
 
     fetchpost('/api/uploadpdf', {
       file: this.state.file,
-      filename: this.state.fileName,
+      filename: this.state.fileName + ".pdf",
       category: this.state.category
     })
     .then((response) => {
