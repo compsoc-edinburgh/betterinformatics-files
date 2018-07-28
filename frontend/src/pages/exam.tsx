@@ -53,11 +53,13 @@ export default class Exam extends React.Component<Props, State> {
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
     try {
       const pdf = await PDFJS.getDocument("/api/pdf/" + this.props.filename);
-      this.renderDocument(pdf);
 
-      loadSections(this.props.filename, pdf.numPages).then((sections) => {
-        this.setState({ sections: sections });
-      });
+      await Promise.all([
+        this.renderDocument(pdf),
+        loadSections(this.props.filename, pdf.numPages).then((sections) => {
+          this.setState({ sections: sections });
+        })
+      ]);
     } catch (e) {
       // TODO implement proper error handling
       console.log(e);
@@ -108,7 +110,7 @@ export default class Exam extends React.Component<Props, State> {
         {sections.map(e => {
           switch (e.kind) {
             case SectionKind.Answer:
-              return <AnswerSectionComponent key={e.key} filename={this.props.filename} oid={e.oid} width={width} />;
+              return <AnswerSectionComponent key={e.oid} filename={this.props.filename} oid={e.oid} width={width} />;
             case SectionKind.Pdf:
               return (
                 <PdfSection

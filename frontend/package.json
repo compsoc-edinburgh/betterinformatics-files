@@ -15,7 +15,6 @@
     "@types/react": "^16.0.37",
     "@types/react-dom": "^16.0.4",
     "@types/react-router-dom": "^4.2.6",
-    "axios": "^0.18.0",
     "babel-core": "^6.26.3",
     "babel-runtime": "^6.23.0",
     "glamor": "^2.20.40",

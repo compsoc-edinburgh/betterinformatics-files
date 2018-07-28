@@ -1,6 +1,6 @@
 import { Section, AnswerSection, SectionKind, PdfSection, ServerCutPosition } from "./interfaces";
 
-function createPdfAction(key: number, page: number, start: number, end: number): PdfSection {
+function createPdfSection(key: number, page: number, start: number, end: number): PdfSection {
   return {
     key: key,
     kind: SectionKind.Pdf,
@@ -28,26 +28,23 @@ export async function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       cuts[i].foreach((cut: ServerCutPosition) => {
-        const position = cut.relHeight;
-        const oid = cut.oid;
+        const { relHeight: position, oid } = cut
         if (position !== lastpos) {
-          sections.push(createPdfAction(akey, i+1, lastpos, position));
+          sections.push(createPdfSection(akey, i+1, lastpos, position));
           akey++;
           lastpos = position;
         }
         sections.push({
-          key: akey,
+          oid: oid,
           kind: SectionKind.Answer,
           answers: [],
           removed: false,
-          asker: "",
-          oid: oid
+          asker: ""
         });
-        akey++;
       });
     }
     if (lastpos < 1) {
-      sections.push(createPdfAction(akey, i+1, lastpos, 1));
+      sections.push(createPdfSection(akey, i+1, lastpos, 1));
       akey++;
     }
   }

@@ -36,7 +36,8 @@ app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
 # Minio seems to run unsecured on port 80
-minio_is_https = False # os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
+minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https') and \
+    not os.environ.get('RUNTIME_MINIO_HOST', '') == 'visdev-minio'
 minio_client = Minio(
     os.environ['RUNTIME_MINIO_HOST'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
@@ -79,17 +80,19 @@ def make_answer_section_response(oid):
     return success(value=answer_sections.find({"oid": oid}).limit(1)[0])
 
 def not_allowed():
-    return make_json_response({"status": "err", "err": "Not allowed"}), 403
+    return make_json_response({"err": "Not allowed"}), 403
 
 def not_found():
-    return make_json_response({"status": "err", "err": "Not found"}), 404
+    return make_json_response({"err": "Not found"}), 404
 
 def not_possible(msg):
-    # TODO better HTTP Status Code
-    return make_json_response({"status": "err", "err": msg}), 418
+    return make_json_response({"err": msg}), 400
+
+def internal_error(msg):
+    print(msg)
+    return make_json_response({"err": "Internal error"}), 500
 
 def success(**kwargs):
-    kwargs["status"] = "success"
     return make_json_response(kwargs)
 
 
@@ -162,12 +165,20 @@ def get_user():
     )
 
 
+@app.route("/api/listexams")
+@auth.login_required
+def list_exams():
+    """
+    Returns a list of all exams
+    """
+    return success(value=[obj.object_name for obj in minio_client.list_objects(minio_bucket)])
+
 @app.route("/api/exam/<filename>/cuts")
 @auth.login_required
 def get_cuts(filename):
     """
     Returns all cuts for the file 'filename'.
-    Dictionary of 'pageNum', each a list of ('relHeight', 'oid') of the cuts for the page.
+    Dictionary of 'pageNum', each a list of ('relHeight', 'oid') of the cuts for the page sorted by relHeight.
     """
     results = answer_sections.find({
         "filename": filename
@@ -217,13 +228,18 @@ def new_answer_section(filename):
     rel_height = request.form.get("relHeight", None)
     if page_num is None or rel_height is None:
         return not_possible("Missing argument")
+    # it would be nice to check that page_num is valid, but then we
+    # would have to load the pdf to know how many pages it has.
+    # Just trust the client...
+    if not 0 <= rel_height <= 1:
+        return not_possible("Invalid relative height")
     result = answer_sections.find_one({
         "pageNum": page_num,
         "filename": filename,
         "relHeight": rel_height
     })
     if result:
-        return make_json_response(result)
+        return not_possible("Answer section already exists")
     new_doc = {
         "filename": filename,
         "pageNum": page_num,
@@ -252,7 +268,7 @@ def remove_answer_section(filename):
     if answer_sections.delete_one({"oid": oid}).deleted_count > 0:
         return success()
     else:
-        return not_possible("Could not delete answersection")
+        return internal_error("Could not delete answersection")
 
 
 @app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=["POST"])
@@ -265,23 +281,19 @@ def set_like(filename, sectionoid, answeroid):
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
     username = auth.username()
-    answer = answer_sections.find({
-        "answersection.answers.oid": answer_oid
-    }, {
-        "_id": 0,
-        'answersection.answers.$': 1
-    })[0]["answersection"]["answers"][0]
     like = request.form.get("like", 0) != 0
     if like:
-        if username not in answer["upvotes"]:
-            answer["upvotes"].append(username)
+        answer_sections.update_one({
+            'answersection.answers.oid': oid
+        }, { '$addToSet': {
+            'answersection.answers.$.upvotes': username
+        }})
     else:
-        answer["upvotes"].remove(username)
-    answer_sections.update_one({
-        'answersection.answers.oid': oid
-    }, {"$set": {
-        'answersection.answers.$': answer
-    }})
+        answer_sections.update_one({
+            'answersection.answers.oid': oid
+        }, { '$pull': {
+            'answersection.answers.$.upvotes': username
+        }})
     return make_answer_section_response(answer_section_oid)
 
 
@@ -290,6 +302,7 @@ def set_like(filename, sectionoid, answeroid):
 def set_answer(filename, sectionoid):
     """
     Sets the answer for the given section for the current user.
+    This enforces that each user can only have one answer.
     POST Parameter 'text'.
     """
     answer_section_oid = ObjectId(sectionoid)
@@ -306,47 +319,26 @@ def set_answer(filename, sectionoid):
         "answersection.answers.$": 1
     })
     if maybe_answer:
-        modify_answer(maybe_answer["answersection"]["answers"][0]["oid"], text)
+        answer_sections.update_one({
+            'answersection.answers.oid': maybe_answer["answersection"]["answers"][0]["oid"]
+        }, {"$set": {
+            'answersection.answers.$.text': text
+        }})
     else:
-        add_answer(answer_section_oid, username, text)
+        answer = {
+            "authorId": username,
+            "text": text,
+            "comments": [],
+            "upvotes": [],
+            "time": datetime.utcnow(),
+            "oid": ObjectId()
+        }
+        answer_sections.update_one({
+            "oid": answer_section_oid
+        }, {'$push': {
+            "answersection.answers": answer
+        }})
     return make_answer_section_response(answer_section_oid)
-
-
-def modify_answer(answer_oid, text):
-    """
-    Sets the text of the given answer.
-    """
-    answer = answer_sections.find({
-        "answersection.answers.oid": answer_oid
-    }, {
-        "_id": 0,
-        'answersection.answers.$': 1
-    })[0]["answersection"]["answers"][0]
-    answer["text"] = text
-    answer_sections.update_one({
-        'answersection.answers.oid': answer_oid
-    }, {"$set": {
-        'answersection.answers.$': answer
-    }})
-
-
-def add_answer(answer_section_oid, username, text):
-    """
-    Adds a new answer with the given text for the given user in the given section.
-    """
-    answer = {
-        "authorId": username,
-        "text": text,
-        "comments": [],
-        "upvotes": [],
-        "time": datetime.utcnow(),
-        "oid": ObjectId()
-    }
-    answer_sections.update_one({
-        "oid": answer_section_oid
-    }, {'$push': {
-        "answersection.answers": answer
-    }})
 
 
 @app.route("/api/exam/<filename>/removeanswer/<sectionoid>")
@@ -357,18 +349,11 @@ def remove_answer(filename, sectionoid):
     """
     answer_section_oid = ObjectId(sectionoid)
     username = auth.username()
-    answer = answer_sections.find_one({
-        "answersection.oid": answer_section_oid,
-        "answersection.answers.authorId": username
-    }, {
-        "_id": 0,
-        'answersection.answers.$': 1
-    })["answersection"]["answers"][0]
     answer_sections.update_one({
         'answersection.oid': answer_section_oid
     }, {"$pull": {
         'answersection.answers': {
-            'oid': answer["oid"]
+            'authorId': username
         }
     }})
     return make_answer_section_response(answer_section_oid)
@@ -388,27 +373,17 @@ def add_comment(filename, sectionoid, answeroid):
     if not text:
         return not_possible("Missing argument")
 
-    answer = answer_sections.find_one({
-        "answersection.answers.oid": answer_oid
-    }, {
-        "_id": 0,
-        "answersection.answers.$": 1
-    })
-
-    if not answer:
-        return not_found()
-
-    answer["comments"].append({
+    comment = {
         "text": text,
         "authorId": username,
         "time": datetime.utcnow(),
         "oid": ObjectId()
-    })
+    }
     answer_sections.update_one({
         "answersection.answers.oid": answer_oid
     }, {
-        "$set": {
-            "answersection.answers.$": answer
+        "$push": {
+            "answersection.answers.$.comments": comment
         }
     })
     return make_answer_section_response(answer_section_oid)
@@ -427,25 +402,14 @@ def remove_comment(filename, sectionoid, answeroid):
         return not_possible("Missing argument")
     comment_oid = ObjectId(oid_str)
 
-    comment = answer_sections.find_one({
-        "answersection.answers.comments.oid": comment_oid
-    }, {
-        "_id": 0,
-        "answersection.answers.$.comments.$": 1
-    })
-
     username = auth.username()
-
-    if not comment:
-        return not_found()
-    if comment["authorId"] != username:
-        return not_allowed()
     answer_sections.update_one({
         "answersections.answer_section.comments.oid": comment_oid
     }, {
         "$pull": {
             "answersection.answers.$.comments": {
-                "oid": comment_oid
+                "oid": comment_oid,
+                "authorId": username
             }
         }
     })

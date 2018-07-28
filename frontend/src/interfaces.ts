@@ -6,28 +6,27 @@ export enum SectionKind {
 }
 
 export interface AnswerSection {
-  key: React.Key;
+  oid: string; // unique id within answer sections
   kind: SectionKind.Answer;
   answers: Answer[];
   removed: boolean; // whether this section has been logically "removed"
   asker: string; // username of person who created section
-  oid: string; //TODO some unique ID?
 }
 
 export interface Answer {
+  oid: string; // unique id within answers
   upvotes: string[]; // usernames of people who upvoted
   authorId: string; // username
   comments: Comment[];
   text: string;
-  time: string; // ISO 8601 // TODO probably creation time?
-  oid: string; // TODO some unique ID?
+  time: string; // ISO 8601, creation time
 }
 
 export interface Comment {
+  oid: string; // unique id within comments
   text: string;
   authorId: string; // username
-  time: string; // ISO 8601 // TODO probably creation time?
-  oid: string; // TODO some unique ID?
+  time: string; // ISO 8601, creation time
 }
 
 export interface PdfSection {

@@ -21,34 +21,30 @@ interface State {
 export default class App extends React.Component<{}, State> {
 
   state: State = {
-    username: "loading...",
-    displayname: "loading...",
+    username: "",
+    displayname: "",
     isAdmin: false,
   };
 
   async componentWillMount() {
-    fetch("/api/user")
-      .then(res => res.json())
-      .then(
-        (res) => {
-          this.setState({
-            username: res.username,
-            displayname: res.displayname,
-            isAdmin: res.adminrights,
-          });
-        },
-        (error) => {
-          this.setState({displayname: "error"});
-          // TODO implement proper error handling
-          console.log(error);
-        }
-      );
+    try {
+      const res = await (await fetch("/api/user")).json();
+      this.setState({
+        username: res.username,
+        displayname: res.displayname,
+        isAdmin: res.adminrights,
+      });
+    } catch (e) {
+      this.setState({displayname: "error"});
+      // TODO implement proper error handling
+      console.log(e);
+    }
   }
 
   render() {
     return (
       <div>
-        <Header username={this.state.displayname} />
+        <Header username={this.state.displayname ? this.state.displayname : "loading..."} />
         <div {...styles.inner}>
           <Switch>
             <Route path="/exams/:filename" render={(props) => (<Exam {...props} filename={props.match.params.filename} />)} />

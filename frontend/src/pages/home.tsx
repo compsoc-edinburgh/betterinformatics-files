@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
+import ExamList from "../components/examlist"
 
 interface Props {
   isAdmin?: boolean
@@ -7,8 +8,9 @@ interface Props {
 
 export default ({ isAdmin }: Props) => (
   <div>
-    <p>This is the home page.</p>
-    <p>See the <Link to="/exams/fake">fake exam</Link>.</p>
+    <h1>VIS Exam Solution Exchange</h1>
+    <p>Available exams:</p>
+    <ExamList />
     {isAdmin && <p><Link to="/uploadpdf">Upload new exam</Link>.</p>}
   </div>
 );
