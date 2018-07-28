@@ -203,9 +203,12 @@ def get_cuts(filename):
     })
     pages = {}
     for cut in results:
-        pages.setdefault(cut["pageNum"], []).append([cut["relHeight"], str(cut["_id"])])
+        pages.setdefault(cut["pageNum"], []).append({
+            "relHeight": cut["relHeight"],
+            "oid": str(cut["_id"])
+        })
     for page in pages.values():
-        page.sort(key=lambda x: float(x[0]))
+        page.sort(key=lambda x: float(x["relHeight"]))
     return success(value=pages)
 
 
@@ -224,6 +227,8 @@ def get_answer_section(filename, oid):
     })
     if not result:
         return not_found()
+    result["oid"] = result["_id"]
+    del result["_id"]
     return success(value=result)
 
 
@@ -240,6 +245,7 @@ def new_answer_section(filename):
     rel_height = request.form.get("relHeight", None)
     if page_num is None or rel_height is None:
         return not_possible("Missing argument")
+    rel_height = float(rel_height)
     # it would be nice to check that page_num is valid, but then we
     # would have to load the pdf to know how many pages it has.
     # Just trust the client...

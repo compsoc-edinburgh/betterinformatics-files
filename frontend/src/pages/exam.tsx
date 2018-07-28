@@ -20,6 +20,7 @@ const styles = {
 
 interface Props {
   filename: string;
+  isAdmin: boolean;
 }
 
 interface State {
@@ -56,9 +57,7 @@ export default class Exam extends React.Component<Props, State> {
 
       await Promise.all([
         this.renderDocumentToState(pdf),
-        loadSections(this.props.filename, pdf.numPages).then((sections) => {
-          this.setState({ sections: sections });
-        })
+        this.loadSectionsFromBackend(pdf)
       ]);
     } catch (e) {
       // TODO implement proper error handling
@@ -99,10 +98,16 @@ export default class Exam extends React.Component<Props, State> {
     }
   };
 
-  async renderDocumentToState(pdf: pdfjs.PDFDocumentProxy) {
+  renderDocumentToState = async (pdf: pdfjs.PDFDocumentProxy) => {
     const w = this.state.width * this.state.dpr;
     this.setState({ pdf, renderer: await renderDocument(pdf, w) });
-  }
+  };
+
+  loadSectionsFromBackend = async (pdf: pdfjs.PDFDocumentProxy) => {
+    loadSections(this.props.filename, pdf.numPages).then((sections) => {
+      this.setState({ sections: sections });
+    });
+  };
 
   render() {
     const { renderer, width, dpr, sections } = this.state;
@@ -123,6 +128,9 @@ export default class Exam extends React.Component<Props, State> {
                   renderer={renderer}
                   width={width}
                   dpr={dpr}
+                  isAdmin={this.props.isAdmin}
+                  filename={this.props.filename}
+                  onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
                 />
               );
             default:

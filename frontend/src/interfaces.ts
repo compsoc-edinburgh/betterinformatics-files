@@ -43,5 +43,5 @@ export interface CutPosition {
 
 export interface ServerCutPosition {
   relHeight: number;
-  _id: string;
+  oid: string;
 }

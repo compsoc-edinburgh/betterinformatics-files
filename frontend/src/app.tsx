@@ -48,7 +48,7 @@ export default class App extends React.Component<{}, State> {
         <Header username={this.state.displayname ? this.state.displayname : "loading..."} />
         <div {...styles.inner}>
           <Switch>
-            <Route path="/exams/:filename" render={(props) => (<Exam {...props} filename={props.match.params.filename} />)} />
+            <Route path="/exams/:filename" render={(props) => (<Exam {...props} filename={props.match.params.filename} isAdmin={this.state.isAdmin} />)} />
             <Route path="/uploadpdf" component={UploadPDF} />
             <Route path="/categorize" component={Categorize} />
             <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} />)} />

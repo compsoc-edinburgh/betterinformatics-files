@@ -1,6 +1,7 @@
 import * as React from "react";
 import { PdfSection } from "../interfaces";
 import { SectionRenderer, Dimensions } from "../split-render";
+import { fetchpost } from '../fetchutils'
 import { css } from "glamor";
 
 interface Props {
@@ -8,6 +9,9 @@ interface Props {
   renderer: SectionRenderer;
   width: number;
   dpr: number; // Device Pixel Ratio
+  isAdmin: boolean;
+  filename: string;
+  onSectionChange: () => void;
 }
 
 const styles = {
@@ -42,6 +46,21 @@ export default class PdfSectionComp extends React.Component<Props> {
     this.renderCanvas();
   }
 
+  addSection = async (ev: React.MouseEvent<HTMLElement>) => {
+    const boundingRect = ev.currentTarget.getBoundingClientRect()
+    const yoff = ev.clientY - boundingRect.top;
+    const relative = yoff / boundingRect.height;
+    const start = this.props.section.start.position;
+    const end = this.props.section.end.position;
+    const relHeight = start + relative * (end - start);
+
+    await fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
+      pageNum: this.props.section.start.page,
+      relHeight: relHeight
+    });
+    this.props.onSectionChange();
+  };
+
   render() {
     const { dpr } = this.props;
     const rawDim = this.sectionDimensions();
@@ -50,6 +69,7 @@ export default class PdfSectionComp extends React.Component<Props> {
         ref={this.saveCanvasRef}
         width={Math.ceil(rawDim.width * dpr)}
         height={Math.ceil(rawDim.height * dpr)}
+        onClick={this.props.isAdmin ? this.addSection : undefined}
         style={{
           width: Math.ceil(rawDim.width),
           height: Math.ceil(rawDim.height),

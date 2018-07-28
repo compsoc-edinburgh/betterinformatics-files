@@ -22,6 +22,8 @@ const styles = {
 
 export default class AnswerSectionComponent extends React.Component<Props, State> {
 
+  state: State = {}
+
   async componentWillMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
       .then((res) => this.setState({section: res}));
