@@ -11,7 +11,7 @@ interface Props {
 }
 
 interface State {
-  section?: AnswerSection
+  section?: AnswerSection;
 }
 
 const styles = {

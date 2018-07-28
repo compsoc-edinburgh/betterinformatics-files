@@ -87,7 +87,7 @@ def make_json_response(obj):
     return json.dumps(obj, default=date_handler)
 
 def make_answer_section_response(oid):
-    return success(value=answer_sections.find({"oid": oid}).limit(1)[0])
+    return success(value=answer_sections.find({"_id": oid}).limit(1)[0])
 
 def not_allowed():
     return make_json_response({"err": "Not allowed"}), 403
@@ -192,18 +192,18 @@ def list_exams():
 def get_cuts(filename):
     """
     Returns all cuts for the file 'filename'.
-    Dictionary of 'pageNum', each a list of ('relHeight', 'oid') of the cuts for the page sorted by relHeight.
+    Dictionary of 'pageNum', each a list of ('relHeight', '_id') of the cuts for the page sorted by relHeight.
     """
     results = answer_sections.find({
         "filename": filename
     }, {
-        "oid": 1,
+        "_id": 1,
         "relHeight": 1,
         "pageNum": 1
     })
     pages = {}
     for cut in results:
-        pages.setdefault(cut["pageNum"], []).append([cut["relHeight"], str(cut["oid"])])
+        pages.setdefault(cut["pageNum"], []).append([cut["relHeight"], str(cut["_id"])])
     for page in pages.values():
         page.sort(key=lambda x: float(x[0]))
     return success(value=pages)
@@ -217,9 +217,9 @@ def get_answer_section(filename, oid):
     Dictionary of 'oid' and 'answersection'.
     """
     result = answer_sections.find_one({
-        "oid": ObjectId(oid)
+        "_id": ObjectId(oid)
     }, {
-        "oid": 1,
+        "_id": 1,
         "answersection": 1
     })
     if not result:
@@ -236,7 +236,6 @@ def new_answer_section(filename):
     POST Parameters 'pageNum' and 'relHeight'.
     """
     username = auth.username()
-    answer_section = {"answers": [], "asker": username}
     page_num = request.form.get("pageNum", None)
     rel_height = request.form.get("relHeight", None)
     if page_num is None or rel_height is None:
@@ -257,8 +256,8 @@ def new_answer_section(filename):
         "filename": filename,
         "pageNum": page_num,
         "relHeight": rel_height,
-        "answersection": answer_section,
-        "oid": ObjectId()
+        "answersection": {"answers": [], "asker": username},
+        "_id": ObjectId()
     }
     answer_sections.insert_one(new_doc)
     return success(value=new_doc)
@@ -276,7 +275,7 @@ def remove_answer_section(filename):
     if oid_str is None:
         return not_possible("Missing argument")
     oid = ObjectId(oid_str)
-    if answer_sections.delete_one({"oid": oid}).deleted_count > 0:
+    if answer_sections.delete_one({"_id": oid}).deleted_count > 0:
         return success()
     else:
         return internal_error("Could not delete answersection")
@@ -295,13 +294,13 @@ def set_like(filename, sectionoid, answeroid):
     like = request.form.get("like", 0) != 0
     if like:
         answer_sections.update_one({
-            'answersection.answers.oid': oid
+            'answersection.answers._id': oid
         }, { '$addToSet': {
             'answersection.answers.$.upvotes': username
         }})
     else:
         answer_sections.update_one({
-            'answersection.answers.oid': oid
+            'answersection.answers._id': oid
         }, { '$pull': {
             'answersection.answers.$.upvotes': username
         }})
@@ -323,15 +322,14 @@ def set_answer(filename, sectionoid):
     if not text:
         return not_possible("Missing argument")
     maybe_answer = answer_sections.find_one({
-        "answersection.oid": answer_section_oid,
+        "answersection._id": answer_section_oid,
         "answersection.answers.authorId": username
     }, {
-        "_id": 0,
         "answersection.answers.$": 1
     })
     if maybe_answer:
         answer_sections.update_one({
-            'answersection.answers.oid': maybe_answer["answersection"]["answers"][0]["oid"]
+            'answersection.answers._id': maybe_answer["answersection"]["answers"][0]["_id"]
         }, {"$set": {
             'answersection.answers.$.text': text
         }})
@@ -341,11 +339,10 @@ def set_answer(filename, sectionoid):
             "text": text,
             "comments": [],
             "upvotes": [],
-            "time": datetime.utcnow(),
-            "oid": ObjectId()
+            "time": datetime.utcnow()
         }
         answer_sections.update_one({
-            "oid": answer_section_oid
+            "_id": answer_section_oid
         }, {'$push': {
             "answersection.answers": answer
         }})
@@ -361,7 +358,7 @@ def remove_answer(filename, sectionoid):
     answer_section_oid = ObjectId(sectionoid)
     username = auth.username()
     answer_sections.update_one({
-        'answersection.oid': answer_section_oid
+        'answersection._id': answer_section_oid
     }, {"$pull": {
         'answersection.answers': {
             'authorId': username
@@ -387,11 +384,10 @@ def add_comment(filename, sectionoid, answeroid):
     comment = {
         "text": text,
         "authorId": username,
-        "time": datetime.utcnow(),
-        "oid": ObjectId()
+        "time": datetime.utcnow()
     }
     answer_sections.update_one({
-        "answersection.answers.oid": answer_oid
+        "answersection.answers._id": answer_oid
     }, {
         "$push": {
             "answersection.answers.$.comments": comment
@@ -415,11 +411,11 @@ def remove_comment(filename, sectionoid, answeroid):
 
     username = auth.username()
     answer_sections.update_one({
-        "answersections.answer_section.comments.oid": comment_oid
+        "answersections.answer_section.comments._id": comment_oid
     }, {
         "$pull": {
             "answersection.answers.$.comments": {
-                "oid": comment_oid,
+                "_id": comment_oid,
                 "authorId": username
             }
         }

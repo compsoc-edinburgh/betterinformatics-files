@@ -28,7 +28,7 @@ export async function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       cuts[i].foreach((cut: ServerCutPosition) => {
-        const { relHeight: position, oid } = cut
+        const { relHeight: position, _id: oid } = cut
         if (position !== lastpos) {
           sections.push(createPdfSection(akey, i+1, lastpos, position));
           akey++;

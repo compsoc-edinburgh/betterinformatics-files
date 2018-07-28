@@ -3,17 +3,17 @@ import AutocompleteInput from "./autocompleteinput";
 import { fetchpost } from '../fetchutils'
 
 interface Props {
-  exam: string,
-  category: string,
-  savedCategory: string,
-  categories: string[],
-  onChange: (exam: string, value: string) => void,
-  onSave: (exam: string, value: string) => void
+  exam: string;
+  category: string;
+  savedCategory: string;
+  categories: string[];
+  onChange: (exam: string, value: string) => void;
+  onSave: (exam: string, value: string) => void;
 }
 
 async function submitSave (exam: string, oldCategory: string, newCategory: string, onSave: (exam: string, value: string) => void) {
-  await fetchpost('/api/category/' + oldCategory + '/remove', {exam: exam});
-  await fetchpost('/api/category/' + newCategory + '/add', {exam: exam});
+  await fetchpost(`/api/category/${oldCategory}/remove`, {exam: exam});
+  await fetchpost(`/api/category/${newCategory}/add`, {exam: exam});
   onSave(exam, newCategory);
 }
 

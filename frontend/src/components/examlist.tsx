@@ -2,12 +2,12 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 
 interface Category {
-  name: string,
-  exams: string[]
+  name: string;
+  exams: string[];
 }
 
 interface State {
-  categories?: Category[]
+  categories?: Category[];
 }
 
 export default class ExamList extends React.Component<{}, State> {

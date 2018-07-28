@@ -4,12 +4,12 @@ import { fetchpost } from '../fetchutils';
 import AutocompleteInput from '../components/autocompleteinput';
 
 interface State {
-  file: Blob,
-  fileName: string,
-  category: string,
-  categories: string[],
-  result?: { href: string },
-  error?: string
+  file: Blob;
+  fileName: string;
+  category: string;
+  categories: string[];
+  result?: { href: string };
+  error?: string;
 }
 
 export default class UploadPDF extends React.Component<{}, State> {

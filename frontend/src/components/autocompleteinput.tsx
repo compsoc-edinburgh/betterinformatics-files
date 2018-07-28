@@ -1,11 +1,11 @@
 import * as React from "react";
 
 interface Props {
-  name: string,
-  value: string,
-  placeholder: string,
-  autocomplete: string[],
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+  name: string;
+  value: string;
+  placeholder: string;
+  autocomplete: string[];
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export default ({ name, value, placeholder, autocomplete, onChange }: Props) => (

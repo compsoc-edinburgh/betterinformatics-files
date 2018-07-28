@@ -2,20 +2,23 @@ import * as React from "react";
 import ExamCategory from "../components/examcategory"
 
 interface Category {
-  name: string,
-  exams: string[]
+  name: string;
+  exams: string[];
 }
 
 interface State {
-  exams?: string[],
-  categoryNames?: string[],
-  categories?: object,
-  savedCategories?: object
+  exams: string[];
+  categoryNames: string[];
+  categories?: object;
+  savedCategories?: object;
 }
 
 export default class Categorize extends React.Component<{}, State> {
 
-  state: State = {}
+  state: State = {
+    exams: [],
+    categoryNames: []
+  }
 
   async componentWillMount() {
     try {
@@ -78,7 +81,7 @@ export default class Categorize extends React.Component<{}, State> {
     if (exams === []) {
       return <p>No exams!</p>;
     }
-    if (categories && savedCategories && categoryNames && exams) {
+    if (categories && savedCategories) {
       return exams.map(exam => (
         <ExamCategory key={exam} exam={exam} category={categories[exam]} savedCategory={savedCategories[exam]} categories={categoryNames} onChange={this.handleCategoryChange} onSave={this.handleCategorySave} />
       ));

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import ExamList from "../components/examlist"
 
 interface Props {
-  isAdmin?: boolean
+  isAdmin?: boolean;
 }
 
 export default ({ isAdmin }: Props) => (
