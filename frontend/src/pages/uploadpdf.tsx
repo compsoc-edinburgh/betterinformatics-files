@@ -19,7 +19,7 @@ export default class UploadPDF extends React.Component<{}, State> {
     fileName: "",
     category: "",
     categories: []
-  }
+  };
 
   async componentWillMount() {
     try {
@@ -31,6 +31,10 @@ export default class UploadPDF extends React.Component<{}, State> {
       // TODO implement proper error handling
       console.log(e);
     }
+  }
+
+  async componentDidMount() {
+    document.title = "VIS-Exchange: Upload Exam";
   }
 
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {
@@ -77,7 +81,7 @@ export default class UploadPDF extends React.Component<{}, State> {
     this.setState({
       category: ev.target.value
     })
-  }
+  };
 
   render() {
     if (this.state.result) {

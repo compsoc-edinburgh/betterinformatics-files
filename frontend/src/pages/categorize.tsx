@@ -18,7 +18,7 @@ export default class Categorize extends React.Component<{}, State> {
   state: State = {
     exams: [],
     categoryNames: []
-  }
+  };
 
   async componentWillMount() {
     try {
@@ -40,6 +40,10 @@ export default class Categorize extends React.Component<{}, State> {
       // TODO implement proper error handling
       console.log(e);
     }
+  }
+
+  async componentDidMount() {
+      document.title = "VIS-Exchange: Categorize Exams";
   }
 
   updateCategories = () => {

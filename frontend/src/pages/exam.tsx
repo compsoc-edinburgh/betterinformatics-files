@@ -65,6 +65,10 @@ export default class Exam extends React.Component<Props, State> {
     }
   }
 
+  async componentDidMount() {
+      document.title = "VIS-Exchange: " + this.props.filename;
+  }
+
   componentWillUnmount() {
     clearInterval(this.updateInverval);
     window.removeEventListener("resize", this.onResize);
@@ -119,7 +123,13 @@ export default class Exam extends React.Component<Props, State> {
         {sections.map(e => {
           switch (e.kind) {
             case SectionKind.Answer:
-              return <AnswerSectionComponent key={e.oid} filename={this.props.filename} oid={e.oid} width={width} />;
+              return <AnswerSectionComponent
+                  key={e.oid}
+                  filename={this.props.filename}
+                  oid={e.oid}
+                  width={width}
+                  onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
+              />;
             case SectionKind.Pdf:
               return (
                 <PdfSection

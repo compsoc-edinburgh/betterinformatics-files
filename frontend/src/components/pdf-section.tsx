@@ -47,7 +47,7 @@ export default class PdfSectionComp extends React.Component<Props> {
   }
 
   addSection = async (ev: React.MouseEvent<HTMLElement>) => {
-    const boundingRect = ev.currentTarget.getBoundingClientRect()
+    const boundingRect = ev.currentTarget.getBoundingClientRect();
     const yoff = ev.clientY - boundingRect.top;
     const relative = yoff / boundingRect.height;
     const start = this.props.section.start.position;
