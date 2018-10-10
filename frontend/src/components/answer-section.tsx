@@ -1,8 +1,8 @@
 import * as React from "react";
-import { AnswerSection } from "../interfaces";
-import { loadAnswerSection } from "../exam-loader";
-import { fetchpost } from '../fetchutils'
-import { css } from "glamor";
+import {AnswerSection} from "../interfaces";
+import {loadAnswerSection} from "../exam-loader";
+import {fetchpost} from '../fetch-utils'
+import {css} from "glamor";
 import Answer from "./answer";
 
 interface Props {
@@ -32,17 +32,17 @@ export default class AnswerSectionComponent extends React.Component<Props, State
   }
 
   removeSection = async () => {
-      const confirmation = confirm("Remove answer section with all answers?");
-      if (confirmation) {
-          await fetchpost(`/api/exam/${this.props.filename}/removeanswersection`, {
-              oid: this.props.oid
-          });
-          this.props.onSectionChange();
-      }
+    const confirmation = confirm("Remove answer section with all answers?");
+    if (confirmation) {
+      await fetchpost(`/api/exam/${this.props.filename}/removeanswersection`, {
+        oid: this.props.oid
+      });
+      this.props.onSectionChange();
+    }
   };
 
   render() {
-    const { section } = this.state;
+    const {section} = this.state;
     if (!section) {
       return <div>Loading...</div>
     }
@@ -54,7 +54,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
         <div>Removed: {section.removed.toString()}</div>
         <button onClick={this.removeSection}>Remove</button>
         <div>Marked by {section.asker}</div>
-        <div>{section.answers.map(e => <Answer key={e.oid} answer={e} />)}</div>
+        <div>{section.answers.map(e => <Answer key={e.oid} answer={e}/>)}</div>
         <button>Add Answer</button>
       </div>
     );

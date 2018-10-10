@@ -1,5 +1,5 @@
 const R = require("ramda");
-const { lowerFirst } = require("lodash");
+const {lowerFirst} = require("lodash");
 
 module.exports = function renderTS(rpcs, types) {
   const parts = [

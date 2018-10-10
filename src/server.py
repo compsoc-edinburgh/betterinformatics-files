@@ -34,11 +34,11 @@ auth = HTTPBasicAuth()
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
 # Minio seems to run unsecured on port 80
 minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https') and \
-    not os.environ.get('RUNTIME_MINIO_HOST', '') == 'visdev-minio'
+                 not os.environ.get('RUNTIME_MINIO_HOST', '') == 'visdev-minio'
 minio_client = Minio(
     os.environ['RUNTIME_MINIO_HOST'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
@@ -72,6 +72,7 @@ def require_admin(f):
         if not has_admin_rights(username):
             return not_allowed()
         return f(*args, **kwargs)
+
     return wrapper
 
 
@@ -83,24 +84,31 @@ def date_handler(obj):
     else:
         return obj
 
+
 def make_json_response(obj):
     return json.dumps(obj, default=date_handler)
+
 
 def make_answer_section_response(oid):
     return success(value=answer_sections.find({"_id": oid}).limit(1)[0])
 
+
 def not_allowed():
     return make_json_response({"err": "Not allowed"}), 403
+
 
 def not_found():
     return make_json_response({"err": "Not found"}), 404
 
+
 def not_possible(msg):
     return make_json_response({"err": msg}), 400
+
 
 def internal_error(msg):
     print(msg)
     return make_json_response({"err": "Internal error"}), 500
+
 
 def success(**kwargs):
     return make_json_response(kwargs)
@@ -186,6 +194,7 @@ def list_exams():
     Returns a list of all exams
     """
     return success(value=[obj.object_name for obj in minio_client.list_objects(minio_bucket)])
+
 
 @app.route("/api/exam/<filename>/cuts")
 @auth.login_required
@@ -301,13 +310,13 @@ def set_like(filename, sectionoid, answeroid):
     if like:
         answer_sections.update_one({
             'answersection.answers._id': oid
-        }, { '$addToSet': {
+        }, {'$addToSet': {
             'answersection.answers.$.upvotes': username
         }})
     else:
         answer_sections.update_one({
             'answersection.answers._id': oid
-        }, { '$pull': {
+        }, {'$pull': {
             'answersection.answers.$.upvotes': username
         }})
     return make_answer_section_response(answer_section_oid)
@@ -433,11 +442,11 @@ def remove_comment(filename, sectionoid, answeroid):
 @auth.login_required
 def list_categories():
     include_exams = 1 if request.args.get('exams', "1") != "0" else 0
-    projection = { "_id": 0, "name": 1 }
+    projection = {"_id": 0, "name": 1}
     if request.args.get('exams', "1") != "0":
         projection["exams"] = 1
     results = exam_categories.find({
-        "exams": { "$gt": [] }
+        "exams": {"$gt": []}
     }, projection).sort([("name", pymongo.ASCENDING)])
     return success(value=list(results))
 
@@ -447,12 +456,11 @@ def list_categories():
 def list_category(category):
     results = exam_categories.find_one({
         "name": category,
-        "exams": { "$gt": [] }
+        "exams": {"$gt": []}
     }, {
         "exams": 1
     })
     return success(value=results["exams"])
-
 
 
 @app.route("/api/category/<category>/add", methods=["POST"])

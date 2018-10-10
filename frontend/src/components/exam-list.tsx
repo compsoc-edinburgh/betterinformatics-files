@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 interface Category {
   name: string;
@@ -28,19 +28,18 @@ export default class ExamList extends React.Component<{}, State> {
 
   render() {
     const categories = this.state.categories;
-    if (categories) {
-      return categories.map(category => (
-        <div key={category.name}>
-          <p>{category.name}</p>
-          <ul>
-            {category.exams.map(exam => (
-              <li key={exam}><Link to={"/exams/" + exam}>{ exam }</Link></li>
-            ))}
-          </ul>
-        </div>
-      ));
-    } else {
+    if (!categories) {
       return (<p>Loading exam list...</p>);
     }
+    return categories.map(category => (
+      <div key={category.name}>
+        <p>{category.name}</p>
+        <ul>
+          {category.exams.map(exam => (
+            <li key={exam}><Link to={"/exams/" + exam}>{exam}</Link></li>
+          ))}
+        </ul>
+      </div>
+    ));
   }
 };

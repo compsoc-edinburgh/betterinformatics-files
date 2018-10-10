@@ -8,12 +8,13 @@ interface Props {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export default ({ name, value, placeholder, autocomplete, onChange }: Props) => (
+export default ({name, value, placeholder, autocomplete, onChange}: Props) => (
   <React.Fragment>
-    <input type="text" list={name + "_list"} name={name} placeholder={placeholder} value={value} onChange={onChange} autoComplete="off" />
+    <input type="text" list={name + "_list"} name={name} placeholder={placeholder} value={value} onChange={onChange}
+           autoComplete="off"/>
     <datalist id={name + "_list"}>
       {autocomplete.map(entry => (
-        <option key={entry} value={entry} />
+        <option key={entry} value={entry}/>
       ))}
     </datalist>
   </React.Fragment>

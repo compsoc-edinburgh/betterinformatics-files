@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Answer } from "../interfaces";
+import {Answer} from "../interfaces";
 import Comment from "./comment";
-import { css } from "glamor";
+import {css} from "glamor";
 import MathText from "./math-text";
 
 interface Props {
@@ -15,7 +15,7 @@ const styles = {
   }),
 };
 
-export default ({ answer }: Props) => (
+export default ({answer}: Props) => (
   <div {...styles.wrapper}>
     <div>
       <b>Answer</b>
@@ -24,8 +24,8 @@ export default ({ answer }: Props) => (
     <div>Time: {answer.time}</div>
     <div>Upvotes: {answer.upvotes.length}</div>
     <div>
-      Text: <MathText value={answer.text} />
+      Text: <MathText value={answer.text}/>
     </div>
-    <div>{answer.comments.map(e => <Comment key={e.oid} comment={e} />)}</div>
+    <div>{answer.comments.map(e => <Comment key={e.oid} comment={e}/>)}</div>
   </div>
 );

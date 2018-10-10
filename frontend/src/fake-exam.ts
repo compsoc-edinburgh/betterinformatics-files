@@ -1,4 +1,4 @@
-import { Section, SectionKind } from "./interfaces";
+import {Section, SectionKind} from "./interfaces";
 
 export const SECTIONS: Section[] = [
   {

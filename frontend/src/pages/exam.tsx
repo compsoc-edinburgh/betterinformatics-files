@@ -1,12 +1,13 @@
 import * as React from "react";
-import { renderDocument, SectionRenderer } from "../split-render";
-import { loadSections } from "../exam-loader";
-import { Section, SectionKind } from "../interfaces";
+import {renderDocument, SectionRenderer} from "../split-render";
+import {loadSections} from "../exam-loader";
+import {Section, SectionKind, PdfSection} from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
-import { debounce } from "lodash";
-import { css } from "glamor";
-import PdfSection from "../components/pdf-section";
+import {debounce} from "lodash";
+import {css} from "glamor";
+import PdfSectionComp from "../components/pdf-section";
 import AnswerSectionComponent from "../components/answer-section";
+import {fetchpost} from "../fetch-utils";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -66,7 +67,7 @@ export default class Exam extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-      document.title = "VIS-Exchange: " + this.props.filename;
+    document.title = "VIS-Exchange: " + this.props.filename;
   }
 
   componentWillUnmount() {
@@ -83,8 +84,8 @@ export default class Exam extends React.Component<Props, State> {
     if (w === this.state.width) {
       return;
     }
-    this.setState({ width: w });
-    const { pdf } = this.state;
+    this.setState({width: w});
+    const {pdf} = this.state;
     if (pdf) {
       this.debouncedRender(pdf);
     }
@@ -95,8 +96,8 @@ export default class Exam extends React.Component<Props, State> {
     if (dpr === this.state.dpr) {
       return;
     }
-    this.setState({ dpr });
-    const { pdf } = this.state;
+    this.setState({dpr});
+    const {pdf} = this.state;
     if (pdf) {
       this.renderDocumentToState(pdf);
     }
@@ -104,43 +105,59 @@ export default class Exam extends React.Component<Props, State> {
 
   renderDocumentToState = async (pdf: pdfjs.PDFDocumentProxy) => {
     const w = this.state.width * this.state.dpr;
-    this.setState({ pdf, renderer: await renderDocument(pdf, w) });
+    this.setState({pdf, renderer: await renderDocument(pdf, w)});
   };
 
   loadSectionsFromBackend = async (pdf: pdfjs.PDFDocumentProxy) => {
     loadSections(this.props.filename, pdf.numPages).then((sections) => {
-      this.setState({ sections: sections });
+      this.setState({sections: sections});
     });
   };
 
+  addSection = async (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
+    const boundingRect = ev.currentTarget.getBoundingClientRect();
+    const yoff = ev.clientY - boundingRect.top;
+    const relative = yoff / boundingRect.height;
+    const start = section.start.position;
+    const end = section.end.position;
+    const relHeight = start + relative * (end - start);
+
+    await fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
+      pageNum: section.start.page,
+      relHeight: relHeight
+    });
+    if (this.state.pdf) {
+      this.loadSectionsFromBackend(this.state.pdf);
+    }
+  };
+
   render() {
-    const { renderer, width, dpr, sections } = this.state;
+    const {renderer, width, dpr, sections} = this.state;
     if (!renderer || !sections) {
       return <div>Loading...</div>;
     }
     return (
-      <div style={{ width: width }} {...styles.wrapper}>
+      <div style={{width: width}} {...styles.wrapper}>
         {sections.map(e => {
           switch (e.kind) {
             case SectionKind.Answer:
               return <AnswerSectionComponent
-                  key={e.oid}
-                  filename={this.props.filename}
-                  oid={e.oid}
-                  width={width}
-                  onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
+                key={e.oid}
+                filename={this.props.filename}
+                oid={e.oid}
+                width={width}
+                onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
               />;
             case SectionKind.Pdf:
               return (
-                <PdfSection
+                <PdfSectionComp
                   key={e.key}
                   section={e}
                   renderer={renderer}
                   width={width}
                   dpr={dpr}
-                  isAdmin={this.props.isAdmin}
-                  filename={this.props.filename}
-                  onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
+                  // ts does not like it if this is undefined...
+                  onClick={this.props.isAdmin ? this.addSection : (ev)=>ev}
                 />
               );
             default:

@@ -43,7 +43,7 @@ export default class Categorize extends React.Component<{}, State> {
   }
 
   async componentDidMount() {
-      document.title = "VIS-Exchange: Categorize Exams";
+    document.title = "VIS-Exchange: Categorize Exams";
   }
 
   updateCategories = () => {
@@ -60,6 +60,7 @@ export default class Categorize extends React.Component<{}, State> {
       });
   };
 
+  // same as { ...(obj || {}), [key]: value }, but more readable... :P
   updateObj = (obj: object | undefined, key: string, value: string) => {
     let newObj = {};
     newObj[key] = value;
@@ -81,16 +82,16 @@ export default class Categorize extends React.Component<{}, State> {
   };
 
   render() {
-    const { categories, savedCategories, categoryNames, exams } = this.state;
-    if (exams === []) {
+    const {categories, savedCategories, categoryNames, exams} = this.state;
+    if (!exams.length) {
       return <p>No exams!</p>;
     }
-    if (categories && savedCategories) {
-      return exams.map(exam => (
-        <ExamCategory key={exam} exam={exam} category={categories[exam]} savedCategory={savedCategories[exam]} categories={categoryNames} onChange={this.handleCategoryChange} onSave={this.handleCategorySave} />
-      ));
-    } else {
+    if (!(categories && savedCategories)) {
       return <p>Loading...</p>;
     }
+    return exams.map(exam => (
+      <ExamCategory key={exam} exam={exam} category={categories[exam]} savedCategory={savedCategories[exam]}
+                    categories={categoryNames} onChange={this.handleCategoryChange} onSave={this.handleCategorySave}/>
+    ));
   }
 }

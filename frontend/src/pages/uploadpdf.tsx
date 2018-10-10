@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Redirect } from "react-router-dom";
-import { fetchpost } from '../fetchutils';
+import {Redirect} from "react-router-dom";
+import {fetchpost} from '../fetch-utils';
 import AutocompleteInput from '../components/autocomplete-input';
 
 interface State {
@@ -45,22 +45,15 @@ export default class UploadPDF extends React.Component<{}, State> {
       filename: this.state.fileName + ".pdf",
       category: this.state.category
     })
-    .then((response) => {
-      if (response.ok) {
-        response.json().then((res) => this.setState({
-          result: res,
-          error: undefined
-        }));
-      } else {
-        response.json().then((res) => this.setState({
-          error: res.err
-        }));
-      }
-    })
-    .catch((e) => {
-      // TODO implement proper error handling
-      console.log(e);
-    });
+      .then((response) => response.json().then((body) => ({body, ok: response.ok})))
+      .then(({body, ok}) => ok ? body : Promise.reject(body.err))
+      .then((body) => this.setState({
+        result: body,
+        error: undefined
+      }))
+      .catch((e) => {
+        this.setState({error: e.toString()});
+      });
   };
 
   handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,15 +78,17 @@ export default class UploadPDF extends React.Component<{}, State> {
 
   render() {
     if (this.state.result) {
-      return <Redirect to={this.state.result.href} />
+      return <Redirect to={this.state.result.href}/>
     } else {
       return (
         <div>
-          {this.state.error && <p>{ this.state.error }</p>}
+          {this.state.error && <p>{this.state.error}</p>}
           <form onSubmit={this.handleUpload}>
-            <input onChange={this.handleFileChange} type="file" />
-            <input onChange={this.handleFileNameChange} value={this.state.fileName} type="text" placeholder="filename..." />
-            <AutocompleteInput name="category" onChange={this.handleCategoryChange} value={this.state.category} placeholder="category..." autocomplete={this.state.categories} />
+            <input onChange={this.handleFileChange} type="file" accept="application/pdf"/>
+            <input onChange={this.handleFileNameChange} value={this.state.fileName} type="text"
+                   placeholder="filename..."/>
+            <AutocompleteInput name="category" onChange={this.handleCategoryChange} value={this.state.category}
+                               placeholder="category..." autocomplete={this.state.categories}/>
             <button type="submit">Upload</button>
           </form>
         </div>

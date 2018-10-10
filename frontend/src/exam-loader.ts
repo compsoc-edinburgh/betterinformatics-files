@@ -1,4 +1,4 @@
-import { Section, AnswerSection, SectionKind, PdfSection, ServerCutPosition } from "./interfaces";
+import {Section, AnswerSection, SectionKind, PdfSection, ServerCutPosition} from "./interfaces";
 
 function createPdfSection(key: number, page: number, start: number, end: number): PdfSection {
   return {
@@ -28,7 +28,7 @@ export async function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       cuts[i].forEach((cut: ServerCutPosition) => {
-        const { relHeight: position, oid } = cut
+        const {relHeight: position, oid} = cut
         if (position !== lastpos) {
           sections.push(createPdfSection(akey, i, lastpos, position));
           akey++;

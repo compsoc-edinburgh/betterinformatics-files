@@ -1,6 +1,6 @@
-import { CutPosition } from "./interfaces";
+import {CutPosition} from "./interfaces";
 import * as pdfjs from "pdfjs-dist";
-import { times } from "lodash";
+import {times} from "lodash";
 
 interface RenderTarget {
   context: CanvasRenderingContext2D;
@@ -31,7 +31,7 @@ function sourceDimensions(
   start: CutPosition,
   end: CutPosition,
 ): StartSizeRect {
-  const { width: w, height: h } = page.viewport;
+  const {width: w, height: h} = page.viewport;
   return {
     x: Math.floor(0),
     y: Math.floor(h * start.position),
@@ -63,7 +63,7 @@ export class SectionRenderer {
   ): Dimensions {
     const page = this.getPage(start, end);
     const src = sourceDimensions(page, start, end);
-    return { width, height: src.h / src.w * width };
+    return {width, height: src.h / src.w * width};
   }
 
   render(target: RenderTarget, start: CutPosition, end: CutPosition) {
@@ -105,8 +105,8 @@ export async function renderDocument(
       viewport = page.getViewport(targetWidth / viewport.width);
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-      await page.render({ canvasContext: context, viewport });
-      return { canvas, context, viewport };
+      await page.render({canvasContext: context, viewport});
+      return {canvas, context, viewport};
     }),
   );
   return new SectionRenderer(rendered);

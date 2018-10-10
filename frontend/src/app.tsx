@@ -3,9 +3,9 @@ import Exam from "./pages/exam";
 import UploadPDF from "./pages/uploadpdf";
 import Categorize from "./pages/categorize";
 import Home from "./pages/home";
-import { Route, Switch } from "react-router";
+import {Route, Switch} from "react-router";
 import Header from "./components/header";
-import { css } from "glamor";
+import {css} from "glamor";
 
 const styles = {
   inner: css({
@@ -45,13 +45,14 @@ export default class App extends React.Component<{}, State> {
   render() {
     return (
       <div>
-        <Header username={this.state.displayname || "loading..."} />
+        <Header username={this.state.displayname || "loading..."}/>
         <div {...styles.inner}>
           <Switch>
-            <Route path="/exams/:filename" render={(props) => (<Exam {...props} filename={props.match.params.filename} isAdmin={this.state.isAdmin} />)} />
-            <Route path="/uploadpdf" component={UploadPDF} />
-            <Route path="/categorize" component={Categorize} />
-            <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} />)} />
+            <Route path="/exams/:filename" render={(props) => (
+              <Exam {...props} filename={props.match.params.filename} isAdmin={this.state.isAdmin}/>)}/>
+            <Route path="/uploadpdf" component={UploadPDF}/>
+            <Route path="/categorize" component={Categorize}/>
+            <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin}/>)}/>
           </Switch>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { css } from "glamor";
+import {css} from "glamor";
 
 interface Props {
   value: string;
@@ -14,6 +14,6 @@ const styles = {
 
 // TODO Actually format inline math
 
-export default ({ value }: Props) => {
+export default ({value}: Props) => {
   return <div {...styles.wrapper}>{value}</div>;
 };

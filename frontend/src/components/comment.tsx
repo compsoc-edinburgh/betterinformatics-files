@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Comment } from "../interfaces";
-import { css } from "glamor";
+import {Comment} from "../interfaces";
+import {css} from "glamor";
 import MathText from "./math-text";
 
 interface Props {
@@ -14,7 +14,7 @@ const styles = {
   }),
 };
 
-export default ({ comment }: Props) => (
+export default ({comment}: Props) => (
   <div {...styles.wrapper}>
     <div>
       <b>Comment</b>
@@ -22,7 +22,7 @@ export default ({ comment }: Props) => (
     <div>Author: {comment.authorId}</div>
     <div>Time: {comment.time}</div>
     <div>
-      Text: <MathText value={comment.text} />
+      Text: <MathText value={comment.text}/>
     </div>
   </div>
 );
