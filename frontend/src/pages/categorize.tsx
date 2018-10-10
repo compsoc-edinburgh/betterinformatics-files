@@ -1,5 +1,5 @@
 import * as React from "react";
-import ExamCategory from "../components/examcategory"
+import ExamCategory from "../components/exam-category"
 
 interface Category {
   name: string;

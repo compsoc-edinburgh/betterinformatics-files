@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import ExamList from "../components/examlist"
+import ExamList from "../components/exam-list"
 
 interface Props {
   isAdmin?: boolean;

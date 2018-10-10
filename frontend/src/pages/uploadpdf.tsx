@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Redirect } from "react-router-dom";
 import { fetchpost } from '../fetchutils';
-import AutocompleteInput from '../components/autocompleteinput';
+import AutocompleteInput from '../components/autocomplete-input';
 
 interface State {
   file: Blob;

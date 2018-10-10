@@ -1,5 +1,5 @@
 import * as React from "react";
-import AutocompleteInput from "./autocompleteinput";
+import AutocompleteInput from "./autocomplete-input";
 import { fetchpost } from '../fetchutils'
 
 interface Props {
