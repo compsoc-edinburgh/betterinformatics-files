@@ -369,6 +369,7 @@ def set_answer(filename, sectionoid):
 def remove_answer(filename, sectionoid):
     """
     Delete the answer for the current user for the section.
+    No POST Parameters
     """
     answer_section_oid = ObjectId(sectionoid)
     username = auth.username()
@@ -441,6 +442,9 @@ def remove_comment(filename, sectionoid, answeroid):
 @app.route("/api/listcategories")
 @auth.login_required
 def list_categories():
+    """
+    Lists all available categories
+    """
     include_exams = 1 if request.args.get('exams', "1") != "0" else 0
     projection = {"_id": 0, "name": 1}
     if request.args.get('exams', "1") != "0":
@@ -451,9 +455,16 @@ def list_categories():
     return success(value=list(results))
 
 
-@app.route("/api/category/<category>/list")
+@app.route("/api/category/list")
 @auth.login_required
-def list_category(category):
+def list_category():
+    """
+    Lists all exams belonging to the category
+    GET Parameter 'category'
+    """
+    category = request.args.get("category")
+    if not category:
+        return not_possible("Missing argument")
     results = exam_categories.find_one({
         "name": category,
         "exams": {"$gt": []}
@@ -463,11 +474,20 @@ def list_category(category):
     return success(value=results["exams"])
 
 
-@app.route("/api/category/<category>/add", methods=["POST"])
+@app.route("/api/category/add", methods=["POST"])
 @auth.login_required
 @require_admin
-def add_exam_category_api(category):
-    add_exam_category(category, request.form["exam"])
+def add_exam_category_api():
+    """
+    Adds the exam to the category
+    POST Parameter 'category'
+    POST Parameter 'exam'
+    """
+    category = request.form["category"]
+    exam = request.form["exam"]
+    if not category or not exam:
+        return not_possible("Missing argument")
+    add_exam_category(category, exam)
     return success()
 
 
@@ -487,11 +507,20 @@ def add_exam_category(category, exam):
     }, upsert=True)
 
 
-@app.route("/api/category/<category>/remove", methods=["POST"])
+@app.route("/api/category/remove", methods=["POST"])
 @auth.login_required
 @require_admin
-def remove_exam_category_api(category):
-    remove_exam_category(category, request.form["exam"])
+def remove_exam_category_api():
+    """
+    Remove the exam from the category
+    POST Parameter 'category'
+    POST Parameter 'exam'
+    """
+    category = request.form["category"]
+    exam = request.form["exam"]
+    if not category or not exam:
+        return not_possible("Missing argument")
+    remove_exam_category(category, exam)
     return success()
 
 
@@ -520,7 +549,9 @@ def uploadpdf():
     file = request.files.get('file', None)
     if not file or not file.filename or not allowed_file(file.filename):
         return not_possible("No valid file found")
-    filename = request.form.get("filename", "") or file.filename
+    filename = request.form.get("filename", "")
+    if not filename or filename == ".pdf":
+        filename = file.filename
     if not allowed_file(filename):
         return not_possible("Invalid file name")
     category = request.form.get("category", "") or "default"
@@ -537,6 +568,9 @@ def uploadpdf():
 @app.route("/api/pdf/<filename>")
 @auth.login_required
 def pdf(filename):
+    """
+    Get the pdf for the filename
+    """
     try:
         minio_client.fget_object(
             minio_bucket, filename,

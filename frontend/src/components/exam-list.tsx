@@ -12,7 +12,7 @@ interface State {
 
 export default class ExamList extends React.Component<{}, State> {
 
-  state: State = {}
+  state: State = {};
 
   async componentWillMount() {
     try {

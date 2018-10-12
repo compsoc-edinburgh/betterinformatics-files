@@ -86,7 +86,7 @@ export default class Categorize extends React.Component<{}, State> {
     if (!exams.length) {
       return <p>No exams!</p>;
     }
-    if (!(categories && savedCategories)) {
+    if (!categories || !savedCategories) {
       return <p>Loading...</p>;
     }
     return exams.map(exam => (
