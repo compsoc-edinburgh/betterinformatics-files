@@ -16,8 +16,8 @@ export const SECTIONS: Section[] = [
   {
     oid: "123",
     kind: SectionKind.Answer,
-    removed: false,
     asker: "testusera",
+    allow_new_answer: true,
     answers: [
       {
         authorId: "testusera",
@@ -72,8 +72,8 @@ export const SECTIONS: Section[] = [
   {
     oid: "1234",
     kind: SectionKind.Answer,
-    removed: true,
     asker: "testuserb",
+    allow_new_answer: true,
     answers: [
       {
         authorId: "testuserb",

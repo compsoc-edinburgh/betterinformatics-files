@@ -90,7 +90,23 @@ def make_json_response(obj):
 
 
 def make_answer_section_response(oid):
-    return success(value=answer_sections.find({"_id": oid}).limit(1)[0])
+    username = auth.username()
+    section = answer_sections.find_one({"_id": oid}, {
+        "_id": 1,
+        "answersection": 1
+    })
+    if not section:
+        return not_found()
+    section["oid"] = section["_id"]
+    del section["_id"]
+    for answer in section["answersection"]["answers"]:
+        answer["oid"] = answer["_id"]
+        del answer["_id"]
+        for comment in answer["comments"]:
+            comment["oid"] = comment["_id"]
+            del comment["_id"]
+    section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
+    return success(value=section)
 
 
 def not_allowed():
@@ -228,17 +244,7 @@ def get_answer_section(filename, oid):
     Returns the answersection with the given oid.
     Dictionary of 'oid' and 'answersection'.
     """
-    result = answer_sections.find_one({
-        "_id": ObjectId(oid)
-    }, {
-        "_id": 1,
-        "answersection": 1
-    })
-    if not result:
-        return not_found()
-    result["oid"] = result["_id"]
-    del result["_id"]
-    return success(value=result)
+    return make_answer_section_response(ObjectId(oid))
 
 
 @app.route("/api/exam/<filename>/newanswersection", methods=["POST"])
@@ -309,13 +315,13 @@ def set_like(filename, sectionoid, answeroid):
     like = request.form.get("like", 0) != 0
     if like:
         answer_sections.update_one({
-            'answersection.answers._id': oid
+            'answersection.answers._id': answer_oid
         }, {'$addToSet': {
             'answersection.answers.$.upvotes': username
         }})
     else:
         answer_sections.update_one({
-            'answersection.answers._id': oid
+            'answersection.answers._id': answer_oid
         }, {'$pull': {
             'answersection.answers.$.upvotes': username
         }})
@@ -334,10 +340,10 @@ def set_answer(filename, sectionoid):
 
     username = auth.username()
     text = request.form.get("text", None)
-    if not text:
+    if text is None:
         return not_possible("Missing argument")
     maybe_answer = answer_sections.find_one({
-        "answersection._id": answer_section_oid,
+        "_id": answer_section_oid,
         "answersection.answers.authorId": username
     }, {
         "answersection.answers.$": 1
@@ -350,6 +356,7 @@ def set_answer(filename, sectionoid):
         }})
     else:
         answer = {
+            "_id": ObjectId(),
             "authorId": username,
             "text": text,
             "comments": [],
@@ -374,7 +381,7 @@ def remove_answer(filename, sectionoid):
     answer_section_oid = ObjectId(sectionoid)
     username = auth.username()
     answer_sections.update_one({
-        'answersection._id': answer_section_oid
+        '_id': answer_section_oid
     }, {"$pull": {
         'answersection.answers': {
             'authorId': username
