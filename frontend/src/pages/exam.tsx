@@ -17,6 +17,9 @@ const styles = {
     margin: "auto",
     outline: "1px solid red",
   }),
+  sectionsButton: css({
+    textAlign: "right",
+  }),
 };
 
 interface Props {
@@ -30,6 +33,7 @@ interface State {
   width: number;
   dpr: number;
   sections?: Section[];
+  addingSectionsActive: boolean;
 }
 
 function widthFromWindow(): number {
@@ -42,6 +46,7 @@ export default class Exam extends React.Component<Props, State> {
   state: State = {
     width: widthFromWindow(),
     dpr: window.devicePixelRatio,
+    addingSectionsActive: false,
   };
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
@@ -131,39 +136,51 @@ export default class Exam extends React.Component<Props, State> {
     }
   };
 
+  toggleAddingSectionActive = () => {
+    this.setState((state, props) => {
+      return {addingSectionsActive: !state.addingSectionsActive};
+    });
+  };
+
   render() {
     const {renderer, width, dpr, sections} = this.state;
     if (!renderer || !sections) {
       return <div>Loading...</div>;
     }
     return (
-      <div style={{width: width}} {...styles.wrapper}>
-        {sections.map(e => {
-          switch (e.kind) {
-            case SectionKind.Answer:
-              return <AnswerSectionComponent
-                key={e.oid}
-                filename={this.props.filename}
-                oid={e.oid}
-                width={width}
-                onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
-              />;
-            case SectionKind.Pdf:
-              return (
-                <PdfSectionComp
-                  key={e.key}
-                  section={e}
-                  renderer={renderer}
+      <div>
+        {this.props.isAdmin &&
+        <div {...styles.sectionsButton}>
+          <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable adding cuts" || "Enable adding cuts"}</button>
+        </div>}
+        <div style={{width: width}} {...styles.wrapper}>
+          {sections.map(e => {
+            switch (e.kind) {
+              case SectionKind.Answer:
+                return <AnswerSectionComponent
+                  key={e.oid}
+                  filename={this.props.filename}
+                  oid={e.oid}
                   width={width}
-                  dpr={dpr}
-                  // ts does not like it if this is undefined...
-                  onClick={this.props.isAdmin ? this.addSection : (ev)=>ev}
-                />
-              );
-            default:
-              return null as never;
-          }
-        })}
+                  onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
+                />;
+              case SectionKind.Pdf:
+                return (
+                  <PdfSectionComp
+                    key={e.key}
+                    section={e}
+                    renderer={renderer}
+                    width={width}
+                    dpr={dpr}
+                    // ts does not like it if this is undefined...
+                    onClick={(this.props.isAdmin && this.state.addingSectionsActive) ? this.addSection : (ev)=>ev}
+                  />
+                );
+              default:
+                return null as never;
+            }
+          })}
+        </div>
       </div>
     );
   }
