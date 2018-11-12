@@ -337,7 +337,6 @@ def add_answer(filename, sectionoid):
     """
     Adds an empty answer for the given section for the current user.
     This enforces that each user can only have one answer.
-    POST Parameter 'text'.
     """
     answer_section_oid = ObjectId(sectionoid)
 
@@ -452,25 +451,33 @@ def set_comment(filename, sectionoid, answeroid):
     POST Parameter 'commentoid' and 'text'
     """
     answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid);
     oid_str = request.form.get("commentoid", None)
     if not oid_str:
         return not_possible("Missing argument")
     comment_oid = ObjectId(oid_str)
+    text = request.form.get("text", None)
+    if text is None:
+        return not_possible("Missing argument")
     username = auth.username()
     maybe_comment = answer_sections.find_one({
-        'answersections.answers.comments._id': comment_oid
+        'answersection.answers._id': answer_oid
     }, {
-        'answersection.answers.comments.$'
+        'answersection.answers.comments': 1
     })
-    if not maybe_comment:
+    idx = -1
+    for i, comment in enumerate(maybe_comment["answersection"]["answers"][0]["comments"]):
+        if comment["_id"] == comment_oid:
+            idx = i
+            if comment["authorId"] != username:
+                return not_possible("Comment can not be edited")
+    if idx < 0:
         return not_possible("Comment does not exist")
-    if maybe_comment["authorId"] != username:
-        return not_possible("Comment can not be edited")
     answer_sections.update_one({
         'answersection.answers.comments._id': comment_oid
     }, {
         "$set": {
-            'answersection.answers.comments.$.text': text
+            'answersection.answers.$.comments.{}.text'.format(idx): text
         }
     })
     return make_answer_section_response(answer_section_oid)
@@ -484,19 +491,28 @@ def remove_comment(filename, sectionoid, answeroid):
     POST Parameter 'commentoid'.
     """
     answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid)
     oid_str = request.form.get("commentoid", None)
     if not oid_str:
         return not_possible("Missing argument")
     comment_oid = ObjectId(oid_str)
 
     username = auth.username()
+    maybe_comment = answer_sections.find_one({
+        'answersection.answers.comments._id': comment_oid
+    }, {
+        'answersection.answers.comments.$': 1
+    })
+    if not maybe_comment:
+        return not_possible("Comment does not exist")
+    if maybe_comment["answersection"]["answers"][0]["comments"][0]["authorId"] != username:
+        return not_possible("Comment can not be removed")
     answer_sections.update_one({
-        "answersections.answers.comments._id": comment_oid
+        "answersection.answers._id": answer_oid
     }, {
         "$pull": {
             "answersection.answers.$.comments": {
-                "_id": comment_oid,
-                "authorId": username
+                "_id": comment_oid
             }
         }
     })

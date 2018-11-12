@@ -119,7 +119,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>
         </div>}
         <div>{answer.comments.map(e =>
-          <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid}/>
+          <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
         )}</div>
         <div>
           <b>Add comment</b>

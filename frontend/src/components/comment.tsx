@@ -1,13 +1,15 @@
 import * as React from "react";
-import {Comment} from "../interfaces";
+import {AnswerSection, Comment} from "../interfaces";
 import {css} from "glamor";
 import MathText from "./math-text";
+import {fetchpost} from "../fetch-utils";
 
 interface Props {
   filename: string;
   sectionId: string;
   answerId: string;
   comment: Comment;
+  onSectionChanged: (res: {value: {answersection: AnswerSection}}) => void;
 }
 
 interface State {
@@ -31,6 +33,42 @@ export default class CommentComponent extends React.Component<Props, State> {
     text: this.props.comment.text
   };
 
+  removeComment = async () => {
+    const confirmation = confirm("Remove comment?");
+    if (confirmation) {
+      fetchpost(`/api/exam/${this.props.filename}/removecomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid})
+        .then((res) => res.json())
+        .then((res) => {
+          this.props.onSectionChanged(res);
+        });
+    }
+  };
+
+  startEdit = async () => {
+    this.setState({editing: true});
+  };
+
+  cancelEdit = async () => {
+    this.setState(prevState => ({
+      editing: false,
+      text: prevState.savedText
+    }));
+  };
+
+  saveComment = async () => {
+    fetchpost(`/api/exam/${this.props.filename}/setcomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid, text: this.state.text})
+      .then(() => {
+        this.setState(prevState => ({
+          editing: false,
+          savedText: prevState.text
+        }));
+      });
+  };
+
+  commentTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+    this.setState({text: event.currentTarget.value});
+  };
+
   render() {
     const {comment} = this.props;
     return (
@@ -40,6 +78,19 @@ export default class CommentComponent extends React.Component<Props, State> {
         </div>
         <div>Time: {comment.time}</div>
         <div><MathText value={this.state.text}/></div>
+        {this.state.editing && <div>
+          <div>
+            <textarea onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
+          </div>
+          <div>
+            <button onClick={this.saveComment}>Save Comment</button>
+            <button onClick={this.cancelEdit}>Cancel</button>
+          </div>
+        </div>}
+        {comment.canEdit && !this.state.editing && <div>
+          <button onClick={this.startEdit}>Edit Comment</button>
+          <button onClick={this.removeComment}>Delete Comment</button>
+        </div>}
       </div>
     );
   }
