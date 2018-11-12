@@ -28,6 +28,7 @@ export interface Comment {
   oid: string; // unique id within comments
   text: string;
   authorId: string; // username
+  canEdit: boolean; // whether the current user can edit the comment
   time: string; // ISO 8601, creation time
 }
 

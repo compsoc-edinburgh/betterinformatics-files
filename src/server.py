@@ -101,12 +101,13 @@ def make_answer_section_response(oid):
     del section["_id"]
     for answer in section["answersection"]["answers"]:
         answer["oid"] = answer["_id"]
+        del answer["_id"]
         answer["canEdit"] = answer["authorId"] == auth.username()
         answer["isUpvoted"] = auth.username() in answer["upvotes"]
-        del answer["_id"]
         for comment in answer["comments"]:
             comment["oid"] = comment["_id"]
             del comment["_id"]
+            comment["canEdit"] = answer["authorId"] == auth.username()
     section["answersection"]["answers"].sort(key=lambda x: len(x["upvotes"]))
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
     return success(value=section)
@@ -428,6 +429,7 @@ def add_comment(filename, sectionoid, answeroid):
         return not_possible("Missing argument")
 
     comment = {
+        "_id": ObjectId(),
         "text": text,
         "authorId": username,
         "time": datetime.utcnow()
@@ -442,12 +444,44 @@ def add_comment(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
+@app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=["POST"])
+@auth.login_required
+def set_comment(filename, sectionoid, answeroid):
+    """
+    Set the text for the comment with the given id.
+    POST Parameter 'commentoid' and 'text'
+    """
+    answer_section_oid = ObjectId(sectionoid)
+    oid_str = request.form.get("commentoid", None)
+    if not oid_str:
+        return not_possible("Missing argument")
+    comment_oid = ObjectId(oid_str)
+    username = auth.username()
+    maybe_comment = answer_sections.find_one({
+        'answersections.answers.comments._id': comment_oid
+    }, {
+        'answersection.answers.comments.$'
+    })
+    if not maybe_comment:
+        return not_possible("Comment does not exist")
+    if maybe_comment["authorId"] != username:
+        return not_possible("Comment can not be edited")
+    answer_sections.update_one({
+        'answersection.answers.comments._id': comment_oid
+    }, {
+        "$set": {
+            'answersection.answers.comments.$.text': text
+        }
+    })
+    return make_answer_section_response(answer_section_oid)
+
+
 @app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=["POST"])
 @auth.login_required
 def remove_comment(filename, sectionoid, answeroid):
     """
     Remove the comment with the given id.
-    POST Parmeter 'commentoid'.
+    POST Parameter 'commentoid'.
     """
     answer_section_oid = ObjectId(sectionoid)
     oid_str = request.form.get("commentoid", None)
@@ -457,7 +491,7 @@ def remove_comment(filename, sectionoid, answeroid):
 
     username = auth.username()
     answer_sections.update_one({
-        "answersections.answer_section.comments._id": comment_oid
+        "answersections.answers.comments._id": comment_oid
     }, {
         "$pull": {
             "answersection.answers.$.comments": {

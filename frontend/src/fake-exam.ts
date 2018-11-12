@@ -28,12 +28,14 @@ export const SECTIONS: Section[] = [
           {
             text: "test comment A.1",
             authorId: "testusera",
+            canEdit: false,
             time: "2018-04-20T13:03:04.875000",
             oid: "5ad9e50818ade5108bcc31b4",
           },
           {
             text: "test comment A.2",
             authorId: "testusera",
+            canEdit: false,
             time: "2018-04-20T13:03:11.767000",
             oid: "5ad9e50f18ade5108bcc31b5",
           },
@@ -51,6 +53,7 @@ export const SECTIONS: Section[] = [
           {
             text: "test comment B.1",
             authorId: "testusera",
+            canEdit: false,
             time: "2018-04-20T13:03:22.129000",
             oid: "5ad9e51a18ade5108bcc31b7",
           },
@@ -88,6 +91,7 @@ export const SECTIONS: Section[] = [
           {
             text: "test comment C.1",
             authorId: "testusera",
+            canEdit: false,
             time: "2018-04-20T13:03:04.875000",
             oid: "5ad9e50818ade5108bcc31b4",
           },

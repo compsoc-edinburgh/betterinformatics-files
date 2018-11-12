@@ -16,6 +16,7 @@ interface State {
   editing: boolean;
   text: string;
   savedText: string;
+  commentDraft: string;
 }
 
 const styles = {
@@ -30,7 +31,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
   state: State = {
     editing: false,
     savedText: this.props.answer.text,
-    text: this.props.answer.text
+    text: this.props.answer.text,
+    commentDraft: ""
   };
 
   removeAnswer = async () => {
@@ -64,8 +66,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
     this.setState({editing: true});
   };
 
-  textareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+  answerTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
     this.setState({text: event.currentTarget.value});
+  };
+
+  commentTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+    this.setState({commentDraft: event.currentTarget.value});
   };
 
   toggleAnswerUpvote = async () => {
@@ -74,6 +80,15 @@ export default class AnswerComponent extends React.Component<Props, State> {
       .then((res) => {
         this.props.onSectionChanged(res);
       });
+  };
+
+  addComment = async () => {
+    fetchpost(`/api/exam/${this.props.filename}/addcomment/${this.props.sectionId}/${this.props.answer.oid}`, {text: this.state.commentDraft})
+      .then((res) => res.json())
+      .then((res) => {
+        this.props.onSectionChanged(res);
+      });
+    this.setState({commentDraft: ""});
   };
 
   render() {
@@ -88,7 +103,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div>
-            <textarea onChange={this.textareaChange} cols={120} rows={20} value={this.state.text}/>
+            <textarea onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
           </div>
           <div>
             <button onClick={this.saveAnswer}>Save Answer</button>
@@ -103,7 +118,19 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <button onClick={this.removeAnswer}>Delete Answer</button>
           <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>
         </div>}
-        <div>{answer.comments.map(e => <Comment key={e.oid} comment={e}/>)}</div>
+        <div>{answer.comments.map(e =>
+          <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid}/>
+        )}</div>
+        <div>
+          <b>Add comment</b>
+          <div><MathText value={this.state.commentDraft} /></div>
+          <div>
+            <textarea onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.commentDraft} />
+          </div>
+          <div>
+            <button onClick={this.addComment}>Add comment</button>
+          </div>
+        </div>
       </div>
     );
   }
