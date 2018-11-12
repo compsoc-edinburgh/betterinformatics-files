@@ -18,6 +18,7 @@ export interface Answer {
   upvotes: string[]; // usernames of people who upvoted
   authorId: string; // username
   canEdit: boolean; // whether the current user can edit the answer
+  isUpvoted: boolean; // whether the current user upvoted the answer
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time

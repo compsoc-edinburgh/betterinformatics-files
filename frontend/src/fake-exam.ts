@@ -22,6 +22,7 @@ export const SECTIONS: Section[] = [
       {
         authorId: "testusera",
         canEdit: false,
+        isUpvoted: false,
         text: "test answer A",
         comments: [
           {
@@ -44,6 +45,7 @@ export const SECTIONS: Section[] = [
       {
         authorId: "testusera",
         canEdit: false,
+        isUpvoted: false,
         text: "test answer B",
         comments: [
           {
@@ -80,6 +82,7 @@ export const SECTIONS: Section[] = [
       {
         authorId: "testuserb",
         canEdit: false,
+        isUpvoted: false,
         text: "test answer C",
         comments: [
           {

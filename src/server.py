@@ -102,10 +102,12 @@ def make_answer_section_response(oid):
     for answer in section["answersection"]["answers"]:
         answer["oid"] = answer["_id"]
         answer["canEdit"] = answer["authorId"] == auth.username()
+        answer["isUpvoted"] = auth.username() in answer["upvotes"]
         del answer["_id"]
         for comment in answer["comments"]:
             comment["oid"] = comment["_id"]
             del comment["_id"]
+    section["answersection"]["answers"].sort(key=lambda x: len(x["upvotes"]))
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
     return success(value=section)
 
@@ -313,7 +315,7 @@ def set_like(filename, sectionoid, answeroid):
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
     username = auth.username()
-    like = request.form.get("like", 0) != 0
+    like = request.form.get("like", "0") != "0"
     if like:
         answer_sections.update_one({
             'answersection.answers._id': answer_oid

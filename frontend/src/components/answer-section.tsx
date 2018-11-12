@@ -45,25 +45,16 @@ export default class AnswerSectionComponent extends React.Component<Props, State
     fetchpost(`/api/exam/${this.props.filename}/addanswer/${this.props.oid}`, {})
       .then((res) => res.json())
       .then((res) => {
-        let answersection = res.value.answersection;
-        answersection.key = this.props.oid;
-        answersection.kind = SectionKind.Answer;
-        this.setState({section: answersection});
+        this.onSectionChanged(res);
       });
   };
 
-  removeAnswer = async () => {
-    const confirmation = confirm("Remove answer?");
-    if (confirmation) {
-      fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.oid}`, {})
-        .then((res) => res.json())
-        .then((res) => {
-          let answersection = res.value.answersection;
-          answersection.key = this.props.oid;
-          answersection.kind = SectionKind.Answer;
-          this.setState({section: answersection});
-        });
-    }
+  // takes the parsed json for the answersection which was returned from the server
+  onSectionChanged = async (res: {value: {answersection: AnswerSection}}) => {
+    let answersection = res.value.answersection;
+    //answersection.key = this.props.oid;
+    answersection.kind = SectionKind.Answer;
+    this.setState({section: answersection});
   };
 
   render() {
@@ -79,7 +70,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
         <button onClick={this.removeSection}>Remove Section</button>
         <div>Marked by {section.asker}</div>
         <div>{section.answers.map(e =>
-          <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onDeleteAnswer={this.removeAnswer}/>
+          <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
         )}</div>
         {section.allow_new_answer && <div><button onClick={this.addAnswer}>Add Answer</button></div>}
       </div>

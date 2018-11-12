@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Answer} from "../interfaces";
+import {Answer, AnswerSection} from "../interfaces";
 import Comment from "./comment";
 import {css} from "glamor";
 import MathText from "./math-text";
@@ -9,7 +9,7 @@ interface Props {
   filename: string;
   sectionId: string;
   answer: Answer;
-  onDeleteAnswer: () => void;
+  onSectionChanged: (res: {value: {answersection: AnswerSection}}) => void;
 }
 
 interface State {
@@ -31,6 +31,17 @@ export default class AnswerComponent extends React.Component<Props, State> {
     editing: false,
     savedText: this.props.answer.text,
     text: this.props.answer.text
+  };
+
+  removeAnswer = async () => {
+    const confirmation = confirm("Remove answer?");
+    if (confirmation) {
+      fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, {})
+        .then((res) => res.json())
+        .then((res) => {
+          this.props.onSectionChanged(res);
+        });
+    }
   };
 
   saveAnswer = async () => {
@@ -57,6 +68,14 @@ export default class AnswerComponent extends React.Component<Props, State> {
     this.setState({text: event.currentTarget.value});
   };
 
+  toggleAnswerUpvote = async () => {
+    fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: this.props.answer.isUpvoted ? 0 : 1})
+      .then((res) => res.json())
+      .then((res) => {
+        this.props.onSectionChanged(res);
+      });
+  };
+
   render() {
     const {answer} = this.props;
     return (
@@ -81,10 +100,11 @@ export default class AnswerComponent extends React.Component<Props, State> {
         </div>}
         {answer.canEdit && !this.state.editing && <div>
           <button onClick={this.startEdit}>Edit Answer</button>
-          <button onClick={this.props.onDeleteAnswer}>Delete Answer</button>
+          <button onClick={this.removeAnswer}>Delete Answer</button>
+          <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>
         </div>}
         <div>{answer.comments.map(e => <Comment key={e.oid} comment={e}/>)}</div>
       </div>
     );
   }
-}
+};
