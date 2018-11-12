@@ -3,11 +3,12 @@ from flask import Flask, g, request, redirect, url_for, send_from_directory, jso
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.utils import secure_filename as make_secure_filename
 import json, re
+import pymongo
 from pymongo import MongoClient
 from datetime import datetime
 import os
-from flask import send_from_directory, render_template, send_file
-from flask_cors import CORS
+from functools import wraps
+from flask import send_from_directory, render_template
 from minio import Minio
 from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
@@ -16,7 +17,6 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
 from passlib.apps import custom_app_context as pwd_context
 import traceback
 
-from os import listdir
 import grpc
 import people_pb2
 import people_pb2_grpc
@@ -30,20 +30,20 @@ people_metadata = [("authorization",
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
-CORS(app)
-
-HACK_IS_PROD = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
 
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 ALLOWED_EXTENSIONS = set(['pdf'])
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  #MAX FILE SIZE IS 32 MB
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
+# Minio seems to run unsecured on port 80
+minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https') and \
+                 not os.environ.get('RUNTIME_MINIO_HOST', '') == 'visdev-minio'
 minio_client = Minio(
-    os.environ['RUNTIME_MINIO_SERVER'],
+    os.environ['RUNTIME_MINIO_HOST'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
     secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-    secure=HACK_IS_PROD)
+    secure=minio_is_https)
 minio_bucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 try:
@@ -55,21 +55,25 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-if HACK_IS_PROD:
-    mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
-        os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
-        os.environ['RUNTIME_MONGO_DB_SERVER'],
-        os.environ['RUNTIME_MONGO_DB_PORT'],
-        os.environ['RUNTIME_MONGO_DB_NAME'])
-else:
-    mongo_url = "mongodb://{}:{}/{}".format(
-        os.environ['RUNTIME_MONGO_DB_SERVER'],
-        os.environ['RUNTIME_MONGO_DB_PORT'],
-        os.environ['RUNTIME_MONGO_DB_NAME'])
+mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
+    os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
+    os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
+    os.environ['RUNTIME_MONGO_DB_NAME'])
 mongo_db = MongoClient(mongo_url).get_database()
 
 answer_sections = mongo_db.answersections
-examAnswerSections = mongo_db.examAnswerSections
+exam_categories = mongo_db.examcategories
+
+
+def require_admin(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        username = auth.username()
+        if not has_admin_rights(username):
+            return not_allowed()
+        return f(*args, **kwargs)
+
+    return wrapper
 
 
 def date_handler(obj):
@@ -86,16 +90,54 @@ def make_json_response(obj):
 
 
 def make_answer_section_response(oid):
-    return make_json_response(answer_sections.find({"oid": oid}).limit(1)[0])
+    username = auth.username()
+    section = answer_sections.find_one({"_id": oid}, {
+        "_id": 1,
+        "answersection": 1
+    })
+    if not section:
+        return not_found()
+    section["oid"] = section["_id"]
+    del section["_id"]
+    for answer in section["answersection"]["answers"]:
+        answer["oid"] = answer["_id"]
+        del answer["_id"]
+        answer["canEdit"] = answer["authorId"] == auth.username()
+        answer["isUpvoted"] = auth.username() in answer["upvotes"]
+        for comment in answer["comments"]:
+            comment["oid"] = comment["_id"]
+            del comment["_id"]
+            comment["canEdit"] = answer["authorId"] == auth.username()
+    section["answersection"]["answers"].sort(key=lambda x: len(x["upvotes"]))
+    section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
+    return success(value=section)
 
-# ------------------------------------------- #
-#  auth                                       #
-# ------------------------------------------- #
+
+def not_allowed():
+    return make_json_response({"err": "Not allowed"}), 403
+
+
+def not_found():
+    return make_json_response({"err": "Not found"}), 404
+
+
+def not_possible(msg):
+    return make_json_response({"err": msg}), 400
+
+
+def internal_error(msg):
+    print(msg)
+    return make_json_response({"err": "Internal error"}), 500
+
+
+def success(**kwargs):
+    return make_json_response(kwargs)
+
 
 @auth.verify_password
 def verify_pw(username, password):
-    if not HACK_IS_PROD:
-        return True
+    if not username or not password:
+        return False
     try:
         req = people_pb2.AuthPersonRequest(
             password=password, username=username)
@@ -107,20 +149,15 @@ def verify_pw(username, password):
 
 
 def has_admin_rights(username):
-    if not HACK_IS_PROD:
-        return True
     try:
         req = people_pb2.GetPersonRequest(username=username)
-        res = people_client.GetVisLegacyPerson(req, metadata=people_metadata)
+        res = people_client.GetVisPerson(req, metadata=people_metadata)
     except grpc.RpcError as e:
         print("RPC error while checking admin rights", e)
         return False
     return max(("vorstand" == group or "cit" == group or "cat" == group)
                for group in res.vis_groups)
 
-# ------------------------------------------- #
-#  general stuff                              #
-# ------------------------------------------- #
 
 @app.route("/health")
 def test():
@@ -128,70 +165,20 @@ def test():
 
 
 @app.route("/")
-def overview():
-    return render_template('welcome.html', username=auth.username())
+@auth.login_required
+def index():
+    return render_template("index.html")
+
+
+@app.route('/exams/<filename>')
+@auth.login_required
+def exams(filename):
+    return index()
 
 
 @app.route("/favicon.ico")
 def favicon():
-    return send_from_directory('favicon.ico', "")
-
-
-@app.route("/uploadpdf", methods=['POST', 'GET'])
-@auth.login_required
-def upload_pdf():
-    if not has_admin_rights(auth.username()):
-        return jsonify({"err": "forbidden"}), 403
-    if request.method == "GET":
-        return render_template("upload.html")
-    file = request.files.get('file', None)
-    if file is None or file.filename == '' or not allowed_file(file.filename):
-        return redirect(request.url)
-    filename = request.form.get('filename', '') or file.filename
-    secure_filename = make_secure_filename(filename)
-    if is_pdf_in_minio(secure_filename):
-        return render_template("upload.html", errormsg="There is a file with this name already!")
-    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], secure_filename)
-    file.save(temp_file_path)
-    minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
-    return redirect(url_for('index', filename=secure_filename))
-
-@app.route('/list')
-@auth.login_required
-def list_pdfs():
-    pdfs = []
-    for pdf in minio_client.list_objects(minio_bucket):
-        pdfs.append(pdf.object_name)
-    return render_template("listpdfs.html", pdfs=pdfs)
-
-# ------------------------------------------- #
-#  general api                                #
-# ------------------------------------------- #
-
-@app.route("/api/user")
-@auth.login_required
-def get_user():
-    return make_json_response({
-        "adminrights":
-            has_admin_rights(auth.username()),
-        "username":
-            auth.username(),
-        "displayname":
-            auth.username()
-    })
-
-# ------------------------------------------- #
-#  show and edit an exam                      #
-# ------------------------------------------- #
-
-@app.route('/sol/<filename>')
-@auth.login_required
-def index(filename):
-    print("received")
-    if list(minio_client.list_objects(minio_bucket, prefix=filename)) != []:
-        return render_template('index.html')
-    else:
-        return "There is no file " + filename
+    return send_from_directory('.', 'favicon.ico')
 
 
 def allowed_file(filename):
@@ -200,253 +187,477 @@ def allowed_file(filename):
 
 
 def is_pdf_in_minio(name):
-    return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
+    try:
+        minio_client.stat_object(minio_bucket, name)
+        return True
+    except NoSuchKey:
+        return False
 
 
-@app.route("/api/<filename>/answersection")
+@app.route("/api/user")
 @auth.login_required
-def get_answer_section(filename):
-    oid = request.args.get("oid", "")
-    results = answer_sections.find({
-        "oid": ObjectId(oid)
-    }, {
-        "oid": 1,
-        "answersection": 1
-    }).limit(1)
-    if results.count() == 0:
-        return make_json_response({"err": "Not found"}), 404
-    return make_json_response(results[0])
+def get_user():
+    """
+    Returns information about the currently logged in user.
+    """
+    return success(
+        adminrights=has_admin_rights(auth.username()),
+        username=auth.username(),
+        displayname=auth.username()
+    )
 
 
-@app.route("/api/<filename>/cuts")
+@app.route("/api/listexams")
+@auth.login_required
+def list_exams():
+    """
+    Returns a list of all exams
+    """
+    return success(value=[obj.object_name for obj in minio_client.list_objects(minio_bucket)])
+
+
+@app.route("/api/exam/<filename>/cuts")
 @auth.login_required
 def get_cuts(filename):
+    """
+    Returns all cuts for the file 'filename'.
+    Dictionary of 'pageNum', each a list of ('relHeight', '_id') of the cuts for the page sorted by relHeight.
+    """
     results = answer_sections.find({
         "filename": filename
     }, {
-        "oid": 1,
+        "_id": 1,
         "relHeight": 1,
         "pageNum": 1
     })
-    cuts = {}
+    pages = {}
     for cut in results:
-        group = cuts.get(cut["pageNum"], [])
-        group.append([cut["relHeight"], str(cut["oid"])])
-        cuts[cut["pageNum"]] = group
-    for group in cuts.values():
-        group.sort(key=lambda x: float(x[0]))
-    return make_json_response(cuts)
+        pages.setdefault(cut["pageNum"], []).append({
+            "relHeight": cut["relHeight"],
+            "oid": str(cut["_id"])
+        })
+    for page in pages.values():
+        page.sort(key=lambda x: float(x["relHeight"]))
+    return success(value=pages)
 
 
-@app.route("/api/<filename>/newanswersection")
+@app.route("/api/exam/<filename>/answersection/<oid>")
 @auth.login_required
+def get_answer_section(filename, oid):
+    """
+    Returns the answersection with the given oid.
+    Dictionary of 'oid' and 'answersection'.
+    """
+    return make_answer_section_response(ObjectId(oid))
+
+
+@app.route("/api/exam/<filename>/newanswersection", methods=["POST"])
+@auth.login_required
+@require_admin
 def new_answer_section(filename):
+    """
+    Adds a new answersection to 'filename'.
+    POST Parameters 'pageNum' and 'relHeight'.
+    """
     username = auth.username()
-    answer_section = {"answers": [], "asker": username}
-    if not has_admin_rights(auth.username()):
-        return make_json_response({"err": "Not allowed"}), 403
-    page_num = request.args["pageNum"]
-    rel_height = request.args["relHeight"]
-    result = answer_sections.find({
+    page_num = request.form.get("pageNum", None)
+    rel_height = request.form.get("relHeight", None)
+    if page_num is None or rel_height is None:
+        return not_possible("Missing argument")
+    rel_height = float(rel_height)
+    # it would be nice to check that page_num is valid, but then we
+    # would have to load the pdf to know how many pages it has.
+    # Just trust the client...
+    if not 0 <= rel_height <= 1:
+        return not_possible("Invalid relative height")
+    result = answer_sections.find_one({
         "pageNum": page_num,
         "filename": filename,
         "relHeight": rel_height
-    }).limit(1)
-    if result.count() > 0:
-        return make_json_response(result[0])
+    })
+    if result:
+        return not_possible("Answer section already exists")
     new_doc = {
         "filename": filename,
         "pageNum": page_num,
         "relHeight": rel_height,
-        "answersection": answer_section,
-        "oid": ObjectId()
+        "answersection": {"answers": [], "asker": username},
+        "_id": ObjectId()
     }
     answer_sections.insert_one(new_doc)
-    return make_json_response(new_doc)
+    return success(value=new_doc)
 
 
-@app.route("/api/<filename>/removeanswersection")
+@app.route("/api/exam/<filename>/removeanswersection", methods=["POST"])
 @auth.login_required
+@require_admin
 def remove_answer_section(filename):
-    if has_admin_rights(auth.username()):
-        oid = ObjectId(request.args.get("oid", ""))
-        username = auth.username()
-        if answer_sections.delete_one({"oid": oid}).deleted_count > 0:
-            return make_json_response({"status": "success"})
-        else:
-            return make_json_response({"status": "error"})
+    """
+    Delete the answersection with the given oid.
+    POST Parameter 'oid'.
+    """
+    oid_str = request.form.get("oid", None)
+    if oid_str is None:
+        return not_possible("Missing argument")
+    oid = ObjectId(oid_str)
+    if answer_sections.delete_one({"_id": oid}).deleted_count > 0:
+        return success()
     else:
-        return {"err": "NOT ALLOWED"}
+        return internal_error("Could not delete answersection")
 
 
-@app.route("/api/<filename>/togglelike")
+@app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=["POST"])
 @auth.login_required
-def toggle_like(filename):
-    answer_section_oid = ObjectId(request.args.get("answersectionoid", ""))
-    oid = ObjectId(request.args.get("oid", ""))
+def set_like(filename, sectionoid, answeroid):
+    """
+    Sets the like for the given answer in the given section.
+    POST Parameter 'like' is 0/1.
+    """
+    answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid)
     username = auth.username()
-    answer = answer_sections.find({
-        "answersection.answers.oid": oid
-    }, {
-        "_id": 0,
-        'answersection.answers.$': 1
-    })[0]["answersection"]["answers"][0]
-    if username in answer["upvotes"]:
-        answer["upvotes"].remove(username)
-    else:
-        answer["upvotes"].append(username)
-    answer_sections.update_one({
-        'answersection.answers.oid': oid
-    }, {"$set": {
-        'answersection.answers.$': answer
-    }})
-    return make_answer_section_response(answer_section_oid)
-
-
-@app.route("/api/<filename>/setanswer", methods=["POST"])
-@auth.login_required
-def set_answer(filename):
-    answer_section_oid = ObjectId(request.args["answersectionoid"])
-    req_body = request.get_json()
-    answer_oid = ObjectId(req_body["oid"]) if "oid" in req_body else None
-    username = auth.username()
-    if answer_oid is None:
-        add_answer(answer_section_oid, username, req_body["text"])
-    else:
-        modify_answer(answer_oid, username, req_body["text"])
-    return make_answer_section_response(answer_section_oid)
-
-
-def modify_answer(answer_oid, username, text):
-    answer = answer_sections.find({
-        "answersection.answers.oid": answer_oid
-    }, {
-        "_id": 0,
-        'answersection.answers.$': 1
-    })[0]["answersection"]["answers"][0]
-    answer["text"] = text
-    if answer["authorId"] == username:
-        raise RuntimeError("Cant modify other users answer")
-    answer_sections.update_one({
-        'answersection.answers.oid': answer_oid
-    }, {"$set": {
-        'answersection.answers.$': answer
-    }})
-
-
-def add_answer(answer_section_oid, username, text):
-    answer = {
-        "authorId": username,
-        "text": text,
-        "comments": [],
-        "upvotes": [],
-        "time": datetime.utcnow(),
-        "oid": ObjectId()
-    }
-    answer_sections.update_one({
-        "oid": answer_section_oid
-    }, {'$push': {
-        "answersection.answers": answer
-    }})
-
-
-@app.route("/api/<filename>/addcomment", methods=["POST"])
-@auth.login_required
-def add_comment(filename):
-    answer_section_oid = ObjectId(request.args["answersectionoid"])
-    answer_oid = ObjectId(request.args["answerOid"])
-    username = auth.username()
-    req_body = request.get_json()
-    answer = \
-        answer_sections \
-            .find({"answersection.answers.oid": answer_oid}, {"_id": 0, 'answersection.answers.$': 1}) \
-            [0]['answersection']["answers"][0]
-    answer["comments"].append({
-        "text": req_body["text"],
-        "authorId": username,
-        "time": datetime.utcnow(),
-        "oid": ObjectId()
-    })
-    answer_sections.update_one({
-        'answersection.answers.oid': answer_oid
-    }, {"$set": {
-        'answersection.answers.$': answer
-    }})
-    return make_answer_section_response(answer_section_oid)
-
-
-@app.route("/api/<filename>/removecomment")
-@auth.login_required
-def remove_comment(filename):
-    answer_section_oid = ObjectId(request.args["answersectionoid"])
-    comment_oid = ObjectId(request.args["oid"])
-    page_num = request.args["pageNum"]
-    rel_height = request.args["relHeight"]
-    comments = \
-        answer_sections \
-            .find_one({"answersection.answers": {"$elemMatch": {"comments.oid": ObjectId(comment_oid)}}}, \
-                      {"_id":0, "answersection.answers.$.comments": 1})["answersection"]["answers"][0]["comments"]
-    comment = {"authorId": ""}
-    for c in comments:
-        if c["oid"] == ObjectId(comment_oid):
-            comment = c
-            break
-    if comment["authorId"] == auth.username():
-        answer_sections.update_one(
-            {
-                'answersection.answers.comments.oid': ObjectId(comment_oid)
-            }, {
-                "$pull": {
-                    'answersection.answers.$.comments': {
-                        'oid': ObjectId(comment_oid)
-                    }
-                }
-            })
-    return make_answer_section_response(answer_section_oid)
-
-
-@app.route("/api/<filename>/removeanswer")
-@auth.login_required
-def remove_answer(filename):
-    answer_section_oid = ObjectId(request.args["answersectionoid"])
-    oid = request.args["oid"]
-    username = auth.username()
-    if answer_sections.find({
-        "answersection.answers.oid": ObjectId(oid)
-    }, {
-        "_id": 0,
-        'answersection.answers.$': 1
-    }).limit(1)[0]["answersection"]["answers"][0]["authorId"] == username:
+    like = request.form.get("like", "0") != "0"
+    if like:
         answer_sections.update_one({
-            'answersection.answers.oid': ObjectId(oid)
-        }, {"$pull": {
-            'answersection.answers': {
-                'oid': ObjectId(oid)
-            }
+            'answersection.answers._id': answer_oid
+        }, {'$addToSet': {
+            'answersection.answers.$.upvotes': username
+        }})
+    else:
+        answer_sections.update_one({
+            'answersection.answers._id': answer_oid
+        }, {'$pull': {
+            'answersection.answers.$.upvotes': username
         }})
     return make_answer_section_response(answer_section_oid)
 
-
-@app.route("/pdf/<filename>")
+@app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=["POST"])
 @auth.login_required
-def pdf_old(filename):
+def add_answer(filename, sectionoid):
+    """
+    Adds an empty answer for the given section for the current user.
+    This enforces that each user can only have one answer.
+    """
+    answer_section_oid = ObjectId(sectionoid)
+
+    username = auth.username()
+    maybe_answer = answer_sections.find_one({
+        "_id": answer_section_oid,
+        "answersection.answers.authorId": username
+    }, {
+        "answersection.answers.$": 1
+    })
+    if maybe_answer:
+        return not_possible("Answer already exists")
+    answer = {
+        "_id": ObjectId(),
+        "authorId": username,
+        "text": "",
+        "comments": [],
+        "upvotes": [],
+        "time": datetime.utcnow()
+    }
+    answer_sections.update_one({
+        "_id": answer_section_oid
+    }, {'$push': {
+        "answersection.answers": answer
+    }})
+    return make_answer_section_response(answer_section_oid)
+
+@app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=["POST"])
+@auth.login_required
+def set_answer(filename, sectionoid):
+    """
+    Sets the answer for the given section for the current user.
+    This enforces that each user can only have one answer.
+    POST Parameter 'text'.
+    """
+    answer_section_oid = ObjectId(sectionoid)
+
+    username = auth.username()
+    text = request.form.get("text", None)
+    if text is None:
+        return not_possible("Missing argument")
+    maybe_answer = answer_sections.find_one({
+        "_id": answer_section_oid,
+        "answersection.answers.authorId": username
+    }, {
+        "answersection.answers.$": 1
+    })
+    if not maybe_answer:
+        return not_possible("Answer does not yet exist")
+    answer_sections.update_one({
+        'answersection.answers._id': maybe_answer["answersection"]["answers"][0]["_id"]
+    }, {"$set": {
+        'answersection.answers.$.text': text
+    }})
+    return make_answer_section_response(answer_section_oid)
+
+
+@app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=["POST"])
+@auth.login_required
+def remove_answer(filename, sectionoid):
+    """
+    Delete the answer for the current user for the section.
+    No POST Parameters
+    """
+    answer_section_oid = ObjectId(sectionoid)
+    username = auth.username()
+    answer_sections.update_one({
+        '_id': answer_section_oid
+    }, {"$pull": {
+        'answersection.answers': {
+            'authorId': username
+        }
+    }})
+    return make_answer_section_response(answer_section_oid)
+
+
+@app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=["POST"])
+@auth.login_required
+def add_comment(filename, sectionoid, answeroid):
+    """
+    Add comment to given answer.
+    POST Parameter 'text'.
+    """
+    answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid)
+    username = auth.username()
+    text = request.form.get("text", None)
+    if not text:
+        return not_possible("Missing argument")
+
+    comment = {
+        "_id": ObjectId(),
+        "text": text,
+        "authorId": username,
+        "time": datetime.utcnow()
+    }
+    answer_sections.update_one({
+        "answersection.answers._id": answer_oid
+    }, {
+        "$push": {
+            "answersection.answers.$.comments": comment
+        }
+    })
+    return make_answer_section_response(answer_section_oid)
+
+
+@app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=["POST"])
+@auth.login_required
+def set_comment(filename, sectionoid, answeroid):
+    """
+    Set the text for the comment with the given id.
+    POST Parameter 'commentoid' and 'text'
+    """
+    answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid);
+    oid_str = request.form.get("commentoid", None)
+    if not oid_str:
+        return not_possible("Missing argument")
+    comment_oid = ObjectId(oid_str)
+    text = request.form.get("text", None)
+    if text is None:
+        return not_possible("Missing argument")
+    username = auth.username()
+    maybe_comment = answer_sections.find_one({
+        'answersection.answers._id': answer_oid
+    }, {
+        'answersection.answers.comments': 1
+    })
+    idx = -1
+    for i, comment in enumerate(maybe_comment["answersection"]["answers"][0]["comments"]):
+        if comment["_id"] == comment_oid:
+            idx = i
+            if comment["authorId"] != username:
+                return not_possible("Comment can not be edited")
+    if idx < 0:
+        return not_possible("Comment does not exist")
+    answer_sections.update_one({
+        'answersection.answers.comments._id': comment_oid
+    }, {
+        "$set": {
+            'answersection.answers.$.comments.{}.text'.format(idx): text
+        }
+    })
+    return make_answer_section_response(answer_section_oid)
+
+
+@app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=["POST"])
+@auth.login_required
+def remove_comment(filename, sectionoid, answeroid):
+    """
+    Remove the comment with the given id.
+    POST Parameter 'commentoid'.
+    """
+    answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid)
+    oid_str = request.form.get("commentoid", None)
+    if not oid_str:
+        return not_possible("Missing argument")
+    comment_oid = ObjectId(oid_str)
+
+    username = auth.username()
+    maybe_comment = answer_sections.find_one({
+        'answersection.answers.comments._id': comment_oid
+    }, {
+        'answersection.answers.comments.$': 1
+    })
+    if not maybe_comment:
+        return not_possible("Comment does not exist")
+    if maybe_comment["answersection"]["answers"][0]["comments"][0]["authorId"] != username:
+        return not_possible("Comment can not be removed")
+    answer_sections.update_one({
+        "answersection.answers._id": answer_oid
+    }, {
+        "$pull": {
+            "answersection.answers.$.comments": {
+                "_id": comment_oid
+            }
+        }
+    })
+    return make_answer_section_response(answer_section_oid)
+
+
+@app.route("/api/listcategories")
+@auth.login_required
+def list_categories():
+    """
+    Lists all available categories
+    """
+    include_exams = 1 if request.args.get('exams', "1") != "0" else 0
+    projection = {"_id": 0, "name": 1}
+    if request.args.get('exams', "1") != "0":
+        projection["exams"] = 1
+    results = exam_categories.find({
+        "exams": {"$gt": []}
+    }, projection).sort([("name", pymongo.ASCENDING)])
+    return success(value=list(results))
+
+
+@app.route("/api/category/list")
+@auth.login_required
+def list_category():
+    """
+    Lists all exams belonging to the category
+    GET Parameter 'category'
+    """
+    category = request.args.get("category")
+    if not category:
+        return not_possible("Missing argument")
+    results = exam_categories.find_one({
+        "name": category,
+        "exams": {"$gt": []}
+    }, {
+        "exams": 1
+    })
+    return success(value=results["exams"])
+
+
+@app.route("/api/category/add", methods=["POST"])
+@auth.login_required
+@require_admin
+def add_exam_category_api():
+    """
+    Adds the exam to the category
+    POST Parameter 'category'
+    POST Parameter 'exam'
+    """
+    category = request.form["category"]
+    exam = request.form["exam"]
+    if not category or not exam:
+        return not_possible("Missing argument")
+    add_exam_category(category, exam)
+    return success()
+
+
+def add_exam_category(category, exam):
+    """
+    Add the exam to the given category
+    """
+    exam_categories.update_one({
+        "name": category
+    }, {
+        "$set": {
+            "name": category
+        },
+        "$addToSet": {
+            "exams": exam
+        }
+    }, upsert=True)
+
+
+@app.route("/api/category/remove", methods=["POST"])
+@auth.login_required
+@require_admin
+def remove_exam_category_api():
+    """
+    Remove the exam from the category
+    POST Parameter 'category'
+    POST Parameter 'exam'
+    """
+    category = request.form["category"]
+    exam = request.form["exam"]
+    if not category or not exam:
+        return not_possible("Missing argument")
+    remove_exam_category(category, exam)
+    return success()
+
+
+def remove_exam_category(category, exam):
+    """
+    Remove the exam from the given category
+    """
+    exam_categories.update_one({
+        "name": category
+    }, {
+        "$pull": {
+            "exams": exam
+        }
+    })
+
+
+@app.route("/api/uploadpdf", methods=['POST'])
+@auth.login_required
+@require_admin
+def uploadpdf():
+    """
+    Allows uploading a new pdf.
+    File as 'file'.
+    Optional POST Parameter 'filename' with filename to use.
+    """
+    file = request.files.get('file', None)
+    if not file or not file.filename or not allowed_file(file.filename):
+        return not_possible("No valid file found")
+    filename = request.form.get("filename", "")
+    if not filename or filename == ".pdf":
+        filename = file.filename
+    if not allowed_file(filename):
+        return not_possible("Invalid file name")
+    category = request.form.get("category", "") or "default"
+    secure_filename = make_secure_filename(filename)
+    if is_pdf_in_minio(secure_filename):
+        return not_possible("File already exists")
+    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], secure_filename)
+    file.save(temp_file_path)
+    minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
+    add_exam_category(category, secure_filename)
+    return success(href="/exams/" + secure_filename)
+
+
+@app.route("/api/pdf/<filename>")
+@auth.login_required
+def pdf(filename):
+    """
+    Get the pdf for the filename
+    """
     try:
         minio_client.fget_object(
             minio_bucket, filename,
             os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
     except NoSuchKey as n:
-        return "There is no such PDF saved here :(", 404
-    return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'],
-                               filename)
-
-
-@app.route("/pdfnew/<filename>")
-@auth.login_required
-def pdf(filename):
-    try:
-        return send_file(minio_client.get_object(minio_bucket, filename))
-    except NoSuchKey as n:
-        return "There is no such PDF saved here :(", 404
+        return not_found()
+    return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
 
 
 @app.errorhandler(Exception)
