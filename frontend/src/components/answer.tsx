@@ -9,6 +9,7 @@ interface Props {
   filename: string;
   sectionId: string;
   answer: Answer;
+  onDeleteAnswer: () => void;
 }
 
 interface State {
@@ -67,13 +68,21 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div>Upvotes: {answer.upvotes.length}</div>
         <div><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
-          <textarea onChange={this.textareaChange} cols={120} rows={20} value={this.state.text}/>
+          <div>
+            <textarea onChange={this.textareaChange} cols={120} rows={20} value={this.state.text}/>
+          </div>
+          <div>
+            <button onClick={this.saveAnswer}>Save Answer</button>
+            <button onClick={this.cancelEdit}>Cancel</button>
+          </div>
+          <div>
+            You can use latex math notation in your answer. Use \[ ... \] and \( ... \) or alternatively $$ ... $$ and ` ... ` to format the enclosed text as math. Using ` ... ` you can also use AsciiMath.
+          </div>
         </div>}
-        {this.state.editing && <div>
-          <button onClick={this.saveAnswer}>Save Answer</button>
-          <button onClick={this.cancelEdit}>Cancel</button>
+        {answer.canEdit && !this.state.editing && <div>
+          <button onClick={this.startEdit}>Edit Answer</button>
+          <button onClick={this.props.onDeleteAnswer}>Delete Answer</button>
         </div>}
-        {answer.canEdit && !this.state.editing && <div><button onClick={this.startEdit}>Edit Answer</button></div>}
         <div>{answer.comments.map(e => <Comment key={e.oid} comment={e}/>)}</div>
       </div>
     );

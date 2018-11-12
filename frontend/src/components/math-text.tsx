@@ -14,12 +14,15 @@ const styles = {
   }),
 };
 
-// TODO Actually allow inline formulas
+function replaceNewlines(text: string): string {
+  // TODO find cleaner way to support newlines
+  return text.replace("\r", "").replace(/\n\n/g, "\\(\\\\\\)");
+}
 
 export default ({value}: Props) => {
   return <div {...styles.wrapper}>
     <MathJax.Context input="tex">
-      <MathJax.Text text={value}/>
+      <MathJax.Text text={replaceNewlines(value)}/>
     </MathJax.Context>
   </div>;
 };

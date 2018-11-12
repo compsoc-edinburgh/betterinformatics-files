@@ -52,6 +52,20 @@ export default class AnswerSectionComponent extends React.Component<Props, State
       });
   };
 
+  removeAnswer = async () => {
+    const confirmation = confirm("Remove answer?");
+    if (confirmation) {
+      fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.oid}`, {})
+        .then((res) => res.json())
+        .then((res) => {
+          let answersection = res.value.answersection;
+          answersection.key = this.props.oid;
+          answersection.kind = SectionKind.Answer;
+          this.setState({section: answersection});
+        });
+    }
+  };
+
   render() {
     const {section} = this.state;
     if (!section) {
@@ -64,7 +78,9 @@ export default class AnswerSectionComponent extends React.Component<Props, State
         </div>
         <button onClick={this.removeSection}>Remove Section</button>
         <div>Marked by {section.asker}</div>
-        <div>{section.answers.map(e => <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid}/>)}</div>
+        <div>{section.answers.map(e =>
+          <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onDeleteAnswer={this.removeAnswer}/>
+        )}</div>
         {section.allow_new_answer && <div><button onClick={this.addAnswer}>Add Answer</button></div>}
       </div>
     );
