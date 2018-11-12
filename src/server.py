@@ -173,11 +173,11 @@ def list_pdfs():
 def get_user():
     return make_json_response({
         "adminrights":
-        has_admin_rights(auth.username()),
+            has_admin_rights(auth.username()),
         "username":
-        auth.username(),
+            auth.username(),
         "displayname":
-        auth.username()
+            auth.username()
     })
 
 # ------------------------------------------- #
@@ -358,9 +358,9 @@ def add_comment(filename):
     username = auth.username()
     req_body = request.get_json()
     answer = \
-        answer_sections\
-        .find({"answersection.answers.oid": answer_oid}, {"_id": 0, 'answersection.answers.$': 1})\
-        [0]['answersection']["answers"][0]
+        answer_sections \
+            .find({"answersection.answers.oid": answer_oid}, {"_id": 0, 'answersection.answers.$': 1}) \
+            [0]['answersection']["answers"][0]
     answer["comments"].append({
         "text": req_body["text"],
         "authorId": username,
@@ -384,8 +384,8 @@ def remove_comment(filename):
     rel_height = request.args["relHeight"]
     comments = \
         answer_sections \
-        .find_one({"answersection.answers": {"$elemMatch": {"comments.oid": ObjectId(comment_oid)}}}, \
-        {"_id":0, "answersection.answers.$.comments": 1})["answersection"]["answers"][0]["comments"]
+            .find_one({"answersection.answers": {"$elemMatch": {"comments.oid": ObjectId(comment_oid)}}}, \
+                      {"_id":0, "answersection.answers.$.comments": 1})["answersection"]["answers"][0]["comments"]
     comment = {"authorId": ""}
     for c in comments:
         if c["oid"] == ObjectId(comment_oid):
@@ -412,10 +412,10 @@ def remove_answer(filename):
     oid = request.args["oid"]
     username = auth.username()
     if answer_sections.find({
-            "answersection.answers.oid": ObjectId(oid)
+        "answersection.answers.oid": ObjectId(oid)
     }, {
-            "_id": 0,
-            'answersection.answers.$': 1
+        "_id": 0,
+        'answersection.answers.$': 1
     }).limit(1)[0]["answersection"]["answers"][0]["authorId"] == username:
         answer_sections.update_one({
             'answersection.answers.oid': ObjectId(oid)
