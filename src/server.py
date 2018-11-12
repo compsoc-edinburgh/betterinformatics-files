@@ -101,6 +101,7 @@ def make_answer_section_response(oid):
     del section["_id"]
     for answer in section["answersection"]["answers"]:
         answer["oid"] = answer["_id"]
+        answer["canEdit"] = answer["authorId"] == auth.username()
         del answer["_id"]
         for comment in answer["comments"]:
             comment["oid"] = comment["_id"]
@@ -327,6 +328,39 @@ def set_like(filename, sectionoid, answeroid):
         }})
     return make_answer_section_response(answer_section_oid)
 
+@app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=["POST"])
+@auth.login_required
+def add_answer(filename, sectionoid):
+    """
+    Adds an empty answer for the given section for the current user.
+    This enforces that each user can only have one answer.
+    POST Parameter 'text'.
+    """
+    answer_section_oid = ObjectId(sectionoid)
+
+    username = auth.username()
+    maybe_answer = answer_sections.find_one({
+        "_id": answer_section_oid,
+        "answersection.answers.authorId": username
+    }, {
+        "answersection.answers.$": 1
+    })
+    if maybe_answer:
+        return not_possible("Answer already exists")
+    answer = {
+        "_id": ObjectId(),
+        "authorId": username,
+        "text": "",
+        "comments": [],
+        "upvotes": [],
+        "time": datetime.utcnow()
+    }
+    answer_sections.update_one({
+        "_id": answer_section_oid
+    }, {'$push': {
+        "answersection.answers": answer
+    }})
+    return make_answer_section_response(answer_section_oid)
 
 @app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=["POST"])
 @auth.login_required
@@ -348,26 +382,13 @@ def set_answer(filename, sectionoid):
     }, {
         "answersection.answers.$": 1
     })
-    if maybe_answer:
-        answer_sections.update_one({
-            'answersection.answers._id': maybe_answer["answersection"]["answers"][0]["_id"]
-        }, {"$set": {
-            'answersection.answers.$.text': text
-        }})
-    else:
-        answer = {
-            "_id": ObjectId(),
-            "authorId": username,
-            "text": text,
-            "comments": [],
-            "upvotes": [],
-            "time": datetime.utcnow()
-        }
-        answer_sections.update_one({
-            "_id": answer_section_oid
-        }, {'$push': {
-            "answersection.answers": answer
-        }})
+    if not maybe_answer:
+        return not_possible("Answer does not yet exist")
+    answer_sections.update_one({
+        'answersection.answers._id': maybe_answer["answersection"]["answers"][0]["_id"]
+    }, {"$set": {
+        'answersection.answers.$.text': text
+    }})
     return make_answer_section_response(answer_section_oid)
 
 

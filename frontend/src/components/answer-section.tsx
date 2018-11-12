@@ -42,7 +42,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
   };
 
   addAnswer = async () => {
-    fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.oid}`, {text: ""})
+    fetchpost(`/api/exam/${this.props.filename}/addanswer/${this.props.oid}`, {})
       .then((res) => res.json())
       .then((res) => {
         let answersection = res.value.answersection;
@@ -64,8 +64,8 @@ export default class AnswerSectionComponent extends React.Component<Props, State
         </div>
         <button onClick={this.removeSection}>Remove Section</button>
         <div>Marked by {section.asker}</div>
-        <div>{section.answers.map(e => <Answer key={e.oid} answer={e}/>)}</div>
-        {section.allow_new_answer && <button onClick={this.addAnswer}>Add Answer</button>}
+        <div>{section.answers.map(e => <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid}/>)}</div>
+        {section.allow_new_answer && <div><button onClick={this.addAnswer}>Add Answer</button></div>}
       </div>
     );
   }

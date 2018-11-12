@@ -21,6 +21,7 @@ export const SECTIONS: Section[] = [
     answers: [
       {
         authorId: "testusera",
+        canEdit: false,
         text: "test answer A",
         comments: [
           {
@@ -42,6 +43,7 @@ export const SECTIONS: Section[] = [
       },
       {
         authorId: "testusera",
+        canEdit: false,
         text: "test answer B",
         comments: [
           {
@@ -77,6 +79,7 @@ export const SECTIONS: Section[] = [
     answers: [
       {
         authorId: "testuserb",
+        canEdit: false,
         text: "test answer C",
         comments: [
           {
