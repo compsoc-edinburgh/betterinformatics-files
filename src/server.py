@@ -39,8 +39,9 @@ app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
 # Minio seems to run unsecured on port 80
 minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https') and \
                  not os.environ.get('RUNTIME_MINIO_HOST', '') == 'visdev-minio'
+# visdev sets RUNTIME_MINIO_HOST but CIT sets RUNTIME_MINIO_SERVER
 minio_client = Minio(
-    os.environ['RUNTIME_MINIO_HOST'],
+    os.environ.get('RUNTIME_MINIO_SERVER', os.environ.get('RUNTIME_MINIO_HOST')),
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
     secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
     secure=minio_is_https)
