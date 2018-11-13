@@ -16,7 +16,6 @@ export default class Home extends React.Component<Props> {
     return (
       <div>
         <h1>VIS Exam Solution Exchange</h1>
-        <p>Available exams:</p>
         <ExamList/>
         {this.props.isAdmin && <div><Link to="/uploadpdf">Upload new exam</Link>.</div>}
         {this.props.isAdmin && <div><Link to="/categorize">Categorize exams</Link>.</div>}

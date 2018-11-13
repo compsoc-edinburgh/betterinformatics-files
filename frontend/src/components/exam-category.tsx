@@ -1,6 +1,7 @@
 import * as React from "react";
 import AutocompleteInput from "./autocomplete-input";
 import {fetchpost} from '../fetch-utils';
+import {Link} from "react-router-dom";
 
 interface Props {
   exam: string;
@@ -18,7 +19,7 @@ async function submitSave(exam: string, oldCategory: string, newCategory: string
 }
 
 export default ({exam, category, savedCategory, categories, onChange, onSave}: Props) => (
-  <p>{exam} <AutocompleteInput name={exam} value={category} placeholder="category..."
+  <p><Link to={"/exams/" + exam}>{exam}</Link> <AutocompleteInput name={exam} value={category} placeholder="category..."
                                                autocomplete={categories}
                                                onChange={(ev) => onChange(exam, ev.target.value)}/>
     <button onClick={(ev) => submitSave(exam, savedCategory, category, onSave)}
