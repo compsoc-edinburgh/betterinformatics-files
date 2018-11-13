@@ -8,9 +8,12 @@ interface Props {
 
 const styles = {
   wrapper: css({
-    border: "1px solid black",
-    background: "wheat",
-    minHeight: "20px"
+    background: "#ffdfb4",
+    minHeight: "24px",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    paddingLeft: "20px",
+    paddingRight: "20px"
   }),
 };
 

@@ -15,10 +15,11 @@ const MAX_WIDTH = 1200;
 const styles = {
   wrapper: css({
     margin: "auto",
-    outline: "1px solid red",
   }),
   sectionsButton: css({
     textAlign: "right",
+    position: ["sticky", "-webkit-sticky"],
+    top: "20px"
   }),
 };
 

@@ -109,7 +109,7 @@ def make_answer_section_response(oid):
             comment["oid"] = comment["_id"]
             del comment["_id"]
             comment["canEdit"] = answer["authorId"] == auth.username()
-    section["answersection"]["answers"].sort(key=lambda x: len(x["upvotes"]))
+    section["answersection"]["answers"].sort(key=lambda x: -len(x["upvotes"]))
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
     return success(value=section)
 

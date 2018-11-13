@@ -22,9 +22,59 @@ interface State {
 
 const styles = {
   wrapper: css({
-    border: "1px solid blue",
-    marginLeft: "15px",
+    background: "#eeeeee",
+    paddingTop: "10px",
+    paddingLeft: "10px",
+    paddingRight: "10px",
+    paddingBottom: "20px",
+    marginBottom: "20px",
+    boxShadow: "0 4px 8px 0 grey"
   }),
+  threebuttons: css({
+    textAlign: "center",
+    display: "flex",
+    justifyContent: "space-between",
+    "& div": {
+      width: "200px"
+    }
+  }),
+  upvoteWrapper: css({
+    textAlign: "left"
+  }),
+  header: css({
+    fontSize: "24px",
+    marginBottom: "10px"
+  }),
+  answer: css({
+    margin: "5px"
+  }),
+  answerInput: css({
+    marginLeft: "5px",
+    marginRight: "5px"
+  }),
+  answerTexHint: css({
+    marginBottom: "10px",
+    marginLeft: "5px",
+    marginRight: "5px"
+  }),
+  comments: css({
+    marginLeft: "25px",
+    marginTop: "10px",
+    marginRight: "25px"
+  }),
+  addComment: css({
+    marginTop: "20px",
+    marginLeft: "25px",
+    marginRight: "25px"
+  }),
+  textareaInput: css({
+    width: "100%",
+    resize: "none",
+    marginTop: "10px",
+    marginBottom: "5px",
+    padding: "5px",
+    boxSizing: "border-box"
+  })
 };
 
 export default class AnswerComponent extends React.Component<Props, State> {
@@ -96,38 +146,34 @@ export default class AnswerComponent extends React.Component<Props, State> {
     const {answer} = this.props;
     return (
       <div {...styles.wrapper}>
-        <div>
+        <div {...styles.header}>
           <b>{answer.authorId}</b> @ {dateStr2Str(answer.time)} (+{answer.upvotes.length})
         </div>
-        <div><MathText value={this.state.text}/></div>
+        <div {...styles.answer}><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
-          <div>
-            <textarea onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
+          <div {...styles.answerInput}>
+            <textarea {...styles.textareaInput} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
           </div>
-          <div>
-            <button onClick={this.saveAnswer}>Save Answer</button>
-            <button onClick={this.cancelEdit}>Cancel</button>
-          </div>
-          <div>
-            You can use latex math notation in your answer. Use \[ ... \] and \( ... \) or alternatively $$ ... $$ and ` ... ` to format the enclosed text as math. Using ` ... ` you can also use AsciiMath.
+          <div {...styles.answerTexHint}>
+            You can use latex math notation in your answer. Use \[ ... \] and \( ... \) or alternatively $$ ... $$ and ` ... ` to format the enclosed text as (inline) math. Using ` ... ` you can also use AsciiMath.
           </div>
         </div>}
-        {answer.canEdit && !this.state.editing && <div>
-          <button onClick={this.startEdit}>Edit Answer</button>
-          <button onClick={this.removeAnswer}>Delete Answer</button>
-          <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>
-        </div>}
-        <div>{answer.comments.map(e =>
+        <div {...styles.threebuttons}>
+          <div {...styles.upvoteWrapper}>{!this.state.editing && <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>}</div>
+          <div>{this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}</div>
+          <div>{this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}</div>
+        </div>
+        <div {...styles.comments}>{answer.comments.map(e =>
           <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
         )}</div>
-        {this.state.savedText.length > 0 && <div>
-          <b>Add comment</b>
+        {this.state.savedText.length > 0 && <div {...styles.addComment}>
+          <div><b>Add comment</b></div>
           <div><MathText value={this.state.commentDraft} /></div>
           <div>
-            <textarea onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.commentDraft} />
+            <textarea {...styles.textareaInput} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.commentDraft} />
           </div>
           <div>
-            <button onClick={this.addComment}>Add comment</button>
+            <button onClick={this.addComment} disabled={this.state.commentDraft.length === 0}>Submit Comment</button>
           </div>
         </div>}
       </div>

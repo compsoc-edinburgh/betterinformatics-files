@@ -49,8 +49,20 @@ const styles = {
       borderRadius: "2px",
       boxSizing: "border-box"
     },
+    "& button[disabled]": {
+      background: "#888888"
+    },
     "& button:hover": {
       background: "#aaaaaa"
+    },
+    "& button[disabled]:hover": {
+      cursor: "not-allowed"
+    },
+    "& .primary": {
+      background: "#8cd6ff",
+      ":hover": {
+        background: "#3980ff"
+      }
     }
   }),
   inner: css({

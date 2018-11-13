@@ -21,9 +21,11 @@ interface State {
 
 const styles = {
   wrapper: css({
-    border: "1px solid red",
-    marginLeft: "15px",
+    marginBottom: "10px"
   }),
+  header: css({
+    marginBottom: "5px"
+  })
 };
 
 export default class CommentComponent extends React.Component<Props, State> {
@@ -74,7 +76,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     const {comment} = this.props;
     return (
       <div {...styles.wrapper}>
-        <div>
+        <div {...styles.header}>
           <b>{comment.authorId}</b> @ {dateStr2Str(comment.time)}
         </div>
         <div><MathText value={this.state.text}/></div>
