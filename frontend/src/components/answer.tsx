@@ -1,5 +1,6 @@
 import * as React from "react";
 import {Answer, AnswerSection} from "../interfaces";
+import {dateStr2Str} from "../date-utils";
 import Comment from "./comment";
 import {css} from "glamor";
 import MathText from "./math-text";
@@ -96,10 +97,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div>
-          <b>Answer</b> by {answer.authorId}
+          <b>{answer.authorId}</b> @ {dateStr2Str(answer.time)} (+{answer.upvotes.length})
         </div>
-        <div>Time: {answer.time}</div>
-        <div>Upvotes: {answer.upvotes.length}</div>
         <div><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div>

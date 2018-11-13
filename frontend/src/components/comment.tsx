@@ -1,5 +1,6 @@
 import * as React from "react";
 import {AnswerSection, Comment} from "../interfaces";
+import {dateStr2Str} from "../date-utils";
 import {css} from "glamor";
 import MathText from "./math-text";
 import {fetchpost} from "../fetch-utils";
@@ -74,9 +75,8 @@ export default class CommentComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div>
-          <b>Comment</b> by {comment.authorId}
+          <b>{comment.authorId}</b> @ {dateStr2Str(comment.time)}
         </div>
-        <div>Time: {comment.time}</div>
         <div><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div>
