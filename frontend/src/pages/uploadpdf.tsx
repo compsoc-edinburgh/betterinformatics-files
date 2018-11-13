@@ -34,7 +34,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   }
 
   async componentDidMount() {
-    document.title = "VIS-Exchange: Upload Exam";
+    document.title = "VIS Community Solutions: Upload Exam";
   }
 
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {

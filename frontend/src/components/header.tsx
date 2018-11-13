@@ -12,15 +12,6 @@ const styles = {
     justifyContent: "space-between",
     color: "#ffffff",
     background: "#394b59",
-    '& a': {
-      'text-decoration': 'none',
-      ':link': {
-        color: 'inherit'
-      },
-      ':visited': {
-        color: 'inherit'
-      }
-    }
   }),
   logotitle: css({
     display: "flex",
@@ -37,6 +28,14 @@ const styles = {
   title: css({
     marginLeft: "25px",
     fontSize: "24px",
+    "& a": {
+      ":link": {
+        color: "white !important"
+      },
+      ":visited": {
+        color: "white !important"
+      }
+    }
   }),
   username: css({
     display: "block",

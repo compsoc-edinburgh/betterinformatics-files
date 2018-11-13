@@ -1,5 +1,66 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
+import {css} from "glamor";
+
+const styles = {
+  wrapper: css({
+    width: "100%",
+    display: "flex",
+    flexWrap: "wrap"
+  }),
+  category: css({
+    background: "#eeeeee",
+    width: "250px",
+    paddingLeft: "10px",
+    paddingRight: "10px",
+    paddingBottom: "20px",
+    marginLeft: "20px",
+    marginRight: "20px",
+    marginBottom: "40px",
+    borderRadius: "0px",
+    boxShadow: "0 4px 8px 0 grey"
+  }),
+  subtitle: css({
+    textTransform: "capitalize",
+    fontWeight: "bold"
+  }),
+  subtitles: [
+    css({
+      paddingLeft: "15px",
+      fontSize: "24px"
+    }),
+    css({
+      paddingLeft: "25px",
+      fontSize: "18px"
+    }),
+    css({
+      paddingLeft: "35px"
+    }),
+    css({
+      paddingLeft: "45px"
+    }),
+    css({
+      paddingLeft: "55px"
+    }),
+  ],
+  exams: [
+    css({
+      paddingLeft: "15px"
+    }),
+    css({
+      paddingLeft: "25px"
+    }),
+    css({
+      paddingLeft: "35px"
+    }),
+    css({
+      paddingLeft: "45px"
+    }),
+    css({
+      paddingLeft: "55px"
+    }),
+  ]
+};
 
 interface Category {
   name: string;
@@ -79,19 +140,19 @@ export default class ExamList extends React.Component<{}, State> {
 
   categoryDisplay = (category: string) => this.arrLast(category.split("/"));
 
-  renderCategory = (category: Category): JSX.Element => {
-    return (<ul>
+  renderCategory = (category: Category, depth: number): JSX.Element => {
+    return (<div>
         {category.exams.map(exam => (
-          <li key={exam}><Link to={"/exams/" + exam}>{exam}</Link></li>
+          <div key={exam} {...styles.exams[depth]}><Link to={"/exams/" + exam}>{exam}</Link></div>
         ))}
         {category.childCategories &&
         category.childCategories.map(childCat =>
-          <li key={childCat.name}>
-            {childCat.name}
-            {this.renderCategory(childCat)}
-          </li>
+          <div key={childCat.name}>
+            <span {...styles.subtitle} {...styles.subtitles[depth]}>{childCat.name}</span>
+            {this.renderCategory(childCat, depth+1)}
+          </div>
         )}
-      </ul>
+      </div>
     );
   };
 
@@ -100,11 +161,12 @@ export default class ExamList extends React.Component<{}, State> {
     if (!categories) {
       return (<p>Loading exam list...</p>);
     }
-    return categories.map(category => (
-      <div key={category.name}>
-        <h2>{this.categoryDisplay(category.name)}</h2>
-        {this.renderCategory(category)}
-      </div>
-    ));
+    return (<div {...styles.wrapper}>
+      {categories.map(category => (
+        <div key={category.name} {...styles.category}>
+          <h1>{this.categoryDisplay(category.name)}</h1>
+          {this.renderCategory(category, 0)}
+        </div>
+      ))}</div>);
   }
 };

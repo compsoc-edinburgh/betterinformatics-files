@@ -9,7 +9,49 @@ import {css} from "glamor";
 
 const styles = {
   everything: css({
-    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
+    "& h1": {
+      marginBlockStart: "0.4em",
+      marginBlockEnd: "0.4em"
+    },
+    "& h2": {
+      marginBlockStart: "0.3em",
+      marginBlockEnd: "0.3em"
+    },
+    '& a': {
+      'text-decoration': 'none',
+      ':link': {
+        color: '#4b41ff'
+      },
+      ':visited': {
+        color: '#4b41ff'
+      },
+      ':hover': {
+        color: '#ff6130'
+      }
+    },
+    "& button": {
+      cursor: "pointer",
+      background: "#cccccc",
+      padding: "10px 20px",
+      border: "none",
+      color: "black",
+      textAlign: "center",
+      textDecoration: "none",
+      display: "inline-block",
+      borderRadius: "5px",
+      margin: "5px"
+    },
+    "& input": {
+      margin: "5px",
+      padding: "10px",
+      border: "0.5px solid #cccccc",
+      borderRadius: "2px",
+      boxSizing: "border-box"
+    },
+    "& button:hover": {
+      background: "#aaaaaa"
+    }
   }),
   inner: css({
     padding: "15px",

@@ -43,7 +43,7 @@ export default class Categorize extends React.Component<{}, State> {
   }
 
   async componentDidMount() {
-    document.title = "VIS-Exchange: Categorize Exams";
+    document.title = "VIS Community Solutions: Categorize Exams";
   }
 
   updateCategories = () => {

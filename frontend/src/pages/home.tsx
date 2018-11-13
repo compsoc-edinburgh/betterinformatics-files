@@ -1,6 +1,26 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
 import ExamList from "../components/exam-list"
+import {css} from "glamor";
+
+const styles = {
+  wrapper: css({
+    display: "flex",
+    justifyContent: "space-between"
+  }),
+  admin: css({
+    marginLeft: "10px",
+    paddingLeft: "10px",
+    paddingRight: "10px",
+    "& button": {
+      marginBottom: "10px",
+      fontSize: "14px"
+    }
+  }),
+  examlist: css({
+    flexGrow: "1"
+  })
+};
 
 interface Props {
   isAdmin?: boolean;
@@ -9,16 +29,20 @@ interface Props {
 export default class Home extends React.Component<Props> {
 
   async componentDidMount() {
-    document.title = "VIS-Exchange";
+    document.title = "VIS Community Solutions";
   }
 
   render() {
     return (
-      <div>
-        <h1>VIS Exam Solution Exchange</h1>
-        <ExamList/>
-        {this.props.isAdmin && <div><Link to="/uploadpdf">Upload new exam</Link>.</div>}
-        {this.props.isAdmin && <div><Link to="/categorize">Categorize exams</Link>.</div>}
+      <div {...styles.wrapper}>
+        <div {...styles.examlist}>
+          <ExamList/>
+        </div>
+        <div {...styles.admin}>
+          <h1>Admin</h1>
+          {this.props.isAdmin && <div><Link to="/uploadpdf"><button>Upload new exam</button></Link></div>}
+          {this.props.isAdmin && <div><Link to="/categorize"><button>Categorize exams</button></Link></div>}
+        </div>
       </div>
     );
   }

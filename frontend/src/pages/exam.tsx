@@ -72,7 +72,7 @@ export default class Exam extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    document.title = "VIS-Exchange: " + this.props.filename;
+    document.title = "VIS Community Solutions: " + this.props.filename;
   }
 
   componentWillUnmount() {
