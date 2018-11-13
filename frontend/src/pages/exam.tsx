@@ -162,6 +162,7 @@ export default class Exam extends React.Component<Props, State> {
                   filename={this.props.filename}
                   oid={e.oid}
                   width={width}
+                  canDelete={this.props.isAdmin}
                   onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
                 />;
               case SectionKind.Pdf:

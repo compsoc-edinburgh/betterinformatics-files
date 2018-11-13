@@ -21,8 +21,10 @@ function replaceNewlines(text: string): string {
 
 export default ({value}: Props) => {
   return <div {...styles.wrapper}>
-    <MathJax.Context input="tex">
-      <MathJax.Text text={replaceNewlines(value)}/>
-    </MathJax.Context>
+    {value.length > 0 &&
+      <MathJax.Context input="tex">
+        <MathJax.Text text={replaceNewlines(value)}/>
+      </MathJax.Context>
+    }
   </div>;
 };

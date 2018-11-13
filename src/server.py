@@ -355,7 +355,7 @@ def add_answer(filename, sectionoid):
         "authorId": username,
         "text": "",
         "comments": [],
-        "upvotes": [],
+        "upvotes": [username],
         "time": datetime.utcnow()
     }
     answer_sections.update_one({

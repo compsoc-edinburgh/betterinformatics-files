@@ -29,7 +29,7 @@ const styles = {
 export default class AnswerComponent extends React.Component<Props, State> {
 
   state: State = {
-    editing: false,
+    editing: this.props.answer.text.length === 0,
     savedText: this.props.answer.text,
     text: this.props.answer.text,
     commentDraft: ""
@@ -121,7 +121,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div>{answer.comments.map(e =>
           <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
         )}</div>
-        <div>
+        {this.state.savedText.length > 0 && <div>
           <b>Add comment</b>
           <div><MathText value={this.state.commentDraft} /></div>
           <div>
@@ -130,7 +130,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <div>
             <button onClick={this.addComment}>Add comment</button>
           </div>
-        </div>
+        </div>}
       </div>
     );
   }
