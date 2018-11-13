@@ -8,6 +8,9 @@ import Header from "./components/header";
 import {css} from "glamor";
 
 const styles = {
+  everything: css({
+    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"'
+  }),
   inner: css({
     padding: "15px",
   }),
@@ -44,7 +47,7 @@ export default class App extends React.Component<{}, State> {
 
   render() {
     return (
-      <div>
+      <div {...styles.everything}>
         <Header username={this.state.displayname || "loading..."}/>
         <div {...styles.inner}>
           <Switch>
