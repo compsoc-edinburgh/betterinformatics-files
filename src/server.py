@@ -21,6 +21,8 @@ import grpc
 import people_pb2
 import people_pb2_grpc
 
+import dbmigrations
+
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
     os.environ["RUNTIME_SERVIS_PEOPLE_API_PORT"])
@@ -61,6 +63,8 @@ mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
     os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
     os.environ['RUNTIME_MONGO_DB_NAME'])
 mongo_db = MongoClient(mongo_url).get_database()
+
+dbmigrations.migrate(mongo_db)
 
 answer_sections = mongo_db.answersections
 exam_categories = mongo_db.examcategories
