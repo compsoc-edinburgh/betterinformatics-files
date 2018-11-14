@@ -38,8 +38,11 @@ const styles = {
       width: "200px"
     }
   }),
-  upvoteWrapper: css({
+  leftButton: css({
     textAlign: "left"
+  }),
+  rightButton: css({
+    textAlign: "right"
   }),
   header: css({
     fontSize: "24px",
@@ -98,11 +101,14 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   saveAnswer = async () => {
-    fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, {text: this.state.text}).then(() => {
+    fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, {text: this.state.text})
+      .then((res) => res.json())
+      .then((res) => {
       this.setState(prevState => ({
         editing: false,
         savedText: prevState.text
       }));
+      this.props.onSectionChanged(res);
     });
   };
 
@@ -159,9 +165,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
           </div>
         </div>}
         <div {...styles.threebuttons}>
-          <div {...styles.upvoteWrapper}>{!this.state.editing && <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>}</div>
+          <div {...styles.leftButton}>{!this.state.editing && <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>}</div>
           <div>{this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}</div>
-          <div>{this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}</div>
+          <div {...styles.rightButton}>{this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}</div>
         </div>
         <div {...styles.comments}>{answer.comments.map(e =>
           <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>

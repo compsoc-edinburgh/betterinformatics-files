@@ -60,11 +60,13 @@ export default class CommentComponent extends React.Component<Props, State> {
 
   saveComment = async () => {
     fetchpost(`/api/exam/${this.props.filename}/setcomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid, text: this.state.text})
-      .then(() => {
+      .then((res) => res.json())
+      .then((res) => {
         this.setState(prevState => ({
           editing: false,
           savedText: prevState.text
         }));
+        this.props.onSectionChanged(res);
       });
   };
 
