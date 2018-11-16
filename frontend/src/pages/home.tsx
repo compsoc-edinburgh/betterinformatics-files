@@ -37,7 +37,7 @@ export default class Home extends React.Component<Props> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.examlist}>
-          <ExamList/>
+          <ExamList />
         </div>
         <div {...styles.admin}>
           <h1>Admin</h1>

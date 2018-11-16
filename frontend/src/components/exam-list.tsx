@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
 import {css} from "glamor";
-import {buildCategoryTree} from "../category-utils";
+import {buildCategoryTree, filterCategoryTree} from "../category-utils";
 import {Category} from "../interfaces";
 
 const styles = {
@@ -25,6 +25,17 @@ const styles = {
   subtitle: css({
     textTransform: "capitalize",
     fontWeight: "bold"
+  }),
+  filterInput: css({
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "20px",
+    marginBottom: "20px",
+    "& input": {
+      minWidth: "400px",
+      width:  "50%"
+    }
   }),
   subtitles: [
     css({
@@ -66,11 +77,12 @@ const styles = {
 
 interface State {
   rootCategories?: Category[];
+  filter: string;
 }
 
 export default class ExamList extends React.Component<{}, State> {
 
-  state: State = {};
+  state: State = {filter: ""};
 
   async componentWillMount() {
     fetch('/api/listcategories/withexams')
@@ -100,17 +112,28 @@ export default class ExamList extends React.Component<{}, State> {
     );
   };
 
+  filterChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({
+      filter: ev.target.value
+    });
+  };
+
   render() {
     const categories = this.state.rootCategories;
     if (!categories) {
       return (<p>Loading exam list...</p>);
     }
-    return (<div {...styles.wrapper}>
-      {categories.map(category => (
-        <div key={category.name} {...styles.category}>
-          <h1>{this.categoryDisplay(category.name)}</h1>
-          {this.renderCategory(category, 0)}
-        </div>
-      ))}</div>);
+    return (<div>
+      <div {...styles.filterInput}>
+        <input type="text" onChange={this.filterChanged} value={this.state.filter} placeholder="Filter..." autoFocus={true}/>
+      </div>
+      <div {...styles.wrapper}>
+        {filterCategoryTree(categories, this.state.filter).map(category => (
+          <div key={category.name} {...styles.category}>
+            <h1>{this.categoryDisplay(category.name)}</h1>
+            {this.renderCategory(category, 0)}
+          </div>
+        ))}</div>
+    </div>);
   }
 };

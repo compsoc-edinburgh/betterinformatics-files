@@ -1,4 +1,4 @@
-import {Exam, Category} from "./interfaces";
+import {Category, Exam} from "./interfaces";
 
 interface TempCategory {
   childs: object;
@@ -71,4 +71,30 @@ export function synchronizeTreeWithStack(categoryTree: Category[], categoryStack
     }
   }
   return categoryStack;
+}
+
+function filterMatches(filter: string, name: string): boolean {
+  let nameLower = name.toLowerCase();
+  let filterLower = filter.toLowerCase();
+  if (filter.length === 0) {
+    return true;
+  }
+  let fpos = 0;
+  for(let npos = 0; npos < nameLower.length; npos++) {
+    if (filterLower[fpos] === nameLower[npos]) {
+      fpos++;
+      if (fpos === filterLower.length) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function filterCategoryTree(categoryTree: Category[], filter: string): Category[] {
+  return categoryTree.map(cat => ({
+    name: cat.name,
+    childCategories: cat.childCategories ? filterCategoryTree(cat.childCategories, filter) : undefined,
+    exams: cat.exams.filter(exam => filterMatches(filter, cat.name + "/" + exam.displayname))
+  })).filter(cat => filterMatches(filter, cat.name) || cat.exams.length > 0 || (cat.childCategories && cat.childCategories.length > 0));
 }
