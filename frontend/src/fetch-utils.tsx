@@ -3,9 +3,8 @@ export async function fetchpost(url: string, data: object) {
   for (var key in data) {
     formData.append(key, data[key]);
   }
-  const res = await fetch(url, {
+  return await fetch(url, {
     method: "POST",
     body: formData
   });
-  return res;
 }

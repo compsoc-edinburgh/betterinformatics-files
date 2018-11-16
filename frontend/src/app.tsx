@@ -19,7 +19,7 @@ const styles = {
       marginBlockEnd: "0.3em"
     },
     '& a': {
-      'text-decoration': 'none',
+      textDecoration: 'none',
       ':link': {
         color: '#4b41ff'
       },
@@ -85,18 +85,13 @@ export default class App extends React.Component<{}, State> {
   };
 
   async componentWillMount() {
-    try {
-      const res = await (await fetch("/api/user")).json();
-      this.setState({
+    fetch("/api/user")
+      .then(res => res.json())
+      .then(res => this.setState({
         username: res.username,
         displayname: res.displayname,
         isAdmin: res.adminrights,
-      });
-    } catch (e) {
-      this.setState({displayname: "error"});
-      // TODO implement proper error handling
-      console.log(e);
-    }
+      }));
   }
 
   render() {

@@ -6,6 +6,7 @@ import AutocompleteInput from '../components/autocomplete-input';
 interface State {
   file: Blob;
   fileName: string;
+  displayName: string;
   category: string;
   categories: string[];
   result?: { href: string };
@@ -17,20 +18,17 @@ export default class UploadPDF extends React.Component<{}, State> {
   state: State = {
     file: new Blob(),
     fileName: "",
+    displayName: "",
     category: "",
     categories: []
   };
 
   async componentWillMount() {
-    try {
-      const res = await (await fetch('/api/listcategories?exams=0')).json();
-      this.setState({
-        categories: res.value.map((category: { name: string }) => category.name)
-      });
-    } catch (e) {
-      // TODO implement proper error handling
-      console.log(e);
-    }
+    fetch('/api/listcategories')
+      .then(res => res.json())
+      .then(res => this.setState({
+        categories: res.value
+      }));
   }
 
   async componentDidMount() {
@@ -43,6 +41,7 @@ export default class UploadPDF extends React.Component<{}, State> {
     fetchpost('/api/uploadpdf', {
       file: this.state.file,
       filename: this.state.fileName + ".pdf",
+      displayname: this.state.displayName,
       category: this.state.category
     })
       .then((response) => response.json().then((body) => ({body, ok: response.ok})))
@@ -70,6 +69,12 @@ export default class UploadPDF extends React.Component<{}, State> {
     });
   };
 
+  handleDisplayNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({
+      displayName: ev.target.value
+    });
+  };
+
   handleCategoryChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       category: ev.target.value
@@ -87,6 +92,8 @@ export default class UploadPDF extends React.Component<{}, State> {
             <input onChange={this.handleFileChange} type="file" accept="application/pdf"/>
             <input onChange={this.handleFileNameChange} value={this.state.fileName} type="text"
                    placeholder="filename..."/>
+            <input onChange={this.handleDisplayNameChange} value={this.state.displayName} type="text"
+                   placeholder="displayname..." required/>
             <AutocompleteInput name="category" onChange={this.handleCategoryChange} value={this.state.category}
                                placeholder="category..." autocomplete={this.state.categories}/>
             <button type="submit">Upload</button>

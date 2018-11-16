@@ -14,7 +14,8 @@ const styles = {
     paddingRight: "10px",
     "& button": {
       marginBottom: "10px",
-      fontSize: "14px"
+      fontSize: "14px",
+      width: "100%"
     }
   }),
   examlist: css({
@@ -41,7 +42,7 @@ export default class Home extends React.Component<Props> {
         <div {...styles.admin}>
           <h1>Admin</h1>
           {this.props.isAdmin && <div><Link to="/uploadpdf"><button>Upload new exam</button></Link></div>}
-          {this.props.isAdmin && <div><Link to="/categorize"><button>Categorize exams</button></Link></div>}
+          {this.props.isAdmin && <div><Link to="/categorize"><button>Category Editor</button></Link></div>}
         </div>
       </div>
     );

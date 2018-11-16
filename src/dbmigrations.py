@@ -11,6 +11,10 @@ def init_migration(mongo_db):
         "key": DB_VERSION_KEY,
         "value": 1
     })
+    mongo_db.categorymetadata.insert_one({
+        "category": "default",
+        "admins": []
+    })
 
 MIGRATIONS = [
     init_migration
@@ -19,6 +23,11 @@ MIGRATIONS = [
 def migrate(mongo_db):
     open(DB_LOCK_FILE, "a").close()
     meta = mongo_db.dbmeta
+    # access all collections to make sure they exist
+    answer_sections = mongo_db.answersections
+    exam_categories = mongo_db.examcategories
+    category_metadata = mongo_db.categorymetadata
+    exam_metadata = mongo_db.exammetadata
     # give mongodb time to wake up...
     # it crashes with an authentication failure otherwise, yay!
     time.sleep(2)

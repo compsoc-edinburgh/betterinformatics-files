@@ -1,97 +1,151 @@
 import * as React from "react";
-import ExamCategory from "../components/exam-category"
+import {Category} from "../interfaces";
+import {buildCategoryTree, synchronizeTreeWithStack} from "../category-utils";
+import {css} from "glamor";
+import {fetchpost} from "../fetch-utils";
 
-interface Category {
-  name: string;
-  exams: string[];
-}
+const styles = {
+  wrapper: css({
+    border: "1px solid black",
+    display: "flex"
+  }),
+  category: css({
+    border: "1px solid blue",
+    width: "80%"
+  }),
+  clipboard: css({
+    border: "1px solid red",
+    width: "20%",
+    minHeight: "400px"
+  }),
+  categorywrapper: css({
+    display: "flex"
+  }),
+  subcategories: css({
+    border: "1px solid red",
+    width: "50%"
+  }),
+  examlist: css({
+    border: "1px solid red",
+    width: "50%"
+  }),
+  adminlist: css({
+    border: "1px solid red"
+  })
+};
 
 interface State {
-  exams: string[];
-  categoryNames: string[];
-  categories?: object;
-  savedCategories?: object;
+  rootCategories?: Category[];
+  categoryStack: Category[];
+  newCategoryName: string;
 }
 
 export default class Categorize extends React.Component<{}, State> {
 
   state: State = {
-    exams: [],
-    categoryNames: []
+    categoryStack: [],
+    newCategoryName: "",
   };
 
   async componentWillMount() {
-    try {
-      const resExams = await (await fetch('/api/listexams')).json();
-      const resCat = await (await fetch('/api/listcategories')).json();
-      let categories = {};
-      resCat.value.forEach((category: Category) => {
-        category.exams.forEach((exam) => {
-          categories[exam] = category.name;
-        });
-      });
-      this.setState({
-        exams: resExams.value,
-        categoryNames: resCat.value.map((cat: Category) => cat.name),
-        categories: categories,
-        savedCategories: categories
-      });
-    } catch (e) {
-      // TODO implement proper error handling
-      console.log(e);
-    }
+    this.setState({
+      categoryStack: [{name: "", exams: [], childCategories: []}]
+    });
+    this.updateCategories();
   }
 
   async componentDidMount() {
-    document.title = "VIS Community Solutions: Categorize Exams";
+    document.title = "VIS Community Solutions: Category Editor";
   }
 
-  updateCategories = () => {
-    fetch('/api/listcategories?exams=0')
-      .then((res) => res.json())
-      .then((res) => {
-        this.setState({
-          categoryNames: res.value.map((cat: Category) => cat.name)
+  updateCategories = async () => {
+    fetch('/api/listcategories/withexams')
+      .then(res => res.json())
+      .then(res => {
+        const categoryTree = buildCategoryTree(res.value);
+        this.setState(prevState => {
+          const newStack = synchronizeTreeWithStack(categoryTree, prevState.categoryStack);
+          return {
+            categoryStack: newStack,
+            rootCategories: categoryTree
+          }
         })
-      })
-      .catch((e) => {
-        // TODO implement proper error handling
-        console.log(e);
       });
   };
 
-  // same as { ...(obj || {}), [key]: value }, but more readable... :P
-  updateObj = (obj: object | undefined, key: string, value: string) => {
-    let newObj = {};
-    newObj[key] = value;
-    return Object.assign({}, obj, newObj);
-  };
+  arrLast = (arr: Category[]) => arr[arr.length - 1];
+  arrLastStr = (arr: string[]) => arr[arr.length - 1];
 
-  handleCategoryChange = (exam: string, value: string) => {
-    this.setState((prevState) => ({
-      categories: this.updateObj(prevState.categories, exam, value)
+  categoryDisplay = (category: string) => this.arrLastStr(category.split("/"));
+
+  chooseSubcategory = (subcategory: Category) => {
+    this.setState(prevState => ({
+      categoryStack: prevState.categoryStack.concat(subcategory)
     }));
   };
 
-  handleCategorySave = (exam: string, value: string) => {
-    this.setState((prevState) => ({
-      categories: this.updateObj(prevState.categories, exam, value),
-      savedCategories: this.updateObj(prevState.savedCategories, exam, value)
+  chooseParentcategory = () =>
+    this.setState(prevState => ({
+      categoryStack: prevState.categoryStack.slice(0, -1)
     }));
-    this.updateCategories();
+
+  addCategory = async () => {
+    const newName = this.state.categoryStack.length === 1 ?
+      this.state.newCategoryName :
+      this.arrLast(this.state.categoryStack).name + "/" + this.state.newCategoryName;
+    fetchpost('/api/category/add', {category: newName})
+      .then(() => {
+        this.updateCategories();
+        this.setState({
+          newCategoryName: ""
+        });
+      });
+  };
+
+  onNewCategoryNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({
+      newCategoryName: ev.target.value
+    });
   };
 
   render() {
-    const {categories, savedCategories, categoryNames, exams} = this.state;
-    if (!exams.length) {
-      return <p>No exams!</p>;
+    if (!this.state.rootCategories) {
+      return <div>Loading...</div>
     }
-    if (!categories || !savedCategories) {
-      return <p>Loading...</p>;
-    }
-    return exams.map(exam => (
-      <ExamCategory key={exam} exam={exam} category={categories[exam]} savedCategory={savedCategories[exam]}
-                    categories={categoryNames} onChange={this.handleCategoryChange} onSave={this.handleCategorySave}/>
-    ));
+    const cat = this.arrLast(this.state.categoryStack);
+    return (<div {...styles.wrapper}>
+      <div {...styles.category}>
+        <div>{cat.name}</div>
+        <div>{this.state.categoryStack.length > 1 && <button onClick={this.chooseParentcategory}>Go up</button>}</div>
+        <div {...styles.categorywrapper}>
+          <div {...styles.subcategories}>
+            {cat.childCategories && cat.childCategories.map(
+              subCat => <div key={subCat.name}>
+                <button onClick={() => this.chooseSubcategory(subCat)}>
+                  {this.categoryDisplay(subCat.name)}
+                </button>
+              </div>)}
+              <div>
+                <input type="text" onChange={this.onNewCategoryNameChange} value={this.state.newCategoryName} placeholder="New Category..."/>
+                <button onClick={this.addCategory}>Add Category</button>
+              </div>
+          </div>
+          <div {...styles.examlist}>
+            {cat.exams.map(
+              exam => <div key={exam.filename}>
+                {exam.displayname}
+              </div>
+            )}
+          </div>
+          <div {...styles.adminlist}>
+
+          </div>
+        </div>
+      </div>
+      <div {...styles.clipboard}>
+        <div>Clipboard</div>
+        <div>Drop exams here...</div>
+      </div>
+    </div>);
   }
 }
