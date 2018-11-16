@@ -555,7 +555,6 @@ def get_exam_metadata(filename):
     metadata = exam_metadata.find_one({
         "filename": filename
     })
-    print(list(exam_metadata.find({})))
     if not metadata:
         return not_found()
     return success(value=metadata)
