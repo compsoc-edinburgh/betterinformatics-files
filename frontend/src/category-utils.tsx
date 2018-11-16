@@ -74,8 +74,8 @@ export function synchronizeTreeWithStack(categoryTree: Category[], categoryStack
 }
 
 function filterMatches(filter: string, name: string): boolean {
-  let nameLower = name.toLowerCase();
-  let filterLower = filter.toLowerCase();
+  let nameLower = name.replace(/\s/g, '').toLowerCase();
+  let filterLower = filter.replace(/\s/g, '').toLowerCase();
   if (filter.length === 0) {
     return true;
   }

@@ -103,7 +103,7 @@ export default class App extends React.Component<{}, State> {
             <Route path="/exams/:filename" render={(props) => (
               <Exam {...props} filename={props.match.params.filename} isAdmin={this.state.isAdmin}/>)}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
-            <Route path="/categorize" component={Categorize}/>
+            <Route path="/categorize" render={(props) => (<Categorize {...props} isAdmin={this.state.isAdmin}/>)}/>
             <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin}/>)}/>
           </Switch>
         </div>

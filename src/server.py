@@ -111,6 +111,7 @@ def make_answer_section_response(oid):
         del answer["_id"]
         answer["canEdit"] = answer["authorId"] == auth.username()
         answer["isUpvoted"] = auth.username() in answer["upvotes"]
+        answer["upvotes"] = len(answer["upvotes"])
         for comment in answer["comments"]:
             comment["oid"] = comment["_id"]
             del comment["_id"]
@@ -163,6 +164,15 @@ def verify_pw(username, password):
     return res.ok
 
 
+def get_real_name(username):
+    try:
+        req = people_pb2.GetPersonRequest(username=username)
+        res = people_client.GetEthPerson(req, metadata=people_metadata)
+        return res.first_name + " " + res.last_name
+    except grpc.RpcError as e:
+        return username
+
+
 def has_admin_rights(username):
     try:
         req = people_pb2.GetPersonRequest(username=username)
@@ -170,7 +180,7 @@ def has_admin_rights(username):
     except grpc.RpcError as e:
         print("RPC error while checking admin rights", e)
         return False
-    return max(("vorstand" == group or "cit" == group or "cat" == group)
+    return any(("vorstand" == group or "cit" == group or "cat" == group)
                for group in res.vis_groups)
 
 
@@ -218,7 +228,7 @@ def get_user():
     return success(
         adminrights=has_admin_rights(auth.username()),
         username=auth.username(),
-        displayname=auth.username()
+        displayname=get_real_name(auth.username())
     )
 
 
@@ -296,7 +306,7 @@ def new_answer_section(filename):
         "filename": filename,
         "pageNum": page_num,
         "relHeight": rel_height,
-        "answersection": {"answers": [], "asker": username},
+        "answersection": {"answers": [], "asker": username, "askerDisplayName": get_real_name(username)},
         "_id": ObjectId()
     }
     answer_sections.insert_one(new_doc)
@@ -367,6 +377,7 @@ def add_answer(filename, sectionoid):
     answer = {
         "_id": ObjectId(),
         "authorId": username,
+        "authoDisplayName": get_real_name(username),
         "text": "",
         "comments": [],
         "upvotes": [username],
@@ -446,6 +457,7 @@ def add_comment(filename, sectionoid, answeroid):
         "_id": ObjectId(),
         "text": text,
         "authorId": username,
+        "authorDisplayName": get_real_name(username),
         "time": datetime.utcnow()
     }
     answer_sections.update_one({
@@ -606,6 +618,17 @@ def list_categories_with_exams():
     return success(value=categories)
 
 
+@app.route("/api/listcategories/withadmins")
+@auth.login_required
+@require_admin
+def list_categories_with_admins():
+    categories = list(sorted(
+        map(lambda x: {"name": x["category"], "admins": x["admins"]}, category_metadata.find({}, {"category": 1, "admins": 1})),
+        key=lambda x: x["name"]
+    ))
+    return success(value=categories)
+
+
 def enhanceExamDictionary(exam):
     """
     Enhance an exam dictionary with useful metadata
@@ -640,6 +663,7 @@ def add_category():
     Add a new category.
     POST Parameter 'category'
     """
+    # TODO handle categories with slashes
     category = request.form.get("category")
     if not category:
         return not_possible("Missing argument")
@@ -661,6 +685,7 @@ def remove_category():
     Remove a category and move all exams to the default category
     POST Parameter 'category'
     """
+    # TODO delete child categories
     category = request.form.get("category")
     if not category:
         return not_possible("Missing argument")
@@ -671,6 +696,52 @@ def remove_category():
         return success()
     else:
         return not_possible("Could not delete category")
+
+
+@app.route("/api/category/addadmin", methods=["POST"])
+@auth.login_required
+@require_admin
+def add_category_admin():
+    """
+    Add an admin to a category.
+    POST Parameter 'category'
+    POST Parameter 'username'
+    """
+    category = request.form.get("category")
+    username = request.form.get("username")
+    if not category or not username:
+        return not_possible("Missing argument")
+    category_metadata.update_one({
+        "category": category
+    }, {
+        "$addToSet": {
+            "admins": username
+        }
+    })
+    return success()
+
+
+@app.route("/api/category/removeadmin", methods=["POST"])
+@auth.login_required
+@require_admin
+def remove_category_admin():
+    """
+    Remove an admin from a category.
+    POST Parameter 'category'
+    POST Parameter 'username'
+    """
+    category = request.form.get("category")
+    username = request.form.get("username")
+    if not category or not username:
+        return not_possible("Missing argument")
+    category_metadata.update_one({
+        "category": category
+    }, {
+        "$pull": {
+            "admins": username
+        }
+    })
+    return success()
 
 
 @app.route("/api/category/list")

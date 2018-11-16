@@ -153,7 +153,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.header}>
-          <b>{answer.authorId}</b> @ {dateStr2Str(answer.time)} (+{answer.upvotes.length})
+          <b>{answer.authorId}</b> @ {dateStr2Str(answer.time)} (+{answer.upvotes})
         </div>
         <div {...styles.answer}><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
