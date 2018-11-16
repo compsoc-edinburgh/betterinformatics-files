@@ -79,7 +79,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.header}>
-          <b>{comment.authorId}</b> @ {dateStr2Str(comment.time)}
+          <b>{comment.authorDisplayName}</b> @ {dateStr2Str(comment.time)}
         </div>
         <div><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
