@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from datetime import datetime
 import os
 from functools import wraps
-from flask import send_from_directory, render_template
+from flask import send_file, send_from_directory, render_template
 from minio import Minio
 from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
@@ -20,6 +20,8 @@ import traceback
 import grpc
 import people_pb2
 import people_pb2_grpc
+
+import dbmigrations
 
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
@@ -62,8 +64,12 @@ mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
     os.environ['RUNTIME_MONGO_DB_NAME'])
 mongo_db = MongoClient(mongo_url).get_database()
 
+dbmigrations.migrate(mongo_db)
+
 answer_sections = mongo_db.answersections
 exam_categories = mongo_db.examcategories
+category_metadata = mongo_db.categorymetadata
+exam_metadata = mongo_db.exammetadata
 
 
 def require_admin(f):
@@ -109,7 +115,7 @@ def make_answer_section_response(oid):
             comment["oid"] = comment["_id"]
             del comment["_id"]
             comment["canEdit"] = answer["authorId"] == auth.username()
-    section["answersection"]["answers"].sort(key=lambda x: len(x["upvotes"]))
+    section["answersection"]["answers"].sort(key=lambda x: -len(x["upvotes"]))
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
     return success(value=section)
 
@@ -133,6 +139,14 @@ def internal_error(msg):
 
 def success(**kwargs):
     return make_json_response(kwargs)
+
+
+def filter_dict(dictionary, whitelist):
+    filtered = {}
+    for white in whitelist:
+        if white in dictionary:
+            filtered[white] = dictionary[white]
+    return filtered
 
 
 @auth.verify_password
@@ -304,7 +318,7 @@ def remove_answer_section(filename):
     if answer_sections.delete_one({"_id": oid}).deleted_count > 0:
         return success()
     else:
-        return internal_error("Could not delete answersection")
+        return not_possible("Could not delete answersection")
 
 
 @app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=["POST"])
@@ -355,7 +369,7 @@ def add_answer(filename, sectionoid):
         "authorId": username,
         "text": "",
         "comments": [],
-        "upvotes": [],
+        "upvotes": [username],
         "time": datetime.utcnow()
     }
     answer_sections.update_one({
@@ -520,20 +534,143 @@ def remove_comment(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
+@app.route("/api/exam/<filename>/metadata")
+@auth.login_required
+def get_exam_metadata(filename):
+    """
+    Returns all stored metadata for the given exam file
+    """
+    metadata = exam_metadata.find_one({
+        "filename": filename
+    })
+    print(list(exam_metadata.find({})))
+    if not metadata:
+        return not_found()
+    return success(value=metadata)
+
+
+@app.route("/api/exam/<filename>/metadata", methods=["POST"])
+@auth.login_required
+def set_exam_metadata_api(filename):
+    """
+    Sets the metadata for the given exam file
+    POST Parameters are the values to set
+    """
+    # TODO check permissions
+    set_exam_metadata(filename, request.form)
+    return success()
+
+
+def int_exam_metadata(filename):
+    """
+    Inserts new metadata for the given exam file
+    :param filename: filename of the exam
+    """
+    exam_metadata.insert_one({
+        "filename": filename
+    })
+
+
+def set_exam_metadata(filename, metadata):
+    """
+    Set the metadata for the given exam file
+    :param filename: filename of the exam
+    :param metadata: dictionary of values to set
+    """
+    whitelist = ["displayname", "category"]
+    exam_metadata.update_one({
+        "filename": filename
+    }, {"$set": filter_dict(metadata, whitelist)})
+
+
 @app.route("/api/listcategories")
 @auth.login_required
 def list_categories():
     """
-    Lists all available categories
+    Lists all available categories sorted by name
     """
-    include_exams = 1 if request.args.get('exams', "1") != "0" else 0
-    projection = {"_id": 0, "name": 1}
-    if request.args.get('exams', "1") != "0":
-        projection["exams"] = 1
-    results = exam_categories.find({
-        "exams": {"$gt": []}
-    }, projection).sort([("name", pymongo.ASCENDING)])
-    return success(value=list(results))
+    return success(value=list(sorted(
+        map(lambda x: x["category"], category_metadata.find({}, {"category": 1}))
+    )))
+
+
+@app.route("/api/listcategories/withexams")
+@auth.login_required
+def list_categories_with_exams():
+    categories = list(sorted(
+        map(lambda x: {"name": x["category"]}, category_metadata.find({}, {"category": 1})),
+        key=lambda x: x["name"]
+    ))
+    for category in categories:
+        category["exams"] = getCategoryExams(category["name"])
+    return success(value=categories)
+
+
+def enhanceExamDictionary(exam):
+    """
+    Enhance an exam dictionary with useful metadata
+    :param exam: The exam dictionary to enhance
+    """
+    exam["displayname"] = exam_metadata.find_one({
+        "filename": exam["filename"]
+    }, {"displayname": 1})["displayname"]
+    return exam
+
+
+def getCategoryExams(category):
+    """
+    Returns list of exams in the given category, sorted by displayname
+    :param category: name of the category
+    :return: list of exams with metadata
+    """
+    exams = list(map(lambda x: enhanceExamDictionary({"filename": x["filename"]}), exam_metadata.find({
+        "category": category
+    }, {
+        "filename": 1
+    })))
+    exams.sort(key=lambda x: x["displayname"])
+    return exams
+
+
+@app.route("/api/category/add", methods=["POST"])
+@auth.login_required
+@require_admin
+def add_category():
+    """
+    Add a new category.
+    POST Parameter 'category'
+    """
+    category = request.form.get("category")
+    if not category:
+        return not_possible("Missing argument")
+    maybe_category = category_metadata.find_one({"category": category})
+    if maybe_category:
+        return not_possible("Category already exists")
+    category_metadata.insert_one({
+        "category": category,
+        "admins": []
+    })
+    return success()
+
+
+@app.route("/api/category/remove", methods=["POST"])
+@auth.login_required
+@require_admin
+def remove_category():
+    """
+    Remove a category and move all exams to the default category
+    POST Parameter 'category'
+    """
+    category = request.form.get("category")
+    if not category:
+        return not_possible("Missing argument")
+    exams = getCategoryExams(category)
+    for exam in exams:
+        set_exam_metadata(exam["filename"], {"category": "default"})
+    if category_metadata.delete_one({"category": category}).deleted_count > 0:
+        return success()
+    else:
+        return not_possible("Could not delete category")
 
 
 @app.route("/api/category/list")
@@ -546,76 +683,53 @@ def list_category():
     category = request.args.get("category")
     if not category:
         return not_possible("Missing argument")
-    results = exam_categories.find_one({
-        "name": category,
-        "exams": {"$gt": []}
-    }, {
-        "exams": 1
-    })
-    return success(value=results["exams"])
+    return success(value=getCategoryExams(category))
 
 
-@app.route("/api/category/add", methods=["POST"])
+@app.route("/api/category/metadata")
 @auth.login_required
-@require_admin
-def add_exam_category_api():
+def get_category_metadata():
     """
-    Adds the exam to the category
-    POST Parameter 'category'
-    POST Parameter 'exam'
+    Returns all stored metadata for the given category
+    GET Paramter 'category'
     """
-    category = request.form["category"]
-    exam = request.form["exam"]
-    if not category or not exam:
+    category = request.args.get("category")
+    if not category:
         return not_possible("Missing argument")
-    add_exam_category(category, exam)
+    metadata = category_metadata.find_one({
+        "category": category.lower()
+    })
+    if not metadata:
+        return not_found()
+    return success(value=metadata)
+
+
+@app.route("/api/category/metadata", methods=["POST"])
+@auth.login_required
+def set_category_metadata_api():
+    """
+    Sets the metadata for the given category
+    POST Parameter 'category'
+    POST Parameters are the values to set
+    """
+    category = request.form.get("category")
+    if not category:
+        return not_possible("Missing argument")
+    # TODO check permissions
+    set_category_metadata(category, request.form)
     return success()
 
 
-def add_exam_category(category, exam):
+def set_category_metadata(category, metadata):
     """
-    Add the exam to the given category
+    Set the metadata for the given category
+    :param category: name of category
+    :param metadata: dictionary of values to set
     """
-    exam_categories.update_one({
-        "name": category
-    }, {
-        "$set": {
-            "name": category
-        },
-        "$addToSet": {
-            "exams": exam
-        }
-    }, upsert=True)
-
-
-@app.route("/api/category/remove", methods=["POST"])
-@auth.login_required
-@require_admin
-def remove_exam_category_api():
-    """
-    Remove the exam from the category
-    POST Parameter 'category'
-    POST Parameter 'exam'
-    """
-    category = request.form["category"]
-    exam = request.form["exam"]
-    if not category or not exam:
-        return not_possible("Missing argument")
-    remove_exam_category(category, exam)
-    return success()
-
-
-def remove_exam_category(category, exam):
-    """
-    Remove the exam from the given category
-    """
-    exam_categories.update_one({
-        "name": category
-    }, {
-        "$pull": {
-            "exams": exam
-        }
-    })
+    whitelist = ["admins"]
+    category_metadata.update_one({
+        "category": category.lower()
+    }, {"$set": filter_dict(metadata, whitelist)})
 
 
 @app.route("/api/uploadpdf", methods=['POST'])
@@ -626,6 +740,7 @@ def uploadpdf():
     Allows uploading a new pdf.
     File as 'file'.
     Optional POST Parameter 'filename' with filename to use.
+    Optional POST Parameter 'displayname' with displayname to use.
     """
     file = request.files.get('file', None)
     if not file or not file.filename or not allowed_file(file.filename):
@@ -636,13 +751,19 @@ def uploadpdf():
     if not allowed_file(filename):
         return not_possible("Invalid file name")
     category = request.form.get("category", "") or "default"
+    maybe_category = category_metadata.find_one({"category": category})
+    if not maybe_category:
+        return not_possible("Category does not exist")
     secure_filename = make_secure_filename(filename)
     if is_pdf_in_minio(secure_filename):
         return not_possible("File already exists")
+    displayname = request.form.get("displayname", "") or secure_filename
     temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], secure_filename)
     file.save(temp_file_path)
     minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
-    add_exam_category(category, secure_filename)
+    os.remove(temp_file_path)
+    int_exam_metadata(secure_filename)
+    set_exam_metadata(secure_filename, {"category": category, "displayname": displayname})
     return success(href="/exams/" + secure_filename)
 
 
@@ -653,12 +774,10 @@ def pdf(filename):
     Get the pdf for the filename
     """
     try:
-        minio_client.fget_object(
-            minio_bucket, filename,
-            os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename))
+        data = minio_client.get_object(minio_bucket, filename)
+        return send_file(data, mimetype="application/pdf")
     except NoSuchKey as n:
         return not_found()
-    return send_from_directory(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
 
 
 @app.errorhandler(Exception)

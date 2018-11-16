@@ -1,5 +1,6 @@
 import * as React from "react";
 import {AnswerSection, Comment} from "../interfaces";
+import {dateStr2Str} from "../date-utils";
 import {css} from "glamor";
 import MathText from "./math-text";
 import {fetchpost} from "../fetch-utils";
@@ -20,9 +21,11 @@ interface State {
 
 const styles = {
   wrapper: css({
-    border: "1px solid red",
-    marginLeft: "15px",
+    marginBottom: "10px"
   }),
+  header: css({
+    marginBottom: "5px"
+  })
 };
 
 export default class CommentComponent extends React.Component<Props, State> {
@@ -57,11 +60,13 @@ export default class CommentComponent extends React.Component<Props, State> {
 
   saveComment = async () => {
     fetchpost(`/api/exam/${this.props.filename}/setcomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid, text: this.state.text})
-      .then(() => {
+      .then((res) => res.json())
+      .then((res) => {
         this.setState(prevState => ({
           editing: false,
           savedText: prevState.text
         }));
+        this.props.onSectionChanged(res);
       });
   };
 
@@ -73,10 +78,9 @@ export default class CommentComponent extends React.Component<Props, State> {
     const {comment} = this.props;
     return (
       <div {...styles.wrapper}>
-        <div>
-          <b>Comment</b> by {comment.authorId}
+        <div {...styles.header}>
+          <b>{comment.authorId}</b> @ {dateStr2Str(comment.time)}
         </div>
-        <div>Time: {comment.time}</div>
         <div><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div>

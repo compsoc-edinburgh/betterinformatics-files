@@ -15,10 +15,11 @@ const MAX_WIDTH = 1200;
 const styles = {
   wrapper: css({
     margin: "auto",
-    outline: "1px solid red",
   }),
   sectionsButton: css({
     textAlign: "right",
+    position: ["sticky", "-webkit-sticky"],
+    top: "20px"
   }),
 };
 
@@ -32,6 +33,7 @@ interface State {
   renderer?: SectionRenderer;
   width: number;
   dpr: number;
+  displayname: string;
   sections?: Section[];
   addingSectionsActive: boolean;
 }
@@ -47,6 +49,7 @@ export default class Exam extends React.Component<Props, State> {
     width: widthFromWindow(),
     dpr: window.devicePixelRatio,
     addingSectionsActive: false,
+    displayname: this.props.filename,
   };
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
@@ -55,6 +58,13 @@ export default class Exam extends React.Component<Props, State> {
     this.updateInverval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
     this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
+
+    fetch(`/api/exam/${this.props.filename}/metadata`)
+      .then((res) => res.json())
+      .then((res) => {
+        this.setState({displayname: res.value.displayname});
+        this.setDocumentTitle();
+      });
 
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
@@ -71,8 +81,12 @@ export default class Exam extends React.Component<Props, State> {
     }
   }
 
+  async setDocumentTitle() {
+    document.title = "VIS Community Solutions: " + this.state.displayname;
+  }
+
   async componentDidMount() {
-    document.title = "VIS-Exchange: " + this.props.filename;
+    this.setDocumentTitle();
   }
 
   componentWillUnmount() {
@@ -162,6 +176,7 @@ export default class Exam extends React.Component<Props, State> {
                   filename={this.props.filename}
                   oid={e.oid}
                   width={width}
+                  canDelete={this.props.isAdmin}
                   onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
                 />;
               case SectionKind.Pdf:

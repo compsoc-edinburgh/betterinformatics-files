@@ -8,9 +8,12 @@ interface Props {
 
 const styles = {
   wrapper: css({
-    border: "1px solid black",
-    background: "wheat",
-    minHeight: "20px"
+    background: "#ffdfb4",
+    minHeight: "24px",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    paddingLeft: "20px",
+    paddingRight: "20px"
   }),
 };
 
@@ -21,8 +24,10 @@ function replaceNewlines(text: string): string {
 
 export default ({value}: Props) => {
   return <div {...styles.wrapper}>
-    <MathJax.Context input="tex">
-      <MathJax.Text text={replaceNewlines(value)}/>
-    </MathJax.Context>
+    {value.length > 0 &&
+      <MathJax.Context input="tex">
+        <MathJax.Text text={replaceNewlines(value)}/>
+      </MathJax.Context>
+    }
   </div>;
 };

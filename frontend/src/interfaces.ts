@@ -48,3 +48,14 @@ export interface ServerCutPosition {
   relHeight: number;
   oid: string;
 }
+
+export interface Exam {
+  displayname: string; // Name of exam which should be displayed
+  filename: string; // unique filename
+}
+
+export interface Category {
+  name: string; // Name of category
+  exams: Exam[]; // Exams belonging to category
+  childCategories?: Category[]; // Categories which are children of this category in category tree
+}
