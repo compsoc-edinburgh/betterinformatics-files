@@ -39,6 +39,7 @@ export async function loadSections(
           kind: SectionKind.Answer,
           answers: [],
           asker: "",
+          askerDisplayName: "",
           allow_new_answer: true
         });
       });

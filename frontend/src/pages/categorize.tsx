@@ -13,7 +13,7 @@ const styles = {
     border: "1px solid blue",
     width: "80%"
   }),
-  clipboard: css({
+  sidebar: css({
     border: "1px solid red",
     width: "20%",
     minHeight: "400px"
@@ -29,22 +29,34 @@ const styles = {
     border: "1px solid red",
     width: "50%"
   }),
+  clipboard: css({
+    border: "1px solid red",
+    width: "100%"
+  }),
   adminlist: css({
-    border: "1px solid red"
+    border: "1px solid red",
+    width: "100%"
   })
 };
+
+interface Props {
+  isAdmin?: boolean;
+}
 
 interface State {
   rootCategories?: Category[];
   categoryStack: Category[];
+  categoryAdmins?: object;
   newCategoryName: string;
+  newAdminName: string;
 }
 
-export default class Categorize extends React.Component<{}, State> {
+export default class Categorize extends React.Component<Props, State> {
 
   state: State = {
     categoryStack: [],
     newCategoryName: "",
+    newAdminName: "",
   };
 
   async componentWillMount() {
@@ -52,6 +64,12 @@ export default class Categorize extends React.Component<{}, State> {
       categoryStack: [{name: "", exams: [], childCategories: []}]
     });
     this.updateCategories();
+  }
+
+  async componentWillUpdate() {
+    if (this.props.isAdmin && !this.state.categoryAdmins) {
+      this.updateAdmins();
+    }
   }
 
   async componentDidMount() {
@@ -71,6 +89,20 @@ export default class Categorize extends React.Component<{}, State> {
           }
         })
       });
+  };
+
+  updateAdmins = async () => {
+    fetch('/api/listcategories/withadmins')
+      .then(res => res.json())
+      .then(res => {
+        let newadmins = {};
+        res.value.forEach((cat: {name: string, admins: string[]}) => {
+          newadmins[cat.name] = cat.admins;
+        });
+        this.setState({
+          categoryAdmins: newadmins
+        });
+      })
   };
 
   arrLast = (arr: Category[]) => arr[arr.length - 1];
@@ -102,9 +134,45 @@ export default class Categorize extends React.Component<{}, State> {
       });
   };
 
+  removeCategory = async (category: Category) => {
+    fetchpost('/api/category/remove', {category: category.name})
+      .then(() => {
+        this.updateCategories()
+      });
+  };
+
+  addAdmin = async () => {
+    fetchpost('/api/category/addadmin', {
+      category: this.arrLast(this.state.categoryStack).name,
+      username: this.state.newAdminName
+    })
+      .then(() => {
+        this.updateAdmins();
+        this.setState({
+          newAdminName: ""
+        });
+      });
+  };
+
+  removeAdmin = async (username: string) => {
+    fetchpost('/api/category/removeadmin', {
+      category: this.arrLast(this.state.categoryStack).name,
+      username: username
+    })
+      .then(() => {
+        this.updateAdmins()
+      });
+  };
+
   onNewCategoryNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       newCategoryName: ev.target.value
+    });
+  };
+
+  onAdminNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({
+      newAdminName: ev.target.value
     });
   };
 
@@ -124,11 +192,15 @@ export default class Categorize extends React.Component<{}, State> {
                 <button onClick={() => this.chooseSubcategory(subCat)}>
                   {this.categoryDisplay(subCat.name)}
                 </button>
+                {this.props.isAdmin && <button onClick={() => this.removeCategory(subCat)}>
+                  X
+                </button>}
               </div>)}
-              <div>
-                <input type="text" onChange={this.onNewCategoryNameChange} value={this.state.newCategoryName} placeholder="New Category..."/>
-                <button onClick={this.addCategory}>Add Category</button>
-              </div>
+            {this.props.isAdmin && <div>
+              <input type="text" onChange={this.onNewCategoryNameChange} value={this.state.newCategoryName}
+                     placeholder="New Category..."/>
+              <button onClick={this.addCategory}>Add Category</button>
+            </div>}
           </div>
           <div {...styles.examlist}>
             {cat.exams.map(
@@ -137,14 +209,25 @@ export default class Categorize extends React.Component<{}, State> {
               </div>
             )}
           </div>
-          <div {...styles.adminlist}>
-
-          </div>
         </div>
       </div>
-      <div {...styles.clipboard}>
-        <div>Clipboard</div>
-        <div>Drop exams here...</div>
+      <div {...styles.sidebar}>
+        <div {...styles.clipboard}>
+          <div>Clipboard</div>
+          <div>Drop exams here...</div>
+        </div>
+        {this.props.isAdmin && this.state.categoryAdmins && this.state.categoryStack.length > 1 && <div {...styles.adminlist}>
+          <div>Category Admins</div>
+          {this.state.categoryAdmins[cat.name] && this.state.categoryAdmins[cat.name].length > 0 ?
+            this.state.categoryAdmins[cat.name].map((admin: string) => <div>{admin} <button onClick={() => this.removeAdmin(admin)}>X</button></div>) :
+            <div>No admins</div>
+          }
+          <div>
+            <input type="text" onChange={this.onAdminNameChange} value={this.state.newAdminName}
+                   placeholder="New Admin..." />
+            <button onClick={this.addAdmin}>Add Admin</button>
+          </div>
+        </div>}
       </div>
     </div>);
   }

@@ -10,6 +10,7 @@ export interface AnswerSection {
   kind: SectionKind.Answer;
   answers: Answer[];
   asker: string; // username of person who created section
+  askerDisplayName: string; // display name of asker
   allow_new_answer: boolean;
 }
 
@@ -17,6 +18,7 @@ export interface Answer {
   oid: string; // unique id within answers
   upvotes: string[]; // usernames of people who upvoted
   authorId: string; // username
+  authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the answer
   isUpvoted: boolean; // whether the current user upvoted the answer
   comments: Comment[];
@@ -28,6 +30,7 @@ export interface Comment {
   oid: string; // unique id within comments
   text: string;
   authorId: string; // username
+  authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the comment
   time: string; // ISO 8601, creation time
 }
