@@ -1,5 +1,7 @@
 import * as React from "react";
 import {css} from "glamor";
+import * as ReactMarkdown from "react-markdown";
+import * as RemarkMathPlugin from "remark-math";
 import MathJax from 'react-mathjax2';
 
 interface Props {
@@ -16,18 +18,24 @@ const styles = {
   }),
 };
 
-function replaceNewlines(text: string): string {
-  // TODO find cleaner way to support newlines
-  return text.replace("\r", "").replace(/\n\n/g, "\\(\\\\\\)");
-}
-
 export default ({value}: Props) => {
   if (value.length === 0) {
     return <div/>;
   }
+  const renderers = {
+    math: (props: {value: string}) =>
+      <MathJax.Node>{props.value}</MathJax.Node>,
+    inlineMath: (props: {value: string}) =>
+      <MathJax.Node inline>{props.value}</MathJax.Node>,
+  };
   return <div {...styles.wrapper}>
     <MathJax.Context input="tex">
-      <MathJax.Text text={replaceNewlines(value)}/>
+      <ReactMarkdown
+        source={value}
+        plugins={[RemarkMathPlugin]}
+        // tslint:disable-next-line: no-any
+        renderers={renderers as any}
+      />
     </MathJax.Context>
   </div>;
 };
