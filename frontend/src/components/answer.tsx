@@ -3,7 +3,7 @@ import {Answer, AnswerSection} from "../interfaces";
 import {dateStr2Str} from "../date-utils";
 import Comment from "./comment";
 import {css} from "glamor";
-import MathText from "./math-text";
+import MarkdownText from "./markdown-text";
 import {fetchpost} from '../fetch-utils'
 
 interface Props {
@@ -187,7 +187,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
             </div>
           </div>
         </div>
-        <div {...styles.answer}><MathText value={this.state.text}/></div>
+        <div {...styles.answer}><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div {...styles.answerInput}>
             <textarea {...styles.textareaInput} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
@@ -206,7 +206,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         )}</div>
         {this.state.savedText.length > 0 && <div {...styles.addComment}>
           <div><b>Add comment</b></div>
-          <div><MathText value={this.state.commentDraft} /></div>
+          <div><MarkdownText value={this.state.commentDraft} /></div>
           <div>
             <textarea {...styles.textareaInput} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.commentDraft} />
           </div>

@@ -2,7 +2,7 @@ import * as React from "react";
 import {AnswerSection, Comment} from "../interfaces";
 import {dateStr2Str} from "../date-utils";
 import {css} from "glamor";
-import MathText from "./math-text";
+import MarkdownText from "./markdown-text";
 import {fetchpost} from "../fetch-utils";
 
 interface Props {
@@ -81,7 +81,7 @@ export default class CommentComponent extends React.Component<Props, State> {
         <div {...styles.header}>
           <b>{comment.authorDisplayName}</b> @ {dateStr2Str(comment.time)}
         </div>
-        <div><MathText value={this.state.text}/></div>
+        <div><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div>
             <textarea onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
