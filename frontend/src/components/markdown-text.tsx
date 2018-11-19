@@ -6,19 +6,19 @@ import MathJax from 'react-mathjax2';
 
 interface Props {
   value: string;
+  background?: string;
 }
 
 const styles = {
   wrapper: css({
-    background: "#ffdfb4",
-    paddingTop: "10px",
-    paddingBottom: "10px",
+    paddingTop: "2px",
+    paddingBottom: "2px",
     paddingLeft: "20px",
     paddingRight: "20px"
   }),
 };
 
-export default ({value}: Props) => {
+export default ({value, background}: Props) => {
   if (value.length === 0) {
     return <div/>;
   }
@@ -28,7 +28,7 @@ export default ({value}: Props) => {
     inlineMath: (props: {value: string}) =>
       <MathJax.Node inline>{props.value}</MathJax.Node>,
   };
-  return <div {...styles.wrapper}>
+  return <div {...styles.wrapper} {...css({background: background || "#ffdfb4"})}>
     <MathJax.Context input="tex">
       <ReactMarkdown
         source={value}

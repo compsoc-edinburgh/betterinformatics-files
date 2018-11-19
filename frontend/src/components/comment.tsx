@@ -25,6 +25,28 @@ const styles = {
   }),
   header: css({
     marginBottom: "5px"
+  }),
+  threebuttons: css({
+    textAlign: "center",
+    display: "flex",
+    justifyContent: "space-between",
+    "& div": {
+      width: "200px"
+    }
+  }),
+  leftButton: css({
+    textAlign: "left"
+  }),
+  rightButton: css({
+    textAlign: "right"
+  }),
+  textareaInput: css({
+    width: "100%",
+    resize: "vertical",
+    marginTop: "10px",
+    marginBottom: "5px",
+    padding: "5px",
+    boxSizing: "border-box"
   })
 };
 
@@ -84,16 +106,18 @@ export default class CommentComponent extends React.Component<Props, State> {
         <div><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div>
-            <textarea onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
+            <textarea {...styles.textareaInput} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
           </div>
-          <div>
-            <button onClick={this.saveComment}>Save Comment</button>
-            <button onClick={this.cancelEdit}>Cancel</button>
+          <div {...styles.threebuttons}>
+            <div {...styles.leftButton}/>
+            <div><button onClick={this.saveComment}>Save Comment</button></div>
+            <div {...styles.rightButton}><button onClick={this.cancelEdit}>Cancel</button></div>
           </div>
         </div>}
-        {comment.canEdit && !this.state.editing && <div>
-          <button onClick={this.startEdit}>Edit Comment</button>
-          <button onClick={this.removeComment}>Delete Comment</button>
+        {comment.canEdit && !this.state.editing && <div {...styles.threebuttons}>
+          <div {...styles.leftButton}/>
+          <div><button onClick={this.startEdit}>Edit Comment</button></div>
+          <div {...styles.rightButton}><button onClick={this.removeComment}>Delete Comment</button></div>
         </div>}
       </div>
     );

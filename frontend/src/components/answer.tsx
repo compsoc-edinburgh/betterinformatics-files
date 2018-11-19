@@ -96,7 +96,7 @@ const styles = {
   }),
   textareaInput: css({
     width: "100%",
-    resize: "none",
+    resize: "vertical",
     marginTop: "10px",
     marginBottom: "5px",
     padding: "5px",
