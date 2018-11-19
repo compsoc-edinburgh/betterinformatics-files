@@ -59,7 +59,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
 
   async componentWillMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
-      .then((res) => this.setState({section: res, hidden: res.answers.length === 0}));
+      .then((res) => this.setState({section: res, hidden: res.answers.length > 0}));
   }
 
   removeSection = async () => {
