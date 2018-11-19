@@ -193,7 +193,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
             <textarea {...styles.textareaInput} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
           </div>
           <div {...styles.answerTexHint}>
-            You can use latex math notation in your answer. Use \[ ... \] and \( ... \) or alternatively $$ ... $$ and ` ... ` to format the enclosed text as (inline) math. Using ` ... ` you can also use AsciiMath.
+            You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.
           </div>
         </div>}
         <div {...styles.threebuttons}>
