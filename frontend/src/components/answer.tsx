@@ -3,7 +3,7 @@ import {Answer, AnswerSection} from "../interfaces";
 import {dateStr2Str} from "../date-utils";
 import Comment from "./comment";
 import {css} from "glamor";
-import MathText from "./math-text";
+import MarkdownText from "./markdown-text";
 import {fetchpost} from '../fetch-utils'
 
 interface Props {
@@ -46,7 +46,31 @@ const styles = {
   }),
   header: css({
     fontSize: "24px",
-    marginBottom: "10px"
+    marginBottom: "10px",
+    marginLeft: "-10px",
+    marginRight: "-10px",
+    marginTop: "-10px",
+    paddingLeft: "10px",
+    paddingRight: "10px",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "#394b59",
+    color: "white",
+  }),
+  upvoteWrapper: css({
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    "& div": {
+      marginLeft: "10px",
+    }
+  }),
+  upvoteImg: css({
+    height: "35px",
+    marginBottom: "-7px", // no idea what's going on...
   }),
   answer: css({
     margin: "5px"
@@ -72,7 +96,7 @@ const styles = {
   }),
   textareaInput: css({
     width: "100%",
-    resize: "none",
+    resize: "vertical",
     marginTop: "10px",
     marginBottom: "5px",
     padding: "5px",
@@ -153,19 +177,27 @@ export default class AnswerComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.header}>
-          <b>{answer.authorDisplayName}</b> @ {dateStr2Str(answer.time)} (+{answer.upvotes})
+          <div>
+            <b>{answer.authorDisplayName}</b> @ {dateStr2Str(answer.time)}
+          </div>
+          <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote}>
+            <div>{answer.upvotes}</div>
+            <div>
+              <img {...styles.upvoteImg} src={"https://static.vis.ethz.ch/img/spirale" + (answer.isUpvoted ? "_yellow" : "_white") + ".svg"} alt="VIS Spiral Logo" />
+            </div>
+          </div>
         </div>
-        <div {...styles.answer}><MathText value={this.state.text}/></div>
+        <div {...styles.answer}><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div {...styles.answerInput}>
             <textarea {...styles.textareaInput} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
           </div>
           <div {...styles.answerTexHint}>
-            You can use latex math notation in your answer. Use \[ ... \] and \( ... \) or alternatively $$ ... $$ and ` ... ` to format the enclosed text as (inline) math. Using ` ... ` you can also use AsciiMath.
+            You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.
           </div>
         </div>}
         <div {...styles.threebuttons}>
-          <div {...styles.leftButton}>{!this.state.editing && <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>}</div>
+          <div {...styles.leftButton} />
           <div>{this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}</div>
           <div {...styles.rightButton}>{this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}</div>
         </div>
@@ -174,7 +206,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         )}</div>
         {this.state.savedText.length > 0 && <div {...styles.addComment}>
           <div><b>Add comment</b></div>
-          <div><MathText value={this.state.commentDraft} /></div>
+          <div><MarkdownText value={this.state.commentDraft} /></div>
           <div>
             <textarea {...styles.textareaInput} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.commentDraft} />
           </div>
