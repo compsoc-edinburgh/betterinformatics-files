@@ -46,7 +46,31 @@ const styles = {
   }),
   header: css({
     fontSize: "24px",
-    marginBottom: "10px"
+    marginBottom: "10px",
+    marginLeft: "-10px",
+    marginRight: "-10px",
+    marginTop: "-10px",
+    paddingLeft: "10px",
+    paddingRight: "10px",
+    paddingTop: "10px",
+    paddingBottom: "10px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "#394b59",
+    color: "white",
+  }),
+  upvoteWrapper: css({
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    "& div": {
+      marginLeft: "10px",
+    }
+  }),
+  upvoteImg: css({
+    height: "35px",
+    marginBottom: "-7px", // no idea what's going on...
   }),
   answer: css({
     margin: "5px"
@@ -153,7 +177,15 @@ export default class AnswerComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.header}>
-          <b>{answer.authorDisplayName}</b> @ {dateStr2Str(answer.time)} (+{answer.upvotes})
+          <div>
+            <b>{answer.authorDisplayName}</b> @ {dateStr2Str(answer.time)}
+          </div>
+          <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote}>
+            <div>{answer.upvotes}</div>
+            <div>
+              <img {...styles.upvoteImg} src={"https://static.vis.ethz.ch/img/spirale" + (answer.isUpvoted ? "_yellow" : "_white") + ".svg"} alt="VIS Spiral Logo" />
+            </div>
+          </div>
         </div>
         <div {...styles.answer}><MathText value={this.state.text}/></div>
         {this.state.editing && <div>
@@ -165,7 +197,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
           </div>
         </div>}
         <div {...styles.threebuttons}>
-          <div {...styles.leftButton}>{!this.state.editing && <button onClick={this.toggleAnswerUpvote}>{answer.isUpvoted && "Remove Upvote" || "Upvote"}</button>}</div>
+          <div {...styles.leftButton} />
           <div>{this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}</div>
           <div {...styles.rightButton}>{this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}</div>
         </div>
