@@ -12,7 +12,7 @@ RUN yarn run build
 
 
 FROM registry.vis.ethz.ch/public/vis-base:bravo
-LABEL maintainer 'muelsamu@vis.ethz.ch'
+LABEL maintainer 'schmidbe@vis.ethz.ch'
 
 RUN mkdir intermediate_pdf_storage
 
