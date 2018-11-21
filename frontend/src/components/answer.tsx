@@ -180,10 +180,10 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <div>
             <b>{answer.authorDisplayName}</b> @ {dateStr2Str(answer.time)}
           </div>
-          <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote}>
+          <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote} title="Upvote Answer">
             <div>{answer.upvotes}</div>
             <div>
-              <img {...styles.upvoteImg} src={"https://static.vis.ethz.ch/img/spirale" + (answer.isUpvoted ? "_yellow" : "_white") + ".svg"} alt="VIS Spiral Logo" />
+              <img {...styles.upvoteImg} src={"/static/upvote" + (answer.isUpvoted ? "_orange" : "_white") + ".svg"} alt="Upvote" />
             </div>
           </div>
         </div>

@@ -28,6 +28,7 @@ ENV PYTHONUNBUFFERED True
 COPY --from=0 /usr/src/app/build/index.html ./templates/index.html
 COPY --from=0 /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=0 /usr/src/app/build/static ./static
+COPY ./frontend/public/static ./static
 COPY ./src/people_pb2.py .
 COPY ./src/people_pb2_grpc.py .
 COPY ./src/dbmigrations.py .
