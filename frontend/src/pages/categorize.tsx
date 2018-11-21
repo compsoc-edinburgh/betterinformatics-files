@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Category} from "../interfaces";
+import {Category, Exam} from "../interfaces";
 import {buildCategoryTree, synchronizeTreeWithStack} from "../category-utils";
 import {css} from "glamor";
 import {fetchpost} from "../fetch-utils";
@@ -47,6 +47,7 @@ interface State {
   rootCategories?: Category[];
   categoryStack: Category[];
   categoryAdmins?: object;
+  clipboard: Exam[];
   newCategoryName: string;
   newAdminName: string;
 }
@@ -57,6 +58,7 @@ export default class Categorize extends React.Component<Props, State> {
     categoryStack: [],
     newCategoryName: "",
     newAdminName: "",
+    clipboard: [],
   };
 
   async componentWillMount() {
@@ -137,7 +139,28 @@ export default class Categorize extends React.Component<Props, State> {
   removeCategory = async (category: Category) => {
     fetchpost('/api/category/remove', {category: category.name})
       .then(() => {
-        this.updateCategories()
+        this.updateCategories();
+      });
+  };
+
+  moveToClipboard = async (exam: Exam) => {
+    this.setState(prevState => {
+      prevState.clipboard.push(exam);
+      return {
+        clipboard: prevState.clipboard
+      };
+    });
+  };
+
+  moveFromClipboard = async () => {
+    const newCategory = this.arrLast(this.state.categoryStack).name;
+    Promise.all(this.state.clipboard
+      .map(exam => fetchpost(`/api/exam/${exam.filename}/metadata`, {category: newCategory})))
+      .then(() => {
+        this.setState({
+          clipboard: []
+        });
+        this.updateCategories();
       });
   };
 
@@ -203,9 +226,10 @@ export default class Categorize extends React.Component<Props, State> {
             </div>}
           </div>
           <div {...styles.examlist}>
-            {cat.exams.map(
+            {cat.exams.filter(exam => this.state.clipboard.filter(ex => ex.filename === exam.filename).length === 0).map(
               exam => <div key={exam.filename}>
                 {exam.displayname}
+                <button onClick={() => this.moveToClipboard(exam)}>&gt;&gt;</button>
               </div>
             )}
           </div>
@@ -215,6 +239,14 @@ export default class Categorize extends React.Component<Props, State> {
         <div {...styles.clipboard}>
           <div>Clipboard</div>
           <div>Drop exams here...</div>
+          <div>
+            {this.state.clipboard.map(exam =>
+              <div key={exam.filename}>{exam.displayname}</div>
+            )}
+          </div>
+          {this.props.isAdmin && this.state.clipboard.length > 0 && this.state.categoryStack.length >  1 && <div>
+            <button onClick={this.moveFromClipboard}>&lt;&lt;</button>
+          </div>}
         </div>
         {this.props.isAdmin && this.state.categoryAdmins && this.state.categoryStack.length > 1 && <div {...styles.adminlist}>
           <div>Category Admins</div>
