@@ -3,18 +3,16 @@ import {Category, Exam} from "../interfaces";
 import {buildCategoryTree, synchronizeTreeWithStack} from "../category-utils";
 import {css} from "glamor";
 import {fetchpost} from "../fetch-utils";
+import {Link} from "react-router-dom";
 
 const styles = {
   wrapper: css({
-    border: "1px solid black",
     display: "flex"
   }),
   category: css({
-    border: "1px solid blue",
     width: "80%"
   }),
   sidebar: css({
-    border: "1px solid red",
     width: "20%",
     minHeight: "400px"
   }),
@@ -22,20 +20,57 @@ const styles = {
     display: "flex"
   }),
   subcategories: css({
-    border: "1px solid red",
     width: "50%"
+  }),
+  categoryNameWrapper: css({
+    display: "flex",
+    alignItems: "center",
+  }),
+  categoryName: css({
+    marginLeft: "10px",
+    textTransform: "capitalize",
+  }),
+  subcategory: css({
+    width: "100%",
+    maxWidth: "400px",
+    display: "flex",
+  }),
+  subcategoryGoto: css({
+    flexGrow: "1",
+  }),
+  subcategoryDelete: css({
+    width: "70px",
+    fontWeight: "bold",
+  }),
+  subcategoryNewName: css({
+    flexGrow: "1",
   }),
   examlist: css({
-    border: "1px solid red",
     width: "50%"
   }),
+  examEntry: css({
+    width: "100%",
+    maxWidth: "400px",
+    display: "flex",
+    alignItems: "center",
+  }),
+  examName: css({
+    marginLeft: "5px",
+    flexGrow: "1",
+  }),
   clipboard: css({
-    border: "1px solid red",
     width: "100%"
   }),
   adminlist: css({
-    border: "1px solid red",
-    width: "100%"
+    width: "100%",
+    marginBottom: "20px",
+  }),
+  adminEntry: css({
+    display: "flex",
+    alignItems: "center",
+  }),
+  adminName: css({
+    flexGrow: "1",
   })
 };
 
@@ -206,60 +241,64 @@ export default class Categorize extends React.Component<Props, State> {
     const cat = this.arrLast(this.state.categoryStack);
     return (<div {...styles.wrapper}>
       <div {...styles.category}>
-        <div>{cat.name}</div>
-        <div>{this.state.categoryStack.length > 1 && <button onClick={this.chooseParentcategory}>Go up</button>}</div>
+        <div {...styles.categoryNameWrapper}>
+          <div>{this.state.categoryStack.length > 1 && <button onClick={this.chooseParentcategory}>Back</button>}</div>
+          <h1 {...styles.categoryName}>{cat.name}</h1>
+        </div>
         <div {...styles.categorywrapper}>
           <div {...styles.subcategories}>
             {cat.childCategories && cat.childCategories.map(
-              subCat => <div key={subCat.name}>
-                <button onClick={() => this.chooseSubcategory(subCat)}>
+              subCat => <div {...styles.subcategory} key={subCat.name}>
+                <button {...styles.subcategoryGoto} onClick={() => this.chooseSubcategory(subCat)}>
                   {this.categoryDisplay(subCat.name)}
                 </button>
-                {this.props.isAdmin && <button onClick={() => this.removeCategory(subCat)}>
+                {this.props.isAdmin && <button {...styles.subcategoryDelete} onClick={() => this.removeCategory(subCat)} title="Delete Category">
                   X
                 </button>}
               </div>)}
-            {this.props.isAdmin && <div>
-              <input type="text" onChange={this.onNewCategoryNameChange} value={this.state.newCategoryName}
+            {this.props.isAdmin && <div {...styles.subcategory}>
+              <input {...styles.subcategoryNewName} type="text" onChange={this.onNewCategoryNameChange} value={this.state.newCategoryName}
                      placeholder="New Category..."/>
-              <button onClick={this.addCategory}>Add Category</button>
+              <button onClick={this.addCategory} title="Add Category">Add Category</button>
             </div>}
           </div>
           <div {...styles.examlist}>
             {cat.exams.filter(exam => this.state.clipboard.filter(ex => ex.filename === exam.filename).length === 0).map(
-              exam => <div key={exam.filename}>
-                {exam.displayname}
-                <button onClick={() => this.moveToClipboard(exam)}>&gt;&gt;</button>
+              exam => <div {...styles.examEntry} key={exam.filename}>
+                <Link {...styles.examName} to={"/exams/" + exam.filename}><span>{exam.displayname}</span></Link>
+                <button onClick={() => this.moveToClipboard(exam)} title="Move exam to clipboard">&gt;&gt;</button>
               </div>
             )}
           </div>
         </div>
       </div>
       <div {...styles.sidebar}>
+        {this.props.isAdmin && this.state.categoryAdmins && this.state.categoryStack.length > 1 && <div {...styles.adminlist}>
+          <h2>Category Admins</h2>
+          {this.state.categoryAdmins[cat.name] && this.state.categoryAdmins[cat.name].length > 0 ?
+            this.state.categoryAdmins[cat.name].map((admin: string) => <div {...styles.adminEntry}><span {...styles.adminName}>{admin}</span> <button onClick={() => this.removeAdmin(admin)} title="Remove Admin">X</button></div>) :
+            <div>No admins</div>
+          }
+          <div>
+            <input type="text" onChange={this.onAdminNameChange} value={this.state.newAdminName}
+                   placeholder="New Admin..." />
+            <button onClick={this.addAdmin} title="Add Admin">Add Admin</button>
+          </div>
+        </div>}
         <div {...styles.clipboard}>
-          <div>Clipboard</div>
-          <div>Drop exams here...</div>
+          <h2>Clipboard</h2>
+          {this.state.clipboard.length === 0 && <div>
+            Move exams here to change category.
+          </div>}
           <div>
             {this.state.clipboard.map(exam =>
               <div key={exam.filename}>{exam.displayname}</div>
             )}
           </div>
           {this.props.isAdmin && this.state.clipboard.length > 0 && this.state.categoryStack.length >  1 && <div>
-            <button onClick={this.moveFromClipboard}>&lt;&lt;</button>
+            <button onClick={this.moveFromClipboard} title="Move exams to current category">&lt;&lt;</button>
           </div>}
         </div>
-        {this.props.isAdmin && this.state.categoryAdmins && this.state.categoryStack.length > 1 && <div {...styles.adminlist}>
-          <div>Category Admins</div>
-          {this.state.categoryAdmins[cat.name] && this.state.categoryAdmins[cat.name].length > 0 ?
-            this.state.categoryAdmins[cat.name].map((admin: string) => <div>{admin} <button onClick={() => this.removeAdmin(admin)}>X</button></div>) :
-            <div>No admins</div>
-          }
-          <div>
-            <input type="text" onChange={this.onAdminNameChange} value={this.state.newAdminName}
-                   placeholder="New Admin..." />
-            <button onClick={this.addAdmin}>Add Admin</button>
-          </div>
-        </div>}
       </div>
     </div>);
   }
