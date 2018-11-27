@@ -22,9 +22,17 @@ const styles = {
     borderRadius: "0px",
     boxShadow: "0 4px 8px 0 grey"
   }),
+  categoryTitle: css({
+    textTransform: "capitalize",
+    cursor: "pointer",
+  }),
   subtitle: css({
     textTransform: "capitalize",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    cursor: "pointer",
+  }),
+  categoryActive: css({
+    color: "#ff6130",
   }),
   filterInput: css({
     width: "100%",
@@ -78,11 +86,12 @@ const styles = {
 interface State {
   rootCategories?: Category[];
   filter: string;
+  openCategory: string;
 }
 
 export default class ExamList extends React.Component<{}, State> {
 
-  state: State = {filter: ""};
+  state: State = {filter: "", openCategory: ""};
 
   async componentWillMount() {
     fetch('/api/listcategories/withexams')
@@ -96,15 +105,23 @@ export default class ExamList extends React.Component<{}, State> {
 
   categoryDisplay = (category: string) => this.arrLast(category.split("/"));
 
+  showCategory = (category: string) => this.setState({openCategory: category});
+
   renderCategory = (category: Category, depth: number): JSX.Element => {
     return (<div>
-        {category.exams.map(exam => (
+        {this.state.openCategory === category.name && category.exams.map(exam => (
           <div key={exam.filename} {...styles.exams[depth]}><Link to={"/exams/" + exam.filename}>{exam.displayname}</Link></div>
         ))}
         {category.childCategories &&
         category.childCategories.map(childCat =>
           <div key={childCat.name}>
-            <span {...styles.subtitle} {...styles.subtitles[depth]}>{this.categoryDisplay(childCat.name)}</span>
+            <span
+              {...styles.subtitle}
+              {...(this.state.openCategory === childCat.name ? styles.categoryActive : undefined)}
+              {...styles.subtitles[depth]}
+              onClick={() => this.showCategory(childCat.name)}>
+              {this.categoryDisplay(childCat.name)}
+              </span>
             {this.renderCategory(childCat, depth+1)}
           </div>
         )}
@@ -112,7 +129,28 @@ export default class ExamList extends React.Component<{}, State> {
     );
   };
 
+  openUniqueCategory = (category: Category[]): boolean => {
+    if (category.length === 1) {
+      const childCategories = category[0].childCategories;
+      if (childCategories) {
+        if (!this.openUniqueCategory(childCategories)) {
+          if (this.state.openCategory !== category[0].name) {
+            this.setState({
+              openCategory: category[0].name
+            });
+          }
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   filterChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    if (this.state.rootCategories) {
+      this.openUniqueCategory(filterCategoryTree(this.state.rootCategories, ev.target.value, false));
+    }
     this.setState({
       filter: ev.target.value
     });
@@ -128,9 +166,14 @@ export default class ExamList extends React.Component<{}, State> {
         <input type="text" onChange={this.filterChanged} value={this.state.filter} placeholder="Filter..." autoFocus={true}/>
       </div>
       <div {...styles.wrapper}>
-        {filterCategoryTree(categories, this.state.filter).map(category => (
+        {filterCategoryTree(categories, this.state.filter, false).map(category => (
           <div key={category.name} {...styles.category}>
-            <h1>{this.categoryDisplay(category.name)}</h1>
+            <h1
+              {...styles.categoryTitle}
+              {...(this.state.openCategory === category.name ? styles.categoryActive : undefined)}
+              onClick={() => this.showCategory(category.name)}>
+              {this.categoryDisplay(category.name)}
+              </h1>
             {this.renderCategory(category, 0)}
           </div>
         ))}</div>

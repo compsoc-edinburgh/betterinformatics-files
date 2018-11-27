@@ -36,6 +36,7 @@ const styles = {
     display: "flex",
   }),
   subcategoryGoto: css({
+    textTransform: "capitalize",
     flexGrow: "1",
   }),
   subcategoryDelete: css({
