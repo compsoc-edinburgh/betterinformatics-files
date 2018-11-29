@@ -178,7 +178,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div {...styles.header}>
           <div>
-            <b>{answer.authorDisplayName}</b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSS").format("DD.MM.YYYY HH:mm")}
+            <b>{answer.authorDisplayName}</b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
           </div>
           <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote} title="Upvote Answer">
             <div>{answer.upvotes}</div>

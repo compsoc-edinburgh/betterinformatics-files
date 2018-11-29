@@ -5,8 +5,6 @@ from werkzeug.utils import secure_filename as make_secure_filename
 import json, re
 import pymongo
 from pymongo import MongoClient
-from datetime import datetime
-import os
 from functools import wraps
 from flask import send_file, send_from_directory, render_template
 from minio import Minio
@@ -15,6 +13,9 @@ from bson.objectid import ObjectId
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
                           BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
+
+from datetime import datetime, timezone
+import os
 import traceback
 import inspect
 import time
@@ -490,7 +491,7 @@ def add_answer(filename, sectionoid):
         "text": "",
         "comments": [],
         "upvotes": [username],
-        "time": datetime.utcnow()
+        "time": datetime.now(timezone.utc).isoformat()
     }
     answer_sections.update_one({
         "_id": answer_section_oid
@@ -567,7 +568,7 @@ def add_comment(filename, sectionoid, answeroid):
         "text": text,
         "authorId": username,
         "authorDisplayName": get_real_name(username),
-        "time": datetime.utcnow()
+        "time": datetime.now(timezone.utc).isoformat()
     }
     answer_sections.update_one({
         "answersection.answers._id": answer_oid
