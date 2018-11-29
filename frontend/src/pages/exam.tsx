@@ -17,7 +17,8 @@ const styles = {
     margin: "auto",
   }),
   sectionsButton: css({
-    textAlign: "right",
+    display: "flex",
+    justifyContent: "flex-end",
     position: ["sticky", "-webkit-sticky"],
     top: "20px"
   }),
@@ -36,6 +37,8 @@ interface State {
   canEdit: boolean;
   sections?: Section[];
   addingSectionsActive: boolean;
+  renamingActive: boolean;
+  newExamName: string;
 }
 
 function widthFromWindow(): number {
@@ -51,6 +54,8 @@ export default class Exam extends React.Component<Props, State> {
     addingSectionsActive: false,
     displayname: this.props.filename,
     canEdit: false,
+    renamingActive: false,
+    newExamName: "",
   };
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
@@ -85,7 +90,7 @@ export default class Exam extends React.Component<Props, State> {
     }
   }
 
-  async setDocumentTitle() {
+  setDocumentTitle() {
     document.title = "VIS Community Solutions: " + this.state.displayname;
   }
 
@@ -160,6 +165,30 @@ export default class Exam extends React.Component<Props, State> {
     });
   };
 
+  toggleRenamingActive = () => {
+    if (this.state.renamingActive) {
+      fetchpost(`/api/exam/${this.props.filename}/metadata`, {
+        displayname: this.state.newExamName
+      }).then(() => {
+        this.setState({
+          displayname: this.state.newExamName,
+          renamingActive: false
+        }, () => {
+          this.setDocumentTitle();
+        });
+      });
+    } else {
+      this.setState({
+        renamingActive: true,
+        newExamName: this.state.displayname
+      });
+    }
+  };
+
+  newExamNameChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({newExamName: ev.target.value});
+  };
+
   render() {
     const {renderer, width, dpr, sections} = this.state;
     if (!renderer || !sections) {
@@ -169,7 +198,11 @@ export default class Exam extends React.Component<Props, State> {
       <div>
         {this.state.canEdit &&
         <div {...styles.sectionsButton}>
-          <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable adding cuts" || "Enable adding cuts"}</button>
+          <div>
+            {this.state.renamingActive && <input autoFocus type="text" value={this.state.newExamName} onChange={this.newExamNameChanged}/>}
+            <button onClick={this.toggleRenamingActive}>{this.state.renamingActive ? "Save" : "Rename Exam"}</button>
+          </div>
+          <div><button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable adding cuts" || "Enable adding cuts"}</button></div>
         </div>}
         <div style={{width: width}} {...styles.wrapper}>
           {sections.map(e => {
