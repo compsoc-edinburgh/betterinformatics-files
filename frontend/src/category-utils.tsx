@@ -91,10 +91,13 @@ function filterMatches(filter: string, name: string): boolean {
   return false;
 }
 
-export function filterCategoryTree(categoryTree: Category[], filter: string): Category[] {
+export function filterCategoryTree(categoryTree: Category[], filter: string, matchOnExams: boolean): Category[] {
   return categoryTree.map(cat => ({
     name: cat.name,
-    childCategories: cat.childCategories ? filterCategoryTree(cat.childCategories, filter) : undefined,
-    exams: cat.exams.filter(exam => filterMatches(filter, cat.name + "/" + exam.displayname))
-  })).filter(cat => filterMatches(filter, cat.name) || cat.exams.length > 0 || (cat.childCategories && cat.childCategories.length > 0));
+    childCategories: cat.childCategories ? filterCategoryTree(cat.childCategories, filter, matchOnExams) : undefined,
+    exams: matchOnExams ? cat.exams.filter(exam => filterMatches(filter, cat.name + "/" + exam.displayname)) : cat.exams
+  })).filter(cat =>
+    filterMatches(filter, cat.name) ||
+    (matchOnExams && cat.exams.length > 0) ||
+    (cat.childCategories && cat.childCategories.length > 0));
 }

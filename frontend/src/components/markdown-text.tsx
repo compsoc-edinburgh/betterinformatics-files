@@ -2,7 +2,9 @@ import * as React from "react";
 import {css} from "glamor";
 import * as ReactMarkdown from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
-import MathJax from 'react-mathjax2';
+import 'katex/dist/katex.min.css';
+import TeX from '@matejmazur/react-katex'
+// import MathJax from 'react-mathjax2';
 
 interface Props {
   value: string;
@@ -24,18 +26,16 @@ export default ({value, background}: Props) => {
   }
   const renderers = {
     math: (props: {value: string}) =>
-      <MathJax.Node>{props.value}</MathJax.Node>,
+      <TeX math={props.value} block/>,
     inlineMath: (props: {value: string}) =>
-      <MathJax.Node inline>{props.value}</MathJax.Node>,
+      <TeX math={props.value}/>,
   };
   return <div {...styles.wrapper} {...css({background: background || "#ffdfb4"})}>
-    <MathJax.Context input="tex">
-      <ReactMarkdown
-        source={value}
-        plugins={[RemarkMathPlugin]}
-        // tslint:disable-next-line: no-any
-        renderers={renderers as any}
-      />
-    </MathJax.Context>
+    <ReactMarkdown
+      source={value}
+      plugins={[RemarkMathPlugin]}
+      // tslint:disable-next-line: no-any
+      renderers={renderers as any}
+    />
   </div>;
 };

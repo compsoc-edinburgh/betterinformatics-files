@@ -1,6 +1,6 @@
 import * as React from "react";
 import {AnswerSection, Comment} from "../interfaces";
-import {dateStr2Str} from "../date-utils";
+import * as moment from 'moment';
 import {css} from "glamor";
 import MarkdownText from "./markdown-text";
 import {fetchpost} from "../fetch-utils";
@@ -101,7 +101,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.header}>
-          <b>{comment.authorDisplayName}</b> @ {dateStr2Str(comment.time)}
+          <b>{comment.authorDisplayName}</b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
         </div>
         <div><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>

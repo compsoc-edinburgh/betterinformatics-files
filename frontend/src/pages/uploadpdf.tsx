@@ -24,7 +24,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   };
 
   async componentWillMount() {
-    fetch('/api/listcategories')
+    fetch('/api/listcategories/onlyadmin')
       .then(res => res.json())
       .then(res => this.setState({
         categories: res.value

@@ -74,6 +74,7 @@ interface State {
   username: string;
   displayname: string;
   isAdmin: boolean;
+  isCategoryAdmin: boolean;
 }
 
 export default class App extends React.Component<{}, State> {
@@ -82,6 +83,7 @@ export default class App extends React.Component<{}, State> {
     username: "",
     displayname: "",
     isAdmin: false,
+    isCategoryAdmin: false,
   };
 
   async componentWillMount() {
@@ -91,6 +93,7 @@ export default class App extends React.Component<{}, State> {
         username: res.username,
         displayname: res.displayname,
         isAdmin: res.adminrights,
+        isCategoryAdmin: res.adminrightscat,
       }));
   }
 
@@ -101,10 +104,10 @@ export default class App extends React.Component<{}, State> {
         <div {...styles.inner}>
           <Switch>
             <Route path="/exams/:filename" render={(props) => (
-              <Exam {...props} filename={props.match.params.filename} isAdmin={this.state.isAdmin}/>)}/>
+              <Exam {...props} filename={props.match.params.filename}/>)}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
             <Route path="/categorize" render={(props) => (<Categorize {...props} isAdmin={this.state.isAdmin}/>)}/>
-            <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin}/>)}/>
+            <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} isCategoryAdmin={this.state.isCategoryAdmin}/>)}/>
           </Switch>
         </div>
       </div>

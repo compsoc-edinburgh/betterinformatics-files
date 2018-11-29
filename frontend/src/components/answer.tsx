@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Answer, AnswerSection} from "../interfaces";
-import {dateStr2Str} from "../date-utils";
+import * as moment from 'moment';
 import Comment from "./comment";
 import {css} from "glamor";
 import MarkdownText from "./markdown-text";
@@ -178,12 +178,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div {...styles.header}>
           <div>
-            <b>{answer.authorDisplayName}</b> @ {dateStr2Str(answer.time)}
+            <b>{answer.authorDisplayName}</b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
           </div>
-          <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote}>
+          <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote} title="Upvote Answer">
             <div>{answer.upvotes}</div>
             <div>
-              <img {...styles.upvoteImg} src={"https://static.vis.ethz.ch/img/spirale" + (answer.isUpvoted ? "_yellow" : "_white") + ".svg"} alt="VIS Spiral Logo" />
+              <img {...styles.upvoteImg} src={"/static/upvote" + (answer.isUpvoted ? "_orange" : "_white") + ".svg"} alt="Upvote" />
             </div>
           </div>
         </div>

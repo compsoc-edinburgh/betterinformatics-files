@@ -25,7 +25,6 @@ const styles = {
 
 interface Props {
   filename: string;
-  isAdmin: boolean;
 }
 
 interface State {
@@ -34,6 +33,7 @@ interface State {
   width: number;
   dpr: number;
   displayname: string;
+  canEdit: boolean;
   sections?: Section[];
   addingSectionsActive: boolean;
 }
@@ -50,6 +50,7 @@ export default class Exam extends React.Component<Props, State> {
     dpr: window.devicePixelRatio,
     addingSectionsActive: false,
     displayname: this.props.filename,
+    canEdit: false,
   };
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
@@ -62,7 +63,10 @@ export default class Exam extends React.Component<Props, State> {
     fetch(`/api/exam/${this.props.filename}/metadata`)
       .then((res) => res.json())
       .then((res) => {
-        this.setState({displayname: res.value.displayname});
+        this.setState({
+          displayname: res.value.displayname,
+          canEdit: res.value.canEdit,
+        });
         this.setDocumentTitle();
       });
 
@@ -163,7 +167,7 @@ export default class Exam extends React.Component<Props, State> {
     }
     return (
       <div>
-        {this.props.isAdmin &&
+        {this.state.canEdit &&
         <div {...styles.sectionsButton}>
           <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable adding cuts" || "Enable adding cuts"}</button>
         </div>}
@@ -176,7 +180,7 @@ export default class Exam extends React.Component<Props, State> {
                   filename={this.props.filename}
                   oid={e.oid}
                   width={width}
-                  canDelete={this.props.isAdmin}
+                  canDelete={this.state.canEdit}
                   onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
                 />;
               case SectionKind.Pdf:
@@ -188,7 +192,7 @@ export default class Exam extends React.Component<Props, State> {
                     width={width}
                     dpr={dpr}
                     // ts does not like it if this is undefined...
-                    onClick={(this.props.isAdmin && this.state.addingSectionsActive) ? this.addSection : (ev)=>ev}
+                    onClick={(this.state.canEdit && this.state.addingSectionsActive) ? this.addSection : (ev)=>ev}
                   />
                 );
               default:
