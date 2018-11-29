@@ -296,7 +296,7 @@ export default class Categorize extends React.Component<Props, State> {
               <div key={exam.filename}>{exam.displayname}</div>
             )}
           </div>
-          {this.props.isAdmin && this.state.clipboard.length > 0 && this.state.categoryStack.length >  1 && <div>
+          {this.state.clipboard.length > 0 && this.state.categoryStack.length >  1 && <div>
             <button onClick={this.moveFromClipboard} title="Move exams to current category">&lt;&lt;</button>
           </div>}
         </div>

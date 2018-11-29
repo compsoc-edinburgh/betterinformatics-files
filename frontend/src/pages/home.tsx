@@ -25,6 +25,7 @@ const styles = {
 
 interface Props {
   isAdmin?: boolean;
+  isCategoryAdmin?: boolean;
 }
 
 export default class Home extends React.Component<Props> {
@@ -37,13 +38,20 @@ export default class Home extends React.Component<Props> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.examlist}>
-          <ExamList />
+          <ExamList/>
         </div>
+        {this.props.isCategoryAdmin &&
         <div {...styles.admin}>
           <h1>Admin</h1>
-          {this.props.isAdmin && <div><Link to="/uploadpdf"><button>Upload new exam</button></Link></div>}
-          {this.props.isAdmin && <div><Link to="/categorize"><button>Category Editor</button></Link></div>}
+          <div><Link to="/uploadpdf">
+            <button>Upload new exam</button>
+          </Link></div>
+          {this.props.isAdmin &&
+          <div><Link to="/categorize">
+            <button>Category Editor</button>
+          </Link></div>}
         </div>
+        }
       </div>
     );
   }

@@ -16,6 +16,8 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
                           BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 import traceback
+import inspect
+import time
 
 import grpc
 import people_pb2
@@ -72,12 +74,44 @@ category_metadata = mongo_db.categorymetadata
 exam_metadata = mongo_db.exammetadata
 
 
+def get_argument_value(argument, func, args, kwargs):
+    """
+    Figure out the value of the given argument for a method call.
+    :param argument: the name of the argument
+    :param func: the function object
+    :param args: the arguments of the call
+    :param kwargs: the keyword arguments of the call
+    :return: the value of the argument or None if not found
+    """
+    if argument in kwargs:
+        return kwargs[argument]
+    for i, param in enumerate(inspect.signature(func).parameters):
+        if param.name == argument:
+            return args[i]
+    return None
+
+
 def require_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         username = auth.username()
         if not has_admin_rights(username):
             return not_allowed()
+        return f(*args, **kwargs)
+
+    return wrapper
+
+def require_exam_admin(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        username = auth.username()
+        filename = get_argument_value("filename", f, args, kwargs)
+        if not filename:
+            if not has_admin_rights(username):
+                return not_allowed()
+        else:
+            if not has_admin_rights_for_exam(username, filename):
+                return not_allowed()
         return f(*args, **kwargs)
 
     return wrapper
@@ -173,15 +207,86 @@ def get_real_name(username):
         return username
 
 
+admin_cache = {}
+admin_cache_last_update = 0
+
 def has_admin_rights(username):
+    """
+    Check whether the given user should have global admin rights.
+    :param username: the user to check
+    :return: True iff the user has global admin rights
+    """
+    global admin_cache, admin_cache_last_update
+    if time.time() - admin_cache_last_update > 60:
+        admin_cache = {}
+    if username in admin_cache:
+        return admin_cache[username]
     try:
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisPerson(req, metadata=people_metadata)
     except grpc.RpcError as e:
         print("RPC error while checking admin rights", e)
         return False
-    return any(("vorstand" == group or "cit" == group or "cat" == group)
+    res = any(("vorstand" == group or "cit" == group or "cat" == group)
                for group in res.vis_groups)
+    admin_cache[username] = res
+    return res
+
+
+def has_admin_rights_for_any_category(username):
+    """
+    Check whether the given user has admin rights for some category.
+    :param username: the user to check
+    :return: True iff there exists some category for which the user is admin
+    """
+    maybe_admin = category_metadata.find({
+        "admins": username
+    })
+    if maybe_admin:
+        return True
+    return False
+
+
+def has_admin_rights_for_category(username, category):
+    """
+    Check whether the given user has admin rights in the given category
+    and its subcategories. This corresponds to checking whether the user
+    is in the list of admins of the category or one of its parent categories.
+    :param username: the user to check
+    :param category: the category for which to check
+    :return: True iff the user has category admin rights
+    """
+    if has_admin_rights(username):
+        return True
+
+    def check(cat):
+        admins = category_metadata.find_one({
+            "category": cat
+        }, {
+            "admins": 1
+        })["admins"]
+        if username in admins:
+            return True
+
+        parts = cat.split("/")
+        if len(parts) > 1:
+            return check("/".join(parts[:-1]))
+        return False
+
+    return check(category)
+
+
+def has_admin_rights_for_exam(username, filename):
+    """
+    Check whether the given user has admin rights for the given exam.
+    :param username: the user to check
+    :param filename: the exam for which to check
+    :return: True iff the user has exam admin rights
+    """
+    category = exam_metadata.find_one({
+        "filename": filename
+    }, {"category": 1})["category"]
+    return has_admin_rights_for_category(username, category)
 
 
 @app.route("/health")
@@ -225,8 +330,12 @@ def get_user():
     """
     Returns information about the currently logged in user.
     """
+    username = auth.username()
+    admin = has_admin_rights(username)
+    admincat = has_admin_rights_for_any_category(username)
     return success(
-        adminrights=has_admin_rights(auth.username()),
+        adminrights=admin,
+        adminrightscat=admin or admincat,
         username=auth.username(),
         displayname=get_real_name(auth.username())
     )
@@ -278,7 +387,7 @@ def get_answer_section(filename, oid):
 
 @app.route("/api/exam/<filename>/newanswersection", methods=["POST"])
 @auth.login_required
-@require_admin
+@require_exam_admin
 def new_answer_section(filename):
     """
     Adds a new answersection to 'filename'.
@@ -315,7 +424,7 @@ def new_answer_section(filename):
 
 @app.route("/api/exam/<filename>/removeanswersection", methods=["POST"])
 @auth.login_required
-@require_admin
+@require_exam_admin
 def remove_answer_section(filename):
     """
     Delete the answersection with the given oid.
@@ -557,17 +666,21 @@ def get_exam_metadata(filename):
     })
     if not metadata:
         return not_found()
+    metadata["canEdit"] = has_admin_rights_for_exam(auth.username(), filename)
     return success(value=metadata)
 
 
 @app.route("/api/exam/<filename>/metadata", methods=["POST"])
 @auth.login_required
+@require_exam_admin
 def set_exam_metadata_api(filename):
     """
     Sets the metadata for the given exam file
     POST Parameters are the values to set
     """
-    # TODO check permissions
+    if "category" in request.form:
+        if not has_admin_rights_for_category(auth.username(), request.form["category"]):
+            return not_allowed()
     set_exam_metadata(filename, request.form)
     return success()
 
@@ -603,6 +716,19 @@ def list_categories():
     return success(value=list(sorted(
         map(lambda x: x["category"], category_metadata.find({}, {"category": 1}))
     )))
+
+
+@app.route("/api/listcategories/onlyadmin")
+@auth.login_required
+def list_categories_only_admin():
+    """
+    Lists all available categories sorted by name filtered for admin permission by current user
+    """
+    username = auth.username()
+    return success(value=list(sorted(
+        filter(lambda x: has_admin_rights_for_category(username, x),
+            map(lambda x: x["category"], category_metadata.find({}, {"category": 1}))
+    ))))
 
 
 @app.route("/api/listcategories/withexams")
@@ -662,7 +788,6 @@ def add_category():
     Add a new category.
     POST Parameter 'category'
     """
-    # TODO handle categories with slashes
     category = request.form.get("category")
     if not category:
         return not_possible("Missing argument")
@@ -776,6 +901,7 @@ def get_category_metadata():
 
 @app.route("/api/category/metadata", methods=["POST"])
 @auth.login_required
+@require_admin
 def set_category_metadata_api():
     """
     Sets the metadata for the given category
@@ -785,7 +911,6 @@ def set_category_metadata_api():
     category = request.form.get("category")
     if not category:
         return not_possible("Missing argument")
-    # TODO check permissions
     set_category_metadata(category, request.form)
     return success()
 
@@ -804,7 +929,6 @@ def set_category_metadata(category, metadata):
 
 @app.route("/api/uploadpdf", methods=['POST'])
 @auth.login_required
-@require_admin
 def uploadpdf():
     """
     Allows uploading a new pdf.
@@ -824,6 +948,9 @@ def uploadpdf():
     maybe_category = category_metadata.find_one({"category": category})
     if not maybe_category:
         return not_possible("Category does not exist")
+    username = auth.username()
+    if not has_admin_rights_for_category(username, category):
+        return not_possible("No permission for category")
     secure_filename = make_secure_filename(filename)
     if is_pdf_in_minio(secure_filename):
         return not_possible("File already exists")
