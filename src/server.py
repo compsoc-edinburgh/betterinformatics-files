@@ -19,6 +19,7 @@ import os
 import traceback
 import inspect
 import time
+import random
 
 import grpc
 import people_pb2
@@ -37,7 +38,8 @@ app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
 
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
-ALLOWED_EXTENSIONS = set(['pdf'])
+EXAM_DIR = 'exams/'
+ALLOWED_EXTENSIONS = {'pdf'}
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
@@ -317,9 +319,14 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def is_pdf_in_minio(name):
+def is_file_in_minio(directory, name):
+    """
+    Check whether the file exists in minio
+    :param directory: directory to check
+    :param name: filename
+    """
     try:
-        minio_client.stat_object(minio_bucket, name)
+        minio_client.stat_object(minio_bucket, directory + name)
         return True
     except NoSuchKey:
         return False
@@ -348,7 +355,7 @@ def list_exams():
     """
     Returns a list of all exams
     """
-    return success(value=[obj.object_name for obj in minio_client.list_objects(minio_bucket)])
+    return success(value=[obj.object_name for obj in minio_client.list_objects(minio_bucket, EXAM_DIR)])
 
 
 @app.route("/api/exam/<filename>/cuts")
@@ -928,23 +935,33 @@ def set_category_metadata(category, metadata):
     }, {"$set": filter_dict(metadata, whitelist)})
 
 
+def generate_filename(length, dir, extension):
+    """
+    Generates a random filename
+    :param length: length of the generated filename
+    :param dir: directory to check for file existance
+    :param extension: extension of the filename
+    """
+    chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+    res = ""
+    while len(res) < length:
+        res += random.choice(chars)
+    if is_file_in_minio(dir, res + extension):
+        return generate_filename(length, dir, extension)
+    return res + extension
+
+
 @app.route("/api/uploadpdf", methods=['POST'])
 @auth.login_required
 def uploadpdf():
     """
     Allows uploading a new pdf.
     File as 'file'.
-    Optional POST Parameter 'filename' with filename to use.
     Optional POST Parameter 'displayname' with displayname to use.
     """
     file = request.files.get('file', None)
     if not file or not file.filename or not allowed_file(file.filename):
         return not_possible("No valid file found")
-    filename = request.form.get("filename", "")
-    if not filename or filename == ".pdf":
-        filename = file.filename
-    if not allowed_file(filename):
-        return not_possible("Invalid file name")
     category = request.form.get("category", "") or "default"
     maybe_category = category_metadata.find_one({"category": category})
     if not maybe_category:
@@ -952,17 +969,18 @@ def uploadpdf():
     username = auth.username()
     if not has_admin_rights_for_category(username, category):
         return not_possible("No permission for category")
-    secure_filename = make_secure_filename(filename)
-    if is_pdf_in_minio(secure_filename):
+    filename = generate_filename(32, EXAM_DIR, ".pdf")
+    if is_file_in_minio(EXAM_DIR, filename):
+        # This should not happen!
         return not_possible("File already exists")
-    displayname = request.form.get("displayname", "") or secure_filename
-    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], secure_filename)
+    displayname = request.form.get("displayname", "") or file.filename
+    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
     file.save(temp_file_path)
-    minio_client.fput_object(minio_bucket, secure_filename, temp_file_path)
+    minio_client.fput_object(minio_bucket, EXAM_DIR + filename, temp_file_path)
     os.remove(temp_file_path)
-    int_exam_metadata(secure_filename)
-    set_exam_metadata(secure_filename, {"category": category, "displayname": displayname})
-    return success(href="/exams/" + secure_filename)
+    int_exam_metadata(filename)
+    set_exam_metadata(filename, {"category": category, "displayname": displayname})
+    return success(href="/exams/" + filename)
 
 
 @app.route("/api/pdf/<filename>")
@@ -972,7 +990,7 @@ def pdf(filename):
     Get the pdf for the filename
     """
     try:
-        data = minio_client.get_object(minio_bucket, filename)
+        data = minio_client.get_object(minio_bucket, EXAM_DIR + filename)
         return send_file(data, mimetype="application/pdf")
     except NoSuchKey as n:
         return not_found()
