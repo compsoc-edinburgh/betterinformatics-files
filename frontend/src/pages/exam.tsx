@@ -1,13 +1,14 @@
 import * as React from "react";
 import {renderDocument, SectionRenderer} from "../split-render";
 import {loadSections} from "../exam-loader";
-import {Section, SectionKind, PdfSection} from "../interfaces";
+import {Section, SectionKind, PdfSection, ExamMetaData} from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
 import {debounce} from "lodash";
 import {css} from "glamor";
 import PdfSectionComp from "../components/pdf-section";
 import AnswerSectionComponent from "../components/answer-section";
 import {fetchpost} from "../fetch-utils";
+import MetaData from "../components/metadata";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -17,10 +18,17 @@ const styles = {
     margin: "auto",
   }),
   sectionsButton: css({
-    textAlign: "right",
+    display: "flex",
+    justifyContent: "flex-end",
     position: ["sticky", "-webkit-sticky"],
     top: "20px"
   }),
+  legacySolution: css({
+    background: "#cccccc",
+    marginTop: "10px",
+    padding: "5px 10px",
+    textAlign: "center",
+  })
 };
 
 interface Props {
@@ -32,10 +40,10 @@ interface State {
   renderer?: SectionRenderer;
   width: number;
   dpr: number;
-  displayname: string;
   canEdit: boolean;
   sections?: Section[];
   addingSectionsActive: boolean;
+  savedMetaData: ExamMetaData;
 }
 
 function widthFromWindow(): number {
@@ -49,8 +57,14 @@ export default class Exam extends React.Component<Props, State> {
     width: widthFromWindow(),
     dpr: window.devicePixelRatio,
     addingSectionsActive: false,
-    displayname: this.props.filename,
     canEdit: false,
+    savedMetaData: {
+      canEdit: false,
+      filename: "",
+      category: "",
+      displayname: "",
+      legacy_solution: "",
+    },
   };
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
@@ -64,8 +78,8 @@ export default class Exam extends React.Component<Props, State> {
       .then((res) => res.json())
       .then((res) => {
         this.setState({
-          displayname: res.value.displayname,
           canEdit: res.value.canEdit,
+          savedMetaData: res.value,
         });
         this.setDocumentTitle();
       });
@@ -85,8 +99,8 @@ export default class Exam extends React.Component<Props, State> {
     }
   }
 
-  async setDocumentTitle() {
-    document.title = "VIS Community Solutions: " + this.state.displayname;
+  setDocumentTitle() {
+    document.title = this.state.savedMetaData.displayname + " - VIS Community Solutions";
   }
 
   async componentDidMount() {
@@ -160,6 +174,13 @@ export default class Exam extends React.Component<Props, State> {
     });
   };
 
+  metaDataChanged = (newMetaData: ExamMetaData) => {
+    this.setState({
+      savedMetaData: newMetaData
+    });
+    this.setDocumentTitle();
+  };
+
   render() {
     const {renderer, width, dpr, sections} = this.state;
     if (!renderer || !sections) {
@@ -169,8 +190,15 @@ export default class Exam extends React.Component<Props, State> {
       <div>
         {this.state.canEdit &&
         <div {...styles.sectionsButton}>
-          <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable adding cuts" || "Enable adding cuts"}</button>
+          <div>
+            <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData} onChange={this.metaDataChanged} />
+          </div>
+          <div><button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable adding cuts" || "Enable adding cuts"}</button></div>
         </div>}
+        {this.state.savedMetaData.legacy_solution &&
+          <div {...styles.legacySolution}>
+            <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
+          </div>}
         <div style={{width: width}} {...styles.wrapper}>
           {sections.map(e => {
             switch (e.kind) {

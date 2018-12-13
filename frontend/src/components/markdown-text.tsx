@@ -16,7 +16,10 @@ const styles = {
     paddingTop: "2px",
     paddingBottom: "2px",
     paddingLeft: "20px",
-    paddingRight: "20px"
+    paddingRight: "20px",
+    "& img": css({
+      maxWidth: "100%",
+    }),
   }),
 };
 
@@ -33,6 +36,13 @@ export default ({value, background}: Props) => {
   return <div {...styles.wrapper} {...css({background: background || "#ffdfb4"})}>
     <ReactMarkdown
       source={value}
+      transformImageUri={(uri) => {
+        if (uri.includes("/")) {
+          return uri;
+        } else {
+          return "/api/img/" + uri;
+        }
+      }}
       plugins={[RemarkMathPlugin]}
       // tslint:disable-next-line: no-any
       renderers={renderers as any}

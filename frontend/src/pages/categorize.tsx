@@ -111,7 +111,7 @@ export default class Categorize extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    document.title = "VIS Community Solutions: Category Editor";
+    document.title = "Category Editor - VIS Community Solutions";
   }
 
   updateCategories = async () => {

@@ -5,7 +5,6 @@ import AutocompleteInput from '../components/autocomplete-input';
 
 interface State {
   file: Blob;
-  fileName: string;
   displayName: string;
   category: string;
   categories: string[];
@@ -17,7 +16,6 @@ export default class UploadPDF extends React.Component<{}, State> {
 
   state: State = {
     file: new Blob(),
-    fileName: "",
     displayName: "",
     category: "",
     categories: []
@@ -32,7 +30,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   }
 
   async componentDidMount() {
-    document.title = "VIS Community Solutions: Upload Exam";
+    document.title = "Upload Exam - VIS Community Solutions";
   }
 
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {
@@ -40,7 +38,6 @@ export default class UploadPDF extends React.Component<{}, State> {
 
     fetchpost('/api/uploadpdf', {
       file: this.state.file,
-      filename: this.state.fileName + ".pdf",
       displayname: this.state.displayName,
       category: this.state.category
     })
@@ -61,12 +58,6 @@ export default class UploadPDF extends React.Component<{}, State> {
         file: ev.target.files[0]
       });
     }
-  };
-
-  handleFileNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      fileName: ev.target.value
-    });
   };
 
   handleDisplayNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,8 +81,6 @@ export default class UploadPDF extends React.Component<{}, State> {
           {this.state.error && <p>{this.state.error}</p>}
           <form onSubmit={this.handleUpload}>
             <input onChange={this.handleFileChange} type="file" accept="application/pdf"/>
-            <input onChange={this.handleFileNameChange} value={this.state.fileName} type="text"
-                   placeholder="filename..."/>
             <input onChange={this.handleDisplayNameChange} value={this.state.displayName} type="text"
                    placeholder="displayname..." required/>
             <AutocompleteInput name="category" onChange={this.handleCategoryChange} value={this.state.category}
