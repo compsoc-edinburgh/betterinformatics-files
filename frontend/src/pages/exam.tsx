@@ -197,7 +197,7 @@ export default class Exam extends React.Component<Props, State> {
         </div>}
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.legacySolution}>
-            <a href={this.state.savedMetaData.legacy_solution}>Legacy Solution in VISki</a>
+            <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
           </div>}
         <div style={{width: width}} {...styles.wrapper}>
           {sections.map(e => {
