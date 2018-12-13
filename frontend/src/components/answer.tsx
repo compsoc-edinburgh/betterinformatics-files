@@ -5,6 +5,7 @@ import Comment from "./comment";
 import {css} from "glamor";
 import MarkdownText from "./markdown-text";
 import {fetchpost} from '../fetch-utils'
+import ImageOverlay from "./image-overlay";
 
 interface Props {
   filename: string;
@@ -15,6 +16,8 @@ interface Props {
 
 interface State {
   editing: boolean;
+  imageDialog: boolean;
+  imageCursorPosition: number;
   text: string;
   savedText: string;
   commentDraft: string;
@@ -108,6 +111,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
 
   state: State = {
     editing: this.props.answer.text.length === 0,
+    imageDialog: false,
+    imageCursorPosition: -1,
     savedText: this.props.answer.text,
     text: this.props.answer.text,
     commentDraft: ""
@@ -144,15 +149,48 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   startEdit = async () => {
-    this.setState({editing: true});
+    this.setState({
+      editing: true,
+      imageCursorPosition: -1,
+    });
+  };
+
+  startImageDialog = () => {
+    this.setState({imageDialog: true});
+  };
+
+  endImageDialog = (image: string) => {
+    if (image.length > 0) {
+      const imageTag = `![Image Description](${image})`;
+      this.setState(prevState => {
+        let newText = prevState.text;
+        if (prevState.imageCursorPosition < 0) {
+          newText += imageTag;
+        } else {
+          newText = newText.slice(0, prevState.imageCursorPosition) + imageTag + newText.slice(prevState.imageCursorPosition);
+        }
+        return {
+          imageDialog: false,
+          text: newText,
+        }
+      })
+    } else {
+      this.setState({imageDialog: false});
+    }
   };
 
   answerTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
-    this.setState({text: event.currentTarget.value});
+    this.setState({
+      text: event.currentTarget.value,
+      imageCursorPosition: event.currentTarget.selectionStart,
+    });
   };
 
   commentTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
-    this.setState({commentDraft: event.currentTarget.value});
+    this.setState({
+      commentDraft: event.currentTarget.value,
+      imageCursorPosition: -1,
+    });
   };
 
   toggleAnswerUpvote = async () => {
@@ -190,17 +228,20 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div {...styles.answer}><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div {...styles.answerInput}>
-            <textarea {...styles.textareaInput} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
+            <textarea {...styles.textareaInput} onKeyUp={this.answerTextareaChange} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
           </div>
           <div {...styles.answerTexHint}>
             You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.
           </div>
         </div>}
         <div {...styles.threebuttons}>
-          <div {...styles.leftButton} />
+          <div {...styles.leftButton}>
+            {this.state.editing && !this.state.imageDialog && <button onClick={this.startImageDialog}>Images</button>}
+          </div>
           <div>{this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}</div>
           <div {...styles.rightButton}>{this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}</div>
         </div>
+        {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
         <div {...styles.comments}>{answer.comments.map(e =>
           <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
         )}</div>

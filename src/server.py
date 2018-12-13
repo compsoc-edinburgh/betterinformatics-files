@@ -39,7 +39,15 @@ auth = HTTPBasicAuth()
 
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 EXAM_DIR = 'exams/'
-ALLOWED_EXTENSIONS = {'pdf'}
+IMAGE_DIR = 'imgs/'
+EXAM_ALLOWED_EXTENSIONS = {'pdf'}
+IMAGE_ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'svg'}
+IMAGE_MIME_TYPES = {
+    'jpg': "image/jpeg",
+    'jpeg': "image/jpeg",
+    'png': "image/png",
+    'svg': "image/svg+xml",
+}
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
@@ -75,6 +83,7 @@ answer_sections = mongo_db.answersections
 exam_categories = mongo_db.examcategories
 category_metadata = mongo_db.categorymetadata
 exam_metadata = mongo_db.exammetadata
+image_metadata = mongo_db.imagemetadata
 
 
 def get_argument_value(argument, func, args, kwargs):
@@ -103,6 +112,7 @@ def require_admin(f):
         return f(*args, **kwargs)
 
     return wrapper
+
 
 def require_exam_admin(f):
     @wraps(f)
@@ -213,6 +223,7 @@ def get_real_name(username):
 admin_cache = {}
 admin_cache_last_update = 0
 
+
 def has_admin_rights(username):
     """
     Check whether the given user should have global admin rights.
@@ -314,9 +325,14 @@ def favicon():
     return send_from_directory('.', 'favicon.ico')
 
 
-def allowed_file(filename):
+def allowed_exam_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in EXAM_ALLOWED_EXTENSIONS
+
+
+def allowed_img_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in IMAGE_ALLOWED_EXTENSIONS
 
 
 def is_file_in_minio(directory, name):
@@ -347,6 +363,11 @@ def get_user():
         username=auth.username(),
         displayname=get_real_name(auth.username())
     )
+
+
+########################################################################################################################
+# EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS # EXAMS#
+########################################################################################################################
 
 
 @app.route("/api/listexams")
@@ -693,7 +714,7 @@ def set_exam_metadata_api(filename):
     return success()
 
 
-def int_exam_metadata(filename):
+def init_exam_metadata(filename):
     """
     Inserts new metadata for the given exam file
     :param filename: filename of the exam
@@ -716,6 +737,10 @@ def set_exam_metadata(filename, metadata):
             "filename": filename
         }, {"$set": filtered})
 
+
+########################################################################################################################
+# CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # #
+########################################################################################################################
 
 @app.route("/api/listcategories")
 @auth.login_required
@@ -939,19 +964,119 @@ def set_category_metadata(category, metadata):
         }, {"$set": filtered})
 
 
-def generate_filename(length, dir, extension):
+########################################################################################################################
+# IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # IMAGES # #
+########################################################################################################################
+
+def check_image_author(filename):
+    author = image_metadata.find_one({
+        "filename": filename
+    }, {
+        "authorId": 1
+    })
+    if not author or author["authorId"] != auth.username():
+        return False
+    return True
+
+
+@app.route("/api/image/list")
+@auth.login_required
+def list_images():
+    """
+    Lists the images for the current user
+    """
+    username = auth.username()
+    results = image_metadata.find({
+        "authorId": username
+    }, {
+        "filename": 1
+    })
+    return success(value=[x["filename"] for x in results])
+
+
+@app.route("/api/image/<filename>/remove", methods=['POST'])
+@auth.login_required
+def remove_image(filename):
+    """
+    Delete the image with the given filename
+    """
+    if not check_image_author(filename):
+        return not_allowed()
+    if image_metadata.delete_one({"filename": filename}).deleted_count > 0:
+        minio_client.remove_object(minio_bucket, IMAGE_DIR + filename)
+        return success()
+    else:
+        return not_possible("Could not delete image metadata")
+
+
+@app.route("/api/image/<filename>/metadata")
+@auth.login_required
+def get_image_metadata(filename):
+    """
+    Returns all stored metadata for the given image file
+    """
+    metadata = image_metadata.find_one({
+        "filename": filename
+    })
+    if not metadata:
+        return not_found()
+    return success(value=metadata)
+
+
+def init_image_metadata(filename):
+    """
+    Inserts new metadata for the given image file
+    :param filename: filename of the image
+    """
+    image_metadata.insert_one({
+        "filename": filename
+    })
+
+
+@app.route("/api/image/<filename>/metadata", methods=['POST'])
+@auth.login_required
+def set_image_metadata_api(filename):
+    """
+    Set the metadata for the given image file
+    POST Parameters are the values to set
+    """
+    if not check_image_author(filename):
+        return not_allowed()
+    set_image_metadata(filename, request.form)
+    return success()
+
+
+def set_image_metadata(filename, metadata):
+    """
+    Set the metadata for the given image file
+    :param filename: filename of the image
+    :param metadata: dictionary of values to set
+    """
+    whitelist = ["authorId", "displayname"]
+    filtered = filter_dict(metadata, whitelist)
+    if filtered:
+        image_metadata.update_one({
+            "filename": filename
+        }, {"$set": filtered})
+
+
+########################################################################################################################
+# FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES # FILES#
+########################################################################################################################
+
+def generate_filename(length, directory, extension):
     """
     Generates a random filename
     :param length: length of the generated filename
-    :param dir: directory to check for file existance
+    :param directory: directory to check for file existance
     :param extension: extension of the filename
     """
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"
     res = ""
     while len(res) < length:
         res += random.choice(chars)
-    if is_file_in_minio(dir, res + extension):
-        return generate_filename(length, dir, extension)
+    if is_file_in_minio(directory, res + extension):
+        return generate_filename(length, directory, extension)
     return res + extension
 
 
@@ -964,7 +1089,7 @@ def uploadpdf():
     Optional POST Parameter 'displayname' with displayname to use.
     """
     file = request.files.get('file', None)
-    if not file or not file.filename or not allowed_file(file.filename):
+    if not file or not file.filename or not allowed_exam_file(file.filename):
         return not_possible("No valid file found")
     category = request.form.get("category", "") or "default"
     maybe_category = category_metadata.find_one({"category": category})
@@ -982,9 +1107,30 @@ def uploadpdf():
     file.save(temp_file_path)
     minio_client.fput_object(minio_bucket, EXAM_DIR + filename, temp_file_path)
     os.remove(temp_file_path)
-    int_exam_metadata(filename)
+    init_exam_metadata(filename)
     set_exam_metadata(filename, {"category": category, "displayname": displayname})
     return success(href="/exams/" + filename)
+
+
+@app.route("/api/uploadimg", methods=['POST'])
+@auth.login_required
+def uploadimg():
+    """
+    Allows uploading an image.
+    """
+    file = request.files.get('file', None)
+    if not file or not file.filename or not allowed_img_file(file.filename):
+        return not_possible("No valid file found")
+    filename = generate_filename(32, IMAGE_DIR, "." + file.filename.split(".")[-1])
+    if is_file_in_minio(EXAM_DIR, filename):
+        # This should not happen!
+        return not_possible("File already exists")
+    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
+    file.save(temp_file_path)
+    minio_client.fput_object(minio_bucket, IMAGE_DIR + filename, temp_file_path)
+    init_image_metadata(filename)
+    set_image_metadata(filename, {"authorId": auth.username(), "displayname": file.filename})
+    return success(filename=filename)
 
 
 @app.route("/api/pdf/<filename>")
@@ -996,6 +1142,19 @@ def pdf(filename):
     try:
         data = minio_client.get_object(minio_bucket, EXAM_DIR + filename)
         return send_file(data, mimetype="application/pdf")
+    except NoSuchKey as n:
+        return not_found()
+
+
+@app.route("/api/img/<filename>")
+@auth.login_required
+def image(filename):
+    """
+    Get the image for the filename
+    """
+    try:
+        data = minio_client.get_object(minio_bucket, IMAGE_DIR + filename)
+        return send_file(data, IMAGE_MIME_TYPES[filename.split(".")[-1]])
     except NoSuchKey as n:
         return not_found()
 
