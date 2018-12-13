@@ -62,3 +62,11 @@ export interface Category {
   exams: Exam[]; // Exams belonging to category
   childCategories?: Category[]; // Categories which are children of this category in category tree
 }
+
+export interface ExamMetaData {
+  canEdit: boolean;
+  filename: string;
+  displayname: string;
+  category: string;
+  legacy_solution: string;
+}

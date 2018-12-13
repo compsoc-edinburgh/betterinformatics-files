@@ -709,10 +709,12 @@ def set_exam_metadata(filename, metadata):
     :param filename: filename of the exam
     :param metadata: dictionary of values to set
     """
-    whitelist = ["displayname", "category"]
-    exam_metadata.update_one({
-        "filename": filename
-    }, {"$set": filter_dict(metadata, whitelist)})
+    whitelist = ["displayname", "category", "legacy_solution"]
+    filtered = filter_dict(metadata, whitelist)
+    if filtered:
+        exam_metadata.update_one({
+            "filename": filename
+        }, {"$set": filtered})
 
 
 @app.route("/api/listcategories")
@@ -930,9 +932,11 @@ def set_category_metadata(category, metadata):
     :param metadata: dictionary of values to set
     """
     whitelist = ["admins"]
-    category_metadata.update_one({
-        "category": category.lower()
-    }, {"$set": filter_dict(metadata, whitelist)})
+    filtered = filter_dict(metadata, whitelist)
+    if filtered:
+        category_metadata.update_one({
+            "category": category.lower()
+        }, {"$set": filtered})
 
 
 def generate_filename(length, dir, extension):
