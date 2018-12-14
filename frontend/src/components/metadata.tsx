@@ -70,7 +70,7 @@ export default class MetaData extends React.Component<Props, State> {
         <button onClick={this.saveEdit}>Save</button> <button onClick={this.cancelEdit}>Cancel</button>
       </div>);
     } else {
-      return (<div {...styles.wrapper}><button onClick={this.startEdit}>Edit Meta Data</button></div>);
+      return (<div {...styles.wrapper}><button onClick={this.startEdit}>Edit Metadata</button></div>);
     }
   }
 }

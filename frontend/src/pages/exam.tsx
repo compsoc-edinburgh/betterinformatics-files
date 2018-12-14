@@ -206,7 +206,7 @@ export default class Exam extends React.Component<Props, State> {
           <div>
             <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData} onChange={this.metaDataChanged} />
           </div>
-          <div><button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable adding cuts" || "Enable adding cuts"}</button></div>
+          <div><button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button></div>
         </div>}
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.legacySolution}>

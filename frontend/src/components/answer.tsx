@@ -237,8 +237,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
           </div>
         </div>
         {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
-        {answer.comments.length > 0 && <div {...styles.commentToggle} onClick={this.toggleComments}>
-          <button>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} comments</button>
+        {answer.comments.length > 0 && <div {...styles.commentToggle}>
+          <button onClick={this.toggleComments}>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} Comments</button>
         </div>}
         {this.state.commentsVisible &&
         <div {...styles.comments}>
