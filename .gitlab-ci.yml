@@ -1,7 +1,7 @@
 variables:
   VIS_CI_IMAGE_NAME: "cit_cat/vis-examsolutionexchange"
   VIS_CI_APP_NAME: "vis-exam-solution-exchange"
-  VIS_CI_DEPLOYMENT_SUBDOMAIN: "communitysolution"
+  VIS_CI_DEPLOYMENT_SUBDOMAIN: "exams"
   VIS_CI_ENABLE_MONGODB: "true"
   VIS_CI_ENABLE_MINIO: "true"
   VIS_CI_LIVENESS_PROBE_PATH: "/health"
