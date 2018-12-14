@@ -848,6 +848,8 @@ def remove_category():
     category = request.form.get("category")
     if not category:
         return not_possible("Missing argument")
+    if category == "default":
+        return not_possible("Can not delete default category")
     exams = getCategoryExams(category)
     for exam in exams:
         set_exam_metadata(exam["filename"], {"category": "default"})
@@ -1143,6 +1145,10 @@ def pdf(filename):
         data = minio_client.get_object(minio_bucket, EXAM_DIR + filename)
         return send_file(data, mimetype="application/pdf")
     except NoSuchKey as n:
+        # move objects still in the root to the correct folder
+        if is_file_in_minio("", filename):
+            minio_client.copy_object(minio_bucket, EXAM_DIR + filename, filename)
+            minio_client.remove_object(minio_bucket, filename)
         return not_found()
 
 
