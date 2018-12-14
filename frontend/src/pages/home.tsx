@@ -44,7 +44,7 @@ export default class Home extends React.Component<Props> {
         <div {...styles.admin}>
           <h1>Admin</h1>
           <div><Link to="/uploadpdf">
-            <button>Upload new exam</button>
+            <button>Upload New Exam</button>
           </Link></div>
           {this.props.isAdmin &&
           <div><Link to="/categorize">
