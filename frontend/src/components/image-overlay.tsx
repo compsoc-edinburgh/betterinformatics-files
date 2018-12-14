@@ -48,6 +48,10 @@ const styles = {
     height: "100%",
     marginTop: "20px",
   }),
+  imageWrapper: css({
+    width: "138px",
+    height: "138px",
+  }),
   imageSelected: css({
     background: "#aabbcc",
   }),
@@ -151,7 +155,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
           </div>
           <div {...styles.images}>
             {this.state.images.map(img =>
-                <div key={img} onClick={() => this.onImageClick(img)} {...(img === this.state.selected ? styles.imageSelected : undefined)}>
+                <div key={img} onClick={() => this.onImageClick(img)} {...styles.imageWrapper} {...(img === this.state.selected ? styles.imageSelected : undefined)}>
                   <img {...styles.imageSmall} key={img} src={"/api/img/" + img} />
                 </div>)}
           </div>

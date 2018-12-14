@@ -4,11 +4,13 @@ import * as moment from 'moment';
 import {css} from "glamor";
 import MarkdownText from "./markdown-text";
 import {fetchpost} from "../fetch-utils";
+import ImageOverlay from "./image-overlay";
 
 interface Props {
   filename: string;
   sectionId: string;
   answerId: string;
+  isNewComment?: boolean;
   comment: Comment;
   onSectionChanged: (res: {value: {answersection: AnswerSection}}) => void;
 }
@@ -17,6 +19,8 @@ interface State {
   editing: boolean;
   text: string;
   savedText: string;
+  imageDialog: boolean;
+  imageCursorPosition: number;
 }
 
 const styles = {
@@ -53,9 +57,11 @@ const styles = {
 export default class CommentComponent extends React.Component<Props, State> {
 
   state: State = {
-    editing: false,
+    editing: !!this.props.isNewComment,
     savedText: this.props.comment.text,
-    text: this.props.comment.text
+    text: this.props.comment.text,
+    imageDialog: false,
+    imageCursorPosition: -1,
   };
 
   removeComment = async () => {
@@ -81,19 +87,60 @@ export default class CommentComponent extends React.Component<Props, State> {
   };
 
   saveComment = async () => {
-    fetchpost(`/api/exam/${this.props.filename}/setcomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid, text: this.state.text})
-      .then((res) => res.json())
-      .then((res) => {
-        this.setState(prevState => ({
-          editing: false,
-          savedText: prevState.text
-        }));
-        this.props.onSectionChanged(res);
-      });
+    if (this.props.isNewComment) {
+      fetchpost(`/api/exam/${this.props.filename}/addcomment/${this.props.sectionId}/${this.props.answerId}`, {
+        text: this.state.text
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          this.setState({text: ""});
+          this.props.onSectionChanged(res);
+        });
+    } else {
+      fetchpost(`/api/exam/${this.props.filename}/setcomment/${this.props.sectionId}/${this.props.answerId}`, {
+        commentoid: this.props.comment.oid,
+        text: this.state.text
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          this.setState(prevState => ({
+            editing: false,
+            savedText: prevState.text
+          }));
+          this.props.onSectionChanged(res);
+        });
+    }
   };
 
   commentTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
-    this.setState({text: event.currentTarget.value});
+    this.setState({
+      text: event.currentTarget.value,
+      imageCursorPosition: event.currentTarget.selectionStart,
+    });
+  };
+
+  startImageDialog = () => {
+    this.setState({imageDialog: true});
+  };
+
+  endImageDialog = (image: string) => {
+    if (image.length > 0) {
+      const imageTag = `![Image Description](${image})`;
+      this.setState(prevState => {
+        let newText = prevState.text;
+        if (prevState.imageCursorPosition < 0) {
+          newText += imageTag;
+        } else {
+          newText = newText.slice(0, prevState.imageCursorPosition) + imageTag + newText.slice(prevState.imageCursorPosition);
+        }
+        return {
+          imageDialog: false,
+          text: newText,
+        }
+      })
+    } else {
+      this.setState({imageDialog: false});
+    }
   };
 
   render() {
@@ -101,17 +148,20 @@ export default class CommentComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.header}>
-          <b>{comment.authorDisplayName}</b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
+          {this.props.isNewComment && <b>Add comment</b>}
+          {!this.props.isNewComment && <span><b>{comment.authorDisplayName}</b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</span>}
         </div>
         <div><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div>
-            <textarea {...styles.textareaInput} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
+            <textarea {...styles.textareaInput} onKeyUp={this.commentTextareaChange} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
           </div>
           <div {...styles.threebuttons}>
-            <div {...styles.leftButton}/>
+            <div {...styles.leftButton}>
+              {this.state.editing && <button onClick={this.startImageDialog}>Images</button>}
+            </div>
             <div><button onClick={this.saveComment}>Save Comment</button></div>
-            <div {...styles.rightButton}><button onClick={this.cancelEdit}>Cancel</button></div>
+            <div {...styles.rightButton}>{!this.props.isNewComment && <button onClick={this.cancelEdit}>Cancel</button>}</div>
           </div>
         </div>}
         {comment.canEdit && !this.state.editing && <div {...styles.threebuttons}>
@@ -119,6 +169,7 @@ export default class CommentComponent extends React.Component<Props, State> {
           <div><button onClick={this.startEdit}>Edit Comment</button></div>
           <div {...styles.rightButton}><button onClick={this.removeComment}>Delete Comment</button></div>
         </div>}
+        {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
       </div>
     );
   }
