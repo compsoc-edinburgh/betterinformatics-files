@@ -59,7 +59,8 @@ export default class AnswerSectionComponent extends React.Component<Props, State
 
   async componentWillMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
-      .then((res) => this.setState({section: res, hidden: res.answers.length > 0}));
+      .then((res) => this.setState({section: res, hidden: res.answers.length > 0}))
+      .catch(() => undefined);
   }
 
   removeSection = async () => {
@@ -77,7 +78,8 @@ export default class AnswerSectionComponent extends React.Component<Props, State
       .then((res) => res.json())
       .then((res) => {
         this.onSectionChanged(res);
-      });
+      })
+      .catch(() => undefined);
   };
 
   // takes the parsed json for the answersection which was returned from the server

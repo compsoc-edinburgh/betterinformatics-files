@@ -87,18 +87,22 @@ interface State {
   rootCategories?: Category[];
   filter: string;
   openCategory: string;
+  error: boolean;
 }
 
 export default class ExamList extends React.Component<{}, State> {
 
-  state: State = {filter: "", openCategory: ""};
+  state: State = {filter: "", openCategory: "", error: false};
 
   async componentWillMount() {
     fetch('/api/listcategories/withexams')
       .then(res => res.json())
       .then(res => this.setState({
         rootCategories: buildCategoryTree(res.value)
-      }));
+      }))
+      .catch(() => {
+        this.setState({error: true});
+      });
   }
 
   arrLast = (arr: string[]) => arr[arr.length - 1];
@@ -157,6 +161,9 @@ export default class ExamList extends React.Component<{}, State> {
   };
 
   render() {
+    if (this.state.error) {
+      return <div>Could not load exams...</div>;
+    }
     const categories = this.state.rootCategories;
     if (!categories) {
       return (<p>Loading exam list...</p>);

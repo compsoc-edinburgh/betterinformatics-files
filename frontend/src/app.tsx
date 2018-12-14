@@ -94,7 +94,8 @@ export default class App extends React.Component<{}, State> {
         displayname: res.displayname,
         isAdmin: res.adminrights,
         isCategoryAdmin: res.adminrightscat,
-      }));
+      }))
+      .catch(()=>undefined);
   }
 
   render() {

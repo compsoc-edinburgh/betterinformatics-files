@@ -26,7 +26,10 @@ export default class UploadPDF extends React.Component<{}, State> {
       .then(res => res.json())
       .then(res => this.setState({
         categories: res.value
-      }));
+      }))
+      .catch((e)=>{
+        this.setState({error: e.toString()});
+      });
   }
 
   async componentDidMount() {

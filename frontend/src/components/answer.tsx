@@ -123,7 +123,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
         .then((res) => res.json())
         .then((res) => {
           this.props.onSectionChanged(res);
-        });
+        })
+        .catch(() => undefined);
     }
   };
 
@@ -131,12 +132,13 @@ export default class AnswerComponent extends React.Component<Props, State> {
     fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, {text: this.state.text})
       .then((res) => res.json())
       .then((res) => {
-      this.setState(prevState => ({
-        editing: false,
-        savedText: prevState.text
-      }));
-      this.props.onSectionChanged(res);
-    });
+        this.setState(prevState => ({
+          editing: false,
+          savedText: prevState.text
+        }));
+        this.props.onSectionChanged(res);
+      })
+      .catch(() => undefined);
   };
 
   cancelEdit = async () => {
@@ -189,7 +191,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
       .then((res) => res.json())
       .then((res) => {
         this.props.onSectionChanged(res);
-      });
+      })
+      .catch(() => undefined);
   };
 
   toggleComments = () => {
