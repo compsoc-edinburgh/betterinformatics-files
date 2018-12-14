@@ -71,7 +71,8 @@ export default class CommentComponent extends React.Component<Props, State> {
         .then((res) => res.json())
         .then((res) => {
           this.props.onSectionChanged(res);
-        });
+        })
+        .catch(() => undefined);
     }
   };
 
@@ -95,7 +96,8 @@ export default class CommentComponent extends React.Component<Props, State> {
         .then((res) => {
           this.setState({text: ""});
           this.props.onSectionChanged(res);
-        });
+        })
+        .catch(() => undefined);
     } else {
       fetchpost(`/api/exam/${this.props.filename}/setcomment/${this.props.sectionId}/${this.props.answerId}`, {
         commentoid: this.props.comment.oid,
@@ -108,7 +110,8 @@ export default class CommentComponent extends React.Component<Props, State> {
             savedText: prevState.text
           }));
           this.props.onSectionChanged(res);
-        });
+        })
+        .catch(() => undefined);
     }
   };
 

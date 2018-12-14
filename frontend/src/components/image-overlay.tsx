@@ -85,6 +85,7 @@ interface State {
   images: string[];
   file?: Blob;
   selected: string;
+  error?: string;
 }
 
 export default class ImageOverlay extends React.Component<Props, State> {
@@ -106,7 +107,10 @@ export default class ImageOverlay extends React.Component<Props, State> {
         .then(res => {
           res.value.reverse();
           this.setState({images: res.value})
-        });
+        })
+      .catch((e) => {
+        this.setState({error: e.toString()});
+      });
   };
 
   cancelDialog = () => {
@@ -127,17 +131,18 @@ export default class ImageOverlay extends React.Component<Props, State> {
     fetchpost('/api/uploadimg', {
       file: this.state.file
     })
-        .then(res => res.json())
-        .then(res => {
-          this.setState({
-            selected: res.filename,
-            file: undefined,
-          });
-          if (this.fileInputRef.current) {
-            this.fileInputRef.current.value = "";
-          }
-          this.loadImages();
+      .then(res => res.json())
+      .then(res => {
+        this.setState({
+          selected: res.filename,
+          file: undefined,
         });
+        if (this.fileInputRef.current) {
+          this.fileInputRef.current.value = "";
+        }
+        this.loadImages();
+      })
+      .catch(() => undefined);
   };
 
   handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,6 +166,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
         .then(() => {
           this.loadImages();
         })
+        .catch(() => undefined);
     }
   };
 
@@ -178,6 +184,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
               <button type="submit">Upload</button>
             </form>
           </div>
+          {this.state.error && <div>{this.state.error}</div>}
           <div {...styles.images}>
             {this.state.images.map(img =>
                 <div key={img} onClick={() => this.onImageClick(img)} {...styles.imageWrapper} {...(img === this.state.selected ? styles.imageSelected : undefined)}>

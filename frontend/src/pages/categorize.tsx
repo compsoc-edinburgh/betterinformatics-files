@@ -126,7 +126,8 @@ export default class Categorize extends React.Component<Props, State> {
             rootCategories: categoryTree
           }
         })
-      });
+      })
+      .catch(()=>undefined);
   };
 
   updateAdmins = async () => {
@@ -141,6 +142,7 @@ export default class Categorize extends React.Component<Props, State> {
           categoryAdmins: newadmins
         });
       })
+      .catch(()=>undefined);
   };
 
   arrLast = (arr: Category[]) => arr[arr.length - 1];
@@ -169,14 +171,16 @@ export default class Categorize extends React.Component<Props, State> {
         this.setState({
           newCategoryName: ""
         });
-      });
+      })
+      .catch(()=>undefined);
   };
 
   removeCategory = async (category: Category) => {
     fetchpost('/api/category/remove', {category: category.name})
       .then(() => {
         this.updateCategories();
-      });
+      })
+      .catch(()=>undefined);
   };
 
   moveToClipboard = async (exam: Exam) => {
@@ -197,7 +201,8 @@ export default class Categorize extends React.Component<Props, State> {
           clipboard: []
         });
         this.updateCategories();
-      });
+      })
+      .catch(()=>undefined);
   };
 
   addAdmin = async () => {
@@ -210,7 +215,8 @@ export default class Categorize extends React.Component<Props, State> {
         this.setState({
           newAdminName: ""
         });
-      });
+      })
+      .catch(()=>undefined);
   };
 
   removeAdmin = async (username: string) => {
@@ -220,7 +226,8 @@ export default class Categorize extends React.Component<Props, State> {
     })
       .then(() => {
         this.updateAdmins()
-      });
+      })
+      .catch(()=>undefined);
   };
 
   onNewCategoryNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {

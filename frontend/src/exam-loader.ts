@@ -56,9 +56,13 @@ export async function loadAnswerSection(
   filename: string,
   oid: string
 ): Promise<AnswerSection> {
-  const section = await (await fetch(`/api/exam/${filename}/answersection/${oid}`)).json();
-  let answersection = section.value.answersection;
-  answersection.key = oid;
-  answersection.kind = SectionKind.Answer;
-  return answersection;
+  try {
+    const section = await (await fetch(`/api/exam/${filename}/answersection/${oid}`)).json();
+    let answersection = section.value.answersection;
+    answersection.key = oid;
+    answersection.kind = SectionKind.Answer;
+    return answersection;
+  } catch (e) {
+    return Promise.reject(e);
+  }
 }

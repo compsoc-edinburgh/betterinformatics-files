@@ -44,6 +44,7 @@ interface State {
   sections?: Section[];
   addingSectionsActive: boolean;
   savedMetaData: ExamMetaData;
+  error: boolean;
 }
 
 function widthFromWindow(): number {
@@ -65,6 +66,7 @@ export default class Exam extends React.Component<Props, State> {
       displayname: "",
       legacy_solution: "",
     },
+    error: false,
   };
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
@@ -82,6 +84,9 @@ export default class Exam extends React.Component<Props, State> {
           savedMetaData: res.value,
         });
         this.setDocumentTitle();
+      })
+      .catch(()=>{
+        this.setState({error: true});
       });
 
     // tslint:disable-next-line:no-any
@@ -94,8 +99,9 @@ export default class Exam extends React.Component<Props, State> {
         this.loadSectionsFromBackend(pdf)
       ]);
     } catch (e) {
-      // TODO implement proper error handling
-      console.log(e);
+      this.setState({
+        error: true
+      });
     }
   }
 
@@ -146,9 +152,13 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   loadSectionsFromBackend = async (pdf: pdfjs.PDFDocumentProxy) => {
-    loadSections(this.props.filename, pdf.numPages).then((sections) => {
-      this.setState({sections: sections});
-    });
+    loadSections(this.props.filename, pdf.numPages)
+      .then((sections) => {
+        this.setState({sections: sections});
+      })
+      .catch(() => {
+        this.setState({error: true});
+      });
   };
 
   addSection = async (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
@@ -182,6 +192,9 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   render() {
+    if (this.state.error) {
+      return <div>Could not load exam...</div>;
+    }
     const {renderer, width, dpr, sections} = this.state;
     if (!renderer || !sections) {
       return <div>Loading...</div>;

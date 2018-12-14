@@ -40,10 +40,12 @@ export default class MetaData extends React.Component<Props, State> {
     fetchpost(`/api/exam/${this.props.filename}/metadata`, {
       displayname: this.state.currentMetaData.displayname,
       legacy_solution: this.state.currentMetaData.legacy_solution,
-    }).then(() => {
-      this.setState({editing: false});
-      this.props.onChange(this.state.currentMetaData);
     })
+      .then(() => {
+        this.setState({editing: false});
+        this.props.onChange(this.state.currentMetaData);
+      })
+      .catch(() => undefined);
   };
 
   cancelEdit = () => {
