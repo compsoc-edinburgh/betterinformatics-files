@@ -256,7 +256,7 @@ def has_admin_rights_for_any_category(username):
     maybe_admin = category_metadata.find({
         "admins": username
     })
-    if maybe_admin:
+    if list(maybe_admin):
         return True
     return False
 

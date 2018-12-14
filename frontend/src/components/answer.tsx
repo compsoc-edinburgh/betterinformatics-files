@@ -20,6 +20,7 @@ interface State {
   imageCursorPosition: number;
   text: string;
   savedText: string;
+  commentsVisible: boolean;
 }
 
 const styles = {
@@ -98,7 +99,10 @@ const styles = {
     marginBottom: "5px",
     padding: "5px",
     boxSizing: "border-box"
-  })
+  }),
+  commentToggle: css({
+    textAlign: "center",
+  }),
 };
 
 export default class AnswerComponent extends React.Component<Props, State> {
@@ -109,6 +113,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     imageCursorPosition: -1,
     savedText: this.props.answer.text,
     text: this.props.answer.text,
+    commentsVisible: false,
   };
 
   removeAnswer = async () => {
@@ -187,6 +192,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
       });
   };
 
+  toggleComments = () => {
+    this.setState(prevState => ({
+      commentsVisible: !prevState.commentsVisible
+    }));
+  };
+
   render() {
     const {answer} = this.props;
     return (
@@ -223,6 +234,10 @@ export default class AnswerComponent extends React.Component<Props, State> {
           </div>
         </div>
         {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
+        {answer.comments.length > 0 && <div {...styles.commentToggle} onClick={this.toggleComments}>
+          <button>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} comments</button>
+        </div>}
+        {this.state.commentsVisible &&
         <div {...styles.comments}>
           {answer.comments.map(e =>
             <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId}
@@ -237,6 +252,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                    comment={{oid: "", text: "", authorId: "", authorDisplayName: "", canEdit: true, time: ""}}
                    onSectionChanged={this.props.onSectionChanged}/>}
         </div>
+        }
       </div>
     );
   }
