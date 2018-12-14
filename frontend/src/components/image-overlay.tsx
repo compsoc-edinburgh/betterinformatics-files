@@ -48,6 +48,10 @@ const styles = {
     height: "100%",
     marginTop: "20px",
   }),
+  imageWrapper: css({
+    width: "138px",
+    height: "138px",
+  }),
   imageSelected: css({
     background: "#aabbcc",
   }),
@@ -55,6 +59,14 @@ const styles = {
     maxWidth: "128px",
     maxHeight: "128px",
     margin: "5px",
+  }),
+  deleteImgWrapper: css({
+    height: "32px",
+    position: "relative",
+    top: "-133px",
+  }),
+  deleteImg: css({
+    height: "32px",
   }),
 };
 
@@ -135,6 +147,16 @@ export default class ImageOverlay extends React.Component<Props, State> {
     });
   };
 
+  removeImage = async (image: string) => {
+    const confirmation = confirm("Remove image?");
+    if (confirmation) {
+      fetchpost(`/api/image/${image}/remove`, {})
+        .then(() => {
+          this.loadImages();
+        })
+    }
+  };
+
   render() {
     return (<div {...styles.background}>
       <div {...styles.dialog}>
@@ -151,8 +173,11 @@ export default class ImageOverlay extends React.Component<Props, State> {
           </div>
           <div {...styles.images}>
             {this.state.images.map(img =>
-                <div key={img} onClick={() => this.onImageClick(img)} {...(img === this.state.selected ? styles.imageSelected : undefined)}>
-                  <img {...styles.imageSmall} key={img} src={"/api/img/" + img} />
+                <div key={img} onClick={() => this.onImageClick(img)} {...styles.imageWrapper} {...(img === this.state.selected ? styles.imageSelected : undefined)}>
+                  <img {...styles.imageSmall} key={img} src={"/api/img/" + img} alt="Image Preview" />
+                  <div {...styles.deleteImgWrapper} onClick={() => this.removeImage(img)}>
+                    <img {...styles.deleteImg} src={"/static/delete.svg"} alt="Delete"/>
+                  </div>
                 </div>)}
           </div>
         </div>

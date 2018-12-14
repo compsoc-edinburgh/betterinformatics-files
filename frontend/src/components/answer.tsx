@@ -20,7 +20,6 @@ interface State {
   imageCursorPosition: number;
   text: string;
   savedText: string;
-  commentDraft: string;
 }
 
 const styles = {
@@ -92,11 +91,6 @@ const styles = {
     marginTop: "10px",
     marginRight: "25px"
   }),
-  addComment: css({
-    marginTop: "20px",
-    marginLeft: "25px",
-    marginRight: "25px"
-  }),
   textareaInput: css({
     width: "100%",
     resize: "vertical",
@@ -115,7 +109,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
     imageCursorPosition: -1,
     savedText: this.props.answer.text,
     text: this.props.answer.text,
-    commentDraft: ""
   };
 
   removeAnswer = async () => {
@@ -186,28 +179,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
     });
   };
 
-  commentTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
-    this.setState({
-      commentDraft: event.currentTarget.value,
-      imageCursorPosition: -1,
-    });
-  };
-
   toggleAnswerUpvote = async () => {
     fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: this.props.answer.isUpvoted ? 0 : 1})
       .then((res) => res.json())
       .then((res) => {
         this.props.onSectionChanged(res);
       });
-  };
-
-  addComment = async () => {
-    fetchpost(`/api/exam/${this.props.filename}/addcomment/${this.props.sectionId}/${this.props.answer.oid}`, {text: this.state.commentDraft})
-      .then((res) => res.json())
-      .then((res) => {
-        this.props.onSectionChanged(res);
-      });
-    this.setState({commentDraft: ""});
   };
 
   render() {
@@ -236,25 +213,30 @@ export default class AnswerComponent extends React.Component<Props, State> {
         </div>}
         <div {...styles.threebuttons}>
           <div {...styles.leftButton}>
-            {this.state.editing && !this.state.imageDialog && <button onClick={this.startImageDialog}>Images</button>}
+            {this.state.editing && <button onClick={this.startImageDialog}>Images</button>}
           </div>
-          <div>{this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}</div>
-          <div {...styles.rightButton}>{this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}</div>
+          <div>
+            {this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}
+          </div>
+          <div {...styles.rightButton}>
+            {this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}
+          </div>
         </div>
         {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
-        <div {...styles.comments}>{answer.comments.map(e =>
-          <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId} answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
-        )}</div>
-        {this.state.savedText.length > 0 && <div {...styles.addComment}>
-          <div><b>Add comment</b></div>
-          <div><MarkdownText value={this.state.commentDraft} /></div>
-          <div>
-            <textarea {...styles.textareaInput} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.commentDraft} />
-          </div>
-          <div>
-            <button onClick={this.addComment} disabled={this.state.commentDraft.length === 0}>Submit Comment</button>
-          </div>
-        </div>}
+        <div {...styles.comments}>
+          {answer.comments.map(e =>
+            <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId}
+                     answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
+          )}
+
+          {this.state.savedText.length > 0 &&
+          <Comment isNewComment={true}
+                   filename={this.props.filename}
+                   sectionId={this.props.sectionId}
+                   answerId={answer.oid}
+                   comment={{oid: "", text: "", authorId: "", authorDisplayName: "", canEdit: true, time: ""}}
+                   onSectionChanged={this.props.onSectionChanged}/>}
+        </div>
       </div>
     );
   }

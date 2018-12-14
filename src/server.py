@@ -1100,7 +1100,7 @@ def uploadpdf():
     username = auth.username()
     if not has_admin_rights_for_category(username, category):
         return not_possible("No permission for category")
-    filename = generate_filename(32, EXAM_DIR, ".pdf")
+    filename = generate_filename(8, EXAM_DIR, ".pdf")
     if is_file_in_minio(EXAM_DIR, filename):
         # This should not happen!
         return not_possible("File already exists")
@@ -1123,7 +1123,7 @@ def uploadimg():
     file = request.files.get('file', None)
     if not file or not file.filename or not allowed_img_file(file.filename):
         return not_possible("No valid file found")
-    filename = generate_filename(32, IMAGE_DIR, "." + file.filename.split(".")[-1])
+    filename = generate_filename(8, IMAGE_DIR, "." + file.filename.split(".")[-1])
     if is_file_in_minio(EXAM_DIR, filename):
         # This should not happen!
         return not_possible("File already exists")
