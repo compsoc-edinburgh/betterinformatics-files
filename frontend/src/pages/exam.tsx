@@ -9,6 +9,7 @@ import PdfSectionComp from "../components/pdf-section";
 import AnswerSectionComponent from "../components/answer-section";
 import {fetchpost} from "../fetch-utils";
 import MetaData from "../components/metadata";
+import Colors from "../colors";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -19,12 +20,13 @@ const styles = {
   }),
   sectionsButton: css({
     display: "flex",
+    alignItems: "center",
     justifyContent: "flex-end",
     position: ["sticky", "-webkit-sticky"],
     top: "20px"
   }),
-  legacySolution: css({
-    background: "#cccccc",
+  linkBanner: css({
+    background: Colors.linkBannerBackground,
     marginTop: "10px",
     padding: "5px 10px",
     textAlign: "center",
@@ -65,6 +67,7 @@ export default class Exam extends React.Component<Props, State> {
       category: "",
       displayname: "",
       legacy_solution: "",
+      master_solution: "",
     },
     error: false,
   };
@@ -209,9 +212,13 @@ export default class Exam extends React.Component<Props, State> {
           <div><button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button></div>
         </div>}
         {this.state.savedMetaData.legacy_solution &&
-          <div {...styles.legacySolution}>
+          <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
           </div>}
+        {this.state.savedMetaData.master_solution &&
+        <div {...styles.linkBanner}>
+          <a href={this.state.savedMetaData.master_solution} target="_blank">Official Solution</a>
+        </div>}
         <div style={{width: width}} {...styles.wrapper}>
           {sections.map(e => {
             switch (e.kind) {

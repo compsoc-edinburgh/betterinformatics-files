@@ -59,6 +59,10 @@ const styles = {
     marginLeft: "5px",
     flexGrow: "1",
   }),
+  examDelete: css({
+    width: "70px",
+    fontWeight: "bold",
+  }),
   clipboard: css({
     width: "100%"
   }),
@@ -176,11 +180,14 @@ export default class Categorize extends React.Component<Props, State> {
   };
 
   removeCategory = async (category: Category) => {
-    fetchpost('/api/category/remove', {category: category.name})
-      .then(() => {
-        this.updateCategories();
-      })
-      .catch(()=>undefined);
+    const confirmation = confirm("Remove category?");
+    if (confirmation) {
+      fetchpost('/api/category/remove', {category: category.name})
+          .then(() => {
+            this.updateCategories();
+          })
+          .catch(() => undefined);
+    }
   };
 
   moveToClipboard = async (exam: Exam) => {
@@ -203,6 +210,22 @@ export default class Categorize extends React.Component<Props, State> {
         this.updateCategories();
       })
       .catch(()=>undefined);
+  };
+
+  removeExam = async (exam: Exam) => {
+    const confirmation = confirm("Remove exam? This can not be undone! All answers will be lost!");
+    if (confirmation) {
+      const confirmation2 = prompt("Please enter '" + exam.displayname + "' to delete the exam.");
+      if (confirmation2 === exam.displayname) {
+        fetchpost(`/api/exam/${exam.filename}/remove`, {})
+            .then(() => {
+              this.updateCategories();
+            })
+            .catch(() => undefined);
+      } else {
+        alert("Name did not match. If you really want to delete the exam, try again.");
+      }
+    }
   };
 
   addAdmin = async () => {
@@ -275,6 +298,7 @@ export default class Categorize extends React.Component<Props, State> {
               exam => <div {...styles.examEntry} key={exam.filename}>
                 <Link {...styles.examName} to={"/exams/" + exam.filename}><span>{exam.displayname}</span></Link>
                 <button onClick={() => this.moveToClipboard(exam)} title="Move exam to clipboard">&gt;&gt;</button>
+                <button {...styles.examDelete} onClick={() => this.removeExam(exam)} title="Remove exam">X</button>
               </div>
             )}
           </div>

@@ -3,6 +3,7 @@ import {Link} from "react-router-dom";
 import {css} from "glamor";
 import {buildCategoryTree, filterCategoryTree} from "../category-utils";
 import {Category} from "../interfaces";
+import Colors from "../colors";
 
 const styles = {
   wrapper: css({
@@ -11,7 +12,7 @@ const styles = {
     flexWrap: "wrap"
   }),
   category: css({
-    background: "#eeeeee",
+    background: Colors.cardBackground,
     width: "250px",
     paddingLeft: "10px",
     paddingRight: "10px",
@@ -20,7 +21,7 @@ const styles = {
     marginRight: "20px",
     marginBottom: "40px",
     borderRadius: "0px",
-    boxShadow: "0 4px 8px 0 grey"
+    boxShadow: Colors.cardShadow,
   }),
   categoryTitle: css({
     textTransform: "capitalize",
@@ -32,7 +33,7 @@ const styles = {
     cursor: "pointer",
   }),
   categoryActive: css({
-    color: "#ff6130",
+    color: Colors.activeCategory,
   }),
   filterInput: css({
     width: "100%",
@@ -83,6 +84,10 @@ const styles = {
   ]
 };
 
+interface Props {
+  hideDefaultCategory: boolean;
+}
+
 interface State {
   rootCategories?: Category[];
   filter: string;
@@ -90,15 +95,23 @@ interface State {
   error: boolean;
 }
 
-export default class ExamList extends React.Component<{}, State> {
+export default class ExamList extends React.Component<Props, State> {
 
   state: State = {filter: "", openCategory: "", error: false};
+
+  removeDefaultIfNecessary = (tree: Category[]) => {
+    if (this.props.hideDefaultCategory) {
+      return tree.filter(cat => cat.name !== "default");
+    } else {
+      return tree;
+    }
+  };
 
   async componentWillMount() {
     fetch('/api/listcategories/withexams')
       .then(res => res.json())
       .then(res => this.setState({
-        rootCategories: buildCategoryTree(res.value)
+        rootCategories: this.removeDefaultIfNecessary(buildCategoryTree(res.value))
       }))
       .catch(() => {
         this.setState({error: true});

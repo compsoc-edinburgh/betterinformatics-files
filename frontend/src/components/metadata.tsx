@@ -2,13 +2,14 @@ import * as React from "react";
 import {css} from "glamor";
 import {ExamMetaData} from "../interfaces";
 import {fetchpost} from "../fetch-utils";
+import Colors from "../colors";
 
 const styles = {
   wrapper: css({
     marginRight: "20px",
   }),
   editBackground: css({
-    background: "#394b59",
+    background: Colors.headerBackground,
   }),
 };
 
@@ -40,6 +41,7 @@ export default class MetaData extends React.Component<Props, State> {
     fetchpost(`/api/exam/${this.props.filename}/metadata`, {
       displayname: this.state.currentMetaData.displayname,
       legacy_solution: this.state.currentMetaData.legacy_solution,
+      master_solution: this.state.currentMetaData.master_solution,
     })
       .then(() => {
         this.setState({editing: false});
@@ -66,6 +68,7 @@ export default class MetaData extends React.Component<Props, State> {
     if (this.state.editing) {
       return (<div {...styles.wrapper} {...styles.editBackground}>
         <input type="text" placeholder="legacy solution" value={this.state.currentMetaData.legacy_solution} onChange={(ev) => this.valueChanged("legacy_solution", ev)}/>
+        <input type="text" placeholder="master solution" value={this.state.currentMetaData.master_solution} onChange={(ev) => this.valueChanged("master_solution", ev)}/>
         <input type="text" placeholder="display name" value={this.state.currentMetaData.displayname} onChange={(ev) => this.valueChanged("displayname", ev)}/>
         <button onClick={this.saveEdit}>Save</button> <button onClick={this.cancelEdit}>Cancel</button>
       </div>);

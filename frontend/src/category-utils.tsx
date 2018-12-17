@@ -29,6 +29,8 @@ function flattenRoots(prefix: string, roots: TempCategory): Category[] {
   return res;
 }
 
+// From the backend we get a flat list of categories.
+// Here we build the tree which is encoded in the category names.
 export function buildCategoryTree(serverCategories: Category[]): Category[] {
   let roots: TempCategory = {childs: {}, exams: []};
 

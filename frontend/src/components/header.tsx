@@ -1,6 +1,7 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
 import {css} from "glamor";
+import Colors from "../colors";
 
 interface Props {
   username?: string;
@@ -10,8 +11,8 @@ const styles = {
   wrapper: css({
     display: "flex",
     justifyContent: "space-between",
-    color: "#ffffff",
-    background: "#394b59",
+    color: Colors.headerForeground,
+    background: Colors.headerBackground,
   }),
   logotitle: css({
     display: "flex",
@@ -22,18 +23,29 @@ const styles = {
   }),
   centerVertically: css({
     display: "flex",
-    justifyContent: "center",
-    flexDirection: "column"
+    alignItems: "center",
   }),
   title: css({
     marginLeft: "25px",
     fontSize: "24px",
     "& a": {
       ":link": {
-        color: "white !important"
+        color: Colors.headerForeground
       },
       ":visited": {
-        color: "white !important"
+        color: Colors.headerForeground
+      }
+    }
+  }),
+  feedback: css({
+    display: "block",
+    marginRight: "25px",
+    "& a": {
+      ":link": {
+        color: Colors.headerForeground
+      },
+      ":visited": {
+        color: Colors.headerForeground
       }
     }
   }),
@@ -49,6 +61,9 @@ export default ({username}: Props) => (
       <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
       <div {...styles.title} {...styles.centerVertically}><Link to="/">VIS Community Solutions</Link></div>
     </div>
-    <div {...styles.centerVertically}><div {...styles.username}>{username}</div></div>
+    <div {...styles.centerVertically}>
+      <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
+      <div {...styles.username}>{username}</div>
+    </div>
   </div>
 );
