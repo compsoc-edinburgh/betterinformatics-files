@@ -739,6 +739,22 @@ def set_exam_metadata(filename, metadata):
         }, {"$set": filtered})
 
 
+@app.route("/api/exam/<filename>/remove", methods=["POST"])
+@auth.login_required
+@require_admin
+def remove_exam(filename):
+    answer_sections.delete_many({
+        "filename": filename
+    })
+    if exam_metadata.delete_one({
+        "filename": filename
+    }).deleted_count > 0:
+        minio_client.remove_object(minio_bucket, EXAM_DIR + filename)
+        return success()
+    else:
+        return not_possible("Could not delete exam metadata")
+
+
 ########################################################################################################################
 # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # #
 ########################################################################################################################
