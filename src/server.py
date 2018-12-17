@@ -84,6 +84,7 @@ exam_categories = mongo_db.examcategories
 category_metadata = mongo_db.categorymetadata
 exam_metadata = mongo_db.exammetadata
 image_metadata = mongo_db.imagemetadata
+feedback = mongo_db.feedback
 
 
 def get_argument_value(argument, func, args, kwargs):
@@ -241,7 +242,7 @@ def has_admin_rights(username):
     except grpc.RpcError as e:
         print("RPC error while checking admin rights", e)
         return False
-    res = any(("vorstand" == group or "cit" == group or "cat" == group)
+    res = any(("vorstand" == group or "cat" == group)
                for group in res.vis_groups)
     admin_cache[username] = res
     return res
@@ -1060,6 +1061,53 @@ def set_image_metadata(filename, metadata):
         image_metadata.update_one({
             "filename": filename
         }, {"$set": filtered})
+
+
+########################################################################################################################
+# FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBAC#
+########################################################################################################################
+
+@app.route("/api/feedback/submit", methods=['POST'])
+@auth.login_required
+def submit_feedback():
+    text = request.form["text"]
+    username = auth.username()
+    feedback.insert_one({
+        "_id": ObjectId(),
+        "text": text,
+        "authorId": username,
+        "authorDisplayName": get_real_name(username),
+        "time": datetime.now(timezone.utc).isoformat(),
+        "read": False,
+        "done": False,
+    })
+    return success()
+
+
+@app.route("/api/feedback/list")
+@auth.login_required
+@require_admin
+def get_feedback():
+    results = feedback.find()
+    def transform(fb):
+        fb["oid"] = fb["_id"]
+        del fb["_id"]
+        return fb
+    return success(value=[transform(res) for res in results])
+
+
+@app.route("/api/feedback/<feedbackid>/flags", methods=['POST'])
+@auth.login_required
+@require_admin
+def set_feedback_flags(feedbackid):
+    update = {}
+    for key in ["read", "done"]:
+        if key in request.form:
+            update[key] = request.form[key] != "0"
+    feedback.update_one({
+        "_id": ObjectId(feedbackid)
+    }, {"$set": update})
+    return success()
 
 
 ########################################################################################################################

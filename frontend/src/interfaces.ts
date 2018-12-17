@@ -70,3 +70,13 @@ export interface ExamMetaData {
   category: string;
   legacy_solution: string;
 }
+
+export interface FeedbackEntry {
+  oid: string;
+  text: string;
+  authorId: string;
+  authorDisplayName: string;
+  time: string;
+  read: boolean;
+  done: boolean;
+}

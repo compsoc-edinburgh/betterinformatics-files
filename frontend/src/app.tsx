@@ -6,6 +6,7 @@ import Home from "./pages/home";
 import {Route, Switch} from "react-router";
 import Header from "./components/header";
 import {css} from "glamor";
+import Feedback from "./pages/feedback";
 
 const styles = {
   everything: css({
@@ -108,6 +109,7 @@ export default class App extends React.Component<{}, State> {
               <Exam {...props} filename={props.match.params.filename}/>)}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
             <Route path="/categorize" render={(props) => (<Categorize {...props} isAdmin={this.state.isAdmin}/>)}/>
+            <Route path="/feedback" render={(props) => (<Feedback {...props} isAdmin={this.state.isAdmin}/>)} />
             <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} isCategoryAdmin={this.state.isCategoryAdmin}/>)}/>
           </Switch>
         </div>

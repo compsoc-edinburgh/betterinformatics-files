@@ -22,12 +22,23 @@ const styles = {
   }),
   centerVertically: css({
     display: "flex",
-    justifyContent: "center",
-    flexDirection: "column"
+    alignItems: "center",
   }),
   title: css({
     marginLeft: "25px",
     fontSize: "24px",
+    "& a": {
+      ":link": {
+        color: "white !important"
+      },
+      ":visited": {
+        color: "white !important"
+      }
+    }
+  }),
+  feedback: css({
+    display: "block",
+    marginRight: "25px",
     "& a": {
       ":link": {
         color: "white !important"
@@ -49,6 +60,9 @@ export default ({username}: Props) => (
       <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
       <div {...styles.title} {...styles.centerVertically}><Link to="/">VIS Community Solutions</Link></div>
     </div>
-    <div {...styles.centerVertically}><div {...styles.username}>{username}</div></div>
+    <div {...styles.centerVertically}>
+      <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
+      <div {...styles.username}>{username}</div>
+    </div>
   </div>
 );
