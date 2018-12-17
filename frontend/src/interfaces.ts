@@ -11,7 +11,8 @@ export interface AnswerSection {
   answers: Answer[];
   asker: string; // username of person who created section
   askerDisplayName: string; // display name of asker
-  allow_new_answer: boolean;
+  allow_new_answer: boolean; // whether the current user can add an answer
+  allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
 }
 
 export interface Answer {

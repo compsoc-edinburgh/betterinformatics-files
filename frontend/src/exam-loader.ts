@@ -40,7 +40,8 @@ export async function loadSections(
           answers: [],
           asker: "",
           askerDisplayName: "",
-          allow_new_answer: true
+          allow_new_answer: true,
+          allow_new_legacy_answer: false,
         });
       });
     }

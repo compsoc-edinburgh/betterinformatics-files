@@ -73,8 +73,9 @@ export default class AnswerSectionComponent extends React.Component<Props, State
     }
   };
 
-  addAnswer = async () => {
-    fetchpost(`/api/exam/${this.props.filename}/addanswer/${this.props.oid}`, {})
+  addAnswer = async (legacy: boolean) => {
+    const postdata = legacy ? {legacyuser: 1} : {};
+    fetchpost(`/api/exam/${this.props.filename}/addanswer/${this.props.oid}`, postdata)
       .then((res) => res.json())
       .then((res) => {
         this.onSectionChanged(res);
@@ -115,7 +116,14 @@ export default class AnswerSectionComponent extends React.Component<Props, State
           <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
         )}</div>}
         <div key="showhidebutton" {...styles.threebuttons}>
-          <div {...styles.leftButton}>{section.allow_new_answer && <div><button className="primary" onClick={this.addAnswer}>Add Answer</button></div>}</div>
+          <div {...styles.leftButton}>
+            {(section.allow_new_answer || section.allow_new_legacy_answer) && <div>
+              <button className="primary" title={(section.allow_new_answer && section.allow_new_legacy_answer) ? "Hold Shift to add a Legacy Answer" : undefined}
+                      onClick={(ev) => this.addAnswer(!section.allow_new_answer || (section.allow_new_legacy_answer && ev.shiftKey))}>
+                {section.allow_new_answer ? "Add Answer" : "Add Legacy Answer"}
+                </button>
+            </div>}
+          </div>
           <div><button onClick={this.toggleHidden}>Hide Answers</button></div>
           <div {...styles.rightButton}>{this.props.canDelete && <button onClick={this.removeSection}>Remove Answer Section</button>}</div>
         </div>

@@ -98,15 +98,12 @@ const styles = {
     padding: "5px",
     boxSizing: "border-box"
   }),
-  commentToggle: css({
-    textAlign: "center",
-  }),
 };
 
 export default class AnswerComponent extends React.Component<Props, State> {
 
   state: State = {
-    editing: this.props.answer.text.length === 0,
+    editing: this.props.answer.canEdit && this.props.answer.text.length === 0,
     imageDialog: false,
     imageCursorPosition: -1,
     savedText: this.props.answer.text,
@@ -117,7 +114,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   removeAnswer = async () => {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
-      fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, {})
+      fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, this.enrichPostdata({}))
         .then((res) => res.json())
         .then((res) => {
           this.props.onSectionChanged(res);
@@ -126,8 +123,16 @@ export default class AnswerComponent extends React.Component<Props, State> {
     }
   };
 
+  enrichPostdata = (postdata: object) => {
+    if (this.props.answer.authorId === '__legacy__') {
+      return {...postdata, legacyuser: 1};
+    } else {
+      return postdata;
+    }
+  };
+
   saveAnswer = async () => {
-    fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, {text: this.state.text})
+    fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, this.enrichPostdata({text: this.state.text}))
       .then((res) => res.json())
       .then((res) => {
         this.setState(prevState => ({
@@ -226,9 +231,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div {...styles.threebuttons}>
           <div {...styles.leftButton}>
             {this.state.editing && <button onClick={this.startImageDialog}>Images</button>}
-            {!this.state.editing && this.state.savedText.length > 0 && <div {...styles.commentToggle}>
-              <button onClick={this.toggleComments}>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} Comments</button>
-            </div>}
+            {!this.state.editing && this.state.savedText.length > 0 &&
+              <button onClick={this.toggleComments}>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} Comments</button>}
           </div>
           <div>
             {this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}

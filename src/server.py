@@ -148,6 +148,7 @@ def make_answer_section_response(oid):
     username = auth.username()
     section = answer_sections.find_one({"_id": oid}, {
         "_id": 1,
+        "filename": 1,
         "answersection": 1
     })
     if not section:
@@ -157,7 +158,9 @@ def make_answer_section_response(oid):
     for answer in section["answersection"]["answers"]:
         answer["oid"] = answer["_id"]
         del answer["_id"]
-        answer["canEdit"] = answer["authorId"] == auth.username()
+        answer["canEdit"] = answer["authorId"] == auth.username() or \
+                            (answer["authorId"] == '__legacy__' and
+                             has_admin_rights_for_exam(auth.username(), section["filename"]))
         answer["isUpvoted"] = auth.username() in answer["upvotes"]
         answer["upvotes"] = len(answer["upvotes"])
         for comment in answer["comments"]:
@@ -166,6 +169,7 @@ def make_answer_section_response(oid):
             comment["canEdit"] = comment["authorId"] == auth.username()
     section["answersection"]["answers"].sort(key=lambda x: -x["upvotes"])
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
+    section["answersection"]["allow_new_legacy_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == '__legacy__']) == 0
     return success(value=section)
 
 
@@ -213,12 +217,25 @@ def verify_pw(username, password):
 
 
 def get_real_name(username):
+    if username == '__legacy__':
+        return "Old VISki Solution"
     try:
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetEthPerson(req, metadata=people_metadata)
         return res.first_name + " " + res.last_name
     except grpc.RpcError as e:
         return username
+
+
+def get_username_or_legacy():
+    """
+    Checks whether the POST Parameter 'legacyuser' is set and if so, returns '__legacy__',
+    otherwise returns the real username
+    :return: username of '__legacy__'
+    """
+    if 'legacyuser' in request.form and 'legacyuser' != '0':
+        return '__legacy__'
+    return auth.username()
 
 
 admin_cache = {}
@@ -501,10 +518,11 @@ def add_answer(filename, sectionoid):
     """
     Adds an empty answer for the given section for the current user.
     This enforces that each user can only have one answer.
+    POST Parameter 'legacyuser' if the answer should be posted by the special user '__legacy__', is 0/1
     """
     answer_section_oid = ObjectId(sectionoid)
 
-    username = auth.username()
+    username = get_username_or_legacy()
     maybe_answer = answer_sections.find_one({
         "_id": answer_section_oid,
         "answersection.answers.authorId": username
@@ -536,10 +554,11 @@ def set_answer(filename, sectionoid):
     Sets the answer for the given section for the current user.
     This enforces that each user can only have one answer.
     POST Parameter 'text'.
+    POST Parameter 'legacyuser' if the answer should be posted by the special user '__legacy__', is 0/1
     """
     answer_section_oid = ObjectId(sectionoid)
 
-    username = auth.username()
+    username = get_username_or_legacy()
     text = request.form.get("text", None)
     if text is None:
         return not_possible("Missing argument")
@@ -564,10 +583,10 @@ def set_answer(filename, sectionoid):
 def remove_answer(filename, sectionoid):
     """
     Delete the answer for the current user for the section.
-    No POST Parameters
+    POST Parameter 'legacyuser' if the answer should be posted by the special user '__legacy__', is 0/1
     """
     answer_section_oid = ObjectId(sectionoid)
-    username = auth.username()
+    username = get_username_or_legacy()
     answer_sections.update_one({
         '_id': answer_section_oid
     }, {"$pull": {
