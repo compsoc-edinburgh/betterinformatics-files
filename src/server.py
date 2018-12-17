@@ -750,7 +750,7 @@ def set_exam_metadata(filename, metadata):
     :param filename: filename of the exam
     :param metadata: dictionary of values to set
     """
-    whitelist = ["displayname", "category", "legacy_solution"]
+    whitelist = ["displayname", "category", "legacy_solution", "master_solution"]
     filtered = filter_dict(metadata, whitelist)
     if filtered:
         exam_metadata.update_one({

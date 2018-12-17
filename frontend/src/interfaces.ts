@@ -70,6 +70,7 @@ export interface ExamMetaData {
   displayname: string;
   category: string;
   legacy_solution: string;
+  master_solution: string;
 }
 
 export interface FeedbackEntry {

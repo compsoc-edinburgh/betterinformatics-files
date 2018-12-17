@@ -16,7 +16,7 @@ export default class Colors {
   static readonly markdownBackground = "#ffdfb4"
   static readonly activeCategory = "#ff6130";
   static readonly activeImage = "#8cd6ff";
-  static readonly legacyLinkBackground = "#cccccc";
+  static readonly linkBannerBackground = "#cccccc";
 
   static readonly link = "#4b41ff";
   static readonly linkVisited = "#4b41ff";

@@ -25,8 +25,8 @@ const styles = {
     position: ["sticky", "-webkit-sticky"],
     top: "20px"
   }),
-  legacySolution: css({
-    background: Colors.legacyLinkBackground,
+  linkBanner: css({
+    background: Colors.linkBannerBackground,
     marginTop: "10px",
     padding: "5px 10px",
     textAlign: "center",
@@ -67,6 +67,7 @@ export default class Exam extends React.Component<Props, State> {
       category: "",
       displayname: "",
       legacy_solution: "",
+      master_solution: "",
     },
     error: false,
   };
@@ -211,9 +212,13 @@ export default class Exam extends React.Component<Props, State> {
           <div><button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button></div>
         </div>}
         {this.state.savedMetaData.legacy_solution &&
-          <div {...styles.legacySolution}>
+          <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
           </div>}
+        {this.state.savedMetaData.master_solution &&
+        <div {...styles.linkBanner}>
+          <a href={this.state.savedMetaData.master_solution} target="_blank">Official Solution</a>
+        </div>}
         <div style={{width: width}} {...styles.wrapper}>
           {sections.map(e => {
             switch (e.kind) {
