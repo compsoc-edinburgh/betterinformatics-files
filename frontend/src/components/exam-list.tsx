@@ -84,6 +84,10 @@ const styles = {
   ]
 };
 
+interface Props {
+  hideDefaultCategory: boolean;
+}
+
 interface State {
   rootCategories?: Category[];
   filter: string;
@@ -91,15 +95,23 @@ interface State {
   error: boolean;
 }
 
-export default class ExamList extends React.Component<{}, State> {
+export default class ExamList extends React.Component<Props, State> {
 
   state: State = {filter: "", openCategory: "", error: false};
+
+  removeDefaultIfNecessary = (tree: Category[]) => {
+    if (this.props.hideDefaultCategory) {
+      return tree.filter(cat => cat.name !== "default");
+    } else {
+      return tree;
+    }
+  };
 
   async componentWillMount() {
     fetch('/api/listcategories/withexams')
       .then(res => res.json())
       .then(res => this.setState({
-        rootCategories: buildCategoryTree(res.value)
+        rootCategories: this.removeDefaultIfNecessary(buildCategoryTree(res.value))
       }))
       .catch(() => {
         this.setState({error: true});

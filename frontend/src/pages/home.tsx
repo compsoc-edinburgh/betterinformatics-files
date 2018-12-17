@@ -38,7 +38,7 @@ export default class Home extends React.Component<Props> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.examlist}>
-          <ExamList/>
+          <ExamList hideDefaultCategory={!this.props.isAdmin}/>
         </div>
         {this.props.isCategoryAdmin &&
         <div {...styles.admin}>
