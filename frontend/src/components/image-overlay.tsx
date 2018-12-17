@@ -2,6 +2,7 @@ import * as React from "react";
 import {css} from "glamor";
 import {fetchpost} from "../fetch-utils";
 import {RefObject} from "react";
+import Colors from "../colors";
 
 const styles = {
   background: css({
@@ -15,22 +16,22 @@ const styles = {
     paddingBottom: "200px",
   }),
   dialog: css({
-    background: "#eeeeee",
-    boxShadow: "0 4px 8px 0 grey",
+    background: Colors.cardBackground,
+    boxShadow: Colors.cardShadow,
     width: "70%",
     maxWidth: "1200px",
     height: "100%",
     margin: "auto",
   }),
   header: css({
-    background: "#394b59",
+    background: Colors.cardHeader,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     paddingRight: "20px",
   }),
   title: css({
-    color: "#ffffff",
+    color: Colors.cardHeaderForeground,
     fontSize: "20px",
     padding: "20px",
   }),
@@ -53,7 +54,7 @@ const styles = {
     height: "138px",
   }),
   imageSelected: css({
-    background: "#aabbcc",
+    background: Colors.activeImage,
   }),
   imageSmallWrapper: css({
     width: "128px",

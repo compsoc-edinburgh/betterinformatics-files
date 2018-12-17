@@ -4,6 +4,7 @@ import * as ReactMarkdown from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
 import 'katex/dist/katex.min.css';
 import TeX from '@matejmazur/react-katex'
+import Colors from "../colors";
 // import MathJax from 'react-mathjax2';
 
 interface Props {
@@ -33,7 +34,7 @@ export default ({value, background}: Props) => {
     inlineMath: (props: {value: string}) =>
       <TeX math={props.value}/>,
   };
-  return <div {...styles.wrapper} {...css({background: background || "#ffdfb4"})}>
+  return <div {...styles.wrapper} {...css({background: background || Colors.markdownBackground})}>
     <ReactMarkdown
       source={value}
       transformImageUri={(uri) => {

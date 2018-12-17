@@ -3,6 +3,7 @@ import {Link} from "react-router-dom";
 import {css} from "glamor";
 import {buildCategoryTree, filterCategoryTree} from "../category-utils";
 import {Category} from "../interfaces";
+import Colors from "../colors";
 
 const styles = {
   wrapper: css({
@@ -11,7 +12,7 @@ const styles = {
     flexWrap: "wrap"
   }),
   category: css({
-    background: "#eeeeee",
+    background: Colors.cardBackground,
     width: "250px",
     paddingLeft: "10px",
     paddingRight: "10px",
@@ -20,7 +21,7 @@ const styles = {
     marginRight: "20px",
     marginBottom: "40px",
     borderRadius: "0px",
-    boxShadow: "0 4px 8px 0 grey"
+    boxShadow: Colors.cardShadow,
   }),
   categoryTitle: css({
     textTransform: "capitalize",
@@ -32,7 +33,7 @@ const styles = {
     cursor: "pointer",
   }),
   categoryActive: css({
-    color: "#ff6130",
+    color: Colors.activeCategory,
   }),
   filterInput: css({
     width: "100%",

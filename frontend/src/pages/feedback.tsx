@@ -11,6 +11,7 @@ const styles = {
   }),
   feedbackWrapper: css({
     marginTop: "10px",
+    marginBottom: "10px",
   }),
   feedbackTextarea: css({
     width: "100%",
@@ -24,6 +25,9 @@ const styles = {
       width: "50%",
     }
   }),
+  feedbackButton: css({
+    textAlign: "center",
+  })
 };
 
 interface Props {
@@ -33,6 +37,7 @@ interface Props {
 interface State {
   feedbackText: string;
   result?: string;
+  feedbackVisible: boolean;
   requestedFeedbacks: boolean;
   feedbacks?: FeedbackEntry[];
 }
@@ -41,6 +46,7 @@ export default class Feedback extends React.Component<Props, State> {
 
   state: State = {
     feedbackText: "",
+    feedbackVisible: window.location.search === '?show',
     requestedFeedbacks: false,
   };
 
@@ -80,6 +86,7 @@ export default class Feedback extends React.Component<Props, State> {
           feedbackText: "",
           result: "Feedback submitted, thank you!",
         });
+        this.loadFeedbacks();
       })
       .catch((res) => {
         this.setState({
@@ -95,11 +102,19 @@ export default class Feedback extends React.Component<Props, State> {
     fetch('/api/feedback/list')
       .then(res => res.json())
       .then(res => {
+        const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
+        res.value.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
         this.setState({
           feedbacks: res.value
         });
       })
       .catch(() => undefined);
+  };
+
+  toggleFeedbacks = () => {
+    this.setState(prevState => ({
+      feedbackVisible: !prevState.feedbackVisible,
+    }));
   };
 
   render() {
@@ -122,11 +137,9 @@ export default class Feedback extends React.Component<Props, State> {
             </div>}
           </form>
         </div>
-        {this.state.feedbacks && <div>
-          {this.state.feedbacks.filter(fb => !fb.read && !fb.done).map(fb => <FeedbackEntryComponent key={fb.oid} entry={fb} entryChanged={this.loadFeedbacks}/>)}
-          {this.state.feedbacks.filter(fb => !fb.read && fb.done).map(fb => <FeedbackEntryComponent key={fb.oid} entry={fb} entryChanged={this.loadFeedbacks}/>)}
-          {this.state.feedbacks.filter(fb => fb.read && !fb.done).map(fb => <FeedbackEntryComponent key={fb.oid} entry={fb} entryChanged={this.loadFeedbacks}/>)}
-          {this.state.feedbacks.filter(fb => fb.read && fb.done).map(fb => <FeedbackEntryComponent key={fb.oid} entry={fb} entryChanged={this.loadFeedbacks}/>)}
+        {this.props.isAdmin && window.location.search === '?show' && <div {...styles.feedbackButton}><button onClick={this.toggleFeedbacks}>{this.state.feedbackVisible ? "Hide Feedback" : "Show Feedback"}</button></div>}
+        {this.state.feedbackVisible && this.state.feedbacks && <div>
+          {this.state.feedbacks.map(fb => <FeedbackEntryComponent key={fb.oid} entry={fb} entryChanged={this.loadFeedbacks}/>)}
         </div>}
       </div>
     );

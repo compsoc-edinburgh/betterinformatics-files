@@ -7,65 +7,66 @@ import {Route, Switch} from "react-router";
 import Header from "./components/header";
 import {css} from "glamor";
 import Feedback from "./pages/feedback";
+import Colors from "./colors";
+
+css.global('body', {
+  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
+});
+css.global('h1', {
+  marginBlockStart: "0.4em",
+  marginBlockEnd: "0.4em"
+});
+css.global('h2', {
+  marginBlockStart: "0.3em",
+  marginBlockEnd: "0.3em"
+});
+css.global('a', {
+  textDecoration: 'none',
+});
+css.global('a:link', {
+  color: Colors.link
+});
+css.global('a:visited', {
+  color: Colors.linkVisited
+});
+css.global('a:hover', {
+  color: Colors.linkHover
+});
+css.global('button', {
+  cursor: "pointer",
+  background: Colors.buttonBackground,
+  padding: "7px 14px",
+  border: "none",
+  textAlign: "center",
+  textDecoration: "none",
+  display: "inline-block",
+  borderRadius: "5px",
+  margin: "5px"
+});
+css.global('input', {
+  margin: "5px",
+  padding: "7px",
+  border: "0.5px solid #cccccc",
+  borderRadius: "2px",
+  boxSizing: "border-box"
+});
+css.global('button[disabled]', {
+  background: Colors.buttonBackgroundDisabled
+});
+css.global('button:hover', {
+  background: Colors.buttonBackgroundHover
+});
+css.global('button[disabled]:hover', {
+  cursor: "not-allowed"
+});
+css.global('.primary', {
+  background: Colors.buttonPrimary,
+});
+css.global('.primary:hover', {
+  background: Colors.buttonPrimaryHover,
+});
 
 const styles = {
-  everything: css({
-    fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
-    "& h1": {
-      marginBlockStart: "0.4em",
-      marginBlockEnd: "0.4em"
-    },
-    "& h2": {
-      marginBlockStart: "0.3em",
-      marginBlockEnd: "0.3em"
-    },
-    '& a': {
-      textDecoration: 'none',
-      ':link': {
-        color: '#4b41ff'
-      },
-      ':visited': {
-        color: '#4b41ff'
-      },
-      ':hover': {
-        color: '#ff6130'
-      }
-    },
-    "& button": {
-      cursor: "pointer",
-      background: "#cccccc",
-      padding: "10px 20px",
-      border: "none",
-      color: "black",
-      textAlign: "center",
-      textDecoration: "none",
-      display: "inline-block",
-      borderRadius: "5px",
-      margin: "5px"
-    },
-    "& input": {
-      margin: "5px",
-      padding: "10px",
-      border: "0.5px solid #cccccc",
-      borderRadius: "2px",
-      boxSizing: "border-box"
-    },
-    "& button[disabled]": {
-      background: "#888888"
-    },
-    "& button:hover": {
-      background: "#aaaaaa"
-    },
-    "& button[disabled]:hover": {
-      cursor: "not-allowed"
-    },
-    "& .primary": {
-      background: "#8cd6ff",
-      ":hover": {
-        background: "#3980ff"
-      }
-    }
-  }),
   inner: css({
     padding: "15px",
   }),
@@ -101,7 +102,7 @@ export default class App extends React.Component<{}, State> {
 
   render() {
     return (
-      <div {...styles.everything}>
+      <div>
         <Header username={this.state.displayname || "loading..."}/>
         <div {...styles.inner}>
           <Switch>

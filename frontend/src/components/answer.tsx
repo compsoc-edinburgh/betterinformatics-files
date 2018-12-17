@@ -6,6 +6,7 @@ import {css} from "glamor";
 import MarkdownText from "./markdown-text";
 import {fetchpost} from '../fetch-utils'
 import ImageOverlay from "./image-overlay";
+import Colors from "../colors";
 
 interface Props {
   filename: string;
@@ -25,13 +26,13 @@ interface State {
 
 const styles = {
   wrapper: css({
-    background: "#eeeeee",
+    background: Colors.cardBackground,
     paddingTop: "10px",
     paddingLeft: "10px",
     paddingRight: "10px",
-    paddingBottom: "20px",
+    paddingBottom: "10px",
     marginBottom: "20px",
-    boxShadow: "0 4px 8px 0 grey"
+    boxShadow: Colors.cardShadow,
   }),
   threebuttons: css({
     textAlign: "center",
@@ -53,15 +54,12 @@ const styles = {
     marginLeft: "-10px",
     marginRight: "-10px",
     marginTop: "-10px",
-    paddingLeft: "10px",
-    paddingRight: "10px",
-    paddingTop: "10px",
-    paddingBottom: "10px",
+    padding: "10px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    background: "#394b59",
-    color: "white",
+    background: Colors.cardHeader,
+    color: Colors.cardHeaderForeground,
   }),
   upvoteWrapper: css({
     cursor: "pointer",
@@ -228,6 +226,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div {...styles.threebuttons}>
           <div {...styles.leftButton}>
             {this.state.editing && <button onClick={this.startImageDialog}>Images</button>}
+            {!this.state.editing && this.state.savedText.length > 0 && <div {...styles.commentToggle}>
+              <button onClick={this.toggleComments}>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} Comments</button>
+            </div>}
           </div>
           <div>
             {this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}
@@ -237,9 +238,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
           </div>
         </div>
         {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
-        {answer.comments.length > 0 && <div {...styles.commentToggle}>
-          <button onClick={this.toggleComments}>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} Comments</button>
-        </div>}
         {this.state.commentsVisible &&
         <div {...styles.comments}>
           {answer.comments.map(e =>

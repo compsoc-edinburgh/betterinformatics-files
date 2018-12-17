@@ -2,13 +2,14 @@ import * as React from "react";
 import {css} from "glamor";
 import {ExamMetaData} from "../interfaces";
 import {fetchpost} from "../fetch-utils";
+import Colors from "../colors";
 
 const styles = {
   wrapper: css({
     marginRight: "20px",
   }),
   editBackground: css({
-    background: "#394b59",
+    background: Colors.headerBackground,
   }),
 };
 

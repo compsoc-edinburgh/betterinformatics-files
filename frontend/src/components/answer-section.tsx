@@ -46,7 +46,7 @@ const styles = {
     margin: "0",
     backgroundColor: "black",
     position: "relative",
-    bottom: "24px",
+    bottom: "20px",
     zIndex: "-100"
   })
 };

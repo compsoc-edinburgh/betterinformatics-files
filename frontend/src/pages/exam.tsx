@@ -9,6 +9,7 @@ import PdfSectionComp from "../components/pdf-section";
 import AnswerSectionComponent from "../components/answer-section";
 import {fetchpost} from "../fetch-utils";
 import MetaData from "../components/metadata";
+import Colors from "../colors";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -19,12 +20,13 @@ const styles = {
   }),
   sectionsButton: css({
     display: "flex",
+    alignItems: "center",
     justifyContent: "flex-end",
     position: ["sticky", "-webkit-sticky"],
     top: "20px"
   }),
   legacySolution: css({
-    background: "#cccccc",
+    background: Colors.legacyLinkBackground,
     marginTop: "10px",
     padding: "5px 10px",
     textAlign: "center",

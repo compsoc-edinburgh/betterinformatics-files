@@ -1,6 +1,7 @@
 import * as React from "react";
 import {Link} from "react-router-dom";
 import {css} from "glamor";
+import Colors from "../colors";
 
 interface Props {
   username?: string;
@@ -10,8 +11,8 @@ const styles = {
   wrapper: css({
     display: "flex",
     justifyContent: "space-between",
-    color: "#ffffff",
-    background: "#394b59",
+    color: Colors.headerForeground,
+    background: Colors.headerBackground,
   }),
   logotitle: css({
     display: "flex",
@@ -29,10 +30,10 @@ const styles = {
     fontSize: "24px",
     "& a": {
       ":link": {
-        color: "white !important"
+        color: Colors.headerForeground
       },
       ":visited": {
-        color: "white !important"
+        color: Colors.headerForeground
       }
     }
   }),
@@ -41,10 +42,10 @@ const styles = {
     marginRight: "25px",
     "& a": {
       ":link": {
-        color: "white !important"
+        color: Colors.headerForeground
       },
       ":visited": {
-        color: "white !important"
+        color: Colors.headerForeground
       }
     }
   }),
