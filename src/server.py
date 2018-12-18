@@ -328,6 +328,9 @@ def test():
 
 
 @app.route("/")
+@app.route("/uploadpdf")
+@app.route("/categorize")
+@app.route("/feedback")
 @auth.login_required
 def index():
     return render_template("index.html")
@@ -337,6 +340,11 @@ def index():
 @auth.login_required
 def exams(filename):
     return index()
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return "404 page not found", 404
 
 
 @app.route("/favicon.ico")
