@@ -14,6 +14,10 @@ const styles = {
     bottom: "0",
     paddingTop: "200px",
     paddingBottom: "200px",
+    "@media (max-height: 799px)": {
+      paddingTop: "50px",
+      paddingBottom: "50px",
+    }
   }),
   dialog: css({
     background: Colors.cardBackground,
@@ -22,6 +26,9 @@ const styles = {
     maxWidth: "1200px",
     height: "100%",
     margin: "auto",
+    "@media (max-width: 699px)": {
+      width: "90%",
+    }
   }),
   header: css({
     background: Colors.cardHeader,

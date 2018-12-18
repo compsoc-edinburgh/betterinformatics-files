@@ -27,12 +27,12 @@ interface State {
 const styles = {
   wrapper: css({
     background: Colors.cardBackground,
-    paddingTop: "10px",
-    paddingLeft: "10px",
-    paddingRight: "10px",
-    paddingBottom: "10px",
+    padding: "10px",
     marginBottom: "20px",
     boxShadow: Colors.cardShadow,
+    "@media (max-width: 699px)": {
+      padding: "5px",
+    },
   }),
   threebuttons: css({
     textAlign: "center",
@@ -60,6 +60,12 @@ const styles = {
     alignItems: "center",
     background: Colors.cardHeader,
     color: Colors.cardHeaderForeground,
+    "@media (max-width: 699px)": {
+      fontSize: "20px",
+      marginLeft: "-5px",
+      marginRight: "-5px",
+      marginTop: "-5px",
+    },
   }),
   upvoteWrapper: css({
     cursor: "pointer",
@@ -72,6 +78,10 @@ const styles = {
   upvoteImg: css({
     height: "35px",
     marginBottom: "-7px", // no idea what's going on...
+    "@media (max-width: 699px)": {
+      height: "28px",
+      marginBottom: "-4px",
+    },
   }),
   answer: css({
     margin: "5px"

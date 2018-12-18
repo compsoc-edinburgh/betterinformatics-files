@@ -18,9 +18,17 @@ const styles = {
     paddingBottom: "2px",
     paddingLeft: "20px",
     paddingRight: "20px",
-    "& img": css({
+    "& img": {
       maxWidth: "100%",
-    }),
+    },
+    "@media (max-width: 699px)": {
+      paddingLeft: "10px",
+      paddingRight: "10px",
+      "& p": {
+        marginBlockStart: "0.5em",
+        marginBlockEnd: "0.5em",
+      }
+    },
   }),
 };
 
