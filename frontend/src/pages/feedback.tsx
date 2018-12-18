@@ -122,7 +122,7 @@ export default class Feedback extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div>
           <h1>Feedback</h1>
-          <p>If you feel there is something we could improve, please tell us!</p>
+          <p>Please tell us what you think about the new Community Solutions!<br/>What do you like? What could we improve? Ideas for new features?</p>
           <p>Use the form below or write to <a href="mailto:communitysolutions@vis.ethz.ch">communitysolutions@vis.ethz.ch</a>.</p>
         </div>
         <div {...styles.feedbackWrapper}>
