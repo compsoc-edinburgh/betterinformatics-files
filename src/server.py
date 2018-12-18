@@ -651,7 +651,7 @@ def set_comment(filename, sectionoid, answeroid):
     POST Parameter 'commentoid' and 'text'
     """
     answer_section_oid = ObjectId(sectionoid)
-    answer_oid = ObjectId(answeroid);
+    answer_oid = ObjectId(answeroid)
     oid_str = request.form.get("commentoid", None)
     if not oid_str:
         return not_possible("Missing argument")
@@ -663,7 +663,7 @@ def set_comment(filename, sectionoid, answeroid):
     maybe_comment = answer_sections.find_one({
         'answersection.answers._id': answer_oid
     }, {
-        'answersection.answers.comments': 1
+        'answersection.answers.$.comments': 1
     })
     idx = -1
     for i, comment in enumerate(maybe_comment["answersection"]["answers"][0]["comments"]):
