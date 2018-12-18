@@ -153,14 +153,14 @@ def make_answer_section_response(oid):
     })
     if not section:
         return not_found()
+    exam_admin = has_admin_rights_for_exam(auth.username(), section["filename"])
     section["oid"] = section["_id"]
     del section["_id"]
     for answer in section["answersection"]["answers"]:
         answer["oid"] = answer["_id"]
         del answer["_id"]
         answer["canEdit"] = answer["authorId"] == auth.username() or \
-                            (answer["authorId"] == '__legacy__' and
-                             has_admin_rights_for_exam(auth.username(), section["filename"]))
+                            (answer["authorId"] == '__legacy__' and exam_admin)
         answer["isUpvoted"] = auth.username() in answer["upvotes"]
         answer["upvotes"] = len(answer["upvotes"])
         for comment in answer["comments"]:
@@ -169,7 +169,7 @@ def make_answer_section_response(oid):
             comment["canEdit"] = comment["authorId"] == auth.username()
     section["answersection"]["answers"].sort(key=lambda x: -x["upvotes"])
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
-    section["answersection"]["allow_new_legacy_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == '__legacy__']) == 0
+    section["answersection"]["allow_new_legacy_answer"] = exam_admin and len([a for a in section["answersection"]["answers"] if a["authorId"] == '__legacy__']) == 0
     return success(value=section)
 
 
@@ -227,13 +227,14 @@ def get_real_name(username):
         return username
 
 
-def get_username_or_legacy():
+def get_username_or_legacy(filename):
     """
     Checks whether the POST Parameter 'legacyuser' is set and if so, returns '__legacy__',
     otherwise returns the real username
-    :return: username of '__legacy__'
+    :param filename: filename of current exam
+    :return: username or '__legacy__' or None if legacy was requested but is not admin
     """
-    if 'legacyuser' in request.form and 'legacyuser' != '0':
+    if 'legacyuser' in request.form and 'legacyuser' != '0' and has_admin_rights_for_exam(auth.username(), filename):
         return '__legacy__'
     return auth.username()
 
@@ -327,6 +328,9 @@ def test():
 
 
 @app.route("/")
+@app.route("/uploadpdf")
+@app.route("/categorize")
+@app.route("/feedback")
 @auth.login_required
 def index():
     return render_template("index.html")
@@ -336,6 +340,11 @@ def index():
 @auth.login_required
 def exams(filename):
     return index()
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return "404 page not found", 404
 
 
 @app.route("/favicon.ico")
@@ -522,7 +531,9 @@ def add_answer(filename, sectionoid):
     """
     answer_section_oid = ObjectId(sectionoid)
 
-    username = get_username_or_legacy()
+    username = get_username_or_legacy(filename)
+    if not username:
+        return not_allowed()
     maybe_answer = answer_sections.find_one({
         "_id": answer_section_oid,
         "answersection.answers.authorId": username
@@ -558,7 +569,9 @@ def set_answer(filename, sectionoid):
     """
     answer_section_oid = ObjectId(sectionoid)
 
-    username = get_username_or_legacy()
+    username = get_username_or_legacy(filename)
+    if not username:
+        return not_allowed()
     text = request.form.get("text", None)
     if text is None:
         return not_possible("Missing argument")
@@ -586,7 +599,9 @@ def remove_answer(filename, sectionoid):
     POST Parameter 'legacyuser' if the answer should be posted by the special user '__legacy__', is 0/1
     """
     answer_section_oid = ObjectId(sectionoid)
-    username = get_username_or_legacy()
+    username = get_username_or_legacy(filename)
+    if not username:
+        return not_allowed()
     answer_sections.update_one({
         '_id': answer_section_oid
     }, {"$pull": {

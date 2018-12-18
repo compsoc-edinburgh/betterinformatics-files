@@ -42,8 +42,13 @@ const styles = {
     marginTop: "20px",
     marginBottom: "20px",
     "& input": {
-      minWidth: "400px",
-      width:  "50%"
+      width:  "50%",
+      "@media (max-width: 799px)": {
+        width: "70%",
+      },
+      "@media (max-width: 599px)": {
+        width: "90%",
+      },
     }
   }),
   subtitles: [

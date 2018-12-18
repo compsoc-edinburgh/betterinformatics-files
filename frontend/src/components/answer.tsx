@@ -38,8 +38,8 @@ const styles = {
     textAlign: "center",
     display: "flex",
     justifyContent: "space-between",
-    "& div": {
-      width: "200px"
+    "& > div": {
+      width: ["200px", "calc(100% / 3)"]
     }
   }),
   leftButton: css({

@@ -7,20 +7,29 @@ import {Link} from "react-router-dom";
 
 const styles = {
   wrapper: css({
-    display: "flex"
+    display: "flex",
+    flexWrap: "wrap",
   }),
   category: css({
-    width: "80%"
+    width: "80%",
+    "@media (max-width: 799px)": {
+      width: "100%",
+    },
   }),
   sidebar: css({
     width: "20%",
-    minHeight: "400px"
+    minWidth: "300px",
+    minHeight: "400px",
   }),
   categorywrapper: css({
-    display: "flex"
+    display: "flex",
+    flexWrap: "wrap",
   }),
   subcategories: css({
-    width: "50%"
+    width: "50%",
+    "@media (max-width: 799px)": {
+      width: "100%",
+    },
   }),
   categoryNameWrapper: css({
     display: "flex",
@@ -47,11 +56,14 @@ const styles = {
     flexGrow: "1",
   }),
   examlist: css({
-    width: "50%"
+    width: "50%",
+    "@media (max-width: 799px)": {
+      width: "100%",
+    },
   }),
   examEntry: css({
     width: "100%",
-    maxWidth: "400px",
+    maxWidth: "350px",
     display: "flex",
     alignItems: "center",
   }),
