@@ -1,108 +1,51 @@
 # Exam Solution Exchange
 
-Setup with visdev test:
+## New frontend
 
-1. Create Bucket pdfs on Minio Browser.
+### Install Node.js
 
-2. Start: Depends on what mode you want to run:
+Node.js is an execution environment for standalone Javascript programs (it's
+something like the Python interpreter).
 
-    a)  Database based: final version and good for backend updates run with: visdev test .  
-    And use verify_pw method for verification in hellovis.py
+You can install it [directly](https://nodejs.org/en/download/) or with a
+[version manager](https://github.com/tj/n) (recommended).
 
-    b) Without Database: for debugging front end: run with "visdev test ." in this directory, but also run "npm run start" in frontend folder (get there with "cd frontend") to run a static server which directly propagates all updates of the frontend
-    Also use dummyVerify method in hellovis.py and don't run a browser with XSS enabled, thus on a mac you would start chrome like: 
+### Install Yarn
 
-> open -a Google\ Chrome --args --disable-web-security --user-data-dir
+Yarn is a dependency management tool (like npm or pip). Install it
+[like this](https://yarnpkg.com/en/docs/install#debian-stable).
 
-**When going into production move to real ser.vis and change from dummyVerfiy to verify_pw**
+### Install dependencies
 
-# Feedback Alpha stage
-https://hackmd.io/0MMmtHNgTxyRWSGvaG9qkA
+This installs things like React which the frontend needs. You usually only need
+to do this once after cloning the repo.
 
-## Bugs
-* I can upvote my own answers
-* Disable "Add answer" during adding of a new answer (or replace the "Fertig button" with it)
-* Strategy for malicous cuts
-    * Admins müssen irgendwie cuts löschen können
-    * Vielleicht ein downvote oder ban system?
-* PDF rendering blurry on high-DPI displays
-    * Seems to render at traditional DPI, then scale
-* Strange stuff: ![Uploading file..._jko083f2x]()
-
-
-## Styling
-* Make answer blocks in a different styling
-* Make it clear that comment input field is not an answer field
-* Prettier upvote count
-* Padding in answer section (the white block)
-* Change `Remove` to `Remove answer` and visually make it clearer what exactly it removes
-* Clearer structure (which button/label is part of what)
-    * Generally need more careful alignment or borders
-
-## Feature requests
-* Folders - super important for structuring stuff. E.g. 
+```bash
+cd frontend
+yarn
 ```
-app
-├── exams
-│   ├── dmdb
-│   │   ├── 2015
-│   │   ├── 2016
-│   │   └── 2018
-│   └── fmfp
-│       ├── 2015
-│       ├── 2016
-│       └── 2017
-└── exercises
-    ├── dmdb
-    │   ├── 2017
-    │   │   ├── ex1
-    │   │   ├── ex2
-    │   │   ├── ex4
-    │   │   ├── ex5
-    │   │   ├── ex6
-    │   │   ├── ex7
-    │   │   └── ex8
-    │   └── 2018
-    │       ├── ex1
-    │       ├── ex2
-    │       ├── ex3
-    │       ├── ex4
-    │       ├── ex5
-    │       ├── ex6
-    │       ├── ex7
-    │       └── ex8
-    └── fmfp
-        ├── 2017
-        │   ├── ex1
-        │   ├── ex2
-        │   ├── ex4
-        │   ├── ex5
-        │   ├── ex6
-        │   ├── ex7
-        │   └── ex8
-        └── 2018
-            └── ex3
+
+If everything worked, you'll see a `node_modules` directory, where the
+dependencies were installed to.
+
+### Start the frontend
+
+The frontend is built using
+[Create React App](https://github.com/facebook/create-react-app). This is like a
+compiler toolchain, which combines Javascript files and provides a server with
+special development features. Start the dev server with:
+
+```bash
+cd frontend
+yarn start
 ```
-* Strategy for uploads (e.g. exercises) not done by board
-* PDF name (or better exam name) in page title
-    * Otherwise tab name `Prüfung` is not helpful
-* Live preview always on
-* Small documentation
-	* Upload new files
-	* How to add answer section
-* Disable deletion of an answer for normal users if it has enough upvotes or comments?
-* Consider a different UI for adding answers
-    * For example, after 1s of cursor on pdf show "Click to add answer"
-* Possibility to hide ansewers (click to reveal)
-    * Maybe "collapse all answers"?
-* Zooming
-    * Browser zoom actually works, but gets pixelated
-* Code blocks 
-* Latex blocks that are not inline
-* Upload API
-	* Give the oportunity to Upload exams/exercises via API 
-* Notifications:
-	* "Notify me for every activity on this [answer / document / folder]"
-* Bilder Upload (ggf mit OCR)
-* Profile von Usern mit Punktzahl
-	* So könnten wir Belohnungen machen 
+
+For more tasks, like building a production bundle, see the
+[Create React App documentation](https://github.com/facebook/create-react-app).
+
+### Start the backend
+
+Run `visdev test .` in this directory to start the backend. The frontend we
+started above will proxy all requests to this backend. It uses some default
+login data which is only used for testing. You can change the user which is used
+for these requests in the `package.json` file.
