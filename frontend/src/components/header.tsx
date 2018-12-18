@@ -13,6 +13,7 @@ const styles = {
     justifyContent: "space-between",
     color: Colors.headerForeground,
     background: Colors.headerBackground,
+    overflow: "hidden",
   }),
   logotitle: css({
     display: "flex",

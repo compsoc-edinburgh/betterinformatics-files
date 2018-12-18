@@ -6,12 +6,16 @@ import {css} from "glamor";
 const styles = {
   wrapper: css({
     display: "flex",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    "@media (max-width: 899px)": {
+      flexWrap: "wrap",
+    },
   }),
   admin: css({
     marginLeft: "10px",
     paddingLeft: "10px",
     paddingRight: "10px",
+    width: "200px",
     "& button": {
       marginBottom: "10px",
       fontSize: "14px",
