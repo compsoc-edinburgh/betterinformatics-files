@@ -52,7 +52,7 @@ interface State {
 function widthFromWindow(): number {
   // This compensates for HTML body padding.
   // TODO use a cleaner approach.
-  return Math.max(0, Math.min(MAX_WIDTH, document.body.clientWidth - 16));
+  return Math.max(0, Math.min(MAX_WIDTH, document.body.clientWidth - 30));
 }
 
 export default class Exam extends React.Component<Props, State> {

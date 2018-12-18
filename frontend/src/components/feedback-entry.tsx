@@ -14,10 +14,7 @@ const styles = {
   wrapper: css({
     marginTop: "10px",
     background: Colors.cardBackground,
-    paddingTop: "10px",
-    paddingLeft: "10px",
-    paddingRight: "10px",
-    paddingBottom: "10px",
+    padding: "10px",
     marginBottom: "20px",
     boxShadow: Colors.cardShadow,
   }),

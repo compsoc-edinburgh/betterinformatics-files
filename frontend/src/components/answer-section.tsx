@@ -21,7 +21,10 @@ interface State {
 const styles = {
   wrapper: css({
     width: "80%",
-    margin: "auto"
+    margin: "auto",
+    "@media (max-width: 699px)": {
+      width: "95%",
+    },
   }),
   threebuttons: css({
     textAlign: "center",
@@ -47,7 +50,10 @@ const styles = {
     backgroundColor: "black",
     position: "relative",
     bottom: "20px",
-    zIndex: "-100"
+    zIndex: "-100",
+    "@media (max-width: 699px)": {
+      display: "none",
+    }
   })
 };
 
