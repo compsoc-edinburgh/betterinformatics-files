@@ -71,6 +71,7 @@ export interface ExamMetaData {
   category: string;
   legacy_solution: string;
   master_solution: string;
+  resolve_alias: string;
 }
 
 export interface FeedbackEntry {

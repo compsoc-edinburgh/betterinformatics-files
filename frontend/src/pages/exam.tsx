@@ -68,6 +68,7 @@ export default class Exam extends React.Component<Props, State> {
       displayname: "",
       legacy_solution: "",
       master_solution: "",
+      resolve_alias: "",
     },
     error: false,
   };

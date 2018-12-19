@@ -13,8 +13,8 @@ export default class Colors {
   static readonly cardHeaderForeground = "#ffffff";
   static readonly cardShadow = "0 4px 8px 0 grey";
 
-  static readonly markdownBackground = "#ffdfb4"
-  static readonly activeCategory = "#ff6130";
+  static readonly markdownBackground = "#ffdfb4";
+  static readonly activeCategory = "#e15326";
   static readonly activeImage = "#8cd6ff";
   static readonly linkBannerBackground = "#cccccc";
 

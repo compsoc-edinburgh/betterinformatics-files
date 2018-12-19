@@ -38,11 +38,7 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   saveEdit = () => {
-    fetchpost(`/api/exam/${this.props.filename}/metadata`, {
-      displayname: this.state.currentMetaData.displayname,
-      legacy_solution: this.state.currentMetaData.legacy_solution,
-      master_solution: this.state.currentMetaData.master_solution,
-    })
+    fetchpost(`/api/exam/${this.props.filename}/metadata`, this.state.currentMetaData)
       .then(() => {
         this.setState({editing: false});
         this.props.onChange(this.state.currentMetaData);
@@ -69,6 +65,7 @@ export default class MetaData extends React.Component<Props, State> {
       return (<div {...styles.wrapper} {...styles.editBackground}>
         <input type="text" placeholder="legacy solution" value={this.state.currentMetaData.legacy_solution} onChange={(ev) => this.valueChanged("legacy_solution", ev)}/>
         <input type="text" placeholder="master solution" value={this.state.currentMetaData.master_solution} onChange={(ev) => this.valueChanged("master_solution", ev)}/>
+        <input type="text" placeholder="resolve alias" value={this.state.currentMetaData.resolve_alias} onChange={(ev) => this.valueChanged("resolve_alias", ev)}/>
         <input type="text" placeholder="display name" value={this.state.currentMetaData.displayname} onChange={(ev) => this.valueChanged("displayname", ev)}/>
         <button onClick={this.saveEdit}>Save</button> <button onClick={this.cancelEdit}>Cancel</button>
       </div>);

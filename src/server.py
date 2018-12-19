@@ -342,6 +342,19 @@ def exams(filename):
     return index()
 
 
+@app.route('/resolve/<filename>')
+@auth.login_required
+def resolve(filename):
+    result = exam_metadata.find_one({
+        "resolve_alias": filename
+    }, {
+        "filename": 1
+    })
+    if not result:
+        return not_found()
+    return redirect('/exams/' + result["filename"])
+
+
 @app.errorhandler(404)
 def not_found(e):
     return "404 page not found", 404
@@ -765,7 +778,7 @@ def set_exam_metadata(filename, metadata):
     :param filename: filename of the exam
     :param metadata: dictionary of values to set
     """
-    whitelist = ["displayname", "category", "legacy_solution", "master_solution"]
+    whitelist = ["displayname", "category", "legacy_solution", "master_solution", "resolve_alias"]
     filtered = filter_dict(metadata, whitelist)
     if filtered:
         exam_metadata.update_one({
