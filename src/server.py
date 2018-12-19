@@ -345,14 +345,10 @@ def exams(filename):
 @app.route('/resolve/<filename>')
 @auth.login_required
 def resolve(filename):
-    result = exam_metadata.find_one({
-        "resolve_alias": filename
-    }, {
-        "filename": 1
-    })
+    result = get_resolved_filename(filename)
     if not result:
         return not_found()
-    return redirect('/exams/' + result["filename"])
+    return redirect('/exams/' + result)
 
 
 @app.errorhandler(404)
@@ -786,6 +782,17 @@ def set_exam_metadata(filename, metadata):
         }, {"$set": filtered})
 
 
+def get_resolved_filename(resolve_alias):
+    result = exam_metadata.find_one({
+        "resolve_alias": resolve_alias
+    }, {
+        "filename": 1
+    })
+    if result:
+        return result["filename"]
+    return None
+
+
 @app.route("/api/exam/<filename>/remove", methods=["POST"])
 @auth.login_required
 @require_admin
@@ -1201,27 +1208,36 @@ def uploadpdf():
     File as 'file'.
     Optional POST Parameter 'displayname' with displayname to use.
     """
+    username = auth.username()
+
     file = request.files.get('file', None)
-    if not file or not file.filename or not allowed_exam_file(file.filename):
+    orig_filename = file.filename
+    if not file or not orig_filename or not allowed_exam_file(orig_filename):
         return not_possible("No valid file found")
+
     category = request.form.get("category", "") or "default"
     maybe_category = category_metadata.find_one({"category": category})
     if not maybe_category:
         return not_possible("Category does not exist")
-    username = auth.username()
     if not has_admin_rights_for_category(username, category):
         return not_possible("No permission for category")
+
     filename = generate_filename(8, EXAM_DIR, ".pdf")
     if is_file_in_minio(EXAM_DIR, filename):
         # This should not happen!
         return not_possible("File already exists")
-    displayname = request.form.get("displayname", "") or file.filename
+
     temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
     file.save(temp_file_path)
     minio_client.fput_object(minio_bucket, EXAM_DIR + filename, temp_file_path)
     os.remove(temp_file_path)
+
     init_exam_metadata(filename)
-    set_exam_metadata(filename, {"category": category, "displayname": displayname})
+    displayname = request.form.get("displayname", "") or orig_filename
+    new_metadata = {"category": category, "displayname": displayname}
+    if "_HS" in orig_filename or "_FS" in orig_filename:
+        new_metadata["resolve_alias"] = orig_filename
+    set_exam_metadata(filename, new_metadata)
     return success(href="/exams/" + filename)
 
 
