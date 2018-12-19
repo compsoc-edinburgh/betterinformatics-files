@@ -36,9 +36,6 @@ people_metadata = [("authorization",
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
-CORS(app)
-
-HACK_IS_PROD = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https')
 
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 EXAM_DIR = 'exams/'
@@ -62,7 +59,7 @@ minio_client = Minio(
     os.environ.get('RUNTIME_MINIO_SERVER', os.environ.get('RUNTIME_MINIO_HOST')),
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
     secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-    secure=HACK_IS_PROD)
+    secure=minio_is_https)
 minio_bucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 try:
@@ -74,17 +71,10 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-if HACK_IS_PROD:
-    mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
-        os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
-        os.environ['RUNTIME_MONGO_DB_SERVER'],
-        os.environ['RUNTIME_MONGO_DB_PORT'],
-        os.environ['RUNTIME_MONGO_DB_NAME'])
-else:
-    mongo_url = "mongodb://{}:{}/{}".format(
-        os.environ['RUNTIME_MONGO_DB_SERVER'],
-        os.environ['RUNTIME_MONGO_DB_PORT'],
-        os.environ['RUNTIME_MONGO_DB_NAME'])
+mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
+    os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
+    os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
+    os.environ['RUNTIME_MONGO_DB_NAME'])
 mongo_db = MongoClient(mongo_url).get_database()
 
 dbmigrations.migrate(mongo_db)
@@ -211,9 +201,6 @@ def filter_dict(dictionary, whitelist):
             filtered[white] = dictionary[white]
     return filtered
 
-# ------------------------------------------- #
-#  auth                                       #
-# ------------------------------------------- #
 
 @auth.verify_password
 def verify_pw(username, password):
@@ -334,9 +321,6 @@ def has_admin_rights_for_exam(username, filename):
     }, {"category": 1})["category"]
     return has_admin_rights_for_category(username, category)
 
-# ------------------------------------------- #
-#  general stuff                              #
-# ------------------------------------------- #
 
 @app.route("/health")
 def test():
@@ -390,17 +374,6 @@ def is_file_in_minio(directory, name):
     except NoSuchKey:
         return False
 
-@app.route('/list')
-@auth.login_required
-def list_pdfs():
-    pdfs = []
-    for pdf in minio_client.list_objects(minio_bucket):
-        pdfs.append(pdf.object_name)
-    return render_template("listpdfs.html", pdfs=pdfs)
-
-# ------------------------------------------- #
-#  general api                                #
-# ------------------------------------------- #
 
 @app.route("/api/user")
 @auth.login_required
@@ -417,28 +390,6 @@ def get_user():
         username=auth.username(),
         displayname=get_real_name(auth.username())
     )
-
-# ------------------------------------------- #
-#  show and edit an exam                      #
-# ------------------------------------------- #
-
-@app.route('/sol/<filename>')
-@auth.login_required
-def index(filename):
-    print("received")
-    if list(minio_client.list_objects(minio_bucket, prefix=filename)) != []:
-        return render_template('index.html')
-    else:
-        return "There is no file " + filename
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def is_pdf_in_minio(name):
-    return list(minio_client.list_objects(minio_bucket, prefix=name)) != []
 
 
 ########################################################################################################################
@@ -1292,6 +1243,10 @@ def pdf(filename):
         data = minio_client.get_object(minio_bucket, EXAM_DIR + filename)
         return send_file(data, mimetype="application/pdf")
     except NoSuchKey as n:
+        # move objects still in the root to the correct folder
+        if is_file_in_minio("", filename):
+            minio_client.copy_object(minio_bucket, EXAM_DIR + filename, filename)
+            minio_client.remove_object(minio_bucket, filename)
         return not_found()
 
 
@@ -1306,15 +1261,6 @@ def image(filename):
         return send_file(data, IMAGE_MIME_TYPES[filename.split(".")[-1]])
     except NoSuchKey as n:
         return not_found()
-
-
-@app.route("/pdfnew/<filename>")
-@auth.login_required
-def pdf(filename):
-    try:
-        return send_file(minio_client.get_object(minio_bucket, filename))
-    except NoSuchKey as n:
-        return "There is no such PDF saved here :(", 404
 
 
 @app.errorhandler(Exception)
