@@ -1,0 +1,38 @@
+\documentclass{scrartcl}
+\usepackage{graphicx}
+
+\pagestyle{empty}
+\renewcommand*{\titlepagestyle}{empty}
+
+\setkomafont{section}{\Huge}
+\setkomafont{subsection}{\huge}
+\setkomafont{subsubsection}{\LARGE}
+\setkomafont{paragraph}{\Large}
+\setkomafont{subparagraph}{\large}
+
+\RedeclareSectionCommand[indent=0cm]{section}
+\RedeclareSectionCommand[indent=1cm]{subsection}
+\RedeclareSectionCommand[indent=2cm]{subsubsection}
+\RedeclareSectionCommand[indent=3cm]{paragraph}
+\RedeclareSectionCommand[indent=4cm]{subparagraph}
+
+\title{{{title}}}
+\author{VIS Community Solutions}
+\date{{{date}}}
+
+\begin{document}
+\maketitle
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{vis_logo}
+\end{figure}
+
+\vspace{3cm}
+
+Unfortunately we are not able to publish this exam. To be able to discuss the solutions for this exam this empty replacement is used. Thank you for your understanding.
+
+\clearpage
+
+{{content}}
+
+\end{document}
