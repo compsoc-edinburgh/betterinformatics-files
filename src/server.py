@@ -41,7 +41,7 @@ UPLOAD_FOLDER = 'intermediate_pdf_storage'
 EXAM_DIR = 'exams/'
 IMAGE_DIR = 'imgs/'
 EXAM_ALLOWED_EXTENSIONS = {'pdf'}
-IMAGE_ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'svg'}
+IMAGE_ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'svg', 'gif'}
 IMAGE_MIME_TYPES = {
     'jpg': "image/jpeg",
     'jpeg': "image/jpeg",
