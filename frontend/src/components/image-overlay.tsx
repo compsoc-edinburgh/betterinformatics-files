@@ -1,6 +1,6 @@
 import * as React from "react";
 import {css} from "glamor";
-import {fetchpost} from "../fetch-utils";
+import {fetchapi, fetchpost} from "../fetch-utils";
 import {RefObject} from "react";
 import Colors from "../colors";
 
@@ -111,7 +111,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
   }
 
   loadImages = () => {
-    fetch('/api/image/list')
+    fetchapi('/api/image/list')
         .then(res => res.json())
         .then(res => {
           res.value.reverse();

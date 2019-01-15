@@ -8,6 +8,7 @@ import Header from "./components/header";
 import {css} from "glamor";
 import Feedback from "./pages/feedback";
 import Colors from "./colors";
+import {fetchapi} from "./fetch-utils";
 
 css.global('body', {
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
@@ -89,7 +90,7 @@ export default class App extends React.Component<{}, State> {
   };
 
   async componentWillMount() {
-    fetch("/api/user")
+    fetchapi("/api/user")
       .then(res => res.json())
       .then(res => this.setState({
         username: res.username,

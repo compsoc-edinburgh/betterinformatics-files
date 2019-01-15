@@ -7,7 +7,7 @@ import {debounce} from "lodash";
 import {css} from "glamor";
 import PdfSectionComp from "../components/pdf-section";
 import AnswerSectionComponent from "../components/answer-section";
-import {fetchpost} from "../fetch-utils";
+import {fetchapi, fetchpost} from "../fetch-utils";
 import MetaData from "../components/metadata";
 import Colors from "../colors";
 
@@ -85,7 +85,7 @@ export default class Exam extends React.Component<Props, State> {
     window.addEventListener("resize", this.onResize);
     this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
 
-    fetch(`/api/exam/${this.props.filename}/metadata`)
+    fetchapi(`/api/exam/${this.props.filename}/metadata`)
       .then((res) => res.json())
       .then((res) => {
         this.setState({

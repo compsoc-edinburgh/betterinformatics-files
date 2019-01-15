@@ -1,6 +1,6 @@
 import * as React from "react";
 import {css} from "glamor";
-import {fetchpost} from "../fetch-utils";
+import {fetchapi, fetchpost} from "../fetch-utils";
 import {FeedbackEntry} from "../interfaces";
 import FeedbackEntryComponent from "../components/feedback-entry";
 
@@ -99,7 +99,7 @@ export default class Feedback extends React.Component<Props, State> {
     this.setState({
       requestedFeedbacks: true,
     });
-    fetch('/api/feedback/list')
+    fetchapi('/api/feedback/list')
       .then(res => res.json())
       .then(res => {
         const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);

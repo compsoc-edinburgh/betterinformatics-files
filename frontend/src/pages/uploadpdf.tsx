@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Redirect} from "react-router-dom";
-import {fetchpost} from '../fetch-utils';
+import {fetchapi, fetchpost} from '../fetch-utils';
 import AutocompleteInput from '../components/autocomplete-input';
 
 interface State {
@@ -22,7 +22,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   };
 
   async componentWillMount() {
-    fetch('/api/listcategories/onlyadmin')
+    fetchapi('/api/listcategories/onlyadmin')
       .then(res => res.json())
       .then(res => this.setState({
         categories: res.value

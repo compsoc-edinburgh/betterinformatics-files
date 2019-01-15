@@ -4,6 +4,7 @@ import {css} from "glamor";
 import {buildCategoryTree, filterCategoryTree} from "../category-utils";
 import {Category} from "../interfaces";
 import Colors from "../colors";
+import {fetchapi} from "../fetch-utils";
 
 const styles = {
   wrapper: css({
@@ -113,7 +114,7 @@ export default class ExamList extends React.Component<Props, State> {
   };
 
   async componentWillMount() {
-    fetch('/api/listcategories/withexams')
+    fetchapi('/api/listcategories/withexams')
       .then(res => res.json())
       .then(res => this.setState({
         rootCategories: this.removeDefaultIfNecessary(buildCategoryTree(res.value))

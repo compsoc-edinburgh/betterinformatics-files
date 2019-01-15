@@ -2,7 +2,7 @@ import * as React from "react";
 import {Category, Exam} from "../interfaces";
 import {buildCategoryTree, synchronizeTreeWithStack} from "../category-utils";
 import {css} from "glamor";
-import {fetchpost} from "../fetch-utils";
+import {fetchapi, fetchpost} from "../fetch-utils";
 import {Link} from "react-router-dom";
 
 const styles = {
@@ -131,7 +131,7 @@ export default class Categorize extends React.Component<Props, State> {
   }
 
   updateCategories = async () => {
-    fetch('/api/listcategories/withexams')
+    fetchapi('/api/listcategories/withexams')
       .then(res => res.json())
       .then(res => {
         const categoryTree = buildCategoryTree(res.value);
@@ -147,7 +147,7 @@ export default class Categorize extends React.Component<Props, State> {
   };
 
   updateAdmins = async () => {
-    fetch('/api/listcategories/withadmins')
+    fetchapi('/api/listcategories/withadmins')
       .then(res => res.json())
       .then(res => {
         let newadmins = {};
