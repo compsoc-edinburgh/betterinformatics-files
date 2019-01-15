@@ -42,6 +42,7 @@ export async function loadSections(
           askerDisplayName: "",
           allow_new_answer: true,
           allow_new_legacy_answer: false,
+          hidden: true,
         });
       });
     }

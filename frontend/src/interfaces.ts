@@ -13,6 +13,7 @@ export interface AnswerSection {
   askerDisplayName: string; // display name of asker
   allow_new_answer: boolean; // whether the current user can add an answer
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
+  hidden: boolean; // whether the element is currently hidden
 }
 
 export interface Answer {

@@ -11,11 +11,12 @@ interface Props {
   width: number;
   canDelete: boolean;
   onSectionChange: () => void;
+  onToggleHidden: () => void;
+  hidden: boolean;
 }
 
 interface State {
   section?: AnswerSection;
-  hidden: boolean;
 }
 
 const styles = {
@@ -59,13 +60,11 @@ const styles = {
 
 export default class AnswerSectionComponent extends React.Component<Props, State> {
 
-  state: State = {
-    hidden: true
-  };
+  state: State = {};
 
   async componentWillMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
-      .then((res) => this.setState({section: res, hidden: res.answers.length > 0}))
+      .then((res) => this.setState({section: res}))
       .catch(() => undefined);
   }
 
@@ -85,6 +84,9 @@ export default class AnswerSectionComponent extends React.Component<Props, State
       .then((res) => res.json())
       .then((res) => {
         this.onSectionChanged(res);
+        if (this.state.section && this.props.hidden) {
+          this.props.onToggleHidden();
+        }
       })
       .catch(() => undefined);
   };
@@ -97,20 +99,16 @@ export default class AnswerSectionComponent extends React.Component<Props, State
     this.setState({section: answersection});
   };
 
-  toggleHidden = async () => {
-    this.setState(prevState => ({hidden: !prevState.hidden}));
-  };
-
   render() {
     const {section} = this.state;
     if (!section) {
       return <div>Loading...</div>;
     }
-    if (this.state.hidden) {
+    if (this.props.hidden && section.answers.length > 0) {
       return (<div {...styles.wrapper}>
         <div key="showhidebutton" {...styles.threebuttons}>
           <div/>
-          <div><button onClick={this.toggleHidden}>Show Answers</button></div>
+          <div><button onClick={this.props.onToggleHidden}>Show Answers</button></div>
           <div/>
         </div>
         <div {...styles.divideLine} />
@@ -130,7 +128,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
                 </button>
             </div>}
           </div>
-          <div><button onClick={this.toggleHidden}>Hide Answers</button></div>
+          <div>{section.answers.length > 0 && <button onClick={this.props.onToggleHidden}>Hide Answers</button>}</div>
           <div {...styles.rightButton}>{this.props.canDelete && <button onClick={this.removeSection}>Remove Answer Section</button>}</div>
         </div>
         <div {...styles.divideLine} />

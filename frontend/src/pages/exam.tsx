@@ -23,7 +23,10 @@ const styles = {
     alignItems: "center",
     justifyContent: "flex-end",
     position: ["sticky", "-webkit-sticky"],
-    top: "20px"
+    top: "20px",
+    "div": {
+      marginLeft: "17px",
+    },
   }),
   linkBanner: css({
     background: Colors.linkBannerBackground,
@@ -44,6 +47,7 @@ interface State {
   dpr: number;
   canEdit: boolean;
   sections?: Section[];
+  allShown: boolean;
   addingSectionsActive: boolean;
   savedMetaData: ExamMetaData;
   error: boolean;
@@ -70,6 +74,7 @@ export default class Exam extends React.Component<Props, State> {
       master_solution: "",
       resolve_alias: "",
     },
+    allShown: false,
     error: false,
   };
   updateInverval: NodeJS.Timer;
@@ -182,6 +187,42 @@ export default class Exam extends React.Component<Props, State> {
     }
   };
 
+  gotoPDF = () => {
+    window.open(`/api/pdf/${this.props.filename}`, '_blank');
+  };
+
+  setAllHidden = (hidden: boolean) => {
+    this.setState(prevState => {
+      let newState = {...prevState};
+      if (newState.sections) {
+        newState.sections.forEach(section => {
+          if (section.kind === SectionKind.Answer) {
+            section.hidden = hidden;
+          }
+        });
+      }
+      newState.allShown = !hidden;
+      return newState;
+    })
+  };
+
+  toggleHidden = (sectionOid: string) => {
+    this.setState(prevState => {
+      let newState = {...prevState};
+      if (newState.sections) {
+        for (let section of newState.sections) {
+          if (section.kind === SectionKind.Answer && section.oid === sectionOid) {
+            if (!section.hidden) {
+              newState.allShown = false;
+            }
+            section.hidden = !section.hidden;
+          }
+        }
+      }
+      return newState;
+    });
+  };
+
   toggleAddingSectionActive = () => {
     this.setState((state, props) => {
       return {addingSectionsActive: !state.addingSectionsActive};
@@ -205,13 +246,25 @@ export default class Exam extends React.Component<Props, State> {
     }
     return (
       <div>
-        {this.state.canEdit &&
+
         <div {...styles.sectionsButton}>
+          {this.state.canEdit && [
+            <div>
+              <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
+                        onChange={this.metaDataChanged}/>
+            </div>,
+            <div>
+              <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
+            </div>
+            ]
+          }
           <div>
-            <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData} onChange={this.metaDataChanged} />
+            <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
           </div>
-          <div><button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button></div>
-        </div>}
+          <div>
+            <button onClick={this.gotoPDF}>Download PDF</button>
+          </div>
+        </div>
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
@@ -231,6 +284,8 @@ export default class Exam extends React.Component<Props, State> {
                   width={width}
                   canDelete={this.state.canEdit}
                   onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
+                  onToggleHidden={() => this.toggleHidden(e.oid)}
+                  hidden={e.hidden}
                 />;
               case SectionKind.Pdf:
                 return (

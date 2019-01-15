@@ -6,7 +6,6 @@ import Colors from "../colors";
 
 const styles = {
   wrapper: css({
-    marginRight: "20px",
   }),
   editBackground: css({
     background: Colors.headerBackground,
