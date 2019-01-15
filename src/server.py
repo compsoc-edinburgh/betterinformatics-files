@@ -167,7 +167,11 @@ def make_answer_section_response(oid):
             comment["oid"] = comment["_id"]
             del comment["_id"]
             comment["canEdit"] = comment["authorId"] == auth.username()
-    section["answersection"]["answers"].sort(key=lambda x: -x["upvotes"])
+    section["answersection"]["answers"] = sorted(
+        filter(
+            lambda x: len(x["text"]) > 0 or x["canEdit"],
+            section["answersection"]["answers"]
+        ), key=lambda x: -x["upvotes"])
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
     section["answersection"]["allow_new_legacy_answer"] = exam_admin and len([a for a in section["answersection"]["answers"] if a["authorId"] == '__legacy__']) == 0
     return success(value=section)
