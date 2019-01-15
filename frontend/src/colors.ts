@@ -21,4 +21,9 @@ export default class Colors {
   static readonly link = "#4b41ff";
   static readonly linkVisited = "#4b41ff";
   static readonly linkHover = "#ff6130";
+
+  static readonly tableBorder = "#ffdfb4";
+  static readonly tableHeader = "#ffb450";
+  static readonly tableEven = "#ffc678";
+  static readonly tableOdd = "#ffd59b";
 }
