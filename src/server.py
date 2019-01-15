@@ -162,7 +162,9 @@ def make_answer_section_response(oid):
         answer["canEdit"] = answer["authorId"] == auth.username() or \
                             (answer["authorId"] == '__legacy__' and exam_admin)
         answer["isUpvoted"] = auth.username() in answer["upvotes"]
-        answer["upvotes"] = len(answer["upvotes"])
+        answer["isDownvoted"] = auth.username() in answer["downvotes"]
+        answer["upvotes"] = len(answer["upvotes"]) - len(answer["downvotes"])
+        del answer["downvotes"]
         for comment in answer["comments"]:
             comment["oid"] = comment["_id"]
             del comment["_id"]
@@ -514,25 +516,37 @@ def remove_answer_section(filename):
 def set_like(filename, sectionoid, answeroid):
     """
     Sets the like for the given answer in the given section.
-    POST Parameter 'like' is 0/1.
+    POST Parameter 'like' is -1/0/1.
     """
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
     username = auth.username()
-    like = request.form.get("like", "0") != "0"
-    if like:
+    like = int(request.form.get("like", "0"))
+    if like == 1:
         answer_sections.update_one({
             'answersection.answers._id': answer_oid
         }, {'$addToSet': {
+            'answersection.answers.$.upvotes': username
+        }, '$pull': {
+            'answersection.answers.$.downvotes': username
+        }})
+    elif like == -1:
+        answer_sections.update_one({
+            'answersection.answers._id': answer_oid
+        }, {'$addToSet': {
+            'answersection.answers.$.downvotes': username
+        }, '$pull': {
             'answersection.answers.$.upvotes': username
         }})
     else:
         answer_sections.update_one({
             'answersection.answers._id': answer_oid
         }, {'$pull': {
-            'answersection.answers.$.upvotes': username
+            'answersection.answers.$.upvotes': username,
+            'answersection.answers.$.downvotes': username
         }})
     return make_answer_section_response(answer_section_oid)
+
 
 @app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=["POST"])
 @auth.login_required
@@ -562,6 +576,7 @@ def add_answer(filename, sectionoid):
         "text": "",
         "comments": [],
         "upvotes": [username],
+        "downvotes": [],
         "time": datetime.now(timezone.utc).isoformat()
     }
     answer_sections.update_one({
@@ -570,6 +585,7 @@ def add_answer(filename, sectionoid):
         "answersection.answers": answer
     }})
     return make_answer_section_response(answer_section_oid)
+
 
 @app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=["POST"])
 @auth.login_required

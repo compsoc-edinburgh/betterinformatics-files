@@ -67,21 +67,26 @@ const styles = {
       marginTop: "-5px",
     },
   }),
-  upvoteWrapper: css({
-    cursor: "pointer",
+  voteWrapper: css({
     display: "flex",
-    alignItems: "center",
-    "& div": {
-      marginLeft: "10px",
-    }
+    alignItems: "center"
   }),
-  upvoteImg: css({
-    height: "35px",
-    marginBottom: "-7px", // no idea what's going on...
+  voteImgWrapper: css({
+    cursor: "pointer",
+  }),
+  voteImg: css({
+    height: "26px",
+    marginLeft: "11px",
+    marginRight: "11px",
+    marginBottom: "-4px", // no idea what's going on...
     "@media (max-width: 699px)": {
-      height: "28px",
-      marginBottom: "-4px",
+      height: "20px",
+      marginBottom: "-3px",
     },
+  }),
+  voteCount: css({
+    marginLeft: "9px",
+    marginRight: "9px",
   }),
   answer: css({
     margin: "5px"
@@ -199,8 +204,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
     });
   };
 
-  toggleAnswerUpvote = async () => {
-    fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: this.props.answer.isUpvoted ? 0 : 1})
+  toggleAnswerLike = async (like: Number) => {
+    const newLike = like === 1 ? (this.props.answer.isUpvoted ? 0 : 1) : (this.props.answer.isDownvoted ? 0 : -1);
+    fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: newLike})
       .then((res) => res.json())
       .then((res) => {
         this.props.onSectionChanged(res);
@@ -222,10 +228,13 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <div>
             <b>{answer.authorDisplayName}</b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
           </div>
-          <div {...styles.upvoteWrapper} onClick={this.toggleAnswerUpvote} title="Upvote Answer">
-            <div>{answer.upvotes}</div>
-            <div>
-              <img {...styles.upvoteImg} src={"/static/upvote" + (answer.isUpvoted ? "_orange" : "_white") + ".svg"} alt="Upvote" />
+          <div {...styles.voteWrapper}>
+            <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(-1)} title="Downvote Answer">
+              <img {...styles.voteImg} src={"/static/downvote" + (answer.isDownvoted ? "_orange" : "_white") + ".svg"} alt="Downvote" />
+            </div>
+            <div {...styles.voteCount}>{answer.upvotes}</div>
+            <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(1)} title="Upvote Answer">
+              <img {...styles.voteImg} src={"/static/upvote" + (answer.isUpvoted ? "_orange" : "_white") + ".svg"} alt="Upvote" />
             </div>
           </div>
         </div>

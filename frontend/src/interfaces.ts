@@ -22,6 +22,7 @@ export interface Answer {
   authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the answer
   isUpvoted: boolean; // whether the current user upvoted the answer
+  isDownvoted: boolean; // whether the current user downvoted the answer
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time

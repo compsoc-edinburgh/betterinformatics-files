@@ -1,24 +1,47 @@
 import fcntl
 import time
+import sys
 
-DB_VERSION = 1
+DB_VERSION = 2
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
+
+def set_db_version(mongo_db, version):
+    mongo_db.dbmeta.update_one({"key": DB_VERSION_KEY}, {"$set": {"value": version}})
+
+
 def init_migration(mongo_db):
-    print("Init migration")
-    mongo_db.dbmeta.insert_one({
-        "key": DB_VERSION_KEY,
-        "value": 1
-    })
+    print("Init migration", file=sys.stderr)
     mongo_db.categorymetadata.insert_one({
         "category": "default",
         "admins": []
     })
+    mongo_db.dbmeta.insert_one({
+        "key": DB_VERSION_KEY,
+        "value": 1
+    })
+
+
+def add_downvotes(mongo_db):
+    print("Migrate 'add downvotes'", file=sys.stderr)
+    sections = mongo_db.answersections.find({}, {"answersection": 1})
+    for section in sections:
+        for answer in section["answersection"]["answers"]:
+            print("Update Answer", answer["_id"], file=sys.stderr)
+            mongo_db.answersections.update_one({
+                "answersection.answers._id": answer["_id"]
+            }, {
+                "$set": {"answersection.answers.$.downvotes": []}
+            })
+    set_db_version(mongo_db, 2)
+
 
 MIGRATIONS = [
-    init_migration
+    init_migration,
+    add_downvotes,
 ]
+
 
 def migrate(mongo_db):
     open(DB_LOCK_FILE, "a").close()
@@ -41,7 +64,7 @@ def migrate(mongo_db):
         version = 0
         if maybe_version:
             version = int(maybe_version["value"])
-        print("found db version", version)
+        print("found db version", version, file=sys.stderr)
         for i in range(DB_VERSION):
             if version <= i:
                 MIGRATIONS[i](mongo_db)

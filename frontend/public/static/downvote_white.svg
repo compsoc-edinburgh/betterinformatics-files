@@ -14,7 +14,7 @@
    viewBox="0 0 33.866666 33.866668"
    version="1.1"
    id="svg8"
-   sodipodi:docname="upvote_orange.svg"
+   sodipodi:docname="downvote_white.svg"
    inkscape:version="0.92.1 r15371">
   <defs
      id="defs2" />
@@ -26,8 +26,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
-     inkscape:cx="45.369195"
-     inkscape:cy="55.757783"
+     inkscape:cx="51.602516"
+     inkscape:cy="85.198245"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -59,19 +59,11 @@
      id="layer1"
      transform="translate(0,-263.13332)">
     <rect
-       style="fill:#ffc800;fill-opacity:1;stroke:none;stroke-width:4.00406027;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:4.00406027;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect6320"
        width="33.866665"
        height="7"
        x="8.9009603e-07"
        y="276.56665" />
-    <rect
-       style="fill:#ffc800;fill-opacity:1;stroke:none;stroke-width:4.00406075;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect6320-3"
-       width="33.866665"
-       height="7"
-       x="263.13333"
-       y="-20.433332"
-       transform="rotate(90)" />
   </g>
 </svg>
