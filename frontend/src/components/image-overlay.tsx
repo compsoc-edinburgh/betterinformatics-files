@@ -82,6 +82,7 @@ const styles = {
   deleteImg: css({
     height: "32px",
     width: "32px",
+    cursor: "pointer",
   }),
 };
 
@@ -200,7 +201,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
                     <img {...styles.imageSmall} key={img} src={"/api/img/" + img} alt="Image Preview" />
                   </div>
                   <div {...styles.deleteImgWrapper} onClick={() => this.removeImage(img)}>
-                    <img {...styles.deleteImg} src={"/static/delete.svg"} alt="Delete"/>
+                    <img {...styles.deleteImg} src={"/static/delete.svg"} title="Delete" alt="Delete"/>
                   </div>
                 </div>)}
           </div>
