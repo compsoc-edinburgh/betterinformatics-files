@@ -11,13 +11,17 @@ COPY ./frontend/public ./public
 RUN yarn run build
 
 
-FROM registry.vis.ethz.ch/public/vis-base:bravo
+FROM registry.vis.ethz.ch/public/base:charlie
 LABEL maintainer 'schmidbe@vis.ethz.ch'
 
-RUN mkdir intermediate_pdf_storage
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
+RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
+
+RUN apt-get install -y \
 	python3 python3-pip python3-dev
+
+COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
 COPY ./src/requirements.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
@@ -34,4 +38,4 @@ COPY ./src/people_pb2_grpc.py .
 COPY ./src/dbmigrations.py .
 COPY ./src/server.py .
 
-CMD ["/usr/local/bin/gunicorn", "server:app", "-b", "0.0.0.0:80", "-w", "4", "--log-level", "debug"]
+EXPOSE 80
