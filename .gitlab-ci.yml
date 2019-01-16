@@ -51,8 +51,8 @@ cleanup:
       - prod
 
 .auto_devops: &auto_devops |
-  git clone --depth 1 git@gitlab.vis.ethz.ch:vis_cit/vis-ci-base.git
-  source vis-ci-base/ciscript.sh
+  git clone --depth 1 git@gitlab.ethz.ch:vis/cit/ci-framework.git
+  source ci-framework/ciscript.sh
 
 before_script:
   - docker info
