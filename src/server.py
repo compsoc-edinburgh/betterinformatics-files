@@ -47,6 +47,7 @@ IMAGE_MIME_TYPES = {
     'jpeg': "image/jpeg",
     'png': "image/png",
     'svg': "image/svg+xml",
+    'gif': "image/gif",
 }
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
@@ -144,41 +145,6 @@ def make_json_response(obj):
     return json.dumps(obj, default=date_handler)
 
 
-def make_answer_section_response(oid):
-    username = auth.username()
-    section = answer_sections.find_one({"_id": oid}, {
-        "_id": 1,
-        "filename": 1,
-        "answersection": 1
-    })
-    if not section:
-        return not_found()
-    exam_admin = has_admin_rights_for_exam(auth.username(), section["filename"])
-    section["oid"] = section["_id"]
-    del section["_id"]
-    for answer in section["answersection"]["answers"]:
-        answer["oid"] = answer["_id"]
-        del answer["_id"]
-        answer["canEdit"] = answer["authorId"] == auth.username() or \
-                            (answer["authorId"] == '__legacy__' and exam_admin)
-        answer["isUpvoted"] = auth.username() in answer["upvotes"]
-        answer["isDownvoted"] = auth.username() in answer["downvotes"]
-        answer["upvotes"] = len(answer["upvotes"]) - len(answer["downvotes"])
-        del answer["downvotes"]
-        for comment in answer["comments"]:
-            comment["oid"] = comment["_id"]
-            del comment["_id"]
-            comment["canEdit"] = comment["authorId"] == auth.username()
-    section["answersection"]["answers"] = sorted(
-        filter(
-            lambda x: len(x["text"]) > 0 or x["canEdit"],
-            section["answersection"]["answers"]
-        ), key=lambda x: -x["upvotes"])
-    section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
-    section["answersection"]["allow_new_legacy_answer"] = exam_admin and len([a for a in section["answersection"]["answers"] if a["authorId"] == '__legacy__']) == 0
-    return success(value=section)
-
-
 def not_allowed():
     return make_json_response({"err": "Not allowed"}), 403
 
@@ -266,8 +232,7 @@ def has_admin_rights(username):
     except grpc.RpcError as e:
         print("RPC error while checking admin rights", e)
         return False
-    res = any(("vorstand" == group or "cat" == group)
-               for group in res.vis_groups)
+    res = any(("vorstand" == group or "cat" == group) for group in res.vis_groups)
     admin_cache[username] = res
     return res
 
@@ -326,6 +291,45 @@ def has_admin_rights_for_exam(username, filename):
         "filename": filename
     }, {"category": 1})["category"]
     return has_admin_rights_for_category(username, category)
+
+
+def make_answer_section_response(oid):
+    """
+    Generates a json response containing all information for the given answer section.
+    This includes all answers and comments to this answers.
+    """
+    username = auth.username()
+    section = answer_sections.find_one({"_id": oid}, {
+        "_id": 1,
+        "filename": 1,
+        "answersection": 1
+    })
+    if not section:
+        return not_found()
+    exam_admin = has_admin_rights_for_exam(auth.username(), section["filename"])
+    section["oid"] = section["_id"]
+    del section["_id"]
+    for answer in section["answersection"]["answers"]:
+        answer["oid"] = answer["_id"]
+        del answer["_id"]
+        answer["canEdit"] = answer["authorId"] == auth.username() or \
+                            (answer["authorId"] == '__legacy__' and exam_admin)
+        answer["isUpvoted"] = auth.username() in answer["upvotes"]
+        answer["isDownvoted"] = auth.username() in answer["downvotes"]
+        answer["upvotes"] = len(answer["upvotes"]) - len(answer["downvotes"])
+        del answer["downvotes"]
+        for comment in answer["comments"]:
+            comment["oid"] = comment["_id"]
+            del comment["_id"]
+            comment["canEdit"] = comment["authorId"] == auth.username()
+    section["answersection"]["answers"] = sorted(
+        filter(
+            lambda x: len(x["text"]) > 0 or x["canEdit"],
+            section["answersection"]["answers"]
+        ), key=lambda x: -x["upvotes"])
+    section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
+    section["answersection"]["allow_new_legacy_answer"] = exam_admin and len([a for a in section["answersection"]["answers"] if a["authorId"] == '__legacy__']) == 0
+    return success(value=section)
 
 
 @app.route("/health")
@@ -865,7 +869,7 @@ def list_categories_with_exams():
         key=lambda x: x["name"]
     ))
     for category in categories:
-        category["exams"] = getCategoryExams(category["name"])
+        category["exams"] = get_category_exams(category["name"])
     return success(value=categories)
 
 
@@ -880,7 +884,7 @@ def list_categories_with_admins():
     return success(value=categories)
 
 
-def enhanceExamDictionary(exam):
+def enhance_exam_dictionary(exam):
     """
     Enhance an exam dictionary with useful metadata
     :param exam: The exam dictionary to enhance
@@ -891,13 +895,13 @@ def enhanceExamDictionary(exam):
     return exam
 
 
-def getCategoryExams(category):
+def get_category_exams(category):
     """
     Returns list of exams in the given category, sorted by displayname
     :param category: name of the category
     :return: list of exams with metadata
     """
-    exams = list(map(lambda x: enhanceExamDictionary({"filename": x["filename"]}), exam_metadata.find({
+    exams = list(map(lambda x: enhance_exam_dictionary({"filename": x["filename"]}), exam_metadata.find({
         "category": category
     }, {
         "filename": 1
@@ -941,7 +945,7 @@ def remove_category():
         return not_possible("Missing argument")
     if category == "default":
         return not_possible("Can not delete default category")
-    exams = getCategoryExams(category)
+    exams = get_category_exams(category)
     for exam in exams:
         set_exam_metadata(exam["filename"], {"category": "default"})
     if category_metadata.delete_one({"category": category}).deleted_count > 0:
@@ -1006,7 +1010,7 @@ def list_category():
     category = request.args.get("category")
     if not category:
         return not_possible("Missing argument")
-    return success(value=getCategoryExams(category))
+    return success(value=get_category_exams(category))
 
 
 @app.route("/api/category/metadata")
@@ -1179,6 +1183,7 @@ def submit_feedback():
 @require_admin
 def get_feedback():
     results = feedback.find()
+
     def transform(fb):
         fb["oid"] = fb["_id"]
         del fb["_id"]
