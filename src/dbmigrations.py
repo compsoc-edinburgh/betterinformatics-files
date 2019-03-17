@@ -1,8 +1,9 @@
 import fcntl
 import time
 import sys
+import server
 
-DB_VERSION = 2
+DB_VERSION = 3
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -37,9 +38,19 @@ def add_downvotes(mongo_db):
     set_db_version(mongo_db, 2)
 
 
+def add_user_profiles(mongo_db):
+    print("Migrate 'add user profiles'", file=sys.stderr)
+    sections = mongo_db.answersections.find({}, {"answersection": 1})
+    for section in sections:
+        for answer in section["answersection"]["answers"]:
+            server.adjust_user_score(answer["authorId"], len(answer["upvotes"]) - len(answer["downvotes"]))
+    set_db_version(mongo_db, 3)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
+    add_user_profiles,
 ]
 
 
@@ -48,7 +59,7 @@ def migrate(mongo_db):
     meta = mongo_db.dbmeta
     # access all collections to make sure they exist
     answer_sections = mongo_db.answersections
-    exam_categories = mongo_db.examcategories
+    user_data = mongo_db.userdata
     category_metadata = mongo_db.categorymetadata
     exam_metadata = mongo_db.exammetadata
     image_metadata = mongo_db.imagemetadata

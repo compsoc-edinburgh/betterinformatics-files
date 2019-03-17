@@ -5,6 +5,7 @@ import Colors from "../colors";
 
 interface Props {
   username?: string;
+  displayName?: string;
 }
 
 const styles = {
@@ -52,11 +53,19 @@ const styles = {
   }),
   username: css({
     display: "block",
-    marginRight: "25px"
+    marginRight: "25px",
+    "& a": {
+        ":link": {
+            color: Colors.headerForeground
+        },
+        ":visited": {
+            color: Colors.headerForeground
+        }
+    }
   })
 };
 
-export default ({username}: Props) => (
+export default ({username, displayName}: Props) => (
   <div {...styles.wrapper}>
     <div {...styles.logotitle}>
       <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
@@ -64,7 +73,7 @@ export default ({username}: Props) => (
     </div>
     <div {...styles.centerVertically}>
       <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
-      <div {...styles.username}>{username}</div>
+      <div {...styles.username}><Link to={`/user/${username}`}>{displayName}</Link></div>
     </div>
   </div>
 );

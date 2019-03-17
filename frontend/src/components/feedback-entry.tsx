@@ -35,7 +35,7 @@ const styles = {
     margin: "0"
   }),
   feedbackText: css({
-    whiteSpace: "pre",
+    //whiteSpace: "pre",
   }),
   buttonRead: [
     css({
@@ -71,6 +71,11 @@ export default class FeedbackEntryComponent extends React.Component<Props> {
       .catch(() => undefined);
   };
 
+  wrapText = (text: string) => {
+    const textSplit = text.split("\n");
+    return textSplit.map(t => <p key={t}>{t}</p>);
+  };
+
   render() {
     const entry = this.props.entry;
 
@@ -82,7 +87,7 @@ export default class FeedbackEntryComponent extends React.Component<Props> {
           <button {...styles.buttonRead[entry.read?1:0]} onClick={() => this.setRead(!entry.read)}>{entry.read ? "Set Unread" : "Set Read"}</button>
         </div>
       </div>
-      <div {...styles.feedbackText}>{entry.text}</div>
+      <div {...styles.feedbackText}>{this.wrapText(entry.text)}</div>
     </div>);
   }
 };
