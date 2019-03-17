@@ -72,11 +72,13 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
-    os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
-    os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
-    os.environ['RUNTIME_MONGO_DB_NAME'])
-mongo_db = MongoClient(mongo_url).get_database()
+mongo_db = MongoClient(
+    host=os.environ['RUNTIME_MONGO_DB_SERVER'],
+    port=int(os.environ['RUNTIME_MONGO_DB_PORT']),
+    username=os.environ['RUNTIME_MONGO_DB_USER'],
+    password=os.environ['RUNTIME_MONGO_DB_PW'],
+    connect=True,
+)[os.environ['RUNTIME_MONGO_DB_NAME']]
 
 dbmigrations.migrate(mongo_db)
 
