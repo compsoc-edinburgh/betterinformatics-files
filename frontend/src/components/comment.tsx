@@ -5,6 +5,7 @@ import {css} from "glamor";
 import MarkdownText from "./markdown-text";
 import {fetchpost} from "../fetch-utils";
 import ImageOverlay from "./image-overlay";
+import {Link} from "react-router-dom";
 
 interface Props {
   filename: string;
@@ -51,6 +52,16 @@ const styles = {
     marginBottom: "5px",
     padding: "5px",
     boxSizing: "border-box"
+  }),
+  noLinkColor: css({
+    "& a": {
+      ":link": {
+        color: "inherit"
+      },
+      ":visited": {
+        color: "inherit"
+      }
+    }
   })
 };
 
@@ -152,7 +163,7 @@ export default class CommentComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div {...styles.header}>
           {this.props.isNewComment && <b>Add comment</b>}
-          {!this.props.isNewComment && <span><b>{comment.authorDisplayName}</b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</span>}
+            {!this.props.isNewComment && <span><b {...styles.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</span>}
         </div>
         <div><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>

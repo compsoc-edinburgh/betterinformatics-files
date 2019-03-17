@@ -80,10 +80,8 @@ mongo_db = MongoClient(
     connect=True,
 )[os.environ['RUNTIME_MONGO_DB_NAME']]
 
-dbmigrations.migrate(mongo_db)
-
 answer_sections = mongo_db.answersections
-exam_categories = mongo_db.examcategories
+user_data = mongo_db.userdata
 category_metadata = mongo_db.categorymetadata
 exam_metadata = mongo_db.exammetadata
 image_metadata = mongo_db.imagemetadata
@@ -348,9 +346,10 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/exams/<filename>')
+@app.route('/exams/<argument>')
+@app.route('/user/<argument>')
 @auth.login_required
-def exams(filename):
+def index_with_argument(argument):
     return index()
 
 
@@ -396,7 +395,7 @@ def is_file_in_minio(directory, name):
         return False
 
 
-@app.route("/api/user")
+@app.route("/api/me")
 @auth.login_required
 def get_user():
     """
@@ -511,6 +510,14 @@ def remove_answer_section(filename):
     if oid_str is None:
         return not_possible("Missing argument")
     oid = ObjectId(oid_str)
+    section = answer_sections.find_one({
+        "_id": oid
+    }, {
+        "answersection": 1
+    })
+    if section:
+        for answer in section["answersection"]["answers"]:
+            remove_answer(answer["_id"])
     if answer_sections.delete_one({"_id": oid}).deleted_count > 0:
         return success()
     else:
@@ -528,6 +535,16 @@ def set_like(filename, sectionoid, answeroid):
     answer_oid = ObjectId(answeroid)
     username = auth.username()
     like = int(request.form.get("like", "0"))
+    section = answer_sections.find_one({
+        "answersection.answers._id": answer_oid
+    }, {
+        "answersection.answers.$": 1
+    })
+    old_like = 0
+    if username in section["answersection"]["answers"][0]["upvotes"]:
+        old_like = 1
+    elif username in section["answersection"]["answers"][0]["downvotes"]:
+        old_like = -1
     if like == 1:
         answer_sections.update_one({
             'answersection.answers._id': answer_oid
@@ -545,12 +562,14 @@ def set_like(filename, sectionoid, answeroid):
             'answersection.answers.$.upvotes': username
         }})
     else:
+        like = 0
         answer_sections.update_one({
             'answersection.answers._id': answer_oid
         }, {'$pull': {
             'answersection.answers.$.upvotes': username,
             'answersection.answers.$.downvotes': username
         }})
+    adjust_user_score(section["answersection"]["answers"][0]["authorId"], like - old_like)
     return make_answer_section_response(answer_section_oid)
 
 
@@ -590,6 +609,7 @@ def add_answer(filename, sectionoid):
     }, {'$push': {
         "answersection.answers": answer
     }})
+    adjust_user_score(username, 1)
     return make_answer_section_response(answer_section_oid)
 
 
@@ -628,7 +648,7 @@ def set_answer(filename, sectionoid):
 
 @app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=["POST"])
 @auth.login_required
-def remove_answer(filename, sectionoid):
+def remove_answer_api(filename, sectionoid):
     """
     Delete the answer for the current user for the section.
     POST Parameter 'legacyuser' if the answer should be posted by the special user '__legacy__', is 0/1
@@ -637,14 +657,33 @@ def remove_answer(filename, sectionoid):
     username = get_username_or_legacy(filename)
     if not username:
         return not_allowed()
+    section = answer_sections.find_one({
+        "_id": answer_section_oid,
+        "answersection.answers.authorId": username
+    }, {
+        "answersection.answers.$._id": 1
+    })
+    remove_answer(ObjectId(section["answersection"]["answers"][0]["_id"]))
+    return make_answer_section_response(answer_section_oid)
+
+
+def remove_answer(answeroid):
+    section = answer_sections.find_one({
+        "answersection.answers._id": answeroid
+    }, {
+        "_id": 1,
+        "answersection.answers.$": 1,
+    })
+    if not section:
+        return
+    adjust_user_score(section["answersection"]["answers"][0]["authorId"], len(section["answersection"]["answers"][0]["downvotes"]) - len(section["answersection"]["answers"][0]["upvotes"]))
     answer_sections.update_one({
-        '_id': answer_section_oid
+        "_id": section["_id"]
     }, {"$pull": {
         'answersection.answers': {
-            'authorId': username
+            '_id': answeroid
         }
     }})
-    return make_answer_section_response(answer_section_oid)
 
 
 @app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=["POST"])
@@ -1160,6 +1199,50 @@ def set_image_metadata(filename, metadata):
 
 
 ########################################################################################################################
+# USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS # USERS#
+########################################################################################################################
+
+@app.route("/api/userinfo/<username>")
+@auth.login_required
+def get_user_info(username):
+    init_user_data_if_not_found(username)
+    user = user_data.find_one({
+        "username": username
+    }, {
+        "username": 1,
+        "displayName": 1,
+        "score": 1,
+    })
+    if not user:
+        return not_found()
+    return success(value=user)
+
+
+def init_user_data_if_not_found(username):
+    user = user_data.find_one({
+        "username": username
+    })
+    if user:
+        return
+    user_data.insert_one({
+        "username": username,
+        "displayName": get_real_name(username),
+        "score": 0,
+    })
+
+
+def adjust_user_score(username, score):
+    init_user_data_if_not_found(username)
+    user_data.update_one({
+        "username": username
+    }, {
+        "$inc": {
+            "score": score
+        }
+    })
+
+
+########################################################################################################################
 # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBAC#
 ########################################################################################################################
 
@@ -1324,6 +1407,9 @@ def unhandled_exception(e):
     print('Unhandled Exception', e, traceback.format_exc(), file=sys.stderr)
     return "Sadly, we experienced an internal Error!", 500
 
+
+# we perform migrations only now so all functions are available
+dbmigrations.migrate(mongo_db)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80)

@@ -9,6 +9,7 @@ import {css} from "glamor";
 import Feedback from "./pages/feedback";
 import Colors from "./colors";
 import {fetchapi} from "./fetch-utils";
+import UserInfo from "./pages/userinfo";
 
 css.global('body', {
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
@@ -106,7 +107,7 @@ export default class App extends React.Component<{}, State> {
   };
 
   async componentWillMount() {
-    fetchapi("/api/user")
+    fetchapi("/api/me")
       .then(res => res.json())
       .then(res => this.setState({
         username: res.username,
@@ -120,11 +121,13 @@ export default class App extends React.Component<{}, State> {
   render() {
     return (
       <div>
-        <Header username={this.state.displayname || "loading..."}/>
+        <Header username={this.state.username} displayName={this.state.displayname || "loading..."}/>
         <div {...styles.inner}>
           <Switch>
             <Route path="/exams/:filename" render={(props) => (
               <Exam {...props} filename={props.match.params.filename}/>)}/>
+            <Route path="/user/:username" render={(props) => (
+                <UserInfo {...props} username={props.match.params.username}/>)}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
             <Route path="/categorize" render={(props) => (<Categorize {...props} isAdmin={this.state.isAdmin}/>)}/>
             <Route path="/feedback" render={(props) => (<Feedback {...props} isAdmin={this.state.isAdmin}/>)} />
