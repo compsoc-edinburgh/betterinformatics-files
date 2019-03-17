@@ -249,11 +249,11 @@ export default class Exam extends React.Component<Props, State> {
 
         <div {...styles.sectionsButton}>
           {this.state.canEdit && [
-            <div>
+            <div key="metadata">
               <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
                         onChange={this.metaDataChanged}/>
             </div>,
-            <div>
+            <div key="cuts">
               <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
             </div>
             ]
