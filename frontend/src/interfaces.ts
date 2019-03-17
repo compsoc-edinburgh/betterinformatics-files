@@ -27,6 +27,7 @@ export interface Answer {
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time
+  divRef: HTMLDivElement; // root div element for scroll jumping
 }
 
 export interface Comment {

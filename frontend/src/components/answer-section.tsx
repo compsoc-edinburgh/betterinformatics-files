@@ -3,7 +3,7 @@ import {AnswerSection, SectionKind} from "../interfaces";
 import {loadAnswerSection} from "../exam-loader";
 import {fetchpost} from '../fetch-utils'
 import {css} from "glamor";
-import Answer from "./answer";
+import AnswerComponent from "./answer";
 
 interface Props {
   filename: string;
@@ -64,7 +64,15 @@ export default class AnswerSectionComponent extends React.Component<Props, State
 
   async componentWillMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
-      .then((res) => this.setState({section: res}))
+      .then((res) => {
+        this.setState({section: res});
+        const hash = window.location.hash.substr(1);
+        const hashAnswer = res.answers.find((answer) => answer.oid === hash);
+        if (hashAnswer) {
+          this.props.onToggleHidden();
+          hashAnswer.divRef.scrollIntoView();
+        }
+      })
       .catch(() => undefined);
   }
 
@@ -117,7 +125,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
     return (
       <div {...styles.wrapper}>
         {section.answers.length > 0 && <div {...styles.answerWrapper}>{section.answers.map(e =>
-          <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
+          <AnswerComponent key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
         )}</div>}
         <div key="showhidebutton" {...styles.threebuttons}>
           <div {...styles.leftButton}>

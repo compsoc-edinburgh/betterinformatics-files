@@ -137,6 +137,10 @@ export default class AnswerComponent extends React.Component<Props, State> {
     commentsVisible: false,
   };
 
+  setMainDivRef = (element: HTMLDivElement) => {
+    this.props.answer.divRef = element;
+  };
+
   removeAnswer = async () => {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
@@ -235,7 +239,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     const {answer} = this.props;
     return (
       <div {...styles.wrapper}>
-        <div {...styles.header}>
+        <div ref={this.setMainDivRef} {...styles.header}>
           <div>
               <b {...styles.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
           </div>
@@ -288,6 +292,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                    onSectionChanged={this.props.onSectionChanged}/>}
         </div>
         }
+        <div><small><a href={"#" + this.props.answer.oid}>Permalink</a></small></div>
       </div>
     );
   }
