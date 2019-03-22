@@ -77,6 +77,19 @@ export interface ExamMetaData {
   resolve_alias: string;
 }
 
+export interface NotificationInfo {
+  oid: string;
+  receiver: string;
+  type: number;
+  time: string;
+  sender: string;
+  senderDisplayName: string;
+  title: string;
+  message: string;
+  link: string;
+  read: boolean;
+}
+
 export interface FeedbackEntry {
   oid: string;
   text: string;

@@ -3,7 +3,7 @@ import time
 import sys
 import server
 
-DB_VERSION = 3
+DB_VERSION = 4
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -47,10 +47,42 @@ def add_user_profiles(mongo_db):
     set_db_version(mongo_db, 3)
 
 
+def add_notifications(mongo_db):
+    print("Migrate 'add notifications", file=sys.stderr)
+    users = mongo_db.userdata.find({}, {"username": 1})
+    for user in users:
+        mongo_db.userdata.update_one({
+            "username": user["username"]
+        }, {
+            "$set": {
+                "notifications": [],
+                "enabled_notifications": [
+                    server.NotificationType.NEW_COMMENT_TO_ANSWER.value,
+                    server.NotificationType.NEW_ANSWER_TO_ANSWER.value,
+                ],
+            }
+        })
+    sections = mongo_db.answersections.find({}, {"filename": 1, "answersection": 1})
+    for section in sections:
+        for answer in section["answersection"]["answers"]:
+            for comment in answer["comments"]:
+                if comment["authorId"] != answer["authorId"]:
+                    server.send_user_notification(
+                        answer["authorId"],
+                        server.NotificationType.NEW_COMMENT_TO_ANSWER,
+                        comment["authorId"],
+                        "New comment",
+                        "A new comment to your answer was added.",
+                        "/exams/{}#{}".format(section["filename"], answer["_id"])
+                    )
+    set_db_version(mongo_db, 4)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
     add_user_profiles,
+    add_notifications,
 ]
 
 

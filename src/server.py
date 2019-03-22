@@ -20,6 +20,7 @@ import traceback
 import inspect
 import time
 import random
+import enum
 
 import grpc
 import people_pb2
@@ -72,6 +73,14 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
+# this works in staging
+# mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
+#     os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
+#     os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
+#     os.environ['RUNTIME_MONGO_DB_NAME'])
+# mongo_db = MongoClient(mongo_url).get_database()
+
+# this works locally
 mongo_db = MongoClient(
     host=os.environ['RUNTIME_MONGO_DB_SERVER'],
     port=int(os.environ['RUNTIME_MONGO_DB_PORT']),
@@ -87,6 +96,12 @@ category_metadata = mongo_db.categorymetadata
 exam_metadata = mongo_db.exammetadata
 image_metadata = mongo_db.imagemetadata
 feedback = mongo_db.feedback
+
+
+class NotificationType(enum.Enum):
+    NEW_COMMENT_TO_ANSWER = 1
+    NEW_COMMENT_TO_COMMENT = 2
+    NEW_ANSWER_TO_ANSWER = 3
 
 
 def get_argument_value(argument, func, args, kwargs):
@@ -639,6 +654,22 @@ def set_answer(filename, sectionoid):
     })
     if not maybe_answer:
         return not_possible("Answer does not yet exist")
+    if not maybe_answer["answersection"]["answers"][0]["text"] and text:
+        other_answers = answer_sections.find_one({
+            "_id": answer_section_oid
+        }, {
+            "answersection.answers": 1
+        })
+        for other_answer in other_answers["answersection"]["answers"]:
+            if other_answer["_id"] != maybe_answer["answersection"]["answers"][0]["_id"] and is_notification_enabled(other_answer["authorId"], NotificationType.NEW_ANSWER_TO_ANSWER):
+                send_user_notification(
+                    other_answer["authorId"],
+                    NotificationType.NEW_ANSWER_TO_ANSWER,
+                    username,
+                    "New answer",
+                    "A new answer was posted to a question you answered.",
+                    "/exams/{}#{}".format(filename, maybe_answer["answersection"]["answers"][0]["_id"])
+                )
     answer_sections.update_one({
         'answersection.answers._id': maybe_answer["answersection"]["answers"][0]["_id"]
     }, {"$set": {
@@ -700,6 +731,34 @@ def add_comment(filename, sectionoid, answeroid):
     text = request.form.get("text", None)
     if not text:
         return not_possible("Missing argument")
+
+    answer = answer_sections.find_one({
+        "answersection.answers._id": answer_oid
+    }, {
+        "answersection.answers.$": 1,
+    })["answersection"]["answers"][0]
+    answer_author = answer["authorId"]
+    if is_notification_enabled(answer_author, NotificationType.NEW_COMMENT_TO_ANSWER):
+        send_user_notification(
+            answer_author,
+            NotificationType.NEW_COMMENT_TO_ANSWER,
+            username,
+            "New comment",
+            "A new comment to your answer was added.\n\n{}".format(text),
+            "/exams/{}#{}".format(filename, answer_oid)
+        )
+    for comment in answer["comments"]:
+        sent_notifications = {answer_author}
+        if comment["authorId"] not in sent_notifications and is_notification_enabled(comment["authorId"], NotificationType.NEW_COMMENT_TO_COMMENT):
+            send_user_notification(
+                comment["authorId"],
+                NotificationType.NEW_COMMENT_TO_COMMENT,
+                username,
+                "New comment",
+                "A new comment to an answer you commented was added.\n\n{}".format(text),
+                "/exams/{}#{}".format(filename, answer_oid)
+            )
+            sent_notifications.add(comment["authorId"])
 
     comment = {
         "_id": ObjectId(),
@@ -1187,7 +1246,8 @@ def set_image_metadata_api(filename):
 
 def set_image_metadata(filename, metadata):
     """
-    Set the metadata for the given image file
+    Set the metadata for the given image fileal
+
     :param filename: filename of the image
     :param metadata: dictionary of values to set
     """
@@ -1229,6 +1289,11 @@ def init_user_data_if_not_found(username):
         "username": username,
         "displayName": get_real_name(username),
         "score": 0,
+        "notifications": [],
+        "enabled_notifications": [
+            NotificationType.NEW_COMMENT_TO_ANSWER.value,
+            NotificationType.NEW_ANSWER_TO_ANSWER.value,
+        ],
     })
 
 
@@ -1239,6 +1304,111 @@ def adjust_user_score(username, score):
     }, {
         "$inc": {
             "score": score
+        }
+    })
+
+
+def is_notification_enabled(username, type):
+    init_user_data_if_not_found(username)
+    enabled = user_data.find_one({
+        "username": username
+    }, {
+        "enabled_notifications": 1
+    })["enabled_notifications"]
+    return type.value in enabled
+
+
+@app.route("/api/notifications/setenabled")
+@auth.login_required
+def set_notification_enabled():
+    username = auth.username()
+    init_user_data_if_not_found(username)
+    enabled = request.form.get("enabled", "0") != "0"
+    type = int(request.form.get("type", -1))
+    if type < 1 or type > len(NotificationType.__members__):
+        return not_possible("type not valid")
+    user_data.update_one({
+        "username": username
+    }, {
+        ("$addToSet" if enabled else "$pull"): {
+            "enabled_notifications": type
+        }
+    })
+    return success()
+
+
+def get_notifications(only_unread):
+    username = auth.username()
+    query = {
+        "username": username
+    }
+    notifications = user_data.find_one(query, {
+        "notifications": 1
+    })
+    if not notifications:
+        return []
+    notifications = notifications["notifications"]
+    if only_unread:
+        notifications = list(filter(lambda x: x["read"] == False, notifications))
+    for notification in notifications:
+        notification["oid"] = notification["_id"]
+        del notification["_id"]
+    return notifications
+
+
+@app.route("/api/notifications/unread")
+@auth.login_required
+def get_notifications_unread():
+    return success(value=get_notifications(True))
+
+
+@app.route("/api/notifications/unreadcount")
+@auth.login_required
+def get_notifications_unread_count():
+    return success(value=len(get_notifications(True)))
+
+
+@app.route("/api/notifications/all")
+@auth.login_required
+def get_notifications_all():
+    return success(value=get_notifications(False))
+
+
+@app.route("/api/notifications/setread", methods=["POST"])
+@auth.login_required
+def set_notification_read():
+    username = auth.username()
+    read = request.form.get("read", "0") != "0"
+    user_data.update_one({
+        "username": username,
+        "notifications._id": ObjectId(request.form.get("notificationoid", ""))
+    }, {
+        "$set": {
+            "notifications.$.read": read
+        }
+    })
+    return success()
+
+
+def send_user_notification(username, type, sender, title, message, link):
+    init_user_data_if_not_found(username)
+    notification = {
+        "_id": ObjectId(),
+        "receiver": username,
+        "type": type.value,
+        "time": datetime.now(timezone.utc).isoformat(),
+        "sender": sender,
+        "senderDisplayName": get_real_name(sender),
+        "title": title,
+        "message": message,
+        "link": link,
+        "read": False,
+    }
+    user_data.update_one({
+        "username": username
+    }, {
+        "$push": {
+            "notifications": notification
         }
     })
 

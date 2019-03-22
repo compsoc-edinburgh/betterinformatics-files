@@ -2,10 +2,16 @@ import * as React from "react";
 import {Link} from "react-router-dom";
 import {css} from "glamor";
 import Colors from "../colors";
+import {fetchapi} from "../fetch-utils";
 
 interface Props {
   username?: string;
   displayName?: string;
+}
+
+interface State {
+  notificationCount: number;
+  notificationIntervalId: number;
 }
 
 const styles = {
@@ -65,15 +71,47 @@ const styles = {
   })
 };
 
-export default ({username, displayName}: Props) => (
-  <div {...styles.wrapper}>
-    <div {...styles.logotitle}>
-      <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
-      <div {...styles.title} {...styles.centerVertically}><Link to="/">VIS Community Solutions</Link></div>
-    </div>
-    <div {...styles.centerVertically}>
-      <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
-      <div {...styles.username}><Link to={`/user/${username}`}>{displayName}</Link></div>
-    </div>
-  </div>
-);
+export default class Header extends React.Component<Props> {
+
+  state: State = {
+    notificationCount: 0,
+    notificationIntervalId: 0,
+  };
+
+  async componentWillMount() {
+    const intervalId = setInterval(this.checkNotificationCount, 60000);
+    this.setState({
+      notificationIntervalId: intervalId
+    });
+    this.checkNotificationCount();
+  }
+
+  async componentWillUnmount() {
+    clearInterval(this.state.notificationIntervalId);
+  }
+
+  checkNotificationCount = async () => {
+    fetchapi('/api/notifications/unreadcount')
+      .then(res => res.json())
+      .then(res => {
+        this.setState({
+          notificationCount: res.value
+        });
+      });
+  };
+
+  render() {
+    return (
+      <div {...styles.wrapper}>
+        <div {...styles.logotitle}>
+          <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
+          <div {...styles.title} {...styles.centerVertically}><Link to="/">VIS Community Solutions</Link></div>
+        </div>
+        <div {...styles.centerVertically}>
+          <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
+          <div {...styles.username}><Link to={`/user/${this.props.username}`}>{this.props.displayName}{this.state.notificationCount > 0 ? " (" + this.state.notificationCount + ")" : ""}</Link></div>
+        </div>
+      </div>
+    );
+  }
+};
