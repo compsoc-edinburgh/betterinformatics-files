@@ -12,9 +12,7 @@ RUN yarn run build
 
 
 FROM registry.vis.ethz.ch/public/base:charlie
-LABEL maintainer 'schmidbe@vis.ethz.ch'
-
-RUN echo reset cache
+LABEL maintainer='schmidbe@vis.ethz.ch'
 
 WORKDIR /app
 
