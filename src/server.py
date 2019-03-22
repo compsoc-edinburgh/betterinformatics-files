@@ -248,7 +248,7 @@ def has_admin_rights(username):
     except grpc.RpcError as e:
         print("RPC error while checking admin rights", e)
         return False
-    res = any(("vorstand" == group or "cat" == group) for group in res.vis_groups)
+    res = any(("vorstand" == group or "cat" == group or "luk" == group) for group in res.vis_groups)
     admin_cache[username] = res
     return res
 
