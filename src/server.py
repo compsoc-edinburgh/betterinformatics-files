@@ -78,6 +78,7 @@ mongo_db = MongoClient(
     username=os.environ['RUNTIME_MONGO_DB_USER'],
     password=os.environ['RUNTIME_MONGO_DB_PW'],
     connect=True,
+    authSource=os.environ['RUNTIME_MONGO_DB_NAME'],
 )[os.environ['RUNTIME_MONGO_DB_NAME']]
 
 answer_sections = mongo_db.answersections
