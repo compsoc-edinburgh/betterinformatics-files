@@ -14,6 +14,8 @@ RUN yarn run build
 FROM registry.vis.ethz.ch/public/base:charlie
 LABEL maintainer 'schmidbe@vis.ethz.ch'
 
+RUN echo reset cache
+
 WORKDIR /app
 
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
