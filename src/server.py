@@ -661,7 +661,7 @@ def set_answer(filename, sectionoid):
             "answersection.answers": 1
         })
         for other_answer in other_answers["answersection"]["answers"]:
-            if other_answer["_id"] != maybe_answer["answersection"]["answers"][0]["_id"] and is_notification_enabled(other_answer["authorId"], NotificationType.NEW_ANSWER_TO_ANSWER):
+            if other_answer["_id"] != maybe_answer["answersection"]["answers"][0]["_id"]:
                 send_user_notification(
                     other_answer["authorId"],
                     NotificationType.NEW_ANSWER_TO_ANSWER,
@@ -738,18 +738,17 @@ def add_comment(filename, sectionoid, answeroid):
         "answersection.answers.$": 1,
     })["answersection"]["answers"][0]
     answer_author = answer["authorId"]
-    if is_notification_enabled(answer_author, NotificationType.NEW_COMMENT_TO_ANSWER):
-        send_user_notification(
-            answer_author,
-            NotificationType.NEW_COMMENT_TO_ANSWER,
-            username,
-            "New comment",
-            "A new comment to your answer was added.\n\n{}".format(text),
-            "/exams/{}#{}".format(filename, answer_oid)
-        )
+    send_user_notification(
+        answer_author,
+        NotificationType.NEW_COMMENT_TO_ANSWER,
+        username,
+        "New comment",
+        "A new comment to your answer was added.\n\n{}".format(text),
+        "/exams/{}#{}".format(filename, answer_oid)
+    )
     for comment in answer["comments"]:
         sent_notifications = {answer_author}
-        if comment["authorId"] not in sent_notifications and is_notification_enabled(comment["authorId"], NotificationType.NEW_COMMENT_TO_COMMENT):
+        if comment["authorId"] not in sent_notifications:
             send_user_notification(
                 comment["authorId"],
                 NotificationType.NEW_COMMENT_TO_COMMENT,
@@ -1318,7 +1317,22 @@ def is_notification_enabled(username, type):
     return type.value in enabled
 
 
-@app.route("/api/notifications/setenabled")
+@app.route("/api/notifications/getenabled")
+@auth.login_required
+def get_notification_enabled():
+    username = auth.username()
+    init_user_data_if_not_found(username)
+    enabled = user_data.find_one({
+        "username": username
+    }, {
+        "enabled_notifications": 1
+    })
+    if not enabled:
+        return not_found()
+    return success(value=enabled["enabled_notifications"])
+
+
+@app.route("/api/notifications/setenabled", methods=["POST"])
 @auth.login_required
 def set_notification_enabled():
     username = auth.username()
@@ -1391,6 +1405,10 @@ def set_notification_read():
 
 
 def send_user_notification(username, type, sender, title, message, link):
+    if username == sender:
+        return
+    if not is_notification_enabled(username, type):
+        return
     init_user_data_if_not_found(username)
     notification = {
         "_id": ObjectId(),

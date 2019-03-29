@@ -97,7 +97,8 @@ export default class Header extends React.Component<Props> {
         this.setState({
           notificationCount: res.value
         });
-      });
+      })
+      .catch(() => undefined);
   };
 
   render() {

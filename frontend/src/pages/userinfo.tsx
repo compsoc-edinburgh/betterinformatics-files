@@ -1,8 +1,7 @@
 import * as React from "react";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import {NotificationInfo} from "../interfaces";
-import {Link} from "react-router-dom";
-import * as moment from "moment";
+import NotificationComponent from "../components/notification";
 
 interface Props {
   isMyself: boolean;
@@ -14,6 +13,7 @@ interface State {
   score: number;
   showAll: boolean;
   notifications: NotificationInfo[];
+  enabledNotifications: number[];
   error?: string;
 }
 
@@ -24,6 +24,7 @@ export default class UserInfo extends React.Component<Props, State> {
     score: 0,
     showAll: false,
     notifications: [],
+    enabledNotifications: [],
   };
 
   async componentWillMount() {
@@ -34,18 +35,40 @@ export default class UserInfo extends React.Component<Props, State> {
           displayName: res.value.displayName,
           score: res.value.score,
         });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
       });
     if (this.props.isMyself) {
       this.loadUnreadNotifications();
+      this.loadEnabledNotifications();
     } else {
       setTimeout(() => {
         if (this.props.isMyself && !this.state.showAll) {
           // maybe the props 'isMyself' changed
           this.loadUnreadNotifications();
+          this.loadEnabledNotifications();
         }
       }, 700); // dirty hack to handle direct links to this page
     }
   }
+
+  loadEnabledNotifications = () => {
+    fetchapi('/api/notifications/getenabled')
+      .then(res => res.json())
+      .then(res => {
+        this.setState({
+          enabledNotifications: res.value
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
 
   loadUnreadNotifications = () => {
     fetchapi('/api/notifications/unread')
@@ -53,6 +76,11 @@ export default class UserInfo extends React.Component<Props, State> {
       .then(res => {
         this.setState({
           notifications: res.value
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
         });
       });
   };
@@ -65,19 +93,26 @@ export default class UserInfo extends React.Component<Props, State> {
           showAll: true,
           notifications: res.value,
         });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
       });
   };
 
-  readNotification = (notification: NotificationInfo) => {
-    fetchpost('/api/notifications/setread', {
-      read: 1,
-      notificationoid: notification.oid,
-    });
+  setNotificationEnabled = (type: number, enabled: boolean) => {
+    fetchpost('/api/notifications/setenabled', {
+      type: type,
+      enabled: enabled ? 1 : 0,
+    })
+      .then(() => {
+        this.loadEnabledNotifications();
+      });
   };
 
   // TODO implement notification settings
-  // TODO correctly render comments
-  // TODO style everything
+  // TODO fix user not changing if clicked from this page
 
   render() {
     return (
@@ -87,13 +122,14 @@ export default class UserInfo extends React.Component<Props, State> {
         <p>Score: {this.state.score}</p>
         {this.props.isMyself && <div>
           <h2>Notification Settings</h2>
+          <div>
+            <p><input type="checkbox" checked={this.state.enabledNotifications.indexOf(1) !== -1} onChange={(ev) => this.setNotificationEnabled(1, ev.target.checked)}/> Comment to my answer</p>
+            <p><input type="checkbox" checked={this.state.enabledNotifications.indexOf(2) !== -1} onChange={(ev) => this.setNotificationEnabled(2, ev.target.checked)}/> Comment to my comment</p>
+            <p><input type="checkbox" checked={this.state.enabledNotifications.indexOf(3) !== -1} onChange={(ev) => this.setNotificationEnabled(3, ev.target.checked)}/> Other answer to same question</p>
+          </div>
           <h2>Notifications</h2>
-          {this.state.notifications.map(notification => (
-            <div key={notification.oid}>
-              <div><Link to={notification.link} onClick={() => this.readNotification(notification)}>{notification.title}</Link></div>
-              <div><Link to={notification.sender}>{notification.senderDisplayName}</Link> @ {moment(notification.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</div>
-              <div>{notification.message}</div>
-            </div>
+          {this.state.notifications.reverse().map(notification => (
+            <NotificationComponent notification={notification} key={notification.oid}/>
           ))}
           {(!this.state.showAll) && <div>
             <button onClick={this.loadAllNotifications}>Show All Notifications</button>
