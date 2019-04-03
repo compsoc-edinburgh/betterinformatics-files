@@ -111,7 +111,36 @@ export default class UserInfo extends React.Component<Props, State> {
       });
   };
 
-  // TODO implement notification settings
+  markAllRead = () => {
+    Promise.all(
+      this.state.notifications
+        .filter(notification => !notification.read)
+        .map(notification =>
+          fetchpost('/api/notifications/setread', {
+            read: 1,
+            notificationoid: notification.oid,
+          })
+            .catch(err => {
+              this.setState({
+                error: err.toString()
+              });
+            })
+        )
+    )
+      .then(() => {
+        if (this.state.showAll) {
+          this.loadAllNotifications();
+        } else {
+          this.loadUnreadNotifications();
+        }
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
   // TODO fix user not changing if clicked from this page
 
   render() {
@@ -131,9 +160,11 @@ export default class UserInfo extends React.Component<Props, State> {
           {this.state.notifications.reverse().map(notification => (
             <NotificationComponent notification={notification} key={notification.oid}/>
           ))}
-          {(!this.state.showAll) && <div>
-            <button onClick={this.loadAllNotifications}>Show All Notifications</button>
-          </div>}
+          <div>
+            {(!this.state.showAll) && <button onClick={this.loadAllNotifications}>Show All Notifications</button>}
+            {(this.state.notifications.filter(notification => !notification.read).length > 0) &&
+            <button onClick={this.markAllRead}>Mark All Read</button>}
+          </div>
         </div>}
       </div>
     );
