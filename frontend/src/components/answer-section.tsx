@@ -62,7 +62,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
 
   state: State = {};
 
-  async componentWillMount() {
+  async componentDidMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
       .then((res) => {
         this.setState({section: res});

@@ -113,21 +113,18 @@ export default class Categorize extends React.Component<Props, State> {
     clipboard: [],
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     this.setState({
       categoryStack: [{name: "", exams: [], childCategories: []}]
     });
     this.updateCategories();
+    document.title = "Category Editor - VIS Community Solutions";
   }
 
   async componentWillUpdate() {
     if (this.props.isAdmin && !this.state.categoryAdmins) {
       this.updateAdmins();
     }
-  }
-
-  async componentDidMount() {
-    document.title = "Category Editor - VIS Community Solutions";
   }
 
   updateCategories = async () => {

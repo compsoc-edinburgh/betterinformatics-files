@@ -113,7 +113,7 @@ export default class ExamList extends React.Component<Props, State> {
     }
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     fetchapi('/api/listcategories/withexams')
       .then(res => res.json())
       .then(res => this.setState({

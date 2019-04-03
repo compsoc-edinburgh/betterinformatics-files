@@ -27,7 +27,7 @@ export default class UserInfo extends React.Component<Props, State> {
     enabledNotifications: [],
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     fetchapi('/api/userinfo/' + this.props.username)
       .then(res => res.json())
       .then(res => {
@@ -44,14 +44,14 @@ export default class UserInfo extends React.Component<Props, State> {
     if (this.props.isMyself) {
       this.loadUnreadNotifications();
       this.loadEnabledNotifications();
-    } else {
-      setTimeout(() => {
-        if (this.props.isMyself && !this.state.showAll) {
-          // maybe the props 'isMyself' changed
-          this.loadUnreadNotifications();
-          this.loadEnabledNotifications();
-        }
-      }, 700); // dirty hack to handle direct links to this page
+    }
+  }
+
+  async componentDidUpdate(prevProps: Props) {
+    document.title = this.state.displayName + " - VIS Community Solutions";
+    if (!prevProps.isMyself && this.props.isMyself) {
+      this.loadUnreadNotifications();
+      this.loadEnabledNotifications();
     }
   }
 

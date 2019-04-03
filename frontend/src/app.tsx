@@ -106,7 +106,7 @@ export default class App extends React.Component<{}, State> {
     isCategoryAdmin: false,
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     fetchapi("/api/me")
       .then(res => res.json())
       .then(res => this.setState({

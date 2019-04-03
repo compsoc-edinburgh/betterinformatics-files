@@ -80,7 +80,7 @@ export default class Exam extends React.Component<Props, State> {
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
 
-  async componentWillMount() {
+  async componentDidMount() {
     this.updateInverval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
     this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
@@ -112,14 +112,11 @@ export default class Exam extends React.Component<Props, State> {
         error: true
       });
     }
+    this.setDocumentTitle();
   }
 
   setDocumentTitle() {
     document.title = this.state.savedMetaData.displayname + " - VIS Community Solutions";
-  }
-
-  async componentDidMount() {
-    this.setDocumentTitle();
   }
 
   componentWillUnmount() {

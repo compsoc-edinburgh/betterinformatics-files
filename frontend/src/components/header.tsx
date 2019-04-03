@@ -78,7 +78,7 @@ export default class Header extends React.Component<Props> {
     notificationIntervalId: 0,
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     const intervalId = setInterval(this.checkNotificationCount, 60000);
     this.setState({
       notificationIntervalId: intervalId

@@ -21,7 +21,7 @@ export default class UploadPDF extends React.Component<{}, State> {
     categories: []
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     fetchapi('/api/listcategories/onlyadmin')
       .then(res => res.json())
       .then(res => this.setState({
@@ -30,9 +30,6 @@ export default class UploadPDF extends React.Component<{}, State> {
       .catch((e)=>{
         this.setState({error: e.toString()});
       });
-  }
-
-  async componentDidMount() {
     document.title = "Upload Exam - VIS Community Solutions";
   }
 

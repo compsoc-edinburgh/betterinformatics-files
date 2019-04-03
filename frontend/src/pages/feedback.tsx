@@ -50,20 +50,17 @@ export default class Feedback extends React.Component<Props, State> {
     requestedFeedbacks: false,
   };
 
-  async componentWillMount() {
+  async componentDidMount() {
     if (this.props.isAdmin) {
       this.loadFeedbacks();
     }
+    document.title = "Feedback - VIS Community Solutions";
   }
 
   async componentDidUpdate() {
     if (this.props.isAdmin && !this.state.requestedFeedbacks) {
       this.loadFeedbacks();
     }
-  }
-
-  async componentDidMount() {
-    document.title = "Feedback - VIS Community Solutions";
   }
 
   feedbackTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {

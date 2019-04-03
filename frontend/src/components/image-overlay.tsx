@@ -106,7 +106,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
 
   fileInputRef: RefObject<HTMLInputElement> = React.createRef();
 
-  async componentWillMount() {
+  async componentDidMount() {
     this.loadImages();
   }
 
