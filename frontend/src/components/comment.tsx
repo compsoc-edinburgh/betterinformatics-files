@@ -67,6 +67,7 @@ const styles = {
 
 export default class CommentComponent extends React.Component<Props, State> {
 
+  // noinspection PointlessBooleanExpressionJS
   state: State = {
     editing: !!this.props.isNewComment,
     savedText: this.props.comment.text,
@@ -75,7 +76,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     imageCursorPosition: -1,
   };
 
-  removeComment = async () => {
+  removeComment = () => {
     const confirmation = confirm("Remove comment?");
     if (confirmation) {
       fetchpost(`/api/exam/${this.props.filename}/removecomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid})
@@ -87,18 +88,18 @@ export default class CommentComponent extends React.Component<Props, State> {
     }
   };
 
-  startEdit = async () => {
+  startEdit = () => {
     this.setState({editing: true});
   };
 
-  cancelEdit = async () => {
+  cancelEdit = () => {
     this.setState(prevState => ({
       editing: false,
       text: prevState.savedText
     }));
   };
 
-  saveComment = async () => {
+  saveComment = () => {
     if (this.props.isNewComment) {
       fetchpost(`/api/exam/${this.props.filename}/addcomment/${this.props.sectionId}/${this.props.answerId}`, {
         text: this.state.text

@@ -106,7 +106,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
 
   fileInputRef: RefObject<HTMLInputElement> = React.createRef();
 
-  async componentDidMount() {
+  componentDidMount() {
     this.loadImages();
   }
 
@@ -168,7 +168,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
     });
   };
 
-  removeImage = async (image: string) => {
+  removeImage = (image: string) => {
     const confirmation = confirm("Remove image?");
     if (confirmation) {
       fetchpost(`/api/image/${image}/remove`, {})

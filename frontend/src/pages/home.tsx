@@ -34,7 +34,7 @@ interface Props {
 
 export default class Home extends React.Component<Props> {
 
-  async componentDidMount() {
+  componentDidMount() {
     document.title = "VIS Community Solutions";
   }
 

@@ -12,9 +12,11 @@ interface Props {
   onSave: (exam: string, value: string) => void;
 }
 
-async function submitSave(exam: string, newCategory: string, onSave: (exam: string, value: string) => void) {
-  await fetchpost(`/api/exam/${exam}/metadata`, {category: newCategory});
-  onSave(exam, newCategory);
+function submitSave(exam: string, newCategory: string, onSave: (exam: string, value: string) => void) {
+  fetchpost(`/api/exam/${exam}/metadata`, {category: newCategory})
+    .then(() => {
+      onSave(exam, newCategory);
+    });
 }
 
 export default ({exam, category, savedCategory, categories, onChange, onSave}: Props) => (

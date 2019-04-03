@@ -62,7 +62,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
 
   state: State = {};
 
-  async componentDidMount() {
+  componentDidMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
       .then((res) => {
         this.setState({section: res});
@@ -79,14 +79,15 @@ export default class AnswerSectionComponent extends React.Component<Props, State
   removeSection = async () => {
     const confirmation = confirm("Remove answer section with all answers?");
     if (confirmation) {
-      await fetchpost(`/api/exam/${this.props.filename}/removeanswersection`, {
+      fetchpost(`/api/exam/${this.props.filename}/removeanswersection`, {
         oid: this.props.oid
+      }).then(() => {
+        this.props.onSectionChange();
       });
-      this.props.onSectionChange();
     }
   };
 
-  addAnswer = async (legacy: boolean) => {
+  addAnswer = (legacy: boolean) => {
     const postdata = legacy ? {legacyuser: 1} : {};
     fetchpost(`/api/exam/${this.props.filename}/addanswer/${this.props.oid}`, postdata)
       .then((res) => res.json())
@@ -100,7 +101,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
   };
 
   // takes the parsed json for the answersection which was returned from the server
-  onSectionChanged = async (res: {value: {answersection: AnswerSection}}) => {
+  onSectionChanged = (res: {value: {answersection: AnswerSection}}) => {
     let answersection = res.value.answersection;
     //answersection.key = this.props.oid;
     answersection.kind = SectionKind.Answer;

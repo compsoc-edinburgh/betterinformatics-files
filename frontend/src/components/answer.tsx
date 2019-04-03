@@ -141,7 +141,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     this.props.answer.divRef = element;
   };
 
-  removeAnswer = async () => {
+  removeAnswer = () => {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
       fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, this.enrichPostdata({}))
@@ -161,7 +161,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     }
   };
 
-  saveAnswer = async () => {
+  saveAnswer = () => {
     fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, this.enrichPostdata({text: this.state.text}))
       .then((res) => res.json())
       .then((res) => {
@@ -174,14 +174,14 @@ export default class AnswerComponent extends React.Component<Props, State> {
       .catch(() => undefined);
   };
 
-  cancelEdit = async () => {
+  cancelEdit = () => {
     this.setState(prevState => ({
       editing: false,
       text: prevState.savedText
     }));
   };
 
-  startEdit = async () => {
+  startEdit = () => {
     this.setState({
       editing: true,
       imageCursorPosition: -1,
@@ -219,7 +219,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     });
   };
 
-  toggleAnswerLike = async (like: Number) => {
+  toggleAnswerLike = (like: Number) => {
     const newLike = like === 1 ? (this.props.answer.isUpvoted ? 0 : 1) : (this.props.answer.isDownvoted ? 0 : -1);
     fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: newLike})
       .then((res) => res.json())

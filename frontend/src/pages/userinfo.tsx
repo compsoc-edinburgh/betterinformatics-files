@@ -27,7 +27,7 @@ export default class UserInfo extends React.Component<Props, State> {
     enabledNotifications: [],
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     fetchapi('/api/userinfo/' + this.props.username)
       .then(res => res.json())
       .then(res => {
@@ -47,7 +47,7 @@ export default class UserInfo extends React.Component<Props, State> {
     }
   }
 
-  async componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props) {
     document.title = this.state.displayName + " - VIS Community Solutions";
     if (!prevProps.isMyself && this.props.isMyself) {
       this.loadUnreadNotifications();

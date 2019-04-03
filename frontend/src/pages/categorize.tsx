@@ -113,7 +113,7 @@ export default class Categorize extends React.Component<Props, State> {
     clipboard: [],
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     this.setState({
       categoryStack: [{name: "", exams: [], childCategories: []}]
     });
@@ -121,13 +121,13 @@ export default class Categorize extends React.Component<Props, State> {
     document.title = "Category Editor - VIS Community Solutions";
   }
 
-  async componentWillUpdate() {
+  componentWillUpdate() {
     if (this.props.isAdmin && !this.state.categoryAdmins) {
       this.updateAdmins();
     }
   }
 
-  updateCategories = async () => {
+  updateCategories = () => {
     fetchapi('/api/listcategories/withexams')
       .then(res => res.json())
       .then(res => {
@@ -143,7 +143,7 @@ export default class Categorize extends React.Component<Props, State> {
       .catch(()=>undefined);
   };
 
-  updateAdmins = async () => {
+  updateAdmins = () => {
     fetchapi('/api/listcategories/withadmins')
       .then(res => res.json())
       .then(res => {
@@ -174,7 +174,7 @@ export default class Categorize extends React.Component<Props, State> {
       categoryStack: prevState.categoryStack.slice(0, -1)
     }));
 
-  addCategory = async () => {
+  addCategory = () => {
     const newName = this.state.categoryStack.length === 1 ?
       this.state.newCategoryName :
       this.arrLast(this.state.categoryStack).name + "/" + this.state.newCategoryName;
@@ -188,7 +188,7 @@ export default class Categorize extends React.Component<Props, State> {
       .catch(()=>undefined);
   };
 
-  removeCategory = async (category: Category) => {
+  removeCategory = (category: Category) => {
     const confirmation = confirm("Remove category?");
     if (confirmation) {
       fetchpost('/api/category/remove', {category: category.name})
@@ -199,7 +199,7 @@ export default class Categorize extends React.Component<Props, State> {
     }
   };
 
-  moveToClipboard = async (exam: Exam) => {
+  moveToClipboard = (exam: Exam) => {
     this.setState(prevState => {
       prevState.clipboard.push(exam);
       return {
@@ -208,7 +208,7 @@ export default class Categorize extends React.Component<Props, State> {
     });
   };
 
-  moveFromClipboard = async () => {
+  moveFromClipboard = () => {
     const newCategory = this.arrLast(this.state.categoryStack).name;
     Promise.all(this.state.clipboard
       .map(exam => fetchpost(`/api/exam/${exam.filename}/metadata`, {category: newCategory})))
@@ -221,7 +221,7 @@ export default class Categorize extends React.Component<Props, State> {
       .catch(()=>undefined);
   };
 
-  removeExam = async (exam: Exam) => {
+  removeExam = (exam: Exam) => {
     const confirmation = confirm("Remove exam? This can not be undone! All answers will be lost!");
     if (confirmation) {
       const confirmation2 = prompt("Please enter '" + exam.displayname + "' to delete the exam.");
@@ -237,7 +237,7 @@ export default class Categorize extends React.Component<Props, State> {
     }
   };
 
-  addAdmin = async () => {
+  addAdmin = () => {
     fetchpost('/api/category/addadmin', {
       category: this.arrLast(this.state.categoryStack).name,
       username: this.state.newAdminName
@@ -251,7 +251,7 @@ export default class Categorize extends React.Component<Props, State> {
       .catch(()=>undefined);
   };
 
-  removeAdmin = async (username: string) => {
+  removeAdmin = (username: string) => {
     fetchpost('/api/category/removeadmin', {
       category: this.arrLast(this.state.categoryStack).name,
       username: username

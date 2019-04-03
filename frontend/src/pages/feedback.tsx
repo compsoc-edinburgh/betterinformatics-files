@@ -50,14 +50,14 @@ export default class Feedback extends React.Component<Props, State> {
     requestedFeedbacks: false,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     if (this.props.isAdmin) {
       this.loadFeedbacks();
     }
     document.title = "Feedback - VIS Community Solutions";
   }
 
-  async componentDidUpdate() {
+  componentDidUpdate() {
     if (this.props.isAdmin && !this.state.requestedFeedbacks) {
       this.loadFeedbacks();
     }

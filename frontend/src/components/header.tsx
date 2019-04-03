@@ -78,7 +78,7 @@ export default class Header extends React.Component<Props> {
     notificationIntervalId: 0,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     const intervalId = setInterval(this.checkNotificationCount, 60000);
     this.setState({
       notificationIntervalId: intervalId
@@ -86,11 +86,11 @@ export default class Header extends React.Component<Props> {
     this.checkNotificationCount();
   }
 
-  async componentWillUnmount() {
+  componentWillUnmount() {
     clearInterval(this.state.notificationIntervalId);
   }
 
-  checkNotificationCount = async () => {
+  checkNotificationCount = () => {
     fetchapi('/api/notifications/unreadcount')
       .then(res => res.json())
       .then(res => {

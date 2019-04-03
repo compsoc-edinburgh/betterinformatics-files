@@ -50,7 +50,7 @@ interface State {
   allShown: boolean;
   addingSectionsActive: boolean;
   savedMetaData: ExamMetaData;
-  error: boolean;
+  error?: string;
 }
 
 function widthFromWindow(): number {
@@ -75,12 +75,11 @@ export default class Exam extends React.Component<Props, State> {
       resolve_alias: "",
     },
     allShown: false,
-    error: false,
   };
   updateInverval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
 
-  async componentDidMount() {
+  componentDidMount() {
     this.updateInverval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
     this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
@@ -94,10 +93,14 @@ export default class Exam extends React.Component<Props, State> {
         });
         this.setDocumentTitle();
       })
-      .catch(()=>{
-        this.setState({error: true});
+      .catch(err =>{
+        this.setState({error: err.toString()});
       });
 
+    this.loadPDF();
+  }
+
+  loadPDF = async () => {
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
     try {
@@ -109,11 +112,10 @@ export default class Exam extends React.Component<Props, State> {
       ]);
     } catch (e) {
       this.setState({
-        error: true
+        error: e.toString()
       });
     }
-    this.setDocumentTitle();
-  }
+  };
 
   setDocumentTitle() {
     document.title = this.state.savedMetaData.displayname + " - VIS Community Solutions";
@@ -157,17 +159,17 @@ export default class Exam extends React.Component<Props, State> {
     this.setState({pdf, renderer: await renderDocument(pdf, w)});
   };
 
-  loadSectionsFromBackend = async (pdf: pdfjs.PDFDocumentProxy) => {
+  loadSectionsFromBackend = (pdf: pdfjs.PDFDocumentProxy) => {
     loadSections(this.props.filename, pdf.numPages)
       .then((sections) => {
         this.setState({sections: sections});
       })
-      .catch(() => {
-        this.setState({error: true});
+      .catch(err => {
+        this.setState({error: err.toString()});
       });
   };
 
-  addSection = async (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
+  addSection = (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
     const boundingRect = ev.currentTarget.getBoundingClientRect();
     const yoff = ev.clientY - boundingRect.top;
     const relative = yoff / boundingRect.height;
@@ -175,13 +177,15 @@ export default class Exam extends React.Component<Props, State> {
     const end = section.end.position;
     const relHeight = start + relative * (end - start);
 
-    await fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
+    fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
       pageNum: section.start.page,
       relHeight: relHeight
-    });
-    if (this.state.pdf) {
-      this.loadSectionsFromBackend(this.state.pdf);
-    }
+    })
+      .then(() => {
+        if (this.state.pdf) {
+          this.loadSectionsFromBackend(this.state.pdf);
+        }
+      });
   };
 
   gotoPDF = () => {
@@ -235,7 +239,7 @@ export default class Exam extends React.Component<Props, State> {
 
   render() {
     if (this.state.error) {
-      return <div>Could not load exam...</div>;
+      return <div>Could not load exam... {this.state.error}</div>;
     }
     const {renderer, width, dpr, sections} = this.state;
     if (!renderer || !sections) {
