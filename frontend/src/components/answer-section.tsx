@@ -13,6 +13,7 @@ interface Props {
   onSectionChange: () => void;
   onToggleHidden: () => void;
   hidden: boolean;
+  cutVersion: number;
 }
 
 interface State {
@@ -74,6 +75,16 @@ export default class AnswerSectionComponent extends React.Component<Props, State
         }
       })
       .catch(() => undefined);
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>) {
+    if (prevProps.cutVersion !== this.props.cutVersion) {
+      loadAnswerSection(this.props.filename, this.props.oid)
+        .then(res => {
+          this.setState({section: res});
+        })
+        .catch(() => undefined);
+    }
   }
 
   removeSection = async () => {

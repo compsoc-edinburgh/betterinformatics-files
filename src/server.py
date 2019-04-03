@@ -454,13 +454,15 @@ def get_cuts(filename):
     }, {
         "_id": 1,
         "relHeight": 1,
-        "pageNum": 1
+        "pageNum": 1,
+        "cutVersion": 1,
     })
     pages = {}
     for cut in results:
         pages.setdefault(cut["pageNum"], []).append({
             "relHeight": cut["relHeight"],
-            "oid": str(cut["_id"])
+            "oid": str(cut["_id"]),
+            "cutVersion": cut["cutVersion"]
         })
     for page in pages.values():
         page.sort(key=lambda x: float(x["relHeight"]))
@@ -475,6 +477,21 @@ def get_answer_section(filename, oid):
     Dictionary of 'oid' and 'answersection'.
     """
     return make_answer_section_response(ObjectId(oid))
+
+
+@app.route("/api/exam/<filename>/cutversions")
+@auth.login_required
+def get_answer_section_cutversions(filename):
+    results = answer_sections.find({
+        "filename": filename
+    }, {
+        "_id": 1,
+        "cutVersion": 1
+    })
+    res = {}
+    for cut in results:
+        res[str(cut["_id"])] = cut["cutVersion"]
+    return success(value=res)
 
 
 @app.route("/api/exam/<filename>/newanswersection", methods=["POST"])
@@ -499,7 +516,8 @@ def new_answer_section(filename):
     result = answer_sections.find_one({
         "pageNum": page_num,
         "filename": filename,
-        "relHeight": rel_height
+        "relHeight": rel_height,
+        "cutVersion": 1,
     })
     if result:
         return not_possible("Answer section already exists")
@@ -568,6 +586,8 @@ def set_like(filename, sectionoid, answeroid):
             'answersection.answers.$.upvotes': username
         }, '$pull': {
             'answersection.answers.$.downvotes': username
+        }, '$inc': {
+            "cutVersion": 1
         }})
     elif like == -1:
         answer_sections.update_one({
@@ -576,6 +596,8 @@ def set_like(filename, sectionoid, answeroid):
             'answersection.answers.$.downvotes': username
         }, '$pull': {
             'answersection.answers.$.upvotes': username
+        }, '$inc': {
+            "cutVersion": 1
         }})
     else:
         like = 0
@@ -584,6 +606,8 @@ def set_like(filename, sectionoid, answeroid):
         }, {'$pull': {
             'answersection.answers.$.upvotes': username,
             'answersection.answers.$.downvotes': username
+        }, '$inc': {
+            "cutVersion": 1
         }})
     adjust_user_score(section["answersection"]["answers"][0]["authorId"], like - old_like)
     return make_answer_section_response(answer_section_oid)
@@ -624,6 +648,8 @@ def add_answer(filename, sectionoid):
         "_id": answer_section_oid
     }, {'$push': {
         "answersection.answers": answer
+    }, '$inc': {
+        "cutVersion": 1
     }})
     adjust_user_score(username, 1)
     return make_answer_section_response(answer_section_oid)
@@ -674,6 +700,8 @@ def set_answer(filename, sectionoid):
         'answersection.answers._id': maybe_answer["answersection"]["answers"][0]["_id"]
     }, {"$set": {
         'answersection.answers.$.text': text
+    }, '$inc': {
+        "cutVersion": 1
     }})
     return make_answer_section_response(answer_section_oid)
 
@@ -715,6 +743,8 @@ def remove_answer(answeroid):
         'answersection.answers': {
             '_id': answeroid
         }
+    }, '$inc': {
+        "cutVersion": 1
     }})
 
 
@@ -771,6 +801,8 @@ def add_comment(filename, sectionoid, answeroid):
     }, {
         "$push": {
             "answersection.answers.$.comments": comment
+        }, '$inc': {
+            "cutVersion": 1
         }
     })
     return make_answer_section_response(answer_section_oid)
@@ -811,6 +843,8 @@ def set_comment(filename, sectionoid, answeroid):
     }, {
         "$set": {
             'answersection.answers.$.comments.{}.text'.format(idx): text
+        }, '$inc': {
+            "cutVersion": 1
         }
     })
     return make_answer_section_response(answer_section_oid)
@@ -847,6 +881,8 @@ def remove_comment(filename, sectionoid, answeroid):
             "answersection.answers.$.comments": {
                 "_id": comment_oid
             }
+        }, '$inc': {
+            "cutVersion": 1
         }
     })
     return make_answer_section_response(answer_section_oid)

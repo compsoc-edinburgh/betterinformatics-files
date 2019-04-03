@@ -166,7 +166,7 @@ export default class CommentComponent extends React.Component<Props, State> {
           {this.props.isNewComment && <b>Add comment</b>}
             {!this.props.isNewComment && <span><b {...styles.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</span>}
         </div>
-        <div><MarkdownText value={this.state.text}/></div>
+        <div><MarkdownText value={this.state.editing ? this.state.text : comment.text}/></div>
         {this.state.editing && <div>
           <div>
             <textarea {...styles.textareaInput} onKeyUp={this.commentTextareaChange} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />

@@ -29,7 +29,7 @@ export async function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       cuts[i].forEach((cut: ServerCutPosition) => {
-        const {relHeight: position, oid} = cut;
+        const {relHeight: position, oid, cutVersion} = cut;
         if (position !== lastpos) {
           sections.push(createPdfSection(akey, i, lastpos, position));
           akey++;
@@ -44,6 +44,7 @@ export async function loadSections(
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
+          cutVersion: cutVersion,
         });
       });
     }

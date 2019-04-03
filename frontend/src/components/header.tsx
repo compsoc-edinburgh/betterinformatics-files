@@ -11,7 +11,6 @@ interface Props {
 
 interface State {
   notificationCount: number;
-  notificationIntervalId: number;
 }
 
 const styles = {
@@ -75,19 +74,16 @@ export default class Header extends React.Component<Props> {
 
   state: State = {
     notificationCount: 0,
-    notificationIntervalId: 0,
   };
+  notificationInterval: NodeJS.Timer;
 
   componentDidMount() {
-    const intervalId = setInterval(this.checkNotificationCount, 60000);
-    this.setState({
-      notificationIntervalId: intervalId
-    });
+    this.notificationInterval = setInterval(this.checkNotificationCount, 60000);
     this.checkNotificationCount();
   }
 
   componentWillUnmount() {
-    clearInterval(this.state.notificationIntervalId);
+    clearInterval(this.notificationInterval);
   }
 
   checkNotificationCount = () => {

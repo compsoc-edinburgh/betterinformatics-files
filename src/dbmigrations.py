@@ -3,7 +3,7 @@ import time
 import sys
 import server
 
-DB_VERSION = 4
+DB_VERSION = 5
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -78,11 +78,26 @@ def add_notifications(mongo_db):
     set_db_version(mongo_db, 4)
 
 
+def add_cutversion(mongo_db):
+    print("Migrate 'add cutversion'", file=sys.stderr)
+    sections = mongo_db.answersections.find({}, {"_id"})
+    for section in sections:
+        mongo_db.answersections.update_one({
+            "_id": section["_id"]
+        }, {
+            "$set": {
+                "cutVersion": 1
+            }
+        })
+    set_db_version(mongo_db, 5)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
     add_user_profiles,
     add_notifications,
+    add_cutversion,
 ]
 
 

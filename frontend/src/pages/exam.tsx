@@ -1,7 +1,7 @@
 import * as React from "react";
 import {renderDocument, SectionRenderer} from "../split-render";
 import {loadSections} from "../exam-loader";
-import {Section, SectionKind, PdfSection, ExamMetaData} from "../interfaces";
+import {ExamMetaData, PdfSection, Section, SectionKind} from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
 import {debounce} from "lodash";
 import {css} from "glamor";
@@ -50,6 +50,7 @@ interface State {
   allShown: boolean;
   addingSectionsActive: boolean;
   savedMetaData: ExamMetaData;
+  updateIntervalId: number;
   error?: string;
 }
 
@@ -75,12 +76,14 @@ export default class Exam extends React.Component<Props, State> {
       resolve_alias: "",
     },
     allShown: false,
+    updateIntervalId: 0,
   };
-  updateInverval: NodeJS.Timer;
+  updateInterval: NodeJS.Timer;
+  cutVersionInterval: NodeJS.Timer;
   debouncedRender: (this["renderDocumentToState"]);
 
   componentDidMount() {
-    this.updateInverval = setInterval(this.pollZoom, RERENDER_INTERVAL);
+    this.updateInterval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
     this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
 
@@ -96,6 +99,8 @@ export default class Exam extends React.Component<Props, State> {
       .catch(err =>{
         this.setState({error: err.toString()});
       });
+
+    this.cutVersionInterval = setInterval(this.updateCutVersion, 60000);
 
     this.loadPDF();
   }
@@ -122,7 +127,8 @@ export default class Exam extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    clearInterval(this.updateInverval);
+    clearInterval(this.updateInterval);
+    clearInterval(this.cutVersionInterval);
     window.removeEventListener("resize", this.onResize);
     this.setState({
       pdf: undefined,
@@ -167,6 +173,25 @@ export default class Exam extends React.Component<Props, State> {
       .catch(err => {
         this.setState({error: err.toString()});
       });
+  };
+
+  updateCutVersion = () => {
+    fetchapi(`/api/exam/${this.props.filename}/cutversions`)
+      .then(res => res.json())
+      .then(res => {
+        const versions = res.value;
+        this.setState(prevState => {
+          let newState = {...prevState};
+          if (newState.sections) {
+            newState.sections.forEach(section => {
+              if (section.kind === SectionKind.Answer) {
+                section.cutVersion = versions[section.oid];
+              }
+            });
+          }
+          return newState;
+        })
+      })
   };
 
   addSection = (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
@@ -287,6 +312,7 @@ export default class Exam extends React.Component<Props, State> {
                   onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
                   onToggleHidden={() => this.toggleHidden(e.oid)}
                   hidden={e.hidden}
+                  cutVersion={e.cutVersion}
                 />;
               case SectionKind.Pdf:
                 return (
