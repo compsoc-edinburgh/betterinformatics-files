@@ -75,17 +75,14 @@ export default class Feedback extends React.Component<Props, State> {
     fetchpost('/api/feedback/submit', {
       text: this.state.feedbackText
     })
-      .then((res) => {
-        if (!res.ok) {
-          throw res;
-        }
+      .then(() => {
         this.setState({
           feedbackText: "",
           result: "Feedback submitted, thank you!",
         });
         this.loadFeedbacks();
       })
-      .catch((res) => {
+      .catch(() => {
         this.setState({
           result: "Could not submit feedback. Please try again later."
         });
@@ -97,7 +94,6 @@ export default class Feedback extends React.Component<Props, State> {
       requestedFeedbacks: true,
     });
     fetchapi('/api/feedback/list')
-      .then(res => res.json())
       .then(res => {
         const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
         res.value.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));

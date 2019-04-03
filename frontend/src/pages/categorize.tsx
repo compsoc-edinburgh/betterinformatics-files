@@ -129,7 +129,6 @@ export default class Categorize extends React.Component<Props, State> {
 
   updateCategories = () => {
     fetchapi('/api/listcategories/withexams')
-      .then(res => res.json())
       .then(res => {
         const categoryTree = buildCategoryTree(res.value);
         this.setState(prevState => {
@@ -145,7 +144,6 @@ export default class Categorize extends React.Component<Props, State> {
 
   updateAdmins = () => {
     fetchapi('/api/listcategories/withadmins')
-      .then(res => res.json())
       .then(res => {
         let newadmins = {};
         res.value.forEach((cat: {name: string, admins: string[]}) => {

@@ -112,7 +112,6 @@ export default class ImageOverlay extends React.Component<Props, State> {
 
   loadImages = () => {
     fetchapi('/api/image/list')
-        .then(res => res.json())
         .then(res => {
           res.value.reverse();
           this.setState({images: res.value})
@@ -140,7 +139,6 @@ export default class ImageOverlay extends React.Component<Props, State> {
     fetchpost('/api/uploadimg', {
       file: this.state.file
     })
-      .then(res => res.json())
       .then(res => {
         this.setState({
           selected: res.filename,

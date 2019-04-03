@@ -101,7 +101,6 @@ export default class AnswerSectionComponent extends React.Component<Props, State
   addAnswer = (legacy: boolean) => {
     const postdata = legacy ? {legacyuser: 1} : {};
     fetchpost(`/api/exam/${this.props.filename}/addanswer/${this.props.oid}`, postdata)
-      .then((res) => res.json())
       .then((res) => {
         this.onSectionChanged(res);
         if (this.state.section && this.props.hidden) {

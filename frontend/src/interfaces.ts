@@ -77,6 +77,10 @@ export interface ExamMetaData {
   legacy_solution: string;
   master_solution: string;
   resolve_alias: string;
+  remark: string;
+  public: boolean;
+  print_only: boolean;
+  payment_category: string;
 }
 
 export interface NotificationInfo {

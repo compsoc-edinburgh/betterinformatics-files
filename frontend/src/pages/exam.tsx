@@ -10,6 +10,7 @@ import AnswerSectionComponent from "../components/answer-section";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import MetaData from "../components/metadata";
 import Colors from "../colors";
+import PrintExam from "../components/print-exam";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -19,14 +20,12 @@ const styles = {
     margin: "auto",
   }),
   sectionsButton: css({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
     position: ["sticky", "-webkit-sticky"],
     top: "20px",
-    "div": {
-      marginLeft: "17px",
-    },
+    float: "right",
+    "& button": {
+      width: "100%",
+    }
   }),
   linkBanner: css({
     background: Colors.linkBannerBackground,
@@ -49,6 +48,7 @@ interface State {
   sections?: Section[];
   allShown: boolean;
   addingSectionsActive: boolean;
+  editingMetaData: boolean;
   savedMetaData: ExamMetaData;
   updateIntervalId: number;
   error?: string;
@@ -66,6 +66,7 @@ export default class Exam extends React.Component<Props, State> {
     dpr: window.devicePixelRatio,
     addingSectionsActive: false,
     canEdit: false,
+    editingMetaData: false,
     savedMetaData: {
       canEdit: false,
       filename: "",
@@ -74,6 +75,10 @@ export default class Exam extends React.Component<Props, State> {
       legacy_solution: "",
       master_solution: "",
       resolve_alias: "",
+      remark: "",
+      public: true,
+      print_only: false,
+      payment_category: "",
     },
     allShown: false,
     updateIntervalId: 0,
@@ -88,7 +93,6 @@ export default class Exam extends React.Component<Props, State> {
     this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
 
     fetchapi(`/api/exam/${this.props.filename}/metadata`)
-      .then((res) => res.json())
       .then((res) => {
         this.setState({
           canEdit: res.value.canEdit,
@@ -116,9 +120,7 @@ export default class Exam extends React.Component<Props, State> {
         this.loadSectionsFromBackend(pdf)
       ]);
     } catch (e) {
-      this.setState({
-        error: e.toString()
-      });
+      // we do not report any error as it might be caused by print_only
     }
   };
 
@@ -177,7 +179,6 @@ export default class Exam extends React.Component<Props, State> {
 
   updateCutVersion = () => {
     fetchapi(`/api/exam/${this.props.filename}/cutversions`)
-      .then(res => res.json())
       .then(res => {
         const versions = res.value;
         this.setState(prevState => {
@@ -255,9 +256,17 @@ export default class Exam extends React.Component<Props, State> {
     });
   };
 
+  toggleEditingMetadataActive = () => {
+    this.setState((state) => {
+      return {
+        editingMetaData: !state.editingMetaData
+      };
+    });
+  };
+
   metaDataChanged = (newMetaData: ExamMetaData) => {
     this.setState({
-      savedMetaData: newMetaData
+      savedMetaData: newMetaData,
     });
     this.setDocumentTitle();
   };
@@ -267,30 +276,29 @@ export default class Exam extends React.Component<Props, State> {
       return <div>Could not load exam... {this.state.error}</div>;
     }
     const {renderer, width, dpr, sections} = this.state;
-    if (!renderer || !sections) {
-      return <div>Loading...</div>;
-    }
     return (
       <div>
 
         <div {...styles.sectionsButton}>
+          <div>
+            <button onClick={this.gotoPDF}>Download PDF</button>
+          </div>
+          <div>
+            <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
+          </div>
           {this.state.canEdit && [
             <div key="metadata">
-              <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
-                        onChange={this.metaDataChanged}/>
+              <button onClick={this.toggleEditingMetadataActive}>Edit MetaData</button>
             </div>,
             <div key="cuts">
               <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
             </div>
             ]
           }
-          <div>
-            <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
-          </div>
-          <div>
-            <button onClick={this.gotoPDF}>Download PDF</button>
-          </div>
         </div>
+        {this.state.editingMetaData &&
+          <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
+                    onChange={this.metaDataChanged} onFinishEdit={this.toggleEditingMetadataActive}/>}
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
@@ -299,38 +307,43 @@ export default class Exam extends React.Component<Props, State> {
         <div {...styles.linkBanner}>
           <a href={this.state.savedMetaData.master_solution} target="_blank">Official Solution</a>
         </div>}
-        <div style={{width: width}} {...styles.wrapper}>
-          {sections.map(e => {
-            switch (e.kind) {
-              case SectionKind.Answer:
-                return <AnswerSectionComponent
-                  key={e.oid}
-                  filename={this.props.filename}
-                  oid={e.oid}
-                  width={width}
-                  canDelete={this.state.canEdit}
-                  onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
-                  onToggleHidden={() => this.toggleHidden(e.oid)}
-                  hidden={e.hidden}
-                  cutVersion={e.cutVersion}
-                />;
-              case SectionKind.Pdf:
-                return (
-                  <PdfSectionComp
-                    key={e.key}
-                    section={e}
-                    renderer={renderer}
+        {this.state.savedMetaData.print_only && <PrintExam filename={this.props.filename}/>}
+        {(renderer && sections) &&
+          <div style={{width: width}} {...styles.wrapper}>
+            {sections.map(e => {
+              switch (e.kind) {
+                case SectionKind.Answer:
+                  return <AnswerSectionComponent
+                    key={e.oid}
+                    filename={this.props.filename}
+                    oid={e.oid}
                     width={width}
-                    dpr={dpr}
-                    // ts does not like it if this is undefined...
-                    onClick={(this.state.canEdit && this.state.addingSectionsActive) ? this.addSection : (ev)=>ev}
-                  />
-                );
-              default:
-                return null as never;
-            }
-          })}
-        </div>
+                    canDelete={this.state.canEdit}
+                    onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
+                    onToggleHidden={() => this.toggleHidden(e.oid)}
+                    hidden={e.hidden}
+                    cutVersion={e.cutVersion}
+                  />;
+                case SectionKind.Pdf:
+                  return (
+                    <PdfSectionComp
+                      key={e.key}
+                      section={e}
+                      renderer={renderer}
+                      width={width}
+                      dpr={dpr}
+                      // ts does not like it if this is undefined...
+                      onClick={(this.state.canEdit && this.state.addingSectionsActive) ? this.addSection : (ev) => ev}
+                    />
+                  );
+                default:
+                  return null as never;
+              }
+            })}
+          </div>
+          ||
+          <p>Loading ...</p>
+        }
       </div>
     );
   }

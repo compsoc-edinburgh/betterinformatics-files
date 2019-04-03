@@ -115,7 +115,6 @@ export default class ExamList extends React.Component<Props, State> {
 
   componentDidMount() {
     fetchapi('/api/listcategories/withexams')
-      .then(res => res.json())
       .then(res => this.setState({
         rootCategories: this.removeDefaultIfNecessary(buildCategoryTree(res.value))
       }))

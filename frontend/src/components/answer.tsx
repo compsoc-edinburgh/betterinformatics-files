@@ -145,7 +145,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
       fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, this.enrichPostdata({}))
-        .then((res) => res.json())
         .then((res) => {
           this.props.onSectionChanged(res);
         })
@@ -163,7 +162,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
 
   saveAnswer = () => {
     fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, this.enrichPostdata({text: this.state.text}))
-      .then((res) => res.json())
       .then((res) => {
         this.setState(prevState => ({
           editing: false,
@@ -222,7 +220,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
   toggleAnswerLike = (like: Number) => {
     const newLike = like === 1 ? (this.props.answer.isUpvoted ? 0 : 1) : (this.props.answer.isDownvoted ? 0 : -1);
     fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: newLike})
-      .then((res) => res.json())
       .then((res) => {
         this.props.onSectionChanged(res);
       })

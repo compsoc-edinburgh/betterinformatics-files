@@ -1,18 +1,13 @@
 import sys
 from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify
 from flask_httpauth import HTTPBasicAuth
-from werkzeug.utils import secure_filename as make_secure_filename
-import json, re
-import pymongo
+import json
 from pymongo import MongoClient
 from functools import wraps
 from flask import send_file, send_from_directory, render_template
 from minio import Minio
 from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
-from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
-                          BadSignature, SignatureExpired)
-from passlib.apps import custom_app_context as pwd_context
 
 from datetime import datetime, timezone
 import os
@@ -27,6 +22,7 @@ import people_pb2
 import people_pb2_grpc
 
 import dbmigrations
+import ethprint
 
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
@@ -934,8 +930,22 @@ def set_exam_metadata(filename, metadata):
     :param filename: filename of the exam
     :param metadata: dictionary of values to set
     """
-    whitelist = ["displayname", "category", "legacy_solution", "master_solution", "resolve_alias"]
+    whitelist = [
+        "displayname",
+        "category",
+        "legacy_solution",
+        "master_solution",
+        "resolve_alias",
+        "remark",
+        "public",
+        "print_only",
+        "payment_category"
+    ]
     filtered = filter_dict(metadata, whitelist)
+    if "public" in filtered:
+        filtered["public"] = filtered["public"] not in ["false", "0"]
+    if "print_only" in filtered:
+        filtered["print_only"] = filtered["print_only"] not in ["false", "0"]
     if filtered:
         exam_metadata.update_one({
             "filename": filename
@@ -1189,7 +1199,13 @@ def set_category_metadata(category, metadata):
     :param category: name of category
     :param metadata: dictionary of values to set
     """
-    whitelist = ["admins"]
+    whitelist = [
+        "admins",
+        "semester",
+        "form",
+        "permission",
+        "offered_in",
+    ]
     filtered = filter_dict(metadata, whitelist)
     if filtered:
         category_metadata.update_one({
@@ -1603,15 +1619,61 @@ def pdf(filename):
     """
     Get the pdf for the filename
     """
+    metadata = exam_metadata.find_one({
+        "filename": filename
+    }, {
+        "public": 1,
+        "print_only": 1,
+        "payment_category": 1,
+    })
+    username = auth.username()
+    if metadata.get("print_only", True) and not has_admin_rights(username):
+        return not_allowed()
+    if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
+        return not_allowed()
+    # TODO check payment category
     try:
         data = minio_client.get_object(minio_bucket, EXAM_DIR + filename)
         return send_file(data, mimetype="application/pdf")
     except NoSuchKey as n:
         # move objects still in the root to the correct folder
+        # a previous version of the app stored the exams in the root
         if is_file_in_minio("", filename):
             minio_client.copy_object(minio_bucket, EXAM_DIR + filename, filename)
             minio_client.remove_object(minio_bucket, filename)
         return not_found()
+
+
+@app.route("/api/printpdf/<filename>", methods=["POST"])
+@auth.login_required
+def print_pdf(filename):
+    """
+    Print the pdf
+    :param filename: pdf to print
+    """
+    metadata = exam_metadata.find_one({
+        "filename": filename
+    }, {
+        "public": 1,
+        "payment_category": 1,
+    })
+    username = auth.username()
+    if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
+        return not_allowed()
+    # TODO check payment category
+    if 'password' not in request.form:
+        return not_allowed()
+    try:
+        pdfpath = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
+        minio_client.fget_object(minio_bucket, EXAM_DIR + filename, pdfpath)
+        return_code = ethprint.start_job(username, request.form['password'], filename, pdfpath)
+        if return_code:
+            return not_possible("Could not connect to the printer. Please check your password and try again.")
+    except NoSuchKey as n:
+        return not_found()
+    except Exception:
+        pass
+    return success()
 
 
 @app.route("/api/img/<filename>")

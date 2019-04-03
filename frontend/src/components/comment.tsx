@@ -80,7 +80,6 @@ export default class CommentComponent extends React.Component<Props, State> {
     const confirmation = confirm("Remove comment?");
     if (confirmation) {
       fetchpost(`/api/exam/${this.props.filename}/removecomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid})
-        .then((res) => res.json())
         .then((res) => {
           this.props.onSectionChanged(res);
         })
@@ -104,7 +103,6 @@ export default class CommentComponent extends React.Component<Props, State> {
       fetchpost(`/api/exam/${this.props.filename}/addcomment/${this.props.sectionId}/${this.props.answerId}`, {
         text: this.state.text
       })
-        .then((res) => res.json())
         .then((res) => {
           this.setState({text: ""});
           this.props.onSectionChanged(res);
@@ -115,7 +113,6 @@ export default class CommentComponent extends React.Component<Props, State> {
         commentoid: this.props.comment.oid,
         text: this.state.text
       })
-        .then((res) => res.json())
         .then((res) => {
           this.setState(prevState => ({
             editing: false,

@@ -88,7 +88,6 @@ export default class Header extends React.Component<Props> {
 
   checkNotificationCount = () => {
     fetchapi('/api/notifications/unreadcount')
-      .then(res => res.json())
       .then(res => {
         this.setState({
           notificationCount: res.value

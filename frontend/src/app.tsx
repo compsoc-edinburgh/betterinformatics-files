@@ -108,7 +108,6 @@ export default class App extends React.Component<{}, State> {
 
   componentDidMount() {
     fetchapi("/api/me")
-      .then(res => res.json())
       .then(res => this.setState({
         username: res.username,
         displayname: res.displayname,

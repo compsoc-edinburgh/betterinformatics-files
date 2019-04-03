@@ -23,7 +23,6 @@ export default class UploadPDF extends React.Component<{}, State> {
 
   componentDidMount() {
     fetchapi('/api/listcategories/onlyadmin')
-      .then(res => res.json())
       .then(res => this.setState({
         categories: res.value
       }))
@@ -41,8 +40,6 @@ export default class UploadPDF extends React.Component<{}, State> {
       displayname: this.state.displayName,
       category: this.state.category
     })
-      .then((response) => response.json().then((body) => ({body, ok: response.ok})))
-      .then(({body, ok}) => ok ? body : Promise.reject(body.err))
       .then((body) => this.setState({
         result: body,
         error: undefined

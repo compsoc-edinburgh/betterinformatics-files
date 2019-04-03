@@ -29,7 +29,6 @@ export default class UserInfo extends React.Component<Props, State> {
 
   componentDidMount() {
     fetchapi('/api/userinfo/' + this.props.username)
-      .then(res => res.json())
       .then(res => {
         this.setState({
           displayName: res.value.displayName,
@@ -57,7 +56,6 @@ export default class UserInfo extends React.Component<Props, State> {
 
   loadEnabledNotifications = () => {
     fetchapi('/api/notifications/getenabled')
-      .then(res => res.json())
       .then(res => {
         this.setState({
           enabledNotifications: res.value
@@ -72,7 +70,6 @@ export default class UserInfo extends React.Component<Props, State> {
 
   loadUnreadNotifications = () => {
     fetchapi('/api/notifications/unread')
-      .then(res => res.json())
       .then(res => {
         this.setState({
           notifications: res.value
@@ -87,7 +84,6 @@ export default class UserInfo extends React.Component<Props, State> {
 
   loadAllNotifications = () => {
     fetchapi('/api/notifications/all')
-      .then(res => res.json())
       .then(res => {
         this.setState({
           showAll: true,
