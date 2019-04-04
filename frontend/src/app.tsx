@@ -1,7 +1,7 @@
 import * as React from "react";
 import Exam from "./pages/exam";
 import UploadPDF from "./pages/uploadpdf";
-import Categorize from "./pages/categorize";
+import Category from "./pages/category";
 import Home from "./pages/home";
 import {Route, Switch} from "react-router";
 import Header from "./components/header";
@@ -124,13 +124,22 @@ export default class App extends React.Component<{}, State> {
         <div {...styles.inner}>
           <Switch>
             <Route path="/exams/:filename" render={(props) => (
-              <Exam {...props} filename={props.match.params.filename}/>)}/>
+              <Exam {...props} filename={props.match.params.filename}/>
+            )}/>
             <Route path="/user/:username" render={(props) => (
-                <UserInfo {...props} isMyself={this.state.username === props.match.params.username} isAdmin={this.state.isAdmin} username={props.match.params.username}/>)}/>
+              <UserInfo {...props} isMyself={this.state.username === props.match.params.username}
+                        isAdmin={this.state.isAdmin} username={props.match.params.username}/>
+            )}/>
+            <Route path="/category/:category" render={(props) => (
+              <Category categorySlug={props.match.params.category} isAdmin={this.state.isAdmin}/>
+            )}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
-            <Route path="/categorize" render={(props) => (<Categorize {...props} isAdmin={this.state.isAdmin}/>)}/>
-            <Route path="/feedback" render={(props) => (<Feedback {...props} isAdmin={this.state.isAdmin}/>)} />
-            <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} isCategoryAdmin={this.state.isCategoryAdmin}/>)}/>
+            <Route path="/feedback" render={(props) => (
+              <Feedback {...props} isAdmin={this.state.isAdmin}/>
+            )}/>
+            <Route render={(props) => (
+              <Home {...props} isAdmin={this.state.isAdmin} isCategoryAdmin={this.state.isCategoryAdmin}/>
+            )}/>
           </Switch>
         </div>
       </div>

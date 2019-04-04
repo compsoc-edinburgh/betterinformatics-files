@@ -3,7 +3,7 @@ import time
 import sys
 import server
 
-DB_VERSION = 5
+DB_VERSION = 6
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -92,12 +92,29 @@ def add_cutversion(mongo_db):
     set_db_version(mongo_db, 5)
 
 
+def add_category_slug(mongo_db):
+    print("Migrate 'add category slug'", file=sys.stderr)
+    categories = mongo_db.categorymetadata.find({}, {
+        "category": 1
+    })
+    for category in categories:
+        mongo_db.categorymetadata.update_one({
+            "category": category["category"]
+        }, {
+            "$set": {
+                "slug": server.create_category_slug(category["category"])
+            }
+        })
+    set_db_version(mongo_db, 6)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
     add_user_profiles,
     add_notifications,
     add_cutversion,
+    add_category_slug,
 ]
 
 

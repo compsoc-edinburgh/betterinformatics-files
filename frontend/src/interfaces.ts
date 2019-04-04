@@ -58,15 +58,22 @@ export interface ServerCutPosition {
   cutVersion: number;
 }
 
-export interface Exam {
+export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
+  remark: string; // remark for the exam
+  public: boolean; // whether the exam is public
 }
 
-export interface Category {
-  name: string; // Name of category
-  exams: Exam[]; // Exams belonging to category
-  childCategories?: Category[]; // Categories which are children of this category in category tree
+export interface CategoryMetaData {
+  category: string; // Name of category
+  slug: string;
+  admins: string[];
+  semester: string;
+  form: string;
+  permission: string;
+  offered_in: string[];
+  remark: string;
 }
 
 export interface ExamMetaData {

@@ -66,12 +66,12 @@ EXAM_METADATA = [
     "has_solution",
 ]
 CATEGORY_METADATA = [
-    "admins",
     "semester",
     "form",
     "permission",
-    "offered_in",
+    "remark",
 ]
+CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
@@ -293,9 +293,7 @@ def has_admin_rights_for_any_category(username):
 
 def has_admin_rights_for_category(username, category):
     """
-    Check whether the given user has admin rights in the given category
-    and its subcategories. This corresponds to checking whether the user
-    is in the list of admins of the category or one of its parent categories.
+    Check whether the given user has admin rights in the given category.
     :param username: the user to check
     :param category: the category for which to check
     :return: True iff the user has category admin rights
@@ -303,21 +301,14 @@ def has_admin_rights_for_category(username, category):
     if has_admin_rights(username):
         return True
 
-    def check(cat):
-        admins = category_metadata.find_one({
-            "category": cat
-        }, {
-            "admins": 1
-        })["admins"]
-        if username in admins:
-            return True
-
-        parts = cat.split("/")
-        if len(parts) > 1:
-            return check("/".join(parts[:-1]))
-        return False
-
-    return check(category)
+    admins = category_metadata.find_one({
+        "category": category
+    }, {
+        "admins": 1
+    })["admins"]
+    if username in admins:
+        return True
+    return False
 
 
 def has_admin_rights_for_exam(username, filename):
@@ -382,7 +373,6 @@ def test():
 
 @app.route("/")
 @app.route("/uploadpdf")
-@app.route("/categorize")
 @app.route("/feedback")
 @auth.login_required
 def index():
@@ -391,6 +381,7 @@ def index():
 
 @app.route('/exams/<argument>')
 @app.route('/user/<argument>')
+@app.route('/category/<argument>')
 @auth.login_required
 def index_with_argument(argument):
     return index()
@@ -1053,38 +1044,18 @@ def list_categories_only_admin():
     ))))
 
 
-@app.route("/api/listcategories/withexams")
-@auth.login_required
-def list_categories_with_exams():
-    categories = list(sorted(
-        map(lambda x: {"name": x["category"]}, category_metadata.find({}, {"category": 1})),
-        key=lambda x: x["name"]
-    ))
-    for category in categories:
-        category["exams"] = get_category_exams(category["name"])
-    return success(value=categories)
-
-
-@app.route("/api/listcategories/withadmins")
+@app.route("/api/listcategories/withmeta")
 @auth.login_required
 @require_admin
-def list_categories_with_admins():
+def list_categories_with_meta():
     categories = list(sorted(
-        map(lambda x: {"name": x["category"], "admins": x["admins"]}, category_metadata.find({}, {"category": 1, "admins": 1})),
-        key=lambda x: x["name"]
+        category_metadata.find({}, {
+            "category": 1,
+            "slug": 1,
+        }),
+        key=lambda x: x["category"]
     ))
     return success(value=categories)
-
-
-def enhance_exam_dictionary(exam):
-    """
-    Enhance an exam dictionary with useful metadata
-    :param exam: The exam dictionary to enhance
-    """
-    exam["displayname"] = exam_metadata.find_one({
-        "filename": exam["filename"]
-    }, {"displayname": 1})["displayname"]
-    return exam
 
 
 def get_category_exams(category):
@@ -1093,13 +1064,44 @@ def get_category_exams(category):
     :param category: name of the category
     :return: list of exams with metadata
     """
-    exams = list(map(lambda x: enhance_exam_dictionary({"filename": x["filename"]}), exam_metadata.find({
+    exams = list(exam_metadata.find({
         "category": category
     }, {
-        "filename": 1
-    })))
+        "filename": 1,
+        "displayname": 1,
+        "remark": 1,
+        "public": 1,
+    }))
     exams.sort(key=lambda x: x["displayname"])
     return exams
+
+
+def create_category_slug(category):
+    oslug = "".join(filter(lambda x: x in CATEGORY_SLUG_CHARS, category))
+
+    def exists(aslug):
+        return bool(category_metadata.find_one({"slug": aslug}))
+
+    slug = oslug
+    cnt = 0
+    while exists(slug):
+        cnt += 1
+        slug = oslug + "_" + str(cnt)
+
+    return slug
+
+
+def resolve_category_slug(slug):
+    if not slug:
+        return None
+    maybe = category_metadata.find_one({
+        "slug": slug
+    }, {
+        "category": 1
+    })
+    if maybe:
+        return maybe["category"]
+    return None
 
 
 @app.route("/api/category/add", methods=["POST"])
@@ -1115,11 +1117,13 @@ def add_category():
         return not_possible("Missing argument")
     if category_exists(category):
         return not_possible("Category already exists")
+    slug = create_category_slug(category)
     category_metadata.insert_one({
         "category": category,
+        "slug": slug,
         "admins": []
     })
-    return success()
+    return success(slug=slug)
 
 
 @app.route("/api/category/remove", methods=["POST"])
@@ -1128,10 +1132,9 @@ def add_category():
 def remove_category():
     """
     Remove a category and move all exams to the default category
-    POST Parameter 'category'
+    POST Parameter 'category' or 'slug'
     """
-    # TODO delete child categories
-    category = request.form.get("category")
+    category = request.form.get("category") or resolve_category_slug(request.form.get("slug"))
     if not category:
         return not_possible("Missing argument")
     if category == "default":
@@ -1151,10 +1154,10 @@ def remove_category():
 def add_category_admin():
     """
     Add an admin to a category.
-    POST Parameter 'category'
+    POST Parameter 'category' or 'slug'
     POST Parameter 'username'
     """
-    category = request.form.get("category")
+    category = request.form.get("category") or resolve_category_slug(request.form.get("slug"))
     username = request.form.get("username")
     if not category or not username:
         return not_possible("Missing argument")
@@ -1174,10 +1177,10 @@ def add_category_admin():
 def remove_category_admin():
     """
     Remove an admin from a category.
-    POST Parameter 'category'
+    POST Parameter 'category' or 'slug'
     POST Parameter 'username'
     """
-    category = request.form.get("category")
+    category = request.form.get("category") or resolve_category_slug(request.form.get("slug"))
     username = request.form.get("username")
     if not category or not username:
         return not_possible("Missing argument")
@@ -1196,9 +1199,9 @@ def remove_category_admin():
 def list_category():
     """
     Lists all exams belonging to the category
-    GET Parameter 'category'
+    GET Parameter 'category' or 'slug'
     """
-    category = request.args.get("category")
+    category = request.args.get("category") or resolve_category_slug(request.args.get("slug"))
     if not category:
         return not_possible("Missing argument")
     return success(value=get_category_exams(category))
@@ -1209,16 +1212,23 @@ def list_category():
 def get_category_metadata():
     """
     Returns all stored metadata for the given category
-    GET Parameter 'category'
+    GET Parameter 'category' or 'slug'
     """
-    category = request.args.get("category")
+    category = request.args.get("category") or resolve_category_slug(request.args.get("slug"))
     if not category:
         return not_possible("Missing argument")
     metadata = category_metadata.find_one({
-        "category": category.lower()
+        "category": category
     })
     if not metadata:
         return not_found()
+    if not has_admin_rights_for_category(auth.username(), category):
+        del metadata["admins"]
+    for key in CATEGORY_METADATA + ['admins', 'offered_in']:
+        if key not in metadata:
+            metadata[key] = ""
+    if not metadata["admins"]:
+        metadata["admins"] = []
     return success(value=metadata)
 
 
@@ -1228,10 +1238,10 @@ def get_category_metadata():
 def set_category_metadata_api():
     """
     Sets the metadata for the given category
-    POST Parameter 'category'
+    POST Parameter 'category' or 'slug'
     POST Parameters are the values to set
     """
-    category = request.form.get("category")
+    category = request.form.get("category") or resolve_category_slug(request.form.get("slug"))
     if not category:
         return not_possible("Missing argument")
     set_category_metadata(category, request.form)
@@ -1247,7 +1257,7 @@ def set_category_metadata(category, metadata):
     filtered = filter_dict(metadata, CATEGORY_METADATA)
     if filtered:
         category_metadata.update_one({
-            "category": category.lower()
+            "category": category
         }, {"$set": filtered})
 
 
