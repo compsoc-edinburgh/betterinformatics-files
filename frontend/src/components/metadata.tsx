@@ -42,6 +42,7 @@ interface State {
   categories: string[];
   printonlyFile: Blob;
   solutionFile: Blob;
+  error?: string;
 }
 
 export default class MetaData extends React.Component<Props, State> {
@@ -71,12 +72,14 @@ export default class MetaData extends React.Component<Props, State> {
         this.props.onChange(metadata);
         this.props.onFinishEdit();
       })
-      .catch(() => undefined);
+      .catch((err) => this.setState({
+        error: err.toString()
+      }));
   };
 
   cancelEdit = () => {
     this.setState({
-      currentMetaData: {...this.props.savedMetaData}
+      currentMetaData: {...this.props.savedMetaData},
     });
     this.props.onFinishEdit();
   };
@@ -124,6 +127,9 @@ export default class MetaData extends React.Component<Props, State> {
         newMeta.has_printonly = true;
         this.props.onChange(newMeta);
       })
+      .catch((err) => this.setState({
+        error: err.toString()
+      }));
   };
 
   removeFilePrintonly = () => {
@@ -134,7 +140,10 @@ export default class MetaData extends React.Component<Props, State> {
         let newMeta = {...this.props.savedMetaData};
         newMeta.has_printonly = false;
         this.props.onChange(newMeta);
-      });
+      })
+      .catch((err) => this.setState({
+        error: err.toString()
+      }));
   };
 
   uploadFileSolution = () => {
@@ -148,6 +157,9 @@ export default class MetaData extends React.Component<Props, State> {
         newMeta.has_solution = true;
         this.props.onChange(newMeta);
       })
+      .catch((err) => this.setState({
+        error: err.toString()
+      }));
   };
 
   removeFileSolution = () => {
@@ -158,7 +170,10 @@ export default class MetaData extends React.Component<Props, State> {
         let newMeta = {...this.props.savedMetaData};
         newMeta.has_solution = false;
         this.props.onChange(newMeta);
-      });
+      })
+      .catch((err) => this.setState({
+        error: err.toString()
+      }));
   };
 
   render() {
@@ -184,6 +199,7 @@ export default class MetaData extends React.Component<Props, State> {
         </label>
         <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={(ev) => this.valueChanged("remark", ev)}/>
       </div>
+      {this.state.error && <div>{this.state.error}</div>}
       <div>
         <button onClick={this.saveEdit}>Save</button>
         <button onClick={this.cancelEdit}>Cancel</button>

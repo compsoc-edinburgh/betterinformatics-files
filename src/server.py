@@ -118,6 +118,7 @@ user_data = mongo_db.userdata
 category_metadata = mongo_db.categorymetadata
 exam_metadata = mongo_db.exammetadata
 image_metadata = mongo_db.imagemetadata
+payments = mongo_db.payments
 feedback = mongo_db.feedback
 
 
@@ -435,6 +436,15 @@ def is_file_in_minio(directory, name):
         return True
     except NoSuchKey:
         return False
+
+
+def category_exists(category):
+    """
+    Check whether the given category exists.
+    :param category: Name of the category
+    """
+    maybe_category = category_metadata.find_one({"category": category})
+    return bool(maybe_category)
 
 
 @app.route("/api/me")
@@ -944,6 +954,13 @@ def set_exam_metadata_api(filename):
     if "category" in metadata:
         if not has_admin_rights_for_category(auth.username(), metadata["category"]):
             return not_allowed()
+        if not category_exists(metadata["category"]):
+            return not_possible("Category does not exist")
+    if "payment_category" in metadata:
+        if not has_admin_rights_for_category(auth.username(), metadata["payment_category"]):
+            return not_allowed()
+        if not category_exists(metadata["payment_category"]):
+            return not_possible("Payment Category does not exist")
     if "has_printonly" in metadata:
         del metadata["has_printonly"]
     if "has_solution" in metadata:
@@ -1096,8 +1113,7 @@ def add_category():
     category = request.form.get("category")
     if not category:
         return not_possible("Missing argument")
-    maybe_category = category_metadata.find_one({"category": category})
-    if maybe_category:
+    if category_exists(category):
         return not_possible("Category already exists")
     category_metadata.insert_one({
         "category": category,
@@ -1193,7 +1209,7 @@ def list_category():
 def get_category_metadata():
     """
     Returns all stored metadata for the given category
-    GET Paramter 'category'
+    GET Parameter 'category'
     """
     category = request.args.get("category")
     if not category:
@@ -1506,12 +1522,119 @@ def send_user_notification(username, type, sender, title, message, link):
 
 
 ########################################################################################################################
+# PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT#
+########################################################################################################################
+
+@app.route("/api/payment/pay", methods=["POST"])
+@require_admin
+def add_payment():
+    """
+    Record a payment of a user for some category.
+    POST Parameter 'username'
+    POST Parameter 'category'
+    """
+    category = request.form.get('category')
+    if not category_exists(category):
+        return not_possible("Category does not exist")
+    username = request.form.get('username')
+    if not username:
+        return not_possible("No username given")
+    payments.insert_one({
+        "_id": ObjectId(),
+        "username": username,
+        "category": category,
+        "active": True,
+        "payment_time": datetime.now(timezone.utc).isoformat(),
+    })
+    return success()
+
+
+def payment_still_valid(payment):
+    """
+    Check whether a payment is still valid.
+    """
+    # TODO when is a payment invalidated? At which date?
+    # 1.3. and 1.9. for now
+    now = datetime.now(timezone.utc)
+    then = datetime.fromisoformat(payment["payment_time"])
+
+    return True
+
+
+def get_user_payments(username):
+    """
+    List all payments for a user.
+    :param username: Name of the user.
+    """
+    user_payments = payments.find({
+        "username": username,
+        "active": True,
+    }, {
+        "_id": 1,
+        "category": 1,
+        "payment_time": 1,
+    })
+    for payment in user_payments:
+        if not payment_still_valid(payment):
+            payments.update_one({
+                "_id": payment["_id"]
+            }, {
+                "$set": {
+                    "active": False
+                }
+            })
+    user_payments = list(map(lambda x: x["category"], filter(lambda x: x["active"], user_payments)))
+    return user_payments
+
+
+def has_payed(username, category):
+    """
+    Check whether the user payed for the category.
+    :param username: Name of the user
+    :param category: Name of the category
+    """
+    maybe_payments = payments.find({
+        "username": username,
+        "category": category,
+        "active": True
+    }, {
+        "payment_time": 1
+    })
+    for payment in maybe_payments:
+        if payment_still_valid(payment):
+            return True
+    return False
+
+
+@app.route("/api/payment/query/<username>")
+@require_admin
+def payment_query(username):
+    """
+    List all payed categories for some user.
+    """
+    return success(value=get_user_payments(username))
+
+
+@app.route("/api/payment/me")
+@auth.login_required
+def payment_query_me():
+    """
+    List all categories the current user payed for.
+    """
+    return success(value=get_user_payments(auth.username()))
+
+
+########################################################################################################################
 # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBACK # FEEDBAC#
 ########################################################################################################################
 
 @app.route("/api/feedback/submit", methods=['POST'])
 @auth.login_required
 def submit_feedback():
+    """
+    Add new feedback.
+    POST Parameter 'text'
+    """
     text = request.form["text"]
     username = auth.username()
     feedback.insert_one({
@@ -1530,6 +1653,9 @@ def submit_feedback():
 @auth.login_required
 @require_admin
 def get_feedback():
+    """
+    List all feedback.
+    """
     results = feedback.find()
 
     def transform(fb):
@@ -1543,6 +1669,9 @@ def get_feedback():
 @auth.login_required
 @require_admin
 def set_feedback_flags(feedbackid):
+    """
+    Set flags (read, done) for feedback.
+    """
     update = {}
     for key in ["read", "done"]:
         if key in request.form:
@@ -1607,8 +1736,7 @@ def uploadpdf(pdftype):
             return not_possible("File already exists")
 
         category = request.form.get("category", "") or "default"
-        maybe_category = category_metadata.find_one({"category": category})
-        if not maybe_category:
+        if not category_exists(category):
             return not_possible("Category does not exist")
         if not has_admin_rights_for_category(username, category):
             return not_possible("No permission for category")
@@ -1695,11 +1823,13 @@ def pdf(pdftype, filename):
         "payment_category": 1,
     })
     username = auth.username()
-    if pdftype in ['printonly'] and not has_admin_rights(username):
+    if pdftype in ['printonly'] and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
-    # TODO check payment category
+    if metadata.get("payment_category") and not has_admin_rights_for_exam(username, filename):
+        if not has_payed(username, metadata.get("payment_category")):
+            return not_allowed()
     try:
         data = minio_client.get_object(minio_bucket, PDF_DIR[pdftype] + filename)
         return send_file(data, mimetype="application/pdf")
@@ -1723,7 +1853,9 @@ def print_pdf(filename):
     username = auth.username()
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
-    # TODO check payment category
+    if metadata.get("payment_category") and not has_admin_rights_for_exam(username, filename):
+        if not has_payed(username, metadata.get("payment_category")):
+            return not_allowed()
     if not request.form.get('password'):
         return not_allowed()
     try:

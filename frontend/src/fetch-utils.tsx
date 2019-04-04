@@ -8,20 +8,28 @@ export async function fetchpost(url: string, data: object) {
     method: "POST",
     body: formData
   });
-  const body = await response.json();
-  if (!response.ok) {
-    return Promise.reject(body.err);
+  try {
+    const body = await response.json();
+    if (!response.ok) {
+      return Promise.reject(body.err);
+    }
+    return body;
+  } catch (e) {
+    return Promise.reject(e);
   }
-  return body;
 }
 
 export async function fetchapi(url: string) {
   const response = await fetch(url, {
     credentials: 'include'
   });
-  const body = await response.json();
-  if (!response.ok) {
-    return Promise.reject(body.err);
+  try {
+    const body = await response.json();
+    if (!response.ok) {
+      return Promise.reject(body.err);
+    }
+    return body;
+  } catch (e) {
+    return Promise.reject(e);
   }
-  return body;
 }

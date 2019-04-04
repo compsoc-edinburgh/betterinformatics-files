@@ -110,6 +110,7 @@ def migrate(mongo_db):
     category_metadata = mongo_db.categorymetadata
     exam_metadata = mongo_db.exammetadata
     image_metadata = mongo_db.imagemetadata
+    payments = mongo_db.payments
     feedback = mongo_db.feedback
     # give mongodb time to wake up...
     # it crashes with an authentication failure otherwise, yay!
