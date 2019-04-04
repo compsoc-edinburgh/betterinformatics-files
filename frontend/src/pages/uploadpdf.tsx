@@ -1,7 +1,9 @@
 import * as React from "react";
 import {Redirect} from "react-router-dom";
+import {css} from "glamor";
 import {fetchapi, fetchpost} from '../fetch-utils';
 import AutocompleteInput from '../components/autocomplete-input';
+import Colors from "../colors";
 
 interface State {
   file: Blob;
@@ -11,6 +13,22 @@ interface State {
   result?: { filename: string };
   error?: string;
 }
+
+const styles = {
+  wrapper: css({
+    width: "430px",
+    margin: "auto",
+    padding: "10px",
+    background: Colors.cardBackground,
+    boxShadow: Colors.cardShadow,
+    "& div": {
+      width: "100%",
+    },
+    "& input, & button": {
+      width: "415px",
+    },
+  }),
+};
 
 export default class UploadPDF extends React.Component<{}, State> {
 
@@ -74,7 +92,8 @@ export default class UploadPDF extends React.Component<{}, State> {
       return <Redirect to={"/exams/" + this.state.result.filename}/>
     } else {
       return (
-        <div>
+        <div {...styles.wrapper}>
+          <h2>Upload PDF</h2>
           {this.state.error && <p>{this.state.error}</p>}
           <form onSubmit={this.handleUpload}>
             <div>
