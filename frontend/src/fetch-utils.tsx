@@ -9,7 +9,6 @@ export async function fetchpost(url: string, data: object) {
     body: formData
   });
   const body = await response.json();
-  console.log(response);
   if (!response.ok) {
     return Promise.reject(body.err);
   }

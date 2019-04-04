@@ -36,6 +36,8 @@ auth = HTTPBasicAuth()
 
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 EXAM_DIR = 'exams/'
+PRINTONLY_DIR = 'printonly/'
+SOLUTION_DIR = 'solutions/'
 IMAGE_DIR = 'imgs/'
 EXAM_ALLOWED_EXTENSIONS = {'pdf'}
 IMAGE_ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'svg', 'gif'}
@@ -46,6 +48,31 @@ IMAGE_MIME_TYPES = {
     'svg': "image/svg+xml",
     'gif': "image/gif",
 }
+PDF_DIR = {
+    'exam': EXAM_DIR,
+    'printonly': PRINTONLY_DIR,
+    'solution': SOLUTION_DIR,
+}
+EXAM_METADATA = [
+    "displayname",
+    "category",
+    "legacy_solution",
+    "master_solution",
+    "resolve_alias",
+    "remark",
+    "public",
+    "payment_category",
+    "has_printonly",
+    "has_solution",
+]
+CATEGORY_METADATA = [
+    "admins",
+    "semester",
+    "form",
+    "permission",
+    "offered_in",
+]
+
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
@@ -299,9 +326,12 @@ def has_admin_rights_for_exam(username, filename):
     :param filename: the exam for which to check
     :return: True iff the user has exam admin rights
     """
-    category = exam_metadata.find_one({
+    examinfo = exam_metadata.find_one({
         "filename": filename
-    }, {"category": 1})["category"]
+    }, {"category": 1})
+    if not examinfo:
+        return False
+    category = examinfo["category"]
     return has_admin_rights_for_category(username, category)
 
 
@@ -375,7 +405,7 @@ def resolve(filename):
 
 
 @app.errorhandler(404)
-def not_found(e):
+def not_found_handler(e):
     return "404 page not found", 404
 
 
@@ -895,6 +925,9 @@ def get_exam_metadata(filename):
     })
     if not metadata:
         return not_found()
+    for key in EXAM_METADATA:
+        if key not in metadata:
+            metadata[key] = ""
     metadata["canEdit"] = has_admin_rights_for_exam(auth.username(), filename)
     return success(value=metadata)
 
@@ -907,10 +940,15 @@ def set_exam_metadata_api(filename):
     Sets the metadata for the given exam file
     POST Parameters are the values to set
     """
-    if "category" in request.form:
-        if not has_admin_rights_for_category(auth.username(), request.form["category"]):
+    metadata = request.form.copy()
+    if "category" in metadata:
+        if not has_admin_rights_for_category(auth.username(), metadata["category"]):
             return not_allowed()
-    set_exam_metadata(filename, request.form)
+    if "has_printonly" in metadata:
+        del metadata["has_printonly"]
+    if "has_solution" in metadata:
+        del metadata["has_solution"]
+    set_exam_metadata(filename, metadata)
     return success()
 
 
@@ -930,22 +968,10 @@ def set_exam_metadata(filename, metadata):
     :param filename: filename of the exam
     :param metadata: dictionary of values to set
     """
-    whitelist = [
-        "displayname",
-        "category",
-        "legacy_solution",
-        "master_solution",
-        "resolve_alias",
-        "remark",
-        "public",
-        "print_only",
-        "payment_category"
-    ]
-    filtered = filter_dict(metadata, whitelist)
-    if "public" in filtered:
-        filtered["public"] = filtered["public"] not in ["false", "0"]
-    if "print_only" in filtered:
-        filtered["print_only"] = filtered["print_only"] not in ["false", "0"]
+    filtered = filter_dict(metadata, EXAM_METADATA)
+    for key in ["public", "has_printonly", "has_solution"]:
+        if key in filtered:
+            filtered[key] = filtered[key] not in ["false", "0", False]
     if filtered:
         exam_metadata.update_one({
             "filename": filename
@@ -974,6 +1000,9 @@ def remove_exam(filename):
         "filename": filename
     }).deleted_count > 0:
         minio_client.remove_object(minio_bucket, EXAM_DIR + filename)
+        for dir_ in [SOLUTION_DIR, PRINTONLY_DIR]:
+            if is_file_in_minio(dir_, filename):
+                minio_client.remove_object(minio_bucket, dir_ + filename)
         return success()
     else:
         return not_possible("Could not delete exam metadata")
@@ -1199,14 +1228,7 @@ def set_category_metadata(category, metadata):
     :param category: name of category
     :param metadata: dictionary of values to set
     """
-    whitelist = [
-        "admins",
-        "semester",
-        "form",
-        "permission",
-        "offered_in",
-    ]
-    filtered = filter_dict(metadata, whitelist)
+    filtered = filter_dict(metadata, CATEGORY_METADATA)
     if filtered:
         category_metadata.update_one({
             "category": category.lower()
@@ -1551,14 +1573,19 @@ def generate_filename(length, directory, extension):
     return res + extension
 
 
-@app.route("/api/uploadpdf", methods=['POST'])
+@app.route("/api/uploadpdf/<pdftype>", methods=['POST'])
 @auth.login_required
-def uploadpdf():
+def uploadpdf(pdftype):
     """
-    Allows uploading a new pdf.
+    Allows uploading a new pdf or replacing an existing one.
     File as 'file'.
-    Optional POST Parameter 'displayname' with displayname to use.
+    Optional POST Parameter 'displayname' with displayname to use for new exams.
+    Optional POST Parameter 'category' with category of new exam.
+    Optional POST Parameter 'filename' of the exam this file is associated. Is ignored for new exams.
+    Optional POST Parameter 'replace' which should be 1 if the file should be replaced.
     """
+    if pdftype not in ['exam', 'printonly', 'solution']:
+        return not_possible('Unknown pdf type')
     username = auth.username()
 
     file = request.files.get('file', None)
@@ -1566,30 +1593,69 @@ def uploadpdf():
     if not file or not orig_filename or not allowed_exam_file(orig_filename):
         return not_possible("No valid file found")
 
-    category = request.form.get("category", "") or "default"
-    maybe_category = category_metadata.find_one({"category": category})
-    if not maybe_category:
-        return not_possible("Category does not exist")
-    if not has_admin_rights_for_category(username, category):
-        return not_possible("No permission for category")
+    is_replace = request.form.get('replace', '0') != '0'
+    if is_replace or pdftype != 'exam':
+        filename = request.form.get('filename')
+        if not filename:
+            return not_possible("Missing filename")
+        if not has_admin_rights_for_exam(username, filename):
+            return not_allowed()
+    else:
+        filename = generate_filename(8, EXAM_DIR, ".pdf")
+        if is_file_in_minio(EXAM_DIR, filename):
+            # This should not happen!
+            return not_possible("File already exists")
 
-    filename = generate_filename(8, EXAM_DIR, ".pdf")
-    if is_file_in_minio(EXAM_DIR, filename):
-        # This should not happen!
+        category = request.form.get("category", "") or "default"
+        maybe_category = category_metadata.find_one({"category": category})
+        if not maybe_category:
+            return not_possible("Category does not exist")
+        if not has_admin_rights_for_category(username, category):
+            return not_possible("No permission for category")
+
+        init_exam_metadata(filename)
+        displayname = request.form.get("displayname", "") or orig_filename
+        new_metadata = {
+            "category": category,
+            "displayname": displayname,
+            "resolve_alias": orig_filename
+        }
+        set_exam_metadata(filename, new_metadata)
+
+    if not is_replace and is_file_in_minio(PDF_DIR[pdftype], filename):
         return not_possible("File already exists")
+
+    if pdftype in ['printonly', 'solution']:
+        set_exam_metadata(filename, {
+            "has_" + pdftype: True
+        })
 
     temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
     file.save(temp_file_path)
-    minio_client.fput_object(minio_bucket, EXAM_DIR + filename, temp_file_path)
+    minio_client.fput_object(minio_bucket, PDF_DIR[pdftype] + filename, temp_file_path)
     os.remove(temp_file_path)
+    return success(filename=filename)
 
-    init_exam_metadata(filename)
-    displayname = request.form.get("displayname", "") or orig_filename
-    new_metadata = {"category": category, "displayname": displayname}
-    if "_HS" in orig_filename or "_FS" in orig_filename:
-        new_metadata["resolve_alias"] = orig_filename
-    set_exam_metadata(filename, new_metadata)
-    return success(href="/exams/" + filename)
+
+@app.route("/api/removepdf/<pdftype>", methods=["POST"])
+@auth.login_required
+def removepdf(pdftype):
+    """
+    Removes the pdf from storage.
+    Exams should be removed via remove_exam
+    POST Parameter 'filename' of file to delete
+    """
+    if pdftype not in ['printonly', 'solution']:
+        return not_possible('Unknown pdf type')
+    username = auth.username()
+    filename = request.form.get('filename')
+    if not filename or not has_admin_rights_for_exam(username, filename):
+        return not_allowed()
+    minio_client.remove_object(minio_bucket, PDF_DIR[pdftype] + filename)
+    set_exam_metadata(filename, {
+        "has_" + pdftype: False
+    })
+    return success()
 
 
 @app.route("/api/uploadimg", methods=['POST'])
@@ -1613,34 +1679,31 @@ def uploadimg():
     return success(filename=filename)
 
 
-@app.route("/api/pdf/<filename>")
+@app.route("/api/pdf/<pdftype>/<filename>")
 @auth.login_required
-def pdf(filename):
+def pdf(pdftype, filename):
     """
-    Get the pdf for the filename
+    Get the pdf for the filename of the given type
+    Type is one of exam, printonly, solution
     """
+    if pdftype not in ['exam', 'printonly', 'solution']:
+        return not_possible('Unknown pdf type')
     metadata = exam_metadata.find_one({
         "filename": filename
     }, {
         "public": 1,
-        "print_only": 1,
         "payment_category": 1,
     })
     username = auth.username()
-    if metadata.get("print_only", True) and not has_admin_rights(username):
+    if pdftype in ['printonly'] and not has_admin_rights(username):
         return not_allowed()
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     # TODO check payment category
     try:
-        data = minio_client.get_object(minio_bucket, EXAM_DIR + filename)
+        data = minio_client.get_object(minio_bucket, PDF_DIR[pdftype] + filename)
         return send_file(data, mimetype="application/pdf")
     except NoSuchKey as n:
-        # move objects still in the root to the correct folder
-        # a previous version of the app stored the exams in the root
-        if is_file_in_minio("", filename):
-            minio_client.copy_object(minio_bucket, EXAM_DIR + filename, filename)
-            minio_client.remove_object(minio_bucket, filename)
         return not_found()
 
 
@@ -1661,11 +1724,11 @@ def print_pdf(filename):
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     # TODO check payment category
-    if 'password' not in request.form:
+    if not request.form.get('password'):
         return not_allowed()
     try:
         pdfpath = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
-        minio_client.fget_object(minio_bucket, EXAM_DIR + filename, pdfpath)
+        minio_client.fget_object(minio_bucket, PRINTONLY_DIR + filename, pdfpath)
         return_code = ethprint.start_job(username, request.form['password'], filename, pdfpath)
         if return_code:
             return not_possible("Could not connect to the printer. Please check your password and try again.")

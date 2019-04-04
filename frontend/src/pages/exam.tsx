@@ -29,9 +29,15 @@ const styles = {
   }),
   linkBanner: css({
     background: Colors.linkBannerBackground,
+    width: "60%",
+    margin: "auto",
     marginTop: "10px",
+    marginBottom: "10px",
     padding: "5px 10px",
     textAlign: "center",
+    "@media (max-width: 699px)": {
+      width: "80%",
+    },
   })
 };
 
@@ -77,7 +83,8 @@ export default class Exam extends React.Component<Props, State> {
       resolve_alias: "",
       remark: "",
       public: true,
-      print_only: false,
+      has_printonly: false,
+      has_solution: false,
       payment_category: "",
     },
     allShown: false,
@@ -113,7 +120,7 @@ export default class Exam extends React.Component<Props, State> {
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
     try {
-      const pdf = await PDFJS.getDocument("/api/pdf/" + this.props.filename);
+      const pdf = await PDFJS.getDocument("/api/pdf/exam/" + this.props.filename);
 
       await Promise.all([
         this.renderDocumentToState(pdf),
@@ -257,6 +264,9 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   toggleEditingMetadataActive = () => {
+    if (!this.state.editingMetaData) {
+      window.scrollTo(0, 0);
+    }
     this.setState((state) => {
       return {
         editingMetaData: !state.editingMetaData
@@ -299,6 +309,7 @@ export default class Exam extends React.Component<Props, State> {
         {this.state.editingMetaData &&
           <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
                     onChange={this.metaDataChanged} onFinishEdit={this.toggleEditingMetadataActive}/>}
+        {this.state.savedMetaData.has_printonly && <PrintExam filename={this.props.filename}/>}
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
@@ -307,7 +318,10 @@ export default class Exam extends React.Component<Props, State> {
         <div {...styles.linkBanner}>
           <a href={this.state.savedMetaData.master_solution} target="_blank">Official Solution</a>
         </div>}
-        {this.state.savedMetaData.print_only && <PrintExam filename={this.props.filename}/>}
+        {this.state.savedMetaData.has_solution &&
+        <div {...styles.linkBanner}>
+          <a href={"/api/pdf/solution/" + this.props.filename} target="_blank">Official Solution</a>
+        </div>}
         {(renderer && sections) &&
           <div style={{width: width}} {...styles.wrapper}>
             {sections.map(e => {

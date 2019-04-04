@@ -79,8 +79,9 @@ export interface ExamMetaData {
   resolve_alias: string;
   remark: string;
   public: boolean;
-  print_only: boolean;
   payment_category: string;
+  has_printonly: boolean;
+  has_solution: boolean;
 }
 
 export interface NotificationInfo {

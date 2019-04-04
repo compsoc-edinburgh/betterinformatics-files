@@ -8,7 +8,7 @@ interface State {
   displayName: string;
   category: string;
   categories: string[];
-  result?: { href: string };
+  result?: { filename: string };
   error?: string;
 }
 
@@ -35,7 +35,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost('/api/uploadpdf', {
+    fetchpost('/api/uploadpdf/exam', {
       file: this.state.file,
       displayname: this.state.displayName,
       category: this.state.category
@@ -71,18 +71,26 @@ export default class UploadPDF extends React.Component<{}, State> {
 
   render() {
     if (this.state.result) {
-      return <Redirect to={this.state.result.href}/>
+      return <Redirect to={"/exams/" + this.state.result.filename}/>
     } else {
       return (
         <div>
           {this.state.error && <p>{this.state.error}</p>}
           <form onSubmit={this.handleUpload}>
-            <input onChange={this.handleFileChange} type="file" accept="application/pdf"/>
-            <input onChange={this.handleDisplayNameChange} value={this.state.displayName} type="text"
-                   placeholder="displayname..." required/>
-            <AutocompleteInput name="category" onChange={this.handleCategoryChange} value={this.state.category}
-                               placeholder="category..." autocomplete={this.state.categories}/>
-            <button type="submit">Upload</button>
+            <div>
+              <input onChange={this.handleFileChange} type="file" accept="application/pdf"/>
+            </div>
+            <div>
+              <input onChange={this.handleDisplayNameChange} value={this.state.displayName} type="text"
+                     placeholder="displayname..." required/>
+            </div>
+            <div>
+              <AutocompleteInput name="category" onChange={this.handleCategoryChange} value={this.state.category}
+                                 placeholder="category..." autocomplete={this.state.categories}/>
+            </div>
+            <div>
+              <button type="submit">Upload</button>
+            </div>
           </form>
         </div>
       );
