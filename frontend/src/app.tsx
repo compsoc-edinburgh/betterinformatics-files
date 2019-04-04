@@ -126,7 +126,7 @@ export default class App extends React.Component<{}, State> {
             <Route path="/exams/:filename" render={(props) => (
               <Exam {...props} filename={props.match.params.filename}/>)}/>
             <Route path="/user/:username" render={(props) => (
-                <UserInfo {...props} isMyself={this.state.username === props.match.params.username} username={props.match.params.username}/>)}/>
+                <UserInfo {...props} isMyself={this.state.username === props.match.params.username} isAdmin={this.state.isAdmin} username={props.match.params.username}/>)}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
             <Route path="/categorize" render={(props) => (<Categorize {...props} isAdmin={this.state.isAdmin}/>)}/>
             <Route path="/feedback" render={(props) => (<Feedback {...props} isAdmin={this.state.isAdmin}/>)} />

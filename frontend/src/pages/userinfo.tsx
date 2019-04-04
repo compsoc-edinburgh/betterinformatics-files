@@ -2,9 +2,11 @@ import * as React from "react";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import {NotificationInfo} from "../interfaces";
 import NotificationComponent from "../components/notification";
+import AutocompleteInput from '../components/autocomplete-input';
 
 interface Props {
   isMyself: boolean;
+  isAdmin: boolean;
   username: string;
 }
 
@@ -13,7 +15,10 @@ interface State {
   score: number;
   showAll: boolean;
   notifications: NotificationInfo[];
+  payments: string[];
   enabledNotifications: number[];
+  categories: string[];
+  newPaymentCategory: string;
   error?: string;
 }
 
@@ -24,7 +29,10 @@ export default class UserInfo extends React.Component<Props, State> {
     score: 0,
     showAll: false,
     notifications: [],
+    payments: [],
     enabledNotifications: [],
+    categories: [],
+    newPaymentCategory: "",
   };
 
   componentDidMount() {
@@ -43,6 +51,11 @@ export default class UserInfo extends React.Component<Props, State> {
     if (this.props.isMyself) {
       this.loadUnreadNotifications();
       this.loadEnabledNotifications();
+      this.loadPayments();
+    }
+    if (this.props.isAdmin) {
+      this.loadPayments();
+      this.loadCategories();
     }
   }
 
@@ -51,6 +64,11 @@ export default class UserInfo extends React.Component<Props, State> {
     if (!prevProps.isMyself && this.props.isMyself) {
       this.loadUnreadNotifications();
       this.loadEnabledNotifications();
+      this.loadPayments();
+    }
+    if (!prevProps.isAdmin && this.props.isAdmin) {
+      this.loadPayments();
+      this.loadCategories();
     }
   }
 
@@ -60,6 +78,53 @@ export default class UserInfo extends React.Component<Props, State> {
         this.setState({
           enabledNotifications: res.value
         });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
+  loadPayments = () => {
+    const query = this.props.isMyself ? '/api/payment/me' : '/api/payment/query/' + this.props.username;
+    fetchapi(query)
+      .then(res => {
+        this.setState({
+          payments: res.value
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
+  loadCategories = () => {
+    fetchapi('/api/listcategories/onlyadmin')
+      .then(res => {
+        this.setState({
+          categories: res.value
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
+  addPayment = () => {
+    fetchpost('/api/payment/pay', {
+      username: this.props.username,
+      category: this.state.newPaymentCategory,
+    })
+      .then(() => {
+        this.setState({
+          newPaymentCategory: "",
+        });
+        this.loadPayments();
       })
       .catch(err => {
         this.setState({
@@ -145,6 +210,19 @@ export default class UserInfo extends React.Component<Props, State> {
         {this.state.error && <p>{this.state.error}</p>}
         <h1>{this.state.displayName}</h1>
         <p>Score: {this.state.score}</p>
+        {(this.state.payments.length > 0 || this.props.isAdmin) && [
+          <h2>Paid Oral Exams</h2>,
+          <div>
+            {this.state.payments.length > 0 && <ul>
+              {this.state.payments.map(payment => <li key={payment}>{payment}</li>)}
+            </ul>}
+            {this.props.isAdmin && <p>
+              <AutocompleteInput value={this.state.newPaymentCategory} onChange={ev => this.setState({newPaymentCategory: ev.target.value})}
+                                 placeholder="Category" autocomplete={this.state.categories} name="payment_category"/>
+                <button onClick={this.addPayment}>Add Payment</button>
+            </p>}
+          </div>
+        ]}
         {this.props.isMyself && <div>
           <h2>Notification Settings</h2>
           <div>

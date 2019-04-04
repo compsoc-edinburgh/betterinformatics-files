@@ -956,7 +956,7 @@ def set_exam_metadata_api(filename):
             return not_allowed()
         if not category_exists(metadata["category"]):
             return not_possible("Category does not exist")
-    if "payment_category" in metadata:
+    if metadata.get("payment_category"):
         if not has_admin_rights_for_category(auth.username(), metadata["payment_category"]):
             return not_allowed()
         if not category_exists(metadata["payment_category"]):
@@ -1539,6 +1539,13 @@ def add_payment():
     username = request.form.get('username')
     if not username:
         return not_possible("No username given")
+    maybe_payment = payments.find_one({
+        "username": username,
+        "category": category,
+        "active": True
+    })
+    if maybe_payment:
+        return success()
     payments.insert_one({
         "_id": ObjectId(),
         "username": username,
@@ -1553,11 +1560,13 @@ def payment_still_valid(payment):
     """
     Check whether a payment is still valid.
     """
-    # TODO when is a payment invalidated? At which date?
-    # 1.3. and 1.9. for now
     now = datetime.now(timezone.utc)
-    then = datetime.fromisoformat(payment["payment_time"])
-
+    then = datetime.strptime(payment["payment_time"].replace("+00:00", "+0000"), '%Y-%m-%dT%H:%M:%S.%f%z')
+    resetdates = [datetime(year, month, 1, tzinfo=now.tzinfo) for month in [3, 9] for year in [now.year-1, now.year]]
+    for reset in resetdates:
+        if now > reset > then:
+            print("now", now, "reset", reset, "then", then, file=sys.stderr)
+            return False
     return True
 
 
@@ -1566,14 +1575,14 @@ def get_user_payments(username):
     List all payments for a user.
     :param username: Name of the user.
     """
-    user_payments = payments.find({
+    user_payments = list(payments.find({
         "username": username,
         "active": True,
     }, {
         "_id": 1,
         "category": 1,
         "payment_time": 1,
-    })
+    }))
     for payment in user_payments:
         if not payment_still_valid(payment):
             payments.update_one({
@@ -1583,7 +1592,7 @@ def get_user_payments(username):
                     "active": False
                 }
             })
-    user_payments = list(map(lambda x: x["category"], filter(lambda x: x["active"], user_payments)))
+    user_payments = list(map(lambda x: x["category"], filter(lambda x: payment_still_valid(x), user_payments)))
     return user_payments
 
 

@@ -18,6 +18,8 @@ WORKDIR /app
 
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
 
+# TODO remove the apt-get update again
+RUN apt-get update
 RUN apt-get install -y \
 	python3 python3-pip python3-dev \
 	smbclient poppler-utils
