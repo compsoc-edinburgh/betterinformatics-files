@@ -45,17 +45,26 @@ export default class PrintExam extends React.Component<Props, State> {
   };
 
   printExam = () => {
-    fetchpost('/api/printpdf/' + this.props.filename, {password: this.state.currentPassword})
-      .then(() => {
-        this.setState({
-          printed: true
+    this.setState({
+      error: ""
+    });
+    if (this.state.currentPassword.length > 0) {
+      fetchpost('/api/printpdf/' + this.props.filename, {password: this.state.currentPassword})
+        .then(() => {
+          this.setState({
+            printed: true
+          });
+        })
+        .catch(err => {
+          this.setState({
+            error: err
+          });
         });
-      })
-      .catch(err => {
-        this.setState({
-          error: err
-        });
+    } else {
+      this.setState({
+        error: "Please enter a password."
       });
+    }
   };
 
   render() {
