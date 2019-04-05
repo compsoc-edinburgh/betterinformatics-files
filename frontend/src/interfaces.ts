@@ -65,6 +65,22 @@ export interface CategoryExam {
   public: boolean; // whether the exam is public
 }
 
+export interface MetaCategory {
+  displayname: string;
+  meta2: {
+    displayname: string;
+    categories: string[];
+  }[];
+}
+
+export interface MetaCategoryWithCategories {
+  displayname: string;
+  meta2: {
+    displayname: string;
+    categories: CategoryMetaData[];
+  }[];
+}
+
 export interface CategoryMetaData {
   category: string; // Name of category
   slug: string;
@@ -72,8 +88,8 @@ export interface CategoryMetaData {
   semester: string;
   form: string;
   permission: string;
-  offered_in: string[];
   remark: string;
+  has_payments: boolean;
 }
 
 export interface ExamMetaData {
@@ -86,6 +102,8 @@ export interface ExamMetaData {
   resolve_alias: string;
   remark: string;
   public: boolean;
+  finished_cuts: boolean;
+  finished_wiki_transfer: boolean;
   payment_category: string;
   has_printonly: boolean;
   has_solution: boolean;

@@ -125,6 +125,7 @@ def migrate(mongo_db):
     answer_sections = mongo_db.answersections
     user_data = mongo_db.userdata
     category_metadata = mongo_db.categorymetadata
+    meta_category = mongo_db.metacategory
     exam_metadata = mongo_db.exammetadata
     image_metadata = mongo_db.imagemetadata
     payments = mongo_db.payments

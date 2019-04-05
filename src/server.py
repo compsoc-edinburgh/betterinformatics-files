@@ -61,6 +61,8 @@ EXAM_METADATA = [
     "resolve_alias",
     "remark",
     "public",
+    "finished_cuts",
+    "finished_wiki_transfer",
     "payment_category",
     "has_printonly",
     "has_solution",
@@ -70,6 +72,7 @@ CATEGORY_METADATA = [
     "form",
     "permission",
     "remark",
+    "has_payments",
 ]
 CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
@@ -116,6 +119,7 @@ mongo_db = MongoClient(
 answer_sections = mongo_db.answersections
 user_data = mongo_db.userdata
 category_metadata = mongo_db.categorymetadata
+meta_category = mongo_db.metacategory
 exam_metadata = mongo_db.exammetadata
 image_metadata = mongo_db.imagemetadata
 payments = mongo_db.payments
@@ -948,9 +952,12 @@ def set_exam_metadata_api(filename):
         if not category_exists(metadata["category"]):
             return not_possible("Category does not exist")
     if metadata.get("payment_category"):
-        if not has_admin_rights_for_category(auth.username(), metadata["payment_category"]):
-            return not_allowed()
-        if not category_exists(metadata["payment_category"]):
+        maybe_category = category_metadata.find_one({
+            "category": metadata["payment_category"]
+        }, {
+            "has_payments": 1
+        })
+        if not maybe_category or "has_payments" not in maybe_category or not maybe_category["has_payments"]:
             return not_possible("Payment Category does not exist")
     if "has_printonly" in metadata:
         del metadata["has_printonly"]
@@ -977,7 +984,7 @@ def set_exam_metadata(filename, metadata):
     :param metadata: dictionary of values to set
     """
     filtered = filter_dict(metadata, EXAM_METADATA)
-    for key in ["public", "has_printonly", "has_solution"]:
+    for key in ["public", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer"]:
         if key in filtered:
             filtered[key] = filtered[key] not in ["false", "0", False]
     if filtered:
@@ -1031,6 +1038,21 @@ def list_categories():
     )))
 
 
+@app.route("/api/listcategories/onlypayment")
+@auth.login_required
+def list_categories_only_payment():
+    """
+    Lists all available categories sorted by name
+    """
+    return success(value=list(sorted(
+        map(lambda x: x["category"], category_metadata.find({
+            "has_payments": True
+        }, {
+            "category": 1
+        }))
+    )))
+
+
 @app.route("/api/listcategories/onlyadmin")
 @auth.login_required
 def list_categories_only_admin():
@@ -1046,7 +1068,6 @@ def list_categories_only_admin():
 
 @app.route("/api/listcategories/withmeta")
 @auth.login_required
-@require_admin
 def list_categories_with_meta():
     categories = list(sorted(
         category_metadata.find({}, {
@@ -1077,6 +1098,10 @@ def get_category_exams(category):
 
 
 def create_category_slug(category):
+    """
+    Create a valid and unique slug for the category name
+    :param category: category name
+    """
     oslug = "".join(filter(lambda x: x in CATEGORY_SLUG_CHARS, category))
 
     def exists(aslug):
@@ -1092,6 +1117,9 @@ def create_category_slug(category):
 
 
 def resolve_category_slug(slug):
+    """
+    Find category name of category belonging to slug
+    """
     if not slug:
         return None
     maybe = category_metadata.find_one({
@@ -1255,10 +1283,171 @@ def set_category_metadata(category, metadata):
     :param metadata: dictionary of values to set
     """
     filtered = filter_dict(metadata, CATEGORY_METADATA)
+    for key in ["has_payments"]:
+        if key in filtered:
+            filtered[key] = filtered[key] not in ["false", "0", False]
     if filtered:
         category_metadata.update_one({
             "category": category
         }, {"$set": filtered})
+
+
+########################################################################################################################
+# META CATEGORY # META CATEGORY # META CATEGORY # META CATEGORY # META CATEGORY # META CATEGORY # META CATEGORY # META #
+########################################################################################################################
+
+@app.route("/api/listmetacategories")
+@auth.login_required
+def list_meta_categories():
+    """
+    List all meta categories with all categories belonging to them.
+    """
+    meta_categories = list(sorted(meta_category.find({}), key=lambda x: (x["order"], x["displayname"])))
+    for meta in meta_categories:
+        meta["meta2"].sort(key=lambda x: (x["order"], x["displayname"]))
+    return success(value=meta_categories)
+
+
+def meta_category_ensure_existence(meta1, meta2):
+    """
+    Ensure the given meta category exists and add it if not.
+    """
+    maybe = meta_category.find_one({
+        "displayname": meta1
+    })
+    if not maybe:
+        meta_category.insert_one({
+            "displayname": meta1,
+            "order": 50,
+            "meta2": []
+        })
+    if meta2:
+        maybe = meta_category.find_one({
+            "displayname": meta1,
+            "meta2.displayname": meta2,
+        })
+        if not maybe:
+            meta_category.update_one({
+                "displayname": meta1
+            }, {
+                "$push": {
+                    "meta2": {
+                        "displayname": meta2,
+                        "order": 50,
+                        "categories": [],
+                    }
+                }
+            })
+
+
+@app.route("/api/metacategory/setorder", methods=["POST"])
+@auth.login_required
+@require_admin
+def meta_category_set_order():
+    """
+    Set the sorting order for a meta category,
+    POST Parameter 'meta1': level 1 name of meta category
+    POST Parameter 'meta2': level 2 name of meta category. If this is not set the order for meta1 will be set
+    POST Parameter 'order': order to set
+    """
+    meta1 = request.form.get("meta1")
+    meta2 = request.form.get("meta2")
+    order = request.form.get("order")
+    if not meta1 or order is None:
+        return not_possible("Missing argument")
+    order = int(order)
+    meta_category_ensure_existence(meta1, meta2)
+    if not meta2:
+        meta_category.update_one({
+            "displayname": meta1,
+        }, {
+            "order": order,
+        })
+    else:
+        meta_category.update_one({
+            "displayname": meta1,
+            "meta2.displayname": meta2,
+        }, {
+            "meta2.$.order": order,
+        })
+
+
+@app.route("/api/metacategory/addcategory", methods=["POST"])
+@auth.login_required
+@require_admin
+def meta_category_add_category():
+    """
+    Add a category to a meta category,
+    POST Parameter 'meta1': level 1 name of meta category
+    POST Parameter 'meta2': level 2 name of meta category
+    POST Parameter 'category': category to add
+    """
+    meta1 = request.form.get("meta1")
+    meta2 = request.form.get("meta2")
+    category = request.form.get("category")
+    if not meta1 or not meta2 or not category:
+        return not_possible("Missing argument")
+    meta_category_ensure_existence(meta1, meta2)
+    meta_category.update_one({
+        "displayname": meta1,
+        "meta2.displayname": meta2,
+    }, {
+        "$addToSet": {
+            "meta2.$.categories": category
+        }
+    })
+    return success()
+
+
+@app.route("/api/metacategory/removecategory", methods=["POST"])
+@auth.login_required
+@require_admin
+def meta_category_remove_category():
+    """
+    Remove a category from a meta category
+    POST Parameter 'meta1': level 1 name of meta category
+    POST Parameter 'meta2': level 2 name of meta category
+    POST Parameter 'category': category to remove
+    """
+    meta1 = request.form.get("meta1")
+    meta2 = request.form.get("meta2")
+    category = request.form.get("category")
+    if not meta1 or not meta2 or not category:
+        return not_possible("Missing argument")
+    meta_category_ensure_existence(meta1, meta2)
+    meta_category.update_one({
+        "displayname": meta1,
+        "meta2.displayname": meta2,
+    }, {
+        "$pull": {
+            "meta2.$.categories": category
+        }
+    })
+    remaining_meta2 = meta_category.find_one({
+        "displayname": meta1,
+        "meta2.displayname": meta2,
+    }, {
+        "meta2.$.categories": 1
+    })
+    if not remaining_meta2["meta2"][0]["categories"]:
+        meta_category.update_one({
+            "displayname": meta1,
+            "meta2.displayname": meta2,
+        }, {
+            "$pull": {
+                "meta2": {
+                    "displayname": meta2
+                }
+            }
+        })
+        remaining_meta1 = meta_category.find_one({
+            "displayname": meta1
+        })
+        if not remaining_meta1["meta2"]:
+            meta_category.delete_one({
+                "displayname": meta1
+            })
+    return success()
 
 
 ########################################################################################################################
@@ -1536,6 +1725,7 @@ def send_user_notification(username, type, sender, title, message, link):
 ########################################################################################################################
 
 @app.route("/api/payment/pay", methods=["POST"])
+@auth.login_required
 @require_admin
 def add_payment():
     """
@@ -1562,6 +1752,10 @@ def add_payment():
         "category": category,
         "active": True,
         "payment_time": datetime.now(timezone.utc).isoformat(),
+        "uploaded_filename": "",
+        "uploadtime": "",
+        "check_time": "",
+        "refund_time": "",
     })
     return success()
 
@@ -1626,6 +1820,7 @@ def has_payed(username, category):
 
 
 @app.route("/api/payment/query/<username>")
+@auth.login_required
 @require_admin
 def payment_query(username):
     """

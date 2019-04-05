@@ -1,8 +1,10 @@
 import * as React from "react";
-import {CategoryExam, CategoryMetaData} from "../interfaces";
+import {CategoryExam, CategoryMetaData, MetaCategory} from "../interfaces";
 import {css} from "glamor";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import {Link, Redirect} from "react-router-dom";
+import {getMetaCategoriesForCategory} from "../category-utils";
+import AutocompleteInput from '../components/autocomplete-input';
 
 const styles = {
   wrapper: css({
@@ -17,6 +19,9 @@ interface Props {
 interface State {
   category: CategoryMetaData;
   exams: CategoryExam[];
+  metaCategories: MetaCategory[];
+  newMeta1: string;
+  newMeta2: string;
   newAdminName: string;
   currentMetaData: CategoryMetaData;
   editingMetaData: boolean;
@@ -34,10 +39,13 @@ export default class Category extends React.Component<Props, State> {
       semester: "",
       form: "",
       permission: "",
-      offered_in: [],
       remark: "",
+      has_payments: false,
     },
     exams: [],
+    metaCategories: [],
+    newMeta1: "",
+    newMeta2: "",
     newAdminName: "",
     currentMetaData: {
       category: "",
@@ -46,8 +54,8 @@ export default class Category extends React.Component<Props, State> {
       semester: "",
       form: "",
       permission: "",
-      offered_in: [],
       remark: "",
+      has_payments: false,
     },
     editingMetaData: false,
     redirectBack: false,
@@ -56,6 +64,7 @@ export default class Category extends React.Component<Props, State> {
   componentDidMount() {
     this.loadCategory();
     this.loadExams();
+    this.loadMetaCategories();
     document.title = this.props.categorySlug + " - VIS Community Solutions";
   }
 
@@ -77,6 +86,16 @@ export default class Category extends React.Component<Props, State> {
         });
       })
       .catch(()=>undefined);
+  };
+
+  loadMetaCategories = () => {
+    fetchapi('/api/listmetacategories')
+      .then(res => {
+        this.setState({
+          metaCategories: res.value
+        });
+      })
+      .catch(() => undefined);
   };
 
   toggleEditingMetadata = () => {
@@ -122,6 +141,14 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
+  checkboxValueChanged = (key: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = event.target.checked;
+    this.setState(prevState => {
+      prevState.currentMetaData[key] = newVal;
+      return prevState;
+    });
+  };
+
   addAdmin = () => {
     fetchpost('/api/category/addadmin', {
       slug: this.props.categorySlug,
@@ -147,6 +174,42 @@ export default class Category extends React.Component<Props, State> {
     })
       .then(() => {
         this.loadCategory();
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
+  addMetaCategory = () => {
+    fetchpost('/api/metacategory/addcategory', {
+      meta1: this.state.newMeta1,
+      meta2: this.state.newMeta2,
+      category: this.state.category.category,
+    })
+      .then(() => {
+        this.setState({
+          newMeta1: "",
+          newMeta2: "",
+        });
+        this.loadMetaCategories();
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
+  removeMetaCategory = (meta1: string, meta2: string) => {
+    fetchpost('/api/metacategory/removecategory', {
+      meta1: meta1,
+      meta2: meta2,
+      category: this.state.category.category,
+    })
+      .then(() => {
+        this.loadMetaCategories();
       })
       .catch(err => {
         this.setState({
@@ -194,6 +257,14 @@ export default class Category extends React.Component<Props, State> {
     }
   };
 
+  flatArray = (arr: string[][]) => {
+    let res: string[] = [];
+    arr.forEach(a => {
+      res.push.apply(res, a);
+    });
+    return res;
+  };
+
   render() {
     if (this.state.redirectBack) {
       return <Redirect to="/"/>
@@ -202,27 +273,48 @@ export default class Category extends React.Component<Props, State> {
       return <div>Loading...</div>
     }
     const cat = this.state.category;
+    const offeredIn = getMetaCategoriesForCategory(this.state.metaCategories, cat.category);
     return (<div {...styles.wrapper}>
       <h1>{cat.category}</h1>
       {this.state.category.semester && <p>Semester: {this.state.category.semester}</p>}
       {this.state.category.form && <p>Form: {this.state.category.form}</p>}
-      {this.state.category.offered_in && <p>Offered in: {this.state.category.offered_in}</p>}
+      {offeredIn.length > 0 && <div>
+        Offered in:
+        <ul>
+          {offeredIn.map(meta1 => meta1.meta2.map(meta2 => <li key={meta1.displayname + meta2.displayname}>{meta2.displayname} in {meta1.displayname}</li>))}
+        </ul>
+      </div>}
       {this.state.category.remark && <p>Remark: {this.state.category.remark}</p>}
       {this.state.error && <div>{this.state.error}</div>}
       {(this.props.isAdmin) && <p><button onClick={this.toggleEditingMetadata}>Edit Category</button></p>}
       {this.state.editingMetaData && <div>
         <h2>Meta Data</h2>
         <div>
-          <input type="text" placeholder="semester" value={this.state.currentMetaData.semester} onChange={ev => this.valueChanged("semester", ev)}/>
-          <input type="text" placeholder="form" value={this.state.currentMetaData.form} onChange={ev => this.valueChanged("form", ev)}/>
+          <AutocompleteInput name="semester" placeholder="semester" value={this.state.currentMetaData.semester} onChange={ev => this.valueChanged("semester", ev)} autocomplete={["HS", "FS"]}/>
+          <AutocompleteInput name="form" placeholder="form" value={this.state.currentMetaData.form} onChange={ev => this.valueChanged("form", ev)} autocomplete={["written", "oral"]}/>
         </div>
         <div>
           <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={ev => this.valueChanged("remark", ev)}/>
-            <input type="text" placeholder="permission" value={this.state.currentMetaData.permission} onChange={ev => this.valueChanged("permission", ev)}/>
+          <AutocompleteInput name="permission" placeholder="permission" value={this.state.currentMetaData.permission} onChange={ev => this.valueChanged("permission", ev)} autocomplete={["public", "intern", "hidden", "none"]}/>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" checked={this.state.currentMetaData.has_payments} onChange={(ev) => this.checkboxValueChanged("has_payments", ev)}/>
+            Has Payments
+          </label>
         </div>
         <div>
           <button onClick={this.saveEdit}>Save</button>
           <button onClick={this.cancelEdit}>Cancel</button>
+        </div>
+        <div>
+          <h2>Offered In</h2>
+            <ul>
+              {offeredIn.map(meta1 => meta1.meta2.map(meta2 => <li key={meta1.displayname + meta2.displayname}>{meta2.displayname} in {meta1.displayname} <button onClick={() => this.removeMetaCategory(meta1.displayname, meta2.displayname)}>X</button></li>))}
+            </ul>
+            <AutocompleteInput name="meta" onChange={ev => this.setState({newMeta1: ev.target.value})} value={this.state.newMeta1} placeholder="main category" autocomplete={this.state.metaCategories.map(meta1 => meta1.displayname)}/>
+            <AutocompleteInput name="submeta" onChange={ev => this.setState({newMeta2: ev.target.value})} value={this.state.newMeta2} placeholder="sub category" autocomplete={this.flatArray(this.state.metaCategories.filter(meta1 => meta1.displayname === this.state.newMeta1).map(meta1 => meta1.meta2.map(meta2 => meta2.displayname)))}/>
+            <button onClick={this.addMetaCategory} disabled={this.state.newMeta1.length === 0 || this.state.newMeta2.length === 0}>Add Offered In</button>
         </div>
         <div>
           <h2>Admins</h2>

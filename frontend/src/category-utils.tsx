@@ -1,4 +1,4 @@
-import {CategoryMetaData} from "./interfaces";
+import {CategoryMetaData, MetaCategory, MetaCategoryWithCategories} from "./interfaces";
 
 function filterMatches(filter: string, name: string): boolean {
   let nameLower = name.replace(/\s/g, '').toLowerCase();
@@ -20,4 +20,29 @@ function filterMatches(filter: string, name: string): boolean {
 
 export function filterCategories(categories: CategoryMetaData[], filter: string,): CategoryMetaData[] {
   return categories.filter(cat => filterMatches(filter, cat.category));
+}
+
+export function fillMetaCategories(categories: CategoryMetaData[], metaCategories: MetaCategory[]): MetaCategoryWithCategories[] {
+  let categoryToMeta = {};
+  categories.forEach(cat => {
+    categoryToMeta[cat.category] = cat
+  });
+  return metaCategories.map(meta1 => ({
+    ...meta1,
+    meta2: meta1.meta2.map(meta2 => ({
+      ...meta2,
+      categories: meta2.categories
+        .filter(cat => categoryToMeta.hasOwnProperty(cat))
+        .map(cat => categoryToMeta[cat]),
+    }))
+      .filter(meta2 => meta2.categories.length > 0),
+  }))
+    .filter(meta1 => meta1.meta2.length > 0);
+}
+
+export function getMetaCategoriesForCategory(metaCategories: MetaCategory[], category: string): MetaCategory[] {
+  return metaCategories.map(meta1 => ({
+    ...meta1,
+    meta2: meta1.meta2.filter(meta2 => meta2.categories.indexOf(category) !== -1),
+  })).filter(meta1 => meta1.meta2.length > 0);
 }

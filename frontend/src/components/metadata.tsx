@@ -40,6 +40,7 @@ interface Props {
 interface State {
   currentMetaData: ExamMetaData;
   categories: string[];
+  paymentCategories: string[];
   printonlyFile: Blob;
   solutionFile: Blob;
   error?: string;
@@ -49,6 +50,7 @@ export default class MetaData extends React.Component<Props, State> {
   state: State = {
     currentMetaData: {...this.props.savedMetaData},
     categories: [],
+    paymentCategories: [],
     printonlyFile: new Blob(),
     solutionFile: new Blob(),
   };
@@ -58,6 +60,13 @@ export default class MetaData extends React.Component<Props, State> {
       .then(res => {
         this.setState({
           categories: res.value
+        });
+      })
+      .catch(() => undefined);
+    fetchapi('/api/listcategories/onlypayment')
+      .then(res => {
+        this.setState({
+          paymentCategories: res.value
         });
       })
       .catch(() => undefined);
@@ -186,7 +195,7 @@ export default class MetaData extends React.Component<Props, State> {
         <AutocompleteInput value={this.state.currentMetaData.category} onChange={ev => this.valueChanged("category", ev)}
                            placeholder="category" autocomplete={this.state.categories} name="category"/>
         <AutocompleteInput value={this.state.currentMetaData.payment_category} onChange={ev => this.valueChanged("payment_category", ev)}
-                           placeholder="payment_category" autocomplete={this.state.categories} name="payment_category"/>
+                           placeholder="payment_category" autocomplete={this.state.paymentCategories} name="payment_category"/>
       </div>
       <div>
         <input type="text" placeholder="legacy solution" value={this.state.currentMetaData.legacy_solution} onChange={(ev) => this.valueChanged("legacy_solution", ev)}/>
@@ -198,6 +207,16 @@ export default class MetaData extends React.Component<Props, State> {
           Public
         </label>
         <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={(ev) => this.valueChanged("remark", ev)}/>
+      </div>
+      <div>
+        <label>
+          <input type="checkbox" checked={this.state.currentMetaData.finished_cuts} onChange={(ev) => this.checkboxValueChanged("finished_cuts", ev)}/>
+          Finished Cuts
+        </label>
+        <label>
+          <input type="checkbox" checked={this.state.currentMetaData.finished_wiki_transfer} onChange={(ev) => this.checkboxValueChanged("finished_wiki_transfer", ev)}/>
+          Finished Wiki Transfer
+        </label>
       </div>
       {this.state.error && <div>{this.state.error}</div>}
       <div>
