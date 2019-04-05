@@ -174,18 +174,23 @@ export default class Category extends React.Component<Props, State> {
     }
   };
 
-  removeExam = (filename: string) => {
+  removeExam = (exam: CategoryExam) => {
     const confirmation = confirm("Remove exam? This will remove all answers and can not be undone!");
     if (confirmation) {
-      fetchpost(`/api/exam/${filename}/remove`, {})
-        .then(() => {
-          this.loadExams();
-        })
-        .catch(err => {
-          this.setState({
-            error: err.toString()
+      const confirmation2 = prompt("Please enter '" + exam.displayname + "' to delete the exam.");
+      if (confirmation2 === exam.displayname) {
+        fetchpost(`/api/exam/${exam.filename}/remove`, {})
+          .then(() => {
+            this.loadExams();
+          })
+          .catch(err => {
+            this.setState({
+              error: err.toString()
+            });
           });
-        });
+      } else {
+        alert("Name did not match. If you really want to delete the exam, try again.");
+      }
     }
   };
 
@@ -251,7 +256,7 @@ export default class Category extends React.Component<Props, State> {
                 {exam.remark}
               </td>
               {this.props.isAdmin && <td>
-                  <button onClick={ev => this.removeExam(exam.filename)}>X</button>
+                  <button onClick={ev => this.removeExam(exam)}>X</button>
               </td>}
             </tr>
           ))}
