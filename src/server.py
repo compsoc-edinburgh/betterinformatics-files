@@ -396,6 +396,7 @@ def test():
 @app.route("/")
 @app.route("/uploadpdf")
 @app.route("/feedback")
+@app.route("/scoreboard")
 @auth.login_required
 def index():
     return render_template("index.html")
@@ -578,6 +579,7 @@ def new_answer_section(filename):
         "_id": ObjectId()
     }
     answer_sections.insert_one(new_doc)
+    adjust_user_score(username, "score_cuts", 1)
     return success(value=new_doc)
 
 
@@ -601,6 +603,7 @@ def remove_answer_section(filename):
     if section:
         for answer in section["answersection"]["answers"]:
             remove_answer(answer["_id"])
+    adjust_user_score(section["answersection"]["asker"], "score_cuts", -1)
     if answer_sections.delete_one({"_id": oid}).deleted_count > 0:
         return success()
     else:
@@ -658,7 +661,7 @@ def set_like(filename, sectionoid, answeroid):
         }, '$inc': {
             "cutVersion": 1
         }})
-    adjust_user_score(section["answersection"]["answers"][0]["authorId"], like - old_like)
+    adjust_user_score(section["answersection"]["answers"][0]["authorId"], "score", like - old_like)
     return make_answer_section_response(answer_section_oid)
 
 
@@ -700,7 +703,10 @@ def add_answer(filename, sectionoid):
     }, '$inc': {
         "cutVersion": 1
     }})
-    adjust_user_score(username, 1)
+    adjust_user_score(username, "score", 1)
+    adjust_user_score(username, "score_answers", 1)
+    if username == "__legacy__":
+        adjust_user_score(auth.username(), "score_legacy", 1)
     return make_answer_section_response(answer_section_oid)
 
 
@@ -785,7 +791,10 @@ def remove_answer(answeroid):
     })
     if not section:
         return
-    adjust_user_score(section["answersection"]["answers"][0]["authorId"], len(section["answersection"]["answers"][0]["downvotes"]) - len(section["answersection"]["answers"][0]["upvotes"]))
+    adjust_user_score(section["answersection"]["answers"][0]["authorId"], "score", len(section["answersection"]["answers"][0]["downvotes"]) - len(section["answersection"]["answers"][0]["upvotes"]))
+    adjust_user_score(section["answersection"]["answers"][0]["authorId"], "score_answers", -1)
+    for comment in section["answersection"]["answers"][0]["comments"]:
+        adjust_user_score(comment["authorId"], "score_comments", -1)
     answer_sections.update_one({
         "_id": section["_id"]
     }, {"$pull": {
@@ -854,6 +863,7 @@ def add_comment(filename, sectionoid, answeroid):
             "cutVersion": 1
         }
     })
+    adjust_user_score(username, "score_comments", 1)
     return make_answer_section_response(answer_section_oid)
 
 
@@ -934,6 +944,7 @@ def remove_comment(filename, sectionoid, answeroid):
             "cutVersion": 1
         }
     })
+    adjust_user_score(maybe_comment["answersection"]["answers"][0]["comments"][0]["authorId"], "score_comments", -1)
     return make_answer_section_response(answer_section_oid)
 
 
@@ -1584,10 +1595,34 @@ def get_user_info(username):
         "username": 1,
         "displayName": 1,
         "score": 1,
+        "score_answers": 1,
+        "score_comments": 1,
+        "score_cuts": 1,
+        "score_legacy": 1,
     })
     if not user:
         return not_found()
     return success(value=user)
+
+
+@app.route("/api/scoreboard/<scoretype>")
+@auth.login_required
+def get_user_scoreboard(scoretype):
+    if scoretype not in ["score", "score_answers", "score_comments", "score_cuts", "score_legacy"]:
+        return not_found()
+    limit = int(request.args.get('limit', "10"))
+    users = user_data.find({}, {
+        "username": 1,
+        "displayName": 1,
+        "score": 1,
+        "score_answers": 1,
+        "score_comments": 1,
+        "score_cuts": 1,
+        "score_legacy": 1,
+    }).sort([
+        (scoretype, -1)
+    ]).limit(limit)
+    return success(value=list(users))
 
 
 def init_user_data_if_not_found(username):
@@ -1600,6 +1635,10 @@ def init_user_data_if_not_found(username):
         "username": username,
         "displayName": get_real_name(username),
         "score": 0,
+        "score_answers": 1,
+        "score_comments": 0,
+        "score_cuts": 0,
+        "score_legacy": 0,
         "notifications": [],
         "enabled_notifications": [
             NotificationType.NEW_COMMENT_TO_ANSWER.value,
@@ -1608,13 +1647,14 @@ def init_user_data_if_not_found(username):
     })
 
 
-def adjust_user_score(username, score):
+def adjust_user_score(username, key, score):
+    assert key in ["score", "score_answers", "score_comments", "score_cuts", "score_legacy"]
     init_user_data_if_not_found(username)
     user_data.update_one({
         "username": username
     }, {
         "$inc": {
-            "score": score
+            key: score
         }
     })
 

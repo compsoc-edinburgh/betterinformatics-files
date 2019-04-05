@@ -1,8 +1,42 @@
 import * as React from "react";
 import {fetchapi, fetchpost} from "../fetch-utils";
-import {NotificationInfo} from "../interfaces";
+import {NotificationInfo, UserInfo} from "../interfaces";
 import NotificationComponent from "../components/notification";
 import AutocompleteInput from '../components/autocomplete-input';
+import {css} from "glamor";
+
+const styles = {
+  wrapper: css({
+    maxWidth: "1200px",
+    margin: "auto",
+  }),
+  scoreWrapper: css({
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    marginTop: "40px",
+    marginBottom: "80px",
+  }),
+  score: css({
+    minWidth: "140px",
+    textAlign: "center",
+  }),
+  scoreNumber: css({
+    fontSize: "72px",
+  }),
+  twoRows: css({
+    display: "flex",
+    flexWrap: "wrap",
+    flexDirection: "row-reverse",
+  }),
+  rowContent: css({
+    marginRight: "50px",
+    flexGrow: "1",
+  }),
+  notificationSettings: css({
+    marginBottom: "40px",
+  })
+};
 
 interface Props {
   isMyself: boolean;
@@ -11,8 +45,7 @@ interface Props {
 }
 
 interface State {
-  displayName: string;
-  score: number;
+  userInfo: UserInfo;
   showAll: boolean;
   notifications: NotificationInfo[];
   payments: string[];
@@ -22,11 +55,18 @@ interface State {
   error?: string;
 }
 
-export default class UserInfo extends React.Component<Props, State> {
+export default class UserInfoComponent extends React.Component<Props, State> {
 
   state: State = {
-    displayName: "Loading...",
-    score: 0,
+    userInfo: {
+      username: this.props.username,
+      displayName: "Loading...",
+      score: 0,
+      score_answers: 0,
+      score_comments: 0,
+      score_cuts: 0,
+      score_legacy: 0,
+    },
     showAll: false,
     notifications: [],
     payments: [],
@@ -36,18 +76,7 @@ export default class UserInfo extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    fetchapi('/api/userinfo/' + this.props.username)
-      .then(res => {
-        this.setState({
-          displayName: res.value.displayName,
-          score: res.value.score,
-        });
-      })
-      .catch(err => {
-        this.setState({
-          error: err.toString()
-        });
-      });
+    this.loadUserInfo();
     if (this.props.isMyself) {
       this.loadUnreadNotifications();
       this.loadEnabledNotifications();
@@ -60,7 +89,7 @@ export default class UserInfo extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    document.title = this.state.displayName + " - VIS Community Solutions";
+    document.title = this.state.userInfo.displayName + " - VIS Community Solutions";
     if (!prevProps.isMyself && this.props.isMyself) {
       this.loadUnreadNotifications();
       this.loadEnabledNotifications();
@@ -70,7 +99,27 @@ export default class UserInfo extends React.Component<Props, State> {
       this.loadPayments();
       this.loadCategories();
     }
+    if (prevProps.username !== this.props.username) {
+      this.loadUserInfo();
+      if (this.props.isAdmin) {
+        this.loadPayments();
+      }
+    }
   }
+
+  loadUserInfo = () => {
+    fetchapi('/api/userinfo/' + this.props.username)
+      .then(res => {
+        this.setState({
+          userInfo: res.value
+        });
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
 
   loadEnabledNotifications = () => {
     fetchapi('/api/notifications/getenabled')
@@ -102,7 +151,7 @@ export default class UserInfo extends React.Component<Props, State> {
   };
 
   loadCategories = () => {
-    fetchapi('/api/listcategories/onlyadmin')
+    fetchapi('/api/listcategories/onlypayment')
       .then(res => {
         this.setState({
           categories: res.value
@@ -202,44 +251,64 @@ export default class UserInfo extends React.Component<Props, State> {
       });
   };
 
-  // TODO fix user not changing if clicked from this page
-
   render() {
     return (
-      <div>
-        {this.state.error && <p>{this.state.error}</p>}
-        <h1>{this.state.displayName}</h1>
-        <p>Score: {this.state.score}</p>
-        {(this.state.payments.length > 0 || this.props.isAdmin) && [
-          <h2>Paid Oral Exams</h2>,
-          <div>
-            {this.state.payments.length > 0 && <ul>
-              {this.state.payments.map(payment => <li key={payment}>{payment}</li>)}
-            </ul>}
-            {this.props.isAdmin && <p>
-              <AutocompleteInput value={this.state.newPaymentCategory} onChange={ev => this.setState({newPaymentCategory: ev.target.value})}
-                                 placeholder="Category" autocomplete={this.state.categories} name="payment_category"/>
+      <div {...styles.wrapper}>
+        {this.state.error && <div>{this.state.error}</div>}
+        <h1>{this.state.userInfo.displayName}</h1>
+        <div {...styles.scoreWrapper}>
+          <div {...styles.score}>
+            <div>Score</div>
+            <div {...styles.scoreNumber}>{this.state.userInfo.score}</div>
+          </div>
+          <div {...styles.score}>
+            <div>Answers</div>
+            <div {...styles.scoreNumber}>{this.state.userInfo.score_answers}</div>
+          </div>
+          <div {...styles.score}>
+            <div>Comments</div>
+            <div {...styles.scoreNumber}>{this.state.userInfo.score_comments}</div>
+          </div>
+          {this.state.userInfo.score_cuts > 0 && <div {...styles.score}>
+              <div>Exam Import</div>
+              <div {...styles.scoreNumber}>{this.state.userInfo.score_cuts}</div>
+          </div>}
+          {this.state.userInfo.score_legacy > 0 && <div {...styles.score}>
+              <div>Wiki Import</div>
+              <div {...styles.scoreNumber}>{this.state.userInfo.score_legacy}</div>
+          </div>}
+        </div>
+        <div {...styles.twoRows}>
+          {(this.state.payments.length > 0 || this.props.isAdmin) && <div {...styles.rowContent}>
+            <h2>Paid Oral Exams</h2>
+            <div>
+              {this.state.payments.length > 0 && <ul>
+                {this.state.payments.map(payment => <li key={payment}>{payment}</li>)}
+              </ul>}
+              {this.props.isAdmin && <div>
+                <AutocompleteInput value={this.state.newPaymentCategory} onChange={ev => this.setState({newPaymentCategory: ev.target.value})}
+                                   placeholder="Category" autocomplete={this.state.categories} name="payment_category"/>
                 <button onClick={this.addPayment}>Add Payment</button>
-            </p>}
-          </div>
-        ]}
-        {this.props.isMyself && <div>
-          <h2>Notification Settings</h2>
-          <div>
-            <p><input type="checkbox" checked={this.state.enabledNotifications.indexOf(1) !== -1} onChange={(ev) => this.setNotificationEnabled(1, ev.target.checked)}/> Comment to my answer</p>
-            <p><input type="checkbox" checked={this.state.enabledNotifications.indexOf(2) !== -1} onChange={(ev) => this.setNotificationEnabled(2, ev.target.checked)}/> Comment to my comment</p>
-            <p><input type="checkbox" checked={this.state.enabledNotifications.indexOf(3) !== -1} onChange={(ev) => this.setNotificationEnabled(3, ev.target.checked)}/> Other answer to same question</p>
-          </div>
-          <h2>Notifications</h2>
-          {this.state.notifications.reverse().map(notification => (
-            <NotificationComponent notification={notification} key={notification.oid}/>
-          ))}
-          <div>
-            {(!this.state.showAll) && <button onClick={this.loadAllNotifications}>Show All Notifications</button>}
-            {(this.state.notifications.filter(notification => !notification.read).length > 0) &&
-            <button onClick={this.markAllRead}>Mark All Read</button>}
-          </div>
-        </div>}
+              </div>}
+            </div>
+          </div>}
+          {this.props.isMyself && <div {...styles.rowContent}>
+            <h2>Notifications</h2>
+            <div {...styles.notificationSettings}>
+                <div><input type="checkbox" checked={this.state.enabledNotifications.indexOf(1) !== -1} onChange={(ev) => this.setNotificationEnabled(1, ev.target.checked)}/> Comment to my answer</div>
+                <div><input type="checkbox" checked={this.state.enabledNotifications.indexOf(2) !== -1} onChange={(ev) => this.setNotificationEnabled(2, ev.target.checked)}/> Comment to my comment</div>
+                <div><input type="checkbox" checked={this.state.enabledNotifications.indexOf(3) !== -1} onChange={(ev) => this.setNotificationEnabled(3, ev.target.checked)}/> Other answer to same question</div>
+            </div>
+            {this.state.notifications.reverse().map(notification => (
+              <NotificationComponent notification={notification} key={notification.oid}/>
+            ))}
+            <div>
+              {(!this.state.showAll) && <button onClick={this.loadAllNotifications}>Show All Notifications</button>}
+              {(this.state.notifications.filter(notification => !notification.read).length > 0) &&
+              <button onClick={this.markAllRead}>Mark All Read</button>}
+            </div>
+          </div>}
+        </div>
       </div>
     );
   }

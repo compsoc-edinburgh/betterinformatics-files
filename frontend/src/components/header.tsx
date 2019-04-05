@@ -13,6 +13,14 @@ interface State {
   notificationCount: number;
 }
 
+const linkStyle = {
+  ":link": {
+    color: Colors.headerForeground
+  },
+  ":visited": {
+    color: Colors.headerForeground
+  }
+};
 const styles = {
   wrapper: css({
     display: "flex",
@@ -35,39 +43,23 @@ const styles = {
   title: css({
     marginLeft: "25px",
     fontSize: "24px",
-    "& a": {
-      ":link": {
-        color: Colors.headerForeground
-      },
-      ":visited": {
-        color: Colors.headerForeground
-      }
-    }
+    "& a": linkStyle,
   }),
   feedback: css({
     display: "block",
     marginRight: "25px",
-    "& a": {
-      ":link": {
-        color: Colors.headerForeground
-      },
-      ":visited": {
-        color: Colors.headerForeground
-      }
-    }
+    "& a": linkStyle,
+  }),
+  scoreboard: css({
+    display: "block",
+    marginRight: "25px",
+    "& a": linkStyle,
   }),
   username: css({
     display: "block",
     marginRight: "25px",
-    "& a": {
-        ":link": {
-            color: Colors.headerForeground
-        },
-        ":visited": {
-            color: Colors.headerForeground
-        }
-    }
-  })
+    "& a": linkStyle,
+  }),
 };
 
 export default class Header extends React.Component<Props> {
@@ -105,6 +97,7 @@ export default class Header extends React.Component<Props> {
         </div>
         <div {...styles.centerVertically}>
           <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
+          <div {...styles.scoreboard}><Link to="/scoreboard">Scoreboard</Link></div>
           <div {...styles.username}><Link to={`/user/${this.props.username}`}>{this.props.displayName}{this.state.notificationCount > 0 ? " (" + this.state.notificationCount + ")" : ""}</Link></div>
         </div>
       </div>

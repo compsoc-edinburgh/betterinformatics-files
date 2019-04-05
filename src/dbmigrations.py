@@ -3,7 +3,7 @@ import time
 import sys
 import server
 
-DB_VERSION = 6
+DB_VERSION = 7
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -43,7 +43,7 @@ def add_user_profiles(mongo_db):
     sections = mongo_db.answersections.find({}, {"answersection": 1})
     for section in sections:
         for answer in section["answersection"]["answers"]:
-            server.adjust_user_score(answer["authorId"], len(answer["upvotes"]) - len(answer["downvotes"]))
+            server.adjust_user_score(answer["authorId"], "score", len(answer["upvotes"]) - len(answer["downvotes"]))
     set_db_version(mongo_db, 3)
 
 
@@ -108,6 +108,34 @@ def add_category_slug(mongo_db):
     set_db_version(mongo_db, 6)
 
 
+def add_more_scores(mongo_db):
+    print("Migrate 'add more scores'", file=sys.stderr)
+    users = mongo_db.userdata.find({})
+    for user in users:
+        mongo_db.userdata.update_one({
+            "username": user["username"]
+        }, {
+            "$set": {
+                "score_answers": 0,
+                "score_comments": 0,
+                "score_cuts": 0,
+                "score_legacy": 0,
+            }
+        })
+    sections = mongo_db.answersections.find({}, {"answersection": 1})
+    for section in sections:
+        asker = section["answersection"]["asker"]
+        server.adjust_user_score(asker, "score_cuts", 1)
+        for answer in section["answersection"]["answers"]:
+            if answer["authorId"] == '__legacy__':
+                server.adjust_user_score(asker, "score_legacy", 1)
+            else:
+                server.adjust_user_score(answer["authorId"], "score_answers", 1)
+            for comment in answer["comments"]:
+                server.adjust_user_score(comment["authorId"], "score_comments", 1)
+    set_db_version(mongo_db, 7)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -115,6 +143,7 @@ MIGRATIONS = [
     add_notifications,
     add_cutversion,
     add_category_slug,
+    add_more_scores,
 ]
 
 

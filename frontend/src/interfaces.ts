@@ -125,6 +125,16 @@ export interface NotificationInfo {
   read: boolean;
 }
 
+export interface UserInfo {
+  username: string;
+  displayName: string;
+  score: number;
+  score_answers: number;
+  score_comments: number;
+  score_cuts: number;
+  score_legacy: number;
+}
+
 export interface FeedbackEntry {
   oid: string;
   text: string;

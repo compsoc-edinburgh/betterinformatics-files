@@ -9,7 +9,8 @@ import {css} from "glamor";
 import Feedback from "./pages/feedback";
 import Colors from "./colors";
 import {fetchapi} from "./fetch-utils";
-import UserInfo from "./pages/userinfo";
+import Scoreboard from "./pages/scoreboard";
+import UserInfoComponent from "./pages/userinfo";
 
 css.global('body', {
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
@@ -127,13 +128,16 @@ export default class App extends React.Component<{}, State> {
               <Exam {...props} filename={props.match.params.filename}/>
             )}/>
             <Route path="/user/:username" render={(props) => (
-              <UserInfo {...props} isMyself={this.state.username === props.match.params.username}
+              <UserInfoComponent {...props} isMyself={this.state.username === props.match.params.username}
                         isAdmin={this.state.isAdmin} username={props.match.params.username}/>
             )}/>
             <Route path="/category/:category" render={(props) => (
               <Category categorySlug={props.match.params.category} isAdmin={this.state.isAdmin}/>
             )}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
+            <Route path="/scoreboard" render={(props) => (
+              <Scoreboard username={this.state.username}/>
+            )}/>
             <Route path="/feedback" render={(props) => (
               <Feedback {...props} isAdmin={this.state.isAdmin}/>
             )}/>
