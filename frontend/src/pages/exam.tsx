@@ -75,6 +75,8 @@ export default class Exam extends React.Component<Props, State> {
     editingMetaData: false,
     savedMetaData: {
       canEdit: false,
+      canView: true,
+      hasPayed: false,
       filename: "",
       category: "",
       displayname: "",
@@ -284,6 +286,12 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   render() {
+    if (!this.state.savedMetaData.canView) {
+      if (this.state.savedMetaData.payment_category.length > 0 && !this.state.savedMetaData.hasPayed) {
+        return <div>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</div>
+      }
+      return <div>You can not view this exam at this time.</div>
+    }
     if (this.state.error) {
       return <div>Could not load exam... {this.state.error}</div>;
     }

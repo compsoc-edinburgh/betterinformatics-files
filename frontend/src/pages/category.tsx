@@ -5,9 +5,13 @@ import {fetchapi, fetchpost} from "../fetch-utils";
 import {Link, Redirect} from "react-router-dom";
 import {getMetaCategoriesForCategory} from "../category-utils";
 import AutocompleteInput from '../components/autocomplete-input';
+import colors from "../colors";
 
 const styles = {
   wrapper: css({
+  }),
+  unviewableExam: css({
+    color: colors.unviewableExam,
   }),
 };
 
@@ -285,6 +289,7 @@ export default class Category extends React.Component<Props, State> {
         </ul>
       </div>}
       {this.state.category.remark && <p>Remark: {this.state.category.remark}</p>}
+      {this.state.category.has_payments && <p>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</p>}
       {this.state.error && <div>{this.state.error}</div>}
       {(this.props.isAdmin) && <p><button onClick={this.toggleEditingMetadata}>Edit Category</button></p>}
       {this.state.editingMetaData && <div>
@@ -342,7 +347,7 @@ export default class Category extends React.Component<Props, State> {
           {this.state.exams.filter(exam => exam.public || this.props.isAdmin).map(exam => (
             <tr key={exam.filename}>
               <td>
-                <Link to={'/exams/' + exam.filename}>{exam.displayname}</Link>
+                {exam.canView && <Link to={'/exams/' + exam.filename}>{exam.displayname}</Link> || <span {...styles.unviewableExam}>{exam.displayname}</span>}
               </td>
               <td>
                 {exam.remark}

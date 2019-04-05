@@ -331,6 +331,24 @@ def has_admin_rights_for_exam(username, filename):
     return has_admin_rights_for_category(username, category)
 
 
+def can_view_exam(username, filename):
+    """
+    Check whether a user is allowed to look at an exam
+    :param username: user to check
+    :param filename: exam to check
+    """
+    if has_admin_rights_for_exam(username, filename):
+        return True
+    metadata = exam_metadata.find_one({
+        "filename": filename
+    })
+    if not metadata.get("public"):
+        return False
+    if metadata.get("payment_category") and not has_payed(username, metadata.get("payment_category")):
+        return False
+    return True
+
+
 def make_answer_section_response(oid):
     """
     Generates a json response containing all information for the given answer section.
@@ -933,7 +951,10 @@ def get_exam_metadata(filename):
     for key in EXAM_METADATA:
         if key not in metadata:
             metadata[key] = ""
-    metadata["canEdit"] = has_admin_rights_for_exam(auth.username(), filename)
+    username = auth.username()
+    metadata["canEdit"] = has_admin_rights_for_exam(username, filename)
+    metadata["hasPayed"] = has_payed(username, metadata.get("payment_category"))
+    metadata["canView"] = can_view_exam(username, filename)
     return success(value=metadata)
 
 
@@ -1093,6 +1114,8 @@ def get_category_exams(category):
         "remark": 1,
         "public": 1,
     }))
+    for exam in exams:
+        exam["canView"] = can_view_exam(auth.username(), exam["filename"])
     exams.sort(key=lambda x: x["displayname"])
     return exams
 
@@ -2039,11 +2062,8 @@ def pdf(pdftype, filename):
     username = auth.username()
     if pdftype in ['printonly'] and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
-    if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
+    if not can_view_exam(username, filename):
         return not_allowed()
-    if metadata.get("payment_category") and not has_admin_rights_for_exam(username, filename):
-        if not has_payed(username, metadata.get("payment_category")):
-            return not_allowed()
     try:
         data = minio_client.get_object(minio_bucket, PDF_DIR[pdftype] + filename)
         return send_file(data, mimetype="application/pdf")

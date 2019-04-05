@@ -63,6 +63,7 @@ export interface CategoryExam {
   filename: string; // unique filename
   remark: string; // remark for the exam
   public: boolean; // whether the exam is public
+  canView: boolean; // whether the exam can be viewed by the user
 }
 
 export interface MetaCategory {
@@ -94,6 +95,8 @@ export interface CategoryMetaData {
 
 export interface ExamMetaData {
   canEdit: boolean;
+  canView: boolean;
+  hasPayed: boolean;
   filename: string;
   displayname: string;
   category: string;
