@@ -7,6 +7,7 @@ import {fetchpost} from "../fetch-utils";
 import ImageOverlay from "./image-overlay";
 import {Link} from "react-router-dom";
 import globalcss from "../globalcss";
+import GlobalConsts from "../globalconsts";
 
 interface Props {
   filename: string;
@@ -152,7 +153,7 @@ export default class CommentComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div {...styles.header}>
           {this.props.isNewComment && <b>Add comment</b>}
-            {!this.props.isNewComment && <span><b {...globalcss.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</span>}
+            {!this.props.isNewComment && <span><b {...globalcss.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> @ {moment(comment.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</span>}
         </div>
         <div><MarkdownText value={this.state.editing ? this.state.text : comment.text}/></div>
         {this.state.editing && <div>

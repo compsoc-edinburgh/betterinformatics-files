@@ -9,6 +9,7 @@ import ImageOverlay from "./image-overlay";
 import Colors from "../colors";
 import {Link} from "react-router-dom";
 import globalcss from "../globalcss";
+import GlobalConsts from "../globalconsts";
 
 interface Props {
   filename: string;
@@ -229,7 +230,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div ref={this.setMainDivRef} {...styles.header}>
           <div>
-              <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
+              <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> @ {moment(answer.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
           </div>
           <div {...styles.voteWrapper}>
             <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(-1)} title="Downvote Answer">

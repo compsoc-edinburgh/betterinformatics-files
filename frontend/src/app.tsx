@@ -132,7 +132,7 @@ export default class App extends React.Component<{}, State> {
                         isAdmin={this.state.isAdmin} username={props.match.params.username}/>
             )}/>
             <Route path="/category/:category" render={(props) => (
-              <Category categorySlug={props.match.params.category} isAdmin={this.state.isAdmin}/>
+              <Category categorySlug={props.match.params.category} username={this.state.username} isAdmin={this.state.isAdmin}/>
             )}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
             <Route path="/scoreboard" render={(props) => (

@@ -62,7 +62,12 @@ export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
   remark: string; // remark for the exam
+  import_claim: string; // the user who is importing the exam
+  import_claim_displayname: string; // the name of the user who claimed the exam
+  import_claim_time: string; // time at which the user claimed the exam
   public: boolean; // whether the exam is public
+  finished_cuts: boolean; // whether all cuts were added
+  finished_wiki_transfer: boolean; // whether all old solutions were added
   canView: boolean; // whether the exam can be viewed by the user
 }
 
@@ -91,6 +96,7 @@ export interface CategoryMetaData {
   permission: string;
   remark: string;
   has_payments: boolean;
+  catadmin: boolean;
 }
 
 export interface ExamMetaData {

@@ -9,7 +9,7 @@ from minio import Minio
 from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
 import traceback
 import inspect
@@ -60,10 +60,20 @@ EXAM_METADATA = [
     "master_solution",
     "resolve_alias",
     "remark",
+    "import_claim",
+    "import_claim_displayname",
+    "import_claim_time",
     "public",
     "finished_cuts",
     "finished_wiki_transfer",
     "payment_category",
+    "has_printonly",
+    "has_solution",
+]
+EXAM_METADATA_INTERNAL = [
+    "import_claim",
+    "import_claim_displayname",
+    "import_claim_time",
     "has_printonly",
     "has_solution",
 ]
@@ -183,6 +193,10 @@ def date_handler(obj):
         return str(obj)
     else:
         return obj
+
+
+def parse_iso_datetime(strval):
+    return datetime.strptime(strval.replace("+00:00", "+0000"), '%Y-%m-%dT%H:%M:%S.%f%z')
 
 
 def make_json_response(obj):
@@ -490,6 +504,25 @@ def list_exams():
     Returns a list of all exams
     """
     return success(value=[obj.object_name for obj in minio_client.list_objects(minio_bucket, EXAM_DIR)])
+
+
+@app.route("/api/listimportexams")
+@auth.login_required
+def list_import_exams():
+    username = auth.username()
+    exams = exam_metadata.find({
+        "$or": {
+            "finished_cuts": False,
+            "finished_wiki_transefer": False,
+        }
+    }, {
+        "filename": 1,
+        "import_claim": 1,
+        "import_claim_displayname": 1,
+        "import_claim_time": 1,
+    })
+    exams = [exam for exam in exams if has_admin_rights_for_exam(username, exam["filename"])]
+    return success(value=exams)
 
 
 @app.route("/api/exam/<filename>/cuts")
@@ -948,6 +981,63 @@ def remove_comment(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
+@app.route("/api/exam/<filename>/claim", methods=["POST"])
+@auth.login_required
+@require_exam_admin
+def claim_exam_api(filename):
+    """
+    Claims an exam for importing
+    POST Parameter 'claim' is 0/1 to add/remove claim
+    """
+    username = auth.username()
+    metadata = exam_metadata.find_one({
+        "filename": filename,
+    }, {
+        "import_claim": 1,
+        "import_claim_time": 1,
+    })
+    if not metadata:
+        return not_found()
+    claim = request.form.get("claim", "1") != "0"
+    if claim:
+        if metadata.get("import_claim") and metadata["import_claim"] != username:
+            now = datetime.now(timezone.utc)
+            then = parse_iso_datetime(metadata["import_claim_time"])
+            if now - then < timedelta(hours=4):
+                return not_possible("Exam is already claimed by different user")
+        claim_exam(filename, username)
+    else:
+        if metadata["import_claim"] == username:
+            release_exam_claim(filename)
+        else:
+            return not_possible("Exam not claimed by current user")
+    return success()
+
+
+def claim_exam(filename, username):
+    exam_metadata.update_one({
+        "filename": filename
+    }, {
+        "$set": {
+            "import_claim": username,
+            "import_claim_displayname": get_real_name(username),
+            "import_claim_time": datetime.now(timezone.utc).isoformat()
+        }
+    })
+
+
+def release_exam_claim(filename):
+    exam_metadata.update_one({
+        "filename": filename
+    }, {
+        "$set": {
+            "import_claim": "",
+            "import_claim_displayname": "",
+            "import_claim_time": "",
+        }
+    })
+
+
 @app.route("/api/exam/<filename>/metadata")
 @auth.login_required
 def get_exam_metadata(filename):
@@ -991,10 +1081,9 @@ def set_exam_metadata_api(filename):
         })
         if not maybe_category or "has_payments" not in maybe_category or not maybe_category["has_payments"]:
             return not_possible("Payment Category does not exist")
-    if "has_printonly" in metadata:
-        del metadata["has_printonly"]
-    if "has_solution" in metadata:
-        del metadata["has_solution"]
+    for key in EXAM_METADATA_INTERNAL:
+        if key in metadata:
+            del metadata[key]
     set_exam_metadata(filename, metadata)
     return success()
 
@@ -1018,7 +1107,7 @@ def set_exam_metadata(filename, metadata):
     filtered = filter_dict(metadata, EXAM_METADATA)
     for key in ["public", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer"]:
         if key in filtered:
-            filtered[key] = filtered[key] not in ["false", "0", False]
+            filtered[key] = filtered[key] not in ["", "false", "0", False]
     if filtered:
         exam_metadata.update_one({
             "filename": filename
@@ -1123,7 +1212,12 @@ def get_category_exams(category):
         "filename": 1,
         "displayname": 1,
         "remark": 1,
+        "import_claim": 1,
+        "import_claim_displayname": 1,
+        "import_claim_time": 1,
         "public": 1,
+        "finished_cuts": 1,
+        "finished_wiki_transfer": 1,
     }))
     for exam in exams:
         exam["canView"] = can_view_exam(auth.username(), exam["filename"])
@@ -1289,6 +1383,7 @@ def get_category_metadata():
     for key in CATEGORY_METADATA + ['admins', 'offered_in']:
         if key not in metadata:
             metadata[key] = ""
+    metadata["catadmin"] = auth.username() in metadata["admins"]
     if not metadata["admins"]:
         metadata["admins"] = []
     return success(value=metadata)
@@ -1828,7 +1923,7 @@ def payment_still_valid(payment):
     Check whether a payment is still valid.
     """
     now = datetime.now(timezone.utc)
-    then = datetime.strptime(payment["payment_time"].replace("+00:00", "+0000"), '%Y-%m-%dT%H:%M:%S.%f%z')
+    then = parse_iso_datetime(payment["payment_time"])
     resetdates = [datetime(year, month, 1, tzinfo=now.tzinfo) for month in [3, 9] for year in [now.year-1, now.year]]
     for reset in resetdates:
         if now > reset > then:

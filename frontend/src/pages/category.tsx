@@ -6,9 +6,13 @@ import {Link, Redirect} from "react-router-dom";
 import {getMetaCategoriesForCategory} from "../category-utils";
 import AutocompleteInput from '../components/autocomplete-input';
 import colors from "../colors";
+import GlobalConsts from "../globalconsts";
+import * as moment from 'moment';
 
 const styles = {
   wrapper: css({
+    maxWidth: "900px",
+    margin: "auto",
   }),
   unviewableExam: css({
     color: colors.unviewableExam,
@@ -17,6 +21,7 @@ const styles = {
 
 interface Props {
   isAdmin?: boolean;
+  username: string;
   categorySlug: string;
 }
 
@@ -45,6 +50,7 @@ export default class Category extends React.Component<Props, State> {
       permission: "",
       remark: "",
       has_payments: false,
+      catadmin: false,
     },
     exams: [],
     metaCategories: [],
@@ -60,6 +66,7 @@ export default class Category extends React.Component<Props, State> {
       permission: "",
       remark: "",
       has_payments: false,
+      catadmin: false,
     },
     editingMetaData: false,
     redirectBack: false,
@@ -269,6 +276,30 @@ export default class Category extends React.Component<Props, State> {
     return res;
   };
 
+  hasValidClaim = (exam: CategoryExam) => {
+    if (exam.import_claim !== "") {
+      if (moment().diff(moment(exam.import_claim_time, GlobalConsts.momentParseString)) < 4 * 60 * 60 * 1000) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  claimExam = (exam: CategoryExam, claim: boolean) => {
+    fetchpost(`/api/exam/${exam.filename}/claim`, {
+      claim: claim ? 1 : 0
+    })
+      .then(() => {
+        this.loadExams();
+      })
+      .catch(err => {
+        this.setState({
+          error: err
+        });
+        this.loadExams();
+      });
+  };
+
   render() {
     if (this.state.redirectBack) {
       return <Redirect to="/"/>
@@ -276,6 +307,7 @@ export default class Category extends React.Component<Props, State> {
     if (!this.state.category) {
       return <div>Loading...</div>
     }
+    const catAdmin = this.props.isAdmin || this.state.category.catadmin;
     const cat = this.state.category;
     const offeredIn = getMetaCategoriesForCategory(this.state.metaCategories, cat.category);
     return (<div {...styles.wrapper}>
@@ -290,6 +322,7 @@ export default class Category extends React.Component<Props, State> {
       </div>}
       {this.state.category.remark && <p>Remark: {this.state.category.remark}</p>}
       {this.state.category.has_payments && <p>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</p>}
+      {catAdmin && <p>You can edit exams in this category. Please do so responsibly.</p>}
       {this.state.error && <div>{this.state.error}</div>}
       {(this.props.isAdmin) && <p><button onClick={this.toggleEditingMetadata}>Edit Category</button></p>}
       {this.state.editingMetaData && <div>
@@ -340,11 +373,14 @@ export default class Category extends React.Component<Props, State> {
           <tr>
             <th>Name</th>
             <th>Remark</th>
+            {catAdmin && <th>Public</th>}
+            {catAdmin && <th>Import State</th>}
+            {catAdmin && <th>Claim</th>}
             {this.props.isAdmin && <th>Remove</th>}
           </tr>
         </thead>
         <tbody>
-          {this.state.exams.filter(exam => exam.public || this.props.isAdmin).map(exam => (
+          {this.state.exams.filter(exam => exam.public || catAdmin).map(exam => (
             <tr key={exam.filename}>
               <td>
                 {exam.canView && <Link to={'/exams/' + exam.filename}>{exam.displayname}</Link> || <span {...styles.unviewableExam}>{exam.displayname}</span>}
@@ -352,6 +388,21 @@ export default class Category extends React.Component<Props, State> {
               <td>
                 {exam.remark}
               </td>
+              {catAdmin && <td>{exam.public ? "Public": "Hidden"}</td>}
+              {catAdmin && <td>
+                {exam.finished_cuts ? (exam.finished_wiki_transfer ? "All done" : "Needs Wiki Import") : "Needs Cuts"}
+              </td>}
+              {catAdmin && <td>
+                {(!exam.finished_cuts || !exam.finished_wiki_transfer) ? (
+                  this.hasValidClaim(exam) ? (
+                      exam.import_claim === this.props.username ?
+                        <button onClick={() => this.claimExam(exam, false)}>Release Claim</button> :
+                        <span>Claimed by {exam.import_claim_displayname}</span>
+                    ) :
+                    <button onClick={() => this.claimExam(exam, true)}>Claim Exam</button>
+                ) : <span>-</span>
+                }
+              </td>}
               {this.props.isAdmin && <td>
                   <button onClick={ev => this.removeExam(exam)}>X</button>
               </td>}
