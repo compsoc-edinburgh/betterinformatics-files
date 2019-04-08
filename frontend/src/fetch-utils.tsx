@@ -15,7 +15,7 @@ export async function fetchpost(url: string, data: object) {
     }
     return body;
   } catch (e) {
-    return Promise.reject(e);
+    return Promise.reject(e.toString());
   }
 }
 
@@ -30,6 +30,6 @@ export async function fetchapi(url: string) {
     }
     return body;
   } catch (e) {
-    return Promise.reject(e);
+    return Promise.reject(e.toString());
   }
 }

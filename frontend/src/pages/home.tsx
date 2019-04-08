@@ -6,6 +6,7 @@ import {fetchapi, fetchpost} from "../fetch-utils";
 import {fillMetaCategories, filterCategories} from "../category-utils";
 import {Redirect} from "react-router";
 import {Link} from "react-router-dom";
+import globalcss from "../globalcss";
 
 const styles = {
   wrapper: css({
@@ -65,16 +66,6 @@ const styles = {
     marginLeft: "0",
     marginBottom: "20px",
   }),
-  noLinkColor: css({
-    "& a": {
-      ":link": {
-        color: "inherit"
-      },
-      ":visited": {
-        color: "inherit"
-      }
-    }
-  })
 };
 
 interface Props {
@@ -217,7 +208,7 @@ export default class Home extends React.Component<Props, State> {
           </div>
         ))}
         {this.props.isCategoryAdmin &&
-        <div {...styles.category} {...styles.noLinkColor}>
+        <div {...styles.category} {...globalcss.noLinkColor}>
             <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
         </div>}
         {this.props.isAdmin && this.addCategoryView()}
@@ -244,7 +235,7 @@ export default class Home extends React.Component<Props, State> {
           <h2>Admin</h2>
           <div {...styles.wrapper}>
             {this.props.isCategoryAdmin &&
-            <div {...styles.category} {...styles.noLinkColor}>
+            <div {...styles.category} {...globalcss.noLinkColor}>
                 <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
             </div>}
             {this.props.isAdmin && this.addCategoryView()}

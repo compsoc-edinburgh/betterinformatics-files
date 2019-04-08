@@ -2,6 +2,8 @@ import * as React from "react";
 import {css} from "glamor";
 import {UserInfo} from "../interfaces";
 import {fetchapi} from "../fetch-utils";
+import {Link} from "react-router-dom";
+import globalcss from "../globalcss";
 
 const styles = {
   wrapper: css({
@@ -72,7 +74,7 @@ export default class Scoreboard extends React.Component<Props, State> {
           <tbody>
           {this.state.scoreboard.map((board, idx) => <tr key={board.username}>
             <td>{idx+1}</td>
-            <td>{board.displayName}</td>
+            <td {...globalcss.noLinkColor}><Link to={'/user/' + board.username}>{board.displayName}</Link></td>
             <td>{board.score}</td>
             <td>{board.score_answers}</td>
             <td>{board.score_comments}</td>

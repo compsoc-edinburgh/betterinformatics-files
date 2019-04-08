@@ -8,6 +8,7 @@ import {fetchpost} from '../fetch-utils'
 import ImageOverlay from "./image-overlay";
 import Colors from "../colors";
 import {Link} from "react-router-dom";
+import globalcss from "../globalcss";
 
 interface Props {
   filename: string;
@@ -114,16 +115,6 @@ const styles = {
     padding: "5px",
     boxSizing: "border-box"
   }),
-  noLinkColor: css({
-    "& a": {
-      ":link": {
-        color: "inherit"
-      },
-      ":visited": {
-        color: "inherit"
-      }
-    }
-  })
 };
 
 export default class AnswerComponent extends React.Component<Props, State> {
@@ -238,7 +229,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div ref={this.setMainDivRef} {...styles.header}>
           <div>
-              <b {...styles.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
+              <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
           </div>
           <div {...styles.voteWrapper}>
             <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(-1)} title="Downvote Answer">

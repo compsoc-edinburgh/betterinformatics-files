@@ -6,6 +6,7 @@ import {fetchpost} from '../fetch-utils'
 import Colors from "../colors";
 import {Link} from "react-router-dom";
 import MarkdownText from "./markdown-text";
+import globalcss from "../globalcss";
 
 interface Props {
   notification: NotificationInfo;
@@ -38,16 +39,6 @@ const styles = {
   unread: css({
     fontWeight: "bold",
   }),
-  noLinkColor: css({
-    "& a": {
-      ":link": {
-        color: "inherit"
-      },
-      ":visited": {
-        color: "inherit"
-      }
-    }
-  }),
 };
 
 export default class NotificationComponent extends React.Component<Props> {
@@ -66,7 +57,7 @@ export default class NotificationComponent extends React.Component<Props> {
         <Link to={notification.link} onClick={() => this.readNotification(notification)}>
           <div {...styles.header}>
             <div {...(notification.read ? undefined : styles.unread)}>{notification.title}</div>
-            <div {...styles.noLinkColor} {...styles.subtitle}><Link to={notification.sender}>{notification.senderDisplayName}</Link> @ {moment(notification.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</div>
+            <div {...globalcss.noLinkColor} {...styles.subtitle}><Link to={notification.sender}>{notification.senderDisplayName}</Link> @ {moment(notification.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</div>
           </div>
         </Link>
         <MarkdownText value={notification.message}/>
