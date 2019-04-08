@@ -291,6 +291,9 @@ export default class Category extends React.Component<Props, State> {
     })
       .then(() => {
         this.loadExams();
+        if (claim) {
+          window.open("/exams/" + exam.filename);
+        }
       })
       .catch(err => {
         this.setState({
@@ -302,10 +305,10 @@ export default class Category extends React.Component<Props, State> {
 
   render() {
     if (this.state.redirectBack) {
-      return <Redirect to="/"/>
+      return <Redirect to="/"/>;
     }
     if (!this.state.category) {
-      return <div>Loading...</div>
+      return <div>Loading...</div>;
     }
     const catAdmin = this.props.isAdmin || this.state.category.catadmin;
     const cat = this.state.category;

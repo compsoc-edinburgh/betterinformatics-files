@@ -11,6 +11,7 @@ import Colors from "./colors";
 import {fetchapi} from "./fetch-utils";
 import Scoreboard from "./pages/scoreboard";
 import UserInfoComponent from "./pages/userinfo";
+import ImportQueue from "./pages/importqueue";
 
 css.global('body', {
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
@@ -137,6 +138,9 @@ export default class App extends React.Component<{}, State> {
             <Route path="/uploadpdf" component={UploadPDF}/>
             <Route path="/scoreboard" render={(props) => (
               <Scoreboard username={this.state.username}/>
+            )}/>
+            <Route path="/importqueue" render={(props) => (
+              <ImportQueue username={this.state.username}/>
             )}/>
             <Route path="/feedback" render={(props) => (
               <Feedback {...props} isAdmin={this.state.isAdmin}/>

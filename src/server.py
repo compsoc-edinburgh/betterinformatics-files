@@ -411,6 +411,7 @@ def test():
 @app.route("/uploadpdf")
 @app.route("/feedback")
 @app.route("/scoreboard")
+@app.route("/importqueue")
 @auth.login_required
 def index():
     return render_template("index.html")
@@ -510,19 +511,31 @@ def list_exams():
 @auth.login_required
 def list_import_exams():
     username = auth.username()
+    conditions = [
+        {"finished_cuts": False},
+        {"finished_wiki_transfer": False},
+        {"finished_cuts": None},
+        {"finished_wiki_transfer": None},
+    ]
+    if request.args.get("includehidden", "0") != "0":
+        conditions.append({"public": False})
+        conditions.append({"public": None})
     exams = exam_metadata.find({
-        "$or": {
-            "finished_cuts": False,
-            "finished_wiki_transefer": False,
-        }
+        "$or": conditions
     }, {
         "filename": 1,
+        "displayname": 1,
+        "category": 1,
+        "remark": 1,
         "import_claim": 1,
         "import_claim_displayname": 1,
         "import_claim_time": 1,
+        "public": 1,
+        "finished_cuts": 1,
+        "finished_wiki_transfer": 1,
     })
     exams = [exam for exam in exams if has_admin_rights_for_exam(username, exam["filename"])]
-    return success(value=exams)
+    return success(value=list(sorted(exams, key=lambda x: (x["category"], x["displayname"]))))
 
 
 @app.route("/api/exam/<filename>/cuts")
@@ -600,7 +613,6 @@ def new_answer_section(filename):
         "pageNum": page_num,
         "filename": filename,
         "relHeight": rel_height,
-        "cutVersion": 1,
     })
     if result:
         return not_possible("Answer section already exists")
@@ -608,6 +620,7 @@ def new_answer_section(filename):
         "filename": filename,
         "pageNum": page_num,
         "relHeight": rel_height,
+        "cutVersion": 1,
         "answersection": {"answers": [], "asker": username, "askerDisplayName": get_real_name(username)},
         "_id": ObjectId()
     }
@@ -1107,7 +1120,7 @@ def set_exam_metadata(filename, metadata):
     filtered = filter_dict(metadata, EXAM_METADATA)
     for key in ["public", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer"]:
         if key in filtered:
-            filtered[key] = filtered[key] not in ["", "false", "0", False]
+            filtered[key] = filtered[key] not in [None, "", "false", "0", False]
     if filtered:
         exam_metadata.update_one({
             "filename": filename
@@ -1211,6 +1224,7 @@ def get_category_exams(category):
     }, {
         "filename": 1,
         "displayname": 1,
+        "category": 1,
         "remark": 1,
         "import_claim": 1,
         "import_claim_displayname": 1,
@@ -1414,7 +1428,7 @@ def set_category_metadata(category, metadata):
     filtered = filter_dict(metadata, CATEGORY_METADATA)
     for key in ["has_payments"]:
         if key in filtered:
-            filtered[key] = filtered[key] not in ["false", "0", False]
+            filtered[key] = filtered[key] not in [None, "", "false", "0", False]
     if filtered:
         category_metadata.update_one({
             "category": category

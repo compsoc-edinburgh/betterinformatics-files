@@ -211,6 +211,10 @@ export default class Home extends React.Component<Props, State> {
         <div {...styles.category} {...globalcss.noLinkColor}>
             <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
         </div>}
+        {this.props.isCategoryAdmin &&
+        <div {...styles.category} {...globalcss.noLinkColor}>
+            <Link to='/importqueue'><h1 {...styles.categoryTitle}>Import Queue</h1></Link>
+        </div>}
         {this.props.isAdmin && this.addCategoryView()}
       </div>);
   };
@@ -237,6 +241,10 @@ export default class Home extends React.Component<Props, State> {
             {this.props.isCategoryAdmin &&
             <div {...styles.category} {...globalcss.noLinkColor}>
                 <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
+            </div>}
+            {this.props.isCategoryAdmin &&
+            <div {...styles.category} {...globalcss.noLinkColor}>
+                <Link to='/importqueue'><h1 {...styles.categoryTitle}>Import Queue</h1></Link>
             </div>}
             {this.props.isAdmin && this.addCategoryView()}
           </div>
