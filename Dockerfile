@@ -40,6 +40,7 @@ COPY ./src/people_pb2.py .
 COPY ./src/people_pb2_grpc.py .
 COPY ./src/ethprint.py .
 COPY ./src/dbmigrations.py .
+COPY ./src/legacy_importer.py .
 COPY ./src/server.py .
 
 EXPOSE 80

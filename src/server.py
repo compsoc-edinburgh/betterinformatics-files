@@ -1,5 +1,5 @@
 import sys
-from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify
+from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify, Response
 from flask_httpauth import HTTPBasicAuth
 import json
 from pymongo import MongoClient
@@ -23,6 +23,7 @@ import people_pb2_grpc
 
 import dbmigrations
 import ethprint
+import legacy_importer
 
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
@@ -432,6 +433,11 @@ def resolve(filename):
     if not result:
         return not_found()
     return redirect('/exams/' + result)
+
+
+@app.route('/legacy/transformwiki/<examname>')
+def legacy_transform_wiki(examname):
+    return Response(legacy_importer.transform_wiki(examname), mimetype='text/plain')
 
 
 @app.errorhandler(404)

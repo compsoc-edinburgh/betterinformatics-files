@@ -296,6 +296,7 @@ export default class Exam extends React.Component<Props, State> {
       return <div>Could not load exam... {this.state.error}</div>;
     }
     const {renderer, width, dpr, sections} = this.state;
+    const wikitransform = this.state.savedMetaData.legacy_solution ? this.state.savedMetaData.legacy_solution.split("/").pop() : "";
     return (
       <div>
 
@@ -323,6 +324,7 @@ export default class Exam extends React.Component<Props, State> {
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
+            {this.state.canEdit && [" | ", <a href={"/legacy/transformwiki/" + wikitransform} target="_blank">Transform VISki to Markdown</a>]}
           </div>}
         {this.state.savedMetaData.master_solution &&
         <div {...styles.linkBanner}>
