@@ -110,14 +110,6 @@ except BucketAlreadyExists as err:
 except ResponseError as err:
     print(err)
 
-# this works in staging
-# mongo_url = "mongodb://{}:{}@{}:{}/{}".format(
-#     os.environ['RUNTIME_MONGO_DB_USER'], os.environ['RUNTIME_MONGO_DB_PW'],
-#     os.environ['RUNTIME_MONGO_DB_SERVER'], os.environ['RUNTIME_MONGO_DB_PORT'],
-#     os.environ['RUNTIME_MONGO_DB_NAME'])
-# mongo_db = MongoClient(mongo_url).get_database()
-
-# this works locally
 mongo_db = MongoClient(
     host=os.environ['RUNTIME_MONGO_DB_SERVER'],
     port=int(os.environ['RUNTIME_MONGO_DB_PORT']),
@@ -1750,7 +1742,7 @@ def init_user_data_if_not_found(username):
         "username": username,
         "displayName": get_real_name(username),
         "score": 0,
-        "score_answers": 1,
+        "score_answers": 0,
         "score_comments": 0,
         "score_cuts": 0,
         "score_legacy": 0,

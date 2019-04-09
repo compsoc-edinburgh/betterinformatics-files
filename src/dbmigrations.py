@@ -41,6 +41,15 @@ def add_downvotes(mongo_db):
 def add_user_profiles(mongo_db):
     print("Migrate 'add user profiles'", file=sys.stderr)
     sections = mongo_db.answersections.find({}, {"answersection": 1})
+    users = mongo_db.userdata.find({})
+    for user in users:
+        mongo_db.userdata.update_one({
+            "username": user["username"]
+        }, {
+            "$set": {
+                "score": 0,
+            }
+        })
     for section in sections:
         for answer in section["answersection"]["answers"]:
             server.adjust_user_score(answer["authorId"], "score", len(answer["upvotes"]) - len(answer["downvotes"]))
