@@ -153,8 +153,15 @@ def remove_broken_users(mongo_db):
             "username": user["username"]
         }))
         if len(found) > 1:
-            # TODO implement me
-            pass
+            ma = 0
+            print("Remove {} entries for user {}".format(len(found)-1, user["username"]), file=sys.stderr)
+            for i in range(len(found)):
+                if found[i]["score"] > found[ma]["score"]:
+                    ma = i
+            for i in range(len(found)):
+                if i == ma:
+                    continue
+                mongo_db.userdata.delete_one(found[i])
 
 
 MIGRATIONS = [
@@ -194,6 +201,7 @@ def migrate(mongo_db):
         print("found db version", version, file=sys.stderr)
         # TODO remove me
         version = 2
+        print("Redo some migrations", file=sys.stderr)
         for i in range(DB_VERSION):
             if version <= i:
                 MIGRATIONS[i](mongo_db)
