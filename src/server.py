@@ -1090,7 +1090,7 @@ def set_exam_metadata_api(filename):
         }, {
             "has_payments": 1
         })
-        if not maybe_category or "has_payments" not in maybe_category or not maybe_category["has_payments"]:
+        if not maybe_category or not maybe_category.get("has_payments"):
             return not_possible("Payment Category does not exist")
     for key in EXAM_METADATA_INTERNAL:
         if key in metadata:
@@ -1909,6 +1909,13 @@ def add_payment():
     username = request.form.get('username')
     if not username:
         return not_possible("No username given")
+    catdata = category_metadata.find_one({
+        "category": category
+    }, {
+        "has_payments": 1
+    })
+    if not catdata.get("has_payments"):
+        return not_possible("Category does not have any payments")
     maybe_payment = payments.find_one({
         "username": username,
         "category": category,
