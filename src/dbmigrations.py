@@ -81,7 +81,7 @@ def add_notifications(mongo_db):
                         server.NotificationType.NEW_COMMENT_TO_ANSWER,
                         comment["authorId"],
                         "New comment",
-                        "A new comment to your answer was added.",
+                        "A new comment to your answer was added.\n\n{}".format(comment["text"]),
                         "/exams/{}#{}".format(section["filename"], answer["_id"])
                     )
     set_db_version(mongo_db, 4)
@@ -145,6 +145,18 @@ def add_more_scores(mongo_db):
     set_db_version(mongo_db, 7)
 
 
+def remove_broken_users(mongo_db):
+    print("Remove broken users", file=sys.stderr)
+    users = mongo_db.userdata.find({})
+    for user in users:
+        found = list(mongo_db.userdata.find({
+            "username": user["username"]
+        }))
+        if len(found) > 1:
+            # TODO implement me
+            pass
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -180,7 +192,10 @@ def migrate(mongo_db):
         if maybe_version:
             version = int(maybe_version["value"])
         print("found db version", version, file=sys.stderr)
+        # TODO remove me
+        version = 2
         for i in range(DB_VERSION):
             if version <= i:
                 MIGRATIONS[i](mongo_db)
+        remove_broken_users(mongo_db)
         fcntl.lockf(f, fcntl.LOCK_UN)
