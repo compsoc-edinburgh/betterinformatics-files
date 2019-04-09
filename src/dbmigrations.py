@@ -200,9 +200,6 @@ def do_migrate(mongo_db):
         if maybe_version:
             version = int(maybe_version["value"])
         print("found db version", version, file=sys.stderr)
-        # TODO remove me
-        version = 2
-        print("Redo some migrations", file=sys.stderr)
         for i in range(DB_VERSION):
             if version <= i:
                 MIGRATIONS[i](mongo_db)
