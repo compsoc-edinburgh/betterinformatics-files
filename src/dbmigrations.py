@@ -2,6 +2,7 @@ import fcntl
 import time
 import sys
 import server
+import threading
 
 DB_VERSION = 7
 DB_VERSION_KEY = "dbversion"
@@ -57,7 +58,7 @@ def add_user_profiles(mongo_db):
 
 
 def add_notifications(mongo_db):
-    print("Migrate 'add notifications", file=sys.stderr)
+    print("Migrate 'add notifications'", file=sys.stderr)
     users = mongo_db.userdata.find({}, {"username": 1})
     for user in users:
         mongo_db.userdata.update_one({
@@ -175,7 +176,7 @@ MIGRATIONS = [
 ]
 
 
-def migrate(mongo_db):
+def do_migrate(mongo_db):
     open(DB_LOCK_FILE, "a").close()
     meta = mongo_db.dbmeta
     # access all collections to make sure they exist
@@ -207,3 +208,8 @@ def migrate(mongo_db):
                 MIGRATIONS[i](mongo_db)
         remove_broken_users(mongo_db)
         fcntl.lockf(f, fcntl.LOCK_UN)
+
+
+def migrate(mongo_db):
+    migrationthread = threading.Thread(target=do_migrate, args=(mongo_db,), kwargs={})
+    migrationthread.start()
