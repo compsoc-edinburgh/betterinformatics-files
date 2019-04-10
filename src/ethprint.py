@@ -57,7 +57,7 @@ def _check_smb_connection(username, password):
         '-c',
         'exit',
         u'--user={username}%{password}'.format(username=username, password=password),
-    ], stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
+    ], stderr=subprocess.STDOUT, close_fds=True) # stdout=DEVNULL,
 
 
 def _print_pdf(username, password, exam, pdf_path):
