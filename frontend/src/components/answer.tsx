@@ -10,6 +10,7 @@ import Colors from "../colors";
 import {Link} from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
+import colors from "../colors";
 
 interface Props {
   filename: string;
@@ -102,6 +103,11 @@ const styles = {
     marginBottom: "10px",
     marginLeft: "5px",
     marginRight: "5px"
+  }),
+  bottomHints: css({
+    display: "flex",
+    justifyContent: "space-between",
+    color: colors.silentText,
   }),
   comments: css({
     marginLeft: "25px",
@@ -281,7 +287,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
                    onSectionChanged={this.props.onSectionChanged}/>}
         </div>
         }
-        <div><small><a href={"#" + this.props.answer.oid}>Permalink</a></small></div>
+        <div {...styles.bottomHints}>
+          <small><a href={"#" + this.props.answer.oid}>Permalink</a></small>
+          <small {...globalcss.noLinkColor}>All answers are licensed as <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</small></div>
       </div>
     );
   }

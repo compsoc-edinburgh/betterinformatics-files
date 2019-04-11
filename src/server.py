@@ -286,7 +286,6 @@ def has_admin_rights(username):
     """
     check_admin_cache()
     if username in admin_cache:
-        print("has_admin_rights cache hit", file=sys.stderr)
         return admin_cache[username]
     try:
         req = people_pb2.GetPersonRequest(username=username)
@@ -500,14 +499,8 @@ def get_user():
     Returns information about the currently logged in user.
     """
     username = auth.username()
-    start = time.perf_counter()
     admin = has_admin_rights(username)
-    end = time.perf_counter()
-    print("get_user 1:", end - start, file=sys.stderr)
-    start = time.perf_counter()
     admincat = has_admin_rights_for_any_category(username)
-    end = time.perf_counter()
-    print("get_user 2:", end - start, file=sys.stderr)
     return success(
         adminrights=admin,
         adminrightscat=admin or admincat,
