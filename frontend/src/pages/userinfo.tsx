@@ -4,6 +4,7 @@ import {NotificationInfo, UserInfo} from "../interfaces";
 import NotificationComponent from "../components/notification";
 import AutocompleteInput from '../components/autocomplete-input';
 import {css} from "glamor";
+import {listenEnter} from "../input-utils";
 
 const styles = {
   wrapper: css({
@@ -287,7 +288,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
               </ul>}
               {this.props.isAdmin && <div>
                 <AutocompleteInput value={this.state.newPaymentCategory} onChange={ev => this.setState({newPaymentCategory: ev.target.value})}
-                                   placeholder="Category" autocomplete={this.state.categories} name="payment_category"/>
+                                   placeholder="Category" autocomplete={this.state.categories} name="payment_category" onKeyPress={listenEnter(this.addPayment)}/>
                 <button onClick={this.addPayment}>Add Payment</button>
               </div>}
             </div>

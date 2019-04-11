@@ -7,6 +7,7 @@ import {fillMetaCategories, filterCategories} from "../category-utils";
 import {Redirect} from "react-router";
 import {Link} from "react-router-dom";
 import globalcss from "../globalcss";
+import {listenEnter} from "../input-utils";
 
 const styles = {
   wrapper: css({
@@ -139,12 +140,10 @@ export default class Home extends React.Component<Props, State> {
     });
   };
 
-  filterKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
-    if (ev.key === 'Enter') {
-      const filtered = filterCategories(this.state.categories, this.state.filter);
-      if (filtered.length > 0) {
-        this.gotoCategory(filtered[0]);
-      }
+  openFirstCategory = () => {
+    const filtered = filterCategories(this.state.categories, this.state.filter);
+    if (filtered.length > 0) {
+      this.gotoCategory(filtered[0]);
     }
   };
 
@@ -161,6 +160,9 @@ export default class Home extends React.Component<Props, State> {
   };
 
   addNewCategory = () => {
+    if (!this.state.newCategoryName) {
+      return;
+    }
     fetchpost('/api/category/add', {
       category: this.state.newCategoryName
     })
@@ -192,11 +194,25 @@ export default class Home extends React.Component<Props, State> {
           <div>
               <input {...styles.addCategoryInput} value={this.state.newCategoryName}
                      onChange={ev => this.setState({newCategoryName: ev.target.value})}
-                     type="text" autoFocus={true}/>
+                     type="text" autoFocus={true} onKeyPress={listenEnter(this.addNewCategory)}/>
           </div>
           <div><button {...styles.addCategorySubmit} disabled={this.state.newCategoryName.length === 0} onClick={this.addNewCategory}>Add Category</button></div>
       </div>}
     </div>);
+  };
+
+  adminViews = () => {
+    return <React.Fragment>
+      {this.props.isCategoryAdmin &&
+      <div {...styles.category} {...globalcss.noLinkColor}>
+        <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
+      </div>}
+      {this.props.isCategoryAdmin &&
+      <div {...styles.category} {...globalcss.noLinkColor}>
+        <Link to='/importqueue'><h1 {...styles.categoryTitle}>Import Queue</h1></Link>
+      </div>}
+      {this.props.isAdmin && this.addCategoryView()}
+    </React.Fragment>
   };
 
   alphabeticalView = (categories: CategoryMetaData[]) => {
@@ -207,15 +223,7 @@ export default class Home extends React.Component<Props, State> {
             <h1 {...styles.categoryTitle}>{category.category}</h1>
           </div>
         ))}
-        {this.props.isCategoryAdmin &&
-        <div {...styles.category} {...globalcss.noLinkColor}>
-            <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
-        </div>}
-        {this.props.isCategoryAdmin &&
-        <div {...styles.category} {...globalcss.noLinkColor}>
-            <Link to='/importqueue'><h1 {...styles.categoryTitle}>Import Queue</h1></Link>
-        </div>}
-        {this.props.isAdmin && this.addCategoryView()}
+        {this.adminViews()}
       </div>);
   };
 
@@ -238,15 +246,7 @@ export default class Home extends React.Component<Props, State> {
         {(this.props.isCategoryAdmin || this.props.isAdmin) && <div>
           <h2>Admin</h2>
           <div {...styles.wrapper}>
-            {this.props.isCategoryAdmin &&
-            <div {...styles.category} {...globalcss.noLinkColor}>
-                <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
-            </div>}
-            {this.props.isCategoryAdmin &&
-            <div {...styles.category} {...globalcss.noLinkColor}>
-                <Link to='/importqueue'><h1 {...styles.categoryTitle}>Import Queue</h1></Link>
-            </div>}
-            {this.props.isAdmin && this.addCategoryView()}
+            {this.adminViews()}
           </div>
         </div>}
       </div>
@@ -272,7 +272,7 @@ export default class Home extends React.Component<Props, State> {
       </div>
       <div {...styles.filterInput}>
         <input type="text" onChange={this.filterChanged} value={this.state.filter}
-               placeholder="Filter..." autoFocus={true} onKeyPress={this.filterKeyPress}/>
+               placeholder="Filter..." autoFocus={true} onKeyPress={listenEnter(this.openFirstCategory)}/>
       </div>
       {this.state.bySemesterView ? this.semesterView(categoriesBySemester) : this.alphabeticalView(categoriesFiltered)}
     </div>);

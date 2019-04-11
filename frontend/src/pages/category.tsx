@@ -9,6 +9,7 @@ import colors from "../colors";
 import GlobalConsts from "../globalconsts";
 import * as moment from 'moment';
 import Colors from "../colors";
+import {listenEnter} from "../input-utils";
 
 const styles = {
   wrapper: css({
@@ -33,7 +34,7 @@ interface Props {
 }
 
 interface State {
-  category: CategoryMetaData;
+  category?: CategoryMetaData;
   exams: CategoryExam[];
   examTypes: string[];
   metaCategories: MetaCategory[];
@@ -49,17 +50,6 @@ interface State {
 export default class Category extends React.Component<Props, State> {
 
   state: State = {
-    category: {
-      category: "",
-      slug: "",
-      admins: [],
-      semester: "",
-      form: "",
-      permission: "",
-      remark: "",
-      has_payments: false,
-      catadmin: false,
-    },
     exams: [],
     examTypes: [],
     metaCategories: [],
@@ -131,12 +121,17 @@ export default class Category extends React.Component<Props, State> {
         editingMetaData: !prevState.editingMetaData,
       };
     });
-    this.setState({
-      currentMetaData: {...this.state.category}
-    });
+    if (this.state.category) {
+      this.setState({
+        currentMetaData: {...this.state.category}
+      });
+    }
   };
 
   saveEdit = () => {
+    if (!this.state.category) {
+      return;
+    }
     let data = {...this.state.currentMetaData};
     data.category = this.state.category.category;
     data.slug = this.state.category.slug;
@@ -177,6 +172,9 @@ export default class Category extends React.Component<Props, State> {
   };
 
   addAdmin = () => {
+    if (!this.state.newAdminName) {
+      return;
+    }
     fetchpost('/api/category/addadmin', {
       slug: this.props.categorySlug,
       username: this.state.newAdminName,
@@ -210,6 +208,9 @@ export default class Category extends React.Component<Props, State> {
   };
 
   addMetaCategory = () => {
+    if (!this.state.newMeta1 || !this.state.newMeta2 || !this.state.category) {
+      return;
+    }
     fetchpost('/api/metacategory/addcategory', {
       meta1: this.state.newMeta1,
       meta2: this.state.newMeta2,
@@ -230,6 +231,9 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeMetaCategory = (meta1: string, meta2: string) => {
+    if (!this.state.category) {
+      return;
+    }
     fetchpost('/api/metacategory/removecategory', {
       meta1: meta1,
       meta2: meta2,
@@ -369,8 +373,20 @@ export default class Category extends React.Component<Props, State> {
             <ul>
               {offeredIn.map(meta1 => meta1.meta2.map(meta2 => <li key={meta1.displayname + meta2.displayname}>{meta2.displayname} in {meta1.displayname} <button onClick={() => this.removeMetaCategory(meta1.displayname, meta2.displayname)}>X</button></li>))}
             </ul>
-            <AutocompleteInput name="meta" onChange={ev => this.setState({newMeta1: ev.target.value})} value={this.state.newMeta1} placeholder="main category" autocomplete={this.state.metaCategories.map(meta1 => meta1.displayname)}/>
-            <AutocompleteInput name="submeta" onChange={ev => this.setState({newMeta2: ev.target.value})} value={this.state.newMeta2} placeholder="sub category" autocomplete={this.flatArray(this.state.metaCategories.filter(meta1 => meta1.displayname === this.state.newMeta1).map(meta1 => meta1.meta2.map(meta2 => meta2.displayname)))}/>
+            <AutocompleteInput
+              name="meta"
+              onChange={ev => this.setState({newMeta1: ev.target.value})}
+              value={this.state.newMeta1}
+              placeholder="main category"
+              onKeyPress={listenEnter(this.addMetaCategory)}
+              autocomplete={this.state.metaCategories.map(meta1 => meta1.displayname)}/>
+            <AutocompleteInput
+              name="submeta"
+              onChange={ev => this.setState({newMeta2: ev.target.value})}
+              value={this.state.newMeta2}
+              placeholder="sub category"
+              onKeyPress={listenEnter(this.addMetaCategory)}
+              autocomplete={this.flatArray(this.state.metaCategories.filter(meta1 => meta1.displayname === this.state.newMeta1).map(meta1 => meta1.meta2.map(meta2 => meta2.displayname)))}/>
             <button onClick={this.addMetaCategory} disabled={this.state.newMeta1.length === 0 || this.state.newMeta2.length === 0}>Add Offered In</button>
         </div>
         <div>
@@ -378,7 +394,7 @@ export default class Category extends React.Component<Props, State> {
           <ul>
             {this.state.category.admins.map(admin => <li key={admin}>{admin} <button onClick={() => this.removeAdmin(admin)}>X</button></li>)}
           </ul>
-          <input type="text" value={this.state.newAdminName} onChange={ev => this.setState({newAdminName: ev.target.value})} placeholder="new admin"/>
+          <input type="text" value={this.state.newAdminName} onChange={ev => this.setState({newAdminName: ev.target.value})} placeholder="new admin" onKeyPress={listenEnter(this.addAdmin)}/>
           <button onClick={this.addAdmin} disabled={this.state.newAdminName.length === 0}>Add Admin</button>
         </div>
         <div>

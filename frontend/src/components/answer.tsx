@@ -11,6 +11,7 @@ import {Link} from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
 import colors from "../colors";
+import {listenEnter} from "../input-utils";
 
 interface Props {
   filename: string;
@@ -251,7 +252,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div {...styles.answer}><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div {...styles.answerInput}>
-            <textarea {...styles.textareaInput} onKeyUp={this.answerTextareaChange} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
+            <textarea {...styles.textareaInput} onKeyUp={this.answerTextareaChange} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text} onKeyPress={listenEnter(this.saveAnswer, true)}/>
           </div>
           <div {...styles.answerTexHint}>
             You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.

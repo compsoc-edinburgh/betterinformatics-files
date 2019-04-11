@@ -8,6 +8,7 @@ import ImageOverlay from "./image-overlay";
 import {Link} from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
+import {listenEnter} from "../input-utils";
 
 interface Props {
   filename: string;
@@ -158,7 +159,7 @@ export default class CommentComponent extends React.Component<Props, State> {
         <div><MarkdownText value={this.state.editing ? this.state.text : comment.text}/></div>
         {this.state.editing && <div>
           <div>
-            <textarea {...styles.textareaInput} onKeyUp={this.commentTextareaChange} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
+            <textarea {...styles.textareaInput} onKeyUp={this.commentTextareaChange} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} onKeyPress={listenEnter(this.saveComment, true)} />
           </div>
           <div {...styles.threebuttons}>
             <div {...styles.leftButton}>

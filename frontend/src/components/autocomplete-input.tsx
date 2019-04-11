@@ -6,6 +6,7 @@ interface Props {
   placeholder: string;
   autocomplete: string[];
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyPress?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export default class AutocompleteInput extends React.Component<Props> {
@@ -14,7 +15,7 @@ export default class AutocompleteInput extends React.Component<Props> {
       <React.Fragment>
         <input type="text" list={this.props.name + "_list"} name={this.props.name} placeholder={this.props.placeholder}
                value={this.props.value} onChange={this.props.onChange}
-               autoComplete="off"/>
+               autoComplete="off" onKeyPress={this.props.onKeyPress}/>
         <datalist id={this.props.name + "_list"}>
           {this.props.autocomplete.map(entry => (
             <option key={entry} value={entry}/>
