@@ -79,6 +79,7 @@ export default class Exam extends React.Component<Props, State> {
       hasPayed: false,
       filename: "",
       category: "",
+      examtype: "",
       displayname: "",
       legacy_solution: "",
       master_solution: "",

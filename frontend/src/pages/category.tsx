@@ -8,11 +8,18 @@ import AutocompleteInput from '../components/autocomplete-input';
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";
 import * as moment from 'moment';
+import Colors from "../colors";
 
 const styles = {
   wrapper: css({
     maxWidth: "900px",
     margin: "auto",
+  }),
+  metdataWrapper: css({
+    padding: "10px",
+    marginBottom: "20px",
+    background: Colors.cardBackground,
+    boxShadow: Colors.cardShadow,
   }),
   unviewableExam: css({
     color: colors.unviewableExam,
@@ -28,6 +35,7 @@ interface Props {
 interface State {
   category: CategoryMetaData;
   exams: CategoryExam[];
+  examTypes: string[];
   metaCategories: MetaCategory[];
   newMeta1: string;
   newMeta2: string;
@@ -53,6 +61,7 @@ export default class Category extends React.Component<Props, State> {
       catadmin: false,
     },
     exams: [],
+    examTypes: [],
     metaCategories: [],
     newMeta1: "",
     newMeta2: "",
@@ -79,11 +88,18 @@ export default class Category extends React.Component<Props, State> {
     document.title = this.props.categorySlug + " - VIS Community Solutions";
   }
 
+  collectExamTypes = (exams: CategoryExam[]) => {
+    let types = exams.map(exam => exam.examtype).filter(examtype => examtype);
+    types.push("Exams");
+    return types.filter((value, index, self) => self.indexOf(value) === index).sort();
+  };
+
   loadExams = () => {
     fetchapi('/api/category/list?slug=' + this.props.categorySlug)
       .then(res => {
         this.setState({
-          exams: res.value
+          exams: res.value,
+          examTypes: this.collectExamTypes(res.value),
         });
       })
       .catch(()=>undefined);
@@ -328,7 +344,7 @@ export default class Category extends React.Component<Props, State> {
       {catAdmin && <p>You can edit exams in this category. Please do so responsibly.</p>}
       {this.state.error && <div>{this.state.error}</div>}
       {(this.props.isAdmin) && <p><button onClick={this.toggleEditingMetadata}>Edit Category</button></p>}
-      {this.state.editingMetaData && <div>
+      {this.state.editingMetaData && <div {...styles.metdataWrapper}>
         <h2>Meta Data</h2>
         <div>
           <AutocompleteInput name="semester" placeholder="semester" value={this.state.currentMetaData.semester} onChange={ev => this.valueChanged("semester", ev)} autocomplete={["HS", "FS"]}/>
@@ -370,49 +386,56 @@ export default class Category extends React.Component<Props, State> {
           <button onClick={this.removeCategory}>Remove Category</button>
         </div>
       </div>}
-      <h2>Exams</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Remark</th>
-            {catAdmin && <th>Public</th>}
-            {catAdmin && <th>Import State</th>}
-            {catAdmin && <th>Claim</th>}
-            {this.props.isAdmin && <th>Remove</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {this.state.exams.filter(exam => exam.public || catAdmin).map(exam => (
-            <tr key={exam.filename}>
-              <td>
-                {exam.canView && <Link to={'/exams/' + exam.filename}>{exam.displayname}</Link> || <span {...styles.unviewableExam}>{exam.displayname}</span>}
-              </td>
-              <td>
-                {exam.remark}
-              </td>
-              {catAdmin && <td>{exam.public ? "Public": "Hidden"}</td>}
-              {catAdmin && <td>
-                {exam.finished_cuts ? (exam.finished_wiki_transfer ? "All done" : "Needs Wiki Import") : "Needs Cuts"}
-              </td>}
-              {catAdmin && <td>
-                {(!exam.finished_cuts || !exam.finished_wiki_transfer) ? (
-                  this.hasValidClaim(exam) ? (
-                      exam.import_claim === this.props.username ?
-                        <button onClick={() => this.claimExam(exam, false)}>Release Claim</button> :
-                        <span>Claimed by {exam.import_claim_displayname}</span>
-                    ) :
-                    <button onClick={() => this.claimExam(exam, true)}>Claim Exam</button>
-                ) : <span>-</span>
-                }
-              </td>}
-              {this.props.isAdmin && <td>
-                  <button onClick={ev => this.removeExam(exam)}>X</button>
-              </td>}
+      {
+        this.state.examTypes.map(examType => <div key={examType}>
+          <h2>{examType}</h2>
+          <table>
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>Remark</th>
+              {catAdmin && <th>Public</th>}
+              {catAdmin && <th>Import State</th>}
+              {catAdmin && <th>Claim</th>}
+              {this.props.isAdmin && <th>Remove</th>}
             </tr>
-          ))}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+            {this.state.exams
+              .filter(exam => exam.public || catAdmin)
+              .filter(exam => (exam.examtype || "Exams") === examType)
+              .map(exam => (
+              <tr key={exam.filename}>
+                <td>
+                  {exam.canView && <Link to={'/exams/' + exam.filename}>{exam.displayname}</Link> || <span {...styles.unviewableExam}>{exam.displayname}</span>}
+                </td>
+                <td>
+                  {exam.remark}
+                </td>
+                {catAdmin && <td>{exam.public ? "Public": "Hidden"}</td>}
+                {catAdmin && <td>
+                  {exam.finished_cuts ? (exam.finished_wiki_transfer ? "All done" : "Needs Wiki Import") : "Needs Cuts"}
+                </td>}
+                {catAdmin && <td>
+                  {(!exam.finished_cuts || !exam.finished_wiki_transfer) ? (
+                    this.hasValidClaim(exam) ? (
+                        exam.import_claim === this.props.username ?
+                          <button onClick={() => this.claimExam(exam, false)}>Release Claim</button> :
+                          <span>Claimed by {exam.import_claim_displayname}</span>
+                      ) :
+                      <button onClick={() => this.claimExam(exam, true)}>Claim Exam</button>
+                  ) : <span>-</span>
+                  }
+                </td>}
+                {this.props.isAdmin && <td>
+                  <button onClick={ev => this.removeExam(exam)}>X</button>
+                </td>}
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>)
+      }
     </div>);
   }
 }

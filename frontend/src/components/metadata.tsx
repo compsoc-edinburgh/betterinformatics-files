@@ -41,6 +41,7 @@ interface State {
   currentMetaData: ExamMetaData;
   categories: string[];
   paymentCategories: string[];
+  examTypes: string[];
   printonlyFile: Blob;
   solutionFile: Blob;
   error?: string;
@@ -51,6 +52,7 @@ export default class MetaData extends React.Component<Props, State> {
     currentMetaData: {...this.props.savedMetaData},
     categories: [],
     paymentCategories: [],
+    examTypes: [],
     printonlyFile: new Blob(),
     solutionFile: new Blob(),
   };
@@ -67,6 +69,13 @@ export default class MetaData extends React.Component<Props, State> {
       .then(res => {
         this.setState({
           paymentCategories: res.value
+        });
+      })
+      .catch(() => undefined);
+    fetchapi('/api/listexamtypes')
+      .then(res => {
+        this.setState({
+          examTypes: res.value
         });
       })
       .catch(() => undefined);
@@ -194,19 +203,23 @@ export default class MetaData extends React.Component<Props, State> {
       <div>
         <AutocompleteInput value={this.state.currentMetaData.category} onChange={ev => this.valueChanged("category", ev)}
                            placeholder="category" autocomplete={this.state.categories} name="category"/>
-        <AutocompleteInput value={this.state.currentMetaData.payment_category} onChange={ev => this.valueChanged("payment_category", ev)}
-                           placeholder="payment_category" autocomplete={this.state.paymentCategories} name="payment_category"/>
+        <AutocompleteInput value={this.state.currentMetaData.examtype} onChange={ev => this.valueChanged("examtype", ev)}
+                           placeholder="examtype" autocomplete={this.state.examTypes} name="examtype"/>
       </div>
       <div>
         <input type="text" placeholder="legacy solution" value={this.state.currentMetaData.legacy_solution} onChange={(ev) => this.valueChanged("legacy_solution", ev)}/>
         <input type="text" placeholder="master solution (extern)" value={this.state.currentMetaData.master_solution} onChange={(ev) => this.valueChanged("master_solution", ev)}/>
       </div>
       <div>
+        <AutocompleteInput value={this.state.currentMetaData.payment_category} onChange={ev => this.valueChanged("payment_category", ev)}
+                           placeholder="payment_category" autocomplete={this.state.paymentCategories} name="payment_category"/>
+        <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={(ev) => this.valueChanged("remark", ev)}/>
+      </div>
+      <div>
         <label>
           <input type="checkbox" checked={this.state.currentMetaData.public} onChange={(ev) => this.checkboxValueChanged("public", ev)}/>
           Public
         </label>
-        <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={(ev) => this.valueChanged("remark", ev)}/>
       </div>
       <div>
         <label>

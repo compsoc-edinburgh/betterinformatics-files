@@ -57,6 +57,7 @@ PDF_DIR = {
 EXAM_METADATA = [
     "displayname",
     "category",
+    "examtype",
     "legacy_solution",
     "master_solution",
     "resolve_alias",
@@ -1163,6 +1164,13 @@ def get_resolved_filename(resolve_alias):
     return None
 
 
+@app.route("/api/listexamtypes")
+@auth.login_required
+def get_examtypes():
+    types = list(exam_metadata.distinct("examtype", {}))
+    return success(value=types)
+
+
 @app.route("/api/exam/<filename>/remove", methods=["POST"])
 @auth.login_required
 @require_admin
@@ -1250,6 +1258,7 @@ def get_category_exams(category):
         "filename": 1,
         "displayname": 1,
         "category": 1,
+        "examtype": 1,
         "payment_category": 1,
         "remark": 1,
         "import_claim": 1,

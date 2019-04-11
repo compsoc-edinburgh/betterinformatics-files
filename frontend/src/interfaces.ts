@@ -62,6 +62,7 @@ export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
   category: string; // category of exam
+  examtype: string; // type of exam
   remark: string; // remark for the exam
   import_claim: string; // the user who is importing the exam
   import_claim_displayname: string; // the name of the user who claimed the exam
@@ -107,6 +108,7 @@ export interface ExamMetaData {
   filename: string;
   displayname: string;
   category: string;
+  examtype: string;
   legacy_solution: string;
   master_solution: string;
   resolve_alias: string;
