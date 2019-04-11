@@ -533,7 +533,16 @@ def list_import_exams():
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
     })
-    exams = [exam for exam in exams if has_admin_rights_for_category(username, exam["category"])]
+
+    catres = {}
+
+    def check(ex):
+        cat = ex["category"]
+        if cat not in catres:
+            catres[cat] = has_admin_rights_for_category(username, cat)
+        return catres[cat]
+
+    exams = [exam for exam in exams if check(exam)]
     return success(value=list(sorted(exams, key=lambda x: (x["category"], x["displayname"]))))
 
 
@@ -1233,6 +1242,7 @@ def get_category_exams(category):
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
     }))
+
     for exam in exams:
         exam["canView"] = can_view_exam(auth.username(), exam["filename"], metadata=exam)
     exams.sort(key=lambda x: x["displayname"])

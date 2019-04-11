@@ -3,8 +3,9 @@ import time
 import sys
 import server
 import threading
+import pymongo
 
-DB_VERSION = 7
+DB_VERSION = 8
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -165,6 +166,27 @@ def remove_broken_users(mongo_db):
                 mongo_db.userdata.delete_one(found[i])
 
 
+def add_indexes(mongo_db):
+    print("Migrate 'add indexes'", file=sys.stderr)
+    mongo_db.answersections.create_index("filename", background=True, name="idx_filename")
+    mongo_db.userdata.create_index("username", background=True, name="idx_username")
+    mongo_db.userdata.create_index("score", background=True, name="idx_score")
+    mongo_db.userdata.create_index("score_answers", background=True, name="idx_score_answers")
+    mongo_db.userdata.create_index("score_comments", background=True, name="idx_score_comments")
+    mongo_db.userdata.create_index("score_cuts", background=True, name="idx_score_cuts")
+    mongo_db.userdata.create_index("score_legacy", background=True, name="idx_score_legacy")
+    mongo_db.categorymetadata.create_index("category", background=True, name="idx_category")
+    mongo_db.categorymetadata.create_index("has_payments", background=True, name="idx_has_payments")
+    mongo_db.exammetadata.create_index("filename", background=True, name="idx_filename")
+    mongo_db.exammetadata.create_index("resolve_alias", background=True, name="idx_resolve_alias")
+    mongo_db.exammetadata.create_index("category", background=True, name="idx_category")
+    mongo_db.imagemetadata.create_index("filename", background=True, name="idx_filename")
+    mongo_db.imagemetadata.create_index("authorId", background=True, name="idx_authorId")
+    mongo_db.payments.create_index("username", background=True, name="idx_username")
+    mongo_db.payments.create_index([("username", pymongo.ASCENDING), ("category", pymongo.ASCENDING)], background=True, name="idx_username_category")
+    set_db_version(mongo_db, 8)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -173,6 +195,7 @@ MIGRATIONS = [
     add_cutversion,
     add_category_slug,
     add_more_scores,
+    add_indexes,
 ]
 
 
