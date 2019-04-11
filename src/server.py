@@ -271,6 +271,7 @@ admin_cache_last_update = 0
 def check_admin_cache():
     global admin_cache, admin_any_category_cache, admin_category_cache, admin_cache_last_update
     if time.time() - admin_cache_last_update > 60:
+        print("Clear admin cache", file=sys.stderr)
         admin_cache = {}
         admin_any_category_cache = {}
         admin_category_cache = {}
@@ -285,6 +286,7 @@ def has_admin_rights(username):
     """
     check_admin_cache()
     if username in admin_cache:
+        print("has_admin_rights cache hit", file=sys.stderr)
         return admin_cache[username]
     try:
         req = people_pb2.GetPersonRequest(username=username)
