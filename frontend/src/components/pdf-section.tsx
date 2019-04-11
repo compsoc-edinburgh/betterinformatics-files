@@ -17,31 +17,83 @@ const styles = {
   }),
 };
 
-const contentRelevantProps: Array<keyof Props> = [
-  "section",
-  "renderer",
-  "width",
-  "dpr",
-];
-
 export default class PdfSectionComp extends React.Component<Props> {
+  private canv?: HTMLCanvasElement;
   private ctx?: CanvasRenderingContext2D;
-  private lastCtx?: CanvasRenderingContext2D;
-  private propsChanged = true;
+  private observer: IntersectionObserver;
+  private visible: boolean = true;
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (contentRelevantProps.some(k => this.props[k] !== nextProps[k])) {
-      this.propsChanged = true;
+  componentDidMount() {
+    this.observer = new IntersectionObserver(this.intersectionChanged, {
+      threshold: 0,
+    });
+    if (this.canv) {
+      this.observer.observe(this.canv);
     }
   }
 
-  componentDidMount() {
-    this.renderCanvas();
+  componentWillUnmount(): void {
+    if (this.canv) {
+      this.observer.unobserve(this.canv);
+    }
+    if (this.visible) {
+      this.props.renderer.removeVisible(this.props.section.start, this.renderCanvas);
+    }
   }
 
   componentDidUpdate() {
     this.renderCanvas();
   }
+
+  intersectionChanged = (entries: IntersectionObserverEntry[]) => {
+    entries.forEach(entry => {
+      this.visible = entry.isIntersecting;
+      if (this.visible) {
+        this.props.renderer.addVisible(this.props.section.start, this.renderCanvas);
+      } else {
+        this.props.renderer.removeVisible(this.props.section.start, this.renderCanvas);
+      }
+    });
+  };
+
+  renderCanvas = () => {
+    if (!this.ctx || !this.visible) {
+      return;
+    }
+
+    const {section, renderer, dpr} = this.props;
+    const dim = this.sectionDimensions();
+    renderer.render(
+      {context: this.ctx, width: dim.width * dpr, height: dim.height * dpr},
+      section.start,
+      section.end,
+    );
+  };
+
+  sectionDimensions = (): Dimensions => {
+    const {section, renderer, width} = this.props;
+    return renderer.sectionDimensions(section.start, section.end, width);
+  };
+
+  saveCanvasRef = (c: HTMLCanvasElement) => {
+    if (!c) {
+      return;
+    }
+    if (this.observer) {
+      if (this.canv) {
+        this.observer.unobserve(this.canv);
+      }
+      this.observer.observe(c);
+    }
+    this.canv = c;
+    const ctx = c.getContext("2d");
+    if (!ctx) {
+      // tslint:disable-next-line:no-console
+      console.error("couldn't create canvas context");
+      return;
+    }
+    this.ctx = ctx;
+  };
 
   render() {
     const {dpr} = this.props;
@@ -61,38 +113,4 @@ export default class PdfSectionComp extends React.Component<Props> {
       />
     );
   }
-
-  renderCanvas() {
-    if (!this.ctx || (!this.propsChanged && this.ctx === this.lastCtx)) {
-      return;
-    }
-    this.lastCtx = this.ctx;
-    this.propsChanged = false;
-
-    const {section, renderer, dpr} = this.props;
-    const dim = this.sectionDimensions();
-    renderer.render(
-      {context: this.ctx, width: dim.width * dpr, height: dim.height * dpr},
-      section.start,
-      section.end,
-    );
-  }
-
-  sectionDimensions(): Dimensions {
-    const {section, renderer, width} = this.props;
-    return renderer.sectionDimensions(section.start, section.end, width);
-  }
-
-  saveCanvasRef = (c: HTMLCanvasElement) => {
-    if (!c) {
-      return;
-    }
-    const ctx = c.getContext("2d");
-    if (!ctx) {
-      // tslint:disable-next-line:no-console
-      console.error("couldn't create canvas context");
-      return;
-    }
-    this.ctx = ctx;
-  };
 }

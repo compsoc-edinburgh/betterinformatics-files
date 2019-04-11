@@ -1,5 +1,5 @@
 import * as React from "react";
-import {renderDocument, SectionRenderer} from "../split-render";
+import {createSectionRenderer, SectionRenderer} from "../split-render";
 import {loadSections} from "../exam-loader";
 import {ExamMetaData, PdfSection, Section, SectionKind} from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
@@ -98,12 +98,12 @@ export default class Exam extends React.Component<Props, State> {
   };
   updateInterval: NodeJS.Timer;
   cutVersionInterval: NodeJS.Timer;
-  debouncedRender: (this["renderDocumentToState"]);
+  debouncedUpdatePDFWidth: (this["updatePDFWidth"]);
 
   componentDidMount() {
     this.updateInterval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
-    this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
+    this.debouncedUpdatePDFWidth = debounce(this.updatePDFWidth, RERENDER_INTERVAL);
 
     fetchapi(`/api/exam/${this.props.filename}/metadata`)
       .then((res) => {
@@ -128,12 +128,13 @@ export default class Exam extends React.Component<Props, State> {
     try {
       const pdf = await PDFJS.getDocument("/api/pdf/exam/" + this.props.filename);
 
-      await Promise.all([
-        this.renderDocumentToState(pdf),
-        this.loadSectionsFromBackend(pdf)
-      ]);
+      const w = this.state.width * this.state.dpr;
+      this.setState({pdf, renderer: await createSectionRenderer(pdf, w)});
+      this.loadSectionsFromBackend(pdf.numPages);
     } catch (e) {
-      // we do not report any error as it might be caused by print_only
+      this.setState({
+        error: e.toString()
+      });
     }
   };
 
@@ -145,10 +146,20 @@ export default class Exam extends React.Component<Props, State> {
     clearInterval(this.updateInterval);
     clearInterval(this.cutVersionInterval);
     window.removeEventListener("resize", this.onResize);
+    const pdf = this.state.pdf;
+    if (pdf) {
+      pdf.destroy();
+    }
     this.setState({
       pdf: undefined,
       renderer: undefined
     });
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (prevState.dpr !== this.state.dpr || prevState.width !== this.state.width) {
+      this.debouncedUpdatePDFWidth();
+    }
   }
 
   onResize = () => {
@@ -157,10 +168,6 @@ export default class Exam extends React.Component<Props, State> {
       return;
     }
     this.setState({width: w});
-    const {pdf} = this.state;
-    if (pdf) {
-      this.debouncedRender(pdf);
-    }
   };
 
   pollZoom = () => {
@@ -169,19 +176,18 @@ export default class Exam extends React.Component<Props, State> {
       return;
     }
     this.setState({dpr});
-    const {pdf} = this.state;
-    if (pdf) {
-      this.renderDocumentToState(pdf);
+  };
+
+  updatePDFWidth = () => {
+    const {renderer} = this.state;
+    if (renderer) {
+      const w = this.state.width * this.state.dpr;
+      renderer.setTargetWidth(w);
     }
   };
 
-  renderDocumentToState = async (pdf: pdfjs.PDFDocumentProxy) => {
-    const w = this.state.width * this.state.dpr;
-    this.setState({pdf, renderer: await renderDocument(pdf, w)});
-  };
-
-  loadSectionsFromBackend = (pdf: pdfjs.PDFDocumentProxy) => {
-    loadSections(this.props.filename, pdf.numPages)
+  loadSectionsFromBackend = (numPages: number) => {
+    loadSections(this.props.filename, numPages)
       .then((sections) => {
         this.setState({sections: sections});
       })
@@ -222,7 +228,7 @@ export default class Exam extends React.Component<Props, State> {
     })
       .then(() => {
         if (this.state.pdf) {
-          this.loadSectionsFromBackend(this.state.pdf);
+          this.loadSectionsFromBackend(this.state.pdf.numPages);
         }
       });
   };
@@ -347,7 +353,7 @@ export default class Exam extends React.Component<Props, State> {
                     oid={e.oid}
                     width={width}
                     canDelete={this.state.canEdit}
-                    onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
+                    onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf.numPages) : false}
                     onToggleHidden={() => this.toggleHidden(e.oid)}
                     hidden={e.hidden}
                     cutVersion={e.cutVersion}
