@@ -498,8 +498,14 @@ def get_user():
     Returns information about the currently logged in user.
     """
     username = auth.username()
+    start = time.perf_counter()
     admin = has_admin_rights(username)
+    end = time.perf_counter()
+    print("get_user 1:", end - start, file=sys.stderr)
+    start = time.perf_counter()
     admincat = has_admin_rights_for_any_category(username)
+    end = time.perf_counter()
+    print("get_user 2:", end - start, file=sys.stderr)
     return success(
         adminrights=admin,
         adminrightscat=admin or admincat,
@@ -1090,7 +1096,7 @@ def get_exam_metadata(filename):
         if key not in metadata:
             metadata[key] = ""
     username = auth.username()
-    metadata["canEdit"] = has_admin_rights_for_exam(username, metadata.get("category"))
+    metadata["canEdit"] = has_admin_rights_for_category(username, metadata.get("category"))
     metadata["hasPayed"] = has_payed(username, metadata.get("payment_category"))
     metadata["canView"] = can_view_exam(username, filename, metadata=metadata)
     return success(value=metadata)
@@ -1243,7 +1249,6 @@ def get_category_exams(category):
     :param category: name of the category
     :return: list of exams with metadata
     """
-    start = time.perf_counter()
     exams = list(exam_metadata.find({
         "category": category
     }, {
@@ -1259,14 +1264,9 @@ def get_category_exams(category):
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
     }))
-    end = time.perf_counter()
-    print("get_category_exams 1:", end - start, file=sys.stderr)
 
-    start = time.perf_counter()
     for exam in exams:
         exam["canView"] = can_view_exam(auth.username(), exam["filename"], metadata=exam)
-    end = time.perf_counter()
-    print("get_category_exams 2:", end - start, file=sys.stderr)
     exams.sort(key=lambda x: x["displayname"])
     return exams
 
