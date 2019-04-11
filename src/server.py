@@ -532,7 +532,7 @@ def list_import_exams():
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
     })
-    exams = [exam for exam in exams if has_admin_rights_for_exam(username, exam["filename"])]
+    exams = [exam for exam in exams if has_admin_rights_for_category(username, exam["category"])]
     return success(value=list(sorted(exams, key=lambda x: (x["category"], x["displayname"]))))
 
 
