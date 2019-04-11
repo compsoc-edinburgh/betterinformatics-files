@@ -23,6 +23,7 @@ const styles = {
     position: ["sticky", "-webkit-sticky"],
     top: "20px",
     float: "right",
+    zIndex: "100",
     "& button": {
       width: "100%",
     }
