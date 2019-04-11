@@ -263,7 +263,18 @@ def get_username_or_legacy(filename):
 
 
 admin_cache = {}
+admin_any_category_cache = {}
+admin_category_cache = {}
 admin_cache_last_update = 0
+
+
+def check_admin_cache():
+    global admin_cache, admin_any_category_cache, admin_category_cache, admin_cache_last_update
+    if time.time() - admin_cache_last_update > 60:
+        admin_cache = {}
+        admin_any_category_cache = {}
+        admin_category_cache = {}
+        admin_cache_last_update = time.time()
 
 
 def has_admin_rights(username):
@@ -272,9 +283,7 @@ def has_admin_rights(username):
     :param username: the user to check
     :return: True iff the user has global admin rights
     """
-    global admin_cache, admin_cache_last_update
-    if time.time() - admin_cache_last_update > 60:
-        admin_cache = {}
+    check_admin_cache()
     if username in admin_cache:
         return admin_cache[username]
     try:
@@ -294,12 +303,15 @@ def has_admin_rights_for_any_category(username):
     :param username: the user to check
     :return: True iff there exists some category for which the user is admin
     """
+    check_admin_cache()
+    if username in admin_any_category_cache:
+        return admin_any_category_cache[username]
     maybe_admin = category_metadata.find({
         "admins": username
     })
-    if list(maybe_admin):
-        return True
-    return False
+    res = bool(maybe_admin)
+    admin_any_category_cache[username] = res
+    return res
 
 
 def has_admin_rights_for_category(username, category):
@@ -312,14 +324,18 @@ def has_admin_rights_for_category(username, category):
     if has_admin_rights(username):
         return True
 
+    check_admin_cache()
+    if username in admin_category_cache:
+        return admin_category_cache[username]
+
     admins = category_metadata.find_one({
         "category": category
     }, {
         "admins": 1
     })["admins"]
-    if username in admins:
-        return True
-    return False
+    res = username in admins
+    admin_category_cache[username] = res
+    return res
 
 
 def has_admin_rights_for_exam(username, filename):
@@ -1227,6 +1243,7 @@ def get_category_exams(category):
     :param category: name of the category
     :return: list of exams with metadata
     """
+    start = time.perf_counter()
     exams = list(exam_metadata.find({
         "category": category
     }, {
@@ -1242,9 +1259,14 @@ def get_category_exams(category):
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
     }))
+    end = time.perf_counter()
+    print("get_category_exams 1:", end - start, file=sys.stderr)
 
+    start = time.perf_counter()
     for exam in exams:
         exam["canView"] = can_view_exam(auth.username(), exam["filename"], metadata=exam)
+    end = time.perf_counter()
+    print("get_category_exams 2:", end - start, file=sys.stderr)
     exams.sort(key=lambda x: x["displayname"])
     return exams
 
