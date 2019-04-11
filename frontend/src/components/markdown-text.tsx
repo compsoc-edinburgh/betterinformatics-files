@@ -5,6 +5,8 @@ import * as RemarkMathPlugin from "remark-math";
 import 'katex/dist/katex.min.css';
 import TeX from '@matejmazur/react-katex'
 import Colors from "../colors";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import {solarizedLight} from "react-syntax-highlighter/dist/styles/hljs";
 // import MathJax from 'react-mathjax2';
 
 interface Props {
@@ -41,6 +43,10 @@ export default ({value, background}: Props) => {
       <TeX math={props.value} block/>,
     inlineMath: (props: {value: string}) =>
       <TeX math={props.value}/>,
+    code: (props: {value: string, language: string}) =>
+      <SyntaxHighlighter language={props.language} style={solarizedLight}>
+        {props.value || " "}
+      </SyntaxHighlighter>
   };
   return <div {...styles.wrapper} {...css({background: background || Colors.markdownBackground})}>
     <ReactMarkdown
