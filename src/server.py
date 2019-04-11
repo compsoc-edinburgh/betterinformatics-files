@@ -338,17 +338,18 @@ def has_admin_rights_for_exam(username, filename):
     return has_admin_rights_for_category(username, category)
 
 
-def can_view_exam(username, filename):
+def can_view_exam(username, filename, metadata=None):
     """
     Check whether a user is allowed to look at an exam
     :param username: user to check
     :param filename: exam to check
     """
-    if has_admin_rights_for_exam(username, filename):
+    if not metadata:
+        metadata = exam_metadata.find_one({
+            "filename": filename
+        })
+    if has_admin_rights_for_category(username, metadata.get("category")):
         return True
-    metadata = exam_metadata.find_one({
-        "filename": filename
-    })
     if not metadata.get("public"):
         return False
     if metadata.get("payment_category") and not has_payed(username, metadata.get("payment_category")):
@@ -1064,9 +1065,9 @@ def get_exam_metadata(filename):
         if key not in metadata:
             metadata[key] = ""
     username = auth.username()
-    metadata["canEdit"] = has_admin_rights_for_exam(username, filename)
+    metadata["canEdit"] = has_admin_rights_for_exam(username, metadata.get("category"))
     metadata["hasPayed"] = has_payed(username, metadata.get("payment_category"))
-    metadata["canView"] = can_view_exam(username, filename)
+    metadata["canView"] = can_view_exam(username, filename, metadata=metadata)
     return success(value=metadata)
 
 
@@ -1223,6 +1224,7 @@ def get_category_exams(category):
         "filename": 1,
         "displayname": 1,
         "category": 1,
+        "payment_category": 1,
         "remark": 1,
         "import_claim": 1,
         "import_claim_displayname": 1,
@@ -1232,7 +1234,7 @@ def get_category_exams(category):
         "finished_wiki_transfer": 1,
     }))
     for exam in exams:
-        exam["canView"] = can_view_exam(auth.username(), exam["filename"])
+        exam["canView"] = can_view_exam(auth.username(), exam["filename"], metadata=exam)
     exams.sort(key=lambda x: x["displayname"])
     return exams
 
