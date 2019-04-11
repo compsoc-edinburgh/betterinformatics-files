@@ -3,7 +3,7 @@ import {CategoryExam, CategoryMetaData, MetaCategory} from "../interfaces";
 import {css} from "glamor";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import {Link, Redirect} from "react-router-dom";
-import {getMetaCategoriesForCategory} from "../category-utils";
+import {filterExams, filterMatches, getMetaCategoriesForCategory} from "../category-utils";
 import AutocompleteInput from '../components/autocomplete-input';
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";
@@ -25,6 +25,20 @@ const styles = {
   unviewableExam: css({
     color: colors.unviewableExam,
   }),
+  filterInput: css({
+    width: "100%",
+    marginTop: "20px",
+    marginBottom: "20px",
+    "& input": {
+      width:  "50%",
+      "@media (max-width: 799px)": {
+        width: "70%",
+      },
+      "@media (max-width: 599px)": {
+        width: "90%",
+      },
+    }
+  }),
 };
 
 interface Props {
@@ -38,11 +52,13 @@ interface State {
   exams: CategoryExam[];
   examTypes: string[];
   metaCategories: MetaCategory[];
+  filter: string;
   newMeta1: string;
   newMeta2: string;
   newAdminName: string;
   currentMetaData: CategoryMetaData;
   editingMetaData: boolean;
+  gotoExam?: CategoryExam;
   redirectBack: boolean;
   error?: string;
 }
@@ -53,6 +69,7 @@ export default class Category extends React.Component<Props, State> {
     exams: [],
     examTypes: [],
     metaCategories: [],
+    filter: "",
     newMeta1: "",
     newMeta2: "",
     newAdminName: "",
@@ -152,6 +169,25 @@ export default class Category extends React.Component<Props, State> {
   cancelEdit = () => {
     this.setState({
       editingMetaData: false
+    });
+  };
+
+  filterChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({
+      filter: ev.target.value
+    });
+  };
+
+  openFirstExam = () => {
+    const filtered = filterExams(this.state.exams, this.state.filter);
+    if (filtered.length > 0) {
+      this.gotoExam(filtered[0]);
+    }
+  };
+
+  gotoExam = (cat: CategoryExam) => {
+    this.setState({
+      gotoExam: cat
     });
   };
 
@@ -327,6 +363,9 @@ export default class Category extends React.Component<Props, State> {
     if (this.state.redirectBack) {
       return <Redirect to="/"/>;
     }
+    if (this.state.gotoExam) {
+      return <Redirect to={'/exams/' + this.state.gotoExam.filename}/>
+    }
     if (!this.state.category) {
       return <div>Loading...</div>;
     }
@@ -402,6 +441,10 @@ export default class Category extends React.Component<Props, State> {
           <button onClick={this.removeCategory}>Remove Category</button>
         </div>
       </div>}
+      <div {...styles.filterInput}>
+        <input type="text" onChange={this.filterChanged} value={this.state.filter}
+               placeholder="Filter..." autoFocus={true} onKeyPress={listenEnter(this.openFirstExam)}/>
+      </div>
       {
         this.state.examTypes.map(examType => <div key={examType}>
           <h2>{examType}</h2>
@@ -419,6 +462,7 @@ export default class Category extends React.Component<Props, State> {
             <tbody>
             {this.state.exams
               .filter(exam => exam.public || catAdmin)
+              .filter(exam => filterMatches(this.state.filter, exam.displayname))
               .filter(exam => (exam.examtype || "Exams") === examType)
               .map(exam => (
               <tr key={exam.filename}>

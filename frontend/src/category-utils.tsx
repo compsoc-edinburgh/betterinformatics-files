@@ -1,6 +1,6 @@
-import {CategoryMetaData, MetaCategory, MetaCategoryWithCategories} from "./interfaces";
+import {CategoryExam, CategoryMetaData, MetaCategory, MetaCategoryWithCategories} from "./interfaces";
 
-function filterMatches(filter: string, name: string): boolean {
+export function filterMatches(filter: string, name: string): boolean {
   let nameLower = name.replace(/\s/g, '').toLowerCase();
   let filterLower = filter.replace(/\s/g, '').toLowerCase();
   if (filter.length === 0) {
@@ -18,8 +18,12 @@ function filterMatches(filter: string, name: string): boolean {
   return false;
 }
 
-export function filterCategories(categories: CategoryMetaData[], filter: string,): CategoryMetaData[] {
+export function filterCategories(categories: CategoryMetaData[], filter: string): CategoryMetaData[] {
   return categories.filter(cat => filterMatches(filter, cat.category));
+}
+
+export function filterExams(exams: CategoryExam[], filter: string): CategoryExam[] {
+  return exams.filter(ex => filterMatches(filter, ex.displayname));
 }
 
 export function fillMetaCategories(categories: CategoryMetaData[], metaCategories: MetaCategory[]): MetaCategoryWithCategories[] {
