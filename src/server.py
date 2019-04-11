@@ -326,8 +326,8 @@ def has_admin_rights_for_category(username, category):
         return True
 
     check_admin_cache()
-    if username in admin_category_cache:
-        return admin_category_cache[username]
+    if (username, category) in admin_category_cache:
+        return admin_category_cache[(username, category)]
 
     admins = category_metadata.find_one({
         "category": category
@@ -335,7 +335,7 @@ def has_admin_rights_for_category(username, category):
         "admins": 1
     })["admins"]
     res = username in admins
-    admin_category_cache[username] = res
+    admin_category_cache[(username, category)] = res
     return res
 
 
