@@ -231,6 +231,9 @@ export default class Exam extends React.Component<Props, State> {
       relHeight: relHeight
     })
       .then(() => {
+        this.setState({
+          error: ""
+        });
         if (this.state.pdf) {
           this.loadSectionsFromBackend(this.state.pdf.numPages);
         }
@@ -313,7 +316,6 @@ export default class Exam extends React.Component<Props, State> {
     const wikitransform = this.state.savedMetaData.legacy_solution ? this.state.savedMetaData.legacy_solution.split("/").pop() : "";
     return (
       <div>
-        {this.state.error && <div>{this.state.error}</div>}
         <div {...styles.sectionsButton}>
           <div>
             <button onClick={this.gotoPDF}>Download PDF</button>
@@ -330,6 +332,7 @@ export default class Exam extends React.Component<Props, State> {
             </div>
             ]
           }
+          {this.state.error && <div>{this.state.error}</div>}
         </div>
         {this.state.editingMetaData &&
           <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
