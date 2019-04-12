@@ -2,6 +2,7 @@ import * as React from "react";
 import {PdfSection} from "../interfaces";
 import {SectionRenderer, Dimensions} from "../split-render";
 import {css} from "glamor";
+import colors from "../colors";
 
 interface Props {
   section: PdfSection;
@@ -32,6 +33,10 @@ const styles = {
       whiteSpace: "pre",
       cursor: "text",
       transformOrigin: "0% 0%",
+      "::selection": {
+        color: "inherit",
+        background: colors.selectionBackground,
+      }
     }
   })
 };
