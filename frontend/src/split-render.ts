@@ -40,6 +40,12 @@ export class SectionRenderer {
     this.pdf = pdf;
   }
 
+  destroy() {
+    for(let i = 0; i < this.pdf.numPages; i++) {
+      this.freePage(i);
+    }
+  }
+
   renderPage(page: number) {
     if (this.pages[page].isRendered) {
       this.freePage(page);

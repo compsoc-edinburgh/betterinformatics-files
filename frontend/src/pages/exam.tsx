@@ -146,6 +146,9 @@ export default class Exam extends React.Component<Props, State> {
     clearInterval(this.updateInterval);
     clearInterval(this.cutVersionInterval);
     window.removeEventListener("resize", this.onResize);
+    if (this.state.renderer) {
+      this.state.renderer.destroy();
+    }
     const pdf = this.state.pdf;
     if (pdf) {
       pdf.destroy();
@@ -212,6 +215,11 @@ export default class Exam extends React.Component<Props, State> {
           return newState;
         })
       })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
   };
 
   addSection = (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
@@ -247,6 +255,12 @@ export default class Exam extends React.Component<Props, State> {
 
   gotoPDF = () => {
     window.open(`/api/pdf/exam/${this.props.filename}`, '_blank');
+  };
+
+  reportProblem = () => {
+    const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
+    const body = encodeURIComponent(`Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category}' ...`);
+    window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
   };
 
   setAllHidden = (hidden: boolean) => {
@@ -322,6 +336,9 @@ export default class Exam extends React.Component<Props, State> {
           </div>
           <div>
             <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
+          </div>
+          <div>
+            <button onClick={this.reportProblem}>Report Problem</button>
           </div>
           {this.state.canEdit && [
             <div key="metadata">
