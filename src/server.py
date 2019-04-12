@@ -51,6 +51,7 @@ IMAGE_MIME_TYPES = {
 }
 PDF_DIR = {
     'exam': EXAM_DIR,
+    'payment_exam': EXAM_DIR,
     'printonly': PRINTONLY_DIR,
     'solution': SOLUTION_DIR,
 }
@@ -71,6 +72,10 @@ EXAM_METADATA = [
     "payment_category",
     "has_printonly",
     "has_solution",
+    "is_payment_exam",
+    "payment_uploader",
+    "payment_uploader_displayname",
+    "payment_exam_checked",
 ]
 EXAM_METADATA_INTERNAL = [
     "import_claim",
@@ -78,6 +83,10 @@ EXAM_METADATA_INTERNAL = [
     "import_claim_time",
     "has_printonly",
     "has_solution",
+    "is_payment_exam",
+    "payment_uploader",
+    "payment_uploader_displayname",
+    "payment_exam_checked",
 ]
 CATEGORY_METADATA = [
     "semester",
@@ -561,6 +570,22 @@ def list_import_exams():
         return catres[cat]
 
     exams = [exam for exam in exams if check(exam)]
+    return success(value=list(sorted(exams, key=lambda x: (x["category"], x["displayname"]))))
+
+
+@app.route("/api/listpaymentcheckexams")
+@auth.login_required
+@require_admin
+def list_payment_check_exams():
+    exams = exam_metadata.find({
+        "is_payment_exam": True,
+        "payment_exam_checked": False,
+    }, {
+        "filename": 1,
+        "displayname": 1,
+        "payment_uploader": 1,
+        "payment_uploader_displayname": 1,
+    })
     return success(value=list(sorted(exams, key=lambda x: (x["category"], x["displayname"]))))
 
 
@@ -1169,6 +1194,36 @@ def get_resolved_filename(resolve_alias):
 def get_examtypes():
     types = list(exam_metadata.distinct("examtype", {}))
     return success(value=types)
+
+
+@app.route("/api/exam/<filename>/markpaymentchecked", methods=["POST"])
+@auth.login_required
+@require_admin
+def payment_exam_mark_checked(filename):
+    metadata = exam_metadata.find_one({
+        "filename": filename
+    })
+    if not metadata.get("is_payment_exam"):
+        return not_possible("Exam is not a paid exam")
+    if metadata.get("payment_exam_checked"):
+        return not_possible("Exam was already checked")
+    set_exam_metadata(filename, {
+        "payment_exam_checked": True
+    })
+    payment = payments.find({
+        "username": metadata["payment_uploader"],
+        "category": metadata["payment_category"],
+        "check_time": "",
+    }).sort([("payment_time", -1)]).limit(1)
+    if payment:
+        payments.update_one({
+            "_id": payment[0]["_id"]
+        }, {
+            "$set": {
+                "check_time": datetime.now(timezone.utc).isoformat(),
+            }
+        })
+    return success()
 
 
 @app.route("/api/exam/<filename>/remove", methods=["POST"])
@@ -1968,9 +2023,32 @@ def add_payment():
         "active": True,
         "payment_time": datetime.now(timezone.utc).isoformat(),
         "uploaded_filename": "",
-        "uploadtime": "",
         "check_time": "",
         "refund_time": "",
+    })
+    return success()
+
+
+@app.route("/api/payment/refund", methods=["POST"])
+@auth.login_required
+@require_admin
+def refund_payment():
+    oid = request.form.get('oid')
+    if not oid:
+        return not_possible("Missing ID")
+    payment = payments.find_one({
+        "_id": ObjectId(oid)
+    })
+    if not payment:
+        return not_found()
+    if payment.get("refund_time"):
+        return not_possible("Payment was already refunded")
+    payments.update_one({
+        "_id": ObjectId(oid)
+    }, {
+        "$set": {
+            "refund_time": datetime.now(timezone.utc).isoformat(),
+        }
     })
     return success()
 
@@ -1996,11 +2074,14 @@ def get_user_payments(username):
     """
     user_payments = list(payments.find({
         "username": username,
-        "active": True,
     }, {
         "_id": 1,
+        "active": 1,
         "category": 1,
         "payment_time": 1,
+        "uploaded_filename": 1,
+        "check_time": 1,
+
     }))
     for payment in user_payments:
         if not payment_still_valid(payment):
@@ -2011,7 +2092,9 @@ def get_user_payments(username):
                     "active": False
                 }
             })
-    user_payments = list(map(lambda x: x["category"], filter(lambda x: payment_still_valid(x), user_payments)))
+            payment["acitve"] = False
+        payment["oid"] = payment["_id"]
+        del payment["_id"]
     return user_payments
 
 
@@ -2142,7 +2225,7 @@ def uploadpdf(pdftype):
     Optional POST Parameter 'filename' of the exam this file is associated. Is ignored for new exams.
     Optional POST Parameter 'replace' which should be 1 if the file should be replaced.
     """
-    if pdftype not in ['exam', 'printonly', 'solution']:
+    if pdftype not in ['exam', 'printonly', 'solution', 'payment_exam']:
         return not_possible('Unknown pdf type')
     username = auth.username()
 
@@ -2152,13 +2235,14 @@ def uploadpdf(pdftype):
         return not_possible("No valid file found")
 
     is_replace = request.form.get('replace', '0') != '0'
-    if is_replace or pdftype != 'exam':
+    if is_replace or (pdftype != 'exam' and pdftype != 'payment_exam'):
         filename = request.form.get('filename')
         if not filename:
             return not_possible("Missing filename")
         if not has_admin_rights_for_exam(username, filename):
             return not_allowed()
     else:
+        assert pdftype in ['exam', 'payment_exam']
         filename = generate_filename(8, EXAM_DIR, ".pdf")
         if is_file_in_minio(EXAM_DIR, filename):
             # This should not happen!
@@ -2167,16 +2251,40 @@ def uploadpdf(pdftype):
         category = request.form.get("category", "") or "default"
         if not category_exists(category):
             return not_possible("Category does not exist")
-        if not has_admin_rights_for_category(username, category):
-            return not_possible("No permission for category")
+        if pdftype == 'exam':
+            if not has_admin_rights_for_category(username, category):
+                return not_possible("No permission for category")
+        elif pdftype == 'payment_exam':
+            category = category_metadata.find_one({
+                "category": category
+            }, {
+                "has_payments": 1
+            })
+            if not category.get('has_payments'):
+                return not_possible("Category is not valid")
+        else:
+            assert False
 
         init_exam_metadata(filename)
         displayname = request.form.get("displayname", "") or orig_filename
-        new_metadata = {
-            "category": category,
-            "displayname": displayname,
-            "resolve_alias": orig_filename
-        }
+        if pdftype == 'exam':
+            new_metadata = {
+                "category": category,
+                "displayname": displayname,
+                "resolve_alias": orig_filename
+            }
+        elif pdftype == 'payment_exam':
+            new_metadata = {
+                "category": category,
+                "displayname": displayname,
+                "payment_category": category,
+                "is_payment_exam": True,
+                "payment_uploader": username,
+                "payment_uploader_displayname": get_real_name(username),
+                "payment_exam_checked": False,
+            }
+        else:
+            assert False
         set_exam_metadata(filename, new_metadata)
 
     if not is_replace and is_file_in_minio(PDF_DIR[pdftype], filename):

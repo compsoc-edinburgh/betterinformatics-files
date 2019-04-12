@@ -144,6 +144,15 @@ export interface UserInfo {
   score_legacy: number;
 }
 
+export interface PaymentInfo {
+  oid: string;
+  active: boolean;
+  category: string;
+  payment_time: string;
+  uploaded_filename: string;
+  check_time: string;
+}
+
 export interface FeedbackEntry {
   oid: string;
   text: string;

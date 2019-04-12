@@ -1,6 +1,6 @@
 import * as React from "react";
 import {fetchapi, fetchpost} from "../fetch-utils";
-import {NotificationInfo, UserInfo} from "../interfaces";
+import {NotificationInfo, PaymentInfo, UserInfo} from "../interfaces";
 import NotificationComponent from "../components/notification";
 import AutocompleteInput from '../components/autocomplete-input';
 import {css} from "glamor";
@@ -49,7 +49,7 @@ interface State {
   userInfo: UserInfo;
   showAll: boolean;
   notifications: NotificationInfo[];
-  payments: string[];
+  payments: PaymentInfo[];
   enabledNotifications: number[];
   categories: string[];
   newPaymentCategory: string;
@@ -284,7 +284,9 @@ export default class UserInfoComponent extends React.Component<Props, State> {
             <h2>Paid Oral Exams</h2>
             <div>
               {this.state.payments.length > 0 && <ul>
-                {this.state.payments.map(payment => <li key={payment}>{payment}</li>)}
+                {this.state.payments.map(payment =>
+                  <li key={payment.category}>{payment.category}</li>
+                )}
               </ul>}
               {this.props.isAdmin && <div>
                 <AutocompleteInput value={this.state.newPaymentCategory} onChange={ev => this.setState({newPaymentCategory: ev.target.value})}
