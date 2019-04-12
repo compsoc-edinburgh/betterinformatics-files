@@ -95,8 +95,6 @@ export class SectionRenderer {
     this.pages[page].renderFunctions.push(renderFunction);
     if (this.pages[page].renderFunctions.length === 1 && !this.pages[page].isRendered) {
       this.renderPage(page);
-    } else {
-      renderFunction();
     }
   }
 
@@ -161,6 +159,38 @@ export class SectionRenderer {
       dst.w,
       dst.h,
     );
+  }
+
+  renderTextLayer(target: HTMLDivElement, canvas: HTMLCanvasElement, start: CutPosition, end: CutPosition) {
+    const page = start.page-1;
+    const pdfpage = this.pages[page].page;
+    let viewport = pdfpage.getViewport(1);
+    viewport = pdfpage.getViewport(this.targetWidth / viewport.width);
+    const src = SectionRenderer.sourceDimensions(viewport, start, end);
+    target.innerHTML = "";
+    pdfpage.getTextContent()
+      .then(texts => {
+        // tslint:disable-next-line:no-any
+        const PDFJS = pdfjs as any;
+        let divs: HTMLElement[] = [];
+        PDFJS.renderTextLayer({
+          textContent: texts,
+          container: target,
+          viewport: viewport,
+          textDivs: divs,
+        }).promise.then(() => {
+          divs.forEach(div => {
+            const top = parseFloat(div.style.top || "0");
+            if ((top < src.y) || (src.y + src.h < top)) {
+              if (div.parentElement) {
+                div.parentElement.removeChild(div);
+              }
+            } else {
+              div.style.top = (top - src.y) + "px";
+            }
+          });
+        });
+      });
   }
 }
 
