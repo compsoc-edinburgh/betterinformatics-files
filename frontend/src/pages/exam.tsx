@@ -220,7 +220,11 @@ export default class Exam extends React.Component<Props, State> {
     const relative = yoff / boundingRect.height;
     const start = section.start.position;
     const end = section.end.position;
-    const relHeight = start + relative * (end - start);
+    let relHeight = start + relative * (end - start);
+
+    if (!ev.shiftKey && this.state.renderer) {
+      relHeight = this.state.renderer.optimizeCutPosition(section.start.page-1, relHeight);
+    }
 
     fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
       pageNum: section.start.page,
@@ -230,6 +234,11 @@ export default class Exam extends React.Component<Props, State> {
         if (this.state.pdf) {
           this.loadSectionsFromBackend(this.state.pdf.numPages);
         }
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
       });
   };
 
@@ -300,14 +309,11 @@ export default class Exam extends React.Component<Props, State> {
       }
       return <div>You can not view this exam at this time.</div>
     }
-    if (this.state.error) {
-      return <div>Could not load exam... {this.state.error}</div>;
-    }
     const {renderer, width, dpr, sections} = this.state;
     const wikitransform = this.state.savedMetaData.legacy_solution ? this.state.savedMetaData.legacy_solution.split("/").pop() : "";
     return (
       <div>
-
+        {this.state.error && <div>{this.state.error}</div>}
         <div {...styles.sectionsButton}>
           <div>
             <button onClick={this.gotoPDF}>Download PDF</button>
@@ -366,6 +372,7 @@ export default class Exam extends React.Component<Props, State> {
                       renderer={renderer}
                       width={width}
                       dpr={dpr}
+                      renderText={!this.state.addingSectionsActive}
                       // ts does not like it if this is undefined...
                       onClick={(this.state.canEdit && this.state.addingSectionsActive) ? this.addSection : (ev) => ev}
                     />

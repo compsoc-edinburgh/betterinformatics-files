@@ -1,7 +1,7 @@
 import {Section, AnswerSection, SectionKind, PdfSection, ServerCutPosition} from "./interfaces";
 import {fetchapi} from "./fetch-utils";
 
-function createPdfSection(key: number, page: number, start: number, end: number): PdfSection {
+function createPdfSection(key: string, page: number, start: number, end: number): PdfSection {
   return {
     key: key,
     kind: SectionKind.Pdf,
@@ -30,7 +30,8 @@ export async function loadSections(
       cuts[i].forEach((cut: ServerCutPosition) => {
         const {relHeight: position, oid, cutVersion} = cut;
         if (position !== lastpos) {
-          sections.push(createPdfSection(akey, i, lastpos, position));
+          const key = akey + "-" + lastpos + "-" + position;
+          sections.push(createPdfSection(key, i, lastpos, position));
           akey++;
           lastpos = position;
         }
@@ -48,7 +49,8 @@ export async function loadSections(
       });
     }
     if (lastpos < 1) {
-      sections.push(createPdfSection(akey, i, lastpos, 1));
+      const key = akey + "-" + lastpos + "-" + 1;
+      sections.push(createPdfSection(key, i, lastpos, 1));
       akey++;
     }
   }

@@ -9,6 +9,7 @@ interface Props {
   renderer: SectionRenderer;
   width: number;
   dpr: number; // Device Pixel Ratio
+  renderText: boolean;
   onClick: ((ev: React.MouseEvent<HTMLElement>, section: PdfSection) => void);
 }
 
@@ -90,11 +91,10 @@ export default class PdfSectionComp extends React.Component<Props> {
     if (!this.ctx || !this.visible) {
       return;
     }
-    this.needRender = false;
 
     const {section, renderer, dpr} = this.props;
     const dim = this.sectionDimensions();
-    renderer.render(
+    this.needRender = !renderer.render(
       {context: this.ctx, width: dim.width * dpr, height: dim.height * dpr},
       section.start,
       section.end,
@@ -127,6 +127,9 @@ export default class PdfSectionComp extends React.Component<Props> {
       return;
     }
     this.ctx = ctx;
+    if (this.needRender) {
+      this.renderCanvas();
+    }
     if (this.textWrap) {
       this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end);
     }
@@ -159,8 +162,7 @@ export default class PdfSectionComp extends React.Component<Props> {
           }}
           {...styles.canvas}
         />
-        <div {...styles.textLayer} ref={this.saveTextRef}>
-        </div>
+        {this.props.renderText && <div {...styles.textLayer} ref={this.saveTextRef}/>}
       </div>
     );
   }

@@ -40,7 +40,7 @@ export class SectionRenderer {
     this.pdf = pdf;
   }
 
-  private renderPage(page: number) {
+  renderPage(page: number) {
     if (this.pages[page].isRendered) {
       this.freePage(page);
     }
@@ -68,7 +68,7 @@ export class SectionRenderer {
     });
   }
 
-  private freePage(page: number) {
+  freePage(page: number) {
     const rendered = this.pages[page].rendered;
     if (rendered) {
       rendered.canvas.remove();
@@ -139,7 +139,7 @@ export class SectionRenderer {
     const page = start.page-1;
     const rendered = this.pages[page].rendered;
     if (!rendered) {
-      return;
+      return false;
     }
     const src = SectionRenderer.sourceDimensions(rendered.viewport, start, end);
     const dst = {
@@ -159,6 +159,7 @@ export class SectionRenderer {
       dst.w,
       dst.h,
     );
+    return true;
   }
 
   renderTextLayer(target: HTMLDivElement, canvas: HTMLCanvasElement, start: CutPosition, end: CutPosition) {
@@ -191,6 +192,83 @@ export class SectionRenderer {
           });
         });
       });
+  }
+
+  /**
+   * Optimize the position of the cut. If the line of the cut is "clean", it will try to have a
+   * margin of 20 px to the closest text. If this is not possible, it will be placed in the middle.
+   * If the cut position is "dirty", the next clean sections to the top and bottom will be located
+   * and the larger of them will be taken. It is then handled as if the click was in this section.
+   */
+  optimizeCutPosition(page: number, relHeight: number): number {
+    const rendered = this.pages[page].rendered;
+    if (!this.pages[page].isRendered || !rendered) {
+      return relHeight;
+    }
+    const width = rendered.canvas.width;
+    const height = rendered.canvas.height;
+    const clickedy = Math.ceil(height * relHeight);
+    const desiredMargin = width / 60;
+
+    const isPure = (y: number) => {
+      const line = rendered.context.getImageData(0, y, width, 1).data;
+      for(let i = 0; i < 4*width; i++) {
+        if (line[i] !== 255) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    let topPure = 0;
+    let botPure = 0;
+
+    if (isPure(clickedy)) {
+      topPure = clickedy;
+      botPure = clickedy;
+      while (topPure > 0 && isPure(topPure-1)) {
+        topPure--;
+      }
+      while (botPure < height-1 && isPure(botPure+1)) {
+        botPure++;
+      }
+    } else {
+      let topBotPure = clickedy-1;
+      let botTopPure = clickedy+1;
+      while (topBotPure > 0 && !isPure(topBotPure)) {
+        topBotPure--;
+      }
+      while (botTopPure < height-1 && !isPure(botTopPure)) {
+        botTopPure++;
+      }
+      let topTopPure = topBotPure;
+      let botBotPure = botTopPure;
+
+      while (topTopPure > 0 && isPure(topTopPure-1)) {
+        topTopPure--;
+      }
+      while (botBotPure < height-1 && isPure(botBotPure+1)) {
+        botBotPure++;
+      }
+
+      if (topBotPure === topTopPure && botBotPure === botTopPure) {
+        return relHeight
+      }
+
+      if (topBotPure - topTopPure > botBotPure - botTopPure) {
+        topPure = topTopPure;
+        botPure = topBotPure;
+      } else {
+        topPure = botTopPure;
+        botPure = botBotPure;
+      }
+    }
+
+    if (botPure - topPure < 2 * desiredMargin) {
+      return ((botPure + topPure) / 2) / height;
+    } else {
+      return (topPure + desiredMargin) / height;
+    }
   }
 }
 
