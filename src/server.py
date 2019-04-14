@@ -646,7 +646,7 @@ def get_answer_section_cutversions(filename):
     return success(value=res)
 
 
-@app.route("/api/exam/<filename>/newanswersection", methods=["POST"])
+@app.route("/api/exam/<filename>/newanswersection", methods=['POST'])
 @auth.login_required
 @require_exam_admin
 def new_answer_section(filename):
@@ -685,7 +685,7 @@ def new_answer_section(filename):
     return success(value=new_doc)
 
 
-@app.route("/api/exam/<filename>/removeanswersection", methods=["POST"])
+@app.route("/api/exam/<filename>/removeanswersection", methods=['POST'])
 @auth.login_required
 @require_exam_admin
 def remove_answer_section(filename):
@@ -712,7 +712,7 @@ def remove_answer_section(filename):
         return not_possible("Could not delete answersection")
 
 
-@app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=["POST"])
+@app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=['POST'])
 @auth.login_required
 def set_like(filename, sectionoid, answeroid):
     """
@@ -767,7 +767,7 @@ def set_like(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=["POST"])
+@app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
 @auth.login_required
 def add_answer(filename, sectionoid):
     """
@@ -812,7 +812,7 @@ def add_answer(filename, sectionoid):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=["POST"])
+@app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=['POST'])
 @auth.login_required
 def set_answer(filename, sectionoid):
     """
@@ -863,7 +863,7 @@ def set_answer(filename, sectionoid):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=["POST"])
+@app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=['POST'])
 @auth.login_required
 def remove_answer_api(filename, sectionoid):
     """
@@ -908,7 +908,7 @@ def remove_answer(answeroid):
     }})
 
 
-@app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=["POST"])
+@app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
 @auth.login_required
 def add_comment(filename, sectionoid, answeroid):
     """
@@ -969,7 +969,7 @@ def add_comment(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=["POST"])
+@app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=['POST'])
 @auth.login_required
 def set_comment(filename, sectionoid, answeroid):
     """
@@ -1011,7 +1011,7 @@ def set_comment(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=["POST"])
+@app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=['POST'])
 @auth.login_required
 def remove_comment(filename, sectionoid, answeroid):
     """
@@ -1050,7 +1050,7 @@ def remove_comment(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
-@app.route("/api/exam/<filename>/claim", methods=["POST"])
+@app.route("/api/exam/<filename>/claim", methods=['POST'])
 @auth.login_required
 @require_exam_admin
 def claim_exam_api(filename):
@@ -1128,7 +1128,7 @@ def get_exam_metadata(filename):
     return success(value=metadata)
 
 
-@app.route("/api/exam/<filename>/metadata", methods=["POST"])
+@app.route("/api/exam/<filename>/metadata", methods=['POST'])
 @auth.login_required
 @require_exam_admin
 def set_exam_metadata_api(filename):
@@ -1176,7 +1176,7 @@ def set_exam_metadata(filename, metadata):
     filtered = filter_dict(metadata, EXAM_METADATA)
     for key in ["public", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer"]:
         if key in filtered:
-            filtered[key] = filtered[key] not in [None, "", "false", "0", False]
+            filtered[key] = filtered[key] not in [None, False, "", "false", "False", "0"]
     if filtered:
         exam_metadata.update_one({
             "filename": filename
@@ -1201,7 +1201,7 @@ def get_examtypes():
     return success(value=types)
 
 
-@app.route("/api/exam/<filename>/markpaymentchecked", methods=["POST"])
+@app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
 @auth.login_required
 @require_admin
 def payment_exam_mark_checked(filename):
@@ -1235,7 +1235,7 @@ def payment_exam_mark_checked(filename):
     return success()
 
 
-@app.route("/api/exam/<filename>/remove", methods=["POST"])
+@app.route("/api/exam/<filename>/remove", methods=['POST'])
 @auth.login_required
 @require_admin
 def remove_exam(filename):
@@ -1374,7 +1374,7 @@ def resolve_category_slug(slug):
     return None
 
 
-@app.route("/api/category/add", methods=["POST"])
+@app.route("/api/category/add", methods=['POST'])
 @auth.login_required
 @require_admin
 def add_category():
@@ -1396,7 +1396,7 @@ def add_category():
     return success(slug=slug)
 
 
-@app.route("/api/category/remove", methods=["POST"])
+@app.route("/api/category/remove", methods=['POST'])
 @auth.login_required
 @require_admin
 def remove_category():
@@ -1418,7 +1418,7 @@ def remove_category():
         return not_possible("Could not delete category")
 
 
-@app.route("/api/category/addadmin", methods=["POST"])
+@app.route("/api/category/addadmin", methods=['POST'])
 @auth.login_required
 @require_admin
 def add_category_admin():
@@ -1441,7 +1441,7 @@ def add_category_admin():
     return success()
 
 
-@app.route("/api/category/removeadmin", methods=["POST"])
+@app.route("/api/category/removeadmin", methods=['POST'])
 @auth.login_required
 @require_admin
 def remove_category_admin():
@@ -1503,7 +1503,7 @@ def get_category_metadata():
     return success(value=metadata)
 
 
-@app.route("/api/category/metadata", methods=["POST"])
+@app.route("/api/category/metadata", methods=['POST'])
 @auth.login_required
 @require_admin
 def set_category_metadata_api():
@@ -1528,7 +1528,7 @@ def set_category_metadata(category, metadata):
     filtered = filter_dict(metadata, CATEGORY_METADATA)
     for key in ["has_payments"]:
         if key in filtered:
-            filtered[key] = filtered[key] not in [None, "", "false", "0", False]
+            filtered[key] = filtered[key] not in [None, False, "", "false", "False", "0"]
     if filtered:
         category_metadata.update_one({
             "category": category
@@ -1583,7 +1583,7 @@ def meta_category_ensure_existence(meta1, meta2):
             })
 
 
-@app.route("/api/metacategory/setorder", methods=["POST"])
+@app.route("/api/metacategory/setorder", methods=['POST'])
 @auth.login_required
 @require_admin
 def meta_category_set_order():
@@ -1604,18 +1604,23 @@ def meta_category_set_order():
         meta_category.update_one({
             "displayname": meta1,
         }, {
-            "order": order,
+            "$set": {
+                "order": order,
+            }
         })
     else:
         meta_category.update_one({
             "displayname": meta1,
             "meta2.displayname": meta2,
         }, {
-            "meta2.$.order": order,
+            "$set": {
+                "meta2.$.order": order,
+            }
         })
+    return success()
 
 
-@app.route("/api/metacategory/addcategory", methods=["POST"])
+@app.route("/api/metacategory/addcategory", methods=['POST'])
 @auth.login_required
 @require_admin
 def meta_category_add_category():
@@ -1642,7 +1647,7 @@ def meta_category_add_category():
     return success()
 
 
-@app.route("/api/metacategory/removecategory", methods=["POST"])
+@app.route("/api/metacategory/removecategory", methods=['POST'])
 @auth.login_required
 @require_admin
 def meta_category_remove_category():
@@ -1893,7 +1898,7 @@ def get_notification_enabled():
     return success(value=enabled["enabled_notifications"])
 
 
-@app.route("/api/notifications/setenabled", methods=["POST"])
+@app.route("/api/notifications/setenabled", methods=['POST'])
 @auth.login_required
 def set_notification_enabled():
     username = auth.username()
@@ -1949,7 +1954,7 @@ def get_notifications_all():
     return success(value=get_notifications(False))
 
 
-@app.route("/api/notifications/setread", methods=["POST"])
+@app.route("/api/notifications/setread", methods=['POST'])
 @auth.login_required
 def set_notification_read():
     username = auth.username()
@@ -1996,7 +2001,7 @@ def send_user_notification(username, type, sender, title, message, link):
 # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT # PAYMENT#
 ########################################################################################################################
 
-@app.route("/api/payment/pay", methods=["POST"])
+@app.route("/api/payment/pay", methods=['POST'])
 @auth.login_required
 @require_admin
 def add_payment():
@@ -2038,7 +2043,7 @@ def add_payment():
     return success()
 
 
-@app.route("/api/payment/remove", methods=["POST"])
+@app.route("/api/payment/remove", methods=['POST'])
 @auth.login_required
 @require_admin
 def remove_payment():
@@ -2054,7 +2059,7 @@ def remove_payment():
     return success()
 
 
-@app.route("/api/payment/refund", methods=["POST"])
+@app.route("/api/payment/refund", methods=['POST'])
 @auth.login_required
 @require_admin
 def refund_payment():
@@ -2327,7 +2332,7 @@ def uploadpdf(pdftype):
     return success(filename=filename)
 
 
-@app.route("/api/removepdf/<pdftype>", methods=["POST"])
+@app.route("/api/removepdf/<pdftype>", methods=['POST'])
 @auth.login_required
 def removepdf(pdftype):
     """
@@ -2396,7 +2401,7 @@ def pdf(pdftype, filename):
         return not_found()
 
 
-@app.route("/api/printpdf/<filename>", methods=["POST"])
+@app.route("/api/printpdf/<filename>", methods=['POST'])
 @auth.login_required
 def print_pdf(filename):
     """
