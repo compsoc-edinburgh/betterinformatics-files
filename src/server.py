@@ -320,7 +320,7 @@ def has_admin_rights_for_any_category(username):
     maybe_admin = category_metadata.find({
         "admins": username
     })
-    res = bool(maybe_admin)
+    res = bool(list(maybe_admin))
     admin_any_category_cache[username] = res
     return res
 
@@ -430,6 +430,7 @@ def test():
 
 @app.route("/")
 @app.route("/uploadpdf")
+@app.route("/submittranscript")
 @app.route("/feedback")
 @app.route("/scoreboard")
 @app.route("/importqueue")
@@ -569,7 +570,10 @@ def list_import_exams():
             catres[cat] = has_admin_rights_for_category(username, cat)
         return catres[cat]
 
-    exams = [exam for exam in exams if check(exam)]
+    if has_admin_rights(username):
+        exams = list(exams)
+    else:
+        exams = [exam for exam in exams if check(exam)]
     return success(value=list(sorted(exams, key=lambda x: (x["category"], x["displayname"]))))
 
 
@@ -583,6 +587,7 @@ def list_payment_check_exams():
     }, {
         "filename": 1,
         "displayname": 1,
+        "category": 1,
         "payment_uploader": 1,
         "payment_uploader_displayname": 1,
     })
@@ -1208,19 +1213,23 @@ def payment_exam_mark_checked(filename):
     if metadata.get("payment_exam_checked"):
         return not_possible("Exam was already checked")
     set_exam_metadata(filename, {
-        "payment_exam_checked": True
+        "payment_exam_checked": True,
+        "finished_wiki_transfer": True,
+        "public": True,
     })
     payment = payments.find({
         "username": metadata["payment_uploader"],
         "category": metadata["payment_category"],
         "check_time": "",
     }).sort([("payment_time", -1)]).limit(1)
+    payment = list(payment)
     if payment:
         payments.update_one({
             "_id": payment[0]["_id"]
         }, {
             "$set": {
                 "check_time": datetime.now(timezone.utc).isoformat(),
+                "uploaded_filename": filename,
             }
         })
     return success()
@@ -2014,7 +2023,7 @@ def add_payment():
         "category": category,
         "active": True
     })
-    if maybe_payment:
+    if maybe_payment and payment_still_valid(maybe_payment):
         return success()
     payments.insert_one({
         "_id": ObjectId(),
@@ -2026,6 +2035,22 @@ def add_payment():
         "check_time": "",
         "refund_time": "",
     })
+    return success()
+
+
+@app.route("/api/payment/remove", methods=["POST"])
+@auth.login_required
+@require_admin
+def remove_payment():
+    oid = request.form.get('oid')
+    if not oid:
+        return not_possible("Missing argument")
+    oid = ObjectId(oid)
+    removed = payments.delete_one({
+        "_id": oid
+    })
+    if removed.deleted_count == 0:
+        return not_possible("Could not delete payment")
     return success()
 
 
@@ -2062,7 +2087,6 @@ def payment_still_valid(payment):
     resetdates = [datetime(year, month, 1, tzinfo=now.tzinfo) for month in [3, 9] for year in [now.year-1, now.year]]
     for reset in resetdates:
         if now > reset > then:
-            print("now", now, "reset", reset, "then", then, file=sys.stderr)
             return False
     return True
 
@@ -2081,7 +2105,7 @@ def get_user_payments(username):
         "payment_time": 1,
         "uploaded_filename": 1,
         "check_time": 1,
-
+        "refund_time": 1,
     }))
     for payment in user_payments:
         if not payment_still_valid(payment):
@@ -2095,7 +2119,7 @@ def get_user_payments(username):
             payment["acitve"] = False
         payment["oid"] = payment["_id"]
         del payment["_id"]
-    return user_payments
+    return list(sorted(user_payments, key=lambda x: (not x["active"], x["category"])))
 
 
 def has_payed(username, category):
@@ -2255,12 +2279,12 @@ def uploadpdf(pdftype):
             if not has_admin_rights_for_category(username, category):
                 return not_possible("No permission for category")
         elif pdftype == 'payment_exam':
-            category = category_metadata.find_one({
+            maybe_category = category_metadata.find_one({
                 "category": category
             }, {
                 "has_payments": 1
             })
-            if not category.get('has_payments'):
+            if not maybe_category.get('has_payments'):
                 return not_possible("Category is not valid")
         else:
             assert False
@@ -2282,6 +2306,7 @@ def uploadpdf(pdftype):
                 "payment_uploader": username,
                 "payment_uploader_displayname": get_real_name(username),
                 "payment_exam_checked": False,
+                "examtype": "Transcripts",
             }
         else:
             assert False

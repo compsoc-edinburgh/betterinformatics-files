@@ -23,7 +23,7 @@ const styles = {
     boxShadow: Colors.cardShadow,
   }),
   unviewableExam: css({
-    color: colors.unviewableExam,
+    color: colors.inactiveElement,
   }),
   filterInput: css({
     width: "100%",
@@ -372,6 +372,9 @@ export default class Category extends React.Component<Props, State> {
     const catAdmin = this.props.isAdmin || this.state.category.catadmin;
     const cat = this.state.category;
     const offeredIn = getMetaCategoriesForCategory(this.state.metaCategories, cat.category);
+    const viewableExams = this.state.exams
+      .filter(exam => exam.public || catAdmin)
+      .filter(exam => filterMatches(this.state.filter, exam.displayname));
     return (<div {...styles.wrapper}>
       <h1>{cat.category}</h1>
       {this.state.category.semester && <p>Semester: {this.state.category.semester}</p>}
@@ -446,7 +449,12 @@ export default class Category extends React.Component<Props, State> {
                placeholder="Filter..." autoFocus={true} onKeyPress={listenEnter(this.openFirstExam)}/>
       </div>
       {
-        this.state.examTypes.map(examType => <div key={examType}>
+        this.state.examTypes
+          .filter(examType =>
+            viewableExams
+              .filter(exam => (exam.examtype || "Exams") === examType)
+              .length > 0)
+          .map(examType => <div key={examType}>
           <h2>{examType}</h2>
           <table>
             <thead>
@@ -460,9 +468,7 @@ export default class Category extends React.Component<Props, State> {
             </tr>
             </thead>
             <tbody>
-            {this.state.exams
-              .filter(exam => exam.public || catAdmin)
-              .filter(exam => filterMatches(this.state.filter, exam.displayname))
+            {viewableExams
               .filter(exam => (exam.examtype || "Exams") === examType)
               .map(exam => (
               <tr key={exam.filename}>

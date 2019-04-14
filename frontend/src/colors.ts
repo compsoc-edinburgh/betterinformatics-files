@@ -18,7 +18,7 @@ export default class Colors {
   static readonly activeImage = "#8cd6ff";
   static readonly linkBannerBackground = "#cccccc";
 
-  static readonly unviewableExam = "#b8b8b8";
+  static readonly inactiveElement = "#b8b8b8";
   static readonly silentText = "#909090";
   static readonly selectionBackground = "#6cc2ff";
 

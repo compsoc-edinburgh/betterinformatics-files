@@ -39,7 +39,14 @@ const styles = {
     "@media (max-width: 699px)": {
       width: "80%",
     },
-  })
+  }),
+  checkWrapper: css({
+    background: Colors.cardBackground,
+    width: "60%",
+    margin: "auto",
+    textAlign: "center",
+    padding: "5px 10px",
+  }),
 };
 
 interface Props {
@@ -92,6 +99,8 @@ export default class Exam extends React.Component<Props, State> {
       has_printonly: false,
       has_solution: false,
       payment_category: "",
+      is_payment_exam: false,
+      payment_exam_checked: false,
     },
     allShown: false,
     updateIntervalId: 0,
@@ -105,6 +114,14 @@ export default class Exam extends React.Component<Props, State> {
     window.addEventListener("resize", this.onResize);
     this.debouncedUpdatePDFWidth = debounce(this.updatePDFWidth, RERENDER_INTERVAL);
 
+    this.loadMetaData();
+
+    this.cutVersionInterval = setInterval(this.updateCutVersion, 60000);
+
+    this.loadPDF();
+  }
+
+  loadMetaData = () => {
     fetchapi(`/api/exam/${this.props.filename}/metadata`)
       .then((res) => {
         this.setState({
@@ -116,11 +133,7 @@ export default class Exam extends React.Component<Props, State> {
       .catch(err =>{
         this.setState({error: err.toString()});
       });
-
-    this.cutVersionInterval = setInterval(this.updateCutVersion, 60000);
-
-    this.loadPDF();
-  }
+  };
 
   loadPDF = async () => {
     // tslint:disable-next-line:no-any
@@ -319,6 +332,18 @@ export default class Exam extends React.Component<Props, State> {
     this.setDocumentTitle();
   };
 
+  markPaymentExamChecked = () => {
+    fetchpost(`/api/exam/${this.props.filename}/markpaymentchecked`, {})
+      .then(() => {
+        this.loadMetaData();
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
   render() {
     if (!this.state.savedMetaData.canView) {
       if (this.state.savedMetaData.payment_category.length > 0 && !this.state.savedMetaData.hasPayed) {
@@ -354,6 +379,11 @@ export default class Exam extends React.Component<Props, State> {
         {this.state.editingMetaData &&
           <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
                     onChange={this.metaDataChanged} onFinishEdit={this.toggleEditingMetadataActive}/>}
+        {this.state.savedMetaData.is_payment_exam && !this.state.savedMetaData.payment_exam_checked && <div {...styles.checkWrapper}>
+          This is a transcript of an oral exam. It needs to be checked whether it is a valid transcript.
+          <br/>
+          <button onClick={this.markPaymentExamChecked}>Mark Transcript as Checked</button>
+        </div>}
         {this.state.savedMetaData.has_printonly && <PrintExam filename={this.props.filename}/>}
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.linkBanner}>

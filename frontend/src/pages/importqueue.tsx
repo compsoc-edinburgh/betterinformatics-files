@@ -1,5 +1,5 @@
 import * as React from "react";
-import {CategoryExam} from "../interfaces";
+import {CategoryExam, CategoryPaymentExam} from "../interfaces";
 import {css} from "glamor";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import {Link} from "react-router-dom";
@@ -13,16 +13,18 @@ const styles = {
     margin: "auto",
   }),
   unviewableExam: css({
-    color: colors.unviewableExam,
+    color: colors.inactiveElement,
   }),
 };
 
 interface Props {
   username: string;
+  isAdmin: boolean;
 }
 
 interface State {
   exams: CategoryExam[];
+  paymentExams: CategoryPaymentExam[];
   includeHidden: boolean;
   error?: string;
 }
@@ -31,17 +33,22 @@ export default class ImportQueue extends React.Component<Props, State> {
 
   state: State = {
     exams: [],
+    paymentExams: [],
     includeHidden: false,
   };
 
   componentDidMount() {
     this.loadExams();
+    this.loadPaymentExams();
     document.title = "Import Queue - VIS Community Solutions";
   }
 
   componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
     if (prevState.includeHidden !== this.state.includeHidden) {
       this.loadExams();
+    }
+    if (this.props.isAdmin && !prevProps.isAdmin) {
+      this.loadPaymentExams();
     }
   }
 
@@ -50,6 +57,19 @@ export default class ImportQueue extends React.Component<Props, State> {
       .then(res => {
         this.setState({
           exams: res.value
+        });
+      })
+      .catch(()=>undefined);
+  };
+
+  loadPaymentExams = () => {
+    if (!this.props.isAdmin) {
+      return;
+    }
+    fetchapi('/api/listpaymentcheckexams')
+      .then(res => {
+        this.setState({
+          paymentExams: res.value
         });
       })
       .catch(()=>undefined);
@@ -93,6 +113,33 @@ export default class ImportQueue extends React.Component<Props, State> {
       return <div>Loading...</div>;
     }
     return (<div {...styles.wrapper}>
+      {this.state.paymentExams.length > 0 && <div>
+        <h1>Transcripts</h1>
+        <table>
+          <thead>
+          <tr>
+            <th>Category</th>
+            <th>Name</th>
+            <th>Uploader</th>
+          </tr>
+          </thead>
+          <tbody>
+          {this.state.paymentExams.map(exam => (
+            <tr key={exam.filename}>
+              <td>
+                {exam.category}
+              </td>
+              <td>
+                <Link to={'/exams/' + exam.filename} target="_blank">{exam.displayname}</Link>
+              </td>
+              <td>
+                <Link to={'/user/' + exam.payment_uploader}>{exam.payment_uploader_displayname}</Link>
+              </td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
+      </div>}
       <h1>Import Queue</h1>
       {this.state.error && <div>{this.state.error}</div>}
       <table>

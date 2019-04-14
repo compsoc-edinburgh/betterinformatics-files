@@ -5,6 +5,10 @@ import NotificationComponent from "../components/notification";
 import AutocompleteInput from '../components/autocomplete-input';
 import {css} from "glamor";
 import {listenEnter} from "../input-utils";
+import colors from "../colors";
+import * as moment from "moment";
+import GlobalConsts from "../globalconsts";
+import {Link} from "react-router-dom";
 
 const styles = {
   wrapper: css({
@@ -36,7 +40,18 @@ const styles = {
   }),
   notificationSettings: css({
     marginBottom: "40px",
-  })
+  }),
+  clickable: css({
+    cursor: "pointer",
+  }),
+  payment: css({
+    background: colors.cardBackground,
+    padding: "5px",
+    maxWidth: "300px",
+  }),
+  paymentInactive: css({
+    color: colors.inactiveElement,
+  }),
 };
 
 interface Props {
@@ -50,6 +65,7 @@ interface State {
   showAll: boolean;
   notifications: NotificationInfo[];
   payments: PaymentInfo[];
+  openPayment: string;
   enabledNotifications: number[];
   categories: string[];
   newPaymentCategory: string;
@@ -71,6 +87,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
     showAll: false,
     notifications: [],
     payments: [],
+    openPayment: "",
     enabledNotifications: [],
     categories: [],
     newPaymentCategory: "",
@@ -183,6 +200,43 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       });
   };
 
+  removePayment = (payment: PaymentInfo) => {
+    const confirmation = confirm("Remove Payment?");
+    if (confirmation) {
+      fetchpost('/api/payment/remove', {
+        oid: payment.oid,
+      })
+        .then(() => {
+          this.loadPayments();
+        })
+        .catch(err => {
+          this.setState({
+            error: err.toString()
+          });
+        });
+    }
+  };
+
+  refundPayment = (payment: PaymentInfo) => {
+    let confirmation = true;
+    if (!payment.uploaded_filename) {
+      confirmation = confirm("The payment does not have any associated exams. Really refund?");
+    }
+    if (confirmation) {
+      fetchpost('/api/payment/refund', {
+        oid: payment.oid,
+      })
+        .then(() => {
+          this.loadPayments();
+        })
+        .catch(err => {
+          this.setState({
+            error: err.toString()
+          });
+        });
+    }
+  };
+
   loadUnreadNotifications = () => {
     fetchapi('/api/notifications/unread')
       .then(res => {
@@ -285,7 +339,22 @@ export default class UserInfoComponent extends React.Component<Props, State> {
             <div>
               {this.state.payments.length > 0 && <ul>
                 {this.state.payments.map(payment =>
-                  <li key={payment.category}>{payment.category}</li>
+                  <li key={payment.category}>{(this.state.openPayment === payment.oid) && <div {...styles.payment}>
+                      <div {...styles.clickable} {...(payment.active ? undefined : styles.paymentInactive)} onClick={() => this.setState({openPayment: ""})}><b>{payment.category}</b></div>
+                    <div>
+                      Payment Time: {moment(payment.payment_time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
+                    </div>
+                    {payment.refund_time && <div>
+                        Refund Time: {moment(payment.refund_time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
+                    </div>}
+                    {payment.uploaded_filename && <div>
+                        <Link to={"/exams/" + payment.uploaded_filename}>Uploaded Transcript</Link>
+                    </div>}
+                    {!payment.refund_time && this.props.isAdmin && <div>
+                      <button onClick={() => this.refundPayment(payment)}>Mark Refunded</button>
+                      <button onClick={() => this.removePayment(payment)}>Remove Payment</button>
+                    </div>}
+                  </div> || <span {...styles.clickable} {...(payment.active ? undefined : styles.paymentInactive)} onClick={() => this.setState({openPayment: payment.oid})}>{payment.category}</span>}</li>
                 )}
               </ul>}
               {this.props.isAdmin && <div>

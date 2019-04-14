@@ -73,6 +73,14 @@ export interface CategoryExam {
   canView: boolean; // whether the exam can be viewed by the user
 }
 
+export interface CategoryPaymentExam {
+  displayname: string;
+  filename: string;
+  category: string;
+  payment_uploader: string;
+  payment_uploader_displayname: string;
+}
+
 export interface MetaCategory {
   displayname: string;
   meta2: {
@@ -119,6 +127,8 @@ export interface ExamMetaData {
   payment_category: string;
   has_printonly: boolean;
   has_solution: boolean;
+  is_payment_exam: boolean;
+  payment_exam_checked: boolean;
 }
 
 export interface NotificationInfo {
@@ -151,6 +161,7 @@ export interface PaymentInfo {
   payment_time: string;
   uploaded_filename: string;
   check_time: string;
+  refund_time: string;
 }
 
 export interface FeedbackEntry {

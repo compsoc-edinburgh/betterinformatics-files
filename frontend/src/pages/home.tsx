@@ -203,6 +203,9 @@ export default class Home extends React.Component<Props, State> {
 
   adminViews = () => {
     return <React.Fragment>
+      <div {...styles.category} {...globalcss.noLinkColor}>
+        <Link to='/submittranscript'><h1 {...styles.categoryTitle}>Submit transcript</h1></Link>
+      </div>
       {this.props.isCategoryAdmin &&
       <div {...styles.category} {...globalcss.noLinkColor}>
         <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
@@ -243,12 +246,12 @@ export default class Home extends React.Component<Props, State> {
             </div>
           </div>)}
         </div>)}
-        {(this.props.isCategoryAdmin || this.props.isAdmin) && <div>
+        <div>
           <h2>Admin</h2>
           <div {...styles.wrapper}>
             {this.adminViews()}
           </div>
-        </div>}
+        </div>
       </div>
     );
   };
