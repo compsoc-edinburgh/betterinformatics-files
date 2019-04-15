@@ -1,7 +1,7 @@
 import * as React from "react";
 import Exam from "./pages/exam";
 import UploadPDF from "./pages/uploadpdf";
-import Categorize from "./pages/categorize";
+import Category from "./pages/category";
 import Home from "./pages/home";
 import {Route, Switch} from "react-router";
 import Header from "./components/header";
@@ -9,6 +9,10 @@ import {css} from "glamor";
 import Feedback from "./pages/feedback";
 import Colors from "./colors";
 import {fetchapi} from "./fetch-utils";
+import Scoreboard from "./pages/scoreboard";
+import UserInfoComponent from "./pages/userinfo";
+import ImportQueue from "./pages/importqueue";
+import SubmitTranscript from "./pages/submittranscript";
 
 css.global('body', {
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
@@ -105,9 +109,8 @@ export default class App extends React.Component<{}, State> {
     isCategoryAdmin: false,
   };
 
-  async componentWillMount() {
-    fetchapi("/api/user")
-      .then(res => res.json())
+  componentDidMount() {
+    fetchapi("/api/me")
       .then(res => this.setState({
         username: res.username,
         displayname: res.displayname,
@@ -120,15 +123,33 @@ export default class App extends React.Component<{}, State> {
   render() {
     return (
       <div>
-        <Header username={this.state.displayname || "loading..."}/>
+        <Header username={this.state.username} displayName={this.state.displayname || "loading..."}/>
         <div {...styles.inner}>
           <Switch>
             <Route path="/exams/:filename" render={(props) => (
-              <Exam {...props} filename={props.match.params.filename}/>)}/>
+              <Exam {...props} filename={props.match.params.filename}/>
+            )}/>
+            <Route path="/user/:username" render={(props) => (
+              <UserInfoComponent {...props} isMyself={this.state.username === props.match.params.username}
+                        isAdmin={this.state.isAdmin} username={props.match.params.username}/>
+            )}/>
+            <Route path="/category/:category" render={(props) => (
+              <Category categorySlug={props.match.params.category} username={this.state.username} isAdmin={this.state.isAdmin}/>
+            )}/>
             <Route path="/uploadpdf" component={UploadPDF}/>
-            <Route path="/categorize" render={(props) => (<Categorize {...props} isAdmin={this.state.isAdmin}/>)}/>
-            <Route path="/feedback" render={(props) => (<Feedback {...props} isAdmin={this.state.isAdmin}/>)} />
-            <Route render={(props) => (<Home {...props} isAdmin={this.state.isAdmin} isCategoryAdmin={this.state.isCategoryAdmin}/>)}/>
+            <Route path="/submittranscript" component={SubmitTranscript}/>
+            <Route path="/scoreboard" render={(props) => (
+              <Scoreboard username={this.state.username}/>
+            )}/>
+            <Route path="/importqueue" render={(props) => (
+              <ImportQueue isAdmin={this.state.isAdmin} username={this.state.username}/>
+            )}/>
+            <Route path="/feedback" render={(props) => (
+              <Feedback {...props} isAdmin={this.state.isAdmin}/>
+            )}/>
+            <Route render={(props) => (
+              <Home {...props} isAdmin={this.state.isAdmin} isCategoryAdmin={this.state.isCategoryAdmin}/>
+            )}/>
           </Switch>
         </div>
       </div>

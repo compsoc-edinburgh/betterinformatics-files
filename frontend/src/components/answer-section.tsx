@@ -3,7 +3,7 @@ import {AnswerSection, SectionKind} from "../interfaces";
 import {loadAnswerSection} from "../exam-loader";
 import {fetchpost} from '../fetch-utils'
 import {css} from "glamor";
-import Answer from "./answer";
+import AnswerComponent from "./answer";
 
 interface Props {
   filename: string;
@@ -13,6 +13,7 @@ interface Props {
   onSectionChange: () => void;
   onToggleHidden: () => void;
   hidden: boolean;
+  cutVersion: number;
 }
 
 interface State {
@@ -62,26 +63,44 @@ export default class AnswerSectionComponent extends React.Component<Props, State
 
   state: State = {};
 
-  async componentWillMount() {
+  componentDidMount() {
     loadAnswerSection(this.props.filename, this.props.oid)
-      .then((res) => this.setState({section: res}))
+      .then((res) => {
+        this.setState({section: res});
+        const hash = window.location.hash.substr(1);
+        const hashAnswer = res.answers.find((answer) => answer.oid === hash);
+        if (hashAnswer) {
+          this.props.onToggleHidden();
+          hashAnswer.divRef.scrollIntoView();
+        }
+      })
       .catch(() => undefined);
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>) {
+    if (prevProps.cutVersion !== this.props.cutVersion) {
+      loadAnswerSection(this.props.filename, this.props.oid)
+        .then(res => {
+          this.setState({section: res});
+        })
+        .catch(() => undefined);
+    }
   }
 
   removeSection = async () => {
     const confirmation = confirm("Remove answer section with all answers?");
     if (confirmation) {
-      await fetchpost(`/api/exam/${this.props.filename}/removeanswersection`, {
+      fetchpost(`/api/exam/${this.props.filename}/removeanswersection`, {
         oid: this.props.oid
+      }).then(() => {
+        this.props.onSectionChange();
       });
-      this.props.onSectionChange();
     }
   };
 
-  addAnswer = async (legacy: boolean) => {
+  addAnswer = (legacy: boolean) => {
     const postdata = legacy ? {legacyuser: 1} : {};
     fetchpost(`/api/exam/${this.props.filename}/addanswer/${this.props.oid}`, postdata)
-      .then((res) => res.json())
       .then((res) => {
         this.onSectionChanged(res);
         if (this.state.section && this.props.hidden) {
@@ -92,7 +111,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
   };
 
   // takes the parsed json for the answersection which was returned from the server
-  onSectionChanged = async (res: {value: {answersection: AnswerSection}}) => {
+  onSectionChanged = (res: {value: {answersection: AnswerSection}}) => {
     let answersection = res.value.answersection;
     //answersection.key = this.props.oid;
     answersection.kind = SectionKind.Answer;
@@ -117,7 +136,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
     return (
       <div {...styles.wrapper}>
         {section.answers.length > 0 && <div {...styles.answerWrapper}>{section.answers.map(e =>
-          <Answer key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
+          <AnswerComponent key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
         )}</div>}
         <div key="showhidebutton" {...styles.threebuttons}>
           <div {...styles.leftButton}>

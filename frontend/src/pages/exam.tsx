@@ -1,7 +1,7 @@
 import * as React from "react";
-import {renderDocument, SectionRenderer} from "../split-render";
+import {createSectionRenderer, SectionRenderer} from "../split-render";
 import {loadSections} from "../exam-loader";
-import {Section, SectionKind, PdfSection, ExamMetaData} from "../interfaces";
+import {ExamMetaData, PdfSection, Section, SectionKind} from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
 import {debounce} from "lodash";
 import {css} from "glamor";
@@ -10,6 +10,7 @@ import AnswerSectionComponent from "../components/answer-section";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import MetaData from "../components/metadata";
 import Colors from "../colors";
+import PrintExam from "../components/print-exam";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -19,21 +20,33 @@ const styles = {
     margin: "auto",
   }),
   sectionsButton: css({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
     position: ["sticky", "-webkit-sticky"],
     top: "20px",
-    "div": {
-      marginLeft: "17px",
-    },
+    float: "right",
+    zIndex: "100",
+    "& button": {
+      width: "100%",
+    }
   }),
   linkBanner: css({
     background: Colors.linkBannerBackground,
+    width: "60%",
+    margin: "auto",
     marginTop: "10px",
+    marginBottom: "10px",
     padding: "5px 10px",
     textAlign: "center",
-  })
+    "@media (max-width: 699px)": {
+      width: "80%",
+    },
+  }),
+  checkWrapper: css({
+    background: Colors.cardBackground,
+    width: "60%",
+    margin: "auto",
+    textAlign: "center",
+    padding: "5px 10px",
+  }),
 };
 
 interface Props {
@@ -49,8 +62,10 @@ interface State {
   sections?: Section[];
   allShown: boolean;
   addingSectionsActive: boolean;
+  editingMetaData: boolean;
   savedMetaData: ExamMetaData;
-  error: boolean;
+  updateIntervalId: number;
+  error?: string;
 }
 
 function widthFromWindow(): number {
@@ -65,28 +80,49 @@ export default class Exam extends React.Component<Props, State> {
     dpr: window.devicePixelRatio,
     addingSectionsActive: false,
     canEdit: false,
+    editingMetaData: false,
     savedMetaData: {
       canEdit: false,
+      canView: true,
+      hasPayed: false,
       filename: "",
       category: "",
+      examtype: "",
       displayname: "",
       legacy_solution: "",
       master_solution: "",
       resolve_alias: "",
+      remark: "",
+      public: false,
+      finished_cuts: false,
+      finished_wiki_transfer: false,
+      has_printonly: false,
+      has_solution: false,
+      payment_category: "",
+      is_payment_exam: false,
+      payment_exam_checked: false,
     },
     allShown: false,
-    error: false,
+    updateIntervalId: 0,
   };
-  updateInverval: NodeJS.Timer;
-  debouncedRender: (this["renderDocumentToState"]);
+  updateInterval: NodeJS.Timer;
+  cutVersionInterval: NodeJS.Timer;
+  debouncedUpdatePDFWidth: (this["updatePDFWidth"]);
 
-  async componentWillMount() {
-    this.updateInverval = setInterval(this.pollZoom, RERENDER_INTERVAL);
+  componentDidMount() {
+    this.updateInterval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
-    this.debouncedRender = debounce(this.renderDocumentToState, RERENDER_INTERVAL);
+    this.debouncedUpdatePDFWidth = debounce(this.updatePDFWidth, RERENDER_INTERVAL);
 
+    this.loadMetaData();
+
+    this.cutVersionInterval = setInterval(this.updateCutVersion, 60000);
+
+    this.loadPDF();
+  }
+
+  loadMetaData = () => {
     fetchapi(`/api/exam/${this.props.filename}/metadata`)
-      .then((res) => res.json())
       .then((res) => {
         this.setState({
           canEdit: res.value.canEdit,
@@ -94,41 +130,52 @@ export default class Exam extends React.Component<Props, State> {
         });
         this.setDocumentTitle();
       })
-      .catch(()=>{
-        this.setState({error: true});
+      .catch(err =>{
+        this.setState({error: err.toString()});
       });
+  };
 
+  loadPDF = async () => {
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
     try {
-      const pdf = await PDFJS.getDocument("/api/pdf/" + this.props.filename);
+      const pdf = await PDFJS.getDocument("/api/pdf/exam/" + this.props.filename);
 
-      await Promise.all([
-        this.renderDocumentToState(pdf),
-        this.loadSectionsFromBackend(pdf)
-      ]);
+      const w = this.state.width * this.state.dpr;
+      this.setState({pdf, renderer: await createSectionRenderer(pdf, w)});
+      this.loadSectionsFromBackend(pdf.numPages);
     } catch (e) {
       this.setState({
-        error: true
+        error: e.toString()
       });
     }
-  }
+  };
 
   setDocumentTitle() {
     document.title = this.state.savedMetaData.displayname + " - VIS Community Solutions";
   }
 
-  async componentDidMount() {
-    this.setDocumentTitle();
-  }
-
   componentWillUnmount() {
-    clearInterval(this.updateInverval);
+    clearInterval(this.updateInterval);
+    clearInterval(this.cutVersionInterval);
     window.removeEventListener("resize", this.onResize);
+    if (this.state.renderer) {
+      this.state.renderer.destroy();
+    }
+    const pdf = this.state.pdf;
+    if (pdf) {
+      pdf.destroy();
+    }
     this.setState({
       pdf: undefined,
       renderer: undefined
     });
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (prevState.dpr !== this.state.dpr || prevState.width !== this.state.width) {
+      this.debouncedUpdatePDFWidth();
+    }
   }
 
   onResize = () => {
@@ -137,10 +184,6 @@ export default class Exam extends React.Component<Props, State> {
       return;
     }
     this.setState({width: w});
-    const {pdf} = this.state;
-    if (pdf) {
-      this.debouncedRender(pdf);
-    }
   };
 
   pollZoom = () => {
@@ -149,46 +192,88 @@ export default class Exam extends React.Component<Props, State> {
       return;
     }
     this.setState({dpr});
-    const {pdf} = this.state;
-    if (pdf) {
-      this.renderDocumentToState(pdf);
+  };
+
+  updatePDFWidth = () => {
+    const {renderer} = this.state;
+    if (renderer) {
+      const w = this.state.width * this.state.dpr;
+      renderer.setTargetWidth(w);
     }
   };
 
-  renderDocumentToState = async (pdf: pdfjs.PDFDocumentProxy) => {
-    const w = this.state.width * this.state.dpr;
-    this.setState({pdf, renderer: await renderDocument(pdf, w)});
-  };
-
-  loadSectionsFromBackend = async (pdf: pdfjs.PDFDocumentProxy) => {
-    loadSections(this.props.filename, pdf.numPages)
+  loadSectionsFromBackend = (numPages: number) => {
+    loadSections(this.props.filename, numPages)
       .then((sections) => {
         this.setState({sections: sections});
       })
-      .catch(() => {
-        this.setState({error: true});
+      .catch(err => {
+        this.setState({error: err.toString()});
       });
   };
 
-  addSection = async (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
+  updateCutVersion = () => {
+    fetchapi(`/api/exam/${this.props.filename}/cutversions`)
+      .then(res => {
+        const versions = res.value;
+        this.setState(prevState => {
+          let newState = {...prevState};
+          if (newState.sections) {
+            newState.sections.forEach(section => {
+              if (section.kind === SectionKind.Answer) {
+                section.cutVersion = versions[section.oid];
+              }
+            });
+          }
+          return newState;
+        })
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
+  addSection = (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => {
     const boundingRect = ev.currentTarget.getBoundingClientRect();
     const yoff = ev.clientY - boundingRect.top;
     const relative = yoff / boundingRect.height;
     const start = section.start.position;
     const end = section.end.position;
-    const relHeight = start + relative * (end - start);
+    let relHeight = start + relative * (end - start);
 
-    await fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
+    if (!ev.shiftKey && this.state.renderer) {
+      relHeight = this.state.renderer.optimizeCutPosition(section.start.page-1, relHeight);
+    }
+
+    fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
       pageNum: section.start.page,
       relHeight: relHeight
-    });
-    if (this.state.pdf) {
-      this.loadSectionsFromBackend(this.state.pdf);
-    }
+    })
+      .then(() => {
+        this.setState({
+          error: ""
+        });
+        if (this.state.pdf) {
+          this.loadSectionsFromBackend(this.state.pdf.numPages);
+        }
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
   };
 
   gotoPDF = () => {
-    window.open(`/api/pdf/${this.props.filename}`, '_blank');
+    window.open(`/api/pdf/exam/${this.props.filename}`, '_blank');
+  };
+
+  reportProblem = () => {
+    const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
+    const body = encodeURIComponent(`Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category}' ...`);
+    window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
   };
 
   setAllHidden = (hidden: boolean) => {
@@ -229,81 +314,127 @@ export default class Exam extends React.Component<Props, State> {
     });
   };
 
+  toggleEditingMetadataActive = () => {
+    if (!this.state.editingMetaData) {
+      window.scrollTo(0, 0);
+    }
+    this.setState((state) => {
+      return {
+        editingMetaData: !state.editingMetaData
+      };
+    });
+  };
+
   metaDataChanged = (newMetaData: ExamMetaData) => {
     this.setState({
-      savedMetaData: newMetaData
+      savedMetaData: newMetaData,
     });
     this.setDocumentTitle();
   };
 
+  markPaymentExamChecked = () => {
+    fetchpost(`/api/exam/${this.props.filename}/markpaymentchecked`, {})
+      .then(() => {
+        this.loadMetaData();
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
   render() {
-    if (this.state.error) {
-      return <div>Could not load exam...</div>;
+    if (!this.state.savedMetaData.canView) {
+      if (this.state.savedMetaData.payment_category.length > 0 && !this.state.savedMetaData.hasPayed) {
+        return <div>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</div>
+      }
+      return <div>You can not view this exam at this time.</div>
     }
     const {renderer, width, dpr, sections} = this.state;
-    if (!renderer || !sections) {
-      return <div>Loading...</div>;
-    }
+    const wikitransform = this.state.savedMetaData.legacy_solution ? this.state.savedMetaData.legacy_solution.split("/").pop() : "";
     return (
       <div>
-
         <div {...styles.sectionsButton}>
-          {this.state.canEdit && [
-            <div>
-              <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
-                        onChange={this.metaDataChanged}/>
-            </div>,
-            <div>
-              <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
-            </div>
-            ]
-          }
+          <div>
+            <button onClick={this.gotoPDF}>Download PDF</button>
+          </div>
           <div>
             <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
           </div>
           <div>
-            <button onClick={this.gotoPDF}>Download PDF</button>
+            <button onClick={this.reportProblem}>Report Problem</button>
           </div>
+          {this.state.canEdit && [
+            <div key="metadata">
+              <button onClick={this.toggleEditingMetadataActive}>Edit MetaData</button>
+            </div>,
+            <div key="cuts">
+              <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
+            </div>
+            ]
+          }
+          {this.state.error && <div>{this.state.error}</div>}
         </div>
+        {this.state.editingMetaData &&
+          <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
+                    onChange={this.metaDataChanged} onFinishEdit={this.toggleEditingMetadataActive}/>}
+        {this.state.savedMetaData.is_payment_exam && !this.state.savedMetaData.payment_exam_checked && <div {...styles.checkWrapper}>
+          This is a transcript of an oral exam. It needs to be checked whether it is a valid transcript.
+          <br/>
+          <button onClick={this.markPaymentExamChecked}>Mark Transcript as Checked</button>
+        </div>}
+        {this.state.savedMetaData.has_printonly && <PrintExam filename={this.props.filename}/>}
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
+            {this.state.canEdit && [" | ", <a href={"/legacy/transformwiki/" + wikitransform} target="_blank">Transform VISki to Markdown</a>]}
           </div>}
         {this.state.savedMetaData.master_solution &&
         <div {...styles.linkBanner}>
           <a href={this.state.savedMetaData.master_solution} target="_blank">Official Solution</a>
         </div>}
-        <div style={{width: width}} {...styles.wrapper}>
-          {sections.map(e => {
-            switch (e.kind) {
-              case SectionKind.Answer:
-                return <AnswerSectionComponent
-                  key={e.oid}
-                  filename={this.props.filename}
-                  oid={e.oid}
-                  width={width}
-                  canDelete={this.state.canEdit}
-                  onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf) : false}
-                  onToggleHidden={() => this.toggleHidden(e.oid)}
-                  hidden={e.hidden}
-                />;
-              case SectionKind.Pdf:
-                return (
-                  <PdfSectionComp
-                    key={e.key}
-                    section={e}
-                    renderer={renderer}
+        {this.state.savedMetaData.has_solution &&
+        <div {...styles.linkBanner}>
+          <a href={"/api/pdf/solution/" + this.props.filename} target="_blank">Official Solution</a>
+        </div>}
+        {(renderer && sections) &&
+          <div style={{width: width}} {...styles.wrapper}>
+            {sections.map(e => {
+              switch (e.kind) {
+                case SectionKind.Answer:
+                  return <AnswerSectionComponent
+                    key={e.oid}
+                    filename={this.props.filename}
+                    oid={e.oid}
                     width={width}
-                    dpr={dpr}
-                    // ts does not like it if this is undefined...
-                    onClick={(this.state.canEdit && this.state.addingSectionsActive) ? this.addSection : (ev)=>ev}
-                  />
-                );
-              default:
-                return null as never;
-            }
-          })}
-        </div>
+                    canDelete={this.state.canEdit}
+                    onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf.numPages) : false}
+                    onToggleHidden={() => this.toggleHidden(e.oid)}
+                    hidden={e.hidden}
+                    cutVersion={e.cutVersion}
+                  />;
+                case SectionKind.Pdf:
+                  return (
+                    <PdfSectionComp
+                      key={e.key}
+                      section={e}
+                      renderer={renderer}
+                      width={width}
+                      dpr={dpr}
+                      renderText={!this.state.addingSectionsActive}
+                      // ts does not like it if this is undefined...
+                      onClick={(this.state.canEdit && this.state.addingSectionsActive) ? this.addSection : (ev) => ev}
+                    />
+                  );
+                default:
+                  return null as never;
+              }
+            })}
+          </div>
+          ||
+          <p>Loading ...</p>
+        }
       </div>
     );
   }

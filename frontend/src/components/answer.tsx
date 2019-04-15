@@ -7,6 +7,11 @@ import MarkdownText from "./markdown-text";
 import {fetchpost} from '../fetch-utils'
 import ImageOverlay from "./image-overlay";
 import Colors from "../colors";
+import {Link} from "react-router-dom";
+import globalcss from "../globalcss";
+import GlobalConsts from "../globalconsts";
+import colors from "../colors";
+import {listenEnter} from "../input-utils";
 
 interface Props {
   filename: string;
@@ -100,6 +105,11 @@ const styles = {
     marginLeft: "5px",
     marginRight: "5px"
   }),
+  bottomHints: css({
+    display: "flex",
+    justifyContent: "space-between",
+    color: colors.silentText,
+  }),
   comments: css({
     marginLeft: "25px",
     marginTop: "10px",
@@ -126,11 +136,14 @@ export default class AnswerComponent extends React.Component<Props, State> {
     commentsVisible: false,
   };
 
-  removeAnswer = async () => {
+  setMainDivRef = (element: HTMLDivElement) => {
+    this.props.answer.divRef = element;
+  };
+
+  removeAnswer = () => {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
       fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, this.enrichPostdata({}))
-        .then((res) => res.json())
         .then((res) => {
           this.props.onSectionChanged(res);
         })
@@ -146,9 +159,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
     }
   };
 
-  saveAnswer = async () => {
+  saveAnswer = () => {
     fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, this.enrichPostdata({text: this.state.text}))
-      .then((res) => res.json())
       .then((res) => {
         this.setState(prevState => ({
           editing: false,
@@ -159,14 +171,14 @@ export default class AnswerComponent extends React.Component<Props, State> {
       .catch(() => undefined);
   };
 
-  cancelEdit = async () => {
+  cancelEdit = () => {
     this.setState(prevState => ({
       editing: false,
       text: prevState.savedText
     }));
   };
 
-  startEdit = async () => {
+  startEdit = () => {
     this.setState({
       editing: true,
       imageCursorPosition: -1,
@@ -204,10 +216,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
     });
   };
 
-  toggleAnswerLike = async (like: Number) => {
+  toggleAnswerLike = (like: Number) => {
     const newLike = like === 1 ? (this.props.answer.isUpvoted ? 0 : 1) : (this.props.answer.isDownvoted ? 0 : -1);
     fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: newLike})
-      .then((res) => res.json())
       .then((res) => {
         this.props.onSectionChanged(res);
       })
@@ -224,9 +235,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
     const {answer} = this.props;
     return (
       <div {...styles.wrapper}>
-        <div {...styles.header}>
+        <div ref={this.setMainDivRef} {...styles.header}>
           <div>
-            <b>{answer.authorDisplayName}</b> @ {moment(answer.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}
+              <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> @ {moment(answer.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
           </div>
           <div {...styles.voteWrapper}>
             <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(-1)} title="Downvote Answer">
@@ -241,7 +252,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div {...styles.answer}><MarkdownText value={this.state.text}/></div>
         {this.state.editing && <div>
           <div {...styles.answerInput}>
-            <textarea {...styles.textareaInput} onKeyUp={this.answerTextareaChange} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text}/>
+            <textarea {...styles.textareaInput} onKeyUp={this.answerTextareaChange} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text} onKeyPress={listenEnter(this.saveAnswer, true)}/>
           </div>
           <div {...styles.answerTexHint}>
             You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.
@@ -277,6 +288,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
                    onSectionChanged={this.props.onSectionChanged}/>}
         </div>
         }
+        <div {...styles.bottomHints}>
+          <small><a href={"#" + this.props.answer.oid}>Permalink</a></small>
+          <small {...globalcss.noLinkColor}>All answers are licensed as <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</small></div>
       </div>
     );
   }

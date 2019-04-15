@@ -2,11 +2,25 @@ import * as React from "react";
 import {Link} from "react-router-dom";
 import {css} from "glamor";
 import Colors from "../colors";
+import {fetchapi} from "../fetch-utils";
 
 interface Props {
   username?: string;
+  displayName?: string;
 }
 
+interface State {
+  notificationCount: number;
+}
+
+const linkStyle = {
+  ":link": {
+    color: Colors.headerForeground
+  },
+  ":visited": {
+    color: Colors.headerForeground
+  }
+};
 const styles = {
   wrapper: css({
     display: "flex",
@@ -29,42 +43,64 @@ const styles = {
   title: css({
     marginLeft: "25px",
     fontSize: "24px",
-    "& a": {
-      ":link": {
-        color: Colors.headerForeground
-      },
-      ":visited": {
-        color: Colors.headerForeground
-      }
-    }
+    "& a": linkStyle,
   }),
   feedback: css({
     display: "block",
     marginRight: "25px",
-    "& a": {
-      ":link": {
-        color: Colors.headerForeground
-      },
-      ":visited": {
-        color: Colors.headerForeground
-      }
-    }
+    "& a": linkStyle,
+  }),
+  scoreboard: css({
+    display: "block",
+    marginRight: "25px",
+    "& a": linkStyle,
   }),
   username: css({
     display: "block",
-    marginRight: "25px"
-  })
+    marginRight: "25px",
+    "& a": linkStyle,
+  }),
 };
 
-export default ({username}: Props) => (
-  <div {...styles.wrapper}>
-    <div {...styles.logotitle}>
-      <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
-      <div {...styles.title} {...styles.centerVertically}><Link to="/">VIS Community Solutions</Link></div>
-    </div>
-    <div {...styles.centerVertically}>
-      <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
-      <div {...styles.username}>{username}</div>
-    </div>
-  </div>
-);
+export default class Header extends React.Component<Props> {
+
+  state: State = {
+    notificationCount: 0,
+  };
+  notificationInterval: NodeJS.Timer;
+
+  componentDidMount() {
+    this.notificationInterval = setInterval(this.checkNotificationCount, 60000);
+    this.checkNotificationCount();
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.notificationInterval);
+  }
+
+  checkNotificationCount = () => {
+    fetchapi('/api/notifications/unreadcount')
+      .then(res => {
+        this.setState({
+          notificationCount: res.value
+        });
+      })
+      .catch(() => undefined);
+  };
+
+  render() {
+    return (
+      <div {...styles.wrapper}>
+        <div {...styles.logotitle}>
+          <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
+          <div {...styles.title} {...styles.centerVertically}><Link to="/">VIS Community Solutions</Link></div>
+        </div>
+        <div {...styles.centerVertically}>
+          <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
+          <div {...styles.scoreboard}><Link to="/scoreboard">Scoreboard</Link></div>
+          <div {...styles.username}><Link to={`/user/${this.props.username}`}>{this.props.displayName}{this.state.notificationCount > 0 ? " (" + this.state.notificationCount + ")" : ""}</Link></div>
+        </div>
+      </div>
+    );
+  }
+};

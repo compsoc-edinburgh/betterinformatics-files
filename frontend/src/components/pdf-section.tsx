@@ -2,91 +2,124 @@ import * as React from "react";
 import {PdfSection} from "../interfaces";
 import {SectionRenderer, Dimensions} from "../split-render";
 import {css} from "glamor";
+import colors from "../colors";
 
 interface Props {
   section: PdfSection;
   renderer: SectionRenderer;
   width: number;
   dpr: number; // Device Pixel Ratio
+  renderText: boolean;
   onClick: ((ev: React.MouseEvent<HTMLElement>, section: PdfSection) => void);
 }
 
 const styles = {
+  wrapper: css({
+    position: "relative",
+  }),
   canvas: css({
     display: "block",
   }),
+  textLayer: css({
+    position: "absolute",
+    left: "0",
+    right: "0",
+    top: "0",
+    bottom: "0",
+    overflow: "hidden",
+    lineHeight: "1.0",
+    "& > div": {
+      color: "transparent",
+      position: "absolute",
+      whiteSpace: "pre",
+      cursor: "text",
+      transformOrigin: "0% 0%",
+      "::selection": {
+        color: "inherit",
+        background: colors.selectionBackground,
+      }
+    }
+  })
 };
 
-const contentRelevantProps: Array<keyof Props> = [
-  "section",
-  "renderer",
-  "width",
-  "dpr",
-];
-
 export default class PdfSectionComp extends React.Component<Props> {
+  private canv?: HTMLCanvasElement;
+  private textWrap?: HTMLDivElement;
   private ctx?: CanvasRenderingContext2D;
-  private lastCtx?: CanvasRenderingContext2D;
-  private propsChanged = true;
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (contentRelevantProps.some(k => this.props[k] !== nextProps[k])) {
-      this.propsChanged = true;
-    }
-  }
+  private observer: IntersectionObserver;
+  private visible: boolean = true;
+  private needRender: boolean = true;
 
   componentDidMount() {
-    this.renderCanvas();
+    this.needRender = true;
+    this.observer = new IntersectionObserver(this.intersectionChanged, {
+      threshold: 0,
+    });
+    if (this.canv) {
+      this.observer.observe(this.canv);
+    }
   }
 
-  componentDidUpdate() {
-    this.renderCanvas();
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+    this.needRender = true;
   }
 
-  render() {
-    const {dpr} = this.props;
-    const rawDim = this.sectionDimensions();
-    return (
-      <canvas
-        ref={this.saveCanvasRef}
-        width={Math.ceil(rawDim.width * dpr)}
-        height={Math.ceil(rawDim.height * dpr)}
-        // it would be far nicer to have onClick be undefined if not needed, but ts claims it might be undefined when called...
-        onClick={this.props.onClick && ((ev: React.MouseEvent<HTMLElement>) => this.props.onClick(ev, this.props.section))}
-        style={{
-          width: Math.ceil(rawDim.width),
-          height: Math.ceil(rawDim.height),
-        }}
-        {...styles.canvas}
-      />
-    );
+  componentWillUnmount(): void {
+    if (this.canv) {
+      this.observer.unobserve(this.canv);
+    }
+    if (this.visible) {
+      this.props.renderer.removeVisible(this.props.section.start, this.renderCanvas);
+    }
   }
 
-  renderCanvas() {
-    if (!this.ctx || (!this.propsChanged && this.ctx === this.lastCtx)) {
+  intersectionChanged = (entries: IntersectionObserverEntry[]) => {
+    entries.forEach(entry => {
+      this.visible = entry.isIntersecting;
+      if (this.visible) {
+        this.props.renderer.addVisible(this.props.section.start, this.renderCanvas);
+        if (this.needRender) {
+          this.renderCanvas();
+        }
+      } else {
+        this.props.renderer.removeVisible(this.props.section.start, this.renderCanvas);
+      }
+    });
+  };
+
+  renderCanvas = () => {
+    if (!this.ctx || !this.visible) {
       return;
     }
-    this.lastCtx = this.ctx;
-    this.propsChanged = false;
 
     const {section, renderer, dpr} = this.props;
     const dim = this.sectionDimensions();
-    renderer.render(
+    this.needRender = !renderer.render(
       {context: this.ctx, width: dim.width * dpr, height: dim.height * dpr},
       section.start,
       section.end,
     );
-  }
+    if (this.textWrap && this.canv) {
+      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end);
+    }
+  };
 
-  sectionDimensions(): Dimensions {
+  sectionDimensions = (): Dimensions => {
     const {section, renderer, width} = this.props;
     return renderer.sectionDimensions(section.start, section.end, width);
-  }
+  };
 
   saveCanvasRef = (c: HTMLCanvasElement) => {
     if (!c) {
       return;
     }
+    if (this.observer) {
+      if (this.canv) {
+        this.observer.unobserve(this.canv);
+      }
+      this.observer.observe(c);
+    }
+    this.canv = c;
     const ctx = c.getContext("2d");
     if (!ctx) {
       // tslint:disable-next-line:no-console
@@ -94,5 +127,43 @@ export default class PdfSectionComp extends React.Component<Props> {
       return;
     }
     this.ctx = ctx;
+    if (this.needRender) {
+      this.renderCanvas();
+    }
+    if (this.textWrap) {
+      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end);
+    }
   };
+
+  saveTextRef = (d: HTMLDivElement) => {
+    if (!d) {
+      return;
+    }
+    this.textWrap = d;
+    if (this.canv) {
+      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end);
+    }
+  };
+
+  render() {
+    const {dpr} = this.props;
+    const rawDim = this.sectionDimensions();
+    return (
+      <div {...styles.wrapper}>
+        <canvas
+          ref={this.saveCanvasRef}
+          width={Math.ceil(rawDim.width * dpr)}
+          height={Math.ceil(rawDim.height * dpr)}
+          // it would be far nicer to have onClick be undefined if not needed, but ts claims it might be undefined when called...
+          onClick={this.props.onClick && ((ev: React.MouseEvent<HTMLElement>) => this.props.onClick(ev, this.props.section))}
+          style={{
+            width: Math.ceil(rawDim.width),
+            height: Math.ceil(rawDim.height),
+          }}
+          {...styles.canvas}
+        />
+        {this.props.renderText && <div {...styles.textLayer} ref={this.saveTextRef}/>}
+      </div>
+    );
+  }
 }

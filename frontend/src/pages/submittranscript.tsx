@@ -7,7 +7,6 @@ import Colors from "../colors";
 
 interface State {
   file: Blob;
-  displayName: string;
   category: string;
   categories: string[];
   result?: { filename: string };
@@ -30,33 +29,31 @@ const styles = {
   }),
 };
 
-export default class UploadPDF extends React.Component<{}, State> {
+export default class SubmitTranscript extends React.Component<{}, State> {
 
   state: State = {
     file: new Blob(),
-    displayName: "",
     category: "",
     categories: []
   };
 
   componentDidMount() {
-    fetchapi('/api/listcategories/onlyadmin')
+    fetchapi('/api/listcategories/onlypayment')
       .then(res => this.setState({
         categories: res.value
       }))
       .catch((e)=>{
         this.setState({error: e.toString()});
       });
-    document.title = "Upload Exam - VIS Community Solutions";
+    document.title = "Submit Transcript - VIS Community Solutions";
   }
 
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost('/api/uploadpdf/exam', {
+    fetchpost('/api/uploadpdf/payment_exam', {
       file: this.state.file,
-      displayname: this.state.displayName,
-      category: this.state.category
+      category: this.state.category,
     })
       .then((body) => this.setState({
         result: body,
@@ -75,12 +72,6 @@ export default class UploadPDF extends React.Component<{}, State> {
     }
   };
 
-  handleDisplayNameChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      displayName: ev.target.value
-    });
-  };
-
   handleCategoryChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
       category: ev.target.value
@@ -89,26 +80,23 @@ export default class UploadPDF extends React.Component<{}, State> {
 
   render() {
     if (this.state.result) {
-      return <Redirect to={"/exams/" + this.state.result.filename}/>
+      return <Redirect to="/"/>
     } else {
       return (
         <div {...styles.wrapper}>
-          <h2>Upload PDF</h2>
+          <h2>Submit Transcript for Oral Exam</h2>
           {this.state.error && <p>{this.state.error}</p>}
+          <p>Please use the following <a href="/static/transcript_template.tex">template</a>.</p>
           <form onSubmit={this.handleUpload}>
             <div>
               <input onChange={this.handleFileChange} type="file" accept="application/pdf"/>
-            </div>
-            <div>
-              <input onChange={this.handleDisplayNameChange} value={this.state.displayName} type="text"
-                     placeholder="displayname..." required/>
             </div>
             <div>
               <AutocompleteInput name="category" onChange={this.handleCategoryChange} value={this.state.category}
                                  placeholder="category..." autocomplete={this.state.categories}/>
             </div>
             <div>
-              <button type="submit">Upload</button>
+              <button type="submit">Submit</button>
             </div>
           </form>
         </div>

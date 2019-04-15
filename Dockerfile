@@ -12,14 +12,17 @@ RUN yarn run build
 
 
 FROM registry.vis.ethz.ch/public/base:charlie
-LABEL maintainer 'schmidbe@vis.ethz.ch'
+LABEL maintainer='schmidbe@vis.ethz.ch'
 
 WORKDIR /app
 
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
 
+# TODO remove the apt-get update again
+RUN apt-get update
 RUN apt-get install -y \
-	python3 python3-pip python3-dev
+	python3 python3-pip python3-dev \
+	smbclient poppler-utils
 
 COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
@@ -35,7 +38,9 @@ COPY --from=0 /usr/src/app/build/static ./static
 COPY ./frontend/public/static ./static
 COPY ./src/people_pb2.py .
 COPY ./src/people_pb2_grpc.py .
+COPY ./src/ethprint.py .
 COPY ./src/dbmigrations.py .
+COPY ./src/legacy_importer.py .
 COPY ./src/server.py .
 
 EXPOSE 80

@@ -1,8 +1,6 @@
-# Exam Solution Exchange
+# Community Solutions
 
-## New frontend
-
-### Install Node.js
+## Install Node.js
 
 Node.js is an execution environment for standalone Javascript programs (it's
 something like the Python interpreter).
@@ -10,12 +8,12 @@ something like the Python interpreter).
 You can install it [directly](https://nodejs.org/en/download/) or with a
 [version manager](https://github.com/tj/n) (recommended).
 
-### Install Yarn
+## Install Yarn
 
 Yarn is a dependency management tool (like npm or pip). Install it
 [like this](https://yarnpkg.com/en/docs/install#debian-stable).
 
-### Install dependencies
+## Install dependencies
 
 This installs things like React which the frontend needs. You usually only need
 to do this once after cloning the repo.
@@ -28,7 +26,7 @@ yarn
 If everything worked, you'll see a `node_modules` directory, where the
 dependencies were installed to.
 
-### Start the frontend
+## Start the frontend
 
 The frontend is built using
 [Create React App](https://github.com/facebook/create-react-app). This is like a
@@ -43,7 +41,7 @@ yarn start
 For more tasks, like building a production bundle, see the
 [Create React App documentation](https://github.com/facebook/create-react-app).
 
-### Start the backend
+## Start the backend
 
 Run `visdev test .` in this directory to start the backend. The frontend we
 started above will proxy all requests to this backend. It uses some default

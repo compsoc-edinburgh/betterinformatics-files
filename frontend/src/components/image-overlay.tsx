@@ -106,13 +106,12 @@ export default class ImageOverlay extends React.Component<Props, State> {
 
   fileInputRef: RefObject<HTMLInputElement> = React.createRef();
 
-  async componentWillMount() {
+  componentDidMount() {
     this.loadImages();
   }
 
   loadImages = () => {
     fetchapi('/api/image/list')
-        .then(res => res.json())
         .then(res => {
           res.value.reverse();
           this.setState({images: res.value})
@@ -140,7 +139,6 @@ export default class ImageOverlay extends React.Component<Props, State> {
     fetchpost('/api/uploadimg', {
       file: this.state.file
     })
-      .then(res => res.json())
       .then(res => {
         this.setState({
           selected: res.filename,
@@ -168,7 +166,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
     });
   };
 
-  removeImage = async (image: string) => {
+  removeImage = (image: string) => {
     const confirmation = confirm("Remove image?");
     if (confirmation) {
       fetchpost(`/api/image/${image}/remove`, {})

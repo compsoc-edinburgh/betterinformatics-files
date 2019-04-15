@@ -1,7 +1,7 @@
 import {Section, AnswerSection, SectionKind, PdfSection, ServerCutPosition} from "./interfaces";
 import {fetchapi} from "./fetch-utils";
 
-function createPdfSection(key: number, page: number, start: number, end: number): PdfSection {
+function createPdfSection(key: string, page: number, start: number, end: number): PdfSection {
   return {
     key: key,
     kind: SectionKind.Pdf,
@@ -21,17 +21,17 @@ export async function loadSections(
   pageCount: number
 ): Promise<Section[]> {
   const response = await fetchapi(`/api/exam/${filename}/cuts`);
-  const responseJson = await response.json();
-  const cuts = responseJson.value;
+  const cuts = response.value;
   let akey = -1;
   let sections: Section[] = [];
   for (let i = 1; i <= pageCount; i++) {
     let lastpos = 0;
     if (i in cuts) {
       cuts[i].forEach((cut: ServerCutPosition) => {
-        const {relHeight: position, oid} = cut;
+        const {relHeight: position, oid, cutVersion} = cut;
         if (position !== lastpos) {
-          sections.push(createPdfSection(akey, i, lastpos, position));
+          const key = akey + "-" + lastpos + "-" + position;
+          sections.push(createPdfSection(key, i, lastpos, position));
           akey++;
           lastpos = position;
         }
@@ -44,11 +44,13 @@ export async function loadSections(
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
+          cutVersion: cutVersion,
         });
       });
     }
     if (lastpos < 1) {
-      sections.push(createPdfSection(akey, i, lastpos, 1));
+      const key = akey + "-" + lastpos + "-" + 1;
+      sections.push(createPdfSection(key, i, lastpos, 1));
       akey++;
     }
   }
@@ -60,7 +62,7 @@ export async function loadAnswerSection(
   oid: string
 ): Promise<AnswerSection> {
   try {
-    const section = await (await fetchapi(`/api/exam/${filename}/answersection/${oid}`)).json();
+    const section = await fetchapi(`/api/exam/${filename}/answersection/${oid}`);
     let answersection = section.value.answersection;
     answersection.key = oid;
     answersection.kind = SectionKind.Answer;

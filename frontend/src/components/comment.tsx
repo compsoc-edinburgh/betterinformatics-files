@@ -5,6 +5,10 @@ import {css} from "glamor";
 import MarkdownText from "./markdown-text";
 import {fetchpost} from "../fetch-utils";
 import ImageOverlay from "./image-overlay";
+import {Link} from "react-router-dom";
+import globalcss from "../globalcss";
+import GlobalConsts from "../globalconsts";
+import {listenEnter} from "../input-utils";
 
 interface Props {
   filename: string;
@@ -51,11 +55,12 @@ const styles = {
     marginBottom: "5px",
     padding: "5px",
     boxSizing: "border-box"
-  })
+  }),
 };
 
 export default class CommentComponent extends React.Component<Props, State> {
 
+  // noinspection PointlessBooleanExpressionJS
   state: State = {
     editing: !!this.props.isNewComment,
     savedText: this.props.comment.text,
@@ -64,11 +69,10 @@ export default class CommentComponent extends React.Component<Props, State> {
     imageCursorPosition: -1,
   };
 
-  removeComment = async () => {
+  removeComment = () => {
     const confirmation = confirm("Remove comment?");
     if (confirmation) {
       fetchpost(`/api/exam/${this.props.filename}/removecomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid})
-        .then((res) => res.json())
         .then((res) => {
           this.props.onSectionChanged(res);
         })
@@ -76,23 +80,22 @@ export default class CommentComponent extends React.Component<Props, State> {
     }
   };
 
-  startEdit = async () => {
+  startEdit = () => {
     this.setState({editing: true});
   };
 
-  cancelEdit = async () => {
+  cancelEdit = () => {
     this.setState(prevState => ({
       editing: false,
       text: prevState.savedText
     }));
   };
 
-  saveComment = async () => {
+  saveComment = () => {
     if (this.props.isNewComment) {
       fetchpost(`/api/exam/${this.props.filename}/addcomment/${this.props.sectionId}/${this.props.answerId}`, {
         text: this.state.text
       })
-        .then((res) => res.json())
         .then((res) => {
           this.setState({text: ""});
           this.props.onSectionChanged(res);
@@ -103,7 +106,6 @@ export default class CommentComponent extends React.Component<Props, State> {
         commentoid: this.props.comment.oid,
         text: this.state.text
       })
-        .then((res) => res.json())
         .then((res) => {
           this.setState(prevState => ({
             editing: false,
@@ -152,12 +154,12 @@ export default class CommentComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div {...styles.header}>
           {this.props.isNewComment && <b>Add comment</b>}
-          {!this.props.isNewComment && <span><b>{comment.authorDisplayName}</b> @ {moment(comment.time, "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ").format("DD.MM.YYYY HH:mm")}</span>}
+            {!this.props.isNewComment && <span><b {...globalcss.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> @ {moment(comment.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</span>}
         </div>
-        <div><MarkdownText value={this.state.text}/></div>
+        <div><MarkdownText value={this.state.editing ? this.state.text : comment.text}/></div>
         {this.state.editing && <div>
           <div>
-            <textarea {...styles.textareaInput} onKeyUp={this.commentTextareaChange} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} />
+            <textarea {...styles.textareaInput} onKeyUp={this.commentTextareaChange} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} onKeyPress={listenEnter(this.saveComment, true)} />
           </div>
           <div {...styles.threebuttons}>
             <div {...styles.leftButton}>
