@@ -11,9 +11,9 @@ class Client:
         self.username = username
         self.password = password
 
-    def get(self, path):
+    def get(self, path, **kwargs):
         print('GET', self.username, path)
-        r = requests.get('http://{}{}'.format(self.host, path), auth=(self.username, self.password))
+        r = requests.get('http://{}{}'.format(self.host, path), auth=(self.username, self.password), params=kwargs)
         print(r.status_code, r.text)
         return r
 
@@ -25,17 +25,17 @@ class Client:
 
 
 """
-@app.route("/api/exam/<filename>/newanswersection", methods=['POST'])
-@app.route("/api/exam/<filename>/removeanswersection", methods=['POST'])
-@app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=['POST'])
-@app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
-@app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=['POST'])
-@app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=['POST'])
-@app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/newanswersection", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/removeanswersection", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
 @app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=['POST'])
 @app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=['POST'])
 @app.route("/api/exam/<filename>/claim", methods=['POST'])
-@app.route("/api/exam/<filename>/metadata", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/metadata", methods=['POST'])
 @app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
 [DONE] @app.route("/api/exam/<filename>/remove", methods=['POST'])
 [DONE] @app.route("/api/category/add", methods=['POST'])
@@ -100,6 +100,11 @@ class Creator:
         self.reset_notification_settings()
         self.upload_exams()
         self.upload_images()
+        self.add_cuts()
+        self.exam_metadata()
+        self.add_answers()
+        self.upvote_answers()
+        self.add_comments()
 
     def user_info(self):
         for user in self.board + self.cat + self.ordinary:
@@ -276,6 +281,149 @@ class Creator:
                     usr.post(
                         '/api/image/' + rj['filename'] + '/remove'
                     )
+
+    def add_cuts(self):
+        idx = 0
+        usrs = self.cat + self.board
+        for cat in self.categories:
+            for i in range(4):
+                usr = usrs[idx % len(usrs)]
+                exams = usr.get(
+                    '/api/category/list',
+                    category=cat + ' ' + str(i+1),
+                ).json()['value']
+                for exam in exams[:4]:
+                    for j in range(6):
+                        for k in range(9):
+                            usr = usrs[idx % len(usrs)]
+                            r = usr.post(
+                                '/api/exam/' + exam['filename'] + '/newanswersection',
+                                pageNum=j,
+                                relHeight=0.1*k+0.1
+                            ).json()['value']
+                            if k == 4:
+                                usr.post(
+                                    '/api/exam/' + exam['filename'] + '/removeanswersection',
+                                    oid=r['_id'],
+                                )
+                            idx += 1
+
+    def exam_metadata(self):
+        idx = 0
+        usrs = self.cat + self.board
+        for cat in self.categories:
+            for i in range(9):
+                usr = usrs[idx % len(usrs)]
+                exams = usr.get(
+                    '/api/category/list',
+                    category=cat + ' ' + str(i+1),
+                ).json()['value']
+                for exam in exams:
+                    usr.post(
+                        '/api/exam/' + exam['filename'] + '/metadata',
+                        remark='Remark #' + str(idx),
+                        public=True,
+                        finished_cuts=idx % 5 == 0,
+                        finished_wiki_transfer=idx % 3 == 0,
+                    )
+                    idx += 1
+
+    def add_answers(self):
+        idx = 0
+        usrs = self.cat + self.board + self.ordinary
+        for cat in self.categories[:1]:
+            for i in range(1):
+                usr = usrs[idx % len(usrs)]
+                exams = usr.get(
+                    '/api/category/list',
+                    category=cat + ' ' + str(i+1),
+                ).json()['value']
+                for exam in exams[:1]:
+                    cuts = usr.get(
+                        '/api/exam/' + exam['filename'] + '/cuts'
+                    ).json()['value']
+                    for page in cuts:
+                        for cut in cuts[page]:
+                            for u in usrs:
+                                if idx % 5 < 3:
+                                    u.post(
+                                        '/api/exam/' + exam['filename'] + '/addanswer/' + cut['oid'],
+                                    )
+                                    u.post(
+                                        '/api/exam/' + exam['filename'] + '/setanswer/' + cut['oid'],
+                                        text="Answer #" + str(idx) + "\n\n$\\pi = 3.141$",
+                                    )
+                                    if idx % 5 == 0:
+                                        u.post(
+                                            '/api/exam/' + exam['filename'] + '/removeanswer/' + cut['oid'],
+                                        )
+                                idx += 1
+                        if idx % 3 == 0:
+                            self.cat[1].post(
+                                '/api/exam/' + exam['filename'] + '/addanswer/' + cut['oid'],
+                                legacyuser=1,
+                                )
+                            self.cat[1].post(
+                                '/api/exam/' + exam['filename'] + '/setanswer/' + cut['oid'],
+                                legacyuser=1,
+                                text="Legacy Answer #" + str(idx) + "\n\n$\\pi = 3.141$",
+                                )
+
+    def upvote_answers(self):
+        idx = 0
+        usrs = self.cat + self.board + self.ordinary
+        for cat in self.categories[:1]:
+            for i in range(1):
+                usr = usrs[idx % len(usrs)]
+                exams = usr.get(
+                    '/api/category/list',
+                    category=cat + ' ' + str(i+1),
+                ).json()['value']
+                for exam in exams[:1]:
+                    cuts = usr.get(
+                        '/api/exam/' + exam['filename'] + '/cuts'
+                    ).json()['value']
+                    for page in cuts:
+                        for cut in cuts[page]:
+                            section = usr.get(
+                                '/api/exam/' + exam['filename'] + '/answersection/' + cut['oid'],
+                            ).json()['value']
+                            for answer in section['answersection']['answers']:
+                                for u in usrs:
+                                    u.post(
+                                        '/api/exam/' + exam['filename'] + '/setlike/' + cut['oid'] + '/' + answer['oid'],
+                                        like=-1 if idx % 5 == 0 else 1
+                                    )
+                                    idx += 1
+
+    def add_comments(self):
+        idx = 0
+        usrs = self.cat + self.board + self.ordinary
+        for cat in self.categories[:1]:
+            for i in range(1):
+                usr = usrs[idx % len(usrs)]
+                exams = usr.get(
+                    '/api/category/list',
+                    category=cat + ' ' + str(i+1),
+                ).json()['value']
+                for exam in exams[:1]:
+                    cuts = usr.get(
+                        '/api/exam/' + exam['filename'] + '/cuts'
+                    ).json()['value']
+                    for page in cuts:
+                        for cut in cuts[page]:
+                            section = usr.get(
+                                '/api/exam/' + exam['filename'] + '/answersection/' + cut['oid'],
+                                ).json()['value']
+                            for answer in section['answersection']['answers']:
+                                for j in range(5):
+                                    for u in usrs:
+                                        if idx % 7 == 0:
+                                            u.post(
+                                                '/api/exam/' + exam['filename'] + '/addcomment/' + cut['oid'] + '/' + answer['oid'],
+                                                text='Comment #' + str(idx) + '\n\n$\\tau = 6$',
+                                            )
+                                        idx += 1
 
 
 def main():
