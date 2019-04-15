@@ -77,6 +77,8 @@ export class SectionRenderer {
   freePage(page: number) {
     const rendered = this.pages[page].rendered;
     if (rendered) {
+      rendered.canvas.width = 0;
+      rendered.canvas.height = 0;
       rendered.canvas.remove();
       this.pages[page].rendered = undefined;
       this.pages[page].isRendered = false;

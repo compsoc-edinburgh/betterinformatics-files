@@ -17,11 +17,49 @@ class Client:
         print(r.status_code, r.text)
         return r
 
-    def post(self, path, **kwargs):
+    def post(self, path, files=None, **kwargs):
         print('POST', self.username, path, kwargs)
-        r = requests.post('http://{}{}'.format(self.host, path), auth=(self.username, self.password), data=kwargs)
+        r = requests.post('http://{}{}'.format(self.host, path), auth=(self.username, self.password), data=kwargs, files=files)
         print(r.status_code, r.text)
         return r
+
+
+"""
+@app.route("/api/exam/<filename>/newanswersection", methods=['POST'])
+@app.route("/api/exam/<filename>/removeanswersection", methods=['POST'])
+@app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=['POST'])
+@app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
+@app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=['POST'])
+@app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=['POST'])
+@app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
+@app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=['POST'])
+@app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=['POST'])
+@app.route("/api/exam/<filename>/claim", methods=['POST'])
+@app.route("/api/exam/<filename>/metadata", methods=['POST'])
+@app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
+[DONE] @app.route("/api/exam/<filename>/remove", methods=['POST'])
+[DONE] @app.route("/api/category/add", methods=['POST'])
+[DONE] @app.route("/api/category/remove", methods=['POST'])
+[DONE] @app.route("/api/category/addadmin", methods=['POST'])
+[DONE] @app.route("/api/category/removeadmin", methods=['POST'])
+[DONE] @app.route("/api/category/metadata", methods=['POST'])
+[DONE] @app.route("/api/metacategory/setorder", methods=['POST'])
+[DONE] @app.route("/api/metacategory/addcategory", methods=['POST'])
+[DONE] @app.route("/api/metacategory/removecategory", methods=['POST'])
+[DONE] @app.route("/api/image/<filename>/remove", methods=['POST'])
+[DONE] @app.route("/api/image/<filename>/metadata", methods=['POST'])
+[DONE] @app.route("/api/notifications/setenabled", methods=['POST'])
+@app.route("/api/notifications/setread", methods=['POST'])
+@app.route("/api/payment/pay", methods=['POST'])
+@app.route("/api/payment/remove", methods=['POST'])
+@app.route("/api/payment/refund", methods=['POST'])
+@app.route("/api/feedback/submit", methods=['POST'])
+@app.route("/api/feedback/<feedbackid>/flags", methods=['POST'])
+[DONE] @app.route("/api/uploadpdf/<pdftype>", methods=['POST'])
+[DONE] @app.route("/api/removepdf/<pdftype>", methods=['POST'])
+[DONE] @app.route("/api/uploadimg", methods=['POST'])
+[CAN NOT TEST] @app.route("/api/printpdf/<filename>", methods=['POST'])
+"""
 
 
 class Creator:
@@ -60,6 +98,8 @@ class Creator:
         self.remove_metacategories()
         self.set_notification_settings()
         self.reset_notification_settings()
+        self.upload_exams()
+        self.upload_images()
 
     def user_info(self):
         for user in self.board + self.cat + self.ordinary:
@@ -173,6 +213,69 @@ class Creator:
                 enabled=1,
                 type=3,
             )
+
+    def upload_exams(self):
+        for cat in self.categories:
+            for i in range(9):
+                for j in range(6):
+                    fil = open('../frontend/public/exam10.pdf', 'rb')
+                    r = self.board[j % 2].post(
+                        '/api/uploadpdf/exam',
+                        files={'file': fil},
+                        category=cat + ' ' + str(i+1),
+                        displayname='HS ' + str(15+j),
+                    )
+                    fil.close()
+                    rj = r.json()
+                    if j in [0, 5]:
+                        fil = open('../frontend/public/exam10.pdf', 'rb')
+                        self.board[j % 2].post(
+                            '/api/uploadpdf/printonly',
+                            files={'file': fil},
+                            category=cat + ' ' + str(i+1),
+                            filename=rj['filename'],
+                        )
+                        fil.close()
+                    if j in [2, 3, 5]:
+                        fil = open('../frontend/public/exam10.pdf', 'rb')
+                        self.board[j % 2].post(
+                            '/api/uploadpdf/solution',
+                            files={'file': fil},
+                            category=cat + ' ' + str(i+1),
+                            filename=rj['filename'],
+                        )
+                        fil.close()
+                    if j == 5:
+                        self.cat[1].post(
+                            '/api/removepdf/printonly',
+                            filename=rj['filename']
+                        )
+                        self.cat[1].post(
+                            '/api/removepdf/solution',
+                            filename=rj['filename']
+                        )
+                        self.cat[0].post(
+                            '/api/exam/' + rj['filename'] + '/remove'
+                        )
+
+    def upload_images(self):
+        for usr in self.board + self.cat:
+            for i in range(3):
+                fil = open('../frontend/public/static/upvote_orange.svg', 'rb')
+                r = usr.post(
+                    '/api/uploadimg',
+                    files={'file': fil},
+                )
+                fil.close()
+                rj = r.json()
+                usr.post(
+                    '/api/image/' + rj['filename'] + '/metadata',
+                    displayname='Img ' + str(i+1),
+                )
+                if i == 1:
+                    usr.post(
+                        '/api/image/' + rj['filename'] + '/remove'
+                    )
 
 
 def main():
