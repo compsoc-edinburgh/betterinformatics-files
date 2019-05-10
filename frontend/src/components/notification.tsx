@@ -58,7 +58,7 @@ export default class NotificationComponent extends React.Component<Props> {
         <Link to={notification.link} onClick={() => this.readNotification(notification)}>
           <div {...styles.header}>
             <div {...(notification.read ? undefined : styles.unread)}>{notification.title}</div>
-            <div {...globalcss.noLinkColor} {...styles.subtitle}><Link to={notification.sender}>{notification.senderDisplayName}</Link> @ {moment(notification.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</div>
+            <div {...globalcss.noLinkColor} {...styles.subtitle}><Link to={notification.sender}>{notification.senderDisplayName}</Link> • {moment(notification.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</div>
           </div>
         </Link>
         <MarkdownText value={notification.message}/>

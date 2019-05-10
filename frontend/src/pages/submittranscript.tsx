@@ -80,7 +80,7 @@ export default class SubmitTranscript extends React.Component<{}, State> {
 
   render() {
     if (this.state.result) {
-      return <Redirect to="/"/>
+      return <Redirect to="/" push={true}/>
     } else {
       return (
         <div {...styles.wrapper}>

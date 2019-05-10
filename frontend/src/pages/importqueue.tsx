@@ -15,6 +15,10 @@ const styles = {
   unviewableExam: css({
     color: colors.inactiveElement,
   }),
+  queueTable: css({
+    width: "100%",
+    marginBottom: "15px",
+  }),
 };
 
 interface Props {
@@ -142,7 +146,7 @@ export default class ImportQueue extends React.Component<Props, State> {
       </div>}
       <h1>Import Queue</h1>
       {this.state.error && <div>{this.state.error}</div>}
-      <table>
+      <table {...styles.queueTable}>
         <thead>
           <tr>
             <th>Category</th>

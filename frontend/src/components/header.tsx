@@ -23,42 +23,62 @@ const linkStyle = {
 };
 const styles = {
   wrapper: css({
+    zIndex: "100",
+    position: "relative",
     display: "flex",
     justifyContent: "space-between",
     color: Colors.headerForeground,
     background: Colors.headerBackground,
+    minHeight: "100px",
     overflow: "hidden",
+    boxShadow: Colors.headerShadow,
+    marginBottom: "10px",
+    "@media (max-width: 799px)": {
+      display: "block",
+    },
   }),
   logotitle: css({
     display: "flex",
+    alignItems: "center",
+    "@media (max-width: 799px)": {
+      marginTop: "20px",
+      marginBottom: "20px",
+    },
   }),
   logo: css({
-    height: "30px",
-    margin: "10px"
-  }),
-  centerVertically: css({
-    display: "flex",
-    alignItems: "center",
+    height: "54px",
+    marginLeft: "30px",
+    "@media (max-width: 799px)": {
+      height: "34px",
+    },
   }),
   title: css({
-    marginLeft: "25px",
+    marginLeft: "30px",
+    fontSize: "32px",
+    fontWeight: "bold",
+    "& a": linkStyle,
+    "@media (max-width: 799px)": {
+      fontSize: "20px",
+    },
+  }),
+  menuWrapper: css({
+    display: "flex",
+    alignItems: "center",
+    "@media (max-width: 799px)": {
+      display: "block",
+    },
+  }),
+  menuitem: css({
+    display: "block",
+    marginRight: "40px",
     fontSize: "24px",
     "& a": linkStyle,
-  }),
-  feedback: css({
-    display: "block",
-    marginRight: "25px",
-    "& a": linkStyle,
-  }),
-  scoreboard: css({
-    display: "block",
-    marginRight: "25px",
-    "& a": linkStyle,
-  }),
-  username: css({
-    display: "block",
-    marginRight: "25px",
-    "& a": linkStyle,
+    "@media (max-width: 799px)": {
+      fontSize: "20px",
+      textAlign: "center",
+      padding: "10px",
+      marginRight: "0",
+    },
   }),
 };
 
@@ -93,12 +113,12 @@ export default class Header extends React.Component<Props> {
       <div {...styles.wrapper}>
         <div {...styles.logotitle}>
           <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
-          <div {...styles.title} {...styles.centerVertically}><Link to="/">VIS Community Solutions</Link></div>
+          <div {...styles.title}><Link to="/">VIS Community Solutions</Link></div>
         </div>
-        <div {...styles.centerVertically}>
-          <div {...styles.feedback}><Link to="/feedback">Feedback</Link></div>
-          <div {...styles.scoreboard}><Link to="/scoreboard">Scoreboard</Link></div>
-          <div {...styles.username}><Link to={`/user/${this.props.username}`}>{this.props.displayName}{this.state.notificationCount > 0 ? " (" + this.state.notificationCount + ")" : ""}</Link></div>
+        <div {...styles.menuWrapper}>
+          <div {...styles.menuitem}><Link to="/feedback">Feedback</Link></div>
+          <div {...styles.menuitem}><Link to="/scoreboard">Scoreboard</Link></div>
+          <div {...styles.menuitem}><Link to={`/user/${this.props.username}`}>{this.props.displayName}{this.state.notificationCount > 0 ? " (" + this.state.notificationCount + ")" : ""}</Link></div>
         </div>
       </div>
     );

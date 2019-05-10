@@ -16,6 +16,13 @@ const styles = {
     maxWidth: "900px",
     margin: "auto",
   }),
+  metadata: css({
+    marginBottom: "4px",
+  }),
+  offeredIn: css({
+    marginTop: "4px",
+    marginBottom: "4px",
+  }),
   metdataWrapper: css({
     padding: "10px",
     marginBottom: "20px",
@@ -38,6 +45,9 @@ const styles = {
         width: "90%",
       },
     }
+  }),
+  examsTable: css({
+    width: "100%",
   }),
 };
 
@@ -83,6 +93,9 @@ export default class Category extends React.Component<Props, State> {
       remark: "",
       has_payments: false,
       catadmin: false,
+      more_exams_link: "",
+      examcount: 0,
+      examcountvisible: 0,
     },
     editingMetaData: false,
     redirectBack: false,
@@ -118,6 +131,7 @@ export default class Category extends React.Component<Props, State> {
         this.setState({
           category: res.value
         });
+        document.title = res.value.category + " - VIS Community Solutions";
       })
       .catch(()=>undefined);
   };
@@ -364,7 +378,7 @@ export default class Category extends React.Component<Props, State> {
       return <Redirect to="/"/>;
     }
     if (this.state.gotoExam) {
-      return <Redirect to={'/exams/' + this.state.gotoExam.filename}/>
+      return <Redirect to={'/exams/' + this.state.gotoExam.filename} push={true}/>
     }
     if (!this.state.category) {
       return <div>Loading...</div>;
@@ -377,73 +391,79 @@ export default class Category extends React.Component<Props, State> {
       .filter(exam => filterMatches(this.state.filter, exam.displayname));
     return (<div {...styles.wrapper}>
       <h1>{cat.category}</h1>
-      {this.state.category.semester && <p>Semester: {this.state.category.semester}</p>}
-      {this.state.category.form && <p>Form: {this.state.category.form}</p>}
-      {offeredIn.length > 0 && <div>
-        Offered in:
-        <ul>
-          {offeredIn.map(meta1 => meta1.meta2.map(meta2 => <li key={meta1.displayname + meta2.displayname}>{meta2.displayname} in {meta1.displayname}</li>))}
-        </ul>
-      </div>}
-      {this.state.category.remark && <p>Remark: {this.state.category.remark}</p>}
-      {this.state.category.has_payments && <p>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</p>}
-      {catAdmin && <p>You can edit exams in this category. Please do so responsibly.</p>}
-      {this.state.error && <div>{this.state.error}</div>}
-      {(this.props.isAdmin) && <p><button onClick={this.toggleEditingMetadata}>Edit Category</button></p>}
-      {this.state.editingMetaData && <div {...styles.metdataWrapper}>
-        <h2>Meta Data</h2>
-        <div>
-          <AutocompleteInput name="semester" placeholder="semester" value={this.state.currentMetaData.semester} onChange={ev => this.valueChanged("semester", ev)} autocomplete={["HS", "FS"]}/>
-          <AutocompleteInput name="form" placeholder="form" value={this.state.currentMetaData.form} onChange={ev => this.valueChanged("form", ev)} autocomplete={["written", "oral"]}/>
-        </div>
-        <div>
-          <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={ev => this.valueChanged("remark", ev)}/>
-          <AutocompleteInput name="permission" placeholder="permission" value={this.state.currentMetaData.permission} onChange={ev => this.valueChanged("permission", ev)} autocomplete={["public", "intern", "hidden", "none"]}/>
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" checked={this.state.currentMetaData.has_payments} onChange={(ev) => this.checkboxValueChanged("has_payments", ev)}/>
-            Has Payments
-          </label>
-        </div>
-        <div>
-          <button onClick={this.saveEdit}>Save</button>
-          <button onClick={this.cancelEdit}>Cancel</button>
-        </div>
-        <div>
-          <h2>Offered In</h2>
-            <ul>
-              {offeredIn.map(meta1 => meta1.meta2.map(meta2 => <li key={meta1.displayname + meta2.displayname}>{meta2.displayname} in {meta1.displayname} <button onClick={() => this.removeMetaCategory(meta1.displayname, meta2.displayname)}>X</button></li>))}
-            </ul>
-            <AutocompleteInput
-              name="meta"
-              onChange={ev => this.setState({newMeta1: ev.target.value})}
-              value={this.state.newMeta1}
-              placeholder="main category"
-              onKeyPress={listenEnter(this.addMetaCategory)}
-              autocomplete={this.state.metaCategories.map(meta1 => meta1.displayname)}/>
-            <AutocompleteInput
-              name="submeta"
-              onChange={ev => this.setState({newMeta2: ev.target.value})}
-              value={this.state.newMeta2}
-              placeholder="sub category"
-              onKeyPress={listenEnter(this.addMetaCategory)}
-              autocomplete={this.flatArray(this.state.metaCategories.filter(meta1 => meta1.displayname === this.state.newMeta1).map(meta1 => meta1.meta2.map(meta2 => meta2.displayname)))}/>
-            <button onClick={this.addMetaCategory} disabled={this.state.newMeta1.length === 0 || this.state.newMeta2.length === 0}>Add Offered In</button>
-        </div>
-        <div>
-          <h2>Admins</h2>
-          <ul>
-            {this.state.category.admins.map(admin => <li key={admin}>{admin} <button onClick={() => this.removeAdmin(admin)}>X</button></li>)}
+      <div>
+        {this.state.category.semester && <div {...styles.metadata}>Semester: {this.state.category.semester}</div>}
+        {this.state.category.form && <div {...styles.metadata}>Form: {this.state.category.form}</div>}
+        {offeredIn.length > 0 && <div {...styles.metadata}>
+          Offered in:
+          <ul {...styles.offeredIn}>
+            {offeredIn.map(meta1 => meta1.meta2.map(meta2 => <li key={meta1.displayname + meta2.displayname}>{meta2.displayname} in {meta1.displayname}</li>))}
           </ul>
-          <input type="text" value={this.state.newAdminName} onChange={ev => this.setState({newAdminName: ev.target.value})} placeholder="new admin" onKeyPress={listenEnter(this.addAdmin)}/>
-          <button onClick={this.addAdmin} disabled={this.state.newAdminName.length === 0}>Add Admin</button>
-        </div>
-        <div>
-          <h2>Remove Category</h2>
-          <button onClick={this.removeCategory}>Remove Category</button>
-        </div>
-      </div>}
+        </div>}
+        {this.state.category.remark && <div {...styles.metadata}>Remark: {this.state.category.remark}</div>}
+        {this.state.category.more_exams_link && <div {...styles.metadata}><a href={this.state.category.more_exams_link} target="_blank">Additional Exams</a></div>}
+        {this.state.category.has_payments && <div {...styles.metadata}>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</div>}
+        {catAdmin && <div {...styles.metadata}>You can edit exams in this category. Please do so responsibly.</div>}
+        {this.state.error && <div {...styles.metadata}>{this.state.error}</div>}
+        {(this.props.isAdmin) && <div {...styles.metadata}><button onClick={this.toggleEditingMetadata}>Edit Category</button></div>}
+        {this.state.editingMetaData && <div {...styles.metdataWrapper}>
+          <h2>Meta Data</h2>
+          <div>
+            <AutocompleteInput name="semester" placeholder="semester" value={this.state.currentMetaData.semester} onChange={ev => this.valueChanged("semester", ev)} autocomplete={["HS", "FS"]}/>
+            <AutocompleteInput name="form" placeholder="form" value={this.state.currentMetaData.form} onChange={ev => this.valueChanged("form", ev)} autocomplete={["written", "oral"]}/>
+          </div>
+          <div>
+            <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={ev => this.valueChanged("remark", ev)}/>
+            <AutocompleteInput name="permission" placeholder="permission" value={this.state.currentMetaData.permission} onChange={ev => this.valueChanged("permission", ev)} autocomplete={["public", "intern", "hidden", "none"]}/>
+          </div>
+          <div>
+            <input type="text" placeholder="more exams link" value={this.state.currentMetaData.more_exams_link} onChange={ev => this.valueChanged("more_exams_link", ev)}/>
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" checked={this.state.currentMetaData.has_payments} onChange={(ev) => this.checkboxValueChanged("has_payments", ev)}/>
+              Has Payments
+            </label>
+          </div>
+          <div>
+            <button onClick={this.saveEdit}>Save</button>
+            <button onClick={this.cancelEdit}>Cancel</button>
+          </div>
+          <div>
+            <h2>Offered In</h2>
+              <ul>
+                {offeredIn.map(meta1 => meta1.meta2.map(meta2 => <li key={meta1.displayname + meta2.displayname}>{meta2.displayname} in {meta1.displayname} <button onClick={() => this.removeMetaCategory(meta1.displayname, meta2.displayname)}>X</button></li>))}
+              </ul>
+              <AutocompleteInput
+                name="meta"
+                onChange={ev => this.setState({newMeta1: ev.target.value})}
+                value={this.state.newMeta1}
+                placeholder="main category"
+                onKeyPress={listenEnter(this.addMetaCategory)}
+                autocomplete={this.state.metaCategories.map(meta1 => meta1.displayname)}/>
+              <AutocompleteInput
+                name="submeta"
+                onChange={ev => this.setState({newMeta2: ev.target.value})}
+                value={this.state.newMeta2}
+                placeholder="sub category"
+                onKeyPress={listenEnter(this.addMetaCategory)}
+                autocomplete={this.flatArray(this.state.metaCategories.filter(meta1 => meta1.displayname === this.state.newMeta1).map(meta1 => meta1.meta2.map(meta2 => meta2.displayname)))}/>
+              <button onClick={this.addMetaCategory} disabled={this.state.newMeta1.length === 0 || this.state.newMeta2.length === 0}>Add Offered In</button>
+          </div>
+          <div>
+            <h2>Admins</h2>
+            <ul>
+              {this.state.category.admins.map(admin => <li key={admin}>{admin} <button onClick={() => this.removeAdmin(admin)}>X</button></li>)}
+            </ul>
+            <input type="text" value={this.state.newAdminName} onChange={ev => this.setState({newAdminName: ev.target.value})} placeholder="new admin" onKeyPress={listenEnter(this.addAdmin)}/>
+            <button onClick={this.addAdmin} disabled={this.state.newAdminName.length === 0}>Add Admin</button>
+          </div>
+          <div>
+            <h2>Remove Category</h2>
+            <button onClick={this.removeCategory}>Remove Category</button>
+          </div>
+        </div>}
+      </div>
       <div {...styles.filterInput}>
         <input type="text" onChange={this.filterChanged} value={this.state.filter}
                placeholder="Filter..." autoFocus={true} onKeyPress={listenEnter(this.openFirstExam)}/>
@@ -456,7 +476,7 @@ export default class Category extends React.Component<Props, State> {
               .length > 0)
           .map(examType => <div key={examType}>
           <h2>{examType}</h2>
-          <table>
+          <table {...styles.examsTable}>
             <thead>
             <tr>
               <th>Name</th>

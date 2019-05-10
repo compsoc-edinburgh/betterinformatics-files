@@ -2,7 +2,7 @@ import * as React from "react";
 import {PdfSection} from "../interfaces";
 import {SectionRenderer, Dimensions} from "../split-render";
 import {css} from "glamor";
-import colors from "../colors";
+import Colors from "../colors";
 
 interface Props {
   section: PdfSection;
@@ -16,6 +16,10 @@ interface Props {
 const styles = {
   wrapper: css({
     position: "relative",
+    boxShadow: Colors.cardShadow,
+  }),
+  lastSection: css({
+    marginBottom: "40px",
   }),
   canvas: css({
     display: "block",
@@ -36,7 +40,7 @@ const styles = {
       transformOrigin: "0% 0%",
       "::selection": {
         color: "inherit",
-        background: colors.selectionBackground,
+        background: Colors.selectionBackground,
       }
     }
   })
@@ -149,7 +153,7 @@ export default class PdfSectionComp extends React.Component<Props> {
     const {dpr} = this.props;
     const rawDim = this.sectionDimensions();
     return (
-      <div {...styles.wrapper}>
+      <div {...styles.wrapper} {...(this.props.section.end.position === 1) ? styles.lastSection : undefined}>
         <canvas
           ref={this.saveCanvasRef}
           width={Math.ceil(rawDim.width * dpr)}

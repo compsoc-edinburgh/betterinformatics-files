@@ -82,7 +82,7 @@ export default class FeedbackEntryComponent extends React.Component<Props> {
 
     return (<div {...styles.wrapper}>
       <div {...styles.header}>
-        <div>{entry.authorDisplayName} @ {moment(entry.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</div>
+        <div>{entry.authorDisplayName} • {moment(entry.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</div>
         <div {...styles.buttons}>
           <button {...styles.buttonDone[entry.done?1:0]} onClick={() => this.setDone(!entry.done)}>{entry.done ? "Set Undone" : "Set Done"}</button>
           <button {...styles.buttonRead[entry.read?1:0]} onClick={() => this.setRead(!entry.read)}>{entry.read ? "Set Unread" : "Set Read"}</button>

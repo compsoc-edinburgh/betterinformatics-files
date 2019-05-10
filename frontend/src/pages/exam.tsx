@@ -11,6 +11,7 @@ import {fetchapi, fetchpost} from "../fetch-utils";
 import MetaData from "../components/metadata";
 import Colors from "../colors";
 import PrintExam from "../components/print-exam";
+import globalcss from "../globalcss";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -19,21 +20,32 @@ const styles = {
   wrapper: css({
     margin: "auto",
   }),
-  sectionsButton: css({
+  sectionsButtonSticky: css({
     position: ["sticky", "-webkit-sticky"],
     top: "20px",
+    width: "200px",
     float: "right",
     zIndex: "100",
+    "@media (max-width: 799px)": {
+      position: "static",
+    },
+  }),
+  sectionsButtons: css({
+    position: "absolute",
+    right: "10px",
     "& button": {
       width: "100%",
-    }
+    },
+    "@media (max-width: 799px)": {
+      position: "static",
+    },
   }),
   linkBanner: css({
     background: Colors.linkBannerBackground,
     width: "60%",
     margin: "auto",
     marginTop: "10px",
-    marginBottom: "10px",
+    marginBottom: "20px",
     padding: "5px 10px",
     textAlign: "center",
     "@media (max-width: 699px)": {
@@ -46,6 +58,10 @@ const styles = {
     margin: "auto",
     textAlign: "center",
     padding: "5px 10px",
+  }),
+  licenseText: css({
+    color: Colors.silentText,
+    paddingLeft: "10px",
   }),
 };
 
@@ -355,26 +371,31 @@ export default class Exam extends React.Component<Props, State> {
     const wikitransform = this.state.savedMetaData.legacy_solution ? this.state.savedMetaData.legacy_solution.split("/").pop() : "";
     return (
       <div>
-        <div {...styles.sectionsButton}>
-          <div>
-            <button onClick={this.gotoPDF}>Download PDF</button>
-          </div>
-          <div>
-            <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
-          </div>
-          <div>
-            <button onClick={this.reportProblem}>Report Problem</button>
-          </div>
-          {this.state.canEdit && [
-            <div key="metadata">
-              <button onClick={this.toggleEditingMetadataActive}>Edit MetaData</button>
-            </div>,
-            <div key="cuts">
-              <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
+        {this.state.error && <div {...css({position: ["sticky", "-webkit-sticky"]})}>{this.state.error}</div>}
+        <div {...styles.sectionsButtonSticky}>
+          <div {...styles.sectionsButtons}>
+            <div>
+              <button onClick={this.gotoPDF}>Download PDF</button>
             </div>
-            ]
-          }
-          {this.state.error && <div>{this.state.error}</div>}
+            <div>
+              <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
+            </div>
+            <div>
+              <button onClick={this.reportProblem}>Report Problem</button>
+            </div>
+            {this.state.canEdit && [
+              <div key="metadata">
+                <button onClick={this.toggleEditingMetadataActive}>Edit MetaData</button>
+              </div>,
+              <div key="cuts">
+                <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
+              </div>
+              ]
+            }
+            <div {...styles.licenseText}>
+              <small {...globalcss.noLinkColor}>All answers are licensed as <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</small>
+            </div>
+          </div>
         </div>
         {this.state.editingMetaData &&
           <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}

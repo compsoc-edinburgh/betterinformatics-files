@@ -9,6 +9,7 @@ import {Link} from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
 import {listenEnter} from "../input-utils";
+import Colors from "../colors";
 
 interface Props {
   filename: string;
@@ -17,6 +18,7 @@ interface Props {
   isNewComment?: boolean;
   comment: Comment;
   onSectionChanged: (res: {value: {answersection: AnswerSection}}) => void;
+  onNewCommentSaved?: () => void;
 }
 
 interface State {
@@ -29,24 +31,18 @@ interface State {
 
 const styles = {
   wrapper: css({
-    marginBottom: "10px"
+    marginBottom: "5px",
+    borderTop: "1px solid " + Colors.commentBorder,
+    paddingTop: "5px",
   }),
   header: css({
-    marginBottom: "5px"
-  }),
-  threebuttons: css({
-    textAlign: "center",
     display: "flex",
     justifyContent: "space-between",
-    "& > div": {
-      width: ["200px", "calc(100% / 3)"]
-    }
+    color: Colors.silentText,
   }),
-  leftButton: css({
-    textAlign: "left"
-  }),
-  rightButton: css({
-    textAlign: "right"
+  comment:  css({
+    marginTop: "2px",
+    marginBottom: "7px",
   }),
   textareaInput: css({
     width: "100%",
@@ -55,6 +51,17 @@ const styles = {
     marginBottom: "5px",
     padding: "5px",
     boxSizing: "border-box"
+  }),
+  actionButtons: css({
+    display: "flex",
+    justifyContent: "flex-end",
+  }),
+  actionButton: css({
+    cursor: "pointer",
+    marginLeft: "10px",
+  }),
+  actionImg: css({
+    height: "26px",
   }),
 };
 
@@ -98,6 +105,9 @@ export default class CommentComponent extends React.Component<Props, State> {
       })
         .then((res) => {
           this.setState({text: ""});
+          if (this.props.onNewCommentSaved) {
+            this.props.onNewCommentSaved();
+          }
           this.props.onSectionChanged(res);
         })
         .catch(() => undefined);
@@ -153,26 +163,38 @@ export default class CommentComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.header}>
-          {this.props.isNewComment && <b>Add comment</b>}
-            {!this.props.isNewComment && <span><b {...globalcss.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> @ {moment(comment.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</span>}
+          <div>
+            {this.props.isNewComment && <b>Add comment</b>}
+            {!this.props.isNewComment && <span><b {...globalcss.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> • {moment(comment.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</span>}
+          </div>
+          <div>
+            {comment.canEdit && !this.state.editing && <div {...styles.actionButtons}>
+              <div {...styles.actionButton} onClick={this.startEdit}>
+                <img {...styles.actionImg} src="/static/edit.svg" title="Edit Comment"/>
+              </div>
+              <div {...styles.actionButton} onClick={this.removeComment}>
+                <img {...styles.actionImg} src="/static/delete.svg" title="Delete Comment"/>
+              </div>
+            </div>}
+          </div>
         </div>
-        <div><MarkdownText value={this.state.editing ? this.state.text : comment.text}/></div>
+        <div {...styles.comment}><MarkdownText value={this.state.editing ? this.state.text : comment.text}/></div>
         {this.state.editing && <div>
           <div>
             <textarea {...styles.textareaInput} onKeyUp={this.commentTextareaChange} onChange={this.commentTextareaChange} cols={80} rows={5} value={this.state.text} onKeyPress={listenEnter(this.saveComment, true)} />
           </div>
-          <div {...styles.threebuttons}>
-            <div {...styles.leftButton}>
-              {this.state.editing && <button onClick={this.startImageDialog}>Images</button>}
+          <div {...styles.actionButtons}>
+            <div {...styles.actionButton} onClick={this.startImageDialog}>
+              <img {...styles.actionImg} src="/static/images.svg" title="Images"/>
             </div>
-            <div><button onClick={this.saveComment}>Save Comment</button></div>
-            <div {...styles.rightButton}>{!this.props.isNewComment && <button onClick={this.cancelEdit}>Cancel</button>}</div>
+            <div {...styles.actionButton} onClick={this.saveComment}>
+              <img {...styles.actionImg} src="/static/save.svg" title="Save Comment"/>
+            </div>
+            {!this.props.isNewComment &&
+            <div {...styles.actionButton} onClick={this.cancelEdit}>
+              <img {...styles.actionImg} src="/static/cancel.svg" title="Cancel"/>
+            </div>}
           </div>
-        </div>}
-        {comment.canEdit && !this.state.editing && <div {...styles.threebuttons}>
-          <div {...styles.leftButton}/>
-          <div><button onClick={this.startEdit}>Edit Comment</button></div>
-          <div {...styles.rightButton}><button onClick={this.removeComment}>Delete Comment</button></div>
         </div>}
         {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
       </div>

@@ -23,7 +23,7 @@ interface State {
 const styles = {
   wrapper: css({
     width: "80%",
-    margin: "auto",
+    margin: "20px auto",
     "@media (max-width: 699px)": {
       width: "95%",
     },

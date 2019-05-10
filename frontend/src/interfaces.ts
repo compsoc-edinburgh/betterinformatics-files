@@ -107,6 +107,9 @@ export interface CategoryMetaData {
   remark: string;
   has_payments: boolean;
   catadmin: boolean;
+  more_exams_link: string;
+  examcount: number;
+  examcountvisible: number;
 }
 
 export interface ExamMetaData {

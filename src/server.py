@@ -94,6 +94,7 @@ CATEGORY_METADATA = [
     "permission",
     "remark",
     "has_payments",
+    "more_exams_link",
 ]
 CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
@@ -1307,6 +1308,10 @@ def list_categories_with_meta():
         }),
         key=lambda x: x["category"]
     ))
+    for category in categories:
+        exams = get_category_exams(category["category"])
+        category["examcount"] = len(exams)
+        category["examcountvisible"] = sum(x["canView"] for x in exams)
     return success(value=categories)
 
 

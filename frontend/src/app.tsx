@@ -13,15 +13,20 @@ import Scoreboard from "./pages/scoreboard";
 import UserInfoComponent from "./pages/userinfo";
 import ImportQueue from "./pages/importqueue";
 import SubmitTranscript from "./pages/submittranscript";
+import colors from "./colors";
+import globalcss from "./globalcss";
 
 css.global('body', {
-  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
+  fontFamily: '"Avenir Next","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
+  background: colors.pageBackground,
 });
 css.global('h1', {
+  fontFamily: 'Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
   marginBlockStart: "0.4em",
   marginBlockEnd: "0.4em"
 });
 css.global('h2', {
+  fontFamily: 'Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',
   marginBlockStart: "0.3em",
   marginBlockEnd: "0.3em"
 });
@@ -37,23 +42,13 @@ css.global('a:visited', {
 css.global('a:hover', {
   color: Colors.linkHover
 });
-css.global('button', {
-  cursor: "pointer",
-  background: Colors.buttonBackground,
-  padding: "7px 14px",
-  border: "none",
-  textAlign: "center",
-  textDecoration: "none",
-  display: "inline-block",
-  borderRadius: "5px",
-  margin: "5px"
-});
+css.global('button', globalcss.button);
 css.global('input', {
   margin: "5px",
   padding: "7px",
-  border: "0.5px solid #cccccc",
+  border: "1px solid " + Colors.inputBorder,
   borderRadius: "2px",
-  boxSizing: "border-box"
+  boxSizing: "border-box",
 });
 css.global('button[disabled]', {
   background: Colors.buttonBackgroundDisabled
@@ -72,13 +67,18 @@ css.global('.primary:hover', {
 });
 css.global('table', {
   borderCollapse: 'collapse',
+  boxShadow: Colors.tableShadow,
+  textAlign: "left",
 });
 css.global('table td, table th', {
-  border: '2px solid ' + Colors.tableBorder,
+  border: 'none',
   padding: '8px',
 });
 css.global('table th', {
   background: Colors.tableHeader,
+});
+css.global('thead tr', {
+  borderBottom: '1px solid ' + Colors.tableHeaderBorder,
 });
 css.global('table tr:nth-child(even)', {
   background: Colors.tableEven,

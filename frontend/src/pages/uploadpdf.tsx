@@ -89,7 +89,7 @@ export default class UploadPDF extends React.Component<{}, State> {
 
   render() {
     if (this.state.result) {
-      return <Redirect to={"/exams/" + this.state.result.filename}/>
+      return <Redirect to={"/exams/" + this.state.result.filename} push={true}/>
     } else {
       return (
         <div {...styles.wrapper}>

@@ -10,7 +10,62 @@ import globalcss from "../globalcss";
 import {listenEnter} from "../input-utils";
 
 const styles = {
-  wrapper: css({
+  header: css({
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginLeft: "-15px",
+    marginRight: "-15px",
+    marginTop: "-15px",
+    marginBottom: "20px",
+    paddingLeft: "15px",
+    paddingRight: "15px",
+    paddingTop: "20px",
+    paddingBottom: "20px",
+    "@media (max-width: 799px)": {
+      display: "block",
+    }
+  }),
+  filterWrapper: css({
+    flexGrow: "1",
+  }),
+  filterInput: css({
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    "& input": {
+      width:  "60%",
+      "@media (max-width: 799px)": {
+        width: "80%",
+      },
+      "@media (max-width: 599px)": {
+        width: "95%",
+      },
+    }
+  }),
+  sortWrapper: css({
+    textAlign: "center",
+    fontSize: "20px",
+    marginBottom: "10px",
+  }),
+  sortWrapperInactive: css({
+    cursor: "pointer",
+  }),
+  sortWrapperActive: css({
+    fontWeight: "bold",
+  }),
+  buttonsWrapper: css({
+    fontSize: "20px",
+    display: "flex",
+    "& div": {
+      ...globalcss.button,
+      marginRight: "10px",
+    },
+    "@media (max-width: 799px)": {
+      marginTop: "10px",
+    }
+  }),
+  categoriesWrapper: css({
     width: "100%",
     display: "flex",
     flexWrap: "wrap"
@@ -18,45 +73,21 @@ const styles = {
   category: css({
     background: Colors.cardBackground,
     width: "250px",
-    paddingLeft: "20px",
-    paddingRight: "20px",
+    padding: "20px",
     marginLeft: "20px",
     marginRight: "20px",
     marginBottom: "40px",
     borderRadius: "0px",
     boxShadow: Colors.cardShadow,
+    cursor: "pointer",
   }),
   categoryTitle: css({
+    fontSize: "24px",
     textTransform: "capitalize",
-    cursor: "pointer",
+    marginBottom: "5px",
   }),
-  categoryActive: css({
-    color: Colors.activeCategory,
-  }),
-  filterInput: css({
-    width: "100%",
-    display: "flex",
-    justifyContent: "center",
-    marginTop: "20px",
-    marginBottom: "20px",
-    "& input": {
-      width:  "50%",
-      "@media (max-width: 799px)": {
-        width: "70%",
-      },
-      "@media (max-width: 599px)": {
-        width: "90%",
-      },
-    }
-  }),
-  sortWrapper: css({
-    textAlign: "center",
-  }),
-  sortWrapperInactive: css({
-    cursor: "pointer",
-  }),
-  sortWrapperActive: css({
-    fontWeight: "bold",
+  categoryInfo: css({
+    marginTop: "5px"
   }),
   addCategoryInput: css({
     width: "100%",
@@ -189,7 +220,7 @@ export default class Home extends React.Component<Props, State> {
 
   addCategoryView = () => {
     return (<div {...styles.category}>
-      <h1 {...styles.categoryTitle} onClick={this.toggleAddingCategory}>Add Category</h1>
+      <div {...styles.categoryTitle} onClick={this.toggleAddingCategory}>Add Category</div>
       {this.state.addingCategory && <div>
           <div>
               <input {...styles.addCategoryInput} value={this.state.newCategoryName}
@@ -201,32 +232,20 @@ export default class Home extends React.Component<Props, State> {
     </div>);
   };
 
-  adminViews = () => {
-    return <React.Fragment>
-      <div {...styles.category} {...globalcss.noLinkColor}>
-        <Link to='/submittranscript'><h1 {...styles.categoryTitle}>Submit transcript</h1></Link>
+  categoryView = (category: CategoryMetaData) => {
+    return (
+      <div key={category.category} {...styles.category} onClick={() => this.gotoCategory(category)}>
+        <div {...styles.categoryTitle} {...globalcss.noLinkColor}><Link to={'/category/' + category.slug}>{category.category}</Link></div>
+        <div {...styles.categoryInfo}>{category.examcountvisible} exams</div>
       </div>
-      {this.props.isCategoryAdmin &&
-      <div {...styles.category} {...globalcss.noLinkColor}>
-        <Link to='/uploadpdf'><h1 {...styles.categoryTitle}>Upload Exam</h1></Link>
-      </div>}
-      {this.props.isCategoryAdmin &&
-      <div {...styles.category} {...globalcss.noLinkColor}>
-        <Link to='/importqueue'><h1 {...styles.categoryTitle}>Import Queue</h1></Link>
-      </div>}
-      {this.props.isAdmin && this.addCategoryView()}
-    </React.Fragment>
+    );
   };
 
   alphabeticalView = (categories: CategoryMetaData[]) => {
     return (
-      <div {...styles.wrapper}>
-        {categories.map(category => (
-          <div key={category.category} {...styles.category} onClick={() => this.gotoCategory(category)}>
-            <h1 {...styles.categoryTitle}>{category.category}</h1>
-          </div>
-        ))}
-        {this.adminViews()}
+      <div {...styles.categoriesWrapper}>
+        {categories.map(category => this.categoryView(category))}
+        {this.props.isAdmin && this.addCategoryView()}
       </div>);
   };
 
@@ -237,21 +256,19 @@ export default class Home extends React.Component<Props, State> {
           <h2>{meta1.displayname}</h2>
           {meta1.meta2.map(meta2 => <div key={meta2.displayname}>
             <h3>{meta2.displayname}</h3>
-            <div {...styles.wrapper}>
-              {meta2.categories.map(category =>
-                <div key={category.category} {...styles.category} onClick={() => this.gotoCategory(category)}>
-                  <h1 {...styles.categoryTitle}>{category.category}</h1>
-                </div>
-              )}
+            <div {...styles.categoriesWrapper}>
+              {meta2.categories.map(category => this.categoryView(category))}
             </div>
           </div>)}
         </div>)}
-        <div>
-          <h2>Admin</h2>
-          <div {...styles.wrapper}>
-            {this.adminViews()}
+        {this.props.isAdmin &&
+          <div>
+            <h2>New Category</h2>
+            <div {...styles.categoriesWrapper}>
+              {this.addCategoryView()}
+            </div>
           </div>
-        </div>
+        }
       </div>
     );
   };
@@ -261,7 +278,7 @@ export default class Home extends React.Component<Props, State> {
       return <div>Could not load exams...</div>;
     }
     if (this.state.gotoCategory) {
-      return <Redirect to={'/category/' + this.state.gotoCategory.slug}/>
+      return <Redirect to={'/category/' + this.state.gotoCategory.slug} push={true}/>
     }
     const categories = this.state.categories;
     if (!categories) {
@@ -270,12 +287,21 @@ export default class Home extends React.Component<Props, State> {
     const categoriesFiltered = filterCategories(categories, this.state.filter);
     const categoriesBySemester = fillMetaCategories(categoriesFiltered, this.state.metaCategories);
     return (<div>
-      <div {...styles.sortWrapper}>
-        <span onClick={() => this.setBySemesterView(false)} {...(this.state.bySemesterView ? styles.sortWrapperInactive : styles.sortWrapperActive)}>Alphabetical</span> | <span onClick={() => this.setBySemesterView(true)} {...(this.state.bySemesterView ? styles.sortWrapperActive : styles.sortWrapperInactive)}>By Semester</span>
-      </div>
-      <div {...styles.filterInput}>
-        <input type="text" onChange={this.filterChanged} value={this.state.filter}
-               placeholder="Filter..." autoFocus={true} onKeyPress={listenEnter(this.openFirstCategory)}/>
+      <div {...styles.header}>
+        <div {...styles.filterWrapper}>
+          <div {...styles.sortWrapper}>
+            <span onClick={() => this.setBySemesterView(false)} {...(this.state.bySemesterView ? styles.sortWrapperInactive : styles.sortWrapperActive)}>Alphabetical</span> | <span onClick={() => this.setBySemesterView(true)} {...(this.state.bySemesterView ? styles.sortWrapperActive : styles.sortWrapperInactive)}>By Semester</span>
+          </div>
+          <div {...styles.filterInput}>
+            <input type="text" onChange={this.filterChanged} value={this.state.filter}
+                   placeholder="Filter..." autoFocus={true} onKeyPress={listenEnter(this.openFirstCategory)}/>
+          </div>
+        </div>
+        <div {...styles.buttonsWrapper}>
+          <div {...globalcss.noLinkColor}><Link to='/submittranscript'>Submit transcript</Link></div>
+          {this.props.isAdmin && <div {...globalcss.noLinkColor}><Link to='/uploadpdf'>Upload Exam</Link></div>}
+          {this.props.isAdmin && <div {...globalcss.noLinkColor}><Link to='/importqueue'>Import Queue</Link></div>}
+        </div>
       </div>
       {this.state.bySemesterView ? this.semesterView(categoriesBySemester) : this.alphabeticalView(categoriesFiltered)}
     </div>);

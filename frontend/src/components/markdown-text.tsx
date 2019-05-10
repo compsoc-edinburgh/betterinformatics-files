@@ -16,16 +16,16 @@ interface Props {
 
 const styles = {
   wrapper: css({
-    paddingTop: "2px",
-    paddingBottom: "2px",
-    paddingLeft: "20px",
-    paddingRight: "20px",
+    "& p:first-child": {
+      marginBlockStart: "0",
+    },
+    "& p:last-child": {
+      marginBlockEnd: "0",
+    },
     "& img": {
       maxWidth: "100%",
     },
     "@media (max-width: 699px)": {
-      paddingLeft: "10px",
-      paddingRight: "10px",
       "& p": {
         marginBlockStart: "0.5em",
         marginBlockEnd: "0.5em",

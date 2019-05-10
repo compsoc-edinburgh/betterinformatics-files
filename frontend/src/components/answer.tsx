@@ -26,7 +26,8 @@ interface State {
   imageCursorPosition: number;
   text: string;
   savedText: string;
-  commentsVisible: boolean;
+  addingComment: boolean;
+  allCommentsVisible: boolean;
 }
 
 const styles = {
@@ -38,20 +39,6 @@ const styles = {
     "@media (max-width: 699px)": {
       padding: "5px",
     },
-  }),
-  threebuttons: css({
-    textAlign: "center",
-    display: "flex",
-    justifyContent: "space-between",
-    "& > div": {
-      width: ["200px", "calc(100% / 3)"]
-    }
-  }),
-  leftButton: css({
-    textAlign: "left"
-  }),
-  rightButton: css({
-    textAlign: "right"
   }),
   header: css({
     fontSize: "24px",
@@ -94,20 +81,20 @@ const styles = {
     marginRight: "9px",
   }),
   answer: css({
-    margin: "5px"
+    marginTop: "15px",
+    marginLeft: "10px",
+    marginRight: "10px",
   }),
   answerInput: css({
     marginLeft: "5px",
     marginRight: "5px"
   }),
   answerTexHint: css({
-    marginBottom: "10px",
-    marginLeft: "5px",
-    marginRight: "5px"
-  }),
-  bottomHints: css({
     display: "flex",
     justifyContent: "space-between",
+    marginBottom: "10px",
+    marginLeft: "5px",
+    marginRight: "5px",
     color: colors.silentText,
   }),
   comments: css({
@@ -123,6 +110,33 @@ const styles = {
     padding: "5px",
     boxSizing: "border-box"
   }),
+  actionButtons: css({
+    display: "flex",
+    justifyContent: "flex-end",
+    marginRight: "25px",
+  }),
+  actionButton: css({
+    cursor: "pointer",
+    marginLeft: "10px",
+  }),
+  actionImg: css({
+    height: "26px",
+  }),
+  permalink: css({
+    marginRight: "5px",
+    "& a:link, & a:visited": {
+      color: Colors.silentText,
+    },
+    "& a:hover": {
+      color: Colors.linkHover,
+    }
+  }),
+  moreComments: css({
+    cursor: "pointer",
+    color: colors.silentText,
+    borderTop: "1px solid " + Colors.commentBorder,
+    paddingTop: "2px",
+  }),
 };
 
 export default class AnswerComponent extends React.Component<Props, State> {
@@ -133,7 +147,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
     imageCursorPosition: -1,
     savedText: this.props.answer.text,
     text: this.props.answer.text,
-    commentsVisible: false,
+    allCommentsVisible: false,
+    addingComment: false,
   };
 
   setMainDivRef = (element: HTMLDivElement) => {
@@ -185,6 +200,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
     });
   };
 
+  toggleAddingComment = () => {
+    this.setState(prevState => ({
+      addingComment: !prevState.addingComment,
+    }));
+  };
+
   startImageDialog = () => {
     this.setState({imageDialog: true});
   };
@@ -227,17 +248,21 @@ export default class AnswerComponent extends React.Component<Props, State> {
 
   toggleComments = () => {
     this.setState(prevState => ({
-      commentsVisible: !prevState.commentsVisible
+      allCommentsVisible: !prevState.allCommentsVisible
     }));
   };
 
   render() {
     const {answer} = this.props;
+    let comments = answer.comments;
+    if (!this.state.allCommentsVisible && comments.length > 3) {
+      comments = comments.slice(0, 3);
+    }
     return (
       <div {...styles.wrapper}>
         <div ref={this.setMainDivRef} {...styles.header}>
           <div>
-              <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> @ {moment(answer.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
+              <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> • {moment(answer.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
           </div>
           <div {...styles.voteWrapper}>
             <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(-1)} title="Downvote Answer">
@@ -255,42 +280,58 @@ export default class AnswerComponent extends React.Component<Props, State> {
             <textarea {...styles.textareaInput} onKeyUp={this.answerTextareaChange} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text} onKeyPress={listenEnter(this.saveAnswer, true)}/>
           </div>
           <div {...styles.answerTexHint}>
-            You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.
+            <div><small>You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.</small></div>
+            <div {...styles.actionButtons}>
+              <div {...styles.actionButton} onClick={this.startImageDialog}>
+                <img {...styles.actionImg} src="/static/images.svg" title="Images"/>
+              </div>
+              <div {...styles.actionButton} onClick={this.saveAnswer}>
+                <img {...styles.actionImg} src="/static/save.svg" title="Save"/>
+              </div>
+              <div {...styles.actionButton} onClick={this.cancelEdit}>
+                <img {...styles.actionImg} src="/static/cancel.svg" title="Cancel"/>
+              </div>
+            </div>
           </div>
         </div>}
-        <div {...styles.threebuttons}>
-          <div {...styles.leftButton}>
-            {this.state.editing && <button onClick={this.startImageDialog}>Images</button>}
-            {!this.state.editing && this.state.savedText.length > 0 &&
-              <button onClick={this.toggleComments}>{this.state.commentsVisible ? "Hide" : "Show"} {answer.comments.length} Comments</button>}
-          </div>
-          <div>
-            {this.state.editing && <button onClick={this.saveAnswer}>Save Answer</button> || (answer.canEdit && <button onClick={this.startEdit}>Edit Answer</button>)}
-          </div>
-          <div {...styles.rightButton}>
-            {this.state.editing && <button onClick={this.cancelEdit}>Cancel</button> || (answer.canEdit && <button onClick={this.removeAnswer}>Delete Answer</button>)}
-          </div>
-        </div>
-        {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
-        {this.state.commentsVisible &&
-        <div {...styles.comments}>
-          {answer.comments.map(e =>
-            <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId}
-                     answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
-          )}
 
+        {!this.state.editing && <div {...styles.actionButtons}>
+          <div {...styles.permalink}><small><a href={"#" + this.props.answer.oid}>Permalink</a></small></div>
           {this.state.savedText.length > 0 &&
-          <Comment isNewComment={true}
-                   filename={this.props.filename}
-                   sectionId={this.props.sectionId}
-                   answerId={answer.oid}
-                   comment={{oid: "", text: "", authorId: "", authorDisplayName: "", canEdit: true, time: ""}}
-                   onSectionChanged={this.props.onSectionChanged}/>}
-        </div>
+          <div {...styles.actionButton} onClick={this.toggleAddingComment}>
+            <img {...styles.actionImg} src="/static/comment.svg" title="Add Comment"/>
+          </div>}
+          {answer.canEdit &&
+          <div {...styles.actionButton} onClick={this.startEdit}>
+            <img {...styles.actionImg} src="/static/edit.svg" title="Edit Answer"/>
+          </div>}
+          {answer.canEdit &&
+          <div {...styles.actionButton} onClick={this.removeAnswer}>
+            <img {...styles.actionImg} src="/static/delete.svg" title="Delete Answer"/>
+          </div>}
+        </div>}
+        {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
+
+        {(comments.length > 0 || this.state.addingComment) &&
+          <div {...styles.comments}>
+            {this.state.addingComment &&
+            <Comment isNewComment={true}
+                     filename={this.props.filename}
+                     sectionId={this.props.sectionId}
+                     answerId={answer.oid}
+                     comment={{oid: "", text: "", authorId: "", authorDisplayName: "", canEdit: true, time: ""}}
+                     onSectionChanged={this.props.onSectionChanged}
+                     onNewCommentSaved={this.toggleAddingComment}
+            />}
+            {comments.map(e =>
+              <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId}
+                       answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
+            )}
+            {comments.length < answer.comments.length && <div {...styles.moreComments} onClick={this.toggleComments}>
+              Show {answer.comments.length - comments.length} more comments...
+            </div>}
+          </div>
         }
-        <div {...styles.bottomHints}>
-          <small><a href={"#" + this.props.answer.oid}>Permalink</a></small>
-          <small {...globalcss.noLinkColor}>All answers are licensed as <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</small></div>
       </div>
     );
   }

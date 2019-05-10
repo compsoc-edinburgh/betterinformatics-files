@@ -9,6 +9,7 @@ import colors from "../colors";
 import * as moment from "moment";
 import GlobalConsts from "../globalconsts";
 import {Link} from "react-router-dom";
+import Colors from "../colors";
 
 const styles = {
   wrapper: css({
@@ -20,11 +21,19 @@ const styles = {
     flexWrap: "wrap",
     justifyContent: "space-around",
     marginTop: "40px",
+    marginBottom: "20px",
+  }),
+  card: css({
+    background: Colors.cardBackground,
+    boxShadow: Colors.cardShadow,
+    padding: "15px 40px",
+    marginTop: "40px",
     marginBottom: "80px",
   }),
   score: css({
     minWidth: "140px",
     textAlign: "center",
+    fontSize: "20px",
   }),
   scoreNumber: css({
     fontSize: "72px",
@@ -310,28 +319,30 @@ export default class UserInfoComponent extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         {this.state.error && <div>{this.state.error}</div>}
-        <h1>{this.state.userInfo.displayName}</h1>
-        <div {...styles.scoreWrapper}>
-          <div {...styles.score}>
-            <div>Score</div>
-            <div {...styles.scoreNumber}>{this.state.userInfo.score}</div>
+        <div {...styles.card}>
+          <h1>{this.state.userInfo.displayName}</h1>
+          <div {...styles.scoreWrapper}>
+            <div {...styles.score}>
+              <div>Score</div>
+              <div {...styles.scoreNumber}>{this.state.userInfo.score}</div>
+            </div>
+            <div {...styles.score}>
+              <div>Answers</div>
+              <div {...styles.scoreNumber}>{this.state.userInfo.score_answers}</div>
+            </div>
+            <div {...styles.score}>
+              <div>Comments</div>
+              <div {...styles.scoreNumber}>{this.state.userInfo.score_comments}</div>
+            </div>
+            {this.state.userInfo.score_cuts > 0 && <div {...styles.score}>
+                <div>Exam Import</div>
+                <div {...styles.scoreNumber}>{this.state.userInfo.score_cuts}</div>
+            </div>}
+            {this.state.userInfo.score_legacy > 0 && <div {...styles.score}>
+                <div>Wiki Import</div>
+                <div {...styles.scoreNumber}>{this.state.userInfo.score_legacy}</div>
+            </div>}
           </div>
-          <div {...styles.score}>
-            <div>Answers</div>
-            <div {...styles.scoreNumber}>{this.state.userInfo.score_answers}</div>
-          </div>
-          <div {...styles.score}>
-            <div>Comments</div>
-            <div {...styles.scoreNumber}>{this.state.userInfo.score_comments}</div>
-          </div>
-          {this.state.userInfo.score_cuts > 0 && <div {...styles.score}>
-              <div>Exam Import</div>
-              <div {...styles.scoreNumber}>{this.state.userInfo.score_cuts}</div>
-          </div>}
-          {this.state.userInfo.score_legacy > 0 && <div {...styles.score}>
-              <div>Wiki Import</div>
-              <div {...styles.scoreNumber}>{this.state.userInfo.score_legacy}</div>
-          </div>}
         </div>
         <div {...styles.twoRows}>
           {(this.state.payments.length > 0 || this.props.isAdmin) && <div {...styles.rowContent}>
