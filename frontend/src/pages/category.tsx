@@ -500,9 +500,11 @@ export default class Category extends React.Component<Props, State> {
                 </td>
                 <td>
                   {exam.remark}
+                  {exam.has_printonly ? <span title="This exam can only be printed. We can not provide this exam online."> (Print Only)</span> : undefined}
                 </td>
                 <td>
-                  {exam.count_answered} / {exam.count_cuts}
+                  <span title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}>{exam.count_answered} / {exam.count_cuts}</span>
+                  {exam.has_solution ? <span title="Has an official solution."> (Solution)</span> : undefined}
                 </td>
                 {catAdmin && <td>{exam.public ? "Public": "Hidden"}</td>}
                 {catAdmin && <td>

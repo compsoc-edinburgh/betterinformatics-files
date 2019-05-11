@@ -1397,6 +1397,8 @@ def get_category_exams(category):
         "import_claim_displayname": 1,
         "import_claim_time": 1,
         "public": 1,
+        "has_solution": 1,
+        "has_printonly": 1,
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
         "count_cuts": 1,

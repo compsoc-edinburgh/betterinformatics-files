@@ -68,6 +68,8 @@ export interface CategoryExam {
   import_claim_displayname: string; // the name of the user who claimed the exam
   import_claim_time: string; // time at which the user claimed the exam
   public: boolean; // whether the exam is public
+  has_solution: boolean; // whether there is an official solution
+  has_printonly: boolean; // whether this exam can only be printed
   finished_cuts: boolean; // whether all cuts were added
   finished_wiki_transfer: boolean; // whether all old solutions were added
   canView: boolean; // whether the exam can be viewed by the user
