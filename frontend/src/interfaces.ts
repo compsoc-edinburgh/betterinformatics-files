@@ -170,6 +170,7 @@ export interface PaymentInfo {
   uploaded_filename: string;
   check_time: string;
   refund_time: string;
+  valid_until: string;
 }
 
 export interface FeedbackEntry {

@@ -48,6 +48,7 @@ const styles = {
   }),
   examsTable: css({
     width: "100%",
+    marginBottom: "20px",
   }),
 };
 
@@ -403,7 +404,7 @@ export default class Category extends React.Component<Props, State> {
         </div>}
         {this.state.category.remark && <div {...styles.metadata}>Remark: {this.state.category.remark}</div>}
         {this.state.category.more_exams_link && <div {...styles.metadata}><a href={this.state.category.more_exams_link} target="_blank">Additional Exams</a></div>}
-        {this.state.category.has_payments && <div {...styles.metadata}>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</div>}
+        {this.state.category.has_payments && <div {...styles.metadata}>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams.<br/>After submitting a report of your own oral exam you can get your deposit back.</div>}
         {catAdmin && <div {...styles.metadata}>You can edit exams in this category. Please do so responsibly.</div>}
         {this.state.error && <div {...styles.metadata}>{this.state.error}</div>}
         {(this.props.isAdmin) && <div {...styles.metadata}><button onClick={this.toggleEditingMetadata}>Edit Category</button></div>}

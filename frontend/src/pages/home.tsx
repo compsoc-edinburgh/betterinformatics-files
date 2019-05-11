@@ -313,8 +313,8 @@ export default class Home extends React.Component<Props, State> {
         </div>
         <div {...styles.buttonsWrapper}>
           <div {...globalcss.noLinkColor}><Link to='/submittranscript'>Submit transcript</Link></div>
-          {this.props.isAdmin && <div {...globalcss.noLinkColor}><Link to='/uploadpdf'>Upload Exam</Link></div>}
-          {this.props.isAdmin && <div {...globalcss.noLinkColor}><Link to='/importqueue'>Import Queue</Link></div>}
+          {this.props.isCategoryAdmin && <div {...globalcss.noLinkColor}><Link to='/uploadpdf'>Upload Exam</Link></div>}
+          {this.props.isCategoryAdmin && <div {...globalcss.noLinkColor}><Link to='/importqueue'>Import Queue</Link></div>}
         </div>
       </div>
       {this.state.bySemesterView ? this.semesterView(categoriesBySemester) : this.alphabeticalView(categoriesFiltered)}

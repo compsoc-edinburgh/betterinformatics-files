@@ -55,6 +55,7 @@ const styles = {
   }),
   payment: css({
     background: colors.cardBackground,
+    boxShadow: colors.cardShadow,
     padding: "5px",
     maxWidth: "300px",
   }),
@@ -209,6 +210,20 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       });
   };
 
+  addPaymentAll = () => {
+    fetchpost('/api/payment/payall', {
+      username: this.props.username,
+    })
+      .then(() => {
+        this.loadPayments();
+      })
+      .catch(err => {
+        this.setState({
+          error: err.toString()
+        });
+      });
+  };
+
   removePayment = (payment: PaymentInfo) => {
     const confirmation = confirm("Remove Payment?");
     if (confirmation) {
@@ -348,12 +363,20 @@ export default class UserInfoComponent extends React.Component<Props, State> {
           {(this.state.payments.length > 0 || this.props.isAdmin) && <div {...styles.rowContent}>
             <h2>Paid Oral Exams</h2>
             <div>
+              {this.state.payments
+                .filter(payment => payment.category === "__payment_all__" && payment.active)
+                .map(payment => <div key={payment.category}>
+                  You have paid for all oral exams until {moment(payment.valid_until, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatStringDate)}.
+                </div>)}
               {this.state.payments.length > 0 && <ul>
                 {this.state.payments.map(payment =>
                   <li key={payment.category}>{(this.state.openPayment === payment.oid) && <div {...styles.payment}>
-                      <div {...styles.clickable} {...(payment.active ? undefined : styles.paymentInactive)} onClick={() => this.setState({openPayment: ""})}><b>{payment.category}</b></div>
+                    <div {...styles.clickable} {...(payment.active ? undefined : styles.paymentInactive)} onClick={() => this.setState({openPayment: ""})}><b>{payment.category === "__payment_all__" ? "All Oral Exams" : payment.category}</b></div>
                     <div>
                       Payment Time: {moment(payment.payment_time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
+                    </div>
+                    <div>
+                      Valid Until: {moment(payment.valid_until, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatStringDate)}
                     </div>
                     {payment.refund_time && <div>
                         Refund Time: {moment(payment.refund_time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
@@ -365,13 +388,16 @@ export default class UserInfoComponent extends React.Component<Props, State> {
                       <button onClick={() => this.refundPayment(payment)}>Mark Refunded</button>
                       <button onClick={() => this.removePayment(payment)}>Remove Payment</button>
                     </div>}
-                  </div> || <span {...styles.clickable} {...(payment.active ? undefined : styles.paymentInactive)} onClick={() => this.setState({openPayment: payment.oid})}>{payment.category}</span>}</li>
+                  </div> || <span {...styles.clickable} {...(payment.active ? undefined : styles.paymentInactive)} onClick={() => this.setState({openPayment: payment.oid})}>{payment.category === "__payment_all__" ? "All Oral Exams" : payment.category}</span>}</li>
                 )}
               </ul>}
               {this.props.isAdmin && <div>
                 <AutocompleteInput value={this.state.newPaymentCategory} onChange={ev => this.setState({newPaymentCategory: ev.target.value})}
                                    placeholder="Category" autocomplete={this.state.categories} name="payment_category" onKeyPress={listenEnter(this.addPayment)}/>
                 <button onClick={this.addPayment}>Add Payment</button>
+              </div>}
+              {this.props.isAdmin && <div>
+                  <button onClick={this.addPaymentAll}>Add Payment for All Categories</button>
               </div>}
             </div>
           </div>}

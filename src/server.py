@@ -1183,7 +1183,10 @@ def init_exam_metadata(filename):
     :param filename: filename of the exam
     """
     exam_metadata.insert_one({
-        "filename": filename
+        "filename": filename,
+        "count_cuts": 0,
+        "count_answers": 0,
+        "count_answered": 0,
     })
 
 
@@ -1243,6 +1246,13 @@ def payment_exam_mark_checked(filename):
         "check_time": "",
     }).sort([("payment_time", -1)]).limit(1)
     payment = list(payment)
+    if not payment:
+        payment = payments.find({
+            "username": metadata["payment_uploader"],
+            "category": "__payment_all__",
+            "check_time": "",
+        }).sort([("payment_time", -1)]).limit(1)
+        payment = list(payment)
     if payment:
         payments.update_one({
             "_id": payment[0]["_id"]
@@ -1252,6 +1262,7 @@ def payment_exam_mark_checked(filename):
                 "uploaded_filename": filename,
             }
         })
+
     return success()
 
 
@@ -1345,10 +1356,10 @@ def list_categories_with_meta():
     ))
     for category in categories:
         exams = get_category_exams(category["category"])
-        category["examcountpublic"] = sum(x["public"] for x in exams)
-        category["examcountanswered"] = sum(1 for x in exams if x["count_answered"] > 0)
-        totalcuts = sum(x["count_cuts"] for x in exams)
-        category["answerprogress"] = sum(x["count_answered"] for x in exams) / totalcuts if totalcuts > 0 else 0
+        category["examcountpublic"] = sum(x.get("public", False) for x in exams)
+        category["examcountanswered"] = sum(1 for x in exams if x["count_answered"] > 0 and x.get("public", False))
+        totalcuts = sum(x["count_cuts"] for x in exams if x.get("public", False))
+        category["answerprogress"] = sum(x["count_answered"] for x in exams if x.get("public", False)) / totalcuts if totalcuts > 0 else 0
     return success(value=categories)
 
 
@@ -2051,7 +2062,7 @@ def send_user_notification(username, type, sender, title, message, link):
 @app.route("/api/payment/pay", methods=['POST'])
 @auth.login_required
 @require_admin
-def add_payment():
+def add_payment_api():
     """
     Record a payment of a user for some category.
     POST Parameter 'username'
@@ -2070,6 +2081,27 @@ def add_payment():
     })
     if not catdata.get("has_payments"):
         return not_possible("Category does not have any payments")
+    return add_payment(category, username)
+
+
+@app.route("/api/payment/payall", methods=['POST'])
+@auth.login_required
+@require_admin
+def add_all_payment_api():
+    """
+    Record a payment of a user for all categories (represented as __payment_all__)
+    POST Parameter 'username'
+    """
+    username = request.form.get('username')
+    if not username:
+        return not_possible("No username given")
+    return add_payment("__payment_all__", username)
+
+
+def add_payment(category, username):
+    """
+    Record a payment of a user for some category.
+    """
     maybe_payment = payments.find_one({
         "username": username,
         "category": category,
@@ -2136,11 +2168,20 @@ def payment_still_valid(payment):
     """
     now = datetime.now(timezone.utc)
     then = parse_iso_datetime(payment["payment_time"])
-    resetdates = [datetime(year, month, 1, tzinfo=now.tzinfo) for month in [3, 9] for year in [now.year-1, now.year]]
+    resetdates = [datetime(year, month, 1, tzinfo=now.tzinfo) for year in [now.year-1, now.year] for month in [3, 9]]
     for reset in resetdates:
         if now > reset > then:
             return False
     return True
+
+
+def payment_valid_until(payment):
+    then = parse_iso_datetime(payment["payment_time"])
+    resetdates = [datetime(year, month, 1, tzinfo=then.tzinfo) for year in [then.year, then.year+1] for month in [3, 9]]
+    for reset in resetdates:
+        if reset > then:
+            return reset
+    return None
 
 
 def get_user_payments(username):
@@ -2168,7 +2209,8 @@ def get_user_payments(username):
                     "active": False
                 }
             })
-            payment["acitve"] = False
+            payment["active"] = False
+        payment["valid_until"] = payment_valid_until(payment).isoformat()
         payment["oid"] = payment["_id"]
         del payment["_id"]
     return list(sorted(user_payments, key=lambda x: (not x["active"], x["category"])))
@@ -2190,6 +2232,8 @@ def has_payed(username, category):
     for payment in maybe_payments:
         if payment_still_valid(payment):
             return True
+    if category != "__payment_all__":
+        return has_payed(username, "__payment_all__")
     return False
 
 
@@ -2201,6 +2245,17 @@ def payment_query(username):
     List all payed categories for some user.
     """
     return success(value=get_user_payments(username))
+
+
+@app.route("/api/payment/queryall")
+@auth.login_required
+@require_admin
+def payment_queryall(username):
+    """
+    Check whether the user has a valid payment for all categories
+    """
+    payments = [x for x in get_user_payments(username) if x["category"] == "__payment_all__"]
+    return success(value=len(payments) > 0)
 
 
 @app.route("/api/payment/me")

@@ -54,8 +54,10 @@ const styles = {
   }),
   checkWrapper: css({
     background: Colors.cardBackground,
+    boxShadow: Colors.cardShadow,
     width: "60%",
     margin: "auto",
+    marginBottom: "20px",
     textAlign: "center",
     padding: "5px 10px",
   }),
