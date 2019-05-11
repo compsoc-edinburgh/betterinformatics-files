@@ -246,25 +246,40 @@ def filter_dict(dictionary, whitelist):
 def verify_pw(username, password):
     if not username or not password:
         return False
+    req = people_pb2.AuthPersonRequest(
+        password=password, username=username)
     try:
-        req = people_pb2.AuthPersonRequest(
-            password=password, username=username)
         res = people_client.AuthEthPerson(req, metadata=people_metadata)
+        if res.ok:
+            return True
     except grpc.RpcError as e:
-        print("Verify Password throws:", e, file=sys.stderr)
-        return False
-    return res.ok
+        # print("Verify Password throws:", e, file=sys.stderr)
+        pass
+    try:
+        res = people_client.AuthVisPerson(req, metadata=people_metadata)
+        if res.ok:
+            return True
+    except grpc.RpcError as e:
+        # print("Verify Password throws:", e, file=sys.stderr)
+        pass
+    return False
 
 
 def get_real_name(username):
     if username == '__legacy__':
         return "Old VISki Solution"
+    req = people_pb2.GetPersonRequest(username=username)
     try:
-        req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetEthPerson(req, metadata=people_metadata)
         return res.first_name + " " + res.last_name
     except grpc.RpcError as e:
-        return username
+        pass
+    try:
+        res = people_client.GetVisPerson(req, metadata=people_metadata)
+        return res.first_name + " " + res.last_name
+    except grpc.RpcError as e:
+        pass
+    return username
 
 
 def get_username_or_legacy(filename):
@@ -308,7 +323,7 @@ def has_admin_rights(username):
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisPerson(req, metadata=people_metadata)
     except grpc.RpcError as e:
-        print("RPC error while checking admin rights", e)
+        # print("RPC error while checking admin rights", e)
         return False
     res = any(("vorstand" == group or "cat" == group or "luk" == group) for group in res.vis_groups)
     admin_cache[username] = res
