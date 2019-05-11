@@ -71,6 +71,8 @@ export interface CategoryExam {
   finished_cuts: boolean; // whether all cuts were added
   finished_wiki_transfer: boolean; // whether all old solutions were added
   canView: boolean; // whether the exam can be viewed by the user
+  count_cuts: number; // number of cuts in exam
+  count_answered: number; // number of cuts with answers in exam
 }
 
 export interface CategoryPaymentExam {
@@ -108,8 +110,9 @@ export interface CategoryMetaData {
   has_payments: boolean;
   catadmin: boolean;
   more_exams_link: string;
-  examcount: number;
-  examcountvisible: number;
+  examcountpublic: number;
+  examcountanswered: number;
+  answerprogress: number;
 }
 
 export interface ExamMetaData {
@@ -132,6 +135,8 @@ export interface ExamMetaData {
   has_solution: boolean;
   is_payment_exam: boolean;
   payment_exam_checked: boolean;
+  count_cuts: number;
+  count_answered: number;
 }
 
 export interface NotificationInfo {

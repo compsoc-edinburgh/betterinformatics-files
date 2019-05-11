@@ -76,6 +76,9 @@ EXAM_METADATA = [
     "payment_uploader",
     "payment_uploader_displayname",
     "payment_exam_checked",
+    "count_cuts",
+    "count_answers",
+    "count_answered",
 ]
 EXAM_METADATA_INTERNAL = [
     "import_claim",
@@ -87,6 +90,9 @@ EXAM_METADATA_INTERNAL = [
     "payment_uploader",
     "payment_uploader_displayname",
     "payment_exam_checked",
+    "count_cuts",
+    "count_answers",
+    "count_answered",
 ]
 CATEGORY_METADATA = [
     "semester",
@@ -682,6 +688,9 @@ def new_answer_section(filename):
         "_id": ObjectId()
     }
     answer_sections.insert_one(new_doc)
+    adjust_exam_count({
+        "filename": filename
+    }, count_cuts=1)
     adjust_user_score(username, "score_cuts", 1)
     return success(value=new_doc)
 
@@ -707,6 +716,9 @@ def remove_answer_section(filename):
         for answer in section["answersection"]["answers"]:
             remove_answer(answer["_id"])
     adjust_user_score(section["answersection"]["asker"], "score_cuts", -1)
+    adjust_exam_count({
+        "filename": filename
+    }, count_cuts=-1)
     if answer_sections.delete_one({"_id": oid}).deleted_count > 0:
         return success()
     else:
@@ -808,6 +820,10 @@ def add_answer(filename, sectionoid):
     }})
     adjust_user_score(username, "score", 1)
     adjust_user_score(username, "score_answers", 1)
+    adjust_exam_count({
+        "_id": answer_section_oid
+    }, count_answers=1, count_answered=lambda x: 1 if x == 1 else 0)
+
     if username == "__legacy__":
         adjust_user_score(auth.username(), "score_legacy", 1)
     return make_answer_section_response(answer_section_oid)
@@ -898,6 +914,9 @@ def remove_answer(answeroid):
     adjust_user_score(section["answersection"]["answers"][0]["authorId"], "score_answers", -1)
     for comment in section["answersection"]["answers"][0]["comments"]:
         adjust_user_score(comment["authorId"], "score_comments", -1)
+    adjust_exam_count({
+        "answersection.answers._id": answeroid
+    }, count_answers=-1, count_answered=lambda x: -1 if x == 1 else 0)
     answer_sections.update_one({
         "_id": section["_id"]
     }, {"$pull": {
@@ -1255,6 +1274,22 @@ def remove_exam(filename):
         return not_possible("Could not delete exam metadata")
 
 
+def adjust_exam_count(find, **keys):
+    assert all(key in ["count_cuts", "count_answers", "count_answered"] for key in keys)
+    section = answer_sections.find_one(find, {
+        "filename": 1,
+        "answersection.answers": 1
+    })
+    for key in keys:
+        if not isinstance(keys[key], int):
+            keys[key] = keys[key](len(section["answersection"]["answers"]))
+    exam_metadata.update_one({
+        "filename": section["filename"],
+    }, {
+        "$inc": keys
+    })
+
+
 ########################################################################################################################
 # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # CATEGORIES # #
 ########################################################################################################################
@@ -1310,8 +1345,10 @@ def list_categories_with_meta():
     ))
     for category in categories:
         exams = get_category_exams(category["category"])
-        category["examcount"] = len(exams)
-        category["examcountvisible"] = sum(x["canView"] for x in exams)
+        category["examcountpublic"] = sum(x["public"] for x in exams)
+        category["examcountanswered"] = sum(1 for x in exams if x["count_answered"] > 0)
+        totalcuts = sum(x["count_cuts"] for x in exams)
+        category["answerprogress"] = sum(x["count_answered"] for x in exams) / totalcuts if totalcuts > 0 else 0
     return success(value=categories)
 
 
@@ -1336,6 +1373,8 @@ def get_category_exams(category):
         "public": 1,
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
+        "count_cuts": 1,
+        "count_answered": 1,
     }))
 
     for exam in exams:
@@ -1593,7 +1632,8 @@ def meta_category_ensure_existence(meta1, meta2):
 @require_admin
 def meta_category_set_order():
     """
-    Set the sorting order for a meta category,
+    Set the sorting order for a meta category.
+    This is currently not available in the frontend
     POST Parameter 'meta1': level 1 name of meta category
     POST Parameter 'meta2': level 2 name of meta category. If this is not set the order for meta1 will be set
     POST Parameter 'order': order to set

@@ -236,7 +236,8 @@ export default class Home extends React.Component<Props, State> {
     return (
       <div key={category.category} {...styles.category} onClick={() => this.gotoCategory(category)}>
         <div {...styles.categoryTitle} {...globalcss.noLinkColor}><Link to={'/category/' + category.slug}>{category.category}</Link></div>
-        <div {...styles.categoryInfo}>{category.examcountvisible} exams</div>
+        <div {...styles.categoryInfo} title={`There are ${category.examcountpublic} exams, of which ${category.examcountanswered} have at least one answer.`}>Exams: {category.examcountanswered} / {category.examcountpublic}</div>
+        <div {...styles.categoryInfo} title={`Of all questions in all ${category.examcountpublic} exams, ${Math.round(category.answerprogress*100)}% have an answer.`}>Answers: {Math.round(category.answerprogress*100)}%</div>
       </div>
     );
   };

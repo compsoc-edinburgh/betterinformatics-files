@@ -5,7 +5,7 @@ import server
 import threading
 import pymongo
 
-DB_VERSION = 8
+DB_VERSION = 9
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -187,6 +187,46 @@ def add_indexes(mongo_db):
     set_db_version(mongo_db, 8)
 
 
+def add_cut_counts(mongo_db):
+    print("Migrate 'add cut counts'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        update = {
+            "count_cuts": 0,
+            "count_answers": 0,
+            "count_answered": 0,
+        }
+        update["count_cuts"] = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }).count()
+        count_answers = mongo_db.answersections.aggregate([
+            {"$match": {"filename": exam["filename"]}},
+            {"$project": {
+                "count_answers": {"$size": "$answersection.answers"}
+            }},
+            {"$group": {
+                "_id": None,
+                "count": {
+                    "$sum": "$count_answers"
+                }
+            }},
+        ])
+        for result in count_answers:
+            update["count_answers"] = result["count"]
+
+        update["count_answered"] = mongo_db.answersections.find({
+            "filename": exam["filename"],
+            "answersection.answers.0": {"$exists": True}
+        }).count()
+        mongo_db.exammetadata.update_one({
+            "filename": exam["filename"]
+        }, {
+            "$set": update
+        })
+    set_db_version(mongo_db, 9)
+
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -196,6 +236,7 @@ MIGRATIONS = [
     add_category_slug,
     add_more_scores,
     add_indexes,
+    add_cut_counts,
 ]
 
 

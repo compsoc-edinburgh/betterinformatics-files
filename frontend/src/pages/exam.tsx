@@ -117,6 +117,8 @@ export default class Exam extends React.Component<Props, State> {
       payment_category: "",
       is_payment_exam: false,
       payment_exam_checked: false,
+      count_cuts: 0,
+      count_answered: 0,
     },
     allShown: false,
     updateIntervalId: 0,
@@ -393,7 +395,7 @@ export default class Exam extends React.Component<Props, State> {
               ]
             }
             <div {...styles.licenseText}>
-              <small {...globalcss.noLinkColor}>All answers are licensed as <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</small>
+              <small {...globalcss.noLinkColor}>All answers are licensed as <br/><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</small>
             </div>
           </div>
         </div>

@@ -94,8 +94,9 @@ export default class Category extends React.Component<Props, State> {
       has_payments: false,
       catadmin: false,
       more_exams_link: "",
-      examcount: 0,
-      examcountvisible: 0,
+      examcountpublic: 0,
+      examcountanswered: 0,
+      answerprogress: 0,
     },
     editingMetaData: false,
     redirectBack: false,
@@ -481,6 +482,7 @@ export default class Category extends React.Component<Props, State> {
             <tr>
               <th>Name</th>
               <th>Remark</th>
+              <th>Answers</th>
               {catAdmin && <th>Public</th>}
               {catAdmin && <th>Import State</th>}
               {catAdmin && <th>Claim</th>}
@@ -497,6 +499,9 @@ export default class Category extends React.Component<Props, State> {
                 </td>
                 <td>
                   {exam.remark}
+                </td>
+                <td>
+                  {exam.count_answered} / {exam.count_cuts}
                 </td>
                 {catAdmin && <td>{exam.public ? "Public": "Hidden"}</td>}
                 {catAdmin && <td>
