@@ -1592,6 +1592,8 @@ def list_meta_categories():
     meta_categories = list(sorted(meta_category.find({}), key=lambda x: (x["order"], x["displayname"])))
     for meta in meta_categories:
         meta["meta2"].sort(key=lambda x: (x["order"], x["displayname"]))
+        for meta2 in meta["meta2"]:
+            meta2["categories"].sort()
     return success(value=meta_categories)
 
 

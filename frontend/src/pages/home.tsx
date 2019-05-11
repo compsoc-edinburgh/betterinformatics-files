@@ -173,8 +173,21 @@ export default class Home extends React.Component<Props, State> {
 
   openFirstCategory = () => {
     const filtered = filterCategories(this.state.categories, this.state.filter);
-    if (filtered.length > 0) {
-      this.gotoCategory(filtered[0]);
+    if (this.state.bySemesterView) {
+      const categoriesBySemester = fillMetaCategories(filtered, this.state.metaCategories);
+      let resorted: CategoryMetaData[] = [];
+      categoriesBySemester.forEach(meta1 => {
+        meta1.meta2.forEach(meta2 => {
+          meta2.categories.forEach(cat => resorted.push(cat));
+        })
+      });
+      if (resorted.length > 0) {
+        this.gotoCategory(resorted[0]);
+      }
+    } else {
+      if (filtered.length > 0) {
+        this.gotoCategory(filtered[0]);
+      }
     }
   };
 
