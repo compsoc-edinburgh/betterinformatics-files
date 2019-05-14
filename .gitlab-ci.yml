@@ -21,9 +21,7 @@ build:
     - docker-runner
   stage: build
   script:
-    - curl https://ser.vis.ethz.ch/static/servis-cli-linux-amd64 > servis-cli
-    - chmod +x servis-cli
-    - ./servis-cli -verbose generate
+    - do_servis_generate
     - do_default_build
 
 deploy:
