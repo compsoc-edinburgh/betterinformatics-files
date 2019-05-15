@@ -25,13 +25,13 @@ class Client:
 
     def get(self, path, **kwargs):
         self.print('GET', self.username, path)
-        r = requests.get('http://{}{}'.format(self.host, path), auth=(self.username, self.password), params=kwargs)
+        r = requests.get('{}{}'.format(self.host, path), auth=(self.username, self.password), params=kwargs)
         self.print(r.status_code, r.text)
         return r
 
     def post(self, path, files=None, **kwargs):
         self.print('POST', self.username, path, kwargs)
-        r = requests.post('http://{}{}'.format(self.host, path), auth=(self.username, self.password), data=kwargs, files=files)
+        r = requests.post('{}{}'.format(self.host, path), auth=(self.username, self.password), data=kwargs, files=files)
         self.print(r.status_code, r.text)
         return r
 
@@ -223,11 +223,10 @@ def migrate_category(client, path):
             )
 
 
-
 def main():
     parser = argparse.ArgumentParser(description='Migrate exams from the old exam collection.')
     parser.add_argument('--debug', action='store_true', help='Print debug information.')
-    parser.add_argument('--host', default='localhost:8080', help='Host to make requests against.')
+    parser.add_argument('--host', default='http://localhost:8080', help='Host to make requests against.')
     parser.add_argument('--username', default='schneij', help='Username for authentication.')
     parser.add_argument('--password', default='UOmtnC7{\'%G', help='Password for authentication. Set to - to query on terminal.')
     parser.add_argument('paths', nargs='+', help='Path to folder containing the exams and config file.')
