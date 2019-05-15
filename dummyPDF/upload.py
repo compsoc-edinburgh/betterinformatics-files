@@ -100,7 +100,7 @@ def upload(client, category, dummy, real, displayname):
     fil.close()
 
 def main():
-    parser = argparse.ArgumentParser(description='Migrate exams from the old exam collection.')
+    parser = argparse.ArgumentParser(description='Upload printonly exams.')
     parser.add_argument('--debug', action='store_true', help='Print debug information.')
     parser.add_argument('--host', default='http://localhost:8080', help='Host to make requests against.')
     parser.add_argument('--username', default='schneij', help='Username for authentication.')
