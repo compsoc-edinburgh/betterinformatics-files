@@ -123,6 +123,7 @@ def guess_category(client, foldername):
     print("What do you want to do?")
     print("[0] Create category and retry")
     print("[1] Enter name of category")
+    print("[2] Skip category")
     while True:
         answer = input("=> ").strip()
         if answer == "0":
@@ -137,6 +138,8 @@ def guess_category(client, foldername):
             else:
                 print("Category does not exist")
                 return guess_category(client, foldername)
+        elif answer == "2":
+            return None
         else:
             print("Invalid choice")
 
@@ -164,6 +167,9 @@ def migrate_category(client, path):
     print("Form:", form)
     print("Permission:", permission)
     category = guess_category(client, foldername)
+    if not category:
+        print("Skip category")
+        return
     print("Category:", category)
     exam_files = sorted(x for x in os.listdir(path) if x.endswith('.pdf') and not x.endswith('_sol.pdf'))
     exams = [Exam(exam, form, permission) for exam in exam_files]
@@ -221,6 +227,12 @@ def migrate_category(client, path):
                 '/api/exam/' + newfilename + '/metadata',
                 examtype=exam.type.capitalize()
             )
+        if exam.name.lower() != category.lower() and exam.type:
+            print("Set examtype")
+            client.post(
+                '/api/exam/' + newfilename + '/metadata',
+                examtype=exam.name + " " + exam.type.capitalize()
+            )
 
 
 def main():
@@ -238,7 +250,14 @@ def main():
     client = Client(args.host, args.username, password, args.debug)
 
     for path in args.paths:
-        migrate_category(client, path)
+        while True:
+            try:
+                migrate_category(client, path)
+                break
+            except Exception as e:
+                print(e)
+                if not yesno("Try again?", False):
+                    break
 
 
 if __name__ == '__main__':
