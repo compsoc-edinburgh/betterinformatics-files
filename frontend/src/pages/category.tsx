@@ -506,7 +506,7 @@ export default class Category extends React.Component<Props, State> {
                   <span title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}>{exam.count_answered} / {exam.count_cuts}</span>
                   {exam.has_solution ? <span title="Has an official solution."> (Solution)</span> : undefined}
                 </td>
-                {catAdmin && <td>{exam.public ? "Public": "Hidden"}</td>}
+                {catAdmin && <td>{exam.public ? "Public": "Hidden"}{exam.payment_category ? " (oral)" : ""}</td>}
                 {catAdmin && <td>
                   {exam.finished_cuts ? (exam.finished_wiki_transfer ? "All done" : "Needs Wiki Import") : "Needs Cuts"}
                 </td>}

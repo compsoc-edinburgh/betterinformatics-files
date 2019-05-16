@@ -62,6 +62,7 @@ export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
   category: string; // category of exam
+  payment_category: string; // payment category of exam
   examtype: string; // type of exam
   remark: string; // remark for the exam
   import_claim: string; // the user who is importing the exam
