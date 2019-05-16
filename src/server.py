@@ -1378,6 +1378,15 @@ def list_categories_with_meta():
     return success(value=categories)
 
 
+def exam_sort_key(displayname):
+    end = 0
+    while end + 1 < len(displayname) and displayname[-end-1:].isdigit():
+        end += 1
+    if end == 0:
+        return (0, displayname)
+    return (int(displayname[-end:]), displayname)
+
+
 def get_category_exams(category):
     """
     Returns list of exams in the given category, sorted by displayname
@@ -1407,7 +1416,7 @@ def get_category_exams(category):
 
     for exam in exams:
         exam["canView"] = can_view_exam(auth.username(), exam["filename"], metadata=exam)
-    exams.sort(key=lambda x: x["displayname"])
+    exams.sort(key=lambda x: exam_sort_key(x["displayname"]), reverse=True)
     return exams
 
 
