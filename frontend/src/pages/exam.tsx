@@ -116,6 +116,7 @@ export default class Exam extends React.Component<Props, State> {
       finished_wiki_transfer: false,
       has_printonly: false,
       has_solution: false,
+      solution_printonly: false,
       payment_category: "",
       is_payment_exam: false,
       payment_exam_checked: false,
@@ -409,7 +410,9 @@ export default class Exam extends React.Component<Props, State> {
           <br/>
           <button onClick={this.markPaymentExamChecked}>Mark Transcript as Checked</button>
         </div>}
-        {this.state.savedMetaData.has_printonly && <PrintExam filename={this.props.filename}/>}
+        {this.state.savedMetaData.has_printonly && <PrintExam title="exam" examtype="printonly" filename={this.props.filename}/>}
+        {this.state.savedMetaData.has_solution && this.state.savedMetaData.solution_printonly &&
+          <PrintExam title="solution" examtype="solution" filename={this.props.filename}/>}
         {this.state.savedMetaData.legacy_solution &&
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
@@ -419,7 +422,7 @@ export default class Exam extends React.Component<Props, State> {
         <div {...styles.linkBanner}>
           <a href={this.state.savedMetaData.master_solution} target="_blank">Official Solution</a>
         </div>}
-        {this.state.savedMetaData.has_solution &&
+        {this.state.savedMetaData.has_solution && !this.state.savedMetaData.solution_printonly &&
         <div {...styles.linkBanner}>
           <a href={"/api/pdf/solution/" + this.props.filename} target="_blank">Official Solution</a>
         </div>}

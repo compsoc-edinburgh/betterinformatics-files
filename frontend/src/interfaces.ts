@@ -136,6 +136,7 @@ export interface ExamMetaData {
   payment_category: string;
   has_printonly: boolean;
   has_solution: boolean;
+  solution_printonly: boolean;
   is_payment_exam: boolean;
   payment_exam_checked: boolean;
   count_cuts: number;

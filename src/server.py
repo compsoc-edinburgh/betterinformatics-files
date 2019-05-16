@@ -72,6 +72,7 @@ EXAM_METADATA = [
     "payment_category",
     "has_printonly",
     "has_solution",
+    "solution_printonly",
     "is_payment_exam",
     "payment_uploader",
     "payment_uploader_displayname",
@@ -1212,7 +1213,7 @@ def set_exam_metadata(filename, metadata):
     :param metadata: dictionary of values to set
     """
     filtered = filter_dict(metadata, EXAM_METADATA)
-    for key in ["public", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer"]:
+    for key in ["public", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer", "solution_printonly"]:
         if key in filtered:
             filtered[key] = filtered[key] not in [None, False, "", "false", "False", "0"]
     if filtered:
@@ -2515,10 +2516,13 @@ def pdf(pdftype, filename):
         "filename": filename
     }, {
         "public": 1,
-        "payment_category": 1,
+        "solution_printonly": 1,
     })
+    if not metadata:
+        return not_found()
+    is_printonly = pdftype in ['printonly'] or (pdftype in ['solution'] and metadata["solution_printonly"])
     username = auth.username()
-    if pdftype in ['printonly'] and not has_admin_rights_for_exam(username, filename):
+    if is_printonly and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     if not can_view_exam(username, filename):
         return not_allowed()
@@ -2529,19 +2533,24 @@ def pdf(pdftype, filename):
         return not_found()
 
 
-@app.route("/api/printpdf/<filename>", methods=['POST'])
+@app.route("/api/printpdf/<pdftype>/<filename>", methods=['POST'])
 @auth.login_required
-def print_pdf(filename):
+def print_pdf(pdftype, filename):
     """
     Print the pdf
+    :param pdftype: type of pdf to print
     :param filename: pdf to print
     """
+    if pdftype not in ['printonly', 'solution']:
+        return not_possible('Unknown pdf type')
     metadata = exam_metadata.find_one({
         "filename": filename
     }, {
         "public": 1,
         "payment_category": 1,
     })
+    if not metadata:
+        return not_found()
     username = auth.username()
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
@@ -2552,7 +2561,7 @@ def print_pdf(filename):
         return not_allowed()
     try:
         pdfpath = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
-        minio_client.fget_object(minio_bucket, PRINTONLY_DIR + filename, pdfpath)
+        minio_client.fget_object(minio_bucket, PDF_DIR[pdftype] + filename, pdfpath)
         return_code = ethprint.start_job(username, request.form['password'], filename, pdfpath)
         if return_code:
             return not_possible("Could not connect to the printer. Please check your password and try again.")

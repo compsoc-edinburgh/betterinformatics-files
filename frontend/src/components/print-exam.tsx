@@ -4,7 +4,9 @@ import Colors from "../colors";
 import {fetchpost} from "../fetch-utils";
 
 interface Props {
+  title: string;
   filename: string;
+  examtype: string;
 }
 
 interface State {
@@ -49,7 +51,7 @@ export default class PrintExam extends React.Component<Props, State> {
       error: ""
     });
     if (this.state.currentPassword.length > 0) {
-      fetchpost('/api/printpdf/' + this.props.filename, {password: this.state.currentPassword})
+      fetchpost('/api/printpdf/' + this.props.examtype + '/' + this.props.filename, {password: this.state.currentPassword})
         .then(() => {
           this.setState({
             printed: true
@@ -71,7 +73,7 @@ export default class PrintExam extends React.Component<Props, State> {
     return (
       <div {...styles.wrapper}>
         <p>
-          Unfortunately we can not provide you this exam as a PDF. The corresponding professor did not allow this.
+          Unfortunately we can not provide you this {this.props.title} as a PDF. The corresponding professor did not allow this.
         </p>
         <p>
           Warning: The ETH Print Service may generate cost after a certain number of free pages.<br/>
@@ -87,7 +89,7 @@ export default class PrintExam extends React.Component<Props, State> {
                      value={this.state.currentPassword}/>
             </label>
             <br/>
-            <button {...styles.printButton} onClick={this.printExam}>Print Exam</button>
+            <button {...styles.printButton} onClick={this.printExam}>Print {this.props.title}</button>
           </div> || (
           <p>Exam successfully printed</p>
         )

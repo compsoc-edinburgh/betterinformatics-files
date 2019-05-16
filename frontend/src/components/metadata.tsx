@@ -197,23 +197,23 @@ export default class MetaData extends React.Component<Props, State> {
   render() {
     return (<div {...styles.wrapper}>
       <div>
-        <input type="text" placeholder="display name" value={this.state.currentMetaData.displayname} onChange={(ev) => this.valueChanged("displayname", ev)}/>
-        <input type="text" placeholder="resolve alias" value={this.state.currentMetaData.resolve_alias} onChange={(ev) => this.valueChanged("resolve_alias", ev)}/>
+        <input type="text" placeholder="display name" title="display name" value={this.state.currentMetaData.displayname} onChange={(ev) => this.valueChanged("displayname", ev)}/>
+        <input type="text" placeholder="resolve alias" title="resolve alias" value={this.state.currentMetaData.resolve_alias} onChange={(ev) => this.valueChanged("resolve_alias", ev)}/>
       </div>
       <div>
         <AutocompleteInput value={this.state.currentMetaData.category} onChange={ev => this.valueChanged("category", ev)}
-                           placeholder="category" autocomplete={this.state.categories} name="category"/>
+                           placeholder="category" title="category" autocomplete={this.state.categories} name="category"/>
         <AutocompleteInput value={this.state.currentMetaData.examtype} onChange={ev => this.valueChanged("examtype", ev)}
-                           placeholder="examtype" autocomplete={this.state.examTypes} name="examtype"/>
+                           placeholder="examtype" title="examtype" autocomplete={this.state.examTypes} name="examtype"/>
       </div>
       <div>
-        <input type="text" placeholder="legacy solution" value={this.state.currentMetaData.legacy_solution} onChange={(ev) => this.valueChanged("legacy_solution", ev)}/>
-        <input type="text" placeholder="master solution (extern)" value={this.state.currentMetaData.master_solution} onChange={(ev) => this.valueChanged("master_solution", ev)}/>
+        <input type="text" placeholder="legacy solution" title="legacy solution" value={this.state.currentMetaData.legacy_solution} onChange={(ev) => this.valueChanged("legacy_solution", ev)}/>
+        <input type="text" placeholder="master solution (extern)" title="master solution (extern)" value={this.state.currentMetaData.master_solution} onChange={(ev) => this.valueChanged("master_solution", ev)}/>
       </div>
       <div>
         <AutocompleteInput value={this.state.currentMetaData.payment_category} onChange={ev => this.valueChanged("payment_category", ev)}
-                           placeholder="payment_category" autocomplete={this.state.paymentCategories} name="payment_category"/>
-        <input type="text" placeholder="remark" value={this.state.currentMetaData.remark} onChange={(ev) => this.valueChanged("remark", ev)}/>
+                           placeholder="payment category" title="payment category" autocomplete={this.state.paymentCategories} name="payment_category"/>
+        <input type="text" placeholder="remark" title="remark" value={this.state.currentMetaData.remark} onChange={(ev) => this.valueChanged("remark", ev)}/>
       </div>
       <div>
         <label>
@@ -230,11 +230,6 @@ export default class MetaData extends React.Component<Props, State> {
           <input type="checkbox" checked={this.state.currentMetaData.finished_wiki_transfer} onChange={(ev) => this.checkboxValueChanged("finished_wiki_transfer", ev)}/>
           Finished Wiki Transfer
         </label>
-      </div>
-      {this.state.error && <div>{this.state.error}</div>}
-      <div>
-        <button onClick={this.saveEdit}>Save</button>
-        <button onClick={this.cancelEdit}>Cancel</button>
       </div>
       <hr/>
       <div>
@@ -259,6 +254,18 @@ export default class MetaData extends React.Component<Props, State> {
         <a {...stylesForWidth.inlineBlock} href={"/api/pdf/solution/" + this.props.savedMetaData.filename} target="_blank">Current File</a>
         <button onClick={this.removeFileSolution}>Remove File</button>
       </div>}
+      {this.props.savedMetaData.has_solution && <div>
+        <label>
+          <input type="checkbox" checked={this.state.currentMetaData.solution_printonly} onChange={(ev) => this.checkboxValueChanged("solution_printonly", ev)}/>
+          Solution Print Only
+        </label>
+      </div>}
+      <hr/>
+      {this.state.error && <div>{this.state.error}</div>}
+      <div>
+        <button onClick={this.saveEdit}>Save</button>
+        <button onClick={this.cancelEdit}>Cancel</button>
+      </div>
     </div>);
   }
 }
