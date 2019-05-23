@@ -249,7 +249,7 @@ user_cache_last_update = 0
 
 def check_user_cache():
     global user_cache, user_cache_last_update
-    if time.time() - user_cache_last_update > 60:
+    if False and time.time() - user_cache_last_update > 60:
         print("Clear user cache", file=sys.stderr)
         user_cache = {}
         user_cache_last_update = time.time()
