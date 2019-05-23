@@ -2538,7 +2538,7 @@ def pdf(pdftype, filename):
     })
     if not metadata:
         return not_found()
-    is_printonly = pdftype in ['printonly'] or (pdftype in ['solution'] and metadata["solution_printonly"])
+    is_printonly = pdftype in ['printonly'] or (pdftype in ['solution'] and metadata.get("solution_printonly"))
     username = auth.username()
     if is_printonly and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
