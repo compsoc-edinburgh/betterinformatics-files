@@ -261,7 +261,9 @@ def verify_pw(username, password):
         return False
     check_user_cache()
     if user_cache.get((username, password)):
+        print("Login from cache", file=sys.stderr)
         return True
+    print("Login cache miss", file=sys.stderr)
     req = people_pb2.AuthPersonRequest(
         password=password, username=username)
     try:
