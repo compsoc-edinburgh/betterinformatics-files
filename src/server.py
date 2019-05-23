@@ -260,7 +260,7 @@ def verify_pw(username, password):
     if not username or not password:
         return False
     check_user_cache()
-    if user_cache[(username, password)]:
+    if user_cache.get((username, password)):
         return True
     req = people_pb2.AuthPersonRequest(
         password=password, username=username)
