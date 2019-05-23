@@ -243,22 +243,39 @@ def filter_dict(dictionary, whitelist):
     return filtered
 
 
+user_cache = {}
+user_cache_last_update = 0
+
+
+def check_user_cache():
+    global user_cache, user_cache_last_update
+    if time.time() - user_cache_last_update > 60:
+        print("Clear user cache", file=sys.stderr)
+        user_cache = {}
+        user_cache_last_update = time.time()
+
+
 @auth.verify_password
 def verify_pw(username, password):
     if not username or not password:
         return False
+    check_user_cache()
+    if user_cache[(username, password)]:
+        return True
     req = people_pb2.AuthPersonRequest(
         password=password, username=username)
     try:
-        res = people_client.AuthEthPerson(req, metadata=people_metadata)
+        res = people_client.AuthEthPerson(req, metadata=people_metadata, timeout=3)
         if res.ok:
+            user_cache[(username, password)] = True
             return True
     except grpc.RpcError as e:
         # print("Verify Password throws:", e, file=sys.stderr)
         pass
     try:
-        res = people_client.AuthVisPerson(req, metadata=people_metadata)
+        res = people_client.AuthVisPerson(req, metadata=people_metadata, timeout=3)
         if res.ok:
+            user_cache[(username, password)] = True
             return True
     except grpc.RpcError as e:
         # print("Verify Password throws:", e, file=sys.stderr)
