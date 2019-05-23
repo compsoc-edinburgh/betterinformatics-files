@@ -731,7 +731,8 @@ def remove_answer_section(filename):
     if section:
         for answer in section["answersection"]["answers"]:
             remove_answer(answer["_id"])
-    adjust_user_score(section["answersection"]["asker"], "score_cuts", -1)
+    if section and section["answersection"] and section["answersection"]["asker"]:
+        adjust_user_score(section["answersection"]["asker"], "score_cuts", -1)
     adjust_exam_count({
         "filename": filename
     }, count_cuts=-1)
