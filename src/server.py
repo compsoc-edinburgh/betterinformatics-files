@@ -477,6 +477,22 @@ def make_answer_section_response(oid):
 def test():
     return "Server is running"
 
+@app.before_request
+def start_timer():
+    g.start = time.time()
+
+@app.after_request
+def log_request(response):
+    if request.path == '/favicon.ico':
+        return response
+    elif request.path.startswith('/static'):
+        return response
+
+    now = time.time()
+    duration = round(now - g.start, 4)
+    print('Request time for {}: {}s'.format(request.path, duration), file=sys.stderr)
+
+    return response
 
 @app.route("/")
 @app.route("/uploadpdf")
