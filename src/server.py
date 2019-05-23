@@ -244,14 +244,16 @@ def filter_dict(dictionary, whitelist):
 
 
 user_cache = {}
+user_realname_cache = {}
 user_cache_last_update = 0
 
 
 def check_user_cache():
-    global user_cache, user_cache_last_update
+    global user_cache, user_realname_cache, user_cache_last_update
     if False and time.time() - user_cache_last_update > 60:
         print("Clear user cache", file=sys.stderr)
         user_cache = {}
+        user_realname_cache = {}
         user_cache_last_update = time.time()
 
 
@@ -288,17 +290,23 @@ def verify_pw(username, password):
 def get_real_name(username):
     if username == '__legacy__':
         return "Old VISki Solution"
+    check_user_cache()
+    if username in user_realname_cache:
+        return user_realname_cache[username]
     req = people_pb2.GetPersonRequest(username=username)
     try:
         res = people_client.GetEthPerson(req, metadata=people_metadata)
-        return res.first_name + " " + res.last_name
+        user_realname_cache[username] = res.first_name + " " + res.last_name
+        return user_realname_cache[username]
     except grpc.RpcError as e:
         pass
     try:
         res = people_client.GetVisPerson(req, metadata=people_metadata)
-        return res.first_name + " " + res.last_name
+        user_realname_cache[username] = res.first_name + " " + res.last_name
+        return user_realname_cache[username]
     except grpc.RpcError as e:
         pass
+    user_realname_cache[username] = username
     return username
 
 
@@ -322,7 +330,7 @@ admin_cache_last_update = 0
 
 def check_admin_cache():
     global admin_cache, admin_any_category_cache, admin_category_cache, admin_cache_last_update
-    if time.time() - admin_cache_last_update > 60:
+    if False and time.time() - admin_cache_last_update > 60:
         print("Clear admin cache", file=sys.stderr)
         admin_cache = {}
         admin_any_category_cache = {}
