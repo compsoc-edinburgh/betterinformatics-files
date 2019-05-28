@@ -24,6 +24,7 @@ import people_pb2_grpc
 import dbmigrations
 import ethprint
 import legacy_importer
+import people_cache
 
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
@@ -243,35 +244,16 @@ def filter_dict(dictionary, whitelist):
     return filtered
 
 
-user_cache = {}
-user_realname_cache = {}
-user_cache_last_update = 0
-
-
-def check_user_cache():
-    global user_cache, user_realname_cache, user_cache_last_update
-    if False and time.time() - user_cache_last_update > 60:
-        print("Clear user cache", file=sys.stderr)
-        user_cache = {}
-        user_realname_cache = {}
-        user_cache_last_update = time.time()
-
-
 @auth.verify_password
+@people_cache.cache(60)
 def verify_pw(username, password):
     if not username or not password:
         return False
-    check_user_cache()
-    if user_cache.get((username, password)):
-        print("Login from cache", file=sys.stderr)
-        return True
-    print("Login cache miss", file=sys.stderr)
     req = people_pb2.AuthPersonRequest(
         password=password, username=username)
     try:
         res = people_client.AuthEthPerson(req, metadata=people_metadata, timeout=3)
         if res.ok:
-            user_cache[(username, password)] = True
             return True
     except grpc.RpcError as e:
         # print("Verify Password throws:", e, file=sys.stderr)
@@ -279,7 +261,6 @@ def verify_pw(username, password):
     try:
         res = people_client.AuthVisPerson(req, metadata=people_metadata, timeout=3)
         if res.ok:
-            user_cache[(username, password)] = True
             return True
     except grpc.RpcError as e:
         # print("Verify Password throws:", e, file=sys.stderr)
@@ -287,26 +268,21 @@ def verify_pw(username, password):
     return False
 
 
+@people_cache.cache(600)
 def get_real_name(username):
     if username == '__legacy__':
         return "Old VISki Solution"
-    check_user_cache()
-    if username in user_realname_cache:
-        return user_realname_cache[username]
     req = people_pb2.GetPersonRequest(username=username)
     try:
         res = people_client.GetEthPerson(req, metadata=people_metadata)
-        user_realname_cache[username] = res.first_name + " " + res.last_name
-        return user_realname_cache[username]
+        return res.first_name + " " + res.last_name
     except grpc.RpcError as e:
         pass
     try:
         res = people_client.GetVisPerson(req, metadata=people_metadata)
-        user_realname_cache[username] = res.first_name + " " + res.last_name
-        return user_realname_cache[username]
+        return res.first_name + " " + res.last_name
     except grpc.RpcError as e:
         pass
-    user_realname_cache[username] = username
     return username
 
 
@@ -322,59 +298,36 @@ def get_username_or_legacy(filename):
     return auth.username()
 
 
-admin_cache = {}
-admin_any_category_cache = {}
-admin_category_cache = {}
-admin_cache_last_update = 0
-
-
-def check_admin_cache():
-    global admin_cache, admin_any_category_cache, admin_category_cache, admin_cache_last_update
-    if False and time.time() - admin_cache_last_update > 60:
-        print("Clear admin cache", file=sys.stderr)
-        admin_cache = {}
-        admin_any_category_cache = {}
-        admin_category_cache = {}
-        admin_cache_last_update = time.time()
-
-
+@people_cache.cache(60)
 def has_admin_rights(username):
     """
     Check whether the given user should have global admin rights.
     :param username: the user to check
     :return: True iff the user has global admin rights
     """
-    check_admin_cache()
-    if username in admin_cache:
-        return admin_cache[username]
     try:
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisPerson(req, metadata=people_metadata)
     except grpc.RpcError as e:
         # print("RPC error while checking admin rights", e)
         return False
-    res = any(("vorstand" == group or "cat" == group or "luk" == group or "serviceaccounts" == group) for group in res.vis_groups)
-    admin_cache[username] = res
-    return res
+    return any(("vorstand" == group or "cat" == group or "luk" == group or "serviceaccounts" == group) for group in res.vis_groups)
 
 
+@people_cache.cache(6)
 def has_admin_rights_for_any_category(username):
     """
     Check whether the given user has admin rights for some category.
     :param username: the user to check
     :return: True iff there exists some category for which the user is admin
     """
-    check_admin_cache()
-    if username in admin_any_category_cache:
-        return admin_any_category_cache[username]
     maybe_admin = category_metadata.find({
         "admins": username
     })
-    res = bool(list(maybe_admin))
-    admin_any_category_cache[username] = res
-    return res
+    return bool(list(maybe_admin))
 
 
+@people_cache.cache(6)
 def has_admin_rights_for_category(username, category):
     """
     Check whether the given user has admin rights in the given category.
@@ -384,19 +337,12 @@ def has_admin_rights_for_category(username, category):
     """
     if has_admin_rights(username):
         return True
-
-    check_admin_cache()
-    if (username, category) in admin_category_cache:
-        return admin_category_cache[(username, category)]
-
     admins = category_metadata.find_one({
         "category": category
     }, {
         "admins": 1
     })["admins"]
-    res = username in admins
-    admin_category_cache[(username, category)] = res
-    return res
+    return username in admins
 
 
 def has_admin_rights_for_exam(username, filename):
@@ -2624,7 +2570,7 @@ def image(filename):
     """
     try:
         data = minio_client.get_object(minio_bucket, IMAGE_DIR + filename)
-        return send_file(data, IMAGE_MIME_TYPES[filename.split(".")[-1]])
+        return send_file(data, IMAGE_MIME_TYPES[filename.split(".")[-1].lower()])
     except NoSuchKey as n:
         return not_found()
 
