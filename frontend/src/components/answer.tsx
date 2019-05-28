@@ -151,6 +151,15 @@ export default class AnswerComponent extends React.Component<Props, State> {
     addingComment: false,
   };
 
+  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+    if (prevProps.answer.text !== this.props.answer.text) {
+      this.setState({
+        text: this.props.answer.text,
+        savedText: this.props.answer.text,
+      });
+    }
+  }
+
   setMainDivRef = (element: HTMLDivElement) => {
     this.props.answer.divRef = element;
   };
