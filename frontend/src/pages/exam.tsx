@@ -346,6 +346,26 @@ export default class Exam extends React.Component<Props, State> {
     });
   };
 
+  setAllDone = () => {
+    const update = {
+      public: true,
+      finished_cuts: true,
+      finished_wiki_transfer: true,
+    };
+    if (this.state.editingMetaData) {
+      this.toggleEditingMetadataActive();
+    }
+    fetchpost(`/api/exam/${this.props.filename}/metadata`, update)
+      .then(res => {
+        this.setState(prev => ({
+          savedMetaData: {
+            ...prev.savedMetaData,
+            ...update,
+          }
+        }))
+      });
+  };
+
   metaDataChanged = (newMetaData: ExamMetaData) => {
     this.setState({
       savedMetaData: newMetaData,
@@ -392,6 +412,12 @@ export default class Exam extends React.Component<Props, State> {
               <div key="metadata">
                 <button onClick={this.toggleEditingMetadataActive}>Edit MetaData</button>
               </div>,
+              !(this.state.savedMetaData.public &&
+                this.state.savedMetaData.finished_cuts &&
+                this.state.savedMetaData.finished_wiki_transfer) &&
+                <div key="alldone">
+                  <button onClick={this.setAllDone}>Set All Done</button>
+                </div>,
               <div key="cuts">
                 <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
               </div>
