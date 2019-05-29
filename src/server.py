@@ -50,6 +50,8 @@ IMAGE_MIME_TYPES = {
     'svg': "image/svg+xml",
     'gif': "image/gif",
 }
+FILESTORE_DIR = 'files/'
+FILESTORE_ALLOWED_EXTENSIONS = {'pdf', 'zip', 'tar.gz', 'tar.xz'}
 PDF_DIR = {
     'exam': EXAM_DIR,
     'payment_exam': EXAM_DIR,
@@ -82,6 +84,9 @@ EXAM_METADATA = [
     "count_answers",
     "count_answered",
 ]
+EXAM_METADATA_SETS = [
+    "attachments"
+]
 EXAM_METADATA_INTERNAL = [
     "import_claim",
     "import_claim_displayname",
@@ -103,6 +108,10 @@ CATEGORY_METADATA = [
     "remark",
     "has_payments",
     "more_exams_link",
+]
+CATEGORY_METADATA_SETS = [
+    "admins",
+    "attachments"
 ]
 CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
@@ -491,6 +500,11 @@ def allowed_exam_file(filename):
 def allowed_img_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in IMAGE_ALLOWED_EXTENSIONS
+
+
+def allowed_filestore_file(filename):
+    return '.' in filename and \
+           any(filename.endswith(ext) for ext in FILESTORE_ALLOWED_EXTENSIONS)
 
 
 def is_file_in_minio(directory, name):
@@ -1144,9 +1158,12 @@ def get_exam_metadata(filename):
     })
     if not metadata:
         return not_found()
-    for key in EXAM_METADATA:
+    for key in EXAM_METADATA + EXAM_METADATA_SETS:
         if key not in metadata:
             metadata[key] = ""
+    for key in EXAM_METADATA_SETS:
+        if not metadata[key]:
+            metadata[key] = []
     username = auth.username()
     metadata["canEdit"] = has_admin_rights_for_category(username, metadata.get("category"))
     metadata["hasPayed"] = has_payed(username, metadata.get("payment_category"))
@@ -1210,6 +1227,56 @@ def set_exam_metadata(filename, metadata):
         exam_metadata.update_one({
             "filename": filename
         }, {"$set": filtered})
+
+
+@app.route("/api/exam/<filename>/addtoset", methods=['POST'])
+@auth.login_required
+@require_admin
+def exam_addtoset(filename):
+    """
+    Add an element to a set of an exam.
+    POST Parameter 'key'
+    POST Parameter 'value'
+    """
+    key = request.form.get("key")
+    value = request.form.get("value")
+    if not key or not value:
+        return not_possible("Missing argument")
+    if key not in EXAM_METADATA_SETS:
+        return not_possible("Invalid key")
+    exam_metadata.update_one({
+        "filename": filename
+    }, {
+        "$addToSet": {
+            key: value
+        }
+    })
+    return success()
+
+
+@app.route("/api/exam/<filename>/pullset", methods=['POST'])
+@auth.login_required
+@require_admin
+def exam_pullset(filename):
+    """
+    Remove an element from a set of an exam.
+    POST Parameter 'key'
+    POST Parameter 'value'
+    """
+    key = request.form.get("key")
+    value = request.form.get("value")
+    if not key or not value:
+        return not_possible("Missing argument")
+    if key not in EXAM_METADATA_SETS:
+        return not_possible("Invalid key")
+    exam_metadata.update_one({
+        "filename": filename
+    }, {
+        "$pull": {
+            key: value
+        }
+    })
+    return success()
 
 
 def get_resolved_filename(resolve_alias):
@@ -1490,47 +1557,55 @@ def remove_category():
         return not_possible("Could not delete category")
 
 
-@app.route("/api/category/addadmin", methods=['POST'])
+@app.route("/api/category/addtoset", methods=['POST'])
 @auth.login_required
 @require_admin
-def add_category_admin():
+def category_addtoset():
     """
-    Add an admin to a category.
+    Add an element to a set of a category.
     POST Parameter 'category' or 'slug'
-    POST Parameter 'username'
+    POST Parameter 'key'
+    POST Parameter 'value'
     """
     category = request.form.get("category") or resolve_category_slug(request.form.get("slug"))
-    username = request.form.get("username")
-    if not category or not username:
+    key = request.form.get("key")
+    value = request.form.get("value")
+    if not category or not key or not value:
         return not_possible("Missing argument")
+    if key not in CATEGORY_METADATA_SETS:
+        return not_possible("Invalid key")
     category_metadata.update_one({
         "category": category
     }, {
         "$addToSet": {
-            "admins": username
+            key: value
         }
     })
     return success()
 
 
-@app.route("/api/category/removeadmin", methods=['POST'])
+@app.route("/api/category/pullset", methods=['POST'])
 @auth.login_required
 @require_admin
-def remove_category_admin():
+def category_pullset():
     """
-    Remove an admin from a category.
+    Remove an element from a set of a category.
     POST Parameter 'category' or 'slug'
-    POST Parameter 'username'
+    POST Parameter 'key'
+    POST Parameter 'value'
     """
     category = request.form.get("category") or resolve_category_slug(request.form.get("slug"))
-    username = request.form.get("username")
-    if not category or not username:
+    key = request.form.get("key")
+    value = request.form.get("value")
+    if not category or not key or not value:
         return not_possible("Missing argument")
+    if key not in CATEGORY_METADATA_SETS:
+        return not_possible("Invalid key")
     category_metadata.update_one({
         "category": category
     }, {
         "$pull": {
-            "admins": username
+            key: value
         }
     })
     return success()
@@ -1566,12 +1641,13 @@ def get_category_metadata():
         return not_found()
     if not has_admin_rights_for_category(auth.username(), category):
         del metadata["admins"]
-    for key in CATEGORY_METADATA + ['admins', 'offered_in']:
+    for key in CATEGORY_METADATA + CATEGORY_METADATA_SETS:
         if key not in metadata:
             metadata[key] = ""
     metadata["catadmin"] = auth.username() in metadata["admins"]
-    if not metadata["admins"]:
-        metadata["admins"] = []
+    for key in CATEGORY_METADATA_SETS:
+        if not metadata[key]:
+            metadata[key] = []
     return success(value=metadata)
 
 
@@ -2493,6 +2569,39 @@ def uploadimg():
     return success(filename=filename)
 
 
+@app.route('/api/uploadfilestore', methods=['POST'])
+@auth.login_required
+@require_admin
+def uploadfilestore():
+    file = request.files.get('file', None)
+    if not file or not file.filename or not allowed_filestore_file(file.filename):
+        return not_possible('No valid file found')
+    ext = ""
+    for aext in FILESTORE_ALLOWED_EXTENSIONS:
+        if file.filename.endswith(aext):
+            ext = aext
+    assert ext
+    filename = generate_filename(16, FILESTORE_DIR, "." + ext)
+    if is_file_in_minio(FILESTORE_DIR, filename):
+        # This should not happen!
+        return not_possible("File already exists")
+    temp_file_path = os.path.join(app.config['INTERMEDIATE_PDF_STORAGE'], filename)
+    file.save(temp_file_path)
+    minio_client.fput_object(minio_bucket, FILESTORE_DIR + filename, temp_file_path)
+    return success(filename=filename)
+
+
+@app.route('/api/filestore/remove/<filename>', methods=['POST'])
+@auth.login_required
+@require_admin
+def removefilestore(filename):
+    try:
+        minio_client.remove_object(minio_bucket, FILESTORE_DIR + filename)
+    except NoSuchKey:
+        return not_found()
+    return success()
+
+
 @app.route("/api/pdf/<pdftype>/<filename>")
 @auth.login_required
 def pdf(pdftype, filename):
@@ -2571,6 +2680,19 @@ def image(filename):
     try:
         data = minio_client.get_object(minio_bucket, IMAGE_DIR + filename)
         return send_file(data, IMAGE_MIME_TYPES[filename.split(".")[-1].lower()])
+    except NoSuchKey as n:
+        return not_found()
+
+
+@app.route("/api/filestore/<filename>")
+@auth.login_required
+def filestore(filename):
+    """"
+    Get the file for the filename
+    """
+    try:
+        data = minio_client.get_object(minio_bucket, FILESTORE_DIR + filename)
+        return send_file(data, as_attachment=True, attachment_filename=filename)
     except NoSuchKey as n:
         return not_found()
 

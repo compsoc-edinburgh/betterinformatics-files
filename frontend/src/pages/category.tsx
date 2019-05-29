@@ -98,6 +98,7 @@ export default class Category extends React.Component<Props, State> {
       examcountpublic: 0,
       examcountanswered: 0,
       answerprogress: 0,
+      attachments: [],
     },
     editingMetaData: false,
     redirectBack: false,
@@ -227,9 +228,10 @@ export default class Category extends React.Component<Props, State> {
     if (!this.state.newAdminName) {
       return;
     }
-    fetchpost('/api/category/addadmin', {
+    fetchpost('/api/category/addtoset', {
       slug: this.props.categorySlug,
-      username: this.state.newAdminName,
+      key: 'admins',
+      value: this.state.newAdminName,
     })
       .then(() => {
         this.setState({
@@ -245,9 +247,10 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeAdmin = (username: string) => {
-    fetchpost('/api/category/removeadmin', {
+    fetchpost('/api/category/pullset', {
       slug: this.props.categorySlug,
-      username: username,
+      key: 'admins',
+      value: username,
     })
       .then(() => {
         this.loadCategory();

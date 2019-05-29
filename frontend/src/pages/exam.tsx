@@ -122,6 +122,7 @@ export default class Exam extends React.Component<Props, State> {
       payment_exam_checked: false,
       count_cuts: 0,
       count_answered: 0,
+      attachments: [],
     },
     allShown: false,
     updateIntervalId: 0,

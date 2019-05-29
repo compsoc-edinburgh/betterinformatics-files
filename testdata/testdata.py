@@ -40,8 +40,8 @@ class Client:
 [DONE] @app.route("/api/exam/<filename>/remove", methods=['POST'])
 [DONE] @app.route("/api/category/add", methods=['POST'])
 [DONE] @app.route("/api/category/remove", methods=['POST'])
-[DONE] @app.route("/api/category/addadmin", methods=['POST'])
-[DONE] @app.route("/api/category/removeadmin", methods=['POST'])
+[DONE] @app.route("/api/category/addtoset", methods=['POST'])
+[DONE] @app.route("/api/category/pullset", methods=['POST'])
 [DONE] @app.route("/api/category/metadata", methods=['POST'])
 [DONE] @app.route("/api/metacategory/setorder", methods=['POST'])
 [DONE] @app.route("/api/metacategory/addcategory", methods=['POST'])
@@ -130,17 +130,19 @@ class Creator:
             for i in range(6):
                 for j in range(2):
                     self.cat[0].post(
-                        '/api/category/addadmin',
+                        '/api/category/addtoset',
                         category=cat + ' ' + str(i+1),
-                        username=self.ordinary[i % 2 + j * 2].username,
+                        key="admins",
+                        value=self.ordinary[i % 2 + j * 2].username,
                     )
 
     def remove_category_admins(self):
         for cat in self.categories:
             self.board[1].post(
-                '/api/category/removeadmin',
+                '/api/category/pullset',
                 category=cat + ' 1',
-                username=self.ordinary[0].username,
+                key="admins",
+                value=self.ordinary[0].username,
             )
 
     def category_metadata(self):

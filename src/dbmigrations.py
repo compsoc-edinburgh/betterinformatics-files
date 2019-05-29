@@ -5,7 +5,7 @@ import server
 import threading
 import pymongo
 
-DB_VERSION = 9
+DB_VERSION = 10
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -226,6 +226,20 @@ def add_cut_counts(mongo_db):
     set_db_version(mongo_db, 9)
 
 
+def add_attachments(mongo_db):
+    print("Migrate 'add attachments'", file=sys.stderr)
+    mongo_db.exammetadata.update({}, {
+        "$set": {
+            "attachments": []
+        }
+    })
+    mongo_db.categorymetadata.update({}, {
+        "$set": {
+            "attachments": []
+        }
+    })
+    set_db_version(mongo_db, 10)
+
 
 MIGRATIONS = [
     init_migration,
@@ -237,6 +251,7 @@ MIGRATIONS = [
     add_more_scores,
     add_indexes,
     add_cut_counts,
+    add_attachments,
 ]
 
 

@@ -58,6 +58,11 @@ export interface ServerCutPosition {
   cutVersion: number;
 }
 
+export interface Attachment {
+  displayname: string;
+  filename: string;
+}
+
 export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
@@ -116,6 +121,7 @@ export interface CategoryMetaData {
   examcountpublic: number;
   examcountanswered: number;
   answerprogress: number;
+  attachments: Attachment[];
 }
 
 export interface ExamMetaData {
@@ -141,6 +147,7 @@ export interface ExamMetaData {
   payment_exam_checked: boolean;
   count_cuts: number;
   count_answered: number;
+  attachments: Attachment[];
 }
 
 export interface NotificationInfo {
