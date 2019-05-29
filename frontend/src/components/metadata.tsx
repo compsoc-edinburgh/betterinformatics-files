@@ -1,9 +1,10 @@
 import * as React from "react";
 import {css} from "glamor";
-import {ExamMetaData} from "../interfaces";
+import {Attachment, ExamMetaData} from "../interfaces";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import Colors from "../colors";
 import AutocompleteInput from '../components/autocomplete-input';
+import Attachments from "./attachments";
 
 const stylesForWidth = {
   justWidth: css({
@@ -194,6 +195,18 @@ export default class MetaData extends React.Component<Props, State> {
       }));
   };
 
+  addAttachment = (att: Attachment) => {
+    let metadata = {...this.props.savedMetaData};
+    metadata.attachments.push(att);
+    this.props.onChange(metadata);
+  };
+
+  removeAttachment = (att: Attachment) => {
+    let metadata = {...this.props.savedMetaData};
+    metadata.attachments = metadata.attachments.filter(a => a !== att);
+    this.props.onChange(metadata);
+  };
+
   render() {
     return (<div {...styles.wrapper}>
       <div>
@@ -260,6 +273,7 @@ export default class MetaData extends React.Component<Props, State> {
           Solution Print Only
         </label>
       </div>}
+      <Attachments attachments={this.props.savedMetaData.attachments} onAddAttachment={this.addAttachment} onRemoveAttachment={this.removeAttachment} />
       <hr/>
       {this.state.error && <div>{this.state.error}</div>}
       <div>

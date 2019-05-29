@@ -11,12 +11,12 @@ interface Props {
   attachments: Attachment[];
   onAddAttachment: (attachment: Attachment) => void;
   onRemoveAttachment: (attachment: Attachment) => void;
-};
+}
 
 interface State {
   newFile: Blob;
   newDisplayname: string;
-};
+}
 
 export default class Attachments extends React.Component<Props, State> {
   state: State = {
@@ -39,6 +39,11 @@ export default class Attachments extends React.Component<Props, State> {
     }
   };
 
+  uploadFile = () => {
+    // TODO upload
+    console.log("TODO upload");
+  };
+
   render() {
     const atts = this.props.attachments;
     return (<div {...styles.wrapper}>
@@ -50,6 +55,7 @@ export default class Attachments extends React.Component<Props, State> {
       </div>
       <div>
         <input type="file" title="attachment" onChange={this.filechange} />
+        <button onClick={this.uploadFile}>Upload</button>
       </div>
     </div>);
   }
