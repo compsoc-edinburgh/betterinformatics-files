@@ -381,7 +381,7 @@ def is_expert_for_category(username, category):
         "category": category
     }, {
         "experts": 1
-    })["experts"]
+    }).get("experts", [])
     return username in experts
 
 
