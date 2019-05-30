@@ -2851,7 +2851,7 @@ def filestore(filename):
     """
     try:
         data = minio_client.get_object(minio_bucket, FILESTORE_DIR + filename)
-        return send_file(data, as_attachment=True, attachment_filename=filename)
+        return send_file(data, attachment_filename=filename)
     except NoSuchKey as n:
         return not_found()
 
