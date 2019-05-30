@@ -1,5 +1,5 @@
 import * as React from "react";
-import {CategoryExam, CategoryMetaData, MetaCategory} from "../interfaces";
+import {Attachment, CategoryExam, CategoryMetaData, MetaCategory} from "../interfaces";
 import {css} from "glamor";
 import {fetchapi, fetchpost} from "../fetch-utils";
 import {Link, Redirect} from "react-router-dom";
@@ -10,6 +10,7 @@ import GlobalConsts from "../globalconsts";
 import * as moment from 'moment';
 import Colors from "../colors";
 import {listenEnter} from "../input-utils";
+import Attachments from "../components/attachments";
 
 const styles = {
   wrapper: css({
@@ -378,6 +379,30 @@ export default class Category extends React.Component<Props, State> {
       });
   };
 
+  addAttachment = (att: Attachment) => {
+    this.setState(prevState => {
+      prevState.currentMetaData.attachments.push(att);
+      return prevState;
+    });
+    fetchpost('/api/category/addtoset', {
+      slug: this.props.categorySlug,
+      key: 'json:attachments',
+      value: JSON.stringify(att),
+    });
+  };
+
+  removeAttachment = (att: Attachment) => {
+    this.setState(prevState => {
+      prevState.currentMetaData.attachments = prevState.currentMetaData.attachments.filter(a => a !== att);
+      return prevState;
+    });
+    fetchpost('/api/category/pullset', {
+      slug: this.props.categorySlug,
+      key: 'json:attachments',
+      value: JSON.stringify(att),
+    });
+  };
+
   render() {
     if (this.state.redirectBack) {
       return <Redirect to="/"/>;
@@ -394,6 +419,7 @@ export default class Category extends React.Component<Props, State> {
     const viewableExams = this.state.exams
       .filter(exam => exam.public || catAdmin)
       .filter(exam => filterMatches(this.state.filter, exam.displayname));
+    const attachments = this.state.currentMetaData.attachments.length > 0 ? this.state.currentMetaData.attachments : this.state.category.attachments;
     return (<div {...styles.wrapper}>
       <h1>{cat.category}</h1>
       <div>
@@ -433,6 +459,10 @@ export default class Category extends React.Component<Props, State> {
           <div>
             <button onClick={this.saveEdit}>Save</button>
             <button onClick={this.cancelEdit}>Cancel</button>
+          </div>
+          <div>
+            <h2>Attachments</h2>
+            <Attachments attachments={this.state.currentMetaData.attachments} onAddAttachment={this.addAttachment} onRemoveAttachment={this.removeAttachment} />
           </div>
           <div>
             <h2>Offered In</h2>
@@ -533,6 +563,12 @@ export default class Category extends React.Component<Props, State> {
           </table>
         </div>)
       }
+      {(attachments.length > 0) && <div>
+        <h2>Attachments</h2>
+        {attachments.map(att => <div key={att.filename}>
+          <a href={"/api/filestore/" + att.filename} target="_blank">{att.displayname}</a>
+        </div>)}
+      </div>}
     </div>);
   }
 }

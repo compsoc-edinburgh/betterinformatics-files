@@ -14,7 +14,7 @@ const stylesForWidth = {
     width: "200px",
     margin: "5px",
     display: "inline-block",
-  })
+  }),
 };
 const styles = {
   wrapper: css({
@@ -28,6 +28,9 @@ const styles = {
     "& input[type=file]": stylesForWidth.justWidth,
     "& label": stylesForWidth.inlineBlock,
     "& button": stylesForWidth.justWidth,
+  }),
+  title: css({
+    paddingLeft: "5px",
   }),
 };
 
@@ -199,12 +202,20 @@ export default class MetaData extends React.Component<Props, State> {
     let metadata = {...this.props.savedMetaData};
     metadata.attachments.push(att);
     this.props.onChange(metadata);
+    fetchpost('/api/exam/' + this.props.filename + '/addtoset', {
+      key: 'json:attachments',
+      value: JSON.stringify(att),
+    });
   };
 
   removeAttachment = (att: Attachment) => {
     let metadata = {...this.props.savedMetaData};
     metadata.attachments = metadata.attachments.filter(a => a !== att);
     this.props.onChange(metadata);
+    fetchpost('/api/exam/' + this.props.filename + '/pullset', {
+      key: 'json:attachments',
+      value: JSON.stringify(att),
+    });
   };
 
   render() {
@@ -273,6 +284,10 @@ export default class MetaData extends React.Component<Props, State> {
           Solution Print Only
         </label>
       </div>}
+      <hr />
+      <div {...styles.title}>
+        <b>Attachments</b>
+      </div>
       <Attachments attachments={this.props.savedMetaData.attachments} onAddAttachment={this.addAttachment} onRemoveAttachment={this.removeAttachment} />
       <hr/>
       {this.state.error && <div>{this.state.error}</div>}

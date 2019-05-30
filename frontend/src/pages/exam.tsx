@@ -453,6 +453,11 @@ export default class Exam extends React.Component<Props, State> {
         <div {...styles.linkBanner}>
           <a href={"/api/pdf/solution/" + this.props.filename} target="_blank">Official Solution</a>
         </div>}
+        {this.state.savedMetaData.attachments.map(att =>
+          <div {...styles.linkBanner} key={att.filename}>
+            <a href={"/api/filestore/" + att.filename} target="_blank">{att.displayname}</a>
+          </div>
+        )}
         {(renderer && sections) &&
           <div style={{width: width}} {...styles.wrapper}>
             {sections.map(e => {

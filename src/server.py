@@ -1242,6 +1242,9 @@ def exam_addtoset(filename):
     value = request.form.get("value")
     if not key or not value:
         return not_possible("Missing argument")
+    if key.startswith('json:'):
+        key = key[len('json:'):]
+        value = json.loads(value)
     if key not in EXAM_METADATA_SETS:
         return not_possible("Invalid key")
     exam_metadata.update_one({
@@ -1267,6 +1270,9 @@ def exam_pullset(filename):
     value = request.form.get("value")
     if not key or not value:
         return not_possible("Missing argument")
+    if key.startswith('json:'):
+        key = key[len('json:'):]
+        value = json.loads(value)
     if key not in EXAM_METADATA_SETS:
         return not_possible("Invalid key")
     exam_metadata.update_one({
@@ -1572,6 +1578,9 @@ def category_addtoset():
     value = request.form.get("value")
     if not category or not key or not value:
         return not_possible("Missing argument")
+    if key.startswith('json:'):
+        key = key[len('json:'):]
+        value = json.loads(value)
     if key not in CATEGORY_METADATA_SETS:
         return not_possible("Invalid key")
     category_metadata.update_one({
@@ -1599,6 +1608,9 @@ def category_pullset():
     value = request.form.get("value")
     if not category or not key or not value:
         return not_possible("Missing argument")
+    if key.startswith('json:'):
+        key = key[len('json:'):]
+        value = json.loads(value)
     if key not in CATEGORY_METADATA_SETS:
         return not_possible("Invalid key")
     category_metadata.update_one({
