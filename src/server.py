@@ -468,6 +468,15 @@ def index_with_argument(argument):
     return index()
 
 
+@app.route('/tutorial')
+def send_tutorial_redirect():
+    return redirect('/tutorial/index.html')
+
+@app.route('/tutorial/<path:path>')
+@auth.login_required
+def send_tutorial(path):
+    return send_from_directory('tutorial-slides', path)
+
 @app.route('/resolve/<filename>')
 @auth.login_required
 def resolve(filename):
