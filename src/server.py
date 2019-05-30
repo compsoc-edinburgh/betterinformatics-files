@@ -504,7 +504,7 @@ def allowed_img_file(filename):
 
 def allowed_filestore_file(filename):
     return '.' in filename and \
-           any(filename.endswith(ext) for ext in FILESTORE_ALLOWED_EXTENSIONS)
+           any(filename.lower().endswith(ext) for ext in FILESTORE_ALLOWED_EXTENSIONS)
 
 
 def is_file_in_minio(directory, name):
@@ -2590,7 +2590,7 @@ def uploadfilestore():
         return not_possible('No valid file found')
     ext = ""
     for aext in FILESTORE_ALLOWED_EXTENSIONS:
-        if file.filename.endswith(aext):
+        if file.filename.lower().endswith(aext):
             ext = aext
     assert ext
     filename = generate_filename(16, FILESTORE_DIR, "." + ext)

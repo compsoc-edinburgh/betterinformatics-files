@@ -388,7 +388,10 @@ export default class Category extends React.Component<Props, State> {
       slug: this.props.categorySlug,
       key: 'json:attachments',
       value: JSON.stringify(att),
-    });
+    })
+      .then(res => {
+        this.loadCategory();
+      });
   };
 
   removeAttachment = (att: Attachment) => {
@@ -400,7 +403,10 @@ export default class Category extends React.Component<Props, State> {
       slug: this.props.categorySlug,
       key: 'json:attachments',
       value: JSON.stringify(att),
-    });
+    })
+      .then(res => {
+        this.loadCategory();
+      });
   };
 
   render() {

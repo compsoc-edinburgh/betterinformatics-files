@@ -52,6 +52,9 @@ export default class Attachments extends React.Component<Props, State> {
   };
 
   uploadFile = () => {
+    if (!this.state.newDisplayname) {
+      return;
+    }
     fetchpost('/api/uploadfilestore', {
       file: this.state.newFile
     })
