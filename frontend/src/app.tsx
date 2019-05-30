@@ -11,7 +11,7 @@ import Colors from "./colors";
 import {fetchapi} from "./fetch-utils";
 import Scoreboard from "./pages/scoreboard";
 import UserInfoComponent from "./pages/userinfo";
-import ImportQueue from "./pages/importqueue";
+import ModQueue from "./pages/modqueue";
 import SubmitTranscript from "./pages/submittranscript";
 import colors from "./colors";
 import globalcss from "./globalcss";
@@ -127,7 +127,7 @@ export default class App extends React.Component<{}, State> {
         <div {...styles.inner}>
           <Switch>
             <Route path="/exams/:filename" render={(props) => (
-              <Exam {...props} filename={props.match.params.filename}/>
+              <Exam {...props} isAdmin={this.state.isAdmin} filename={props.match.params.filename}/>
             )}/>
             <Route path="/user/:username" render={(props) => (
               <UserInfoComponent {...props} isMyself={this.state.username === props.match.params.username}
@@ -141,8 +141,8 @@ export default class App extends React.Component<{}, State> {
             <Route path="/scoreboard" render={(props) => (
               <Scoreboard username={this.state.username}/>
             )}/>
-            <Route path="/importqueue" render={(props) => (
-              <ImportQueue isAdmin={this.state.isAdmin} username={this.state.username}/>
+            <Route path="/modqueue" render={(props) => (
+              <ModQueue isAdmin={this.state.isAdmin} username={this.state.username}/>
             )}/>
             <Route path="/feedback" render={(props) => (
               <Feedback {...props} isAdmin={this.state.isAdmin}/>

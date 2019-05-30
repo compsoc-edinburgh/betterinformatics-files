@@ -111,7 +111,8 @@ CATEGORY_METADATA = [
 ]
 CATEGORY_METADATA_SETS = [
     "admins",
-    "attachments"
+    "experts",
+    "attachments",
 ]
 CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
@@ -354,6 +355,7 @@ def has_admin_rights_for_category(username, category):
     return username in admins
 
 
+@people_cache.cache(6)
 def has_admin_rights_for_exam(username, filename):
     """
     Check whether the given user has admin rights for the given exam.
@@ -368,6 +370,30 @@ def has_admin_rights_for_exam(username, filename):
         return False
     category = examinfo["category"]
     return has_admin_rights_for_category(username, category)
+
+
+@people_cache.cache(6)
+def is_expert_for_category(username, category):
+    """
+    Check whether the given user is an expert for the given category.
+    """
+    experts = category_metadata.find_one({
+        "category": category
+    }, {
+        "experts": 1
+    })["experts"]
+    return username in experts
+
+
+@people_cache.cache(6)
+def is_expert_for_exam(username, filename):
+    examinfo = exam_metadata.find_one({
+        "filename": filename
+    }, {"category": 1})
+    if not examinfo:
+        return False
+    category = examinfo["category"]
+    return is_expert_for_category(username, category)
 
 
 def can_view_exam(username, filename, metadata=None):
@@ -402,27 +428,31 @@ def make_answer_section_response(oid):
     })
     if not section:
         return not_found()
-    exam_admin = has_admin_rights_for_exam(auth.username(), section["filename"])
+    exam_admin = has_admin_rights_for_exam(username, section["filename"])
     section["oid"] = section["_id"]
     del section["_id"]
     for answer in section["answersection"]["answers"]:
         answer["oid"] = answer["_id"]
         del answer["_id"]
-        answer["canEdit"] = answer["authorId"] == auth.username() or \
+        answer["canEdit"] = answer["authorId"] == username or \
                             (answer["authorId"] == '__legacy__' and exam_admin)
-        answer["isUpvoted"] = auth.username() in answer["upvotes"]
-        answer["isDownvoted"] = auth.username() in answer["downvotes"]
+        answer["isUpvoted"] = username in answer["upvotes"]
+        answer["isDownvoted"] = username in answer["downvotes"]
+        answer["isExpertVoted"] = username in answer["expertvotes"]
+        answer["isFlagged"] = username in answer["flagged"]
         answer["upvotes"] = len(answer["upvotes"]) - len(answer["downvotes"])
+        answer["expertvotes"] = len(answer["expertvotes"])
+        answer["flagged"] = len(answer["flagged"]) if has_admin_rights(username) else 0
         del answer["downvotes"]
         for comment in answer["comments"]:
             comment["oid"] = comment["_id"]
             del comment["_id"]
-            comment["canEdit"] = comment["authorId"] == auth.username()
+            comment["canEdit"] = comment["authorId"] == username
     section["answersection"]["answers"] = sorted(
         filter(
             lambda x: len(x["text"]) > 0 or x["canEdit"],
             section["answersection"]["answers"]
-        ), key=lambda x: -x["upvotes"])
+        ), key=lambda x: (-x["expertvotes"], -x["upvotes"]))
     section["answersection"]["allow_new_answer"] = len([a for a in section["answersection"]["answers"] if a["authorId"] == username]) == 0
     section["answersection"]["allow_new_legacy_answer"] = exam_admin and len([a for a in section["answersection"]["answers"] if a["authorId"] == '__legacy__']) == 0
     return success(value=section)
@@ -454,7 +484,7 @@ def log_request(response):
 @app.route("/submittranscript")
 @app.route("/feedback")
 @app.route("/scoreboard")
-@app.route("/importqueue")
+@app.route("/modqueue")
 @auth.login_required
 def index():
     return render_template("index.html")
@@ -627,6 +657,24 @@ def list_payment_check_exams():
         "payment_uploader_displayname": 1,
     })
     return success(value=list(sorted(exams, key=lambda x: (x["category"], x["displayname"]))))
+
+
+@app.route('/api/listflagged')
+@auth.login_required
+@require_admin
+def list_flagged():
+    sections = answer_sections.find({
+        "answersection.answers.flagged": {"$gt": []}
+    }, {
+        "filename": 1,
+        "answersection.answers._id": 1,
+    })
+    res = []
+    for section in sections:
+        filename = section["filename"]
+        for answer in section["answersection"]["answers"]:
+            res.append('/exams/' + filename + '#' + str(answer['_id']))
+    return success(value=res)
 
 
 @app.route("/api/exam/<filename>/cuts")
@@ -809,6 +857,79 @@ def set_like(filename, sectionoid, answeroid):
     return make_answer_section_response(answer_section_oid)
 
 
+@app.route('/api/exam/<filename>/setexpertvote/<sectionoid>/<answeroid>', methods=['POST'])
+@auth.login_required
+def set_expertvote(filename, sectionoid, answeroid):
+    """
+    Sets the expertvote for the given answer in the given section.
+    POST Parameter 'vote' is 0/1
+    """
+    username = auth.username()
+    if not is_expert_for_exam(username, filename):
+        return not_allowed()
+    answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid)
+    like = int(request.form.get("vote", "0"))
+    answer_sections.update_one({
+        'answersection.answers._id': answer_oid
+    }, {
+        ('$addToSet' if like == 1 else '$pull'): {
+            'answersection.answers.$.expertvotes': username
+        },
+        '$inc': {
+            'cutVersion': 1
+        }
+    })
+    return make_answer_section_response(answer_section_oid)
+
+
+@app.route('/api/exam/<filename>/setflagged/<sectionoid>/<answeroid>', methods=['POST'])
+@auth.login_required
+def set_flagged(filename, sectionoid, answeroid):
+    """
+    Sets the flagged for the given answer in the given section.
+    POST Parameter 'flagged' is 0/1
+    """
+    username = auth.username()
+    answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid)
+    flagged = int(request.form.get("flagged", "0"))
+    answer_sections.update_one({
+        'answersection.answers._id': answer_oid
+    }, {
+        ('$addToSet' if flagged == 1 else '$pull'): {
+            'answersection.answers.$.flagged': username
+        },
+        '$inc': {
+            'cutVersion': 1
+        }
+    })
+    return make_answer_section_response(answer_section_oid)
+
+
+@app.route('/api/exam/<filename>/resetflagged/<sectionoid>/<answeroid>', methods=['POST'])
+@auth.login_required
+@require_admin
+def reset_flagged(filename, sectionoid, answeroid):
+    """
+    Resets the flagged array.
+    """
+    username = auth.username()
+    answer_section_oid = ObjectId(sectionoid)
+    answer_oid = ObjectId(answeroid)
+    answer_sections.update_one({
+        'answersection.answers._id': answer_oid
+    }, {
+        '$set': {
+            "answersection.answers.$.flagged": []
+        },
+        '$inc': {
+            'cutVersion': 1
+        }
+    })
+    return make_answer_section_response(answer_section_oid)
+
+
 @app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
 @auth.login_required
 def add_answer(filename, sectionoid):
@@ -838,6 +959,8 @@ def add_answer(filename, sectionoid):
         "comments": [],
         "upvotes": [username],
         "downvotes": [],
+        "expertvotes": [],
+        "flagged": [],
         "time": datetime.now(timezone.utc).isoformat()
     }
     answer_sections.update_one({
@@ -928,6 +1051,14 @@ def remove_answer_api(filename, sectionoid):
     })
     remove_answer(ObjectId(section["answersection"]["answers"][0]["_id"]))
     return make_answer_section_response(answer_section_oid)
+
+
+@app.route('/api/exam/<filename>/adminremoveanswer/<sectionoid>/<answeroid>', methods=['POST'])
+@auth.login_required
+@require_admin
+def remove_answer_admin_api(filename, sectionoid, answeroid):
+    remove_answer(ObjectId(answeroid))
+    return make_answer_section_response(ObjectId(sectionoid))
 
 
 def remove_answer(answeroid):
@@ -1066,6 +1197,7 @@ def remove_comment(filename, sectionoid, answeroid):
     """
     Remove the comment with the given id.
     POST Parameter 'commentoid'.
+    POST Parameter 'admin'
     """
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
@@ -1083,7 +1215,8 @@ def remove_comment(filename, sectionoid, answeroid):
     if not maybe_comment:
         return not_possible("Comment does not exist")
     if maybe_comment["answersection"]["answers"][0]["comments"][0]["authorId"] != username:
-        return not_possible("Comment can not be removed")
+        if request.form.get('admin') != '1' or not has_admin_rights(username):
+            return not_possible("Comment can not be removed")
     answer_sections.update_one({
         "answersection.answers._id": answer_oid
     }, {
@@ -1175,6 +1308,7 @@ def get_exam_metadata(filename):
             metadata[key] = []
     username = auth.username()
     metadata["canEdit"] = has_admin_rights_for_category(username, metadata.get("category"))
+    metadata["isExpert"] = is_expert_for_category(username, metadata.get("category"))
     metadata["hasPayed"] = has_payed(username, metadata.get("payment_category"))
     metadata["canView"] = can_view_exam(username, filename, metadata=metadata)
     return success(value=metadata)
@@ -1219,6 +1353,7 @@ def init_exam_metadata(filename):
         "count_cuts": 0,
         "count_answers": 0,
         "count_answered": 0,
+        "attachments": [],
     })
 
 
@@ -1545,7 +1680,9 @@ def add_category():
     category_metadata.insert_one({
         "category": category,
         "slug": slug,
-        "admins": []
+        "admins": [],
+        "experts": [],
+        "attachments": [],
     })
     return success(slug=slug)
 
@@ -1662,6 +1799,7 @@ def get_category_metadata():
         return not_found()
     if not has_admin_rights_for_category(auth.username(), category):
         del metadata["admins"]
+        del metadata["experts"]
     for key in CATEGORY_METADATA + CATEGORY_METADATA_SETS:
         if key not in metadata:
             metadata[key] = ""

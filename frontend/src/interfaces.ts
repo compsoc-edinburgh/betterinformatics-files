@@ -19,12 +19,16 @@ export interface AnswerSection {
 
 export interface Answer {
   oid: string; // unique id within answers
-  upvotes: string[]; // usernames of people who upvoted
+  upvotes: number; // number upvotes minus number of downvotes
+  expertvotes: number; // number of experts who upvoted
   authorId: string; // username
   authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the answer
   isUpvoted: boolean; // whether the current user upvoted the answer
   isDownvoted: boolean; // whether the current user downvoted the answer
+  isExpertVoted: boolean; // whether the current user expert upvoted the answer
+  isFlagged: boolean; // whether the current user flagged the answer
+  flagged: number; // number of flaggings
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time
@@ -111,6 +115,7 @@ export interface CategoryMetaData {
   category: string; // Name of category
   slug: string;
   admins: string[];
+  experts: string[];
   semester: string;
   form: string;
   permission: string;
@@ -126,6 +131,7 @@ export interface CategoryMetaData {
 
 export interface ExamMetaData {
   canEdit: boolean;
+  isExpert: boolean;
   canView: boolean;
   hasPayed: boolean;
   filename: string;

@@ -14,6 +14,8 @@ import colors from "../colors";
 import {listenEnter} from "../input-utils";
 
 interface Props {
+  isAdmin: boolean;
+  isExpert: boolean;
   filename: string;
   sectionId: string;
   answer: Answer;
@@ -76,9 +78,23 @@ const styles = {
       marginBottom: "-3px",
     },
   }),
+  expertVoteImg: css({
+    height: "26px",
+    marginLeft: "3px",
+    marginRight: "11px",
+    marginBottom: "-4px", // no idea what's going on...
+    "@media (max-width: 699px)": {
+      height: "20px",
+      marginBottom: "-3px",
+    },
+  }),
   voteCount: css({
     marginLeft: "9px",
     marginRight: "9px",
+  }),
+  expertVoteCount: css({
+    marginLeft: "9px",
+    marginRight: "3px",
   }),
   answer: css({
     marginTop: "15px",
@@ -167,11 +183,19 @@ export default class AnswerComponent extends React.Component<Props, State> {
   removeAnswer = () => {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
-      fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, this.enrichPostdata({}))
-        .then((res) => {
-          this.props.onSectionChanged(res);
-        })
-        .catch(() => undefined);
+      if (this.props.answer.canEdit) {
+        fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, this.enrichPostdata({}))
+          .then((res) => {
+            this.props.onSectionChanged(res);
+          })
+          .catch(() => undefined);
+      } else {
+        fetchpost(`/api/exam/${this.props.filename}/adminremoveanswer/${this.props.sectionId}/${this.props.answer.oid}`, {})
+          .then(res => {
+            this.props.onSectionChanged(res);
+          })
+          .catch(() => undefined);
+      }
     }
   };
 
@@ -255,6 +279,34 @@ export default class AnswerComponent extends React.Component<Props, State> {
       .catch(() => undefined);
   };
 
+  toggleAnswerFlag = () => {
+    fetchpost(`/api/exam/${this.props.filename}/setflagged/${this.props.sectionId}/${this.props.answer.oid}`, {
+      flagged: this.props.answer.isFlagged ? 0 : 1
+    })
+      .then(res => {
+        this.props.onSectionChanged(res);
+      })
+      .catch(() => undefined)
+  };
+
+  resetAnswerFlagged = () => {
+    fetchpost(`/api/exam/${this.props.filename}/resetflagged/${this.props.sectionId}/${this.props.answer.oid}`, {})
+      .then(res => {
+        this.props.onSectionChanged(res);
+      })
+      .catch(() => undefined)
+  };
+
+  toggleAnswerExpertVote = () => {
+    fetchpost(`/api/exam/${this.props.filename}/setexpertvote/${this.props.sectionId}/${this.props.answer.oid}`, {
+      vote: this.props.answer.isExpertVoted ? 0 : 1
+    })
+      .then(res => {
+        this.props.onSectionChanged(res);
+      })
+      .catch(() => undefined);
+  };
+
   toggleComments = () => {
     this.setState(prevState => ({
       allCommentsVisible: !prevState.allCommentsVisible
@@ -274,6 +326,18 @@ export default class AnswerComponent extends React.Component<Props, State> {
               <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> • {moment(answer.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
           </div>
           <div {...styles.voteWrapper}>
+            {this.props.isExpert && [
+              <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
+              <div {...styles.voteImgWrapper} onClick={this.toggleAnswerExpertVote} title="Endorse Answer">
+                <img {...styles.expertVoteImg} src={"/static/expert" + (answer.isExpertVoted ? "_active" : "") + ".svg"} alt="Endorse Answer" />
+              </div>,
+            ]}
+            {!this.props.isExpert && answer.expertvotes > 0 && [
+              answer.expertvotes > 1 && <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
+              <div>
+                <img {...styles.expertVoteImg} src="/static/expert_active.svg" title={"Expert Endorsed" + (answer.expertvotes > 1 ? " (" + answer.expertvotes + " votes)" : "")}/>
+              </div>,
+            ]}
             <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(-1)} title="Downvote Answer">
               <img {...styles.voteImg} src={"/static/downvote" + (answer.isDownvoted ? "_orange" : "_white") + ".svg"} alt="Downvote" />
             </div>
@@ -305,7 +369,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         </div>}
 
         {!this.state.editing && <div {...styles.actionButtons}>
-          <div {...styles.permalink}><small><a href={"#" + this.props.answer.oid}>Permalink</a></small></div>
+          <div {...styles.permalink}><small><a href={"#" + answer.oid}>Permalink</a></small></div>
           {this.state.savedText.length > 0 &&
           <div {...styles.actionButton} onClick={this.toggleAddingComment}>
             <img {...styles.actionImg} src="/static/comment.svg" title="Add Comment"/>
@@ -314,10 +378,14 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <div {...styles.actionButton} onClick={this.startEdit}>
             <img {...styles.actionImg} src="/static/edit.svg" title="Edit Answer"/>
           </div>}
-          {answer.canEdit &&
+          {(answer.canEdit || this.props.isAdmin) &&
           <div {...styles.actionButton} onClick={this.removeAnswer}>
             <img {...styles.actionImg} src="/static/delete.svg" title="Delete Answer"/>
           </div>}
+          <div {...styles.actionButton} onClick={this.toggleAnswerFlag}>
+            <img {...styles.actionImg} src={answer.isFlagged ? '/static/flag_active.svg' : '/static/flag.svg'} title="Flag as Inappropriate" />
+          </div>
+          {answer.flagged > 0 && <div {...styles.actionButton} onClick={this.resetAnswerFlagged}>{answer.flagged}</div>}
         </div>}
         {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
 
@@ -325,6 +393,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <div {...styles.comments}>
             {this.state.addingComment &&
             <Comment isNewComment={true}
+                     isAdmin={this.props.isAdmin}
                      filename={this.props.filename}
                      sectionId={this.props.sectionId}
                      answerId={answer.oid}
@@ -333,7 +402,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                      onNewCommentSaved={this.toggleAddingComment}
             />}
             {comments.map(e =>
-              <Comment key={e.oid} comment={e} filename={this.props.filename} sectionId={this.props.sectionId}
+              <Comment key={e.oid} isAdmin={this.props.isAdmin} comment={e} filename={this.props.filename} sectionId={this.props.sectionId}
                        answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
             )}
             {comments.length < answer.comments.length && <div {...styles.moreComments} onClick={this.toggleComments}>

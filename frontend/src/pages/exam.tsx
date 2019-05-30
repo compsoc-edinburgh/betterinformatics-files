@@ -69,6 +69,7 @@ const styles = {
 
 interface Props {
   filename: string;
+  isAdmin: boolean;
 }
 
 interface State {
@@ -101,6 +102,7 @@ export default class Exam extends React.Component<Props, State> {
     editingMetaData: false,
     savedMetaData: {
       canEdit: false,
+      isExpert: false,
       canView: true,
       hasPayed: false,
       filename: "",
@@ -465,6 +467,8 @@ export default class Exam extends React.Component<Props, State> {
                 case SectionKind.Answer:
                   return <AnswerSectionComponent
                     key={e.oid}
+                    isAdmin={this.props.isAdmin}
+                    isExpert={this.state.savedMetaData.isExpert}
                     filename={this.props.filename}
                     oid={e.oid}
                     width={width}

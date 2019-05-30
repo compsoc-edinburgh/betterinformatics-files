@@ -12,6 +12,7 @@ import {listenEnter} from "../input-utils";
 import Colors from "../colors";
 
 interface Props {
+  isAdmin: boolean;
   filename: string;
   sectionId: string;
   answerId: string;
@@ -79,7 +80,7 @@ export default class CommentComponent extends React.Component<Props, State> {
   removeComment = () => {
     const confirmation = confirm("Remove comment?");
     if (confirmation) {
-      fetchpost(`/api/exam/${this.props.filename}/removecomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid})
+      fetchpost(`/api/exam/${this.props.filename}/removecomment/${this.props.sectionId}/${this.props.answerId}`, {commentoid: this.props.comment.oid, admin: !this.props.comment.canEdit && this.props.isAdmin ? 1 : 0})
         .then((res) => {
           this.props.onSectionChanged(res);
         })
@@ -167,14 +168,12 @@ export default class CommentComponent extends React.Component<Props, State> {
             {this.props.isNewComment && <b>Add comment</b>}
             {!this.props.isNewComment && <span><b {...globalcss.noLinkColor}><Link to={`/user/${comment.authorId}`}>{comment.authorDisplayName}</Link></b> • {moment(comment.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</span>}
           </div>
-          <div>
-            {comment.canEdit && !this.state.editing && <div {...styles.actionButtons}>
-              <div {...styles.actionButton} onClick={this.startEdit}>
-                <img {...styles.actionImg} src="/static/edit.svg" title="Edit Comment"/>
-              </div>
-              <div {...styles.actionButton} onClick={this.removeComment}>
-                <img {...styles.actionImg} src="/static/delete.svg" title="Delete Comment"/>
-              </div>
+          <div {...styles.actionButtons}>
+            {comment.canEdit && !this.state.editing && <div {...styles.actionButton} onClick={this.startEdit}>
+              <img {...styles.actionImg} src="/static/edit.svg" title="Edit Comment"/>
+            </div>}
+            {(comment.canEdit || this.props.isAdmin) && !this.state.editing && <div {...styles.actionButton} onClick={this.removeComment}>
+              <img {...styles.actionImg} src="/static/delete.svg" title="Delete Comment"/>
             </div>}
           </div>
         </div>

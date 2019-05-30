@@ -29,20 +29,23 @@ interface Props {
 interface State {
   exams: CategoryExam[];
   paymentExams: CategoryPaymentExam[];
+  flaggedAnswers: string[];
   includeHidden: boolean;
   error?: string;
 }
 
-export default class ImportQueue extends React.Component<Props, State> {
+export default class ModQueue extends React.Component<Props, State> {
 
   state: State = {
     exams: [],
     paymentExams: [],
+    flaggedAnswers: [],
     includeHidden: false,
   };
 
   componentDidMount() {
     this.loadExams();
+    this.loadFlagged();
     this.loadPaymentExams();
     document.title = "Import Queue - VIS Community Solutions";
   }
@@ -53,6 +56,7 @@ export default class ImportQueue extends React.Component<Props, State> {
     }
     if (this.props.isAdmin && !prevProps.isAdmin) {
       this.loadPaymentExams();
+      this.loadFlagged();
     }
   }
 
@@ -64,6 +68,16 @@ export default class ImportQueue extends React.Component<Props, State> {
         });
       })
       .catch(()=>undefined);
+  };
+
+  loadFlagged = () => {
+    fetchapi('/api/listflagged')
+      .then(res => {
+        this.setState({
+          flaggedAnswers: res.value
+        });
+      })
+      .catch(() => undefined);
   };
 
   loadPaymentExams = () => {
@@ -117,6 +131,12 @@ export default class ImportQueue extends React.Component<Props, State> {
       return <div>Loading...</div>;
     }
     return (<div {...styles.wrapper}>
+      {this.state.flaggedAnswers.length > 0 && <div>
+        <h1>Flagged Answers</h1>
+        {this.state.flaggedAnswers.map(answer =>
+          <div><a href={answer} target="_blank">{answer}</a></div>
+        )}
+      </div>}
       {this.state.paymentExams.length > 0 && <div>
         <h1>Transcripts</h1>
         <table>

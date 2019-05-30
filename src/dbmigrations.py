@@ -5,7 +5,7 @@ import server
 import threading
 import pymongo
 
-DB_VERSION = 10
+DB_VERSION = 11
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -241,6 +241,26 @@ def add_attachments(mongo_db):
     set_db_version(mongo_db, 10)
 
 
+def add_experts(mongo_db):
+    print("Migrate 'add experts'", file=sys.stderr)
+    mongo_db.categorymetadata.update({}, {
+        "$set": {
+            "experts": [],
+        }
+    })
+    sections = list(mongo_db.answersections.find({}, {"_id", "answersection.answers"}))
+    for section in sections:
+        for answer in section["answersection"]["answers"]:
+            mongo_db.answersections.update_one({
+                "answersection.answers._id": answer["_id"]
+            }, {
+                "$set": {
+                    "answersection.answers.$.expertvotes": [],
+                    "answersection.answers.$.flagged": [],
+                }
+            })
+    set_db_version(mongo_db, 11)
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -252,6 +272,7 @@ MIGRATIONS = [
     add_indexes,
     add_cut_counts,
     add_attachments,
+    add_experts,
 ]
 
 

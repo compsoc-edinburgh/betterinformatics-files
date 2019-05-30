@@ -68,6 +68,7 @@ interface State {
   newMeta1: string;
   newMeta2: string;
   newAdminName: string;
+  newExpertName: string;
   currentMetaData: CategoryMetaData;
   editingMetaData: boolean;
   gotoExam?: CategoryExam;
@@ -85,10 +86,12 @@ export default class Category extends React.Component<Props, State> {
     newMeta1: "",
     newMeta2: "",
     newAdminName: "",
+    newExpertName: "",
     currentMetaData: {
       category: "",
       slug: "",
       admins: [],
+      experts: [],
       semester: "",
       form: "",
       permission: "",
@@ -225,19 +228,13 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  addAdmin = () => {
-    if (!this.state.newAdminName) {
-      return;
-    }
-    fetchpost('/api/category/addtoset', {
+  addToSet = (key: string, value: string) => {
+    return fetchpost('/api/category/addtoset', {
       slug: this.props.categorySlug,
-      key: 'admins',
-      value: this.state.newAdminName,
+      key: key,
+      value: value,
     })
       .then(() => {
-        this.setState({
-          newAdminName: ""
-        });
         this.loadCategory();
       })
       .catch(err => {
@@ -247,11 +244,11 @@ export default class Category extends React.Component<Props, State> {
       });
   };
 
-  removeAdmin = (username: string) => {
-    fetchpost('/api/category/pullset', {
+  pullSet = (key: string, value: string) => {
+    return fetchpost('/api/category/pullset', {
       slug: this.props.categorySlug,
-      key: 'admins',
-      value: username,
+      key: key,
+      value: value,
     })
       .then(() => {
         this.loadCategory();
@@ -261,6 +258,36 @@ export default class Category extends React.Component<Props, State> {
           error: err.toString()
         });
       });
+  };
+
+  addAdmin = () => {
+    if (!this.state.newAdminName) {
+      return;
+    }
+    this.addToSet('admins', this.state.newAdminName).then(() => {
+      this.setState({
+        newAdminName: ""
+      });
+    });
+  };
+
+  removeAdmin = (username: string) => {
+    this.pullSet('admins', username)
+  };
+
+  addExpert = () => {
+    if (!this.state.newExpertName) {
+      return;
+    }
+    this.addToSet('experts', this.state.newExpertName).then(() => {
+      this.setState({
+        newExpertName: ""
+      });
+    });
+  };
+
+  removeExpert = (username: string) => {
+    this.pullSet('experts', username)
   };
 
   addMetaCategory = () => {
@@ -441,6 +468,7 @@ export default class Category extends React.Component<Props, State> {
         {this.state.category.more_exams_link && <div {...styles.metadata}><a href={this.state.category.more_exams_link} target="_blank">Additional Exams</a></div>}
         {this.state.category.has_payments && <div {...styles.metadata}>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams.<br/>After submitting a report of your own oral exam you can get your deposit back.</div>}
         {catAdmin && <div {...styles.metadata}>You can edit exams in this category. Please do so responsibly.</div>}
+        {this.state.currentMetaData.experts.indexOf(this.props.username) !== -1 && <div {...styles.metadata}>You are an expert for this category. You can endorse correct answers.</div>}
         {this.state.error && <div {...styles.metadata}>{this.state.error}</div>}
         {(this.props.isAdmin) && <div {...styles.metadata}><button onClick={this.toggleEditingMetadata}>Edit Category</button></div>}
         {this.state.editingMetaData && <div {...styles.metdataWrapper}>
@@ -498,6 +526,14 @@ export default class Category extends React.Component<Props, State> {
             </ul>
             <input type="text" value={this.state.newAdminName} onChange={ev => this.setState({newAdminName: ev.target.value})} placeholder="new admin" onKeyPress={listenEnter(this.addAdmin)}/>
             <button onClick={this.addAdmin} disabled={this.state.newAdminName.length === 0}>Add Admin</button>
+          </div>
+          <div>
+            <h2>Experts</h2>
+            <ul>
+              {this.state.category.experts.map(expert => <li key={expert}>{expert} <button onClick={() => this.removeExpert(expert)}>X</button></li>)}
+            </ul>
+            <input type="text" value={this.state.newExpertName} onChange={ev => this.setState({newExpertName: ev.target.value})} placeholder="new expert" onKeyPress={listenEnter(this.addExpert)}/>
+            <button onClick={this.addExpert} disabled={this.state.newExpertName.length === 0}>Add Expert</button>
           </div>
           <div>
             <h2>Remove Category</h2>

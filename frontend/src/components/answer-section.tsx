@@ -6,6 +6,8 @@ import {css} from "glamor";
 import AnswerComponent from "./answer";
 
 interface Props {
+  isAdmin: boolean;
+  isExpert: boolean;
   filename: string;
   oid: string;
   width: number;
@@ -136,7 +138,7 @@ export default class AnswerSectionComponent extends React.Component<Props, State
     return (
       <div {...styles.wrapper}>
         {section.answers.length > 0 && <div {...styles.answerWrapper}>{section.answers.map(e =>
-          <AnswerComponent key={e.oid} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
+          <AnswerComponent key={e.oid} isAdmin={this.props.isAdmin} isExpert={this.props.isExpert} answer={e} filename={this.props.filename} sectionId={this.props.oid} onSectionChanged={this.onSectionChanged}/>
         )}</div>}
         <div key="showhidebutton" {...styles.threebuttons}>
           <div {...styles.leftButton}>
