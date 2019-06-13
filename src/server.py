@@ -1798,8 +1798,9 @@ def get_category_metadata():
     if not metadata:
         return not_found()
     if not has_admin_rights_for_category(auth.username(), category):
-        del metadata["admins"]
-        del metadata["experts"]
+        for key in ["admins", "experts"]:
+            if key in metadata:
+                del metadata[key]
     for key in CATEGORY_METADATA + CATEGORY_METADATA_SETS:
         if key not in metadata:
             metadata[key] = ""
