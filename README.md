@@ -43,7 +43,13 @@ For more tasks, like building a production bundle, see the
 
 ## Start the backend
 
-Run `visdev test .` in this directory to start the backend. The frontend we
-started above will proxy all requests to this backend. It uses some default
-login data which is only used for testing. You can change the user which is used
-for these requests in the `package.json` file.
+You will need to run `servis generate` before you can start the backend for the
+first time, otherwise you will get an error (`people_pb.py: no such file`). See
+[the servis documentation](https://documentation.vis.ethz.ch/servis.html) for 
+more information.
+
+Run `visdev test .` in this directory to start the backend
+([more info about visdev](https://documentation.vis.ethz.ch/visdev.html)). The
+frontend we started above will proxy all requests to this backend. It uses some
+default login data which is only used for testing. You can change the user which
+is used for these requests in the `package.json` file.
