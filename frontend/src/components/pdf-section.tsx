@@ -1,7 +1,7 @@
 import * as React from "react";
-import {PdfSection} from "../interfaces";
-import {SectionRenderer, Dimensions} from "../split-render";
-import {css} from "glamor";
+import { PdfSection } from "../interfaces";
+import { SectionRenderer, Dimensions } from "../split-render";
+import { css } from "glamor";
 import Colors from "../colors";
 
 interface Props {
@@ -96,20 +96,20 @@ export default class PdfSectionComp extends React.Component<Props> {
       return;
     }
 
-    const {section, renderer, dpr} = this.props;
+    const { section, renderer, dpr } = this.props;
     const dim = this.sectionDimensions();
     this.needRender = !renderer.render(
-      {context: this.ctx, width: dim.width * dpr, height: dim.height * dpr},
+      { context: this.ctx, width: dim.width * dpr, height: dim.height * dpr },
       section.start,
       section.end,
     );
     if (this.textWrap && this.canv) {
-      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end);
+      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end, this.props.dpr);
     }
   };
 
   sectionDimensions = (): Dimensions => {
-    const {section, renderer, width} = this.props;
+    const { section, renderer, width } = this.props;
     return renderer.sectionDimensions(section.start, section.end, width);
   };
 
@@ -135,7 +135,7 @@ export default class PdfSectionComp extends React.Component<Props> {
       this.renderCanvas();
     }
     if (this.textWrap) {
-      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end);
+      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end, this.props.dpr);
     }
   };
 
@@ -145,12 +145,12 @@ export default class PdfSectionComp extends React.Component<Props> {
     }
     this.textWrap = d;
     if (this.canv) {
-      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end);
+      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end, this.props.dpr);
     }
   };
 
   render() {
-    const {dpr} = this.props;
+    const { dpr } = this.props;
     const rawDim = this.sectionDimensions();
     return (
       <div {...styles.wrapper} {...(this.props.section.end.position === 1) ? styles.lastSection : undefined}>
@@ -166,7 +166,7 @@ export default class PdfSectionComp extends React.Component<Props> {
           }}
           {...styles.canvas}
         />
-        {this.props.renderText && <div {...styles.textLayer} ref={this.saveTextRef}/>}
+        {this.props.renderText && <div {...styles.textLayer} ref={this.saveTextRef} />}
       </div>
     );
   }

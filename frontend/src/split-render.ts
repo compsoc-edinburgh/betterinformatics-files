@@ -1,4 +1,4 @@
-import {CutPosition} from "./interfaces";
+import { CutPosition } from "./interfaces";
 import * as pdfjs from "pdfjs-dist";
 
 interface RenderTarget {
@@ -41,7 +41,7 @@ export class SectionRenderer {
   }
 
   destroy() {
-    for(let i = 0; i < this.pdf.numPages; i++) {
+    for (let i = 0; i < this.pdf.numPages; i++) {
       this.freePage(i);
     }
   }
@@ -60,7 +60,7 @@ export class SectionRenderer {
     viewport = pdfpage.getViewport(this.targetWidth / viewport.width);
     canvas.width = viewport.width;
     canvas.height = viewport.height;
-      pdfpage.render({
+    pdfpage.render({
       canvasContext: context,
       viewport,
     }).then(() => {
@@ -99,7 +99,7 @@ export class SectionRenderer {
   }
 
   addVisible(start: CutPosition, renderFunction: Function) {
-    const page = start.page-1;
+    const page = start.page - 1;
     this.pages[page].renderFunctions.push(renderFunction);
     if (this.pages[page].renderFunctions.length === 1 && !this.pages[page].isRendered) {
       this.renderPage(page);
@@ -107,7 +107,7 @@ export class SectionRenderer {
   }
 
   removeVisible(start: CutPosition, renderFunction: Function) {
-    const page = start.page-1;
+    const page = start.page - 1;
     this.pages[page].renderFunctions = this.pages[page].renderFunctions.filter(fct => fct !== renderFunction);
     /*
     It seems like we can not save much memory, but the CPU usage is much higher if we destroy stuff.
@@ -123,7 +123,7 @@ export class SectionRenderer {
     start: CutPosition,
     end: CutPosition,
   ): StartSizeRect {
-    const {width: w, height: h} = viewport;
+    const { width: w, height: h } = viewport;
     return {
       x: Math.floor(0),
       y: Math.floor(h * start.position),
@@ -138,13 +138,13 @@ export class SectionRenderer {
     end: CutPosition,
     width: number,
   ): Dimensions {
-    const page = this.pages[start.page-1].page;
+    const page = this.pages[start.page - 1].page;
     const src = SectionRenderer.sourceDimensions(page.getViewport(1), start, end);
-    return {width, height: src.h / src.w * width};
+    return { width, height: src.h / src.w * width };
   }
 
   render(target: RenderTarget, start: CutPosition, end: CutPosition) {
-    const page = start.page-1;
+    const page = start.page - 1;
     const rendered = this.pages[page].rendered;
     if (!rendered) {
       return false;
@@ -170,11 +170,15 @@ export class SectionRenderer {
     return true;
   }
 
-  renderTextLayer(target: HTMLDivElement, canvas: HTMLCanvasElement, start: CutPosition, end: CutPosition) {
-    const page = start.page-1;
+  renderTextLayer(target: HTMLDivElement, canvas: HTMLCanvasElement, start: CutPosition, end: CutPosition, dpr: number) {
+    const page = start.page - 1;
     const pdfpage = this.pages[page].page;
+
+    // Locations of text divs are not scaled; only the canvas is scaled by dpr and then resized down again by dpr
+    // via a style element. targetWidth is the size of the canvas, therefore we must resize the locations of the OCR
+    // divs: scale down by dpr (divide by dpr)
     let viewport = pdfpage.getViewport(1);
-    viewport = pdfpage.getViewport(this.targetWidth / viewport.width);
+    viewport = pdfpage.getViewport(this.targetWidth / viewport.width / dpr);
     const src = SectionRenderer.sourceDimensions(viewport, start, end);
     target.innerHTML = "";
     pdfpage.getTextContent()
@@ -220,7 +224,7 @@ export class SectionRenderer {
 
     const isPure = (y: number) => {
       const line = rendered.context.getImageData(0, y, width, 1).data;
-      for(let i = 0; i < 4*width; i++) {
+      for (let i = 0; i < 4 * width; i++) {
         if (line[i] !== 255) {
           return false;
         }
@@ -234,28 +238,28 @@ export class SectionRenderer {
     if (isPure(clickedy)) {
       topPure = clickedy;
       botPure = clickedy;
-      while (topPure > 0 && isPure(topPure-1)) {
+      while (topPure > 0 && isPure(topPure - 1)) {
         topPure--;
       }
-      while (botPure < height-1 && isPure(botPure+1)) {
+      while (botPure < height - 1 && isPure(botPure + 1)) {
         botPure++;
       }
     } else {
-      let topBotPure = clickedy-1;
-      let botTopPure = clickedy+1;
+      let topBotPure = clickedy - 1;
+      let botTopPure = clickedy + 1;
       while (topBotPure > 0 && !isPure(topBotPure)) {
         topBotPure--;
       }
-      while (botTopPure < height-1 && !isPure(botTopPure)) {
+      while (botTopPure < height - 1 && !isPure(botTopPure)) {
         botTopPure++;
       }
       let topTopPure = topBotPure;
       let botBotPure = botTopPure;
 
-      while (topTopPure > 0 && isPure(topTopPure-1)) {
+      while (topTopPure > 0 && isPure(topTopPure - 1)) {
         topTopPure--;
       }
-      while (botBotPure < height-1 && isPure(botBotPure+1)) {
+      while (botBotPure < height - 1 && isPure(botBotPure + 1)) {
         botBotPure++;
       }
 
@@ -283,11 +287,11 @@ export class SectionRenderer {
 export async function createSectionRenderer(pdf: pdfjs.PDFDocumentProxy, targetWidth: number): Promise<SectionRenderer> {
   const renderer = new SectionRenderer(pdf, targetWidth);
   renderer.pages = [];
-  for(let i = 0; i < pdf.numPages; i++) {
+  for (let i = 0; i < pdf.numPages; i++) {
     renderer.pages.push({
       isRendered: false,
       renderFunctions: [],
-      page: await pdf.getPage(i+1),
+      page: await pdf.getPage(i + 1),
     });
   }
   return renderer;
