@@ -1,8 +1,8 @@
 import * as React from "react";
-import {Link} from "react-router-dom";
-import {css} from "glamor";
+import { Link } from "react-router-dom";
+import { css } from "glamor";
 import Colors from "../colors";
-import {fetchapi} from "../fetch-utils";
+import { fetchapi } from "../fetch-utils";
 
 interface Props {
   username?: string;
@@ -15,11 +15,11 @@ interface State {
 
 const linkStyle = {
   ":link": {
-    color: Colors.headerForeground
+    color: Colors.headerForeground,
   },
   ":visited": {
-    color: Colors.headerForeground
-  }
+    color: Colors.headerForeground,
+  },
 };
 const styles = {
   wrapper: css({
@@ -83,7 +83,6 @@ const styles = {
 };
 
 export default class Header extends React.Component<Props> {
-
   state: State = {
     notificationCount: 0,
   };
@@ -99,10 +98,10 @@ export default class Header extends React.Component<Props> {
   }
 
   checkNotificationCount = () => {
-    fetchapi('/api/notifications/unreadcount')
+    fetchapi("/api/notifications/unreadcount")
       .then(res => {
         this.setState({
-          notificationCount: res.value
+          notificationCount: res.value,
         });
       })
       .catch(() => undefined);
@@ -112,15 +111,36 @@ export default class Header extends React.Component<Props> {
     return (
       <div {...styles.wrapper}>
         <div {...styles.logotitle}>
-          <div><Link to="/"><img {...styles.logo} src="https://static.vis.ethz.ch/img/spirale_yellow.svg" alt="VIS Spiral Logo" /></Link></div>
-          <div {...styles.title}><Link to="/">VIS Community Solutions</Link></div>
+          <div>
+            <Link to="/">
+              <img
+                {...styles.logo}
+                src="https://static.vis.ethz.ch/img/spirale_yellow.svg"
+                alt="VIS Spiral Logo"
+              />
+            </Link>
+          </div>
+          <div {...styles.title}>
+            <Link to="/">VIS Community Solutions</Link>
+          </div>
         </div>
         <div {...styles.menuWrapper}>
-          <div {...styles.menuitem}><Link to="/feedback">Feedback</Link></div>
-          <div {...styles.menuitem}><Link to="/scoreboard">Scoreboard</Link></div>
-          <div {...styles.menuitem}><Link to={`/user/${this.props.username}`}>{this.props.displayName}{this.state.notificationCount > 0 ? " (" + this.state.notificationCount + ")" : ""}</Link></div>
+          <div {...styles.menuitem}>
+            <Link to="/feedback">Feedback</Link>
+          </div>
+          <div {...styles.menuitem}>
+            <Link to="/scoreboard">Scoreboard</Link>
+          </div>
+          <div {...styles.menuitem}>
+            <Link to={`/user/${this.props.username}`}>
+              {this.props.displayName}
+              {this.state.notificationCount > 0
+                ? " (" + this.state.notificationCount + ")"
+                : ""}
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
-};
+}

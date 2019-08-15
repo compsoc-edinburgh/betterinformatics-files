@@ -1,7 +1,7 @@
 import * as React from "react";
-import {css} from "glamor";
-import {fetchapi, fetchpost} from "../fetch-utils";
-import {RefObject} from "react";
+import { css } from "glamor";
+import { fetchapi, fetchpost } from "../fetch-utils";
+import { RefObject } from "react";
 import Colors from "../colors";
 
 const styles = {
@@ -17,7 +17,7 @@ const styles = {
     "@media (max-height: 799px)": {
       paddingTop: "50px",
       paddingBottom: "50px",
-    }
+    },
   }),
   dialog: css({
     background: Colors.cardBackground,
@@ -28,7 +28,7 @@ const styles = {
     margin: "auto",
     "@media (max-width: 699px)": {
       width: "90%",
-    }
+    },
   }),
   header: css({
     background: Colors.cardHeader,
@@ -45,7 +45,7 @@ const styles = {
   content: css({
     padding: "20px",
     overflow: "auto",
-    height: "calc(100% - 110px)"
+    height: "calc(100% - 110px)",
   }),
   uploadForm: css({
     textAlign: "center",
@@ -98,7 +98,6 @@ interface State {
 }
 
 export default class ImageOverlay extends React.Component<Props, State> {
-
   state: State = {
     images: [],
     selected: "",
@@ -111,13 +110,13 @@ export default class ImageOverlay extends React.Component<Props, State> {
   }
 
   loadImages = () => {
-    fetchapi('/api/image/list')
-        .then(res => {
-          res.value.reverse();
-          this.setState({images: res.value})
-        })
-      .catch((e) => {
-        this.setState({error: e.toString()});
+    fetchapi("/api/image/list")
+      .then(res => {
+        res.value.reverse();
+        this.setState({ images: res.value });
+      })
+      .catch(e => {
+        this.setState({ error: e.toString() });
       });
   };
 
@@ -136,8 +135,8 @@ export default class ImageOverlay extends React.Component<Props, State> {
       return;
     }
 
-    fetchpost('/api/uploadimg', {
-      file: this.state.file
+    fetchpost("/api/uploadimg", {
+      file: this.state.file,
     })
       .then(res => {
         this.setState({
@@ -155,14 +154,14 @@ export default class ImageOverlay extends React.Component<Props, State> {
   handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     if (ev.target.files != null) {
       this.setState({
-        file: ev.target.files[0]
+        file: ev.target.files[0],
       });
     }
   };
 
   onImageClick = (image: string) => {
     this.setState({
-      selected: image
+      selected: image,
     });
   };
 
@@ -178,33 +177,64 @@ export default class ImageOverlay extends React.Component<Props, State> {
   };
 
   render() {
-    return (<div {...styles.background}>
-      <div {...styles.dialog}>
-        <div {...styles.header}>
-          <div {...styles.title}>Images</div>
-          <div><button onClick={this.chooseImage}>Add</button> <button onClick={this.cancelDialog}>Cancel</button></div>
-        </div>
-        <div {...styles.content}>
-          <div>
-            <form {...styles.uploadForm} onSubmit={this.uploadImage}>
-              <input onChange={this.handleFileChange} type="file" accept="image/*" ref={this.fileInputRef} />
-              <button type="submit">Upload</button>
-            </form>
+    return (
+      <div {...styles.background}>
+        <div {...styles.dialog}>
+          <div {...styles.header}>
+            <div {...styles.title}>Images</div>
+            <div>
+              <button onClick={this.chooseImage}>Add</button>{" "}
+              <button onClick={this.cancelDialog}>Cancel</button>
+            </div>
           </div>
-          {this.state.error && <div>{this.state.error}</div>}
-          <div {...styles.images}>
-            {this.state.images.map(img =>
-                <div key={img} onClick={() => this.onImageClick(img)} {...styles.imageWrapper} {...(img === this.state.selected ? styles.imageSelected : undefined)}>
+          <div {...styles.content}>
+            <div>
+              <form {...styles.uploadForm} onSubmit={this.uploadImage}>
+                <input
+                  onChange={this.handleFileChange}
+                  type="file"
+                  accept="image/*"
+                  ref={this.fileInputRef}
+                />
+                <button type="submit">Upload</button>
+              </form>
+            </div>
+            {this.state.error && <div>{this.state.error}</div>}
+            <div {...styles.images}>
+              {this.state.images.map(img => (
+                <div
+                  key={img}
+                  onClick={() => this.onImageClick(img)}
+                  {...styles.imageWrapper}
+                  {...(img === this.state.selected
+                    ? styles.imageSelected
+                    : undefined)}
+                >
                   <div {...styles.imageSmallWrapper}>
-                    <img {...styles.imageSmall} key={img} src={"/api/img/" + img} alt="Image Preview" />
+                    <img
+                      {...styles.imageSmall}
+                      key={img}
+                      src={"/api/img/" + img}
+                      alt="Image Preview"
+                    />
                   </div>
-                  <div {...styles.deleteImgWrapper} onClick={() => this.removeImage(img)}>
-                    <img {...styles.deleteImg} src={"/static/delete.svg"} title="Delete" alt="Delete"/>
+                  <div
+                    {...styles.deleteImgWrapper}
+                    onClick={() => this.removeImage(img)}
+                  >
+                    <img
+                      {...styles.deleteImg}
+                      src={"/static/delete.svg"}
+                      title="Delete"
+                      alt="Delete"
+                    />
                   </div>
-                </div>)}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>);
+    );
   }
 }

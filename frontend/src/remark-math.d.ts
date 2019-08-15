@@ -1,1 +1,1 @@
-declare module 'remark-math';
+declare module "remark-math";

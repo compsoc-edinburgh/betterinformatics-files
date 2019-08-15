@@ -1,17 +1,17 @@
 import * as React from "react";
-import {Answer, AnswerSection} from "../interfaces";
-import * as moment from 'moment';
+import { Answer, AnswerSection } from "../interfaces";
+import * as moment from "moment";
 import Comment from "./comment";
-import {css} from "glamor";
+import { css } from "glamor";
 import MarkdownText from "./markdown-text";
-import {fetchpost} from '../fetch-utils'
+import { fetchpost } from "../fetch-utils";
 import ImageOverlay from "./image-overlay";
 import Colors from "../colors";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
 import colors from "../colors";
-import {listenEnter} from "../input-utils";
+import { listenEnter } from "../input-utils";
 
 interface Props {
   isAdmin: boolean;
@@ -19,7 +19,7 @@ interface Props {
   filename: string;
   sectionId: string;
   answer: Answer;
-  onSectionChanged: (res: {value: {answersection: AnswerSection}}) => void;
+  onSectionChanged: (res: { value: { answersection: AnswerSection } }) => void;
 }
 
 interface State {
@@ -63,7 +63,7 @@ const styles = {
   }),
   voteWrapper: css({
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
   }),
   voteImgWrapper: css({
     cursor: "pointer",
@@ -103,7 +103,7 @@ const styles = {
   }),
   answerInput: css({
     marginLeft: "5px",
-    marginRight: "5px"
+    marginRight: "5px",
   }),
   answerTexHint: css({
     display: "flex",
@@ -116,7 +116,7 @@ const styles = {
   comments: css({
     marginLeft: "25px",
     marginTop: "10px",
-    marginRight: "25px"
+    marginRight: "25px",
   }),
   textareaInput: css({
     width: "100%",
@@ -124,7 +124,7 @@ const styles = {
     marginTop: "10px",
     marginBottom: "5px",
     padding: "5px",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
   }),
   actionButtons: css({
     display: "flex",
@@ -145,7 +145,7 @@ const styles = {
     },
     "& a:hover": {
       color: Colors.linkHover,
-    }
+    },
   }),
   moreComments: css({
     cursor: "pointer",
@@ -156,7 +156,6 @@ const styles = {
 };
 
 export default class AnswerComponent extends React.Component<Props, State> {
-
   state: State = {
     editing: this.props.answer.canEdit && this.props.answer.text.length === 0,
     imageDialog: false,
@@ -167,7 +166,10 @@ export default class AnswerComponent extends React.Component<Props, State> {
     addingComment: false,
   };
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+  componentDidUpdate(
+    prevProps: Readonly<Props>,
+    prevState: Readonly<State>,
+  ): void {
     if (prevProps.answer.text !== this.props.answer.text) {
       this.setState({
         text: this.props.answer.text,
@@ -184,13 +186,19 @@ export default class AnswerComponent extends React.Component<Props, State> {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
       if (this.props.answer.canEdit) {
-        fetchpost(`/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`, this.enrichPostdata({}))
-          .then((res) => {
+        fetchpost(
+          `/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`,
+          this.enrichPostdata({}),
+        )
+          .then(res => {
             this.props.onSectionChanged(res);
           })
           .catch(() => undefined);
       } else {
-        fetchpost(`/api/exam/${this.props.filename}/adminremoveanswer/${this.props.sectionId}/${this.props.answer.oid}`, {})
+        fetchpost(
+          `/api/exam/${this.props.filename}/adminremoveanswer/${this.props.sectionId}/${this.props.answer.oid}`,
+          {},
+        )
           .then(res => {
             this.props.onSectionChanged(res);
           })
@@ -200,19 +208,22 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   enrichPostdata = (postdata: object) => {
-    if (this.props.answer.authorId === '__legacy__') {
-      return {...postdata, legacyuser: 1};
+    if (this.props.answer.authorId === "__legacy__") {
+      return { ...postdata, legacyuser: 1 };
     } else {
       return postdata;
     }
   };
 
   saveAnswer = () => {
-    fetchpost(`/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`, this.enrichPostdata({text: this.state.text}))
-      .then((res) => {
+    fetchpost(
+      `/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`,
+      this.enrichPostdata({ text: this.state.text }),
+    )
+      .then(res => {
         this.setState(prevState => ({
           editing: false,
-          savedText: prevState.text
+          savedText: prevState.text,
         }));
         this.props.onSectionChanged(res);
       })
@@ -222,7 +233,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   cancelEdit = () => {
     this.setState(prevState => ({
       editing: false,
-      text: prevState.savedText
+      text: prevState.savedText,
     }));
   };
 
@@ -240,7 +251,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   startImageDialog = () => {
-    this.setState({imageDialog: true});
+    this.setState({ imageDialog: true });
   };
 
   endImageDialog = (image: string) => {
@@ -251,15 +262,18 @@ export default class AnswerComponent extends React.Component<Props, State> {
         if (prevState.imageCursorPosition < 0) {
           newText += imageTag;
         } else {
-          newText = newText.slice(0, prevState.imageCursorPosition) + imageTag + newText.slice(prevState.imageCursorPosition);
+          newText =
+            newText.slice(0, prevState.imageCursorPosition) +
+            imageTag +
+            newText.slice(prevState.imageCursorPosition);
         }
         return {
           imageDialog: false,
           text: newText,
-        }
-      })
+        };
+      });
     } else {
-      this.setState({imageDialog: false});
+      this.setState({ imageDialog: false });
     }
   };
 
@@ -271,36 +285,55 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   toggleAnswerLike = (like: Number) => {
-    const newLike = like === 1 ? (this.props.answer.isUpvoted ? 0 : 1) : (this.props.answer.isDownvoted ? 0 : -1);
-    fetchpost(`/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`, {like: newLike})
-      .then((res) => {
+    const newLike =
+      like === 1
+        ? this.props.answer.isUpvoted
+          ? 0
+          : 1
+        : this.props.answer.isDownvoted
+        ? 0
+        : -1;
+    fetchpost(
+      `/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`,
+      { like: newLike },
+    )
+      .then(res => {
         this.props.onSectionChanged(res);
       })
       .catch(() => undefined);
   };
 
   toggleAnswerFlag = () => {
-    fetchpost(`/api/exam/${this.props.filename}/setflagged/${this.props.sectionId}/${this.props.answer.oid}`, {
-      flagged: this.props.answer.isFlagged ? 0 : 1
-    })
+    fetchpost(
+      `/api/exam/${this.props.filename}/setflagged/${this.props.sectionId}/${this.props.answer.oid}`,
+      {
+        flagged: this.props.answer.isFlagged ? 0 : 1,
+      },
+    )
       .then(res => {
         this.props.onSectionChanged(res);
       })
-      .catch(() => undefined)
+      .catch(() => undefined);
   };
 
   resetAnswerFlagged = () => {
-    fetchpost(`/api/exam/${this.props.filename}/resetflagged/${this.props.sectionId}/${this.props.answer.oid}`, {})
+    fetchpost(
+      `/api/exam/${this.props.filename}/resetflagged/${this.props.sectionId}/${this.props.answer.oid}`,
+      {},
+    )
       .then(res => {
         this.props.onSectionChanged(res);
       })
-      .catch(() => undefined)
+      .catch(() => undefined);
   };
 
   toggleAnswerExpertVote = () => {
-    fetchpost(`/api/exam/${this.props.filename}/setexpertvote/${this.props.sectionId}/${this.props.answer.oid}`, {
-      vote: this.props.answer.isExpertVoted ? 0 : 1
-    })
+    fetchpost(
+      `/api/exam/${this.props.filename}/setexpertvote/${this.props.sectionId}/${this.props.answer.oid}`,
+      {
+        vote: this.props.answer.isExpertVoted ? 0 : 1,
+      },
+    )
       .then(res => {
         this.props.onSectionChanged(res);
       })
@@ -309,12 +342,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
 
   toggleComments = () => {
     this.setState(prevState => ({
-      allCommentsVisible: !prevState.allCommentsVisible
+      allCommentsVisible: !prevState.allCommentsVisible,
     }));
   };
 
   render() {
-    const {answer} = this.props;
+    const { answer } = this.props;
     let comments = answer.comments;
     if (!this.state.allCommentsVisible && comments.length > 3) {
       comments = comments.slice(0, 3);
@@ -323,94 +356,232 @@ export default class AnswerComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div ref={this.setMainDivRef} {...styles.header}>
           <div>
-              <b {...globalcss.noLinkColor}><Link to={`/user/${answer.authorId}`}>{answer.authorDisplayName}</Link></b> • {moment(answer.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}
+            <b {...globalcss.noLinkColor}>
+              <Link to={`/user/${answer.authorId}`}>
+                {answer.authorDisplayName}
+              </Link>
+            </b>{" "}
+            •{" "}
+            {moment(answer.time, GlobalConsts.momentParseString).format(
+              GlobalConsts.momentFormatString,
+            )}
           </div>
           <div {...styles.voteWrapper}>
             {this.props.isExpert && [
               <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
-              <div {...styles.voteImgWrapper} onClick={this.toggleAnswerExpertVote} title="Endorse Answer">
-                <img {...styles.expertVoteImg} src={"/static/expert" + (answer.isExpertVoted ? "_active" : "") + ".svg"} alt="Endorse Answer" />
+              <div
+                {...styles.voteImgWrapper}
+                onClick={this.toggleAnswerExpertVote}
+                title="Endorse Answer"
+              >
+                <img
+                  {...styles.expertVoteImg}
+                  src={
+                    "/static/expert" +
+                    (answer.isExpertVoted ? "_active" : "") +
+                    ".svg"
+                  }
+                  alt="Endorse Answer"
+                />
               </div>,
             ]}
-            {!this.props.isExpert && answer.expertvotes > 0 && [
-              answer.expertvotes > 1 && <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
-              <div>
-                <img {...styles.expertVoteImg} src="/static/expert_active.svg" title={"Expert Endorsed" + (answer.expertvotes > 1 ? " (" + answer.expertvotes + " votes)" : "")}/>
-              </div>,
-            ]}
-            <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(-1)} title="Downvote Answer">
-              <img {...styles.voteImg} src={"/static/downvote" + (answer.isDownvoted ? "_orange" : "_white") + ".svg"} alt="Downvote" />
+            {!this.props.isExpert &&
+              answer.expertvotes > 0 && [
+                answer.expertvotes > 1 && (
+                  <div {...styles.expertVoteCount}>{answer.expertvotes}</div>
+                ),
+                <div>
+                  <img
+                    {...styles.expertVoteImg}
+                    src="/static/expert_active.svg"
+                    title={
+                      "Expert Endorsed" +
+                      (answer.expertvotes > 1
+                        ? " (" + answer.expertvotes + " votes)"
+                        : "")
+                    }
+                  />
+                </div>,
+              ]}
+            <div
+              {...styles.voteImgWrapper}
+              onClick={() => this.toggleAnswerLike(-1)}
+              title="Downvote Answer"
+            >
+              <img
+                {...styles.voteImg}
+                src={
+                  "/static/downvote" +
+                  (answer.isDownvoted ? "_orange" : "_white") +
+                  ".svg"
+                }
+                alt="Downvote"
+              />
             </div>
             <div {...styles.voteCount}>{answer.upvotes}</div>
-            <div {...styles.voteImgWrapper} onClick={() => this.toggleAnswerLike(1)} title="Upvote Answer">
-              <img {...styles.voteImg} src={"/static/upvote" + (answer.isUpvoted ? "_orange" : "_white") + ".svg"} alt="Upvote" />
+            <div
+              {...styles.voteImgWrapper}
+              onClick={() => this.toggleAnswerLike(1)}
+              title="Upvote Answer"
+            >
+              <img
+                {...styles.voteImg}
+                src={
+                  "/static/upvote" +
+                  (answer.isUpvoted ? "_orange" : "_white") +
+                  ".svg"
+                }
+                alt="Upvote"
+              />
             </div>
           </div>
         </div>
-        <div {...styles.answer}><MarkdownText value={this.state.text}/></div>
-        {this.state.editing && <div>
-          <div {...styles.answerInput}>
-            <textarea {...styles.textareaInput} onKeyUp={this.answerTextareaChange} onChange={this.answerTextareaChange} cols={120} rows={20} value={this.state.text} onKeyPress={listenEnter(this.saveAnswer, true)}/>
-          </div>
-          <div {...styles.answerTexHint}>
-            <div><small>You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n math \n $$ for latex math.</small></div>
-            <div {...styles.actionButtons}>
-              <div {...styles.actionButton} onClick={this.startImageDialog}>
-                <img {...styles.actionImg} src="/static/images.svg" title="Images"/>
+        <div {...styles.answer}>
+          <MarkdownText value={this.state.text} />
+        </div>
+        {this.state.editing && (
+          <div>
+            <div {...styles.answerInput}>
+              <textarea
+                {...styles.textareaInput}
+                onKeyUp={this.answerTextareaChange}
+                onChange={this.answerTextareaChange}
+                cols={120}
+                rows={20}
+                value={this.state.text}
+                onKeyPress={listenEnter(this.saveAnswer, true)}
+              />
+            </div>
+            <div {...styles.answerTexHint}>
+              <div>
+                <small>
+                  You can use Markdown. Use ``` code ``` for code. Use $ math $
+                  or $$ \n math \n $$ for latex math.
+                </small>
               </div>
-              <div {...styles.actionButton} onClick={this.saveAnswer}>
-                <img {...styles.actionImg} src="/static/save.svg" title="Save"/>
-              </div>
-              <div {...styles.actionButton} onClick={this.cancelEdit}>
-                <img {...styles.actionImg} src="/static/cancel.svg" title="Cancel"/>
+              <div {...styles.actionButtons}>
+                <div {...styles.actionButton} onClick={this.startImageDialog}>
+                  <img
+                    {...styles.actionImg}
+                    src="/static/images.svg"
+                    title="Images"
+                  />
+                </div>
+                <div {...styles.actionButton} onClick={this.saveAnswer}>
+                  <img
+                    {...styles.actionImg}
+                    src="/static/save.svg"
+                    title="Save"
+                  />
+                </div>
+                <div {...styles.actionButton} onClick={this.cancelEdit}>
+                  <img
+                    {...styles.actionImg}
+                    src="/static/cancel.svg"
+                    title="Cancel"
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>}
+        )}
 
-        {!this.state.editing && <div {...styles.actionButtons}>
-          <div {...styles.permalink}><small><a href={"#" + answer.oid}>Permalink</a></small></div>
-          {this.state.savedText.length > 0 &&
-          <div {...styles.actionButton} onClick={this.toggleAddingComment}>
-            <img {...styles.actionImg} src="/static/comment.svg" title="Add Comment"/>
-          </div>}
-          {answer.canEdit &&
-          <div {...styles.actionButton} onClick={this.startEdit}>
-            <img {...styles.actionImg} src="/static/edit.svg" title="Edit Answer"/>
-          </div>}
-          {(answer.canEdit || this.props.isAdmin) &&
-          <div {...styles.actionButton} onClick={this.removeAnswer}>
-            <img {...styles.actionImg} src="/static/delete.svg" title="Delete Answer"/>
-          </div>}
-          <div {...styles.actionButton} onClick={this.toggleAnswerFlag}>
-            <img {...styles.actionImg} src={answer.isFlagged ? '/static/flag_active.svg' : '/static/flag.svg'} title="Flag as Inappropriate" />
-          </div>
-          {answer.flagged > 0 && <div {...styles.actionButton} onClick={this.resetAnswerFlagged}>{answer.flagged}</div>}
-        </div>}
-        {this.state.imageDialog && <ImageOverlay onClose={this.endImageDialog}/>}
-
-        {(comments.length > 0 || this.state.addingComment) &&
-          <div {...styles.comments}>
-            {this.state.addingComment &&
-            <Comment isNewComment={true}
-                     isAdmin={this.props.isAdmin}
-                     filename={this.props.filename}
-                     sectionId={this.props.sectionId}
-                     answerId={answer.oid}
-                     comment={{oid: "", text: "", authorId: "", authorDisplayName: "", canEdit: true, time: ""}}
-                     onSectionChanged={this.props.onSectionChanged}
-                     onNewCommentSaved={this.toggleAddingComment}
-            />}
-            {comments.map(e =>
-              <Comment key={e.oid} isAdmin={this.props.isAdmin} comment={e} filename={this.props.filename} sectionId={this.props.sectionId}
-                       answerId={answer.oid} onSectionChanged={this.props.onSectionChanged}/>
+        {!this.state.editing && (
+          <div {...styles.actionButtons}>
+            <div {...styles.permalink}>
+              <small>
+                <a href={"#" + answer.oid}>Permalink</a>
+              </small>
+            </div>
+            {this.state.savedText.length > 0 && (
+              <div {...styles.actionButton} onClick={this.toggleAddingComment}>
+                <img
+                  {...styles.actionImg}
+                  src="/static/comment.svg"
+                  title="Add Comment"
+                />
+              </div>
             )}
-            {comments.length < answer.comments.length && <div {...styles.moreComments} onClick={this.toggleComments}>
-              Show {answer.comments.length - comments.length} more comments...
-            </div>}
+            {answer.canEdit && (
+              <div {...styles.actionButton} onClick={this.startEdit}>
+                <img
+                  {...styles.actionImg}
+                  src="/static/edit.svg"
+                  title="Edit Answer"
+                />
+              </div>
+            )}
+            {(answer.canEdit || this.props.isAdmin) && (
+              <div {...styles.actionButton} onClick={this.removeAnswer}>
+                <img
+                  {...styles.actionImg}
+                  src="/static/delete.svg"
+                  title="Delete Answer"
+                />
+              </div>
+            )}
+            <div {...styles.actionButton} onClick={this.toggleAnswerFlag}>
+              <img
+                {...styles.actionImg}
+                src={
+                  answer.isFlagged
+                    ? "/static/flag_active.svg"
+                    : "/static/flag.svg"
+                }
+                title="Flag as Inappropriate"
+              />
+            </div>
+            {answer.flagged > 0 && (
+              <div {...styles.actionButton} onClick={this.resetAnswerFlagged}>
+                {answer.flagged}
+              </div>
+            )}
           </div>
-        }
+        )}
+        {this.state.imageDialog && (
+          <ImageOverlay onClose={this.endImageDialog} />
+        )}
+
+        {(comments.length > 0 || this.state.addingComment) && (
+          <div {...styles.comments}>
+            {this.state.addingComment && (
+              <Comment
+                isNewComment={true}
+                isAdmin={this.props.isAdmin}
+                filename={this.props.filename}
+                sectionId={this.props.sectionId}
+                answerId={answer.oid}
+                comment={{
+                  oid: "",
+                  text: "",
+                  authorId: "",
+                  authorDisplayName: "",
+                  canEdit: true,
+                  time: "",
+                }}
+                onSectionChanged={this.props.onSectionChanged}
+                onNewCommentSaved={this.toggleAddingComment}
+              />
+            )}
+            {comments.map(e => (
+              <Comment
+                key={e.oid}
+                isAdmin={this.props.isAdmin}
+                comment={e}
+                filename={this.props.filename}
+                sectionId={this.props.sectionId}
+                answerId={answer.oid}
+                onSectionChanged={this.props.onSectionChanged}
+              />
+            ))}
+            {comments.length < answer.comments.length && (
+              <div {...styles.moreComments} onClick={this.toggleComments}>
+                Show {answer.comments.length - comments.length} more comments...
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }
-};
+}

@@ -1,10 +1,10 @@
 import * as React from "react";
-import {NotificationInfo} from "../interfaces";
-import * as moment from 'moment';
-import {css} from "glamor";
-import {fetchpost} from '../fetch-utils'
+import { NotificationInfo } from "../interfaces";
+import * as moment from "moment";
+import { css } from "glamor";
+import { fetchpost } from "../fetch-utils";
 import Colors from "../colors";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import MarkdownText from "./markdown-text";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
@@ -43,26 +43,38 @@ const styles = {
 };
 
 export default class NotificationComponent extends React.Component<Props> {
-
   readNotification = (notification: NotificationInfo) => {
-    fetchpost('/api/notifications/setread', {
+    fetchpost("/api/notifications/setread", {
       read: 1,
       notificationoid: notification.oid,
     });
   };
 
   render() {
-    const {notification} = this.props;
+    const { notification } = this.props;
     return (
       <div {...styles.wrapper}>
-        <Link to={notification.link} onClick={() => this.readNotification(notification)}>
+        <Link
+          to={notification.link}
+          onClick={() => this.readNotification(notification)}
+        >
           <div {...styles.header}>
-            <div {...(notification.read ? undefined : styles.unread)}>{notification.title}</div>
-            <div {...globalcss.noLinkColor} {...styles.subtitle}><Link to={notification.sender}>{notification.senderDisplayName}</Link> • {moment(notification.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</div>
+            <div {...(notification.read ? undefined : styles.unread)}>
+              {notification.title}
+            </div>
+            <div {...globalcss.noLinkColor} {...styles.subtitle}>
+              <Link to={notification.sender}>
+                {notification.senderDisplayName}
+              </Link>{" "}
+              •{" "}
+              {moment(notification.time, GlobalConsts.momentParseString).format(
+                GlobalConsts.momentFormatString,
+              )}
+            </div>
           </div>
         </Link>
-        <MarkdownText value={notification.message}/>
+        <MarkdownText value={notification.message} />
       </div>
     );
   }
-};
+}

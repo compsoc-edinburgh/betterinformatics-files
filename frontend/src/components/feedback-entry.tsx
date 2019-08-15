@@ -1,8 +1,8 @@
 import * as React from "react";
-import {css} from "glamor";
-import {FeedbackEntry} from "../interfaces";
+import { css } from "glamor";
+import { FeedbackEntry } from "../interfaces";
 import * as moment from "moment";
-import {fetchpost} from "../fetch-utils";
+import { fetchpost } from "../fetch-utils";
 import Colors from "../colors";
 import GlobalConsts from "../globalconsts";
 
@@ -33,7 +33,7 @@ const styles = {
     alignItems: "center",
   }),
   buttons: css({
-    margin: "0"
+    margin: "0",
   }),
   feedbackText: css({
     //whiteSpace: "pre",
@@ -43,7 +43,7 @@ const styles = {
       background: Colors.buttonPrimary,
       ":hover": {
         background: Colors.buttonPrimaryHover,
-      }
+      },
     }),
     css({}),
   ],
@@ -52,22 +52,25 @@ const styles = {
       background: Colors.buttonPrimary,
       ":hover": {
         background: Colors.buttonPrimaryHover,
-      }
+      },
     }),
     css({}),
-  ]
+  ],
 };
 
 export default class FeedbackEntryComponent extends React.Component<Props> {
-
   setRead = (value: boolean) => {
-    fetchpost(`/api/feedback/${this.props.entry.oid}/flags`, {read: value ? 1 : 0})
+    fetchpost(`/api/feedback/${this.props.entry.oid}/flags`, {
+      read: value ? 1 : 0,
+    })
       .then(() => this.props.entryChanged())
       .catch(() => undefined);
   };
 
   setDone = (value: boolean) => {
-    fetchpost(`/api/feedback/${this.props.entry.oid}/flags`, {done: value ? 1 : 0})
+    fetchpost(`/api/feedback/${this.props.entry.oid}/flags`, {
+      done: value ? 1 : 0,
+    })
       .then(() => this.props.entryChanged())
       .catch(() => undefined);
   };
@@ -80,15 +83,32 @@ export default class FeedbackEntryComponent extends React.Component<Props> {
   render() {
     const entry = this.props.entry;
 
-    return (<div {...styles.wrapper}>
-      <div {...styles.header}>
-        <div>{entry.authorDisplayName} • {moment(entry.time, GlobalConsts.momentParseString).format(GlobalConsts.momentFormatString)}</div>
-        <div {...styles.buttons}>
-          <button {...styles.buttonDone[entry.done?1:0]} onClick={() => this.setDone(!entry.done)}>{entry.done ? "Set Undone" : "Set Done"}</button>
-          <button {...styles.buttonRead[entry.read?1:0]} onClick={() => this.setRead(!entry.read)}>{entry.read ? "Set Unread" : "Set Read"}</button>
+    return (
+      <div {...styles.wrapper}>
+        <div {...styles.header}>
+          <div>
+            {entry.authorDisplayName} •{" "}
+            {moment(entry.time, GlobalConsts.momentParseString).format(
+              GlobalConsts.momentFormatString,
+            )}
+          </div>
+          <div {...styles.buttons}>
+            <button
+              {...styles.buttonDone[entry.done ? 1 : 0]}
+              onClick={() => this.setDone(!entry.done)}
+            >
+              {entry.done ? "Set Undone" : "Set Done"}
+            </button>
+            <button
+              {...styles.buttonRead[entry.read ? 1 : 0]}
+              onClick={() => this.setRead(!entry.read)}
+            >
+              {entry.read ? "Set Unread" : "Set Read"}
+            </button>
+          </div>
         </div>
+        <div {...styles.feedbackText}>{this.wrapText(entry.text)}</div>
       </div>
-      <div {...styles.feedbackText}>{this.wrapText(entry.text)}</div>
-    </div>);
+    );
   }
-};
+}

@@ -1,11 +1,11 @@
 import * as React from "react";
-import {css} from "glamor";
-import {Attachment} from "../interfaces";
-import {fetchpost} from "../fetch-utils";
+import { css } from "glamor";
+import { Attachment } from "../interfaces";
+import { fetchpost } from "../fetch-utils";
 
 const stylesForWidth = {
   justWidth: css({
-    width: "200px"
+    width: "200px",
   }),
   inlineBlock: css({
     width: "200px",
@@ -14,8 +14,7 @@ const stylesForWidth = {
   }),
 };
 const styles = {
-  wrapper: css({
-  }),
+  wrapper: css({}),
 };
 
 interface Props {
@@ -39,14 +38,14 @@ export default class Attachments extends React.Component<Props, State> {
   displaynameChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = event.target.value;
     this.setState({
-      newDisplayname: newVal
+      newDisplayname: newVal,
     });
   };
 
   filechange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     if (ev.target.files != null) {
       this.setState({
-        newFile: ev.target.files[0]
+        newFile: ev.target.files[0],
       });
     }
   };
@@ -55,8 +54,8 @@ export default class Attachments extends React.Component<Props, State> {
     if (!this.state.newDisplayname) {
       return;
     }
-    fetchpost('/api/uploadfilestore', {
-      file: this.state.newFile
+    fetchpost("/api/uploadfilestore", {
+      file: this.state.newFile,
     })
       .then(res => {
         const att: Attachment = {
@@ -67,45 +66,58 @@ export default class Attachments extends React.Component<Props, State> {
         this.setState({
           newDisplayname: "",
           newFile: new Blob(),
-          error: '',
+          error: "",
         });
       })
       .catch(res => {
         this.setState({
           error: res,
         });
-      })
+      });
   };
 
   removeFile = (att: Attachment) => {
-    fetchpost('/api/filestore/remove/' + att.filename, {})
-      .then(res => {
-        this.props.onRemoveAttachment(att);
-      });
+    fetchpost("/api/filestore/remove/" + att.filename, {}).then(res => {
+      this.props.onRemoveAttachment(att);
+    });
   };
 
   render() {
     const atts = this.props.attachments;
-    return (<div {...styles.wrapper}>
-      {atts.map(att => <div key={att.filename}>
-        <a {...stylesForWidth.inlineBlock} href={'/api/filestore/' + att.filename} target="_blank">{att.displayname}</a>
-        <button onClick={ev => this.removeFile(att)}>Remove File</button>
-      </div>)}
-      <div>
-        <label>
-          Upload new attachment
-          <input type="text" placeholder="displayname" title="displayname" value={this.state.newDisplayname} onChange={this.displaynameChanged} />
-        </label>
+    return (
+      <div {...styles.wrapper}>
+        {atts.map(att => (
+          <div key={att.filename}>
+            <a
+              {...stylesForWidth.inlineBlock}
+              href={"/api/filestore/" + att.filename}
+              target="_blank"
+            >
+              {att.displayname}
+            </a>
+            <button onClick={ev => this.removeFile(att)}>Remove File</button>
+          </div>
+        ))}
+        <div>
+          <label>
+            Upload new attachment
+            <input
+              type="text"
+              placeholder="displayname"
+              title="displayname"
+              value={this.state.newDisplayname}
+              onChange={this.displaynameChanged}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="file" title="attachment" onChange={this.filechange} />
+          </label>
+          <button onClick={this.uploadFile}>Upload</button>
+        </div>
+        {this.state.error && <div>{this.state.error}</div>}
       </div>
-      <div>
-        <label>
-          <input type="file" title="attachment" onChange={this.filechange} />
-        </label>
-        <button onClick={this.uploadFile}>Upload</button>
-      </div>
-      {this.state.error && <div>
-        {this.state.error}
-      </div>}
-    </div>);
+    );
   }
 }

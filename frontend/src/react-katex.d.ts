@@ -1,1 +1,1 @@
-declare module '@matejmazur/react-katex';
+declare module "@matejmazur/react-katex";

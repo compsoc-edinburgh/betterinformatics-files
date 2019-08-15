@@ -10,7 +10,7 @@ interface Props {
   width: number;
   dpr: number; // Device Pixel Ratio
   renderText: boolean;
-  onClick: ((ev: React.MouseEvent<HTMLElement>, section: PdfSection) => void);
+  onClick: (ev: React.MouseEvent<HTMLElement>, section: PdfSection) => void;
 }
 
 const styles = {
@@ -41,9 +41,9 @@ const styles = {
       "::selection": {
         color: "inherit",
         background: Colors.selectionBackground,
-      }
-    }
-  })
+      },
+    },
+  }),
 };
 
 export default class PdfSectionComp extends React.Component<Props> {
@@ -64,7 +64,10 @@ export default class PdfSectionComp extends React.Component<Props> {
     }
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<{}>): void {
+  componentDidUpdate(
+    prevProps: Readonly<Props>,
+    prevState: Readonly<{}>,
+  ): void {
     this.needRender = true;
   }
 
@@ -73,7 +76,10 @@ export default class PdfSectionComp extends React.Component<Props> {
       this.observer.unobserve(this.canv);
     }
     if (this.visible) {
-      this.props.renderer.removeVisible(this.props.section.start, this.renderCanvas);
+      this.props.renderer.removeVisible(
+        this.props.section.start,
+        this.renderCanvas,
+      );
     }
   }
 
@@ -81,12 +87,18 @@ export default class PdfSectionComp extends React.Component<Props> {
     entries.forEach(entry => {
       this.visible = entry.isIntersecting;
       if (this.visible) {
-        this.props.renderer.addVisible(this.props.section.start, this.renderCanvas);
+        this.props.renderer.addVisible(
+          this.props.section.start,
+          this.renderCanvas,
+        );
         if (this.needRender) {
           this.renderCanvas();
         }
       } else {
-        this.props.renderer.removeVisible(this.props.section.start, this.renderCanvas);
+        this.props.renderer.removeVisible(
+          this.props.section.start,
+          this.renderCanvas,
+        );
       }
     });
   };
@@ -104,7 +116,13 @@ export default class PdfSectionComp extends React.Component<Props> {
       section.end,
     );
     if (this.textWrap && this.canv) {
-      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end, this.props.dpr);
+      this.props.renderer.renderTextLayer(
+        this.textWrap,
+        this.canv,
+        this.props.section.start,
+        this.props.section.end,
+        this.props.dpr,
+      );
     }
   };
 
@@ -135,7 +153,13 @@ export default class PdfSectionComp extends React.Component<Props> {
       this.renderCanvas();
     }
     if (this.textWrap) {
-      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end, this.props.dpr);
+      this.props.renderer.renderTextLayer(
+        this.textWrap,
+        this.canv,
+        this.props.section.start,
+        this.props.section.end,
+        this.props.dpr,
+      );
     }
   };
 
@@ -145,7 +169,13 @@ export default class PdfSectionComp extends React.Component<Props> {
     }
     this.textWrap = d;
     if (this.canv) {
-      this.props.renderer.renderTextLayer(this.textWrap, this.canv, this.props.section.start, this.props.section.end, this.props.dpr);
+      this.props.renderer.renderTextLayer(
+        this.textWrap,
+        this.canv,
+        this.props.section.start,
+        this.props.section.end,
+        this.props.dpr,
+      );
     }
   };
 
@@ -153,20 +183,31 @@ export default class PdfSectionComp extends React.Component<Props> {
     const { dpr } = this.props;
     const rawDim = this.sectionDimensions();
     return (
-      <div {...styles.wrapper} {...(this.props.section.end.position === 1) ? styles.lastSection : undefined}>
+      <div
+        {...styles.wrapper}
+        {...(this.props.section.end.position === 1
+          ? styles.lastSection
+          : undefined)}
+      >
         <canvas
           ref={this.saveCanvasRef}
           width={Math.ceil(rawDim.width * dpr)}
           height={Math.ceil(rawDim.height * dpr)}
           // it would be far nicer to have onClick be undefined if not needed, but ts claims it might be undefined when called...
-          onClick={this.props.onClick && ((ev: React.MouseEvent<HTMLElement>) => this.props.onClick(ev, this.props.section))}
+          onClick={
+            this.props.onClick &&
+            ((ev: React.MouseEvent<HTMLElement>) =>
+              this.props.onClick(ev, this.props.section))
+          }
           style={{
             width: Math.ceil(rawDim.width),
             height: Math.ceil(rawDim.height),
           }}
           {...styles.canvas}
         />
-        {this.props.renderText && <div {...styles.textLayer} ref={this.saveTextRef} />}
+        {this.props.renderText && (
+          <div {...styles.textLayer} ref={this.saveTextRef} />
+        )}
       </div>
     );
   }

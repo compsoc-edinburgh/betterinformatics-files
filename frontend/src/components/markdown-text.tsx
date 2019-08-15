@@ -1,12 +1,12 @@
 import * as React from "react";
-import {css} from "glamor";
+import { css } from "glamor";
 import * as ReactMarkdown from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
-import 'katex/dist/katex.min.css';
-import TeX from '@matejmazur/react-katex'
+import "katex/dist/katex.min.css";
+import TeX from "@matejmazur/react-katex";
 import Colors from "../colors";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import {solarizedLight} from "react-syntax-highlighter/dist/styles/hljs";
+import { solarizedLight } from "react-syntax-highlighter/dist/styles/hljs";
 // import MathJax from 'react-mathjax2';
 
 interface Props {
@@ -29,38 +29,42 @@ const styles = {
       "& p": {
         marginBlockStart: "0.5em",
         marginBlockEnd: "0.5em",
-      }
+      },
     },
   }),
 };
 
-export default ({value, background}: Props) => {
+export default ({ value, background }: Props) => {
   if (value.length === 0) {
-    return <div/>;
+    return <div />;
   }
   const renderers = {
-    math: (props: {value: string}) =>
-      <TeX math={props.value} block/>,
-    inlineMath: (props: {value: string}) =>
-      <TeX math={props.value}/>,
-    code: (props: {value: string, language: string}) =>
+    math: (props: { value: string }) => <TeX math={props.value} block />,
+    inlineMath: (props: { value: string }) => <TeX math={props.value} />,
+    code: (props: { value: string; language: string }) => (
       <SyntaxHighlighter language={props.language} style={solarizedLight}>
         {props.value || " "}
       </SyntaxHighlighter>
+    ),
   };
-  return <div {...styles.wrapper} {...css({background: background || Colors.markdownBackground})}>
-    <ReactMarkdown
-      source={value}
-      transformImageUri={(uri) => {
-        if (uri.includes("/")) {
-          return uri;
-        } else {
-          return "/api/img/" + uri;
-        }
-      }}
-      plugins={[RemarkMathPlugin]}
-      // tslint:disable-next-line: no-any
-      renderers={renderers as any}
-    />
-  </div>;
+  return (
+    <div
+      {...styles.wrapper}
+      {...css({ background: background || Colors.markdownBackground })}
+    >
+      <ReactMarkdown
+        source={value}
+        transformImageUri={uri => {
+          if (uri.includes("/")) {
+            return uri;
+          } else {
+            return "/api/img/" + uri;
+          }
+        }}
+        plugins={[RemarkMathPlugin]}
+        // tslint:disable-next-line: no-any
+        renderers={renderers as any}
+      />
+    </div>
+  );
 };

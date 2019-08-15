@@ -1,11 +1,11 @@
 import * as React from "react";
-import {CategoryExam, CategoryPaymentExam} from "../interfaces";
-import {css} from "glamor";
-import {fetchapi, fetchpost} from "../fetch-utils";
-import {Link} from "react-router-dom";
+import { CategoryExam, CategoryPaymentExam } from "../interfaces";
+import { css } from "glamor";
+import { fetchapi, fetchpost } from "../fetch-utils";
+import { Link } from "react-router-dom";
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";
-import * as moment from 'moment';
+import * as moment from "moment";
 
 const styles = {
   wrapper: css({
@@ -35,7 +35,6 @@ interface State {
 }
 
 export default class ModQueue extends React.Component<Props, State> {
-
   state: State = {
     exams: [],
     paymentExams: [],
@@ -50,7 +49,10 @@ export default class ModQueue extends React.Component<Props, State> {
     document.title = "Import Queue - VIS Community Solutions";
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
+  componentDidUpdate(
+    prevProps: Readonly<Props>,
+    prevState: Readonly<State>,
+  ): void {
     if (prevState.includeHidden !== this.state.includeHidden) {
       this.loadExams();
     }
@@ -61,20 +63,23 @@ export default class ModQueue extends React.Component<Props, State> {
   }
 
   loadExams = () => {
-    fetchapi('/api/listimportexams' + (this.state.includeHidden ? '?includehidden=1' : ''))
+    fetchapi(
+      "/api/listimportexams" +
+        (this.state.includeHidden ? "?includehidden=1" : ""),
+    )
       .then(res => {
         this.setState({
-          exams: res.value
+          exams: res.value,
         });
       })
-      .catch(()=>undefined);
+      .catch(() => undefined);
   };
 
   loadFlagged = () => {
-    fetchapi('/api/listflagged')
+    fetchapi("/api/listflagged")
       .then(res => {
         this.setState({
-          flaggedAnswers: res.value
+          flaggedAnswers: res.value,
         });
       })
       .catch(() => undefined);
@@ -84,24 +89,29 @@ export default class ModQueue extends React.Component<Props, State> {
     if (!this.props.isAdmin) {
       return;
     }
-    fetchapi('/api/listpaymentcheckexams')
+    fetchapi("/api/listpaymentcheckexams")
       .then(res => {
         this.setState({
-          paymentExams: res.value
+          paymentExams: res.value,
         });
       })
-      .catch(()=>undefined);
+      .catch(() => undefined);
   };
 
   setIncludeHidden = (hidden: boolean) => {
     this.setState({
-      includeHidden: hidden
+      includeHidden: hidden,
     });
   };
 
   hasValidClaim = (exam: CategoryExam) => {
     if (exam.import_claim !== "") {
-      if (moment().diff(moment(exam.import_claim_time, GlobalConsts.momentParseString)) < 4 * 60 * 60 * 1000) {
+      if (
+        moment().diff(
+          moment(exam.import_claim_time, GlobalConsts.momentParseString),
+        ) <
+        4 * 60 * 60 * 1000
+      ) {
         return true;
       }
     }
@@ -110,7 +120,7 @@ export default class ModQueue extends React.Component<Props, State> {
 
   claimExam = (exam: CategoryExam, claim: boolean) => {
     fetchpost(`/api/exam/${exam.filename}/claim`, {
-      claim: claim ? 1 : 0
+      claim: claim ? 1 : 0,
     })
       .then(() => {
         this.loadExams();
@@ -120,7 +130,7 @@ export default class ModQueue extends React.Component<Props, State> {
       })
       .catch(err => {
         this.setState({
-          error: err
+          error: err,
         });
         this.loadExams();
       });
@@ -130,87 +140,113 @@ export default class ModQueue extends React.Component<Props, State> {
     if (!this.state.exams) {
       return <div>Loading...</div>;
     }
-    return (<div {...styles.wrapper}>
-      {this.state.flaggedAnswers.length > 0 && <div>
-        <h1>Flagged Answers</h1>
-        {this.state.flaggedAnswers.map(answer =>
-          <div><a href={answer} target="_blank">{answer}</a></div>
+    return (
+      <div {...styles.wrapper}>
+        {this.state.flaggedAnswers.length > 0 && (
+          <div>
+            <h1>Flagged Answers</h1>
+            {this.state.flaggedAnswers.map(answer => (
+              <div>
+                <a href={answer} target="_blank">
+                  {answer}
+                </a>
+              </div>
+            ))}
+          </div>
         )}
-      </div>}
-      {this.state.paymentExams.length > 0 && <div>
-        <h1>Transcripts</h1>
-        <table>
+        {this.state.paymentExams.length > 0 && (
+          <div>
+            <h1>Transcripts</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Name</th>
+                  <th>Uploader</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.paymentExams.map(exam => (
+                  <tr key={exam.filename}>
+                    <td>{exam.category}</td>
+                    <td>
+                      <Link to={"/exams/" + exam.filename} target="_blank">
+                        {exam.displayname}
+                      </Link>
+                    </td>
+                    <td>
+                      <Link to={"/user/" + exam.payment_uploader}>
+                        {exam.payment_uploader_displayname}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <h1>Import Queue</h1>
+        {this.state.error && <div>{this.state.error}</div>}
+        <table {...styles.queueTable}>
           <thead>
-          <tr>
-            <th>Category</th>
-            <th>Name</th>
-            <th>Uploader</th>
-          </tr>
+            <tr>
+              <th>Category</th>
+              <th>Name</th>
+              <th>Remark</th>
+              <th>Public</th>
+              <th>Import State</th>
+              <th>Claim</th>
+            </tr>
           </thead>
           <tbody>
-          {this.state.paymentExams.map(exam => (
-            <tr key={exam.filename}>
-              <td>
-                {exam.category}
-              </td>
-              <td>
-                <Link to={'/exams/' + exam.filename} target="_blank">{exam.displayname}</Link>
-              </td>
-              <td>
-                <Link to={'/user/' + exam.payment_uploader}>{exam.payment_uploader_displayname}</Link>
-              </td>
-            </tr>
-          ))}
+            {this.state.exams.map(exam => (
+              <tr key={exam.filename}>
+                <td>{exam.category}</td>
+                <td>
+                  <Link to={"/exams/" + exam.filename} target="_blank">
+                    {exam.displayname}
+                  </Link>
+                </td>
+                <td>{exam.remark}</td>
+                <td>{exam.public ? "Public" : "Hidden"}</td>
+                <td>
+                  {exam.finished_cuts
+                    ? exam.finished_wiki_transfer
+                      ? "All done"
+                      : "Needs Wiki Import"
+                    : "Needs Cuts"}
+                </td>
+                <td>
+                  {!exam.finished_cuts || !exam.finished_wiki_transfer ? (
+                    this.hasValidClaim(exam) ? (
+                      exam.import_claim === this.props.username ? (
+                        <button onClick={() => this.claimExam(exam, false)}>
+                          Release Claim
+                        </button>
+                      ) : (
+                        <span>Claimed by {exam.import_claim_displayname}</span>
+                      )
+                    ) : (
+                      <button onClick={() => this.claimExam(exam, true)}>
+                        Claim Exam
+                      </button>
+                    )
+                  ) : (
+                    <span>-</span>
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
-      </div>}
-      <h1>Import Queue</h1>
-      {this.state.error && <div>{this.state.error}</div>}
-      <table {...styles.queueTable}>
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Name</th>
-            <th>Remark</th>
-            <th>Public</th>
-            <th>Import State</th>
-            <th>Claim</th>
-          </tr>
-        </thead>
-        <tbody>
-          {this.state.exams.map(exam => (
-            <tr key={exam.filename}>
-              <td>
-                {exam.category}
-              </td>
-              <td>
-                <Link to={'/exams/' + exam.filename} target="_blank">{exam.displayname}</Link>
-              </td>
-              <td>
-                {exam.remark}
-              </td>
-              <td>{exam.public ? "Public": "Hidden"}</td>
-              <td>
-                {exam.finished_cuts ? (exam.finished_wiki_transfer ? "All done" : "Needs Wiki Import") : "Needs Cuts"}
-              </td>
-              <td>
-                {(!exam.finished_cuts || !exam.finished_wiki_transfer) ? (
-                  this.hasValidClaim(exam) ? (
-                      exam.import_claim === this.props.username ?
-                        <button onClick={() => this.claimExam(exam, false)}>Release Claim</button> :
-                        <span>Claimed by {exam.import_claim_displayname}</span>
-                    ) :
-                    <button onClick={() => this.claimExam(exam, true)}>Claim Exam</button>
-                ) : <span>-</span>
-                }
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div>
-        <button onClick={() => this.setIncludeHidden(!this.state.includeHidden)}>{this.state.includeHidden ? 'Hide' : 'Show'} Complete Hidden Exams</button>
+        <div>
+          <button
+            onClick={() => this.setIncludeHidden(!this.state.includeHidden)}
+          >
+            {this.state.includeHidden ? "Hide" : "Show"} Complete Hidden Exams
+          </button>
+        </div>
       </div>
-    </div>);
+    );
   }
 }

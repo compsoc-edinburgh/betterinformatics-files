@@ -33,10 +33,12 @@ interface StartSizeRect {
 }
 
 export class SectionRenderer {
-
   pages: PageProxy[];
 
-  constructor(readonly pdf: pdfjs.PDFDocumentProxy, private targetWidth: number) {
+  constructor(
+    readonly pdf: pdfjs.PDFDocumentProxy,
+    private targetWidth: number,
+  ) {
     this.pdf = pdf;
   }
 
@@ -60,18 +62,22 @@ export class SectionRenderer {
     viewport = pdfpage.getViewport(this.targetWidth / viewport.width);
     canvas.width = viewport.width;
     canvas.height = viewport.height;
-    pdfpage.render({
-      canvasContext: context,
-      viewport,
-    }).then(() => {
-      this.pages[page].isRendered = true;
-      this.pages[page].rendered = {
-        canvas, context, viewport
-      };
-      this.pages[page].renderFunctions.forEach(fct => {
-        fct();
+    pdfpage
+      .render({
+        canvasContext: context,
+        viewport,
+      })
+      .then(() => {
+        this.pages[page].isRendered = true;
+        this.pages[page].rendered = {
+          canvas,
+          context,
+          viewport,
+        };
+        this.pages[page].renderFunctions.forEach(fct => {
+          fct();
+        });
       });
-    });
   }
 
   freePage(page: number) {
@@ -101,14 +107,19 @@ export class SectionRenderer {
   addVisible(start: CutPosition, renderFunction: Function) {
     const page = start.page - 1;
     this.pages[page].renderFunctions.push(renderFunction);
-    if (this.pages[page].renderFunctions.length === 1 && !this.pages[page].isRendered) {
+    if (
+      this.pages[page].renderFunctions.length === 1 &&
+      !this.pages[page].isRendered
+    ) {
       this.renderPage(page);
     }
   }
 
   removeVisible(start: CutPosition, renderFunction: Function) {
     const page = start.page - 1;
-    this.pages[page].renderFunctions = this.pages[page].renderFunctions.filter(fct => fct !== renderFunction);
+    this.pages[page].renderFunctions = this.pages[page].renderFunctions.filter(
+      fct => fct !== renderFunction,
+    );
     /*
     It seems like we can not save much memory, but the CPU usage is much higher if we destroy stuff.
     if (this.pages[page].renderFunctions.length === 0) {
@@ -139,8 +150,12 @@ export class SectionRenderer {
     width: number,
   ): Dimensions {
     const page = this.pages[start.page - 1].page;
-    const src = SectionRenderer.sourceDimensions(page.getViewport(1), start, end);
-    return { width, height: src.h / src.w * width };
+    const src = SectionRenderer.sourceDimensions(
+      page.getViewport(1),
+      start,
+      end,
+    );
+    return { width, height: (src.h / src.w) * width };
   }
 
   render(target: RenderTarget, start: CutPosition, end: CutPosition) {
@@ -170,7 +185,13 @@ export class SectionRenderer {
     return true;
   }
 
-  renderTextLayer(target: HTMLDivElement, canvas: HTMLCanvasElement, start: CutPosition, end: CutPosition, dpr: number) {
+  renderTextLayer(
+    target: HTMLDivElement,
+    canvas: HTMLCanvasElement,
+    start: CutPosition,
+    end: CutPosition,
+    dpr: number,
+  ) {
     const page = start.page - 1;
     const pdfpage = this.pages[page].page;
 
@@ -181,29 +202,28 @@ export class SectionRenderer {
     viewport = pdfpage.getViewport(this.targetWidth / viewport.width / dpr);
     const src = SectionRenderer.sourceDimensions(viewport, start, end);
     target.innerHTML = "";
-    pdfpage.getTextContent()
-      .then(texts => {
-        // tslint:disable-next-line:no-any
-        const PDFJS = pdfjs as any;
-        let divs: HTMLElement[] = [];
-        PDFJS.renderTextLayer({
-          textContent: texts,
-          container: target,
-          viewport: viewport,
-          textDivs: divs,
-        }).promise.then(() => {
-          divs.forEach(div => {
-            const top = parseFloat(div.style.top || "0");
-            if ((top < src.y) || (src.y + src.h < top)) {
-              if (div.parentElement) {
-                div.parentElement.removeChild(div);
-              }
-            } else {
-              div.style.top = (top - src.y) + "px";
+    pdfpage.getTextContent().then(texts => {
+      // tslint:disable-next-line:no-any
+      const PDFJS = pdfjs as any;
+      let divs: HTMLElement[] = [];
+      PDFJS.renderTextLayer({
+        textContent: texts,
+        container: target,
+        viewport: viewport,
+        textDivs: divs,
+      }).promise.then(() => {
+        divs.forEach(div => {
+          const top = parseFloat(div.style.top || "0");
+          if (top < src.y || src.y + src.h < top) {
+            if (div.parentElement) {
+              div.parentElement.removeChild(div);
             }
-          });
+          } else {
+            div.style.top = top - src.y + "px";
+          }
         });
       });
+    });
   }
 
   /**
@@ -264,7 +284,7 @@ export class SectionRenderer {
       }
 
       if (topBotPure === topTopPure && botBotPure === botTopPure) {
-        return relHeight
+        return relHeight;
       }
 
       if (topBotPure - topTopPure > botBotPure - botTopPure) {
@@ -277,14 +297,17 @@ export class SectionRenderer {
     }
 
     if (botPure - topPure < 2 * desiredMargin) {
-      return ((botPure + topPure) / 2) / height;
+      return (botPure + topPure) / 2 / height;
     } else {
       return (topPure + desiredMargin) / height;
     }
   }
 }
 
-export async function createSectionRenderer(pdf: pdfjs.PDFDocumentProxy, targetWidth: number): Promise<SectionRenderer> {
+export async function createSectionRenderer(
+  pdf: pdfjs.PDFDocumentProxy,
+  targetWidth: number,
+): Promise<SectionRenderer> {
   const renderer = new SectionRenderer(pdf, targetWidth);
   renderer.pages = [];
   for (let i = 0; i < pdf.numPages; i++) {

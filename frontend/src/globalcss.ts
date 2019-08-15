@@ -1,16 +1,16 @@
-import {css} from "glamor";
+import { css } from "glamor";
 import Colors from "./colors";
 
 export default class GlobalCSS {
   static readonly noLinkColor = css({
     "& a": {
       ":link": {
-        color: "inherit"
+        color: "inherit",
       },
       ":visited": {
-        color: "inherit"
-      }
-    }
+        color: "inherit",
+      },
+    },
   });
 
   static readonly button = {

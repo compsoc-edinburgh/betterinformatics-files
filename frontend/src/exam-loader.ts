@@ -1,24 +1,35 @@
-import {Section, AnswerSection, SectionKind, PdfSection, ServerCutPosition} from "./interfaces";
-import {fetchapi} from "./fetch-utils";
+import {
+  Section,
+  AnswerSection,
+  SectionKind,
+  PdfSection,
+  ServerCutPosition,
+} from "./interfaces";
+import { fetchapi } from "./fetch-utils";
 
-function createPdfSection(key: string, page: number, start: number, end: number): PdfSection {
+function createPdfSection(
+  key: string,
+  page: number,
+  start: number,
+  end: number,
+): PdfSection {
   return {
     key: key,
     kind: SectionKind.Pdf,
     start: {
       page: page,
-      position: start
+      position: start,
     },
     end: {
       page: page,
-      position: end
-    }
+      position: end,
+    },
   };
 }
 
 export async function loadSections(
   filename: string,
-  pageCount: number
+  pageCount: number,
 ): Promise<Section[]> {
   const response = await fetchapi(`/api/exam/${filename}/cuts`);
   const cuts = response.value;
@@ -28,7 +39,7 @@ export async function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       cuts[i].forEach((cut: ServerCutPosition) => {
-        const {relHeight: position, oid, cutVersion} = cut;
+        const { relHeight: position, oid, cutVersion } = cut;
         if (position !== lastpos) {
           const key = akey + "-" + lastpos + "-" + position;
           sections.push(createPdfSection(key, i, lastpos, position));
@@ -59,10 +70,12 @@ export async function loadSections(
 
 export async function loadAnswerSection(
   filename: string,
-  oid: string
+  oid: string,
 ): Promise<AnswerSection> {
   try {
-    const section = await fetchapi(`/api/exam/${filename}/answersection/${oid}`);
+    const section = await fetchapi(
+      `/api/exam/${filename}/answersection/${oid}`,
+    );
     let answersection = section.value.answersection;
     answersection.key = oid;
     answersection.kind = SectionKind.Answer;

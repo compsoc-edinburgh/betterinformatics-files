@@ -1,13 +1,13 @@
 import * as React from "react";
-import {createSectionRenderer, SectionRenderer} from "../split-render";
-import {loadSections} from "../exam-loader";
-import {ExamMetaData, PdfSection, Section, SectionKind} from "../interfaces";
+import { createSectionRenderer, SectionRenderer } from "../split-render";
+import { loadSections } from "../exam-loader";
+import { ExamMetaData, PdfSection, Section, SectionKind } from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
-import {debounce} from "lodash";
-import {css} from "glamor";
+import { debounce } from "lodash";
+import { css } from "glamor";
 import PdfSectionComp from "../components/pdf-section";
 import AnswerSectionComponent from "../components/answer-section";
-import {fetchapi, fetchpost} from "../fetch-utils";
+import { fetchapi, fetchpost } from "../fetch-utils";
 import MetaData from "../components/metadata";
 import Colors from "../colors";
 import PrintExam from "../components/print-exam";
@@ -131,12 +131,15 @@ export default class Exam extends React.Component<Props, State> {
   };
   updateInterval: NodeJS.Timer;
   cutVersionInterval: NodeJS.Timer;
-  debouncedUpdatePDFWidth: (this["updatePDFWidth"]);
+  debouncedUpdatePDFWidth: this["updatePDFWidth"];
 
   componentDidMount() {
     this.updateInterval = setInterval(this.pollZoom, RERENDER_INTERVAL);
     window.addEventListener("resize", this.onResize);
-    this.debouncedUpdatePDFWidth = debounce(this.updatePDFWidth, RERENDER_INTERVAL);
+    this.debouncedUpdatePDFWidth = debounce(
+      this.updatePDFWidth,
+      RERENDER_INTERVAL,
+    );
 
     this.loadMetaData();
 
@@ -147,15 +150,15 @@ export default class Exam extends React.Component<Props, State> {
 
   loadMetaData = () => {
     fetchapi(`/api/exam/${this.props.filename}/metadata`)
-      .then((res) => {
+      .then(res => {
         this.setState({
           canEdit: res.value.canEdit,
           savedMetaData: res.value,
         });
         this.setDocumentTitle();
       })
-      .catch(err =>{
-        this.setState({error: err.toString()});
+      .catch(err => {
+        this.setState({ error: err.toString() });
       });
   };
 
@@ -163,20 +166,23 @@ export default class Exam extends React.Component<Props, State> {
     // tslint:disable-next-line:no-any
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
     try {
-      const pdf = await PDFJS.getDocument("/api/pdf/exam/" + this.props.filename);
+      const pdf = await PDFJS.getDocument(
+        "/api/pdf/exam/" + this.props.filename,
+      );
 
       const w = this.state.width * this.state.dpr;
-      this.setState({pdf, renderer: await createSectionRenderer(pdf, w)});
+      this.setState({ pdf, renderer: await createSectionRenderer(pdf, w) });
       this.loadSectionsFromBackend(pdf.numPages);
     } catch (e) {
       this.setState({
-        error: e.toString()
+        error: e.toString(),
       });
     }
   };
 
   setDocumentTitle() {
-    document.title = this.state.savedMetaData.displayname + " - VIS Community Solutions";
+    document.title =
+      this.state.savedMetaData.displayname + " - VIS Community Solutions";
   }
 
   componentWillUnmount() {
@@ -192,12 +198,18 @@ export default class Exam extends React.Component<Props, State> {
     }
     this.setState({
       pdf: undefined,
-      renderer: undefined
+      renderer: undefined,
     });
   }
 
-  componentDidUpdate(prevProps: Readonly<Props>, prevState: Readonly<State>): void {
-    if (prevState.dpr !== this.state.dpr || prevState.width !== this.state.width) {
+  componentDidUpdate(
+    prevProps: Readonly<Props>,
+    prevState: Readonly<State>,
+  ): void {
+    if (
+      prevState.dpr !== this.state.dpr ||
+      prevState.width !== this.state.width
+    ) {
       this.debouncedUpdatePDFWidth();
     }
   }
@@ -207,7 +219,7 @@ export default class Exam extends React.Component<Props, State> {
     if (w === this.state.width) {
       return;
     }
-    this.setState({width: w});
+    this.setState({ width: w });
   };
 
   pollZoom = () => {
@@ -215,11 +227,11 @@ export default class Exam extends React.Component<Props, State> {
     if (dpr === this.state.dpr) {
       return;
     }
-    this.setState({dpr});
+    this.setState({ dpr });
   };
 
   updatePDFWidth = () => {
-    const {renderer} = this.state;
+    const { renderer } = this.state;
     if (renderer) {
       const w = this.state.width * this.state.dpr;
       renderer.setTargetWidth(w);
@@ -228,11 +240,11 @@ export default class Exam extends React.Component<Props, State> {
 
   loadSectionsFromBackend = (numPages: number) => {
     loadSections(this.props.filename, numPages)
-      .then((sections) => {
-        this.setState({sections: sections});
+      .then(sections => {
+        this.setState({ sections: sections });
       })
       .catch(err => {
-        this.setState({error: err.toString()});
+        this.setState({ error: err.toString() });
       });
   };
 
@@ -241,7 +253,7 @@ export default class Exam extends React.Component<Props, State> {
       .then(res => {
         const versions = res.value;
         this.setState(prevState => {
-          let newState = {...prevState};
+          let newState = { ...prevState };
           if (newState.sections) {
             newState.sections.forEach(section => {
               if (section.kind === SectionKind.Answer) {
@@ -250,11 +262,11 @@ export default class Exam extends React.Component<Props, State> {
             });
           }
           return newState;
-        })
+        });
       })
       .catch(err => {
         this.setState({
-          error: err.toString()
+          error: err.toString(),
         });
       });
   };
@@ -268,16 +280,19 @@ export default class Exam extends React.Component<Props, State> {
     let relHeight = start + relative * (end - start);
 
     if (!ev.shiftKey && this.state.renderer) {
-      relHeight = this.state.renderer.optimizeCutPosition(section.start.page-1, relHeight);
+      relHeight = this.state.renderer.optimizeCutPosition(
+        section.start.page - 1,
+        relHeight,
+      );
     }
 
     fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
       pageNum: section.start.page,
-      relHeight: relHeight
+      relHeight: relHeight,
     })
       .then(() => {
         this.setState({
-          error: ""
+          error: "",
         });
         if (this.state.pdf) {
           this.loadSectionsFromBackend(this.state.pdf.numPages);
@@ -285,24 +300,26 @@ export default class Exam extends React.Component<Props, State> {
       })
       .catch(err => {
         this.setState({
-          error: err.toString()
+          error: err.toString(),
         });
       });
   };
 
   gotoPDF = () => {
-    window.open(`/api/pdf/exam/${this.props.filename}`, '_blank');
+    window.open(`/api/pdf/exam/${this.props.filename}`, "_blank");
   };
 
   reportProblem = () => {
     const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
-    const body = encodeURIComponent(`Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category}' ...`);
+    const body = encodeURIComponent(
+      `Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category}' ...`,
+    );
     window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
   };
 
   setAllHidden = (hidden: boolean) => {
     this.setState(prevState => {
-      let newState = {...prevState};
+      let newState = { ...prevState };
       if (newState.sections) {
         newState.sections.forEach(section => {
           if (section.kind === SectionKind.Answer) {
@@ -312,15 +329,18 @@ export default class Exam extends React.Component<Props, State> {
       }
       newState.allShown = !hidden;
       return newState;
-    })
+    });
   };
 
   toggleHidden = (sectionOid: string) => {
     this.setState(prevState => {
-      let newState = {...prevState};
+      let newState = { ...prevState };
       if (newState.sections) {
         for (let section of newState.sections) {
-          if (section.kind === SectionKind.Answer && section.oid === sectionOid) {
+          if (
+            section.kind === SectionKind.Answer &&
+            section.oid === sectionOid
+          ) {
             if (!section.hidden) {
               newState.allShown = false;
             }
@@ -334,7 +354,7 @@ export default class Exam extends React.Component<Props, State> {
 
   toggleAddingSectionActive = () => {
     this.setState((state, props) => {
-      return {addingSectionsActive: !state.addingSectionsActive};
+      return { addingSectionsActive: !state.addingSectionsActive };
     });
   };
 
@@ -342,9 +362,9 @@ export default class Exam extends React.Component<Props, State> {
     if (!this.state.editingMetaData) {
       window.scrollTo(0, 0);
     }
-    this.setState((state) => {
+    this.setState(state => {
       return {
-        editingMetaData: !state.editingMetaData
+        editingMetaData: !state.editingMetaData,
       };
     });
   };
@@ -358,15 +378,14 @@ export default class Exam extends React.Component<Props, State> {
     if (this.state.editingMetaData) {
       this.toggleEditingMetadataActive();
     }
-    fetchpost(`/api/exam/${this.props.filename}/metadata`, update)
-      .then(res => {
-        this.setState(prev => ({
-          savedMetaData: {
-            ...prev.savedMetaData,
-            ...update,
-          }
-        }))
-      });
+    fetchpost(`/api/exam/${this.props.filename}/metadata`, update).then(res => {
+      this.setState(prev => ({
+        savedMetaData: {
+          ...prev.savedMetaData,
+          ...update,
+        },
+      }));
+    });
   };
 
   metaDataChanged = (newMetaData: ExamMetaData) => {
@@ -383,101 +402,185 @@ export default class Exam extends React.Component<Props, State> {
       })
       .catch(err => {
         this.setState({
-          error: err.toString()
+          error: err.toString(),
         });
       });
   };
 
   render() {
     if (!this.state.savedMetaData.canView) {
-      if (this.state.savedMetaData.payment_category.length > 0 && !this.state.savedMetaData.hasPayed) {
-        return <div>You have to pay a deposit of 20 CHF in the VIS bureau in order to see oral exams. After submitting a report of your own oral exam you can get your deposit back.</div>
+      if (
+        this.state.savedMetaData.payment_category.length > 0 &&
+        !this.state.savedMetaData.hasPayed
+      ) {
+        return (
+          <div>
+            You have to pay a deposit of 20 CHF in the VIS bureau in order to
+            see oral exams. After submitting a report of your own oral exam you
+            can get your deposit back.
+          </div>
+        );
       }
-      return <div>You can not view this exam at this time.</div>
+      return <div>You can not view this exam at this time.</div>;
     }
-    const {renderer, width, dpr, sections} = this.state;
-    const wikitransform = this.state.savedMetaData.legacy_solution ? this.state.savedMetaData.legacy_solution.split("/").pop() : "";
+    const { renderer, width, dpr, sections } = this.state;
+    const wikitransform = this.state.savedMetaData.legacy_solution
+      ? this.state.savedMetaData.legacy_solution.split("/").pop()
+      : "";
     return (
       <div>
-        {this.state.error && <div {...css({position: ["sticky", "-webkit-sticky"]})}>{this.state.error}</div>}
+        {this.state.error && (
+          <div {...css({ position: ["sticky", "-webkit-sticky"] })}>
+            {this.state.error}
+          </div>
+        )}
         <div {...styles.sectionsButtonSticky}>
           <div {...styles.sectionsButtons}>
             <div>
               <button onClick={this.gotoPDF}>Download PDF</button>
             </div>
             <div>
-              <button onClick={() => this.setAllHidden(this.state.allShown)}>{this.state.allShown ? 'Hide' : 'Show'} All</button>
+              <button onClick={() => this.setAllHidden(this.state.allShown)}>
+                {this.state.allShown ? "Hide" : "Show"} All
+              </button>
             </div>
             <div>
               <button onClick={this.reportProblem}>Report Problem</button>
             </div>
             {this.state.canEdit && [
               <div key="metadata">
-                <button onClick={this.toggleEditingMetadataActive}>Edit MetaData</button>
+                <button onClick={this.toggleEditingMetadataActive}>
+                  Edit MetaData
+                </button>
               </div>,
-              !(this.state.savedMetaData.public &&
+              !(
+                this.state.savedMetaData.public &&
                 this.state.savedMetaData.finished_cuts &&
-                this.state.savedMetaData.finished_wiki_transfer) &&
+                this.state.savedMetaData.finished_wiki_transfer
+              ) && (
                 <div key="alldone">
                   <button onClick={this.setAllDone}>Set All Done</button>
-                </div>,
+                </div>
+              ),
               <div key="cuts">
-                <button onClick={this.toggleAddingSectionActive}>{this.state.addingSectionsActive && "Disable Adding Cuts" || "Enable Adding Cuts"}</button>
-              </div>
-              ]
-            }
+                <button onClick={this.toggleAddingSectionActive}>
+                  {(this.state.addingSectionsActive && "Disable Adding Cuts") ||
+                    "Enable Adding Cuts"}
+                </button>
+              </div>,
+            ]}
             <div {...styles.licenseText}>
-              <small {...globalcss.noLinkColor}>All answers are licensed as <br/><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</small>
+              <small {...globalcss.noLinkColor}>
+                All answers are licensed as <br />
+                <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  CC BY-NC-SA 4.0
+                </a>
+                .
+              </small>
             </div>
           </div>
         </div>
-        {this.state.editingMetaData &&
-          <MetaData filename={this.props.filename} savedMetaData={this.state.savedMetaData}
-                    onChange={this.metaDataChanged} onFinishEdit={this.toggleEditingMetadataActive}/>}
-        {this.state.savedMetaData.is_payment_exam && !this.state.savedMetaData.payment_exam_checked && <div {...styles.checkWrapper}>
-          This is a transcript of an oral exam. It needs to be checked whether it is a valid transcript.
-          <br/>
-          <button onClick={this.markPaymentExamChecked}>Mark Transcript as Checked</button>
-        </div>}
-        {this.state.savedMetaData.has_printonly && <PrintExam title="exam" examtype="printonly" filename={this.props.filename}/>}
-        {this.state.savedMetaData.has_solution && this.state.savedMetaData.solution_printonly &&
-          <PrintExam title="solution" examtype="solution" filename={this.props.filename}/>}
-        {this.state.savedMetaData.legacy_solution &&
+        {this.state.editingMetaData && (
+          <MetaData
+            filename={this.props.filename}
+            savedMetaData={this.state.savedMetaData}
+            onChange={this.metaDataChanged}
+            onFinishEdit={this.toggleEditingMetadataActive}
+          />
+        )}
+        {this.state.savedMetaData.is_payment_exam &&
+          !this.state.savedMetaData.payment_exam_checked && (
+            <div {...styles.checkWrapper}>
+              This is a transcript of an oral exam. It needs to be checked
+              whether it is a valid transcript.
+              <br />
+              <button onClick={this.markPaymentExamChecked}>
+                Mark Transcript as Checked
+              </button>
+            </div>
+          )}
+        {this.state.savedMetaData.has_printonly && (
+          <PrintExam
+            title="exam"
+            examtype="printonly"
+            filename={this.props.filename}
+          />
+        )}
+        {this.state.savedMetaData.has_solution &&
+          this.state.savedMetaData.solution_printonly && (
+            <PrintExam
+              title="solution"
+              examtype="solution"
+              filename={this.props.filename}
+            />
+          )}
+        {this.state.savedMetaData.legacy_solution && (
           <div {...styles.linkBanner}>
-            <a href={this.state.savedMetaData.legacy_solution} target="_blank">Legacy Solution in VISki</a>
-            {this.state.canEdit && [" | ", <a href={"/legacy/transformwiki/" + wikitransform} target="_blank">Transform VISki to Markdown</a>]}
-          </div>}
-        {this.state.savedMetaData.master_solution &&
-        <div {...styles.linkBanner}>
-          <a href={this.state.savedMetaData.master_solution} target="_blank">Official Solution</a>
-        </div>}
-        {this.state.savedMetaData.has_solution && !this.state.savedMetaData.solution_printonly &&
-        <div {...styles.linkBanner}>
-          <a href={"/api/pdf/solution/" + this.props.filename} target="_blank">Official Solution</a>
-        </div>}
-        {this.state.savedMetaData.attachments.map(att =>
-          <div {...styles.linkBanner} key={att.filename}>
-            <a href={"/api/filestore/" + att.filename} target="_blank">{att.displayname}</a>
+            <a href={this.state.savedMetaData.legacy_solution} target="_blank">
+              Legacy Solution in VISki
+            </a>
+            {this.state.canEdit && [
+              " | ",
+              <a
+                href={"/legacy/transformwiki/" + wikitransform}
+                target="_blank"
+              >
+                Transform VISki to Markdown
+              </a>,
+            ]}
           </div>
         )}
-        {(renderer && sections) &&
-          <div style={{width: width}} {...styles.wrapper}>
+        {this.state.savedMetaData.master_solution && (
+          <div {...styles.linkBanner}>
+            <a href={this.state.savedMetaData.master_solution} target="_blank">
+              Official Solution
+            </a>
+          </div>
+        )}
+        {this.state.savedMetaData.has_solution &&
+          !this.state.savedMetaData.solution_printonly && (
+            <div {...styles.linkBanner}>
+              <a
+                href={"/api/pdf/solution/" + this.props.filename}
+                target="_blank"
+              >
+                Official Solution
+              </a>
+            </div>
+          )}
+        {this.state.savedMetaData.attachments.map(att => (
+          <div {...styles.linkBanner} key={att.filename}>
+            <a href={"/api/filestore/" + att.filename} target="_blank">
+              {att.displayname}
+            </a>
+          </div>
+        ))}
+        {(renderer && sections && (
+          <div style={{ width: width }} {...styles.wrapper}>
             {sections.map(e => {
               switch (e.kind) {
                 case SectionKind.Answer:
-                  return <AnswerSectionComponent
-                    key={e.oid}
-                    isAdmin={this.props.isAdmin}
-                    isExpert={this.state.savedMetaData.isExpert}
-                    filename={this.props.filename}
-                    oid={e.oid}
-                    width={width}
-                    canDelete={this.state.canEdit}
-                    onSectionChange={() => this.state.pdf ? this.loadSectionsFromBackend(this.state.pdf.numPages) : false}
-                    onToggleHidden={() => this.toggleHidden(e.oid)}
-                    hidden={e.hidden}
-                    cutVersion={e.cutVersion}
-                  />;
+                  return (
+                    <AnswerSectionComponent
+                      key={e.oid}
+                      isAdmin={this.props.isAdmin}
+                      isExpert={this.state.savedMetaData.isExpert}
+                      filename={this.props.filename}
+                      oid={e.oid}
+                      width={width}
+                      canDelete={this.state.canEdit}
+                      onSectionChange={() =>
+                        this.state.pdf
+                          ? this.loadSectionsFromBackend(
+                              this.state.pdf.numPages,
+                            )
+                          : false
+                      }
+                      onToggleHidden={() => this.toggleHidden(e.oid)}
+                      hidden={e.hidden}
+                      cutVersion={e.cutVersion}
+                    />
+                  );
                 case SectionKind.Pdf:
                   return (
                     <PdfSectionComp
@@ -488,7 +591,11 @@ export default class Exam extends React.Component<Props, State> {
                       dpr={dpr}
                       renderText={!this.state.addingSectionsActive}
                       // ts does not like it if this is undefined...
-                      onClick={(this.state.canEdit && this.state.addingSectionsActive) ? this.addSection : (ev) => ev}
+                      onClick={
+                        this.state.canEdit && this.state.addingSectionsActive
+                          ? this.addSection
+                          : ev => ev
+                      }
                     />
                   );
                 default:
@@ -496,9 +603,7 @@ export default class Exam extends React.Component<Props, State> {
               }
             })}
           </div>
-          ||
-          <p>Loading ...</p>
-        }
+        )) || <p>Loading ...</p>}
       </div>
     );
   }
