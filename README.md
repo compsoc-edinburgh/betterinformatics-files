@@ -53,3 +53,10 @@ Run `visdev test .` in this directory to start the backend
 frontend we started above will proxy all requests to this backend. It uses some
 default login data which is only used for testing. You can change the user which
 is used for these requests in the `package.json` file.
+
+## Editing frontend code
+
+There is an autoformatter for the frontend code
+([https://prettier.io/](prettier)). It can be run once using `yarn run format`.
+If you commit any code which was not autoformatted, then the CI will fail. It
+is convenient to run prettier whenever you save a file using an IDE plugin.
