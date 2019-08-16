@@ -57,6 +57,6 @@ is used for these requests in the `package.json` file.
 ## Editing frontend code
 
 There is an autoformatter for the frontend code
-([https://prettier.io/](prettier)). It can be run once using `yarn run format`.
+([prettier](https://prettier.io/)). It can be run once using `yarn run format`.
 If you commit any code which was not autoformatted, then the CI will fail. It
 is convenient to run prettier whenever you save a file using an IDE plugin.
