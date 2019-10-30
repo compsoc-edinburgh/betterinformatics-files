@@ -12,7 +12,7 @@ RUN yarn run check-format || echo -e '\n\n=========\nSome code has not been auto
 RUN yarn run build
 
 
-FROM registry.vis.ethz.ch/public/base:charlie
+FROM eu.gcr.io/vseth-public/base:charlie
 LABEL maintainer='schmidbe@vis.ethz.ch'
 
 WORKDIR /app
