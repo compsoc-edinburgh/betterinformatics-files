@@ -1,5 +1,4 @@
 variables:
-  VIS_CI_IMAGE_NAME: "cit_cat/community-solutions"
   VIS_CI_APP_NAME: "community-solutions"
   VIS_CI_DEPLOYMENT_SUBDOMAIN: "exams"
   VIS_CI_ENABLE_MONGODB: "true"
