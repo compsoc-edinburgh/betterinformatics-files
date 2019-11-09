@@ -1203,6 +1203,13 @@ def remove_answer(answeroid):
     }})
 
 
+def find_comment_in_answer(comments, comment_oid):
+    for i, comment in enumerate(comments):
+        if comment["_id"] == comment_oid:
+            return i, comment
+    return -1, None
+
+
 @app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
 @login_required
 def add_comment(filename, sectionoid, answeroid):
@@ -1286,12 +1293,9 @@ def set_comment(filename, sectionoid, answeroid):
     }, {
         'answersection.answers.$.comments': 1
     })
-    idx = -1
-    for i, comment in enumerate(maybe_comment["answersection"]["answers"][0]["comments"]):
-        if comment["_id"] == comment_oid:
-            idx = i
-            if comment["authorId"] != username:
-                return not_possible("Comment can not be edited")
+    idx, comment = find_comment_in_answer(maybe_comment["answersection"]["answers"][0]["comments"], comment_oid)
+    if comment["authorId"] != username:
+        return not_possible("Comment can not be edited")
     if idx < 0:
         return not_possible("Comment does not exist")
     answer_sections.update_one({
@@ -1330,7 +1334,8 @@ def remove_comment(filename, sectionoid, answeroid):
     })
     if not maybe_comment:
         return not_possible("Comment does not exist")
-    if maybe_comment["answersection"]["answers"][0]["comments"][0]["authorId"] != username:
+    idx, comment = find_comment_in_answer(maybe_comment["answersection"]["answers"][0]["comments"], comment_oid)
+    if comment["authorId"] != username:
         if request.form.get('admin') != '1' or not has_admin_rights(username):
             return not_possible("Comment can not be removed")
     answer_sections.update_one({
@@ -1344,7 +1349,7 @@ def remove_comment(filename, sectionoid, answeroid):
             "cutVersion": 1
         }
     })
-    adjust_user_score(maybe_comment["answersection"]["answers"][0]["comments"][0]["authorId"], "score_comments", -1)
+    adjust_user_score(comment["authorId"], "score_comments", -1)
     return make_answer_section_response(answer_section_oid)
 
 
