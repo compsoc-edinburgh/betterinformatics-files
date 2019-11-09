@@ -1,5 +1,5 @@
 import sys
-from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify, Response
+from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify, Response, has_request_context
 from flask_httpauth import HTTPBasicAuth
 import json
 from pymongo import MongoClient
@@ -16,6 +16,7 @@ import inspect
 import time
 import random
 import enum
+import logging.config
 
 import grpc
 import people_pb2
@@ -34,6 +35,39 @@ people_channel = grpc.insecure_channel(
 people_client = people_pb2_grpc.PeopleStub(people_channel)
 people_metadata = [("authorization",
                     os.environ["RUNTIME_SERVIS_PEOPLE_API_KEY"])]
+
+
+class RequestFormatter(logging.Formatter):
+    def format(self, record):
+        if has_request_context():
+            record.url = request.url
+            record.path = request.path
+            record.remote_addr = request.remote_addr
+        else:
+            record.url = None
+            record.path = None
+            record.remote_addr = None
+
+        return super().format(record)
+
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': not IS_DEBUG,
+    'formatters': {'default': {
+        'class': 'server.RequestFormatter',
+        'format': '[%(levelname)s] [%(path)s]: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'DEBUG' if IS_DEBUG else 'WARNING',
+        'handlers': ['wsgi']
+    }
+})
 
 app = Flask(__name__, static_url_path="/static")
 auth = HTTPBasicAuth()
@@ -136,7 +170,7 @@ except BucketAlreadyOwnedByYou as err:
 except BucketAlreadyExists as err:
     pass
 except ResponseError as err:
-    print(err)
+    app.logger.error(err)
 
 mongo_db = MongoClient(
     host=os.environ['RUNTIME_MONGO_DB_SERVER'],
@@ -237,7 +271,7 @@ def not_possible(msg):
 
 
 def internal_error(msg):
-    print(msg)
+    app.logger.error(msg)
     return make_json_response({"err": "Internal error"}), 500
 
 
@@ -265,14 +299,12 @@ def verify_pw(username, password):
         if res.ok:
             return True
     except grpc.RpcError as e:
-        # print("Verify Password throws:", e, file=sys.stderr)
         pass
     try:
         res = people_client.AuthVisPerson(req, metadata=people_metadata, timeout=3)
         if res.ok:
             return True
     except grpc.RpcError as e:
-        # print("Verify Password throws:", e, file=sys.stderr)
         pass
     return False
 
@@ -318,7 +350,6 @@ def has_admin_rights(username):
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisPerson(req, metadata=people_metadata)
     except grpc.RpcError as e:
-        # print("RPC error while checking admin rights", e)
         return False
     return any(("vorstand" == group or "cat" == group or "luk" == group or "serviceaccounts" == group) for group in res.vis_groups)
 
@@ -488,7 +519,7 @@ def log_request(response):
 
     now = time.time()
     duration = round(now - g.start, 4)
-    print('Request time for {}: {}s'.format(request.path, duration), file=sys.stderr)
+    app.logger.debug('Request time: %ss', duration)
 
     return response
 
@@ -2883,7 +2914,7 @@ def filestore(filename):
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
-    print('Unhandled Exception', e, traceback.format_exc(), file=sys.stderr)
+    app.logger.error('Unhandled Exception: %s\n%s', e, traceback.format_exc())
     return "Sadly, we experienced an internal Error!", 500
 
 
