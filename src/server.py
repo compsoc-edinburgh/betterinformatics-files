@@ -1,6 +1,6 @@
 import sys
-from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify, Response, has_request_context
-from flask_httpauth import HTTPBasicAuth
+from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify, Response, has_request_context, session
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 import json
 from pymongo import MongoClient
 from functools import wraps
@@ -70,7 +70,8 @@ logging.config.dictConfig({
 })
 
 app = Flask(__name__, static_url_path="/static")
-auth = HTTPBasicAuth()
+auth = LoginManager()
+auth.init_app(app)
 
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 EXAM_DIR = 'exams/'
@@ -154,7 +155,9 @@ CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
-app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
+app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY' if IS_DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET']
+app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+
 # Minio seems to run unsecured on port 80 in the debug environment
 minio_client = Minio(
     os.environ['RUNTIME_MINIO_SERVER'],
@@ -197,6 +200,30 @@ class NotificationType(enum.Enum):
     NEW_ANSWER_TO_ANSWER = 3
 
 
+class User:
+
+    def __init__(self, username):
+        self.username = username
+
+    def is_authenticated(self):
+        return len(self.username) > 0
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return not self.is_authenticated()
+
+    def get_id(self):
+        return self.username
+
+
+@auth.user_loader
+@people_cache.cache(600)
+def load_user(user_id):
+    return User(user_id)
+
+
 def get_argument_value(argument, func, args, kwargs):
     """
     Figure out the value of the given argument for a method call.
@@ -217,7 +244,7 @@ def get_argument_value(argument, func, args, kwargs):
 def require_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        username = auth.username()
+        username = current_user.username
         if not has_admin_rights(username):
             return not_allowed()
         return f(*args, **kwargs)
@@ -228,7 +255,7 @@ def require_admin(f):
 def require_exam_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        username = auth.username()
+        username = current_user.username
         filename = get_argument_value("filename", f, args, kwargs)
         if not filename:
             if not has_admin_rights(username):
@@ -287,11 +314,11 @@ def filter_dict(dictionary, whitelist):
     return filtered
 
 
-@auth.verify_password
 @people_cache.cache(60)
 def verify_pw(username, password):
     if not username or not password:
         return False
+    app.logger.debug("Check password for user %s", username)
     req = people_pb2.AuthPersonRequest(
         password=password, username=username)
     try:
@@ -334,9 +361,9 @@ def get_username_or_legacy(filename):
     :param filename: filename of current exam
     :return: username or '__legacy__' or None if legacy was requested but is not admin
     """
-    if 'legacyuser' in request.form and 'legacyuser' != '0' and has_admin_rights_for_exam(auth.username(), filename):
+    if 'legacyuser' in request.form and 'legacyuser' != '0' and has_admin_rights_for_exam(current_user.username, filename):
         return '__legacy__'
-    return auth.username()
+    return current_user.username
 
 
 @people_cache.cache(60)
@@ -450,7 +477,7 @@ def make_answer_section_response(oid):
     Generates a json response containing all information for the given answer section.
     This includes all answers and comments to this answers.
     """
-    username = auth.username()
+    username = current_user.username
     section = answer_sections.find_one({"_id": oid}, {
         "_id": 1,
         "filename": 1,
@@ -529,7 +556,7 @@ def log_request(response):
 @app.route("/feedback")
 @app.route("/scoreboard")
 @app.route("/modqueue")
-@auth.login_required
+@login_required
 def index():
     return render_template("index.html")
 
@@ -537,7 +564,7 @@ def index():
 @app.route('/exams/<argument>')
 @app.route('/user/<argument>')
 @app.route('/category/<argument>')
-@auth.login_required
+@login_required
 def index_with_argument(argument):
     return index()
 
@@ -547,12 +574,12 @@ def send_tutorial_redirect():
     return redirect('/tutorial/index.html')
 
 @app.route('/tutorial/<path:path>')
-@auth.login_required
+@login_required
 def send_tutorial(path):
     return send_from_directory('tutorial-slides', path)
 
 @app.route('/resolve/<filename>')
-@auth.login_required
+@login_required
 def resolve(filename):
     result = get_resolved_filename(filename)
     if not result:
@@ -612,21 +639,52 @@ def category_exists(category):
     return bool(maybe_category)
 
 
+@app.route("/api/login", methods=['POST'])
+def login():
+    username = request.form.get("username")
+    password = request.form.get("password")
+    if not username or not password:
+        return not_possible("Missing arguments")
+    if verify_pw(username, password):
+        login_user(User(username), remember=True, duration=timedelta(days=14))
+        return success()
+    return not_possible("Wrong username or password")
+
+@app.route("/api/logout", methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return success()
+
+@auth.unauthorized_handler
+def unauthorized():
+    return not_allowed()
+
+
 @app.route("/api/me")
-@auth.login_required
 def get_user():
     """
     Returns information about the currently logged in user.
     """
-    username = auth.username()
-    admin = has_admin_rights(username)
-    admincat = has_admin_rights_for_any_category(username)
-    return success(
-        adminrights=admin,
-        adminrightscat=admin or admincat,
-        username=auth.username(),
-        displayname=get_real_name(auth.username())
-    )
+    if current_user.is_authenticated:
+        username = current_user.username
+        admin = has_admin_rights(username)
+        admincat = has_admin_rights_for_any_category(username)
+        return success(
+            loggedin=True,
+            adminrights=admin,
+            adminrightscat=admin or admincat,
+            username=current_user.username,
+            displayname=get_real_name(current_user.username)
+        )
+    else:
+        return success(
+            loggedin=False,
+            adminrights=False,
+            adminrightscat=False,
+            username='',
+            displayname='Not Authorized',
+        )
 
 
 ########################################################################################################################
@@ -635,7 +693,7 @@ def get_user():
 
 
 @app.route("/api/listexams")
-@auth.login_required
+@login_required
 def list_exams():
     """
     Returns a list of all exams
@@ -644,9 +702,9 @@ def list_exams():
 
 
 @app.route("/api/listimportexams")
-@auth.login_required
+@login_required
 def list_import_exams():
-    username = auth.username()
+    username = current_user.username
     conditions = [
         {"finished_cuts": False},
         {"finished_wiki_transfer": False},
@@ -687,7 +745,7 @@ def list_import_exams():
 
 
 @app.route("/api/listpaymentcheckexams")
-@auth.login_required
+@login_required
 @require_admin
 def list_payment_check_exams():
     exams = exam_metadata.find({
@@ -704,7 +762,7 @@ def list_payment_check_exams():
 
 
 @app.route('/api/listflagged')
-@auth.login_required
+@login_required
 @require_admin
 def list_flagged():
     sections = answer_sections.find({
@@ -722,7 +780,7 @@ def list_flagged():
 
 
 @app.route("/api/exam/<filename>/cuts")
-@auth.login_required
+@login_required
 def get_cuts(filename):
     """
     Returns all cuts for the file 'filename'.
@@ -749,7 +807,7 @@ def get_cuts(filename):
 
 
 @app.route("/api/exam/<filename>/answersection/<oid>")
-@auth.login_required
+@login_required
 def get_answer_section(filename, oid):
     """
     Returns the answersection with the given oid.
@@ -759,7 +817,7 @@ def get_answer_section(filename, oid):
 
 
 @app.route("/api/exam/<filename>/cutversions")
-@auth.login_required
+@login_required
 def get_answer_section_cutversions(filename):
     results = answer_sections.find({
         "filename": filename
@@ -774,14 +832,14 @@ def get_answer_section_cutversions(filename):
 
 
 @app.route("/api/exam/<filename>/newanswersection", methods=['POST'])
-@auth.login_required
+@login_required
 @require_exam_admin
 def new_answer_section(filename):
     """
     Adds a new answersection to 'filename'.
     POST Parameters 'pageNum' and 'relHeight'.
     """
-    username = auth.username()
+    username = current_user.username
     page_num = request.form.get("pageNum", None)
     rel_height = request.form.get("relHeight", None)
     if page_num is None or rel_height is None:
@@ -816,7 +874,7 @@ def new_answer_section(filename):
 
 
 @app.route("/api/exam/<filename>/removeanswersection", methods=['POST'])
-@auth.login_required
+@login_required
 @require_exam_admin
 def remove_answer_section(filename):
     """
@@ -847,7 +905,7 @@ def remove_answer_section(filename):
 
 
 @app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=['POST'])
-@auth.login_required
+@login_required
 def set_like(filename, sectionoid, answeroid):
     """
     Sets the like for the given answer in the given section.
@@ -855,7 +913,7 @@ def set_like(filename, sectionoid, answeroid):
     """
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
-    username = auth.username()
+    username = current_user.username
     like = int(request.form.get("like", "0"))
     section = answer_sections.find_one({
         "answersection.answers._id": answer_oid
@@ -902,13 +960,13 @@ def set_like(filename, sectionoid, answeroid):
 
 
 @app.route('/api/exam/<filename>/setexpertvote/<sectionoid>/<answeroid>', methods=['POST'])
-@auth.login_required
+@login_required
 def set_expertvote(filename, sectionoid, answeroid):
     """
     Sets the expertvote for the given answer in the given section.
     POST Parameter 'vote' is 0/1
     """
-    username = auth.username()
+    username = current_user.username
     if not is_expert_for_exam(username, filename):
         return not_allowed()
     answer_section_oid = ObjectId(sectionoid)
@@ -928,13 +986,13 @@ def set_expertvote(filename, sectionoid, answeroid):
 
 
 @app.route('/api/exam/<filename>/setflagged/<sectionoid>/<answeroid>', methods=['POST'])
-@auth.login_required
+@login_required
 def set_flagged(filename, sectionoid, answeroid):
     """
     Sets the flagged for the given answer in the given section.
     POST Parameter 'flagged' is 0/1
     """
-    username = auth.username()
+    username = current_user.username
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
     flagged = int(request.form.get("flagged", "0"))
@@ -952,13 +1010,13 @@ def set_flagged(filename, sectionoid, answeroid):
 
 
 @app.route('/api/exam/<filename>/resetflagged/<sectionoid>/<answeroid>', methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def reset_flagged(filename, sectionoid, answeroid):
     """
     Resets the flagged array.
     """
-    username = auth.username()
+    username = current_user.username
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
     answer_sections.update_one({
@@ -975,7 +1033,7 @@ def reset_flagged(filename, sectionoid, answeroid):
 
 
 @app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
-@auth.login_required
+@login_required
 def add_answer(filename, sectionoid):
     """
     Adds an empty answer for the given section for the current user.
@@ -1018,12 +1076,12 @@ def add_answer(filename, sectionoid):
     adjust_user_score(username, "score_answers", 1)
 
     if username == "__legacy__":
-        adjust_user_score(auth.username(), "score_legacy", 1)
+        adjust_user_score(current_user.username, "score_legacy", 1)
     return make_answer_section_response(answer_section_oid)
 
 
 @app.route("/api/exam/<filename>/setanswer/<sectionoid>", methods=['POST'])
-@auth.login_required
+@login_required
 def set_answer(filename, sectionoid):
     """
     Sets the answer for the given section for the current user.
@@ -1084,7 +1142,7 @@ def set_answer(filename, sectionoid):
 
 
 @app.route("/api/exam/<filename>/removeanswer/<sectionoid>", methods=['POST'])
-@auth.login_required
+@login_required
 def remove_answer_api(filename, sectionoid):
     """
     Delete the answer for the current user for the section.
@@ -1105,7 +1163,7 @@ def remove_answer_api(filename, sectionoid):
 
 
 @app.route('/api/exam/<filename>/adminremoveanswer/<sectionoid>/<answeroid>', methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def remove_answer_admin_api(filename, sectionoid, answeroid):
     remove_answer(ObjectId(answeroid))
@@ -1142,7 +1200,7 @@ def remove_answer(answeroid):
 
 
 @app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
-@auth.login_required
+@login_required
 def add_comment(filename, sectionoid, answeroid):
     """
     Add comment to given answer.
@@ -1150,7 +1208,7 @@ def add_comment(filename, sectionoid, answeroid):
     """
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
-    username = auth.username()
+    username = current_user.username
     text = request.form.get("text", None)
     if not text:
         return not_possible("Missing argument")
@@ -1203,7 +1261,7 @@ def add_comment(filename, sectionoid, answeroid):
 
 
 @app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=['POST'])
-@auth.login_required
+@login_required
 def set_comment(filename, sectionoid, answeroid):
     """
     Set the text for the comment with the given id.
@@ -1218,7 +1276,7 @@ def set_comment(filename, sectionoid, answeroid):
     text = request.form.get("text", None)
     if text is None:
         return not_possible("Missing argument")
-    username = auth.username()
+    username = current_user.username
     maybe_comment = answer_sections.find_one({
         'answersection.answers._id': answer_oid
     }, {
@@ -1246,7 +1304,7 @@ def set_comment(filename, sectionoid, answeroid):
 
 
 @app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=['POST'])
-@auth.login_required
+@login_required
 def remove_comment(filename, sectionoid, answeroid):
     """
     Remove the comment with the given id.
@@ -1260,7 +1318,7 @@ def remove_comment(filename, sectionoid, answeroid):
         return not_possible("Missing argument")
     comment_oid = ObjectId(oid_str)
 
-    username = auth.username()
+    username = current_user.username
     maybe_comment = answer_sections.find_one({
         'answersection.answers.comments._id': comment_oid
     }, {
@@ -1287,14 +1345,14 @@ def remove_comment(filename, sectionoid, answeroid):
 
 
 @app.route("/api/exam/<filename>/claim", methods=['POST'])
-@auth.login_required
+@login_required
 @require_exam_admin
 def claim_exam_api(filename):
     """
     Claims an exam for importing
     POST Parameter 'claim' is 0/1 to add/remove claim
     """
-    username = auth.username()
+    username = current_user.username
     metadata = exam_metadata.find_one({
         "filename": filename,
     }, {
@@ -1344,7 +1402,7 @@ def release_exam_claim(filename):
 
 
 @app.route("/api/exam/<filename>/metadata")
-@auth.login_required
+@login_required
 def get_exam_metadata(filename):
     """
     Returns all stored metadata for the given exam file
@@ -1360,7 +1418,7 @@ def get_exam_metadata(filename):
     for key in EXAM_METADATA_SETS:
         if not metadata[key]:
             metadata[key] = []
-    username = auth.username()
+    username = current_user.username
     metadata["canEdit"] = has_admin_rights_for_category(username, metadata.get("category"))
     metadata["isExpert"] = is_expert_for_category(username, metadata.get("category"))
     metadata["hasPayed"] = has_payed(username)
@@ -1369,7 +1427,7 @@ def get_exam_metadata(filename):
 
 
 @app.route("/api/exam/<filename>/metadata", methods=['POST'])
-@auth.login_required
+@login_required
 @require_exam_admin
 def set_exam_metadata_api(filename):
     """
@@ -1378,7 +1436,7 @@ def set_exam_metadata_api(filename):
     """
     metadata = request.form.copy()
     if "category" in metadata:
-        if not has_admin_rights_for_category(auth.username(), metadata["category"]):
+        if not has_admin_rights_for_category(current_user.username, metadata["category"]):
             return not_allowed()
         if not category_exists(metadata["category"]):
             return not_possible("Category does not exist")
@@ -1420,7 +1478,7 @@ def set_exam_metadata(filename, metadata):
 
 
 @app.route("/api/exam/<filename>/addtoset", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def exam_addtoset(filename):
     """
@@ -1448,7 +1506,7 @@ def exam_addtoset(filename):
 
 
 @app.route("/api/exam/<filename>/pullset", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def exam_pullset(filename):
     """
@@ -1487,14 +1545,14 @@ def get_resolved_filename(resolve_alias):
 
 
 @app.route("/api/listexamtypes")
-@auth.login_required
+@login_required
 def get_examtypes():
     types = list(exam_metadata.distinct("examtype", {}))
     return success(value=types)
 
 
 @app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def payment_exam_mark_checked(filename):
     metadata = exam_metadata.find_one({
@@ -1528,7 +1586,7 @@ def payment_exam_mark_checked(filename):
 
 
 @app.route("/api/exam/<filename>/remove", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def remove_exam(filename):
     answer_sections.delete_many({
@@ -1567,7 +1625,7 @@ def adjust_exam_count(find, **keys):
 ########################################################################################################################
 
 @app.route("/api/listcategories")
-@auth.login_required
+@login_required
 def list_categories():
     """
     Lists all available categories sorted by name
@@ -1578,7 +1636,7 @@ def list_categories():
 
 
 @app.route("/api/listcategories/onlypayment")
-@auth.login_required
+@login_required
 def list_categories_only_payment():
     """
     Lists all available categories sorted by name
@@ -1593,12 +1651,12 @@ def list_categories_only_payment():
 
 
 @app.route("/api/listcategories/onlyadmin")
-@auth.login_required
+@login_required
 def list_categories_only_admin():
     """
     Lists all available categories sorted by name filtered for admin permission by current user
     """
-    username = auth.username()
+    username = current_user.username
     return success(value=list(sorted(
         filter(lambda x: has_admin_rights_for_category(username, x),
             map(lambda x: x["category"], category_metadata.find({}, {"category": 1}))
@@ -1606,7 +1664,7 @@ def list_categories_only_admin():
 
 
 @app.route("/api/listcategories/withmeta")
-@auth.login_required
+@login_required
 def list_categories_with_meta():
     categories = list(sorted(
         category_metadata.find({}, {
@@ -1662,7 +1720,7 @@ def get_category_exams(category):
     }))
 
     for exam in exams:
-        exam["canView"] = can_view_exam(auth.username(), exam["filename"], metadata=exam)
+        exam["canView"] = can_view_exam(current_user.username, exam["filename"], metadata=exam)
     exams.sort(key=lambda x: exam_sort_key(x["displayname"]), reverse=True)
     return exams
 
@@ -1703,7 +1761,7 @@ def resolve_category_slug(slug):
 
 
 @app.route("/api/category/add", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def add_category():
     """
@@ -1727,7 +1785,7 @@ def add_category():
 
 
 @app.route("/api/category/remove", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def remove_category():
     """
@@ -1749,7 +1807,7 @@ def remove_category():
 
 
 @app.route("/api/category/addtoset", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def category_addtoset():
     """
@@ -1779,7 +1837,7 @@ def category_addtoset():
 
 
 @app.route("/api/category/pullset", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def category_pullset():
     """
@@ -1809,7 +1867,7 @@ def category_pullset():
 
 
 @app.route("/api/category/list")
-@auth.login_required
+@login_required
 def list_category():
     """
     Lists all exams belonging to the category
@@ -1822,7 +1880,7 @@ def list_category():
 
 
 @app.route("/api/category/metadata")
-@auth.login_required
+@login_required
 def get_category_metadata():
     """
     Returns all stored metadata for the given category
@@ -1836,14 +1894,14 @@ def get_category_metadata():
     })
     if not metadata:
         return not_found()
-    if not has_admin_rights_for_category(auth.username(), category):
+    if not has_admin_rights_for_category(current_user.username, category):
         for key in ["admins", "experts"]:
             if key in metadata:
                 del metadata[key]
     for key in CATEGORY_METADATA + CATEGORY_METADATA_SETS:
         if key not in metadata:
             metadata[key] = ""
-    metadata["catadmin"] = auth.username() in metadata["admins"]
+    metadata["catadmin"] = current_user.username in metadata["admins"]
     for key in CATEGORY_METADATA_SETS:
         if not metadata[key]:
             metadata[key] = []
@@ -1851,7 +1909,7 @@ def get_category_metadata():
 
 
 @app.route("/api/category/metadata", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def set_category_metadata_api():
     """
@@ -1887,7 +1945,7 @@ def set_category_metadata(category, metadata):
 ########################################################################################################################
 
 @app.route("/api/listmetacategories")
-@auth.login_required
+@login_required
 def list_meta_categories():
     """
     List all meta categories with all categories belonging to them.
@@ -1933,7 +1991,7 @@ def meta_category_ensure_existence(meta1, meta2):
 
 
 @app.route("/api/metacategory/setorder", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def meta_category_set_order():
     """
@@ -1971,7 +2029,7 @@ def meta_category_set_order():
 
 
 @app.route("/api/metacategory/addcategory", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def meta_category_add_category():
     """
@@ -1998,7 +2056,7 @@ def meta_category_add_category():
 
 
 @app.route("/api/metacategory/removecategory", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def meta_category_remove_category():
     """
@@ -2058,18 +2116,18 @@ def check_image_author(filename):
     }, {
         "authorId": 1
     })
-    if not author or author["authorId"] != auth.username():
+    if not author or author["authorId"] != current_user.username:
         return False
     return True
 
 
 @app.route("/api/image/list")
-@auth.login_required
+@login_required
 def list_images():
     """
     Lists the images for the current user
     """
-    username = auth.username()
+    username = current_user.username
     results = image_metadata.find({
         "authorId": username
     }, {
@@ -2079,7 +2137,7 @@ def list_images():
 
 
 @app.route("/api/image/<filename>/remove", methods=['POST'])
-@auth.login_required
+@login_required
 def remove_image(filename):
     """
     Delete the image with the given filename
@@ -2094,7 +2152,7 @@ def remove_image(filename):
 
 
 @app.route("/api/image/<filename>/metadata")
-@auth.login_required
+@login_required
 def get_image_metadata(filename):
     """
     Returns all stored metadata for the given image file
@@ -2118,7 +2176,7 @@ def init_image_metadata(filename):
 
 
 @app.route("/api/image/<filename>/metadata", methods=['POST'])
-@auth.login_required
+@login_required
 def set_image_metadata_api(filename):
     """
     Set the metadata for the given image file
@@ -2150,7 +2208,7 @@ def set_image_metadata(filename, metadata):
 ########################################################################################################################
 
 @app.route("/api/userinfo/<username>")
-@auth.login_required
+@login_required
 def get_user_info(username):
     init_user_data_if_not_found(username)
     user = user_data.find_one({
@@ -2170,7 +2228,7 @@ def get_user_info(username):
 
 
 @app.route("/api/scoreboard/<scoretype>")
-@auth.login_required
+@login_required
 def get_user_scoreboard(scoretype):
     if scoretype not in ["score", "score_answers", "score_comments", "score_cuts", "score_legacy"]:
         return not_found()
@@ -2234,9 +2292,9 @@ def is_notification_enabled(username, type):
 
 
 @app.route("/api/notifications/getenabled")
-@auth.login_required
+@login_required
 def get_notification_enabled():
-    username = auth.username()
+    username = current_user.username
     init_user_data_if_not_found(username)
     enabled = user_data.find_one({
         "username": username
@@ -2249,9 +2307,9 @@ def get_notification_enabled():
 
 
 @app.route("/api/notifications/setenabled", methods=['POST'])
-@auth.login_required
+@login_required
 def set_notification_enabled():
-    username = auth.username()
+    username = current_user.username
     init_user_data_if_not_found(username)
     enabled = request.form.get("enabled", "0") != "0"
     type = int(request.form.get("type", -1))
@@ -2268,7 +2326,7 @@ def set_notification_enabled():
 
 
 def get_notifications(only_unread):
-    username = auth.username()
+    username = current_user.username
     query = {
         "username": username
     }
@@ -2287,27 +2345,27 @@ def get_notifications(only_unread):
 
 
 @app.route("/api/notifications/unread")
-@auth.login_required
+@login_required
 def get_notifications_unread():
     return success(value=get_notifications(True))
 
 
 @app.route("/api/notifications/unreadcount")
-@auth.login_required
+@login_required
 def get_notifications_unread_count():
     return success(value=len(get_notifications(True)))
 
 
 @app.route("/api/notifications/all")
-@auth.login_required
+@login_required
 def get_notifications_all():
     return success(value=get_notifications(False))
 
 
 @app.route("/api/notifications/setread", methods=['POST'])
-@auth.login_required
+@login_required
 def set_notification_read():
-    username = auth.username()
+    username = current_user.username
     read = request.form.get("read", "0") != "0"
     user_data.update_one({
         "username": username,
@@ -2352,7 +2410,7 @@ def send_user_notification(username, type, sender, title, message, link):
 ########################################################################################################################
 
 @app.route("/api/payment/pay", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def add_payment_api():
     """
@@ -2388,7 +2446,7 @@ def add_payment(username):
 
 
 @app.route("/api/payment/remove", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def remove_payment():
     oid = request.form.get('oid')
@@ -2404,7 +2462,7 @@ def remove_payment():
 
 
 @app.route("/api/payment/refund", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def refund_payment():
     oid = request.form.get('oid')
@@ -2498,7 +2556,7 @@ def has_payed(username):
 
 
 @app.route("/api/payment/query/<username>")
-@auth.login_required
+@login_required
 @require_admin
 def payment_query(username):
     """
@@ -2508,12 +2566,12 @@ def payment_query(username):
 
 
 @app.route("/api/payment/me")
-@auth.login_required
+@login_required
 def payment_query_me():
     """
     List all payments for the current user.
     """
-    return success(value=get_user_payments(auth.username()))
+    return success(value=get_user_payments(current_user.username))
 
 
 ########################################################################################################################
@@ -2521,14 +2579,14 @@ def payment_query_me():
 ########################################################################################################################
 
 @app.route("/api/feedback/submit", methods=['POST'])
-@auth.login_required
+@login_required
 def submit_feedback():
     """
     Add new feedback.
     POST Parameter 'text'
     """
     text = request.form["text"]
-    username = auth.username()
+    username = current_user.username
     feedback.insert_one({
         "_id": ObjectId(),
         "text": text,
@@ -2542,7 +2600,7 @@ def submit_feedback():
 
 
 @app.route("/api/feedback/list")
-@auth.login_required
+@login_required
 @require_admin
 def get_feedback():
     """
@@ -2558,7 +2616,7 @@ def get_feedback():
 
 
 @app.route("/api/feedback/<feedbackid>/flags", methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def set_feedback_flags(feedbackid):
     """
@@ -2595,7 +2653,7 @@ def generate_filename(length, directory, extension):
 
 
 @app.route("/api/uploadpdf/<pdftype>", methods=['POST'])
-@auth.login_required
+@login_required
 def uploadpdf(pdftype):
     """
     Allows uploading a new pdf or replacing an existing one.
@@ -2607,7 +2665,7 @@ def uploadpdf(pdftype):
     """
     if pdftype not in ['exam', 'printonly', 'solution', 'payment_exam']:
         return not_possible('Unknown pdf type')
-    username = auth.username()
+    username = current_user.username
 
     file = request.files.get('file', None)
     orig_filename = file.filename
@@ -2684,7 +2742,7 @@ def uploadpdf(pdftype):
 
 
 @app.route("/api/removepdf/<pdftype>", methods=['POST'])
-@auth.login_required
+@login_required
 def removepdf(pdftype):
     """
     Removes the pdf from storage.
@@ -2693,7 +2751,7 @@ def removepdf(pdftype):
     """
     if pdftype not in ['printonly', 'solution']:
         return not_possible('Unknown pdf type')
-    username = auth.username()
+    username = current_user.username
     filename = request.form.get('filename')
     if not filename or not has_admin_rights_for_exam(username, filename):
         return not_allowed()
@@ -2705,7 +2763,7 @@ def removepdf(pdftype):
 
 
 @app.route("/api/uploadimg", methods=['POST'])
-@auth.login_required
+@login_required
 def uploadimg():
     """
     Allows uploading an image.
@@ -2721,12 +2779,12 @@ def uploadimg():
     file.save(temp_file_path)
     minio_client.fput_object(minio_bucket, IMAGE_DIR + filename, temp_file_path)
     init_image_metadata(filename)
-    set_image_metadata(filename, {"authorId": auth.username(), "displayname": file.filename})
+    set_image_metadata(filename, {"authorId": current_user.username, "displayname": file.filename})
     return success(filename=filename)
 
 
 @app.route('/api/uploadfilestore', methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def uploadfilestore():
     file = request.files.get('file', None)
@@ -2748,7 +2806,7 @@ def uploadfilestore():
 
 
 @app.route('/api/filestore/remove/<filename>', methods=['POST'])
-@auth.login_required
+@login_required
 @require_admin
 def removefilestore(filename):
     try:
@@ -2759,7 +2817,7 @@ def removefilestore(filename):
 
 
 @app.route("/api/pdf/<pdftype>/<filename>")
-@auth.login_required
+@login_required
 def pdf(pdftype, filename):
     """
     Get the pdf for the filename of the given type
@@ -2779,7 +2837,7 @@ def pdf(pdftype, filename):
     if not metadata:
         return not_found()
     is_printonly = pdftype in ['printonly'] or (pdftype in ['solution'] and metadata.get("solution_printonly"))
-    username = auth.username()
+    username = current_user.username
     if is_printonly and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     if not can_view_exam(username, filename):
@@ -2793,7 +2851,7 @@ def pdf(pdftype, filename):
 
 
 @app.route("/api/printpdf/<pdftype>/<filename>", methods=['POST'])
-@auth.login_required
+@login_required
 def print_pdf(pdftype, filename):
     """
     Print the pdf
@@ -2810,7 +2868,7 @@ def print_pdf(pdftype, filename):
     })
     if not metadata:
         return not_found()
-    username = auth.username()
+    username = current_user.username
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     if metadata.get("needs_payment", False) and not has_admin_rights_for_exam(username, filename):
@@ -2832,7 +2890,7 @@ def print_pdf(pdftype, filename):
 
 
 @app.route("/api/img/<filename>")
-@auth.login_required
+@login_required
 def image(filename):
     """
     Get the image for the filename
@@ -2845,7 +2903,7 @@ def image(filename):
 
 
 @app.route("/api/filestore/<filename>")
-@auth.login_required
+@login_required
 def filestore(filename):
     """"
     Get the file for the filename

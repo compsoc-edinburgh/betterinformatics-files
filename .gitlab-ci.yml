@@ -50,6 +50,11 @@ cleanup:
       - prod
 
 .auto_devops: &auto_devops |
+  export VIS_CI_HELM_EXTRA_ARGS="\
+    --set envVariables[0].name=RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET \
+    --set envVariables[0].secretName=community-solutions-session-secret \
+    --set envVariables[0].secretKey=value\
+    "
   git clone --depth 1 git@gitlab.ethz.ch:vis/cit/ci-framework.git
   source ci-framework/ciscript.sh
 

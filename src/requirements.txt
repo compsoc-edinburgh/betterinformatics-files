@@ -1,4 +1,4 @@
-Flask-HTTPAuth==3.2.3
+flask-login==0.4.1
 grpcio-tools==1.9.1
 pymongo==3.7.2
 flask==1.0.2

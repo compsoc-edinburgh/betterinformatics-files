@@ -60,12 +60,18 @@ const styles = {
   paymentInactive: css({
     color: colors.inactiveElement,
   }),
+  logoutText: css({
+    marginLeft: "10px",
+    cursor: "pointer",
+    fontSize: "medium",
+  })
 };
 
 interface Props {
   isMyself: boolean;
   isAdmin: boolean;
   username: string;
+  userinfoChanged: () => void;
 }
 
 interface State {
@@ -294,12 +300,22 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       });
   };
 
+  logoutUser = () => {
+    fetchpost("/api/logout", {})
+      .then(() => {
+        this.props.userinfoChanged();
+      });
+  };
+
   render() {
     return (
       <div {...styles.wrapper}>
         {this.state.error && <div>{this.state.error}</div>}
         <div {...styles.card}>
-          <h1>{this.state.userInfo.displayName}</h1>
+          <h1>
+            {this.state.userInfo.displayName}
+            {this.props.isMyself && <span onClick={this.logoutUser} {...styles.logoutText}>(Logout)</span>}
+          </h1>
           <div {...styles.scoreWrapper}>
             <div {...styles.score}>
               <div>Score</div>

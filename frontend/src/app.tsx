@@ -15,6 +15,7 @@ import ModQueue from "./pages/modqueue";
 import SubmitTranscript from "./pages/submittranscript";
 import colors from "./colors";
 import globalcss from "./globalcss";
+import LoginForm from "./components/loginform";
 
 css.global("body", {
   fontFamily:
@@ -97,6 +98,7 @@ const styles = {
 };
 
 interface State {
+  loggedin: boolean;
   username: string;
   displayname: string;
   isAdmin: boolean;
@@ -105,6 +107,7 @@ interface State {
 
 export default class App extends React.Component<{}, State> {
   state: State = {
+    loggedin: false,
     username: "",
     displayname: "",
     isAdmin: false,
@@ -112,9 +115,14 @@ export default class App extends React.Component<{}, State> {
   };
 
   componentDidMount() {
+    this.loadMe();
+  }
+
+  loadMe = () => {
     fetchapi("/api/me")
       .then(res =>
         this.setState({
+          loggedin: res.loggedin,
           username: res.username,
           displayname: res.displayname,
           isAdmin: res.adminrights,
@@ -122,7 +130,7 @@ export default class App extends React.Component<{}, State> {
         }),
       )
       .catch(() => undefined);
-  }
+  };
 
   render() {
     return (
@@ -132,7 +140,8 @@ export default class App extends React.Component<{}, State> {
           displayName={this.state.displayname || "loading..."}
         />
         <div {...styles.inner}>
-          <Switch>
+          {!this.state.loggedin && <LoginForm userinfoChanged={this.loadMe}/>}
+          {this.state.loggedin && <Switch>
             <Route
               path="/exams/:filename"
               render={props => (
@@ -151,6 +160,7 @@ export default class App extends React.Component<{}, State> {
                   isMyself={this.state.username === props.match.params.username}
                   isAdmin={this.state.isAdmin}
                   username={props.match.params.username}
+                  userinfoChanged={this.loadMe}
                 />
               )}
             />
@@ -194,7 +204,7 @@ export default class App extends React.Component<{}, State> {
                 />
               )}
             />
-          </Switch>
+          </Switch>}
         </div>
       </div>
     );
