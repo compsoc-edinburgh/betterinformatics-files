@@ -27,7 +27,7 @@ import ethprint
 import legacy_importer
 import people_cache
 
-IS_DEBUG = os.environ['RUNTIME_MONGO_DB_USER'] == 'docker'
+IS_DEBUG = os.environ['RUNTIME_MONGO_DB_PW'] == 'docker'
 
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
