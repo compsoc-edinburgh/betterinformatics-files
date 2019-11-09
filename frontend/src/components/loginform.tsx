@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import {fetchpost} from "../fetch-utils";
+import { fetchpost } from "../fetch-utils";
 
 interface Props {
   userinfoChanged: () => void;
@@ -20,12 +20,12 @@ const styles = {
   form: css({
     marginTop: "100px",
     "& input": {
-      width: "100%"
+      width: "100%",
     },
     "& button": {
-      width: "100%"
-    }
-  })
+      width: "100%",
+    },
+  }),
 };
 
 export default class LoginForm extends React.Component<Props> {
@@ -38,13 +38,16 @@ export default class LoginForm extends React.Component<Props> {
   loginUser = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost("/api/login", {username: this.state.username, password: this.state.password})
+    fetchpost("/api/login", {
+      username: this.state.username,
+      password: this.state.password,
+    })
       .then(() => {
         this.props.userinfoChanged();
       })
       .catch(err => {
         this.setState({
-          error: err.toString()
+          error: err.toString(),
         });
       });
   };
@@ -56,17 +59,17 @@ export default class LoginForm extends React.Component<Props> {
         <form {...styles.form} onSubmit={this.loginUser}>
           <div>
             <input
-              onChange={ev => this.setState({username: ev.target.value})}
+              onChange={ev => this.setState({ username: ev.target.value })}
               value={this.state.username}
               type="text"
               placeholder="username"
               autoFocus={true}
               required
-              />
+            />
           </div>
           <div>
             <input
-              onChange={ev => this.setState({password: ev.target.value})}
+              onChange={ev => this.setState({ password: ev.target.value })}
               value={this.state.password}
               type="password"
               placeholder="password"
@@ -77,12 +80,16 @@ export default class LoginForm extends React.Component<Props> {
             <button type="submit">Login</button>
           </div>
         </form>
-        {window.location.hostname === 'localhost' && <div>
-          <p><b>Possible Debug Logins</b></p>
-          <p>schneij : UOmtnC7{'{'}'%G</p>
-          <p>fletchz : 123456abc</p>
-          <p>morica : admin666</p>
-        </div>}
+        {window.location.hostname === "localhost" && (
+          <div>
+            <p>
+              <b>Possible Debug Logins</b>
+            </p>
+            <p>schneij : UOmtnC7{"{"}'%G</p>
+            <p>fletchz : 123456abc</p>
+            <p>morica : admin666</p>
+          </div>
+        )}
       </div>
     );
   }

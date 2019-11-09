@@ -64,7 +64,7 @@ const styles = {
     marginLeft: "10px",
     cursor: "pointer",
     fontSize: "medium",
-  })
+  }),
 };
 
 interface Props {
@@ -301,10 +301,9 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   logoutUser = () => {
-    fetchpost("/api/logout", {})
-      .then(() => {
-        this.props.userinfoChanged();
-      });
+    fetchpost("/api/logout", {}).then(() => {
+      this.props.userinfoChanged();
+    });
   };
 
   render() {
@@ -314,7 +313,11 @@ export default class UserInfoComponent extends React.Component<Props, State> {
         <div {...styles.card}>
           <h1>
             {this.state.userInfo.displayName}
-            {this.props.isMyself && <span onClick={this.logoutUser} {...styles.logoutText}>(Logout)</span>}
+            {this.props.isMyself && (
+              <span onClick={this.logoutUser} {...styles.logoutText}>
+                (Logout)
+              </span>
+            )}
           </h1>
           <div {...styles.scoreWrapper}>
             <div {...styles.score}>
@@ -450,13 +453,13 @@ export default class UserInfoComponent extends React.Component<Props, State> {
                     ))}
                   </ul>
                 )}
-                {this.props.isAdmin && this.state.payments.filter(payment => payment.active).length === 0 && (
-                  <div>
-                    <button onClick={this.addPayment}>
-                      Add Payment
-                    </button>
-                  </div>
-                )}
+                {this.props.isAdmin &&
+                  this.state.payments.filter(payment => payment.active)
+                    .length === 0 && (
+                    <div>
+                      <button onClick={this.addPayment}>Add Payment</button>
+                    </div>
+                  )}
               </div>
             </div>
           )}
