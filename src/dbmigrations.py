@@ -341,7 +341,7 @@ def clean_up_empty_answers(mongo_db):
 
 def change_payments(mongo_db):
     print("Migrate 'change payments'", file=sys.stderr)
-    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1, "needs_payment": 1, "payment_category": 1}))
     for exam in exams:
         needs_payment = exam.get("needs_payment", False) or len(exam.get("payment_category", "")) > 0
         mongo_db.exammetadata.update_one({
@@ -411,7 +411,6 @@ def do_migrate(mongo_db):
         for i in range(DB_VERSION):
             if version <= i:
                 MIGRATIONS[i](mongo_db)
-        change_payments(mongo_db)
         remove_broken_users(mongo_db)
         fcntl.lockf(f, fcntl.LOCK_UN)
 
