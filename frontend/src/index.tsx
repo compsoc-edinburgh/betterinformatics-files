@@ -2,14 +2,14 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import App from "./app";
 //import registerServiceWorker from "./register-service-worker";
-import {BrowserRouter} from "react-router-dom";
-import {css} from "glamor";
+import { BrowserRouter } from "react-router-dom";
+import { css } from "glamor";
 
-css.global("body", {margin: 0});
+css.global("body", { margin: 0 });
 
 ReactDOM.render(
   <BrowserRouter>
-    <App/>
+    <App />
   </BrowserRouter>,
   document.getElementById("root") as HTMLElement,
 );
