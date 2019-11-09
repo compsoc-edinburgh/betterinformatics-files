@@ -373,6 +373,8 @@ def has_admin_rights(username):
     :param username: the user to check
     :return: True iff the user has global admin rights
     """
+    if session.get("simulate_nonadmin") == "1":
+        return False
     try:
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisPerson(req, metadata=people_metadata)
@@ -641,12 +643,14 @@ def category_exists(category):
 
 @app.route("/api/login", methods=['POST'])
 def login():
-    username = request.form.get("username")
+    username = request.form.get("username").lower()
     password = request.form.get("password")
     if not username or not password:
         return not_possible("Missing arguments")
     if verify_pw(username, password):
         login_user(User(username), remember=True, duration=timedelta(days=14))
+        has_admin_rights.reset_cache(username)
+        session["simulate_nonadmin"] = request.form.get("simulate_nonadmin", "")[:1]
         return success()
     return not_possible("Wrong username or password")
 

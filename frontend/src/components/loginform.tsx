@@ -35,13 +35,16 @@ export default class LoginForm extends React.Component<Props> {
     error: "",
   };
 
-  loginUser = (ev: React.FormEvent<HTMLFormElement>) => {
+  loginUser = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
-
-    fetchpost("/api/login", {
+    
+    let data = {
       username: this.state.username,
       password: this.state.password,
-    })
+      simulate_nonadmin: ev.shiftKey ? "1" : "",
+    };
+
+    fetchpost("/api/login", data)
       .then(() => {
         this.props.userinfoChanged();
       })
@@ -56,7 +59,7 @@ export default class LoginForm extends React.Component<Props> {
     return (
       <div {...styles.wrapper}>
         {this.state.error && <div>{this.state.error}</div>}
-        <form {...styles.form} onSubmit={this.loginUser}>
+        <form {...styles.form}>
           <div>
             <input
               onChange={ev => this.setState({ username: ev.target.value })}
@@ -77,7 +80,7 @@ export default class LoginForm extends React.Component<Props> {
             />
           </div>
           <div>
-            <button type="submit">Login</button>
+            <button type="submit" onClick={this.loginUser}>Login</button>
           </div>
         </form>
         {window.location.hostname === "localhost" && (
