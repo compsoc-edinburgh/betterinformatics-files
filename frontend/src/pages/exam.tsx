@@ -306,7 +306,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   gotoPDF = () => {
-    window.open(`/api/pdf/exam/${this.props.filename}`, "_blank");
+    window.open(`/api/pdf/exam/${this.props.filename}?download`, "_blank");
   };
 
   reportProblem = () => {
