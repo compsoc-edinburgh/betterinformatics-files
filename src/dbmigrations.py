@@ -5,7 +5,7 @@ import server
 import threading
 import pymongo
 
-DB_VERSION = 11
+DB_VERSION = 12
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -261,6 +261,37 @@ def add_experts(mongo_db):
             })
     set_db_version(mongo_db, 11)
 
+
+def recalculate_answer_counts(mongo_db):
+    print("Migrate 'recalculate answer counts'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        update = {
+            "count_answers": 0,
+            "count_answered": 0,
+        }
+        sections = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }, {
+            "answersection.answers": 1
+        })
+        for section in sections:
+            answered = False
+            for answer in section["answersection"]["answers"]:
+                if answer["text"]:
+                    answered = True
+                    update["count_answers"] += 1
+            if answered:
+                update["count_answered"] += 1
+        mongo_db.exammetadata.update_one({
+            "filename": exam["filename"]
+        }, {
+            "$set": update
+        })
+
+    set_db_version(mongo_db, 12)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -273,6 +304,7 @@ MIGRATIONS = [
     add_cut_counts,
     add_attachments,
     add_experts,
+    recalculate_answer_counts,
 ]
 
 

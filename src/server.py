@@ -461,6 +461,13 @@ def make_answer_section_response(oid):
 def test():
     return "Server is running"
 
+@app.route("/api/dump/<table>")
+def dump_mongodb_table(table):
+    """Allow to dump MongoDB tables when run with visdev"""
+    if not IS_DEBUG:
+        return redirect('/')
+    return success(value=list(mongo_db[table].find()))
+
 @app.before_request
 def start_timer():
     g.start = time.time()
@@ -971,9 +978,6 @@ def add_answer(filename, sectionoid):
     }})
     adjust_user_score(username, "score", 1)
     adjust_user_score(username, "score_answers", 1)
-    adjust_exam_count({
-        "_id": answer_section_oid
-    }, count_answers=1, count_answered=lambda x: 1 if x == 1 else 0)
 
     if username == "__legacy__":
         adjust_user_score(auth.username(), "score_legacy", 1)
@@ -1005,7 +1009,16 @@ def set_answer(filename, sectionoid):
     })
     if not maybe_answer:
         return not_possible("Answer does not yet exist")
-    if not maybe_answer["answersection"]["answers"][0]["text"] and text:
+    old_text = maybe_answer["answersection"]["answers"][0]["text"]
+    if text and not old_text:
+        adjust_exam_count({
+            "_id": answer_section_oid
+        }, count_answers=1)
+    elif not text and old_text:
+        adjust_exam_count({
+            "_id": answer_section_oid
+        }, count_answers=-1)
+    if not old_text and text:
         other_answers = answer_sections.find_one({
             "_id": answer_section_oid
         }, {
@@ -1069,13 +1082,15 @@ def remove_answer(answeroid):
     })
     if not section:
         return
-    adjust_user_score(section["answersection"]["answers"][0]["authorId"], "score", len(section["answersection"]["answers"][0]["downvotes"]) - len(section["answersection"]["answers"][0]["upvotes"]))
-    adjust_user_score(section["answersection"]["answers"][0]["authorId"], "score_answers", -1)
-    for comment in section["answersection"]["answers"][0]["comments"]:
+    answer = section["answersection"]["answers"][0]
+    adjust_user_score(answer["authorId"], "score", len(answer["downvotes"]) - len(answer["upvotes"]))
+    adjust_user_score(answer["authorId"], "score_answers", -1)
+    for comment in answer["comments"]:
         adjust_user_score(comment["authorId"], "score_comments", -1)
-    adjust_exam_count({
-        "answersection.answers._id": answeroid
-    }, count_answers=-1, count_answered=lambda x: -1 if x == 1 else 0)
+    if answer["text"]:
+        adjust_exam_count({
+            "answersection.answers._id": answeroid
+        }, count_answers=-1)
     answer_sections.update_one({
         "_id": section["_id"]
     }, {"$pull": {
@@ -1508,14 +1523,14 @@ def remove_exam(filename):
 
 
 def adjust_exam_count(find, **keys):
-    assert all(key in ["count_cuts", "count_answers", "count_answered"] for key in keys)
+    assert all(key in ["count_cuts", "count_answers"] for key in keys)
     section = answer_sections.find_one(find, {
         "filename": 1,
         "answersection.answers": 1
     })
-    for key in keys:
-        if not isinstance(keys[key], int):
-            keys[key] = keys[key](len(section["answersection"]["answers"]))
+    if "count_answers" in keys and len(section["answersection"]["answers"]) == 1:
+        # it is the first or last answer, therefore we have to adjust the number of answered cuts
+        keys["count_answered"] = keys["count_answers"]
     exam_metadata.update_one({
         "filename": section["filename"],
     }, {
@@ -1618,6 +1633,7 @@ def get_category_exams(category):
         "finished_cuts": 1,
         "finished_wiki_transfer": 1,
         "count_cuts": 1,
+        "count_answers": 1,
         "count_answered": 1,
     }))
 
