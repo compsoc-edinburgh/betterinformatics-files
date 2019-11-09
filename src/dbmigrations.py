@@ -4,8 +4,9 @@ import sys
 import server
 import threading
 import pymongo
+from datetime import datetime, timezone, timedelta
 
-DB_VERSION = 12
+DB_VERSION = 13
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -292,6 +293,40 @@ def recalculate_answer_counts(mongo_db):
     set_db_version(mongo_db, 12)
 
 
+def add_edit_time(mongo_db):
+    print("Migrate 'add edit time'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        sections = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }, {
+            "answersection.answers": 1
+        })
+        for section in sections:
+            for answer in section["answersection"]["answers"]:
+                answer["edittime"] = answer["time"]
+                for comment in answer["comments"]:
+                    comment["edittime"] = comment["time"]
+    set_db_version(mongo_db, 13)
+
+
+def clean_up_empty_answers(mongo_db):
+    print("Clean up empty answers", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        sections = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }, {
+            "answersection.answers": 1
+        })
+        for section in sections:
+            for answer in section["answersection"]["answers"]:
+                if not answer["text"]:
+                    edited = server.parse_iso_datetime(answer["edittime"])
+                    if datetime.now(timezone.utc) - edited > timedelta(weeks=7):
+                        server.remove_answer(answer["_id"])
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -305,6 +340,7 @@ MIGRATIONS = [
     add_attachments,
     add_experts,
     recalculate_answer_counts,
+    add_edit_time,
 ]
 
 
@@ -342,3 +378,21 @@ def do_migrate(mongo_db):
 def migrate(mongo_db):
     migrationthread = threading.Thread(target=do_migrate, args=(mongo_db,), kwargs={})
     migrationthread.start()
+
+
+CLEANUPS = [
+    clean_up_empty_answers,
+]
+
+
+def do_cleanup(mongo_db):
+    with open(DB_LOCK_FILE, "w") as f:
+        fcntl.lockf(f, fcntl.LOCK_EX)
+        for cln in CLEANUPS:
+            cln(mongo_db)
+        fcntl.lockf(f, fcntl.LOCK_UN)
+
+
+def cleanup(mongo_db):
+    cleanupthread = threading.Thread(target=do_cleanup, args=(mongo_db,), kwargs={})
+    cleanupthread.start()

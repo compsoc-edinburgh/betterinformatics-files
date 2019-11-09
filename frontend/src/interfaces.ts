@@ -32,6 +32,7 @@ export interface Answer {
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time
+  edittime: string; // ISO 8601, last edit time
   divRef: HTMLDivElement; // root div element for scroll jumping
 }
 
@@ -42,6 +43,7 @@ export interface Comment {
   authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the comment
   time: string; // ISO 8601, creation time
+  edittime: string; // ISO 8601, last edit time
 }
 
 export interface PdfSection {

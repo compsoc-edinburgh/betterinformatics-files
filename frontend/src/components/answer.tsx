@@ -558,6 +558,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                   authorDisplayName: "",
                   canEdit: true,
                   time: "",
+                  edittime: "",
                 }}
                 onSectionChanged={this.props.onSectionChanged}
                 onNewCommentSaved={this.toggleAddingComment}

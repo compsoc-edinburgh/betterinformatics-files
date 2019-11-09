@@ -457,8 +457,15 @@ def make_answer_section_response(oid):
     return success(value=section)
 
 
+# prevent all workers from cleaning up at the same time
+last_db_clean = time.time() + random.random() * 3600
+
 @app.route("/health")
 def test():
+    global last_db_clean
+    if time.time() - last_db_clean > 3600:
+        last_db_clean = time.time()
+        dbmigrations.cleanup(mongo_db)
     return "Server is running"
 
 @app.route("/api/dump/<table>")
@@ -1037,7 +1044,8 @@ def set_answer(filename, sectionoid):
     answer_sections.update_one({
         'answersection.answers._id': maybe_answer["answersection"]["answers"][0]["_id"]
     }, {"$set": {
-        'answersection.answers.$.text': text
+        'answersection.answers.$.text': text,
+        'answersection.answers.$.edittime': datetime.now(timezone.utc).isoformat()
     }, '$inc': {
         "cutVersion": 1
     }})
@@ -1197,7 +1205,8 @@ def set_comment(filename, sectionoid, answeroid):
         'answersection.answers.comments._id': comment_oid
     }, {
         "$set": {
-            'answersection.answers.$.comments.{}.text'.format(idx): text
+            'answersection.answers.$.comments.{}.text'.format(idx): text,
+            'answersection.answers.$.comments.{}.edittime'.format(idx): datetime.now(timezone.utc).isoformat()
         }, '$inc': {
             "cutVersion": 1
         }
