@@ -1,4 +1,4 @@
-FROM node:9.4-alpine
+FROM node:13.1-alpine
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .
@@ -8,7 +8,8 @@ COPY ./frontend/tslint.json .
 RUN yarn
 COPY ./frontend/src ./src
 COPY ./frontend/public ./public
-RUN yarn run check-format || echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'
+# FIXME: this check fails during docker build, but works locally
+# RUN yarn run check-format || echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'
 RUN yarn run build
 
 
@@ -19,8 +20,6 @@ WORKDIR /app
 
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
 
-# TODO remove the apt-get update again
-RUN apt-get update
 RUN apt-get install -y \
 	python3 python3-pip python3-dev \
 	smbclient poppler-utils

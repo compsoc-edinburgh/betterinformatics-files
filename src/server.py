@@ -26,6 +26,8 @@ import ethprint
 import legacy_importer
 import people_cache
 
+IS_DEBUG = os.environ['RUNTIME_MONGO_DB_USER'] == 'docker'
+
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
     os.environ["RUNTIME_SERVIS_PEOPLE_API_PORT"])
@@ -119,15 +121,12 @@ CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY'
-# Minio seems to run unsecured on port 80
-minio_is_https = os.environ.get('RUNTIME_MINIO_URL', '').startswith('https') and \
-                 not os.environ.get('RUNTIME_MINIO_HOST', '') == 'visdev-minio'
-# visdev sets RUNTIME_MINIO_HOST but CIT sets RUNTIME_MINIO_SERVER
+# Minio seems to run unsecured on port 80 in the debug environment
 minio_client = Minio(
-    os.environ.get('RUNTIME_MINIO_SERVER', os.environ.get('RUNTIME_MINIO_HOST')),
+    os.environ['RUNTIME_MINIO_SERVER'],
     access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
     secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-    secure=minio_is_https)
+    secure=not IS_DEBUG)
 minio_bucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 try:
