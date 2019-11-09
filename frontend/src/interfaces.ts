@@ -73,7 +73,7 @@ export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
   category: string; // category of exam
-  payment_category: string; // payment category of exam
+  needs_payment: boolean; // whether a payment is required
   examtype: string; // type of exam
   remark: string; // remark for the exam
   import_claim: string; // the user who is importing the exam
@@ -147,7 +147,7 @@ export interface ExamMetaData {
   public: boolean;
   finished_cuts: boolean;
   finished_wiki_transfer: boolean;
-  payment_category: string;
+  needs_payment: boolean;
   has_printonly: boolean;
   has_solution: boolean;
   solution_printonly: boolean;
@@ -184,7 +184,6 @@ export interface UserInfo {
 export interface PaymentInfo {
   oid: string;
   active: boolean;
-  category: string;
   payment_time: string;
   uploaded_filename: string;
   check_time: string;

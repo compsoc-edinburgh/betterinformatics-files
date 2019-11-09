@@ -119,7 +119,7 @@ export default class Exam extends React.Component<Props, State> {
       has_printonly: false,
       has_solution: false,
       solution_printonly: false,
-      payment_category: "",
+      needs_payment: false,
       is_payment_exam: false,
       payment_exam_checked: false,
       count_cuts: 0,
@@ -410,7 +410,7 @@ export default class Exam extends React.Component<Props, State> {
   render() {
     if (!this.state.savedMetaData.canView) {
       if (
-        this.state.savedMetaData.payment_category.length > 0 &&
+        this.state.savedMetaData.needs_payment &&
         !this.state.savedMetaData.hasPayed
       ) {
         return (

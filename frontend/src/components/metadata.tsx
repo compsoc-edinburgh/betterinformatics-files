@@ -44,7 +44,6 @@ interface Props {
 interface State {
   currentMetaData: ExamMetaData;
   categories: string[];
-  paymentCategories: string[];
   examTypes: string[];
   printonlyFile: Blob;
   solutionFile: Blob;
@@ -55,7 +54,6 @@ export default class MetaData extends React.Component<Props, State> {
   state: State = {
     currentMetaData: { ...this.props.savedMetaData },
     categories: [],
-    paymentCategories: [],
     examTypes: [],
     printonlyFile: new Blob(),
     solutionFile: new Blob(),
@@ -66,13 +64,6 @@ export default class MetaData extends React.Component<Props, State> {
       .then(res => {
         this.setState({
           categories: res.value,
-        });
-      })
-      .catch(() => undefined);
-    fetchapi("/api/listcategories/onlypayment")
-      .then(res => {
-        this.setState({
-          paymentCategories: res.value,
         });
       })
       .catch(() => undefined);
@@ -285,14 +276,6 @@ export default class MetaData extends React.Component<Props, State> {
           />
         </div>
         <div>
-          <AutocompleteInput
-            value={this.state.currentMetaData.payment_category}
-            onChange={ev => this.valueChanged("payment_category", ev)}
-            placeholder="payment category"
-            title="payment category"
-            autocomplete={this.state.paymentCategories}
-            name="payment_category"
-          />
           <input
             type="text"
             placeholder="remark"
@@ -309,6 +292,14 @@ export default class MetaData extends React.Component<Props, State> {
               onChange={ev => this.checkboxValueChanged("public", ev)}
             />
             Public
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={this.state.currentMetaData.needs_payment}
+              onChange={ev => this.checkboxValueChanged("needs_payment", ev)}
+            />
+            Needs Payment
           </label>
         </div>
         <div>

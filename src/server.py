@@ -108,7 +108,7 @@ EXAM_METADATA = [
     "public",
     "finished_cuts",
     "finished_wiki_transfer",
-    "payment_category",
+    "needs_payment",
     "has_printonly",
     "has_solution",
     "solution_printonly",
@@ -440,7 +440,7 @@ def can_view_exam(username, filename, metadata=None):
         return True
     if not metadata.get("public"):
         return False
-    if metadata.get("payment_category") and not has_payed(username, metadata.get("payment_category")):
+    if metadata.get("needs_payments", False) and not has_payed(username):
         return False
     return True
 
@@ -1363,7 +1363,7 @@ def get_exam_metadata(filename):
     username = auth.username()
     metadata["canEdit"] = has_admin_rights_for_category(username, metadata.get("category"))
     metadata["isExpert"] = is_expert_for_category(username, metadata.get("category"))
-    metadata["hasPayed"] = has_payed(username, metadata.get("payment_category"))
+    metadata["hasPayed"] = has_payed(username)
     metadata["canView"] = can_view_exam(username, filename, metadata=metadata)
     return success(value=metadata)
 
@@ -1382,14 +1382,6 @@ def set_exam_metadata_api(filename):
             return not_allowed()
         if not category_exists(metadata["category"]):
             return not_possible("Category does not exist")
-    if metadata.get("payment_category"):
-        maybe_category = category_metadata.find_one({
-            "category": metadata["payment_category"]
-        }, {
-            "has_payments": 1
-        })
-        if not maybe_category or not maybe_category.get("has_payments"):
-            return not_possible("Payment Category does not exist")
     for key in EXAM_METADATA_INTERNAL:
         if key in metadata:
             del metadata[key]
@@ -1519,17 +1511,9 @@ def payment_exam_mark_checked(filename):
     })
     payment = payments.find({
         "username": metadata["payment_uploader"],
-        "category": metadata["payment_category"],
         "check_time": "",
     }).sort([("payment_time", -1)]).limit(1)
     payment = list(payment)
-    if not payment:
-        payment = payments.find({
-            "username": metadata["payment_uploader"],
-            "category": "__payment_all__",
-            "check_time": "",
-        }).sort([("payment_time", -1)]).limit(1)
-        payment = list(payment)
     if payment:
         payments.update_one({
             "_id": payment[0]["_id"]
@@ -1662,7 +1646,7 @@ def get_category_exams(category):
         "displayname": 1,
         "category": 1,
         "examtype": 1,
-        "payment_category": 1,
+        "needs_payment": 1,
         "remark": 1,
         "import_claim": 1,
         "import_claim_displayname": 1,
@@ -2372,47 +2356,21 @@ def send_user_notification(username, type, sender, title, message, link):
 @require_admin
 def add_payment_api():
     """
-    Record a payment of a user for some category.
-    POST Parameter 'username'
-    POST Parameter 'category'
-    """
-    category = request.form.get('category')
-    if not category_exists(category):
-        return not_possible("Category does not exist")
-    username = request.form.get('username')
-    if not username:
-        return not_possible("No username given")
-    catdata = category_metadata.find_one({
-        "category": category
-    }, {
-        "has_payments": 1
-    })
-    if not catdata.get("has_payments"):
-        return not_possible("Category does not have any payments")
-    return add_payment(category, username)
-
-
-@app.route("/api/payment/payall", methods=['POST'])
-@auth.login_required
-@require_admin
-def add_all_payment_api():
-    """
-    Record a payment of a user for all categories (represented as __payment_all__)
+    Record a payment of a user.
     POST Parameter 'username'
     """
     username = request.form.get('username')
     if not username:
         return not_possible("No username given")
-    return add_payment("__payment_all__", username)
+    return add_payment(username)
 
 
-def add_payment(category, username):
+def add_payment(username):
     """
-    Record a payment of a user for some category.
+    Record a payment of a user.
     """
     maybe_payment = payments.find_one({
         "username": username,
-        "category": category,
         "active": True
     })
     if maybe_payment and payment_still_valid(maybe_payment):
@@ -2420,7 +2378,6 @@ def add_payment(category, username):
     payments.insert_one({
         "_id": ObjectId(),
         "username": username,
-        "category": category,
         "active": True,
         "payment_time": datetime.now(timezone.utc).isoformat(),
         "uploaded_filename": "",
@@ -2502,7 +2459,6 @@ def get_user_payments(username):
     }, {
         "_id": 1,
         "active": 1,
-        "category": 1,
         "payment_time": 1,
         "uploaded_filename": 1,
         "check_time": 1,
@@ -2521,18 +2477,16 @@ def get_user_payments(username):
         payment["valid_until"] = payment_valid_until(payment).isoformat()
         payment["oid"] = payment["_id"]
         del payment["_id"]
-    return list(sorted(user_payments, key=lambda x: (not x["active"], x["category"])))
+    return list(sorted(user_payments, key=lambda x: (not x["active"], x["payment_time"])))
 
 
-def has_payed(username, category):
+def has_payed(username):
     """
-    Check whether the user payed for the category.
+    Check whether the user payed.
     :param username: Name of the user
-    :param category: Name of the category
     """
     maybe_payments = payments.find({
         "username": username,
-        "category": category,
         "active": True
     }, {
         "payment_time": 1
@@ -2540,8 +2494,6 @@ def has_payed(username, category):
     for payment in maybe_payments:
         if payment_still_valid(payment):
             return True
-    if category != "__payment_all__":
-        return has_payed(username, "__payment_all__")
     return False
 
 
@@ -2550,27 +2502,16 @@ def has_payed(username, category):
 @require_admin
 def payment_query(username):
     """
-    List all payed categories for some user.
+    List all payments for some user.
     """
     return success(value=get_user_payments(username))
-
-
-@app.route("/api/payment/queryall")
-@auth.login_required
-@require_admin
-def payment_queryall(username):
-    """
-    Check whether the user has a valid payment for all categories
-    """
-    payments = [x for x in get_user_payments(username) if x["category"] == "__payment_all__"]
-    return success(value=len(payments) > 0)
 
 
 @app.route("/api/payment/me")
 @auth.login_required
 def payment_query_me():
     """
-    List all categories the current user payed for.
+    List all payments for the current user.
     """
     return success(value=get_user_payments(auth.username()))
 
@@ -2716,7 +2657,7 @@ def uploadpdf(pdftype):
             new_metadata = {
                 "category": category,
                 "displayname": displayname,
-                "payment_category": category,
+                "needs_payment": True,
                 "is_payment_exam": True,
                 "payment_uploader": username,
                 "payment_uploader_displayname": get_real_name(username),
@@ -2865,15 +2806,15 @@ def print_pdf(pdftype, filename):
         "filename": filename
     }, {
         "public": 1,
-        "payment_category": 1,
+        "needs_payment": 1,
     })
     if not metadata:
         return not_found()
     username = auth.username()
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
-    if metadata.get("payment_category") and not has_admin_rights_for_exam(username, filename):
-        if not has_payed(username, metadata.get("payment_category")):
+    if metadata.get("needs_payment", False) and not has_admin_rights_for_exam(username, filename):
+        if not has_payed(username):
             return not_allowed()
     if not request.form.get('password'):
         return not_allowed()

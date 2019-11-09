@@ -2,9 +2,7 @@ import * as React from "react";
 import { fetchapi, fetchpost } from "../fetch-utils";
 import { NotificationInfo, PaymentInfo, UserInfo } from "../interfaces";
 import NotificationComponent from "../components/notification";
-import AutocompleteInput from "../components/autocomplete-input";
 import { css } from "glamor";
-import { listenEnter } from "../input-utils";
 import colors from "../colors";
 import * as moment from "moment";
 import GlobalConsts from "../globalconsts";
@@ -77,7 +75,6 @@ interface State {
   payments: PaymentInfo[];
   openPayment: string;
   enabledNotifications: number[];
-  categories: string[];
   newPaymentCategory: string;
   error?: string;
 }
@@ -98,7 +95,6 @@ export default class UserInfoComponent extends React.Component<Props, State> {
     payments: [],
     openPayment: "",
     enabledNotifications: [],
-    categories: [],
     newPaymentCategory: "",
   };
 
@@ -111,7 +107,6 @@ export default class UserInfoComponent extends React.Component<Props, State> {
     }
     if (this.props.isAdmin) {
       this.loadPayments();
-      this.loadCategories();
     }
   }
 
@@ -125,7 +120,6 @@ export default class UserInfoComponent extends React.Component<Props, State> {
     }
     if (!prevProps.isAdmin && this.props.isAdmin) {
       this.loadPayments();
-      this.loadCategories();
     }
     if (prevProps.username !== this.props.username) {
       this.loadUserInfo();
@@ -180,40 +174,8 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       });
   };
 
-  loadCategories = () => {
-    fetchapi("/api/listcategories/onlypayment")
-      .then(res => {
-        this.setState({
-          categories: res.value,
-        });
-      })
-      .catch(err => {
-        this.setState({
-          error: err.toString(),
-        });
-      });
-  };
-
   addPayment = () => {
     fetchpost("/api/payment/pay", {
-      username: this.props.username,
-      category: this.state.newPaymentCategory,
-    })
-      .then(() => {
-        this.setState({
-          newPaymentCategory: "",
-        });
-        this.loadPayments();
-      })
-      .catch(err => {
-        this.setState({
-          error: err.toString(),
-        });
-      });
-  };
-
-  addPaymentAll = () => {
-    fetchpost("/api/payment/payall", {
       username: this.props.username,
     })
       .then(() => {
@@ -379,12 +341,9 @@ export default class UserInfoComponent extends React.Component<Props, State> {
               <h2>Paid Oral Exams</h2>
               <div>
                 {this.state.payments
-                  .filter(
-                    payment =>
-                      payment.category === "__payment_all__" && payment.active,
-                  )
+                  .filter(payment => payment.active)
                   .map(payment => (
-                    <div key={payment.category}>
+                    <div key={payment.oid}>
                       You have paid for all oral exams until{" "}
                       {moment(
                         payment.valid_until,
@@ -396,7 +355,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
                 {this.state.payments.length > 0 && (
                   <ul>
                     {this.state.payments.map(payment => (
-                      <li key={payment.category}>
+                      <li key={payment.oid}>
                         {(this.state.openPayment === payment.oid && (
                           <div {...styles.payment}>
                             <div
@@ -407,17 +366,12 @@ export default class UserInfoComponent extends React.Component<Props, State> {
                               onClick={() => this.setState({ openPayment: "" })}
                             >
                               <b>
-                                {payment.category === "__payment_all__"
-                                  ? "All Oral Exams"
-                                  : payment.category}
+                                Payment Time:{" "}
+                                {moment(
+                                  payment.payment_time,
+                                  GlobalConsts.momentParseString,
+                                ).format(GlobalConsts.momentFormatString)}
                               </b>
-                            </div>
-                            <div>
-                              Payment Time:{" "}
-                              {moment(
-                                payment.payment_time,
-                                GlobalConsts.momentParseString,
-                              ).format(GlobalConsts.momentFormatString)}
                             </div>
                             <div>
                               Valid Until:{" "}
@@ -469,34 +423,21 @@ export default class UserInfoComponent extends React.Component<Props, State> {
                               this.setState({ openPayment: payment.oid })
                             }
                           >
-                            {payment.category === "__payment_all__"
-                              ? "All Oral Exams"
-                              : payment.category}
+                            Payment Time:{" "}
+                            {moment(
+                              payment.payment_time,
+                              GlobalConsts.momentParseString,
+                            ).format(GlobalConsts.momentFormatString)}
                           </span>
                         )}
                       </li>
                     ))}
                   </ul>
                 )}
-                {this.props.isAdmin && (
+                {this.props.isAdmin && this.state.payments.filter(payment => payment.active).length === 0 && (
                   <div>
-                    <AutocompleteInput
-                      value={this.state.newPaymentCategory}
-                      onChange={ev =>
-                        this.setState({ newPaymentCategory: ev.target.value })
-                      }
-                      placeholder="Category"
-                      autocomplete={this.state.categories}
-                      name="payment_category"
-                      onKeyPress={listenEnter(this.addPayment)}
-                    />
-                    <button onClick={this.addPayment}>Add Payment</button>
-                  </div>
-                )}
-                {this.props.isAdmin && (
-                  <div>
-                    <button onClick={this.addPaymentAll}>
-                      Add Payment for All Categories
+                    <button onClick={this.addPayment}>
+                      Add Payment
                     </button>
                   </div>
                 )}

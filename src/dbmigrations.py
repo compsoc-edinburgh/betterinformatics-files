@@ -6,7 +6,7 @@ import threading
 import pymongo
 from datetime import datetime, timezone, timedelta
 
-DB_VERSION = 13
+DB_VERSION = 14
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -304,9 +304,21 @@ def add_edit_time(mongo_db):
         })
         for section in sections:
             for answer in section["answersection"]["answers"]:
-                answer["edittime"] = answer["time"]
+                mongo_db.exammetadata.update_one({
+                    "answersection.answers._id": answer["_id"]
+                }, {
+                    "$set": {
+                        "edittime": answer["time"]
+                    }
+                })
                 for comment in answer["comments"]:
-                    comment["edittime"] = comment["time"]
+                    mongo_db.exammetadata.update_one({
+                        "answersection.answers.comments._id": comment["_id"]
+                    }, {
+                        "$set": {
+                            "edittime": comment["time"]
+                        }
+                    })
     set_db_version(mongo_db, 13)
 
 
@@ -327,6 +339,33 @@ def clean_up_empty_answers(mongo_db):
                         server.remove_answer(answer["_id"])
 
 
+def change_payments(mongo_db):
+    print("Migrate 'change payments'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        needs_payment = exam.get("needs_payment", False) or len(exam.get("payment_category", "")) > 0
+        mongo_db.exammetadata.update_one({
+            "filename": exam["filename"]
+        }, {
+            "$set": {
+                "needs_payment": needs_payment
+            },
+            "$unset": {
+                "payment_category": ""
+            }
+        })
+    payments = list(mongo_db.payments.find({}))
+    for payment in payments:
+        mongo_db.payments.update_one({
+            "_id": payment["_id"]
+        }, {
+            "$unset": {
+                "category": ""
+            }
+        })
+    set_db_version(mongo_db, 14)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -341,6 +380,7 @@ MIGRATIONS = [
     add_experts,
     recalculate_answer_counts,
     add_edit_time,
+    change_payments,
 ]
 
 
@@ -371,6 +411,7 @@ def do_migrate(mongo_db):
         for i in range(DB_VERSION):
             if version <= i:
                 MIGRATIONS[i](mongo_db)
+        change_payments(mongo_db)
         remove_broken_users(mongo_db)
         fcntl.lockf(f, fcntl.LOCK_UN)
 
