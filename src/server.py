@@ -440,7 +440,7 @@ def can_view_exam(username, filename, metadata=None):
         return True
     if not metadata.get("public"):
         return False
-    if metadata.get("needs_payments", False) and not has_payed(username):
+    if metadata.get("needs_payment", False) and not has_payed(username):
         return False
     return True
 
