@@ -533,7 +533,7 @@ export default class Exam extends React.Component<Props, State> {
         {this.state.savedMetaData.master_solution && (
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.master_solution} target="_blank">
-              Official Solution
+              Official Solution (external)
             </a>
           </div>
         )}
