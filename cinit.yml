@@ -7,7 +7,6 @@ programs:
       - "0.0.0.0:80"
       - "-w"
       - "4"
-      - "--preload"
       - "--log-level"
       - "debug"
     workdir: /app
