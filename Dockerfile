@@ -8,8 +8,7 @@ COPY ./frontend/tslint.json .
 RUN yarn
 COPY ./frontend/src ./src
 COPY ./frontend/public ./public
-# FIXME: this check fails during docker build, but works locally
-# RUN yarn run check-format || echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'
+RUN yarn run check-format || echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'
 RUN yarn run build
 
 

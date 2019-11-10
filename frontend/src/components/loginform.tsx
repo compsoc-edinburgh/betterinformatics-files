@@ -37,7 +37,7 @@ export default class LoginForm extends React.Component<Props> {
 
   loginUser = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
-    
+
     let data = {
       username: this.state.username,
       password: this.state.password,
@@ -80,7 +80,9 @@ export default class LoginForm extends React.Component<Props> {
             />
           </div>
           <div>
-            <button type="submit" onClick={this.loginUser}>Login</button>
+            <button type="submit" onClick={this.loginUser}>
+              Login
+            </button>
           </div>
         </form>
         {window.location.hostname === "localhost" && (
