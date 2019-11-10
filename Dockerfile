@@ -24,10 +24,10 @@ RUN apt-get install -y \
 	python3 python3-pip python3-dev \
 	smbclient poppler-utils
 
-COPY cinit.yml /etc/cinit.d/community-solutions.yml
-
 COPY ./src/requirements.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
+
+COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
 # prevent guincorn from buffering prints from pythno workers
 ENV PYTHONUNBUFFERED True
