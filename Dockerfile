@@ -13,7 +13,7 @@ RUN yarn run check-format || ( >&2 echo -e '\n\n=========\nSome code has not bee
 RUN yarn run build
 
 
-FROM eu.gcr.io/vseth-public/base:charlie
+FROM eu.gcr.io/vseth-public/base:delta
 LABEL maintainer='schmidbe@vis.ethz.ch'
 
 WORKDIR /app
