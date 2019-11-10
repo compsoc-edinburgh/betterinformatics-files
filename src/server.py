@@ -475,6 +475,29 @@ def can_view_exam(username, filename, metadata=None):
     return True
 
 
+def transform_answer(answer, filename, sectionId, exam_admin=False):
+    username = current_user.username
+    answer["filename"] = filename
+    answer["sectionId"] = sectionId
+    answer["oid"] = answer["_id"]
+    del answer["_id"]
+    answer["canEdit"] = answer["authorId"] == username or \
+                        (answer["authorId"] == '__legacy__' and exam_admin)
+    answer["isUpvoted"] = username in answer["upvotes"]
+    answer["isDownvoted"] = username in answer["downvotes"]
+    answer["isExpertVoted"] = username in answer["expertvotes"]
+    answer["isFlagged"] = username in answer["flagged"]
+    answer["upvotes"] = len(answer["upvotes"]) - len(answer["downvotes"])
+    answer["expertvotes"] = len(answer["expertvotes"])
+    answer["flagged"] = len(answer["flagged"]) if has_admin_rights(username) else 0
+    del answer["downvotes"]
+    for comment in answer["comments"]:
+        comment["oid"] = comment["_id"]
+        del comment["_id"]
+        comment["canEdit"] = comment["authorId"] == username
+    return answer
+
+
 def make_answer_section_response(oid):
     """
     Generates a json response containing all information for the given answer section.
@@ -492,22 +515,7 @@ def make_answer_section_response(oid):
     section["oid"] = section["_id"]
     del section["_id"]
     for answer in section["answersection"]["answers"]:
-        answer["oid"] = answer["_id"]
-        del answer["_id"]
-        answer["canEdit"] = answer["authorId"] == username or \
-                            (answer["authorId"] == '__legacy__' and exam_admin)
-        answer["isUpvoted"] = username in answer["upvotes"]
-        answer["isDownvoted"] = username in answer["downvotes"]
-        answer["isExpertVoted"] = username in answer["expertvotes"]
-        answer["isFlagged"] = username in answer["flagged"]
-        answer["upvotes"] = len(answer["upvotes"]) - len(answer["downvotes"])
-        answer["expertvotes"] = len(answer["expertvotes"])
-        answer["flagged"] = len(answer["flagged"]) if has_admin_rights(username) else 0
-        del answer["downvotes"]
-        for comment in answer["comments"]:
-            comment["oid"] = comment["_id"]
-            del comment["_id"]
-            comment["canEdit"] = comment["authorId"] == username
+        transform_answer(answer, section["filename"], section["oid"], exam_admin)
     section["answersection"]["answers"] = sorted(
         filter(
             lambda x: len(x["text"]) > 0 or x["canEdit"],
@@ -2251,6 +2259,27 @@ def get_user_scoreboard(scoretype):
         (scoretype, -1)
     ]).limit(limit)
     return success(value=list(users))
+
+
+@app.route("/api/user/<username>/answers")
+@login_required
+def get_user_answers(username):
+    answers_raw = answer_sections.find({
+        "answersection.answers.authorId": username
+    }, {
+        "_id": 1,
+        "filename": 1,
+        "answersection.answers.$": 1,
+    })
+    answers = []
+    for section in answers_raw:
+        for answer in section["answersection"]["answers"]:
+            assert answer["authorId"] == username
+            if len(answer["text"]) == 0:
+                continue
+            answers.append(transform_answer(answer, section["filename"], section["_id"]))
+    answers.sort(key=lambda x: (x["expertvotes"], x["upvotes"], x["time"]), reverse=True)
+    return success(value=answers)
 
 
 def init_user_data_if_not_found(username):

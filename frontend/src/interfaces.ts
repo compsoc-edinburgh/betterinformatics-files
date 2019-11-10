@@ -33,6 +33,8 @@ export interface Answer {
   text: string;
   time: string; // ISO 8601, creation time
   edittime: string; // ISO 8601, last edit time
+  filename: string; // filename of the corresponding exam
+  sectionId: string; // id of section containing answer
   divRef: HTMLDivElement; // root div element for scroll jumping
 }
 

@@ -12,6 +12,7 @@ import { listenEnter } from "../input-utils";
 import Colors from "../colors";
 
 interface Props {
+  isReadonly: boolean;
   isAdmin: boolean;
   filename: string;
   sectionId: string;
@@ -195,7 +196,7 @@ export default class CommentComponent extends React.Component<Props, State> {
             )}
           </div>
           <div {...styles.actionButtons}>
-            {comment.canEdit && !this.state.editing && (
+            {!this.props.isReadonly && comment.canEdit && !this.state.editing && (
               <div {...styles.actionButton} onClick={this.startEdit}>
                 <img
                   {...styles.actionImg}
@@ -204,15 +205,17 @@ export default class CommentComponent extends React.Component<Props, State> {
                 />
               </div>
             )}
-            {(comment.canEdit || this.props.isAdmin) && !this.state.editing && (
-              <div {...styles.actionButton} onClick={this.removeComment}>
-                <img
-                  {...styles.actionImg}
-                  src="/static/delete.svg"
-                  title="Delete Comment"
-                />
-              </div>
-            )}
+            {!this.props.isReadonly &&
+              (comment.canEdit || this.props.isAdmin) &&
+              !this.state.editing && (
+                <div {...styles.actionButton} onClick={this.removeComment}>
+                  <img
+                    {...styles.actionImg}
+                    src="/static/delete.svg"
+                    title="Delete Comment"
+                  />
+                </div>
+              )}
           </div>
         </div>
         <div {...styles.comment}>
