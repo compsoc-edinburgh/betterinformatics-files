@@ -4,9 +4,9 @@ export async function fetchpost(url: string, data: object) {
     formData.append(key, data[key]);
   }
   const response = await fetch(url, {
-    credentials: 'include',
+    credentials: "include",
     method: "POST",
-    body: formData
+    body: formData,
   });
   try {
     const body = await response.json();
@@ -21,7 +21,7 @@ export async function fetchpost(url: string, data: object) {
 
 export async function fetchapi(url: string) {
   const response = await fetch(url, {
-    credentials: 'include'
+    credentials: "include",
   });
   try {
     const body = await response.json();

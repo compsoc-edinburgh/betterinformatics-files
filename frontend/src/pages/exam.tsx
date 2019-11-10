@@ -119,7 +119,7 @@ export default class Exam extends React.Component<Props, State> {
       has_printonly: false,
       has_solution: false,
       solution_printonly: false,
-      payment_category: "",
+      needs_payment: false,
       is_payment_exam: false,
       payment_exam_checked: false,
       count_cuts: 0,
@@ -306,7 +306,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   gotoPDF = () => {
-    window.open(`/api/pdf/exam/${this.props.filename}`, "_blank");
+    window.open(`/api/pdf/exam/${this.props.filename}?download`, "_blank");
   };
 
   reportProblem = () => {
@@ -410,7 +410,7 @@ export default class Exam extends React.Component<Props, State> {
   render() {
     if (!this.state.savedMetaData.canView) {
       if (
-        this.state.savedMetaData.payment_category.length > 0 &&
+        this.state.savedMetaData.needs_payment &&
         !this.state.savedMetaData.hasPayed
       ) {
         return (
@@ -533,7 +533,7 @@ export default class Exam extends React.Component<Props, State> {
         {this.state.savedMetaData.master_solution && (
           <div {...styles.linkBanner}>
             <a href={this.state.savedMetaData.master_solution} target="_blank">
-              Official Solution
+              Official Solution (external)
             </a>
           </div>
         )}

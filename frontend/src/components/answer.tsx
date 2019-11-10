@@ -14,6 +14,7 @@ import colors from "../colors";
 import { listenEnter } from "../input-utils";
 
 interface Props {
+  isReadonly: boolean;
   isAdmin: boolean;
   isExpert: boolean;
   filename: string;
@@ -349,8 +350,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
   render() {
     const { answer } = this.props;
     let comments = answer.comments;
-    if (!this.state.allCommentsVisible && comments.length > 3) {
-      comments = comments.slice(0, 3);
+    const commentLimit = this.props.isReadonly ? 0 : 3;
+    if (!this.state.allCommentsVisible && comments.length > commentLimit) {
+      comments = comments.slice(0, commentLimit);
     }
     return (
       <div {...styles.wrapper}>
@@ -367,25 +369,26 @@ export default class AnswerComponent extends React.Component<Props, State> {
             )}
           </div>
           <div {...styles.voteWrapper}>
-            {this.props.isExpert && [
-              <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
-              <div
-                {...styles.voteImgWrapper}
-                onClick={this.toggleAnswerExpertVote}
-                title="Endorse Answer"
-              >
-                <img
-                  {...styles.expertVoteImg}
-                  src={
-                    "/static/expert" +
-                    (answer.isExpertVoted ? "_active" : "") +
-                    ".svg"
-                  }
-                  alt="Endorse Answer"
-                />
-              </div>,
-            ]}
-            {!this.props.isExpert &&
+            {!this.props.isReadonly &&
+              this.props.isExpert && [
+                <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
+                <div
+                  {...styles.voteImgWrapper}
+                  onClick={this.toggleAnswerExpertVote}
+                  title="Endorse Answer"
+                >
+                  <img
+                    {...styles.expertVoteImg}
+                    src={
+                      "/static/expert" +
+                      (answer.isExpertVoted ? "_active" : "") +
+                      ".svg"
+                    }
+                    alt="Endorse Answer"
+                  />
+                </div>,
+              ]}
+            {(this.props.isReadonly || !this.props.isExpert) &&
               answer.expertvotes > 0 && [
                 answer.expertvotes > 1 && (
                   <div {...styles.expertVoteCount}>{answer.expertvotes}</div>
@@ -403,37 +406,41 @@ export default class AnswerComponent extends React.Component<Props, State> {
                   />
                 </div>,
               ]}
-            <div
-              {...styles.voteImgWrapper}
-              onClick={() => this.toggleAnswerLike(-1)}
-              title="Downvote Answer"
-            >
-              <img
-                {...styles.voteImg}
-                src={
-                  "/static/downvote" +
-                  (answer.isDownvoted ? "_orange" : "_white") +
-                  ".svg"
-                }
-                alt="Downvote"
-              />
-            </div>
+            {!this.props.isReadonly && (
+              <div
+                {...styles.voteImgWrapper}
+                onClick={() => this.toggleAnswerLike(-1)}
+                title="Downvote Answer"
+              >
+                <img
+                  {...styles.voteImg}
+                  src={
+                    "/static/downvote" +
+                    (answer.isDownvoted ? "_orange" : "_white") +
+                    ".svg"
+                  }
+                  alt="Downvote"
+                />
+              </div>
+            )}
             <div {...styles.voteCount}>{answer.upvotes}</div>
-            <div
-              {...styles.voteImgWrapper}
-              onClick={() => this.toggleAnswerLike(1)}
-              title="Upvote Answer"
-            >
-              <img
-                {...styles.voteImg}
-                src={
-                  "/static/upvote" +
-                  (answer.isUpvoted ? "_orange" : "_white") +
-                  ".svg"
-                }
-                alt="Upvote"
-              />
-            </div>
+            {!this.props.isReadonly && (
+              <div
+                {...styles.voteImgWrapper}
+                onClick={() => this.toggleAnswerLike(1)}
+                title="Upvote Answer"
+              >
+                <img
+                  {...styles.voteImg}
+                  src={
+                    "/static/upvote" +
+                    (answer.isUpvoted ? "_orange" : "_white") +
+                    ".svg"
+                  }
+                  alt="Upvote"
+                />
+              </div>
+            )}
           </div>
         </div>
         <div {...styles.answer}>
@@ -490,10 +497,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <div {...styles.actionButtons}>
             <div {...styles.permalink}>
               <small>
-                <a href={"#" + answer.oid}>Permalink</a>
+                <Link to={"/exams/" + this.props.filename + "#" + answer.oid}>
+                  Permalink
+                </Link>
               </small>
             </div>
-            {this.state.savedText.length > 0 && (
+            {!this.props.isReadonly && this.state.savedText.length > 0 && (
               <div {...styles.actionButton} onClick={this.toggleAddingComment}>
                 <img
                   {...styles.actionImg}
@@ -502,7 +511,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                 />
               </div>
             )}
-            {answer.canEdit && (
+            {!this.props.isReadonly && answer.canEdit && (
               <div {...styles.actionButton} onClick={this.startEdit}>
                 <img
                   {...styles.actionImg}
@@ -511,7 +520,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                 />
               </div>
             )}
-            {(answer.canEdit || this.props.isAdmin) && (
+            {!this.props.isReadonly && (answer.canEdit || this.props.isAdmin) && (
               <div {...styles.actionButton} onClick={this.removeAnswer}>
                 <img
                   {...styles.actionImg}
@@ -520,18 +529,20 @@ export default class AnswerComponent extends React.Component<Props, State> {
                 />
               </div>
             )}
-            <div {...styles.actionButton} onClick={this.toggleAnswerFlag}>
-              <img
-                {...styles.actionImg}
-                src={
-                  answer.isFlagged
-                    ? "/static/flag_active.svg"
-                    : "/static/flag.svg"
-                }
-                title="Flag as Inappropriate"
-              />
-            </div>
-            {answer.flagged > 0 && (
+            {!this.props.isReadonly && (
+              <div {...styles.actionButton} onClick={this.toggleAnswerFlag}>
+                <img
+                  {...styles.actionImg}
+                  src={
+                    answer.isFlagged
+                      ? "/static/flag_active.svg"
+                      : "/static/flag.svg"
+                  }
+                  title="Flag as Inappropriate"
+                />
+              </div>
+            )}
+            {!this.props.isReadonly && answer.flagged > 0 && (
               <div {...styles.actionButton} onClick={this.resetAnswerFlagged}>
                 {answer.flagged}
               </div>
@@ -542,11 +553,12 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <ImageOverlay onClose={this.endImageDialog} />
         )}
 
-        {(comments.length > 0 || this.state.addingComment) && (
+        {(answer.comments.length > 0 || this.state.addingComment) && (
           <div {...styles.comments}>
             {this.state.addingComment && (
               <Comment
                 isNewComment={true}
+                isReadonly={this.props.isReadonly}
                 isAdmin={this.props.isAdmin}
                 filename={this.props.filename}
                 sectionId={this.props.sectionId}
@@ -558,6 +570,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                   authorDisplayName: "",
                   canEdit: true,
                   time: "",
+                  edittime: "",
                 }}
                 onSectionChanged={this.props.onSectionChanged}
                 onNewCommentSaved={this.toggleAddingComment}
@@ -566,6 +579,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
             {comments.map(e => (
               <Comment
                 key={e.oid}
+                isReadonly={this.props.isReadonly}
                 isAdmin={this.props.isAdmin}
                 comment={e}
                 filename={this.props.filename}

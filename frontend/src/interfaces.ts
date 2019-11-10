@@ -32,6 +32,9 @@ export interface Answer {
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time
+  edittime: string; // ISO 8601, last edit time
+  filename: string; // filename of the corresponding exam
+  sectionId: string; // id of section containing answer
   divRef: HTMLDivElement; // root div element for scroll jumping
 }
 
@@ -42,6 +45,7 @@ export interface Comment {
   authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the comment
   time: string; // ISO 8601, creation time
+  edittime: string; // ISO 8601, last edit time
 }
 
 export interface PdfSection {
@@ -71,7 +75,7 @@ export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
   category: string; // category of exam
-  payment_category: string; // payment category of exam
+  needs_payment: boolean; // whether a payment is required
   examtype: string; // type of exam
   remark: string; // remark for the exam
   import_claim: string; // the user who is importing the exam
@@ -145,7 +149,7 @@ export interface ExamMetaData {
   public: boolean;
   finished_cuts: boolean;
   finished_wiki_transfer: boolean;
-  payment_category: string;
+  needs_payment: boolean;
   has_printonly: boolean;
   has_solution: boolean;
   solution_printonly: boolean;
@@ -182,7 +186,6 @@ export interface UserInfo {
 export interface PaymentInfo {
   oid: string;
   active: boolean;
-  category: string;
   payment_time: string;
   uploaded_filename: string;
   check_time: string;

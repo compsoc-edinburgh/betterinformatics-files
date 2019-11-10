@@ -813,7 +813,7 @@ export default class Category extends React.Component<Props, State> {
                         {catAdmin && (
                           <td>
                             {exam.public ? "Public" : "Hidden"}
-                            {exam.payment_category ? " (oral)" : ""}
+                            {exam.needs_payment ? " (oral)" : ""}
                           </td>
                         )}
                         {catAdmin && (

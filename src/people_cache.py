@@ -16,4 +16,9 @@ def cache(validity):
                 self.cache_time[item] = time.time()
             return self.cache[item]
 
+        def reset_cache(self, key):
+            if key in self.cache:
+                del self.cache[key]
+                del self.cache_time[key]
+
     return PeopleCache

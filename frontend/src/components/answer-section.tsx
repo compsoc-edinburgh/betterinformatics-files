@@ -151,6 +151,7 @@ export default class AnswerSectionComponent extends React.Component<
             {section.answers.map(e => (
               <AnswerComponent
                 key={e.oid}
+                isReadonly={false}
                 isAdmin={this.props.isAdmin}
                 isExpert={this.props.isExpert}
                 answer={e}

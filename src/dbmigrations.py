@@ -4,8 +4,9 @@ import sys
 import server
 import threading
 import pymongo
+from datetime import datetime, timezone, timedelta
 
-DB_VERSION = 11
+DB_VERSION = 14
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -261,6 +262,110 @@ def add_experts(mongo_db):
             })
     set_db_version(mongo_db, 11)
 
+
+def recalculate_answer_counts(mongo_db):
+    print("Migrate 'recalculate answer counts'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        update = {
+            "count_answers": 0,
+            "count_answered": 0,
+        }
+        sections = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }, {
+            "answersection.answers": 1
+        })
+        for section in sections:
+            answered = False
+            for answer in section["answersection"]["answers"]:
+                if answer["text"]:
+                    answered = True
+                    update["count_answers"] += 1
+            if answered:
+                update["count_answered"] += 1
+        mongo_db.exammetadata.update_one({
+            "filename": exam["filename"]
+        }, {
+            "$set": update
+        })
+
+    set_db_version(mongo_db, 12)
+
+
+def add_edit_time(mongo_db):
+    print("Migrate 'add edit time'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        sections = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }, {
+            "answersection.answers": 1
+        })
+        for section in sections:
+            for answer in section["answersection"]["answers"]:
+                mongo_db.exammetadata.update_one({
+                    "answersection.answers._id": answer["_id"]
+                }, {
+                    "$set": {
+                        "edittime": answer["time"]
+                    }
+                })
+                for comment in answer["comments"]:
+                    mongo_db.exammetadata.update_one({
+                        "answersection.answers.comments._id": comment["_id"]
+                    }, {
+                        "$set": {
+                            "edittime": comment["time"]
+                        }
+                    })
+    set_db_version(mongo_db, 13)
+
+
+def clean_up_empty_answers(mongo_db):
+    print("Clean up empty answers", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        sections = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }, {
+            "answersection.answers": 1
+        })
+        for section in sections:
+            for answer in section["answersection"]["answers"]:
+                if not answer["text"]:
+                    edited = server.parse_iso_datetime(answer["edittime"])
+                    if datetime.now(timezone.utc) - edited > timedelta(weeks=7):
+                        server.remove_answer(answer["_id"])
+
+
+def change_payments(mongo_db):
+    print("Migrate 'change payments'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1, "needs_payment": 1, "payment_category": 1}))
+    for exam in exams:
+        needs_payment = exam.get("needs_payment", False) or len(exam.get("payment_category", "")) > 0
+        mongo_db.exammetadata.update_one({
+            "filename": exam["filename"]
+        }, {
+            "$set": {
+                "needs_payment": needs_payment
+            },
+            "$unset": {
+                "payment_category": ""
+            }
+        })
+    payments = list(mongo_db.payments.find({}))
+    for payment in payments:
+        mongo_db.payments.update_one({
+            "_id": payment["_id"]
+        }, {
+            "$unset": {
+                "category": ""
+            }
+        })
+    set_db_version(mongo_db, 14)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -273,6 +378,9 @@ MIGRATIONS = [
     add_cut_counts,
     add_attachments,
     add_experts,
+    recalculate_answer_counts,
+    add_edit_time,
+    change_payments,
 ]
 
 
@@ -310,3 +418,21 @@ def do_migrate(mongo_db):
 def migrate(mongo_db):
     migrationthread = threading.Thread(target=do_migrate, args=(mongo_db,), kwargs={})
     migrationthread.start()
+
+
+CLEANUPS = [
+    clean_up_empty_answers,
+]
+
+
+def do_cleanup(mongo_db):
+    with open(DB_LOCK_FILE, "w") as f:
+        fcntl.lockf(f, fcntl.LOCK_EX)
+        for cln in CLEANUPS:
+            cln(mongo_db)
+        fcntl.lockf(f, fcntl.LOCK_UN)
+
+
+def cleanup(mongo_db):
+    cleanupthread = threading.Thread(target=do_cleanup, args=(mongo_db,), kwargs={})
+    cleanupthread.start()

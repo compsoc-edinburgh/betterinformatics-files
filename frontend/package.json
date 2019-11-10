@@ -5,9 +5,6 @@
   "proxy": {
     "/api": {
       "target": "http://localhost:8080",
-      "auth": "schneij:UOmtnC7{'%G",
-      "auth2": "fletchz:123456abc",
-      "auth3": "morica:admin666",
       "changeOrigin": true
     }
   },

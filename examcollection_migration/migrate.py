@@ -213,7 +213,7 @@ def migrate_category(client, path):
             print("Set payment category")
             client.post(
                 '/api/exam/' + newfilename + '/metadata',
-                payment_category=category,
+                needs_payment=category,
             )
         if exam.name.lower() != category.lower():
             print("Set examtype to other category")

@@ -1,34 +1,33 @@
-FROM node:9.4-alpine
+FROM node:13.1-alpine
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .
 COPY ./frontend/yarn.lock .
+RUN yarn
 COPY ./frontend/tsconfig.json .
 COPY ./frontend/tslint.json .
-RUN yarn
-COPY ./frontend/src ./src
+COPY ./frontend/.prettierrc ./.prettierrc
 COPY ./frontend/public ./public
-RUN yarn run check-format || echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'
+COPY ./frontend/src ./src
+RUN yarn run check-format || ( >&2 echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'; exit 1 )
 RUN yarn run build
 
 
-FROM eu.gcr.io/vseth-public/base:charlie
+FROM eu.gcr.io/vseth-public/base:delta
 LABEL maintainer='schmidbe@vis.ethz.ch'
 
 WORKDIR /app
 
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
 
-# TODO remove the apt-get update again
-RUN apt-get update
 RUN apt-get install -y \
 	python3 python3-pip python3-dev \
 	smbclient poppler-utils
 
-COPY cinit.yml /etc/cinit.d/community-solutions.yml
-
 COPY ./src/requirements.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
+
+COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
 # prevent guincorn from buffering prints from pythno workers
 ENV PYTHONUNBUFFERED True

@@ -33,6 +33,6 @@ export default class Colors {
   static readonly linkBannerBackground = "#dddddd";
   static readonly inactiveElement = "#b8b8b8";
   static readonly silentText = "#909090";
-  static readonly selectionBackground = "#6cc2ff";
+  static readonly selectionBackground = "rgba(108, 194, 255, 0.3)";
   static readonly commentBorder = "#e3e3e3";
 }
