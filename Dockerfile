@@ -3,12 +3,13 @@ FROM node:13.1-alpine
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .
 COPY ./frontend/yarn.lock .
+RUN yarn
 COPY ./frontend/tsconfig.json .
 COPY ./frontend/tslint.json .
-RUN yarn
-COPY ./frontend/src ./src
+COPY ./frontend/.prettierrc ./.prettierrc
 COPY ./frontend/public ./public
-RUN yarn run check-format || echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'
+COPY ./frontend/src ./src
+RUN yarn run check-format || ( >&2 echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'; exit 1 )
 RUN yarn run build
 
 
