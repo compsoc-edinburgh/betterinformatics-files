@@ -28,6 +28,7 @@ import legacy_importer
 import people_cache
 
 IS_DEBUG = os.environ['RUNTIME_MONGO_DB_PW'] == 'docker'
+IS_STAGING = os.environ.get('DEPLOYMENT_DOMAIN', '').endswith('svis.ethz.ch')
 
 people_channel = grpc.insecure_channel(
     os.environ["RUNTIME_SERVIS_PEOPLE_API_SERVER"] + ":" +
@@ -558,7 +559,6 @@ def log_request(response):
 @app.route("/feedback")
 @app.route("/scoreboard")
 @app.route("/modqueue")
-@login_required
 def index():
     return render_template("index.html")
 
@@ -566,7 +566,6 @@ def index():
 @app.route('/exams/<argument>')
 @app.route('/user/<argument>')
 @app.route('/category/<argument>')
-@login_required
 def index_with_argument(argument):
     return index()
 
@@ -576,12 +575,10 @@ def send_tutorial_redirect():
     return redirect('/tutorial/index.html')
 
 @app.route('/tutorial/<path:path>')
-@login_required
 def send_tutorial(path):
     return send_from_directory('tutorial-slides', path)
 
 @app.route('/resolve/<filename>')
-@login_required
 def resolve(filename):
     result = get_resolved_filename(filename)
     if not result:
