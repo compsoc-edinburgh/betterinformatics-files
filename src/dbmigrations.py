@@ -6,7 +6,7 @@ import threading
 import pymongo
 from datetime import datetime, timezone, timedelta
 
-DB_VERSION = 14
+DB_VERSION = 15
 DB_VERSION_KEY = "dbversion"
 DB_LOCK_FILE = ".dblock"
 
@@ -294,31 +294,7 @@ def recalculate_answer_counts(mongo_db):
 
 
 def add_edit_time(mongo_db):
-    print("Migrate 'add edit time'", file=sys.stderr)
-    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
-    for exam in exams:
-        sections = mongo_db.answersections.find({
-            "filename": exam["filename"]
-        }, {
-            "answersection.answers": 1
-        })
-        for section in sections:
-            for answer in section["answersection"]["answers"]:
-                mongo_db.exammetadata.update_one({
-                    "answersection.answers._id": answer["_id"]
-                }, {
-                    "$set": {
-                        "edittime": answer["time"]
-                    }
-                })
-                for comment in answer["comments"]:
-                    mongo_db.exammetadata.update_one({
-                        "answersection.answers.comments._id": comment["_id"]
-                    }, {
-                        "$set": {
-                            "edittime": comment["time"]
-                        }
-                    })
+    print("Do not migrate 'add edit time'", file=sys.stderr)
     set_db_version(mongo_db, 13)
 
 
@@ -366,6 +342,35 @@ def change_payments(mongo_db):
     set_db_version(mongo_db, 14)
 
 
+def add_edit_time_correctly(mongo_db):
+    print("Migrate 'add edit time correctly'", file=sys.stderr)
+    exams = list(mongo_db.exammetadata.find({}, {"filename": 1}))
+    for exam in exams:
+        sections = mongo_db.answersections.find({
+            "filename": exam["filename"]
+        }, {
+            "answersection.answers": 1
+        })
+        for section in sections:
+            for answer in section["answersection"]["answers"]:
+                mongo_db.answersections.update_one({
+                    "answersection.answers._id": answer["_id"]
+                }, {
+                    "$set": {
+                        "answersection.answers.$.edittime": answer["time"]
+                    }
+                })
+                for idx, comment in enumerate(answer["comments"]):
+                    mongo_db.answersections.update_one({
+                        "answersection.answers._id": answer["_id"]
+                    }, {
+                        "$set": {
+                            "answersection.answers.$.comments.{}.edittime".format(idx): comment["time"]
+                        }
+                    })
+    set_db_version(mongo_db, 15)
+
+
 MIGRATIONS = [
     init_migration,
     add_downvotes,
@@ -381,6 +386,7 @@ MIGRATIONS = [
     recalculate_answer_counts,
     add_edit_time,
     change_payments,
+    add_edit_time_correctly,
 ]
 
 
