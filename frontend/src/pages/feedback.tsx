@@ -129,6 +129,16 @@ export default class Feedback extends React.Component<Props, State> {
             </a>
             .
           </p>
+          <p>
+            To report issues with the platform you can open an issue in our{" "}
+            <a
+              href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
+              target="_blank"
+            >
+              issue tracker
+            </a>
+            .
+          </p>
         </div>
         <div {...styles.feedbackWrapper}>
           {this.state.result && <p>{this.state.result}</p>}
