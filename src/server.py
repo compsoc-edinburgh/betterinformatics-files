@@ -2873,6 +2873,7 @@ def pdf(pdftype, filename):
         "resolve_alias": 1,
         "category": 1,
         "displayname": 1,
+        "needs_payment": 1,
     })
     if not metadata:
         return not_found()
@@ -2882,6 +2883,11 @@ def pdf(pdftype, filename):
         return not_allowed()
     if not can_view_exam(username, filename):
         return not_allowed()
+    if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
+        return not_allowed()
+    if metadata.get("needs_payment", False) and not has_admin_rights_for_exam(username, filename):
+        if not has_payed(username):
+            return not_allowed()
     try:
         attachment_name = metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
         data = minio_client.get_object(minio_bucket, PDF_DIR[pdftype] + filename)
@@ -2911,6 +2917,7 @@ def zip(category):
         "displayname": 1,
         "category": 1,
         "filename": 1,
+        "needs_payment": 1,
     })
     if not all_metadata:
         return not_found()
@@ -2919,15 +2926,21 @@ def zip(category):
     base_path = None
 
     data = io.BytesIO()
+    zip_is_empty = True
     username = current_user.username
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
         # get pdfs, write to tmpdirname/
         for metadata in all_metadata:
             filename = metadata["filename"]
-            if not can_view_exam(username, filename, metadata=metadata):
-                continue # not_allowed
             if metadata.get("has_printonly") and not has_admin_rights_for_exam(username, filename):
                 continue # not_allowed
+            if not can_view_exam(username, filename, metadata=metadata):
+                continue # not_allowed
+            if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
+                continue # not_allowed
+            if metadata.get("needs_payment", False) and not has_admin_rights_for_exam(username, filename):
+                if not has_payed(username):
+                    continue # not_allowed
 
             # get exam pdf
             try:
@@ -2952,6 +2965,9 @@ def zip(category):
             with os.scandir(tmpdirname) as it:
                 for f_name in it:
                     z.write(f_name, os.path.basename(f_name))
+                    zip_is_empty = False
+    if zip_is_empty:
+        return not_allowed()
     data.seek(0)
     attachment_name = category + ".zip"
     return send_file(data, attachment_filename=attachment_name, as_attachment="download" in request.args, mimetype="application/zip")
