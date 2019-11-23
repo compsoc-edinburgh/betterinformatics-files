@@ -259,9 +259,7 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  selectAllExams = (
-    examType: string,
-  ) => {
+  selectAllExams = (examType: string) => {
     this.setState(prevState => {
       prevState.exams.forEach(exam => {
         let currExamtype = exam.examtype ? exam.examtype : "Exams";
@@ -272,9 +270,7 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  unselectAllExams = (
-    examType: string,
-  ) => {
+  unselectAllExams = (examType: string) => {
     this.setState(prevState => {
       prevState.exams.forEach(exam => {
         let currExamtype = exam.examtype ? exam.examtype : "Exams";
