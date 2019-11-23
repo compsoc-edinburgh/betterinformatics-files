@@ -6,7 +6,7 @@ import {
   MetaCategory,
 } from "../interfaces";
 import { css } from "glamor";
-import { fetchapi, fetchpost, fetchpostArray } from "../fetch-utils";
+import { fetchapi, fetchpost } from "../fetch-utils";
 import { Link, Redirect } from "react-router-dom";
 import {
   filterExams,
@@ -262,14 +262,27 @@ export default class Category extends React.Component<Props, State> {
 
   // TODO: return result of fetchpost directly? no .then()?
   // TODO: debug passing of data to fetchpost
+  // https://stackoverflow.com/questions/17793183/how-to-replace-window-open-with-a-post
   dlSelectedExams = () => {
-    return fetchpostArray("/api/zip", 'filenames', this.state.selectedExams)
-      .catch(err => {
-        this.setState({
-          error: err.toString(),
-        });
-      });
-  }
+    if (!this.state.category) return;
+    let form = document.createElement("form");
+    form.action = "/api/zip/" + this.state.category.category + "?download";
+    form.method = "POST";
+    form.target = "_blank";
+    // TODO: remove console.logs
+    console.log(this.state.selectedExams);
+    this.state.selectedExams.forEach(filename => {
+      console.log(filename);
+      let input = document.createElement("textarea");
+      input.name = "filenames";
+      input.value = filename;
+      form.appendChild(input);
+    });
+    form.style.display = "none";
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+  };
 
   addToSet = (key: string, value: string) => {
     return fetchpost("/api/category/addtoset", {
@@ -766,6 +779,16 @@ export default class Category extends React.Component<Props, State> {
             </div>
           )}
         </div>
+
+        <div>
+          <button
+            onClick={this.dlSelectedExams}
+            disabled={this.state.selectedExams.size === 0}
+          >
+            Download selected exams
+          </button>
+        </div>
+
         <div {...styles.filterInput}>
           <input
             type="text"
@@ -807,9 +830,14 @@ export default class Category extends React.Component<Props, State> {
                         <td>
                           <input
                             type="checkbox"
-                            checked={this.state.selectedExams.has(exam.filename)}
+                            checked={this.state.selectedExams.has(
+                              exam.filename,
+                            )}
                             onChange={ev =>
-                              this.selectedExamsCheckboxValueChanged(exam.filename, ev)
+                              this.selectedExamsCheckboxValueChanged(
+                                exam.filename,
+                                ev,
+                              )
                             }
                           />
                         </td>
