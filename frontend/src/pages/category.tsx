@@ -259,8 +259,32 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  // TODO: return result of fetchpost directly? no .then()?
-  // TODO: debug passing of data to fetchpost
+  selectAllExams = (
+    examType: string,
+  ) => {
+    this.setState(prevState => {
+      prevState.exams.forEach(exam => {
+        let currExamtype = exam.examtype ? exam.examtype : "Exams";
+        if (currExamtype === examType && exam.canView)
+          prevState.selectedExams.add(exam.filename);
+      });
+      return prevState;
+    });
+  };
+
+  unselectAllExams = (
+    examType: string,
+  ) => {
+    this.setState(prevState => {
+      prevState.exams.forEach(exam => {
+        let currExamtype = exam.examtype ? exam.examtype : "Exams";
+        if (currExamtype === examType && exam.canView)
+          prevState.selectedExams.delete(exam.filename);
+      });
+      return prevState;
+    });
+  };
+
   // https://stackoverflow.com/questions/17793183/how-to-replace-window-open-with-a-post
   dlSelectedExams = () => {
     if (!this.state.category) return;
@@ -808,7 +832,15 @@ export default class Category extends React.Component<Props, State> {
               <table {...styles.examsTable}>
                 <thead>
                   <tr>
-                    <th>Select for download</th>
+                    <th>
+                      Select for download
+                      <button onClick={ev => this.selectAllExams(examType)}>
+                        select all
+                      </button>
+                      <button onClick={ev => this.unselectAllExams(examType)}>
+                        deselect all
+                      </button>
+                    </th>
                     <th>Name</th>
                     <th>Remark</th>
                     <th>Answers</th>
