@@ -269,10 +269,7 @@ export default class Category extends React.Component<Props, State> {
     form.action = "/api/zip/" + this.state.category.category + "?download";
     form.method = "POST";
     form.target = "_blank";
-    // TODO: remove console.logs
-    console.log(this.state.selectedExams);
     this.state.selectedExams.forEach(filename => {
-      console.log(filename);
       let input = document.createElement("textarea");
       input.name = "filenames";
       input.value = filename;
