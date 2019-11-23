@@ -2898,10 +2898,7 @@ def zip(category):
     Filters to only send exams gettable by current user, and from a requested category
     POST Parameter 'filenames': array of strings identifying the exams
     """
-    # TODO: remove prints
     filenames = request.form.getlist("filenames")
-    print(category, file=sys.stderr)
-    print(filenames, file=sys.stderr)
     all_metadata = exam_metadata.find({
         "filename": { "$in": filenames },
         "category": category
@@ -2912,25 +2909,24 @@ def zip(category):
         "solution_printonly": 1,
         "resolve_alias": 1,
         "displayname": 1,
+        "category": 1,
+        "filename": 1,
     })
     if not all_metadata:
         return not_found()
-    
     # TODO: contain the dirtiness in intermediate_pdf_storage/ at the risk of polluting uploaded pdfs?
     # base_path = app.config['INTERMEDIATE_PDF_STORAGE']
     base_path = None
-    
+
     data = io.BytesIO()
     username = current_user.username
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
         # get pdfs, write to tmpdirname/
         for metadata in all_metadata:
-            print("trying to get exam and solution pdf of", filename, file=sys.stderr)
-
             filename = metadata["filename"]
             if not can_view_exam(username, filename, metadata=metadata):
                 continue # not_allowed
-            if metadata["has_printonly"] and not has_admin_rights_for_exam(username, filename):
+            if metadata.get("has_printonly") and not has_admin_rights_for_exam(username, filename):
                 continue # not_allowed
 
             # get exam pdf
@@ -2942,19 +2938,20 @@ def zip(category):
                 continue # not_found
 
             # get solution pdf
-            if metadata["solution_printonly"]:
+            if (not metadata.get("has_solution")) or metadata.get("solution_printonly"):
                 continue # not_allowed
             try:
                 attachment_name = metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
+                attachment_name = os.path.splitext(attachment_name)[0] + "_solution.pdf"
                 attachment_path = os.path.join(tmpdirname, attachment_name)
-                minio_client.fget_object(minio_bucket, PDF_DIR['exam'] + filename, attachment_path)
+                minio_client.fget_object(minio_bucket, PDF_DIR['solution'] + filename, attachment_path)
             except NoSuchKey as n:
                 continue # not_found
         # write to zip, pseudofile `data`
         with zipfile.ZipFile(data, mode='w') as z:
             with os.scandir(tmpdirname) as it:
                 for f_name in it:
-                    z.write(f_name)
+                    z.write(f_name, os.path.basename(f_name))
     data.seek(0)
     attachment_name = category + ".zip"
     return send_file(data, attachment_filename=attachment_name, as_attachment="download" in request.args, mimetype="application/zip")
