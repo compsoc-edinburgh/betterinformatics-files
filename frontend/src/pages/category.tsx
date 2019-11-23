@@ -6,7 +6,7 @@ import {
   MetaCategory,
 } from "../interfaces";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchapi, fetchpost, fetchpostArray } from "../fetch-utils";
 import { Link, Redirect } from "react-router-dom";
 import {
   filterExams,
@@ -83,6 +83,7 @@ interface State {
   gotoExam?: CategoryExam;
   redirectBack: boolean;
   error?: string;
+  selectedExams: Set<string>;
 }
 
 export default class Category extends React.Component<Props, State> {
@@ -114,6 +115,7 @@ export default class Category extends React.Component<Props, State> {
     },
     editingMetaData: false,
     redirectBack: false,
+    selectedExams: new Set<string>(),
   };
 
   componentDidMount() {
@@ -240,6 +242,34 @@ export default class Category extends React.Component<Props, State> {
       return prevState;
     });
   };
+
+  // TODO: forbid selection of printonly exams
+  // "whether current user wants to download this" is not a metadata of the category, so different fun
+  selectedExamsCheckboxValueChanged = (
+    key: string,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const newVal = event.target.checked;
+    this.setState(prevState => {
+      if (newVal) {
+        prevState.selectedExams.add(key);
+      } else {
+        prevState.selectedExams.delete(key);
+      }
+      return prevState;
+    });
+  };
+
+  // TODO: return result of fetchpost directly? no .then()?
+  // TODO: debug passing of data to fetchpost
+  dlSelectedExams = () => {
+    return fetchpostArray("/api/zip", 'filenames', this.state.selectedExams)
+      .catch(err => {
+        this.setState({
+          error: err.toString(),
+        });
+      });
+  }
 
   addToSet = (key: string, value: string) => {
     return fetchpost("/api/category/addtoset", {
@@ -759,6 +789,7 @@ export default class Category extends React.Component<Props, State> {
               <table {...styles.examsTable}>
                 <thead>
                   <tr>
+                    <th>Select for download</th>
                     <th>Name</th>
                     <th>Remark</th>
                     <th>Answers</th>
@@ -773,6 +804,15 @@ export default class Category extends React.Component<Props, State> {
                     .filter(exam => (exam.examtype || "Exams") === examType)
                     .map(exam => (
                       <tr key={exam.filename}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={this.state.selectedExams.has(exam.filename)}
+                            onChange={ev =>
+                              this.selectedExamsCheckboxValueChanged(exam.filename, ev)
+                            }
+                          />
+                        </td>
                         <td>
                           {(exam.canView && (
                             <Link to={"/exams/" + exam.filename}>
