@@ -18,6 +18,11 @@ import random
 import enum
 import logging.config
 
+# implement 47
+import zipfile 
+import io
+import tempfile
+
 import grpc
 import people_pb2
 import people_pb2_grpc
@@ -2883,6 +2888,58 @@ def pdf(pdftype, filename):
         return send_file(data, attachment_filename=attachment_name, as_attachment="download" in request.args, mimetype="application/pdf")
     except NoSuchKey as n:
         return not_found()
+
+
+@app.route("/api/zip/<category>")
+@login_required
+def zip(category):
+    """
+    Bundles all gettable exams of the given category to a zip and sends it
+    """
+    all_metadata = exam_metadata.find({
+        "category": category
+    }, {
+        "public": 1,
+        "solution_printonly": 1,
+        "resolve_alias": 1,
+        "filename": 1,
+        "displayname": 1,
+    })
+    if not all_metadata:
+        return not_found()
+    data = io.BytesIO()
+    
+    # TODO: contain the dirtiness in intermediate_pdf_storage/ at the risk of polluting uploaded pdfs?
+    # base_path = app.config['INTERMEDIATE_PDF_STORAGE']
+    base_path = None
+    
+    with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
+        # get pdfs, write to tmpdirname/
+        for metadata in all_metadata:
+            
+            # TODO: correctly determine is_printonly (we don't know pdftype)
+            return not_found()
+
+            is_printonly = pdftype in ['printonly'] or (pdftype in ['solution'] and metadata.get("solution_printonly"))
+            username = current_user.username
+            if is_printonly and not has_admin_rights_for_exam(username, filename):
+                continue # not_allowed
+            if not can_view_exam(username, filename):
+                continue # not_allowed
+            try:
+                pdfname = metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
+                pdfpath = os.path.join(tmpdirname, pdfname)
+                minio_client.fget_object(minio_bucket, PDF_DIR[pdftype] + filename, pdfpath)
+            except NoSuchKey as n:
+                return not_found()
+        # write to zip, pseudofile `data`
+        with zipfile.ZipFile(data, mode='w') as z:
+            with os.scandir(tmpdirname) as it:
+                for f_name in it:
+                    z.write(f_name)
+    data.seek(0)
+    attachment_filename = category + ".zip"
+    return send_file(data, attachment_filename=attachment_name, as_attachment="download" in request.args, mimetype="application/zip")
 
 
 @app.route("/api/printpdf/<pdftype>/<filename>", methods=['POST'])
