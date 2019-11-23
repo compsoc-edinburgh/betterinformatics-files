@@ -243,7 +243,6 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  // TODO: forbid selection of printonly exams
   // "whether current user wants to download this" is not a metadata of the category, so different fun
   selectedExamsCheckboxValueChanged = (
     key: string,
@@ -836,6 +835,7 @@ export default class Category extends React.Component<Props, State> {
                                 ev,
                               )
                             }
+                            disabled={!exam.canView}
                           />
                         </td>
                         <td>
