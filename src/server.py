@@ -2898,9 +2898,12 @@ def zip(category):
     Filters to only send exams gettable by current user, and from a requested category
     POST Parameter 'filenames': array of strings identifying the exams
     """
+    # TODO: remove prints
     filenames = request.form.getlist("filenames")
+    print(category, file=sys.stderr)
+    print(filenames, file=sys.stderr)
     all_metadata = exam_metadata.find({
-        "filename": { $in: filenames },
+        "filename": { "$in": filenames },
         "category": category
     }, {
         "public": 1,
@@ -2912,7 +2915,7 @@ def zip(category):
     })
     if not all_metadata:
         return not_found()
-        
+    
     # TODO: contain the dirtiness in intermediate_pdf_storage/ at the risk of polluting uploaded pdfs?
     # base_path = app.config['INTERMEDIATE_PDF_STORAGE']
     base_path = None
@@ -2922,6 +2925,8 @@ def zip(category):
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
         # get pdfs, write to tmpdirname/
         for metadata in all_metadata:
+            print("trying to get exam and solution pdf of", filename, file=sys.stderr)
+
             filename = metadata["filename"]
             if not can_view_exam(username, filename, metadata=metadata):
                 continue # not_allowed
