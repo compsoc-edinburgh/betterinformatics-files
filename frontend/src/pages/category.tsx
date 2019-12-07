@@ -60,6 +60,17 @@ const styles = {
     width: "100%",
     marginBottom: "20px",
   }),
+  // actionButtons: css({
+  //   display: "flex",
+  //   justifyContent: "flex-end",
+  // }),
+  actionButton: css({
+    cursor: "pointer",
+    marginLeft: "10px",
+  }),
+  actionImg: css({
+    height: "26px",
+  }),
 };
 
 interface Props {
@@ -829,13 +840,28 @@ export default class Category extends React.Component<Props, State> {
                 <thead>
                   <tr>
                     <th>
-                      Select for download
-                      <button onClick={ev => this.selectAllExams(examType)}>
-                        select all
-                      </button>
-                      <button onClick={ev => this.unselectAllExams(examType)}>
-                        deselect all
-                      </button>
+                      {/* <div {...styles.actionButtons}> */}
+                        <div
+                          {...styles.actionButton}
+                          onClick={ev => this.selectAllExams(examType)}
+                        >
+                          <img
+                            {...styles.actionImg}
+                            src="/static/select_all.svg"
+                            title="Select All"
+                          />
+                        </div>
+                        <div
+                          {...styles.actionButton}
+                          onClick={ev => this.unselectAllExams(examType)}
+                        >
+                          <img
+                            {...styles.actionImg}
+                            src="/static/deselect_all.svg"
+                            title="Deselect All"
+                          />
+                        </div>
+                      {/* </div> */}
                     </th>
                     <th>Name</th>
                     <th>Remark</th>

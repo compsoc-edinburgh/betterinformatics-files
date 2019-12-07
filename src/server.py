@@ -18,7 +18,6 @@ import random
 import enum
 import logging.config
 
-# implement 47
 import zipfile 
 import io
 import tempfile
@@ -2883,11 +2882,6 @@ def pdf(pdftype, filename):
         return not_allowed()
     if not can_view_exam(username, filename):
         return not_allowed()
-    if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
-        return not_allowed()
-    if metadata.get("needs_payment", False) and not has_admin_rights_for_exam(username, filename):
-        if not has_payed(username):
-            return not_allowed()
     try:
         attachment_name = metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
         data = minio_client.get_object(minio_bucket, PDF_DIR[pdftype] + filename)
@@ -2921,9 +2915,8 @@ def zip(category):
     })
     if not all_metadata:
         return not_found()
-    # TODO: contain the dirtiness in intermediate_pdf_storage/ at the risk of polluting uploaded pdfs?
-    # base_path = app.config['INTERMEDIATE_PDF_STORAGE']
-    base_path = None
+    # contain the dirtiness in intermediate_pdf_storage/
+    base_path = app.config['INTERMEDIATE_PDF_STORAGE']
 
     data = io.BytesIO()
     zip_is_empty = True
@@ -2932,15 +2925,8 @@ def zip(category):
         # get pdfs, write to tmpdirname/
         for metadata in all_metadata:
             filename = metadata["filename"]
-            if metadata.get("has_printonly") and not has_admin_rights_for_exam(username, filename):
-                continue # not_allowed
             if not can_view_exam(username, filename, metadata=metadata):
                 continue # not_allowed
-            if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
-                continue # not_allowed
-            if metadata.get("needs_payment", False) and not has_admin_rights_for_exam(username, filename):
-                if not has_payed(username):
-                    continue # not_allowed
 
             # get exam pdf
             try:
