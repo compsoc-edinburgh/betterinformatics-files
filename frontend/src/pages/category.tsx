@@ -841,26 +841,26 @@ export default class Category extends React.Component<Props, State> {
                   <tr>
                     <th>
                       {/* <div {...styles.actionButtons}> */}
-                        <div
-                          {...styles.actionButton}
-                          onClick={ev => this.selectAllExams(examType)}
-                        >
-                          <img
-                            {...styles.actionImg}
-                            src="/static/select_all.svg"
-                            title="Select All"
-                          />
-                        </div>
-                        <div
-                          {...styles.actionButton}
-                          onClick={ev => this.unselectAllExams(examType)}
-                        >
-                          <img
-                            {...styles.actionImg}
-                            src="/static/deselect_all.svg"
-                            title="Deselect All"
-                          />
-                        </div>
+                      <div
+                        {...styles.actionButton}
+                        onClick={ev => this.selectAllExams(examType)}
+                      >
+                        <img
+                          {...styles.actionImg}
+                          src="/static/select_all.svg"
+                          title="Select All"
+                        />
+                      </div>
+                      <div
+                        {...styles.actionButton}
+                        onClick={ev => this.unselectAllExams(examType)}
+                      >
+                        <img
+                          {...styles.actionImg}
+                          src="/static/deselect_all.svg"
+                          title="Deselect All"
+                        />
+                      </div>
                       {/* </div> */}
                     </th>
                     <th>Name</th>
