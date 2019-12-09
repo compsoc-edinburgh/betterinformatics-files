@@ -2921,17 +2921,24 @@ def zip(category):
     data = io.BytesIO()
     zip_is_empty = True
     username = current_user.username
+    used_names = set()
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
         # get pdfs, write to tmpdirname/
         for metadata in all_metadata:
             filename = metadata["filename"]
             if not can_view_exam(username, filename, metadata=metadata):
-                continue # not_allowed
+                continue  # not_allowed
 
             # get exam pdf
             try:
-                attachment_name = metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
-                attachment_path = os.path.join(tmpdirname, attachment_name)
+                attachment_name = (metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"]).replace(" ", "_")).rstrip(".pdf")
+                if attachment_name in used_names:
+                    i = 0
+                    while "{}({})".format(attachment_name, i) in used_names:
+                        i += 1
+                    attachment_name = "{}({})".format(attachment_name, i)
+                used_names.add(attachment_name)
+                attachment_path = os.path.join(tmpdirname, attachment_name + ".pdf")
                 minio_client.fget_object(minio_bucket, PDF_DIR['exam'] + filename, attachment_path)
             except NoSuchKey as n:
                 continue # not_found
@@ -2940,12 +2947,11 @@ def zip(category):
             if (not metadata.get("has_solution")) or metadata.get("solution_printonly"):
                 continue # not_allowed
             try:
-                attachment_name = metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
-                attachment_name = os.path.splitext(attachment_name)[0] + "_solution.pdf"
-                attachment_path = os.path.join(tmpdirname, attachment_name)
-                minio_client.fget_object(minio_bucket, PDF_DIR['solution'] + filename, attachment_path)
+                sol_attachment_name = attachment_name + "_solution.pdf"
+                sol_attachment_path = os.path.join(tmpdirname, sol_attachment_name)
+                minio_client.fget_object(minio_bucket, PDF_DIR['solution'] + filename, sol_attachment_path)
             except NoSuchKey as n:
-                continue # not_found
+                continue  # not_found
         # write to zip, pseudofile `data`
         with zipfile.ZipFile(data, mode='w') as z:
             with os.scandir(tmpdirname) as it:
