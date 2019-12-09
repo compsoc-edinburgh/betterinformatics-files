@@ -66,10 +66,10 @@ const styles = {
   // }),
   actionButton: css({
     cursor: "pointer",
-    marginLeft: "10px",
+    marginLeft: "5px",
   }),
   actionImg: css({
-    height: "26px",
+    height: "20px",
   }),
 };
 
