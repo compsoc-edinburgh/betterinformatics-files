@@ -653,7 +653,7 @@ def category_exists(category):
 
 @app.route("/api/login", methods=['POST'])
 def login():
-    username = request.form.get("username").lower()
+    username = request.form.get("username", "").lower()
     password = request.form.get("password")
     if not username or not password:
         return not_possible("Missing arguments")
