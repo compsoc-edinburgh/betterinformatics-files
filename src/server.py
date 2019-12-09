@@ -1,6 +1,6 @@
 import sys
 from flask import Flask, g, request, redirect, url_for, send_from_directory, jsonify, Response, has_request_context, session
-from flask_login import LoginManager, login_required, login_user, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user
 import json
 from pymongo import MongoClient
 from functools import wraps
@@ -162,6 +162,7 @@ CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234
 app.config['INTERMEDIATE_PDF_STORAGE'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY' if IS_DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET']
+app.config['API_KEY'] = 'API_KEY' if IS_DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_API_KEY']
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 
 # Minio seems to run unsecured on port 80 in the debug environment
@@ -245,6 +246,21 @@ def get_argument_value(argument, func, args, kwargs):
         if param.name == argument:
             return args[i]
     return None
+
+
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        api_key = request.headers.get('X-COMMUNITY-SOLUTIONS-API-KEY')
+        def allowed():
+            if current_user.is_authenticated:
+                return True
+            if api_key and api_key == app.config['API_KEY']:
+                return True
+        if not allowed():
+            return not_allowed()
+        return f(*args, **kwargs)
+    return wrapper
 
 
 def require_admin(f):
