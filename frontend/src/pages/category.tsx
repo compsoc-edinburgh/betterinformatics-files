@@ -60,15 +60,18 @@ const styles = {
     width: "100%",
     marginBottom: "20px",
   }),
-  // actionButtons: css({
-  //   display: "flex",
-  //   justifyContent: "flex-end",
-  // }),
-  actionButton: css({
+  selectionColumn: css({
+    width: "50px",
+    textAlign: "center",
+  }),
+  selectionButtons: css({
+    display: "flex",
+  }),
+  selectionButton: css({
     cursor: "pointer",
     marginLeft: "5px",
   }),
-  actionImg: css({
+  selectionImg: css({
     height: "20px",
   }),
 };
@@ -839,29 +842,29 @@ export default class Category extends React.Component<Props, State> {
               <table {...styles.examsTable}>
                 <thead>
                   <tr>
-                    <th>
-                      {/* <div {...styles.actionButtons}> */}
-                      <div
-                        {...styles.actionButton}
-                        onClick={ev => this.selectAllExams(examType)}
-                      >
-                        <img
-                          {...styles.actionImg}
-                          src="/static/select_all.svg"
-                          title="Select All"
-                        />
+                    <th {...styles.selectionColumn}>
+                      <div {...styles.selectionButtons}>
+                        <div
+                          {...styles.selectionButton}
+                          onClick={ev => this.selectAllExams(examType)}
+                        >
+                          <img
+                            {...styles.selectionImg}
+                            src="/static/select_all.svg"
+                            title="Select All"
+                          />
+                        </div>
+                        <div
+                          {...styles.selectionButton}
+                          onClick={ev => this.unselectAllExams(examType)}
+                        >
+                          <img
+                            {...styles.selectionImg}
+                            src="/static/deselect_all.svg"
+                            title="Deselect All"
+                          />
+                        </div>
                       </div>
-                      <div
-                        {...styles.actionButton}
-                        onClick={ev => this.unselectAllExams(examType)}
-                      >
-                        <img
-                          {...styles.actionImg}
-                          src="/static/deselect_all.svg"
-                          title="Deselect All"
-                        />
-                      </div>
-                      {/* </div> */}
                     </th>
                     <th>Name</th>
                     <th>Remark</th>
@@ -877,7 +880,7 @@ export default class Category extends React.Component<Props, State> {
                     .filter(exam => (exam.examtype || "Exams") === examType)
                     .map(exam => (
                       <tr key={exam.filename}>
-                        <td>
+                        <td {...styles.selectionColumn}>
                           <input
                             type="checkbox"
                             checked={this.state.selectedExams.has(
