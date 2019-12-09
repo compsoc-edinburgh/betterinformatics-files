@@ -8,6 +8,7 @@ from flask import send_file, send_from_directory, render_template
 from minio import Minio
 from minio.error import ResponseError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchKey
 from bson.objectid import ObjectId
+from werkzeug.exceptions import HTTPException
 
 from datetime import datetime, timezone, timedelta
 import os
@@ -3033,6 +3034,8 @@ def filestore(filename):
 @app.errorhandler(Exception)
 def unhandled_exception(e):
     app.logger.error('Unhandled Exception: %s\n%s', e, traceback.format_exc())
+    if isinstance(e, HTTPException):
+        return str(e), e.code
     return "Sadly, we experienced an internal Error!", 500
 
 
