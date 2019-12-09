@@ -13,6 +13,7 @@ class Client:
         self.username = username
         self.password = password
         self.debug = debug
+        self.cookies = None
         if debug:
             self.print = print
         else:
@@ -20,15 +21,23 @@ class Client:
                 pass
             self.print = dummy_print
 
+    def login(self):
+        self.print('Login with user', self.username)
+        r = requests.post('{}/api/login'.format(self.host), data={'username': self.username, 'password': self.password})
+        self.cookies = r.cookies
+
+    def logout(self):
+        self.post('/api/logout')
+
     def get(self, path, **kwargs):
         self.print('GET', self.username, path)
-        r = requests.get('{}{}'.format(self.host, path), auth=(self.username, self.password), params=kwargs)
+        r = requests.get('{}{}'.format(self.host, path), cookies=self.cookies, params=kwargs)
         self.print(r.status_code, r.text)
         return r
 
     def post(self, path, files=None, **kwargs):
         self.print('POST', self.username, path, kwargs)
-        r = requests.post('{}{}'.format(self.host, path), auth=(self.username, self.password), data=kwargs, files=files)
+        r = requests.post('{}{}'.format(self.host, path), cookies=self.cookies, data=kwargs, files=files)
         self.print(r.status_code, r.text)
         return r
 
@@ -38,7 +47,8 @@ def just_do_it(client, users, action):
         return
     for user in users:
         for cat in categories:
-            client.post('/api/category/{}admin'.format(action), category=cat, username=user)
+            path = '/api/category/addtoset' if action == 'add' else '/api/category/pullset'
+            client.post(path, category=cat, key='admins', value=user)
 
 def main():
     parser = argparse.ArgumentParser(description='Add or remove users as admins of all categories.')
@@ -55,9 +65,11 @@ def main():
         password = getpass.getpass()
     client = Client(args.host, args.username, password, args.debug)
 
+    client.login()
     with open(args.userfile) as f:
         users = [u.strip() for u in f.readlines()]
         just_do_it(client, users, args.action)
+    client.logout()
 
 
 if __name__ == '__main__':
