@@ -60,6 +60,20 @@ const styles = {
     width: "100%",
     marginBottom: "20px",
   }),
+  selectionColumn: css({
+    width: "50px",
+    textAlign: "center",
+  }),
+  selectionButtons: css({
+    display: "flex",
+  }),
+  selectionButton: css({
+    cursor: "pointer",
+    marginLeft: "5px",
+  }),
+  selectionImg: css({
+    height: "20px",
+  }),
 };
 
 interface Props {
@@ -83,6 +97,7 @@ interface State {
   gotoExam?: CategoryExam;
   redirectBack: boolean;
   error?: string;
+  selectedExams: Set<string>;
 }
 
 export default class Category extends React.Component<Props, State> {
@@ -114,6 +129,7 @@ export default class Category extends React.Component<Props, State> {
     },
     editingMetaData: false,
     redirectBack: false,
+    selectedExams: new Set<string>(),
   };
 
   componentDidMount() {
@@ -239,6 +255,63 @@ export default class Category extends React.Component<Props, State> {
       prevState.currentMetaData[key] = newVal;
       return prevState;
     });
+  };
+
+  // "whether current user wants to download this" is not a metadata of the category, so different fun
+  selectedExamsCheckboxValueChanged = (
+    key: string,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const newVal = event.target.checked;
+    this.setState(prevState => {
+      if (newVal) {
+        prevState.selectedExams.add(key);
+      } else {
+        prevState.selectedExams.delete(key);
+      }
+      return prevState;
+    });
+  };
+
+  selectAllExams = (examType: string) => {
+    this.setState(prevState => {
+      prevState.exams.forEach(exam => {
+        let currExamtype = exam.examtype ? exam.examtype : "Exams";
+        if (currExamtype === examType && exam.canView)
+          prevState.selectedExams.add(exam.filename);
+      });
+      return prevState;
+    });
+  };
+
+  unselectAllExams = (examType: string) => {
+    this.setState(prevState => {
+      prevState.exams.forEach(exam => {
+        let currExamtype = exam.examtype ? exam.examtype : "Exams";
+        if (currExamtype === examType && exam.canView)
+          prevState.selectedExams.delete(exam.filename);
+      });
+      return prevState;
+    });
+  };
+
+  // https://stackoverflow.com/questions/17793183/how-to-replace-window-open-with-a-post
+  dlSelectedExams = () => {
+    if (!this.state.category) return;
+    let form = document.createElement("form");
+    form.action = "/api/zip/" + this.state.category.category + "?download";
+    form.method = "POST";
+    form.target = "_blank";
+    this.state.selectedExams.forEach(filename => {
+      let input = document.createElement("textarea");
+      input.name = "filenames";
+      input.value = filename;
+      form.appendChild(input);
+    });
+    form.style.display = "none";
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
   };
 
   addToSet = (key: string, value: string) => {
@@ -736,6 +809,16 @@ export default class Category extends React.Component<Props, State> {
             </div>
           )}
         </div>
+
+        <div>
+          <button
+            onClick={this.dlSelectedExams}
+            disabled={this.state.selectedExams.size === 0}
+          >
+            Download selected exams
+          </button>
+        </div>
+
         <div {...styles.filterInput}>
           <input
             type="text"
@@ -759,6 +842,30 @@ export default class Category extends React.Component<Props, State> {
               <table {...styles.examsTable}>
                 <thead>
                   <tr>
+                    <th {...styles.selectionColumn}>
+                      <div {...styles.selectionButtons}>
+                        <div
+                          {...styles.selectionButton}
+                          onClick={ev => this.selectAllExams(examType)}
+                        >
+                          <img
+                            {...styles.selectionImg}
+                            src="/static/select_all.svg"
+                            title="Select All"
+                          />
+                        </div>
+                        <div
+                          {...styles.selectionButton}
+                          onClick={ev => this.unselectAllExams(examType)}
+                        >
+                          <img
+                            {...styles.selectionImg}
+                            src="/static/deselect_all.svg"
+                            title="Deselect All"
+                          />
+                        </div>
+                      </div>
+                    </th>
                     <th>Name</th>
                     <th>Remark</th>
                     <th>Answers</th>
@@ -773,6 +880,21 @@ export default class Category extends React.Component<Props, State> {
                     .filter(exam => (exam.examtype || "Exams") === examType)
                     .map(exam => (
                       <tr key={exam.filename}>
+                        <td {...styles.selectionColumn}>
+                          <input
+                            type="checkbox"
+                            checked={this.state.selectedExams.has(
+                              exam.filename,
+                            )}
+                            onChange={ev =>
+                              this.selectedExamsCheckboxValueChanged(
+                                exam.filename,
+                                ev,
+                              )
+                            }
+                            disabled={!exam.canView}
+                          />
+                        </td>
                         <td>
                           {(exam.canView && (
                             <Link to={"/exams/" + exam.filename}>
