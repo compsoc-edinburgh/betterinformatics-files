@@ -1482,7 +1482,7 @@ def set_exam_metadata(filename, metadata):
     :param metadata: dictionary of values to set
     """
     filtered = filter_dict(metadata, EXAM_METADATA)
-    for key in ["public", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer", "solution_printonly"]:
+    for key in ["public", "needs_payment", "has_printonly", "has_solution", "finished_cuts", "finished_wiki_transfer", "solution_printonly"]:
         if key in filtered:
             filtered[key] = filtered[key] not in [None, False, "", "false", "False", "0"]
     if filtered:
