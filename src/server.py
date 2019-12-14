@@ -2932,7 +2932,7 @@ def pdf(pdftype, filename):
     if not can_view_exam(username, filename):
         return not_allowed()
     try:
-        attachment_name = metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
+        attachment_name = metadata.get("resolve_alias") or (metadata["category"] + "_" + metadata["displayname"] + ".pdf").replace(" ", "_")
         data = minio_client.get_object(minio_bucket, PDF_DIR[pdftype] + filename)
         return send_file(data, attachment_filename=attachment_name, as_attachment="download" in request.args, mimetype="application/pdf")
     except NoSuchKey as n:
@@ -2980,7 +2980,7 @@ def zip(category):
 
             # get exam pdf
             try:
-                attachment_name = (metadata["resolve_alias"] or (metadata["category"] + "_" + metadata["displayname"]).replace(" ", "_")).rstrip(".pdf")
+                attachment_name = (metadata.get("resolve_alias") or (metadata["category"] + "_" + metadata["displayname"]).replace(" ", "_")).rstrip(".pdf")
                 if attachment_name in used_names:
                     i = 0
                     while "{}({})".format(attachment_name, i) in used_names:
