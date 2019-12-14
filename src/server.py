@@ -248,14 +248,18 @@ def get_argument_value(argument, func, args, kwargs):
     return None
 
 
+def check_api_key():
+    api_key = request.headers.get('X-COMMUNITY-SOLUTIONS-API-KEY')
+    return bool(api_key and api_key == app.config['API_KEY'])
+
+
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        api_key = request.headers.get('X-COMMUNITY-SOLUTIONS-API-KEY')
         def allowed():
             if current_user.is_authenticated:
                 return True
-            if api_key and api_key == app.config['API_KEY']:
+            if check_api_key():
                 return True
         if not allowed():
             return not_allowed()
@@ -266,7 +270,7 @@ def login_required(f):
 def require_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        username = current_user.username
+        username = current_user.get_id()
         if not has_admin_rights(username):
             return not_allowed()
         return f(*args, **kwargs)
@@ -277,7 +281,7 @@ def require_admin(f):
 def require_exam_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        username = current_user.username
+        username = current_user.get_id()
         filename = get_argument_value("filename", f, args, kwargs)
         if not filename:
             if not has_admin_rights(username):
@@ -383,9 +387,9 @@ def get_username_or_legacy(filename):
     :param filename: filename of current exam
     :return: username or '__legacy__' or None if legacy was requested but is not admin
     """
-    if 'legacyuser' in request.form and 'legacyuser' != '0' and has_admin_rights_for_exam(current_user.username, filename):
+    if 'legacyuser' in request.form and 'legacyuser' != '0' and has_admin_rights_for_exam(current_user.get_id(), filename):
         return '__legacy__'
-    return current_user.username
+    return current_user.get_id()
 
 
 @people_cache.cache(60)
@@ -397,6 +401,8 @@ def has_admin_rights(username):
     """
     if session.get("simulate_nonadmin") == "1":
         return False
+    if username is None and check_api_key():
+        return True
     try:
         req = people_pb2.GetPersonRequest(username=username)
         res = people_client.GetVisPerson(req, metadata=people_metadata)
@@ -497,7 +503,7 @@ def can_view_exam(username, filename, metadata=None):
 
 
 def transform_answer(answer, filename, sectionId, exam_admin=False):
-    username = current_user.username
+    username = current_user.get_id()
     answer["filename"] = filename
     answer["sectionId"] = sectionId
     answer["oid"] = answer["_id"]
@@ -524,7 +530,7 @@ def make_answer_section_response(oid):
     Generates a json response containing all information for the given answer section.
     This includes all answers and comments to this answers.
     """
-    username = current_user.username
+    username = current_user.get_id()
     section = answer_sections.find_one({"_id": oid}, {
         "_id": 1,
         "filename": 1,
@@ -697,15 +703,17 @@ def get_user():
     Returns information about the currently logged in user.
     """
     if current_user.is_authenticated:
-        username = current_user.username
+        username = current_user.get_id()
+        if username is None:
+            return not_allowed()
         admin = has_admin_rights(username)
         admincat = has_admin_rights_for_any_category(username)
         return success(
             loggedin=True,
             adminrights=admin,
             adminrightscat=admin or admincat,
-            username=current_user.username,
-            displayname=get_real_name(current_user.username)
+            username=current_user.get_id(),
+            displayname=get_real_name(current_user.get_id())
         )
     else:
         return success(
@@ -734,7 +742,7 @@ def list_exams():
 @app.route("/api/listimportexams")
 @login_required
 def list_import_exams():
-    username = current_user.username
+    username = current_user.get_id()
     conditions = [
         {"finished_cuts": False},
         {"finished_wiki_transfer": False},
@@ -869,7 +877,9 @@ def new_answer_section(filename):
     Adds a new answersection to 'filename'.
     POST Parameters 'pageNum' and 'relHeight'.
     """
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     page_num = request.form.get("pageNum", None)
     rel_height = request.form.get("relHeight", None)
     if page_num is None or rel_height is None:
@@ -943,7 +953,9 @@ def set_like(filename, sectionoid, answeroid):
     """
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     like = int(request.form.get("like", "0"))
     section = answer_sections.find_one({
         "answersection.answers._id": answer_oid
@@ -996,7 +1008,9 @@ def set_expertvote(filename, sectionoid, answeroid):
     Sets the expertvote for the given answer in the given section.
     POST Parameter 'vote' is 0/1
     """
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     if not is_expert_for_exam(username, filename):
         return not_allowed()
     answer_section_oid = ObjectId(sectionoid)
@@ -1022,7 +1036,9 @@ def set_flagged(filename, sectionoid, answeroid):
     Sets the flagged for the given answer in the given section.
     POST Parameter 'flagged' is 0/1
     """
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
     flagged = int(request.form.get("flagged", "0"))
@@ -1046,7 +1062,7 @@ def reset_flagged(filename, sectionoid, answeroid):
     """
     Resets the flagged array.
     """
-    username = current_user.username
+    username = current_user.get_id()
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
     answer_sections.update_one({
@@ -1073,7 +1089,7 @@ def add_answer(filename, sectionoid):
     answer_section_oid = ObjectId(sectionoid)
 
     username = get_username_or_legacy(filename)
-    if not username:
+    if username is None:
         return not_allowed()
     maybe_answer = answer_sections.find_one({
         "_id": answer_section_oid,
@@ -1106,7 +1122,7 @@ def add_answer(filename, sectionoid):
     adjust_user_score(username, "score_answers", 1)
 
     if username == "__legacy__":
-        adjust_user_score(current_user.username, "score_legacy", 1)
+        adjust_user_score(current_user.get_id(), "score_legacy", 1)
     return make_answer_section_response(answer_section_oid)
 
 
@@ -1122,7 +1138,7 @@ def set_answer(filename, sectionoid):
     answer_section_oid = ObjectId(sectionoid)
 
     username = get_username_or_legacy(filename)
-    if not username:
+    if username is None:
         return not_allowed()
     text = request.form.get("text", None)
     if text is None:
@@ -1180,7 +1196,7 @@ def remove_answer_api(filename, sectionoid):
     """
     answer_section_oid = ObjectId(sectionoid)
     username = get_username_or_legacy(filename)
-    if not username:
+    if username is None:
         return not_allowed()
     section = answer_sections.find_one({
         "_id": answer_section_oid,
@@ -1245,7 +1261,9 @@ def add_comment(filename, sectionoid, answeroid):
     """
     answer_section_oid = ObjectId(sectionoid)
     answer_oid = ObjectId(answeroid)
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     text = request.form.get("text", None)
     if not text:
         return not_possible("Missing argument")
@@ -1313,7 +1331,9 @@ def set_comment(filename, sectionoid, answeroid):
     text = request.form.get("text", None)
     if text is None:
         return not_possible("Missing argument")
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     maybe_comment = answer_sections.find_one({
         'answersection.answers._id': answer_oid
     }, {
@@ -1352,7 +1372,7 @@ def remove_comment(filename, sectionoid, answeroid):
         return not_possible("Missing argument")
     comment_oid = ObjectId(oid_str)
 
-    username = current_user.username
+    username = current_user.get_id()
     maybe_comment = answer_sections.find_one({
         'answersection.answers.comments._id': comment_oid
     }, {
@@ -1387,7 +1407,9 @@ def claim_exam_api(filename):
     Claims an exam for importing
     POST Parameter 'claim' is 0/1 to add/remove claim
     """
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     metadata = exam_metadata.find_one({
         "filename": filename,
     }, {
@@ -1453,7 +1475,7 @@ def get_exam_metadata(filename):
     for key in EXAM_METADATA_SETS:
         if not metadata[key]:
             metadata[key] = []
-    username = current_user.username
+    username = current_user.get_id()
     metadata["canEdit"] = has_admin_rights_for_category(username, metadata.get("category"))
     metadata["isExpert"] = is_expert_for_category(username, metadata.get("category"))
     metadata["hasPayed"] = has_payed(username)
@@ -1471,7 +1493,7 @@ def set_exam_metadata_api(filename):
     """
     metadata = request.form.copy()
     if "category" in metadata:
-        if not has_admin_rights_for_category(current_user.username, metadata["category"]):
+        if not has_admin_rights_for_category(current_user.get_id(), metadata["category"]):
             return not_allowed()
         if not category_exists(metadata["category"]):
             return not_possible("Category does not exist")
@@ -1691,7 +1713,7 @@ def list_categories_only_admin():
     """
     Lists all available categories sorted by name filtered for admin permission by current user
     """
-    username = current_user.username
+    username = current_user.get_id()
     return success(value=list(sorted(
         filter(lambda x: has_admin_rights_for_category(username, x),
             map(lambda x: x["category"], category_metadata.find({}, {"category": 1}))
@@ -1755,7 +1777,7 @@ def get_category_exams(category):
     }))
 
     for exam in exams:
-        exam["canView"] = can_view_exam(current_user.username, exam["filename"], metadata=exam)
+        exam["canView"] = can_view_exam(current_user.get_id(), exam["filename"], metadata=exam)
     exams.sort(key=lambda x: exam_sort_key(x["displayname"]), reverse=True)
     return exams
 
@@ -1929,14 +1951,14 @@ def get_category_metadata():
     })
     if not metadata:
         return not_found()
-    if not has_admin_rights_for_category(current_user.username, category):
+    if not has_admin_rights_for_category(current_user.get_id(), category):
         for key in ["admins", "experts"]:
             if key in metadata:
                 del metadata[key]
     for key in CATEGORY_METADATA + CATEGORY_METADATA_SETS:
         if key not in metadata:
             metadata[key] = ""
-    metadata["catadmin"] = current_user.username in metadata["admins"]
+    metadata["catadmin"] = current_user.get_id() in metadata["admins"]
     for key in CATEGORY_METADATA_SETS:
         if not metadata[key]:
             metadata[key] = []
@@ -2151,7 +2173,7 @@ def check_image_author(filename):
     }, {
         "authorId": 1
     })
-    if not author or author["authorId"] != current_user.username:
+    if not author or author["authorId"] != current_user.get_id():
         return False
     return True
 
@@ -2162,7 +2184,7 @@ def list_images():
     """
     Lists the images for the current user
     """
-    username = current_user.username
+    username = current_user.get_id()
     results = image_metadata.find({
         "authorId": username
     }, {
@@ -2350,7 +2372,9 @@ def is_notification_enabled(username, type):
 @app.route("/api/notifications/getenabled")
 @login_required
 def get_notification_enabled():
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     init_user_data_if_not_found(username)
     enabled = user_data.find_one({
         "username": username
@@ -2365,7 +2389,9 @@ def get_notification_enabled():
 @app.route("/api/notifications/setenabled", methods=['POST'])
 @login_required
 def set_notification_enabled():
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     init_user_data_if_not_found(username)
     enabled = request.form.get("enabled", "0") != "0"
     type = int(request.form.get("type", -1))
@@ -2382,7 +2408,9 @@ def set_notification_enabled():
 
 
 def get_notifications(only_unread):
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     query = {
         "username": username
     }
@@ -2421,7 +2449,9 @@ def get_notifications_all():
 @app.route("/api/notifications/setread", methods=['POST'])
 @login_required
 def set_notification_read():
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     read = request.form.get("read", "0") != "0"
     user_data.update_one({
         "username": username,
@@ -2627,7 +2657,7 @@ def payment_query_me():
     """
     List all payments for the current user.
     """
-    return success(value=get_user_payments(current_user.username))
+    return success(value=get_user_payments(current_user.get_id()))
 
 
 ########################################################################################################################
@@ -2642,7 +2672,9 @@ def submit_feedback():
     POST Parameter 'text'
     """
     text = request.form["text"]
-    username = current_user.username
+    username = current_user.get_id()
+    if username is None:
+        return not_allowed()
     feedback.insert_one({
         "_id": ObjectId(),
         "text": text,
@@ -2721,7 +2753,7 @@ def uploadpdf(pdftype):
     """
     if pdftype not in ['exam', 'printonly', 'solution', 'payment_exam']:
         return not_possible('Unknown pdf type')
-    username = current_user.username
+    username = current_user.get_id()
 
     file = request.files.get('file', None)
     orig_filename = file.filename
@@ -2807,7 +2839,7 @@ def removepdf(pdftype):
     """
     if pdftype not in ['printonly', 'solution']:
         return not_possible('Unknown pdf type')
-    username = current_user.username
+    username = current_user.get_id()
     filename = request.form.get('filename')
     if not filename or not has_admin_rights_for_exam(username, filename):
         return not_allowed()
@@ -2835,7 +2867,7 @@ def uploadimg():
     file.save(temp_file_path)
     minio_client.fput_object(minio_bucket, IMAGE_DIR + filename, temp_file_path)
     init_image_metadata(filename)
-    set_image_metadata(filename, {"authorId": current_user.username, "displayname": file.filename})
+    set_image_metadata(filename, {"authorId": current_user.get_id(), "displayname": file.filename})
     return success(filename=filename)
 
 
@@ -2894,7 +2926,7 @@ def pdf(pdftype, filename):
     if not metadata:
         return not_found()
     is_printonly = pdftype in ['printonly'] or (pdftype in ['solution'] and metadata.get("solution_printonly"))
-    username = current_user.username
+    username = current_user.get_id()
     if is_printonly and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     if not can_view_exam(username, filename):
@@ -2937,7 +2969,7 @@ def zip(category):
 
     data = io.BytesIO()
     zip_is_empty = True
-    username = current_user.username
+    username = current_user.get_id()
     used_names = set()
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
         # get pdfs, write to tmpdirname/
@@ -3000,7 +3032,7 @@ def print_pdf(pdftype, filename):
     })
     if not metadata:
         return not_found()
-    username = current_user.username
+    username = current_user.get_id()
     if not metadata.get("public", False) and not has_admin_rights_for_exam(username, filename):
         return not_allowed()
     if metadata.get("needs_payment", False) and not has_admin_rights_for_exam(username, filename):
@@ -3049,9 +3081,9 @@ def filestore(filename):
 
 @app.errorhandler(Exception)
 def unhandled_exception(e):
-    app.logger.error('Unhandled Exception: %s\n%s', e, traceback.format_exc())
     if isinstance(e, HTTPException):
         return str(e), e.code
+    app.logger.error('Unhandled Exception: %s\n%s', e, traceback.format_exc())
     return "Sadly, we experienced an internal Error!", 500
 
 
