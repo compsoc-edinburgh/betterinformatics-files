@@ -12,14 +12,26 @@ class Client:
         self.password = password
 
     def get(self, path, **kwargs):
+        s = requests.Session() #to keep the session between the requests
+        loginArgs = {
+            "username": self.username,
+            "password": self.password
+        }
+        loginRequest = s.post('http://{}{}'.format(self.host, '/api/login'), data=loginArgs)
         print('GET', self.username, path)
-        r = requests.get('http://{}{}'.format(self.host, path), auth=(self.username, self.password), params=kwargs)
+        r = s.get('http://{}{}'.format(self.host, path), params=kwargs)
         print(r.status_code, r.text)
         return r
 
     def post(self, path, files=None, **kwargs):
+        s = requests.Session() #to keep the session between the requests
+        loginArgs = {
+            "username": self.username,
+            "password": self.password
+        }
+        loginRequest = s.post('http://{}{}'.format(self.host, '/api/login'), data=loginArgs)
         print('POST', self.username, path, kwargs)
-        r = requests.post('http://{}{}'.format(self.host, path), auth=(self.username, self.password), data=kwargs, files=files)
+        r = s.post('http://{}{}'.format(self.host, path), data=kwargs, files=files)
         print(r.status_code, r.text)
         return r
 
