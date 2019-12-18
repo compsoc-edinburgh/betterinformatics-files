@@ -310,8 +310,9 @@ def clean_up_empty_answers(mongo_db):
         for section in sections:
             for answer in section["answersection"]["answers"]:
                 if not answer["text"]:
-                    edited = server.parse_iso_datetime(answer["edittime"])
-                    if datetime.now(timezone.utc) - edited > timedelta(weeks=7):
+                    edittime = answer.get("edittime")
+                    edited = server.parse_iso_datetime(edittime) if edittime is not None else None
+                    if edittime is None or datetime.now(timezone.utc) - edited > timedelta(weeks=7):
                         server.remove_answer(answer["_id"])
 
 

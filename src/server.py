@@ -19,7 +19,7 @@ import random
 import enum
 import logging.config
 
-import zipfile 
+import zipfile
 import io
 import tempfile
 
@@ -1109,7 +1109,8 @@ def add_answer(filename, sectionoid):
         "downvotes": [],
         "expertvotes": [],
         "flagged": [],
-        "time": datetime.now(timezone.utc).isoformat()
+        "time": datetime.now(timezone.utc).isoformat(),
+        "edittime": datetime.now(timezone.utc).isoformat(),
     }
     answer_sections.update_one({
         "_id": answer_section_oid
