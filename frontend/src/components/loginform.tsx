@@ -44,7 +44,7 @@ export default class LoginForm extends React.Component<Props> {
       simulate_nonadmin: ev.shiftKey ? "1" : "",
     };
 
-    fetchpost("/api/login", data)
+    fetchpost("/api/auth/login/", data)
       .then(() => {
         this.props.userinfoChanged();
       })

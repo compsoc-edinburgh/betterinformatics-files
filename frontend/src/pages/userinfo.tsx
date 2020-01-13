@@ -331,7 +331,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   logoutUser = () => {
-    fetchpost("/api/logout", {}).then(() => {
+    fetchpost("/api/auth/logout/", {}).then(() => {
       this.props.userinfoChanged();
     });
   };

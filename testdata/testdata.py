@@ -17,7 +17,7 @@ class Client:
             "username": self.username,
             "password": self.password
         }
-        loginRequest = s.post('http://{}{}'.format(self.host, '/api/login'), data=loginArgs)
+        loginRequest = s.post('http://{}{}'.format(self.host, '/api/auth/login'), data=loginArgs)
         print('GET', self.username, path)
         r = s.get('http://{}{}'.format(self.host, path), params=kwargs)
         print(r.status_code, r.text)
@@ -29,7 +29,7 @@ class Client:
             "username": self.username,
             "password": self.password
         }
-        loginRequest = s.post('http://{}{}'.format(self.host, '/api/login'), data=loginArgs)
+        loginRequest = s.post('http://{}{}'.format(self.host, '/api/auth/login'), data=loginArgs)
         print('POST', self.username, path, kwargs)
         r = s.post('http://{}{}'.format(self.host, path), data=kwargs, files=files)
         print(r.status_code, r.text)
