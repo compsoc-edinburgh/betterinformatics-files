@@ -1,7 +1,7 @@
 import os
 from django.contrib.auth.backends import BaseBackend
-from django.contrib.auth.models import User
 from util import func_cache
+from myauth.models import MyUser
 
 import grpc
 import sys
@@ -19,6 +19,9 @@ people_metadata = [("authorization",
 
 @func_cache.cache(600)
 def get_real_name(username):
+    """
+    Get the real name for the given username
+    """
     if username == '__legacy__':
         return ('', 'Old VISki Solution')
     req = people_pb2.GetPersonRequest(username=username)
@@ -33,6 +36,16 @@ def get_real_name(username):
     except grpc.RpcError as e:
         pass
     return ('', username)
+
+
+@func_cache.cache(600)
+def get_vis_groups(username):
+    try:
+        req = people_pb2.GetPersonRequest(username=username)
+        res = people_client.GetVisPerson(req, metadata=people_metadata)
+    except grpc.RpcError as e:
+        return []
+    return res.vis_groups
 
 
 class PeopleAuthBackend(BaseBackend):
@@ -57,9 +70,9 @@ class PeopleAuthBackend(BaseBackend):
 
     def get_or_create_user(self, username):
         try:
-            user = User.objects.get(username=username.lower())
-        except User.DoesNotExist:
-            user = User(username=username.lower())
+            user = MyUser.objects.get(username=username.lower())
+        except MyUser.DoesNotExist:
+            user = MyUser(username=username.lower())
             user.save()
         real_name = get_real_name(username.lower())
         if user.first_name != real_name[0] or user.last_name != real_name[1]:
@@ -69,6 +82,6 @@ class PeopleAuthBackend(BaseBackend):
 
     def get_user(self, user_id):
         try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+            return MyUser.objects.get(pk=user_id)
+        except MyUser.DoesNotExist:
             return None

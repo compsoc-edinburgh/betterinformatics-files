@@ -1,5 +1,30 @@
 import datetime
+from functools import wraps
 from django.http import JsonResponse, FileResponse
+
+
+def args_post(*req_args):
+    def wrap_func(f):
+        @wraps(f)
+        def wrapper(request, *args, **kwargs):
+            for arg in req_args:
+                if arg not in request.POST:
+                    return missing_argument()
+            return f(request, *args, **kwargs)
+        return wrapper
+    return wrap_func
+
+
+def args_get(*req_args):
+    def wrap_func(f):
+        @wraps(f)
+        def wrapper(request, *args, **kwargs):
+            for arg in req_args:
+                if arg not in request.GET:
+                    return missing_argument()
+            return f(request, *args, **kwargs)
+        return wrapper
+    return wrap_func
 
 
 def data_dumper(obj):
@@ -23,6 +48,10 @@ def not_found():
 
 def not_possible(msg):
     return JsonResponse({"err": msg}, status=400)
+
+
+def missing_argument():
+    return not_possible('Missing argument')
 
 
 def send_file(file_):

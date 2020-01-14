@@ -119,7 +119,7 @@ export default class App extends React.Component<{}, State> {
   }
 
   loadMe = () => {
-    fetchapi("/api/me")
+    fetchapi("/api/auth/me/")
       .then(res =>
         this.setState({
           loggedin: res.loggedin,
