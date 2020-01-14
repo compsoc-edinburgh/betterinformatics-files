@@ -52,9 +52,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'answers.apps.AnswersConfig',
+    'categories.apps.CategoriesConfig',
+    'feedback.apps.FeedbackConfig',
+    'filestore.apps.FilestoreConfig',
     'frontend.apps.FrontendConfig',
     'health.apps.HealthConfig',
+    'images.apps.ImagesConfig',
     'myauth.apps.MyAuthConfig',
+    'notifications.apps.NotificationsConfig',
+    'payments.apps.PaymentsConfig',
+    'scoreboard.apps.ScoreboardConfig',
 ]
 
 MIDDLEWARE = [
@@ -102,7 +110,11 @@ if 'RUNTIME_POSTGRES_DB_SERVER' in os.environ:
         }
     }
 else:
-    DATABASES = {}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.dummy',
+        }
+    }
     print('Warning: no database configured!')
 
 

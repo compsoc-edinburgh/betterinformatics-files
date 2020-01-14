@@ -37,12 +37,6 @@ COPY --from=0 /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=0 /usr/src/app/build/static ./static
 COPY ./tutorial-slides ./tutorial
 COPY ./frontend/public/static ./static
-COPY ./backend/manage.py ./manage.py
-COPY ./backend/backend ./backend
-COPY ./backend/frontend ./frontend
-COPY ./backend/health ./health
-COPY ./backend/myauth ./myauth
-COPY ./backend/servis ./servis
-COPY ./backend/util ./util
+COPY ./backend/ ./
 
 EXPOSE 80

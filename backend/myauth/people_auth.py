@@ -20,19 +20,19 @@ people_metadata = [("authorization",
 @func_cache.cache(600)
 def get_real_name(username):
     if username == '__legacy__':
-        return "Old VISki Solution"
+        return ('', 'Old VISki Solution')
     req = people_pb2.GetPersonRequest(username=username)
     try:
         res = people_client.GetEthPerson(req, metadata=people_metadata)
-        return res.first_name + " " + res.last_name
+        return (res.first_name, res.last_name)
     except grpc.RpcError as e:
         pass
     try:
         res = people_client.GetVisPerson(req, metadata=people_metadata)
-        return res.first_name + " " + res.last_name
+        return (res.first_name, res.last_name)
     except grpc.RpcError as e:
         pass
-    return username
+    return ('', username)
 
 
 class PeopleAuthBackend(BaseBackend):
@@ -60,6 +60,10 @@ class PeopleAuthBackend(BaseBackend):
             user = User.objects.get(username=username.lower())
         except User.DoesNotExist:
             user = User(username=username.lower())
+            user.save()
+        real_name = get_real_name(username.lower())
+        if user.first_name != real_name[0] or user.last_name != real_name[1]:
+            user.first_name, user.last_name = real_name
             user.save()
         return user
 
