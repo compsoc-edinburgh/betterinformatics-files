@@ -1,15 +1,14 @@
 from django.contrib.auth.models import User
 
 
+def get_my_user(user):
+    return MyUser.objects.get(pk=user.pk)
+
+
 class MyUser(User):
 
     class Meta:
         proxy = True
-
-    @staticmethod
-    def from_user(user):
-        # TODO implement me
-        return None
 
     def displayname(self):
         if not self.first_name:

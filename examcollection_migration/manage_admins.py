@@ -42,7 +42,7 @@ class Client:
         return r
 
 def just_do_it(client, users, action):
-    categories = client.get('/api/listcategories').json()["value"]
+    categories = client.get('/api/category/list/').json()["value"]
     if action not in ['add', 'remove']:
         return
     for user in users:

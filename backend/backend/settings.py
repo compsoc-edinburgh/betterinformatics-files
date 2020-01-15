@@ -97,7 +97,7 @@ LOGGING = {
     'disable_existing_loggers': not DEBUG,
     'formatters': {
         'simple': {
-            'format': '{levelname} {message}',
+            'format': '[{levelname}] {message}',
             'style': '{',
         },
     },
@@ -107,11 +107,9 @@ LOGGING = {
             'formatter': 'simple'
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO' if DEBUG else 'WARNING',
-        },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO' if DEBUG else 'WARNING',
     },
 }
 

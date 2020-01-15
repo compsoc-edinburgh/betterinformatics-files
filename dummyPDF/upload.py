@@ -34,7 +34,7 @@ class Client:
         return r
 
 def guess_category(client, foldername):
-    categories = client.get('/api/listcategories').json()["value"]
+    categories = client.get('/api/category/list').json()["value"]
     best_guess = difflib.get_close_matches(foldername, categories, n=10, cutoff=0.2)
     if best_guess:
         print("Which category do you want to use for", foldername)

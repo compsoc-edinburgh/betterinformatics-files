@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 import uuid
 
+
 class Exam(models.Model):
     filename = models.CharField(max_length=256)
     displayname = models.CharField(max_length=256)
@@ -43,7 +44,7 @@ class AnswerSection(models.Model):
 
 
 def generate_long_id():
-    return uuid.uuid4().replace('-', '')
+    return str(uuid.uuid4()).replace('-', '')
 
 
 class Answer(models.Model):

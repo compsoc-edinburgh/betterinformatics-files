@@ -32,6 +32,30 @@ def has_admin_rights(request):
     return any(("vorstand" == group or "cat" == group or "luk" == group or "serviceaccounts" == group) for group in vis_groups)
 
 
+def has_admin_rights_for_any_category(request):
+    if has_admin_rights(request):
+        return True
+    return request.user.category_admin_set.exists()
+
+
+def has_admin_rights_for_category(request, category):
+    if has_admin_rights(request):
+        return True
+    return request.user.category_admin_set.filter(pk=category.pk).exists()
+
+
+def has_admin_rights_for_exam(request, exam):
+    return has_admin_rights_for_category(request, exam.category)
+
+
+def is_expert_for_category(request, category):
+    return request.user.category_expert_set.filter(pk=category.pk).exists()
+
+
+def is_expert_for_exam(request, exam):
+    return is_expert_for_category(request, exam.category)
+
+
 def require_login(f):
     @wraps(f)
     def wrapper(request, *args, **kwargs):

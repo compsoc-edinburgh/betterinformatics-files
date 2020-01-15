@@ -60,7 +60,7 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/listcategories/onlyadmin")
+    fetchapi("/api/category/listonlyadmin/")
       .then(res => {
         this.setState({
           categories: res.value,

@@ -168,7 +168,7 @@ export default class ModQueue extends React.Component<Props, State> {
               <tbody>
                 {this.state.paymentExams.map(exam => (
                   <tr key={exam.filename}>
-                    <td>{exam.category}</td>
+                    <td>{exam.category_displayname}</td>
                     <td>
                       <Link to={"/exams/" + exam.filename} target="_blank">
                         {exam.displayname}
@@ -201,7 +201,7 @@ export default class ModQueue extends React.Component<Props, State> {
           <tbody>
             {this.state.exams.map(exam => (
               <tr key={exam.filename}>
-                <td>{exam.category}</td>
+                <td>{exam.category_displayname}</td>
                 <td>
                   <Link to={"/exams/" + exam.filename} target="_blank">
                     {exam.displayname}

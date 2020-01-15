@@ -74,7 +74,7 @@ export interface Attachment {
 export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
-  category: string; // category of exam
+  category_displayname: string; // category of exam
   needs_payment: boolean; // whether a payment is required
   examtype: string; // type of exam
   remark: string; // remark for the exam
@@ -83,7 +83,7 @@ export interface CategoryExam {
   import_claim_time: string; // time at which the user claimed the exam
   public: boolean; // whether the exam is public
   has_solution: boolean; // whether there is an official solution
-  has_printonly: boolean; // whether this exam can only be printed
+  is_printonly: boolean; // whether this exam can only be printed
   finished_cuts: boolean; // whether all cuts were added
   finished_wiki_transfer: boolean; // whether all old solutions were added
   canView: boolean; // whether the exam can be viewed by the user
@@ -94,7 +94,7 @@ export interface CategoryExam {
 export interface CategoryPaymentExam {
   displayname: string;
   filename: string;
-  category: string;
+  category_displayname: string;
   payment_uploader: string;
   payment_uploader_displayname: string;
 }
@@ -116,7 +116,7 @@ export interface MetaCategoryWithCategories {
 }
 
 export interface CategoryMetaData {
-  category: string; // Name of category
+  displayname: string; // Name of category
   slug: string;
   admins: string[];
   experts: string[];
@@ -141,6 +141,7 @@ export interface ExamMetaData {
   filename: string;
   displayname: string;
   category: string;
+  category_displayname: string;
   examtype: string;
   legacy_solution: string;
   master_solution: string;

@@ -37,7 +37,7 @@ export default class SubmitTranscript extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/listcategories/onlypayment")
+    fetchapi("/api/category/listonlypayment/")
       .then(res =>
         this.setState({
           categories: res.value,

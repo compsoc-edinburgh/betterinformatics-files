@@ -27,7 +27,7 @@ export function filterCategories(
   categories: CategoryMetaData[],
   filter: string,
 ): CategoryMetaData[] {
-  return categories.filter(cat => filterMatches(filter, cat.category));
+  return categories.filter(cat => filterMatches(filter, cat.displayname));
 }
 
 export function filterExams(

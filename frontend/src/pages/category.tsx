@@ -111,7 +111,7 @@ export default class Category extends React.Component<Props, State> {
     newAdminName: "",
     newExpertName: "",
     currentMetaData: {
-      category: "",
+      displayname: "",
       slug: "",
       admins: [],
       experts: [],
@@ -148,7 +148,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   loadExams = () => {
-    fetchapi("/api/category/list?slug=" + this.props.categorySlug)
+    fetchapi("/api/category/listexams/" + this.props.categorySlug + "/")
       .then(res => {
         this.setState({
           exams: res.value,
@@ -159,12 +159,12 @@ export default class Category extends React.Component<Props, State> {
   };
 
   loadCategory = () => {
-    fetchapi("/api/category/metadata?slug=" + this.props.categorySlug)
+    fetchapi("/api/category/metadata/" + this.props.categorySlug + "/")
       .then(res => {
         this.setState({
           category: res.value,
         });
-        document.title = res.value.category + " - VIS Community Solutions";
+        document.title = res.value.displayname + " - VIS Community Solutions";
       })
       .catch(() => undefined);
   };
@@ -197,9 +197,10 @@ export default class Category extends React.Component<Props, State> {
       return;
     }
     let data = { ...this.state.currentMetaData };
-    data.category = this.state.category.category;
-    data.slug = this.state.category.slug;
-    fetchpost("/api/category/metadata", data)
+    fetchpost(
+      "/api/category/setmetadata/" + this.state.category.slug + "/",
+      data,
+    )
       .then(() => {
         this.setState({
           editingMetaData: false,
@@ -299,7 +300,7 @@ export default class Category extends React.Component<Props, State> {
   dlSelectedExams = () => {
     if (!this.state.category) return;
     let form = document.createElement("form");
-    form.action = "/api/zip/" + this.state.category.category + "?download";
+    form.action = "/api/zip/" + this.state.category.displayname + "?download";
     form.method = "POST";
     form.target = "_blank";
     this.state.selectedExams.forEach(filename => {
@@ -315,27 +316,31 @@ export default class Category extends React.Component<Props, State> {
   };
 
   addToSet = (key: string, value: string) => {
-    return fetchpost("/api/category/addtoset", {
-      slug: this.props.categorySlug,
-      key: key,
-      value: value,
-    })
+    return fetchpost(
+      "/api/category/addusertoset/" + this.props.categorySlug + "/",
+      {
+        key: key,
+        user: value,
+      },
+    )
       .then(() => {
         this.loadCategory();
       })
       .catch(err => {
         this.setState({
-          error: err.toString(),
+          error: "User might not exist (" + err.toString() + ")",
         });
       });
   };
 
   pullSet = (key: string, value: string) => {
-    return fetchpost("/api/category/pullset", {
-      slug: this.props.categorySlug,
-      key: key,
-      value: value,
-    })
+    return fetchpost(
+      "/api/category/removeuserfromset/" + this.props.categorySlug + "/",
+      {
+        key: key,
+        user: value,
+      },
+    )
       .then(() => {
         this.loadCategory();
       })
@@ -380,10 +385,10 @@ export default class Category extends React.Component<Props, State> {
     if (!this.state.newMeta1 || !this.state.newMeta2 || !this.state.category) {
       return;
     }
-    fetchpost("/api/metacategory/addcategory", {
+    fetchpost("/api/category/addmetacategory/", {
       meta1: this.state.newMeta1,
       meta2: this.state.newMeta2,
-      category: this.state.category.category,
+      category: this.state.category.displayname,
     })
       .then(() => {
         this.setState({
@@ -403,10 +408,10 @@ export default class Category extends React.Component<Props, State> {
     if (!this.state.category) {
       return;
     }
-    fetchpost("/api/metacategory/removecategory", {
+    fetchpost("/api/category/removemetacategory/", {
       meta1: meta1,
       meta2: meta2,
-      category: this.state.category.category,
+      category: this.state.category.displayname,
     })
       .then(() => {
         this.loadMetaCategories();
@@ -421,7 +426,7 @@ export default class Category extends React.Component<Props, State> {
   removeCategory = () => {
     const confirmation = confirm("Remove category?");
     if (confirmation) {
-      fetchpost("/api/category/remove", {
+      fetchpost("/api/category/remove/", {
         slug: this.props.categorySlug,
       })
         .then(() => {
@@ -508,11 +513,10 @@ export default class Category extends React.Component<Props, State> {
       prevState.currentMetaData.attachments.push(att);
       return prevState;
     });
-    fetchpost("/api/category/addtoset", {
-      slug: this.props.categorySlug,
-      key: "json:attachments",
-      value: JSON.stringify(att),
-    }).then(res => {
+    fetchpost(
+      "/api/category/addattachment/" + this.props.categorySlug + "/",
+      att,
+    ).then(res => {
       this.loadCategory();
     });
   };
@@ -524,13 +528,7 @@ export default class Category extends React.Component<Props, State> {
       );
       return prevState;
     });
-    fetchpost("/api/category/pullset", {
-      slug: this.props.categorySlug,
-      key: "json:attachments",
-      value: JSON.stringify(att),
-    }).then(res => {
-      this.loadCategory();
-    });
+    this.loadCategory();
   };
 
   render() {
@@ -549,7 +547,7 @@ export default class Category extends React.Component<Props, State> {
     const cat = this.state.category;
     const offeredIn = getMetaCategoriesForCategory(
       this.state.metaCategories,
-      cat.category,
+      cat.displayname,
     );
     const viewableExams = this.state.exams
       .filter(exam => exam.public || catAdmin)
@@ -560,7 +558,7 @@ export default class Category extends React.Component<Props, State> {
         : this.state.category.attachments;
     return (
       <div {...styles.wrapper}>
-        <h1>{cat.category}</h1>
+        <h1>{cat.displayname}</h1>
         <div>
           {this.state.category.semester && (
             <div {...styles.metadata}>
@@ -908,7 +906,7 @@ export default class Category extends React.Component<Props, State> {
                         </td>
                         <td>
                           {exam.remark}
-                          {exam.has_printonly ? (
+                          {exam.is_printonly ? (
                             <span title="This exam can only be printed. We can not provide this exam online.">
                               {" "}
                               (Print Only)

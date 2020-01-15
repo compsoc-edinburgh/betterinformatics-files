@@ -39,7 +39,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/listcategories/onlyadmin")
+    fetchapi("/api/listonlyadmin/")
       .then(res =>
         this.setState({
           categories: res.value,
