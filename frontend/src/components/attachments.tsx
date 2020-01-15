@@ -19,6 +19,7 @@ const styles = {
 
 interface Props {
   attachments: Attachment[];
+  additionalArgs: object;
   onAddAttachment: (attachment: Attachment) => void;
   onRemoveAttachment: (attachment: Attachment) => void;
 }
@@ -54,7 +55,9 @@ export default class Attachments extends React.Component<Props, State> {
     if (!this.state.newDisplayname) {
       return;
     }
-    fetchpost("/api/uploadfilestore", {
+    fetchpost("/api/filestore/upload/", {
+      ...this.props.additionalArgs,
+      displayname: this.state.newDisplayname,
       file: this.state.newFile,
     })
       .then(res => {
@@ -77,7 +80,7 @@ export default class Attachments extends React.Component<Props, State> {
   };
 
   removeFile = (att: Attachment) => {
-    fetchpost("/api/filestore/remove/" + att.filename, {}).then(res => {
+    fetchpost("/api/filestore/remove/" + att.filename + "/", {}).then(res => {
       this.props.onRemoveAttachment(att);
     });
   };
@@ -90,7 +93,7 @@ export default class Attachments extends React.Component<Props, State> {
           <div key={att.filename}>
             <a
               {...stylesForWidth.inlineBlock}
-              href={"/api/filestore/" + att.filename}
+              href={"/api/filestore/get/" + att.filename + "/"}
               target="_blank"
             >
               {att.displayname}

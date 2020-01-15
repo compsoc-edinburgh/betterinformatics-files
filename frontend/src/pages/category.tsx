@@ -513,12 +513,7 @@ export default class Category extends React.Component<Props, State> {
       prevState.currentMetaData.attachments.push(att);
       return prevState;
     });
-    fetchpost(
-      "/api/category/addattachment/" + this.props.categorySlug + "/",
-      att,
-    ).then(res => {
-      this.loadCategory();
-    });
+    this.loadCategory();
   };
 
   removeAttachment = (att: Attachment) => {
@@ -685,6 +680,7 @@ export default class Category extends React.Component<Props, State> {
                 <h2>Attachments</h2>
                 <Attachments
                   attachments={this.state.currentMetaData.attachments}
+                  additionalArgs={{ category: this.props.categorySlug }}
                   onAddAttachment={this.addAttachment}
                   onRemoveAttachment={this.removeAttachment}
                 />
@@ -991,7 +987,10 @@ export default class Category extends React.Component<Props, State> {
             <h2>Attachments</h2>
             {attachments.map(att => (
               <div key={att.filename}>
-                <a href={"/api/filestore/" + att.filename} target="_blank">
+                <a
+                  href={"/api/filestore/get/" + att.filename + "/"}
+                  target="_blank"
+                >
                   {att.displayname}
                 </a>
               </div>

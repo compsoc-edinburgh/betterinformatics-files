@@ -3,6 +3,9 @@ from django.conf import settings
 
 from util import response
 
+if settings.IN_ENVIRON:
+    from myauth.people_auth import get_vis_groups
+
 
 def check_api_key(request):
     api_key = request.headers.get('X-COMMUNITY-SOLUTIONS-API-KEY')
@@ -27,7 +30,6 @@ def has_admin_rights(request):
         return False
     if check_api_key(request):
         return True
-    from myauth.people_auth import get_vis_groups
     vis_groups = get_vis_groups(request.user.username)
     return any(("vorstand" == group or "cat" == group or "luk" == group or "serviceaccounts" == group) for group in vis_groups)
 

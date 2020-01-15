@@ -13,7 +13,6 @@ urlpatterns = [
     path('setmetadata/<slug:slug>/', views.set_metadata, name='setmetadata'),
     path('addusertoset/<slug:slug>/', views.add_user_to_set, name='addusertoset'),
     path('removeuserfromset/<slug:slug>/', views.remove_user_from_set, name='removeuserfromset'),
-    path('addattachment/<slug:slug>/', views.add_attachment, name='addattachment'),
     path('listexams/<slug:slug>/', views.list_exams, name='listexams'),
     path('listmetacategories/', views.list_metacategories, name='list_metacategories'),
     path('addmetacategory/', views.add_metacategory, name='addmetacategory'),

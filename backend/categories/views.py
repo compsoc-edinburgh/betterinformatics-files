@@ -2,7 +2,6 @@ from util import response
 from myauth import auth_check
 from myauth.models import get_my_user, MyUser
 from categories.models import Category, MetaCategory
-from filestore.models import Attachment
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
@@ -130,12 +129,12 @@ def get_metadata(request, slug):
         'examcountpublic': 0, # TODO implement
         'examcountanswered': 0, # TODO implement
         'answerprogress': 0, # TODO implement
-        'attachments': [
+        'attachments': sorted([
             {
                 'displayname': att.displayname,
                 'filename': att.filename,
             } for att in cat.attachment_set.all()
-        ],
+        ], key=lambda x: x['displayname']),
     }
     if auth_check.has_admin_rights_for_category(request, cat):
         res['admins'] = list(cat.admins.all().values_list('username', flat=True))
@@ -189,17 +188,6 @@ def remove_user_from_set(request, slug):
             cat.save()
     else:
         return response.not_possible('Unknown key')
-    return response.success()
-
-
-@response.args_post('displayname', 'filename')
-@auth_check.require_admin
-def add_attachment(request, slug):
-    cat = get_object_or_404(Category, slug=slug)
-    att = get_object_or_404(Attachment, filename=request.POST['filename'])
-    att.exam = None
-    att.category = cat
-    att.save()
     return response.success()
 
 

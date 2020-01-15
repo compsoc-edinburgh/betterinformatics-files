@@ -57,9 +57,6 @@
 @app.route("/api/img/<filename>")
 
 # In Progress
-@app.route('/api/uploadfilestore', methods=['POST'])
-@app.route('/api/filestore/remove/<filename>', methods=['POST'])
-@app.route("/api/filestore/<filename>")
 
 # Some Features Missing
 @app.route("/api/listcategories/withmeta")
@@ -97,6 +94,9 @@
 @app.route("/api/feedback/submit", methods=['POST'])
 @app.route("/api/feedback/list")
 @app.route("/api/feedback/<feedbackid>/flags", methods=['POST'])
+@app.route('/api/uploadfilestore', methods=['POST'])
+@app.route('/api/filestore/remove/<filename>', methods=['POST'])
+@app.route("/api/filestore/<filename>")
 
 # Removed
 @app.route("/api/dump/<table>")

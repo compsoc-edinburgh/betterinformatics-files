@@ -206,20 +206,12 @@ export default class MetaData extends React.Component<Props, State> {
     let metadata = { ...this.props.savedMetaData };
     metadata.attachments.push(att);
     this.props.onChange(metadata);
-    fetchpost("/api/exam/" + this.props.filename + "/addtoset", {
-      key: "json:attachments",
-      value: JSON.stringify(att),
-    });
   };
 
   removeAttachment = (att: Attachment) => {
     let metadata = { ...this.props.savedMetaData };
     metadata.attachments = metadata.attachments.filter(a => a !== att);
     this.props.onChange(metadata);
-    fetchpost("/api/exam/" + this.props.filename + "/pullset", {
-      key: "json:attachments",
-      value: JSON.stringify(att),
-    });
   };
 
   render() {
@@ -389,6 +381,7 @@ export default class MetaData extends React.Component<Props, State> {
         </div>
         <Attachments
           attachments={this.props.savedMetaData.attachments}
+          additionalArgs={{ exam: this.props.filename }}
           onAddAttachment={this.addAttachment}
           onRemoveAttachment={this.removeAttachment}
         />
