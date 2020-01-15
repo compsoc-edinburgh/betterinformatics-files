@@ -83,7 +83,7 @@ def upload(client, category, dummy, real, displayname):
     print("Upload exam", dummy)
     fil = open(dummy, 'rb')
     r = client.post(
-        '/api/uploadpdf/exam',
+        '/api/exam/upload/exam/',
         files={'file': fil},
         category=category,
         displayname=displayname,
@@ -93,7 +93,7 @@ def upload(client, category, dummy, real, displayname):
     print("Upload real pdf", real)
     fil = open(real, 'rb')
     client.post(
-        '/api/uploadpdf/printonly',
+        '/api/exam/upload/printonly/',
         files={'file': fil},
         filename=newfilename,
     )

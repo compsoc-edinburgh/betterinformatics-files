@@ -1,6 +1,6 @@
 from util import response
 from django.contrib.auth import authenticate, login, logout
-from myauth.auth_check import has_admin_rights
+from myauth import auth_check
 
 def login_view(request):
     username = request.POST.get('username', '').lower()
@@ -10,7 +10,7 @@ def login_view(request):
     user = authenticate(request, username=username, password=password)
     if user is not None:
         login(request, user)
-        request.session['simulate_nonadmin'] = request.POST.get('simulate_nonadmin', '')[:1]
+        request.session['simulate_nonadmin'] = request.POST.get('simulate_nonadmin', 'false') != 'false'
         return response.success()
     else:
         return response.not_allowed()
@@ -25,8 +25,8 @@ def me_view(request):
     if request.user.is_authenticated:
         return response.success(
             loggedin=True,
-            adminrights=has_admin_rights(request),
-            adminrightscat=False, # TODO implement this
+            adminrights=auth_check.has_admin_rights(request),
+            adminrightscat=auth_check.has_admin_rights_for_any_category(request), # TODO implement this
             username=request.user.username,
             displayname=request.user.displayname(),
         )

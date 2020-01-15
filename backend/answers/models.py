@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils import timezone
+from myauth import auth_check
 import uuid
 
 
 class Exam(models.Model):
-    filename = models.CharField(max_length=256)
+    filename = models.CharField(max_length=256, unique=True)
     displayname = models.CharField(max_length=256)
     category = models.ForeignKey('categories.Category', null=True, on_delete=models.SET_NULL)
     exam_type = models.ForeignKey('ExamType', null=True, on_delete=models.SET_NULL)
@@ -17,7 +18,7 @@ class Exam(models.Model):
     needs_payment = models.BooleanField(default=False)
 
     import_claim = models.ForeignKey('auth.User', related_name='import_claim_set', null=True, on_delete=models.SET_NULL)
-    import_claim_time = models.DateTimeField()
+    import_claim_time = models.DateTimeField(null=True)
 
     is_printonly = models.BooleanField(default=False)
 
@@ -29,6 +30,17 @@ class Exam(models.Model):
     is_oral_transcript = models.BooleanField(default=False)
     oral_transcript_uploader = models.ForeignKey('auth.User', related_name='oral_transcript_set', null=True, on_delete=models.SET_NULL)
     oral_transcript_checked = models.BooleanField(default=False)
+
+    def current_user_can_view(self, request):
+        is_admin = auth_check.has_admin_rights_for_exam(request, self)
+        if is_admin:
+            return True
+        if not self.public:
+            return False
+        # TODO check payments
+        if self.needs_payment:
+            return False
+        return True
 
 
 class ExamType(models.Model):
@@ -56,7 +68,7 @@ class Answer(models.Model):
     upvotes = models.ManyToManyField('auth.User', related_name='upvoted_answer_set')
     downvotes = models.ManyToManyField('auth.User', related_name='downvoted_answer_set')
     expertvotes = models.ManyToManyField('auth.User', related_name='expertvote_answer_set')
-    long_id = models.CharField(max_length=256, default=generate_long_id)
+    long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
 
 
 class Comment(models.Model):
@@ -64,5 +76,4 @@ class Comment(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     text = models.TextField()
     time = models.DateTimeField(default=timezone.now)
-    long_id = models.CharField(max_length=256, default=generate_long_id)
-
+    long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)

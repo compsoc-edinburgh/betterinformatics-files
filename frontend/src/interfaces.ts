@@ -115,6 +115,19 @@ export interface MetaCategoryWithCategories {
   }[];
 }
 
+export interface CategoryMetaDataMinimal {
+  displayname: string; // Name of category
+  slug: string;
+}
+
+export interface CategoryMetaDataOverview {
+  displayname: string; // Name of category
+  slug: string;
+  examcountpublic: number;
+  examcountanswered: number;
+  answerprogress: number;
+}
+
 export interface CategoryMetaData {
   displayname: string; // Name of category
   slug: string;
@@ -132,6 +145,11 @@ export interface CategoryMetaData {
   answerprogress: number;
   attachments: Attachment[];
 }
+
+export type CategoryMetaDataAny =
+  | CategoryMetaData
+  | CategoryMetaDataOverview
+  | CategoryMetaDataMinimal;
 
 export interface ExamMetaData {
   canEdit: boolean;
@@ -151,7 +169,7 @@ export interface ExamMetaData {
   finished_cuts: boolean;
   finished_wiki_transfer: boolean;
   needs_payment: boolean;
-  has_printonly: boolean;
+  is_printonly: boolean;
   has_solution: boolean;
   solution_printonly: boolean;
   is_payment_exam: boolean;

@@ -34,12 +34,6 @@ COMSOL_FILESTORE_DIR = 'files/'
 COMSOL_EXAM_ALLOWED_EXTENSIONS = {'pdf'}
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'svg', 'gif'}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {'pdf', 'zip', 'tar.gz', 'tar.xz'}
-PDF_DIR = {
-    'exam': COMSOL_EXAM_DIR,
-    'payment_exam': COMSOL_EXAM_DIR,
-    'printonly': COMSOL_PRINTONLY_DIR,
-    'solution': COMSOL_SOLUTION_DIR,
-}
 COMSOL_CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 ALLOWED_HOSTS = []

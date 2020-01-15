@@ -14,10 +14,7 @@ def upload(request):
     file = request.FILES.get('file')
     if not file:
         return response.missing_argument()
-    ext = ''
-    for aext in settings.COMSOL_FILESTORE_ALLOWED_EXTENSIONS:
-        if file.name.lower().endswith(aext):
-            ext = aext
+    ext = minio_util.check_filename(file.name, settings.COMSOL_FILESTORE_ALLOWED_EXTENSIONS)
     if not ext:
         return response.not_possible('Invalid File Extension')
     filename = minio_util.generate_filename(16, settings.COMSOL_FILESTORE_DIR, '.' + ext)

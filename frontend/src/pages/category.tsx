@@ -451,7 +451,7 @@ export default class Category extends React.Component<Props, State> {
         "Please enter '" + exam.displayname + "' to delete the exam.",
       );
       if (confirmation2 === exam.displayname) {
-        fetchpost(`/api/exam/${exam.filename}/remove`, {})
+        fetchpost(`/api/exam/remove/exam/${exam.filename}/`, {})
           .then(() => {
             this.loadExams();
           })

@@ -2,7 +2,7 @@ import * as React from "react";
 import { css } from "glamor";
 import Colors from "../colors";
 import {
-  CategoryMetaData,
+  CategoryMetaDataOverview,
   MetaCategory,
   MetaCategoryWithCategories,
 } from "../interfaces";
@@ -110,11 +110,11 @@ interface Props {
 }
 
 interface State {
-  categories: CategoryMetaData[];
+  categories: CategoryMetaDataOverview[];
   metaCategories: MetaCategory[];
   filter: string;
   bySemesterView: boolean;
-  gotoCategory?: CategoryMetaData;
+  gotoCategory?: CategoryMetaDataOverview;
   addingCategory: boolean;
   newCategoryName: string;
   error?: boolean;
@@ -130,7 +130,7 @@ export default class Home extends React.Component<Props, State> {
     newCategoryName: "",
   };
 
-  removeDefaultIfNecessary = (categories: CategoryMetaData[]) => {
+  removeDefaultIfNecessary = (categories: CategoryMetaDataOverview[]) => {
     if (this.props.isAdmin) {
       return categories;
     } else {
@@ -181,7 +181,7 @@ export default class Home extends React.Component<Props, State> {
         filtered,
         this.state.metaCategories,
       );
-      let resorted: CategoryMetaData[] = [];
+      let resorted: CategoryMetaDataOverview[] = [];
       categoriesBySemester.forEach(meta1 => {
         meta1.meta2.forEach(meta2 => {
           meta2.categories.forEach(cat => resorted.push(cat));
@@ -197,7 +197,7 @@ export default class Home extends React.Component<Props, State> {
     }
   };
 
-  gotoCategory = (cat: CategoryMetaData) => {
+  gotoCategory = (cat: CategoryMetaDataOverview) => {
     this.setState({
       gotoCategory: cat,
     });
@@ -272,7 +272,7 @@ export default class Home extends React.Component<Props, State> {
     );
   };
 
-  categoryView = (category: CategoryMetaData) => {
+  categoryView = (category: CategoryMetaDataOverview) => {
     return (
       <div
         key={category.displayname}
@@ -302,7 +302,7 @@ export default class Home extends React.Component<Props, State> {
     );
   };
 
-  alphabeticalView = (categories: CategoryMetaData[]) => {
+  alphabeticalView = (categories: CategoryMetaDataOverview[]) => {
     return (
       <div {...styles.categoriesWrapper}>
         {categories.map(category => this.categoryView(category))}

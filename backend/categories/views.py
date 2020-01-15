@@ -14,7 +14,7 @@ def list_categories(request):
 @auth_check.require_login
 def list_categories_with_meta(request):
     categories = Category.objects.all()
-    res = [
+    res = sorted([
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
@@ -22,24 +22,34 @@ def list_categories_with_meta(request):
             'examcountanswered': 0, # TODO implement
             'answerprogress': 0, # TODO implement
         } for cat in categories
-    ]
+    ], key=lambda x: x['displayname'])
     return response.success(value=res)
 
 
 @auth_check.require_login
 def list_categories_only_admin(request):
     categories = Category.objects.all()
-    res = [
-        cat.displayname
+    res = sorted([
+        {
+            'displayname': cat.displayname,
+            'slug': cat.slug,
+        }
         for cat in categories
         if auth_check.has_admin_rights_for_category(request, cat)
-    ]
+    ], key=lambda x: x['displayname'])
     return response.success(value=res)
 
 
 @auth_check.require_login
 def list_categories_only_payment(request):
-    return response.success(value=Category.objects.filter(has_payments=True).values_list('displayname', flat=True))
+    res = sorted([
+        {
+            'displayname': cat.displayname,
+            'slug': cat.slug,
+        }
+        for cat in Category.objects.filter(has_payments=True)
+    ], key=lambda x: x['displayname'])
+    return response.success(value=res)
 
 
 def create_category_slug(category):
@@ -87,13 +97,13 @@ def remove_category(request):
 @auth_check.require_login
 def list_exams(request, slug):
     cat = get_object_or_404(Category, slug=slug)
-    res = [
+    res = sorted([
         {
             'displayname': ex.displayname,
             'filename': ex.filename,
             'category_displayname': cat.displayname,
             'needs_payment': ex.needs_payment,
-            'examtype': ex.exam_type.displayname,
+            'examtype': ex.exam_type.displayname if ex.exam_type else '',
             'remark': ex.remark,
             'import_claim': ex.import_claim.username if ex.import_claim else '',
             'import_claim_displayname': get_my_user(ex.import_claim).displayname() if ex.import_claim else '',
@@ -107,7 +117,7 @@ def list_exams(request, slug):
             'count_cuts': 0, # TODO implement
             'count_answered': 0 # TODO implement
         } for ex in cat.exam_set.all()
-    ]
+    ], key=lambda x: x['displayname'])
     return response.success(value=res)
 
 

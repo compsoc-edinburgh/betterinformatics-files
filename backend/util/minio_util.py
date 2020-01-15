@@ -77,3 +77,10 @@ def generate_filename(length, directory, extension):
     if is_file_in_minio(directory, res + extension):
         return generate_filename(length, directory, extension)
     return res + extension
+
+
+def check_filename(filename, exts):
+    for aext in exts:
+        if filename.lower().endswith(aext):
+            return aext
+    return None

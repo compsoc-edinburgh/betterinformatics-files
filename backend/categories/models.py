@@ -3,7 +3,7 @@ from django.db import models
 
 class Category(models.Model):
     displayname = models.CharField(max_length=256)
-    slug = models.CharField(max_length=256)
+    slug = models.CharField(max_length=256, unique=True)
     form = models.CharField(max_length=256, choices=[(x, x) for x in ['written', 'oral']], default='written')
     remark = models.TextField(default='')
     semester = models.CharField(max_length=2, choices=[(x, x) for x in ['--', 'FS', 'HS']], default='--')

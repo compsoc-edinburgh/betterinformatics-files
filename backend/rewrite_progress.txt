@@ -1,7 +1,6 @@
 # Not done
 @app.route('/resolve/<filename>')
 @app.route('/legacy/transformwiki/<examname>')
-@app.route("/api/me")
 @app.route("/api/listexams")
 @app.route("/api/listimportexams")
 @app.route("/api/listpaymentcheckexams")
@@ -29,7 +28,6 @@
 @app.route("/api/exam/<filename>/pullset", methods=['POST'])
 @app.route("/api/listexamtypes")
 @app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
-@app.route("/api/exam/<filename>/remove", methods=['POST'])
 @app.route("/api/image/list")
 @app.route("/api/image/<filename>/remove", methods=['POST'])
 @app.route("/api/image/<filename>/metadata")
@@ -48,15 +46,16 @@
 @app.route("/api/payment/refund", methods=['POST'])
 @app.route("/api/payment/query/<username>")
 @app.route("/api/payment/me")
-@app.route("/api/uploadpdf/<pdftype>", methods=['POST'])
-@app.route("/api/removepdf/<pdftype>", methods=['POST'])
 @app.route("/api/uploadimg", methods=['POST'])
-@app.route("/api/pdf/<pdftype>/<filename>")
 @app.route("/api/zip/<category>", methods=['POST'])
 @app.route("/api/printpdf/<pdftype>/<filename>", methods=['POST'])
 @app.route("/api/img/<filename>")
 
 # In Progress
+@app.route("/api/uploadpdf/<pdftype>", methods=['POST'])
+@app.route("/api/removepdf/<pdftype>", methods=['POST'])
+@app.route("/api/pdf/<pdftype>/<filename>")
+@app.route("/api/exam/<filename>/remove", methods=['POST'])
 
 # Some Features Missing
 @app.route("/api/listcategories/withmeta")
@@ -78,6 +77,7 @@
 @app.route("/favicon.ico")
 @app.route("/api/login", methods=['POST'])
 @app.route("/api/logout", methods=['POST'])
+@app.route("/api/me")
 @app.route("/api/listcategories")
 @app.route("/api/listcategories/onlypayment")
 @app.route("/api/listcategories/onlyadmin")

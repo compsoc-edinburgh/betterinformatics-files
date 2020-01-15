@@ -117,7 +117,7 @@ export default class Exam extends React.Component<Props, State> {
       public: false,
       finished_cuts: false,
       finished_wiki_transfer: false,
-      has_printonly: false,
+      is_printonly: false,
       has_solution: false,
       solution_printonly: false,
       needs_payment: false,
@@ -168,7 +168,7 @@ export default class Exam extends React.Component<Props, State> {
     const PDFJS: pdfjs.PDFJSStatic = pdfjs as any;
     try {
       const pdf = await PDFJS.getDocument(
-        "/api/pdf/exam/" + this.props.filename,
+        "/api/exam/pdf/exam/" + this.props.filename + "/",
       );
 
       const w = this.state.width * this.state.dpr;
@@ -307,7 +307,10 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   gotoPDF = () => {
-    window.open(`/api/pdf/exam/${this.props.filename}?download`, "_blank");
+    window.open(
+      `/api/exam/pdf/exam/${this.props.filename}/?download`,
+      "_blank",
+    );
   };
 
   reportProblem = () => {
@@ -500,7 +503,7 @@ export default class Exam extends React.Component<Props, State> {
               </button>
             </div>
           )}
-        {this.state.savedMetaData.has_printonly && (
+        {this.state.savedMetaData.is_printonly && (
           <PrintExam
             title="exam"
             examtype="printonly"
@@ -542,7 +545,7 @@ export default class Exam extends React.Component<Props, State> {
           !this.state.savedMetaData.solution_printonly && (
             <div {...styles.linkBanner}>
               <a
-                href={"/api/pdf/solution/" + this.props.filename}
+                href={"/api/exam/pdf/solution/" + this.props.filename + "/"}
                 target="_blank"
               >
                 Official Solution

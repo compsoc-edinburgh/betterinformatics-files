@@ -20,18 +20,22 @@ def user_authenticated(request):
     return False
 
 
+def is_user_in_admin_group(user):
+    vis_groups = get_vis_groups(user.username)
+    return any(("vorstand" == group or "cat" == group or "luk" == group or "serviceaccounts" == group) for group in vis_groups)
+
+
 def has_admin_rights(request):
     """
     Check whether the given user should have global admin rights.
     :param username: the user to check
     :return: True iff the user has global admin rights
     """
-    if request.session['simulate_nonadmin'] == '1':
+    if request.session['simulate_nonadmin']:
         return False
     if check_api_key(request):
         return True
-    vis_groups = get_vis_groups(request.user.username)
-    return any(("vorstand" == group or "cat" == group or "luk" == group or "serviceaccounts" == group) for group in vis_groups)
+    return is_user_in_admin_group(request.user)
 
 
 def has_admin_rights_for_any_category(request):
