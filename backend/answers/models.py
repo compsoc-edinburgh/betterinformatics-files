@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-
+import uuid
 
 class Exam(models.Model):
     filename = models.CharField(max_length=256)
@@ -42,6 +42,10 @@ class AnswerSection(models.Model):
     cut_version = models.IntegerField(default=1)
 
 
+def generate_long_id():
+    return uuid.uuid4().replace('-', '')
+
+
 class Answer(models.Model):
     answer_section = models.ForeignKey('AnswerSection', on_delete=models.CASCADE)
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -51,6 +55,7 @@ class Answer(models.Model):
     upvotes = models.ManyToManyField('auth.User', related_name='upvoted_answer_set')
     downvotes = models.ManyToManyField('auth.User', related_name='downvoted_answer_set')
     expertvotes = models.ManyToManyField('auth.User', related_name='expertvote_answer_set')
+    long_id = models.CharField(max_length=256, default=generate_long_id)
 
 
 class Comment(models.Model):
@@ -58,4 +63,5 @@ class Comment(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     text = models.TextField()
     time = models.DateTimeField(default=timezone.now)
+    long_id = models.CharField(max_length=256, default=generate_long_id)
 

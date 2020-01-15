@@ -43,7 +43,7 @@ export function fillMetaCategories(
 ): MetaCategoryWithCategories[] {
   let categoryToMeta = {};
   categories.forEach(cat => {
-    categoryToMeta[cat.category] = cat;
+    categoryToMeta[cat.slug] = cat;
   });
   return metaCategories
     .map(meta1 => ({

@@ -170,7 +170,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   loadMetaCategories = () => {
-    fetchapi("/api/listmetacategories")
+    fetchapi("/api/category/listmetacategories/")
       .then(res => {
         this.setState({
           metaCategories: res.value,
