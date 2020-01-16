@@ -8,7 +8,7 @@ class Exam(models.Model):
     filename = models.CharField(max_length=256, unique=True)
     displayname = models.CharField(max_length=256)
     category = models.ForeignKey('categories.Category', null=True, on_delete=models.SET_NULL)
-    exam_type = models.ForeignKey('ExamType', null=True, on_delete=models.SET_NULL)
+    exam_type = models.ForeignKey('ExamType', on_delete=models.PROTECT)
     remark = models.TextField()
     resolve_alias = models.CharField(max_length=256)
 
@@ -68,6 +68,8 @@ class Answer(models.Model):
     upvotes = models.ManyToManyField('auth.User', related_name='upvoted_answer_set')
     downvotes = models.ManyToManyField('auth.User', related_name='downvoted_answer_set')
     expertvotes = models.ManyToManyField('auth.User', related_name='expertvote_answer_set')
+    flagged = models.ManyToManyField('auth.User', related_name='flagged_answer_set')
+    is_legacy_answer = models.BooleanField(default=False)
     long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
 
 
@@ -76,4 +78,5 @@ class Comment(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     text = models.TextField()
     time = models.DateTimeField(default=timezone.now)
+    edittime = models.DateTimeField(default=timezone.now)
     long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)

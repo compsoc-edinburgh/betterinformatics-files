@@ -94,9 +94,7 @@ export default class AnswerSectionComponent extends React.Component<
   removeSection = async () => {
     const confirmation = confirm("Remove answer section with all answers?");
     if (confirmation) {
-      fetchpost(`/api/exam/${this.props.filename}/removeanswersection`, {
-        oid: this.props.oid,
-      }).then(() => {
+      fetchpost(`/api/exam/removecut/${this.props.oid}/`, {}).then(() => {
         this.props.onSectionChange();
       });
     }

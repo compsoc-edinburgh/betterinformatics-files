@@ -99,22 +99,16 @@ def upload_solution(request):
 
 
 @response.args_post()
-@auth_check.require_login
-def remove_exam(request, filename):
-    exam = get_object_or_404(Exam, filename=filename)
-    if not auth_check.has_admin_rights_for_exam(request, exam):
-        return response.not_allowed()
+@auth_check.require_exam_admin
+def remove_exam(request, filename, exam):
     exam.delete()
     minio_util.delete_file(settings.COMSOL_EXAM_DIR, filename)
     return response.success()
 
 
 @response.args_post()
-@auth_check.require_login
-def remove_printonly(request, filename):
-    exam = get_object_or_404(Exam, filename=filename)
-    if not auth_check.has_admin_rights_for_exam(request, exam):
-        return response.not_allowed()
+@auth_check.require_exam_admin
+def remove_printonly(request, filename, exam):
     exam.is_printonly = False
     exam.save()
     minio_util.delete_file(settings.COMSOL_PRINTONLY_DIR, filename)
@@ -122,11 +116,8 @@ def remove_printonly(request, filename):
 
 
 @response.args_post()
-@auth_check.require_login
-def remove_solution(request, filename):
-    exam = get_object_or_404(Exam, filename=filename)
-    if not auth_check.has_admin_rights_for_exam(request, exam):
-        return response.not_allowed()
+@auth_check.require_exam_admin
+def remove_solution(request, filename, exam):
     exam.has_solution = False
     exam.save()
     minio_util.delete_file(settings.COMSOL_SOLUTION_DIR, filename)

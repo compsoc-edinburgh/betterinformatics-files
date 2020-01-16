@@ -565,6 +565,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                 answerId={answer.oid}
                 comment={{
                   oid: "",
+                  longId: "",
                   text: "",
                   authorId: "",
                   authorDisplayName: "",

@@ -1,4 +1,5 @@
 from functools import wraps
+from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 from util import response
@@ -68,6 +69,17 @@ def require_login(f):
         if not user_authenticated(request):
             return response.not_allowed()
         return f(request, *args, **kwargs)
+    return wrapper
+
+
+def require_exam_admin(f):
+    from answers.models import Exam
+    @wraps(f)
+    def wrapper(request, *args, **kwargs):
+        exam = get_object_or_404(Exam, filename=kwargs['filename'])
+        if not has_admin_rights_for_exam(request, exam):
+            return response.not_allowed()
+        return f(request, exam=exam, *args, **kwargs)
     return wrapper
 
 

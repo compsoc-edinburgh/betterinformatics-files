@@ -9,8 +9,6 @@ export interface AnswerSection {
   oid: string; // unique id within answer sections
   kind: SectionKind.Answer;
   answers: Answer[];
-  asker: string; // username of person who created section
-  askerDisplayName: string; // display name of asker
   allow_new_answer: boolean; // whether the current user can add an answer
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
   hidden: boolean; // whether the element is currently hidden
@@ -19,6 +17,7 @@ export interface AnswerSection {
 
 export interface Answer {
   oid: string; // unique id within answers
+  longId: string; // long unique id
   upvotes: number; // number upvotes minus number of downvotes
   expertvotes: number; // number of experts who upvoted
   authorId: string; // username
@@ -40,6 +39,7 @@ export interface Answer {
 
 export interface Comment {
   oid: string; // unique id within comments
+  longId: string; // long unique id
   text: string;
   authorId: string; // username
   authorDisplayName: string; // display name of author
@@ -172,8 +172,8 @@ export interface ExamMetaData {
   is_printonly: boolean;
   has_solution: boolean;
   solution_printonly: boolean;
-  is_payment_exam: boolean;
-  payment_exam_checked: boolean;
+  is_oral_transcript: boolean;
+  oral_transcript_checked: boolean;
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];

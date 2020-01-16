@@ -121,8 +121,8 @@ export default class Exam extends React.Component<Props, State> {
       has_solution: false,
       solution_printonly: false,
       needs_payment: false,
-      is_payment_exam: false,
-      payment_exam_checked: false,
+      is_oral_transcript: false,
+      oral_transcript_checked: false,
       count_cuts: 0,
       count_answered: 0,
       attachments: [],
@@ -150,7 +150,7 @@ export default class Exam extends React.Component<Props, State> {
   }
 
   loadMetaData = () => {
-    fetchapi(`/api/exam/${this.props.filename}/metadata`)
+    fetchapi(`/api/exam/metadata/${this.props.filename}/`)
       .then(res => {
         this.setState({
           canEdit: res.value.canEdit,
@@ -250,7 +250,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   updateCutVersion = () => {
-    fetchapi(`/api/exam/${this.props.filename}/cutversions`)
+    fetchapi(`/api/exam/cutversions/${this.props.filename}/`)
       .then(res => {
         const versions = res.value;
         this.setState(prevState => {
@@ -287,7 +287,7 @@ export default class Exam extends React.Component<Props, State> {
       );
     }
 
-    fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
+    fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
       pageNum: section.start.page,
       relHeight: relHeight,
     })
@@ -382,14 +382,16 @@ export default class Exam extends React.Component<Props, State> {
     if (this.state.editingMetaData) {
       this.toggleEditingMetadataActive();
     }
-    fetchpost(`/api/exam/${this.props.filename}/metadata`, update).then(res => {
-      this.setState(prev => ({
-        savedMetaData: {
-          ...prev.savedMetaData,
-          ...update,
-        },
-      }));
-    });
+    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, update).then(
+      res => {
+        this.setState(prev => ({
+          savedMetaData: {
+            ...prev.savedMetaData,
+            ...update,
+          },
+        }));
+      },
+    );
   };
 
   metaDataChanged = (newMetaData: ExamMetaData) => {
@@ -492,8 +494,8 @@ export default class Exam extends React.Component<Props, State> {
             onFinishEdit={this.toggleEditingMetadataActive}
           />
         )}
-        {this.state.savedMetaData.is_payment_exam &&
-          !this.state.savedMetaData.payment_exam_checked && (
+        {this.state.savedMetaData.is_oral_transcript &&
+          !this.state.savedMetaData.oral_transcript_checked && (
             <div {...styles.checkWrapper}>
               This is a transcript of an oral exam. It needs to be checked
               whether it is a valid transcript.

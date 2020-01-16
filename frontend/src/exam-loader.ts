@@ -31,7 +31,7 @@ export async function loadSections(
   filename: string,
   pageCount: number,
 ): Promise<Section[]> {
-  const response = await fetchapi(`/api/exam/${filename}/cuts`);
+  const response = await fetchapi(`/api/exam/cuts/${filename}/`);
   const cuts = response.value;
   let akey = -1;
   let sections: Section[] = [];
@@ -50,8 +50,6 @@ export async function loadSections(
           oid: oid,
           kind: SectionKind.Answer,
           answers: [],
-          asker: "",
-          askerDisplayName: "",
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
@@ -73,10 +71,8 @@ export async function loadAnswerSection(
   oid: string,
 ): Promise<AnswerSection> {
   try {
-    const section = await fetchapi(
-      `/api/exam/${filename}/answersection/${oid}`,
-    );
-    let answersection = section.value.answersection;
+    const section = await fetchapi(`/api/exam/answersection/${oid}/`);
+    let answersection = section.value;
     answersection.key = oid;
     answersection.kind = SectionKind.Answer;
     return answersection;

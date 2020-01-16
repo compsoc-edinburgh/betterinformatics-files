@@ -4,6 +4,14 @@ from . import views
 from . import views_files
 
 urlpatterns = [
+    path('listexamtypes/', views.list_exam_types, name='listexamtypes'),
+    path('cuts/<str:filename>/', views.get_cuts, name='cuts'),
+    path('addcut/<str:filename>/', views.add_cut, name='addcut'),
+    path('removecut/<int:oid>/', views.remove_cut, name='removecut'),
+    path('cutversions/<str:filename>/', views.get_cut_versions, name='cutversions'),
+    path('answersection/<int:oid>/', views.get_answersection, name='answersection'),
+    path('metadata/<str:filename>/', views.exam_metadata, name='metadata'),
+    path('setmetadata/<str:filename>/', views.exam_set_metadata, name='setmetadata'),
     path('upload/exam/', views_files.upload_exam_pdf, name='upload_exam_pdf'),
     path('upload/transcript/', views_files.upload_transcript, name='upload_transcript'),
     path('upload/printonly/', views_files.upload_printonly, name='upload_printonly'),

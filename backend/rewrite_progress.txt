@@ -5,11 +5,6 @@
 @app.route("/api/listimportexams")
 @app.route("/api/listpaymentcheckexams")
 @app.route('/api/listflagged')
-@app.route("/api/exam/<filename>/cuts")
-@app.route("/api/exam/<filename>/answersection/<oid>")
-@app.route("/api/exam/<filename>/cutversions")
-@app.route("/api/exam/<filename>/newanswersection", methods=['POST'])
-@app.route("/api/exam/<filename>/removeanswersection", methods=['POST'])
 @app.route("/api/exam/<filename>/setlike/<sectionoid>/<answeroid>", methods=['POST'])
 @app.route('/api/exam/<filename>/setexpertvote/<sectionoid>/<answeroid>', methods=['POST'])
 @app.route('/api/exam/<filename>/setflagged/<sectionoid>/<answeroid>', methods=['POST'])
@@ -22,11 +17,9 @@
 @app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=['POST'])
 @app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=['POST'])
 @app.route("/api/exam/<filename>/claim", methods=['POST'])
-@app.route("/api/exam/<filename>/metadata")
 @app.route("/api/exam/<filename>/metadata", methods=['POST'])
 @app.route("/api/exam/<filename>/addtoset", methods=['POST'])
 @app.route("/api/exam/<filename>/pullset", methods=['POST'])
-@app.route("/api/listexamtypes")
 @app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
 @app.route("/api/image/list")
 @app.route("/api/image/<filename>/remove", methods=['POST'])
@@ -55,11 +48,12 @@
 @app.route("/api/uploadpdf/<pdftype>", methods=['POST'])
 @app.route("/api/removepdf/<pdftype>", methods=['POST'])
 @app.route("/api/pdf/<pdftype>/<filename>")
-@app.route("/api/exam/<filename>/remove", methods=['POST'])
+@app.route("/api/exam/<filename>/answersection/<oid>")
 
 # Some Features Missing
 @app.route("/api/listcategories/withmeta")
 @app.route("/api/category/metadata")
+@app.route("/api/exam/<filename>/metadata")
 
 # Done
 @app.route("/")
@@ -97,6 +91,12 @@
 @app.route('/api/uploadfilestore', methods=['POST'])
 @app.route('/api/filestore/remove/<filename>', methods=['POST'])
 @app.route("/api/filestore/<filename>")
+@app.route("/api/listexamtypes")
+@app.route("/api/exam/<filename>/remove", methods=['POST'])
+@app.route("/api/exam/<filename>/cuts")
+@app.route("/api/exam/<filename>/newanswersection", methods=['POST'])
+@app.route("/api/exam/<filename>/removeanswersection", methods=['POST'])
+@app.route("/api/exam/<filename>/cutversions")
 
 # Removed
 @app.route("/api/dump/<table>")

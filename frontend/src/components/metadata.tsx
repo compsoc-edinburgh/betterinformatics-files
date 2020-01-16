@@ -71,7 +71,7 @@ export default class MetaData extends React.Component<Props, State> {
         });
       })
       .catch(() => undefined);
-    fetchapi("/api/listexamtypes")
+    fetchapi("/api/exam/listexamtypes/")
       .then(res => {
         this.setState({
           examTypes: res.value,
@@ -84,7 +84,7 @@ export default class MetaData extends React.Component<Props, State> {
     let metadata = { ...this.state.currentMetaData };
     metadata.has_solution = this.props.savedMetaData.has_solution;
     metadata.is_printonly = this.props.savedMetaData.is_printonly;
-    fetchpost(`/api/exam/${this.props.filename}/metadata`, metadata)
+    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, metadata)
       .then(() => {
         this.props.onChange(metadata);
         this.props.onFinishEdit();
