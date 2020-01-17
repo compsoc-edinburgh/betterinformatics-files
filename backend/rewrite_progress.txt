@@ -5,9 +5,6 @@
 @app.route("/api/listimportexams")
 @app.route("/api/listpaymentcheckexams")
 @app.route('/api/listflagged')
-@app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
-@app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=['POST'])
-@app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=['POST'])
 @app.route("/api/exam/<filename>/claim", methods=['POST'])
 @app.route("/api/exam/<filename>/metadata", methods=['POST'])
 @app.route("/api/exam/<filename>/addtoset", methods=['POST'])
@@ -37,6 +34,9 @@
 @app.route("/api/img/<filename>")
 
 # In Progress
+@app.route("/api/exam/<filename>/addcomment/<sectionoid>/<answeroid>", methods=['POST'])
+@app.route("/api/exam/<filename>/setcomment/<sectionoid>/<answeroid>", methods=['POST'])
+@app.route("/api/exam/<filename>/removecomment/<sectionoid>/<answeroid>", methods=['POST'])
 
 # Some Features Missing
 @app.route("/api/listcategories/withmeta")

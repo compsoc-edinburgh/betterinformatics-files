@@ -1,23 +1,25 @@
 from django.urls import path
 
 from . import views
+from . import views_answers
+from . import views_cuts
 from . import views_files
 
 urlpatterns = [
     path('listexamtypes/', views.list_exam_types, name='listexamtypes'),
-    path('cuts/<str:filename>/', views.get_cuts, name='cuts'),
-    path('addcut/<str:filename>/', views.add_cut, name='addcut'),
-    path('removecut/<int:oid>/', views.remove_cut, name='removecut'),
-    path('cutversions/<str:filename>/', views.get_cut_versions, name='cutversions'),
-    path('answersection/<int:oid>/', views.get_answersection, name='answersection'),
+    path('cuts/<str:filename>/', views_cuts.get_cuts, name='cuts'),
+    path('addcut/<str:filename>/', views_cuts.add_cut, name='addcut'),
+    path('removecut/<int:oid>/', views_cuts.remove_cut, name='removecut'),
+    path('cutversions/<str:filename>/', views_cuts.get_cut_versions, name='cutversions'),
+    path('answersection/<int:oid>/', views_cuts.get_answersection, name='answersection'),
     path('metadata/<str:filename>/', views.exam_metadata, name='metadata'),
     path('setmetadata/<str:filename>/', views.exam_set_metadata, name='setmetadata'),
-    path('setanswer/<int:oid>/', views.set_answer, name='setanswer'),
-    path('removeanswer/<int:oid>/', views.remove_answer, name='removeanswer'),
-    path('setlike/<int:oid>/', views.set_like, name='setlike'),
-    path('setexpertvote/<int:oid>/', views.set_expertvote, name='setexpertvote'),
-    path('setflagged/<int:oid>/', views.set_flagged, name='setflagged'),
-    path('resetflagged/<int:oid>/', views.reset_flagged, name='resetflagged'),
+    path('setanswer/<int:oid>/', views_answers.set_answer, name='setanswer'),
+    path('removeanswer/<int:oid>/', views_answers.remove_answer, name='removeanswer'),
+    path('setlike/<int:oid>/', views_answers.set_like, name='setlike'),
+    path('setexpertvote/<int:oid>/', views_answers.set_expertvote, name='setexpertvote'),
+    path('setflagged/<int:oid>/', views_answers.set_flagged, name='setflagged'),
+    path('resetflagged/<int:oid>/', views_answers.reset_flagged, name='resetflagged'),
     path('upload/exam/', views_files.upload_exam_pdf, name='upload_exam_pdf'),
     path('upload/transcript/', views_files.upload_transcript, name='upload_transcript'),
     path('upload/printonly/', views_files.upload_printonly, name='upload_printonly'),
