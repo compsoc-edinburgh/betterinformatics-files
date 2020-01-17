@@ -156,9 +156,10 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   removeFilePrintonly = () => {
-    fetchpost("/api/exam/remove/printonly/", {
-      filename: this.state.currentMetaData.filename,
-    })
+    fetchpost(
+      "/api/exam/remove/printonly/" + this.state.currentMetaData.filename + "/",
+      {},
+    )
       .then(() => {
         let newMeta = { ...this.props.savedMetaData };
         newMeta.is_printonly = false;
@@ -189,9 +190,10 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   removeFileSolution = () => {
-    fetchpost("/api/exam/remove/solution/", {
-      filename: this.state.currentMetaData.filename,
-    })
+    fetchpost(
+      "/api/exam/remove/solution/" + this.state.currentMetaData.filename + "/",
+      {},
+    )
       .then(() => {
         let newMeta = { ...this.props.savedMetaData };
         newMeta.has_solution = false;

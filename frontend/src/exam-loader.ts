@@ -66,10 +66,7 @@ export async function loadSections(
   return sections;
 }
 
-export async function loadAnswerSection(
-  filename: string,
-  oid: string,
-): Promise<AnswerSection> {
+export async function loadAnswerSection(oid: string): Promise<AnswerSection> {
   try {
     const section = await fetchapi(`/api/exam/answersection/${oid}/`);
     let answersection = section.value;

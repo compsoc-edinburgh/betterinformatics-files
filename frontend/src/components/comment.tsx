@@ -19,7 +19,7 @@ interface Props {
   answerId: string;
   isNewComment?: boolean;
   comment: Comment;
-  onSectionChanged: (res: { value: { answersection: AnswerSection } }) => void;
+  onSectionChanged: (res: { value: AnswerSection }) => void;
   onNewCommentSaved?: () => void;
 }
 

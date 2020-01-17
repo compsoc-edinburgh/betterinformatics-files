@@ -557,6 +557,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
             sectionId={answer.sectionId}
             answer={answer}
             onSectionChanged={() => undefined}
+            onCancelEdit={() => undefined}
           />
         ))}
         <div>

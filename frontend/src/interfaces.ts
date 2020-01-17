@@ -34,7 +34,8 @@ export interface Answer {
   edittime: string; // ISO 8601, last edit time
   filename: string; // filename of the corresponding exam
   sectionId: string; // id of section containing answer
-  divRef: HTMLDivElement; // root div element for scroll jumping
+  isLegacyAnswer: boolean; // whether this is a legacy answer
+  divRef?: HTMLDivElement; // root div element for scroll jumping
 }
 
 export interface Comment {

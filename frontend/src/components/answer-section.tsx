@@ -4,6 +4,8 @@ import { loadAnswerSection } from "../exam-loader";
 import { fetchpost } from "../fetch-utils";
 import { css } from "glamor";
 import AnswerComponent from "./answer";
+import GlobalConsts from "../globalconsts";
+import * as moment from "moment";
 
 interface Props {
   isAdmin: boolean;
@@ -20,6 +22,8 @@ interface Props {
 
 interface State {
   section?: AnswerSection;
+  addingAnswer: boolean;
+  addingLegacyAnswer: boolean;
 }
 
 const styles = {
@@ -65,17 +69,22 @@ export default class AnswerSectionComponent extends React.Component<
   Props,
   State
 > {
-  state: State = {};
+  state: State = {
+    addingAnswer: false,
+    addingLegacyAnswer: false,
+  };
 
   componentDidMount() {
-    loadAnswerSection(this.props.filename, this.props.oid)
+    loadAnswerSection(this.props.oid)
       .then(res => {
         this.setState({ section: res });
         const hash = window.location.hash.substr(1);
-        const hashAnswer = res.answers.find(answer => answer.oid === hash);
+        const hashAnswer = res.answers.find(answer => answer.longId === hash);
         if (hashAnswer) {
           this.props.onToggleHidden();
-          hashAnswer.divRef.scrollIntoView();
+          if (hashAnswer.divRef) {
+            hashAnswer.divRef.scrollIntoView();
+          }
         }
       })
       .catch(() => undefined);
@@ -83,7 +92,7 @@ export default class AnswerSectionComponent extends React.Component<
 
   componentDidUpdate(prevProps: Readonly<Props>) {
     if (prevProps.cutVersion !== this.props.cutVersion) {
-      loadAnswerSection(this.props.filename, this.props.oid)
+      loadAnswerSection(this.props.oid)
         .then(res => {
           this.setState({ section: res });
         })
@@ -101,26 +110,32 @@ export default class AnswerSectionComponent extends React.Component<
   };
 
   addAnswer = (legacy: boolean) => {
-    const postdata = legacy ? { legacyuser: 1 } : {};
-    fetchpost(
-      `/api/exam/${this.props.filename}/addanswer/${this.props.oid}`,
-      postdata,
-    )
-      .then(res => {
-        this.onSectionChanged(res);
-        if (this.state.section && this.props.hidden) {
-          this.props.onToggleHidden();
-        }
-      })
-      .catch(() => undefined);
+    this.setState({
+      addingAnswer: true,
+      addingLegacyAnswer: legacy,
+    });
+    if (this.props.hidden) {
+      this.props.onToggleHidden();
+    }
   };
 
   // takes the parsed json for the answersection which was returned from the server
-  onSectionChanged = (res: { value: { answersection: AnswerSection } }) => {
-    let answersection = res.value.answersection;
+  onSectionChanged = (res: { value: AnswerSection }) => {
+    let answersection = res.value;
     //answersection.key = this.props.oid;
     answersection.kind = SectionKind.Answer;
-    this.setState({ section: answersection });
+    this.setState({
+      section: answersection,
+      addingAnswer: false,
+      addingLegacyAnswer: false,
+    });
+  };
+
+  onCancelEdit = () => {
+    this.setState({
+      addingAnswer: false,
+      addingLegacyAnswer: false,
+    });
   };
 
   render() {
@@ -144,8 +159,42 @@ export default class AnswerSectionComponent extends React.Component<
     }
     return (
       <div {...styles.wrapper}>
-        {section.answers.length > 0 && (
+        {(section.answers.length > 0 || this.state.addingAnswer) && (
           <div {...styles.answerWrapper}>
+            {this.state.addingAnswer && (
+              <AnswerComponent
+                isReadonly={false}
+                isAdmin={this.props.isAdmin}
+                isExpert={this.props.isExpert}
+                filename={this.props.filename}
+                sectionId={this.props.oid}
+                answer={{
+                  oid: "",
+                  longId: "",
+                  upvotes: 1,
+                  expertvotes: 0,
+                  authorId: "",
+                  authorDisplayName: this.state.addingLegacyAnswer
+                    ? "New Legacy Answer"
+                    : "New Answer",
+                  canEdit: true,
+                  isUpvoted: true,
+                  isDownvoted: false,
+                  isExpertVoted: false,
+                  isFlagged: false,
+                  flagged: 0,
+                  comments: [],
+                  text: "",
+                  time: moment().format(GlobalConsts.momentParseString),
+                  edittime: moment().format(GlobalConsts.momentParseString),
+                  filename: this.props.filename,
+                  sectionId: this.props.oid,
+                  isLegacyAnswer: this.state.addingLegacyAnswer,
+                }}
+                onSectionChanged={this.onSectionChanged}
+                onCancelEdit={this.onCancelEdit}
+              />
+            )}
             {section.answers.map(e => (
               <AnswerComponent
                 key={e.oid}
@@ -156,6 +205,7 @@ export default class AnswerSectionComponent extends React.Component<
                 filename={this.props.filename}
                 sectionId={this.props.oid}
                 onSectionChanged={this.onSectionChanged}
+                onCancelEdit={this.onCancelEdit}
               />
             ))}
           </div>

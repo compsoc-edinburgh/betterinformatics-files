@@ -20,7 +20,8 @@ interface Props {
   filename: string;
   sectionId: string;
   answer: Answer;
-  onSectionChanged: (res: { value: { answersection: AnswerSection } }) => void;
+  onSectionChanged: (res: { value: AnswerSection }) => void;
+  onCancelEdit: () => void;
 }
 
 interface State {
@@ -186,41 +187,19 @@ export default class AnswerComponent extends React.Component<Props, State> {
   removeAnswer = () => {
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
-      if (this.props.answer.canEdit) {
-        fetchpost(
-          `/api/exam/${this.props.filename}/removeanswer/${this.props.sectionId}`,
-          this.enrichPostdata({}),
-        )
-          .then(res => {
-            this.props.onSectionChanged(res);
-          })
-          .catch(() => undefined);
-      } else {
-        fetchpost(
-          `/api/exam/${this.props.filename}/adminremoveanswer/${this.props.sectionId}/${this.props.answer.oid}`,
-          {},
-        )
-          .then(res => {
-            this.props.onSectionChanged(res);
-          })
-          .catch(() => undefined);
-      }
-    }
-  };
-
-  enrichPostdata = (postdata: object) => {
-    if (this.props.answer.authorId === "__legacy__") {
-      return { ...postdata, legacyuser: 1 };
-    } else {
-      return postdata;
+      fetchpost(`/api/exam/removeanswer/${this.props.answer.oid}/`, {})
+        .then(res => {
+          this.props.onSectionChanged(res);
+        })
+        .catch(() => undefined);
     }
   };
 
   saveAnswer = () => {
-    fetchpost(
-      `/api/exam/${this.props.filename}/setanswer/${this.props.sectionId}`,
-      this.enrichPostdata({ text: this.state.text }),
-    )
+    fetchpost(`/api/exam/setanswer/${this.props.sectionId}/`, {
+      text: this.state.text,
+      legacy_answer: this.props.answer.isLegacyAnswer,
+    })
       .then(res => {
         this.setState(prevState => ({
           editing: false,
@@ -236,6 +215,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
       editing: false,
       text: prevState.savedText,
     }));
+    this.props.onCancelEdit();
   };
 
   startEdit = () => {
@@ -294,10 +274,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         : this.props.answer.isDownvoted
         ? 0
         : -1;
-    fetchpost(
-      `/api/exam/${this.props.filename}/setlike/${this.props.sectionId}/${this.props.answer.oid}`,
-      { like: newLike },
-    )
+    fetchpost(`/api/exam/setlike/${this.props.answer.oid}/`, { like: newLike })
       .then(res => {
         this.props.onSectionChanged(res);
       })
@@ -305,12 +282,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   toggleAnswerFlag = () => {
-    fetchpost(
-      `/api/exam/${this.props.filename}/setflagged/${this.props.sectionId}/${this.props.answer.oid}`,
-      {
-        flagged: this.props.answer.isFlagged ? 0 : 1,
-      },
-    )
+    fetchpost(`/api/exam/setflagged/${this.props.answer.oid}/`, {
+      flagged: !this.props.answer.isFlagged,
+    })
       .then(res => {
         this.props.onSectionChanged(res);
       })
@@ -318,10 +292,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   resetAnswerFlagged = () => {
-    fetchpost(
-      `/api/exam/${this.props.filename}/resetflagged/${this.props.sectionId}/${this.props.answer.oid}`,
-      {},
-    )
+    fetchpost(`/api/exam/resetflagged/${this.props.answer.oid}/`, {})
       .then(res => {
         this.props.onSectionChanged(res);
       })
@@ -329,12 +300,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   toggleAnswerExpertVote = () => {
-    fetchpost(
-      `/api/exam/${this.props.filename}/setexpertvote/${this.props.sectionId}/${this.props.answer.oid}`,
-      {
-        vote: this.props.answer.isExpertVoted ? 0 : 1,
-      },
-    )
+    fetchpost(`/api/exam/setexpertvote/${this.props.answer.oid}/`, {
+      vote: !this.props.answer.isExpertVoted,
+    })
       .then(res => {
         this.props.onSectionChanged(res);
       })
@@ -359,9 +327,11 @@ export default class AnswerComponent extends React.Component<Props, State> {
         <div ref={this.setMainDivRef} {...styles.header}>
           <div>
             <b {...globalcss.noLinkColor}>
-              <Link to={`/user/${answer.authorId}`}>
-                {answer.authorDisplayName}
-              </Link>
+              {(answer.authorId.length > 0 && (
+                <Link to={`/user/${answer.authorId}`}>
+                  {answer.authorDisplayName}
+                </Link>
+              )) || <span>{answer.authorDisplayName}</span>}
             </b>{" "}
             •{" "}
             {moment(answer.time, GlobalConsts.momentParseString).format(

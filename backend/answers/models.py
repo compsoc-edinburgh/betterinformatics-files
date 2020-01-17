@@ -61,7 +61,7 @@ def generate_long_id():
 
 class Answer(models.Model):
     answer_section = models.ForeignKey('AnswerSection', on_delete=models.CASCADE)
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    author = models.ForeignKey('auth.User', null=True, on_delete=models.CASCADE)
     text = models.TextField()
     time = models.DateTimeField(default=timezone.now)
     edittime = models.DateTimeField(default=timezone.now)

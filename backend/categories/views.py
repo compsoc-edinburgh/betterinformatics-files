@@ -171,11 +171,11 @@ def add_user_to_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     user = get_object_or_404(MyUser, username=request.POST['user'])
     if request.POST['key'] == 'admins':
-        if user not in cat.admins.all():
+        if not cat.admins.filter(pk=user.pk).exists():
             cat.admins.add(user)
             cat.save()
     elif request.POST['key'] == 'experts':
-        if user not in cat.experts.all():
+        if not cat.experts.filter(pk=user.pk).exists():
             cat.experts.add(user)
             cat.save()
     else:
@@ -189,11 +189,11 @@ def remove_user_from_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     user = get_object_or_404(MyUser, username=request.POST['user'])
     if request.POST['key'] == 'admins':
-        if user in cat.admins.all():
+        if cat.admins.filter(pk=user.pk).exists():
             cat.admins.remove(user)
             cat.save()
     elif request.POST['key'] == 'experts':
-        if user in cat.experts.all():
+        if cat.experts.filter(pk=user.pk).exists():
             cat.experts.remove(user)
             cat.save()
     else:
@@ -233,7 +233,7 @@ def add_metacategory(request):
     cat = get_object_or_404(Category, slug=request.POST['category'])
     meta1, _ = MetaCategory.objects.get_or_create(displayname=request.POST['meta1'], parent=None)
     meta2, _ = MetaCategory.objects.get_or_create(displayname=request.POST['meta2'], parent=meta1)
-    if cat not in meta2.category_set.all():
+    if not meta2.category_set.filter(pk=cat.pk).exists():
         meta2.category_set.add(cat)
     return response.success()
 

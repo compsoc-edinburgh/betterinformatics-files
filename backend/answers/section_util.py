@@ -3,7 +3,7 @@ from myauth import auth_check
 
 
 def get_answer_response(request, answer):
-    exam_admin = auth_check.has_admin_rights_for_exam(request, answer.section.exam)
+    exam_admin = auth_check.has_admin_rights_for_exam(request, answer.answer_section.exam)
     comments = [
         {
             'oid': comment.id,
@@ -19,30 +19,33 @@ def get_answer_response(request, answer):
     return {
         'oid': answer.id,
         'longId': answer.long_id,
-        'upvotes': len(answer.upvotes) - len(answer.downvotes),
-        'expertvotes': len(answer.expertvotes),
-        'authorId': answer.author.username,
+        'upvotes': answer.upvotes.count() - answer.downvotes.count(),
+        'expertvotes': answer.expertvotes.count(),
+        'authorId': '' if answer.is_legacy_answer else answer.author.username,
         'authorDisplayName': 'Old VISki Solution' if answer.is_legacy_answer else get_my_user(answer.author).displayname(),
-        'canEdit': answer.author == request.author or (answer.is_legacy_answer and exam_admin),
-        'isUpvoted': request.user in answer.upvotes,
-        'isDownvoted': request.user in answer.downvotes,
-        'isExpertVoted': request.user in answer.expertvotes,
-        'isFlagged': request.user in answer.flagged,
-        'flagged': len(answer.flagged),
+        'canEdit': answer.author == request.user or (answer.is_legacy_answer and exam_admin),
+        'isUpvoted': answer.upvotes.filter(pk=request.user.pk).exists(),
+        'isDownvoted': answer.downvotes.filter(pk=request.user.pk).exists(),
+        'isExpertVoted': answer.expertvotes.filter(pk=request.user.pk).exists(),
+        'isFlagged': answer.flagged.filter(pk=request.user.pk).exists(),
+        'flagged': answer.flagged.count(),
         'comments': comments,
         'text': answer.text,
         'time': answer.time,
         'edittime': answer.edittime,
-        'filename': answer.exam.filename,
-        'sectionId': answer.section.id,
+        'filename': answer.answer_section.exam.filename,
+        'sectionId': answer.answer_section.id,
+        'isLegacyAnswer': answer.is_legacy_answer,
     }
 
 
-def get_ansersection_response(request, section):
+def get_answersection_response(request, section):
     answers = [
         get_answer_response(request, answer)
-        for answer in section.answer_set.all()
-        if len(answer.text) > 0
+        for answer in sorted(
+            section.answer_set.all(),
+            key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count())
+        )
     ]
     return {
         'oid': section.id,
