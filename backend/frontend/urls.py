@@ -14,4 +14,6 @@ urlpatterns = [
     re_path('^category/.*$', views.index, name='category'),
     path('favicon.ico', views.favicon, name='favicon'),
     path('manifest.json', views.manifest, name='manifest'),
+    path('resolve/<str:filename>/', views.resolve, name='resolve'),
+    path('legacy/transformwiki/<str:examname>/', views.legacy_wiki_transform, name='transformwiki')
 ]

@@ -54,6 +54,10 @@ def not_possible(msg):
     return JsonResponse({"err": msg}, status=400)
 
 
+def internal_error():
+    return JsonResponse({'err': 'Internal Server Error'}, status=500)
+
+
 def missing_argument():
     return not_possible('Missing argument')
 

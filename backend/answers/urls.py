@@ -2,6 +2,7 @@ from django.urls import path
 
 from . import views
 from . import views_answers
+from . import views_comments
 from . import views_cuts
 from . import views_files
 
@@ -20,6 +21,9 @@ urlpatterns = [
     path('setexpertvote/<int:oid>/', views_answers.set_expertvote, name='setexpertvote'),
     path('setflagged/<int:oid>/', views_answers.set_flagged, name='setflagged'),
     path('resetflagged/<int:oid>/', views_answers.reset_flagged, name='resetflagged'),
+    path('addcomment/<int:oid>/', views_comments.add_comment, name='addcomment'),
+    path('setcomment/<int:oid>/', views_comments.set_comment, name='setcomment'),
+    path('removecomment/<int:oid>/', views_comments.remove_comment, name='removecomment'),
     path('upload/exam/', views_files.upload_exam_pdf, name='upload_exam_pdf'),
     path('upload/transcript/', views_files.upload_transcript, name='upload_transcript'),
     path('upload/printonly/', views_files.upload_printonly, name='upload_printonly'),

@@ -17,6 +17,8 @@ from django.urls import path, re_path, include
 from django.views.static import serve
 from django.shortcuts import redirect
 
+from . import views
+
 urlpatterns = [
     path('', include('health.urls')),
     path('', include('frontend.urls')),
@@ -37,3 +39,8 @@ urlpatterns = [
         'document_root': 'tutorial',
     }),
 ]
+
+handler400 = views.handler400
+handler403 = views.handler403
+handler404 = views.handler404
+handler500 = views.handler500

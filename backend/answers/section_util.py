@@ -11,10 +11,13 @@ def get_answer_response(request, answer):
             'text': comment.text,
             'authorId': comment.author.username,
             'authorDisplayName': get_my_user(comment.author).displayname(),
-            'canEdit': comment.author == request.author,
+            'canEdit': comment.author == request.user,
             'time': comment.time,
             'edittime': comment.edittime,
-        } for comment in answer.comment_set.all()
+        } for comment in sorted(
+            answer.comment_set.all(),
+            key=lambda x: (x.time, x.id)
+        )
     ]
     return {
         'oid': answer.id,
