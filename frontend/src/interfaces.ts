@@ -79,9 +79,9 @@ export interface CategoryExam {
   needs_payment: boolean; // whether a payment is required
   examtype: string; // type of exam
   remark: string; // remark for the exam
-  import_claim: string; // the user who is importing the exam
-  import_claim_displayname: string; // the name of the user who claimed the exam
-  import_claim_time: string; // time at which the user claimed the exam
+  import_claim: string | null; // the user who is importing the exam
+  import_claim_displayname: string | null; // the name of the user who claimed the exam
+  import_claim_time: string | null; // time at which the user claimed the exam
   public: boolean; // whether the exam is public
   has_solution: boolean; // whether there is an official solution
   is_printonly: boolean; // whether this exam can only be printed

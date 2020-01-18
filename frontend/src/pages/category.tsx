@@ -477,7 +477,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   hasValidClaim = (exam: CategoryExam) => {
-    if (exam.import_claim !== "") {
+    if (exam.import_claim !== null && exam.import_claim_time !== null) {
       if (
         moment().diff(
           moment(exam.import_claim_time, GlobalConsts.momentParseString),
@@ -491,8 +491,8 @@ export default class Category extends React.Component<Props, State> {
   };
 
   claimExam = (exam: CategoryExam, claim: boolean) => {
-    fetchpost(`/api/exam/${exam.filename}/claim`, {
-      claim: claim ? 1 : 0,
+    fetchpost(`/api/exam/claimexam/${exam.filename}/`, {
+      claim: claim,
     })
       .then(() => {
         this.loadExams();

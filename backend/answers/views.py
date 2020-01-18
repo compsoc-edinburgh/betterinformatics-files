@@ -5,6 +5,7 @@ from answers import section_util
 from categories.models import Category
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from datetime import timedelta
 
 
 @auth_check.require_login
@@ -51,6 +52,20 @@ def exam_set_metadata(request, filename, exam):
     return response.success()
 
 
-@auth_check.require_login
-def list_exam_types(request):
-    return response.success(value=list(ExamType.objects.values_list('displayname', flat=True)))
+@response.args_post('claim')
+@auth_check.require_exam_admin
+def claim_exam(request, filename, exam):
+    add_claim = request.POST['claim'] != 'false'
+    if add_claim:
+        if exam.import_claim and exam.import_claim != request.user:
+            if timezone.now() - exam.import_claim_time < timedelta(hours=4):
+                return response.not_possible('Exam is already claimed by different user')
+        exam.import_claim = request.user
+        exam.import_claim_time = timezone.now()
+    else:
+        if exam.import_claim == request.user:
+            exam.import_claim = None
+        else:
+            return response.not_allowed()
+    exam.save()
+    return response.success()

@@ -76,6 +76,8 @@ def require_exam_admin(f):
     from answers.models import Exam
     @wraps(f)
     def wrapper(request, *args, **kwargs):
+        if not user_authenticated(request):
+            return response.not_allowed()
         exam = get_object_or_404(Exam, filename=kwargs['filename'])
         if not has_admin_rights_for_exam(request, exam):
             return response.not_allowed()

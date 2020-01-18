@@ -64,8 +64,8 @@ export default class ModQueue extends React.Component<Props, State> {
 
   loadExams = () => {
     fetchapi(
-      "/api/listimportexams" +
-        (this.state.includeHidden ? "?includehidden=1" : ""),
+      "/api/exam/listimportexams/" +
+        (this.state.includeHidden ? "?includehidden=true" : ""),
     )
       .then(res => {
         this.setState({
@@ -76,7 +76,7 @@ export default class ModQueue extends React.Component<Props, State> {
   };
 
   loadFlagged = () => {
-    fetchapi("/api/listflagged")
+    fetchapi("/api/exam/listflagged/")
       .then(res => {
         this.setState({
           flaggedAnswers: res.value,
@@ -89,7 +89,7 @@ export default class ModQueue extends React.Component<Props, State> {
     if (!this.props.isAdmin) {
       return;
     }
-    fetchapi("/api/listpaymentcheckexams")
+    fetchapi("/api/exam/listpaymentcheckexams/")
       .then(res => {
         this.setState({
           paymentExams: res.value,
@@ -105,7 +105,7 @@ export default class ModQueue extends React.Component<Props, State> {
   };
 
   hasValidClaim = (exam: CategoryExam) => {
-    if (exam.import_claim !== "") {
+    if (exam.import_claim !== null && exam.import_claim_time !== null) {
       if (
         moment().diff(
           moment(exam.import_claim_time, GlobalConsts.momentParseString),
@@ -119,8 +119,8 @@ export default class ModQueue extends React.Component<Props, State> {
   };
 
   claimExam = (exam: CategoryExam, claim: boolean) => {
-    fetchpost(`/api/exam/${exam.filename}/claim`, {
-      claim: claim ? 1 : 0,
+    fetchpost(`/api/exam/claimexam/${exam.filename}/`, {
+      claim: claim,
     })
       .then(() => {
         this.loadExams();
