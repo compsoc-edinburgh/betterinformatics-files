@@ -46,9 +46,40 @@ def exam_metadata(request, filename):
     return response.success(value=res)
 
 
+@response.args_post(
+    'displayname',
+    'category',
+    'examtype',
+    'legacy_solution',
+    'master_solution',
+    'resolve_alias',
+    'remark',
+    'public',
+    'finished_cuts',
+    'finished_wiki_transfer',
+    'needs_payment',
+    optional=True
+)
 @auth_check.require_exam_admin
 def exam_set_metadata(request, filename, exam):
-    # TODO implement
+    for key in ['displayname', 'legacy_solution', 'master_solution', 'resolve_alias', 'remark']:
+        if key in request.POST:
+            setattr(exam, key, request.POST[key])
+    for key in ['public', 'finished_cuts', 'finished_wiki_transfer', 'needs_payment']:
+        if key in request.POST:
+            setattr(exam, key, request.POST[key] != 'false')
+    if 'category' in request.POST:
+        new_category = get_object_or_404(Category, slug=request.POST['category'])
+        if not auth_check.has_admin_rights_for_category(request, new_category):
+            return response.not_allowed()
+        exam.category = new_category
+    if 'examtype' in request.POST:
+        old_exam_type = exam.exam_type
+        exam.exam_type, _ = ExamType.objects.get_or_create(displayname=request.POST['examtype'])
+        exam.save()
+        if old_exam_type.id > 5 and not old_exam_type.exam_set.exists():
+            old_exam_type.delete()
+    exam.save()
     return response.success()
 
 

@@ -24,9 +24,6 @@
 @app.route("/api/img/<filename>")
 
 # In Progress
-@app.route("/api/exam/<filename>/metadata", methods=['POST'])
-@app.route("/api/exam/<filename>/addtoset", methods=['POST'])
-@app.route("/api/exam/<filename>/pullset", methods=['POST'])
 
 # Some Features Missing
 @app.route("/api/listcategories/withmeta")
@@ -96,7 +93,10 @@
 @app.route("/api/listimportexams")
 @app.route("/api/listpaymentcheckexams")
 @app.route('/api/listflagged')
+@app.route("/api/exam/<filename>/metadata", methods=['POST'])
 
 # Removed
 @app.route("/api/dump/<table>")
 @app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
+@app.route("/api/exam/<filename>/addtoset", methods=['POST'])
+@app.route("/api/exam/<filename>/pullset", methods=['POST'])

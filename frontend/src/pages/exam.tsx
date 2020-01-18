@@ -530,6 +530,7 @@ export default class Exam extends React.Component<Props, State> {
               <a
                 href={"/legacy/transformwiki/" + wikitransform}
                 target="_blank"
+                key="key"
               >
                 Transform VISki to Markdown
               </a>,
@@ -556,7 +557,7 @@ export default class Exam extends React.Component<Props, State> {
           )}
         {this.state.savedMetaData.attachments.map(att => (
           <div {...styles.linkBanner} key={att.filename}>
-            <a href={"/api/filestore/" + att.filename} target="_blank">
+            <a href={"/api/filestore/get/" + att.filename + "/"} target="_blank">
               {att.displayname}
             </a>
           </div>
