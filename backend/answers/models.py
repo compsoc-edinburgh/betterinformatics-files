@@ -42,6 +42,9 @@ class Exam(models.Model):
             return False
         return True
 
+    def attachment_name(self):
+        return (self.category.displayname + '__' + self.displayname + '.pdf').replace(' ', '_')
+
 
 class ExamType(models.Model):
     displayname = models.CharField(max_length=256)

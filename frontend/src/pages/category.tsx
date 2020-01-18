@@ -300,11 +300,11 @@ export default class Category extends React.Component<Props, State> {
   dlSelectedExams = () => {
     if (!this.state.category) return;
     let form = document.createElement("form");
-    form.action = "/api/zip/" + this.state.category.displayname + "?download";
+    form.action = "/api/exam/zipexport/";
     form.method = "POST";
     form.target = "_blank";
     this.state.selectedExams.forEach(filename => {
-      let input = document.createElement("textarea");
+      let input = document.createElement("input");
       input.name = "filenames";
       input.value = filename;
       form.appendChild(input);

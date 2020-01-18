@@ -62,5 +62,9 @@ def missing_argument():
     return not_possible('Missing argument')
 
 
-def send_file(file_):
-    return FileResponse(open(file_, 'rb'))
+def send_file(file_, **kwargs):
+    return FileResponse(open(file_, 'rb'), **kwargs)
+
+
+def send_file_obj(file_obj, filename, as_attachment=False, **kwargs):
+    return FileResponse(file_obj, filename=filename, as_attachment=as_attachment, **kwargs)

@@ -1,9 +1,4 @@
 # Not done
-@app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
-@app.route("/api/image/list")
-@app.route("/api/image/<filename>/remove", methods=['POST'])
-@app.route("/api/image/<filename>/metadata")
-@app.route("/api/image/<filename>/metadata", methods=['POST'])
 @app.route("/api/userinfo/<username>")
 @app.route("/api/scoreboard/<scoretype>")
 @app.route("/api/user/<username>/answers")
@@ -18,12 +13,15 @@
 @app.route("/api/payment/refund", methods=['POST'])
 @app.route("/api/payment/query/<username>")
 @app.route("/api/payment/me")
-@app.route("/api/uploadimg", methods=['POST'])
-@app.route("/api/zip/<category>", methods=['POST'])
-@app.route("/api/printpdf/<pdftype>/<filename>", methods=['POST'])
-@app.route("/api/img/<filename>")
+@app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
 
 # In Progress
+@app.route("/api/image/list")
+@app.route("/api/image/<filename>/remove", methods=['POST'])
+@app.route("/api/image/<filename>/metadata")
+@app.route("/api/image/<filename>/metadata", methods=['POST'])
+@app.route("/api/uploadimg", methods=['POST'])
+@app.route("/api/img/<filename>")
 
 # Some Features Missing
 @app.route("/api/listcategories/withmeta")
@@ -94,6 +92,8 @@
 @app.route("/api/listpaymentcheckexams")
 @app.route('/api/listflagged')
 @app.route("/api/exam/<filename>/metadata", methods=['POST'])
+@app.route("/api/printpdf/<pdftype>/<filename>", methods=['POST'])
+@app.route("/api/zip/<category>", methods=['POST'])
 
 # Removed
 @app.route("/api/dump/<table>")

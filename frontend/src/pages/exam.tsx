@@ -508,7 +508,7 @@ export default class Exam extends React.Component<Props, State> {
         {this.state.savedMetaData.is_printonly && (
           <PrintExam
             title="exam"
-            examtype="printonly"
+            examtype="exam"
             filename={this.props.filename}
           />
         )}
@@ -557,7 +557,10 @@ export default class Exam extends React.Component<Props, State> {
           )}
         {this.state.savedMetaData.attachments.map(att => (
           <div {...styles.linkBanner} key={att.filename}>
-            <a href={"/api/filestore/get/" + att.filename + "/"} target="_blank">
+            <a
+              href={"/api/filestore/get/" + att.filename + "/"}
+              target="_blank"
+            >
               {att.displayname}
             </a>
           </div>

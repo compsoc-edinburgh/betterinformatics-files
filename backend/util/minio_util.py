@@ -37,6 +37,14 @@ def delete_file(directory, filename):
     return True
 
 
+def save_file(directory, filename, destination):
+    try:
+        minio_client.fget_object(minio_bucket, directory + filename, destination)
+        return True
+    except NoSuchKey:
+        return False
+
+
 def send_file(directory, filename, as_attachment=False, attachment_filename=None):
     try:
         attachment_filename = attachment_filename or filename

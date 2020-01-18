@@ -40,4 +40,7 @@ urlpatterns = [
     path('pdf/exam/<str:filename>/', views_files.get_exam_pdf, name='get_exam_pdf'),
     path('pdf/solution/<str:filename>/', views_files.get_solution_pdf, name='get_solution_pdf'),
     path('pdf/printonly/<str:filename>/', views_files.get_printonly_pdf, name='get_printonly_pdf'),
+    path('printpdf/exam/<str:filename>/', views_files.print_exam, name='printexam'),
+    path('printpdf/solution/<str:filename>/', views_files.print_solution, name='printsolution'),
+    path('zipexport/', views_files.zip_export, name='zipexport'),
 ]

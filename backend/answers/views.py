@@ -58,6 +58,7 @@ def exam_metadata(request, filename):
     'finished_cuts',
     'finished_wiki_transfer',
     'needs_payment',
+    'solution_printonly',
     optional=True
 )
 @auth_check.require_exam_admin
@@ -65,7 +66,7 @@ def exam_set_metadata(request, filename, exam):
     for key in ['displayname', 'legacy_solution', 'master_solution', 'resolve_alias', 'remark']:
         if key in request.POST:
             setattr(exam, key, request.POST[key])
-    for key in ['public', 'finished_cuts', 'finished_wiki_transfer', 'needs_payment']:
+    for key in ['public', 'finished_cuts', 'finished_wiki_transfer', 'needs_payment', 'solution_printonly']:
         if key in request.POST:
             setattr(exam, key, request.POST[key] != 'false')
     if 'category' in request.POST:
