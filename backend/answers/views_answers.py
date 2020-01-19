@@ -2,6 +2,7 @@ from util import response
 from myauth import auth_check
 from answers.models import AnswerSection, Answer
 from answers import section_util
+from notifications import notification_util
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -19,11 +20,13 @@ def set_answer(request, oid):
         answer, created = Answer.objects.get_or_create(answer_section=section, author=request.user, is_legacy_answer=False)
         if created:
             answer.upvotes.add(request.user)
+            notification_util.new_answer_to_answer(answer)
     answer.text = request.POST['text']
     answer.edittime = timezone.now()
     answer.save()
     if not answer.text:
         answer.delete()
+    section_util.increase_section_version(section)
     return response.success(value=section_util.get_answersection_response(request, section))
 
 
@@ -35,6 +38,7 @@ def remove_answer(request, oid):
         return response.not_allowed()
     section = answer.answer_section
     answer.delete()
+    section_util.increase_section_version(section)
     return response.success(value=section_util.get_answersection_response(request, section))
 
 
@@ -58,6 +62,7 @@ def set_like(request, oid):
         elif like == -1:
             answer.downvotes.add(request.user)
         answer.save()
+    section_util.increase_section_version(answer.answer_section)
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
 
 
@@ -75,6 +80,7 @@ def set_expertvote(request, oid):
         else:
             answer.expertvotes.add(request.user)
         answer.save()
+    section_util.increase_section_version(answer.answer_section)
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
 
 
@@ -90,6 +96,7 @@ def set_flagged(request, oid):
         else:
             answer.flagged.add(request.user)
         answer.save()
+    section_util.increase_section_version(answer.answer_section)
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
 
 
@@ -99,4 +106,5 @@ def reset_flagged(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
     answer.flagged.clear()
     answer.save()
+    section_util.increase_section_version(answer.answer_section)
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))

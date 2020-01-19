@@ -44,9 +44,8 @@ const styles = {
 
 export default class NotificationComponent extends React.Component<Props> {
   readNotification = (notification: NotificationInfo) => {
-    fetchpost("/api/notifications/setread", {
-      read: 1,
-      notificationoid: notification.oid,
+    fetchpost("/api/notification/setread/" + notification.oid + "/", {
+      read: true,
     });
   };
 

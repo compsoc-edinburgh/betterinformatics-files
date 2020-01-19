@@ -166,7 +166,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   loadEnabledNotifications = () => {
-    fetchapi("/api/notifications/getenabled")
+    fetchapi("/api/notification/getenabled/")
       .then(res => {
         this.setState({
           enabledNotifications: res.value,
@@ -246,7 +246,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   loadUnreadNotifications = () => {
-    fetchapi("/api/notifications/unread")
+    fetchapi("/api/notification/unread/")
       .then(res => {
         this.setState({
           notifications: res.value,
@@ -260,7 +260,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   loadAllNotifications = () => {
-    fetchapi("/api/notifications/all")
+    fetchapi("/api/notification/all/")
       .then(res => {
         this.setState({
           showReadNotifications: true,
@@ -275,9 +275,9 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   setNotificationEnabled = (type: number, enabled: boolean) => {
-    fetchpost("/api/notifications/setenabled", {
+    fetchpost("/api/notification/setenabled/", {
       type: type,
-      enabled: enabled ? 1 : 0,
+      enabled: enabled,
     }).then(() => {
       this.loadEnabledNotifications();
     });
@@ -288,9 +288,8 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       this.state.notifications
         .filter(notification => !notification.read)
         .map(notification =>
-          fetchpost("/api/notifications/setread", {
-            read: 1,
-            notificationoid: notification.oid,
+          fetchpost("/api/notification/setread/" + notification.oid + "/", {
+            read: true,
           }).catch(err => {
             this.setState({
               error: err.toString(),

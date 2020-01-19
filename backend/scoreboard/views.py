@@ -9,7 +9,7 @@ def userinfo(request, username):
     user = get_object_or_404(MyUser, username=username)
     res = {
         'username': username,
-        'displayname': user.displayname(),
+        'displayName': user.displayname(),
         'score': 0, # TODO implement
         'score_answers': 0, # TODO implement
         'score_comments': 0, # TODO implement

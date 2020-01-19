@@ -2,6 +2,7 @@ import os
 from django.contrib.auth.backends import BaseBackend
 from util import func_cache
 from myauth.models import MyUser
+from notifications.models import NotificationSetting, NotificationType
 
 import grpc
 import sys
@@ -76,6 +77,9 @@ class PeopleAuthBackend(BaseBackend):
         if user.first_name != real_name[0] or user.last_name != real_name[1]:
             user.first_name, user.last_name = real_name
             user.save()
+            for type_ in [NotificationType.NEW_COMMENT_TO_ANSWER, NotificationType.NEW_ANSWER_TO_ANSWER]:
+                setting = NotificationSetting(user=user, type=type_.value)
+                setting.save()
         return user
 
     def get_user(self, user_id):

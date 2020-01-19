@@ -57,3 +57,8 @@ def get_answersection_response(request, section):
         'allow_new_legacy_answer': not section.answer_set.filter(is_legacy_answer=True).exists(),
         'cutVersion': section.cut_version,
     }
+
+
+def increase_section_version(section):
+    section.cut_version += 1
+    section.save()

@@ -1,10 +1,4 @@
 # Not done
-@app.route("/api/notifications/getenabled")
-@app.route("/api/notifications/setenabled", methods=['POST'])
-@app.route("/api/notifications/unread")
-@app.route("/api/notifications/unreadcount")
-@app.route("/api/notifications/all")
-@app.route("/api/notifications/setread", methods=['POST'])
 
 # In Progress
 
@@ -92,6 +86,12 @@
 @app.route("/api/payment/query/<username>")
 @app.route("/api/payment/me")
 @app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
+@app.route("/api/notifications/getenabled")
+@app.route("/api/notifications/setenabled", methods=['POST'])
+@app.route("/api/notifications/unread")
+@app.route("/api/notifications/unreadcount")
+@app.route("/api/notifications/all")
+@app.route("/api/notifications/setread", methods=['POST'])
 
 # Removed
 @app.route("/api/dump/<table>")
