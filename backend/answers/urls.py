@@ -13,6 +13,7 @@ urlpatterns = [
     path('listimportexams/', views_listings.list_import_exams, name='listimportexams'),
     path('listpaymentcheckexams/', views_listings.list_payment_check_exams, name='listpaymentcheckexams'),
     path('listflagged/', views_listings.list_flagged, name='listflagged'),
+    path('listbyuser/<str:username>/', views_listings.get_by_user, name='listbyuser'),
     path('cuts/<str:filename>/', views_cuts.get_cuts, name='cuts'),
     path('addcut/<str:filename>/', views_cuts.add_cut, name='addcut'),
     path('removecut/<int:oid>/', views_cuts.remove_cut, name='removecut'),

@@ -62,7 +62,7 @@ export default class Scoreboard extends React.Component<Props, State> {
 
   loadScoreboard = (scoretype: string) => {
     window.location.hash = scoretype;
-    fetchapi("/api/scoreboard/" + scoretype)
+    fetchapi("/api/scoreboard/top/" + scoretype + "/")
       .then(res => {
         this.setState({
           scoreboard: res.value,

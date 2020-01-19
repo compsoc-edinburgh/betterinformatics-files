@@ -3,6 +3,7 @@ from myauth import auth_check
 from myauth.models import get_my_user
 from answers.models import Exam, ExamType, Answer
 from django.db.models import Q
+from answers import section_util
 
 
 @auth_check.require_login
@@ -70,3 +71,15 @@ def list_flagged(request):
     return response.success(value=[
         '/exams/' + answer.answer_section.exam.filename + '#' + answer.long_id for answer in answers
     ])
+
+
+@auth_check.require_login
+def get_by_user(request, username):
+    res = [
+        section_util.get_answer_response(request, answer)
+        for answer in sorted(
+            Answer.objects.filter(author__username=username, is_legacy_answer=False),
+            key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count(), x.time)
+        )
+    ]
+    return response.success(value=res)

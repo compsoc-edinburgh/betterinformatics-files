@@ -152,7 +152,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   }
 
   loadUserInfo = () => {
-    fetchapi("/api/userinfo/" + this.props.username)
+    fetchapi("/api/scoreboard/userinfo/" + this.props.username + "/")
       .then(res => {
         this.setState({
           userInfo: res.value,
@@ -181,8 +181,8 @@ export default class UserInfoComponent extends React.Component<Props, State> {
 
   loadPayments = () => {
     const query = this.props.isMyself
-      ? "/api/payment/me"
-      : "/api/payment/query/" + this.props.username;
+      ? "/api/payment/me/"
+      : "/api/payment/query/" + this.props.username + "/";
     fetchapi(query)
       .then(res => {
         this.setState({
@@ -197,7 +197,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   addPayment = () => {
-    fetchpost("/api/payment/pay", {
+    fetchpost("/api/payment/pay/", {
       username: this.props.username,
     })
       .then(() => {
@@ -213,9 +213,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   removePayment = (payment: PaymentInfo) => {
     const confirmation = confirm("Remove Payment?");
     if (confirmation) {
-      fetchpost("/api/payment/remove", {
-        oid: payment.oid,
-      })
+      fetchpost("/api/payment/remove/" + payment.oid + "/", {})
         .then(() => {
           this.loadPayments();
         })
@@ -235,9 +233,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       );
     }
     if (confirmation) {
-      fetchpost("/api/payment/refund", {
-        oid: payment.oid,
-      })
+      fetchpost("/api/payment/refund/" + payment.oid + "/", {})
         .then(() => {
           this.loadPayments();
         })
@@ -317,7 +313,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   loadAnswers = () => {
-    fetchapi("/api/user/" + this.props.username + "/answers")
+    fetchapi("/api/exam/listbyuser/" + this.props.username + "/")
       .then(res => {
         this.setState({
           answers: res.value,

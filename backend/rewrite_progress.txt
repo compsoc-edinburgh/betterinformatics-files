@@ -1,19 +1,10 @@
 # Not done
-@app.route("/api/userinfo/<username>")
-@app.route("/api/scoreboard/<scoretype>")
-@app.route("/api/user/<username>/answers")
 @app.route("/api/notifications/getenabled")
 @app.route("/api/notifications/setenabled", methods=['POST'])
 @app.route("/api/notifications/unread")
 @app.route("/api/notifications/unreadcount")
 @app.route("/api/notifications/all")
 @app.route("/api/notifications/setread", methods=['POST'])
-@app.route("/api/payment/pay", methods=['POST'])
-@app.route("/api/payment/remove", methods=['POST'])
-@app.route("/api/payment/refund", methods=['POST'])
-@app.route("/api/payment/query/<username>")
-@app.route("/api/payment/me")
-@app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
 
 # In Progress
 
@@ -21,6 +12,8 @@
 @app.route("/api/listcategories/withmeta")
 @app.route("/api/category/metadata")
 @app.route("/api/exam/<filename>/metadata")
+@app.route("/api/userinfo/<username>")
+@app.route("/api/scoreboard/<scoretype>")
 
 # Done
 @app.route("/")
@@ -92,6 +85,13 @@
 @app.route("/api/image/<filename>/remove", methods=['POST'])
 @app.route("/api/uploadimg", methods=['POST'])
 @app.route("/api/img/<filename>")
+@app.route("/api/user/<username>/answers")
+@app.route("/api/payment/pay", methods=['POST'])
+@app.route("/api/payment/remove", methods=['POST'])
+@app.route("/api/payment/refund", methods=['POST'])
+@app.route("/api/payment/query/<username>")
+@app.route("/api/payment/me")
+@app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
 
 # Removed
 @app.route("/api/dump/<table>")

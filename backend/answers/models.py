@@ -37,8 +37,10 @@ class Exam(models.Model):
             return True
         if not self.public:
             return False
-        # TODO check payments
-        if self.needs_payment:
+        if self.needs_payment and not [
+            x for x in request.user.payment_set.all()
+            if x.valid()
+        ]:
             return False
         return True
 

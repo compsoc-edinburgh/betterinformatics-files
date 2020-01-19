@@ -402,7 +402,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   markPaymentExamChecked = () => {
-    fetchpost(`/api/exam/${this.props.filename}/markpaymentchecked`, {})
+    fetchpost(`/api/payment/markexamchecked/${this.props.filename}/`, {})
       .then(() => {
         this.loadMetaData();
       })

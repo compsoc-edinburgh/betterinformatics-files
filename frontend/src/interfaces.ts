@@ -207,9 +207,9 @@ export interface PaymentInfo {
   oid: string;
   active: boolean;
   payment_time: string;
-  uploaded_filename: string;
-  check_time: string;
-  refund_time: string;
+  uploaded_filename: string | null;
+  check_time: string | null;
+  refund_time: string | null;
   valid_until: string;
 }
 

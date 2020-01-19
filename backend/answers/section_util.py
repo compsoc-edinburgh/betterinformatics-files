@@ -47,7 +47,7 @@ def get_answersection_response(request, section):
         get_answer_response(request, answer)
         for answer in sorted(
             section.answer_set.all(),
-            key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count())
+            key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count(), x.time)
         )
     ]
     return {

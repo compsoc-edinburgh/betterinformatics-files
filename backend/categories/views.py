@@ -113,7 +113,7 @@ def list_exams(request, slug):
             'is_printonly': ex.is_printonly,
             'finished_cuts': ex.finished_cuts,
             'finished_wiki_transfer': ex.finished_wiki_transfer,
-            'canView': True, # TODO implement
+            'canView': ex.current_user_can_view(request),
             'count_cuts': 0, # TODO implement
             'count_answered': 0 # TODO implement
         } for ex in cat.exam_set.all()
