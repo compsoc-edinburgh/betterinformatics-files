@@ -58,6 +58,7 @@ class Exam(models.Model):
 
 class ExamType(models.Model):
     displayname = models.CharField(max_length=256)
+    order = models.IntegerField(default=0)
 
 
 class AnswerSection(models.Model):

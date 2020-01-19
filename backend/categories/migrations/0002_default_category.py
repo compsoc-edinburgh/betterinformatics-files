@@ -12,7 +12,7 @@ def add_default_category(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('categories', '0003_auto_20200115_1332'),
+        ('categories', '0001_initial'),
     ]
 
     operations = [

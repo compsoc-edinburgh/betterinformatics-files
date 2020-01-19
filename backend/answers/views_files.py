@@ -34,6 +34,7 @@ def upload_exam_pdf(request):
     exam = Exam(
         filename=filename,
         displayname=request.POST['displayname'],
+        exam_type=ExamType.objects.get(displayname='Exams'),
         category=category,
         resolve_alias=file.name,
     )
