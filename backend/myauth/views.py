@@ -2,6 +2,7 @@ from util import response
 from django.contrib.auth import authenticate, login, logout
 from myauth import auth_check
 
+
 def login_view(request):
     username = request.POST.get('username', '').lower()
     password = request.POST.get('password')
@@ -26,7 +27,7 @@ def me_view(request):
         return response.success(
             loggedin=True,
             adminrights=auth_check.has_admin_rights(request),
-            adminrightscat=auth_check.has_admin_rights_for_any_category(request), # TODO implement this
+            adminrightscat=auth_check.has_admin_rights_for_any_category(request),
             username=request.user.username,
             displayname=request.user.displayname(),
         )

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from myauth import auth_check
+from django.db.models import Exists, OuterRef
 import uuid
 
 
@@ -37,15 +38,22 @@ class Exam(models.Model):
             return True
         if not self.public:
             return False
-        if self.needs_payment and not [
-            x for x in request.user.payment_set.all()
-            if x.valid()
-        ]:
+        if self.needs_payment and not request.user.has_payed():
             return False
         return True
 
     def attachment_name(self):
         return (self.category.displayname + '__' + self.displayname + '.pdf').replace(' ', '_')
+
+    def count_answered(self):
+        return self.answersection_set.filter(
+            Exists(Answer.objects.filter(answer_section=OuterRef('pk')))
+        ).count()
+
+    def progress(self):
+        if not self.answersection_set.exists():
+            return 0
+        return self.count_answered() / self.answersection_set.count()
 
 
 class ExamType(models.Model):
@@ -66,7 +74,7 @@ def generate_long_id():
 
 class Answer(models.Model):
     answer_section = models.ForeignKey('AnswerSection', on_delete=models.CASCADE)
-    author = models.ForeignKey('auth.User', null=True, on_delete=models.CASCADE)
+    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     text = models.TextField()
     time = models.DateTimeField(default=timezone.now)
     edittime = models.DateTimeField(default=timezone.now)

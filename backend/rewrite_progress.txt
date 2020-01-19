@@ -3,10 +3,6 @@
 # In Progress
 
 # Some Features Missing
-@app.route("/api/listcategories/withmeta")
-@app.route("/api/category/metadata")
-@app.route("/api/exam/<filename>/metadata")
-@app.route("/api/userinfo/<username>")
 @app.route("/api/scoreboard/<scoretype>")
 
 # Done
@@ -92,6 +88,10 @@
 @app.route("/api/notifications/unreadcount")
 @app.route("/api/notifications/all")
 @app.route("/api/notifications/setread", methods=['POST'])
+@app.route("/api/listcategories/withmeta")
+@app.route("/api/category/metadata")
+@app.route("/api/exam/<filename>/metadata")
+@app.route("/api/userinfo/<username>")
 
 # Removed
 @app.route("/api/dump/<table>")

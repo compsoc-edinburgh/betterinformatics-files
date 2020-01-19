@@ -14,13 +14,14 @@ def list_categories(request):
 @auth_check.require_login
 def list_categories_with_meta(request):
     categories = Category.objects.all()
+    # TODO optimize db queries with annotate
     res = sorted([
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
-            'examcountpublic': 0, # TODO implement
-            'examcountanswered': 0, # TODO implement
-            'answerprogress': 0, # TODO implement
+            'examcountpublic': cat.exam_set.filter(public=True).count(),
+            'examcountanswered': cat.exam_count_answered(),
+            'answerprogress': cat.answer_progress(),
         } for cat in categories
     ], key=lambda x: x['displayname'])
     return response.success(value=res)
@@ -114,8 +115,8 @@ def list_exams(request, slug):
             'finished_cuts': ex.finished_cuts,
             'finished_wiki_transfer': ex.finished_wiki_transfer,
             'canView': ex.current_user_can_view(request),
-            'count_cuts': 0, # TODO implement
-            'count_answered': 0 # TODO implement
+            'count_cuts': ex.answersection_set.count(),
+            'count_answered': ex.count_answered(),
         } for ex in cat.exam_set.all()
     ], key=lambda x: x['displayname'])
     return response.success(value=res)
@@ -136,9 +137,10 @@ def get_metadata(request, slug):
         'has_payments': cat.has_payments,
         'catadmin': auth_check.has_admin_rights_for_category(request, cat),
         'more_exams_link': cat.more_exams_link,
-        'examcountpublic': 0, # TODO implement
-        'examcountanswered': 0, # TODO implement
-        'answerprogress': 0, # TODO implement
+        # These values are not needed in the frontend and are expensive to calculate
+        # 'examcountpublic': cat.exam_set.filter(public=True).count(),
+        # 'examcountanswered': cat.exam_count_answered(),
+        # 'answerprogress': cat.answer_progress(),
         'attachments': sorted([
             {
                 'displayname': att.displayname,

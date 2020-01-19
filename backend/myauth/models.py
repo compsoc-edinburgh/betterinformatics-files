@@ -14,3 +14,9 @@ class MyUser(User):
         if not self.first_name:
             return self.last_name
         return self.first_name + ' ' + self.last_name
+
+    def has_payed(self):
+        return len([
+            x for x in self.payment_set.all()
+            if x.valid()
+        ]) > 0

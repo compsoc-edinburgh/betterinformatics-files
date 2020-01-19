@@ -1,7 +1,6 @@
 from util import response
 from myauth import auth_check
-from answers.models import Exam, ExamType, AnswerSection
-from answers import section_util
+from answers.models import Exam, ExamType, AnswerSection, Answer
 from categories.models import Category
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -30,8 +29,8 @@ def exam_metadata(request, filename):
         'solution_printonly': exam.solution_printonly,
         'is_oral_transcript': exam.is_oral_transcript,
         'oral_transcript_checked': exam.oral_transcript_checked,
-        'count_cuts': 0, # TODO implement
-        'count_answered': 0, # TODO implement
+        # 'count_cuts': exam.answersection_set.count(),
+        # 'count_answered': exam.count_answered(),
         'attachments': sorted([
             {
                 'displayname': att.displayname,
@@ -41,7 +40,7 @@ def exam_metadata(request, filename):
         'canEdit': auth_check.has_admin_rights_for_exam(request, exam),
         'isExpert': auth_check.is_expert_for_exam(request, exam),
         'canView': exam.current_user_can_view(request),
-        'hasPayed': False, # TODO implement
+        'hasPayed': request.user.has_payed(),
     }
     return response.success(value=res)
 

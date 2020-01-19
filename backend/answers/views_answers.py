@@ -15,7 +15,7 @@ def set_answer(request, oid):
     if legacy_answer:
         if not auth_check.has_admin_rights_for_exam(request, section.exam):
             return response.not_allowed()
-        answer, created = Answer.objects.get_or_create(answer_section=section, is_legacy_answer=True)
+        answer, created = Answer.objects.get_or_create(answer_section=section, author=request.user, is_legacy_answer=True)
     else:
         answer, created = Answer.objects.get_or_create(answer_section=section, author=request.user, is_legacy_answer=False)
         if created:
