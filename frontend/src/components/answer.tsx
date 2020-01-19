@@ -467,7 +467,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
           <div {...styles.actionButtons}>
             <div {...styles.permalink}>
               <small>
-                <Link to={"/exams/" + this.props.filename + "#" + answer.oid}>
+                <Link
+                  to={"/exams/" + this.props.filename + "#" + answer.longId}
+                >
                   Permalink
                 </Link>
               </small>
@@ -530,7 +532,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
                 isNewComment={true}
                 isReadonly={this.props.isReadonly}
                 isAdmin={this.props.isAdmin}
-                filename={this.props.filename}
                 sectionId={this.props.sectionId}
                 answerId={answer.oid}
                 comment={{
@@ -553,7 +554,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
                 isReadonly={this.props.isReadonly}
                 isAdmin={this.props.isAdmin}
                 comment={e}
-                filename={this.props.filename}
                 sectionId={this.props.sectionId}
                 answerId={answer.oid}
                 onSectionChanged={this.props.onSectionChanged}

@@ -14,7 +14,6 @@ import Colors from "../colors";
 interface Props {
   isReadonly: boolean;
   isAdmin: boolean;
-  filename: string;
   sectionId: string;
   answerId: string;
   isNewComment?: boolean;

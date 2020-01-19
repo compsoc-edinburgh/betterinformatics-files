@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from myauth import auth_check
 from django.db.models import Exists, OuterRef
-import uuid
+import random
 
 
 class Exam(models.Model):
@@ -70,7 +70,13 @@ class AnswerSection(models.Model):
 
 
 def generate_long_id():
-    return str(uuid.uuid4()).replace('-', '')
+    chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+    res = ""
+    while len(res) < 16:
+        res += random.choice(chars)
+    if Answer.objects.filter(long_id=res).exists():
+        return generate_long_id()
+    return res
 
 
 class Answer(models.Model):

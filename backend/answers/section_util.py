@@ -53,7 +53,7 @@ def get_answersection_response(request, section):
     return {
         'oid': section.id,
         'answers': answers,
-        'allow_new_answer': not section.answer_set.filter(author=request.user).exists(),
+        'allow_new_answer': not section.answer_set.filter(author=request.user, is_legacy_answer=False).exists(),
         'allow_new_legacy_answer': not section.answer_set.filter(is_legacy_answer=True).exists(),
         'cutVersion': section.cut_version,
     }

@@ -6,7 +6,7 @@ import Colors from "../colors";
 
 const styles = {
   background: css({
-    background: "rgba(0, 0, 0, 0.4)",
+    background: "rgba(0, 0, 0, 0.2)",
     position: "fixed",
     top: "0",
     left: "0",

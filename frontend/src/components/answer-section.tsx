@@ -212,28 +212,30 @@ export default class AnswerSectionComponent extends React.Component<
         )}
         <div key="showhidebutton" {...styles.threebuttons}>
           <div {...styles.leftButton}>
-            {(section.allow_new_answer || section.allow_new_legacy_answer) && (
-              <div>
-                <button
-                  className="primary"
-                  title={
-                    section.allow_new_answer && section.allow_new_legacy_answer
-                      ? "Hold Shift to add a Legacy Answer"
-                      : undefined
-                  }
-                  onClick={ev =>
-                    this.addAnswer(
-                      !section.allow_new_answer ||
-                        (section.allow_new_legacy_answer && ev.shiftKey),
-                    )
-                  }
-                >
-                  {section.allow_new_answer
-                    ? "Add Answer"
-                    : "Add Legacy Answer"}
-                </button>
-              </div>
-            )}
+            {(section.allow_new_answer || section.allow_new_legacy_answer) &&
+              !this.state.addingAnswer && (
+                <div>
+                  <button
+                    className="primary"
+                    title={
+                      section.allow_new_answer &&
+                      section.allow_new_legacy_answer
+                        ? "Hold Shift to add a Legacy Answer"
+                        : undefined
+                    }
+                    onClick={ev =>
+                      this.addAnswer(
+                        !section.allow_new_answer ||
+                          (section.allow_new_legacy_answer && ev.shiftKey),
+                      )
+                    }
+                  >
+                    {section.allow_new_answer
+                      ? "Add Answer"
+                      : "Add Legacy Answer"}
+                  </button>
+                </div>
+              )}
           </div>
           <div>
             {section.answers.length > 0 && (
