@@ -110,7 +110,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
   }
 
   loadImages = () => {
-    fetchapi("/api/image/list")
+    fetchapi("/api/image/list/")
       .then(res => {
         res.value.reverse();
         this.setState({ images: res.value });
@@ -135,7 +135,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
       return;
     }
 
-    fetchpost("/api/uploadimg", {
+    fetchpost("/api/image/upload/", {
       file: this.state.file,
     })
       .then(res => {
@@ -168,7 +168,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
   removeImage = (image: string) => {
     const confirmation = confirm("Remove image?");
     if (confirmation) {
-      fetchpost(`/api/image/${image}/remove`, {})
+      fetchpost(`/api/image/remove/${image}/`, {})
         .then(() => {
           this.loadImages();
         })
@@ -214,7 +214,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
                     <img
                       {...styles.imageSmall}
                       key={img}
-                      src={"/api/img/" + img}
+                      src={"/api/image/get/" + img + "/"}
                       alt="Image Preview"
                     />
                   </div>

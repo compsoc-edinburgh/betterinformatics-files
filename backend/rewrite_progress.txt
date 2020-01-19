@@ -16,12 +16,6 @@
 @app.route("/api/exam/<filename>/markpaymentchecked", methods=['POST'])
 
 # In Progress
-@app.route("/api/image/list")
-@app.route("/api/image/<filename>/remove", methods=['POST'])
-@app.route("/api/image/<filename>/metadata")
-@app.route("/api/image/<filename>/metadata", methods=['POST'])
-@app.route("/api/uploadimg", methods=['POST'])
-@app.route("/api/img/<filename>")
 
 # Some Features Missing
 @app.route("/api/listcategories/withmeta")
@@ -94,9 +88,15 @@
 @app.route("/api/exam/<filename>/metadata", methods=['POST'])
 @app.route("/api/printpdf/<pdftype>/<filename>", methods=['POST'])
 @app.route("/api/zip/<category>", methods=['POST'])
+@app.route("/api/image/list")
+@app.route("/api/image/<filename>/remove", methods=['POST'])
+@app.route("/api/uploadimg", methods=['POST'])
+@app.route("/api/img/<filename>")
 
 # Removed
 @app.route("/api/dump/<table>")
 @app.route("/api/exam/<filename>/addanswer/<sectionoid>", methods=['POST'])
 @app.route("/api/exam/<filename>/addtoset", methods=['POST'])
 @app.route("/api/exam/<filename>/pullset", methods=['POST'])
+@app.route("/api/image/<filename>/metadata")
+@app.route("/api/image/<filename>/metadata", methods=['POST'])
