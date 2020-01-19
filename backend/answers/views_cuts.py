@@ -56,5 +56,7 @@ def get_cut_versions(request, filename):
 
 @auth_check.require_login
 def get_answersection(request, oid):
-    section = get_object_or_404(AnswerSection, pk=oid)
+    section = get_object_or_404(
+        AnswerSection.objects.select_related('exam').prefetch_related('answer_set', 'answer_set__comment_set', 'answer_set__upvotes', 'answer_set__downvotes', 'answer_set__expertvotes', 'answer_set__flagged'),
+        pk=oid)
     return response.success(value=section_util.get_answersection_response(request, section))

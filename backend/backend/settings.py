@@ -69,6 +69,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+if DEBUG:
+    MIDDLEWARE.append('backend.debugging.db_profiling_middleware')
+
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
