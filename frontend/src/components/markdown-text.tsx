@@ -51,6 +51,7 @@ export default ({ value, background }: Props) => {
     <div
       {...styles.wrapper}
       {...css({ background: background || Colors.markdownBackground })}
+      {...css({ overflow: "auto" })}
     >
       <ReactMarkdown
         source={value}
