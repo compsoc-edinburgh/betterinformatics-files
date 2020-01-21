@@ -36,6 +36,7 @@ COPY --from=0 /usr/src/app/build/manifest.json ./manifest.json
 COPY --from=0 /usr/src/app/build/index.html ./index.html
 COPY --from=0 /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=0 /usr/src/app/build/static ./static
+COPY ./frontend/public/exam10.pdf ./exam10.pdf
 COPY ./tutorial-slides ./tutorial
 COPY ./frontend/public/static ./static
 COPY ./backend/ ./

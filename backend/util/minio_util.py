@@ -29,6 +29,10 @@ def save_uploaded_file_to_minio(directory, filename, uploaded_file):
     minio_client.fput_object(minio_bucket, directory + filename, temp_file_path)
 
 
+def save_file_to_minio(directory, filename, path):
+    minio_client.fput_object(minio_bucket, directory + filename, path)
+
+
 def delete_file(directory, filename):
     try:
         minio_client.remove_object(minio_bucket, directory + filename)
