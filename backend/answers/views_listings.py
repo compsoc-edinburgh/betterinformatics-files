@@ -78,11 +78,7 @@ def get_by_user(request, username):
     res = [
         section_util.get_answer_response(request, answer)
         for answer in sorted(
-            Answer.objects.filter(author__username=username, is_legacy_answer=False).prefetch_related(
-                'upvotes', 'downvotes', 'expertvotes', 'flagged', 'comment_set'
-            ).select_related(
-                'answer_section', 'answer_section__exam'
-            ),
+            Answer.objects.filter(author__username=username, is_legacy_answer=False).prefetch_related(*section_util.get_answer_fields_to_prefetch()),
             key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count(), x.time)
         )
     ]

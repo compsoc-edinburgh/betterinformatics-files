@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 
 
 def get_my_user(user):
-    return MyUser.objects.get(pk=user.pk)
+    user.__class__ = MyUser
+    return user
 
 
 class MyUser(User):

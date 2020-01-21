@@ -15,7 +15,7 @@ def submit(request):
 
 @auth_check.require_admin
 def list_all(request):
-    objs = Feedback.objects.all()
+    objs = Feedback.objects.select_related('author').all()
     return response.success(value=[
         {
             'oid': obj.id,

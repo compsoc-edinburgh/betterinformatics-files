@@ -27,10 +27,10 @@ def get_answer_response(request, answer):
         'authorId': '' if answer.is_legacy_answer else answer.author.username,
         'authorDisplayName': 'Old VISki Solution' if answer.is_legacy_answer else get_my_user(answer.author).displayname(),
         'canEdit': answer.author == request.user or (answer.is_legacy_answer and exam_admin),
-        'isUpvoted': answer.upvotes.filter(pk=request.user.pk).exists(),
-        'isDownvoted': answer.downvotes.filter(pk=request.user.pk).exists(),
-        'isExpertVoted': answer.expertvotes.filter(pk=request.user.pk).exists(),
-        'isFlagged': answer.flagged.filter(pk=request.user.pk).exists(),
+        'isUpvoted': request.user in answer.upvotes.all(),
+        'isDownvoted': request.user in answer.downvotes.all(),
+        'isExpertVoted': request.user in answer.expertvotes.all(),
+        'isFlagged': request.user in answer.flagged.all(),
         'flagged': answer.flagged.count(),
         'comments': comments,
         'text': answer.text,
@@ -57,6 +57,14 @@ def get_answersection_response(request, section):
         'allow_new_legacy_answer': not section.answer_set.filter(is_legacy_answer=True).exists(),
         'cutVersion': section.cut_version,
     }
+
+
+def get_answer_fields_to_prefetch():
+    return [
+        'upvotes', 'downvotes', 'expertvotes', 'flagged',
+        'comment_set', 'comment_set__author', 'author',
+        'answer_section', 'answer_section__exam', 'answer_section__exam__category',
+    ]
 
 
 def increase_section_version(section):
