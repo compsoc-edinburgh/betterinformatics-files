@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'payments.apps.PaymentsConfig',
     'scoreboard.apps.ScoreboardConfig',
     'testing.apps.TestingConfig',
+    'mongodb_migration.apps.MongodbMigrationConfig',
 ]
 
 MIDDLEWARE = [

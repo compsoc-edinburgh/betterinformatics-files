@@ -20,7 +20,7 @@ def upload_image(request):
     if not ext:
         return response.not_possible('Invalid File Extensions')
     filename = minio_util.generate_filename(16, settings.COMSOL_IMAGE_DIR, '.' + ext)
-    image = Image(filename=filename, owner=request.user)
+    image = Image(filename=filename, owner=request.user, displayname=file.name)
     image.save()
     minio_util.save_uploaded_file_to_minio(settings.COMSOL_IMAGE_DIR, filename, file)
     return response.success(filename=filename)
