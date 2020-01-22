@@ -21,20 +21,28 @@ class Client:
                 pass
             self.print = dummy_print
 
+    def login(self):
+        self.print('Login with user', self.username)
+        r = requests.post('{}/api/auth/login/'.format(self.host), data={'username': self.username, 'password': self.password})
+        self.cookies = r.cookies
+
+    def logout(self):
+        self.post('/api/auth/logout/')
+
     def get(self, path, **kwargs):
         self.print('GET', self.username, path)
-        r = requests.get('{}{}'.format(self.host, path), auth=(self.username, self.password), params=kwargs)
+        r = requests.get('{}{}'.format(self.host, path), cookies=self.cookies, params=kwargs)
         self.print(r.status_code, r.text)
         return r
 
     def post(self, path, files=None, **kwargs):
         self.print('POST', self.username, path, kwargs)
-        r = requests.post('{}{}'.format(self.host, path), auth=(self.username, self.password), data=kwargs, files=files)
+        r = requests.post('{}{}'.format(self.host, path), cookies=self.cookies, data=kwargs, files=files)
         self.print(r.status_code, r.text)
         return r
 
 def guess_category(client, foldername):
-    categories = client.get('/api/category/list').json()["value"]
+    categories = client.get('/api/category/list/').json()["value"]
     best_guess = difflib.get_close_matches(foldername, categories, n=10, cutoff=0.2)
     if best_guess:
         print("Which category do you want to use for", foldername)
@@ -78,6 +86,13 @@ def yesno(prompt, default):
             return default
 
 
+def category_to_slug(client, category):
+    categories = client.get('/api/category/listwithmeta/').json()["value"]
+    for cat in categories:
+        if cat['displayname'] == category:
+            return cat['slug']
+
+
 def upload(client, category, dummy, real, displayname):
     print("Category:", category)
     print("Upload exam", dummy)
@@ -85,7 +100,7 @@ def upload(client, category, dummy, real, displayname):
     r = client.post(
         '/api/exam/upload/exam/',
         files={'file': fil},
-        category=category,
+        category=category_to_slug(client, category),
         displayname=displayname,
     )
     fil.close()
@@ -113,6 +128,7 @@ def main():
     if password == '-':
         password = getpass.getpass()
     client = Client(args.host, args.username, password, args.debug)
+    client.login()
 
     category = guess_category(client, args.category)
 
@@ -121,6 +137,7 @@ def main():
             dummy, real, display = line.split()
             print(dummy, real, display)
             upload(client, category, dummy, real, display)
+    client.logout()
 
 
 if __name__ == '__main__':
