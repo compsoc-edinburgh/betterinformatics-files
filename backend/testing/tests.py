@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from myauth.models import MyUser
 
 
 class ComsolTest(TestCase):
@@ -23,6 +24,9 @@ class ComsolTest(TestCase):
         response = self.client.post(path, args)
         self.assertEqual(response.status_code, status_code)
         return response.json()
+
+    def get_my_user(self):
+        return MyUser.objects.get(username=self.user['username'])
 
     def setUp(self):
         self.client = Client()

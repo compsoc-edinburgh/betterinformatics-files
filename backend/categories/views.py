@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 
 @auth_check.require_login
 def list_categories(request):
-    return response.success(value=list(Category.objects.values_list('displayname', flat=True)))
+    return response.success(value=list(sorted(Category.objects.values_list('displayname', flat=True))))
 
 
 @auth_check.require_login

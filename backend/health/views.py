@@ -1,5 +1,5 @@
-from util import response
+from django.http import HttpResponse
 
 
 def health(request):
-    return "Server is running"
+    return HttpResponse("Server is running")

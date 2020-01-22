@@ -62,5 +62,9 @@ is convenient to run prettier whenever you save a file using an IDE plugin.
 ## Generate test data
 To generate test data, connect to the running container with
 `visdev connect  visdev-community-solutions` and then run 
-`python3 manage.py create_testdata`. Note that this will drop all tables in the
+`./manage.py create_testdata`. Note that this will drop all tables in the
 database.
+
+## Test the backend
+Each django app has its own tests. To run them, connect to the running container
+with `visdev connect  visdev-community-solutions` and then run `./manage.py test`.

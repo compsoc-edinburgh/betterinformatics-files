@@ -1,5 +1,4 @@
 from testing.tests import ComsolTest
-from myauth.models import MyUser
 from feedback.models import Feedback
 
 
@@ -15,7 +14,7 @@ class TestSubmit(ComsolTest):
     def test_list(self):
         for i in range(11):
             Feedback(
-                author=MyUser.objects.get(username=self.user['username']),
+                author=self.get_my_user(),
                 text='Test ' + str(i),
             ).save()
         res = self.get('/api/feedback/list/')['value']
@@ -28,7 +27,7 @@ class TestSubmit(ComsolTest):
 
     def test_flags(self):
         feedback = Feedback(
-            author=MyUser.objects.get(username=self.user['username']),
+            author=self.get_my_user(),
             text='Test'
         )
         feedback.save()
