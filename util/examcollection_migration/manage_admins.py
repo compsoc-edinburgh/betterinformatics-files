@@ -23,11 +23,11 @@ class Client:
 
     def login(self):
         self.print('Login with user', self.username)
-        r = requests.post('{}/api/login'.format(self.host), data={'username': self.username, 'password': self.password})
+        r = requests.post('{}/api/auth/login/'.format(self.host), data={'username': self.username, 'password': self.password})
         self.cookies = r.cookies
 
     def logout(self):
-        self.post('/api/logout')
+        self.post('/api/auth/logout/')
 
     def get(self, path, **kwargs):
         self.print('GET', self.username, path)
@@ -42,13 +42,13 @@ class Client:
         return r
 
 def just_do_it(client, users, action):
-    categories = client.get('/api/category/list/').json()["value"]
+    categories = client.get('/api/category/listwithmeta/').json()["value"]
     if action not in ['add', 'remove']:
         return
     for user in users:
         for cat in categories:
-            path = '/api/category/addtoset' if action == 'add' else '/api/category/pullset'
-            client.post(path, category=cat, key='admins', value=user)
+            path = '/api/category/addusertoset/{}/' if action == 'add' else '/api/category/removeuserfromset/{}/'
+            client.post(path.format(cat['slug']), key='admins', user=user)
 
 def main():
     parser = argparse.ArgumentParser(description='Add or remove users as admins of all categories.')
