@@ -63,11 +63,6 @@ def send_file(directory, filename, as_attachment=False, attachment_filename=None
 
 
 def is_file_in_minio(directory, filename):
-    """
-    Check whether the file exists in minio
-    :param directory: directory to check
-    :param filename: filename
-    """
     try:
         minio_client.stat_object(minio_bucket, directory + filename)
         return True
@@ -79,7 +74,7 @@ def generate_filename(length, directory, extension):
     """
     Generates a random filename
     :param length: length of the generated filename
-    :param directory: directory to check for file existance
+    :param directory: directory to check for file existence
     :param extension: extension of the filename
     """
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"

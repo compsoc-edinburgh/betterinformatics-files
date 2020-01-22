@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,6 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = os.environ.get('RUNTIME_POSTGRES_DB_USER', 'docker') == 'docker'
 IN_ENVIRON = 'RUNTIME_POSTGRES_DB_SERVER' in os.environ
+TESTING = sys.argv[1:2] == ['test']
 
 SECRET_KEY = 'VERY SAFE SECRET KEY' if DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET']
 API_KEY = 'API_KEY' if DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_API_KEY']
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
     'notifications.apps.NotificationsConfig',
     'payments.apps.PaymentsConfig',
     'scoreboard.apps.ScoreboardConfig',
+    'testing.apps.TestingConfig',
 ]
 
 MIDDLEWARE = [
@@ -69,7 +72,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-if DEBUG:
+if DEBUG and not TESTING:
     MIDDLEWARE.append('backend.debugging.db_profiling_middleware')
 
 ROOT_URLCONF = 'backend.urls'

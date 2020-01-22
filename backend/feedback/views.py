@@ -35,6 +35,6 @@ def flags(request, feedbackid):
     feedback = get_object_or_404(Feedback, pk=feedbackid)
     for key in ['read', 'done']:
         if key in request.POST:
-            setattr(feedback, key, request.POST[key] != '0')
+            setattr(feedback, key, request.POST[key] != 'false')
     feedback.save()
     return response.success()

@@ -27,11 +27,6 @@ def is_user_in_admin_group(user):
 
 
 def has_admin_rights(request):
-    """
-    Check whether the given user should have global admin rights.
-    :param username: the user to check
-    :return: True iff the user has global admin rights
-    """
     if request.session['simulate_nonadmin']:
         return False
     if check_api_key(request):

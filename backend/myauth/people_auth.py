@@ -20,9 +20,6 @@ people_metadata = [("authorization",
 
 @func_cache.cache(600)
 def get_real_name(username):
-    """
-    Get the real name for the given username
-    """
     req = people_pb2.GetPersonRequest(username=username)
     try:
         res = people_client.GetEthPerson(req, metadata=people_metadata)
