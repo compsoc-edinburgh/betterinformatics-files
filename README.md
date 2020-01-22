@@ -52,6 +52,11 @@ Run `visdev test .` in this directory to start the backend
 ([more info about visdev](https://documentation.vis.ethz.ch/visdev.html)). The
 frontend we started above will proxy all requests to this backend.
 
+If you are developing tests for the backend, use `sudo ./visdev_mount.py` to
+mount the backend folders into the docker container so you don't have to restart
+the container after every change of a test. This does not work as easily for
+views as gunicorn does not reload the files automatically.
+
 ## Editing frontend code
 
 There is an autoformatter for the frontend code
