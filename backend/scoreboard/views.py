@@ -50,7 +50,8 @@ def scoreboard_top(request, scoretype):
         users = MyUser.objects.annotate(
             score=Subquery(
                 Answer.objects.filter(
-                    author=OuterRef('pk')
+                    author=OuterRef('pk'),
+                    is_legacy_answer=False,
                 ).annotate(
                     upvote_cnt=Subquery(
                         Answer.objects.filter(
@@ -70,7 +71,7 @@ def scoreboard_top(request, scoretype):
                     votes=Sum('upvote_cnt')-Sum('downvote_cnt')
                 ).values('votes')
             )
-        )
+        ).exclude(score__isnull=True).prefetch_related('answer_set', 'comment_set', 'answersection_set')
     elif scoretype == 'score_answers':
         users = MyUser.objects.annotate(
             score=Count('answer', filter=Q(answer__is_legacy_answer=False))
@@ -87,6 +88,8 @@ def scoreboard_top(request, scoretype):
         users = MyUser.objects.annotate(
             score=Count('answer', filter=Q(answer__is_legacy_answer=True))
         )
+    else:
+        return response.not_found()
 
     res = [
         get_user_scores(user, {

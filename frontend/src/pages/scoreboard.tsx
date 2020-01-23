@@ -58,6 +58,7 @@ export default class Scoreboard extends React.Component<Props, State> {
     } else {
       this.loadScoreboard("score");
     }
+    document.title = "Scoreboard - VIS Community Solutions";
   }
 
   loadScoreboard = (scoretype: string) => {
