@@ -8,7 +8,7 @@ class Category(models.Model):
     slug = models.CharField(max_length=256, unique=True)
     form = models.CharField(max_length=256, choices=[(x, x) for x in ['written', 'oral']], default='written')
     remark = models.TextField(default='')
-    semester = models.CharField(max_length=2, choices=[(x, x) for x in ['--', 'FS', 'HS']], default='--')
+    semester = models.CharField(max_length=4, choices=[(x, x) for x in ['--', 'FS', 'HS', 'Both']], default='--')
     permission = models.CharField(max_length=64, choices=[(x, x) for x in ['public', 'intern', 'hidden', 'none']], default='public')
     more_exams_link = models.CharField(max_length=512, default='')
     has_payments = models.BooleanField(default=False)
