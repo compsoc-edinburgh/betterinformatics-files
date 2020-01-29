@@ -1,8 +1,10 @@
 from util import response
 from django.contrib.auth import authenticate, login, logout
+from util import response
 from myauth import auth_check
 
 
+@response.args_post()
 def login_view(request):
     username = request.POST.get('username', '').lower()
     password = request.POST.get('password')
@@ -17,6 +19,7 @@ def login_view(request):
         return response.not_allowed()
 
 
+@response.args_post()
 def logout_view(request):
     logout(request)
     return response.success()

@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from myauth.models import MyUser
+import logging
 
 
 class ComsolTest(TestCase):
@@ -17,7 +18,10 @@ class ComsolTest(TestCase):
         self.assertEqual(response.status_code, status_code)
         return response.json()
 
-    def post(self, path, args, status_code=200):
+    def post(self, path, args, status_code=200, test_get=True):
+        if test_get:
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 405)
         for arg in args:
             if isinstance(args[arg], bool):
                 args[arg] = 'true' if args[arg] else 'false'
@@ -29,10 +33,13 @@ class ComsolTest(TestCase):
         return MyUser.objects.get(username=self.user['username'])
 
     def setUp(self):
+        logger = logging.getLogger('django.request')
+        logger.setLevel(logging.ERROR)
+
         self.client = Client()
         if self.loginUser >= 0:
             self.user = self.loginUsers[self.loginUser]
-            self.client.post('/api/auth/login/', {'username': self.user['username'], 'password': self.user['password']})
+            self.post('/api/auth/login/', {'username': self.user['username'], 'password': self.user['password']})
         self.mySetUp()
 
     def mySetUp(self):
@@ -40,7 +47,7 @@ class ComsolTest(TestCase):
 
     def tearDown(self):
         if self.loginUser >= 0:
-            self.client.post('/api/auth/logout/')
+            self.post('/api/auth/logout/', {})
         self.myTearDown()
 
     def myTearDown(self):
