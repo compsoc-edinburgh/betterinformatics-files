@@ -1,4 +1,4 @@
-from answers.test.tests import ComsolTestWithData
+from testing.tests import ComsolTestWithData
 from answers.models import Comment
 
 

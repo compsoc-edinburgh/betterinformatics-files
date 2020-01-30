@@ -1,4 +1,4 @@
-from answers.test.tests import ComsolTestWithData
+from testing.tests import ComsolTestWithData
 from answers.models import Answer, AnswerSection
 
 
@@ -105,7 +105,6 @@ class TestNonexisting(ComsolTestWithData):
     add_comments = False
 
     def mySetUp(self):
-        super(TestNonexisting, self).mySetUp()
         self.mysection = AnswerSection(
             exam=self.exam,
             author=self.get_my_user(),
