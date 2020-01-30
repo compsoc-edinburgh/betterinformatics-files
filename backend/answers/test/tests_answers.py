@@ -1,8 +1,8 @@
-from testing.tests import ComsolTestWithData
+from testing.tests import ComsolTestExamData
 from answers.models import Answer, AnswerSection
 
 
-class TestExistingAnswer(ComsolTestWithData):
+class TestExistingAnswer(ComsolTestExamData):
 
     add_comments = False
 
@@ -77,7 +77,7 @@ class TestExistingAnswer(ComsolTestWithData):
         self.assertEqual(answer.expertvotes.count(), 0)
 
 
-class TestDeleteNonadmin(ComsolTestWithData):
+class TestDeleteNonadmin(ComsolTestExamData):
 
     loginUser = 2
     add_comments = False
@@ -100,7 +100,7 @@ class TestDeleteNonadmin(ComsolTestWithData):
         self.assertEqual(Answer.objects.count(), 16 - removed)
 
 
-class TestNonexisting(ComsolTestWithData):
+class TestNonexisting(ComsolTestExamData):
 
     add_comments = False
 

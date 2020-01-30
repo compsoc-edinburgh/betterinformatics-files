@@ -1,8 +1,8 @@
-from testing.tests import ComsolTestWithData
+from testing.tests import ComsolTestExamData
 from answers.models import Comment
 
 
-class TestComment(ComsolTestWithData):
+class TestComment(ComsolTestExamData):
 
     def test_add_comment(self):
         answer = self.answers[0]
@@ -36,7 +36,7 @@ class TestComment(ComsolTestWithData):
         self.assertEqual(Comment.objects.count(), 0)
 
 
-class TestCommentNonadmin(ComsolTestWithData):
+class TestCommentNonadmin(ComsolTestExamData):
 
     loginUser = 2
 

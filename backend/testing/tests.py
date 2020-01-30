@@ -57,14 +57,14 @@ class ComsolTest(TestCase):
         pass
 
 
-class ComsolTestWithData(ComsolTest):
+class ComsolTestExamData(ComsolTest):
 
     add_sections = True
     add_answers = True
     add_comments = True
 
     def setUp(self, call_my_setup=True):
-        super(ComsolTestWithData, self).setUp(call_my_setup=False)
+        super(ComsolTestExamData, self).setUp(call_my_setup=False)
         for user in self.loginUsers:
             if user['username'] != self.user['username']:
                 MyUser(username=user['username']).save()
@@ -139,3 +139,33 @@ class ComsolTestWithData(ComsolTest):
 
         if call_my_setup:
             self.mySetUp()
+
+
+class ComsolTestExamsData(ComsolTest):
+
+    def setUp(self, call_my_setup=True):
+        super(ComsolTestExamsData, self).setUp(call_my_setup=False)
+        self.category = Category(
+            displayname='Test Category',
+            slug='TestCategory',
+        )
+        self.category.save()
+        self.exams = []
+        for i in range(3):
+            self.exams.append(
+                Exam(
+                    filename='test{}.pdf'.format(i),
+                    category=self.category,
+                    displayname='test',
+                    exam_type = ExamType.objects.get(displayname='Exams'),
+                    finished_cuts=True,
+                    finished_wiki_transfer=True,
+                    public=True
+                )
+            )
+        for exam in self.exams:
+            exam.save()
+
+        if call_my_setup:
+            self.mySetUp()
+

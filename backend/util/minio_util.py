@@ -13,7 +13,7 @@ if settings.IN_ENVIRON:
         os.environ['RUNTIME_MINIO_SERVER'],
         access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
         secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
-        secure=not settings.DEBUG)
+        secure=not settings.DEBUG and not settings.TESTING)
     minio_bucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
 
 

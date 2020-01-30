@@ -1,8 +1,8 @@
-from testing.tests import ComsolTestWithData
+from testing.tests import ComsolTestExamData
 from datetime import timedelta
 
 
-class TestMetadata(ComsolTestWithData):
+class TestMetadata(ComsolTestExamData):
 
     add_sections = False
 
@@ -41,7 +41,7 @@ class TestMetadata(ComsolTestWithData):
         self.assertNotEqual(res['filename'], 'cannotchange.pdf')
 
 
-class TestClaim(ComsolTestWithData):
+class TestClaim(ComsolTestExamData):
 
     add_sections = False
 

@@ -1,8 +1,8 @@
-from testing.tests import ComsolTestWithData
+from testing.tests import ComsolTestExamData
 from answers.models import AnswerSection
 
 
-class TestCuts(ComsolTestWithData):
+class TestCuts(ComsolTestExamData):
 
     add_answers = False
 
@@ -27,7 +27,7 @@ class TestCuts(ComsolTestWithData):
         self.assertEqual(AnswerSection.objects.count(), 3)
 
 
-class TestCutVersion(ComsolTestWithData):
+class TestCutVersion(ComsolTestExamData):
 
     def check_versions(self):
         res = self.get('/api/exam/cutversions/{}/'.format(self.exam.filename))['value']
@@ -90,7 +90,7 @@ class TestCutVersion(ComsolTestWithData):
         self.check_versions()
 
 
-class TestAnswerSection(ComsolTestWithData):
+class TestAnswerSection(ComsolTestExamData):
 
     def test_get_section(self):
         for section in self.sections:
