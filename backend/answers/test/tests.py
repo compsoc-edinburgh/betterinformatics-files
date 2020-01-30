@@ -7,6 +7,10 @@ from datetime import timedelta
 
 class ComsolTestWithData(ComsolTest):
 
+    add_sections = True
+    add_answers = True
+    add_comments = True
+
     def mySetUp(self):
         for user in self.loginUsers:
             if user['username'] != self.user['username']:
@@ -31,17 +35,24 @@ class ComsolTestWithData(ComsolTest):
             needs_payment=False,
         )
         self.exam.save()
-        self.sections = [
-            AnswerSection(
-                exam=self.exam,
-                author=MyUser.objects.get(username=self.user['username']),
-                page_num=1,
-                rel_height=0.25*i
-            ) for i in range(1, 5)
-        ]
+        self.sections = []
         self.answers = []
+        self.comments = []
+        if not self.add_sections:
+            return
+        for i in range(1, 5):
+            self.sections.append(
+                AnswerSection(
+                    exam=self.exam,
+                    author=self.get_my_user(),
+                    page_num=1,
+                    rel_height=0.25*i
+                )
+            )
         for section in self.sections:
             section.save()
+            if not self.add_answers:
+                continue
             for i in range(3):
                 self.answers.append(
                     Answer(
@@ -58,9 +69,10 @@ class ComsolTestWithData(ComsolTest):
                     is_legacy_answer=True,
                 )
             )
-        self.comments = []
         for answer in self.answers:
             answer.save()
+            if not self.add_comments:
+                continue
             for i in range(3):
                 self.comments.append(
                     Comment(
@@ -74,6 +86,8 @@ class ComsolTestWithData(ComsolTest):
 
 
 class TestMetadata(ComsolTestWithData):
+
+    add_sections = False
 
     def test_metadata(self):
         res = self.get('/api/exam/metadata/{}/'.format(self.exam.filename))['value']
@@ -111,6 +125,8 @@ class TestMetadata(ComsolTestWithData):
 
 
 class TestClaim(ComsolTestWithData):
+
+    add_sections = False
 
     def test_claim(self):
         self.assertEqual(self.exam.import_claim, None)
