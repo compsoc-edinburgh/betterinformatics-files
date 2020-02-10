@@ -151,7 +151,7 @@ export default class Home extends React.Component<Props, State> {
   }
   tryScroll() {
     if (this.didScrollToHashLocation) return;
-    const id = document.location.hash.replace("#", "");
+    const id = this.getHashLocation();
     const element = document.getElementById(id);
     if (element) {
       this.didScrollToHashLocation = true;
