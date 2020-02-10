@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { css } from "glamor";
 import Colors from "../colors";
 import { fetchapi } from "../fetch-utils";
+import { Menu } from "react-feather";
 
 interface Props {
   username?: string;
@@ -11,6 +12,7 @@ interface Props {
 
 interface State {
   notificationCount: number;
+  forceMenuVisibility: boolean;
 }
 
 const linkStyle = {
@@ -53,6 +55,7 @@ const styles = {
     },
   }),
   title: css({
+    flexGrow: "1",
     marginLeft: "30px",
     fontSize: "32px",
     fontWeight: "bold",
@@ -61,12 +64,29 @@ const styles = {
       fontSize: "20px",
     },
   }),
-  menuWrapper: css({
-    display: "flex",
-    alignItems: "center",
+  hamburger: css({
+    display: "none",
+    padding: "1em",
+    "@media (max-width: 799px)": {
+      display: "inline-block",
+    },
+    "& svg": {
+      verticalAlign: "-0.3em",
+    },
+  }),
+  activeMenuWrapper: css({
     "@media (max-width: 799px)": {
       display: "block",
     },
+  }),
+  inactiveMenuWrapper: css({
+    "@media (max-width: 799px)": {
+      display: "none",
+    },
+  }),
+  menuWrapper: css({
+    display: "flex",
+    alignItems: "center",
   }),
   menuitem: css({
     display: "block",
@@ -85,6 +105,7 @@ const styles = {
 export default class Header extends React.Component<Props> {
   state: State = {
     notificationCount: 0,
+    forceMenuVisibility: false,
   };
   notificationInterval: NodeJS.Timer;
 
@@ -107,6 +128,12 @@ export default class Header extends React.Component<Props> {
       .catch(() => undefined);
   };
 
+  toggleMenu = () => {
+    this.setState((state: State) => ({
+      forceMenuVisibility: !state.forceMenuVisibility,
+    }));
+  };
+
   render() {
     return (
       <div {...styles.wrapper}>
@@ -123,8 +150,16 @@ export default class Header extends React.Component<Props> {
           <div {...styles.title}>
             <Link to="/">VIS Community Solutions</Link>
           </div>
+          <div {...styles.hamburger} onClick={this.toggleMenu}>
+            <Menu />
+          </div>
         </div>
-        <div {...styles.menuWrapper}>
+        <div
+          {...styles.menuWrapper}
+          {...(this.state.forceMenuVisibility
+            ? styles.activeMenuWrapper
+            : styles.inactiveMenuWrapper)}
+        >
           <div {...styles.menuitem}>
             <Link to="/feedback">Feedback</Link>
           </div>
