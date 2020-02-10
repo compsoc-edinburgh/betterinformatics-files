@@ -42,6 +42,9 @@ const styles = {
     justifyContent: "space-between",
     flexWrap: "wrap",
   }),
+  answerRow: css({
+    width: "calc(100% - 40px)",
+  }),
   rowContent: css({
     maxWidth: "600px",
     marginLeft: "20px",
@@ -545,7 +548,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       answers = answers.slice(0, 5);
     }
     return (
-      <div {...styles.rowContent}>
+      <div {...styles.rowContent} {...styles.answerRow}>
         <h2>Answers</h2>
         {answers.map(answer => (
           <AnswerComponent
