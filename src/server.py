@@ -612,6 +612,12 @@ def prevent_clickjacking(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     return response
 
+@app.after_request
+def content_security_policy(response):
+    allowed = ['{}/static/'.format(host) for host in ALLOWED_HOSTS]
+    response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://static.vis.ethz.ch; script-src 'unsafe-eval' " + " ".join(allowed)
+    return response
+
 @app.route("/")
 @app.route("/uploadpdf")
 @app.route("/submittranscript")
