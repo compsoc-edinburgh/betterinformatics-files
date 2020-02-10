@@ -588,6 +588,11 @@ def log_request(response):
 
     return response
 
+@app.after_request
+def prevent_clickjacking(response):
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    return response
+
 @app.route("/")
 @app.route("/uploadpdf")
 @app.route("/submittranscript")
