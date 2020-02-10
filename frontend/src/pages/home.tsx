@@ -14,6 +14,14 @@ import globalcss from "../globalcss";
 import { listenEnter } from "../input-utils";
 
 const styles = {
+  linkStyle: css({
+    "&:link": {
+      color: "black",
+    },
+    "&:visited": {
+      color: "black",
+    },
+  }),
   header: css({
     display: "flex",
     justifyContent: "space-between",
@@ -130,6 +138,30 @@ export default class Home extends React.Component<Props, State> {
     newCategoryName: "",
   };
 
+  constructor(props: Props) {
+    super(props);
+    if (this.getHashLocation() === "") {
+      this.didScrollToHashLocation = true;
+    }
+  }
+
+  didScrollToHashLocation = false;
+  getHashLocation(): string {
+    return document.location.hash.replace("#", "");
+  }
+  tryScroll() {
+    if (this.didScrollToHashLocation) return;
+    const id = document.location.hash.replace("#", "");
+    const element = document.getElementById(id);
+    if (element) {
+      this.didScrollToHashLocation = true;
+      element.scrollIntoView();
+    }
+  }
+  componentDidUpdate() {
+    this.tryScroll();
+  }
+
   removeDefaultIfNecessary = (categories: CategoryMetaData[]) => {
     if (this.props.isAdmin) {
       return categories;
@@ -146,6 +178,7 @@ export default class Home extends React.Component<Props, State> {
         (localStorage.getItem("home_bySemesterView") || "0") !== "0",
     });
     document.title = "VIS Community Solutions";
+    this.tryScroll();
   }
 
   loadCategories = () => {
@@ -316,10 +349,26 @@ export default class Home extends React.Component<Props, State> {
       <div>
         {categories.map(meta1 => (
           <div key={meta1.displayname}>
-            <h2>{meta1.displayname}</h2>
+            <h2>
+              <a
+                href={"#" + meta1.displayname}
+                id={meta1.displayname}
+                {...styles.linkStyle}
+              >
+                {meta1.displayname}
+              </a>
+            </h2>
             {meta1.meta2.map(meta2 => (
               <div key={meta2.displayname}>
-                <h3>{meta2.displayname}</h3>
+                <h3>
+                  <a
+                    href={"#" + meta2.displayname}
+                    id={meta2.displayname}
+                    {...styles.linkStyle}
+                  >
+                    {meta2.displayname}
+                  </a>
+                </h3>
                 <div {...styles.categoriesWrapper}>
                   {meta2.categories.map(category =>
                     this.categoryView(category),
