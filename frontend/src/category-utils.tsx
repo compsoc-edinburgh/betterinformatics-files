@@ -6,8 +6,8 @@ import {
 } from "./interfaces";
 
 export function filterMatches(filter: string, name: string): boolean {
-  let nameLower = name.replace(/\s/g, "").toLowerCase();
-  let filterLower = filter.replace(/\s/g, "").toLowerCase();
+  const nameLower = name.replace(/\s/g, "").toLowerCase();
+  const filterLower = filter.replace(/\s/g, "").toLowerCase();
   if (filter.length === 0) {
     return true;
   }
@@ -41,7 +41,7 @@ export function fillMetaCategories(
   categories: CategoryMetaData[],
   metaCategories: MetaCategory[],
 ): MetaCategoryWithCategories[] {
-  let categoryToMeta = {};
+  const categoryToMeta = {};
   categories.forEach(cat => {
     categoryToMeta[cat.category] = cat;
   });

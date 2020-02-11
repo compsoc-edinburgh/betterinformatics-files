@@ -181,7 +181,7 @@ export default class Home extends React.Component<Props, State> {
         filtered,
         this.state.metaCategories,
       );
-      let resorted: CategoryMetaData[] = [];
+      const resorted: CategoryMetaData[] = [];
       categoriesBySemester.forEach(meta1 => {
         meta1.meta2.forEach(meta2 => {
           meta2.categories.forEach(cat => resorted.push(cat));
