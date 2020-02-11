@@ -86,7 +86,7 @@ export default class Header extends React.Component<Props> {
   state: State = {
     notificationCount: 0,
   };
-  notificationInterval: NodeJS.Timer;
+  notificationInterval: NodeJS.Timeout;
 
   componentDidMount() {
     this.notificationInterval = setInterval(this.checkNotificationCount, 60000);

@@ -1,5 +1,5 @@
 import { CutPosition } from "./interfaces";
-import * as pdfjs from "pdfjs-dist";
+import * as pdfjs from "pdfjs-dist/webpack";
 
 interface RenderTarget {
   context: CanvasRenderingContext2D;
@@ -58,8 +58,8 @@ export class SectionRenderer {
       throw new Error("failed to create context");
     }
     let pdfpage = this.pages[page].page;
-    let viewport = pdfpage.getViewport(1);
-    viewport = pdfpage.getViewport(this.targetWidth / viewport.width);
+    let viewport = pdfpage.getViewport({ scale: 1 });
+    viewport = pdfpage.getViewport({ scale: this.targetWidth / viewport.width });
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     pdfpage
@@ -67,6 +67,7 @@ export class SectionRenderer {
         canvasContext: context,
         viewport,
       })
+      .promise
       .then(() => {
         this.pages[page].isRendered = true;
         this.pages[page].rendered = {
@@ -151,7 +152,7 @@ export class SectionRenderer {
   ): Dimensions {
     const page = this.pages[start.page - 1].page;
     const src = SectionRenderer.sourceDimensions(
-      page.getViewport(1),
+      page.getViewport({ scale: 1 }),
       start,
       end,
     );
@@ -198,8 +199,8 @@ export class SectionRenderer {
     // Locations of text divs are not scaled; only the canvas is scaled by dpr and then resized down again by dpr
     // via a style element. targetWidth is the size of the canvas, therefore we must resize the locations of the OCR
     // divs: scale down by dpr (divide by dpr)
-    let viewport = pdfpage.getViewport(1);
-    viewport = pdfpage.getViewport(this.targetWidth / viewport.width / dpr);
+    let viewport = pdfpage.getViewport({ scale: 1 });
+    viewport = pdfpage.getViewport({ scale: this.targetWidth / viewport.width / dpr });
     const src = SectionRenderer.sourceDimensions(viewport, start, end);
     target.innerHTML = "";
     pdfpage.getTextContent().then(texts => {
