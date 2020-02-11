@@ -22,6 +22,14 @@ import { listenEnter } from "../input-utils";
 import Attachments from "../components/attachments";
 
 const styles = {
+  linkStyle: css({
+    "&:link": {
+      color: "black",
+    },
+    "&:visited": {
+      color: "black",
+    },
+  }),
   wrapper: css({
     maxWidth: "900px",
     margin: "auto",
@@ -131,12 +139,36 @@ export default class Category extends React.Component<Props, State> {
     redirectBack: false,
     selectedExams: new Set<string>(),
   };
+  constructor(props: Props) {
+    super(props);
+    if (this.getHashLocation() === "") {
+      this.didScrollToHashLocation = true;
+    }
+  }
+
+  didScrollToHashLocation = false;
+  getHashLocation(): string {
+    return document.location.hash.replace("#", "");
+  }
+  tryScroll() {
+    if (this.didScrollToHashLocation) return;
+    const id = this.getHashLocation();
+    const element = document.getElementById(id);
+    if (element) {
+      this.didScrollToHashLocation = true;
+      element.scrollIntoView();
+    }
+  }
+  componentDidUpdate() {
+    this.tryScroll();
+  }
 
   componentDidMount() {
     this.loadCategory();
     this.loadExams();
     this.loadMetaCategories();
     document.title = this.props.categorySlug + " - VIS Community Solutions";
+    this.tryScroll();
   }
 
   collectExamTypes = (exams: CategoryExam[]) => {
@@ -838,7 +870,11 @@ export default class Category extends React.Component<Props, State> {
           )
           .map(examType => (
             <div key={examType}>
-              <h2>{examType}</h2>
+              <h2>
+                <a href={"#" + examType} id={examType} {...styles.linkStyle}>
+                  {examType}
+                </a>
+              </h2>
               <table {...styles.examsTable}>
                 <thead>
                   <tr>
