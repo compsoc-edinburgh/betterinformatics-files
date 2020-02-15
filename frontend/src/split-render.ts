@@ -59,7 +59,9 @@ export class SectionRenderer {
     }
     let pdfpage = this.pages[page].page;
     let viewport = pdfpage.getViewport({ scale: 1 });
-    viewport = pdfpage.getViewport({ scale: this.targetWidth / viewport.width });
+    viewport = pdfpage.getViewport({
+      scale: this.targetWidth / viewport.width,
+    });
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     pdfpage
@@ -67,8 +69,7 @@ export class SectionRenderer {
         canvasContext: context,
         viewport,
       })
-      .promise
-      .then(() => {
+      .promise.then(() => {
         this.pages[page].isRendered = true;
         this.pages[page].rendered = {
           canvas,
@@ -200,7 +201,9 @@ export class SectionRenderer {
     // via a style element. targetWidth is the size of the canvas, therefore we must resize the locations of the OCR
     // divs: scale down by dpr (divide by dpr)
     let viewport = pdfpage.getViewport({ scale: 1 });
-    viewport = pdfpage.getViewport({ scale: this.targetWidth / viewport.width / dpr });
+    viewport = pdfpage.getViewport({
+      scale: this.targetWidth / viewport.width / dpr,
+    });
     const src = SectionRenderer.sourceDimensions(viewport, start, end);
     target.innerHTML = "";
     pdfpage.getTextContent().then(texts => {
