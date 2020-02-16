@@ -42,14 +42,15 @@ const styles = {
     justifyContent: "space-between",
     flexWrap: "wrap",
   }),
-  answerRow: css({
-    width: "calc(100% - 40px)",
-  }),
   rowContent: css({
-    maxWidth: "600px",
-    marginLeft: "20px",
-    marginRight: "20px",
+    width: "100%",
+    boxSizing: "border-box",
+    paddingLeft: "20px",
+    paddingRight: "20px",
     flexGrow: "1",
+    "@media (min-width: 799px)": {
+      width: "50%",
+    },
   }),
   notificationSettings: css({
     marginBottom: "40px",
@@ -548,7 +549,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
       answers = answers.slice(0, 5);
     }
     return (
-      <div {...styles.rowContent} {...styles.answerRow}>
+      <div {...styles.rowContent}>
         <h2>Answers</h2>
         {answers.map(answer => (
           <AnswerComponent
