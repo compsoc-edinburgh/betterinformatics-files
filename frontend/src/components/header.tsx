@@ -129,8 +129,8 @@ export default class Header extends React.Component<Props, State> {
   };
 
   toggleMenu = () => {
-    this.setState((state: State) => ({
-      forceMenuVisibility: !state.forceMenuVisibility,
+    this.setState(prevState => ({
+      forceMenuVisibility: !prevState.forceMenuVisibility,
     }));
   };
 
