@@ -102,7 +102,7 @@ const styles = {
   }),
 };
 
-export default class Header extends React.Component<Props> {
+export default class Header extends React.Component<Props, State> {
   state: State = {
     notificationCount: 0,
     forceMenuVisibility: false,
