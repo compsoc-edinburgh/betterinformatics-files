@@ -12,7 +12,7 @@ interface Props {
 
 interface State {
   notificationCount: number;
-  forceMenuVisibility: boolean;
+  menuVisibleOnMobile: boolean;
 }
 
 const linkStyle = {
@@ -105,7 +105,7 @@ const styles = {
 export default class Header extends React.Component<Props, State> {
   state: State = {
     notificationCount: 0,
-    forceMenuVisibility: false,
+    menuVisibleOnMobile: false,
   };
   notificationInterval: NodeJS.Timer;
 
@@ -130,13 +130,13 @@ export default class Header extends React.Component<Props, State> {
 
   toggleMenu = () => {
     this.setState(prevState => ({
-      forceMenuVisibility: !prevState.forceMenuVisibility,
+      menuVisibleOnMobile: !prevState.menuVisibleOnMobile,
     }));
   };
 
   linkClicked = () => {
     this.setState({
-      forceMenuVisibility: false,
+      menuVisibleOnMobile: false,
     });
   };
 
@@ -162,7 +162,7 @@ export default class Header extends React.Component<Props, State> {
         </div>
         <div
           {...styles.menuWrapper}
-          {...(this.state.forceMenuVisibility
+          {...(this.state.menuVisibleOnMobile
             ? styles.activeMenuWrapper
             : styles.inactiveMenuWrapper)}
         >
