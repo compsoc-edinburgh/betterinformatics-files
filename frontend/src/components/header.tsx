@@ -134,12 +134,18 @@ export default class Header extends React.Component<Props, State> {
     }));
   };
 
+  linkClicked = () => {
+    this.setState({
+      forceMenuVisibility: false,
+    });
+  };
+
   render() {
     return (
       <div {...styles.wrapper}>
         <div {...styles.logotitle}>
           <div>
-            <Link to="/">
+            <Link to="/" onClick={this.linkClicked}>
               <img
                 {...styles.logo}
                 src="https://static.vis.ethz.ch/img/spirale_yellow.svg"
@@ -161,13 +167,20 @@ export default class Header extends React.Component<Props, State> {
             : styles.inactiveMenuWrapper)}
         >
           <div {...styles.menuitem}>
-            <Link to="/feedback">Feedback</Link>
+            <Link to="/feedback" onClick={this.linkClicked}>
+              Feedback
+            </Link>
           </div>
           <div {...styles.menuitem}>
-            <Link to="/scoreboard">Scoreboard</Link>
+            <Link to="/scoreboard" onClick={this.linkClicked}>
+              Scoreboard
+            </Link>
           </div>
           <div {...styles.menuitem}>
-            <Link to={`/user/${this.props.username}`}>
+            <Link
+              to={`/user/${this.props.username}`}
+              onClick={this.linkClicked}
+            >
               {this.props.displayName}
               {this.state.notificationCount > 0
                 ? " (" + this.state.notificationCount + ")"
