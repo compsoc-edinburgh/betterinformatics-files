@@ -1,9 +1,5 @@
 {
   "rules": {
-    "no-var-keyword": true,
-    "no-for-in-array": true,
-    "no-inferrable-types": true,
-    "prefer-const": true,
     "no-any": true,
     "no-arg": true,
     "no-bitwise": true,
