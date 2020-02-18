@@ -57,7 +57,7 @@ export class SectionRenderer {
     if (!context) {
       throw new Error("failed to create context");
     }
-    let pdfpage = this.pages[page].page;
+    const pdfpage = this.pages[page].page;
     let viewport = pdfpage.getViewport(1);
     viewport = pdfpage.getViewport(this.targetWidth / viewport.width);
     canvas.width = viewport.width;
@@ -205,7 +205,7 @@ export class SectionRenderer {
     pdfpage.getTextContent().then(texts => {
       // tslint:disable-next-line:no-any
       const PDFJS = pdfjs as any;
-      let divs: HTMLElement[] = [];
+      const divs: HTMLElement[] = [];
       PDFJS.renderTextLayer({
         textContent: texts,
         container: target,

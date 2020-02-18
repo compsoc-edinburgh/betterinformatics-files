@@ -27,15 +27,8 @@
     "no-unused-expression": true,
     "no-use-before-declare": true,
     "switch-default": true,
-    "triple-equals": [
-      true,
-      "allow-null-check"
-    ],
-    "typedef": [
-      true,
-      "parameter",
-      "property-declaration"
-    ],
+    "triple-equals": [true, "allow-null-check"],
+    "typedef": [true, "parameter", "property-declaration"],
     "variable-name": [
       true,
       "ban-keywords",

@@ -140,7 +140,7 @@ export default class Category extends React.Component<Props, State> {
   }
 
   collectExamTypes = (exams: CategoryExam[]) => {
-    let types = exams.map(exam => exam.examtype).filter(examtype => examtype);
+    const types = exams.map(exam => exam.examtype).filter(examtype => examtype);
     types.push("Exams");
     return types
       .filter((value, index, self) => self.indexOf(value) === index)
@@ -196,7 +196,7 @@ export default class Category extends React.Component<Props, State> {
     if (!this.state.category) {
       return;
     }
-    let data = { ...this.state.currentMetaData };
+    const data = { ...this.state.currentMetaData };
     data.category = this.state.category.category;
     data.slug = this.state.category.slug;
     fetchpost("/api/category/metadata", data)
@@ -276,7 +276,7 @@ export default class Category extends React.Component<Props, State> {
   selectAllExams = (examType: string) => {
     this.setState(prevState => {
       prevState.exams.forEach(exam => {
-        let currExamtype = exam.examtype ? exam.examtype : "Exams";
+        const currExamtype = exam.examtype ? exam.examtype : "Exams";
         if (currExamtype === examType && exam.canView)
           prevState.selectedExams.add(exam.filename);
       });
@@ -287,7 +287,7 @@ export default class Category extends React.Component<Props, State> {
   unselectAllExams = (examType: string) => {
     this.setState(prevState => {
       prevState.exams.forEach(exam => {
-        let currExamtype = exam.examtype ? exam.examtype : "Exams";
+        const currExamtype = exam.examtype ? exam.examtype : "Exams";
         if (currExamtype === examType && exam.canView)
           prevState.selectedExams.delete(exam.filename);
       });
@@ -298,12 +298,12 @@ export default class Category extends React.Component<Props, State> {
   // https://stackoverflow.com/questions/17793183/how-to-replace-window-open-with-a-post
   dlSelectedExams = () => {
     if (!this.state.category) return;
-    let form = document.createElement("form");
+    const form = document.createElement("form");
     form.action = "/api/zip/" + this.state.category.category + "?download";
     form.method = "POST";
     form.target = "_blank";
     this.state.selectedExams.forEach(filename => {
-      let input = document.createElement("textarea");
+      const input = document.createElement("textarea");
       input.name = "filenames";
       input.value = filename;
       form.appendChild(input);
@@ -464,7 +464,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   flatArray = (arr: string[][]) => {
-    let res: string[] = [];
+    const res: string[] = [];
     arr.forEach(a => {
       res.push.apply(res, a);
     });
