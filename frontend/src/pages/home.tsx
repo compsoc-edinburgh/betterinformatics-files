@@ -138,10 +138,6 @@ export default class Home extends React.Component<Props, State> {
     newCategoryName: "",
   };
 
-  constructor(props: Props) {
-    super(props);
-  }
-
   removeDefaultIfNecessary = (categories: CategoryMetaData[]) => {
     if (this.props.isAdmin) {
       return categories;
