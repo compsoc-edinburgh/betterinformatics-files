@@ -329,24 +329,24 @@ export default class Home extends React.Component<Props, State> {
         {categories.map(meta1 => (
           <div key={meta1.displayname}>
             <h2>
-              <a
-                href={"#" + meta1.displayname}
+              <Link
+                to={"#" + meta1.displayname}
                 id={meta1.displayname}
                 {...styles.linkStyle}
               >
                 {meta1.displayname}
-              </a>
+              </Link>
             </h2>
             {meta1.meta2.map(meta2 => (
               <div key={meta2.displayname}>
                 <h3>
-                  <a
-                    href={"#" + meta2.displayname}
+                  <Link
+                    to={"#" + meta2.displayname}
                     id={meta2.displayname}
                     {...styles.linkStyle}
                   >
                     {meta2.displayname}
-                  </a>
+                  </Link>
                 </h3>
                 <div {...styles.categoriesWrapper}>
                   {meta2.categories.map(category =>

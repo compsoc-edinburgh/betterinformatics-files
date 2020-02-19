@@ -847,9 +847,9 @@ export default class Category extends React.Component<Props, State> {
           .map(examType => (
             <div key={examType}>
               <h2>
-                <a href={"#" + examType} id={examType} {...styles.linkStyle}>
+                <Link to={"#" + examType} id={examType} {...styles.linkStyle}>
                   {examType}
-                </a>
+                </Link>
               </h2>
               <table {...styles.examsTable}>
                 <thead>
