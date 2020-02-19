@@ -16,6 +16,7 @@ import SubmitTranscript from "./pages/submittranscript";
 import colors from "./colors";
 import globalcss from "./globalcss";
 import LoginForm from "./components/loginform";
+import HashLocationHandler from "./components/hash-location-handler";
 
 css.global("body", {
   fontFamily:
@@ -142,6 +143,7 @@ export default class App extends React.Component<{}, State> {
   render() {
     return (
       <div>
+        <Route component={HashLocationHandler} />
         <Header
           username={this.state.username}
           displayName={this.state.displayname || "loading..."}

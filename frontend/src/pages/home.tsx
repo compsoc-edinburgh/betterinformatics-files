@@ -140,26 +140,6 @@ export default class Home extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    if (this.getHashLocation() === "") {
-      this.didScrollToHashLocation = true;
-    }
-  }
-
-  didScrollToHashLocation = false;
-  getHashLocation(): string {
-    return document.location.hash.replace("#", "");
-  }
-  tryScroll() {
-    if (this.didScrollToHashLocation) return;
-    const id = this.getHashLocation();
-    const element = document.getElementById(id);
-    if (element) {
-      this.didScrollToHashLocation = true;
-      element.scrollIntoView();
-    }
-  }
-  componentDidUpdate() {
-    this.tryScroll();
   }
 
   removeDefaultIfNecessary = (categories: CategoryMetaData[]) => {
@@ -178,7 +158,6 @@ export default class Home extends React.Component<Props, State> {
         (localStorage.getItem("home_bySemesterView") || "0") !== "0",
     });
     document.title = "VIS Community Solutions";
-    this.tryScroll();
   }
 
   loadCategories = () => {

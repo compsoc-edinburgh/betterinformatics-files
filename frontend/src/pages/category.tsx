@@ -139,36 +139,12 @@ export default class Category extends React.Component<Props, State> {
     redirectBack: false,
     selectedExams: new Set<string>(),
   };
-  constructor(props: Props) {
-    super(props);
-    if (this.getHashLocation() === "") {
-      this.didScrollToHashLocation = true;
-    }
-  }
-
-  didScrollToHashLocation = false;
-  getHashLocation(): string {
-    return document.location.hash.replace("#", "");
-  }
-  tryScroll() {
-    if (this.didScrollToHashLocation) return;
-    const id = this.getHashLocation();
-    const element = document.getElementById(id);
-    if (element) {
-      this.didScrollToHashLocation = true;
-      element.scrollIntoView();
-    }
-  }
-  componentDidUpdate() {
-    this.tryScroll();
-  }
 
   componentDidMount() {
     this.loadCategory();
     this.loadExams();
     this.loadMetaCategories();
     document.title = this.props.categorySlug + " - VIS Community Solutions";
-    this.tryScroll();
   }
 
   collectExamTypes = (exams: CategoryExam[]) => {
