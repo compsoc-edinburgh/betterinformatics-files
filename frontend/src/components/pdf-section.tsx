@@ -32,7 +32,7 @@ const styles = {
     bottom: "0",
     overflow: "hidden",
     lineHeight: "1.0",
-    "& > div": {
+    "& > span": {
       color: "transparent",
       position: "absolute",
       whiteSpace: "pre",
