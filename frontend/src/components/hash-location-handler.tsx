@@ -52,8 +52,8 @@ const HashLocationHandler: React.FC<{ location: { hash: string } }> = ({
   location: { hash },
 }) => {
   const hashLocation = decodeURIComponent(hash.substr(1));
-  // Remove has by using substr. Will result in empty string if hash === ""
-  // Chrome doesnt decodeURIComponent hash whereas Safari does - this could cause problems when hash contains uri-decodable data after uri-decoding it.
+  // Remove # by using substr. Will result in empty string if hash === ""
+  // Chrome doesn't decodeURIComponent hash whereas Safari does - this could cause problems when hash contains uri-decodable data after uri-decoding it.
   handleLocationChange(hashLocation);
   return <></>;
 };
