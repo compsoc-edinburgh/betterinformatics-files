@@ -1,4 +1,5 @@
 import * as React from "react";
+import { RouteComponentProps } from "react-router-dom";
 // Time after which we stop searching for the target element
 const JUMP_TIMEOUT = 40_0000;
 
@@ -48,12 +49,12 @@ function handleLocationChange(hash: string) {
 
 // Currently there is no typescript type for react router dom exposed - we only need the hash attribute of location
 // This element has to be the component of a route where the effect should be applied
-const HashLocationHandler: React.FC<{ location: { hash: string } }> = ({
+const HashLocationHandler: React.FC<RouteComponentProps> = ({
   location: { hash },
 }) => {
-  const hashLocation = decodeURIComponent(hash.substr(1));
   // Remove # by using substr. Will result in empty string if hash === ""
   // Chrome doesn't decodeURIComponent hash whereas Safari does - this could cause problems when hash contains uri-decodable data after uri-decoding it.
+  const hashLocation = decodeURIComponent(hash.substr(1));
   handleLocationChange(hashLocation);
   return null;
 };
