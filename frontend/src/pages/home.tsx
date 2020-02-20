@@ -12,16 +12,9 @@ import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
 import { listenEnter } from "../input-utils";
+import TextLink from "../components/text-link";
 
 const styles = {
-  linkStyle: css({
-    "&:link": {
-      color: "black",
-    },
-    "&:visited": {
-      color: "black",
-    },
-  }),
   header: css({
     display: "flex",
     justifyContent: "space-between",
@@ -325,24 +318,16 @@ export default class Home extends React.Component<Props, State> {
         {categories.map(meta1 => (
           <div key={meta1.displayname}>
             <h2>
-              <Link
-                to={"#" + meta1.displayname}
-                id={meta1.displayname}
-                {...styles.linkStyle}
-              >
+              <TextLink to={"#" + meta1.displayname} id={meta1.displayname}>
                 {meta1.displayname}
-              </Link>
+              </TextLink>
             </h2>
             {meta1.meta2.map(meta2 => (
               <div key={meta2.displayname}>
                 <h3>
-                  <Link
-                    to={"#" + meta2.displayname}
-                    id={meta2.displayname}
-                    {...styles.linkStyle}
-                  >
+                  <TextLink to={"#" + meta2.displayname} id={meta2.displayname}>
                     {meta2.displayname}
-                  </Link>
+                  </TextLink>
                 </h3>
                 <div {...styles.categoriesWrapper}>
                   {meta2.categories.map(category =>

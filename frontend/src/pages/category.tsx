@@ -20,16 +20,9 @@ import * as moment from "moment";
 import Colors from "../colors";
 import { listenEnter } from "../input-utils";
 import Attachments from "../components/attachments";
+import TextLink from "../components/text-link";
 
 const styles = {
-  linkStyle: css({
-    "&:link": {
-      color: "black",
-    },
-    "&:visited": {
-      color: "black",
-    },
-  }),
   wrapper: css({
     maxWidth: "900px",
     margin: "auto",
@@ -847,9 +840,9 @@ export default class Category extends React.Component<Props, State> {
           .map(examType => (
             <div key={examType}>
               <h2>
-                <Link to={"#" + examType} id={examType} {...styles.linkStyle}>
+                <TextLink to={"#" + examType} id={examType}>
                   {examType}
-                </Link>
+                </TextLink>
               </h2>
               <table {...styles.examsTable}>
                 <thead>
