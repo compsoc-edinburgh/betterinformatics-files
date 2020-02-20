@@ -6,6 +6,10 @@ const styles = {
   inheritStyle: css({
     color: "inherit",
     textDecoration: "inherit",
+    "&:link": {
+      color: "inherit",
+      textDecoration: "inherit",
+    },
     "&:hover": {
       color: "inherit",
       textDecoration: "inherit",
