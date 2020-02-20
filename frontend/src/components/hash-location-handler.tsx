@@ -49,6 +49,11 @@ function handleLocationChange(hash: string) {
 
 // Currently there is no typescript type for react router dom exposed - we only need the hash attribute of location
 // This element has to be the component of a route where the effect should be applied
+/**
+ * A component that can be used as a component of a route, that manages hash location jumps.
+ * Should only exist once. Multiple instances will interfere with each other.
+ * Is based on: https://gist.github.com/gajus/0bbc78135d88a02c18366f12237011a5
+ */
 const HashLocationHandler: React.FC<RouteComponentProps> = ({
   location: { hash },
 }) => {
