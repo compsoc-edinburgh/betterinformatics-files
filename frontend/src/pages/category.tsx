@@ -20,6 +20,7 @@ import * as moment from "moment";
 import Colors from "../colors";
 import { listenEnter } from "../input-utils";
 import Attachments from "../components/attachments";
+import TextLink from "../components/text-link";
 
 const styles = {
   wrapper: css({
@@ -838,7 +839,11 @@ export default class Category extends React.Component<Props, State> {
           )
           .map(examType => (
             <div key={examType}>
-              <h2>{examType}</h2>
+              <h2>
+                <TextLink to={"#" + examType} id={examType}>
+                  {examType}
+                </TextLink>
+              </h2>
               <table {...styles.examsTable}>
                 <thead>
                   <tr>
