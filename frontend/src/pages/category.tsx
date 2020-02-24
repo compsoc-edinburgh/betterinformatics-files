@@ -276,12 +276,15 @@ export default class Category extends React.Component<Props, State> {
 
   selectAllExams = (examType: string) => {
     this.setState(prevState => {
-      prevState.exams.forEach(exam => {
+      const newSelectedExams = new Set(prevState.selectedExams);
+      for (const exam of prevState.exams) {
         const currExamtype = exam.examtype ? exam.examtype : "Exams";
         if (currExamtype === examType && exam.canView)
-          prevState.selectedExams.add(exam.filename);
-      });
-      return prevState;
+          newSelectedExams.add(exam.filename);
+      }
+      return {
+        selectedExams: newSelectedExams,
+      };
     });
   };
 
