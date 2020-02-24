@@ -264,14 +264,23 @@ export default class Category extends React.Component<Props, State> {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
-    this.setState(prevState => {
-      if (newVal) {
-        prevState.selectedExams.add(key);
-      } else {
-        prevState.selectedExams.delete(key);
-      }
-      return prevState;
-    });
+    if (newVal) {
+      this.setState(prevState => {
+        const newSelectedExams = new Set(prevState.selectedExams);
+        newSelectedExams.add(key);
+        return {
+          selectedExams: newSelectedExams,
+        };
+      });
+    } else {
+      this.setState(prevState => {
+        const newSelectedExams = new Set(prevState.selectedExams);
+        newSelectedExams.delete(key);
+        return {
+          selectedExams: newSelectedExams,
+        };
+      });
+    }
   };
 
   selectAllExams = (examType: string) => {
