@@ -182,11 +182,9 @@ export default class Category extends React.Component<Props, State> {
   };
 
   toggleEditingMetadata = () => {
-    this.setState(prevState => {
-      return {
-        editingMetaData: !prevState.editingMetaData,
-      };
-    });
+    this.setState(prevState => ({
+      editingMetaData: !prevState.editingMetaData,
+    }));
     if (this.state.category) {
       this.setState({
         currentMetaData: { ...this.state.category },
