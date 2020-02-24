@@ -315,18 +315,16 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   setAllHidden = (hidden: boolean) => {
-    this.setState(prevState => {
-      const newState = { ...prevState };
-      if (newState.sections) {
-        newState.sections.forEach(section => {
-          if (section.kind === SectionKind.Answer) {
-            section.hidden = hidden;
-          }
-        });
-      }
-      newState.allShown = !hidden;
-      return newState;
-    });
+    this.setState(prevState => ({
+      sections: prevState.sections
+        ? prevState.sections.map(section =>
+            section.kind === SectionKind.Answer
+              ? { ...section, hidden: hidden }
+              : section,
+          )
+        : undefined,
+      allShown: !hidden,
+    }));
   };
 
   toggleHidden = (sectionOid: string) => {
