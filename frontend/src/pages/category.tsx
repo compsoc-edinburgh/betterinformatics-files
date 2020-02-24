@@ -241,10 +241,12 @@ export default class Category extends React.Component<Props, State> {
 
   valueChanged = (key: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const newVal = event.target.value;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   checkboxValueChanged = (
