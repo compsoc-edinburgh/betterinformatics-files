@@ -615,6 +615,8 @@ def prevent_clickjacking(response):
 @app.after_request
 def content_security_policy(response):
     allowed = ['{}/static/'.format(host) for host in ALLOWED_HOSTS]
+    # TODO figure out where the worker is actually located and how to configure pdfjs correctly
+    allowed += ['{}/f4f90c96ccdd4557dee8.worker.js'.format(host) for host in ALLOWED_HOSTS]
     response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://static.vis.ethz.ch; script-src 'unsafe-eval' " + " ".join(allowed)
     return response
 
