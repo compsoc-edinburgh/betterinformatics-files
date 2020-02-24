@@ -330,23 +330,26 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   toggleHidden = (sectionOid: string) => {
-    this.setState(prevState => {
-      const newState = { ...prevState };
-      if (newState.sections) {
-        for (const section of newState.sections) {
-          if (
-            section.kind === SectionKind.Answer &&
-            section.oid === sectionOid
-          ) {
-            if (!section.hidden) {
-              newState.allShown = false;
-            }
-            section.hidden = !section.hidden;
-          }
-        }
-      }
-      return newState;
-    });
+    this.setState(prevState => ({
+      allShown: prevState.sections
+        ? prevState.sections.every(
+            section =>
+              section.kind === SectionKind.Answer &&
+              section.oid === sectionOid &&
+              section.hidden,
+          )
+        : true,
+      sections: prevState.sections
+        ? prevState.sections.map(section =>
+            section.kind === SectionKind.Answer && section.oid === sectionOid
+              ? {
+                  ...section,
+                  hidden: !section.hidden,
+                }
+              : section,
+          )
+        : undefined,
+    }));
   };
 
   toggleAddingSectionActive = () => {
