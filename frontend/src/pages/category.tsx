@@ -519,12 +519,14 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeAttachment = (att: Attachment) => {
-    this.setState(prevState => {
-      prevState.currentMetaData.attachments = prevState.currentMetaData.attachments.filter(
-        a => a !== att,
-      );
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        attachments: prevState.currentMetaData.attachments.filter(
+          attachment => attachment !== att,
+        ),
+      },
+    }));
     fetchpost("/api/category/pullset", {
       slug: this.props.categorySlug,
       key: "json:attachments",
