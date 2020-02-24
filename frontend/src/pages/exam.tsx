@@ -358,11 +358,9 @@ export default class Exam extends React.Component<Props, State> {
     if (!this.state.editingMetaData) {
       window.scrollTo(0, 0);
     }
-    this.setState(state => {
-      return {
-        editingMetaData: !state.editingMetaData,
-      };
-    });
+    this.setState(prevState => ({
+      editingMetaData: !prevState.editingMetaData,
+    }));
   };
 
   setAllDone = () => {
