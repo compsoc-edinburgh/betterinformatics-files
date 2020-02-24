@@ -505,10 +505,12 @@ export default class Category extends React.Component<Props, State> {
   };
 
   addAttachment = (att: Attachment) => {
-    this.setState(prevState => {
-      prevState.currentMetaData.attachments.push(att);
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        attachments: [...prevState.currentMetaData.attachments, att],
+      },
+    }));
     fetchpost("/api/category/addtoset", {
       slug: this.props.categorySlug,
       key: "json:attachments",
