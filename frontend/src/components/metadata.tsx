@@ -112,7 +112,7 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   checkboxValueChanged = (
-    key: string,
+    key: KeysWhereValue<ExamMetaData, boolean>,
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
