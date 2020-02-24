@@ -105,10 +105,12 @@ export default class MetaData extends React.Component<Props, State> {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.value;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   checkboxValueChanged = (
