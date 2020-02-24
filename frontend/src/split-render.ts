@@ -1,5 +1,5 @@
 import { CutPosition } from "./interfaces";
-import * as pdfjs from "pdfjs-dist/webpack";
+import * as pdfjs from "pdfjs-dist";
 
 interface RenderTarget {
   context: CanvasRenderingContext2D;
