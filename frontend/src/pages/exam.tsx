@@ -351,8 +351,8 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   toggleAddingSectionActive = () => {
-    this.setState(state => {
-      return { addingSectionsActive: !state.addingSectionsActive };
+    this.setState(prevState => {
+      return { addingSectionsActive: !prevState.addingSectionsActive };
     });
   };
 
