@@ -249,17 +249,15 @@ export default class Exam extends React.Component<Props, State> {
     fetchapi(`/api/exam/${this.props.filename}/cutversions`)
       .then(res => {
         const versions = res.value;
-        this.setState(prevState => {
-          const newState = { ...prevState };
-          if (newState.sections) {
-            newState.sections.forEach(section => {
-              if (section.kind === SectionKind.Answer) {
-                section.cutVersion = versions[section.oid];
-              }
-            });
-          }
-          return newState;
-        });
+        this.setState(prevState => ({
+          sections: prevState.sections
+            ? prevState.sections.map(section =>
+                section.kind === SectionKind.Answer
+                  ? { ...section, cutVersion: versions[section.oid] }
+                  : section,
+              )
+            : undefined,
+        }));
       })
       .catch(err => {
         this.setState({
