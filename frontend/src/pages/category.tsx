@@ -21,6 +21,7 @@ import Colors from "../colors";
 import { listenEnter } from "../input-utils";
 import Attachments from "../components/attachments";
 import TextLink from "../components/text-link";
+import { KeysWhereValue } from "../ts-utils";
 
 const styles = {
   wrapper: css({
@@ -239,7 +240,10 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  valueChanged = (key: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  valueChanged = (
+    key: KeysWhereValue<CategoryMetaData, string>,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newVal = event.target.value;
     this.setState(prevState => ({
       currentMetaData: {
@@ -250,7 +254,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   checkboxValueChanged = (
-    key: string,
+    key: KeysWhereValue<CategoryMetaData, boolean>,
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
