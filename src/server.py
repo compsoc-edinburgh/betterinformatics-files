@@ -591,7 +591,7 @@ def start_timer():
 @app.before_request
 def check_origin():
     if request.method == 'POST':
-        if request.environ['HTTP_ORIGIN'] not in ALLOWED_HOSTS:
+        if request.environ.get('HTTP_ORIGIN', "") not in ALLOWED_HOSTS:
             return not_allowed()
 
 @app.after_request
