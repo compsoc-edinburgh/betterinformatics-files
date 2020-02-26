@@ -34,7 +34,8 @@
     "react-syntax-highlighter": "^10.2.1",
     "remark-math": "^1.0.5",
     "typescript": "^3.0.0",
-    "webpack": "^3.0.0"
+    "webpack": "^3.0.0",
+    "worker-loader": "^2.0.0"
   },
   "scripts": {
     "start": "react-scripts-ts start",
