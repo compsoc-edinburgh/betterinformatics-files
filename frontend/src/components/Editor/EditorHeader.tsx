@@ -59,21 +59,25 @@ const EditorHeader: React.FC<Props> = ({
         ]}
       />
       <div className={spacer} />
-      <button className={iconButtonStyle} onClick={handlers.onMathClick}>
-        <DollarSign size={iconSize} />
-      </button>
-      <button className={iconButtonStyle} onClick={handlers.onCodeClick}>
-        <Code size={iconSize} />
-      </button>
-      <button className={iconButtonStyle} onClick={handlers.onLinkClick}>
-        <Link size={iconSize} />
-      </button>
-      <button className={iconButtonStyle} onClick={handlers.onItalicClick}>
-        <Italic size={iconSize} />
-      </button>
-      <button className={iconButtonStyle} onClick={handlers.onBoldClick}>
-        <Bold size={iconSize} />
-      </button>
+      {activeMode === "write" && (
+        <>
+          <button className={iconButtonStyle} onClick={handlers.onMathClick}>
+            <DollarSign size={iconSize} />
+          </button>
+          <button className={iconButtonStyle} onClick={handlers.onCodeClick}>
+            <Code size={iconSize} />
+          </button>
+          <button className={iconButtonStyle} onClick={handlers.onLinkClick}>
+            <Link size={iconSize} />
+          </button>
+          <button className={iconButtonStyle} onClick={handlers.onItalicClick}>
+            <Italic size={iconSize} />
+          </button>
+          <button className={iconButtonStyle} onClick={handlers.onBoldClick}>
+            <Bold size={iconSize} />
+          </button>
+        </>
+      )}
     </div>
   );
 };
