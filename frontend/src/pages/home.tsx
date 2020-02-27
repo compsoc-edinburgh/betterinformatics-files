@@ -85,6 +85,13 @@ const styles = {
     borderRadius: "0px",
     boxShadow: Colors.cardShadow,
     cursor: "pointer",
+    "@media (max-width: 699px)": {
+      width: "100%",
+      marginLeft: "0",
+      marginRight: "0",
+      marginBottom: "10px",
+      padding: "15px",
+    },
   }),
   categoryTitle: css({
     fontSize: "24px",
