@@ -1,0 +1,200 @@
+import * as React from "react";
+import { useCallback, useState } from "react";
+import { css, cx } from "emotion";
+import { Range, EditorMode, ImageHandle } from "./utils/types";
+import BasicEditor from "./BasicEditor";
+import EditorHeader from "./EditorHeader";
+import DropZone from "./Dropzone";
+import EditorFooter from "./EditorFooter";
+
+const editorWrapperStyle = css`
+  padding: 1.2em;
+`;
+
+const wrapperStyle = css`
+  position: relative;
+`;
+const dragHoveredWrapperStyle = css`
+  border: 1px solid rgba(200, 10, 0, 1);
+`;
+interface Props {
+  value: string;
+  onChange: (newValue: string) => void;
+  imageHandler: (file: File) => Promise<ImageHandle>;
+  preview: (str: string) => React.ReactNode;
+}
+const Editor: React.FC<Props> = ({
+  value,
+  onChange,
+  imageHandler,
+  preview,
+}) => {
+  const [mode, setMode] = useState<EditorMode>("write");
+  const [selection, setSelection] = useState<Range>({ start: 0, end: 0 });
+  const [isDragHovered, setIsDragHovered] = useState(false);
+  const [attachments, setAttachments] = useState<ImageHandle[]>([]);
+
+  const insertImage = useCallback(
+    (handle: ImageHandle) => {
+      const before = value.substring(0, selection.start);
+      const content = value.substring(selection.start, selection.end);
+      const after = value.substring(selection.end);
+      const newContent = "![" + content + `](${handle.src})`;
+      onChange(before + newContent + after);
+      setSelection({
+        start: selection.start + 2,
+        end: selection.start + content.length + 2,
+      });
+    },
+    [selection, onChange, value],
+  );
+
+  const insertLink = useCallback(() => {
+    const before = value.substring(0, selection.start);
+    const content = value.substring(selection.start, selection.end);
+    const after = value.substring(selection.end);
+    const newContent = "[" + content + "](https://www.example.com)";
+    onChange(before + newContent + after);
+    setSelection({
+      start: selection.start + 1,
+      end: selection.start + content.length + 1,
+    });
+  }, [selection, onChange, value]);
+
+  const wrapSelection = useCallback(
+    (str: string) => {
+      const before = value.substring(0, selection.start);
+      const content = value.substring(selection.start, selection.end);
+      const after = value.substring(selection.end);
+      const newContent = str + content + str;
+      onChange(before + newContent + after);
+      if (content.length === 0) {
+        setSelection({
+          start: selection.start + str.length,
+          end: selection.end + str.length,
+        });
+      } else {
+        setSelection({
+          start: selection.start,
+          end: selection.end + newContent.length - content.length,
+        });
+      }
+    },
+    [selection, onChange, value],
+  );
+
+  const onMathClick = useCallback(() => {
+    wrapSelection("$");
+  }, [wrapSelection]);
+
+  const onCodeClick = useCallback(() => {
+    wrapSelection("`");
+  }, [wrapSelection]);
+
+  const onLinkClick = useCallback(() => {
+    insertLink();
+  }, [insertLink]);
+
+  const onItalicClick = useCallback(() => {
+    wrapSelection("*");
+  }, [wrapSelection]);
+
+  const onBoldClick = useCallback(() => {
+    wrapSelection("**");
+  }, [wrapSelection]);
+
+  const onImageClick = useCallback(() => {
+    wrapSelection("LOL");
+  }, [wrapSelection]);
+
+  const onMetaKey = useCallback(
+    (key: string) => {
+      if (key === "b") {
+        onBoldClick();
+        return true;
+      } else if (key === "i") {
+        onItalicClick();
+        return true;
+      }
+      return false;
+    },
+    [onBoldClick, onItalicClick],
+  );
+
+  const onDragEnter = useCallback(() => {
+    setIsDragHovered(true);
+  }, []);
+
+  const onDragLeave = useCallback(() => {
+    setIsDragHovered(false);
+  }, []);
+
+  const onFile = useCallback(
+    async (file: File) => {
+      const handle = await imageHandler(file);
+      setAttachments(a => [...a, handle]);
+      insertImage(handle);
+    },
+    [imageHandler, insertImage],
+  );
+
+  const onFiles = useCallback(
+    (files: File[]) => {
+      for (const file of files) {
+        onFile(file);
+      }
+    },
+    [onFile],
+  );
+
+  const onDrop = useCallback(
+    (files: File[]) => {
+      setIsDragHovered(false);
+      onFiles(files);
+    },
+    [onFiles],
+  );
+
+  const onDeleteAttachment = useCallback(async (handle: ImageHandle) => {
+    await handle.remove();
+    setAttachments(a => a.filter(h => h !== handle));
+  }, []);
+
+  return (
+    <div
+      className={cx(wrapperStyle, isDragHovered && dragHoveredWrapperStyle)}
+      onDragEnter={onDragEnter}
+    >
+      <EditorHeader
+        activeMode={mode}
+        onActiveModeChange={setMode}
+        onMathClick={onMathClick}
+        onCodeClick={onCodeClick}
+        onLinkClick={onLinkClick}
+        onItalicClick={onItalicClick}
+        onBoldClick={onBoldClick}
+        onImageClick={onImageClick}
+      />
+      <div className={editorWrapperStyle}>
+        {mode === "write" ? (
+          <BasicEditor
+            value={value}
+            onChange={onChange}
+            selection={selection}
+            onSelectionChange={setSelection}
+            onMetaKey={onMetaKey}
+          />
+        ) : (
+          preview(value)
+        )}
+      </div>
+      <EditorFooter
+        onFiles={onFiles}
+        attachments={attachments}
+        onDelete={onDeleteAttachment}
+      />
+      {isDragHovered && <DropZone onDragLeave={onDragLeave} onDrop={onDrop} />}
+    </div>
+  );
+};
+export default Editor;
