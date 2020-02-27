@@ -2,14 +2,7 @@ import { EditorMode } from "./utils/types";
 import * as React from "react";
 import TabBar from "./TabBar";
 import { css } from "emotion";
-import {
-  Image as ImageIcon,
-  Bold,
-  Italic,
-  Link,
-  Code,
-  DollarSign,
-} from "react-feather";
+import { Bold, Italic, Link, Code, DollarSign } from "react-feather";
 
 const iconButtonStyle = css`
   margin: 0;
@@ -42,7 +35,6 @@ interface Props {
   onLinkClick: () => void;
   onItalicClick: () => void;
   onBoldClick: () => void;
-  onImageClick: () => void;
 }
 const EditorHeader: React.FC<Props> = ({
   activeMode,
@@ -81,9 +73,6 @@ const EditorHeader: React.FC<Props> = ({
       </button>
       <button className={iconButtonStyle} onClick={handlers.onBoldClick}>
         <Bold size={iconSize} />
-      </button>
-      <button className={iconButtonStyle} onClick={handlers.onImageClick}>
-        <ImageIcon size={iconSize} />
       </button>
     </div>
   );
