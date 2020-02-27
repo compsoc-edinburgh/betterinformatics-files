@@ -27,7 +27,14 @@ const styles = {
     float: "right",
     zIndex: "100",
     "@media (max-width: 799px)": {
-      position: "static",
+      position: "relative",
+      top: "unset",
+      float: "none",
+      width: "100%",
+      "& button": {
+        marginLeft: "0",
+        marginRight: "0",
+      },
     },
   }),
   sectionsButtons: css({
