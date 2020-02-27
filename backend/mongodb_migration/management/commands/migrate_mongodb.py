@@ -645,6 +645,8 @@ class Command(BaseCommand):
         self.no_people = options['no_people']
 
         self.connect_mongodb()
+        # we use flush_db so we don't have to remigrate everything while we are developing a certain migration
+        # in prod, we always flush the database
         if options['flush_db']:
             self.migrate_users()
             self.migrate_feedback()
