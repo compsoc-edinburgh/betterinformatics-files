@@ -1,9 +1,8 @@
 import * as React from "react";
 import { css } from "emotion";
 import { useRef, useCallback } from "react";
-import { File as FileIcon } from "react-feather";
+import { Image as ImageIcon, Plus } from "react-feather";
 import { ImageHandle } from "./utils/types";
-import Attachment from "./Attachment";
 
 const addImageIconStyle = css`
   margin: 0;
@@ -44,10 +43,16 @@ const addImageTextStyle = css`
 `;
 interface Props {
   onFiles: (files: File[]) => void;
+  onOpenOverlay: () => void;
   attachments: ImageHandle[];
   onDelete: (handle: ImageHandle) => void;
 }
-const EditorFooter: React.FC<Props> = ({ onFiles, attachments, onDelete }) => {
+const EditorFooter: React.FC<Props> = ({
+  onFiles,
+  attachments,
+  onDelete,
+  onOpenOverlay,
+}) => {
   const iconSize = 15;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,13 +82,18 @@ const EditorFooter: React.FC<Props> = ({ onFiles, attachments, onDelete }) => {
     <div className={footerStyle}>
       <div className={rowStyle}>
         <div className={spacer} />
+        <button onClick={onOpenOverlay} className={addImageButtonStyle}>
+          <div className={addImageIconStyle}>
+            <ImageIcon size={iconSize} />
+          </div>
+          <div className={addImageTextStyle}>Browse Images</div>
+        </button>
         <button onClick={onFile} className={addImageButtonStyle}>
           <div className={addImageIconStyle}>
-            <FileIcon size={iconSize} />
+            <Plus size={iconSize} />
           </div>
           <div className={addImageTextStyle}>Add Image</div>
         </button>
-
         <input
           type="file"
           className={fileInputStyle}
@@ -91,11 +101,10 @@ const EditorFooter: React.FC<Props> = ({ onFiles, attachments, onDelete }) => {
           onChange={onChangeHandler}
         />
       </div>
-      <div>
-        {attachments.map(handle => (
-          <Attachment handle={handle} onDelete={() => onDelete(handle)} />
-        ))}
-      </div>
+      <small>
+        You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n
+        math \n $$ for latex math.
+      </small>
     </div>
   );
 };

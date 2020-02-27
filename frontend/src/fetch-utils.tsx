@@ -1,3 +1,5 @@
+import { ImageHandle } from "./components/Editor/utils/types";
+
 export async function fetchpost(url: string, data: object) {
   const formData = new FormData();
   for (const key in data) {
@@ -32,4 +34,22 @@ export async function fetchapi(url: string) {
   } catch (e) {
     return Promise.reject(e.toString());
   }
+}
+
+export function imageHandler(file: File): Promise<ImageHandle> {
+  return new Promise((resolve, reject) => {
+    fetchpost("/api/uploadimg", {
+      file: file,
+    })
+      .then(res => {
+        resolve({
+          name: file.name,
+          src: res.filename,
+          remove: async () => {
+            await fetchpost(`/api/image/${res.filename}/remove`, {});
+          },
+        });
+      })
+      .catch(e => reject(e));
+  });
 }
