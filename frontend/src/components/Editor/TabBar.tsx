@@ -5,7 +5,7 @@ const buttonStyle = css`
   border: none;
   background-color: transparent;
   cursor: pointer;
-  padding: 0.3em;
+  padding: 0.4em;
   font-weight: 400;
   font-size: 14px;
   margin: 0;
