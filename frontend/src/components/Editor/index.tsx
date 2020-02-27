@@ -6,6 +6,7 @@ import BasicEditor from "./BasicEditor";
 import EditorHeader from "./EditorHeader";
 import DropZone from "./Dropzone";
 import EditorFooter from "./EditorFooter";
+import ImageOverlay from "../image-overlay";
 
 const editorWrapperStyle = css`
   padding: 1.2em;
@@ -13,9 +14,11 @@ const editorWrapperStyle = css`
 
 const wrapperStyle = css`
   position: relative;
+  border: 1px solid transparent;
 `;
 const dragHoveredWrapperStyle = css`
-  border: 1px solid rgba(200, 10, 0, 1);
+  border: 1px solid #fed330;
+  border-radius: 3px;
 `;
 interface Props {
   value: string;
@@ -33,6 +36,7 @@ const Editor: React.FC<Props> = ({
   const [selection, setSelection] = useState<Range>({ start: 0, end: 0 });
   const [isDragHovered, setIsDragHovered] = useState(false);
   const [attachments, setAttachments] = useState<ImageHandle[]>([]);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const insertImage = useCallback(
     (handle: ImageHandle) => {
@@ -103,10 +107,6 @@ const Editor: React.FC<Props> = ({
     wrapSelection("**");
   }, [wrapSelection]);
 
-  const onImageClick = useCallback(() => {
-    wrapSelection("LOL");
-  }, [wrapSelection]);
-
   const onMetaKey = useCallback(
     (key: string) => {
       if (key === "b") {
@@ -160,41 +160,63 @@ const Editor: React.FC<Props> = ({
     setAttachments(a => a.filter(h => h !== handle));
   }, []);
 
+  const onImageDialogClose = useCallback(
+    (image: string) => {
+      setOverlayOpen(false);
+      if (image.length === 0) return;
+      insertImage({
+        name: image,
+        src: image,
+        remove: () => Promise.resolve(),
+      });
+    },
+    [insertImage],
+  );
+
+  const onOpenOverlay = useCallback(() => {
+    setOverlayOpen(true);
+  }, []);
+
   return (
-    <div
-      className={cx(wrapperStyle, isDragHovered && dragHoveredWrapperStyle)}
-      onDragEnter={onDragEnter}
-    >
-      <EditorHeader
-        activeMode={mode}
-        onActiveModeChange={setMode}
-        onMathClick={onMathClick}
-        onCodeClick={onCodeClick}
-        onLinkClick={onLinkClick}
-        onItalicClick={onItalicClick}
-        onBoldClick={onBoldClick}
-        onImageClick={onImageClick}
-      />
-      <div className={editorWrapperStyle}>
-        {mode === "write" ? (
-          <BasicEditor
-            value={value}
-            onChange={onChange}
-            selection={selection}
-            onSelectionChange={setSelection}
-            onMetaKey={onMetaKey}
-          />
-        ) : (
-          preview(value)
+    <>
+      <div
+        className={cx(wrapperStyle, isDragHovered && dragHoveredWrapperStyle)}
+        onDragEnter={onDragEnter}
+      >
+        <EditorHeader
+          activeMode={mode}
+          onActiveModeChange={setMode}
+          onMathClick={onMathClick}
+          onCodeClick={onCodeClick}
+          onLinkClick={onLinkClick}
+          onItalicClick={onItalicClick}
+          onBoldClick={onBoldClick}
+        />
+        <div className={editorWrapperStyle}>
+          {mode === "write" ? (
+            <BasicEditor
+              value={value}
+              onChange={onChange}
+              selection={selection}
+              onSelectionChange={setSelection}
+              onMetaKey={onMetaKey}
+            />
+          ) : (
+            preview(value)
+          )}
+        </div>
+        <EditorFooter
+          onFiles={onFiles}
+          attachments={attachments}
+          onDelete={onDeleteAttachment}
+          onOpenOverlay={onOpenOverlay}
+        />
+        {isDragHovered && (
+          <DropZone onDragLeave={onDragLeave} onDrop={onDrop} />
         )}
       </div>
-      <EditorFooter
-        onFiles={onFiles}
-        attachments={attachments}
-        onDelete={onDeleteAttachment}
-      />
-      {isDragHovered && <DropZone onDragLeave={onDragLeave} onDrop={onDrop} />}
-    </div>
+      {overlayOpen && <ImageOverlay onClose={onImageDialogClose} />}
+    </>
   );
 };
 export default Editor;
