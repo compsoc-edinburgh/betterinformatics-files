@@ -43,10 +43,14 @@ const styles = {
     flexWrap: "wrap",
   }),
   rowContent: css({
-    maxWidth: "600px",
-    marginLeft: "20px",
-    marginRight: "20px",
+    width: "100%",
+    boxSizing: "border-box",
+    paddingLeft: "20px",
+    paddingRight: "20px",
     flexGrow: "1",
+    "@media (min-width: 799px)": {
+      width: "50%",
+    },
   }),
   notificationSettings: css({
     marginBottom: "40px",

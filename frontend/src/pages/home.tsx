@@ -12,6 +12,7 @@ import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
 import { listenEnter } from "../input-utils";
+import TextLink from "../components/text-link";
 
 const styles = {
   header: css({
@@ -181,7 +182,7 @@ export default class Home extends React.Component<Props, State> {
         filtered,
         this.state.metaCategories,
       );
-      let resorted: CategoryMetaDataOverview[] = [];
+      const resorted: CategoryMetaDataOverview[] = [];
       categoriesBySemester.forEach(meta1 => {
         meta1.meta2.forEach(meta2 => {
           meta2.categories.forEach(cat => resorted.push(cat));
@@ -316,10 +317,18 @@ export default class Home extends React.Component<Props, State> {
       <div>
         {categories.map(meta1 => (
           <div key={meta1.displayname}>
-            <h2>{meta1.displayname}</h2>
+            <h2>
+              <TextLink to={"#" + meta1.displayname} id={meta1.displayname}>
+                {meta1.displayname}
+              </TextLink>
+            </h2>
             {meta1.meta2.map(meta2 => (
               <div key={meta2.displayname}>
-                <h3>{meta2.displayname}</h3>
+                <h3>
+                  <TextLink to={"#" + meta2.displayname} id={meta2.displayname}>
+                    {meta2.displayname}
+                  </TextLink>
+                </h3>
                 <div {...styles.categoriesWrapper}>
                   {meta2.categories.map(category =>
                     this.categoryView(category),

@@ -121,7 +121,7 @@ export default class AnswerSectionComponent extends React.Component<
 
   // takes the parsed json for the answersection which was returned from the server
   onSectionChanged = (res: { value: AnswerSection }) => {
-    let answersection = res.value;
+    const answersection = res.value;
     //answersection.key = this.props.oid;
     answersection.kind = SectionKind.Answer;
     this.setState({

@@ -79,6 +79,13 @@ app = Flask(__name__, static_url_path="/static")
 auth = LoginManager()
 auth.init_app(app)
 
+ALLOWED_HOSTS = []
+if IS_DEBUG:
+    ALLOWED_HOSTS.append('http://localhost:8080')
+    ALLOWED_HOSTS.append('http://localhost:3000')
+else:
+    ALLOWED_HOSTS.append('https://' + os.environ['DEPLOYMENT_DOMAIN'])
+
 UPLOAD_FOLDER = 'intermediate_pdf_storage'
 EXAM_DIR = 'exams/'
 PRINTONLY_DIR = 'printonly/'
@@ -164,6 +171,12 @@ app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # MAX FILE SIZE IS 32 MB
 app.config['SECRET_KEY'] = 'VERY SAFE SECRET KEY' if IS_DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET']
 app.config['API_KEY'] = 'API_KEY' if IS_DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_API_KEY']
 app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'Strict'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Strict'
+if not IS_DEBUG:
+    app.config['REMEMBER_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_SECURE'] = True
 
 # Minio seems to run unsecured on port 80 in the debug environment
 minio_client = Minio(
@@ -575,6 +588,12 @@ def dump_mongodb_table(table):
 def start_timer():
     g.start = time.time()
 
+@app.before_request
+def check_origin():
+    if request.method == 'POST':
+        if request.environ.get('HTTP_ORIGIN', "") not in ALLOWED_HOSTS:
+            return not_allowed()
+
 @app.after_request
 def log_request(response):
     if request.path == '/favicon.ico':
@@ -586,6 +605,17 @@ def log_request(response):
     duration = round(now - g.start, 4)
     app.logger.debug('Request time: %ss', duration)
 
+    return response
+
+@app.after_request
+def prevent_clickjacking(response):
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    return response
+
+@app.after_request
+def content_security_policy(response):
+    allowed = ['{}/static/'.format(host) for host in ALLOWED_HOSTS]
+    response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://static.vis.ethz.ch; script-src 'unsafe-eval' " + " ".join(allowed)
     return response
 
 @app.route("/")

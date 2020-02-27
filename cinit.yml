@@ -43,6 +43,7 @@ programs:
     capabilities:
       - CAP_NET_BIND_SERVICE
     env:
+      - DEPLOYMENT_DOMAIN:
       - RUNTIME_SERVIS_PEOPLE_API_SERVER:
       - RUNTIME_SERVIS_PEOPLE_API_PORT:
       - RUNTIME_SERVIS_PEOPLE_API_KEY:

@@ -34,7 +34,7 @@ export async function loadSections(
   const response = await fetchapi(`/api/exam/cuts/${filename}/`);
   const cuts = response.value;
   let akey = -1;
-  let sections: Section[] = [];
+  const sections: Section[] = [];
   for (let i = 1; i <= pageCount; i++) {
     let lastpos = 0;
     if (i in cuts) {
@@ -69,7 +69,7 @@ export async function loadSections(
 export async function loadAnswerSection(oid: string): Promise<AnswerSection> {
   try {
     const section = await fetchapi(`/api/exam/answersection/${oid}/`);
-    let answersection = section.value;
+    const answersection = section.value;
     answersection.key = oid;
     answersection.kind = SectionKind.Answer;
     return answersection;

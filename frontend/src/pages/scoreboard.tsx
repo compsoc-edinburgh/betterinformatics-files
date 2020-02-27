@@ -27,6 +27,10 @@ const styles = {
       padding: "15px",
     },
   }),
+  scrollOverflow: css({
+    overflowX: "auto",
+    boxShadow: "grey 0px 2px 4px 0px",
+  }),
 };
 
 interface Props {
@@ -81,61 +85,63 @@ export default class Scoreboard extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         {this.state.error && <p>{this.state.error}</p>}
         <h1>Scoreboard</h1>
-        <table {...styles.scoreboardTable}>
-          <thead>
-            <tr {...styles.header}>
-              <th>Rank</th>
-              <th>User</th>
-              <th
-                {...styles.canClick}
-                onClick={() => this.loadScoreboard("score")}
-              >
-                Score
-              </th>
-              <th
-                {...styles.canClick}
-                onClick={() => this.loadScoreboard("score_answers")}
-              >
-                Answers
-              </th>
-              <th
-                {...styles.canClick}
-                onClick={() => this.loadScoreboard("score_comments")}
-              >
-                Comments
-              </th>
-              <th
-                {...styles.canClick}
-                onClick={() => this.loadScoreboard("score_cuts")}
-              >
-                Import Exams
-              </th>
-              <th
-                {...styles.canClick}
-                onClick={() => this.loadScoreboard("score_legacy")}
-              >
-                Import Wiki
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.scoreboard.map((board, idx) => (
-              <tr key={board.username} {...styles.row}>
-                <td>{idx + 1}</td>
-                <td {...globalcss.noLinkColor}>
-                  <Link to={"/user/" + board.username}>
-                    {board.displayName}
-                  </Link>
-                </td>
-                <td>{board.score}</td>
-                <td>{board.score_answers}</td>
-                <td>{board.score_comments}</td>
-                <td>{board.score_cuts}</td>
-                <td>{board.score_legacy}</td>
+        <div {...styles.scrollOverflow}>
+          <table {...styles.scoreboardTable}>
+            <thead>
+              <tr {...styles.header}>
+                <th>Rank</th>
+                <th>User</th>
+                <th
+                  {...styles.canClick}
+                  onClick={() => this.loadScoreboard("score")}
+                >
+                  Score
+                </th>
+                <th
+                  {...styles.canClick}
+                  onClick={() => this.loadScoreboard("score_answers")}
+                >
+                  Answers
+                </th>
+                <th
+                  {...styles.canClick}
+                  onClick={() => this.loadScoreboard("score_comments")}
+                >
+                  Comments
+                </th>
+                <th
+                  {...styles.canClick}
+                  onClick={() => this.loadScoreboard("score_cuts")}
+                >
+                  Import Exams
+                </th>
+                <th
+                  {...styles.canClick}
+                  onClick={() => this.loadScoreboard("score_legacy")}
+                >
+                  Import Wiki
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {this.state.scoreboard.map((board, idx) => (
+                <tr key={board.username} {...styles.row}>
+                  <td>{idx + 1}</td>
+                  <td {...globalcss.noLinkColor}>
+                    <Link to={"/user/" + board.username}>
+                      {board.displayName}
+                    </Link>
+                  </td>
+                  <td>{board.score}</td>
+                  <td>{board.score_answers}</td>
+                  <td>{board.score_comments}</td>
+                  <td>{board.score_cuts}</td>
+                  <td>{board.score_legacy}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }

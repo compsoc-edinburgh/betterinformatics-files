@@ -16,6 +16,7 @@ import SubmitTranscript from "./pages/submittranscript";
 import colors from "./colors";
 import globalcss from "./globalcss";
 import LoginForm from "./components/loginform";
+import HashLocationHandler from "./components/hash-location-handler";
 
 css.global("body", {
   fontFamily:
@@ -98,6 +99,7 @@ const styles = {
 };
 
 interface State {
+  loadedSessionData: boolean;
   loggedin: boolean;
   username: string;
   displayname: string;
@@ -107,6 +109,7 @@ interface State {
 
 export default class App extends React.Component<{}, State> {
   state: State = {
+    loadedSessionData: false,
     loggedin: false,
     username: "",
     displayname: "",
@@ -122,6 +125,7 @@ export default class App extends React.Component<{}, State> {
     fetchapi("/api/auth/me/")
       .then(res =>
         this.setState({
+          loadedSessionData: true,
           loggedin: res.loggedin,
           username: res.username,
           displayname: res.displayname,
@@ -129,18 +133,26 @@ export default class App extends React.Component<{}, State> {
           isCategoryAdmin: res.adminrightscat,
         }),
       )
-      .catch(() => undefined);
+      .catch(() =>
+        this.setState({
+          loadedSessionData: true,
+        }),
+      );
   };
 
   render() {
     return (
       <div>
+        <Route component={HashLocationHandler} />
         <Header
           username={this.state.username}
           displayName={this.state.displayname || "loading..."}
         />
         <div {...styles.inner}>
-          {!this.state.loggedin && <LoginForm userinfoChanged={this.loadMe} />}
+          {!this.state.loadedSessionData && "loading..."}
+          {this.state.loadedSessionData && !this.state.loggedin && (
+            <LoginForm userinfoChanged={this.loadMe} />
+          )}
           {this.state.loggedin && (
             <Switch>
               <Route

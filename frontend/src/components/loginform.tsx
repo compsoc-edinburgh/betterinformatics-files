@@ -38,7 +38,7 @@ export default class LoginForm extends React.Component<Props> {
   loginUser = (ev: React.MouseEvent<HTMLElement>) => {
     ev.preventDefault();
 
-    let data = {
+    const data = {
       username: this.state.username,
       password: this.state.password,
       simulate_nonadmin: ev.shiftKey ? "true" : "false",

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { css } from "glamor";
 import Colors from "../colors";
 import { fetchapi } from "../fetch-utils";
+import { Menu } from "react-feather";
 
 interface Props {
   username?: string;
@@ -11,6 +12,7 @@ interface Props {
 
 interface State {
   notificationCount: number;
+  menuVisibleOnMobile: boolean;
 }
 
 const linkStyle = {
@@ -53,6 +55,7 @@ const styles = {
     },
   }),
   title: css({
+    flexGrow: "1",
     marginLeft: "30px",
     fontSize: "32px",
     fontWeight: "bold",
@@ -61,12 +64,29 @@ const styles = {
       fontSize: "20px",
     },
   }),
-  menuWrapper: css({
-    display: "flex",
-    alignItems: "center",
+  hamburger: css({
+    display: "none",
+    padding: "1em",
+    "@media (max-width: 799px)": {
+      display: "inline-block",
+    },
+    "& svg": {
+      verticalAlign: "-0.3em",
+    },
+  }),
+  activeMenuWrapper: css({
     "@media (max-width: 799px)": {
       display: "block",
     },
+  }),
+  inactiveMenuWrapper: css({
+    "@media (max-width: 799px)": {
+      display: "none",
+    },
+  }),
+  menuWrapper: css({
+    display: "flex",
+    alignItems: "center",
   }),
   menuitem: css({
     display: "block",
@@ -82,11 +102,12 @@ const styles = {
   }),
 };
 
-export default class Header extends React.Component<Props> {
+export default class Header extends React.Component<Props, State> {
   state: State = {
     notificationCount: 0,
+    menuVisibleOnMobile: false,
   };
-  notificationInterval: NodeJS.Timer;
+  notificationInterval: NodeJS.Timeout;
 
   componentDidMount() {
     this.notificationInterval = setInterval(this.checkNotificationCount, 60000);
@@ -107,12 +128,24 @@ export default class Header extends React.Component<Props> {
       .catch(() => undefined);
   };
 
+  toggleMenu = () => {
+    this.setState(prevState => ({
+      menuVisibleOnMobile: !prevState.menuVisibleOnMobile,
+    }));
+  };
+
+  linkClicked = () => {
+    this.setState({
+      menuVisibleOnMobile: false,
+    });
+  };
+
   render() {
     return (
       <div {...styles.wrapper}>
         <div {...styles.logotitle}>
           <div>
-            <Link to="/">
+            <Link to="/" onClick={this.linkClicked}>
               <img
                 {...styles.logo}
                 src="https://static.vis.ethz.ch/img/spirale_yellow.svg"
@@ -123,16 +156,31 @@ export default class Header extends React.Component<Props> {
           <div {...styles.title}>
             <Link to="/">VIS Community Solutions</Link>
           </div>
+          <div {...styles.hamburger} onClick={this.toggleMenu}>
+            <Menu />
+          </div>
         </div>
-        <div {...styles.menuWrapper}>
+        <div
+          {...styles.menuWrapper}
+          {...(this.state.menuVisibleOnMobile
+            ? styles.activeMenuWrapper
+            : styles.inactiveMenuWrapper)}
+        >
           <div {...styles.menuitem}>
-            <Link to="/feedback">Feedback</Link>
+            <Link to="/feedback" onClick={this.linkClicked}>
+              Feedback
+            </Link>
           </div>
           <div {...styles.menuitem}>
-            <Link to="/scoreboard">Scoreboard</Link>
+            <Link to="/scoreboard" onClick={this.linkClicked}>
+              Scoreboard
+            </Link>
           </div>
           <div {...styles.menuitem}>
-            <Link to={`/user/${this.props.username}`}>
+            <Link
+              to={`/user/${this.props.username}`}
+              onClick={this.linkClicked}
+            >
               {this.props.displayName}
               {this.state.notificationCount > 0
                 ? " (" + this.state.notificationCount + ")"

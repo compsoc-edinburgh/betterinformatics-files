@@ -1,6 +1,6 @@
 export async function fetchpost(url: string, data: object) {
-  var formData = new FormData();
-  for (var key in data) {
+  const formData = new FormData();
+  for (const key in data) {
     formData.append(key, data[key]);
   }
   const response = await fetch(url, {

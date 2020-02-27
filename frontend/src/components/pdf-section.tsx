@@ -32,7 +32,7 @@ const styles = {
     bottom: "0",
     overflow: "hidden",
     lineHeight: "1.0",
-    "& > div": {
+    "& > span": {
       color: "transparent",
       position: "absolute",
       whiteSpace: "pre",
@@ -51,8 +51,8 @@ export default class PdfSectionComp extends React.Component<Props> {
   private textWrap?: HTMLDivElement;
   private ctx?: CanvasRenderingContext2D;
   private observer: IntersectionObserver;
-  private visible: boolean = true;
-  private needRender: boolean = true;
+  private visible = true;
+  private needRender = true;
 
   componentDidMount() {
     this.needRender = true;
