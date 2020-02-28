@@ -70,13 +70,15 @@ class PeopleAuthBackend(BaseBackend):
         except MyUser.DoesNotExist:
             user = MyUser(username=username.lower())
             user.save()
+            # Add default notification settings for new users
+            for type_ in [NotificationType.NEW_COMMENT_TO_ANSWER, NotificationType.NEW_ANSWER_TO_ANSWER]:
+                setting = NotificationSetting(user=user, type=type_.value)
+                setting.save()
+        # Check whether the real name of the user changed and adjust it if necessary
         real_name = get_real_name(username.lower())
         if user.first_name != real_name[0] or user.last_name != real_name[1]:
             user.first_name, user.last_name = real_name
             user.save()
-            for type_ in [NotificationType.NEW_COMMENT_TO_ANSWER, NotificationType.NEW_ANSWER_TO_ANSWER]:
-                setting = NotificationSetting(user=user, type=type_.value)
-                setting.save()
         return user
 
     def get_user(self, user_id):
