@@ -79,7 +79,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--add-dummy-files', action='store_true', help='Add dummy PDFs and images. Only use in local testing environment!')
-        parser.add_argument('--flush-db', action='store_true', help='Flush the db before anything is imported.')
         parser.add_argument('--no-people', action='store_true', help='The people API is not available, ignore errors there.')
 
     def parse_iso_datetime(self, strval):
@@ -639,23 +638,19 @@ class Command(BaseCommand):
                 notification.check()
 
     def handle(self, *args, **options):
-        if options['flush_db']:
-            self.flush_db()
+        self.flush_db()
         self.add_dummy_files = options['add_dummy_files']
         self.no_people = options['no_people']
 
         self.connect_mongodb()
-        # we use flush_db so we don't have to remigrate everything while we are developing a certain migration
-        # in prod, we always flush the database
-        if options['flush_db']:
-            self.migrate_users()
-            self.migrate_feedback()
-            self.migrate_images()
-            self.migrate_categories()
-            self.migrate_meta_categories()
-            self.migrate_exams()
-            self.migrate_answers_and_comments()
-            self.migrate_payments()
+        self.migrate_users()
+        self.migrate_feedback()
+        self.migrate_images()
+        self.migrate_categories()
+        self.migrate_meta_categories()
+        self.migrate_exams()
+        self.migrate_answers_and_comments()
+        self.migrate_payments()
         self.migrate_notifications()
 
         self.stdout.write('Finished migration!')
