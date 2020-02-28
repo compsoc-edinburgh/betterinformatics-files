@@ -1,7 +1,7 @@
 from answers.models import Exam
 from myauth.models import MyUser
 from testing.tests import ComsolTest, ComsolTestExamsData
-from categories.models import Category
+from categories.models import Category, MetaCategory
 
 
 class TestAddRemove(ComsolTest):
@@ -148,7 +148,74 @@ class TestListExams(ComsolTestExamsData):
 
 
 class TestMetaCategories(ComsolTest):
-    pass
+
+    def mySetUp(self):
+        self.cat1 = Category(displayname='Test 1', slug='test1')
+        self.cat1.save()
+        self.meta1 = MetaCategory(displayname='Test Meta 1', parent=None)
+        self.meta1.save()
+        self.meta2 = []
+        for i in range(3):
+            meta = MetaCategory(displayname='Test Meta 2.' + str(i), parent=self.meta1)
+            meta.save()
+            meta.category_set.add(self.cat1)
+            meta.save()
+            self.meta2.append(meta)
+
+    def test_list_meta(self):
+        res = self.get('/api/category/listmetacategories/')['value']
+        self.assertEqual(len(res), 1)
+        self.assertEqual(len(res[0]['meta2']), 3)
+        self.assertEqual(len(res[0]['meta2'][0]['categories']), 1)
+
+    def test_add_meta(self):
+        cat = Category(displayname='Test 2', slug='test2')
+        cat.save()
+        self.post('/api/category/addmetacategory/', {
+            'meta1': 'Test Meta 1',
+            'meta2': 'Test Meta 2.4',
+            'category': 'test2',
+        })
+        res = self.get('/api/category/listmetacategories/')['value']
+        self.assertEqual(len(res[0]['meta2']), 4)
+        self.assertEqual(res[0]['meta2'][3]['categories'][0], 'test2')
+        self.post('/api/category/addmetacategory/', {
+            'meta1': 'Test Meta 1',
+            'meta2': 'Test Meta 2.0',
+            'category': 'test2',
+        })
+        res = self.get('/api/category/listmetacategories/')['value']
+        self.assertEqual(len(res[0]['meta2']), 4)
+        self.assertEqual(len(res[0]['meta2'][0]['categories']), 2)
+        self.assertEqual(res[0]['meta2'][0]['categories'][1], 'test2')
+
+    def test_remove_meta(self):
+        self.post('/api/category/removemetacategory/', {
+            'meta1': 'Test Meta 1',
+            'meta2': 'Test Meta 2.0',
+            'category': 'test1',
+        })
+        res = self.get('/api/category/listmetacategories/')['value']
+        self.assertEqual(len(res[0]['meta2']), 2)
+        self.post('/api/category/removemetacategory/', {
+            'meta1': 'Test Meta 1',
+            'meta2': 'Test Meta 2.1',
+            'category': 'test1',
+        })
+        self.post('/api/category/removemetacategory/', {
+            'meta1': 'Test Meta 1',
+            'meta2': 'Test Meta 2.2',
+            'category': 'test1',
+        })
+        res = self.get('/api/category/listmetacategories/')['value']
+        self.assertEqual(len(res), 0)
+
+    def test_metacategory_order(self):
+        self.post('/api/category/setmetacategoryorder/', {
+            'meta1': 'Test Meta 1',
+            'meta2': 'Test Meta 2.1',
+            'order': 9,
+        })
 
 
 # TODO: test whether the counts returned in list_exams and withmeta are correct
