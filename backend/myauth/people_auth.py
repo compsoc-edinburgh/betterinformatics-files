@@ -48,7 +48,7 @@ class PeopleAuthBackend(BaseBackend):
 
     def authenticate(self, request, username=None, password=None):
         if not username or not password:
-            return False
+            return None
         req = people_pb2.AuthPersonRequest(password=password, username=username)
         try:
             res = people_client.AuthEthPerson(req, metadata=people_metadata, timeout=3)
