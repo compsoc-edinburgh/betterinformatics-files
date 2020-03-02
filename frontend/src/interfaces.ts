@@ -54,6 +54,7 @@ export interface PdfSection {
   kind: SectionKind.Pdf;
   start: CutPosition;
   end: CutPosition;
+  name: string;
 }
 
 export interface CutPosition {
