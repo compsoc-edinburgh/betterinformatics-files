@@ -65,6 +65,7 @@ export interface ServerCutPosition {
   relHeight: number;
   oid: string;
   cutVersion: number;
+  name: string;
 }
 
 export interface Attachment {
