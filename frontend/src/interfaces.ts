@@ -13,6 +13,7 @@ export interface AnswerSection {
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
   hidden: boolean; // whether the element is currently hidden
   cutVersion: number; // version of the answer section, should reload if changed
+  name: string;
 }
 
 export interface Answer {
@@ -54,7 +55,6 @@ export interface PdfSection {
   kind: SectionKind.Pdf;
   start: CutPosition;
   end: CutPosition;
-  name: string;
 }
 
 export interface CutPosition {
