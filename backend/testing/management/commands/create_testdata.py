@@ -138,7 +138,8 @@ class Command(BaseCommand):
                         exam=exam,
                         author=users[(exam.id+page+i)%len(users)],
                         page_num=page,
-                        rel_height = 0.2 + 0.15*i,
+                        rel_height=0.2 + 0.15*i,
+                        name='Aufgabe ' + str(i),
                     ).save()
 
     def create_answers(self):

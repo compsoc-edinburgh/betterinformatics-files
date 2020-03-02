@@ -110,6 +110,7 @@ class TestNonexisting(ComsolTestExamData):
             author=self.get_my_user(),
             page_num=1,
             rel_height=0.8,
+            name="Test"
         )
         self.mysection.save()
 

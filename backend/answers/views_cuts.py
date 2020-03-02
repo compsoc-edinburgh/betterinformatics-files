@@ -28,12 +28,25 @@ def add_cut(request, filename, exam):
         author=request.user,
         page_num=int(request.POST['pageNum']),
         rel_height=float(request.POST['relHeight']),
+        name=request.POST['name'],
     )
     if not 0 <= section.rel_height <= 1:
         return response.not_possible('Invalid relative height')
     section.save()
     return response.success()
 
+@response.args_post('pageNum', 'relHeight')
+@auth_check.require_exam_admin
+def edit_cut(request, oid):
+    section = get_object_or_404(AnswerSection, pk=oid)
+    if not auth_check.has_admin_rights_for_exam(request, section.exam):
+        return response.not_allowed()
+    section.update({
+        page_num=int(request.POST['pageNum']),
+        rel_height=float(request.POST['relHeight']),
+        name=request.POST['name'],
+    })
+    return response.success()
 
 @response.args_post()
 @auth_check.require_login

@@ -17,6 +17,7 @@ class TestCuts(ComsolTestExamData):
         self.post('/api/exam/addcut/{}/'.format(self.exam.filename), {
             'pageNum': 1,
             'relHeight': 0.4,
+            'name': 'Test'
         })
         self.assertEqual(AnswerSection.objects.count(), 5)
 

@@ -484,7 +484,8 @@ class Command(BaseCommand):
                 author=self.get_or_create_user(answer_section['asker'], answer_section['askerDisplayName']),
                 page_num=section['pageNum'],
                 rel_height=section['relHeight'],
-                cut_version=section['cutVersion']
+                cut_version=section['cutVersion'],
+                name='',
             )
             new_answer_section.save()
             for answer in answer_section['answers']:

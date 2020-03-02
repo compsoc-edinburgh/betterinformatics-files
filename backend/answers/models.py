@@ -67,6 +67,7 @@ class AnswerSection(models.Model):
     page_num = models.IntegerField()
     rel_height = models.FloatField()
     cut_version = models.IntegerField(default=1)
+    name = models.CharField(max_length=256)
 
 
 def generate_long_id():
