@@ -569,6 +569,7 @@ export default class Exam extends React.Component<Props, State> {
                 case SectionKind.Answer:
                   return (
                     <AnswerSectionComponent
+                      name={e.name}
                       key={e.oid}
                       isAdmin={this.props.isAdmin}
                       isExpert={this.state.savedMetaData.isExpert}
