@@ -37,48 +37,47 @@ interface Props {
   value: string;
   onChange: (newValue: string) => void;
 
-  selection: Range;
-  onSelectionChange: (newSelection: Range) => void;
+  getSelectionRangeRef: React.RefObject<() => Range | undefined>;
+  setSelectionRangeRef: React.RefObject<(newSelection: Range) => void>;
 
   onMetaKey: (str: string) => boolean;
 }
 const BasicEditor: React.FC<Props> = ({
   value,
   onChange,
-  selection,
-  onSelectionChange,
+  getSelectionRangeRef,
+  setSelectionRangeRef,
   onMetaKey,
 }) => {
   const textareaElRef = useRef<HTMLTextAreaElement>(null);
   const preElRef = useRef<HTMLPreElement>(null);
 
-  const ignoreSelectionStart =
-    textareaElRef.current !== null &&
-    textareaElRef.current.selectionStart === selection.start;
-  const ignoreSelectionEnd =
-    textareaElRef.current !== null &&
-    textareaElRef.current.selectionEnd === selection.end;
+  // tslint:disable-next-line: no-any
+  (getSelectionRangeRef as any).current = () => {
+    const textarea = textareaElRef.current;
+    if (textarea === null) return;
+    return {
+      start: textarea.selectionStart,
+      end: textarea.selectionEnd,
+    };
+  };
 
-  const selectionchangeListener = useCallback(() => {
-    const textareaEl = textareaElRef.current;
-    if (textareaEl === null) return;
-    const activeElement = document.activeElement;
-    if (activeElement === textareaEl) {
-      const range = {
-        start: textareaEl.selectionStart,
-        end: textareaEl.selectionEnd,
-      };
-      onSelectionChange(range);
-    }
-  }, [onSelectionChange]);
+  // tslint:disable-next-line: no-any
+  (setSelectionRangeRef as any).current = (newSelection: Range) => {
+    const textarea = textareaElRef.current;
+    if (textarea === null) return;
+    setTimeout(() => {
+      textarea.selectionStart = newSelection.start;
+      textarea.selectionEnd = newSelection.end;
+    }, 0);
+  };
 
   const onTextareaChange = useCallback(
     e => {
-      selectionchangeListener();
       const newContent = e.currentTarget.value;
       onChange(newContent);
     },
-    [onChange, selectionchangeListener],
+    [onChange],
   );
 
   const onTextareaKeyDown = useCallback(
@@ -92,12 +91,6 @@ const BasicEditor: React.FC<Props> = ({
     [onMetaKey],
   );
 
-  useEffect(() => {
-    document.addEventListener("selectionchange", selectionchangeListener);
-    return () =>
-      document.removeEventListener("selectionchange", selectionchangeListener);
-  }, [selectionchangeListener]);
-
   const onResize = useCallback(() => {
     const textareaEl = textareaElRef.current;
     if (textareaEl === null) return;
@@ -109,24 +102,6 @@ const BasicEditor: React.FC<Props> = ({
   useEffect(() => {
     onResize();
   }, [value, onResize]);
-
-  useEffect(() => {
-    const textareaEl = textareaElRef.current;
-    if (textareaEl === null) return;
-    if (
-      textareaEl.selectionStart !== selection.start &&
-      !ignoreSelectionStart
-    ) {
-      setTimeout(() => {
-        textareaEl.selectionStart = selection.start;
-      }, 0);
-    }
-    if (textareaEl.selectionEnd !== selection.end && !ignoreSelectionEnd) {
-      setTimeout(() => {
-        textareaEl.selectionEnd = selection.end;
-      }, 0);
-    }
-  }, [selection, ignoreSelectionStart, ignoreSelectionEnd]);
 
   return (
     <div className={wrapperStyle}>

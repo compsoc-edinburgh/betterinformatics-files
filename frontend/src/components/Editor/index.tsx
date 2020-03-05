@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { css, cx } from "emotion";
 import { Range, EditorMode, ImageHandle } from "./utils/types";
 import BasicEditor from "./BasicEditor";
@@ -33,58 +33,68 @@ const Editor: React.FC<Props> = ({
   preview,
 }) => {
   const [mode, setMode] = useState<EditorMode>("write");
-  const [selection, setSelection] = useState<Range>({ start: 0, end: 0 });
   const [isDragHovered, setIsDragHovered] = useState(false);
   const [attachments, setAttachments] = useState<ImageHandle[]>([]);
   const [overlayOpen, setOverlayOpen] = useState(false);
 
+  const setSelectionRangeRef = useRef<(newSelection: Range) => void>(
+    (a: Range) => undefined,
+  );
+  const getSelectionRangeRef = useRef<() => Range>(() => ({
+    start: 0,
+    end: 0,
+  }));
+
   const insertImage = useCallback(
     (handle: ImageHandle) => {
+      const selection = getSelectionRangeRef.current();
       const before = value.substring(0, selection.start);
       const content = value.substring(selection.start, selection.end);
       const after = value.substring(selection.end);
       const newContent = "![" + content + `](${handle.src})`;
       onChange(before + newContent + after);
-      setSelection({
+      setSelectionRangeRef.current({
         start: selection.start + 2,
         end: selection.start + content.length + 2,
       });
     },
-    [selection, onChange, value],
+    [onChange, value],
   );
 
   const insertLink = useCallback(() => {
+    const selection = getSelectionRangeRef.current();
     const before = value.substring(0, selection.start);
     const content = value.substring(selection.start, selection.end);
     const after = value.substring(selection.end);
     const newContent = "[" + content + "](https://www.example.com)";
     onChange(before + newContent + after);
-    setSelection({
+    setSelectionRangeRef.current({
       start: selection.start + 1,
       end: selection.start + content.length + 1,
     });
-  }, [selection, onChange, value]);
+  }, [onChange, value]);
 
   const wrapSelection = useCallback(
     (str: string) => {
+      const selection = getSelectionRangeRef.current();
       const before = value.substring(0, selection.start);
       const content = value.substring(selection.start, selection.end);
       const after = value.substring(selection.end);
       const newContent = str + content + str;
       onChange(before + newContent + after);
       if (content.length === 0) {
-        setSelection({
+        setSelectionRangeRef.current({
           start: selection.start + str.length,
           end: selection.end + str.length,
         });
       } else {
-        setSelection({
+        setSelectionRangeRef.current({
           start: selection.start,
           end: selection.end + newContent.length - content.length,
         });
       }
     },
-    [selection, onChange, value],
+    [onChange, value],
   );
 
   const onMathClick = useCallback(() => {
@@ -197,8 +207,8 @@ const Editor: React.FC<Props> = ({
             <BasicEditor
               value={value}
               onChange={onChange}
-              selection={selection}
-              onSelectionChange={setSelection}
+              setSelectionRangeRef={setSelectionRangeRef}
+              getSelectionRangeRef={getSelectionRangeRef}
               onMetaKey={onMetaKey}
             />
           ) : (
