@@ -5,6 +5,7 @@ import { fetchapi, fetchpost } from "../fetch-utils";
 import Colors from "../colors";
 import AutocompleteInput from "../components/autocomplete-input";
 import Attachments from "./attachments";
+import { KeysWhereValue } from "../ts-utils";
 
 const stylesForWidth = {
   justWidth: css({
@@ -99,23 +100,30 @@ export default class MetaData extends React.Component<Props, State> {
     this.props.onFinishEdit();
   };
 
-  valueChanged = (key: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  valueChanged = (
+    key: KeysWhereValue<ExamMetaData, string>,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newVal = event.target.value;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   checkboxValueChanged = (
-    key: string,
+    key: KeysWhereValue<ExamMetaData, boolean>,
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   handleFileChangePrintonly = (ev: React.ChangeEvent<HTMLInputElement>) => {

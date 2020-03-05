@@ -256,17 +256,15 @@ export default class Exam extends React.Component<Props, State> {
     fetchapi(`/api/exam/${this.props.filename}/cutversions`)
       .then(res => {
         const versions = res.value;
-        this.setState(prevState => {
-          const newState = { ...prevState };
-          if (newState.sections) {
-            newState.sections.forEach(section => {
-              if (section.kind === SectionKind.Answer) {
-                section.cutVersion = versions[section.oid];
-              }
-            });
-          }
-          return newState;
-        });
+        this.setState(prevState => ({
+          sections: prevState.sections
+            ? prevState.sections.map(section =>
+                section.kind === SectionKind.Answer
+                  ? { ...section, cutVersion: versions[section.oid] }
+                  : section,
+              )
+            : undefined,
+        }));
       })
       .catch(err => {
         this.setState({
@@ -322,43 +320,44 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   setAllHidden = (hidden: boolean) => {
-    this.setState(prevState => {
-      const newState = { ...prevState };
-      if (newState.sections) {
-        newState.sections.forEach(section => {
-          if (section.kind === SectionKind.Answer) {
-            section.hidden = hidden;
-          }
-        });
-      }
-      newState.allShown = !hidden;
-      return newState;
-    });
+    this.setState(prevState => ({
+      sections: prevState.sections
+        ? prevState.sections.map(section =>
+            section.kind === SectionKind.Answer
+              ? { ...section, hidden: hidden }
+              : section,
+          )
+        : undefined,
+      allShown: !hidden,
+    }));
   };
 
   toggleHidden = (sectionOid: string) => {
-    this.setState(prevState => {
-      const newState = { ...prevState };
-      if (newState.sections) {
-        for (const section of newState.sections) {
-          if (
-            section.kind === SectionKind.Answer &&
-            section.oid === sectionOid
-          ) {
-            if (!section.hidden) {
-              newState.allShown = false;
-            }
-            section.hidden = !section.hidden;
-          }
-        }
-      }
-      return newState;
-    });
+    this.setState(prevState => ({
+      allShown: prevState.sections
+        ? prevState.sections.every(
+            section =>
+              section.kind === SectionKind.Answer &&
+              section.oid === sectionOid &&
+              section.hidden,
+          )
+        : true,
+      sections: prevState.sections
+        ? prevState.sections.map(section =>
+            section.kind === SectionKind.Answer && section.oid === sectionOid
+              ? {
+                  ...section,
+                  hidden: !section.hidden,
+                }
+              : section,
+          )
+        : undefined,
+    }));
   };
 
   toggleAddingSectionActive = () => {
-    this.setState((state, props) => {
-      return { addingSectionsActive: !state.addingSectionsActive };
+    this.setState(prevState => {
+      return { addingSectionsActive: !prevState.addingSectionsActive };
     });
   };
 
@@ -366,11 +365,9 @@ export default class Exam extends React.Component<Props, State> {
     if (!this.state.editingMetaData) {
       window.scrollTo(0, 0);
     }
-    this.setState(state => {
-      return {
-        editingMetaData: !state.editingMetaData,
-      };
-    });
+    this.setState(prevState => ({
+      editingMetaData: !prevState.editingMetaData,
+    }));
   };
 
   setAllDone = () => {
@@ -383,9 +380,9 @@ export default class Exam extends React.Component<Props, State> {
       this.toggleEditingMetadataActive();
     }
     fetchpost(`/api/exam/${this.props.filename}/metadata`, update).then(res => {
-      this.setState(prev => ({
+      this.setState(prevState => ({
         savedMetaData: {
-          ...prev.savedMetaData,
+          ...prevState.savedMetaData,
           ...update,
         },
       }));

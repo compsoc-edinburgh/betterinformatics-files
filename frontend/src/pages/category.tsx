@@ -21,6 +21,7 @@ import Colors from "../colors";
 import { listenEnter } from "../input-utils";
 import Attachments from "../components/attachments";
 import TextLink from "../components/text-link";
+import { KeysWhereValue } from "../ts-utils";
 
 const styles = {
   wrapper: css({
@@ -181,11 +182,9 @@ export default class Category extends React.Component<Props, State> {
   };
 
   toggleEditingMetadata = () => {
-    this.setState(prevState => {
-      return {
-        editingMetaData: !prevState.editingMetaData,
-      };
-    });
+    this.setState(prevState => ({
+      editingMetaData: !prevState.editingMetaData,
+    }));
     if (this.state.category) {
       this.setState({
         currentMetaData: { ...this.state.category },
@@ -239,23 +238,30 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  valueChanged = (key: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  valueChanged = (
+    key: KeysWhereValue<CategoryMetaData, string>,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newVal = event.target.value;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   checkboxValueChanged = (
-    key: string,
+    key: KeysWhereValue<CategoryMetaData, boolean>,
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   // "whether current user wants to download this" is not a metadata of the category, so different fun
@@ -264,35 +270,50 @@ export default class Category extends React.Component<Props, State> {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
-    this.setState(prevState => {
-      if (newVal) {
-        prevState.selectedExams.add(key);
-      } else {
-        prevState.selectedExams.delete(key);
-      }
-      return prevState;
-    });
+    if (newVal) {
+      this.setState(prevState => {
+        const newSelectedExams = new Set(prevState.selectedExams);
+        newSelectedExams.add(key);
+        return {
+          selectedExams: newSelectedExams,
+        };
+      });
+    } else {
+      this.setState(prevState => {
+        const newSelectedExams = new Set(prevState.selectedExams);
+        newSelectedExams.delete(key);
+        return {
+          selectedExams: newSelectedExams,
+        };
+      });
+    }
   };
 
   selectAllExams = (examType: string) => {
     this.setState(prevState => {
-      prevState.exams.forEach(exam => {
+      const newSelectedExams = new Set(prevState.selectedExams);
+      for (const exam of prevState.exams) {
         const currExamtype = exam.examtype ? exam.examtype : "Exams";
         if (currExamtype === examType && exam.canView)
-          prevState.selectedExams.add(exam.filename);
-      });
-      return prevState;
+          newSelectedExams.add(exam.filename);
+      }
+      return {
+        selectedExams: newSelectedExams,
+      };
     });
   };
 
   unselectAllExams = (examType: string) => {
     this.setState(prevState => {
-      prevState.exams.forEach(exam => {
+      const newSelectedExams = new Set(prevState.selectedExams);
+      for (const exam of prevState.exams) {
         const currExamtype = exam.examtype ? exam.examtype : "Exams";
         if (currExamtype === examType && exam.canView)
-          prevState.selectedExams.delete(exam.filename);
-      });
-      return prevState;
+          newSelectedExams.delete(exam.filename);
+      }
+      return {
+        selectedExams: newSelectedExams,
+      };
     });
   };
 
@@ -505,10 +526,12 @@ export default class Category extends React.Component<Props, State> {
   };
 
   addAttachment = (att: Attachment) => {
-    this.setState(prevState => {
-      prevState.currentMetaData.attachments.push(att);
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        attachments: [...prevState.currentMetaData.attachments, att],
+      },
+    }));
     fetchpost("/api/category/addtoset", {
       slug: this.props.categorySlug,
       key: "json:attachments",
@@ -519,12 +542,14 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeAttachment = (att: Attachment) => {
-    this.setState(prevState => {
-      prevState.currentMetaData.attachments = prevState.currentMetaData.attachments.filter(
-        a => a !== att,
-      );
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        attachments: prevState.currentMetaData.attachments.filter(
+          attachment => attachment !== att,
+        ),
+      },
+    }));
     fetchpost("/api/category/pullset", {
       slug: this.props.categorySlug,
       key: "json:attachments",

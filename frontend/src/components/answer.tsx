@@ -258,21 +258,13 @@ export default class AnswerComponent extends React.Component<Props, State> {
   endImageDialog = (image: string) => {
     if (image.length > 0) {
       const imageTag = `![Image Description](${image})`;
-      this.setState(prevState => {
-        let newText = prevState.text;
-        if (prevState.imageCursorPosition < 0) {
-          newText += imageTag;
-        } else {
-          newText =
-            newText.slice(0, prevState.imageCursorPosition) +
-            imageTag +
-            newText.slice(prevState.imageCursorPosition);
-        }
-        return {
-          imageDialog: false,
-          text: newText,
-        };
-      });
+      this.setState(prevState => ({
+        imageDialog: false,
+        text:
+          prevState.text.slice(0, prevState.imageCursorPosition) +
+          imageTag +
+          prevState.text.slice(prevState.imageCursorPosition),
+      }));
     } else {
       this.setState({ imageDialog: false });
     }
