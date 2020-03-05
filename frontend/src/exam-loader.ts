@@ -1,10 +1,4 @@
-import {
-  Section,
-  AnswerSection,
-  SectionKind,
-  PdfSection,
-  ServerCutPosition,
-} from "./interfaces";
+import { Section, AnswerSection, SectionKind, PdfSection } from "./interfaces";
 import { fetchapi } from "./fetch-utils";
 
 function createPdfSection(
@@ -38,7 +32,7 @@ export async function loadSections(
   for (let i = 1; i <= pageCount; i++) {
     let lastpos = 0;
     if (i in cuts) {
-      cuts[i].forEach((cut: ServerCutPosition) => {
+      for (const cut of cuts[i]) {
         const { relHeight: position, oid, cutVersion } = cut;
         if (position !== lastpos) {
           const key = akey + "-" + lastpos + "-" + position;
@@ -57,7 +51,7 @@ export async function loadSections(
           hidden: true,
           cutVersion: cutVersion,
         });
-      });
+      }
     }
     if (lastpos < 1) {
       const key = akey + "-" + lastpos + "-" + 1;

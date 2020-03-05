@@ -33,7 +33,7 @@ interface StartSizeRect {
 }
 
 export class SectionRenderer {
-  pages: PageProxy[];
+  pages: PageProxy[] = [];
 
   constructor(
     readonly pdf: pdfjs.PDFDocumentProxy,

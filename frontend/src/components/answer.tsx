@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Answer, AnswerSection } from "../interfaces";
-import * as moment from "moment";
+import moment from "moment";
 import Comment from "./comment";
 import { css } from "glamor";
 import MarkdownText from "./markdown-text";
@@ -184,6 +184,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   removeAnswer = () => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
       if (this.props.answer.canEdit) {
@@ -395,6 +396,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                         ? " (" + answer.expertvotes + " votes)"
                         : "")
                     }
+                    alt="This answer is endorsed by an expert"
                   />
                 </div>,
               ]}
@@ -464,6 +466,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                     {...styles.actionImg}
                     src="/static/images.svg"
                     title="Images"
+                    alt="Images"
                   />
                 </div>
                 <div {...styles.actionButton} onClick={this.saveAnswer}>
@@ -471,6 +474,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                     {...styles.actionImg}
                     src="/static/save.svg"
                     title="Save"
+                    alt="Save"
                   />
                 </div>
                 <div {...styles.actionButton} onClick={this.cancelEdit}>
@@ -478,6 +482,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                     {...styles.actionImg}
                     src="/static/cancel.svg"
                     title="Cancel"
+                    alt="Cancel"
                   />
                 </div>
               </div>
@@ -500,6 +505,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                   {...styles.actionImg}
                   src="/static/comment.svg"
                   title="Add Comment"
+                  alt="Add Comment"
                 />
               </div>
             )}
@@ -509,6 +515,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                   {...styles.actionImg}
                   src="/static/edit.svg"
                   title="Edit Answer"
+                  alt="Edit Answer"
                 />
               </div>
             )}
@@ -518,6 +525,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                   {...styles.actionImg}
                   src="/static/delete.svg"
                   title="Delete Answer"
+                  alt="Delete Answer"
                 />
               </div>
             )}
@@ -531,6 +539,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
                       : "/static/flag.svg"
                   }
                   title="Flag as Inappropriate"
+                  alt="Flag as Inappropriate"
                 />
               </div>
             )}

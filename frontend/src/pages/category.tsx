@@ -16,7 +16,7 @@ import {
 import AutocompleteInput from "../components/autocomplete-input";
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";
-import * as moment from "moment";
+import moment from "moment";
 import Colors from "../colors";
 import { listenEnter } from "../input-utils";
 import Attachments from "../components/attachments";
@@ -441,6 +441,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeCategory = () => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove category?");
     if (confirmation) {
       fetchpost("/api/category/remove", {
@@ -460,6 +461,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeExam = (exam: CategoryExam) => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm(
       "Remove exam? This will remove all answers and can not be undone!",
     );
@@ -615,7 +617,11 @@ export default class Category extends React.Component<Props, State> {
           )}
           {this.state.category.more_exams_link && (
             <div {...styles.metadata}>
-              <a href={this.state.category.more_exams_link} target="_blank">
+              <a
+                href={this.state.category.more_exams_link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Additional Exams
               </a>
             </div>
@@ -882,6 +888,7 @@ export default class Category extends React.Component<Props, State> {
                             {...styles.selectionImg}
                             src="/static/select_all.svg"
                             title="Select All"
+                            alt="Select All"
                           />
                         </div>
                         <div
@@ -892,6 +899,7 @@ export default class Category extends React.Component<Props, State> {
                             {...styles.selectionImg}
                             src="/static/deselect_all.svg"
                             title="Deselect All"
+                            alt="Deselect All"
                           />
                         </div>
                       </div>
@@ -1023,7 +1031,11 @@ export default class Category extends React.Component<Props, State> {
             <h2>Attachments</h2>
             {attachments.map(att => (
               <div key={att.filename}>
-                <a href={"/api/filestore/" + att.filename} target="_blank">
+                <a
+                  href={"/api/filestore/" + att.filename}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {att.displayname}
                 </a>
               </div>

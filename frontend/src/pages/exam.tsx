@@ -136,21 +136,24 @@ export default class Exam extends React.Component<Props, State> {
     allShown: false,
     updateIntervalId: 0,
   };
-  updateInterval: NodeJS.Timeout;
-  cutVersionInterval: NodeJS.Timeout;
+  updateInterval: number | undefined;
+  cutVersionInterval: number | undefined;
   debouncedUpdatePDFWidth: this["updatePDFWidth"];
 
-  componentDidMount() {
-    this.updateInterval = setInterval(this.pollZoom, RERENDER_INTERVAL);
-    window.addEventListener("resize", this.onResize);
+  constructor(props: Props) {
+    super(props);
     this.debouncedUpdatePDFWidth = debounce(
       this.updatePDFWidth,
       RERENDER_INTERVAL,
     );
+  }
 
+  componentDidMount() {
+    this.updateInterval = window.setInterval(this.pollZoom, RERENDER_INTERVAL);
+    window.addEventListener("resize", this.onResize);
     this.loadMetaData();
 
-    this.cutVersionInterval = setInterval(this.updateCutVersion, 60000);
+    this.cutVersionInterval = window.setInterval(this.updateCutVersion, 60000);
 
     this.loadPDF();
   }

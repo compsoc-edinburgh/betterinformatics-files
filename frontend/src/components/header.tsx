@@ -115,10 +115,13 @@ export default class Header extends React.Component<Props, State> {
     notificationCount: 0,
     menuVisibleOnMobile: false,
   };
-  notificationInterval: NodeJS.Timeout;
+  notificationInterval: number | undefined;
 
   componentDidMount() {
-    this.notificationInterval = setInterval(this.checkNotificationCount, 60000);
+    this.notificationInterval = window.setInterval(
+      this.checkNotificationCount,
+      60000,
+    );
     this.checkNotificationCount();
   }
 

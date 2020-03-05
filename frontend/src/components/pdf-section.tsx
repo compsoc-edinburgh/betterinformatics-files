@@ -50,7 +50,7 @@ export default class PdfSectionComp extends React.Component<Props> {
   private canv?: HTMLCanvasElement;
   private textWrap?: HTMLDivElement;
   private ctx?: CanvasRenderingContext2D;
-  private observer: IntersectionObserver;
+  private observer: IntersectionObserver | undefined;
   private visible = true;
   private needRender = true;
 
@@ -72,7 +72,7 @@ export default class PdfSectionComp extends React.Component<Props> {
   }
 
   componentWillUnmount(): void {
-    if (this.canv) {
+    if (this.canv && this.observer) {
       this.observer.unobserve(this.canv);
     }
     if (this.visible) {

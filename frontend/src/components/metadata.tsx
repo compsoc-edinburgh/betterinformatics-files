@@ -348,6 +348,7 @@ export default class MetaData extends React.Component<Props, State> {
               {...stylesForWidth.inlineBlock}
               href={"/api/pdf/printonly/" + this.props.savedMetaData.filename}
               target="_blank"
+              rel="noopener noreferrer"
             >
               Current File
             </a>
@@ -371,6 +372,7 @@ export default class MetaData extends React.Component<Props, State> {
               {...stylesForWidth.inlineBlock}
               href={"/api/pdf/solution/" + this.props.savedMetaData.filename}
               target="_blank"
+              rel="noopener noreferrer"
             >
               Current File
             </a>

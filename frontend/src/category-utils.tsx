@@ -41,7 +41,7 @@ export function fillMetaCategories(
   categories: CategoryMetaData[],
   metaCategories: MetaCategory[],
 ): MetaCategoryWithCategories[] {
-  const categoryToMeta = {};
+  const categoryToMeta: { [key: string]: CategoryMetaData } = {};
   categories.forEach(cat => {
     categoryToMeta[cat.category] = cat;
   });
