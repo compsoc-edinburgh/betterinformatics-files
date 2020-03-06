@@ -1,9 +1,14 @@
 import { ImageHandle } from "./components/Editor/utils/types";
 
-export async function fetchpost(url: string, data: object) {
+export async function fetchpost(url: string, data: { [key: string]: any }) {
   const formData = new FormData();
   for (const key in data) {
-    formData.append(key, data[key]);
+    const val = data[key];
+    if (val instanceof File || val instanceof Blob) {
+      formData.append(key, val);
+    } else {
+      formData.append(key, val.toString());
+    }
   }
   const response = await fetch(url, {
     credentials: "include",

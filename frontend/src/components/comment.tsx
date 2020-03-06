@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AnswerSection, Comment } from "../interfaces";
-import * as moment from "moment";
+import moment from "moment";
 import { css } from "glamor";
 import MarkdownText from "./markdown-text";
 import { fetchpost, imageHandler } from "../fetch-utils";
@@ -73,6 +73,7 @@ export default class CommentComponent extends React.Component<Props, State> {
   };
 
   removeComment = () => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove comment?");
     if (confirmation) {
       fetchpost(
@@ -169,6 +170,7 @@ export default class CommentComponent extends React.Component<Props, State> {
                   {...styles.actionImg}
                   src="/static/edit.svg"
                   title="Edit Comment"
+                  alt="Edit Comment"
                 />
               </div>
             )}
@@ -180,6 +182,7 @@ export default class CommentComponent extends React.Component<Props, State> {
                     {...styles.actionImg}
                     src="/static/delete.svg"
                     title="Delete Comment"
+                    alt="Delete Comment"
                   />
                 </div>
               )}
@@ -208,6 +211,7 @@ export default class CommentComponent extends React.Component<Props, State> {
                   {...styles.actionImg}
                   src="/static/save.svg"
                   title="Save Comment"
+                  alt="Save Comment"
                 />
               </div>
               {!this.props.isNewComment && (
@@ -216,6 +220,7 @@ export default class CommentComponent extends React.Component<Props, State> {
                     {...styles.actionImg}
                     src="/static/cancel.svg"
                     title="Cancel"
+                    alt="Cancel"
                   />
                 </div>
               )}

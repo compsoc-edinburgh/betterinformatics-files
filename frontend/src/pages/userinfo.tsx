@@ -4,7 +4,7 @@ import { Answer, NotificationInfo, PaymentInfo, UserInfo } from "../interfaces";
 import NotificationComponent from "../components/notification";
 import { css } from "glamor";
 import colors from "../colors";
-import * as moment from "moment";
+import moment from "moment";
 import GlobalConsts from "../globalconsts";
 import { Link } from "react-router-dom";
 import Colors from "../colors";
@@ -215,6 +215,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   };
 
   removePayment = (payment: PaymentInfo) => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove Payment?");
     if (confirmation) {
       fetchpost("/api/payment/remove", {
@@ -234,6 +235,7 @@ export default class UserInfoComponent extends React.Component<Props, State> {
   refundPayment = (payment: PaymentInfo) => {
     let confirmation = true;
     if (!payment.uploaded_filename) {
+      // eslint-disable-next-line no-restricted-globals
       confirmation = confirm(
         "The payment does not have any associated exams. Really refund?",
       );

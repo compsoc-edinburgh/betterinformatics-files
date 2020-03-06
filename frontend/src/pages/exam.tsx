@@ -27,7 +27,14 @@ const styles = {
     float: "right",
     zIndex: "100",
     "@media (max-width: 799px)": {
-      position: "static",
+      position: "relative",
+      top: "unset",
+      float: "none",
+      width: "100%",
+      "& button": {
+        marginLeft: "0",
+        marginRight: "0",
+      },
     },
   }),
   sectionsButtons: css({
@@ -129,21 +136,24 @@ export default class Exam extends React.Component<Props, State> {
     allShown: false,
     updateIntervalId: 0,
   };
-  updateInterval: NodeJS.Timeout;
-  cutVersionInterval: NodeJS.Timeout;
+  updateInterval: number | undefined;
+  cutVersionInterval: number | undefined;
   debouncedUpdatePDFWidth: this["updatePDFWidth"];
 
-  componentDidMount() {
-    this.updateInterval = setInterval(this.pollZoom, RERENDER_INTERVAL);
-    window.addEventListener("resize", this.onResize);
+  constructor(props: Props) {
+    super(props);
     this.debouncedUpdatePDFWidth = debounce(
       this.updatePDFWidth,
       RERENDER_INTERVAL,
     );
+  }
 
+  componentDidMount() {
+    this.updateInterval = window.setInterval(this.pollZoom, RERENDER_INTERVAL);
+    window.addEventListener("resize", this.onResize);
     this.loadMetaData();
 
-    this.cutVersionInterval = setInterval(this.updateCutVersion, 60000);
+    this.cutVersionInterval = window.setInterval(this.updateCutVersion, 60000);
 
     this.loadPDF();
   }
@@ -249,17 +259,15 @@ export default class Exam extends React.Component<Props, State> {
     fetchapi(`/api/exam/${this.props.filename}/cutversions`)
       .then(res => {
         const versions = res.value;
-        this.setState(prevState => {
-          const newState = { ...prevState };
-          if (newState.sections) {
-            newState.sections.forEach(section => {
-              if (section.kind === SectionKind.Answer) {
-                section.cutVersion = versions[section.oid];
-              }
-            });
-          }
-          return newState;
-        });
+        this.setState(prevState => ({
+          sections: prevState.sections
+            ? prevState.sections.map(section =>
+                section.kind === SectionKind.Answer
+                  ? { ...section, cutVersion: versions[section.oid] }
+                  : section,
+              )
+            : undefined,
+        }));
       })
       .catch(err => {
         this.setState({
@@ -315,43 +323,44 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   setAllHidden = (hidden: boolean) => {
-    this.setState(prevState => {
-      const newState = { ...prevState };
-      if (newState.sections) {
-        newState.sections.forEach(section => {
-          if (section.kind === SectionKind.Answer) {
-            section.hidden = hidden;
-          }
-        });
-      }
-      newState.allShown = !hidden;
-      return newState;
-    });
+    this.setState(prevState => ({
+      sections: prevState.sections
+        ? prevState.sections.map(section =>
+            section.kind === SectionKind.Answer
+              ? { ...section, hidden: hidden }
+              : section,
+          )
+        : undefined,
+      allShown: !hidden,
+    }));
   };
 
   toggleHidden = (sectionOid: string) => {
-    this.setState(prevState => {
-      const newState = { ...prevState };
-      if (newState.sections) {
-        for (const section of newState.sections) {
-          if (
-            section.kind === SectionKind.Answer &&
-            section.oid === sectionOid
-          ) {
-            if (!section.hidden) {
-              newState.allShown = false;
-            }
-            section.hidden = !section.hidden;
-          }
-        }
-      }
-      return newState;
-    });
+    this.setState(prevState => ({
+      allShown: prevState.sections
+        ? prevState.sections.every(
+            section =>
+              section.kind === SectionKind.Answer &&
+              section.oid === sectionOid &&
+              section.hidden,
+          )
+        : true,
+      sections: prevState.sections
+        ? prevState.sections.map(section =>
+            section.kind === SectionKind.Answer && section.oid === sectionOid
+              ? {
+                  ...section,
+                  hidden: !section.hidden,
+                }
+              : section,
+          )
+        : undefined,
+    }));
   };
 
   toggleAddingSectionActive = () => {
-    this.setState((state, props) => {
-      return { addingSectionsActive: !state.addingSectionsActive };
+    this.setState(prevState => {
+      return { addingSectionsActive: !prevState.addingSectionsActive };
     });
   };
 
@@ -359,11 +368,9 @@ export default class Exam extends React.Component<Props, State> {
     if (!this.state.editingMetaData) {
       window.scrollTo(0, 0);
     }
-    this.setState(state => {
-      return {
-        editingMetaData: !state.editingMetaData,
-      };
-    });
+    this.setState(prevState => ({
+      editingMetaData: !prevState.editingMetaData,
+    }));
   };
 
   setAllDone = () => {
@@ -376,9 +383,9 @@ export default class Exam extends React.Component<Props, State> {
       this.toggleEditingMetadataActive();
     }
     fetchpost(`/api/exam/${this.props.filename}/metadata`, update).then(res => {
-      this.setState(prev => ({
+      this.setState(prevState => ({
         savedMetaData: {
-          ...prev.savedMetaData,
+          ...prevState.savedMetaData,
           ...update,
         },
       }));

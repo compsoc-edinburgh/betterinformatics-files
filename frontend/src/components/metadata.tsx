@@ -5,6 +5,7 @@ import { fetchapi, fetchpost } from "../fetch-utils";
 import Colors from "../colors";
 import AutocompleteInput from "../components/autocomplete-input";
 import Attachments from "./attachments";
+import { KeysWhereValue } from "../ts-utils";
 
 const stylesForWidth = {
   justWidth: css({
@@ -99,23 +100,30 @@ export default class MetaData extends React.Component<Props, State> {
     this.props.onFinishEdit();
   };
 
-  valueChanged = (key: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  valueChanged = (
+    key: KeysWhereValue<ExamMetaData, string>,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newVal = event.target.value;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   checkboxValueChanged = (
-    key: string,
+    key: KeysWhereValue<ExamMetaData, boolean>,
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   handleFileChangePrintonly = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -340,6 +348,7 @@ export default class MetaData extends React.Component<Props, State> {
               {...stylesForWidth.inlineBlock}
               href={"/api/pdf/printonly/" + this.props.savedMetaData.filename}
               target="_blank"
+              rel="noopener noreferrer"
             >
               Current File
             </a>
@@ -363,6 +372,7 @@ export default class MetaData extends React.Component<Props, State> {
               {...stylesForWidth.inlineBlock}
               href={"/api/pdf/solution/" + this.props.savedMetaData.filename}
               target="_blank"
+              rel="noopener noreferrer"
             >
               Current File
             </a>

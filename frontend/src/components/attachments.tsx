@@ -92,6 +92,7 @@ export default class Attachments extends React.Component<Props, State> {
               {...stylesForWidth.inlineBlock}
               href={"/api/filestore/" + att.filename}
               target="_blank"
+              rel="noopener noreferrer"
             >
               {att.displayname}
             </a>
