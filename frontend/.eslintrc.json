@@ -11,6 +11,8 @@
         "functions": "always-multiline"
       }
     ],
-    "prefer-const": "error"
+    "prefer-const": "error",
+    "no-new": "error",
+    "guard-for-in": "error"
   }
 }
