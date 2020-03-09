@@ -177,7 +177,6 @@ export default class Exam extends React.Component<Props, State> {
         rootNode.add(parts, jumpTarget);
       }
     }
-    console.log(rootNode);
     return rootNode;
   };
 
