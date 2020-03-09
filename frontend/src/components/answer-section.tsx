@@ -5,7 +5,7 @@ import { fetchpost } from "../fetch-utils";
 import { css } from "glamor";
 import AnswerComponent from "./answer";
 import GlobalConsts from "../globalconsts";
-import * as moment from "moment";
+import moment from "moment";
 
 interface Props {
   isAdmin: boolean;

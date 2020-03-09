@@ -1026,14 +1026,9 @@ export default class Category extends React.Component<Props, State> {
             {attachments.map(att => (
               <div key={att.filename}>
                 <a
-<<<<<<< HEAD
                   href={"/api/filestore/get/" + att.filename + "/"}
                   target="_blank"
-=======
-                  href={"/api/filestore/" + att.filename}
-                  target="_blank"
                   rel="noopener noreferrer"
->>>>>>> staging
                 >
                   {att.displayname}
                 </a>

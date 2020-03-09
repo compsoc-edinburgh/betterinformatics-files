@@ -386,14 +386,16 @@ export default class Exam extends React.Component<Props, State> {
     if (this.state.editingMetaData) {
       this.toggleEditingMetadataActive();
     }
-    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, update).then(res => {
-      this.setState(prevState => ({
-        savedMetaData: {
-          ...prevState.savedMetaData,
-          ...update,
-        },
-      }));
-    });
+    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, update).then(
+      res => {
+        this.setState(prevState => ({
+          savedMetaData: {
+            ...prevState.savedMetaData,
+            ...update,
+          },
+        }));
+      },
+    );
   };
 
   metaDataChanged = (newMetaData: ExamMetaData) => {
