@@ -183,10 +183,12 @@ export default class Exam extends React.Component<Props, State> {
     for (const section of sections) {
       if (section.kind === SectionKind.Answer) {
         const parts = section.name.split(" > ");
+        if (parts.length === 1 && parts[0].length === 0) continue;
         const jumpTarget = `${section.oid}-${parts.join("-")}`;
         rootNode.add(parts, jumpTarget);
       }
     }
+    if (rootNode.children.length === 0) return undefined;
     return rootNode;
   };
 
