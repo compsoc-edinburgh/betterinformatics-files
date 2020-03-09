@@ -1,7 +1,13 @@
 import * as React from "react";
 import { createSectionRenderer, SectionRenderer } from "../split-render";
 import { loadSections } from "../exam-loader";
-import { ExamMetaData, PdfSection, Section, SectionKind } from "../interfaces";
+import {
+  ExamMetaData,
+  PdfSection,
+  Section,
+  SectionKind,
+  AnswerSection,
+} from "../interfaces";
 import * as pdfjs from "pdfjs-dist";
 import { debounce } from "lodash";
 import { css } from "glamor";
@@ -81,6 +87,7 @@ interface Props {
 }
 
 interface State {
+  moveTarget?: AnswerSection;
   pdf?: pdfjs.PDFDocumentProxy;
   renderer?: SectionRenderer;
   width: number;
@@ -313,25 +320,46 @@ export default class Exam extends React.Component<Props, State> {
         relHeight,
       );
     }
-
-    fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
-      name: "",
-      pageNum: section.start.page,
-      relHeight: relHeight,
-    })
-      .then(() => {
-        this.setState({
-          error: "",
-        });
-        if (this.state.pdf) {
-          this.loadSectionsFromBackend(this.state.pdf.numPages);
-        }
+    const moveTarget = this.state.moveTarget;
+    if (moveTarget) {
+      fetchpost(`/api/exam/editcut/${moveTarget.oid}/`, {
+        pageNum: section.start.page,
+        relHeight: relHeight,
       })
-      .catch(err => {
-        this.setState({
-          error: err.toString(),
+        .then(() => {
+          this.setState({
+            error: "",
+            moveTarget: undefined,
+          });
+          if (this.state.pdf) {
+            this.loadSectionsFromBackend(this.state.pdf.numPages);
+          }
+        })
+        .catch(err => {
+          this.setState({
+            error: err.toString(),
+          });
         });
-      });
+    } else {
+      fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
+        name: "",
+        pageNum: section.start.page,
+        relHeight: relHeight,
+      })
+        .then(() => {
+          this.setState({
+            error: "",
+          });
+          if (this.state.pdf) {
+            this.loadSectionsFromBackend(this.state.pdf.numPages);
+          }
+        })
+        .catch(err => {
+          this.setState({
+            error: err.toString(),
+          });
+        });
+    }
   };
 
   gotoPDF = () => {
@@ -599,6 +627,13 @@ export default class Exam extends React.Component<Props, State> {
                 case SectionKind.Answer:
                   return (
                     <AnswerSectionComponent
+                      isMoveTarget={this.state.moveTarget === e}
+                      moveEnabled={this.state.addingSectionsActive}
+                      moveTargetChange={(wantsToBeMoved: boolean) =>
+                        this.setState({
+                          moveTarget: wantsToBeMoved ? e : undefined,
+                        })
+                      }
                       name={e.name}
                       key={e.oid}
                       isAdmin={this.props.isAdmin}

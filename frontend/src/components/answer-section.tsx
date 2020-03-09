@@ -11,6 +11,9 @@ import moment from "moment";
 
 interface Props {
   name: string;
+  moveEnabled: boolean;
+  isMoveTarget: boolean;
+  moveTargetChange: (wantsToBeMoved: boolean) => void;
   isAdmin: boolean;
   isExpert: boolean;
   filename: string;
@@ -127,6 +130,9 @@ export default class AnswerSectionComponent extends React.Component<
       });
     }
   };
+  moveSection = () => {
+    this.props.moveTargetChange(!this.props.isMoveTarget);
+  };
 
   addAnswer = (legacy: boolean) => {
     this.setState({
@@ -209,6 +215,18 @@ export default class AnswerSectionComponent extends React.Component<
         )}
       </div>
     );
+    const editingSection = (
+      <div {...styles.rightButton}>
+        {this.props.canDelete && (
+          <button onClick={this.removeSection}>Remove</button>
+        )}
+        {this.props.moveEnabled && this.props.canDelete && (
+          <button onClick={this.moveSection}>
+            {this.props.isMoveTarget ? "Cancel" : "Move"}
+          </button>
+        )}
+      </div>
+    );
     if (this.props.hidden && section.answers.length > 0) {
       return (
         <div {...styles.wrapper}>
@@ -218,7 +236,7 @@ export default class AnswerSectionComponent extends React.Component<
             <div>
               <button onClick={this.props.onToggleHidden}>Show Answers</button>
             </div>
-            <div />
+            {editingSection}
           </div>
           <div {...styles.divideLine} />
         </div>
@@ -310,13 +328,7 @@ export default class AnswerSectionComponent extends React.Component<
               <button onClick={this.props.onToggleHidden}>Hide Answers</button>
             )}
           </div>
-          <div {...styles.rightButton}>
-            {this.props.canDelete && (
-              <button onClick={this.removeSection}>
-                Remove Answer Section
-              </button>
-            )}
-          </div>
+          {editingSection}
         </div>
         <div {...styles.divideLine} />
       </div>
