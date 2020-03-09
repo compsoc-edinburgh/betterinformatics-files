@@ -285,6 +285,7 @@ export default class Exam extends React.Component<Props, State> {
     }
 
     fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
+      name: "",
       pageNum: section.start.page,
       relHeight: relHeight,
     })

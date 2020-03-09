@@ -7,13 +7,15 @@ from answers import section_util
 
 @auth_check.require_login
 def get_cuts(request, filename):
-    sections = get_object_or_404(Exam, filename=filename).answersection_set.all()
+    sections = get_object_or_404(
+        Exam, filename=filename).answersection_set.all()
     pages = {}
     for sec in sections:
         pages.setdefault(sec.page_num, []).append({
             'oid': sec.id,
             'relHeight': sec.rel_height,
             'cutVersion': sec.cut_version,
+            'name': sec.name,
         })
     for page in pages.values():
         page.sort(key=lambda x: x['relHeight'])
@@ -35,18 +37,18 @@ def add_cut(request, filename, exam):
     section.save()
     return response.success()
 
-@response.args_post('pageNum', 'relHeight')
-@auth_check.require_exam_admin
+
+@response.args_post('name')
+@auth_check.require_login
 def edit_cut(request, oid):
     section = get_object_or_404(AnswerSection, pk=oid)
     if not auth_check.has_admin_rights_for_exam(request, section.exam):
         return response.not_allowed()
-    section.update({
-        page_num=int(request.POST['pageNum']),
-        rel_height=float(request.POST['relHeight']),
-        name=request.POST['name'],
-    })
+
+    section.name = request.POST['name']
+    section.save()
     return response.success()
+
 
 @response.args_post()
 @auth_check.require_login
@@ -70,6 +72,7 @@ def get_cut_versions(request, filename):
 @auth_check.require_login
 def get_answersection(request, oid):
     section = get_object_or_404(
-        AnswerSection.objects.select_related('exam').prefetch_related('answer_set', 'answer_set__comment_set', 'answer_set__upvotes', 'answer_set__downvotes', 'answer_set__expertvotes', 'answer_set__flagged'),
+        AnswerSection.objects.select_related('exam').prefetch_related(
+            'answer_set', 'answer_set__comment_set', 'answer_set__upvotes', 'answer_set__downvotes', 'answer_set__expertvotes', 'answer_set__flagged'),
         pk=oid)
     return response.success(value=section_util.get_answersection_response(request, section))
