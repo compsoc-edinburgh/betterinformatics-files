@@ -191,13 +191,15 @@ export default class AnswerSectionComponent extends React.Component<
           </>
         ) : (
           <>
-            <Link to={`#${encodeURI(id)}`} id={id}>
-              {nameParts.map((part, i) => (
-                <div {...styles.namePart} key={part + i}>
-                  {part}
-                </div>
-              ))}
-            </Link>
+            {this.state.name.length > 0 && (
+              <Link to={`#${encodeURI(id)}`} id={id}>
+                {nameParts.map((part, i) => (
+                  <div {...styles.namePart} key={part + i}>
+                    {part}
+                  </div>
+                ))}
+              </Link>
+            )}
             {this.props.canDelete && (
               <button onClick={() => this.setState({ editingName: true })}>
                 <Edit size={12} />
