@@ -1,5 +1,21 @@
 import { Link } from "react-router-dom";
 import * as React from "react";
+import { useState } from "react";
+import { css } from "glamor";
+import Colors from "../colors";
+
+const wrapperStyle = css({
+  background: Colors.cardBackground,
+  boxShadow: Colors.cardShadow,
+  width: "100%",
+  maxWidth: "500px",
+  margin: "auto",
+  marginBottom: "20px",
+  padding: "5px 10px",
+});
+const centerStyle = css({
+  textAlign: "center",
+});
 
 export class TOCNode {
   name: string;
@@ -51,13 +67,29 @@ interface Props {
   toc: TOCNode;
 }
 export const TOC: React.FC<Props> = ({ toc }) => {
-  return (
-    <div>
+  const [visible, setVisible] = useState(false);
+  return visible ? (
+    <div {...wrapperStyle}>
+      <div {...centerStyle}>
+        <h3>
+          Contents
+          <button onClick={() => setVisible(false)}>Hide</button>
+        </h3>
+      </div>
       <ul>
         {toc.children.map((child, i) => (
           <TOCNodeComponent node={child} key={child.name + i} />
         ))}
       </ul>
+    </div>
+  ) : (
+    <div {...wrapperStyle}>
+      <div {...centerStyle}>
+        <h3>
+          Contents
+          <button onClick={() => setVisible(true)}>Show</button>
+        </h3>{" "}
+      </div>
     </div>
   );
 };
