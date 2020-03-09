@@ -5,7 +5,7 @@ import { fetchapi, fetchpost } from "../fetch-utils";
 import { Link } from "react-router-dom";
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";
-import * as moment from "moment";
+import moment from "moment";
 
 const styles = {
   wrapper: css({

@@ -5,9 +5,9 @@ import { fetchpost } from "../fetch-utils";
 import { css } from "glamor";
 import AnswerComponent from "./answer";
 import GlobalConsts from "../globalconsts";
-import * as moment from "moment";
 import { Edit } from "react-feather";
 import { Link } from "react-router-dom";
+import moment from "moment";
 
 interface Props {
   name: string;
@@ -119,6 +119,7 @@ export default class AnswerSectionComponent extends React.Component<
   }
 
   removeSection = async () => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove answer section with all answers?");
     if (confirmation) {
       fetchpost(`/api/exam/removecut/${this.props.oid}/`, {}).then(() => {

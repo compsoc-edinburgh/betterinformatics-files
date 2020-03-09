@@ -166,6 +166,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
   };
 
   removeImage = (image: string) => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove image?");
     if (confirmation) {
       fetchpost(`/api/image/remove/${image}/`, {})

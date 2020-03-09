@@ -114,7 +114,7 @@ export interface MetaCategoryWithCategories {
   displayname: string;
   meta2: {
     displayname: string;
-    categories: CategoryMetaData[];
+    categories: CategoryMetaDataOverview[];
   }[];
 }
 

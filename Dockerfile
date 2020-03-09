@@ -5,8 +5,9 @@ COPY ./frontend/package.json .
 COPY ./frontend/yarn.lock .
 RUN yarn
 COPY ./frontend/tsconfig.json .
-COPY ./frontend/tslint.json .
-COPY ./frontend/.prettierrc ./.prettierrc
+COPY ./frontend/.eslintrc.json .
+COPY ./frontend/.env.production .
+COPY ./frontend/.prettierrc.json ./.prettierrc.json
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
 RUN yarn run check-format || ( >&2 echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'; exit 1 )

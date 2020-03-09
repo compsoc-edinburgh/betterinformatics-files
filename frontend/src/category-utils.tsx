@@ -1,6 +1,7 @@
 import {
   CategoryExam,
   CategoryMetaDataAny,
+  CategoryMetaDataOverview,
   MetaCategory,
   MetaCategoryWithCategories,
 } from "./interfaces";
@@ -50,10 +51,10 @@ export function filterExams(
 }
 
 export function fillMetaCategories(
-  categories: CategoryMetaDataAny[],
+  categories: CategoryMetaDataOverview[],
   metaCategories: MetaCategory[],
 ): MetaCategoryWithCategories[] {
-  const categoryToMeta = {};
+  const categoryToMeta: { [key: string]: CategoryMetaDataOverview } = {};
   categories.forEach(cat => {
     categoryToMeta[cat.slug] = cat;
   });

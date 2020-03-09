@@ -1,6 +1,6 @@
 import * as React from "react";
 import { NotificationInfo } from "../interfaces";
-import * as moment from "moment";
+import moment from "moment";
 import { css } from "glamor";
 import { fetchpost } from "../fetch-utils";
 import Colors from "../colors";
