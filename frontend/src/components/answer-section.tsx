@@ -7,6 +7,7 @@ import AnswerComponent from "./answer";
 import GlobalConsts from "../globalconsts";
 import * as moment from "moment";
 import { Edit } from "react-feather";
+import { Link } from "react-router-dom";
 
 interface Props {
   name: string;
@@ -17,6 +18,7 @@ interface Props {
   width: number;
   canDelete: boolean;
   onSectionChange: () => void;
+  onCutNameChange: (newName: string) => void;
   onToggleHidden: () => void;
   hidden: boolean;
   cutVersion: number;
@@ -66,6 +68,13 @@ const styles = {
     "@media (max-width: 699px)": {
       display: "none",
     },
+  }),
+  namePart: css({
+    display: "inline-block",
+    backgroundColor: "#dadada",
+    padding: "0.25rem",
+    margin: "0.2rem",
+    borderRadius: "3px",
   }),
 };
 
@@ -155,6 +164,7 @@ export default class AnswerSectionComponent extends React.Component<
       this.setState({
         editingName: false,
       });
+      this.props.onCutNameChange(this.state.name);
     } catch (e) {
       return;
     }
@@ -165,6 +175,8 @@ export default class AnswerSectionComponent extends React.Component<
     if (!section) {
       return <div>Loading...</div>;
     }
+    const nameParts = this.state.name.split(", ");
+    const id = `${this.props.oid}-${nameParts.join("-")}`;
     const name = (
       <div>
         {this.state.editingName ? (
@@ -178,7 +190,13 @@ export default class AnswerSectionComponent extends React.Component<
           </>
         ) : (
           <>
-            {this.state.name}
+            <Link to={`#${encodeURI(id)}`} id={id}>
+              {nameParts.map((part, i) => (
+                <div {...styles.namePart} key={part + i}>
+                  {part}
+                </div>
+              ))}
+            </Link>
             {this.props.canDelete && (
               <button onClick={() => this.setState({ editingName: true })}>
                 <Edit size={12} />
