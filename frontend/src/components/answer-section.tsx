@@ -176,7 +176,7 @@ export default class AnswerSectionComponent extends React.Component<
     if (!section) {
       return <div>Loading...</div>;
     }
-    const nameParts = this.state.name.split(", ");
+    const nameParts = this.state.name.split(" > ");
     const id = `${this.props.oid}-${nameParts.join("-")}`;
     const name = (
       <div>

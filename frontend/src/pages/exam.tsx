@@ -182,7 +182,7 @@ export default class Exam extends React.Component<Props, State> {
     const rootNode = new TOCNode("[root]", "");
     for (const section of sections) {
       if (section.kind === SectionKind.Answer) {
-        const parts = section.name.split(", ");
+        const parts = section.name.split(" > ");
         const jumpTarget = `${section.oid}-${parts.join("-")}`;
         rootNode.add(parts, jumpTarget);
       }
