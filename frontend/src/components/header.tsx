@@ -67,6 +67,14 @@ const styles = {
   hamburger: css({
     display: "none",
     padding: "1em",
+    cursor: "pointer",
+    backgroundColor: "transparent",
+    border: "none",
+    color: "white",
+    "&:hover": {
+      backgroundColor: "transparent",
+      border: "none",
+    },
     "@media (max-width: 799px)": {
       display: "inline-block",
     },
@@ -107,10 +115,13 @@ export default class Header extends React.Component<Props, State> {
     notificationCount: 0,
     menuVisibleOnMobile: false,
   };
-  notificationInterval: NodeJS.Timeout;
+  notificationInterval: number | undefined;
 
   componentDidMount() {
-    this.notificationInterval = setInterval(this.checkNotificationCount, 60000);
+    this.notificationInterval = window.setInterval(
+      this.checkNotificationCount,
+      60000,
+    );
     this.checkNotificationCount();
   }
 
@@ -156,9 +167,9 @@ export default class Header extends React.Component<Props, State> {
           <div {...styles.title}>
             <Link to="/">VIS Community Solutions</Link>
           </div>
-          <div {...styles.hamburger} onClick={this.toggleMenu}>
+          <button {...styles.hamburger} onClick={this.toggleMenu}>
             <Menu />
-          </div>
+          </button>
         </div>
         <div
           {...styles.menuWrapper}

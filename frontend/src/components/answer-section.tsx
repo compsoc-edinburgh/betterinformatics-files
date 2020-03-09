@@ -101,6 +101,7 @@ export default class AnswerSectionComponent extends React.Component<
   }
 
   removeSection = async () => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove answer section with all answers?");
     if (confirmation) {
       fetchpost(`/api/exam/removecut/${this.props.oid}/`, {}).then(() => {

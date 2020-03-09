@@ -16,11 +16,12 @@ import {
 import AutocompleteInput from "../components/autocomplete-input";
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";
-import * as moment from "moment";
+import moment from "moment";
 import Colors from "../colors";
 import { listenEnter } from "../input-utils";
 import Attachments from "../components/attachments";
 import TextLink from "../components/text-link";
+import { KeysWhereValue } from "../ts-utils";
 
 const styles = {
   wrapper: css({
@@ -181,11 +182,9 @@ export default class Category extends React.Component<Props, State> {
   };
 
   toggleEditingMetadata = () => {
-    this.setState(prevState => {
-      return {
-        editingMetaData: !prevState.editingMetaData,
-      };
-    });
+    this.setState(prevState => ({
+      editingMetaData: !prevState.editingMetaData,
+    }));
     if (this.state.category) {
       this.setState({
         currentMetaData: { ...this.state.category },
@@ -240,23 +239,30 @@ export default class Category extends React.Component<Props, State> {
     });
   };
 
-  valueChanged = (key: string, event: React.ChangeEvent<HTMLInputElement>) => {
+  valueChanged = (
+    key: KeysWhereValue<CategoryMetaData, string>,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newVal = event.target.value;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   checkboxValueChanged = (
-    key: string,
+    key: KeysWhereValue<CategoryMetaData, boolean>,
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
-    this.setState(prevState => {
-      prevState.currentMetaData[key] = newVal;
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        [key]: newVal,
+      },
+    }));
   };
 
   // "whether current user wants to download this" is not a metadata of the category, so different fun
@@ -265,35 +271,50 @@ export default class Category extends React.Component<Props, State> {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const newVal = event.target.checked;
-    this.setState(prevState => {
-      if (newVal) {
-        prevState.selectedExams.add(key);
-      } else {
-        prevState.selectedExams.delete(key);
-      }
-      return prevState;
-    });
+    if (newVal) {
+      this.setState(prevState => {
+        const newSelectedExams = new Set(prevState.selectedExams);
+        newSelectedExams.add(key);
+        return {
+          selectedExams: newSelectedExams,
+        };
+      });
+    } else {
+      this.setState(prevState => {
+        const newSelectedExams = new Set(prevState.selectedExams);
+        newSelectedExams.delete(key);
+        return {
+          selectedExams: newSelectedExams,
+        };
+      });
+    }
   };
 
   selectAllExams = (examType: string) => {
     this.setState(prevState => {
-      prevState.exams.forEach(exam => {
+      const newSelectedExams = new Set(prevState.selectedExams);
+      for (const exam of prevState.exams) {
         const currExamtype = exam.examtype ? exam.examtype : "Exams";
         if (currExamtype === examType && exam.canView)
-          prevState.selectedExams.add(exam.filename);
-      });
-      return prevState;
+          newSelectedExams.add(exam.filename);
+      }
+      return {
+        selectedExams: newSelectedExams,
+      };
     });
   };
 
   unselectAllExams = (examType: string) => {
     this.setState(prevState => {
-      prevState.exams.forEach(exam => {
+      const newSelectedExams = new Set(prevState.selectedExams);
+      for (const exam of prevState.exams) {
         const currExamtype = exam.examtype ? exam.examtype : "Exams";
         if (currExamtype === examType && exam.canView)
-          prevState.selectedExams.delete(exam.filename);
-      });
-      return prevState;
+          newSelectedExams.delete(exam.filename);
+      }
+      return {
+        selectedExams: newSelectedExams,
+      };
     });
   };
 
@@ -425,6 +446,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeCategory = () => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove category?");
     if (confirmation) {
       fetchpost("/api/category/remove/", {
@@ -444,6 +466,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   removeExam = (exam: CategoryExam) => {
+    // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm(
       "Remove exam? This will remove all answers and can not be undone!",
     );
@@ -510,20 +533,24 @@ export default class Category extends React.Component<Props, State> {
   };
 
   addAttachment = (att: Attachment) => {
-    this.setState(prevState => {
-      prevState.currentMetaData.attachments.push(att);
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        attachments: [...prevState.currentMetaData.attachments, att],
+      },
+    }));
     this.loadCategory();
   };
 
   removeAttachment = (att: Attachment) => {
-    this.setState(prevState => {
-      prevState.currentMetaData.attachments = prevState.currentMetaData.attachments.filter(
-        a => a !== att,
-      );
-      return prevState;
-    });
+    this.setState(prevState => ({
+      currentMetaData: {
+        ...prevState.currentMetaData,
+        attachments: prevState.currentMetaData.attachments.filter(
+          attachment => attachment !== att,
+        ),
+      },
+    }));
     this.loadCategory();
   };
 
@@ -583,7 +610,11 @@ export default class Category extends React.Component<Props, State> {
           )}
           {this.state.category.more_exams_link && (
             <div {...styles.metadata}>
-              <a href={this.state.category.more_exams_link} target="_blank">
+              <a
+                href={this.state.category.more_exams_link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Additional Exams
               </a>
             </div>
@@ -851,6 +882,7 @@ export default class Category extends React.Component<Props, State> {
                             {...styles.selectionImg}
                             src="/static/select_all.svg"
                             title="Select All"
+                            alt="Select All"
                           />
                         </div>
                         <div
@@ -861,6 +893,7 @@ export default class Category extends React.Component<Props, State> {
                             {...styles.selectionImg}
                             src="/static/deselect_all.svg"
                             title="Deselect All"
+                            alt="Deselect All"
                           />
                         </div>
                       </div>
@@ -993,8 +1026,14 @@ export default class Category extends React.Component<Props, State> {
             {attachments.map(att => (
               <div key={att.filename}>
                 <a
+<<<<<<< HEAD
                   href={"/api/filestore/get/" + att.filename + "/"}
                   target="_blank"
+=======
+                  href={"/api/filestore/" + att.filename}
+                  target="_blank"
+                  rel="noopener noreferrer"
+>>>>>>> staging
                 >
                   {att.displayname}
                 </a>

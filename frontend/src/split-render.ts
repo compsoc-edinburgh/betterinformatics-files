@@ -33,7 +33,7 @@ interface StartSizeRect {
 }
 
 export class SectionRenderer {
-  pages: PageProxy[];
+  pages: PageProxy[] = [];
 
   constructor(
     readonly pdf: pdfjs.PDFDocumentProxy,
@@ -58,12 +58,14 @@ export class SectionRenderer {
       throw new Error("failed to create context");
     }
     const pdfpage = this.pages[page].page;
-    let viewport = pdfpage.getViewport({ scale: 1 });
-    viewport = pdfpage.getViewport({
-      scale: this.targetWidth / viewport.width,
-    });
+
+    // Create viewport with scale 1 that can be used to calculate the required scaling factor
+    const { width } = pdfpage.getViewport({ scale: 1 });
+    const scale = this.targetWidth / width;
+    const viewport = pdfpage.getViewport({ scale });
     canvas.width = viewport.width;
     canvas.height = viewport.height;
+
     pdfpage
       .render({
         canvasContext: context,
@@ -200,10 +202,12 @@ export class SectionRenderer {
     // Locations of text divs are not scaled; only the canvas is scaled by dpr and then resized down again by dpr
     // via a style element. targetWidth is the size of the canvas, therefore we must resize the locations of the OCR
     // divs: scale down by dpr (divide by dpr)
-    let viewport = pdfpage.getViewport({ scale: 1 });
-    viewport = pdfpage.getViewport({
-      scale: this.targetWidth / viewport.width / dpr,
-    });
+
+    // Create viewport with scale 1 that can be used to calculate the required scaling factor
+    const { width } = pdfpage.getViewport({ scale: 1 });
+    const scale = this.targetWidth / width / dpr;
+    const viewport = pdfpage.getViewport({ scale });
+
     const src = SectionRenderer.sourceDimensions(viewport, start, end);
     target.innerHTML = "";
     pdfpage.getTextContent().then(texts => {

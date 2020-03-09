@@ -53,7 +53,7 @@ export function fillMetaCategories(
   categories: CategoryMetaDataAny[],
   metaCategories: MetaCategory[],
 ): MetaCategoryWithCategories[] {
-  const categoryToMeta = {};
+  const categoryToMeta: { [key: string]: CategoryMetaData } = {};
   categories.forEach(cat => {
     categoryToMeta[cat.slug] = cat;
   });
