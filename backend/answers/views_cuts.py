@@ -38,14 +38,20 @@ def add_cut(request, filename, exam):
     return response.success()
 
 
-@response.args_post('name')
+@response.args_post('name', 'pageNum', 'relHeight', optional=True)
 @auth_check.require_login
 def edit_cut(request, oid):
     section = get_object_or_404(AnswerSection, pk=oid)
     if not auth_check.has_admin_rights_for_exam(request, section.exam):
         return response.not_allowed()
 
-    section.name = request.POST['name']
+    if 'name' in request.POST:
+        section.name = request.POST['name']
+    if 'pageNum' in request.POST:
+        section.page_num = request.POST['pageNum']
+    if 'relHeight' in request.POST:
+        section.rel_height = request.POST['relHeight']
+    section.cut_version += 1
     section.save()
     return response.success()
 
