@@ -12,6 +12,7 @@ const wrapperStyle = css({
   margin: "auto",
   marginBottom: "20px",
   padding: "5px 10px",
+  boxSizing: "border-box",
 });
 const centerStyle = css({
   textAlign: "center",
