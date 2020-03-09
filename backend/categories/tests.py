@@ -219,5 +219,3 @@ class TestMetaCategories(ComsolTest):
 
 
 # TODO: test whether the counts returned in list_exams and withmeta are correct
-
-# TODO: test adding, removing, and retrieving meta categories

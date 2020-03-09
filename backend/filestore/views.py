@@ -30,6 +30,7 @@ def upload(request):
     return response.success(filename=filename)
 
 
+@response.args_post()
 @auth_check.require_admin
 def remove(request, filename):
     att = get_object_or_404(Attachment, filename=filename)

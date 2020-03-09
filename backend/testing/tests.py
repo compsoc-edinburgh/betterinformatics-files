@@ -15,12 +15,14 @@ class ComsolTest(TestCase):
     loginUser = 0
     user = {}
 
-    def get(self, path, status_code=200):
+    def get(self, path, status_code=200, as_json=True):
         response = self.client.get(path)
         self.assertEqual(response.status_code, status_code)
-        return response.json()
+        if as_json:
+            return response.json()
+        return response
 
-    def post(self, path, args, status_code=200, test_get=True):
+    def post(self, path, args, status_code=200, test_get=True, as_json=True):
         if test_get:
             response = self.client.get(path)
             self.assertEqual(response.status_code, 405)
@@ -29,7 +31,9 @@ class ComsolTest(TestCase):
                 args[arg] = 'true' if args[arg] else 'false'
         response = self.client.post(path, args)
         self.assertEqual(response.status_code, status_code)
-        return response.json()
+        if as_json:
+            return response.json()
+        return response
 
     def get_my_user(self):
         return MyUser.objects.get(username=self.user['username'])
