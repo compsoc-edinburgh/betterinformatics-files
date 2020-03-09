@@ -389,7 +389,7 @@ export default class Category extends React.Component<Props, State> {
     fetchpost("/api/category/addmetacategory/", {
       meta1: this.state.newMeta1,
       meta2: this.state.newMeta2,
-      category: this.state.category.displayname,
+      category: this.state.category.slug,
     })
       .then(() => {
         this.setState({
@@ -412,7 +412,7 @@ export default class Category extends React.Component<Props, State> {
     fetchpost("/api/category/removemetacategory/", {
       meta1: meta1,
       meta2: meta2,
-      category: this.state.category.displayname,
+      category: this.state.category.slug,
     })
       .then(() => {
         this.loadMetaCategories();
