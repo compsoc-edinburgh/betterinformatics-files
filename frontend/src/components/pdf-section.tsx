@@ -6,6 +6,7 @@ import Colors from "../colors";
 
 interface Props {
   setHidden: (newHidden: boolean) => void;
+  canHide: boolean;
   section: PdfSection;
   renderer: SectionRenderer;
   width: number;
@@ -196,7 +197,7 @@ export default class PdfSectionComp extends React.Component<Props> {
           ? styles.lastSection
           : undefined)}
       >
-        {this.props.section.hidden ? (
+        {this.props.canHide && this.props.section.hidden ? (
           <button
             {...styles.hideButton}
             onClick={() => this.props.setHidden(false)}

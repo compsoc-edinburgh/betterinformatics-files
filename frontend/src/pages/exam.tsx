@@ -671,6 +671,7 @@ export default class Exam extends React.Component<Props, State> {
                   if (e.hidden && !this.state.canEdit) return null;
                   return (
                     <PdfSectionComp
+                      canHide={this.state.canEdit}
                       setHidden={(newHidden: boolean) =>
                         this.setHidden(e, newHidden)
                       }
