@@ -23,6 +23,7 @@ const styles = {
   }),
   canvas: css({
     display: "block",
+    userSelect: "none",
   }),
   textLayer: css({
     position: "absolute",
