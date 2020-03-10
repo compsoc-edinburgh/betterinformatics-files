@@ -48,9 +48,9 @@ def edit_cut(request, oid):
     if 'name' in request.POST:
         section.name = request.POST['name']
     if 'pageNum' in request.POST:
-        section.page_num = request.POST['pageNum']
+        section.page_num = int(request.POST['pageNum'])
     if 'relHeight' in request.POST:
-        section.rel_height = request.POST['relHeight']
+        section.rel_height = float(request.POST['relHeight'])
     section.cut_version += 1
     section.save()
     return response.success()
