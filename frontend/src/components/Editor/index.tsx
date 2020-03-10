@@ -159,7 +159,6 @@ const Editor: React.FC<Props> = ({
 
   const onDrop = useCallback(
     (files: File[]) => {
-      setIsDragHovered(false);
       onFiles(files);
     },
     [onFiles],
@@ -222,7 +221,7 @@ const Editor: React.FC<Props> = ({
           onOpenOverlay={onOpenOverlay}
         />
         {isDragHovered && (
-          <DropZone onDragLeave={onDragLeave} onDrop={onDrop} />
+          <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />
         )}
       </div>
       {overlayOpen && <ImageOverlay onClose={onImageDialogClose} />}

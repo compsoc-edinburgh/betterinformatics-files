@@ -7,7 +7,7 @@ const wrapperStyle = css`
   position: relative;
 `;
 const commonStyle = css`
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Fira Code", monospace;
   font-size: 14px;
   white-space: pre-wrap;
   word-wrap: break-word;
