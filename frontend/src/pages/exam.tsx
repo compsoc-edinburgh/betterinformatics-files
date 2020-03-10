@@ -439,6 +439,47 @@ export default class Exam extends React.Component<Props, State> {
         });
       });
   };
+  setHidden = (section: PdfSection, hidden: boolean) => {
+    const { cutOid } = section;
+    if (cutOid) {
+      fetchpost(`/api/exam/removecut/${cutOid}/`, {
+        hidden,
+      }).then(() => {
+        this.setState(prevState => ({
+          sections: prevState.sections
+            ? prevState.sections.map(section =>
+                section.kind === SectionKind.Pdf && section.cutOid === cutOid
+                  ? { ...section, hidden }
+                  : section.kind === SectionKind.Answer &&
+                    section.oid === cutOid
+                  ? { ...section, cutHidden: hidden }
+                  : section,
+              )
+            : undefined,
+        }));
+      });
+    } else {
+      fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
+        name: "",
+        pageNum: section.end.page,
+        relHeight: section.end.position,
+        hidden,
+      })
+        .then(() => {
+          this.setState({
+            error: "",
+          });
+          if (this.state.pdf) {
+            this.loadSectionsFromBackend(this.state.pdf.numPages);
+          }
+        })
+        .catch(err => {
+          this.setState({
+            error: err.toString(),
+          });
+        });
+    }
+  };
   render() {
     if (!this.state.savedMetaData.canView) {
       if (
@@ -597,6 +638,7 @@ export default class Exam extends React.Component<Props, State> {
             {sections.map(e => {
               switch (e.kind) {
                 case SectionKind.Answer:
+                  if (e.cutHidden && !this.state.canEdit) return null;
                   return (
                     <AnswerSectionComponent
                       name={e.name}
@@ -626,8 +668,12 @@ export default class Exam extends React.Component<Props, State> {
                     />
                   );
                 case SectionKind.Pdf:
+                  if (e.hidden && !this.state.canEdit) return null;
                   return (
                     <PdfSectionComp
+                      setHidden={(newHidden: boolean) =>
+                        this.setHidden(e, newHidden)
+                      }
                       key={e.key}
                       section={e}
                       renderer={renderer}

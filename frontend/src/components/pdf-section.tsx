@@ -5,6 +5,7 @@ import { css } from "glamor";
 import Colors from "../colors";
 
 interface Props {
+  setHidden: (newHidden: boolean) => void;
   section: PdfSection;
   renderer: SectionRenderer;
   width: number;
@@ -43,6 +44,12 @@ const styles = {
         background: Colors.selectionBackground,
       },
     },
+  }),
+  hideButton: css({
+    position: "absolute",
+    top: "0",
+    left: "0",
+    zIndex: "100",
   }),
 };
 
@@ -189,6 +196,21 @@ export default class PdfSectionComp extends React.Component<Props> {
           ? styles.lastSection
           : undefined)}
       >
+        {this.props.section.hidden ? (
+          <button
+            {...styles.hideButton}
+            onClick={() => this.props.setHidden(false)}
+          >
+            Show
+          </button>
+        ) : (
+          <button
+            {...styles.hideButton}
+            onClick={() => this.props.setHidden(true)}
+          >
+            Hide
+          </button>
+        )}
         <canvas
           ref={this.saveCanvasRef}
           width={Math.ceil(rawDim.width * dpr)}

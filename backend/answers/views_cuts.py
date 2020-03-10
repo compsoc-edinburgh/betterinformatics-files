@@ -32,7 +32,7 @@ def add_cut(request, filename, exam):
         page_num=int(request.POST['pageNum']),
         rel_height=float(request.POST['relHeight']),
         name=request.POST['name'] if 'name' in request.POST else '',
-        hidden=request.POST['hidden'] if 'hidden' in request.POST else False,
+        hidden=request.POST['hidden'] == 'true' if 'hidden' in request.POST else False,
     )
     if not 0 <= section.rel_height <= 1:
         return response.not_possible('Invalid relative height')
@@ -54,7 +54,7 @@ def edit_cut(request, oid):
     if 'relHeight' in request.POST:
         section.rel_height = float(request.POST['relHeight'])
     if 'hidden' in request.POST:
-        section.hidden = bool(request.POST['hidden'])
+        section.hidden = bool(request.POST['hidden'] == 'true')
     section.cut_version += 1
     section.save()
     return response.success()
