@@ -28,6 +28,7 @@ const DropZone: React.FC<Props> = ({ onDragLeave, onDrop }) => {
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
+      onDragLeave();
       const items = e.dataTransfer.items;
       if (items === undefined) return;
       const files: File[] = [];
@@ -42,7 +43,7 @@ const DropZone: React.FC<Props> = ({ onDragLeave, onDrop }) => {
         onDrop(files);
       }
     },
-    [onDrop],
+    [onDrop, onDragLeave],
   );
   const onDragOverHandler = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
