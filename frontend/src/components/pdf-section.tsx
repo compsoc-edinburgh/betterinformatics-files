@@ -197,21 +197,22 @@ export default class PdfSectionComp extends React.Component<Props> {
           ? styles.lastSection
           : undefined)}
       >
-        {this.props.canHide && this.props.section.hidden ? (
-          <button
-            {...styles.hideButton}
-            onClick={() => this.props.setHidden(false)}
-          >
-            Show
-          </button>
-        ) : (
-          <button
-            {...styles.hideButton}
-            onClick={() => this.props.setHidden(true)}
-          >
-            Hide
-          </button>
-        )}
+        {this.props.canHide &&
+          (this.props.section.hidden ? (
+            <button
+              {...styles.hideButton}
+              onClick={() => this.props.setHidden(false)}
+            >
+              Show
+            </button>
+          ) : (
+            <button
+              {...styles.hideButton}
+              onClick={() => this.props.setHidden(true)}
+            >
+              Hide
+            </button>
+          ))}
         <canvas
           ref={this.saveCanvasRef}
           width={Math.ceil(rawDim.width * dpr)}
