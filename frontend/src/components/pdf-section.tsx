@@ -23,7 +23,6 @@ const styles = {
   }),
   canvas: css({
     display: "block",
-    userSelect: "none",
   }),
   textLayer: css({
     position: "absolute",
@@ -39,6 +38,10 @@ const styles = {
       whiteSpace: "pre",
       cursor: "text",
       transformOrigin: "0% 0%",
+      "::selection": {
+        color: "inherit",
+        background: Colors.selectionBackground,
+      },
     },
   }),
 };
