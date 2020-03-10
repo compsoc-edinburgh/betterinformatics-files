@@ -39,10 +39,6 @@ const styles = {
       whiteSpace: "pre",
       cursor: "text",
       transformOrigin: "0% 0%",
-      "::selection": {
-        color: "inherit",
-        background: Colors.selectionBackground,
-      },
     },
   }),
 };
