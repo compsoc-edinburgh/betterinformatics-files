@@ -7,7 +7,7 @@ import EditorHeader from "./EditorHeader";
 import DropZone from "./Dropzone";
 import EditorFooter from "./EditorFooter";
 import ImageOverlay from "../image-overlay";
-import { UndoStack, push, undo } from "./utils/undo-stack";
+import { UndoStack, push, undo, redo } from "./utils/undo-stack";
 
 const editorWrapperStyle = css`
   padding: 1.2em;
@@ -44,8 +44,8 @@ const Editor: React.FC<Props> = ({
   const [overlayOpen, setOverlayOpen] = useState(false);
 
   const setCurrent = useCallback(
-    (newValue: string, _newSelection: Range) => {
-      console.log(undoStack);
+    (newValue: string, newSelection?: Range) => {
+      if (newSelection) setSelectionRangeRef.current(newSelection);
       onChange(newValue);
       const newStack = push(undoStack, value, getSelectionRangeRef.current());
       setUndoStack(newStack);
@@ -73,7 +73,6 @@ const Editor: React.FC<Props> = ({
         end: selection.start + content.length + 2,
       };
       setCurrent(before + newContent + after, newSelection);
-      setSelectionRangeRef.current(newSelection);
     },
     [setCurrent, value],
   );
@@ -89,7 +88,6 @@ const Editor: React.FC<Props> = ({
       end: selection.start + newContent.length - 1,
     };
     setCurrent(before + newContent + after, newSelection);
-    setSelectionRangeRef.current(newSelection);
   }, [setCurrent, value]);
 
   const wrapSelection = useCallback(
@@ -105,14 +103,12 @@ const Editor: React.FC<Props> = ({
           start: selection.start + str.length,
           end: selection.end + str.length,
         };
-        setSelectionRangeRef.current(newSelection);
         setCurrent(before + newContent + after, newSelection);
       } else {
         const newSelection = {
           start: selection.start,
           end: selection.end + newContent.length - content.length,
         };
-        setSelectionRangeRef.current(newSelection);
         setCurrent(before + newContent + after, newSelection);
       }
     },
@@ -140,26 +136,39 @@ const Editor: React.FC<Props> = ({
   }, [wrapSelection]);
 
   const onMetaKey = useCallback(
-    (key: string) => {
+    (key: string, shift: boolean) => {
       if (key.toLowerCase() === "b") {
         onBoldClick();
         return true;
       } else if (key.toLowerCase() === "i") {
         onItalicClick();
         return true;
-      } else if (key.toLowerCase() === "z") {
-        console.log("undo");
+      } else if (key === "z" && !shift) {
         if (undoStack.prev.length > 0) {
-          const [newState, newStack] = undo(undoStack);
+          const [newState, newStack] = undo(undoStack, {
+            value: value,
+            selection: getSelectionRangeRef.current(),
+          });
           setUndoStack(newStack);
           onChange(newState.value);
           setSelectionRangeRef.current(newState.selection);
-          return true;
         }
+        return true;
+      } else if (key === "z" && shift) {
+        if (undoStack.next.length > 0) {
+          const [newState, newStack] = redo(undoStack, {
+            value: value,
+            selection: getSelectionRangeRef.current(),
+          });
+          setUndoStack(newStack);
+          onChange(newState.value);
+          setSelectionRangeRef.current(newState.selection);
+        }
+        return true;
       }
       return false;
     },
-    [onBoldClick, onItalicClick, onChange, setUndoStack, undoStack],
+    [onBoldClick, onItalicClick, onChange, setUndoStack, undoStack, value],
   );
 
   const onDragEnter = useCallback(() => {
@@ -229,9 +238,7 @@ const Editor: React.FC<Props> = ({
           {mode === "write" ? (
             <BasicEditor
               value={value}
-              onChange={newValue =>
-                setCurrent(newValue, getSelectionRangeRef.current())
-              }
+              onChange={newValue => setCurrent(newValue)}
               setSelectionRangeRef={setSelectionRangeRef}
               getSelectionRangeRef={getSelectionRangeRef}
               onMetaKey={onMetaKey}

@@ -40,7 +40,7 @@ interface Props {
   getSelectionRangeRef: React.RefObject<() => Range | undefined>;
   setSelectionRangeRef: React.RefObject<(newSelection: Range) => void>;
 
-  onMetaKey: (str: string) => boolean;
+  onMetaKey: (str: string, shift: boolean) => boolean;
 }
 const BasicEditor: React.FC<Props> = ({
   value,
@@ -83,7 +83,7 @@ const BasicEditor: React.FC<Props> = ({
   const onTextareaKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.ctrlKey || e.metaKey) {
-        if (onMetaKey(e.key)) {
+        if (onMetaKey(e.key.toLowerCase(), e.shiftKey)) {
           e.preventDefault();
         }
       }
