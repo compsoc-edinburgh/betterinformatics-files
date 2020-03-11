@@ -1,11 +1,16 @@
 export async function fetchpost(url: string, data: { [key: string]: any }) {
   const formData = new FormData();
+  // Convert the `data` object into a `formData` object by iterating
+  // through the keys and appending the (key, value) pair to the FormData
+  // object. All non-Blob values are converted to a string.
   for (const key in data) {
-    const val = data[key];
-    if (val instanceof File || val instanceof Blob) {
-      formData.append(key, val);
-    } else {
-      formData.append(key, val.toString());
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      const val = data[key];
+      if (val instanceof File || val instanceof Blob) {
+        formData.append(key, val);
+      } else {
+        formData.append(key, val.toString());
+      }
     }
   }
   const response = await fetch(url, {

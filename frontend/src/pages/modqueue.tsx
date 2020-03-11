@@ -147,7 +147,7 @@ export default class ModQueue extends React.Component<Props, State> {
             <h1>Flagged Answers</h1>
             {this.state.flaggedAnswers.map(answer => (
               <div>
-                <a href={answer} target="_blank">
+                <a href={answer} target="_blank" rel="noopener noreferrer">
                   {answer}
                 </a>
               </div>

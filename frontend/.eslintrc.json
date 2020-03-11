@@ -10,6 +10,9 @@
         "exports": "always-multiline",
         "functions": "always-multiline"
       }
-    ]
+    ],
+    "prefer-const": "error",
+    "no-new": "error",
+    "guard-for-in": "error"
   }
 }

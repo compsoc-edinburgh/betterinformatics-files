@@ -520,7 +520,11 @@ export default class Exam extends React.Component<Props, State> {
           )}
         {this.state.savedMetaData.legacy_solution && (
           <div {...styles.linkBanner}>
-            <a href={this.state.savedMetaData.legacy_solution} target="_blank">
+            <a
+              href={this.state.savedMetaData.legacy_solution}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Legacy Solution in VISki
             </a>
             {this.state.canEdit && [
@@ -528,6 +532,7 @@ export default class Exam extends React.Component<Props, State> {
               <a
                 href={"/legacy/transformwiki/" + wikitransform}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Transform VISki to Markdown
               </a>,
@@ -536,7 +541,11 @@ export default class Exam extends React.Component<Props, State> {
         )}
         {this.state.savedMetaData.master_solution && (
           <div {...styles.linkBanner}>
-            <a href={this.state.savedMetaData.master_solution} target="_blank">
+            <a
+              href={this.state.savedMetaData.master_solution}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Official Solution (external)
             </a>
           </div>
@@ -547,6 +556,7 @@ export default class Exam extends React.Component<Props, State> {
               <a
                 href={"/api/pdf/solution/" + this.props.filename}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Official Solution
               </a>
@@ -554,7 +564,11 @@ export default class Exam extends React.Component<Props, State> {
           )}
         {this.state.savedMetaData.attachments.map(att => (
           <div {...styles.linkBanner} key={att.filename}>
-            <a href={"/api/filestore/" + att.filename} target="_blank">
+            <a
+              href={"/api/filestore/" + att.filename}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {att.displayname}
             </a>
           </div>
