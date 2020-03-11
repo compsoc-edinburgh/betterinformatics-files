@@ -624,6 +624,7 @@ def content_security_policy(response):
 @app.route("/feedback")
 @app.route("/scoreboard")
 @app.route("/modqueue")
+@app.route("/tutorial")
 def index():
     return render_template("index.html")
 
