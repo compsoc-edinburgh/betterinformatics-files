@@ -21,7 +21,7 @@ export const undo = (prevStack: UndoStack, currentState: UndoState) =>
     prevStack.prev[prevStack.prev.length - 1],
     {
       prev: prevStack.prev.slice(0, -1),
-      next: [...prevStack.next, currentState],
+      next: [...prevStack.next, currentState].slice(-100),
     },
   ] as [UndoState, UndoStack];
 
@@ -29,7 +29,7 @@ export const redo = (prevStack: UndoStack, currentState: UndoState) =>
   [
     prevStack.next[prevStack.next.length - 1],
     {
-      prev: [...prevStack.prev, currentState],
+      prev: [...prevStack.prev, currentState].slice(-100),
       next: prevStack.next.slice(0, -1),
     },
   ] as [UndoState, UndoStack];
