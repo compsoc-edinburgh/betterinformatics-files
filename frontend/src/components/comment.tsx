@@ -9,6 +9,7 @@ import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
 import Colors from "../colors";
 import Editor from "./Editor";
+import { UndoStack } from "./Editor/utils/undo-stack";
 
 interface Props {
   isReadonly: boolean;
@@ -26,6 +27,7 @@ interface State {
   editing: boolean;
   text: string;
   savedText: string;
+  undoStack: UndoStack;
 }
 
 const styles = {
@@ -70,6 +72,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     editing: !!this.props.isNewComment,
     savedText: this.props.comment.text,
     text: this.props.comment.text,
+    undoStack: { prev: [], next: [] },
   };
 
   removeComment = () => {
@@ -203,6 +206,8 @@ export default class CommentComponent extends React.Component<Props, State> {
                 onChange={this.commentTextareaChange}
                 imageHandler={imageHandler}
                 preview={str => <MarkdownText value={str} />}
+                undoStack={this.state.undoStack}
+                setUndoStack={undoStack => this.setState({ undoStack })}
               />
             </div>
             <div {...styles.actionButtons}>

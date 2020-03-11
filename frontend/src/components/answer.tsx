@@ -11,6 +11,7 @@ import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
 import colors from "../colors";
 import Editor from "./Editor";
+import { UndoStack } from "./Editor/utils/undo-stack";
 
 interface Props {
   isReadonly: boolean;
@@ -26,6 +27,7 @@ interface State {
   editing: boolean;
   imageDialog: boolean;
   text: string;
+  undoStack: UndoStack;
   savedText: string;
   addingComment: boolean;
   allCommentsVisible: boolean;
@@ -163,6 +165,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     text: this.props.answer.text,
     allCommentsVisible: false,
     addingComment: false,
+    undoStack: { prev: [], next: [] },
   };
 
   componentDidUpdate(
@@ -427,6 +430,8 @@ export default class AnswerComponent extends React.Component<Props, State> {
                 onChange={this.answerTextareaChange}
                 imageHandler={imageHandler}
                 preview={str => <MarkdownText value={str} />}
+                undoStack={this.state.undoStack}
+                setUndoStack={undoStack => this.setState({ undoStack })}
               />
             </div>
             <div {...styles.answerTexHint}>
