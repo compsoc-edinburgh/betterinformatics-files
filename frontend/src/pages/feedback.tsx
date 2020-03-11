@@ -134,6 +134,7 @@ export default class Feedback extends React.Component<Props, State> {
             <a
               href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
               target="_blank"
+              rel="noopener noreferrer"
             >
               issue tracker
             </a>
