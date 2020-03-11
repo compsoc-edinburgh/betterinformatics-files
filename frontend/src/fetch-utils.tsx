@@ -1,5 +1,8 @@
 export async function fetchpost(url: string, data: { [key: string]: any }) {
   const formData = new FormData();
+  // Convert the `data` object into a `formData` object by iterating
+  // hrough the keys and appending the (key, value) pair to the FormData
+  // boject. All non-Blob values are converted to a string.
   for (const key in data) {
     if (Object.prototype.hasOwnProperty.call(data, key)) {
       const val = data[key];
