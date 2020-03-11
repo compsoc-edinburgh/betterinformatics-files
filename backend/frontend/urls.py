@@ -12,6 +12,7 @@ urlpatterns = [
     re_path('^exams/.*$', views.index, name='exams'),
     re_path('^user/.*$', views.index, name='user'),
     re_path('^category/.*$', views.index, name='category'),
+    path('tutorial/', views.index, name='tutorial'),
     path('favicon.ico', views.favicon, name='favicon'),
     path('manifest.json', views.manifest, name='manifest'),
     path('resolve/<str:filename>/', views.resolve, name='resolve'),

@@ -34,10 +34,6 @@ urlpatterns = [
     re_path(r'^static/(?P<path>.*)$', serve, {
        'document_root': 'static',
     }),
-    path('tutorial/', lambda request: redirect('index.html', permanent=False)),
-    re_path(r'^tutorial/(?P<path>.*)$', serve, {
-        'document_root': 'tutorial',
-    }),
 ]
 
 handler400 = views.handler400
