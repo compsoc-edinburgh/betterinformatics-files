@@ -17,6 +17,7 @@ import colors from "./colors";
 import globalcss from "./globalcss";
 import LoginForm from "./components/loginform";
 import HashLocationHandler from "./components/hash-location-handler";
+import TutorialPage from "./pages/tutorial";
 
 css.global("body", {
   fontFamily:
@@ -210,6 +211,7 @@ export default class App extends React.Component<{}, State> {
                   <Feedback {...props} isAdmin={this.state.isAdmin} />
                 )}
               />
+              <Route path="/tutorial" render={_props => <TutorialPage />} />
               <Route
                 render={props => (
                   <Home
