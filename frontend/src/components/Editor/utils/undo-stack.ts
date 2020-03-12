@@ -9,6 +9,13 @@ export interface UndoStack {
   prev: UndoState[];
   next: UndoState[];
 }
+/**
+ * Determines if the two `UndoState` instances `a` and `b` can be merged.
+ * Currently only states can be merged where at most a single line was
+ * changed and in that line only a single word was appended.
+ * @param a
+ * @param b
+ */
 const canBeMerged = (a: UndoState, b: UndoState) => {
   const timeDiff = Math.abs(a.time.getTime() - b.time.getTime());
   if (timeDiff > 10000) return false;
