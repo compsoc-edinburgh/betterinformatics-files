@@ -35,7 +35,8 @@ const canBeMerged = (a: UndoState, b: UndoState) => {
     aLine.length < bLine.length ? [aLine, bLine] : [bLine, aLine];
   if (newContent.indexOf(baseContent) !== 0) return false;
   const diff = newContent.substring(baseContent.length);
-  const res = diff.lastIndexOf(" ") !== diff.length - 1;
+  const words = diff.split(/\b/);
+  const res = words.length <= 1;
   return res;
 };
 export const push = (prevStack: UndoStack, value: string, selection: Range) =>
