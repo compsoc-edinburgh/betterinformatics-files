@@ -46,7 +46,10 @@ export const push = (prevStack: UndoStack, value: string, selection: Range) =>
     selection,
     time: new Date(),
   })
-    ? prevStack
+    ? {
+        prev: prevStack.prev,
+        next: [],
+      }
     : {
         prev: [...prevStack.prev, { value, selection, time: new Date() }],
         next: [],
