@@ -148,6 +148,7 @@ const Editor: React.FC<Props> = ({
           const [newState, newStack] = undo(undoStack, {
             value: value,
             selection: getSelectionRangeRef.current(),
+            time: new Date(),
           });
           setUndoStack(newStack);
           onChange(newState.value);
@@ -159,6 +160,7 @@ const Editor: React.FC<Props> = ({
           const [newState, newStack] = redo(undoStack, {
             value: value,
             selection: getSelectionRangeRef.current(),
+            time: new Date(),
           });
           setUndoStack(newStack);
           onChange(newState.value);
