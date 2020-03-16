@@ -175,7 +175,7 @@ export default class Exam extends React.Component<Props, State> {
       });
   };
 
-  gnerateTableOfContents = (sections: Section[] | undefined) => {
+  generateTableOfContents = (sections: Section[] | undefined) => {
     if (sections === undefined) {
       return undefined;
     }
@@ -270,7 +270,7 @@ export default class Exam extends React.Component<Props, State> {
       .then(sections => {
         this.setState({
           sections: sections,
-          toc: this.gnerateTableOfContents(sections),
+          toc: this.generateTableOfContents(sections),
         });
       })
       .catch(err => {
@@ -617,7 +617,9 @@ export default class Exam extends React.Component<Props, State> {
                       onCutNameChange={(newName: string) => {
                         e.name = newName;
                         this.setState({
-                          toc: this.gnerateTableOfContents(this.state.sections),
+                          toc: this.generateTableOfContents(
+                            this.state.sections,
+                          ),
                         });
                       }}
                       onToggleHidden={() => this.toggleHidden(e.oid)}
