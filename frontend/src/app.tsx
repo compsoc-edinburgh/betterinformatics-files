@@ -4,6 +4,7 @@ import { Switch } from "react-router-dom";
 import HomePage from "./pages/home-page";
 import { UserContext, SetUserContext, User } from "./auth";
 import UserRoute from "./auth/UserRoute";
+import FeedbackPage from "./pages/feedback-page";
 
 const App: React.FC<{}> = () => {
   const [user, setUser] = useState<User | undefined | false>(undefined);
@@ -15,6 +16,7 @@ const App: React.FC<{}> = () => {
           <main className="main__container">
             <Switch>
               <UserRoute exact path="/" component={HomePage} />
+              <UserRoute exact path="/feedback" component={FeedbackPage} />
             </Switch>
           </main>
         </div>
