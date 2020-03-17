@@ -2,12 +2,11 @@ import { RouteProps, Route, Redirect } from "react-router-dom";
 import React, { useEffect } from "react";
 import { useUser, useSetUser } from ".";
 import { fetchapi } from "../fetch-utils";
-import { Container } from "@vseth/components";
+import { Container, Spinner } from "@vseth/components";
 
 const UserRouteContent = <T extends RouteProps>({ props }: { props: T }) => {
   const user = useUser();
   const setUser = useSetUser();
-  console.log(user);
   useEffect(() => {
     let cancelled = false;
     if (user === undefined) {
@@ -32,7 +31,11 @@ const UserRouteContent = <T extends RouteProps>({ props }: { props: T }) => {
     };
   }, [user, setUser]);
   if (user === undefined) {
-    return <Container>Loading</Container>;
+    return (
+      <Container>
+        <Spinner />
+      </Container>
+    );
   } else if (user === false) {
     return <Redirect to="/login" />;
   } else {
