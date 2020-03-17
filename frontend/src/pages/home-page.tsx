@@ -22,6 +22,15 @@ import Grid from "../components/grid";
 import { Link } from "react-router-dom";
 import { useUser, User } from "../auth";
 
+enum Mode {
+  Alphabetical,
+  BySemester,
+}
+const options = [
+  { value: Mode.Alphabetical.toString(), label: "Alphabetical" },
+  { value: Mode.BySemester.toString(), label: "By Semester" },
+];
+
 const loadCategories = async () => {
   return (await fetchapi("/api/listcategories/withmeta"))
     .value as CategoryMetaData[];
@@ -103,14 +112,6 @@ const AddCategory: React.FC<{ onAddCategory: (name: string) => void }> = ({
   );
 };
 
-enum Mode {
-  Alphabetical,
-  BySemester,
-}
-const options = [
-  { value: Mode.Alphabetical.toString(), label: "Alphabetical" },
-  { value: Mode.BySemester.toString(), label: "By Semester" },
-];
 const HomePage: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState<Mode>("mode", Mode.Alphabetical);
