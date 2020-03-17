@@ -42,12 +42,15 @@ const mapToCategories = (
   const meta1Map: Map<string, Array<[string, CategoryMetaData[]]>> = new Map();
   for (const { displayname: meta1display, meta2 } of meta1) {
     const meta2Map: Map<string, CategoryMetaData[]> = new Map();
-    for (const { displayname: meta2display, categories } of meta2) {
-      meta2Map.set(
-        meta2display,
-        categories.map(name => categoryMap.get(name)!),
-      );
+    for (const {
+      displayname: meta2display,
+      categories: categoryNames,
+    } of meta2) {
+      const categories = categoryNames.map(name => categoryMap.get(name)!);
+      if (categoryNames.length === 0) continue;
+      meta2Map.set(meta2display, categories);
     }
+    if (meta2Map.size === 0) continue;
     meta1Map.set(
       meta1display,
       [...meta2Map.entries()].sort(([a], [b]) => a.localeCompare(b)),
@@ -92,7 +95,9 @@ const AddCategory: React.FC<{ onAddCategory: (name: string) => void }> = ({
         />
       </CardBody>
       <CardFooter>
-        <Button onClick={onSubmit}>Add Category</Button>
+        <Button onClick={onSubmit} disabled={categoryName.length === 0}>
+          Add Category
+        </Button>
       </CardFooter>
     </Card>
   );
@@ -107,21 +112,45 @@ const options = [
   { value: Mode.BySemester.toString(), label: "By Semester" },
 ];
 const HomePage: React.FC<{}> = () => {
+  const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState<Mode>("mode", Mode.Alphabetical);
   const [filter, setFilter] = useState("");
-  const { data, error, loading } = useRequest(loadCategoryData);
-  const [categories, metaCategories] = data ? data : [];
-  const metaCategoryMap = useMemo(
+  const { data, error, loading, run } = useRequest(loadCategoryData, {
+    cacheKey: "category-data",
+  });
+  const [categoriesWithDefault, metaCategories] = data ? data : [];
+
+  const categories = useMemo(
     () =>
-      categories && metaCategories
-        ? mapToCategories(categories, metaCategories)
+      categoriesWithDefault
+        ? categoriesWithDefault.filter(
+            ({ category }) => category !== "default" || isAdmin,
+          )
         : undefined,
-    [categories, metaCategories],
+    [categoriesWithDefault, isAdmin],
   );
-  const { isAdmin } = useUser() as User;
-  const onAddCategory = useCallback((categoryName: string) => {
-    console.log(categoryName);
-  }, []);
+  const filteredCategories = useMemo(
+    () =>
+      categories
+        ? categories.filter(({ category }) => category.includes(filter))
+        : undefined,
+    [filter, categories],
+  );
+  const filteredMetaCategories = useMemo(
+    () =>
+      filteredCategories && metaCategories
+        ? mapToCategories(filteredCategories, metaCategories)
+        : undefined,
+    [filteredCategories, metaCategories],
+  );
+
+  const onAddCategory = useCallback(
+    (categoryName: string) => {
+      run();
+      console.log(categoryName);
+    },
+    [run],
+  );
 
   return (
     <Container>
@@ -153,18 +182,18 @@ const HomePage: React.FC<{}> = () => {
       ) : loading ? (
         <Spinner />
       ) : mode === Mode.Alphabetical ? (
-        categories && (
+        filteredCategories && (
           <Grid>
-            {categories.map(category => (
+            {filteredCategories.map(category => (
               <Category category={category} key={category.slug} />
             ))}
             {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
           </Grid>
         )
       ) : (
-        metaCategoryMap && (
+        filteredMetaCategories && (
           <>
-            {metaCategoryMap.map(([meta1display, meta2]) => (
+            {filteredMetaCategories.map(([meta1display, meta2]) => (
               <div key={meta1display}>
                 <h4>{meta1display}</h4>
                 {meta2.map(([meta2display, categories]) => (
