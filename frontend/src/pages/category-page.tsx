@@ -61,7 +61,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   onSelect,
   onDeselect,
 }) => {
-  // const history = useHistory();
+  const history = useHistory();
   const allSelected = exams.every(exam => selected.has(exam.filename));
   const someSelected = exams.some(exam => selected.has(exam.filename));
   const checked = someSelected;
@@ -94,9 +94,12 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
             <tr
               key={exam.filename}
               style={{ cursor: "pointer" }}
-              //  onClick={() => history.push(`/exams/${exam.filename}`)}
+              onClick={() => history.push(`/exams/${exam.filename}`)}
             >
-              <td>
+              <td
+                onClick={e => e.stopPropagation()}
+                style={{ cursor: "initial" }}
+              >
                 <input
                   type="checkbox"
                   checked={selected.has(exam.filename)}
