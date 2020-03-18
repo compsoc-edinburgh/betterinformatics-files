@@ -50,9 +50,12 @@ more information.
 
 Run `visdev test .` in this directory to start the backend
 ([more info about visdev](https://documentation.vis.ethz.ch/visdev.html)). The
-frontend we started above will proxy all requests to this backend. It uses some
-default login data which is only used for testing. You can change the user which
-is used for these requests in the `package.json` file.
+frontend we started above will proxy all requests to this backend.
+
+If you are developing tests for the backend, use `sudo ./visdev_mount.py` to
+mount the backend folders into the docker container so you don't have to restart
+the container after every change of a test. This does not work as easily for
+views as gunicorn does not reload the files automatically.
 
 ## Editing frontend code
 
@@ -60,3 +63,13 @@ There is an autoformatter for the frontend code
 ([prettier](https://prettier.io/)). It can be run once using `yarn run format`.
 If you commit any code which was not autoformatted, then the CI will fail. It
 is convenient to run prettier whenever you save a file using an IDE plugin.
+
+## Generate test data
+To generate test data, connect to the running container with
+`visdev connect  visdev-community-solutions` and then run 
+`./manage.py create_testdata`. Note that this will drop all tables in the
+database.
+
+## Test the backend
+Each django app has its own tests. To run them, connect to the running container
+with `visdev connect  visdev-community-solutions` and then run `./manage.py test`.

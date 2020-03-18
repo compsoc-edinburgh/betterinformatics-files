@@ -9,8 +9,6 @@ export interface AnswerSection {
   oid: string; // unique id within answer sections
   kind: SectionKind.Answer;
   answers: Answer[];
-  asker: string; // username of person who created section
-  askerDisplayName: string; // display name of asker
   allow_new_answer: boolean; // whether the current user can add an answer
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
   hidden: boolean; // whether the element is currently hidden
@@ -19,6 +17,7 @@ export interface AnswerSection {
 
 export interface Answer {
   oid: string; // unique id within answers
+  longId: string; // long unique id
   upvotes: number; // number upvotes minus number of downvotes
   expertvotes: number; // number of experts who upvoted
   authorId: string; // username
@@ -35,11 +34,13 @@ export interface Answer {
   edittime: string; // ISO 8601, last edit time
   filename: string; // filename of the corresponding exam
   sectionId: string; // id of section containing answer
-  divRef: HTMLDivElement; // root div element for scroll jumping
+  isLegacyAnswer: boolean; // whether this is a legacy answer
+  divRef?: HTMLDivElement; // root div element for scroll jumping
 }
 
 export interface Comment {
   oid: string; // unique id within comments
+  longId: string; // long unique id
   text: string;
   authorId: string; // username
   authorDisplayName: string; // display name of author
@@ -74,16 +75,16 @@ export interface Attachment {
 export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
-  category: string; // category of exam
+  category_displayname: string; // category of exam
   needs_payment: boolean; // whether a payment is required
   examtype: string; // type of exam
   remark: string; // remark for the exam
-  import_claim: string; // the user who is importing the exam
-  import_claim_displayname: string; // the name of the user who claimed the exam
-  import_claim_time: string; // time at which the user claimed the exam
+  import_claim: string | null; // the user who is importing the exam
+  import_claim_displayname: string | null; // the name of the user who claimed the exam
+  import_claim_time: string | null; // time at which the user claimed the exam
   public: boolean; // whether the exam is public
   has_solution: boolean; // whether there is an official solution
-  has_printonly: boolean; // whether this exam can only be printed
+  is_printonly: boolean; // whether this exam can only be printed
   finished_cuts: boolean; // whether all cuts were added
   finished_wiki_transfer: boolean; // whether all old solutions were added
   canView: boolean; // whether the exam can be viewed by the user
@@ -94,7 +95,7 @@ export interface CategoryExam {
 export interface CategoryPaymentExam {
   displayname: string;
   filename: string;
-  category: string;
+  category_displayname: string;
   payment_uploader: string;
   payment_uploader_displayname: string;
 }
@@ -111,12 +112,25 @@ export interface MetaCategoryWithCategories {
   displayname: string;
   meta2: {
     displayname: string;
-    categories: CategoryMetaData[];
+    categories: CategoryMetaDataOverview[];
   }[];
 }
 
+export interface CategoryMetaDataMinimal {
+  displayname: string; // Name of category
+  slug: string;
+}
+
+export interface CategoryMetaDataOverview {
+  displayname: string; // Name of category
+  slug: string;
+  examcountpublic: number;
+  examcountanswered: number;
+  answerprogress: number;
+}
+
 export interface CategoryMetaData {
-  category: string; // Name of category
+  displayname: string; // Name of category
   slug: string;
   admins: string[];
   experts: string[];
@@ -133,6 +147,11 @@ export interface CategoryMetaData {
   attachments: Attachment[];
 }
 
+export type CategoryMetaDataAny =
+  | CategoryMetaData
+  | CategoryMetaDataOverview
+  | CategoryMetaDataMinimal;
+
 export interface ExamMetaData {
   canEdit: boolean;
   isExpert: boolean;
@@ -141,6 +160,7 @@ export interface ExamMetaData {
   filename: string;
   displayname: string;
   category: string;
+  category_displayname: string;
   examtype: string;
   legacy_solution: string;
   master_solution: string;
@@ -150,11 +170,11 @@ export interface ExamMetaData {
   finished_cuts: boolean;
   finished_wiki_transfer: boolean;
   needs_payment: boolean;
-  has_printonly: boolean;
+  is_printonly: boolean;
   has_solution: boolean;
   solution_printonly: boolean;
-  is_payment_exam: boolean;
-  payment_exam_checked: boolean;
+  is_oral_transcript: boolean;
+  oral_transcript_checked: boolean;
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];
@@ -187,9 +207,9 @@ export interface PaymentInfo {
   oid: string;
   active: boolean;
   payment_time: string;
-  uploaded_filename: string;
-  check_time: string;
-  refund_time: string;
+  uploaded_filename: string | null;
+  check_time: string | null;
+  refund_time: string | null;
   valid_until: string;
 }
 

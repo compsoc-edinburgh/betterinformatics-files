@@ -2,7 +2,7 @@ import * as React from "react";
 import { css } from "glamor";
 import Colors from "../colors";
 import {
-  CategoryMetaData,
+  CategoryMetaDataOverview,
   MetaCategory,
   MetaCategoryWithCategories,
 } from "../interfaces";
@@ -118,11 +118,11 @@ interface Props {
 }
 
 interface State {
-  categories: CategoryMetaData[];
+  categories: CategoryMetaDataOverview[];
   metaCategories: MetaCategory[];
   filter: string;
   bySemesterView: boolean;
-  gotoCategory?: CategoryMetaData;
+  gotoCategory?: CategoryMetaDataOverview;
   addingCategory: boolean;
   newCategoryName: string;
   error?: boolean;
@@ -138,11 +138,11 @@ export default class Home extends React.Component<Props, State> {
     newCategoryName: "",
   };
 
-  removeDefaultIfNecessary = (categories: CategoryMetaData[]) => {
+  removeDefaultIfNecessary = (categories: CategoryMetaDataOverview[]) => {
     if (this.props.isAdmin) {
       return categories;
     } else {
-      return categories.filter(cat => cat.category !== "default");
+      return categories.filter(cat => cat.displayname !== "default");
     }
   };
 
@@ -157,7 +157,7 @@ export default class Home extends React.Component<Props, State> {
   }
 
   loadCategories = () => {
-    fetchapi("/api/listcategories/withmeta")
+    fetchapi("/api/category/listwithmeta/")
       .then(res => {
         this.setState({
           categories: this.removeDefaultIfNecessary(res.value),
@@ -169,7 +169,7 @@ export default class Home extends React.Component<Props, State> {
   };
 
   loadMetaCategories = () => {
-    fetchapi("/api/listmetacategories").then(res => {
+    fetchapi("/api/category/listmetacategories/").then(res => {
       this.setState({
         metaCategories: res.value,
       });
@@ -189,7 +189,7 @@ export default class Home extends React.Component<Props, State> {
         filtered,
         this.state.metaCategories,
       );
-      const resorted: CategoryMetaData[] = [];
+      const resorted: CategoryMetaDataOverview[] = [];
       categoriesBySemester.forEach(meta1 => {
         meta1.meta2.forEach(meta2 => {
           meta2.categories.forEach(cat => resorted.push(cat));
@@ -205,7 +205,7 @@ export default class Home extends React.Component<Props, State> {
     }
   };
 
-  gotoCategory = (cat: CategoryMetaData) => {
+  gotoCategory = (cat: CategoryMetaDataOverview) => {
     this.setState({
       gotoCategory: cat,
     });
@@ -221,7 +221,7 @@ export default class Home extends React.Component<Props, State> {
     if (!this.state.newCategoryName) {
       return;
     }
-    fetchpost("/api/category/add", {
+    fetchpost("/api/category/add/", {
       category: this.state.newCategoryName,
     })
       .then(res => {
@@ -280,15 +280,15 @@ export default class Home extends React.Component<Props, State> {
     );
   };
 
-  categoryView = (category: CategoryMetaData) => {
+  categoryView = (category: CategoryMetaDataOverview) => {
     return (
       <div
-        key={category.category}
+        key={category.displayname}
         {...styles.category}
         onClick={() => this.gotoCategory(category)}
       >
         <div {...styles.categoryTitle} {...globalcss.noLinkColor}>
-          <Link to={"/category/" + category.slug}>{category.category}</Link>
+          <Link to={"/category/" + category.slug}>{category.displayname}</Link>
         </div>
         <div
           {...styles.categoryInfo}
@@ -310,7 +310,7 @@ export default class Home extends React.Component<Props, State> {
     );
   };
 
-  alphabeticalView = (categories: CategoryMetaData[]) => {
+  alphabeticalView = (categories: CategoryMetaDataOverview[]) => {
     return (
       <div {...styles.categoriesWrapper}>
         {categories.map(category => this.categoryView(category))}

@@ -15,6 +15,9 @@ export async function fetchpost(url: string, data: { [key: string]: any }) {
   }
   const response = await fetch(url, {
     credentials: "include",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken") || "",
+    },
     method: "POST",
     body: formData,
   });
@@ -42,4 +45,20 @@ export async function fetchapi(url: string) {
   } catch (e) {
     return Promise.reject(e.toString());
   }
+}
+
+export function getCookie(name: string): string | null {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      // Does this cookie string begin with the name we want?
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
 }
