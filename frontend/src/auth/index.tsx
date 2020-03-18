@@ -7,10 +7,16 @@ export interface User {
   isAdmin: boolean;
   isCategoryAdmin: boolean;
 }
-
-export const UserContext = createContext<User | undefined | false>(undefined);
+export const notLoggedIn: User = {
+  loggedin: false,
+  isAdmin: false,
+  isCategoryAdmin: false,
+  username: "",
+  displayname: "Not Authorized",
+};
+export const UserContext = createContext<User | undefined>(undefined);
 export const useUser = () => useContext(UserContext);
-export const SetUserContext = createContext<(user: User | false) => void>(
+export const SetUserContext = createContext<(user: User | undefined) => void>(
   () => {},
 );
 export const useSetUser = () => useContext(SetUserContext);

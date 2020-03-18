@@ -1,43 +1,23 @@
-import { RouteProps, Route, Redirect } from "react-router-dom";
-import React, { useEffect } from "react";
-import { useUser, useSetUser } from ".";
-import { fetchapi } from "../fetch-utils";
-import { Container, Spinner } from "@vseth/components";
+import { Container, Modal, Spinner } from "@vseth/components";
+import React from "react";
+import { Route, RouteProps } from "react-router-dom";
+import { useUser } from ".";
+import LoginCard from "../components/login-card";
 
 const UserRouteContent = <T extends RouteProps>({ props }: { props: T }) => {
   const user = useUser();
-  const setUser = useSetUser();
-  useEffect(() => {
-    let cancelled = false;
-    if (user === undefined) {
-      fetchapi("/api/me").then(
-        res => {
-          if (cancelled) return;
-          setUser({
-            loggedin: res.loggedin,
-            username: res.username,
-            displayname: res.displayname,
-            isAdmin: res.adminrights,
-            isCategoryAdmin: res.adminrightscat,
-          });
-        },
-        () => {
-          setUser(false);
-        },
-      );
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [user, setUser]);
   if (user === undefined) {
     return (
       <Container>
         <Spinner />
       </Container>
     );
-  } else if (user === false) {
-    return <Redirect to="/login" />;
+  } else if (!user.loggedin) {
+    return (
+      <Modal isOpen={true}>
+        <LoginCard />
+      </Modal>
+    );
   } else {
     return <Route {...props} />;
   }
