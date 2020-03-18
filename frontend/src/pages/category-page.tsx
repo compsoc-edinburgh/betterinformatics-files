@@ -18,6 +18,7 @@ import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
 import { fetchapi } from "../fetch-utils";
 import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
+import useSet from "../hooks/useSet";
 
 const loadCategoryMetaData = async (slug: string) => {
   return (await fetchapi(`/api/category/metadata/${slug}`))
@@ -52,8 +53,8 @@ interface ExamTypeCardProps {
   examtype: string;
   exams: CategoryExam[];
   selected: Set<string>;
-  onSelect: (filenames: string[]) => void;
-  onDeselect: (filenames: string[]) => void;
+  onSelect: (...filenames: string[]) => void;
+  onDeselect: (...filenames: string[]) => void;
 }
 const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   examtype,
@@ -68,8 +69,8 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   const checked = someSelected;
   const indeterminate = someSelected && !allSelected;
   const setChecked = (newValue: boolean) => {
-    if (newValue) onSelect(exams.map(exam => exam.filename));
-    else onDeselect(exams.map(exam => exam.filename));
+    if (newValue) onSelect(...exams.map(exam => exam.filename));
+    else onDeselect(...exams.map(exam => exam.filename));
   };
   return (
     <Card>
@@ -106,8 +107,8 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                   checked={selected.has(exam.filename)}
                   onChange={e =>
                     e.currentTarget.checked
-                      ? onSelect([exam.filename])
-                      : onDeselect([exam.filename])
+                      ? onSelect(exam.filename)
+                      : onDeselect(exam.filename)
                   }
                 />
               </td>
@@ -131,25 +132,11 @@ interface ExamListProps {
 }
 const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   const { data, loading, error } = useRequest(() => loadList(metaData.slug));
-  const [selected, setSelected] = useState(new Set<string>());
   const examTypeMap = useMemo(
     () => (data ? mapExamsToExamType(data) : undefined),
     [data],
   );
-  const onSelect = useCallback((filenames: string[]) => {
-    setSelected(prevSelected => {
-      const copy = new Set(prevSelected);
-      for (const filename of filenames) copy.add(filename);
-      return copy;
-    });
-  }, []);
-  const onDeselect = useCallback((filenames: string[]) => {
-    setSelected(prevSelected => {
-      const copy = new Set(prevSelected);
-      for (const filename of filenames) copy.delete(filename);
-      return copy;
-    });
-  }, []);
+  const [selected, onSelect, onDeselect] = useSet<string>();
 
   return (
     <>
