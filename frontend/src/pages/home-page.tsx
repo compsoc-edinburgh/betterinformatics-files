@@ -21,6 +21,7 @@ import Grid from "../components/grid";
 import TextLink from "../components/text-link";
 import { fetchapi } from "../fetch-utils";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
+import CategoryCard from "../components/category-card";
 
 enum Mode {
   Alphabetical,
@@ -83,25 +84,6 @@ const mapToCategories = (
   return [...meta1Map.entries()].sort(([a], [b]) => a.localeCompare(b));
 };
 
-const Category: React.FC<{ category: CategoryMetaData }> = ({ category }) => {
-  return (
-    <TextLink to={`category/${category.slug}`} style={{ color: "black" }}>
-      <Card>
-        <CardBody>
-          <h5>{category.category}</h5>
-          <div>
-            Exams:{" "}
-            {`${category.examcountanswered} / ${category.examcountpublic}`}
-          </div>
-          <div>Answers: {(category.answerprogress * 100).toString()} %</div>
-        </CardBody>
-        <CardFooter>
-          <Progress value={category.answerprogress} max={1} />
-        </CardFooter>
-      </Card>
-    </TextLink>
-  );
-};
 const AddCategory: React.FC<{ onAddCategory: (name: string) => void }> = ({
   onAddCategory,
 }) => {
@@ -215,7 +197,7 @@ const HomePage: React.FC<{}> = () => {
         filteredCategories && (
           <Grid>
             {filteredCategories.map(category => (
-              <Category category={category} key={category.slug} />
+              <CategoryCard category={category} key={category.slug} />
             ))}
             {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
           </Grid>
@@ -231,7 +213,7 @@ const HomePage: React.FC<{}> = () => {
                     <h5>{meta2display}</h5>
                     <Grid>
                       {categories.map(category => (
-                        <Category category={category} key={category.slug} />
+                        <CategoryCard category={category} key={category.slug} />
                       ))}
                     </Grid>
                   </div>
