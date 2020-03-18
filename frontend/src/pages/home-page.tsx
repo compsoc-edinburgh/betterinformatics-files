@@ -202,7 +202,7 @@ const HomePage: React.FC<{}> = () => {
         </Row>
       </Form>
       {error ? (
-        <Alert>{error.message}</Alert>
+        <Alert color="danger">{error.message}</Alert>
       ) : loading ? (
         <Spinner />
       ) : mode === Mode.Alphabetical ? (
