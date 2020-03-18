@@ -175,6 +175,7 @@ export class SectionRenderer {
       w: target.width,
       h: target.height,
     };
+    console.log(rendered.canvas, target.context);
     target.context.drawImage(
       rendered.canvas,
       src.x,

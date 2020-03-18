@@ -1,4 +1,10 @@
-import { Section, AnswerSection, SectionKind, PdfSection } from "./interfaces";
+import {
+  Section,
+  AnswerSection,
+  SectionKind,
+  PdfSection,
+  ServerCutPosition,
+} from "./interfaces";
 import { fetchapi } from "./fetch-utils";
 
 function createPdfSection(
@@ -20,13 +26,14 @@ function createPdfSection(
     },
   };
 }
+interface ServerCutResponse {
+  [pageNumber: string]: ServerCutPosition[];
+}
 
-export async function loadSections(
-  filename: string,
+export function loadSections(
   pageCount: number,
-): Promise<Section[]> {
-  const response = await fetchapi(`/api/exam/${filename}/cuts`);
-  const cuts = response.value;
+  cuts: ServerCutResponse,
+): Section[] {
   let akey = -1;
   const sections: Section[] = [];
   for (let i = 1; i <= pageCount; i++) {

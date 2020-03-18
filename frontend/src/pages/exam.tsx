@@ -245,15 +245,7 @@ export default class Exam extends React.Component<Props, State> {
     }
   };
 
-  loadSectionsFromBackend = (numPages: number) => {
-    loadSections(this.props.filename, numPages)
-      .then(sections => {
-        this.setState({ sections: sections });
-      })
-      .catch(err => {
-        this.setState({ error: err.toString() });
-      });
-  };
+  loadSectionsFromBackend = (numPages: number) => {};
 
   updateCutVersion = () => {
     fetchapi(`/api/exam/${this.props.filename}/cutversions`)
