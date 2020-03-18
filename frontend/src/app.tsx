@@ -10,6 +10,7 @@ import LoginPage from "./pages/login-page";
 import CategoryPage from "./pages/category-page";
 import { Container } from "@vseth/components";
 import NotFoundPage from "./pages/not-found-page";
+import ExamPage from "./pages/exam-page";
 
 const App: React.FC<{}> = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -51,6 +52,7 @@ const App: React.FC<{}> = () => {
                 path="/category/:slug"
                 component={CategoryPage}
               />
+              <UserRoute exact path="/exams/:filename" component={ExamPage} />
               <Route component={NotFoundPage} />
             </Switch>
           </main>
