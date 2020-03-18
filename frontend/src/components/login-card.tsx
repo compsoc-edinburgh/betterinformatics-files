@@ -91,9 +91,9 @@ const LoginCard: React.FC<{}> = () => {
                 </Button>
               </FormGroup>
             </Col>
-            <Col md={8}>
-              <FormGroup>
-                {window.location.hostname === "localhost" && (
+            {process.env.NODE_ENV === "development" && (
+              <Col md={8}>
+                <FormGroup>
                   <Select
                     options={options}
                     onChange={({ value }: any) => {
@@ -103,9 +103,9 @@ const LoginCard: React.FC<{}> = () => {
                       );
                     }}
                   />
-                )}
-              </FormGroup>
-            </Col>
+                </FormGroup>
+              </Col>
+            )}
           </Row>
         </Form>
       </CardBody>
