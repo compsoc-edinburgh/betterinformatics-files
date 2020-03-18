@@ -17,7 +17,7 @@ const App: React.FC<{}> = () => {
   useEffect(() => {
     let cancelled = false;
     if (user === undefined) {
-      fetchapi("/api/auth/me").then(
+      fetchapi("/api/auth/me/").then(
         res => {
           if (cancelled) return;
           setUser({

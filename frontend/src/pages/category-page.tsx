@@ -20,14 +20,15 @@ import { fetchapi } from "../fetch-utils";
 import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 
 const loadCategoryMetaData = async (slug: string) => {
-  return (await fetchapi(`/api/category/metadata?slug=${slug}`))
+  return (await fetchapi(`/api/category/metadata/${slug}`))
     .value as CategoryMetaData;
 };
 const loadMetaCategories = async () => {
-  return (await fetchapi("/api/listmetacategories")).value as MetaCategory[];
+  return (await fetchapi("/api/category/listmetacategories"))
+    .value as MetaCategory[];
 };
 const loadList = async (slug: string) => {
-  return (await fetchapi(`/api/category/list?slug=${slug}`))
+  return (await fetchapi(`/api/category/listexams/${slug}`))
     .value as CategoryExam[];
 };
 const mapExamsToExamType = (exams: CategoryExam[]) => {
@@ -182,7 +183,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const { data, loading } = useRequest(loadMetaCategories);
   const offeredIn = useMemo(
     () =>
-      data ? getMetaCategoriesForCategory(data, metaData.category) : undefined,
+      data ? getMetaCategoriesForCategory(data, metaData.slug) : undefined,
     [data, metaData],
   );
   return (
@@ -191,9 +192,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         <BreadcrumbItem>
           <Link to="/">Home</Link>
         </BreadcrumbItem>
-        <BreadcrumbItem>{metaData.category}</BreadcrumbItem>
+        <BreadcrumbItem>{metaData.displayname}</BreadcrumbItem>
       </Breadcrumb>
-      <h1>{metaData.category}</h1>
+      <h1>{metaData.displayname}</h1>
       <ListGroup style={{ marginBottom: "2em" }}>
         {metaData.semester && (
           <ListGroupItem>

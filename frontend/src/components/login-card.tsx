@@ -21,10 +21,10 @@ const login = async (
   password: string,
   simulate_nonadmin: boolean,
 ) => {
-  await fetchpost("/api/login", {
+  await fetchpost("/api/auth/login/", {
     username,
     password,
-    simulate_nonadmin,
+    simulate_nonadmin: simulate_nonadmin ? "true" : "false",
   });
 };
 

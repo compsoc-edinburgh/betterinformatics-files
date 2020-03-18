@@ -13,7 +13,7 @@ const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
       onClick={() => history.push(`/category/${category.slug}`)}
     >
       <CardBody>
-        <h5>{category.category}</h5>
+        <h5>{category.displayname}</h5>
         <div>
           Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
         </div>

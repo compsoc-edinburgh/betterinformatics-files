@@ -27,12 +27,12 @@ import PdfSectionCanvas from "../components/pdf-section-canvas";
 import PDF from "../pdf-renderer";
 
 const loadExamMetaData = async (filename: string) => {
-  return (await fetchapi(`/api/exam/${filename}/metadata`))
+  return (await fetchapi(`/api/exam/metadata/${filename}/`))
     .value as ExamMetaData;
 };
 const loadSplitRenderer = async (filename: string) => {
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
-    getDocument(`/api/pdf/exam/${filename}`).promise.then(resolve, reject),
+    getDocument(`/api/exam/pdf/exam/${filename}`).promise.then(resolve, reject),
   );
   const renderer = new PDF(pdf);
   return [pdf, renderer] as const;
@@ -42,7 +42,7 @@ interface ServerCutResponse {
   [pageNumber: string]: ServerCutPosition[];
 }
 const loadCuts = async (filename: string) => {
-  return (await fetchapi(`/api/exam/${filename}/cuts`))
+  return (await fetchapi(`/api/exam/cuts/${filename}/`))
     .value as ServerCutResponse;
 };
 
@@ -133,7 +133,7 @@ const ExamPage: React.FC<{}> = () => {
       </Breadcrumb>
       <div ref={sizeRef}>
         {error ? (
-          <Alert color="danger">{error}</Alert>
+          <Alert color="danger">{error.toString()}</Alert>
         ) : metaDataLoading ? (
           <Spinner />
         ) : (

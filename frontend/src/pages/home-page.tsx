@@ -34,11 +34,12 @@ const options = [
 ];
 
 const loadCategories = async () => {
-  return (await fetchapi("/api/listcategories/withmeta"))
+  return (await fetchapi("/api/category/listwithmeta"))
     .value as CategoryMetaData[];
 };
 const loadMetaCategories = async () => {
-  return (await fetchapi("/api/listmetacategories")).value as MetaCategory[];
+  return (await fetchapi("/api/category/listmetacategories"))
+    .value as MetaCategory[];
 };
 const loadCategoryData = async () => {
   const [categories, metaCategories] = await Promise.all([
@@ -46,7 +47,7 @@ const loadCategoryData = async () => {
     loadMetaCategories(),
   ]);
   return [
-    categories.sort((a, b) => a.category.localeCompare(b.category)),
+    categories.sort((a, b) => a.displayname.localeCompare(b.displayname)),
     metaCategories,
   ] as const;
 };
@@ -59,8 +60,7 @@ const mapToCategories = (
   meta1: MetaCategory[],
 ) => {
   const categoryMap = new Map<string, CategoryMetaData>();
-  for (const category of categories)
-    categoryMap.set(category.category, category);
+  for (const category of categories) categoryMap.set(category.slug, category);
   const meta1Map: Map<string, Array<[string, CategoryMetaData[]]>> = new Map();
   for (const { displayname: meta1display, meta2 } of meta1) {
     const meta2Map: Map<string, CategoryMetaData[]> = new Map();
@@ -142,7 +142,7 @@ const HomePage: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-            ({ category }) => category !== "default" || isAdmin,
+            ({ slug }) => slug !== "default" || isAdmin,
           )
         : undefined,
     [categoriesWithDefault, isAdmin],
@@ -150,8 +150,10 @@ const HomePage: React.FC<{}> = () => {
   const filteredCategories = useMemo(
     () =>
       categories
-        ? categories.filter(({ category }) =>
-            category.toLocaleLowerCase().includes(filter.toLocaleLowerCase()),
+        ? categories.filter(({ displayname }) =>
+            displayname
+              .toLocaleLowerCase()
+              .includes(filter.toLocaleLowerCase()),
           )
         : undefined,
     [filter, categories],
