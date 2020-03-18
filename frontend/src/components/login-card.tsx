@@ -84,7 +84,6 @@ const LoginCard: React.FC<{}> = () => {
           />
           <Row form>
             <Col md={4}>
-              {" "}
               <FormGroup>
                 <Button color="primary" type="submit" disabled={loading}>
                   Submit
