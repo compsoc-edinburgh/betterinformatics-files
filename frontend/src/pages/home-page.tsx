@@ -14,6 +14,7 @@ import {
   Row,
   Select,
   Spinner,
+  InputField,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { User, useUser } from "../auth";
@@ -68,8 +69,10 @@ const mapToCategories = (
       displayname: meta2display,
       categories: categoryNames,
     } of meta2) {
-      const categories = categoryNames.map(name => categoryMap.get(name)!);
-      if (categoryNames.length === 0) continue;
+      const categories = categoryNames
+        .map(name => categoryMap.get(name)!)
+        .filter(a => a !== undefined);
+      if (categories.length === 0) continue;
       meta2Map.set(meta2display, categories);
     }
     if (meta2Map.size === 0) continue;
@@ -83,8 +86,8 @@ const mapToCategories = (
 
 const Category: React.FC<{ category: CategoryMetaData }> = ({ category }) => {
   return (
-    <Card>
-      <TextLink to={`category/${category.slug}`} style={{ color: "black" }}>
+    <TextLink to={`category/${category.slug}`} style={{ color: "black" }}>
+      <Card>
         <CardBody>
           <h5>{category.category}</h5>
           <div>
@@ -96,8 +99,8 @@ const Category: React.FC<{ category: CategoryMetaData }> = ({ category }) => {
         <CardFooter>
           <Progress value={category.answerprogress} max={1} />
         </CardFooter>
-      </TextLink>
-    </Card>
+      </Card>
+    </TextLink>
   );
 };
 const AddCategory: React.FC<{ onAddCategory: (name: string) => void }> = ({
@@ -154,7 +157,9 @@ const HomePage: React.FC<{}> = () => {
   const filteredCategories = useMemo(
     () =>
       categories
-        ? categories.filter(({ category }) => category.includes(filter))
+        ? categories.filter(({ category }) =>
+            category.toLocaleLowerCase().includes(filter.toLocaleLowerCase()),
+          )
         : undefined,
     [filter, categories],
   );
@@ -172,6 +177,8 @@ const HomePage: React.FC<{}> = () => {
 
   return (
     <Container>
+      <h1>Community Solutions</h1>
+
       <Form>
         <Row form>
           <Col md={4}>
@@ -185,12 +192,18 @@ const HomePage: React.FC<{}> = () => {
           </Col>
           <Col md={8}>
             <FormGroup>
-              <Input
-                type="search"
-                placeholder="Filter..."
-                value={filter}
-                onChange={e => setFilter(e.currentTarget.value)}
-              />
+              <div className="search">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Filter..."
+                  value={filter}
+                  onChange={e => setFilter(e.currentTarget.value)}
+                />
+                <div className="search-icon-wrapper">
+                  <div className="search-icon" />
+                </div>
+              </div>
             </FormGroup>
           </Col>
         </Row>
