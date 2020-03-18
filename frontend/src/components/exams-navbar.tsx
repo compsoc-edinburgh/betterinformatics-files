@@ -47,8 +47,8 @@ const ExamsNavbar: React.FC<{}> = () => {
         },
         {
           title: "More",
-          icon: ICONS.DOTS_H,
           active: false,
+
           childItems: [
             {
               title: "Submit Transcript",
