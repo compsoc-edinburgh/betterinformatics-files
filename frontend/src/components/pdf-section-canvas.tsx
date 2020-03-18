@@ -72,6 +72,7 @@ const usePdf = (
       })();
       return () => {
         cancel = true;
+        setCanvasElement(null);
         if (canvasRef) canvasRef.release();
         else if (currentPromise) {
           currentPromise.then(([, , , newCanvasRef]) => newCanvasRef.release());
