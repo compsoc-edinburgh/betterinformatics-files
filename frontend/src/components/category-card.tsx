@@ -17,7 +17,7 @@ const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
         <div>
           Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
         </div>
-        <div>Answers: {(category.answerprogress * 100).toString()} %</div>
+        <div>Answers: {((category.answerprogress * 100) | 0).toString()} %</div>
       </CardBody>
       <CardFooter>
         <Progress value={category.answerprogress} max={1} />
