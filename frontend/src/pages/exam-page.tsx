@@ -127,7 +127,9 @@ const ExamPage: React.FC<{}> = () => {
           <Link to="/">Home</Link>
         </BreadcrumbItem>
         <BreadcrumbItem>
-          <Link to="">{metaData && metaData.category}</Link>
+          <Link to={`/category/${metaData ? metaData.category : ""}`}>
+            {metaData && metaData.category_displayname}
+          </Link>
         </BreadcrumbItem>
         <BreadcrumbItem>{metaData && metaData.displayname}</BreadcrumbItem>
       </Breadcrumb>
