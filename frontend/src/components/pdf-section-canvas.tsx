@@ -11,17 +11,8 @@ import { useInViewport } from "@umijs/hooks";
 import * as React from "react";
 import PdfSectionText from "./pdf-section-text";
 import useDpr from "../hooks/useDpr";
-
+import { Card } from "@vseth/components";
 const styles = {
-  pdfContainer: css({
-    overflow: "hidden",
-    background: "white",
-    boxShadow: Colors.cardShadow,
-    position: "relative",
-    "& canvas": {
-      userSelect: "none",
-    },
-  }),
   lastSection: css({
     marginBottom: "40px",
   }),
@@ -158,26 +149,28 @@ const PdfSectionCanvas: React.FC<Props> = ({
   }
 
   return (
-    <div
-      style={{
-        width: `${targetWidth}px`,
-        height: `${containerHeight}px`,
-      }}
-      {...styles.pdfContainer}
-      {...(end === 1 ? styles.lastSection : undefined)}
-      ref={containerElement}
-    >
-      {content}
-      {visible && (
-        <PdfSectionText
-          section={section}
-          renderer={renderer}
-          scale={currentScale || 1}
-          view={view}
-          translateY={translateY}
-        />
-      )}
-    </div>
+    <Card {...(end === 1 ? styles.lastSection : undefined)}>
+      <div
+        style={{
+          width: `${targetWidth}px`,
+          height: `${containerHeight}px`,
+          position: "relative",
+          overflow: "hidden",
+        }}
+        ref={containerElement}
+      >
+        {content}
+        {visible && (
+          <PdfSectionText
+            section={section}
+            renderer={renderer}
+            scale={currentScale || 1}
+            view={view}
+            translateY={translateY}
+          />
+        )}
+      </div>
+    </Card>
   );
 };
 
