@@ -1,26 +1,22 @@
-import {
-  Container,
-  Spinner,
-  Alert,
-  Breadcrumb,
-  ListGroupItem,
-  ListGroup,
-  Badge,
-  CardHeader,
-  Card,
-  CardBody,
-  Table,
-  InputField,
-  Icon,
-  ICONS,
-} from "@vseth/components";
-import { fetchapi } from "../fetch-utils";
-import { CategoryMetaData, MetaCategory, CategoryExam } from "../interfaces";
 import { useRequest } from "@umijs/hooks";
-import React, { useMemo } from "react";
-import { useParams, Link, useHistory } from "react-router-dom";
+import {
+  Alert,
+  Badge,
+  Breadcrumb,
+  Card,
+  CardHeader,
+  Container,
+  ListGroup,
+  ListGroupItem,
+  Spinner,
+  Table,
+} from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
+import React, { useMemo } from "react";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { getMetaCategoriesForCategory } from "../category-utils";
+import { fetchapi } from "../fetch-utils";
+import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 
 const loadCategoryMetaData = async (slug: string) => {
   return (await fetchapi(`/api/category/metadata?slug=${slug}`))
