@@ -48,19 +48,23 @@ interface ExamPageContentProps {
   sections?: Section[];
   renderer?: PDF;
   width: number;
+  sizeRef: React.MutableRefObject<HTMLDivElement>;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
   metaData,
   sections,
   renderer,
   width,
+  sizeRef,
 }) => {
   const dpr = 2;
   console.log(dpr);
   return (
     <>
-      <h1>{metaData.displayname}</h1>
-      <div>
+      <Container>
+        <h1>{metaData.displayname}</h1>
+      </Container>
+      <div ref={sizeRef} style={{ maxWidth: "1000px", margin: "auto" }}>
         {sections &&
           sections.map(section =>
             section.kind === SectionKind.Answer ? (
@@ -116,23 +120,29 @@ const ExamPage: React.FC<{}> = () => {
 
   const error = metaDataError || cutsError || pdfError;
   return (
-    <Container>
-      <Breadcrumb>
-        <BreadcrumbItem>
-          <Link to="/">Home</Link>
-        </BreadcrumbItem>
-        <BreadcrumbItem>
-          <Link to={`/category/${metaData ? metaData.category : ""}`}>
-            {metaData && metaData.category_displayname}
-          </Link>
-        </BreadcrumbItem>
-        <BreadcrumbItem>{metaData && metaData.displayname}</BreadcrumbItem>
-      </Breadcrumb>
-      <div ref={sizeRef}>
+    <div>
+      <Container>
+        <Breadcrumb>
+          <BreadcrumbItem>
+            <Link to="/">Home</Link>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <Link to={`/category/${metaData ? metaData.category : ""}`}>
+              {metaData && metaData.category_displayname}
+            </Link>
+          </BreadcrumbItem>
+          <BreadcrumbItem>{metaData && metaData.displayname}</BreadcrumbItem>
+        </Breadcrumb>
+      </Container>
+      <div>
         {error ? (
-          <Alert color="danger">{error.toString()}</Alert>
+          <Container>
+            <Alert color="danger">{error.toString()}</Alert>
+          </Container>
         ) : metaDataLoading ? (
-          <Spinner />
+          <Container>
+            <Spinner />
+          </Container>
         ) : (
           metaData && (
             <ExamPageContent
@@ -140,12 +150,17 @@ const ExamPage: React.FC<{}> = () => {
               metaData={metaData}
               sections={sections}
               renderer={renderer}
+              sizeRef={sizeRef}
             />
           )
         )}
-        {(cutsLoading || pdfLoading) && !metaDataLoading && <Spinner />}
+        {(cutsLoading || pdfLoading) && !metaDataLoading && (
+          <Container>
+            <Spinner />
+          </Container>
+        )}
       </div>
-    </Container>
+    </div>
   );
 };
 export default ExamPage;
