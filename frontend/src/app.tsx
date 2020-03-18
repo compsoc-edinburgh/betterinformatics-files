@@ -43,6 +43,7 @@ const App: React.FC<{}> = () => {
               <Route exact path="/login" component={LoginPage} />
               <UserRoute exact path="/" component={HomePage} />
               <UserRoute exact path="/feedback" component={FeedbackPage} />
+              <Route component={NotFoundPage} />
             </Switch>
           </main>
         </div>
