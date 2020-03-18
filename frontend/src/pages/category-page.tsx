@@ -14,6 +14,7 @@ import {
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import React, { useMemo } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
+import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
 import { fetchapi } from "../fetch-utils";
 import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
@@ -188,6 +189,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 const CategoryPage: React.FC<{}> = () => {
   const { slug } = useParams() as { slug: string };
   const { data, loading, error } = useRequest(() => loadCategoryMetaData(slug));
+  const user = useUser();
   return (
     <Container>
       {error ? (
@@ -195,7 +197,20 @@ const CategoryPage: React.FC<{}> = () => {
       ) : loading ? (
         <Spinner />
       ) : (
-        data && <CategoryPageContent metaData={data} />
+        data && (
+          <UserContext.Provider
+            value={
+              user
+                ? {
+                    ...user,
+                    isCategoryAdmin: user.isCategoryAdmin || data.catadmin,
+                  }
+                : undefined
+            }
+          >
+            <CategoryPageContent metaData={data} />
+          </UserContext.Provider>
+        )
       )}
     </Container>
   );
