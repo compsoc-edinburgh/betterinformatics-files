@@ -1,30 +1,27 @@
-import { useParams, Link } from "react-router-dom";
-import React, { useMemo, useEffect, useState } from "react";
+import { useRequest, useSize } from "@umijs/hooks";
 import {
-  Container,
-  Spinner,
   Alert,
   Breadcrumb,
   BreadcrumbItem,
+  Container,
+  Spinner,
 } from "@vseth/components";
+import { getDocument } from "pdfjs-dist";
+import React, { useMemo } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useUser } from "../auth";
+import AnswerSectionComponent from "../components/answer-section";
+import PdfSectionCanvas from "../components/pdf-section-canvas";
+import { loadSections } from "../exam-loader";
 import { fetchapi } from "../fetch-utils";
 import {
   ExamMetaData,
-  ServerCutPosition,
   Section,
   SectionKind,
+  ServerCutPosition,
 } from "../interfaces";
-import { useRequest, useSize } from "@umijs/hooks";
-import { loadSections } from "../exam-loader";
-import { createSectionRenderer, SectionRenderer } from "../split-render";
-import { PDFDocumentProxy, PDFJS } from "../pdfjs";
-import { getDocument } from "pdfjs-dist";
-import { useUser } from "../auth";
-import AnswerSectionComponent from "../components/answer-section";
-import PdfSectionComp from "../components/pdf-section";
-import useDpr from "../hooks/useDpr";
-import PdfSectionCanvas from "../components/pdf-section-canvas";
 import PDF from "../pdf-renderer";
+import { PDFDocumentProxy } from "../pdfjs";
 
 const loadExamMetaData = async (filename: string) => {
   return (await fetchapi(`/api/exam/metadata/${filename}/`))
