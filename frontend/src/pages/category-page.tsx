@@ -73,6 +73,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({ examtype, exams }) => {
         <tbody>
           {exams.map(exam => (
             <tr
+              key={exam.filename}
               style={{ cursor: "pointer" }}
               onClick={() => history.push(`/exams/${exam.filename}`)}
             >
@@ -112,7 +113,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
       ) : (
         examTypeMap &&
         examTypeMap.map(([examtype, exams]) => (
-          <ExamTypeCard examtype={examtype} exams={exams} />
+          <ExamTypeCard examtype={examtype} exams={exams} key={examtype} />
         ))
       )}
     </>
