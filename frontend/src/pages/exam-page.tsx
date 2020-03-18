@@ -23,6 +23,8 @@ import { useUser } from "../auth";
 import AnswerSectionComponent from "../components/answer-section";
 import PdfSectionComp from "../components/pdf-section";
 import useDpr from "../hooks/useDpr";
+import PdfSectionCanvas from "../components/pdf-section-canvas";
+import PDF from "../pdf-renderer";
 
 const loadExamMetaData = async (filename: string) => {
   return (await fetchapi(`/api/exam/${filename}/metadata`))
@@ -32,7 +34,7 @@ const loadSplitRenderer = async (filename: string) => {
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
     getDocument(`/api/pdf/exam/${filename}`).promise.then(resolve, reject),
   );
-  const renderer = await createSectionRenderer(pdf, 0);
+  const renderer = new PDF(pdf);
   return [pdf, renderer] as const;
 };
 
@@ -47,7 +49,7 @@ const loadCuts = async (filename: string) => {
 interface ExamPageContentProps {
   metaData: ExamMetaData;
   sections?: Section[];
-  renderer?: SectionRenderer;
+  renderer?: PDF;
   width: number;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
@@ -81,14 +83,11 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               />
             ) : (
               renderer && (
-                <PdfSectionComp
+                <PdfSectionCanvas
                   key={section.key}
                   section={section}
                   renderer={renderer}
-                  width={width}
-                  dpr={dpr}
-                  renderText={false}
-                  onClick={() => console.log("click")}
+                  targetWidth={width}
                 />
               )
             ),
@@ -119,9 +118,6 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  useEffect(() => {
-    if (size.width && renderer) renderer.setTargetWidth(size.width);
-  }, [size.width, renderer]);
 
   const error = metaDataError || cutsError || pdfError;
   return (
