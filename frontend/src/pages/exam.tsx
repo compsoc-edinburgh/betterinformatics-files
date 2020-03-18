@@ -580,7 +580,6 @@ export default class Exam extends React.Component<Props, State> {
                   return (
                     <AnswerSectionComponent
                       key={e.oid}
-                      isAdmin={this.props.isAdmin}
                       isExpert={this.state.savedMetaData.isExpert}
                       filename={this.props.filename}
                       oid={e.oid}

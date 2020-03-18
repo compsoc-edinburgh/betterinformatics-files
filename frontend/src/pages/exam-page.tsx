@@ -55,7 +55,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   renderer,
   width,
 }) => {
-  const { isAdmin } = useUser()!;
   const dpr = 2;
   console.log(dpr);
   return (
@@ -67,7 +66,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             section.kind === SectionKind.Answer ? (
               <AnswerSectionComponent
                 key={section.oid}
-                isAdmin={isAdmin}
                 isExpert={metaData.isExpert}
                 filename={metaData.filename}
                 oid={section.oid}
