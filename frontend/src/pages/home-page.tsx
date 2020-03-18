@@ -2,26 +2,27 @@ import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  Card,
-  CardBody,
-  CardFooter,
   Col,
   Container,
   Form,
   FormGroup,
-  Input,
-  Progress,
+  Icon,
+  ICONS,
+  InputField,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Row,
   Select,
   Spinner,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { User, useUser } from "../auth";
-import Grid from "../components/grid";
-import TextLink from "../components/text-link";
-import { fetchapi } from "../fetch-utils";
-import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CategoryCard from "../components/category-card";
+import Grid from "../components/grid";
+import { fetchapi, fetchpost } from "../fetch-utils";
+import { CategoryMetaData, MetaCategory } from "../interfaces";
 
 enum Mode {
   Alphabetical,
@@ -49,10 +50,8 @@ const loadCategoryData = async () => {
     metaCategories,
   ] as const;
 };
-const addCategory = async (name: string) => {
-  return new Promise(resolve => {
-    setTimeout(resolve, 1000);
-  });
+const addCategory = async (category: string) => {
+  await fetchpost("/api/category/add", { category });
 };
 
 const mapToCategories = (
@@ -84,36 +83,49 @@ const mapToCategories = (
   return [...meta1Map.entries()].sort(([a], [b]) => a.localeCompare(b));
 };
 
-const AddCategory: React.FC<{ onAddCategory: (name: string) => void }> = ({
+const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   onAddCategory,
 }) => {
-  const { loading, run } = useRequest(addCategory, { manual: true });
+  const [isOpen, setIsOpen] = useState(false);
+  const { loading, run } = useRequest(addCategory, {
+    manual: true,
+    onSuccess: () => {
+      setCategoryName("");
+      setIsOpen(false);
+      onAddCategory();
+    },
+  });
   const [categoryName, setCategoryName] = useState("");
   const onSubmit = () => {
-    setCategoryName("");
     run(categoryName);
-    onAddCategory(categoryName);
   };
+
   return (
-    <Card>
-      <CardBody>
-        <h5>Add Category</h5>
-        <Input
-          type="text"
-          placeholder="Category Name"
-          value={categoryName}
-          onChange={e => setCategoryName(e.currentTarget.value)}
-        />
-      </CardBody>
-      <CardFooter>
-        <Button
-          onClick={onSubmit}
-          disabled={categoryName.length === 0 || loading}
-        >
-          {loading ? <Spinner /> : "Add Category"}
-        </Button>
-      </CardFooter>
-    </Card>
+    <>
+      <Modal isOpen={isOpen} toggle={() => setIsOpen(false)}>
+        <ModalHeader>Add Category</ModalHeader>
+        <ModalBody>
+          <InputField
+            label="Category Name"
+            type="text"
+            value={categoryName}
+            onChange={e => setCategoryName(e.currentTarget.value)}
+          />
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            onClick={onSubmit}
+            disabled={categoryName.length === 0 || loading}
+          >
+            {loading ? <Spinner /> : "Add Category"}
+          </Button>
+        </ModalFooter>
+      </Modal>
+
+      <Button onClick={() => setIsOpen(true)}>
+        <Icon icon={ICONS.PLUS} size={40} style={{ margin: "auto" }} />
+      </Button>
+    </>
   );
 };
 
@@ -121,7 +133,7 @@ const HomePage: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState<Mode>("mode", Mode.Alphabetical);
   const [filter, setFilter] = useState("");
-  const { data, error, loading } = useRequest(loadCategoryData, {
+  const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
   });
   const [categoriesWithDefault, metaCategories] = data ? data : [];
@@ -152,9 +164,9 @@ const HomePage: React.FC<{}> = () => {
     [filteredCategories, metaCategories],
   );
 
-  const onAddCategory = useCallback((categoryName: string) => {
-    console.log(categoryName);
-  }, []);
+  const onAddCategory = useCallback(() => {
+    run();
+  }, [run]);
 
   return (
     <Container>
