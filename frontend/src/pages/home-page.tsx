@@ -39,8 +39,21 @@ const loadMetaCategories = async () => {
   return (await fetchapi("/api/listmetacategories")).value as MetaCategory[];
 };
 const loadCategoryData = async () => {
-  return await Promise.all([loadCategories(), loadMetaCategories()]);
+  const [categories, metaCategories] = await Promise.all([
+    loadCategories(),
+    loadMetaCategories(),
+  ]);
+  return [
+    categories.sort((a, b) => a.category.localeCompare(b.category)),
+    metaCategories,
+  ] as const;
 };
+const addCategory = async (name: string) => {
+  return new Promise(resolve => {
+    setTimeout(resolve, 1000);
+  });
+};
+
 const mapToCategories = (
   categories: CategoryMetaData[],
   meta1: MetaCategory[],
@@ -71,31 +84,36 @@ const mapToCategories = (
 const Category: React.FC<{ category: CategoryMetaData }> = ({ category }) => {
   return (
     <Card>
-      <Link to={`category/${category.slug}`} style={{ color: "black" }}>
-        <CardHeader tag="h6">{category.category}</CardHeader>
+      <TextLink to={`category/${category.slug}`} style={{ color: "black" }}>
         <CardBody>
+          <h5>{category.category}</h5>
           <div>
             Exams:{" "}
             {`${category.examcountanswered} / ${category.examcountpublic}`}
           </div>
           <div>Answers: {(category.answerprogress * 100).toString()} %</div>
         </CardBody>
-      </Link>
+        <CardFooter>
+          <Progress value={category.answerprogress} max={1} />
+        </CardFooter>
+      </TextLink>
     </Card>
   );
 };
 const AddCategory: React.FC<{ onAddCategory: (name: string) => void }> = ({
   onAddCategory,
 }) => {
+  const { loading, run } = useRequest(addCategory, { manual: true });
   const [categoryName, setCategoryName] = useState("");
   const onSubmit = () => {
     setCategoryName("");
+    run(categoryName);
     onAddCategory(categoryName);
   };
   return (
     <Card>
-      <CardHeader tag="h6">Add Category</CardHeader>
       <CardBody>
+        <h5>Add Category</h5>
         <Input
           type="text"
           placeholder="Category Name"
@@ -104,8 +122,11 @@ const AddCategory: React.FC<{ onAddCategory: (name: string) => void }> = ({
         />
       </CardBody>
       <CardFooter>
-        <Button onClick={onSubmit} disabled={categoryName.length === 0}>
-          Add Category
+        <Button
+          onClick={onSubmit}
+          disabled={categoryName.length === 0 || loading}
+        >
+          {loading ? <Spinner /> : "Add Category"}
         </Button>
       </CardFooter>
     </Card>
@@ -116,7 +137,7 @@ const HomePage: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState<Mode>("mode", Mode.Alphabetical);
   const [filter, setFilter] = useState("");
-  const { data, error, loading, run } = useRequest(loadCategoryData, {
+  const { data, error, loading } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
   });
   const [categoriesWithDefault, metaCategories] = data ? data : [];
@@ -145,13 +166,9 @@ const HomePage: React.FC<{}> = () => {
     [filteredCategories, metaCategories],
   );
 
-  const onAddCategory = useCallback(
-    (categoryName: string) => {
-      run();
-      console.log(categoryName);
-    },
-    [run],
-  );
+  const onAddCategory = useCallback((categoryName: string) => {
+    console.log(categoryName);
+  }, []);
 
   return (
     <Container>
