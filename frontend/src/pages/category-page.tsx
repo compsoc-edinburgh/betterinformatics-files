@@ -12,7 +12,7 @@ import {
   Table,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
@@ -50,9 +50,26 @@ const mapExamsToExamType = (exams: CategoryExam[]) => {
 interface ExamTypeCardProps {
   examtype: string;
   exams: CategoryExam[];
+  selected: Set<string>;
+  onSelect: (filenames: string[]) => void;
+  onDeselect: (filenames: string[]) => void;
 }
-const ExamTypeCard: React.FC<ExamTypeCardProps> = ({ examtype, exams }) => {
-  const history = useHistory();
+const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
+  examtype,
+  exams,
+  selected,
+  onSelect,
+  onDeselect,
+}) => {
+  // const history = useHistory();
+  const allSelected = exams.every(exam => selected.has(exam.filename));
+  const someSelected = exams.some(exam => selected.has(exam.filename));
+  const checked = someSelected;
+  const indeterminate = someSelected && !allSelected;
+  const setChecked = (newValue: boolean) => {
+    if (newValue) onSelect(exams.map(exam => exam.filename));
+    else onDeselect(exams.map(exam => exam.filename));
+  };
   return (
     <Card>
       <CardHeader tag="h4">{examtype}</CardHeader>
@@ -60,7 +77,12 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({ examtype, exams }) => {
         <thead>
           <tr>
             <th>
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={checked}
+                ref={el => el && (el.indeterminate = indeterminate)}
+                onChange={e => setChecked(e.currentTarget.checked)}
+              />
             </th>
             <th>Name</th>
             <th>Remark</th>
@@ -72,10 +94,18 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({ examtype, exams }) => {
             <tr
               key={exam.filename}
               style={{ cursor: "pointer" }}
-              onClick={() => history.push(`/exams/${exam.filename}`)}
+              //  onClick={() => history.push(`/exams/${exam.filename}`)}
             >
               <td>
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  checked={selected.has(exam.filename)}
+                  onChange={e =>
+                    e.currentTarget.checked
+                      ? onSelect([exam.filename])
+                      : onDeselect([exam.filename])
+                  }
+                />
               </td>
               <td>
                 <Link to={`/exams/${exam.filename}`}>{exam.displayname}</Link>
@@ -97,10 +127,26 @@ interface ExamListProps {
 }
 const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   const { data, loading, error } = useRequest(() => loadList(metaData.slug));
+  const [selected, setSelected] = useState(new Set<string>());
   const examTypeMap = useMemo(
     () => (data ? mapExamsToExamType(data) : undefined),
     [data],
   );
+  const onSelect = useCallback((filenames: string[]) => {
+    setSelected(prevSelected => {
+      const copy = new Set(prevSelected);
+      for (const filename of filenames) copy.add(filename);
+      return copy;
+    });
+  }, []);
+  const onDeselect = useCallback((filenames: string[]) => {
+    setSelected(prevSelected => {
+      const copy = new Set(prevSelected);
+      for (const filename of filenames) copy.delete(filename);
+      return copy;
+    });
+  }, []);
+
   return (
     <>
       {error ? (
@@ -110,7 +156,14 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
       ) : (
         examTypeMap &&
         examTypeMap.map(([examtype, exams]) => (
-          <ExamTypeCard examtype={examtype} exams={exams} key={examtype} />
+          <ExamTypeCard
+            examtype={examtype}
+            exams={exams}
+            key={examtype}
+            selected={selected}
+            onSelect={onSelect}
+            onDeselect={onDeselect}
+          />
         ))
       )}
     </>
