@@ -9,14 +9,22 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  TextareaField,
+  Spinner,
 } from "@vseth/components";
 import React, { useCallback, useState } from "react";
+import { imageHandler, fetchpost } from "../fetch-utils";
 import { Answer, AnswerSection } from "../interfaces";
-import MarkdownText from "./markdown-text";
 import Editor from "./Editor";
-import { imageHandler } from "../fetch-utils";
 import { UndoStack } from "./Editor/utils/undo-stack";
+import MarkdownText from "./markdown-text";
+import TwoButtons from "./two-buttons";
+import { useRequest } from "@umijs/hooks";
+
+const setAnswer = async (oid: string, text: string, legacy_answer: boolean) => {
+  return (
+    await fetchpost(`/api/exam/setanswer/${oid}/`, { text, legacy_answer })
+  ).value as AnswerSection;
+};
 
 interface Props {
   section: AnswerSection;
@@ -24,18 +32,45 @@ interface Props {
   onSectionChanged: (newSection: AnswerSection) => void;
   onDelete?: () => void;
 }
-const AnswerComponent: React.FC<Props> = ({ section, answer, onDelete }) => {
+const AnswerComponent: React.FC<Props> = ({
+  section,
+  answer,
+  onDelete,
+  onSectionChanged,
+}) => {
+  const { loading: updating, run } = useRequest(setAnswer, {
+    manual: true,
+    onSuccess: res => {
+      onSectionChanged(res);
+      if (answer === undefined && onDelete) onDelete();
+      setEditing(false);
+    },
+  });
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
 
-  const [draftText, setDraftText] = useState(answer?.text ?? "");
+  const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
+  const startEdit = useCallback(() => {
+    setDraftText(answer?.text ?? "");
+    setEditing(true);
+  }, [answer]);
+  const onCancel = useCallback(() => {
+    setEditing(false);
+    if (answer === undefined && onDelete) onDelete();
+  }, [onDelete, answer]);
+  const save = useCallback(() => {
+    run(section.oid, draftText, false);
+  }, [section.oid, draftText, run, onDelete, answer]);
+
   return (
     <>
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
-        <CardHeader tag="h6">
-          {answer?.authorDisplayName ?? "(Draft)"}
+        <CardHeader>
+          <TwoButtons
+            left={<h6>{answer?.authorDisplayName ?? "(Draft)"}</h6>}
+          />
         </CardHeader>
         <CardBody>
           {editing || answer === undefined ? (
@@ -50,33 +85,50 @@ const AnswerComponent: React.FC<Props> = ({ section, answer, onDelete }) => {
           ) : (
             <MarkdownText value={answer?.text ?? ""} />
           )}
-
-          <div style={{ textAlign: "right" }}>
-            <ButtonGroup>
-              {answer === undefined && (
-                <Button size="sm" onClick={onDelete}>
-                  Delete Draft
-                </Button>
-              )}
-              {answer !== undefined && <Button size="sm">Add Comment</Button>}
-              {answer !== undefined && (
-                <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-                  <DropdownToggle size="sm" caret>
-                    More
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {answer === undefined && (
-                      <DropdownItem onClick={onDelete || (() => undefined)}>
-                        Delete Draft
-                      </DropdownItem>
-                    )}
-                    <DropdownItem>Flag as Inappropriate</DropdownItem>
-                    <DropdownItem>Permalink</DropdownItem>
-                  </DropdownMenu>
-                </ButtonDropdown>
-              )}
-            </ButtonGroup>
-          </div>
+          <TwoButtons
+            left={
+              <>
+                {(answer === undefined || editing) && (
+                  <Button
+                    color="primary"
+                    size="sm"
+                    onClick={save}
+                    disabled={updating}
+                  >
+                    {updating ? <Spinner /> : "Save"}
+                  </Button>
+                )}
+              </>
+            }
+            right={
+              <>
+                <ButtonGroup>
+                  {(answer === undefined || editing) && (
+                    <Button size="sm" onClick={onCancel}>
+                      {editing ? "Cancel" : "Delete Draft"}
+                    </Button>
+                  )}
+                  {answer !== undefined && (
+                    <Button size="sm">Add Comment</Button>
+                  )}
+                  {answer !== undefined && (
+                    <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+                      <DropdownToggle size="sm" caret>
+                        More
+                      </DropdownToggle>
+                      <DropdownMenu>
+                        {answer.canEdit && !editing && (
+                          <DropdownItem onClick={startEdit}>Edit</DropdownItem>
+                        )}
+                        <DropdownItem>Flag as Inappropriate</DropdownItem>
+                        <DropdownItem>Permalink</DropdownItem>
+                      </DropdownMenu>
+                    </ButtonDropdown>
+                  )}
+                </ButtonGroup>
+              </>
+            }
+          />
         </CardBody>
       </Card>
       {answer && answer.comments.length > 0 && (

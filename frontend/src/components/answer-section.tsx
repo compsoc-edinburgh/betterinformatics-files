@@ -40,8 +40,10 @@ const AnswerSectionComponent: React.FC<Props> = ({
   hidden,
   cutVersion,
 }) => {
-  const { loading, data, run } = useRequest(() => loadAnswers(oid), {
+  const [data, setData] = useState<AnswerSection | undefined>();
+  const { loading, run } = useRequest(() => loadAnswers(oid), {
     manual: true,
+    onSuccess: setData,
   });
   const [inViewport, ref] = useInViewport<HTMLDivElement>();
   const visible = inViewport || false;
@@ -66,13 +68,13 @@ const AnswerSectionComponent: React.FC<Props> = ({
               key={answer.oid}
               section={data}
               answer={answer}
-              onSectionChanged={() => {}}
+              onSectionChanged={setData}
             />
           ))}
           {hasDraft && (
             <AnswerComponent
               section={data}
-              onSectionChanged={() => {}}
+              onSectionChanged={setData}
               onDelete={() => setHasDraft(false)}
             />
           )}
