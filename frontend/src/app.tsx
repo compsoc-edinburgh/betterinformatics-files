@@ -8,9 +8,9 @@ import FeedbackPage from "./pages/feedback-page";
 import HomePage from "./pages/home-page";
 import LoginPage from "./pages/login-page";
 import CategoryPage from "./pages/category-page";
-import { Container } from "@vseth/components";
 import NotFoundPage from "./pages/not-found-page";
 import ExamPage from "./pages/exam-page";
+import UploadPdfPage from "./pages/uploadpdf";
 
 const App: React.FC<{}> = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -44,8 +44,9 @@ const App: React.FC<{}> = () => {
           <ExamsNavbar />
           <main className="main__container">
             <Switch>
-              <Route exact path="/login" component={LoginPage} />
               <UserRoute exact path="/" component={HomePage} />
+              <Route exact path="/login" component={LoginPage} />
+              <UserRoute exact path="/uploadpdf" component={UploadPdfPage} />
               <UserRoute exact path="/feedback" component={FeedbackPage} />
               <UserRoute
                 exact

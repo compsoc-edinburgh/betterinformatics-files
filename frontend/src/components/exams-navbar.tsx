@@ -10,6 +10,9 @@ const ExamsNavbar: React.FC<{}> = () => {
   const adminItems: Item[] = [
     {
       title: "Upload Exam",
+      linkProps: {
+        to: "/uploadpdf",
+      },
     },
     {
       title: "Mod Queue",
