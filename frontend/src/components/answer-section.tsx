@@ -134,7 +134,6 @@ const AnswerSectionComponent: React.FC<Props> = ({
     <Container fluid>
       {!hidden && data && (
         <>
-          {" "}
           {data.answers.map(answer => (
             <AnswerComponent
               key={answer.oid}
