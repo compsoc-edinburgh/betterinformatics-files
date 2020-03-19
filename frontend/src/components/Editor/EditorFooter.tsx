@@ -1,45 +1,21 @@
 import * as React from "react";
 import { css } from "emotion";
-import { useRef, useCallback } from "react";
-import { Image as ImageIcon, Plus } from "react-feather";
+import { useRef, useCallback, useState } from "react";
 import { ImageHandle } from "./utils/types";
+import {
+  Button,
+  ButtonGroup,
+  Modal,
+  ModalHeader,
+  ModalBody,
+} from "@vseth/components";
 
-const addImageIconStyle = css`
-  margin: 0;
-  border: none;
-  cursor: pointer;
-  background-color: transparent;
-  padding: 6px;
-`;
-const footerStyle = css`
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-`;
 const rowStyle = css`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`;
-const spacer = css`
-  flex-grow: 1;
+  text-align: right;
 `;
 const fileInputStyle = css`
   visibility: hidden;
   display: none;
-`;
-const addImageButtonStyle = css`
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  color: rgba(0, 0, 0, 0.4);
-  transition: color 0.1s;
-  &:hover {
-    color: rgba(0, 0, 0, 0.8);
-  }
-`;
-const addImageTextStyle = css`
-  font-size: 12px;
 `;
 interface Props {
   onFiles: (files: File[]) => void;
@@ -78,22 +54,22 @@ const EditorFooter: React.FC<Props> = ({
     },
     [onFiles],
   );
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const toggleHelp = useCallback(() => setIsHelpOpen(prev => !prev), []);
   return (
-    <div className={footerStyle}>
+    <div>
       <div className={rowStyle}>
-        <div className={spacer} />
-        <button onClick={onOpenOverlay} className={addImageButtonStyle}>
-          <div className={addImageIconStyle}>
-            <ImageIcon size={iconSize} />
-          </div>
-          <div className={addImageTextStyle}>Browse Images</div>
-        </button>
-        <button onClick={onFile} className={addImageButtonStyle}>
-          <div className={addImageIconStyle}>
-            <Plus size={iconSize} />
-          </div>
-          <div className={addImageTextStyle}>Add Image</div>
-        </button>
+        <ButtonGroup>
+          <Button size="sm" onClick={toggleHelp}>
+            Help
+          </Button>
+          <Button size="sm" onClick={onOpenOverlay}>
+            Browse Images
+          </Button>
+          <Button size="sm" onClick={onFile}>
+            Add Image
+          </Button>
+        </ButtonGroup>
         <input
           type="file"
           className={fileInputStyle}
@@ -101,10 +77,13 @@ const EditorFooter: React.FC<Props> = ({
           onChange={onChangeHandler}
         />
       </div>
-      <small>
-        You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n
-        math \n $$ for latex math.
-      </small>
+      <Modal isOpen={isHelpOpen} toggle={toggleHelp}>
+        <ModalHeader>Help</ModalHeader>
+        <ModalBody>
+          You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n
+          math \n $$ for latex math.
+        </ModalBody>
+      </Modal>
     </div>
   );
 };
