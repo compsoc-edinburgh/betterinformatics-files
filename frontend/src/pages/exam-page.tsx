@@ -7,7 +7,7 @@ import {
   Spinner,
 } from "@vseth/components";
 import { getDocument } from "pdfjs-dist";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnswerSectionComponent from "../components/answer-section";
 import PdfSectionCanvas from "../components/pdf-section-canvas";
@@ -22,6 +22,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf-renderer";
 import { PDFDocumentProxy } from "../pdfjs";
+const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const loadExamMetaData = async (filename: string) => {
   return (await fetchapi(`/api/exam/metadata/${filename}/`))
@@ -33,6 +34,13 @@ const loadSplitRenderer = async (filename: string) => {
   );
   const renderer = new PDF(pdf);
   return [pdf, renderer] as const;
+};
+interface CutVersions {
+  [oid: string]: number;
+}
+const loadCutVersions = async (filename: string) => {
+  return (await fetchapi(`/api/exam/cutversions/${filename}/`))
+    .value as CutVersions;
 };
 
 interface ServerCutResponse {
@@ -57,7 +65,24 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   width,
   sizeRef,
 }) => {
+  const { filename } = metaData;
   const [visible, show, hide] = useSet<string>();
+  const [cutVersions, setCutVersions] = useState<CutVersions>({});
+  const { run: updateCuts } = useRequest(() => loadCutVersions(filename), {
+    manual: true,
+    onSuccess: response => {
+      setCutVersions(oldVersions => ({ ...oldVersions, ...response }));
+    },
+  });
+  useEffect(() => {
+    const interval = window.setInterval(
+      updateCuts,
+      CUT_VERSION_UPDATE_INTERVAL,
+    );
+    return () => {
+      window.clearInterval(interval);
+    };
+  });
   return (
     <>
       <Container>
@@ -81,7 +106,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                     : show(section.oid)
                 }
                 hidden={!visible.has(section.oid)}
-                cutVersion={section.cutVersion}
+                cutVersion={cutVersions[section.oid] || section.cutVersion}
               />
             ) : (
               renderer && (
