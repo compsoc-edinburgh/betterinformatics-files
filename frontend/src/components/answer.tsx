@@ -19,6 +19,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import TwoButtons from "./two-buttons";
 import { useRequest } from "@umijs/hooks";
+import Score from "./score";
 
 const setAnswer = async (oid: string, text: string, legacy_answer: boolean) => {
   return (
@@ -62,7 +63,7 @@ const AnswerComponent: React.FC<Props> = ({
   }, [onDelete, answer]);
   const save = useCallback(() => {
     run(section.oid, draftText, false);
-  }, [section.oid, draftText, run, onDelete, answer]);
+  }, [section.oid, draftText, run]);
 
   return (
     <>
@@ -70,6 +71,7 @@ const AnswerComponent: React.FC<Props> = ({
         <CardHeader>
           <TwoButtons
             left={<h6>{answer?.authorDisplayName ?? "(Draft)"}</h6>}
+            right={answer && <Score currentScore={answer.upvotes} />}
           />
         </CardHeader>
         <CardBody>
