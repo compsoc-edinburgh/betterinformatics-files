@@ -1,3 +1,4 @@
+import { useInViewport, useRequest } from "@umijs/hooks";
 import {
   Button,
   Card,
@@ -8,7 +9,8 @@ import {
 import React, { useEffect } from "react";
 import { fetchapi } from "../fetch-utils";
 import { AnswerSection } from "../interfaces";
-import { useRequest, useInViewport } from "@umijs/hooks";
+import AnswerComponent from "./answer";
+import ThreeButtons from "./three-buttons";
 
 const loadAnswers = async (oid: string) => {
   return (await fetchapi(`/api/exam/answersection/${oid}/`))
@@ -26,7 +28,7 @@ interface Props {
   hidden: boolean;
   cutVersion: number;
 }
-const Spacer: React.FC<{}> = () => <div style={{ flexGrow: 1 }} />;
+
 const AnswerSectionComponent: React.FC<Props> = ({
   isExpert,
   filename,
@@ -44,29 +46,53 @@ const AnswerSectionComponent: React.FC<Props> = ({
   const [inViewport, ref] = useInViewport<HTMLDivElement>();
   const visible = inViewport || false;
   useEffect(() => {
-    if (data === undefined && loading === false && visible) {
+    if (
+      (data === undefined || data.cutVersion !== cutVersion) &&
+      loading === false &&
+      visible
+    ) {
       run();
     }
-  }, [data, loading, visible, run]);
+  }, [data, loading, visible, run, cutVersion]);
 
   return (
-    <Container style={{ marginTop: "2em", marginBottom: "2em" }}>
-      <Card>
+    <Container>
+      {!hidden &&
+        data &&
+        data.answers.map(answer => (
+          <AnswerComponent
+            section={data}
+            answer={answer}
+            onSectionChanged={() => {}}
+          />
+        ))}
+      <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
         <CardHeader>
           <div style={{ display: "flex" }} ref={ref}>
             {data === undefined ? (
               <>
-                <Spacer />
-                <Spinner />
-                <Spacer />
+                <ThreeButtons center={<Spinner />} />
               </>
             ) : (
               <>
-                <Spacer />
-                <Button color="primary" size="sm">
-                  {hidden ? "Show Answers" : "Hide Answers"}
-                </Button>
-                <Spacer />
+                <ThreeButtons
+                  left={
+                    (data.answers.length === 0 || !hidden) && (
+                      <Button size="sm">Add Answer</Button>
+                    )
+                  }
+                  center={
+                    data.answers.length > 0 && (
+                      <Button
+                        color="primary"
+                        size="sm"
+                        onClick={onToggleHidden}
+                      >
+                        {hidden ? "Show Answers" : "Hide Answers"}
+                      </Button>
+                    )
+                  }
+                />
               </>
             )}
           </div>
