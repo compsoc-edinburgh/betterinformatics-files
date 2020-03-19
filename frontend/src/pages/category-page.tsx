@@ -3,6 +3,7 @@ import {
   Alert,
   Badge,
   Breadcrumb,
+  Button,
   Card,
   CardHeader,
   Container,
@@ -12,13 +13,13 @@ import {
   Table,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
-import React, { useMemo, useState, useCallback } from "react";
+import React, { useMemo } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
 import { fetchapi } from "../fetch-utils";
-import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 import useSet from "../hooks/useSet";
+import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 
 const loadCategoryMetaData = async (slug: string) => {
   return (await fetchapi(`/api/category/metadata/${slug}`))
@@ -48,6 +49,22 @@ const mapExamsToExamType = (exams: CategoryExam[]) => {
       .entries(),
   ].sort(([a], [b]) => a.localeCompare(b));
 };
+const dlSelectedExams = (selectedExams: Set<string>) => {
+  const form = document.createElement("form");
+  form.action = "/api/exam/zipexport/";
+  form.method = "POST";
+  form.target = "_blank";
+  for (const filename of selectedExams) {
+    const input = document.createElement("input");
+    input.name = "filenames";
+    input.value = filename;
+    form.appendChild(input);
+  }
+  form.style.display = "none";
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+};
 
 interface ExamTypeCardProps {
   examtype: string;
@@ -73,7 +90,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
     else onDeselect(...exams.map(exam => exam.filename));
   };
   return (
-    <Card>
+    <Card style={{ margin: "0.5em" }}>
       <CardHeader tag="h4">{examtype}</CardHeader>
       <Table>
         <thead>
@@ -140,6 +157,16 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
+      <Card style={{ margin: "0.5em" }}>
+        <CardHeader>
+          <Button
+            disabled={selected.size === 0}
+            onClick={() => dlSelectedExams(selected)}
+          >
+            Download selected exams
+          </Button>
+        </CardHeader>
+      </Card>
       {error ? (
         <Alert color="danger">{error}</Alert>
       ) : loading ? (
