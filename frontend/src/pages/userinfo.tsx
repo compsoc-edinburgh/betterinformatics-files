@@ -548,19 +548,6 @@ export default class UserInfoComponent extends React.Component<Props, State> {
     return (
       <div {...styles.rowContent}>
         <h2>Answers</h2>
-        {answers.map(answer => (
-          <AnswerComponent
-            key={answer.oid}
-            isReadonly={true}
-            isAdmin={this.props.isAdmin}
-            isExpert={false}
-            filename={answer.filename}
-            sectionId={answer.sectionId}
-            answer={answer}
-            onSectionChanged={() => undefined}
-            onCancelEdit={() => undefined}
-          />
-        ))}
         <div>
           {answers.length < this.state.answers.length && (
             <button onClick={() => this.setState({ showAllAnswers: true })}>

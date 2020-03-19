@@ -6,7 +6,7 @@ import {
   Container,
   Spinner,
 } from "@vseth/components";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { fetchapi } from "../fetch-utils";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
@@ -54,18 +54,25 @@ const AnswerSectionComponent: React.FC<Props> = ({
       run();
     }
   }, [data, loading, visible, run, cutVersion]);
+  const [hasDraft, setHasDraft] = useState(false);
 
   return (
     <Container>
-      {!hidden &&
-        data &&
-        data.answers.map(answer => (
-          <AnswerComponent
-            section={data}
-            answer={answer}
-            onSectionChanged={() => {}}
-          />
-        ))}
+      {!hidden && data && (
+        <>
+          {" "}
+          {data.answers.map(answer => (
+            <AnswerComponent
+              section={data}
+              answer={answer}
+              onSectionChanged={() => {}}
+            />
+          ))}
+          {hasDraft && (
+            <AnswerComponent section={data} onSectionChanged={() => {}} />
+          )}
+        </>
+      )}
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
         <CardHeader>
           <div style={{ display: "flex" }} ref={ref}>
@@ -78,7 +85,16 @@ const AnswerSectionComponent: React.FC<Props> = ({
                 <ThreeButtons
                   left={
                     (data.answers.length === 0 || !hidden) && (
-                      <Button size="sm">Add Answer</Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setHasDraft(true);
+                          onToggleHidden();
+                        }}
+                        disabled={hasDraft}
+                      >
+                        Add Answer
+                      </Button>
                     )
                   }
                   center={

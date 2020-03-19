@@ -9,6 +9,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
+  TextareaField,
 } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
@@ -22,11 +23,13 @@ interface Props {
 const AnswerComponent: React.FC<Props> = ({ section, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen(old => !old), []);
+  const [editing, setEditing] = useState(false);
   return (
     <>
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
         <CardHeader>{answer?.authorDisplayName ?? "(Draft)"}</CardHeader>
         <CardBody>
+          {(editing || answer === undefined) && <TextareaField />}
           <MarkdownText value={answer?.text ?? ""} />
           <div style={{ textAlign: "right" }}>
             <ButtonGroup>
