@@ -53,25 +53,28 @@ const AnswerComponent: React.FC<Props> = ({ section, answer, onDelete }) => {
 
           <div style={{ textAlign: "right" }}>
             <ButtonGroup>
+              {answer === undefined && (
+                <Button size="sm" onClick={onDelete}>
+                  Delete Draft
+                </Button>
+              )}
               {answer !== undefined && <Button size="sm">Add Comment</Button>}
-              <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-                <DropdownToggle size="sm" caret>
-                  More
-                </DropdownToggle>
-                <DropdownMenu>
-                  {answer === undefined && (
-                    <DropdownItem onClick={onDelete || (() => undefined)}>
-                      Delete Draft
-                    </DropdownItem>
-                  )}
-                  {answer !== undefined && (
+              {answer !== undefined && (
+                <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+                  <DropdownToggle size="sm" caret>
+                    More
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {answer === undefined && (
+                      <DropdownItem onClick={onDelete || (() => undefined)}>
+                        Delete Draft
+                      </DropdownItem>
+                    )}
                     <DropdownItem>Flag as Inappropriate</DropdownItem>
-                  )}
-                  {answer !== undefined && (
                     <DropdownItem>Permalink</DropdownItem>
-                  )}
-                </DropdownMenu>
-              </ButtonDropdown>
+                  </DropdownMenu>
+                </ButtonDropdown>
+              )}
             </ButtonGroup>
           </div>
         </CardBody>
