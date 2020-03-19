@@ -1,25 +1,26 @@
+import { useRequest } from "@umijs/hooks";
 import {
   Button,
   ButtonDropdown,
   ButtonGroup,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
-  Container,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
   Spinner,
 } from "@vseth/components";
 import React, { useCallback, useState } from "react";
-import { imageHandler, fetchpost } from "../fetch-utils";
+import { fetchpost, imageHandler } from "../fetch-utils";
 import { Answer, AnswerSection } from "../interfaces";
+import CommentSectionComponent from "./comment-section";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
-import TwoButtons from "./two-buttons";
-import { useRequest } from "@umijs/hooks";
 import Score from "./score";
+import TwoButtons from "./two-buttons";
 
 const setAnswer = async (oid: string, text: string, legacy_answer: boolean) => {
   return (
@@ -139,14 +140,12 @@ const AnswerComponent: React.FC<Props> = ({
             }
           />
         </CardBody>
+        {answer && answer.comments.length > 0 && (
+          <CardFooter>
+            <CommentSectionComponent answer={answer} />
+          </CardFooter>
+        )}
       </Card>
-      {answer && answer.comments.length > 0 && (
-        <Container>
-          {answer.comments.map(comment => (
-            <>{comment.text}</>
-          ))}
-        </Container>
-      )}
     </>
   );
 };
