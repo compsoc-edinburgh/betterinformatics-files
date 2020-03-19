@@ -9,11 +9,11 @@ import {
 import { getDocument } from "pdfjs-dist";
 import React, { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useUser } from "../auth";
 import AnswerSectionComponent from "../components/answer-section";
 import PdfSectionCanvas from "../components/pdf-section-canvas";
 import { loadSections } from "../exam-loader";
 import { fetchapi } from "../fetch-utils";
+import useSet from "../hooks/useSet";
 import {
   ExamMetaData,
   Section,
@@ -22,7 +22,6 @@ import {
 } from "../interfaces";
 import PDF from "../pdf-renderer";
 import { PDFDocumentProxy } from "../pdfjs";
-import useSet from "../hooks/useSet";
 
 const loadExamMetaData = async (filename: string) => {
   return (await fetchapi(`/api/exam/metadata/${filename}/`))
