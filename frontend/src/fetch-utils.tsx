@@ -1,3 +1,5 @@
+import { ImageHandle } from "./components/Editor/utils/types";
+
 export async function fetchpost(url: string, data: { [key: string]: any }) {
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
@@ -61,4 +63,21 @@ export function getCookie(name: string): string | null {
     }
   }
   return cookieValue;
+}
+export function imageHandler(file: File): Promise<ImageHandle> {
+  return new Promise((resolve, reject) => {
+    fetchpost("/api/uploadimg", {
+      file: file,
+    })
+      .then(res => {
+        resolve({
+          name: file.name,
+          src: res.filename,
+          remove: async () => {
+            await fetchpost(`/api/image/${res.filename}/remove`, {});
+          },
+        });
+      })
+      .catch(e => reject(e));
+  });
 }
