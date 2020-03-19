@@ -14,6 +14,9 @@ import {
 import React, { useCallback, useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
 import MarkdownText from "./markdown-text";
+import Editor from "./Editor";
+import { imageHandler } from "../fetch-utils";
+import { UndoStack } from "./Editor/utils/undo-stack";
 
 interface Props {
   section: AnswerSection;
@@ -24,6 +27,9 @@ const AnswerComponent: React.FC<Props> = ({ section, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
+
+  const [draftText, setDraftText] = useState(answer?.text ?? "");
+  const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
   return (
     <>
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
@@ -31,8 +37,19 @@ const AnswerComponent: React.FC<Props> = ({ section, answer }) => {
           {answer?.authorDisplayName ?? "(Draft)"}
         </CardHeader>
         <CardBody>
-          {(editing || answer === undefined) && <TextareaField />}
-          <MarkdownText value={answer?.text ?? ""} />
+          {editing || answer === undefined ? (
+            <Editor
+              value={draftText}
+              onChange={setDraftText}
+              imageHandler={imageHandler}
+              preview={value => <MarkdownText value={value} />}
+              undoStack={undoStack}
+              setUndoStack={setUndoStack}
+            />
+          ) : (
+            <MarkdownText value={answer?.text ?? ""} />
+          )}
+
           {answer !== undefined && (
             <div style={{ textAlign: "right" }}>
               <ButtonGroup>
