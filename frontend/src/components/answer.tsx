@@ -74,9 +74,8 @@ const AnswerComponent: React.FC<Props> = ({
           <TwoButtons
             left={
               <h6>
-                {answer?.authorDisplayName ?? isLegacyAnswer
-                  ? "(Legacy Draft)"
-                  : "(Draft)"}
+                {answer?.authorDisplayName ??
+                  (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
               </h6>
             }
             right={answer && <Score currentScore={answer.upvotes} />}
