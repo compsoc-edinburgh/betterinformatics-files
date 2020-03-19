@@ -27,24 +27,28 @@ const AnswerComponent: React.FC<Props> = ({ section, answer }) => {
   return (
     <>
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
-        <CardHeader>{answer?.authorDisplayName ?? "(Draft)"}</CardHeader>
+        <CardHeader tag="h6">
+          {answer?.authorDisplayName ?? "(Draft)"}
+        </CardHeader>
         <CardBody>
           {(editing || answer === undefined) && <TextareaField />}
           <MarkdownText value={answer?.text ?? ""} />
-          <div style={{ textAlign: "right" }}>
-            <ButtonGroup>
-              <Button size="sm">Add Comment</Button>
-              <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-                <DropdownToggle size="sm" caret>
-                  More
-                </DropdownToggle>
-                <DropdownMenu>
-                  <DropdownItem>Flag as Inappropriate</DropdownItem>
-                  <DropdownItem>Permalink</DropdownItem>
-                </DropdownMenu>
-              </ButtonDropdown>
-            </ButtonGroup>
-          </div>
+          {answer !== undefined && (
+            <div style={{ textAlign: "right" }}>
+              <ButtonGroup>
+                <Button size="sm">Add Comment</Button>
+                <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+                  <DropdownToggle size="sm" caret>
+                    More
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    <DropdownItem>Flag as Inappropriate</DropdownItem>
+                    <DropdownItem>Permalink</DropdownItem>
+                  </DropdownMenu>
+                </ButtonDropdown>
+              </ButtonGroup>
+            </div>
+          )}
         </CardBody>
       </Card>
       {answer && answer.comments.length > 0 && (
