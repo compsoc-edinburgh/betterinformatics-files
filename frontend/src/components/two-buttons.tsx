@@ -1,25 +1,18 @@
-import { Container, Row, Col } from "@vseth/components";
+import { css } from "emotion";
 import React from "react";
-import { css } from "glamor";
-const noPadding = css({
-  paddingLeft: "0 !important",
-  paddingRight: "0 !important",
-});
+const flex = css`
+  display: flex;
+  justify-content: space-between;
+`;
 const TwoButtons: React.FC<{
   left?: React.ReactNode;
   right?: React.ReactNode;
 }> = ({ left, right }) => {
   return (
-    <Container fluid {...noPadding}>
-      <Row>
-        <Col xs={6} style={{ textAlign: "left" }} {...noPadding}>
-          {left}
-        </Col>
-        <Col xs={6} style={{ textAlign: "right" }} {...noPadding}>
-          {right}
-        </Col>
-      </Row>
-    </Container>
+    <div className={flex}>
+      <div>{left}</div>
+      <div>{right}</div>
+    </div>
   );
 };
 export default TwoButtons;
