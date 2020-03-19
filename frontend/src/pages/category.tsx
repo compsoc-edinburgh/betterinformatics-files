@@ -330,11 +330,11 @@ export default class Category extends React.Component<Props, State> {
       input.name = "filenames";
       input.value = filename;
       form.appendChild(input);
-      const csrf = document.createElement("input");
-      csrf.name = "csrfmiddlewaretoken";
-      csrf.value = getCookie("csrftoken") || "";
-      form.appendChild(csrf);
     });
+    const csrf = document.createElement("input");
+    csrf.name = "csrfmiddlewaretoken";
+    csrf.value = getCookie("csrftoken") || "";
+    form.appendChild(csrf);
     form.style.display = "none";
     document.body.appendChild(form);
     form.submit();
