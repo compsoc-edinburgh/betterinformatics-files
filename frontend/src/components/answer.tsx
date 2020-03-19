@@ -32,12 +32,14 @@ interface Props {
   answer?: Answer;
   onSectionChanged: (newSection: AnswerSection) => void;
   onDelete?: () => void;
+  isLegacyAnswer: boolean;
 }
 const AnswerComponent: React.FC<Props> = ({
   section,
   answer,
   onDelete,
   onSectionChanged,
+  isLegacyAnswer,
 }) => {
   const { loading: updating, run } = useRequest(setAnswer, {
     manual: true,
@@ -70,7 +72,13 @@ const AnswerComponent: React.FC<Props> = ({
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
         <CardHeader>
           <TwoButtons
-            left={<h6>{answer?.authorDisplayName ?? "(Draft)"}</h6>}
+            left={
+              <h6>
+                {answer?.authorDisplayName ?? isLegacyAnswer
+                  ? "(Legacy Draft)"
+                  : "(Draft)"}
+              </h6>
+            }
             right={answer && <Score currentScore={answer.upvotes} />}
           />
         </CardHeader>
