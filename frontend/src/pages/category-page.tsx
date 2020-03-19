@@ -17,7 +17,7 @@ import React, { useMemo } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
-import { fetchapi } from "../fetch-utils";
+import { fetchapi, getCookie } from "../fetch-utils";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 
@@ -60,6 +60,11 @@ const dlSelectedExams = (selectedExams: Set<string>) => {
     input.value = filename;
     form.appendChild(input);
   }
+  const csrf = document.createElement("input");
+  csrf.name = "csrfmiddlewaretoken";
+  csrf.value = getCookie("csrftoken") || "";
+  form.appendChild(csrf);
+
   form.style.display = "none";
   document.body.appendChild(form);
   form.submit();
