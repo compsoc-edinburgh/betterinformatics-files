@@ -22,6 +22,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf-renderer";
 import { PDFDocumentProxy } from "../pdfjs";
+import useSet from "../hooks/useSet";
 
 const loadExamMetaData = async (filename: string) => {
   return (await fetchapi(`/api/exam/metadata/${filename}/`))
@@ -57,8 +58,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   width,
   sizeRef,
 }) => {
-  const dpr = 2;
-  console.log(dpr);
+  const [visible, show, hide] = useSet<string>();
   return (
     <>
       <Container>
@@ -76,8 +76,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 width={width}
                 canDelete={metaData.canEdit}
                 onSectionChange={() => console.log("change")}
-                onToggleHidden={() => console.log("toggle")}
-                hidden={section.hidden}
+                onToggleHidden={() =>
+                  visible.has(section.oid)
+                    ? hide(section.oid)
+                    : show(section.oid)
+                }
+                hidden={!visible.has(section.oid)}
                 cutVersion={section.cutVersion}
               />
             ) : (
