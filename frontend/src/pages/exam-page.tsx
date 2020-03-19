@@ -107,6 +107,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 }
                 hidden={!visible.has(section.oid)}
                 cutVersion={cutVersions[section.oid] || section.cutVersion}
+                setCutVersion={newVersion =>
+                  setCutVersions(oldVersions => ({
+                    ...oldVersions,
+                    [section.oid]: newVersion,
+                  }))
+                }
               />
             ) : (
               renderer && (

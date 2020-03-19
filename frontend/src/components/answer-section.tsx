@@ -91,6 +91,7 @@ interface Props {
   onToggleHidden: () => void;
   hidden: boolean;
   cutVersion: number;
+  setCutVersion: (newVersion: number) => void;
 }
 
 const AnswerSectionComponent: React.FC<Props> = ({
@@ -103,8 +104,16 @@ const AnswerSectionComponent: React.FC<Props> = ({
   onToggleHidden,
   hidden,
   cutVersion,
+  setCutVersion,
 }) => {
   const [data, setData] = useState<AnswerSection | undefined>();
+  const setAnswerSection = useCallback(
+    (newData: AnswerSection) => {
+      setCutVersion(newData.cutVersion);
+      setData(newData);
+    },
+    [setCutVersion],
+  );
   const { loading, run } = useRequest(() => loadAnswers(oid), {
     manual: true,
     onSuccess: setData,
@@ -139,14 +148,14 @@ const AnswerSectionComponent: React.FC<Props> = ({
               key={answer.oid}
               section={data}
               answer={answer}
-              onSectionChanged={setData}
+              onSectionChanged={setAnswerSection}
               isLegacyAnswer={answer.isLegacyAnswer}
             />
           ))}
           {hasDraft && (
             <AnswerComponent
               section={data}
-              onSectionChanged={setData}
+              onSectionChanged={setAnswerSection}
               onDelete={() => setHasDraft(false)}
               isLegacyAnswer={false}
             />
@@ -154,7 +163,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
           {hasLegacyDraft && (
             <AnswerComponent
               section={data}
-              onSectionChanged={setData}
+              onSectionChanged={setAnswerSection}
               onDelete={() => setHasLegacyDraft(false)}
               isLegacyAnswer={true}
             />

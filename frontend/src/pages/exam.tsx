@@ -595,6 +595,7 @@ export default class Exam extends React.Component<Props, State> {
                       onToggleHidden={() => this.toggleHidden(e.oid)}
                       hidden={e.hidden}
                       cutVersion={e.cutVersion}
+                      setCutVersion={() => undefined}
                     />
                   );
                 case SectionKind.Pdf:
