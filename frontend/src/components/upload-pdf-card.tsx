@@ -14,24 +14,41 @@ import {
   ListGroupItem,
   Row,
   Select,
+  Spinner,
 } from "@vseth/components";
 import React, { useState } from "react";
-import { fetchapi } from "../fetch-utils";
+import { fetchapi, fetchpost } from "../fetch-utils";
 import { CategoryMetaDataMinimal } from "../interfaces";
+import { useHistory } from "react-router-dom";
 
 const loadCategories = async () => {
   return (await fetchapi("/api/category/listonlyadmin/"))
     .value as CategoryMetaDataMinimal[];
 };
+const uploadPdf = async (file: Blob, displayname: string, category: string) => {
+  return (
+    await fetchpost("/api/exam/upload/exam/", { file, displayname, category })
+  ).filename as string;
+};
 
 const LoginCard: React.FC<{}> = () => {
+  const history = useHistory();
   const {
     error: categoriesError,
     loading: categoriesLoading,
     data: categories,
   } = useRequest(loadCategories);
-  const error = categoriesError;
-  const loading = categoriesLoading;
+  const {
+    error: uploadError,
+    loading: uploadLoading,
+    run: upload,
+  } = useRequest(uploadPdf, {
+    manual: true,
+    onSuccess: filename => history.push(`/exams/${filename}`),
+  });
+  const [validationError, setValidationError] = useState("");
+  const error = categoriesError || uploadError || validationError;
+  const loading = categoriesLoading || uploadLoading;
 
   const options = categories?.map(category => ({
     value: category.slug,
@@ -41,17 +58,23 @@ const LoginCard: React.FC<{}> = () => {
   const [file, setFile] = useState<File | undefined>();
   const [displayname, setDisplayname] = useState("");
   const [category, setCategory] = useState<string | undefined>();
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (file && category) {
+      upload(file, displayname, category);
+    } else if (file === undefined) {
+      setValidationError("No file selected");
+    } else {
+      setValidationError("No category selected");
+    }
+  };
 
   return (
     <Card>
       <CardHeader>Upload PDF</CardHeader>
       <CardBody>
-        <Form
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-        >
-          {error && <Alert color="danger">{error}</Alert>}
+        <Form onSubmit={onSubmit}>
+          {error && <Alert color="danger">{error.toString()}</Alert>}
           <InputField
             type="file"
             label="PDF"
@@ -89,7 +112,7 @@ const LoginCard: React.FC<{}> = () => {
             <Col md={4}>
               <FormGroup>
                 <Button color="primary" type="submit" disabled={loading}>
-                  Submit
+                  {uploadLoading ? <Spinner /> : "Submit"}
                 </Button>
               </FormGroup>
             </Col>
