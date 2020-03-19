@@ -8,6 +8,7 @@ import DropZone from "./Dropzone";
 import EditorFooter from "./EditorFooter";
 import ImageOverlay from "../image-overlay";
 import { UndoStack, push, undo, redo } from "./utils/undo-stack";
+import { ListGroupItem, ListGroup } from "@vseth/components";
 
 const editorWrapperStyle = css`
   padding: 1.2em;
@@ -222,45 +223,47 @@ const Editor: React.FC<Props> = ({
   }, []);
 
   return (
-    <>
-      <div
-        className={cx(wrapperStyle, isDragHovered && dragHoveredWrapperStyle)}
-        onDragEnter={onDragEnter}
-      >
-        <EditorHeader
-          activeMode={mode}
-          onActiveModeChange={setMode}
-          onMathClick={onMathClick}
-          onCodeClick={onCodeClick}
-          onLinkClick={onLinkClick}
-          onItalicClick={onItalicClick}
-          onBoldClick={onBoldClick}
-        />
-        <div className={editorWrapperStyle}>
-          {mode === "write" ? (
-            <BasicEditor
-              value={value}
-              onChange={newValue => setCurrent(newValue)}
-              setSelectionRangeRef={setSelectionRangeRef}
-              getSelectionRangeRef={getSelectionRangeRef}
-              onMetaKey={onMetaKey}
-            />
-          ) : (
-            preview(value)
+    <ListGroup style={{ marginBottom: "1em" }}>
+      <ListGroupItem>
+        <div
+          className={cx(wrapperStyle, isDragHovered && dragHoveredWrapperStyle)}
+          onDragEnter={onDragEnter}
+        >
+          <EditorHeader
+            activeMode={mode}
+            onActiveModeChange={setMode}
+            onMathClick={onMathClick}
+            onCodeClick={onCodeClick}
+            onLinkClick={onLinkClick}
+            onItalicClick={onItalicClick}
+            onBoldClick={onBoldClick}
+          />
+          <div className={editorWrapperStyle}>
+            {mode === "write" ? (
+              <BasicEditor
+                value={value}
+                onChange={newValue => setCurrent(newValue)}
+                setSelectionRangeRef={setSelectionRangeRef}
+                getSelectionRangeRef={getSelectionRangeRef}
+                onMetaKey={onMetaKey}
+              />
+            ) : (
+              preview(value)
+            )}
+          </div>
+          <EditorFooter
+            onFiles={onFiles}
+            attachments={attachments}
+            onDelete={onDeleteAttachment}
+            onOpenOverlay={onOpenOverlay}
+          />
+          {isDragHovered && (
+            <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />
           )}
         </div>
-        <EditorFooter
-          onFiles={onFiles}
-          attachments={attachments}
-          onDelete={onDeleteAttachment}
-          onOpenOverlay={onOpenOverlay}
-        />
-        {isDragHovered && (
-          <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />
-        )}
-      </div>
-      {overlayOpen && <ImageOverlay onClose={onImageDialogClose} />}
-    </>
+        {overlayOpen && <ImageOverlay onClose={onImageDialogClose} />}
+      </ListGroupItem>
+    </ListGroup>
   );
 };
 export default Editor;
