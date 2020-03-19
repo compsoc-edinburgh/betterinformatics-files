@@ -57,7 +57,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
   const [hasDraft, setHasDraft] = useState(false);
 
   return (
-    <Container>
+    <Container fluid>
       {!hidden && data && (
         <>
           {" "}
