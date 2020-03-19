@@ -1,19 +1,42 @@
-import { Container, ListGroup, ListGroupItem } from "@vseth/components";
+import { ListGroup } from "@vseth/components";
 import React from "react";
-import { Answer } from "../interfaces";
+import { Answer, AnswerSection } from "../interfaces";
+import CommentComponent from "./comment";
 
 interface Props {
+  hasDraft: boolean;
+  section: AnswerSection;
   answer: Answer;
+  onSectionChanged: (newSection: AnswerSection) => void;
+  onDraftDelete: () => void;
 }
-const CommentSectionComponent: React.FC<Props> = ({ answer }) => {
+const CommentSectionComponent: React.FC<Props> = ({
+  hasDraft,
+  section,
+  answer,
+  onSectionChanged,
+  onDraftDelete,
+}) => {
   return (
     <ListGroup>
       {answer.comments.map(comment => (
-        <ListGroupItem>
-          <h6>{comment.authorDisplayName}</h6>
-          {comment.text}
-        </ListGroupItem>
+        <CommentComponent
+          answer={answer}
+          onSectionChanged={onSectionChanged}
+          section={section}
+          comment={comment}
+          key={comment.oid}
+        />
       ))}
+      {hasDraft && (
+        <CommentComponent
+          answer={answer}
+          onSectionChanged={onSectionChanged}
+          section={section}
+          comment={undefined}
+          onDelete={onDraftDelete}
+        />
+      )}
     </ListGroup>
   );
 };

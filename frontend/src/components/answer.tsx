@@ -67,6 +67,7 @@ const AnswerComponent: React.FC<Props> = ({
   const save = useCallback(() => {
     run(section.oid, draftText, false);
   }, [section.oid, draftText, run]);
+  const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
   return (
     <>
@@ -119,7 +120,9 @@ const AnswerComponent: React.FC<Props> = ({
                     </Button>
                   )}
                   {answer !== undefined && (
-                    <Button size="sm">Add Comment</Button>
+                    <Button size="sm" onClick={() => setHasCommentDraft(true)}>
+                      Add Comment
+                    </Button>
                   )}
                   {answer !== undefined && (
                     <ButtonDropdown isOpen={isOpen} toggle={toggle}>
@@ -142,7 +145,13 @@ const AnswerComponent: React.FC<Props> = ({
         </CardBody>
         {answer && answer.comments.length > 0 && (
           <CardFooter>
-            <CommentSectionComponent answer={answer} />
+            <CommentSectionComponent
+              hasDraft={hasCommentDraft}
+              answer={answer}
+              section={section}
+              onSectionChanged={onSectionChanged}
+              onDraftDelete={() => setHasCommentDraft(false)}
+            />
           </CardFooter>
         )}
       </Card>
