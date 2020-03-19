@@ -63,13 +63,18 @@ const AnswerSectionComponent: React.FC<Props> = ({
           {" "}
           {data.answers.map(answer => (
             <AnswerComponent
+              key={answer.oid}
               section={data}
               answer={answer}
               onSectionChanged={() => {}}
             />
           ))}
           {hasDraft && (
-            <AnswerComponent section={data} onSectionChanged={() => {}} />
+            <AnswerComponent
+              section={data}
+              onSectionChanged={() => {}}
+              onDelete={() => setHasDraft(false)}
+            />
           )}
         </>
       )}
@@ -89,7 +94,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
                         size="sm"
                         onClick={() => {
                           setHasDraft(true);
-                          onToggleHidden();
+                          if (hidden) onToggleHidden();
                         }}
                         disabled={hasDraft}
                       >
