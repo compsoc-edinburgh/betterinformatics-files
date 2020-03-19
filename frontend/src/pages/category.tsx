@@ -6,7 +6,7 @@ import {
   MetaCategory,
 } from "../interfaces";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchapi, fetchpost, getCookie } from "../fetch-utils";
 import { Link, Redirect } from "react-router-dom";
 import {
   filterExams,
@@ -330,6 +330,10 @@ export default class Category extends React.Component<Props, State> {
       input.name = "filenames";
       input.value = filename;
       form.appendChild(input);
+      const csrf = document.createElement("input");
+      csrf.name = "csrfmiddlewaretoken";
+      csrf.value = getCookie("csrftoken") || "";
+      form.appendChild(csrf);
     });
     form.style.display = "none";
     document.body.appendChild(form);
