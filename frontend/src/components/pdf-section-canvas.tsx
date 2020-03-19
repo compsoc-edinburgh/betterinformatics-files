@@ -100,9 +100,7 @@ const PdfSectionCanvas: React.FC<Props> = ({
   const pageNumber = section.start.page;
 
   const [visible, containerElement] = useInViewport<HTMLDivElement>();
-  const [containerHeight, setContainerHeight] = useState(
-    targetWidth * relativeHeight * 1.414,
-  );
+  const [containerHeight, setContainerHeight] = useState(0);
   const [translateY, setTranslateY] = useState(0);
   const [currentScale, setCurrentScale] = useState<number | undefined>(
     undefined,
@@ -154,7 +152,8 @@ const PdfSectionCanvas: React.FC<Props> = ({
       <div
         style={{
           width: `${targetWidth}px`,
-          height: `${containerHeight}px`,
+          height: `${containerHeight ||
+            targetWidth * relativeHeight * 1.414}px`,
           position: "relative",
           overflow: "hidden",
         }}
