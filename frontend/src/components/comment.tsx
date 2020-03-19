@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Button, ListGroupItem, Spinner } from "@vseth/components";
+import { Button, ListGroupItem, Spinner, ICONS, Icon } from "@vseth/components";
 import React, { useState } from "react";
 import { fetchpost, imageHandler } from "../fetch-utils";
 import { Answer, AnswerSection, Comment } from "../interfaces";
@@ -7,6 +7,7 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import TwoButtons from "./two-buttons";
+import { useUser } from "../auth";
 
 const addNewComment = async (answerId: string, text: string) => {
   return (
@@ -36,6 +37,7 @@ const CommentComponent: React.FC<Props> = ({
   onSectionChanged,
   onDelete,
 }) => {
+  const { isAdmin } = useUser()!;
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
@@ -83,14 +85,20 @@ const CommentComponent: React.FC<Props> = ({
 
   return (
     <ListGroupItem>
-      {!editing && comment?.canEdit && (
-        <div
-          style={{ position: "absolute", top: 0, right: 0 }}
-          onClick={startEditing}
-        >
-          <Button size="sm">Edit</Button>
-        </div>
-      )}
+      <div
+        style={{ position: "absolute", top: 0, right: 0 }}
+        onClick={startEditing}
+      >
+        {!editing && comment?.canEdit && (
+          <Button size="sm">
+            <Icon icon={ICONS.EDIT} size={18} />
+          </Button>
+        )}
+        {comment && (comment.canEdit || isAdmin) && (
+          <Button size="sm">Delete</Button>
+        )}
+      </div>
+
       <h6>{comment?.authorDisplayName ?? "(Draft)"}</h6>
       {comment === undefined || editing ? (
         <>

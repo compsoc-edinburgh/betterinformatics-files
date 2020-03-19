@@ -120,7 +120,11 @@ const AnswerComponent: React.FC<Props> = ({
                     </Button>
                   )}
                   {answer !== undefined && (
-                    <Button size="sm" onClick={() => setHasCommentDraft(true)}>
+                    <Button
+                      size="sm"
+                      onClick={() => setHasCommentDraft(true)}
+                      disabled={hasCommentDraft}
+                    >
                       Add Comment
                     </Button>
                   )}
@@ -142,9 +146,7 @@ const AnswerComponent: React.FC<Props> = ({
               </>
             }
           />
-        </CardBody>
-        {answer && answer.comments.length > 0 && (
-          <CardFooter>
+          {answer && (hasCommentDraft || answer.comments.length > 0) && (
             <CommentSectionComponent
               hasDraft={hasCommentDraft}
               answer={answer}
@@ -152,8 +154,8 @@ const AnswerComponent: React.FC<Props> = ({
               onSectionChanged={onSectionChanged}
               onDraftDelete={() => setHasCommentDraft(false)}
             />
-          </CardFooter>
-        )}
+          )}
+        </CardBody>
       </Card>
     </>
   );
