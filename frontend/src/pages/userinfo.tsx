@@ -275,7 +275,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
     notificationsError || enabledError || setEnabledError || markAsReadError;
   const checkboxLoading = enabledLoading || setEnabledLoading;
   useEffect(() => {
-    if (markAsReadLoading) return;
+    if (markAsReadLoading || markAsReadError) return;
     if (isMyself && notifications) {
       const unread = notifications
         .filter(notification => !notification.read)
@@ -283,7 +283,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
       if (unread.length === 0) return;
       markAsRead(...unread);
     }
-  }, [isMyself, notifications, markAsRead, markAsReadLoading]);
+  }, [isMyself, notifications, markAsRead, markAsReadLoading, markAsReadError]);
 
   return (
     <>
