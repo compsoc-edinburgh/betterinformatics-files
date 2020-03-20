@@ -33,7 +33,7 @@ export const useEnabledNotifications = (isMyself: boolean) => {
 const setEnabledNotifications = async (type: number, enabled: boolean) => {
   await fetchpost(`/api/notification/setenabled/`, {
     type,
-    enabled: enabled ? 1 : 0,
+    enabled,
   });
 };
 export const useSetEnabledNotifications = (cb: () => void) => {

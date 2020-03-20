@@ -52,6 +52,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       {answers &&
         answers.map(answer => (
           <AnswerComponent
+            key={answer.oid}
             answer={answer}
             isLegacyAnswer={answer.isLegacyAnswer}
             onSectionChanged={reload}
@@ -91,14 +92,14 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
           {payments
             .filter(payment => payment.active)
             .map(payment => (
-              <div key={payment.oid}>
+              <Alert key={payment.oid}>
                 You have paid for all oral exams until{" "}
                 {moment(
                   payment.valid_until,
                   GlobalConsts.momentParseString,
                 ).format(GlobalConsts.momentFormatStringDate)}
                 .
-              </div>
+              </Alert>
             ))}
           <Grid>
             {payments.map(payment =>
@@ -287,6 +288,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           <input
             type="checkbox"
             checked={enabled && enabled.has(1)}
+            disabled={checkboxLoading}
             onChange={e => setEnabled(1, e.currentTarget.checked)}
           />{" "}
           Comment to my answer
@@ -297,6 +299,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           <input
             type="checkbox"
             checked={enabled && enabled.has(2)}
+            disabled={checkboxLoading}
             onChange={e => setEnabled(2, e.currentTarget.checked)}
           />{" "}
           Comment to my comment
@@ -307,6 +310,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           <input
             type="checkbox"
             checked={enabled && enabled.has(3)}
+            disabled={checkboxLoading}
             onChange={e => setEnabled(3, e.currentTarget.checked)}
           />{" "}
           Other answer to same question
@@ -315,7 +319,10 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
       {notificationsLoading && <Spinner />}
       {notifications &&
         notifications.map(notification => (
-          <NotificationComponent notification={notification} />
+          <NotificationComponent
+            notification={notification}
+            key={notification.oid}
+          />
         ))}
     </>
   );
