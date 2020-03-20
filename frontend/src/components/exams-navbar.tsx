@@ -7,6 +7,7 @@ import { Item } from "@vseth/components/dist/components/VSETHNav/VSETHNavbar";
 const ExamsNavbar: React.FC<{}> = () => {
   const location = useLocation();
   const user = useUser();
+  const username = user?.username;
   const adminItems: Item[] = [
     {
       title: "Upload Exam",
@@ -62,9 +63,9 @@ const ExamsNavbar: React.FC<{}> = () => {
         {
           title: "Account",
           icon: ICONS.USER,
-          active: location.pathname === "/me",
+          active: location.pathname === `/user/${username}`,
           linkProps: {
-            to: "/me",
+            to: `/user/${username}`,
           },
         },
       ]}
