@@ -5,7 +5,8 @@ import {
   ButtonGroup,
   Card,
   CardBody,
-  CardFooter,
+  Icon,
+  ICONS,
   CardHeader,
   DropdownItem,
   DropdownMenu,
@@ -21,11 +22,31 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TwoButtons from "./two-buttons";
+import { useUser } from "../auth";
+import { css } from "emotion";
 
-const setAnswer = async (oid: string, text: string, legacy_answer: boolean) => {
+const bodyCanEditStyle = css`
+  position: relative;
+  padding-top: 2em !important;
+`;
+const actionButtonContainer = css`
+  position: absolute;
+  top: 0;
+  right: 0;
+`;
+
+const updateAnswer = async (
+  answerId: string,
+  text: string,
+  legacy_answer: boolean,
+) => {
   return (
-    await fetchpost(`/api/exam/setanswer/${oid}/`, { text, legacy_answer })
+    await fetchpost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
   ).value as AnswerSection;
+};
+const removeAnwer = async (answerId: string) => {
+  return (await fetchpost(`/api/exam/removeanswer/${answerId}/`, {}))
+    .value as AnswerSection;
 };
 
 interface Props {
@@ -42,13 +63,17 @@ const AnswerComponent: React.FC<Props> = ({
   onSectionChanged,
   isLegacyAnswer,
 }) => {
-  const { loading: updating, run } = useRequest(setAnswer, {
+  const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
     manual: true,
     onSuccess: res => {
       onSectionChanged(res);
       if (answer === undefined && onDelete) onDelete();
       setEditing(false);
     },
+  });
+  const { run: runRemoveAnswer } = useRequest(removeAnwer, {
+    manual: true,
+    onSuccess: onSectionChanged,
   });
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen(old => !old), []);
@@ -65,10 +90,12 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    run(section.oid, draftText, false);
-  }, [section.oid, draftText, run]);
+    runUpdateAnswer(section.oid, draftText, false);
+  }, [section.oid, draftText, runUpdateAnswer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
-
+  const { isAdmin } = useUser()!;
+  const canEdit = answer?.canEdit || false;
+  const canRemove = isAdmin || answer?.canEdit || false;
   return (
     <>
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
@@ -93,7 +120,31 @@ const AnswerComponent: React.FC<Props> = ({
             }
           />
         </CardHeader>
-        <CardBody>
+        <CardBody className={canEdit ? bodyCanEditStyle : ""}>
+          <div className={actionButtonContainer}>
+            <ButtonGroup>
+              {!editing && canEdit && (
+                <Button
+                  size="sm"
+                  color="white"
+                  style={{ minWidth: 0 }}
+                  onClick={startEdit}
+                >
+                  <Icon icon={ICONS.EDIT} size={18} />
+                </Button>
+              )}
+              {answer && canRemove && (
+                <Button
+                  size="sm"
+                  color="white"
+                  style={{ minWidth: 0 }}
+                  onClick={() => runRemoveAnswer(answer.oid)}
+                >
+                  <Icon icon={ICONS.DELETE} size={18} />
+                </Button>
+              )}
+            </ButtonGroup>
+          </div>
           {editing || answer === undefined ? (
             <Editor
               value={draftText}
@@ -144,9 +195,6 @@ const AnswerComponent: React.FC<Props> = ({
                         More
                       </DropdownToggle>
                       <DropdownMenu>
-                        {answer.canEdit && !editing && (
-                          <DropdownItem onClick={startEdit}>Edit</DropdownItem>
-                        )}
                         <DropdownItem>Flag as Inappropriate</DropdownItem>
                         <DropdownItem>Permalink</DropdownItem>
                       </DropdownMenu>
