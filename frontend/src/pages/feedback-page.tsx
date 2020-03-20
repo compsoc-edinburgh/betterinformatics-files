@@ -9,6 +9,8 @@ import {
   NavLink,
   NavItem,
   Alert,
+  Row,
+  Col,
 } from "@vseth/components";
 import { Link } from "react-router-dom";
 import { fetchpost, fetchapi } from "../fetch-utils";
@@ -93,15 +95,13 @@ const FeedbackReader: React.FC<{}> = () => {
       {error && <Alert color="danger">{error.message}</Alert>}
 
       {feedback && (
-        <div>
+        <Row>
           {feedback.map(fb => (
-            <FeedbackEntryComponent
-              key={fb.oid}
-              entry={fb}
-              entryChanged={reload}
-            />
+            <Col lg={6} key={fb.oid}>
+              <FeedbackEntryComponent entry={fb} entryChanged={reload} />
+            </Col>
           ))}
-        </div>
+        </Row>
       )}
       {loading && <Spinner />}
     </>

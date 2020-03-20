@@ -37,32 +37,26 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
   return (
     <Card style={{ margin: "0.5em" }}>
       <CardHeader>
-        <TwoButtons
-          left={
-            <h6>
-              {entry.authorDisplayName} •{" "}
-              {moment(entry.time, GlobalConsts.momentParseString).format(
-                GlobalConsts.momentFormatString,
-              )}
-            </h6>
-          }
-          right={
-            <ButtonGroup>
-              <Button
-                color={entry.done ? "secondary" : "primary"}
-                onClick={() => runSetFlag("done", !entry.done)}
-              >
-                {entry.done ? "Set Undone" : "Set Done"}
-              </Button>
-              <Button
-                color={entry.read ? "secondary" : "primary"}
-                onClick={() => runSetFlag("read", !entry.read)}
-              >
-                {entry.read ? "Set Unread" : "Set Read"}
-              </Button>
-            </ButtonGroup>
-          }
-        />
+        <h6>
+          {entry.authorDisplayName} •{" "}
+          {moment(entry.time, GlobalConsts.momentParseString).format(
+            GlobalConsts.momentFormatString,
+          )}
+        </h6>
+        <ButtonGroup>
+          <Button
+            color={entry.done ? "secondary" : "primary"}
+            onClick={() => runSetFlag("done", !entry.done)}
+          >
+            {entry.done ? "Set Undone" : "Set Done"}
+          </Button>
+          <Button
+            color={entry.read ? "secondary" : "primary"}
+            onClick={() => runSetFlag("read", !entry.read)}
+          >
+            {entry.read ? "Set Unread" : "Set Read"}
+          </Button>
+        </ButtonGroup>
       </CardHeader>
       <CardBody>{wrapText(entry.text)}</CardBody>
     </Card>
