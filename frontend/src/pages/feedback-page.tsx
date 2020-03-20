@@ -10,9 +10,11 @@ import {
   NavItem,
 } from "@vseth/components";
 import { Link } from "react-router-dom";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost, fetchapi } from "../fetch-utils";
 import { useRequest, useLocalStorageState } from "@umijs/hooks";
 import { useUser, User } from "../auth";
+import { FeedbackEntry } from "../interfaces";
+import FeedbackEntryComponent from "../components/feedback-entry";
 
 enum AdminMode {
   Read,
@@ -20,7 +22,13 @@ enum AdminMode {
 }
 
 const submitFeedback = async (text: string) => {
-  return await fetchpost("api/feedback/submit", { text });
+  return await fetchpost("api/feedback/submit/", { text });
+};
+const loadFeedback = async () => {
+  const fb = (await fetchapi("/api/feedback/list/")).value as FeedbackEntry[];
+  const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
+  fb.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
+  return fb;
 };
 
 const FeedbackForm: React.FC<{}> = () => {
@@ -34,10 +42,8 @@ const FeedbackForm: React.FC<{}> = () => {
 
   return (
     <>
-      <p>
-        Please tell us what you think about the new Community Solutions! What do
-        you like? What could we improve? Ideas for new features?
-      </p>
+      <p>Please tell us what you think about the new Community Solutions!</p>
+      <p>What do you like? What could we improve? Ideas for new features?</p>
       <p>
         Use the form below or write to{" "}
         <a href="mailto:communitysolutions@vis.ethz.ch">
@@ -47,7 +53,12 @@ const FeedbackForm: React.FC<{}> = () => {
       </p>
       <p>
         To report issues with the platform you can open an issue in our{" "}
-        <a href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues">
+        <a
+          href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {" "}
           issue tracker
         </a>
         .
@@ -71,6 +82,28 @@ const FeedbackForm: React.FC<{}> = () => {
     </>
   );
 };
+
+const FeedbackReader: React.FC<{}> = () => {
+  const { error, loading, data: feedback, run: reload } = useRequest(
+    loadFeedback,
+  );
+  return (
+    <>
+      {feedback && (
+        <div>
+          {feedback.map(fb => (
+            <FeedbackEntryComponent
+              key={fb.oid}
+              entry={fb}
+              entryChanged={reload}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
+
 const FeedbackAdminView: React.FC<{}> = () => {
   const [mode, setMode] = useLocalStorageState<AdminMode>(
     "feedback-admin-mode",
@@ -97,7 +130,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
           </NavLink>
         </NavItem>
       </Nav>
-      {mode === AdminMode.Read ? null : <FeedbackForm />}
+      {mode === AdminMode.Read ? <FeedbackReader /> : <FeedbackForm />}
     </Container>
   );
 };
