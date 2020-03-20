@@ -1,5 +1,12 @@
 import { useRequest } from "@umijs/hooks";
-import { Button, ListGroupItem, Spinner, ICONS, Icon } from "@vseth/components";
+import {
+  Button,
+  ListGroupItem,
+  Spinner,
+  ICONS,
+  Icon,
+  ButtonGroup,
+} from "@vseth/components";
 import React, { useState } from "react";
 import { fetchpost, imageHandler } from "../fetch-utils";
 import { Answer, AnswerSection, Comment } from "../interfaces";
@@ -89,14 +96,18 @@ const CommentComponent: React.FC<Props> = ({
         style={{ position: "absolute", top: 0, right: 0 }}
         onClick={startEditing}
       >
-        {!editing && comment?.canEdit && (
-          <Button size="sm">
-            <Icon icon={ICONS.EDIT} size={18} />
-          </Button>
-        )}
-        {comment && (comment.canEdit || isAdmin) && (
-          <Button size="sm">Delete</Button>
-        )}
+        <ButtonGroup>
+          {!editing && comment?.canEdit && (
+            <Button size="sm" color="white" style={{ minWidth: 0 }}>
+              <Icon icon={ICONS.EDIT} size={18} />
+            </Button>
+          )}
+          {comment && (comment.canEdit || isAdmin) && (
+            <Button size="sm" color="white" style={{ minWidth: 0 }}>
+              <Icon icon={ICONS.DELETE} size={18} />
+            </Button>
+          )}
+        </ButtonGroup>
       </div>
 
       <h6>{comment?.authorDisplayName ?? "(Draft)"}</h6>
