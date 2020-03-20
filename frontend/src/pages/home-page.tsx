@@ -34,11 +34,11 @@ const options = [
 ];
 
 const loadCategories = async () => {
-  return (await fetchapi("/api/category/listwithmeta"))
+  return (await fetchapi("/api/category/listwithmeta/"))
     .value as CategoryMetaData[];
 };
 const loadMetaCategories = async () => {
-  return (await fetchapi("/api/category/listmetacategories"))
+  return (await fetchapi("/api/category/listmetacategories/"))
     .value as MetaCategory[];
 };
 const loadCategoryData = async () => {
@@ -52,7 +52,7 @@ const loadCategoryData = async () => {
   ] as const;
 };
 const addCategory = async (category: string) => {
-  await fetchpost("/api/category/add", { category });
+  await fetchpost("/api/category/add/", { category });
 };
 
 const mapToCategories = (
