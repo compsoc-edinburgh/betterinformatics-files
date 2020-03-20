@@ -97,54 +97,56 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   return (
     <Card style={{ margin: "0.5em" }}>
       <CardHeader tag="h4">{examtype}</CardHeader>
-      <Table>
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={checked}
-                ref={el => el && (el.indeterminate = indeterminate)}
-                onChange={e => setChecked(e.currentTarget.checked)}
-              />
-            </th>
-            <th>Name</th>
-            <th>Remark</th>
-            <th>Answers</th>
-          </tr>
-        </thead>
-        <tbody>
-          {exams.map(exam => (
-            <tr
-              key={exam.filename}
-              style={{ cursor: "pointer" }}
-              onClick={() => history.push(`/exams/${exam.filename}`)}
-            >
-              <td
-                onClick={e => e.stopPropagation()}
-                style={{ cursor: "initial" }}
-              >
+      <div style={{ overflow: "scroll" }}>
+        <Table>
+          <thead>
+            <tr>
+              <th>
                 <input
                   type="checkbox"
-                  checked={selected.has(exam.filename)}
-                  onChange={e =>
-                    e.currentTarget.checked
-                      ? onSelect(exam.filename)
-                      : onDeselect(exam.filename)
-                  }
+                  checked={checked}
+                  ref={el => el && (el.indeterminate = indeterminate)}
+                  onChange={e => setChecked(e.currentTarget.checked)}
                 />
-              </td>
-              <td>
-                <Link to={`/exams/${exam.filename}`}>{exam.displayname}</Link>
-              </td>
-              <td>{exam.remark}</td>
-              <td>
-                {exam.count_cuts} / {exam.count_cuts}
-              </td>
+              </th>
+              <th>Name</th>
+              <th>Remark</th>
+              <th>Answers</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {exams.map(exam => (
+              <tr
+                key={exam.filename}
+                style={{ cursor: "pointer" }}
+                onClick={() => history.push(`/exams/${exam.filename}`)}
+              >
+                <td
+                  onClick={e => e.stopPropagation()}
+                  style={{ cursor: "initial" }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.has(exam.filename)}
+                    onChange={e =>
+                      e.currentTarget.checked
+                        ? onSelect(exam.filename)
+                        : onDeselect(exam.filename)
+                    }
+                  />
+                </td>
+                <td>
+                  <Link to={`/exams/${exam.filename}`}>{exam.displayname}</Link>
+                </td>
+                <td>{exam.remark}</td>
+                <td>
+                  {exam.count_cuts} / {exam.count_cuts}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     </Card>
   );
 };
