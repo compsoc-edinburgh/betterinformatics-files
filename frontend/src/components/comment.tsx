@@ -30,6 +30,10 @@ const updateComment = async (commentId: string, text: string) => {
     })
   ).value as AnswerSection;
 };
+const removeComment = async (commentId: string) => {
+  return (await fetchpost(`/api/exam/removecomment/${commentId}/`, {}))
+    .value as AnswerSection;
+};
 
 interface Props {
   section: AnswerSection;
@@ -68,7 +72,14 @@ const CommentComponent: React.FC<Props> = ({
       },
     },
   );
-  const loading = addNewLoading || updateLoading;
+  const { loading: removeLoading, run: runRemoveComment } = useRequest(
+    removeComment,
+    {
+      manual: true,
+      onSuccess: onSectionChanged,
+    },
+  );
+  const loading = addNewLoading || updateLoading || removeLoading;
 
   const onSave = () => {
     if (comment === undefined) {
@@ -89,21 +100,31 @@ const CommentComponent: React.FC<Props> = ({
     setDraftText(comment.text);
     setEditing(true);
   };
+  const remove = () => {
+    if (comment) runRemoveComment(comment.oid);
+  };
 
   return (
     <ListGroupItem>
-      <div
-        style={{ position: "absolute", top: 0, right: 0 }}
-        onClick={startEditing}
-      >
+      <div style={{ position: "absolute", top: 0, right: 0 }}>
         <ButtonGroup>
           {!editing && comment?.canEdit && (
-            <Button size="sm" color="white" style={{ minWidth: 0 }}>
+            <Button
+              size="sm"
+              color="white"
+              style={{ minWidth: 0 }}
+              onClick={startEditing}
+            >
               <Icon icon={ICONS.EDIT} size={18} />
             </Button>
           )}
           {comment && (comment.canEdit || isAdmin) && (
-            <Button size="sm" color="white" style={{ minWidth: 0 }}>
+            <Button
+              size="sm"
+              color="white"
+              style={{ minWidth: 0 }}
+              onClick={remove}
+            >
               <Icon icon={ICONS.DELETE} size={18} />
             </Button>
           )}
