@@ -8,6 +8,7 @@ import {
   Nav,
   NavLink,
   NavItem,
+  Alert,
 } from "@vseth/components";
 import { Link } from "react-router-dom";
 import { fetchpost, fetchapi } from "../fetch-utils";
@@ -89,6 +90,8 @@ const FeedbackReader: React.FC<{}> = () => {
   );
   return (
     <>
+      {error && <Alert color="danger">{error.message}</Alert>}
+
       {feedback && (
         <div>
           {feedback.map(fb => (
@@ -100,6 +103,7 @@ const FeedbackReader: React.FC<{}> = () => {
           ))}
         </div>
       )}
+      {loading && <Spinner />}
     </>
   );
 };
