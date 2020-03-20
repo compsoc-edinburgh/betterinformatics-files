@@ -206,8 +206,8 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
             <Row>
               <Col xs={12} md={6}>
                 <Card style={{ margin: "0.5em" }}>
-                  <CardHeader tag="h4">Answers</CardHeader>
-                  <CardBody tag="h5">{userInfo.score_answers}</CardBody>
+                  <CardHeader tag="h4">Score</CardHeader>
+                  <CardBody tag="h5">{userInfo.score}</CardBody>
                 </Card>
               </Col>
               <Col xs={12} md={6}>
