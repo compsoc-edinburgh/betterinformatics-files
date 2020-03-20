@@ -23,7 +23,7 @@ const UserPage: React.FC<{}> = () => {
       />
       {error && <Alert color="danger">{error.toString()}</Alert>}
       {loading && <Spinner />}
-      <UserPayments username={username} />
+      {(isMyself || user.isAdmin) && <UserPayments username={username} />}
       <Row>
         <Col sm={{ size: 12, order: 1 }} md={{ size: 6, order: 0 }}>
           <UserAnswers username={username} />
