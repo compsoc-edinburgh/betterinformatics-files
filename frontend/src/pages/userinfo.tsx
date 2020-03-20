@@ -14,7 +14,7 @@ import {
   Spinner,
 } from "@vseth/components";
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { notLoggedIn, useSetUser, useUser } from "../auth";
 import AnswerComponent from "../components/answer";
@@ -33,6 +33,7 @@ import {
   useSetEnabledNotifications,
   useUserAnswers,
   useUserInfo,
+  useMarkAsRead,
 } from "../hooks/api";
 import { UserInfo } from "../interfaces";
 
@@ -187,67 +188,63 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
     setUser(notLoggedIn),
   );
   return (
-    <Card>
+    <>
       {logoutError && <Alert color="danger">{logoutError.message}</Alert>}
-      <CardHeader tag="h2">
-        <TwoButtons
-          left={userInfo?.displayName || username}
-          right={
-            isMyself && (
-              <Button disabled={logoutLoading} onClick={logout}>
-                Logout
-              </Button>
-            )
-          }
-        />
-      </CardHeader>
-      <CardBody>
-        {userInfo ? (
-          <>
-            <Container fluid>
-              <Row>
-                <Col xs={12} md={6} lg={3}>
-                  <Card>
-                    <CardHeader tag="h4">Answers</CardHeader>
-                    <CardBody tag="h5">{userInfo.score_answers}</CardBody>
+      <TwoButtons
+        left={<h1>{userInfo?.displayName || username}</h1>}
+        right={
+          isMyself && (
+            <Button disabled={logoutLoading} onClick={logout}>
+              Logout
+            </Button>
+          )
+        }
+      />
+      {userInfo ? (
+        <>
+          <Container fluid>
+            <Row>
+              <Col xs={12} md={6}>
+                <Card style={{ margin: "0.5em" }}>
+                  <CardHeader tag="h4">Answers</CardHeader>
+                  <CardBody tag="h5">{userInfo.score_answers}</CardBody>
+                </Card>
+              </Col>
+              <Col xs={12} md={6}>
+                <Card style={{ margin: "0.5em" }}>
+                  <CardHeader tag="h4">Answers</CardHeader>
+                  <CardBody tag="h5">{userInfo.score_answers}</CardBody>
+                </Card>
+              </Col>
+              <Col xs={12} md={6}>
+                <Card style={{ margin: "0.5em" }}>
+                  <CardHeader tag="h4">Comments</CardHeader>
+                  <CardBody tag="h5">{userInfo.score_comments}</CardBody>
+                </Card>
+              </Col>
+              {userInfo.score_cuts > 0 && (
+                <Col xs={12} md={6}>
+                  <Card style={{ margin: "0.5em" }}>
+                    <CardHeader tag="h4">Exam Import</CardHeader>
+                    <CardBody tag="h5">{userInfo.score_cuts}</CardBody>
                   </Card>
                 </Col>
-                <Col xs={12} md={6} lg={3}>
-                  <Card>
-                    <CardHeader tag="h4">Answers</CardHeader>
-                    <CardBody tag="h5">{userInfo.score_answers}</CardBody>
+              )}
+              {userInfo.score_legacy > 0 && (
+                <Col xs={12} md={6}>
+                  <Card style={{ margin: "0.5em" }}>
+                    <CardHeader tag="h4">Wiki Import</CardHeader>
+                    <CardBody tag="h5">{userInfo.score_legacy}</CardBody>
                   </Card>
                 </Col>
-                <Col xs={12} md={6} lg={3}>
-                  <Card>
-                    <CardHeader tag="h4">Comments</CardHeader>
-                    <CardBody tag="h5">{userInfo.score_comments}</CardBody>
-                  </Card>
-                </Col>
-                {userInfo.score_cuts > 0 && (
-                  <Col xs={12} md={6} lg={3}>
-                    <Card>
-                      <CardHeader tag="h4">Exam Import</CardHeader>
-                      <CardBody tag="h5">{userInfo.score_cuts}</CardBody>
-                    </Card>
-                  </Col>
-                )}
-                {userInfo.score_legacy > 0 && (
-                  <Col xs={12} md={6} lg={3}>
-                    <Card>
-                      <CardHeader tag="h4">Wiki Import</CardHeader>
-                      <CardBody tag="h5">{userInfo.score_legacy}</CardBody>
-                    </Card>
-                  </Col>
-                )}
-              </Row>
-            </Container>
-          </>
-        ) : (
-          <Spinner />
-        )}
-      </CardBody>
-    </Card>
+              )}
+            </Row>
+          </Container>
+        </>
+      ) : (
+        <Spinner />
+      )}
+    </>
   );
 };
 interface UserNotificationsProps {
@@ -273,8 +270,19 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
     setEnabledLoading,
     setEnabled,
   ] = useSetEnabledNotifications(reloadEnabled);
-  const error = notificationsError || enabledError || setEnabledError;
+  const [markAsReadError, markAsReadLoading, markAsRead] = useMarkAsRead();
+  const error =
+    notificationsError || enabledError || setEnabledError || markAsReadError;
   const checkboxLoading = enabledLoading || setEnabledLoading;
+  useEffect(() => {
+    if (isMyself && notifications) {
+      const unread = notifications
+        .filter(notification => !notification.read)
+        .map(notification => notification.oid);
+      if (unread.length === 0) return;
+      markAsRead(...unread);
+    }
+  }, [isMyself, notifications, markAsRead]);
 
   return (
     <>
@@ -313,7 +321,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           Other answer to same question
         </Label>
       </FormGroup>
-      {notificationsLoading && <Spinner />}
+      {(notificationsLoading || markAsReadLoading) && <Spinner />}
       {notifications &&
         notifications.map(notification => (
           <NotificationComponent
@@ -321,6 +329,11 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
             key={notification.oid}
           />
         ))}
+      <div>
+        <Button onClick={() => setShowRead(prev => !prev)}>
+          {showRead ? "Hide Read Notifications" : "Show Read Notifications"}
+        </Button>
+      </div>
     </>
   );
 };

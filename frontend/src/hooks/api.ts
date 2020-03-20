@@ -116,10 +116,10 @@ const markAllRead = async (ids: string[]) => {
   );
 };
 export const useMarkAsRead = () => {
-  const { error, loading, data, run } = useRequest(markAllRead, {
+  const { error, loading, run } = useRequest(markAllRead, {
     manual: true,
   });
-  return [error, loading, data, (...args: string[]) => run(args)] as const;
+  return [error, loading, (...args: string[]) => run(args)] as const;
 };
 const loadUserAnswers = async (username: string) => {
   return (await fetchapi(`/api/exam/listbyuser/${username}/`))
