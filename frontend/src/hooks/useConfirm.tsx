@@ -9,8 +9,8 @@ const useConfirm = () => {
   const pop = useCallback(() => {
     setStack(prevStack => prevStack.slice(0, prevStack.length - 1));
   }, []);
-  const modals = stack.map(([message, yes, no]) => (
-    <Modal isOpen={true}>
+  const modals = stack.map(([message, yes, no], i) => (
+    <Modal isOpen={true} key={i + message}>
       <ModalBody>{message}</ModalBody>
       <ModalFooter>
         <Button
