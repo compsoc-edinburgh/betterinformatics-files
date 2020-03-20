@@ -43,7 +43,7 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
                   notification.time,
                   GlobalConsts.momentParseString,
                 ).format(GlobalConsts.momentFormatString)}
-              </small>{" "}
+              </small>
             </div>
           </h6>
         </CardHeader>
