@@ -37,7 +37,6 @@ const removeComment = async (commentId: string) => {
 };
 
 interface Props {
-  section: AnswerSection;
   answer: Answer;
   comment?: Comment;
   onSectionChanged: (newSection: AnswerSection) => void;
