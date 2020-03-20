@@ -1,43 +1,40 @@
-import { useParams, useHistory, Link } from "react-router-dom";
-import { useUser, useSetUser, notLoggedIn } from "../auth";
 import {
-  useUserInfo,
-  useLogout,
-  usePayments,
-  useRefundPayment,
-  useRemovePayment,
-  useAddPayments,
-  useUserAnswers,
-  useNotifications,
-  useEnabledNotifications,
-  useSetEnabledNotifications,
-} from "../hooks/api";
-import { UserInfo, PaymentInfo } from "../interfaces";
-import {
+  Alert,
+  Button,
   Card,
   CardBody,
   CardHeader,
-  Button,
-  Spinner,
-  Alert,
-  Container,
-  Row,
   Col,
+  Container,
+  FormGroup,
+  Label,
   ListGroup,
   ListGroupItem,
-  Form,
-  FormGroup,
-  Input,
-  Label,
+  Row,
+  Spinner,
 } from "@vseth/components";
-
-import React, { useState } from "react";
-import TwoButtons from "../components/two-buttons";
-import Grid from "../components/grid";
 import moment from "moment";
-import GlobalConsts from "../globalconsts";
+import React, { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { notLoggedIn, useSetUser, useUser } from "../auth";
 import AnswerComponent from "../components/answer";
+import Grid from "../components/grid";
 import NotificationComponent from "../components/notification";
+import TwoButtons from "../components/two-buttons";
+import GlobalConsts from "../globalconsts";
+import {
+  useAddPayments,
+  useEnabledNotifications,
+  useLogout,
+  useNotifications,
+  usePayments,
+  useRefundPayment,
+  useRemovePayment,
+  useSetEnabledNotifications,
+  useUserAnswers,
+  useUserInfo,
+} from "../hooks/api";
+import { UserInfo } from "../interfaces";
 
 interface UserAnswersProps {
   username: string;
@@ -346,12 +343,14 @@ const UserPage: React.FC<{}> = () => {
       {loading && <Spinner />}
       <UserPayments username={username} />
       <Row>
-        <Col md={6}>
+        <Col sm={{ size: 12, order: 1 }} md={{ size: 6, order: 0 }}>
           <UserAnswers username={username} />
         </Col>
-        <Col md={6}>
-          <UserNotifications username={username} />
-        </Col>
+        {isMyself && (
+          <Col sm={{ size: 12, order: 0 }} md={{ size: 6, order: 1 }}>
+            <UserNotifications username={username} />
+          </Col>
+        )}
       </Row>
     </Container>
   );
