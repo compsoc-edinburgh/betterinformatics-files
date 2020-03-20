@@ -80,7 +80,17 @@ const AnswerComponent: React.FC<Props> = ({
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
               </h6>
             }
-            right={answer && <Score currentScore={answer.upvotes} />}
+            right={
+              answer && (
+                <Score
+                  oid={answer.oid}
+                  upvotes={answer.upvotes}
+                  expertUpvotes={answer.expertvotes}
+                  userVote={answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0}
+                  onSectionChanged={onSectionChanged}
+                />
+              )
+            }
           />
         </CardHeader>
         <CardBody>
