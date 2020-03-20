@@ -51,9 +51,9 @@ const removeAnwer = async (answerId: string) => {
 };
 
 interface Props {
-  section: AnswerSection;
+  section?: AnswerSection;
   answer?: Answer;
-  onSectionChanged: (newSection: AnswerSection) => void;
+  onSectionChanged?: (newSection: AnswerSection) => void;
   onDelete?: () => void;
   isLegacyAnswer: boolean;
 }
@@ -67,7 +67,7 @@ const AnswerComponent: React.FC<Props> = ({
   const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
     manual: true,
     onSuccess: res => {
-      onSectionChanged(res);
+      if (onSectionChanged) onSectionChanged(res);
       if (answer === undefined && onDelete) onDelete();
       setEditing(false);
     },
@@ -93,15 +93,15 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    runUpdateAnswer(section.oid, draftText, false);
-  }, [section.oid, draftText, runUpdateAnswer]);
+    if (section) runUpdateAnswer(section.oid, draftText, false);
+  }, [section, draftText, runUpdateAnswer]);
   const remove = () => {
     if (answer) confirm("Remove answer?", () => runRemoveAnswer(answer.oid));
   };
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
-  const canEdit = answer?.canEdit || false;
-  const canRemove = isAdmin || answer?.canEdit || false;
+  const canEdit = onSectionChanged && (answer?.canEdit || false);
+  const canRemove = onSectionChanged && (isAdmin || answer?.canEdit || false);
   return (
     <>
       {modals}
@@ -115,7 +115,8 @@ const AnswerComponent: React.FC<Props> = ({
               </h6>
             }
             right={
-              answer && (
+              answer &&
+              onSectionChanged && (
                 <Score
                   oid={answer.oid}
                   upvotes={answer.upvotes}
@@ -180,46 +181,49 @@ const AnswerComponent: React.FC<Props> = ({
               </>
             }
             right={
-              <>
-                <ButtonGroup>
-                  {(answer === undefined || editing) && (
-                    <Button size="sm" onClick={onCancel}>
-                      {editing ? "Cancel" : "Delete Draft"}
-                    </Button>
-                  )}
-                  {answer !== undefined && (
-                    <Button
-                      size="sm"
-                      onClick={() => setHasCommentDraft(true)}
-                      disabled={hasCommentDraft}
-                    >
-                      Add Comment
-                    </Button>
-                  )}
-                  {answer !== undefined && (
-                    <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-                      <DropdownToggle size="sm" caret>
-                        More
-                      </DropdownToggle>
-                      <DropdownMenu>
-                        <DropdownItem>Flag as Inappropriate</DropdownItem>
-                        <DropdownItem>Permalink</DropdownItem>
-                      </DropdownMenu>
-                    </ButtonDropdown>
-                  )}
-                </ButtonGroup>
-              </>
+              onSectionChanged && (
+                <>
+                  <ButtonGroup>
+                    {(answer === undefined || editing) && (
+                      <Button size="sm" onClick={onCancel}>
+                        {editing ? "Cancel" : "Delete Draft"}
+                      </Button>
+                    )}
+                    {answer !== undefined && (
+                      <Button
+                        size="sm"
+                        onClick={() => setHasCommentDraft(true)}
+                        disabled={hasCommentDraft}
+                      >
+                        Add Comment
+                      </Button>
+                    )}
+                    {answer !== undefined && (
+                      <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+                        <DropdownToggle size="sm" caret>
+                          More
+                        </DropdownToggle>
+                        <DropdownMenu>
+                          <DropdownItem>Flag as Inappropriate</DropdownItem>
+                          <DropdownItem>Permalink</DropdownItem>
+                        </DropdownMenu>
+                      </ButtonDropdown>
+                    )}
+                  </ButtonGroup>
+                </>
+              )
             }
           />
-          {answer && (hasCommentDraft || answer.comments.length > 0) && (
-            <CommentSectionComponent
-              hasDraft={hasCommentDraft}
-              answer={answer}
-              section={section}
-              onSectionChanged={onSectionChanged}
-              onDraftDelete={() => setHasCommentDraft(false)}
-            />
-          )}
+          {answer &&
+            onSectionChanged &&
+            (hasCommentDraft || answer.comments.length > 0) && (
+              <CommentSectionComponent
+                hasDraft={hasCommentDraft}
+                answer={answer}
+                onSectionChanged={onSectionChanged}
+                onDraftDelete={() => setHasCommentDraft(false)}
+              />
+            )}
         </CardBody>
       </Card>
     </>

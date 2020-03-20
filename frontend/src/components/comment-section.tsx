@@ -11,14 +11,12 @@ const showMoreStyle = css`
 
 interface Props {
   hasDraft: boolean;
-  section: AnswerSection;
   answer: Answer;
   onSectionChanged: (newSection: AnswerSection) => void;
   onDraftDelete: () => void;
 }
 const CommentSectionComponent: React.FC<Props> = ({
   hasDraft,
-  section,
   answer,
   onSectionChanged,
   onDraftDelete,
@@ -32,7 +30,6 @@ const CommentSectionComponent: React.FC<Props> = ({
             <CommentComponent
               answer={answer}
               onSectionChanged={onSectionChanged}
-              section={section}
               comment={comment}
               key={comment.oid}
             />
@@ -42,7 +39,6 @@ const CommentSectionComponent: React.FC<Props> = ({
           <CommentComponent
             answer={answer}
             onSectionChanged={onSectionChanged}
-            section={section}
             comment={undefined}
             onDelete={onDraftDelete}
           />

@@ -11,6 +11,8 @@ import CategoryPage from "./pages/category-page";
 import NotFoundPage from "./pages/not-found-page";
 import ExamPage from "./pages/exam-page";
 import UploadPdfPage from "./pages/uploadpdf";
+import TutorialPage from "./pages/tutorial";
+import UserPage from "./pages/userinfo";
 
 const App: React.FC<{}> = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -46,6 +48,7 @@ const App: React.FC<{}> = () => {
             <Switch>
               <UserRoute exact path="/" component={HomePage} />
               <Route exact path="/login" component={LoginPage} />
+              <Route exact path="/tutorial" component={TutorialPage} />
               <UserRoute exact path="/uploadpdf" component={UploadPdfPage} />
               <UserRoute exact path="/feedback" component={FeedbackPage} />
               <UserRoute
@@ -54,6 +57,7 @@ const App: React.FC<{}> = () => {
                 component={CategoryPage}
               />
               <UserRoute exact path="/exams/:filename" component={ExamPage} />
+              <UserRoute exact path="/user/:username" component={UserPage} />
               <Route component={NotFoundPage} />
             </Switch>
           </main>
