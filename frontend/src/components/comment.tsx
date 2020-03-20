@@ -15,6 +15,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import TwoButtons from "./two-buttons";
 import { useUser } from "../auth";
+import useConfirm from "../hooks/useConfirm";
 
 const addNewComment = async (answerId: string, text: string) => {
   return (
@@ -49,6 +50,7 @@ const CommentComponent: React.FC<Props> = ({
   onDelete,
 }) => {
   const { isAdmin } = useUser()!;
+  const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
@@ -101,11 +103,13 @@ const CommentComponent: React.FC<Props> = ({
     setEditing(true);
   };
   const remove = () => {
-    if (comment) runRemoveComment(comment.oid);
+    if (comment)
+      confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
 
   return (
     <ListGroupItem>
+      {modals}
       <div style={{ position: "absolute", top: 0, right: 0 }}>
         <ButtonGroup>
           {!editing && comment?.canEdit && (

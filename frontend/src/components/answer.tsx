@@ -24,6 +24,7 @@ import Score from "./score";
 import TwoButtons from "./two-buttons";
 import { useUser } from "../auth";
 import { css } from "emotion";
+import useConfirm from "../hooks/useConfirm";
 
 const bodyCanEditStyle = css`
   position: relative;
@@ -71,6 +72,8 @@ const AnswerComponent: React.FC<Props> = ({
       setEditing(false);
     },
   });
+  const { isAdmin } = useUser()!;
+  const [confirm, modals] = useConfirm();
   const { run: runRemoveAnswer } = useRequest(removeAnwer, {
     manual: true,
     onSuccess: onSectionChanged,
@@ -92,12 +95,16 @@ const AnswerComponent: React.FC<Props> = ({
   const save = useCallback(() => {
     runUpdateAnswer(section.oid, draftText, false);
   }, [section.oid, draftText, runUpdateAnswer]);
+  const remove = () => {
+    if (answer) confirm("Remove answer?", () => runRemoveAnswer(answer.oid));
+  };
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
-  const { isAdmin } = useUser()!;
+
   const canEdit = answer?.canEdit || false;
   const canRemove = isAdmin || answer?.canEdit || false;
   return (
     <>
+      {modals}
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
         <CardHeader>
           <TwoButtons
@@ -138,7 +145,7 @@ const AnswerComponent: React.FC<Props> = ({
                   size="sm"
                   color="white"
                   style={{ minWidth: 0 }}
-                  onClick={() => runRemoveAnswer(answer.oid)}
+                  onClick={remove}
                 >
                   <Icon icon={ICONS.DELETE} size={18} />
                 </Button>
