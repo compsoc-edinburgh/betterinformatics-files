@@ -293,7 +293,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
         <Label>
           <input
             type="checkbox"
-            checked={enabled && enabled.has(1)}
+            checked={enabled ? enabled.has(1) : false}
             disabled={checkboxLoading}
             onChange={e => setEnabled(1, e.currentTarget.checked)}
           />{" "}
@@ -304,7 +304,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
         <Label>
           <input
             type="checkbox"
-            checked={enabled && enabled.has(2)}
+            checked={enabled ? enabled.has(2) : false}
             disabled={checkboxLoading}
             onChange={e => setEnabled(2, e.currentTarget.checked)}
           />{" "}
@@ -315,7 +315,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
         <Label>
           <input
             type="checkbox"
-            checked={enabled && enabled.has(3)}
+            checked={enabled ? enabled.has(3) : false}
             disabled={checkboxLoading}
             onChange={e => setEnabled(3, e.currentTarget.checked)}
           />{" "}
