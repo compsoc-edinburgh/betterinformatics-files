@@ -128,7 +128,7 @@ const AnswerComponent: React.FC<Props> = ({
             }
           />
         </CardHeader>
-        <CardBody className={canEdit ? bodyCanEditStyle : ""}>
+        <CardBody className={canRemove ? bodyCanEditStyle : ""}>
           <div className={actionButtonContainer}>
             <ButtonGroup>
               {!editing && canEdit && (
