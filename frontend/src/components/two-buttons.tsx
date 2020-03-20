@@ -3,6 +3,7 @@ import React from "react";
 const flex = css`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 const TwoButtons: React.FC<{
   left?: React.ReactNode;

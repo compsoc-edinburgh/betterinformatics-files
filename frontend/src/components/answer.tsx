@@ -75,7 +75,7 @@ const AnswerComponent: React.FC<Props> = ({
         <CardHeader>
           <TwoButtons
             left={
-              <h6>
+              <h6 style={{ margin: 0 }}>
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
               </h6>
