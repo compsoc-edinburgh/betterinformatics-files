@@ -1,13 +1,12 @@
 variables:
   VIS_CI_APP_NAME: "community-solutions"
   VIS_CI_DEPLOYMENT_SUBDOMAIN: "exams"
-  #  VIS_CI_ENABLE_POSTGRES: "true"
+  VIS_CI_ENABLE_POSTGRES: "true"
   VIS_CI_ENABLE_MINIO: "true"
-  VIS_CI_ENABLE_MONGODB: "true"
   VIS_CI_LIVENESS_PROBE_PATH: "/health/"
-  VIS_CI_LIVENESS_PROBE_INITIAL_DELAY: 1800
+  VIS_CI_LIVENESS_PROBE_INITIAL_DELAY: 140
   VIS_CI_READINESS_PROBE_PATH: "/health/"
-  VIS_CI_READINESS_PROBE_INITIAL_DELAY: 1800
+  VIS_CI_READINESS_PROBE_INITIAL_DELAY: 120
   VIS_CI_SERVIS_DEPENDENCIES: "people-api"
   VIS_CI_SERVIS_PYTHON_OUT: "./backend/servis"
 
@@ -57,18 +56,7 @@ cleanup:
     --set envVariables[0].secretKey=value\
     --set envVariables[1].name=RUNTIME_COMMUNITY_SOLUTIONS_API_KEY \
     --set envVariables[1].secretName=community-solutions-api-key \
-    --set envVariables[1].secretKey=value \
-    --set envVariables[2].name=RUNTIME_POSTGRES_DB_SERVER \
-    --set envVariables[2].value=db-int.vis.ethz.ch \
-    --set envVariables[3].name=RUNTIME_POSTGRES_DB_PORT \
-    --set envVariables[3].value=5432 \
-    --set envVariables[4].name=RUNTIME_POSTGRES_DB_NAME \
-    --set envVariables[4].value=community_solutions_db_staging \
-    --set envVariables[5].name=RUNTIME_POSTGRES_DB_USER \
-    --set envVariables[5].value=community_solutions_db_user_staging \
-    --set envVariables[6].name=RUNTIME_POSTGRES_DB_PW \
-    --set envVariables[6].secretName=community-solutions-pg-db-user-pw \
-    --set envVariables[6].secretKey=value\
+    --set envVariables[1].secretKey=value\
     "
   git clone --depth 1 git@gitlab.ethz.ch:vis/cit/ci-framework.git
   source ci-framework/ciscript.sh
