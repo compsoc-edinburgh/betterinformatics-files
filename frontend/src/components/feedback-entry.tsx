@@ -69,7 +69,7 @@ export default class FeedbackEntryComponent extends React.Component<Props> {
 
   setDone = (value: boolean) => {
     fetchpost(`/api/feedback/flags/${this.props.entry.oid}/`, {
-      done: value
+      done: value,
     })
       .then(() => this.props.entryChanged())
       .catch(() => undefined);
