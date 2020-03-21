@@ -4,12 +4,14 @@ import { css } from "glamor";
 import { fetchapi, fetchpost } from "../fetch-utils";
 import AutocompleteInput from "../components/autocomplete-input";
 import Colors from "../colors";
+import { CategoryMetaDataMinimal } from "../interfaces";
+import { findCategoryByName } from "../category-utils";
 
 interface State {
   file: Blob;
   displayName: string;
   category: string;
-  categories: string[];
+  categories: CategoryMetaDataMinimal[];
   result?: { filename: string };
   error?: string;
 }
@@ -39,7 +41,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/listcategories/onlyadmin")
+    fetchapi("/api/category/listonlyadmin/")
       .then(res =>
         this.setState({
           categories: res.value,
@@ -54,10 +56,19 @@ export default class UploadPDF extends React.Component<{}, State> {
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost("/api/uploadpdf/exam", {
+    const category = findCategoryByName(
+      this.state.categories,
+      this.state.category,
+    );
+    if (category === null) {
+      this.setState({ error: "Could not find category." });
+      return;
+    }
+
+    fetchpost("/api/exam/upload/exam/", {
       file: this.state.file,
       displayname: this.state.displayName,
-      category: this.state.category,
+      category: category.slug,
     })
       .then(body =>
         this.setState({
@@ -123,7 +134,7 @@ export default class UploadPDF extends React.Component<{}, State> {
                 onChange={this.handleCategoryChange}
                 value={this.state.category}
                 placeholder="category..."
-                autocomplete={this.state.categories}
+                autocomplete={this.state.categories.map(cat => cat.displayname)}
               />
             </div>
             <div>

@@ -114,6 +114,7 @@ export default class Exam extends React.Component<Props, State> {
       hasPayed: false,
       filename: "",
       category: "",
+      category_displayname: "",
       examtype: "",
       displayname: "",
       legacy_solution: "",
@@ -123,12 +124,12 @@ export default class Exam extends React.Component<Props, State> {
       public: false,
       finished_cuts: false,
       finished_wiki_transfer: false,
-      has_printonly: false,
+      is_printonly: false,
       has_solution: false,
       solution_printonly: false,
       needs_payment: false,
-      is_payment_exam: false,
-      payment_exam_checked: false,
+      is_oral_transcript: false,
+      oral_transcript_checked: false,
       count_cuts: 0,
       count_answered: 0,
       attachments: [],
@@ -159,7 +160,7 @@ export default class Exam extends React.Component<Props, State> {
   }
 
   loadMetaData = () => {
-    fetchapi(`/api/exam/${this.props.filename}/metadata`)
+    fetchapi(`/api/exam/metadata/${this.props.filename}/`)
       .then(res => {
         this.setState({
           canEdit: res.value.canEdit,
@@ -175,7 +176,7 @@ export default class Exam extends React.Component<Props, State> {
   loadPDF = async () => {
     try {
       const pdf = await pdfjs.getDocument(
-        "/api/pdf/exam/" + this.props.filename,
+        "/api/exam/pdf/exam/" + this.props.filename + "/",
       ).promise;
       const w = this.state.width * this.state.dpr;
       this.setState({ pdf, renderer: await createSectionRenderer(pdf, w) });
@@ -256,7 +257,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   updateCutVersion = () => {
-    fetchapi(`/api/exam/${this.props.filename}/cutversions`)
+    fetchapi(`/api/exam/cutversions/${this.props.filename}/`)
       .then(res => {
         const versions = res.value;
         this.setState(prevState => ({
@@ -291,7 +292,7 @@ export default class Exam extends React.Component<Props, State> {
       );
     }
 
-    fetchpost(`/api/exam/${this.props.filename}/newanswersection`, {
+    fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
       pageNum: section.start.page,
       relHeight: relHeight,
     })
@@ -311,7 +312,10 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   gotoPDF = () => {
-    window.open(`/api/pdf/exam/${this.props.filename}?download`, "_blank");
+    window.open(
+      `/api/exam/pdf/exam/${this.props.filename}/?download`,
+      "_blank",
+    );
   };
 
   reportProblem = () => {
@@ -382,14 +386,16 @@ export default class Exam extends React.Component<Props, State> {
     if (this.state.editingMetaData) {
       this.toggleEditingMetadataActive();
     }
-    fetchpost(`/api/exam/${this.props.filename}/metadata`, update).then(res => {
-      this.setState(prevState => ({
-        savedMetaData: {
-          ...prevState.savedMetaData,
-          ...update,
-        },
-      }));
-    });
+    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, update).then(
+      res => {
+        this.setState(prevState => ({
+          savedMetaData: {
+            ...prevState.savedMetaData,
+            ...update,
+          },
+        }));
+      },
+    );
   };
 
   metaDataChanged = (newMetaData: ExamMetaData) => {
@@ -400,7 +406,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   markPaymentExamChecked = () => {
-    fetchpost(`/api/exam/${this.props.filename}/markpaymentchecked`, {})
+    fetchpost(`/api/payment/markexamchecked/${this.props.filename}/`, {})
       .then(() => {
         this.loadMetaData();
       })
@@ -492,8 +498,8 @@ export default class Exam extends React.Component<Props, State> {
             onFinishEdit={this.toggleEditingMetadataActive}
           />
         )}
-        {this.state.savedMetaData.is_payment_exam &&
-          !this.state.savedMetaData.payment_exam_checked && (
+        {this.state.savedMetaData.is_oral_transcript &&
+          !this.state.savedMetaData.oral_transcript_checked && (
             <div {...styles.checkWrapper}>
               This is a transcript of an oral exam. It needs to be checked
               whether it is a valid transcript.
@@ -503,10 +509,10 @@ export default class Exam extends React.Component<Props, State> {
               </button>
             </div>
           )}
-        {this.state.savedMetaData.has_printonly && (
+        {this.state.savedMetaData.is_printonly && (
           <PrintExam
             title="exam"
-            examtype="printonly"
+            examtype="exam"
             filename={this.props.filename}
           />
         )}
@@ -532,6 +538,7 @@ export default class Exam extends React.Component<Props, State> {
               <a
                 href={"/legacy/transformwiki/" + wikitransform}
                 target="_blank"
+                key="key"
                 rel="noopener noreferrer"
               >
                 Transform VISki to Markdown
@@ -554,7 +561,7 @@ export default class Exam extends React.Component<Props, State> {
           !this.state.savedMetaData.solution_printonly && (
             <div {...styles.linkBanner}>
               <a
-                href={"/api/pdf/solution/" + this.props.filename}
+                href={"/api/exam/pdf/solution/" + this.props.filename + "/"}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -565,7 +572,7 @@ export default class Exam extends React.Component<Props, State> {
         {this.state.savedMetaData.attachments.map(att => (
           <div {...styles.linkBanner} key={att.filename}>
             <a
-              href={"/api/filestore/" + att.filename}
+              href={"/api/filestore/get/" + att.filename + "/"}
               target="_blank"
               rel="noopener noreferrer"
             >

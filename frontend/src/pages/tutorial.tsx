@@ -106,34 +106,37 @@ const TutorialPage: React.FC<{}> = () => {
         <h1>VIS Community Solutions</h1>
       </Section>
       <Section
-        background="static/tutorial/mainpage.png"
+        background="/static/tutorial/mainpage.png"
         backgroundSize="contain"
       >
         <span>Overview</span>
       </Section>
       <Section
-        background="static/tutorial/mainpage-filter.png"
+        background="/static/tutorial/mainpage-filter.png"
         backgroundSize="contain"
       >
         <span>Filter Courses</span>
       </Section>
       <Section
-        background="static/tutorial/category.png"
+        background="/static/tutorial/category.png"
         backgroundSize="contain"
       >
         <span>Course Overview</span>
       </Section>
-      <Section background="static/tutorial/answer.png" backgroundSize="contain">
+      <Section
+        background="/static/tutorial/answer.png"
+        backgroundSize="contain"
+      >
         <span>Discuss Answers</span>
       </Section>
       <Section
-        background="static/tutorial/userprofile.png"
+        background="/static/tutorial/userprofile.png"
         backgroundSize="contain"
       >
         <span>User Profile</span>
       </Section>
       <Section
-        background="static/tutorial/scoreboard.png"
+        background="/static/tutorial/scoreboard.png"
         backgroundSize="contain"
       >
         <span>Scoreboard</span>
@@ -151,13 +154,13 @@ const TutorialPage: React.FC<{}> = () => {
         <p>(PDFs are all imported)</p>
       </Section>
       <Section
-        background="static/tutorial/importqueue.png"
+        background="/static/tutorial/importqueue.png"
         backgroundSize="contain"
       >
         <span>Import Queue</span>
       </Section>
       <Section
-        background="static/tutorial/metadata.png"
+        background="/static/tutorial/metadata.png"
         backgroundSize="contain"
       >
         <span>Metadata</span>

@@ -14,12 +14,11 @@ import Colors from "../colors";
 interface Props {
   isReadonly: boolean;
   isAdmin: boolean;
-  filename: string;
   sectionId: string;
   answerId: string;
   isNewComment?: boolean;
   comment: Comment;
-  onSectionChanged: (res: { value: { answersection: AnswerSection } }) => void;
+  onSectionChanged: (res: { value: AnswerSection }) => void;
   onNewCommentSaved?: () => void;
 }
 
@@ -81,13 +80,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove comment?");
     if (confirmation) {
-      fetchpost(
-        `/api/exam/${this.props.filename}/removecomment/${this.props.sectionId}/${this.props.answerId}`,
-        {
-          commentoid: this.props.comment.oid,
-          admin: !this.props.comment.canEdit && this.props.isAdmin ? 1 : 0,
-        },
-      )
+      fetchpost(`/api/exam/removecomment/${this.props.comment.oid}/`, {})
         .then(res => {
           this.props.onSectionChanged(res);
         })
@@ -108,12 +101,9 @@ export default class CommentComponent extends React.Component<Props, State> {
 
   saveComment = () => {
     if (this.props.isNewComment) {
-      fetchpost(
-        `/api/exam/${this.props.filename}/addcomment/${this.props.sectionId}/${this.props.answerId}`,
-        {
-          text: this.state.text,
-        },
-      )
+      fetchpost(`/api/exam/addcomment/${this.props.answerId}/`, {
+        text: this.state.text,
+      })
         .then(res => {
           this.setState({ text: "" });
           if (this.props.onNewCommentSaved) {
@@ -123,13 +113,9 @@ export default class CommentComponent extends React.Component<Props, State> {
         })
         .catch(() => undefined);
     } else {
-      fetchpost(
-        `/api/exam/${this.props.filename}/setcomment/${this.props.sectionId}/${this.props.answerId}`,
-        {
-          commentoid: this.props.comment.oid,
-          text: this.state.text,
-        },
-      )
+      fetchpost(`/api/exam/setcomment/${this.props.comment.oid}/`, {
+        text: this.state.text,
+      })
         .then(res => {
           this.setState(prevState => ({
             editing: false,

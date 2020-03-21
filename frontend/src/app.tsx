@@ -8,7 +8,7 @@ import Header from "./components/header";
 import { css } from "glamor";
 import Feedback from "./pages/feedback";
 import Colors from "./colors";
-import { fetchapi } from "./fetch-utils";
+import { fetchapi, getCookie } from "./fetch-utils";
 import Scoreboard from "./pages/scoreboard";
 import UserInfoComponent from "./pages/userinfo";
 import ModQueue from "./pages/modqueue";
@@ -119,11 +119,12 @@ export default class App extends React.Component<{}, State> {
   };
 
   componentDidMount() {
+    this.loadCsrfCookie();
     this.loadMe();
   }
 
   loadMe = () => {
-    fetchapi("/api/me")
+    fetchapi("/api/auth/me/")
       .then(res =>
         this.setState({
           loadedSessionData: true,
@@ -139,6 +140,12 @@ export default class App extends React.Component<{}, State> {
           loadedSessionData: true,
         }),
       );
+  };
+
+  loadCsrfCookie = () => {
+    if (getCookie("csrftoken") == null) {
+      fetchapi("/api/can_i_haz_csrf_cookie/").then(r => {});
+    }
   };
 
   render() {
