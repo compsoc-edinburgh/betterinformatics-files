@@ -136,6 +136,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+print({
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': os.environ['RUNTIME_POSTGRES_DB_NAME'],
+    'USER': os.environ['RUNTIME_POSTGRES_DB_USER'],
+    'HOST': os.environ['RUNTIME_POSTGRES_DB_SERVER'],
+    'PORT': os.environ['RUNTIME_POSTGRES_DB_PORT'],
+})
+
 if IN_ENVIRON:
     DATABASES = {
         'default': {
