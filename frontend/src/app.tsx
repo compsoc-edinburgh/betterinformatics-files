@@ -119,6 +119,7 @@ export default class App extends React.Component<{}, State> {
   };
 
   componentDidMount() {
+    this.loadCsrfCookie();
     this.loadMe();
   }
 
@@ -139,6 +140,10 @@ export default class App extends React.Component<{}, State> {
           loadedSessionData: true,
         }),
       );
+  };
+
+  loadCsrfCookie = () => {
+    fetchapi("/api/can_i_haz_csrf_cookie/").then(r => {});
   };
 
   render() {
