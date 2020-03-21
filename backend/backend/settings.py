@@ -43,6 +43,7 @@ if DEBUG:
     ALLOWED_HOSTS.append('localhost')
 else:
     ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
+    USE_X_FORWARDED_HOST = True
 
 CSP_DEFAULT_SRC = ("'self'")
 if DEBUG:
