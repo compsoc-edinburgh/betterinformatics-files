@@ -42,8 +42,11 @@ ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS.append('localhost')
 else:
-    ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
-    USE_X_FORWARDED_HOST = True
+    # ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
+    # USE_X_FORWARDED_HOST = True
+    # In K8s, the host is the IP of the pod and can thus change
+    # As we are behind a reverse proxy, it should be fine to ignore this...
+    ALLOWED_HOSTS.append('*')
 
 CSP_DEFAULT_SRC = ("'self'")
 if DEBUG:
