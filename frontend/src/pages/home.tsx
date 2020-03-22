@@ -21,6 +21,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
+import LoadingOverlay from "../components/loading-overlay";
 import { fetchapi, fetchpost } from "../fetch-utils";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 
@@ -172,6 +173,7 @@ const HomePage: React.FC<{}> = () => {
 
   return (
     <Container>
+      <LoadingOverlay loading={loading} />
       <h1>Community Solutions</h1>
 
       <Form>
@@ -205,21 +207,20 @@ const HomePage: React.FC<{}> = () => {
       </Form>
       {error ? (
         <Alert color="danger">{error.message}</Alert>
-      ) : loading ? (
-        <Spinner />
       ) : mode === Mode.Alphabetical ? (
-        filteredCategories && (
+        <>
           <Grid>
-            {filteredCategories.map(category => (
-              <CategoryCard category={category} key={category.slug} />
-            ))}
+            {filteredCategories &&
+              filteredCategories.map(category => (
+                <CategoryCard category={category} key={category.slug} />
+              ))}
             {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
           </Grid>
-        )
+        </>
       ) : (
-        filteredMetaCategories && (
-          <>
-            {filteredMetaCategories.map(([meta1display, meta2]) => (
+        <>
+          {filteredMetaCategories &&
+            filteredMetaCategories.map(([meta1display, meta2]) => (
               <div key={meta1display}>
                 <h4>{meta1display}</h4>
                 {meta2.map(([meta2display, categories]) => (
@@ -234,16 +235,15 @@ const HomePage: React.FC<{}> = () => {
                 ))}
               </div>
             ))}
-            {isAdmin && (
-              <>
-                <h4>New Category</h4>
-                <Grid>
-                  <AddCategory onAddCategory={onAddCategory} />
-                </Grid>
-              </>
-            )}
-          </>
-        )
+          {isAdmin && (
+            <>
+              <h4>New Category</h4>
+              <Grid>
+                <AddCategory onAddCategory={onAddCategory} />
+              </Grid>
+            </>
+          )}
+        </>
       )}
     </Container>
   );

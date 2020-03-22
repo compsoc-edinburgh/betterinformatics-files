@@ -13,6 +13,7 @@ import React from "react";
 import { notLoggedIn, useSetUser } from "../auth";
 import { useLogout } from "../hooks/api";
 import { UserInfo } from "../interfaces";
+import LoadingOverlay from "./loading-overlay";
 import TwoButtons from "./two-buttons";
 
 interface UserScoreCardProps {
@@ -42,50 +43,52 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
           )
         }
       />
-      {userInfo ? (
-        <>
-          <Container fluid>
-            <Row>
-              <Col xs={12} md={6}>
-                <Card style={{ margin: "0.5em" }}>
-                  <CardHeader tag="h4">Score</CardHeader>
-                  <CardBody tag="h5">{userInfo.score}</CardBody>
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card style={{ margin: "0.5em" }}>
-                  <CardHeader tag="h4">Answers</CardHeader>
-                  <CardBody tag="h5">{userInfo.score_answers}</CardBody>
-                </Card>
-              </Col>
-              <Col xs={12} md={6}>
-                <Card style={{ margin: "0.5em" }}>
-                  <CardHeader tag="h4">Comments</CardHeader>
-                  <CardBody tag="h5">{userInfo.score_comments}</CardBody>
-                </Card>
-              </Col>
-              {userInfo.score_cuts > 0 && (
-                <Col xs={12} md={6}>
-                  <Card style={{ margin: "0.5em" }}>
-                    <CardHeader tag="h4">Exam Import</CardHeader>
-                    <CardBody tag="h5">{userInfo.score_cuts}</CardBody>
-                  </Card>
-                </Col>
-              )}
-              {userInfo.score_legacy > 0 && (
-                <Col xs={12} md={6}>
-                  <Card style={{ margin: "0.5em" }}>
-                    <CardHeader tag="h4">Wiki Import</CardHeader>
-                    <CardBody tag="h5">{userInfo.score_legacy}</CardBody>
-                  </Card>
-                </Col>
-              )}
-            </Row>
-          </Container>
-        </>
-      ) : (
-        <Spinner />
-      )}
+
+      <Container fluid>
+        <Row>
+          <Col xs={12} md={6}>
+            <Card style={{ margin: "0.5em" }}>
+              <LoadingOverlay loading={!userInfo} />
+              <CardHeader tag="h4">Score</CardHeader>
+              <CardBody tag="h5">{userInfo ? userInfo.score : "-"}</CardBody>
+            </Card>
+          </Col>
+          <Col xs={12} md={6}>
+            <Card style={{ margin: "0.5em" }}>
+              <LoadingOverlay loading={!userInfo} />
+              <CardHeader tag="h4">Answers</CardHeader>
+              <CardBody tag="h5">
+                {userInfo ? userInfo.score_answers : "-"}
+              </CardBody>
+            </Card>
+          </Col>
+          <Col xs={12} md={6}>
+            <Card style={{ margin: "0.5em" }}>
+              <LoadingOverlay loading={!userInfo} />
+              <CardHeader tag="h4">Comments</CardHeader>
+              <CardBody tag="h5">
+                {userInfo ? userInfo.score_comments : "-"}
+              </CardBody>
+            </Card>
+          </Col>
+          {userInfo && userInfo.score_cuts > 0 && (
+            <Col xs={12} md={6}>
+              <Card style={{ margin: "0.5em" }}>
+                <CardHeader tag="h4">Exam Import</CardHeader>
+                <CardBody tag="h5">{userInfo.score_cuts}</CardBody>
+              </Card>
+            </Col>
+          )}
+          {userInfo && userInfo.score_legacy > 0 && (
+            <Col xs={12} md={6}>
+              <Card style={{ margin: "0.5em" }}>
+                <CardHeader tag="h4">Wiki Import</CardHeader>
+                <CardBody tag="h5">{userInfo.score_legacy}</CardBody>
+              </Card>
+            </Col>
+          )}
+        </Row>
+      </Container>
     </>
   );
 };
