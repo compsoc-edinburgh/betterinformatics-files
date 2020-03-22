@@ -54,7 +54,7 @@ def edit_cut(request, oid):
     if 'relHeight' in request.POST:
         section.rel_height = float(request.POST['relHeight'])
     if 'hidden' in request.POST:
-        section.hidden = bool(request.POST['hidden'] == 'true')
+        section.hidden = request.POST['hidden'] == 'true'
     section.cut_version += 1
     section.save()
     return response.success()
