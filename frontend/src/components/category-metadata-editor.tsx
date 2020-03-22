@@ -1,38 +1,28 @@
-import React, { useState, useCallback } from "react";
+import { useRequest } from "@umijs/hooks";
 import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  FormGroup,
-  Select,
-  Row,
-  Col,
-  Label,
-  TextareaField,
-  Input,
-  Button,
-  ListGroup,
-  ListGroupItem,
   Alert,
-  ListGroupItemHeading,
   Badge,
+  Button,
   Card,
   CardBody,
   CardFooter,
+  Col,
+  FormGroup,
+  Input,
+  Label,
+  ListGroup,
+  ListGroupItem,
+  Row,
+  Select,
+  TextareaField,
 } from "@vseth/components";
-import { createOptions, options, SelectOption } from "../ts-utils";
-import IconButton from "./icon-button";
-import useInitialState from "../hooks/useInitialState";
-import FileInput from "./file-input";
-import {
-  ExamMetaData,
-  CategoryMetaData,
-  Attachment,
-  MetaCategory,
-} from "../interfaces";
+import React, { useState } from "react";
 import { fetchpost } from "../fetch-utils";
-import { useRequest } from "@umijs/hooks";
+import useInitialState from "../hooks/useInitialState";
+import { Attachment, CategoryMetaData } from "../interfaces";
+import { createOptions, options, SelectOption } from "../ts-utils";
+import FileInput from "./file-input";
+import IconButton from "./icon-button";
 import TwoButtons from "./two-buttons";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
