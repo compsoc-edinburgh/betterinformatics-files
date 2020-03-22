@@ -5,26 +5,26 @@ import {
   ButtonGroup,
   Card,
   CardBody,
-  Icon,
-  ICONS,
   CardHeader,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Spinner,
+  Icon,
+  ICONS,
 } from "@vseth/components";
+import { css } from "emotion";
 import React, { useCallback, useState } from "react";
+import { useUser } from "../auth";
 import { fetchpost, imageHandler } from "../fetch-utils";
+import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentSectionComponent from "./comment-section";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
+import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TwoButtons from "./two-buttons";
-import { useUser } from "../auth";
-import { css } from "emotion";
-import useConfirm from "../hooks/useConfirm";
 
 const bodyCanEditStyle = css`
   position: relative;
@@ -169,14 +169,15 @@ const AnswerComponent: React.FC<Props> = ({
             left={
               <>
                 {(answer === undefined || editing) && (
-                  <Button
+                  <IconButton
                     color="primary"
                     size="sm"
                     onClick={save}
-                    disabled={updating}
+                    loading={updating}
+                    icon="SAVE"
                   >
-                    {updating ? <Spinner /> : "Save"}
-                  </Button>
+                    Save
+                  </IconButton>
                 )}
               </>
             }
@@ -185,18 +186,19 @@ const AnswerComponent: React.FC<Props> = ({
                 <>
                   <ButtonGroup>
                     {(answer === undefined || editing) && (
-                      <Button size="sm" onClick={onCancel}>
+                      <IconButton size="sm" onClick={onCancel} icon="CLOSE">
                         {editing ? "Cancel" : "Delete Draft"}
-                      </Button>
+                      </IconButton>
                     )}
                     {answer !== undefined && (
-                      <Button
+                      <IconButton
                         size="sm"
                         onClick={() => setHasCommentDraft(true)}
+                        icon="PLUS"
                         disabled={hasCommentDraft}
                       >
                         Add Comment
-                      </Button>
+                      </IconButton>
                     )}
                     {answer !== undefined && (
                       <ButtonDropdown isOpen={isOpen} toggle={toggle}>
