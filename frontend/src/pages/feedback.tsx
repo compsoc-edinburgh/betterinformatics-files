@@ -1,23 +1,22 @@
-import React, { useState } from "react";
+import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
-  Container,
+  Alert,
   Button,
+  Col,
+  Container,
   FormGroup,
-  Spinner,
   Input,
   Nav,
-  NavLink,
   NavItem,
-  Alert,
+  NavLink,
   Row,
-  Col,
+  Spinner,
 } from "@vseth/components";
-import { Link } from "react-router-dom";
-import { fetchpost, fetchapi } from "../fetch-utils";
-import { useRequest, useLocalStorageState } from "@umijs/hooks";
-import { useUser, User } from "../auth";
-import { FeedbackEntry } from "../interfaces";
+import React, { useEffect, useState } from "react";
+import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
+import { fetchapi, fetchpost } from "../fetch-utils";
+import { FeedbackEntry } from "../interfaces";
 
 enum AdminMode {
   Read,
@@ -35,16 +34,28 @@ const loadFeedback = async () => {
 };
 
 const FeedbackForm: React.FC<{}> = () => {
+  const [success, setSuccess] = useState(false);
+  useEffect(() => {
+    if (success) {
+      const timeout = window.setTimeout(() => setSuccess(false), 10000);
+      return () => {
+        window.clearTimeout(timeout);
+      };
+    }
+  });
+
   const [text, setText] = useState("");
   const { loading, run } = useRequest(submitFeedback, {
     manual: true,
     onSuccess() {
       setText("");
+      setSuccess(true);
     },
   });
 
   return (
     <>
+      {success && <Alert>Feedback was submited successfully.</Alert>}
       <p>Please tell us what you think about the new Community Solutions!</p>
       <p>What do you like? What could we improve? Ideas for new features?</p>
       <p>
@@ -90,10 +101,10 @@ const FeedbackReader: React.FC<{}> = () => {
   const { error, loading, data: feedback, run: reload } = useRequest(
     loadFeedback,
   );
+
   return (
     <>
       {error && <Alert color="danger">{error.message}</Alert>}
-
       {feedback && (
         <Row>
           {feedback.map(fb => (

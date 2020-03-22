@@ -7,7 +7,7 @@ import {
   Spinner,
 } from "@vseth/components";
 import { getDocument } from "pdfjs-dist";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnswerSectionComponent from "../components/answer-section";
 import PdfSectionCanvas from "../components/pdf-section-canvas";
@@ -136,12 +136,15 @@ const ExamPage: React.FC<{}> = () => {
     error: metaDataError,
     loading: metaDataLoading,
     data: metaData,
-  } = useRequest(() => loadExamMetaData(filename));
-  const {
-    error: cutsError,
-    loading: cutsLoading,
-    data: cuts,
-  } = useRequest(() => loadCuts(filename));
+  } = useRequest(() => loadExamMetaData(filename), {
+    cacheKey: `exam-metaData-${filename}`,
+  });
+  const { error: cutsError, loading: cutsLoading, data: cuts } = useRequest(
+    () => loadCuts(filename),
+    {
+      cacheKey: `exam-cuts-${filename}`,
+    },
+  );
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
     loadSplitRenderer(filename),
@@ -169,24 +172,24 @@ const ExamPage: React.FC<{}> = () => {
         </Breadcrumb>
       </Container>
       <div>
-        {error ? (
+        {error && (
           <Container>
             <Alert color="danger">{error.toString()}</Alert>
           </Container>
-        ) : metaDataLoading ? (
+        )}
+        {metaDataLoading && (
           <Container>
             <Spinner />
           </Container>
-        ) : (
-          metaData && (
-            <ExamPageContent
-              width={size.width || 0}
-              metaData={metaData}
-              sections={sections}
-              renderer={renderer}
-              sizeRef={sizeRef}
-            />
-          )
+        )}
+        {metaData && (
+          <ExamPageContent
+            width={size.width || 0}
+            metaData={metaData}
+            sections={sections}
+            renderer={renderer}
+            sizeRef={sizeRef}
+          />
         )}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>

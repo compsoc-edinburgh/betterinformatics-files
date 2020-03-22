@@ -9,6 +9,7 @@ const loadUserInfo = async (username: string) => {
 export const useUserInfo = (username: string) => {
   const { error, loading, data } = useRequest(() => loadUserInfo(username), {
     refreshDeps: [username],
+    cacheKey: `userinfo-${username}`,
   });
   return [error, loading, data] as const;
 };
@@ -26,6 +27,7 @@ export const useEnabledNotifications = (isMyself: boolean) => {
     () => loadEnabledNotifications(isMyself),
     {
       refreshDeps: [isMyself],
+      cacheKey: "enabled-notifications",
     },
   );
   return [error, loading, data, run] as const;
@@ -54,6 +56,7 @@ export const usePayments = (username: string, isMyself: boolean) => {
     () => loadPayments(username, isMyself),
     {
       refreshDeps: [username, isMyself],
+      cacheKey: `payments-${username}`,
     },
   );
   return [error, loading, data, run] as const;
@@ -102,6 +105,7 @@ export const useNotifications = (mode: "all" | "unread") => {
     () => loadNotifications(mode),
     {
       refreshDeps: [mode],
+      cacheKey: `notifications-${mode}`,
     },
   );
   return [error, loading, data, run] as const;
@@ -130,6 +134,7 @@ export const useUserAnswers = (username: string) => {
     () => loadUserAnswers(username),
     {
       refreshDeps: [username],
+      cacheKey: `user-answers-${username}`,
     },
   );
   return [error, loading, data, run] as const;
