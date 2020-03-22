@@ -13,13 +13,15 @@ import {
   Table,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
 import { fetchapi, getCookie } from "../fetch-utils";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
+import CategoryMetaDataEditor from "../components/category-metadata-editor";
+import IconButton from "../components/icon-button";
 
 const loadCategoryMetaData = async (slug: string) => {
   return (await fetchapi(`/api/category/metadata/${slug}`))
@@ -196,9 +198,11 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 };
 
 interface CategoryPageContentProps {
+  onMetaDataChange: (newMetaData: CategoryMetaData) => void;
   metaData: CategoryMetaData;
 }
 const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
+  onMetaDataChange,
   metaData,
 }) => {
   const { data, loading } = useRequest(loadMetaCategories);
@@ -207,6 +211,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       data ? getMetaCategoriesForCategory(data, metaData.slug) : undefined,
     [data, metaData],
   );
+  const [editing, setEditing] = useState(false);
+  const toggle = useCallback(() => setEditing(a => !a), []);
+  const user = useUser()!;
   return (
     <>
       <Breadcrumb>
@@ -215,58 +222,79 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         </BreadcrumbItem>
         <BreadcrumbItem>{metaData.displayname}</BreadcrumbItem>
       </Breadcrumb>
-      <h1>{metaData.displayname}</h1>
-      <ListGroup style={{ marginBottom: "2em" }}>
-        {metaData.semester && (
-          <ListGroupItem>
-            Semester: <Badge>{metaData.semester}</Badge>
-          </ListGroupItem>
-        )}
-        {metaData.form && (
-          <ListGroupItem>
-            Form: <Badge>{metaData.form}</Badge>
-          </ListGroupItem>
-        )}
-        {(offeredIn === undefined || offeredIn.length > 0) && (
-          <ListGroupItem>
-            Offered in:
-            <div>
-              {loading ? (
-                <Spinner />
-              ) : (
-                <ul>
-                  {offeredIn?.map(meta1 =>
-                    meta1.meta2.map(meta2 => (
-                      <li key={meta1.displayname + meta2.displayname}>
-                        {meta2.displayname} in {meta1.displayname}
-                      </li>
-                    )),
+      {editing ? (
+        offeredIn && (
+          <CategoryMetaDataEditor
+            onMetaDataChange={onMetaDataChange}
+            isOpen={editing}
+            toggle={toggle}
+            currentMetaData={metaData}
+            offeredIn={offeredIn.flatMap(b =>
+              b.meta2.map(d => [b.displayname, d.displayname] as const),
+            )}
+          />
+        )
+      ) : (
+        <>
+          {user.isCategoryAdmin && (
+            <IconButton close icon="EDIT" onClick={() => setEditing(true)} />
+          )}
+          <h1>{metaData.displayname}</h1>
+          <ListGroup style={{ marginBottom: "2em" }}>
+            {metaData.semester && (
+              <ListGroupItem>
+                Semester: <Badge>{metaData.semester}</Badge>
+              </ListGroupItem>
+            )}
+            {metaData.form && (
+              <ListGroupItem>
+                Form: <Badge>{metaData.form}</Badge>
+              </ListGroupItem>
+            )}
+            {(offeredIn === undefined || offeredIn.length > 0) && (
+              <ListGroupItem>
+                Offered in:
+                <div>
+                  {loading ? (
+                    <Spinner />
+                  ) : (
+                    <ul>
+                      {offeredIn?.map(meta1 =>
+                        meta1.meta2.map(meta2 => (
+                          <li key={meta1.displayname + meta2.displayname}>
+                            {meta2.displayname} in {meta1.displayname}
+                          </li>
+                        )),
+                      )}
+                    </ul>
                   )}
-                </ul>
-              )}
-            </div>
-          </ListGroupItem>
-        )}
-        {metaData.more_exams_link && (
-          <ListGroupItem>
-            <a
-              href={metaData.more_exams_link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Additional Exams
-            </a>
-          </ListGroupItem>
-        )}
-      </ListGroup>
-      <ExamList metaData={metaData} />
+                </div>
+              </ListGroupItem>
+            )}
+            {metaData.more_exams_link && (
+              <ListGroupItem>
+                <a
+                  href={metaData.more_exams_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Additional Exams
+                </a>
+              </ListGroupItem>
+            )}
+          </ListGroup>
+          <ExamList metaData={metaData} />
+        </>
+      )}
     </>
   );
 };
 
 const CategoryPage: React.FC<{}> = () => {
   const { slug } = useParams() as { slug: string };
-  const { data, loading, error } = useRequest(() => loadCategoryMetaData(slug));
+  const { data, loading, error, mutate } = useRequest(() =>
+    loadCategoryMetaData(slug),
+  );
   const user = useUser();
   return (
     <Container>
@@ -286,7 +314,7 @@ const CategoryPage: React.FC<{}> = () => {
                 : undefined
             }
           >
-            <CategoryPageContent metaData={data} />
+            <CategoryPageContent metaData={data} onMetaDataChange={mutate} />
           </UserContext.Provider>
         )
       )}
