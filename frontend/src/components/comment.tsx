@@ -16,6 +16,7 @@ import MarkdownText from "./markdown-text";
 import TwoButtons from "./two-buttons";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
+import IconButton from "./icon-button";
 
 const addNewComment = async (answerId: string, text: string) => {
   return (
@@ -147,19 +148,20 @@ const CommentComponent: React.FC<Props> = ({
           />
           <TwoButtons
             left={
-              <Button
+              <IconButton
                 size="sm"
                 color="primary"
                 disabled={loading}
                 onClick={onSave}
+                icon="SAVE"
               >
                 {loading ? <Spinner /> : "Save"}
-              </Button>
+              </IconButton>
             }
             right={
-              <Button size="sm" onClick={onCancel}>
+              <IconButton size="sm" onClick={onCancel} icon="CLOSE">
                 {comment === undefined ? "Delete Draft" : "Cancel"}
-              </Button>
+              </IconButton>
             }
           />
         </>
