@@ -13,21 +13,15 @@ import {
   Table,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
+import { css } from "emotion";
 import moment from "moment";
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  Check,
-  Eye,
-  EyeOff,
-  Layout,
-  MessageCircle,
-  Scissors,
-} from "react-feather";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import IconButton from "../components/icon-button";
+import TwoButtons from "../components/two-buttons";
 import { getCookie } from "../fetch-utils";
 import GlobalConsts from "../globalconsts";
 import {
@@ -38,7 +32,6 @@ import {
 } from "../hooks/api";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
-import TwoButtons from "../components/two-buttons";
 
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
@@ -91,6 +84,11 @@ const hasValidClaim = (exam: CategoryExam) => {
   return false;
 };
 
+const badgeStyle = css`
+  margin: 3px;
+  font-size: 0.85rem !important;
+`;
+
 interface ExamTypeCardProps {
   examtype: string;
   exams: CategoryExam[];
@@ -102,6 +100,7 @@ interface ExamTypeCardProps {
 const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   examtype,
   exams,
+
   selected,
   onSelect,
   onDeselect,
@@ -216,44 +215,44 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                   {user.isAdmin && <Button close />}
                   <div>
                     {catAdmin && exam.public ? (
-                      <Badge style={{ margin: 5 }} color="primary">
+                      <Badge className={badgeStyle} color="primary">
                         public
                       </Badge>
                     ) : (
-                      <Badge style={{ margin: 5 }} color="primary">
+                      <Badge className={badgeStyle} color="primary">
                         hidden
                       </Badge>
                     )}
                     {exam.needs_payment && (
-                      <Badge style={{ margin: 5 }} color="info">
+                      <Badge className={badgeStyle} color="info">
                         oral
                       </Badge>
                     )}
                     {exam.finished_cuts ? (
                       exam.finished_wiki_transfer ? (
-                        <Badge style={{ margin: 5 }} color="success">
+                        <Badge className={badgeStyle} color="success">
                           All done
                         </Badge>
                       ) : (
-                        <Badge style={{ margin: 5 }} color="info">
+                        <Badge className={badgeStyle} color="info">
                           Needs Wiki Import
                         </Badge>
                       )
                     ) : (
-                      <Badge style={{ margin: 5 }} color="warning">
+                      <Badge className={badgeStyle} color="warning">
                         Needs Cuts
                       </Badge>
                     )}
 
                     {exam.remark && (
-                      <Badge style={{ margin: 5 }} color="dark">
+                      <Badge className={badgeStyle} color="dark">
                         {exam.remark}
                       </Badge>
                     )}
                     {exam.is_printonly && (
                       <Badge
                         color="danger"
-                        style={{ margin: 5 }}
+                        className={badgeStyle}
                         title="This exam can only be printed. We can not provide this exam online."
                       >
                         (Print Only)
@@ -261,7 +260,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                     )}
                     <Badge
                       color="secondary"
-                      style={{ margin: 5 }}
+                      className={badgeStyle}
                       title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
                     >
                       {exam.count_answered} / {exam.count_cuts}
