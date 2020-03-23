@@ -28,28 +28,17 @@ import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import IconButton from "../components/icon-button";
-import { fetchapi, fetchpost, getCookie } from "../fetch-utils";
+import { getCookie } from "../fetch-utils";
 import GlobalConsts from "../globalconsts";
+import {
+  claimExam,
+  loadCategoryMetaData,
+  loadList,
+  loadMetaCategories,
+} from "../hooks/api";
 import useSet from "../hooks/useSet";
-import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
+import { CategoryExam, CategoryMetaData } from "../interfaces";
 
-const loadCategoryMetaData = async (slug: string) => {
-  return (await fetchapi(`/api/category/metadata/${slug}`))
-    .value as CategoryMetaData;
-};
-const loadMetaCategories = async () => {
-  return (await fetchapi("/api/category/listmetacategories"))
-    .value as MetaCategory[];
-};
-const loadList = async (slug: string) => {
-  return (await fetchapi(`/api/category/listexams/${slug}`))
-    .value as CategoryExam[];
-};
-const claimExam = async (filename: string, claim: boolean) => {
-  await fetchpost(`/api/exam/claimexam/${filename}/`, {
-    claim,
-  });
-};
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
     ...exams

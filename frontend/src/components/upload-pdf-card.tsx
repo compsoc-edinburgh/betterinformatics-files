@@ -17,19 +17,8 @@ import {
   Spinner,
 } from "@vseth/components";
 import React, { useState } from "react";
-import { fetchapi, fetchpost } from "../fetch-utils";
-import { CategoryMetaDataMinimal } from "../interfaces";
 import { useHistory } from "react-router-dom";
-
-const loadCategories = async () => {
-  return (await fetchapi("/api/category/listonlyadmin/"))
-    .value as CategoryMetaDataMinimal[];
-};
-const uploadPdf = async (file: Blob, displayname: string, category: string) => {
-  return (
-    await fetchpost("/api/exam/upload/exam/", { file, displayname, category })
-  ).filename as string;
-};
+import { loadCategories, uploadPdf } from "../hooks/api";
 
 const LoginCard: React.FC<{}> = () => {
   const history = useHistory();

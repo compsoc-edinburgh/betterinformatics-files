@@ -6,51 +6,22 @@ import {
   Container,
   Spinner,
 } from "@vseth/components";
-import { getDocument } from "pdfjs-dist";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnswerSectionComponent from "../components/answer-section";
 import PdfSectionCanvas from "../components/pdf-section-canvas";
-import { loadSections } from "../exam-loader";
-import { fetchapi } from "../fetch-utils";
-import useSet from "../hooks/useSet";
-import {
-  ExamMetaData,
-  Section,
-  SectionKind,
-  ServerCutPosition,
-} from "../interfaces";
-import PDF from "../pdf-renderer";
-import { PDFDocumentProxy } from "../pdfjs";
 import PrintExam from "../components/print-exam";
+import { loadSections } from "../exam-loader";
+import {
+  loadCuts,
+  loadCutVersions,
+  loadExamMetaData,
+  loadSplitRenderer,
+} from "../hooks/api";
+import useSet from "../hooks/useSet";
+import { CutVersions, ExamMetaData, Section, SectionKind } from "../interfaces";
+import PDF from "../pdf-renderer";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
-
-const loadExamMetaData = async (filename: string) => {
-  return (await fetchapi(`/api/exam/metadata/${filename}/`))
-    .value as ExamMetaData;
-};
-const loadSplitRenderer = async (filename: string) => {
-  const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
-    getDocument(`/api/exam/pdf/exam/${filename}`).promise.then(resolve, reject),
-  );
-  const renderer = new PDF(pdf);
-  return [pdf, renderer] as const;
-};
-interface CutVersions {
-  [oid: string]: number;
-}
-const loadCutVersions = async (filename: string) => {
-  return (await fetchapi(`/api/exam/cutversions/${filename}/`))
-    .value as CutVersions;
-};
-
-interface ServerCutResponse {
-  [pageNumber: string]: ServerCutPosition[];
-}
-const loadCuts = async (filename: string) => {
-  return (await fetchapi(`/api/exam/cuts/${filename}/`))
-    .value as ServerCutResponse;
-};
 
 interface ExamPageContentProps {
   metaData: ExamMetaData;

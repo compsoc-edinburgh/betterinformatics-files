@@ -222,3 +222,10 @@ export interface FeedbackEntry {
   read: boolean;
   done: boolean;
 }
+
+export interface CutVersions {
+  [oid: string]: number;
+}
+export interface ServerCutResponse {
+  [pageNumber: string]: ServerCutPosition[];
+}

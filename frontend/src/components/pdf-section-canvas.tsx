@@ -1,17 +1,16 @@
-import Colors from "../colors";
+import { useInViewport } from "@umijs/hooks";
+import { Card } from "@vseth/components";
 import { css } from "glamor";
+import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
+import useDpr from "../hooks/useDpr";
+import { PdfSection } from "../interfaces";
 import PDF, {
-  PdfCanvasReference,
   CanvasObject,
+  PdfCanvasReference,
   PdfCanvasReferenceManager,
 } from "../pdf-renderer";
-import { useState, useCallback, useEffect, useRef } from "react";
-import { PdfSection } from "../interfaces";
-import { useInViewport } from "@umijs/hooks";
-import * as React from "react";
 import PdfSectionText from "./pdf-section-text";
-import useDpr from "../hooks/useDpr";
-import { Card } from "@vseth/components";
 const styles = {
   lastSection: css({
     marginBottom: "40px",

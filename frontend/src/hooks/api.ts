@@ -1,6 +1,21 @@
 import { fetchpost, fetchapi } from "../fetch-utils";
-import { PaymentInfo, UserInfo, NotificationInfo, Answer } from "../interfaces";
+import {
+  PaymentInfo,
+  UserInfo,
+  NotificationInfo,
+  Answer,
+  CategoryMetaDataMinimal,
+  CategoryMetaData,
+  MetaCategory,
+  CategoryExam,
+  ExamMetaData,
+  CutVersions,
+  ServerCutResponse,
+  FeedbackEntry,
+} from "../interfaces";
 import { useRequest } from "@umijs/hooks";
+import { PDFDocumentProxy, getDocument } from "../pdfjs";
+import PDF from "../pdf-renderer";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchapi(`/api/scoreboard/userinfo/${username}/`))
@@ -148,4 +163,62 @@ export const useLogout = (cb: () => void = () => {}) => {
     onSuccess: cb,
   });
   return [error, loading, run] as const;
+};
+export const loadCategories = async () => {
+  return (await fetchapi("/api/category/listonlyadmin/"))
+    .value as CategoryMetaDataMinimal[];
+};
+export const uploadPdf = async (
+  file: Blob,
+  displayname: string,
+  category: string,
+) => {
+  return (
+    await fetchpost("/api/exam/upload/exam/", { file, displayname, category })
+  ).filename as string;
+};
+export const loadCategoryMetaData = async (slug: string) => {
+  return (await fetchapi(`/api/category/metadata/${slug}`))
+    .value as CategoryMetaData;
+};
+export const loadMetaCategories = async () => {
+  return (await fetchapi("/api/category/listmetacategories"))
+    .value as MetaCategory[];
+};
+export const loadList = async (slug: string) => {
+  return (await fetchapi(`/api/category/listexams/${slug}`))
+    .value as CategoryExam[];
+};
+export const claimExam = async (filename: string, claim: boolean) => {
+  await fetchpost(`/api/exam/claimexam/${filename}/`, {
+    claim,
+  });
+};
+export const loadExamMetaData = async (filename: string) => {
+  return (await fetchapi(`/api/exam/metadata/${filename}/`))
+    .value as ExamMetaData;
+};
+export const loadSplitRenderer = async (filename: string) => {
+  const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
+    getDocument(`/api/exam/pdf/exam/${filename}`).promise.then(resolve, reject),
+  );
+  const renderer = new PDF(pdf);
+  return [pdf, renderer] as const;
+};
+export const loadCutVersions = async (filename: string) => {
+  return (await fetchapi(`/api/exam/cutversions/${filename}/`))
+    .value as CutVersions;
+};
+export const loadCuts = async (filename: string) => {
+  return (await fetchapi(`/api/exam/cuts/${filename}/`))
+    .value as ServerCutResponse;
+};
+export const submitFeedback = async (text: string) => {
+  return await fetchpost("api/feedback/submit/", { text });
+};
+export const loadFeedback = async () => {
+  const fb = (await fetchapi("/api/feedback/list/")).value as FeedbackEntry[];
+  const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
+  fb.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
+  return fb;
 };

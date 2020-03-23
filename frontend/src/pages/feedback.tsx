@@ -15,23 +15,12 @@ import {
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
-import { fetchapi, fetchpost } from "../fetch-utils";
-import { FeedbackEntry } from "../interfaces";
+import { loadFeedback, submitFeedback } from "../hooks/api";
 
 enum AdminMode {
   Read,
   Write,
 }
-
-const submitFeedback = async (text: string) => {
-  return await fetchpost("api/feedback/submit/", { text });
-};
-const loadFeedback = async () => {
-  const fb = (await fetchapi("/api/feedback/list/")).value as FeedbackEntry[];
-  const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
-  fb.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
-  return fb;
-};
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
