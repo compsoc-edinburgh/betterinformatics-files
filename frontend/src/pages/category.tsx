@@ -11,17 +11,28 @@ import {
   ListGroupItem,
   Spinner,
   Table,
+  ICONS,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import React, { useMemo, useState, useCallback } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
-import { fetchapi, getCookie } from "../fetch-utils";
+import { fetchapi, getCookie, fetchpost } from "../fetch-utils";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import IconButton from "../components/icon-button";
+import moment from "moment";
+import GlobalConsts from "../globalconsts";
+import {
+  Eye,
+  EyeOff,
+  Check,
+  Scissors,
+  Layout,
+  MessageCircle,
+} from "react-feather";
 
 const loadCategoryMetaData = async (slug: string) => {
   return (await fetchapi(`/api/category/metadata/${slug}`))
@@ -34,6 +45,11 @@ const loadMetaCategories = async () => {
 const loadList = async (slug: string) => {
   return (await fetchapi(`/api/category/listexams/${slug}`))
     .value as CategoryExam[];
+};
+const claimExam = async (filename: string, claim: boolean) => {
+  await fetchpost(`/api/exam/claimexam/${filename}/`, {
+    claim,
+  });
 };
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
@@ -72,6 +88,19 @@ const dlSelectedExams = (selectedExams: Set<string>) => {
   form.submit();
   document.body.removeChild(form);
 };
+const hasValidClaim = (exam: CategoryExam) => {
+  if (exam.import_claim !== null && exam.import_claim_time !== null) {
+    if (
+      moment().diff(
+        moment(exam.import_claim_time, GlobalConsts.momentParseString),
+      ) <
+      4 * 60 * 60 * 1000
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
 
 interface ExamTypeCardProps {
   examtype: string;
@@ -79,6 +108,7 @@ interface ExamTypeCardProps {
   selected: Set<string>;
   onSelect: (...filenames: string[]) => void;
   onDeselect: (...filenames: string[]) => void;
+  reload: () => void;
 }
 const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   examtype,
@@ -86,7 +116,11 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   selected,
   onSelect,
   onDeselect,
+  reload,
 }) => {
+  const { run: runClaimExam } = useRequest(claimExam, { onSuccess: reload });
+  const user = useUser()!;
+  const catAdmin = user.isCategoryAdmin;
   const history = useHistory();
   const allSelected = exams.every(exam => selected.has(exam.filename));
   const someSelected = exams.some(exam => selected.has(exam.filename));
@@ -114,6 +148,8 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
               <th>Name</th>
               <th>Remark</th>
               <th>Answers</th>
+              {catAdmin && <th>Claim</th>}
+              {catAdmin && <th></th>}
             </tr>
           </thead>
           <tbody>
@@ -135,15 +171,87 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                         ? onSelect(exam.filename)
                         : onDeselect(exam.filename)
                     }
+                    disabled={!exam.canView}
                   />
                 </td>
                 <td>
-                  <Link to={`/exams/${exam.filename}`}>{exam.displayname}</Link>
+                  {exam.canView ? (
+                    <Link to={`/exams/${exam.filename}`}>
+                      {exam.displayname}
+                    </Link>
+                  ) : (
+                    exam.displayname
+                  )}
                 </td>
-                <td>{exam.remark}</td>
                 <td>
-                  {exam.count_cuts} / {exam.count_cuts}
+                  {exam.remark}
+                  {exam.is_printonly && (
+                    <span title="This exam can only be printed. We can not provide this exam online.">
+                      {" "}
+                      (Print Only)
+                    </span>
+                  )}
                 </td>
+                <td>
+                  <span
+                    title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
+                  >
+                    {exam.count_answered} / {exam.count_cuts}
+                  </span>
+                  {exam.has_solution && (
+                    <span title="Has an official solution."> (Solution)</span>
+                  )}
+                </td>
+                {catAdmin && (
+                  <td>
+                    {!exam.finished_cuts || !exam.finished_wiki_transfer ? (
+                      hasValidClaim(exam) ? (
+                        exam.import_claim === user.username ? (
+                          <Button
+                            onClick={e => {
+                              e.stopPropagation();
+                              runClaimExam(exam.filename, false);
+                            }}
+                          >
+                            Release Claim
+                          </Button>
+                        ) : (
+                          <Button disabled>
+                            Claimed by {exam.import_claim_displayname}
+                          </Button>
+                        )
+                      ) : (
+                        <Button
+                          onClick={e => {
+                            e.stopPropagation();
+                            runClaimExam(exam.filename, true);
+                          }}
+                        >
+                          Claim Exam
+                        </Button>
+                      )
+                    ) : (
+                      <span>-</span>
+                    )}
+                  </td>
+                )}
+                {catAdmin && (
+                  <td>
+                    {exam.public ? <Eye /> : <EyeOff />}
+                    {exam.needs_payment ? <MessageCircle /> : ""}
+                    {exam.finished_cuts ? (
+                      exam.finished_wiki_transfer ? (
+                        <Check />
+                      ) : (
+                        <Layout />
+                      )
+                    ) : (
+                      <Scissors />
+                    )}
+
+                    {user.isAdmin && <Button close />}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -157,7 +265,9 @@ interface ExamListProps {
   metaData: CategoryMetaData;
 }
 const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
-  const { data, loading, error } = useRequest(() => loadList(metaData.slug));
+  const { data, loading, error, run: reload } = useRequest(() =>
+    loadList(metaData.slug),
+  );
   const examTypeMap = useMemo(
     () => (data ? mapExamsToExamType(data) : undefined),
     [data],
@@ -190,6 +300,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             selected={selected}
             onSelect={onSelect}
             onDeselect={onDeselect}
+            reload={reload}
           />
         ))
       )}
@@ -282,8 +393,48 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </a>
               </ListGroupItem>
             )}
+            {metaData.remark && (
+              <ListGroupItem>Remark: {metaData.remark}</ListGroupItem>
+            )}
+            {metaData.experts.includes(user.username) && (
+              <ListGroupItem>
+                You are an expert for this category. You can endorse correct
+                answers.
+              </ListGroupItem>
+            )}
+            {metaData.has_payments && (
+              <ListGroupItem>
+                You have to pay a deposit of 20 CHF in the VIS bureau in order
+                to see oral exams.
+                <br />
+                After submitting a report of your own oral exam you can get your
+                deposit back.
+              </ListGroupItem>
+            )}
+            {metaData.catadmin && (
+              <ListGroupItem>
+                You can edit exams in this category. Please do so responsibly.
+              </ListGroupItem>
+            )}
           </ListGroup>
           <ExamList metaData={metaData} />
+          {metaData.attachments.length > 0 && (
+            <>
+              <h2>Attachments</h2>
+              <ListGroup flush>
+                {metaData.attachments.map(att => (
+                  <a
+                    href={"/api/filestore/get/" + att.filename + "/"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    key={att.filename}
+                  >
+                    <ListGroupItem>{att.displayname}</ListGroupItem>
+                  </a>
+                ))}
+              </ListGroup>
+            </>
+          )}
         </>
       )}
     </>
