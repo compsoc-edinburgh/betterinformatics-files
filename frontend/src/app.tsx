@@ -13,6 +13,7 @@ import ExamPage from "./pages/exam";
 import UploadPdfPage from "./pages/uploadpdf";
 import TutorialPage from "./pages/tutorial";
 import UserPage from "./pages/userinfo";
+import Scoreboard from "./pages/scoreboard";
 
 const App: React.FC<{}> = () => {
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -58,6 +59,7 @@ const App: React.FC<{}> = () => {
               />
               <UserRoute exact path="/exams/:filename" component={ExamPage} />
               <UserRoute exact path="/user/:username" component={UserPage} />
+              <UserRoute exact path="/scoreboard" component={Scoreboard} />
               <Route component={NotFoundPage} />
             </Switch>
           </main>

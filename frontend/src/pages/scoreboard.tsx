@@ -1,133 +1,96 @@
-import * as React from "react";
-import { css } from "glamor";
-import { UserInfo } from "../interfaces";
+import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import { fetchapi } from "../fetch-utils";
+import { UserInfo } from "../interfaces";
+import { Alert, Table, Container, Button, Card } from "@vseth/components";
+import React from "react";
+import LoadingOverlay from "../components/loading-overlay";
 import { Link } from "react-router-dom";
-import globalcss from "../globalcss";
 
-const styles = {
-  wrapper: css({
-    maxWidth: "900px",
-    margin: "auto",
-  }),
-  canClick: css({
-    cursor: "pointer",
-  }),
-  scoreboardTable: css({
-    width: "100%",
-  }),
-  header: css({
-    "& th": {
-      padding: "15px",
-    },
-  }),
-  row: css({
-    padding: "5px",
-    "& td": {
-      padding: "15px",
-    },
-  }),
-  scrollOverflow: css({
-    overflowX: "auto",
-    boxShadow: "grey 0px 2px 4px 0px",
-  }),
+const modes = [
+  "score",
+  "score_answers",
+  "score_comments",
+  "score_cuts",
+  "score_legacy",
+] as const;
+type Mode = typeof modes[number];
+const loadScoreboard = async (scoretype: Mode) => {
+  return (await fetchapi(`/api/scoreboard/top/${scoretype}/`))
+    .value as UserInfo[];
 };
-
-interface Props {
-  username: string;
-}
-
-interface State {
-  scoreboard: UserInfo[];
-  error?: string;
-}
-
-export default class Scoreboard extends React.Component<Props, State> {
-  state: State = {
-    scoreboard: [],
-  };
-
-  componentDidMount() {
-    const hash = window.location.hash.substr(1);
-    if (
-      [
-        "score",
-        "score_answers",
-        "score_comments",
-        "score_cuts",
-        "score_legacy",
-      ].indexOf(hash) !== -1
-    ) {
-      this.loadScoreboard(hash);
-    } else {
-      this.loadScoreboard("score");
-    }
-    document.title = "Scoreboard - VIS Community Solutions";
-  }
-
-  loadScoreboard = (scoretype: string) => {
-    window.location.hash = scoretype;
-    fetchapi("/api/scoreboard/top/" + scoretype + "/")
-      .then(res => {
-        this.setState({
-          scoreboard: res.value,
-        });
-      })
-      .catch(err => {
-        this.setState({
-          error: err.toString(),
-        });
-      });
-  };
-
-  render() {
-    return (
-      <div {...styles.wrapper}>
-        {this.state.error && <p>{this.state.error}</p>}
-        <h1>Scoreboard</h1>
-        <div {...styles.scrollOverflow}>
-          <table {...styles.scoreboardTable}>
-            <thead>
-              <tr {...styles.header}>
-                <th>Rank</th>
-                <th>User</th>
-                <th
-                  {...styles.canClick}
-                  onClick={() => this.loadScoreboard("score")}
+const Scoreboard: React.FC<{}> = () => {
+  const [mode, setMode] = useLocalStorageState<Mode>(
+    "scoreboard-mode",
+    "score",
+  );
+  const { error, loading, data } = useRequest(() => loadScoreboard(mode), {
+    refreshDeps: [mode],
+    cacheKey: `scoreboard-${mode}`,
+  });
+  return (
+    <Container>
+      <h1>Scoreboard</h1>
+      {error && <Alert color="danger">{error.message}</Alert>}
+      <LoadingOverlay loading={loading} />
+      <div style={{ overflow: "scroll" }}>
+        <Table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>User</th>
+              <th>
+                <Button
+                  color="white"
+                  onClick={() => setMode("score")}
+                  active={mode === "score"}
                 >
                   Score
-                </th>
-                <th
-                  {...styles.canClick}
-                  onClick={() => this.loadScoreboard("score_answers")}
+                </Button>
+              </th>
+              <th>
+                <Button
+                  color="white"
+                  onClick={() => setMode("score_answers")}
+                  active={mode === "score_answers"}
                 >
                   Answers
-                </th>
-                <th
-                  {...styles.canClick}
-                  onClick={() => this.loadScoreboard("score_comments")}
+                </Button>
+              </th>
+              <th>
+                <Button
+                  color="white"
+                  onClick={() => setMode("score_comments")}
+                  active={mode === "score_comments"}
                 >
                   Comments
-                </th>
-                <th
-                  {...styles.canClick}
-                  onClick={() => this.loadScoreboard("score_cuts")}
+                </Button>
+              </th>
+              <th>
+                <Button
+                  color="white"
+                  onClick={() => setMode("score_cuts")}
+                  active={mode === "score_cuts"}
                 >
                   Import Exams
-                </th>
-                <th
-                  {...styles.canClick}
-                  onClick={() => this.loadScoreboard("score_legacy")}
+                </Button>
+              </th>
+              <th>
+                <Button
+                  color="white"
+                  onClick={() => setMode("score_legacy")}
+                  active={mode === "score_legacy"}
                 >
                   Import Wiki
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {this.state.scoreboard.map((board, idx) => (
-                <tr key={board.username} {...styles.row}>
+                </Button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data &&
+              data.map((board, idx) => (
+                <tr key={board.username}>
                   <td>{idx + 1}</td>
-                  <td {...globalcss.noLinkColor}>
+                  <td>
                     <Link to={"/user/" + board.username}>
                       {board.displayName}
                     </Link>
@@ -139,10 +102,10 @@ export default class Scoreboard extends React.Component<Props, State> {
                   <td>{board.score_legacy}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </Table>
       </div>
-    );
-  }
-}
+    </Container>
+  );
+};
+export default Scoreboard;
