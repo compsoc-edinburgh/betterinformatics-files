@@ -3,7 +3,7 @@ import { Route, Switch } from "react-router-dom";
 import { SetUserContext, User, UserContext, notLoggedIn } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import ExamsNavbar from "./components/exams-navbar";
-import { fetchapi } from "./fetch-utils";
+import { fetchapi, getCookie } from "./fetch-utils";
 import FeedbackPage from "./pages/feedback";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/login";
@@ -16,6 +16,11 @@ import UserPage from "./pages/userinfo";
 import Scoreboard from "./pages/scoreboard";
 
 const App: React.FC<{}> = () => {
+  useEffect(() => {
+    if (getCookie("csrftoken") === null) {
+      fetchapi("/api/can_i_haz_csrf_cookie/");
+    }
+  }, []);
   const [user, setUser] = useState<User | undefined>(undefined);
   useEffect(() => {
     let cancelled = false;
