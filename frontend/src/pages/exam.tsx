@@ -22,6 +22,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf-renderer";
 import { PDFDocumentProxy } from "../pdfjs";
+import PrintExam from "../components/print-exam";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const loadExamMetaData = async (filename: string) => {
@@ -88,6 +89,17 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       <Container>
         <h1>{metaData.displayname}</h1>
       </Container>
+      {metaData.is_printonly && (
+        <PrintExam title="exam" examtype="exam" filename={metaData.filename} />
+      )}
+      {metaData.has_solution && metaData.solution_printonly && (
+        <PrintExam
+          title="solution"
+          examtype="solution"
+          filename={metaData.filename}
+        />
+      )}
+
       <div ref={sizeRef} style={{ maxWidth: "1000px", margin: "auto" }}>
         {sections &&
           sections.map(section =>
