@@ -103,6 +103,8 @@ const applyChanges = async (
     metaDataDiff.has_payments = newMetaData.has_payments;
   if (oldMetaData.more_exams_link !== newMetaData.more_exams_link)
     metaDataDiff.more_exams_link = newMetaData.more_exams_link;
+  if (oldMetaData.permission !== newMetaData.permission)
+    metaDataDiff.permission = newMetaData.permission;
   await setMetaData(slug, metaDataDiff);
   const newAttachments: Attachment[] = [];
   for (const attachment of newMetaData.attachments) {
