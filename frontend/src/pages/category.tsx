@@ -38,6 +38,7 @@ import {
 } from "../hooks/api";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
+import TwoButtons from "../components/two-buttons";
 
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
@@ -136,11 +137,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                   onChange={e => setChecked(e.currentTarget.checked)}
                 />
               </th>
-              <th>Name</th>
-              <th>Remark</th>
-              <th>Answers</th>
-              {catAdmin && <th>Claim</th>}
-              {catAdmin && <th></th>}
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -152,7 +149,11 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
               >
                 <td
                   onClick={e => e.stopPropagation()}
-                  style={{ cursor: "initial" }}
+                  style={{
+                    cursor: "initial",
+                    width: "1%",
+                    whiteSpace: "nowrap",
+                  }}
                 >
                   <input
                     type="checkbox"
@@ -166,83 +167,112 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                   />
                 </td>
                 <td>
-                  {exam.canView ? (
-                    <Link to={`/exams/${exam.filename}`}>
-                      {exam.displayname}
-                    </Link>
-                  ) : (
-                    exam.displayname
-                  )}
-                </td>
-                <td>
-                  {exam.remark}
-                  {exam.is_printonly && (
-                    <span title="This exam can only be printed. We can not provide this exam online.">
-                      {" "}
-                      (Print Only)
-                    </span>
-                  )}
-                </td>
-                <td>
-                  <span
-                    title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-                  >
-                    {exam.count_answered} / {exam.count_cuts}
-                  </span>
-                  {exam.has_solution && (
-                    <span title="Has an official solution."> (Solution)</span>
-                  )}
-                </td>
-                {catAdmin && (
-                  <td>
-                    {!exam.finished_cuts || !exam.finished_wiki_transfer ? (
-                      hasValidClaim(exam) ? (
-                        exam.import_claim === user.username ? (
-                          <Button
-                            onClick={e => {
-                              e.stopPropagation();
-                              runClaimExam(exam.filename, false);
-                            }}
-                          >
-                            Release Claim
-                          </Button>
+                  <h6>
+                    <TwoButtons
+                      left={
+                        exam.canView ? (
+                          <Link to={`/exams/${exam.filename}`}>
+                            {exam.displayname}
+                          </Link>
                         ) : (
-                          <Button disabled>
-                            Claimed by {exam.import_claim_displayname}
-                          </Button>
+                          exam.displayname
                         )
-                      ) : (
-                        <Button
-                          onClick={e => {
-                            e.stopPropagation();
-                            runClaimExam(exam.filename, true);
-                          }}
-                        >
-                          Claim Exam
-                        </Button>
-                      )
+                      }
+                      right={
+                        catAdmin &&
+                        (!exam.finished_cuts ||
+                          !exam.finished_wiki_transfer) ? (
+                          hasValidClaim(exam) ? (
+                            exam.import_claim === user.username ? (
+                              <Button
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  runClaimExam(exam.filename, false);
+                                }}
+                              >
+                                Release Claim
+                              </Button>
+                            ) : (
+                              <Button disabled>
+                                Claimed by {exam.import_claim_displayname}
+                              </Button>
+                            )
+                          ) : (
+                            <Button
+                              onClick={e => {
+                                e.stopPropagation();
+                                runClaimExam(exam.filename, true);
+                              }}
+                            >
+                              Claim Exam
+                            </Button>
+                          )
+                        ) : (
+                          <span>-</span>
+                        )
+                      }
+                    />
+                  </h6>
+                  {user.isAdmin && <Button close />}
+                  <div>
+                    {catAdmin && exam.public ? (
+                      <Badge style={{ margin: 5 }} color="primary">
+                        public
+                      </Badge>
                     ) : (
-                      <span>-</span>
+                      <Badge style={{ margin: 5 }} color="primary">
+                        hidden
+                      </Badge>
                     )}
-                  </td>
-                )}
-                {catAdmin && (
-                  <td>
-                    {exam.public ? <Eye /> : <EyeOff />}
-                    {exam.needs_payment ? <MessageCircle /> : ""}
+                    {exam.needs_payment && (
+                      <Badge style={{ margin: 5 }} color="info">
+                        oral
+                      </Badge>
+                    )}
                     {exam.finished_cuts ? (
                       exam.finished_wiki_transfer ? (
-                        <Check />
+                        <Badge style={{ margin: 5 }} color="success">
+                          All done
+                        </Badge>
                       ) : (
-                        <Layout />
+                        <Badge style={{ margin: 5 }} color="info">
+                          Needs Wiki Import
+                        </Badge>
                       )
                     ) : (
-                      <Scissors />
+                      <Badge style={{ margin: 5 }} color="warning">
+                        Needs Cuts
+                      </Badge>
                     )}
 
-                    {user.isAdmin && <Button close />}
-                  </td>
-                )}
+                    {exam.remark && (
+                      <Badge style={{ margin: 5 }} color="dark">
+                        {exam.remark}
+                      </Badge>
+                    )}
+                    {exam.is_printonly && (
+                      <Badge
+                        color="danger"
+                        style={{ margin: 5 }}
+                        title="This exam can only be printed. We can not provide this exam online."
+                      >
+                        (Print Only)
+                      </Badge>
+                    )}
+                    <Badge
+                      color="secondary"
+                      style={{ margin: 5 }}
+                      title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
+                    >
+                      {exam.count_answered} / {exam.count_cuts}
+                    </Badge>
+                    {exam.has_solution && (
+                      <Badge title="Has an official solution." color="success">
+                        Solution
+                      </Badge>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
