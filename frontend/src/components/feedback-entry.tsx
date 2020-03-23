@@ -1,19 +1,16 @@
-import * as React from "react";
-import { css } from "glamor";
-import { FeedbackEntry } from "../interfaces";
-import moment from "moment";
-import { fetchpost } from "../fetch-utils";
-import Colors from "../colors";
-import GlobalConsts from "../globalconsts";
+import { useRequest } from "@umijs/hooks";
 import {
+  Button,
+  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
-  Button,
-  ButtonGroup,
 } from "@vseth/components";
-import TwoButtons from "./two-buttons";
-import { useRequest } from "@umijs/hooks";
+import moment from "moment";
+import * as React from "react";
+import { fetchpost } from "../fetch-utils";
+import GlobalConsts from "../globalconsts";
+import { FeedbackEntry } from "../interfaces";
 
 const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
   await fetchpost(`/api/feedback/flags/${oid}/`, {

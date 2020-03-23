@@ -7,7 +7,6 @@ import {
   Col,
   Container,
   Row,
-  Spinner,
 } from "@vseth/components";
 import React from "react";
 import { notLoggedIn, useSetUser } from "../auth";

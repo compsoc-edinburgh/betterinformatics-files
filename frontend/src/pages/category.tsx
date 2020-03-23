@@ -11,28 +11,27 @@ import {
   ListGroupItem,
   Spinner,
   Table,
-  ICONS,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
-import React, { useMemo, useState, useCallback } from "react";
+import moment from "moment";
+import React, { useCallback, useMemo, useState } from "react";
+import {
+  Check,
+  Eye,
+  EyeOff,
+  Layout,
+  MessageCircle,
+  Scissors,
+} from "react-feather";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { UserContext, useUser } from "../auth";
 import { getMetaCategoriesForCategory } from "../category-utils";
-import { fetchapi, getCookie, fetchpost } from "../fetch-utils";
-import useSet from "../hooks/useSet";
-import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import IconButton from "../components/icon-button";
-import moment from "moment";
+import { fetchapi, fetchpost, getCookie } from "../fetch-utils";
 import GlobalConsts from "../globalconsts";
-import {
-  Eye,
-  EyeOff,
-  Check,
-  Scissors,
-  Layout,
-  MessageCircle,
-} from "react-feather";
+import useSet from "../hooks/useSet";
+import { CategoryExam, CategoryMetaData, MetaCategory } from "../interfaces";
 
 const loadCategoryMetaData = async (slug: string) => {
   return (await fetchapi(`/api/category/metadata/${slug}`))

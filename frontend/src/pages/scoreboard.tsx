@@ -1,10 +1,10 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
+import { Alert, Button, Container, Table } from "@vseth/components";
+import React from "react";
+import { Link } from "react-router-dom";
+import LoadingOverlay from "../components/loading-overlay";
 import { fetchapi } from "../fetch-utils";
 import { UserInfo } from "../interfaces";
-import { Alert, Table, Container, Button, Card } from "@vseth/components";
-import React from "react";
-import LoadingOverlay from "../components/loading-overlay";
-import { Link } from "react-router-dom";
 
 const modes = [
   "score",
