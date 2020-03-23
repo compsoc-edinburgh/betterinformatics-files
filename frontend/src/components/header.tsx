@@ -118,6 +118,19 @@ export default class Header extends React.Component<Props, State> {
   notificationInterval: number | undefined;
 
   componentDidMount() {
+    if (this.props.username !== "") {
+      this.setupInterval();
+    }
+  }
+  componentDidUpdate(prevProps: Props, _prevState: State) {
+    if (prevProps.username === "" && this.props.username !== "") {
+      this.setupInterval();
+    }
+    if (prevProps.username !== "" && this.props.username === "") {
+      window.clearInterval(this.notificationInterval);
+    }
+  }
+  setupInterval() {
     this.notificationInterval = window.setInterval(
       this.checkNotificationCount,
       60000,
