@@ -28,7 +28,6 @@ class CanvasFactory {
       obj.user = this.nextId++;
       return obj;
     } else {
-      console.log(this.free);
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
@@ -58,7 +57,6 @@ class CanvasFactory {
     const index = this.objectIndexMap.get(obj);
     if (index === undefined) return;
     this.free.add(index);
-    console.log("free");
   }
 }
 const globalFactory = new CanvasFactory();

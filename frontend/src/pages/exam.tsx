@@ -111,7 +111,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 oid={section.oid}
                 width={width}
                 canDelete={metaData.canEdit}
-                onSectionChange={() => console.log("change")}
+                onSectionChange={() => {}}
                 onToggleHidden={() =>
                   visible.has(section.oid)
                     ? hide(section.oid)

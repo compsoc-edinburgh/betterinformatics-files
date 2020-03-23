@@ -4,7 +4,6 @@ const useDpr = () => {
   const [dpr, setDpr] = useState(window.devicePixelRatio);
   useEffect(() => {
     const listener = () => {
-      console.log("listener");
       setDpr(window.devicePixelRatio);
     };
     const media = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
