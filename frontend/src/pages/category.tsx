@@ -118,7 +118,10 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   onDeselect,
   reload,
 }) => {
-  const { run: runClaimExam } = useRequest(claimExam, { onSuccess: reload });
+  const { run: runClaimExam } = useRequest(claimExam, {
+    manual: true,
+    onSuccess: reload,
+  });
   const user = useUser()!;
   const catAdmin = user.isCategoryAdmin;
   const history = useHistory();
