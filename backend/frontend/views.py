@@ -27,3 +27,8 @@ def resolve(request, filename):
 
 def legacy_wiki_transform(request, examname):
     return HttpResponse(legacy_importer.transform_wiki(examname), content_type='text/plain', charset='utf-8')
+
+
+@ensure_csrf_cookie
+def can_i_haz_csrf_cookie(request):
+    return response.success(cookie="no")
