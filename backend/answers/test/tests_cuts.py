@@ -38,7 +38,7 @@ class TestCuts(ComsolTestExamData):
         })
         cut.refresh_from_db()
         self.assertEqual(cut.name, "Test Name > 42")
-        self.assertEqual(cut.pageNum, 42)
+        self.assertEqual(cut.page_num, 42)
         self.assertEqual(cut.rel_height, 0.42)
         self.post('/api/exam/editcut/{}/'.format(cut.id), {
             'name': name,
@@ -47,7 +47,7 @@ class TestCuts(ComsolTestExamData):
         })
         cut.refresh_from_db()
         self.assertEqual(cut.name, name)
-        self.assertEqual(cut.pageNum, pageNum)
+        self.assertEqual(cut.page_num, pageNum)
         self.assertEqual(cut.rel_height, relHeight)
 
 
