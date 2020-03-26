@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Route, Switch } from "react-router-dom";
 import { SetUserContext, User, UserContext, notLoggedIn } from "./auth";
 import UserRoute from "./auth/UserRoute";
@@ -16,6 +16,16 @@ import UserPage from "./pages/userinfo";
 import Scoreboard from "./pages/scoreboard";
 
 const App: React.FC<{}> = () => {
+  const serverData = useMemo(() => {
+    const el = document.getElementById("server_data");
+    if (el === null) return undefined;
+    try {
+      const data = JSON.parse(el.textContent || "");
+      return data;
+    } catch (e) {
+      return undefined;
+    }
+  }, []);
   useEffect(() => {
     if (getCookie("csrftoken") === null) {
       fetchapi("/api/can_i_haz_csrf_cookie/");
