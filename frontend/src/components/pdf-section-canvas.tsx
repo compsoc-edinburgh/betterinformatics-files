@@ -44,14 +44,7 @@ const usePdf = (
       let cancel = false;
       let canvasRef: PdfCanvasReference | undefined;
       let currentPromise:
-        | Promise<
-            [
-              Promise<void>,
-              CanvasObject,
-              PdfCanvasReferenceManager,
-              PdfCanvasReference,
-            ]
-          >
+        | Promise<[HTMLCanvasElement, boolean, PdfCanvasReference]>
         | undefined;
       (async () => {
         const page = await renderer.getPage(pageNumber);
@@ -63,19 +56,29 @@ const usePdf = (
         if (scale === undefined) {
           return;
         }
-        currentPromise = renderer.getMainCanvas(pageNumber, scale);
-        const [, canvasObject, , ref] = await currentPromise;
+        currentPromise = renderer.renderCanvasSplit(
+          pageNumber,
+          scale,
+          start,
+          end,
+        );
+        const [canvas, isMain, ref] = await currentPromise;
         canvasRef = ref;
         if (cancel) return;
-        setIsMainCanvas(true);
-        setCanvasElement(canvasObject.canvas);
+        setIsMainCanvas(isMain);
+        setCanvasElement(canvas);
       })();
       return () => {
         cancel = true;
         setCanvasElement(null);
-        if (canvasRef) canvasRef.release();
+        const release = (ref: PdfCanvasReference) => {
+          window.setTimeout(() => {
+            ref.release();
+          }, 1000);
+        };
+        if (canvasRef) release(canvasRef);
         else if (currentPromise) {
-          currentPromise.then(([, , , newCanvasRef]) => newCanvasRef.release());
+          currentPromise.then(([, , newRef]) => release(newRef));
         }
       };
     }
@@ -134,10 +137,15 @@ const PdfSectionCanvas: React.FC<Props> = ({
     element => {
       if (element === null) return;
       if (canvas === null) return;
+      if (isMainCanvas) {
+        canvas.style.transform = `translateY(-${translateY}px)`;
+      } else {
+        canvas.style.transform = "";
+      }
       while (element.firstChild) element.removeChild(element.firstChild);
       element.appendChild(canvas);
     },
-    [canvas],
+    [canvas, translateY, isMainCanvas],
   );
 
   useEffect(() => {

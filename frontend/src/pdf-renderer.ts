@@ -18,19 +18,26 @@ class CanvasFactory {
     for (const index of this.free) return index;
     return undefined;
   }
-  create(width: number, height: number) {
+  create(width: number | undefined, height: number | undefined) {
     const index = this.getFreeIndex();
     if (index !== undefined) {
       const obj = this.canvasArray[index];
       this.free.delete(index);
-      obj.canvas.width = width;
-      obj.canvas.height = height;
+      if (
+        (width === undefined || width === obj.canvas.width) &&
+        (height === undefined || height === obj.canvas.height)
+      ) {
+        const context = obj.context;
+        context.clearRect(0, 0, obj.canvas.width, obj.canvas.height);
+      }
+      if (width) obj.canvas.width = width;
+      if (height) obj.canvas.height = height;
       obj.user = this.nextId++;
       return obj;
     } else {
       const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
+      if (width) canvas.width = width;
+      if (height) canvas.height = height;
       const context = canvas.getContext("2d");
       if (context === null) throw new Error("Could not create canvas context.");
       const obj = { canvas, context, user: this.nextId++ };
@@ -105,6 +112,18 @@ export class PdfCanvasReferenceManager {
     }
   }
 }
+interface MainCanvasPageLoadedData {
+  width: number;
+  height: number;
+}
+interface MainCanvas {
+  scale: number;
+  currentMainRef: PdfCanvasReference | undefined;
+  canvasObject: CanvasObject;
+  referenceManager: PdfCanvasReferenceManager;
+  pageLoaded: Promise<MainCanvasPageLoadedData>;
+  rendered: Promise<void>;
+}
 export default class PDF {
   document: PDFDocumentProxy;
   page?: PDFPageProxy;
@@ -116,21 +135,7 @@ export default class PDF {
   svgMap: Map<number, SVGElement> = new Map();
   embedFontsSvgMap: Map<number, SVGElement> = new Map();
   textMap: Map<number, PDFPromise<TextContent>> = new Map();
-  mainCanvasMap: Map<
-    number,
-    Promise<
-      [
-        Promise<void>,
-        CanvasObject,
-        PdfCanvasReferenceManager,
-        PdfCanvasReference,
-      ]
-    >
-  > = new Map();
-  mainCanvasScale: Map<number, number> = new Map();
-  mainCanvasUsed: Map<number, boolean> = new Map();
-  mainCanvasUser: Map<number, number> = new Map();
-  mainCanvasUserSize: Map<number, number> = new Map();
+  mainCanvasMap: Map<number, Set<MainCanvas>> = new Map();
   constructor(document: PDFDocumentProxy) {
     this.document = document;
   }
@@ -195,76 +200,68 @@ export default class PDF {
 
     return element;
   }
-  async renderCanvas(
+  renderCanvas(
+    referenceManager: PdfCanvasReferenceManager,
+    canvasObject: CanvasObject,
     pageNumber: number,
     scale: number,
-  ): Promise<[CanvasObject, Promise<void>]> {
-    const page = await this.getPage(pageNumber);
-    const viewport = page.getViewport({ scale });
-    const obj = globalFactory.create(viewport.width, viewport.height);
-    const me = obj.user;
-    obj.canvas.style.width = "100%";
-    obj.canvas.style.height = "100%";
-    const canvasContext = obj.canvas.getContext("2d");
-    if (canvasContext === null) throw new Error("Rendering failed.");
+  ): [Promise<void>, Promise<void>] {
+    const renderingReference = referenceManager.createRetainedRef();
+    const pagePromise = this.getPage(pageNumber);
+    const renderingPromise = (async () => {
+      const page = await pagePromise;
+      const viewport = page.getViewport({ scale });
+      canvasObject.canvas.width = viewport.width;
+      canvasObject.canvas.height = viewport.height;
+      canvasObject.canvas.style.width = "100%";
+      canvasObject.canvas.style.height = "100%";
+      await page.render(({
+        canvasContext: canvasObject.context,
+        viewport,
+        canvasFactory: globalFactory,
+      } as unknown) as any).promise;
+      renderingReference.release();
+    })();
+
     return [
-      obj,
-      new Promise((resolve, reject) => {
-        if (obj.user === me) {
-          page
-            .render(({
-              canvasContext,
-              viewport,
-              canvasFactory: globalFactory,
-            } as unknown) as any)
-            .promise.then(
-              () => resolve(),
-              () => reject(),
-            );
-        } else {
-          resolve();
-        }
-      }),
+      (async () => {
+        await pagePromise;
+      })(),
+      renderingPromise,
     ];
   }
-  async getMainCanvas(
-    pageNumber: number,
-    scale: number,
-  ): Promise<
-    [Promise<void>, CanvasObject, PdfCanvasReferenceManager, PdfCanvasReference]
-  > {
-    const obj = this.renderCanvas(pageNumber, scale);
-    this.mainCanvasScale.set(pageNumber, scale);
-    const refManager = new PdfCanvasReferenceManager(0);
-    const ref = refManager.createRetainedRef();
-    const promise = new Promise<
-      [
-        Promise<void>,
-        CanvasObject,
-        PdfCanvasReferenceManager,
-        PdfCanvasReference,
-      ]
-    >((resolve, reject) =>
-      obj.then(
-        ([obj, renderPromise]) => {
-          resolve([renderPromise, obj, refManager, ref]);
-        },
-        e => reject(e),
-      ),
+  createMainCanvas(pageNumber: number, scale: number): MainCanvas {
+    const canvasObject = globalFactory.create(undefined, undefined);
+    const referenceManager = new PdfCanvasReferenceManager(0);
+    const initialRef = referenceManager.createRetainedRef();
+    const [loadPromise, renderingPromise] = this.renderCanvas(
+      referenceManager,
+      canvasObject,
+      pageNumber,
+      scale,
     );
-    refManager.addListener((cnt: number) => {
-      if (cnt <= 0) {
-        (async () => {
-          try {
-            const [canvasObject] = await obj;
-            globalFactory.destroy(canvasObject);
-          } catch (e) {
-            return;
-          }
-        })();
+    const mainCanvas = {
+      scale,
+      currentMainRef: initialRef,
+      canvasObject,
+      referenceManager,
+      pageLoaded: (async () => {
+        await loadPromise;
+        return {
+          width: canvasObject.canvas.width,
+          height: canvasObject.canvas.height,
+        };
+      })(),
+      rendered: renderingPromise,
+    };
+    referenceManager.addListener((cnt: number) => {
+      if (cnt < 0) globalFactory.destroy(canvasObject);
+      const s = this.mainCanvasMap.get(pageNumber);
+      if (s) {
+        s.delete(mainCanvas);
       }
     });
-    return promise;
+    return mainCanvas;
   }
 
   private nextId: number = 1;
@@ -274,28 +271,46 @@ export default class PDF {
     start: number,
     end: number,
   ): Promise<[HTMLCanvasElement, boolean, PdfCanvasReference]> {
-    const requestId = this.nextId++;
-    const mainCanvasUsed = this.mainCanvasUsed.get(pageNumber) || false;
-    const mainCanvasUserSize = this.mainCanvasUserSize.get(pageNumber) || 0;
-    if (!mainCanvasUsed && mainCanvasUserSize < end - start) {
-      this.mainCanvasUser.set(pageNumber, requestId);
-      this.mainCanvasUserSize.set(pageNumber, end - start);
+    const mainCanvasSet = this.mainCanvasMap.get(pageNumber);
+    let mainCanvas: MainCanvas | undefined;
+    let isMainUser = false;
+    if (mainCanvasSet) {
+      for (const existingMainCanvas of mainCanvasSet) {
+        if (
+          existingMainCanvas.scale + 0.001 >= scale &&
+          (mainCanvas === undefined || mainCanvas.currentMainRef !== undefined)
+        ) {
+          mainCanvas = existingMainCanvas;
+        }
+      }
+      if (mainCanvas && mainCanvas.currentMainRef === undefined) {
+        isMainUser = true;
+        mainCanvas.currentMainRef = mainCanvas?.referenceManager.createRetainedRef();
+      }
     }
-    const [
-      renderPromise,
-      mainCanvas,
-      maniCanvasRefManager,
-      mainCanvasRef,
-    ] = await this.getMainCanvas(pageNumber, scale);
-    const user = this.mainCanvasUser.get(pageNumber);
-    if (user !== undefined && user === requestId) {
-      this.mainCanvasUsed.set(pageNumber, true);
-      return [mainCanvas.canvas, true, mainCanvasRef];
+    if (mainCanvas === undefined) {
+      mainCanvas = this.createMainCanvas(pageNumber, scale);
+      isMainUser = true;
+      if (mainCanvasSet) {
+        mainCanvasSet.add(mainCanvas);
+      } else {
+        this.mainCanvasMap.set(pageNumber, new Set([mainCanvas]));
+      }
+    }
+
+    if (mainCanvas === undefined) throw new Error();
+    const ref = isMainUser
+      ? mainCanvas.currentMainRef!
+      : mainCanvas.referenceManager.createRetainedRef();
+
+    if (isMainUser) {
+      return [mainCanvas.canvasObject.canvas, true, ref];
     } else {
-      const mainRef = maniCanvasRefManager.createRetainedRef();
-      const [page] = await Promise.all([
+      const mainRef = mainCanvas.referenceManager.createRetainedRef();
+      const [pageSize, page] = await Promise.all([
+        mainCanvas.pageLoaded,
         this.getPage(pageNumber),
-        renderPromise,
+        mainCanvas.rendered,
       ]);
       const viewport = page.getViewport({ scale });
       const width = viewport.width;
@@ -305,16 +320,28 @@ export default class PDF {
       obj.canvas.style.height = "100%";
       const [sx, sy, sw, sh] = [
         0,
-        mainCanvas.canvas.height * start,
-        mainCanvas.canvas.width,
-        (end - start) * mainCanvas.canvas.height,
+        pageSize.height * start,
+        pageSize.width,
+        (end - start) * pageSize.height,
       ];
       const [dx, dy, dw, dh] = [0, 0, width, height];
       const ctx = obj.context;
       if (ctx === null) throw new Error("Redering failed.");
-      ctx.drawImage(mainCanvas.canvas, sx, sy, sw, sh, dx, dy, dw, dh);
-      ctx.fillStyle = "red";
-      ctx.fillRect(0, 0, 30, 30);
+      ctx.drawImage(
+        mainCanvas.canvasObject.canvas,
+        sx,
+        sy,
+        sw,
+        sh,
+        dx,
+        dy,
+        dw,
+        dh,
+      );
+      ctx.fillStyle = "rgb(0, 159, 227)";
+      ctx.beginPath();
+      ctx.arc(20, 20, 10, 0, 2 * Math.PI, false);
+      ctx.fill();
       const newManager = new PdfCanvasReferenceManager(0);
       const childRef = newManager.createRetainedRef();
 
