@@ -7,13 +7,11 @@ import pdfjs, {
 export interface CanvasObject {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
-  user: number;
 }
 class CanvasFactory {
   private canvasArray: Array<CanvasObject> = [];
   private objectIndexMap: Map<CanvasObject, number> = new Map();
   private free: Set<number> = new Set();
-  private nextId = 0;
   getFreeIndex(): number | undefined {
     for (const index of this.free) return index;
     return undefined;
@@ -32,7 +30,6 @@ class CanvasFactory {
       }
       if (width) obj.canvas.width = width;
       if (height) obj.canvas.height = height;
-      obj.user = this.nextId++;
       return obj;
     } else {
       const canvas = document.createElement("canvas");
@@ -40,7 +37,7 @@ class CanvasFactory {
       if (height) canvas.height = height;
       const context = canvas.getContext("2d");
       if (context === null) throw new Error("Could not create canvas context.");
-      const obj = { canvas, context, user: this.nextId++ };
+      const obj = { canvas, context };
       this.canvasArray.push(obj);
       this.objectIndexMap.set(obj, this.canvasArray.length - 1);
       return obj;
@@ -240,7 +237,7 @@ export default class PDF {
       pageNumber,
       scale,
     );
-    const mainCanvas = {
+    const mainCanvas: MainCanvas = {
       scale,
       currentMainRef: initialRef,
       canvasObject,
@@ -254,17 +251,27 @@ export default class PDF {
       })(),
       rendered: renderingPromise,
     };
+    let timeout: number | undefined;
+    initialRef.addListener(() => {
+      mainCanvas.currentMainRef = undefined;
+    });
     referenceManager.addListener((cnt: number) => {
-      if (cnt < 0) globalFactory.destroy(canvasObject);
-      const s = this.mainCanvasMap.get(pageNumber);
-      if (s) {
-        s.delete(mainCanvas);
+      if (cnt < 0) {
+        timeout = window.setTimeout(() => {
+          globalFactory.destroy(canvasObject);
+          const s = this.mainCanvasMap.get(pageNumber);
+          if (s) {
+            s.delete(mainCanvas);
+          }
+        }, 10000);
+      } else {
+        if (timeout) window.clearTimeout(timeout);
+        timeout = undefined;
       }
     });
     return mainCanvas;
   }
 
-  private nextId: number = 1;
   async renderCanvasSplit(
     pageNumber: number,
     scale: number,
@@ -284,6 +291,7 @@ export default class PDF {
         }
       }
       if (mainCanvas && mainCanvas.currentMainRef === undefined) {
+        console.log("reuse main canvas");
         isMainUser = true;
         mainCanvas.currentMainRef = mainCanvas?.referenceManager.createRetainedRef();
       }

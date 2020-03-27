@@ -5,13 +5,9 @@ import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import useDpr from "../hooks/useDpr";
 import { PdfSection } from "../interfaces";
-import PDF, {
-  CanvasObject,
-  PdfCanvasReference,
-  PdfCanvasReferenceManager,
-} from "../pdf-renderer";
-import PdfSectionText from "./pdf-section-text";
+import PDF, { PdfCanvasReference } from "../pdf-renderer";
 import PdfSectionCanvasOverlay from "./pdf-section-canvas-overlay";
+import PdfSectionText from "./pdf-section-text";
 const styles = {
   lastSection: css({
     marginBottom: "40px",
@@ -71,14 +67,10 @@ const usePdf = (
       return () => {
         cancel = true;
         setCanvasElement(null);
-        const release = (ref: PdfCanvasReference) => {
-          window.setTimeout(() => {
-            ref.release();
-          }, 1000);
-        };
-        if (canvasRef) release(canvasRef);
+
+        if (canvasRef) canvasRef.release();
         else if (currentPromise) {
-          currentPromise.then(([, , newRef]) => release(newRef));
+          currentPromise.then(([, , newRef]) => newRef.release());
         }
       };
     }
