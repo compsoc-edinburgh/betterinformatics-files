@@ -290,7 +290,6 @@ export default class PDF {
         }
       }
       if (mainCanvas && mainCanvas.currentMainRef === undefined) {
-        console.log("reuse main canvas");
         isMainUser = true;
         mainCanvas.currentMainRef = mainCanvas?.referenceManager.createRetainedRef();
       }
@@ -311,6 +310,10 @@ export default class PDF {
       : mainCanvas.referenceManager.createRetainedRef();
 
     if (isMainUser) {
+      ref.addListener(() => {
+        if (mainCanvas === undefined) throw new Error();
+        mainCanvas.currentMainRef = undefined;
+      });
       return [mainCanvas.canvasObject.canvas, true, ref];
     } else {
       const mainRef = mainCanvas.referenceManager.createRetainedRef();

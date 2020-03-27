@@ -175,8 +175,17 @@ const PdfSectionCanvas: React.FC<Props> = ({
           position: "relative",
           overflow: "hidden",
         }}
-        ref={containerElement}
       >
+        <div
+          style={{
+            position: "absolute",
+            left: -150,
+            top: -150,
+            right: -150,
+            bottom: -150,
+          }}
+          ref={containerElement}
+        />
         {content}
         {visible && (
           <PdfSectionText
