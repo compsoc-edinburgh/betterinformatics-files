@@ -57,7 +57,6 @@ class CanvasFactory {
     if (!obj.canvas) {
       throw new Error("Canvas is not specified");
     }
-    obj.user = -1;
     const index = this.objectIndexMap.get(obj);
     if (index === undefined) return;
     this.free.add(index);
