@@ -87,11 +87,13 @@ interface Props {
   section: PdfSection;
   renderer: PDF;
   targetWidth: number;
+  onVisibleChange?: (newVisible: boolean) => void;
 }
 const PdfSectionCanvas: React.FC<Props> = ({
   section,
   renderer,
   targetWidth,
+  onVisibleChange,
 }) => {
   const start = section.start.position;
   const end = section.end.position;
@@ -113,6 +115,15 @@ const PdfSectionCanvas: React.FC<Props> = ({
     end,
     visible ? (currentScale ? currentScale * dpr : undefined) : undefined,
   );
+  const v = visible || false;
+  useEffect(() => {
+    if (onVisibleChange) onVisibleChange(v);
+    return () => {
+      if (onVisibleChange) {
+        onVisibleChange(false);
+      }
+    };
+  }, [v, onVisibleChange]);
 
   const canvasMountingPoint = useCallback<(element: HTMLDivElement) => void>(
     element => {

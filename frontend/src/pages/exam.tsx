@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnswerSectionComponent from "../components/answer-section";
+import ExamPanel from "../components/exam-panel";
 import PdfSectionCanvas from "../components/pdf-section-canvas";
 import PrintExam from "../components/print-exam";
 import { loadSections } from "../exam-loader";
@@ -19,7 +20,14 @@ import {
   loadSplitRenderer,
 } from "../hooks/api";
 import useSet from "../hooks/useSet";
-import { CutVersions, ExamMetaData, Section, SectionKind } from "../interfaces";
+import useToggle from "../hooks/useToggle";
+import {
+  CutVersions,
+  ExamMetaData,
+  PdfSection,
+  Section,
+  SectionKind,
+} from "../interfaces";
 import PDF from "../pdf-renderer";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
@@ -55,11 +63,29 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       window.clearInterval(interval);
     };
   });
+  const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
+  const visibleChangeListeners = useMemo(() => {
+    return sections?.map(section =>
+      section.kind === SectionKind.Pdf
+        ? (v: boolean) => (v ? addVisible(section) : removeVisible(section))
+        : undefined,
+    );
+  }, [sections, addVisible, removeVisible]);
+  const visiblePages = useMemo(() => {
+    const s = new Set<number>();
+    for (const split of visibleSplits) {
+      s.add(split.start.page);
+    }
+    return s;
+  }, [visibleSplits]);
+  const [panelIsOpen, togglePanel] = useToggle();
+  let pageCounter = 0;
   return (
     <>
       <Container>
         <h1>{metaData.displayname}</h1>
       </Container>
+
       {metaData.is_printonly && (
         <PrintExam title="exam" examtype="exam" filename={metaData.filename} />
       )}
@@ -70,10 +96,17 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           filename={metaData.filename}
         />
       )}
-
+      <ExamPanel
+        isOpen={panelIsOpen}
+        toggle={togglePanel}
+        metaData={metaData}
+        renderer={renderer}
+        visiblePages={visiblePages}
+      />
       <div ref={sizeRef} style={{ maxWidth: "1000px", margin: "auto" }}>
-        {sections &&
-          sections.map(section =>
+        {visibleChangeListeners &&
+          sections &&
+          sections.map((section, index) =>
             section.kind === SectionKind.Answer ? (
               <AnswerSectionComponent
                 key={section.oid}
@@ -99,12 +132,18 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               />
             ) : (
               renderer && (
-                <PdfSectionCanvas
-                  key={section.key}
-                  section={section}
-                  renderer={renderer}
-                  targetWidth={width}
-                />
+                <>
+                  {pageCounter < section.start.page && ++pageCounter && (
+                    <div id={`page-${pageCounter}`} />
+                  )}
+                  <PdfSectionCanvas
+                    key={section.key}
+                    section={section}
+                    renderer={renderer}
+                    targetWidth={width}
+                    onVisibleChange={visibleChangeListeners[index]}
+                  />
+                </>
               )
             ),
           )}
