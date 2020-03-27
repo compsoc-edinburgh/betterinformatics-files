@@ -7,6 +7,7 @@ const useSet = <T>(defaultValue?: Set<T>) => {
     setValue(prevSelected => {
       const copy = new Set(prevSelected);
       for (const entry of entries) copy.add(entry);
+      if (copy.size === prevSelected.size) return prevSelected;
       return copy;
     });
   }, []);
@@ -14,6 +15,7 @@ const useSet = <T>(defaultValue?: Set<T>) => {
     setValue(prevSelected => {
       const copy = new Set(prevSelected);
       for (const entry of entries) copy.delete(entry);
+      if (copy.size === prevSelected.size) return prevSelected;
       return copy;
     });
   }, []);
