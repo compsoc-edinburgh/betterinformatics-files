@@ -11,6 +11,7 @@ import PDF, {
   PdfCanvasReferenceManager,
 } from "../pdf-renderer";
 import PdfSectionText from "./pdf-section-text";
+import PdfSectionCanvasOverlay from "./pdf-section-canvas-overlay";
 const styles = {
   lastSection: css({
     marginBottom: "40px",
@@ -88,12 +89,16 @@ interface Props {
   renderer: PDF;
   targetWidth: number;
   onVisibleChange?: (newVisible: boolean) => void;
+  onAddCut?: (pos: number) => void;
+  addCutText?: string;
 }
 const PdfSectionCanvas: React.FC<Props> = ({
   section,
   renderer,
   targetWidth,
   onVisibleChange,
+  onAddCut,
+  addCutText,
 }) => {
   const start = section.start.position;
   const end = section.end.position;
@@ -150,6 +155,9 @@ const PdfSectionCanvas: React.FC<Props> = ({
     }
   }, [targetWidth, canvas, width, height, isMainCanvas, relativeHeight, start]);
 
+  const onAddCutHandler = (pos: number) =>
+    onAddCut && onAddCut(start + (end - start) * (pos / containerHeight));
+
   let content: React.ReactNode;
   if (canvas) {
     content = <div ref={canvasMountingPoint} />;
@@ -177,6 +185,12 @@ const PdfSectionCanvas: React.FC<Props> = ({
             scale={currentScale || 1}
             view={view}
             translateY={translateY}
+          />
+        )}
+        {addCutText && (
+          <PdfSectionCanvasOverlay
+            addCutText={addCutText}
+            onAddCut={onAddCutHandler}
           />
         )}
       </div>

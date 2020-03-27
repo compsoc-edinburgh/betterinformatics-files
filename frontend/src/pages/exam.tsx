@@ -29,7 +29,12 @@ import {
   SectionKind,
 } from "../interfaces";
 import PDF from "../pdf-renderer";
+import { fetchpost } from "../fetch-utils";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
+
+const addCut = async (filename: string, pageNum: number, relHeight: number) => {
+  await fetchpost(`/api/exam/addcut/${filename}/`, { pageNum, relHeight });
+};
 
 interface ExamPageContentProps {
   metaData: ExamMetaData;
@@ -37,6 +42,7 @@ interface ExamPageContentProps {
   renderer?: PDF;
   width: number;
   sizeRef: React.MutableRefObject<HTMLDivElement>;
+  reloadCuts: () => void;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
   metaData,
@@ -44,7 +50,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   renderer,
   width,
   sizeRef,
+  reloadCuts,
 }) => {
+  const { run: runAddCut } = useRequest(addCut, {
+    manual: true,
+    onSuccess: reloadCuts,
+  });
   const { filename } = metaData;
   const [visible, show, hide] = useSet<string>();
   const [cutVersions, setCutVersions] = useState<CutVersions>({});
@@ -80,6 +91,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   }, [visibleSplits]);
   const [panelIsOpen, togglePanel] = useToggle();
   let pageCounter = 0;
+  const [moveCut, setMoveCut] = useState<string | undefined>();
+  const [editCutMode, setEditCutMode] = useState<"move" | "add" | undefined>();
   return (
     <>
       <Container>
@@ -102,6 +115,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         metaData={metaData}
         renderer={renderer}
         visiblePages={visiblePages}
+        isAddingCuts={editCutMode === "add"}
+        onToggleAddingCuts={() =>
+          editCutMode === "add"
+            ? setEditCutMode(undefined)
+            : setEditCutMode("add")
+        }
       />
       <div ref={sizeRef} style={{ maxWidth: "1000px", margin: "auto" }}>
         {visibleChangeListeners &&
@@ -115,7 +134,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 oid={section.oid}
                 width={width}
                 canDelete={metaData.canEdit}
-                onSectionChange={() => {}}
+                onSectionChange={reloadCuts}
                 onToggleHidden={() =>
                   visible.has(section.oid)
                     ? hide(section.oid)
@@ -131,20 +150,26 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 }
               />
             ) : (
-              renderer && (
-                <>
-                  {pageCounter < section.start.page && ++pageCounter && (
-                    <div id={`page-${pageCounter}`} />
-                  )}
+              <React.Fragment key={section.key}>
+                {pageCounter < section.start.page && ++pageCounter && (
+                  <div id={`page-${pageCounter}`} />
+                )}
+                {renderer && (
                   <PdfSectionCanvas
-                    key={section.key}
                     section={section}
                     renderer={renderer}
                     targetWidth={width}
                     onVisibleChange={visibleChangeListeners[index]}
+                    addCutText={
+                      editCutMode &&
+                      (editCutMode === "add" ? "Add Cut" : "Move Cut")
+                    }
+                    onAddCut={(height: number) =>
+                      runAddCut(metaData.filename, section.start.page, height)
+                    }
                   />
-                </>
-              )
+                )}
+              </React.Fragment>
             ),
           )}
       </div>
@@ -161,12 +186,14 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadExamMetaData(filename), {
     cacheKey: `exam-metaData-${filename}`,
   });
-  const { error: cutsError, loading: cutsLoading, data: cuts } = useRequest(
-    () => loadCuts(filename),
-    {
-      cacheKey: `exam-cuts-${filename}`,
-    },
-  );
+  const {
+    error: cutsError,
+    loading: cutsLoading,
+    data: cuts,
+    run: reloadCuts,
+  } = useRequest(() => loadCuts(filename), {
+    cacheKey: `exam-cuts-${filename}`,
+  });
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
     loadSplitRenderer(filename),
@@ -200,7 +227,7 @@ const ExamPage: React.FC<{}> = () => {
           </Container>
         )}
         {metaDataLoading && (
-          <Container>
+          <Container style={{ position: "absolute" }}>
             <Spinner />
           </Container>
         )}
@@ -211,6 +238,7 @@ const ExamPage: React.FC<{}> = () => {
             sections={sections}
             renderer={renderer}
             sizeRef={sizeRef}
+            reloadCuts={reloadCuts}
           />
         )}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (

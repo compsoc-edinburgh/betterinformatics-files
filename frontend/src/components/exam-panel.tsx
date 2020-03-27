@@ -37,6 +37,9 @@ interface ExamPanelProps {
   metaData: ExamMetaData;
   renderer?: PDF;
   visiblePages: Set<number>;
+
+  isAddingCuts: boolean;
+  onToggleAddingCuts: () => void;
 }
 
 const ExamPanel: React.FC<ExamPanelProps> = ({
@@ -45,6 +48,9 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
   metaData,
   renderer,
   visiblePages,
+
+  isAddingCuts,
+  onToggleAddingCuts,
 }) => {
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
@@ -61,28 +67,31 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <h6>Pages</h6>
         <Pagination className={paginationStyle}>
           {renderer &&
-            intMap(1, renderer.document.numPages, pageNum =>
-              visiblePages.has(pageNum) ? (
-                <PaginationItem active key={pageNum}>
+            intMap(1, renderer.document.numPages, pageNum => (
+              <PaginationItem active key={pageNum}>
+                {visiblePages.has(pageNum) ? (
                   <PaginationLink href={`#page-${pageNum}`} className="border">
                     {pageNum}
                   </PaginationLink>
-                </PaginationItem>
-              ) : (
-                <PaginationItem key={pageNum}>
+                ) : (
                   <PaginationLink href={`#page-${pageNum}`}>
                     {pageNum}
                   </PaginationLink>
-                </PaginationItem>
-              ),
-            )}
+                )}
+              </PaginationItem>
+            ))}
         </Pagination>
         <h6>Actions</h6>
         <ButtonGroup>
           <IconButton icon="DOWNLOAD" title="Download PDF" />
           <IconButton icon="LOCK_ALT_OPEN" title="Show All" />
           <IconButton icon="MESSAGE" title="Report Problem" />
-          <IconButton icon="SCRIPT_TEXT" title="Enable Adding Cuts" />
+          <IconButton
+            icon="SCRIPT_TEXT"
+            title="Enable Adding Cuts"
+            onClick={onToggleAddingCuts}
+            color={isAddingCuts ? "primary" : "secondary"}
+          />
           <IconButton icon="ARROW_UP" title="Back to the top" />
         </ButtonGroup>
       </ModalBody>

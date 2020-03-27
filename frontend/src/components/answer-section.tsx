@@ -1,18 +1,22 @@
 import { useInViewport, useRequest } from "@umijs/hooks";
 import {
   Button,
+  ButtonDropdown,
+  ButtonGroup,
   Card,
   CardHeader,
   Container,
-  Spinner,
-  ButtonGroup,
-  ButtonDropdown,
-  DropdownToggle,
-  DropdownMenu,
   DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Icon,
+  ICONS,
+  Spinner,
+  UncontrolledDropdown,
 } from "@vseth/components";
-import React, { useEffect, useState, useCallback } from "react";
-import { fetchapi } from "../fetch-utils";
+import React, { useCallback, useEffect, useState } from "react";
+import { useUser } from "../auth";
+import { fetchapi, fetchpost } from "../fetch-utils";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import ThreeButtons from "./three-buttons";
@@ -20,6 +24,9 @@ import ThreeButtons from "./three-buttons";
 const loadAnswers = async (oid: string) => {
   return (await fetchapi(`/api/exam/answersection/${oid}/`))
     .value as AnswerSection;
+};
+const removeSplit = async (oid: string) => {
+  return await fetchpost(`/api/exam/removecut/${oid}/`, {});
 };
 
 interface AddButtonProps {
@@ -114,6 +121,10 @@ const AnswerSectionComponent: React.FC<Props> = ({
     },
     [setCutVersion],
   );
+  const { run: runRemoveSplit } = useRequest(() => removeSplit(oid), {
+    manual: true,
+    onSuccess: onSectionChange,
+  });
   const { loading, run } = useRequest(() => loadAnswers(oid), {
     manual: true,
     onSuccess: setData,
@@ -139,6 +150,8 @@ const AnswerSectionComponent: React.FC<Props> = ({
     setHasLegacyDraft(true);
     if (hidden) onToggleHidden();
   };
+  const user = useUser()!;
+  const isCatADmin = user.isCategoryAdmin;
   return (
     <Container fluid>
       {!hidden && data && (
@@ -202,6 +215,21 @@ const AnswerSectionComponent: React.FC<Props> = ({
                       >
                         {hidden ? "Show Answers" : "Hide Answers"}
                       </Button>
+                    )
+                  }
+                  right={
+                    isCatADmin && (
+                      <UncontrolledDropdown>
+                        <DropdownToggle caret size="sm">
+                          <Icon icon={ICONS.DOTS_H} size={18} />
+                        </DropdownToggle>
+                        <DropdownMenu>
+                          <DropdownItem onClick={runRemoveSplit}>
+                            Delete
+                          </DropdownItem>
+                          <DropdownItem>Move</DropdownItem>
+                        </DropdownMenu>
+                      </UncontrolledDropdown>
                     )
                   }
                 />

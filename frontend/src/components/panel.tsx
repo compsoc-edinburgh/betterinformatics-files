@@ -1,8 +1,7 @@
-import React from "react";
-import { css, cx } from "emotion";
 import { useSize } from "@umijs/hooks";
-import IconButton from "./icon-button";
 import { Button, Icon, ICONS } from "@vseth/components";
+import { css, cx } from "emotion";
+import React from "react";
 const panelStyle = css`
   position: fixed;
   bottom: 0;
