@@ -321,7 +321,7 @@ export default class Exam extends React.Component<Props, State> {
   reportProblem = () => {
     const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
     const body = encodeURIComponent(
-      `Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category}' ...`,
+      `Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category_displayname}' ...`,
     );
     window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
   };
