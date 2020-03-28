@@ -255,7 +255,7 @@ export default class PDF {
       mainCanvas.currentMainRef = undefined;
     });
     referenceManager.addListener((cnt: number) => {
-      if (cnt < 0) {
+      if (cnt <= 0) {
         timeout = window.setTimeout(() => {
           globalFactory.destroy(canvasObject);
           const s = this.mainCanvasMap.get(pageNumber);
