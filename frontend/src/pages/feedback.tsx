@@ -3,6 +3,7 @@ import { css } from "glamor";
 import { fetchapi, fetchpost } from "../fetch-utils";
 import { FeedbackEntry } from "../interfaces";
 import FeedbackEntryComponent from "../components/feedback-entry";
+import { Link } from "react-router-dom";
 
 const styles = {
   wrapper: css({
@@ -127,7 +128,8 @@ export default class Feedback extends React.Component<Props, State> {
             <a href="mailto:communitysolutions@vis.ethz.ch">
               communitysolutions@vis.ethz.ch
             </a>
-            .
+            . If you have new exams you would like to add, first consult the{" "}
+            <Link to="/faq">FAQ</Link> and then write us an email.
           </p>
           <p>
             To report issues with the platform you can open an issue in our{" "}

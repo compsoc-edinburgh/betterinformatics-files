@@ -11,8 +11,10 @@ from django.shortcuts import get_object_or_404
 def list_faq(request):
     res = [
         {
+            'oid': q.pk,
             'question': q.question,
             'answer': q.answer,
+            'order': q.order,
         } for q in FAQuestion.objects.order_by('order').all()
     ]
     return response.success(value=res)

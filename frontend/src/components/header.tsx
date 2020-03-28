@@ -191,6 +191,11 @@ export default class Header extends React.Component<Props, State> {
             : styles.inactiveMenuWrapper)}
         >
           <div {...styles.menuitem}>
+            <Link to="/faq" onClick={this.linkClicked}>
+              FAQ
+            </Link>
+          </div>
+          <div {...styles.menuitem}>
             <Link to="/feedback" onClick={this.linkClicked}>
               Feedback
             </Link>
