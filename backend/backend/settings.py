@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'answers.apps.AnswersConfig',
     'categories.apps.CategoriesConfig',
+    'faq.apps.FaqConfig',
     'feedback.apps.FeedbackConfig',
     'filestore.apps.FilestoreConfig',
     'frontend.apps.FrontendConfig',

@@ -23,6 +23,7 @@ urlpatterns = [
     path('', include('health.urls')),
     path('', include('frontend.urls')),
     path('api/exam/', include('answers.urls')),
+    path('api/faq/', include('faq.urls')),
     path('api/category/', include('categories.urls')),
     path('api/feedback/', include('feedback.urls')),
     path('api/filestore/', include('filestore.urls')),
