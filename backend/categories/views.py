@@ -102,6 +102,7 @@ def list_exams(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     res = sorted([
         {
+            'sort-key': ex.sort_key(),
             'displayname': ex.displayname,
             'filename': ex.filename,
             'category_displayname': cat.displayname,
@@ -122,7 +123,9 @@ def list_exams(request, slug):
         } for ex in cat.exam_set.select_related('exam_type', 'import_claim').prefetch_related('answersection_set')
             .annotate(count_answered=Count('answersection', filter=Q(Exists(Answer.objects.filter(answer_section=OuterRef('pk'))))))
             .all()
-    ], key=lambda x: x['displayname'])
+    ], key=lambda x: x['sort-key'], reverse=True)
+    for ex in res:
+        del ex['sort-key']
     return response.success(value=res)
 
 
