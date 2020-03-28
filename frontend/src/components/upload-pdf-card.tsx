@@ -16,7 +16,7 @@ import {
   Select,
   Spinner,
 } from "@vseth/components";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../hooks/api";
 
@@ -57,6 +57,7 @@ const LoginCard: React.FC<{}> = () => {
       setValidationError("No category selected");
     }
   };
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Card>
@@ -64,19 +65,36 @@ const LoginCard: React.FC<{}> = () => {
       <CardBody>
         <Form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
-          <InputField
+          <input
+            hidden
             type="file"
-            label="PDF"
+            accept="application/pdf"
             onChange={e => {
               setFile((e.currentTarget.files || [])[0]);
               e.currentTarget.value = "";
             }}
+            ref={fileInputRef}
           />
-          {file && (
+          <label className="form-input-label">File</label>
+          {file ? (
             <ListGroup>
               <ListGroupItem>
+                <Button close onClick={() => setFile(undefined)} />
                 {file.name}
                 <Badge>{file.type}</Badge> <Badge>{file.size}</Badge>
+              </ListGroupItem>
+            </ListGroup>
+          ) : (
+            <ListGroup>
+              <ListGroupItem>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    fileInputRef.current && fileInputRef.current.click()
+                  }
+                >
+                  Choose File
+                </Button>
               </ListGroupItem>
             </ListGroup>
           )}
