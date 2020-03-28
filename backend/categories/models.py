@@ -16,25 +16,21 @@ class Category(models.Model):
     experts = models.ManyToManyField('auth.User', related_name='category_expert_set')
     meta_categories = models.ManyToManyField('MetaCategory', related_name='category_set')
 
-    def exam_count_answered(self):
-        return self.exam_set.filter(public=True).filter(
-            Exists(Answer.objects.filter(
-                answer_section__exam=OuterRef('pk')
-            ))
-        ).count()
-
     def answer_progress(self):
-        total_cuts = AnswerSection.objects.filter(
-            exam__category=self, exam__public=True
-        ).count()
-        if total_cuts == 0:
+        if self.meta.total_cuts == 0:
             return 0
-        answered_cuts = AnswerSection.objects.filter(
-            exam__category=self, exam__public=True
-        ).filter(
-            Exists(Answer.objects.filter(answer_section=OuterRef('pk')))
-        ).count()
-        return answered_cuts / total_cuts
+        return self.meta.answered_cuts / self.meta.total_cuts
+
+
+class CategoryMetaData(models.Model):
+    category = models.OneToOneField('Category', related_name='meta', on_delete=models.DO_NOTHING)
+    examcount_public = models.IntegerField()
+    examcount_answered = models.IntegerField()
+    total_cuts = models.IntegerField()
+    answered_cuts = models.IntegerField()
+
+    class Meta:
+        managed = False
 
 
 class MetaCategory(models.Model):

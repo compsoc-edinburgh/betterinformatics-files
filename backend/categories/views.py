@@ -13,14 +13,13 @@ def list_categories(request):
 
 @auth_check.require_login
 def list_categories_with_meta(request):
-    categories = Category.objects.all()
-    # TODO optimize db queries with annotate
+    categories = Category.objects.select_related('meta').all()
     res = sorted([
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
-            'examcountpublic': cat.exam_set.filter(public=True).count(),
-            'examcountanswered': cat.exam_count_answered(),
+            'examcountpublic': cat.meta.examcount_public,
+            'examcountanswered': cat.meta.examcount_answered,
             'answerprogress': cat.answer_progress(),
         } for cat in categories
     ], key=lambda x: x['displayname'])
