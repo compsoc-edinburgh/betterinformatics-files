@@ -42,7 +42,7 @@ def list_import_exams(request):
             'finished_cuts': exam.finished_cuts,
             'finished_wiki_transfer': exam.finished_wiki_transfer,
         } for exam in sorted(
-            filter_exams(Exam.objects.filter(condition)),
+            filter_exams(Exam.objects.filter(condition).select_related('import_claim', 'category')),
             key=lambda x: (x.category.displayname, x.displayname)
         )
     ]
