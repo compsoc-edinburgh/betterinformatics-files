@@ -76,9 +76,11 @@ def list_flagged(request):
 @auth_check.require_login
 def get_by_user(request, username):
     res = [
-        section_util.get_answer_response(request, answer)
+        section_util.get_answer_response(request, answer, ignore_exam_admin=True)
         for answer in sorted(
-            Answer.objects.filter(author__username=username, is_legacy_answer=False).prefetch_related(*section_util.get_answer_fields_to_prefetch()),
+            Answer.objects.filter(author__username=username, is_legacy_answer=False)
+                .select_related(*section_util.get_answer_fields_to_preselect())
+                .prefetch_related(*section_util.get_answer_fields_to_prefetch()),
             key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count(), x.time)
         )
     ]
