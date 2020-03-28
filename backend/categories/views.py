@@ -1,3 +1,6 @@
+from django.db.models import Count, Exists, OuterRef, Q
+
+from answers.models import Answer
 from util import response
 from myauth import auth_check
 from myauth.models import get_my_user, MyUser
@@ -115,8 +118,10 @@ def list_exams(request, slug):
             'finished_wiki_transfer': ex.finished_wiki_transfer,
             'canView': ex.current_user_can_view(request),
             'count_cuts': ex.answersection_set.count(),
-            'count_answered': ex.count_answered(),
-        } for ex in cat.exam_set.all()
+            'count_answered': ex.count_answered,
+        } for ex in cat.exam_set.select_related('exam_type', 'import_claim').prefetch_related('answersection_set')
+            .annotate(count_answered=Count('answersection', filter=Q(Exists(Answer.objects.filter(answer_section=OuterRef('pk'))))))
+            .all()
     ], key=lambda x: x['displayname'])
     return response.success(value=res)
 

@@ -50,11 +50,6 @@ class Exam(models.Model):
             Exists(Answer.objects.filter(answer_section=OuterRef('pk')))
         ).count()
 
-    def progress(self):
-        if not self.answersection_set.exists():
-            return 0
-        return self.count_answered() / self.answersection_set.count()
-
 
 class ExamType(models.Model):
     displayname = models.CharField(max_length=256)
