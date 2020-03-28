@@ -1,6 +1,4 @@
 from django.db import models
-from django.db.models import Exists, OuterRef
-from answers.models import Answer, AnswerSection
 
 
 class Category(models.Model):
