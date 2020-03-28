@@ -41,10 +41,7 @@ def list_import_exams(request):
             'public': exam.public,
             'finished_cuts': exam.finished_cuts,
             'finished_wiki_transfer': exam.finished_wiki_transfer,
-        } for exam in sorted(
-            filter_exams(Exam.objects.filter(condition).select_related('import_claim', 'category')),
-            key=lambda x: (x.category.displayname, x.displayname)
-        )
+        } for exam in filter_exams(Exam.objects.filter(condition).select_related('import_claim', 'category').order_by('category__displayname', 'displayname'))
     ]
     return response.success(value=res)
 
@@ -57,10 +54,7 @@ def list_payment_check_exams(request):
             'displayname': exam.displayname,
             'category_displayname': exam.category.displayname,
             'payment_uploader_displayname': get_my_user(exam.oral_transcript_uploader).displayname(),
-        } for exam in sorted(
-            Exam.objects.filter(is_oral_transcript=True, oral_transcript_checked=False),
-            key=lambda x: (x.category.displayname, x.displayname)
-        )
+        } for exam in Exam.objects.filter(is_oral_transcript=True, oral_transcript_checked=False).order_by('category__displayname', 'displayname')
     ]
     return response.success(value=res)
 

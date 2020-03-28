@@ -11,13 +11,13 @@ from django.shortcuts import get_object_or_404
 
 @auth_check.require_login
 def list_categories(request):
-    return response.success(value=list(sorted(Category.objects.values_list('displayname', flat=True))))
+    return response.success(value=list(Category.objects.order_by('displayname').values_list('displayname', flat=True)))
 
 
 @auth_check.require_login
 def list_categories_with_meta(request):
-    categories = Category.objects.select_related('meta').all()
-    res = sorted([
+    categories = Category.objects.select_related('meta').order_by('displayname').all()
+    res = [
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
@@ -25,33 +25,33 @@ def list_categories_with_meta(request):
             'examcountanswered': cat.meta.examcount_answered,
             'answerprogress': cat.answer_progress(),
         } for cat in categories
-    ], key=lambda x: x['displayname'])
+    ]
     return response.success(value=res)
 
 
 @auth_check.require_login
 def list_categories_only_admin(request):
-    categories = Category.objects.all()
-    res = sorted([
+    categories = Category.objects.order_by('displayname').all()
+    res = [
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
         }
         for cat in categories
         if auth_check.has_admin_rights_for_category(request, cat)
-    ], key=lambda x: x['displayname'])
+    ]
     return response.success(value=res)
 
 
 @auth_check.require_login
 def list_categories_only_payment(request):
-    res = sorted([
+    res = [
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
         }
-        for cat in Category.objects.filter(has_payments=True)
-    ], key=lambda x: x['displayname'])
+        for cat in Category.objects.filter(has_payments=True).order_by('displayname')
+    ]
     return response.success(value=res)
 
 
@@ -228,7 +228,7 @@ def list_metacategories(request):
                     'displayname': mcat.displayname,
                     'categories': [
                         cat.slug
-                        for cat in sorted(mcat.category_set.all(), key=lambda x: x.displayname)
+                        for cat in mcat.category_set.order_by('displayname').all()
                     ],
                 } for mcat in sorted(childs, key=lambda x: (x.order, x.displayname))
             ]

@@ -17,10 +17,7 @@ def get_answer_response(request, answer, ignore_exam_admin=False):
             'canEdit': comment.author == request.user,
             'time': comment.time,
             'edittime': comment.edittime,
-        } for comment in sorted(
-            answer.comment_set.all(),
-            key=lambda x: (x.time, x.id)
-        )
+        } for comment in answer.comment_set.order_by('time', 'id').all()
     ]
     return {
         'oid': answer.id,
