@@ -204,7 +204,7 @@ def remove_user_from_set(request, slug):
 
 @auth_check.require_login
 def list_metacategories(request):
-    categories = MetaCategory.objects.prefetch_related('metacategory_set', 'category_set').all()
+    categories = MetaCategory.objects.select_related('parent').prefetch_related('metacategory_set', 'category_set').all()
     tree = {}
     for cat in categories:
         tree.setdefault(cat.parent, []).append(cat)
