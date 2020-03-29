@@ -51,6 +51,7 @@ const styles = {
 };
 
 interface Props {
+  isAdmin?: boolean;
   entry: FAQEntry;
   prevEntry?: FAQEntry;
   nextEntry?: FAQEntry;
@@ -187,16 +188,18 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
       <div {...styles.wrapper}>
         <div {...styles.header}>
           <div {...styles.question}>{entry.question}</div>
-          <div {...styles.buttons}>
-            <button onClick={this.moveUp} disabled={!this.props.prevEntry}>
-              Up
-            </button>
-            <button onClick={this.moveDown} disabled={!this.props.nextEntry}>
-              Down
-            </button>
-            <button onClick={this.startEdit}>Edit</button>
-            <button onClick={this.remove}>Remove</button>
-          </div>
+          {this.props.isAdmin && (
+            <div {...styles.buttons}>
+              <button onClick={this.moveUp} disabled={!this.props.prevEntry}>
+                Up
+              </button>
+              <button onClick={this.moveDown} disabled={!this.props.nextEntry}>
+                Down
+              </button>
+              <button onClick={this.startEdit}>Edit</button>
+              <button onClick={this.remove}>Remove</button>
+            </div>
+          )}
         </div>
         <div {...styles.answer}>{this.wrapText(entry.answer)}</div>
       </div>

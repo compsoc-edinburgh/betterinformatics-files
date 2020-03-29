@@ -147,6 +147,7 @@ export default class FAQ extends React.Component<Props, State> {
             {faqs.map((faq, idx) => (
               <FAQEntryComponent
                 key={faq.oid}
+                isAdmin={this.props.isAdmin}
                 entry={faq}
                 prevEntry={idx > 0 ? faqs[idx - 1] : undefined}
                 nextEntry={idx + 1 < faqs.length ? faqs[idx + 1] : undefined}
