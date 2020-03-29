@@ -35,7 +35,11 @@ import { fetchpost } from "../fetch-utils";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
-  await fetchpost(`/api/exam/addcut/${filename}/`, { pageNum, relHeight });
+  await fetchpost(`/api/exam/addcut/${filename}/`, {
+    pageNum,
+    relHeight,
+    name: "",
+  });
 };
 const moveCut = async (
   filename: string,

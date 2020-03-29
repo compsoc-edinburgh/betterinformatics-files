@@ -132,7 +132,10 @@ const AnswerSectionComponent: React.FC<Props> = ({
   );
   const { run: runRemoveSplit } = useRequest(() => removeSplit(oid), {
     manual: true,
-    onSuccess: onSectionChange,
+    onSuccess: () => {
+      if (isBeingMoved) onCancelMove();
+      onSectionChange();
+    },
   });
   const { loading, run } = useRequest(() => loadAnswers(oid), {
     manual: true,
