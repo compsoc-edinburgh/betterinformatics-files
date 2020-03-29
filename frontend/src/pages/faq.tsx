@@ -14,6 +14,9 @@ const styles = {
     marginLeft: 0,
     marginRight: 0,
   }),
+  answerInputElPar: css({
+    paddingRight: "12px",
+  }),
   answerInputEl: css({
     width: "100%",
     padding: "5px",
@@ -113,7 +116,7 @@ export default class FAQ extends React.Component<Props, State> {
                   value={this.state.newQuestion}
                 />
               </div>
-              <div>
+              <div {...styles.answerInputElPar}>
                 <textarea
                   {...styles.answerInputEl}
                   placeholder="Answer"
