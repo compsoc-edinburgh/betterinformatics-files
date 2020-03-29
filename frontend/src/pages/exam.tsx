@@ -88,7 +88,7 @@ interface State {
   canEdit: boolean;
   sections?: Section[];
   allShown: boolean;
-  addingSectionsActive: boolean;
+  editingSectionsActive: boolean;
   editingMetaData: boolean;
   savedMetaData: ExamMetaData;
   updateIntervalId: number;
@@ -106,7 +106,7 @@ export default class Exam extends React.Component<Props, State> {
   state: State = {
     width: widthFromWindow(),
     dpr: window.devicePixelRatio,
-    addingSectionsActive: false,
+    editingSectionsActive: false,
     canEdit: false,
     editingMetaData: false,
     savedMetaData: {
@@ -385,9 +385,9 @@ export default class Exam extends React.Component<Props, State> {
     }));
   };
 
-  toggleAddingSectionActive = () => {
+  toggleEditingSectionActive = () => {
     this.setState(prevState => {
-      return { addingSectionsActive: !prevState.addingSectionsActive };
+      return { editingSectionsActive: !prevState.editingSectionsActive };
     });
   };
 
@@ -442,7 +442,7 @@ export default class Exam extends React.Component<Props, State> {
   setHidden = (section: PdfSection, hidden: boolean) => {
     const { cutOid } = section;
     if (cutOid) {
-      fetchpost(`/api/exam/removecut/${cutOid}/`, {
+      fetchpost(`/api/exam/editcut/${cutOid}/`, {
         hidden,
       }).then(() => {
         this.setState(prevState => ({
@@ -536,9 +536,9 @@ export default class Exam extends React.Component<Props, State> {
                 </div>
               ),
               <div key="cuts">
-                <button onClick={this.toggleAddingSectionActive}>
-                  {(this.state.addingSectionsActive && "Disable Adding Cuts") ||
-                    "Enable Adding Cuts"}
+                <button onClick={this.toggleEditingSectionActive}>
+                  {(this.state.editingSectionsActive && "Disable Editing Cuts") ||
+                    "Enable Editing Cuts"}
                 </button>
               </div>,
             ]}
@@ -638,56 +638,66 @@ export default class Exam extends React.Component<Props, State> {
             {sections.map(e => {
               switch (e.kind) {
                 case SectionKind.Answer:
-                  if (e.cutHidden && !this.state.canEdit) return null;
                   return (
-                    <AnswerSectionComponent
-                      name={e.name}
-                      key={e.oid}
-                      isAdmin={this.props.isAdmin}
-                      isExpert={this.state.savedMetaData.isExpert}
-                      filename={this.props.filename}
-                      oid={e.oid}
-                      width={width}
-                      canDelete={this.state.canEdit}
-                      onSectionChange={() =>
-                        this.state.pdf
-                          ? this.loadSectionsFromBackend(
-                              this.state.pdf.numPages,
-                            )
-                          : false
-                      }
-                      onCutNameChange={(newName: string) => {
-                        e.name = newName;
-                        this.setState({
-                          toc: this.gnerateTableOfContents(this.state.sections),
-                        });
-                      }}
-                      onToggleHidden={() => this.toggleHidden(e.oid)}
-                      hidden={e.hidden}
-                      cutVersion={e.cutVersion}
-                    />
+                    (!e.cutHidden ||
+                      (this.state.canEdit &&
+                        this.state.editingSectionsActive)) && (
+                      <AnswerSectionComponent
+                        name={e.name}
+                        key={e.oid}
+                        isAdmin={this.props.isAdmin}
+                        isExpert={this.state.savedMetaData.isExpert}
+                        filename={this.props.filename}
+                        oid={e.oid}
+                        width={width}
+                        canDelete={this.state.canEdit}
+                        onSectionChange={() =>
+                          this.state.pdf
+                            ? this.loadSectionsFromBackend(
+                                this.state.pdf.numPages,
+                              )
+                            : false
+                        }
+                        onCutNameChange={(newName: string) => {
+                          e.name = newName;
+                          this.setState({
+                            toc: this.gnerateTableOfContents(
+                              this.state.sections,
+                            ),
+                          });
+                        }}
+                        onToggleHidden={() => this.toggleHidden(e.oid)}
+                        hidden={e.hidden}
+                        cutVersion={e.cutVersion}
+                      />
+                    )
                   );
                 case SectionKind.Pdf:
-                  if (e.hidden && !this.state.canEdit) return null;
                   return (
-                    <PdfSectionComp
-                      canHide={this.state.canEdit}
-                      setHidden={(newHidden: boolean) =>
-                        this.setHidden(e, newHidden)
-                      }
-                      key={e.key}
-                      section={e}
-                      renderer={renderer}
-                      width={width}
-                      dpr={dpr}
-                      renderText={!this.state.addingSectionsActive}
-                      // ts does not like it if this is undefined...
-                      onClick={
-                        this.state.canEdit && this.state.addingSectionsActive
-                          ? this.addSection
-                          : ev => ev
-                      }
-                    />
+                    (!e.hidden ||
+                      (this.state.canEdit &&
+                        this.state.editingSectionsActive)) && (
+                      <PdfSectionComp
+                        canHide={
+                          this.state.canEdit && this.state.editingSectionsActive
+                        }
+                        setHidden={(newHidden: boolean) =>
+                          this.setHidden(e, newHidden)
+                        }
+                        key={e.key}
+                        section={e}
+                        renderer={renderer}
+                        width={width}
+                        dpr={dpr}
+                        renderText={!this.state.editingSectionsActive}
+                        // ts does not like it if this is undefined...
+                        onClick={
+                          this.state.canEdit && this.state.editingSectionsActive
+                            ? this.addSection
+                            : ev => ev
+                        }
+                      />
+                    )
                   );
                 default:
                   return null as never;
