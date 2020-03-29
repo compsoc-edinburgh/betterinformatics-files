@@ -226,6 +226,7 @@ export default class PdfSectionComp extends React.Component<Props> {
           style={{
             width: Math.ceil(rawDim.width),
             height: Math.ceil(rawDim.height),
+            filter: this.props.section.hidden ? "contrast(0.5)" : undefined,
           }}
           {...styles.canvas}
         />
