@@ -20,8 +20,8 @@ def list_faq(request):
     return response.success(value=res)
 
 
-@auth_check.require_admin
 @response.args_post('question', 'answer', 'order')
+@auth_check.require_admin
 def add_faq(request):
     faq = FAQuestion(
         question=request.POST['question'],
@@ -32,8 +32,8 @@ def add_faq(request):
     return response.success(value=faq.pk)
 
 
-@auth_check.require_admin
 @response.args_post('question', 'answer', 'order')
+@auth_check.require_admin
 def set_faq(request, id):
     faq = get_object_or_404(FAQuestion, pk=id)
     faq.question = request.POST['question']
@@ -43,8 +43,8 @@ def set_faq(request, id):
     return response.success()
 
 
-@auth_check.require_admin
 @response.args_post()
+@auth_check.require_admin
 def remove_faq(request, id):
     faq = get_object_or_404(FAQuestion, pk=id)
     faq.delete()
