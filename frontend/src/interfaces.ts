@@ -13,6 +13,7 @@ export interface AnswerSection {
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
   hidden: boolean; // whether the element is currently hidden
   cutVersion: number; // version of the answer section, should reload if changed
+  name: string;
 }
 
 export interface Answer {
@@ -65,6 +66,7 @@ export interface ServerCutPosition {
   relHeight: number;
   oid: string;
   cutVersion: number;
+  name: string;
 }
 
 export interface Attachment {

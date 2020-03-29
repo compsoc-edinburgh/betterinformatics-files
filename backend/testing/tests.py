@@ -103,7 +103,8 @@ class ComsolTestExamData(ComsolTest):
                     exam=self.exam,
                     author=self.get_my_user(),
                     page_num=1,
-                    rel_height=0.25*i
+                    rel_height=0.25*i,
+                    name='Aufgabe ' + str(i),
                 )
             )
         for section in self.sections:

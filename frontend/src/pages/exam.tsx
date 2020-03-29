@@ -155,6 +155,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                     ? hide(section.oid)
                     : show(section.oid)
                 }
+                onCutNameChange={() => undefined}
                 hidden={!visible.has(section.oid)}
                 cutVersion={cutVersions[section.oid] || section.cutVersion}
                 setCutVersion={newVersion =>

@@ -95,6 +95,7 @@ interface Props {
   width: number;
   canDelete: boolean;
   onSectionChange: () => void;
+  onCutNameChange: (newName: string) => void;
   onToggleHidden: () => void;
   hidden: boolean;
   cutVersion: number;
