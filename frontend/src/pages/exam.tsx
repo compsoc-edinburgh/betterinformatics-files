@@ -1,4 +1,4 @@
-import { useRequest, useSize } from "@umijs/hooks";
+import { useRequest, useSize, useLocalStorageState } from "@umijs/hooks";
 import {
   Alert,
   Breadcrumb,
@@ -27,6 +27,8 @@ import {
   PdfSection,
   Section,
   SectionKind,
+  EditMode,
+  EditState,
 } from "../interfaces";
 import PDF from "../pdf-renderer";
 import { fetchpost } from "../fetch-utils";
@@ -34,6 +36,14 @@ const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
   await fetchpost(`/api/exam/addcut/${filename}/`, { pageNum, relHeight });
+};
+const moveCut = async (
+  filename: string,
+  cut: string,
+  pageNum: number,
+  relHeight: number,
+) => {
+  await fetchpost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
 };
 
 interface ExamPageContentProps {
@@ -55,6 +65,13 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const { run: runAddCut } = useRequest(addCut, {
     manual: true,
     onSuccess: reloadCuts,
+  });
+  const { run: runMoveCut } = useRequest(moveCut, {
+    manual: true,
+    onSuccess: () => {
+      reloadCuts();
+      setEditState({ mode: EditMode.None });
+    },
   });
   const { filename } = metaData;
   const [visible, show, hide] = useSet<string>();
@@ -91,8 +108,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   }, [visibleSplits]);
   const [panelIsOpen, togglePanel] = useToggle();
   let pageCounter = 0;
-  const [moveCut, setMoveCut] = useState<string | undefined>();
-  const [editCutMode, setEditCutMode] = useState<"move" | "add" | undefined>();
+  const [editState, setEditState] = useLocalStorageState<EditState>(
+    "edit-state",
+    { mode: EditMode.None },
+  );
   return (
     <>
       <Container>
@@ -115,12 +134,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         metaData={metaData}
         renderer={renderer}
         visiblePages={visiblePages}
-        isAddingCuts={editCutMode === "add"}
-        onToggleAddingCuts={() =>
-          editCutMode === "add"
-            ? setEditCutMode(undefined)
-            : setEditCutMode("add")
-        }
+        editState={editState}
+        setEditState={setEditState}
       />
       <div ref={sizeRef} style={{ maxWidth: "1000px", margin: "auto" }}>
         {visibleChangeListeners &&
@@ -148,6 +163,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                     [section.oid]: newVersion,
                   }))
                 }
+                onCancelMove={() => setEditState({ mode: EditMode.None })}
+                onMove={() =>
+                  setEditState({ mode: EditMode.Move, cut: section.oid })
+                }
+                isBeingMoved={
+                  editState.mode === EditMode.Move &&
+                  editState.cut === section.oid
+                }
               />
             ) : (
               <React.Fragment key={section.key}>
@@ -161,11 +184,27 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                     targetWidth={width}
                     onVisibleChange={visibleChangeListeners[index]}
                     addCutText={
-                      editCutMode &&
-                      (editCutMode === "add" ? "Add Cut" : "Move Cut")
+                      editState.mode === EditMode.Add
+                        ? "Add Cut"
+                        : editState.mode === EditMode.Move
+                        ? "Move Cut"
+                        : undefined
                     }
                     onAddCut={(height: number) =>
-                      runAddCut(metaData.filename, section.start.page, height)
+                      editState.mode === EditMode.Add
+                        ? runAddCut(
+                            metaData.filename,
+                            section.start.page,
+                            height,
+                          )
+                        : editState.mode === EditMode.Move
+                        ? runMoveCut(
+                            metaData.filename,
+                            editState.cut,
+                            section.start.page,
+                            height,
+                          )
+                        : undefined
                     }
                   />
                 )}

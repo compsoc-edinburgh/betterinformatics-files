@@ -11,9 +11,10 @@ import {
 import { Link } from "react-router-dom";
 import IconButton from "./icon-button";
 import React from "react";
-import { ExamMetaData } from "../interfaces";
+import { ExamMetaData, EditMode, EditState } from "../interfaces";
 import PDF from "../pdf-renderer";
 import { css } from "emotion";
+import { useUser } from "../auth";
 
 const intMap = <T,>(from: number, to: number, cb: (num: number) => T) => {
   const acc: T[] = [];
@@ -38,8 +39,8 @@ interface ExamPanelProps {
   renderer?: PDF;
   visiblePages: Set<number>;
 
-  isAddingCuts: boolean;
-  onToggleAddingCuts: () => void;
+  editState: EditState;
+  setEditState: (newState: EditState) => void;
 }
 
 const ExamPanel: React.FC<ExamPanelProps> = ({
@@ -49,9 +50,11 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
   renderer,
   visiblePages,
 
-  isAddingCuts,
-  onToggleAddingCuts,
+  editState,
+  setEditState,
 }) => {
+  const user = useUser()!;
+  const isCatAdmin = user.isCategoryAdmin;
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
       <ModalHeader>
@@ -86,14 +89,37 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           <IconButton icon="DOWNLOAD" title="Download PDF" />
           <IconButton icon="LOCK_ALT_OPEN" title="Show All" />
           <IconButton icon="MESSAGE" title="Report Problem" />
-          <IconButton
-            icon="SCRIPT_TEXT"
-            title="Enable Adding Cuts"
-            onClick={onToggleAddingCuts}
-            color={isAddingCuts ? "primary" : "secondary"}
-          />
           <IconButton icon="ARROW_UP" title="Back to the top" />
         </ButtonGroup>
+
+        {isCatAdmin && (
+          <>
+            <h6>Edit Mode</h6>
+            <ButtonGroup vertical>
+              <IconButton
+                onClick={() => setEditState({ mode: EditMode.None })}
+                icon="CLOSE"
+                active={editState.mode === EditMode.None}
+              >
+                Readonly
+              </IconButton>
+              <IconButton
+                onClick={() => setEditState({ mode: EditMode.Add })}
+                icon="PLUS"
+                active={editState.mode === EditMode.Add}
+              >
+                Add Cuts
+              </IconButton>
+              <IconButton
+                icon="CONNECTION_OBJECT_BOTTOM"
+                active={editState.mode === EditMode.Move}
+                disabled={editState.mode !== EditMode.Move}
+              >
+                Move Cut
+              </IconButton>
+            </ButtonGroup>
+          </>
+        )}
       </ModalBody>
       <ModalFooter>All answers are licensed as CC BY-NC-SA 4.0.</ModalFooter>
     </Panel>

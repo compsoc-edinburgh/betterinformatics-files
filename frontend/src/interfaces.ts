@@ -229,3 +229,13 @@ export interface CutVersions {
 export interface ServerCutResponse {
   [pageNumber: string]: ServerCutPosition[];
 }
+
+export enum EditMode {
+  None,
+  Add,
+  Move,
+}
+export type EditState =
+  | { mode: EditMode.None }
+  | { mode: EditMode.Add }
+  | { mode: EditMode.Move; cut: string };

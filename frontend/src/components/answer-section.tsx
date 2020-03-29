@@ -99,6 +99,10 @@ interface Props {
   hidden: boolean;
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
+
+  onCancelMove: () => void;
+  onMove: () => void;
+  isBeingMoved: boolean;
 }
 
 const AnswerSectionComponent: React.FC<Props> = ({
@@ -112,6 +116,10 @@ const AnswerSectionComponent: React.FC<Props> = ({
   hidden,
   cutVersion,
   setCutVersion,
+
+  onCancelMove,
+  onMove,
+  isBeingMoved,
 }) => {
   const [data, setData] = useState<AnswerSection | undefined>();
   const setAnswerSection = useCallback(
@@ -151,7 +159,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
     if (hidden) onToggleHidden();
   };
   const user = useUser()!;
-  const isCatADmin = user.isCategoryAdmin;
+  const isCatAdmin = user.isCategoryAdmin;
   return (
     <Container fluid>
       {!hidden && data && (
@@ -183,7 +191,10 @@ const AnswerSectionComponent: React.FC<Props> = ({
           )}
         </>
       )}
-      <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
+      <Card
+        style={{ marginTop: "2em", marginBottom: "2em" }}
+        color={isBeingMoved ? "primary" : undefined}
+      >
         <CardHeader>
           <div style={{ display: "flex" }} ref={ref}>
             {data === undefined ? (
@@ -194,19 +205,26 @@ const AnswerSectionComponent: React.FC<Props> = ({
               <>
                 <ThreeButtons
                   left={
-                    (data.answers.length === 0 || !hidden) &&
-                    data && (
-                      <AddButton
-                        allowAnswer={data.allow_new_answer}
-                        allowLegacyAnswer={data.allow_new_legacy_answer}
-                        hasAnswerDraft={hasDraft}
-                        hasLegacyAnswerDraft={hasLegacyDraft}
-                        onAnswer={onAddAnswer}
-                        onLegacyAnswer={onAddLegacyAnswer}
-                      />
+                    isBeingMoved ? (
+                      <Button size="sm" onClick={onCancelMove}>
+                        Cancel
+                      </Button>
+                    ) : (
+                      (data.answers.length === 0 || !hidden) &&
+                      data && (
+                        <AddButton
+                          allowAnswer={data.allow_new_answer}
+                          allowLegacyAnswer={data.allow_new_legacy_answer}
+                          hasAnswerDraft={hasDraft}
+                          hasLegacyAnswerDraft={hasLegacyDraft}
+                          onAnswer={onAddAnswer}
+                          onLegacyAnswer={onAddLegacyAnswer}
+                        />
+                      )
                     )
                   }
                   center={
+                    !isBeingMoved &&
                     data.answers.length > 0 && (
                       <Button
                         color="primary"
@@ -218,7 +236,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
                     )
                   }
                   right={
-                    isCatADmin && (
+                    isCatAdmin && (
                       <UncontrolledDropdown>
                         <DropdownToggle caret size="sm">
                           <Icon icon={ICONS.DOTS_H} size={18} />
@@ -227,7 +245,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
                           <DropdownItem onClick={runRemoveSplit}>
                             Delete
                           </DropdownItem>
-                          <DropdownItem>Move</DropdownItem>
+                          <DropdownItem onClick={onMove}>Move</DropdownItem>
                         </DropdownMenu>
                       </UncontrolledDropdown>
                     )
