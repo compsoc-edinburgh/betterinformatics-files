@@ -66,6 +66,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   sizeRef,
   reloadCuts,
 }) => {
+  const { filename } = metaData;
+
   const { run: runAddCut } = useRequest(addCut, {
     manual: true,
     onSuccess: reloadCuts,
@@ -77,15 +79,22 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       setEditState({ mode: EditMode.None });
     },
   });
-  const { filename } = metaData;
-  const [visible, show, hide] = useSet<string>();
-  const [cutVersions, setCutVersions] = useState<CutVersions>({});
   const { run: updateCuts } = useRequest(() => loadCutVersions(filename), {
     manual: true,
     onSuccess: response => {
       setCutVersions(oldVersions => ({ ...oldVersions, ...response }));
     },
   });
+
+  const [visible, show, hide] = useSet<string>();
+  const [cutVersions, setCutVersions] = useState<CutVersions>({});
+  const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
+  const [panelIsOpen, togglePanel] = useToggle();
+  const [editState, setEditState] = useLocalStorageState<EditState>(
+    "edit-state",
+    { mode: EditMode.None },
+  );
+
   useEffect(() => {
     const interval = window.setInterval(
       updateCuts,
@@ -95,14 +104,16 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       window.clearInterval(interval);
     };
   });
-  const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
-  const visibleChangeListeners = useMemo(() => {
-    return sections?.map(section =>
-      section.kind === SectionKind.Pdf
-        ? (v: boolean) => (v ? addVisible(section) : removeVisible(section))
-        : undefined,
-    );
-  }, [sections, addVisible, removeVisible]);
+
+  const visibleChangeListeners = useMemo(
+    () =>
+      sections?.map(section =>
+        section.kind === SectionKind.Pdf
+          ? (v: boolean) => (v ? addVisible(section) : removeVisible(section))
+          : undefined,
+      ),
+    [sections, addVisible, removeVisible],
+  );
   const visiblePages = useMemo(() => {
     const s = new Set<number>();
     for (const split of visibleSplits) {
@@ -110,12 +121,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     }
     return s;
   }, [visibleSplits]);
-  const [panelIsOpen, togglePanel] = useToggle();
+
   let pageCounter = 0;
-  const [editState, setEditState] = useLocalStorageState<EditState>(
-    "edit-state",
-    { mode: EditMode.None },
-  );
   return (
     <>
       <Container>
