@@ -57,6 +57,8 @@ class CanvasFactory {
     if (!obj.canvas) {
       throw new Error("Canvas is not specified");
     }
+    obj.canvas.height = 0;
+    obj.canvas.width = 0;
     const index = this.objectIndexMap.get(obj);
     if (index === undefined) return;
     this.free.add(index);
@@ -250,6 +252,14 @@ export default class PDF {
       })(),
       rendered: renderingPromise,
     };
+    const existingSet = this.mainCanvasMap.get(pageNumber);
+    const newSet = new Set([mainCanvas]);
+    const mainCanvasSet = existingSet || newSet;
+    if (existingSet) {
+      existingSet.add(mainCanvas);
+    } else {
+      this.mainCanvasMap.set(pageNumber, newSet);
+    }
     let timeout: number | undefined;
     initialRef.addListener(() => {
       mainCanvas.currentMainRef = undefined;
@@ -258,10 +268,7 @@ export default class PDF {
       if (cnt <= 0) {
         timeout = window.setTimeout(() => {
           globalFactory.destroy(canvasObject);
-          const s = this.mainCanvasMap.get(pageNumber);
-          if (s) {
-            s.delete(mainCanvas);
-          }
+          mainCanvasSet.delete(mainCanvas);
         }, 10000);
       } else {
         if (timeout) window.clearTimeout(timeout);
@@ -297,11 +304,6 @@ export default class PDF {
     if (mainCanvas === undefined) {
       mainCanvas = this.createMainCanvas(pageNumber, scale);
       isMainUser = true;
-      if (mainCanvasSet) {
-        mainCanvasSet.add(mainCanvas);
-      } else {
-        this.mainCanvasMap.set(pageNumber, new Set([mainCanvas]));
-      }
     }
 
     if (mainCanvas === undefined) throw new Error();
@@ -320,12 +322,13 @@ export default class PDF {
       const [pageSize, page] = await Promise.all([
         mainCanvas.pageLoaded,
         this.getPage(pageNumber),
-        mainCanvas.rendered,
       ]);
       const viewport = page.getViewport({ scale });
       const width = viewport.width;
       const height = viewport.height * (end - start);
       const obj = globalFactory.create(width, height);
+      const newManager = new PdfCanvasReferenceManager(0);
+      const childRef = newManager.createRetainedRef();
       obj.canvas.style.width = "100%";
       obj.canvas.style.height = "100%";
       const [sx, sy, sw, sh] = [
@@ -335,25 +338,28 @@ export default class PDF {
         (end - start) * pageSize.height,
       ];
       const [dx, dy, dw, dh] = [0, 0, width, height];
-      const ctx = obj.context;
-      if (ctx === null) throw new Error("Redering failed.");
-      ctx.drawImage(
-        mainCanvas.canvasObject.canvas,
-        sx,
-        sy,
-        sw,
-        sh,
-        dx,
-        dy,
-        dw,
-        dh,
-      );
-      ctx.fillStyle = "rgb(0, 159, 227)";
-      ctx.beginPath();
-      ctx.arc(20, 20, 10, 0, 2 * Math.PI, false);
-      ctx.fill();
-      const newManager = new PdfCanvasReferenceManager(0);
-      const childRef = newManager.createRetainedRef();
+      const renderingReference = newManager.createRetainedRef();
+      mainCanvas.rendered.then(() => {
+        const ctx = obj.context;
+        if (ctx === null) throw new Error("Redering failed.");
+        if (mainCanvas === undefined) throw new Error();
+        ctx.drawImage(
+          mainCanvas.canvasObject.canvas,
+          sx,
+          sy,
+          sw,
+          sh,
+          dx,
+          dy,
+          dw,
+          dh,
+        );
+        ctx.fillStyle = "rgb(0, 159, 227)";
+        ctx.beginPath();
+        ctx.arc(20, 20, 10, 0, 2 * Math.PI, false);
+        ctx.fill();
+        renderingReference.release();
+      });
 
       newManager.addListener((cnt: number) => {
         if (cnt <= 0) {
