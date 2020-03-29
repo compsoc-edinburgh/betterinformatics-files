@@ -182,7 +182,7 @@ export default class Exam extends React.Component<Props, State> {
     const rootNode = new TOCNode("[root]", "");
     for (const section of sections) {
       if (section.kind === SectionKind.Answer) {
-        if (section.hidden) continue;
+        if (section.cutHidden) continue;
         const parts = section.name.split(" > ");
         if (parts.length === 1 && parts[0].length === 0) continue;
         const jumpTarget = `${section.oid}-${parts.join("-")}`;
@@ -446,8 +446,8 @@ export default class Exam extends React.Component<Props, State> {
       fetchpost(`/api/exam/editcut/${cutOid}/`, {
         hidden,
       }).then(() => {
-        this.setState(prevState => ({
-          sections: prevState.sections
+        this.setState(prevState => {
+          const newSections = prevState.sections
             ? prevState.sections.map(section =>
                 section.kind === SectionKind.Pdf && section.cutOid === cutOid
                   ? { ...section, hidden }
@@ -456,8 +456,12 @@ export default class Exam extends React.Component<Props, State> {
                   ? { ...section, cutHidden: hidden }
                   : section,
               )
-            : undefined,
-        }));
+            : undefined;
+          return {
+            sections: newSections,
+            toc: this.generateTableOfContents(newSections),
+          };
+        });
       });
     } else {
       fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
