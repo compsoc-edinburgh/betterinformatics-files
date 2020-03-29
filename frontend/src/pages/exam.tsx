@@ -442,22 +442,33 @@ export default class Exam extends React.Component<Props, State> {
   setHidden = (section: PdfSection, hidden: boolean) => {
     const { cutOid } = section;
     if (cutOid) {
-      fetchpost(`/api/exam/editcut/${cutOid}/`, {
-        hidden,
-      }).then(() => {
-        this.setState(prevState => ({
-          sections: prevState.sections
-            ? prevState.sections.map(section =>
-                section.kind === SectionKind.Pdf && section.cutOid === cutOid
-                  ? { ...section, hidden }
-                  : section.kind === SectionKind.Answer &&
-                    section.oid === cutOid
-                  ? { ...section, cutHidden: hidden }
-                  : section,
-              )
-            : undefined,
-        }));
-      });
+      if (section.end.position === 1) {
+        fetchpost(`/api/exam/removecut/${cutOid}/`, {}).then(() => {
+          this.setState({
+            error: "",
+          });
+          if (this.state.pdf) {
+            this.loadSectionsFromBackend(this.state.pdf.numPages);
+          }
+        });
+      } else {
+        fetchpost(`/api/exam/editcut/${cutOid}/`, {
+          hidden,
+        }).then(() => {
+          this.setState(prevState => ({
+            sections: prevState.sections
+              ? prevState.sections.map(section =>
+                  section.kind === SectionKind.Pdf && section.cutOid === cutOid
+                    ? { ...section, hidden }
+                    : section.kind === SectionKind.Answer &&
+                      section.oid === cutOid
+                    ? { ...section, cutHidden: hidden }
+                    : section,
+                )
+              : undefined,
+          }));
+        });
+      }
     } else {
       fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
         name: "",
@@ -537,7 +548,8 @@ export default class Exam extends React.Component<Props, State> {
               ),
               <div key="cuts">
                 <button onClick={this.toggleEditingSectionActive}>
-                  {(this.state.editingSectionsActive && "Disable Editing Cuts") ||
+                  {(this.state.editingSectionsActive &&
+                    "Disable Editing Cuts") ||
                     "Enable Editing Cuts"}
                 </button>
               </div>,
