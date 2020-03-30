@@ -4,11 +4,12 @@ import { css } from "glamor";
 import { fetchapi, fetchpost } from "../fetch-utils";
 import AutocompleteInput from "../components/autocomplete-input";
 import Colors from "../colors";
+import { CategoryMetaDataMinimal } from "../interfaces";
 
 interface State {
   file: Blob;
   category: string;
-  categories: string[];
+  categories: CategoryMetaDataMinimal[];
   result?: { filename: string };
   error?: string;
 }
@@ -37,7 +38,7 @@ export default class SubmitTranscript extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/listcategories/onlypayment")
+    fetchapi("/api/category/listonlypayment/")
       .then(res =>
         this.setState({
           categories: res.value,
@@ -52,7 +53,7 @@ export default class SubmitTranscript extends React.Component<{}, State> {
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost("/api/uploadpdf/payment_exam", {
+    fetchpost("/api/exam/upload/transcript/", {
       file: this.state.file,
       category: this.state.category,
     })
@@ -107,7 +108,7 @@ export default class SubmitTranscript extends React.Component<{}, State> {
                 onChange={this.handleCategoryChange}
                 value={this.state.category}
                 placeholder="category..."
-                autocomplete={this.state.categories}
+                autocomplete={this.state.categories.map(cat => cat.displayname)}
               />
             </div>
             <div>

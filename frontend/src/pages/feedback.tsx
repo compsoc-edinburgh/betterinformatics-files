@@ -71,7 +71,7 @@ export default class Feedback extends React.Component<Props, State> {
   submitFeedback = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost("/api/feedback/submit", {
+    fetchpost("/api/feedback/submit/", {
       text: this.state.feedbackText,
     })
       .then(() => {
@@ -92,7 +92,7 @@ export default class Feedback extends React.Component<Props, State> {
     this.setState({
       requestedFeedbacks: true,
     });
-    fetchapi("/api/feedback/list")
+    fetchapi("/api/feedback/list/")
       .then(res => {
         const getScore = (a: FeedbackEntry) =>
           (a.read ? 10 : 0) + (a.done ? 1 : 0);
@@ -134,6 +134,7 @@ export default class Feedback extends React.Component<Props, State> {
             <a
               href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
               target="_blank"
+              rel="noopener noreferrer"
             >
               issue tracker
             </a>

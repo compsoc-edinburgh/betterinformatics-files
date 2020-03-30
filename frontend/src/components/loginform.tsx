@@ -41,10 +41,10 @@ export default class LoginForm extends React.Component<Props> {
     const data = {
       username: this.state.username,
       password: this.state.password,
-      simulate_nonadmin: ev.shiftKey ? "1" : "",
+      simulate_nonadmin: ev.shiftKey ? "true" : "false",
     };
 
-    fetchpost("/api/login", data)
+    fetchpost("/api/auth/login/", data)
       .then(() => {
         this.props.userinfoChanged();
       })

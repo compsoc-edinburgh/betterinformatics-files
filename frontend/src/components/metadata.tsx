@@ -1,6 +1,10 @@
 import * as React from "react";
 import { css } from "glamor";
-import { Attachment, ExamMetaData } from "../interfaces";
+import {
+  Attachment,
+  CategoryMetaDataMinimal,
+  ExamMetaData,
+} from "../interfaces";
 import { fetchapi, fetchpost } from "../fetch-utils";
 import Colors from "../colors";
 import AutocompleteInput from "../components/autocomplete-input";
@@ -44,7 +48,7 @@ interface Props {
 
 interface State {
   currentMetaData: ExamMetaData;
-  categories: string[];
+  categories: CategoryMetaDataMinimal[];
   examTypes: string[];
   printonlyFile: Blob;
   solutionFile: Blob;
@@ -61,14 +65,14 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/listcategories/onlyadmin")
+    fetchapi("/api/category/listonlyadmin/")
       .then(res => {
         this.setState({
           categories: res.value,
         });
       })
       .catch(() => undefined);
-    fetchapi("/api/listexamtypes")
+    fetchapi("/api/exam/listexamtypes/")
       .then(res => {
         this.setState({
           examTypes: res.value,
@@ -80,8 +84,8 @@ export default class MetaData extends React.Component<Props, State> {
   saveEdit = () => {
     const metadata = { ...this.state.currentMetaData };
     metadata.has_solution = this.props.savedMetaData.has_solution;
-    metadata.has_printonly = this.props.savedMetaData.has_printonly;
-    fetchpost(`/api/exam/${this.props.filename}/metadata`, metadata)
+    metadata.is_printonly = this.props.savedMetaData.is_printonly;
+    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, metadata)
       .then(() => {
         this.props.onChange(metadata);
         this.props.onFinishEdit();
@@ -143,14 +147,13 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   uploadFilePrintonly = () => {
-    fetchpost("/api/uploadpdf/printonly", {
+    fetchpost("/api/exam/upload/printonly/", {
       file: this.state.printonlyFile,
       filename: this.state.currentMetaData.filename,
-      replace: this.state.currentMetaData.has_printonly,
     })
       .then(() => {
         const newMeta = { ...this.props.savedMetaData };
-        newMeta.has_printonly = true;
+        newMeta.is_printonly = true;
         this.props.onChange(newMeta);
       })
       .catch(err =>
@@ -161,12 +164,13 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   removeFilePrintonly = () => {
-    fetchpost("/api/removepdf/printonly", {
-      filename: this.state.currentMetaData.filename,
-    })
+    fetchpost(
+      "/api/exam/remove/printonly/" + this.state.currentMetaData.filename + "/",
+      {},
+    )
       .then(() => {
         const newMeta = { ...this.props.savedMetaData };
-        newMeta.has_printonly = false;
+        newMeta.is_printonly = false;
         this.props.onChange(newMeta);
       })
       .catch(err =>
@@ -177,10 +181,9 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   uploadFileSolution = () => {
-    fetchpost("/api/uploadpdf/solution", {
+    fetchpost("/api/exam/upload/solution/", {
       file: this.state.solutionFile,
       filename: this.state.currentMetaData.filename,
-      replace: this.state.currentMetaData.has_solution,
     })
       .then(() => {
         const newMeta = { ...this.props.savedMetaData };
@@ -195,9 +198,10 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   removeFileSolution = () => {
-    fetchpost("/api/removepdf/solution", {
-      filename: this.state.currentMetaData.filename,
-    })
+    fetchpost(
+      "/api/exam/remove/solution/" + this.state.currentMetaData.filename + "/",
+      {},
+    )
       .then(() => {
         const newMeta = { ...this.props.savedMetaData };
         newMeta.has_solution = false;
@@ -214,20 +218,12 @@ export default class MetaData extends React.Component<Props, State> {
     const metadata = { ...this.props.savedMetaData };
     metadata.attachments.push(att);
     this.props.onChange(metadata);
-    fetchpost("/api/exam/" + this.props.filename + "/addtoset", {
-      key: "json:attachments",
-      value: JSON.stringify(att),
-    });
   };
 
   removeAttachment = (att: Attachment) => {
     const metadata = { ...this.props.savedMetaData };
     metadata.attachments = metadata.attachments.filter(a => a !== att);
     this.props.onChange(metadata);
-    fetchpost("/api/exam/" + this.props.filename + "/pullset", {
-      key: "json:attachments",
-      value: JSON.stringify(att),
-    });
   };
 
   render() {
@@ -255,7 +251,7 @@ export default class MetaData extends React.Component<Props, State> {
             onChange={ev => this.valueChanged("category", ev)}
             placeholder="category"
             title="category"
-            autocomplete={this.state.categories}
+            autocomplete={this.state.categories.map(cat => cat.displayname)}
             name="category"
           />
           <AutocompleteInput
@@ -342,11 +338,15 @@ export default class MetaData extends React.Component<Props, State> {
           </label>
           <button onClick={this.uploadFilePrintonly}>Upload</button>
         </div>
-        {this.props.savedMetaData.has_printonly && (
+        {this.props.savedMetaData.is_printonly && (
           <div>
             <a
               {...stylesForWidth.inlineBlock}
-              href={"/api/pdf/printonly/" + this.props.savedMetaData.filename}
+              href={
+                "/api/exam/pdf/printonly/" +
+                this.props.savedMetaData.filename +
+                "/"
+              }
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -370,7 +370,11 @@ export default class MetaData extends React.Component<Props, State> {
           <div>
             <a
               {...stylesForWidth.inlineBlock}
-              href={"/api/pdf/solution/" + this.props.savedMetaData.filename}
+              href={
+                "/api/exam/pdf/solution/" +
+                this.props.savedMetaData.filename +
+                "/"
+              }
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -399,6 +403,7 @@ export default class MetaData extends React.Component<Props, State> {
         </div>
         <Attachments
           attachments={this.props.savedMetaData.attachments}
+          additionalArgs={{ exam: this.props.filename }}
           onAddAttachment={this.addAttachment}
           onRemoveAttachment={this.removeAttachment}
         />

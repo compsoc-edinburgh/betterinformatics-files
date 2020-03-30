@@ -60,16 +60,16 @@ const styles = {
 
 export default class FeedbackEntryComponent extends React.Component<Props> {
   setRead = (value: boolean) => {
-    fetchpost(`/api/feedback/${this.props.entry.oid}/flags`, {
-      read: value ? 1 : 0,
+    fetchpost(`/api/feedback/flags/${this.props.entry.oid}/`, {
+      read: value,
     })
       .then(() => this.props.entryChanged())
       .catch(() => undefined);
   };
 
   setDone = (value: boolean) => {
-    fetchpost(`/api/feedback/${this.props.entry.oid}/flags`, {
-      done: value ? 1 : 0,
+    fetchpost(`/api/feedback/flags/${this.props.entry.oid}/`, {
+      done: value,
     })
       .then(() => this.props.entryChanged())
       .catch(() => undefined);

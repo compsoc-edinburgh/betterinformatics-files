@@ -1,6 +1,7 @@
 import {
   CategoryExam,
-  CategoryMetaData,
+  CategoryMetaDataAny,
+  CategoryMetaDataOverview,
   MetaCategory,
   MetaCategoryWithCategories,
 } from "./interfaces";
@@ -23,11 +24,23 @@ export function filterMatches(filter: string, name: string): boolean {
   return false;
 }
 
-export function filterCategories(
-  categories: CategoryMetaData[],
+export function findCategoryByName<T extends CategoryMetaDataAny>(
+  categories: T[],
+  displayname: string,
+): T | null {
+  for (let category of categories) {
+    if (category.displayname === displayname) {
+      return category;
+    }
+  }
+  return null;
+}
+
+export function filterCategories<T extends CategoryMetaDataAny>(
+  categories: T[],
   filter: string,
-): CategoryMetaData[] {
-  return categories.filter(cat => filterMatches(filter, cat.category));
+): T[] {
+  return categories.filter(cat => filterMatches(filter, cat.displayname));
 }
 
 export function filterExams(
@@ -38,12 +51,12 @@ export function filterExams(
 }
 
 export function fillMetaCategories(
-  categories: CategoryMetaData[],
+  categories: CategoryMetaDataOverview[],
   metaCategories: MetaCategory[],
 ): MetaCategoryWithCategories[] {
-  const categoryToMeta: { [key: string]: CategoryMetaData } = {};
+  const categoryToMeta: { [key: string]: CategoryMetaDataOverview } = {};
   categories.forEach(cat => {
-    categoryToMeta[cat.category] = cat;
+    categoryToMeta[cat.slug] = cat;
   });
   return metaCategories
     .map(meta1 => ({
