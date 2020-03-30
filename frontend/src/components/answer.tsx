@@ -4,14 +4,14 @@ import moment from "moment";
 import Comment from "./comment";
 import { css } from "glamor";
 import MarkdownText from "./markdown-text";
-import { fetchpost } from "../fetch-utils";
-import ImageOverlay from "./image-overlay";
+import { fetchpost, imageHandler } from "../fetch-utils";
 import Colors from "../colors";
 import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
 import colors from "../colors";
-import { listenEnter } from "../input-utils";
+import Editor from "./Editor";
+import { UndoStack } from "./Editor/utils/undo-stack";
 
 interface Props {
   isReadonly: boolean;
@@ -27,8 +27,8 @@ interface Props {
 interface State {
   editing: boolean;
   imageDialog: boolean;
-  imageCursorPosition: number;
   text: string;
+  undoStack: UndoStack;
   savedText: string;
   addingComment: boolean;
   allCommentsVisible: boolean;
@@ -129,6 +129,7 @@ const styles = {
     boxSizing: "border-box",
   }),
   actionButtons: css({
+    width: "100%",
     display: "flex",
     justifyContent: "flex-end",
     marginRight: "25px",
@@ -161,11 +162,11 @@ export default class AnswerComponent extends React.Component<Props, State> {
   state: State = {
     editing: this.props.answer.canEdit && this.props.answer.text.length === 0,
     imageDialog: false,
-    imageCursorPosition: -1,
     savedText: this.props.answer.text,
     text: this.props.answer.text,
     allCommentsVisible: false,
     addingComment: false,
+    undoStack: { prev: [], next: [] },
   };
 
   componentDidUpdate(
@@ -222,7 +223,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
   startEdit = () => {
     this.setState({
       editing: true,
-      imageCursorPosition: -1,
     });
   };
 
@@ -232,29 +232,9 @@ export default class AnswerComponent extends React.Component<Props, State> {
     }));
   };
 
-  startImageDialog = () => {
-    this.setState({ imageDialog: true });
-  };
-
-  endImageDialog = (image: string) => {
-    if (image.length > 0) {
-      const imageTag = `![Image Description](${image})`;
-      this.setState(prevState => ({
-        imageDialog: false,
-        text:
-          prevState.text.slice(0, prevState.imageCursorPosition) +
-          imageTag +
-          prevState.text.slice(prevState.imageCursorPosition),
-      }));
-    } else {
-      this.setState({ imageDialog: false });
-    }
-  };
-
-  answerTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+  answerTextareaChange = (newValue: string) => {
     this.setState({
-      text: event.currentTarget.value,
-      imageCursorPosition: event.currentTarget.selectionStart,
+      text: newValue,
     });
   };
 
@@ -407,38 +387,25 @@ export default class AnswerComponent extends React.Component<Props, State> {
             )}
           </div>
         </div>
-        <div {...styles.answer}>
-          <MarkdownText value={this.state.text} />
-        </div>
+        {!this.state.editing && (
+          <div {...styles.answer}>
+            <MarkdownText value={this.state.text} />
+          </div>
+        )}
         {this.state.editing && (
           <div>
             <div {...styles.answerInput}>
-              <textarea
-                {...styles.textareaInput}
-                onKeyUp={this.answerTextareaChange}
-                onChange={this.answerTextareaChange}
-                cols={120}
-                rows={20}
+              <Editor
                 value={this.state.text}
-                onKeyPress={listenEnter(this.saveAnswer, true)}
+                onChange={this.answerTextareaChange}
+                imageHandler={imageHandler}
+                preview={str => <MarkdownText value={str} />}
+                undoStack={this.state.undoStack}
+                setUndoStack={undoStack => this.setState({ undoStack })}
               />
             </div>
             <div {...styles.answerTexHint}>
-              <div>
-                <small>
-                  You can use Markdown. Use ``` code ``` for code. Use $ math $
-                  or $$ \n math \n $$ for latex math.
-                </small>
-              </div>
               <div {...styles.actionButtons}>
-                <div {...styles.actionButton} onClick={this.startImageDialog}>
-                  <img
-                    {...styles.actionImg}
-                    src="/static/images.svg"
-                    title="Images"
-                    alt="Images"
-                  />
-                </div>
                 <div {...styles.actionButton} onClick={this.saveAnswer}>
                   <img
                     {...styles.actionImg}
@@ -521,9 +488,6 @@ export default class AnswerComponent extends React.Component<Props, State> {
               </div>
             )}
           </div>
-        )}
-        {this.state.imageDialog && (
-          <ImageOverlay onClose={this.endImageDialog} />
         )}
 
         {(answer.comments.length > 0 || this.state.addingComment) && (
