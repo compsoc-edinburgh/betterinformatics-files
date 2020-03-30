@@ -47,7 +47,9 @@ const Editor: React.FC<Props> = ({
     (newValue: string, newSelection?: Range) => {
       if (newSelection) setSelectionRangeRef.current(newSelection);
       onChange(newValue);
-      const newStack = push(undoStack, value, getSelectionRangeRef.current());
+      const selection = getSelectionRangeRef.current();
+      if (selection === undefined) return;
+      const newStack = push(undoStack, value, selection);
       setUndoStack(newStack);
     },
     [undoStack, setUndoStack, onChange, value],
@@ -56,7 +58,7 @@ const Editor: React.FC<Props> = ({
   const setSelectionRangeRef = useRef<(newSelection: Range) => void>(
     (a: Range) => undefined,
   );
-  const getSelectionRangeRef = useRef<() => Range>(() => ({
+  const getSelectionRangeRef = useRef<() => Range | undefined>(() => ({
     start: 0,
     end: 0,
   }));
@@ -64,6 +66,7 @@ const Editor: React.FC<Props> = ({
   const insertImage = useCallback(
     (handle: ImageHandle) => {
       const selection = getSelectionRangeRef.current();
+      if (selection === undefined) return;
       const before = value.substring(0, selection.start);
       const content = value.substring(selection.start, selection.end);
       const after = value.substring(selection.end);
@@ -79,6 +82,7 @@ const Editor: React.FC<Props> = ({
 
   const insertLink = useCallback(() => {
     const selection = getSelectionRangeRef.current();
+    if (selection === undefined) return;
     const before = value.substring(0, selection.start);
     const content = value.substring(selection.start, selection.end);
     const after = value.substring(selection.end);
@@ -93,6 +97,7 @@ const Editor: React.FC<Props> = ({
   const wrapSelection = useCallback(
     (str: string) => {
       const selection = getSelectionRangeRef.current();
+      if (selection === undefined) return;
       const before = value.substring(0, selection.start);
       const content = value.substring(selection.start, selection.end);
       const after = value.substring(selection.end);
@@ -145,9 +150,11 @@ const Editor: React.FC<Props> = ({
         return true;
       } else if (key === "z" && !shift) {
         if (undoStack.prev.length > 0) {
+          const selection = getSelectionRangeRef.current();
+          if (selection === undefined) return true;
           const [newState, newStack] = undo(undoStack, {
             value: value,
-            selection: getSelectionRangeRef.current(),
+            selection,
             time: new Date(),
           });
           setUndoStack(newStack);
@@ -157,9 +164,11 @@ const Editor: React.FC<Props> = ({
         return true;
       } else if (key === "z" && shift) {
         if (undoStack.next.length > 0) {
+          const selection = getSelectionRangeRef.current();
+          if (selection === undefined) return true;
           const [newState, newStack] = redo(undoStack, {
             value: value,
-            selection: getSelectionRangeRef.current(),
+            selection,
             time: new Date(),
           });
           setUndoStack(newStack);
