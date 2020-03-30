@@ -65,6 +65,7 @@ export function loadSections(
       akey++;
     }
   }
+  console.log(sections);
   return sections;
 }
 

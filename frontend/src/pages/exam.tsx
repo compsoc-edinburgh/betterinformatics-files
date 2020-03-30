@@ -49,6 +49,9 @@ const moveCut = async (
 ) => {
   await fetchpost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
 };
+const updateCutName = async (cut: string, name: string) => {
+  await fetchpost(`/api/exam/editcut/${cut}/`, { name });
+};
 
 interface ExamPageContentProps {
   metaData: ExamMetaData;
@@ -77,6 +80,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     onSuccess: () => {
       reloadCuts();
       setEditState({ mode: EditMode.None });
+    },
+  });
+  const { run: runUpdateCutName } = useRequest(updateCutName, {
+    manual: true,
+    onSuccess: () => {
+      reloadCuts();
     },
   });
   const { run: updateCuts } = useRequest(() => loadCutVersions(filename), {
@@ -166,7 +175,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                     ? hide(section.oid)
                     : show(section.oid)
                 }
-                onCutNameChange={() => undefined}
+                cutName={section.name}
+                onCutNameChange={(newName: string) =>
+                  runUpdateCutName(section.oid, newName)
+                }
                 hidden={!visible.has(section.oid)}
                 cutVersion={cutVersions[section.oid] || section.cutVersion}
                 setCutVersion={newVersion =>

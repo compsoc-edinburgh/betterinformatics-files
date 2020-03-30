@@ -11,15 +11,21 @@ import {
   DropdownToggle,
   Icon,
   ICONS,
+  Input,
+  InputGroup,
+  InputGroupButtonDropdown,
   Spinner,
   UncontrolledDropdown,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { useUser } from "../auth";
 import { fetchapi, fetchpost } from "../fetch-utils";
+import useInitialState from "../hooks/useInitialState";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
+import IconButton from "./icon-button";
 import ThreeButtons from "./three-buttons";
+import TwoButtons from "./two-buttons";
 
 const loadAnswers = async (oid: string) => {
   return (await fetchapi(`/api/exam/answersection/${oid}/`))
@@ -95,11 +101,13 @@ interface Props {
   width: number;
   canDelete: boolean;
   onSectionChange: () => void;
-  onCutNameChange: (newName: string) => void;
   onToggleHidden: () => void;
   hidden: boolean;
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
+
+  cutName: string;
+  onCutNameChange: (newName: string) => void;
 
   onCancelMove: () => void;
   onMove: () => void;
@@ -118,18 +126,13 @@ const AnswerSectionComponent: React.FC<Props> = ({
   cutVersion,
   setCutVersion,
 
+  cutName,
+  onCutNameChange,
+
   onCancelMove,
   onMove,
   isBeingMoved,
 }) => {
-  const [data, setData] = useState<AnswerSection | undefined>();
-  const setAnswerSection = useCallback(
-    (newData: AnswerSection) => {
-      setCutVersion(newData.cutVersion);
-      setData(newData);
-    },
-    [setCutVersion],
-  );
   const { run: runRemoveSplit } = useRequest(() => removeSplit(oid), {
     manual: true,
     onSuccess: () => {
@@ -139,8 +142,19 @@ const AnswerSectionComponent: React.FC<Props> = ({
   });
   const { loading, run } = useRequest(() => loadAnswers(oid), {
     manual: true,
-    onSuccess: setData,
+    onSuccess: data => setData(data),
   });
+
+  const [data, setData] = useState<AnswerSection | undefined>();
+
+  const setAnswerSection = useCallback(
+    (newData: AnswerSection) => {
+      setCutVersion(newData.cutVersion);
+      setData(newData);
+    },
+    [setCutVersion],
+  );
+
   const [inViewport, ref] = useInViewport<HTMLDivElement>();
   const visible = inViewport || false;
   useEffect(() => {
@@ -164,8 +178,55 @@ const AnswerSectionComponent: React.FC<Props> = ({
   };
   const user = useUser()!;
   const isCatAdmin = user.isCategoryAdmin;
+
+  const [draftName, setDraftName] = useInitialState(cutName);
+  const [isEditingName, setIsEditingName] = useState(
+    data && cutName.length === 0 && isCatAdmin,
+  );
+  useEffect(() => {
+    if (data && cutName.length === 0 && isCatAdmin) setIsEditingName(true);
+  }, [data, isCatAdmin, cutName]);
   return (
     <Container fluid>
+      {data && ((data.name && data.name.length > 0) || isCatAdmin) && (
+        <Card style={{ marginTop: "1.5em", marginBottom: "0.3em" }}>
+          <CardHeader tag="h6">
+            {isEditingName ? (
+              <InputGroup size="sm">
+                <Input
+                  type="text"
+                  value={draftName}
+                  placeholder="Name"
+                  onChange={e => setDraftName(e.target.value)}
+                />
+                <InputGroupButtonDropdown addonType="append">
+                  <IconButton
+                    icon="SAVE"
+                    block
+                    onClick={() => {
+                      setIsEditingName(false);
+                      onCutNameChange(draftName);
+                    }}
+                  />
+                </InputGroupButtonDropdown>
+              </InputGroup>
+            ) : (
+              <TwoButtons
+                left={cutName}
+                right={
+                  isCatAdmin && (
+                    <IconButton
+                      size="sm"
+                      icon="EDIT"
+                      onClick={() => setIsEditingName(true)}
+                    />
+                  )
+                }
+              />
+            )}
+          </CardHeader>
+        </Card>
+      )}
       {!hidden && data && (
         <>
           {data.answers.map(answer => (
@@ -196,7 +257,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
         </>
       )}
       <Card
-        style={{ marginTop: "2em", marginBottom: "2em" }}
+        style={{ marginTop: "0.3em", marginBottom: "1.5em" }}
         color={isBeingMoved ? "primary" : undefined}
       >
         <CardHeader>
