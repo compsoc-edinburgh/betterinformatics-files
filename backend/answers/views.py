@@ -31,12 +31,12 @@ def exam_metadata(request, filename):
         'oral_transcript_checked': exam.oral_transcript_checked,
         # 'count_cuts': exam.answersection_set.count(),
         # 'count_answered': exam.count_answered(),
-        'attachments': sorted([
+        'attachments': [
             {
                 'displayname': att.displayname,
                 'filename': att.filename,
-            } for att in exam.attachment_set.all()
-        ], key=lambda x: x['displayname']),
+            } for att in exam.attachment_set.order_by('displayname').all()
+        ],
         'canEdit': auth_check.has_admin_rights_for_exam(request, exam),
         'isExpert': auth_check.is_expert_for_exam(request, exam),
         'canView': exam.current_user_can_view(request),
