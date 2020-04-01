@@ -6,7 +6,7 @@ import {
   useMarkAsRead,
   useNotifications,
   useSetEnabledNotifications,
-} from "../hooks/api";
+} from "../api/hooks";
 import NotificationComponent from "./notification";
 
 interface UserNotificationsProps {

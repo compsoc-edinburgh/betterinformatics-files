@@ -5,7 +5,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import GlobalConsts from "../globalconsts";
-import { useMarkAsRead } from "../hooks/api";
+import { useMarkAsRead } from "../api/hooks";
 import { NotificationInfo } from "../interfaces";
 import MarkdownText from "./markdown-text";
 interface Props {

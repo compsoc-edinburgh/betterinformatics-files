@@ -3,7 +3,7 @@ import { Route, Switch } from "react-router-dom";
 import { SetUserContext, User, UserContext, notLoggedIn } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import ExamsNavbar from "./components/exams-navbar";
-import { fetchapi, getCookie } from "./fetch-utils";
+import { fetchapi, getCookie } from "./api/fetch-utils";
 import FeedbackPage from "./pages/feedback";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/login";

@@ -3,7 +3,7 @@ import { Alert, Button, Container, Table } from "@vseth/components";
 import React from "react";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
-import { fetchapi } from "../fetch-utils";
+import { fetchapi } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
 
 const modes = [

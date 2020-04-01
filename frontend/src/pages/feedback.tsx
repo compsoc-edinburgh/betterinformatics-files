@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
-import { loadFeedback, submitFeedback } from "../hooks/api";
+import { loadFeedback, submitFeedback } from "../api/hooks";
 
 enum AdminMode {
   Read,

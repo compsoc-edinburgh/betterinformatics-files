@@ -19,7 +19,7 @@ import {
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { useUser } from "../auth";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchapi, fetchpost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";

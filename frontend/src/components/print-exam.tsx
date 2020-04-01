@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
 import Colors from "../colors";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost } from "../api/fetch-utils";
 
 interface Props {
   title: string;

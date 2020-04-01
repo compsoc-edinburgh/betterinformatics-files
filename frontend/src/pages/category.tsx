@@ -22,14 +22,14 @@ import { getMetaCategoriesForCategory } from "../category-utils";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import IconButton from "../components/icon-button";
 import TwoButtons from "../components/two-buttons";
-import { getCookie } from "../fetch-utils";
+import { getCookie } from "../api/fetch-utils";
 import GlobalConsts from "../globalconsts";
 import {
   claimExam,
   loadCategoryMetaData,
   loadList,
   loadMetaCategories,
-} from "../hooks/api";
+} from "../api/hooks";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
 

@@ -14,7 +14,7 @@ import {
 } from "@vseth/components";
 import React, { useState } from "react";
 import { useSetUser } from "../auth";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost } from "../api/fetch-utils";
 
 const login = async (
   username: string,

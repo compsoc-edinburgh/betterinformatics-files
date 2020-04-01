@@ -18,7 +18,7 @@ import {
 } from "@vseth/components";
 import React, { useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
-import { loadCategories, uploadPdf } from "../hooks/api";
+import { loadCategories, uploadPdf } from "../api/hooks";
 
 const LoginCard: React.FC<{}> = () => {
   const history = useHistory();

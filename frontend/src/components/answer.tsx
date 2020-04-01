@@ -15,7 +15,7 @@ import {
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
 import { useUser } from "../auth";
-import { fetchpost, imageHandler } from "../fetch-utils";
+import { fetchpost, imageHandler } from "../api/fetch-utils";
 import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentSectionComponent from "./comment-section";

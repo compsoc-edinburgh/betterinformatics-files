@@ -10,7 +10,7 @@ import {
 } from "@vseth/components";
 import React from "react";
 import { notLoggedIn, useSetUser } from "../auth";
-import { useLogout } from "../hooks/api";
+import { useLogout } from "../api/hooks";
 import { UserInfo } from "../interfaces";
 import LoadingOverlay from "./loading-overlay";
 import TwoButtons from "./two-buttons";

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Redirect } from "react-router-dom";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchapi, fetchpost } from "../api/fetch-utils";
 import AutocompleteInput from "../components/autocomplete-input";
 import Colors from "../colors";
 import { CategoryMetaDataMinimal } from "../interfaces";

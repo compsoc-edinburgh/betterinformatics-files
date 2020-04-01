@@ -17,7 +17,7 @@ import {
   TextareaField,
 } from "@vseth/components";
 import React, { useState } from "react";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../ts-utils";

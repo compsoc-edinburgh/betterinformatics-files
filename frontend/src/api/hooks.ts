@@ -1,4 +1,4 @@
-import { fetchpost, fetchapi } from "../fetch-utils";
+import { fetchpost, fetchapi } from "./fetch-utils";
 import {
   PaymentInfo,
   UserInfo,

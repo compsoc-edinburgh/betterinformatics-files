@@ -8,7 +8,7 @@ import {
   ButtonGroup,
 } from "@vseth/components";
 import React, { useState } from "react";
-import { fetchpost, imageHandler } from "../fetch-utils";
+import { fetchpost, imageHandler } from "../api/fetch-utils";
 import { Answer, AnswerSection, Comment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";

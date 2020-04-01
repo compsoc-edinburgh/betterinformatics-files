@@ -1,4 +1,4 @@
-import { useUserAnswers } from "../hooks/api";
+import { useUserAnswers } from "../api/hooks";
 import React from "react";
 import { Alert, Spinner } from "@vseth/components";
 import AnswerComponent from "./answer";

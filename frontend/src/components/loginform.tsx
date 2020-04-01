@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost } from "../api/fetch-utils";
 
 interface Props {
   userinfoChanged: () => void;

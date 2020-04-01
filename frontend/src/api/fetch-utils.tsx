@@ -1,4 +1,4 @@
-import { ImageHandle } from "./components/Editor/utils/types";
+import { ImageHandle } from "../components/Editor/utils/types";
 
 export async function fetchpost(url: string, data: { [key: string]: any }) {
   const formData = new FormData();

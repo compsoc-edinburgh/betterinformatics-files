@@ -8,7 +8,7 @@ import {
   Spinner,
 } from "@vseth/components";
 import React from "react";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
 import { useRequest } from "@umijs/hooks";
 

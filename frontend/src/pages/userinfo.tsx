@@ -6,7 +6,7 @@ import UserAnswers from "../components/user-answers";
 import UserNotifications from "../components/user-notifications";
 import UserPayments from "../components/user-payments";
 import UserScoreCard from "../components/user-score-card";
-import { useUserInfo } from "../hooks/api";
+import { useUserInfo } from "../api/hooks";
 const UserPage: React.FC<{}> = () => {
   const { username } = useParams() as { username: string };
   const user = useUser()!;

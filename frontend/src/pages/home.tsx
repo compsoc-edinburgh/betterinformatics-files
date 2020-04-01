@@ -22,7 +22,7 @@ import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchapi, fetchpost } from "../api/fetch-utils";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 
 enum Mode {

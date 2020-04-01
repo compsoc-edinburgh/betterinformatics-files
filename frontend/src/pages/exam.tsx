@@ -12,13 +12,13 @@ import AnswerSectionComponent from "../components/answer-section";
 import ExamPanel from "../components/exam-panel";
 import PdfSectionCanvas from "../pdf/pdf-section-canvas";
 import PrintExam from "../components/print-exam";
-import { loadSections } from "../exam-loader";
+import { loadSections } from "../api/exam-loader";
 import {
   loadCuts,
   loadCutVersions,
   loadExamMetaData,
   loadSplitRenderer,
-} from "../hooks/api";
+} from "../api/hooks";
 import useSet from "../hooks/useSet";
 import useToggle from "../hooks/useToggle";
 import {
@@ -31,7 +31,7 @@ import {
   EditState,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost } from "../api/fetch-utils";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { css } from "glamor";
 import Colors from "../colors";
-import { fetchapi } from "../fetch-utils";
+import { fetchapi } from "../api/fetch-utils";
 import { Menu } from "react-feather";
 
 interface Props {

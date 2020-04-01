@@ -8,7 +8,7 @@ import {
 } from "@vseth/components";
 import moment from "moment";
 import * as React from "react";
-import { fetchpost } from "../fetch-utils";
+import { fetchpost } from "../api/fetch-utils";
 import GlobalConsts from "../globalconsts";
 import { FeedbackEntry } from "../interfaces";
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CategoryExam, CategoryPaymentExam } from "../interfaces";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchapi, fetchpost } from "../api/fetch-utils";
 import { Link } from "react-router-dom";
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";

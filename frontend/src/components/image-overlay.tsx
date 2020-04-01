@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchapi, fetchpost } from "../api/fetch-utils";
 import { RefObject } from "react";
 import Colors from "../colors";
 

@@ -16,7 +16,7 @@ import {
   usePayments,
   useRefundPayment,
   useRemovePayment,
-} from "../hooks/api";
+} from "../api/hooks";
 import Grid from "./grid";
 
 interface UserPaymentsProps {
