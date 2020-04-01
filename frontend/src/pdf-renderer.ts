@@ -392,13 +392,40 @@ export default class PDF {
   }
 }
 
+interface SnapRegion {
+  start: number;
+  end: number;
+  snapPoints: number[];
+}
 export const determineOptimalCutPositions = (
   canvas: HTMLCanvasElement,
   start: number,
   end: number,
   isMain: boolean,
-): Array<[number, number, number]> => {
-  const s: Array<[number, number, number]> = [];
+): SnapRegion[] => {
+  const s: Array<SnapRegion> = [];
+  const handler = (a: number, b: number, isLast: boolean = false) => {
+    const size = (b - a) * (end - start);
+    if (size > 0.005) {
+      const sectionEnd = b;
+      if (a !== 0) {
+        const snapPoints: number[] = [];
+        if (size > 0.1) {
+          snapPoints.push(a + 0.01 * (end - start));
+          if (!(isLast && end === 1))
+            snapPoints.push(sectionEnd - 0.01 * (end - start));
+        } else {
+          if (!isLast) snapPoints.push((a + sectionEnd) / 2);
+        }
+        if (isLast && end === 1) snapPoints.push(1);
+        s.push({
+          start: a,
+          end: sectionEnd,
+          snapPoints,
+        });
+      }
+    }
+  };
   const context = canvas.getContext("2d");
   if (context === null) return s;
   const [sx, sy, sw, sh] = isMain
@@ -427,22 +454,13 @@ export const determineOptimalCutPositions = (
       if (sectionStart === undefined) {
         sectionStart = y / imageData.height;
       }
-    } else {
-      if (
-        sectionStart !== undefined &&
-        (y / imageData.height - sectionStart) * (end - start) > 0.005
-      ) {
-        const sectionEnd = y / imageData.height;
-        if (sectionStart !== 0) {
-          s.push([sectionStart, sectionEnd, (sectionStart + sectionEnd) / 2]);
-        }
-      }
+    } else if (sectionStart !== undefined) {
+      handler(sectionStart, y / imageData.height);
       sectionStart = undefined;
     }
   }
-  if (sectionStart !== undefined && end === 1) {
-    s.push([sectionStart, 1, 1]);
-    sectionStart = undefined;
+  if (sectionStart !== undefined) {
+    handler(sectionStart, 1, true);
   }
   return s;
 };

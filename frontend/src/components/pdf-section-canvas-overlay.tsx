@@ -48,13 +48,15 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({
   const relPos = pos !== undefined && height ? pos / height : undefined;
   const [relSnapPos, bad] =
     relPos !== undefined && ref.current
-      ? optimalCutAreas.reduce(
-          ([prev, prevBad], [_start, _end, snap]) =>
-            Math.abs(snap - relPos) < Math.abs(prev - relPos)
-              ? [snap, Math.abs(snap - relPos)]
-              : [prev, prevBad],
-          [0, Infinity],
-        )
+      ? optimalCutAreas
+          .flatMap(area => area.snapPoints)
+          .reduce(
+            ([prev, prevBad], snap) =>
+              Math.abs(snap - relPos) < Math.abs(prev - relPos)
+                ? [snap, Math.abs(snap - relPos)]
+                : [prev, prevBad],
+            [0, Infinity],
+          )
       : [0, Infinity];
   const snapPos = height ? relSnapPos * height : undefined;
   const snapBad = !snap || bad * (end - start) > 0.03;
@@ -85,7 +87,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({
       onPointerUp={onAdd}
     >
       {viewOptimalCutAreas &&
-        optimalCutAreas.map(([start, end]) => (
+        optimalCutAreas.map(({ start, end }) => (
           <div
             key={`${start}-${end}`}
             style={{
