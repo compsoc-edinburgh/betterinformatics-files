@@ -3,13 +3,13 @@ import { AnswerSection, Comment } from "../interfaces";
 import moment from "moment";
 import { css } from "glamor";
 import MarkdownText from "./markdown-text";
-import { fetchpost } from "../fetch-utils";
-import ImageOverlay from "./image-overlay";
+import { fetchpost, imageHandler } from "../fetch-utils";
 import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
-import { listenEnter } from "../input-utils";
 import Colors from "../colors";
+import Editor from "./Editor";
+import { UndoStack } from "./Editor/utils/undo-stack";
 
 interface Props {
   isReadonly: boolean;
@@ -26,8 +26,7 @@ interface State {
   editing: boolean;
   text: string;
   savedText: string;
-  imageDialog: boolean;
-  imageCursorPosition: number;
+  undoStack: UndoStack;
 }
 
 const styles = {
@@ -72,8 +71,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     editing: !!this.props.isNewComment,
     savedText: this.props.comment.text,
     text: this.props.comment.text,
-    imageDialog: false,
-    imageCursorPosition: -1,
+    undoStack: { prev: [], next: [] },
   };
 
   removeComment = () => {
@@ -127,30 +125,10 @@ export default class CommentComponent extends React.Component<Props, State> {
     }
   };
 
-  commentTextareaChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+  commentTextareaChange = (newValue: string) => {
     this.setState({
-      text: event.currentTarget.value,
-      imageCursorPosition: event.currentTarget.selectionStart,
+      text: newValue,
     });
-  };
-
-  startImageDialog = () => {
-    this.setState({ imageDialog: true });
-  };
-
-  endImageDialog = (image: string) => {
-    if (image.length > 0) {
-      const imageTag = `![Image Description](${image})`;
-      this.setState(prevState => ({
-        imageDialog: false,
-        text:
-          prevState.text.slice(0, prevState.imageCursorPosition) +
-          imageTag +
-          prevState.text.slice(prevState.imageCursorPosition),
-      }));
-    } else {
-      this.setState({ imageDialog: false });
-    }
   };
 
   render() {
@@ -199,33 +177,26 @@ export default class CommentComponent extends React.Component<Props, State> {
               )}
           </div>
         </div>
-        <div {...styles.comment}>
-          <MarkdownText
-            value={this.state.editing ? this.state.text : comment.text}
-          />
-        </div>
+        {!this.state.editing && (
+          <div {...styles.comment}>
+            <MarkdownText
+              value={this.state.editing ? this.state.text : comment.text}
+            />
+          </div>
+        )}
         {this.state.editing && (
           <div>
             <div>
-              <textarea
-                {...styles.textareaInput}
-                onKeyUp={this.commentTextareaChange}
-                onChange={this.commentTextareaChange}
-                cols={80}
-                rows={5}
+              <Editor
                 value={this.state.text}
-                onKeyPress={listenEnter(this.saveComment, true)}
+                onChange={this.commentTextareaChange}
+                imageHandler={imageHandler}
+                preview={str => <MarkdownText value={str} />}
+                undoStack={this.state.undoStack}
+                setUndoStack={undoStack => this.setState({ undoStack })}
               />
             </div>
             <div {...styles.actionButtons}>
-              <div {...styles.actionButton} onClick={this.startImageDialog}>
-                <img
-                  {...styles.actionImg}
-                  src="/static/images.svg"
-                  title="Images"
-                  alt="Images"
-                />
-              </div>
               <div {...styles.actionButton} onClick={this.saveComment}>
                 <img
                   {...styles.actionImg}
@@ -246,9 +217,6 @@ export default class CommentComponent extends React.Component<Props, State> {
               )}
             </div>
           </div>
-        )}
-        {this.state.imageDialog && (
-          <ImageOverlay onClose={this.endImageDialog} />
         )}
       </div>
     );

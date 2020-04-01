@@ -1,4 +1,4 @@
-FROM node:13.1-alpine
+FROM node:13.11-alpine
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .

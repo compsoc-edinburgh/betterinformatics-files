@@ -2,7 +2,7 @@ from functools import wraps
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
-from util import response
+from util import response, func_cache
 
 if settings.IN_ENVIRON:
     from myauth.people_auth import get_vis_groups
@@ -34,16 +34,26 @@ def has_admin_rights(request):
     return is_user_in_admin_group(request.user)
 
 
+@func_cache.cache(60)
+def _has_admin_rights_for_any_category(user):
+    return user.category_admin_set.exists()
+
+
 def has_admin_rights_for_any_category(request):
     if has_admin_rights(request):
         return True
-    return request.user.category_admin_set.exists()
+    return _has_admin_rights_for_any_category(request.user)
+
+
+@func_cache.cache(60)
+def _has_admin_rights_for_category(user, category):
+    return user.category_admin_set.filter(pk=category.pk).exists()
 
 
 def has_admin_rights_for_category(request, category):
     if has_admin_rights(request):
         return True
-    return request.user.category_admin_set.filter(pk=category.pk).exists()
+    return _has_admin_rights_for_category(request.user, category)
 
 
 def has_admin_rights_for_exam(request, exam):

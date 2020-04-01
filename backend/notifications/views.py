@@ -27,7 +27,7 @@ def setenabled(request):
 
 
 def get_notifications(request, unread):
-    notifications = Notification.objects.filter(receiver=request.user)
+    notifications = Notification.objects.filter(receiver=request.user).select_related('receiver', 'sender', 'answer', 'answer__answer_section', 'answer__answer_section__exam')
     if unread:
         notifications = notifications.filter(read=False)
     res = [
