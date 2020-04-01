@@ -49,6 +49,7 @@ export const determineOptimalCutPositions = (
         (canvas.height * (end - start)) | 0,
       ]
     : [0, 0, canvas.width, canvas.height];
+  if (sh === 0) return s;
   const imageData = context.getImageData(sx, sy, sw, sh);
 
   let sectionStart: number | undefined;
