@@ -1,10 +1,31 @@
 import { Badge } from "@vseth/components";
-import React, { useCallback, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useRef,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
+import { determineOptimalCutPositions } from "../pdf-renderer";
 interface Props {
+  canvas: HTMLCanvasElement;
+  start: number;
+  end: number;
+  isMain: boolean;
+  viewOptimalCutAreas?: boolean;
+
   onAddCut: (pos: number) => void;
   addCutText?: string;
 }
-const PdfSectionCanvasOverlay: React.FC<Props> = ({ onAddCut, addCutText }) => {
+const PdfSectionCanvasOverlay: React.FC<Props> = ({
+  canvas,
+  start,
+  end,
+  isMain,
+  onAddCut,
+  addCutText,
+  viewOptimalCutAreas = false,
+}) => {
   const [clientY, setClientY] = useState<number | undefined>(undefined);
   const ref = useRef<HTMLDivElement>(null);
   const pointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -12,11 +33,39 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({ onAddCut, addCutText }) => {
   }, []);
   const leave = useCallback(() => setClientY(undefined), []);
 
+  const height = ref.current?.getBoundingClientRect().height;
   const pos =
     ref.current && clientY
       ? clientY - ref.current.getBoundingClientRect().top
       : undefined;
-  const onAdd = () => pos && onAddCut(pos);
+
+  const optimalCutAreas = useMemo(
+    () => determineOptimalCutPositions(canvas, start, end, isMain),
+    [canvas, start, end, isMain],
+  );
+  const relPos = pos !== undefined && height ? pos / height : undefined;
+  const [relSnapPos, bad] =
+    relPos !== undefined && ref.current
+      ? optimalCutAreas.reduce(
+          ([prev, prevBad], [_start, _end, snap]) =>
+            Math.abs(snap - relPos) < Math.abs(prev - relPos)
+              ? [snap, Math.abs(snap - relPos)]
+              : [prev, prevBad],
+          [0, Infinity],
+        )
+      : [0, Infinity];
+  const snapPos = height ? relSnapPos * height : undefined;
+  const snapBad = bad * (end - start) > 0.03;
+  const displayPos = snapBad ? pos : snapPos;
+  useEffect(() => {
+    if (window.navigator.vibrate) window.navigator.vibrate([20]);
+  }, [relSnapPos]);
+  const onAdd = () => {
+    if (displayPos === undefined) return;
+    if (displayPos < 0) return;
+    if (height === undefined || displayPos > height) return;
+    displayPos && onAddCut(displayPos);
+  };
   return (
     <div
       style={{
@@ -24,19 +73,35 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({ onAddCut, addCutText }) => {
         height: "100%",
         position: "absolute",
         top: "0",
+        touchAction: "none",
+        userSelect: "none",
         cursor: "pointer",
       }}
       onPointerMove={pointerMove}
       onPointerLeave={leave}
       ref={ref}
-      onClick={onAdd}
+      onPointerUp={onAdd}
     >
-      {pos !== undefined && (
+      {viewOptimalCutAreas &&
+        optimalCutAreas.map(([start, end]) => (
+          <div
+            key={`${start}-${end}`}
+            style={{
+              position: "absolute",
+              width: "100%",
+              top: `${start * 100}%`,
+              height: `${(end - start) * 100}%`,
+              backgroundColor: "rgba(0,0,0,0.2)",
+            }}
+          />
+        ))}
+      {displayPos !== undefined && (
         <>
           <div
-            className="border-top border-primary"
             style={{
-              transform: `translateY(${pos}px)`,
+              transform: `translateY(${displayPos}px) translateY(-50%)`,
+              backgroundColor: snapBad ? "var(--warning)" : "var(--primary)",
+              height: "3px",
               position: "absolute",
               width: "100%",
               margin: 0,
@@ -44,7 +109,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({ onAddCut, addCutText }) => {
             id="add-cut"
           >
             <Badge
-              color="primary"
+              color={snapBad ? "warning" : "primary"}
               size="lg"
               style={{
                 position: "absolute",

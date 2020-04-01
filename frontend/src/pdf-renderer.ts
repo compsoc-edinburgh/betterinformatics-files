@@ -8,6 +8,16 @@ export interface CanvasObject {
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
 }
+const getPixel = (imageData: ImageData, x: number, y: number) => {
+  const startIndex = y * (imageData.width * 4) + x * 4;
+  const data = imageData.data;
+  return [
+    data[startIndex],
+    data[startIndex + 1],
+    data[startIndex + 2],
+    data[startIndex + 3],
+  ];
+};
 class CanvasFactory {
   private canvasArray: Array<CanvasObject> = [];
   private objectIndexMap: Map<CanvasObject, number> = new Map();
@@ -316,6 +326,7 @@ export default class PDF {
         if (mainCanvas === undefined) throw new Error();
         mainCanvas.currentMainRef = undefined;
       });
+      await mainCanvas.rendered;
       return [mainCanvas.canvasObject.canvas, true, ref];
     } else {
       const mainRef = mainCanvas.referenceManager.createRetainedRef();
@@ -380,3 +391,58 @@ export default class PDF {
     return contentPromise;
   }
 }
+
+export const determineOptimalCutPositions = (
+  canvas: HTMLCanvasElement,
+  start: number,
+  end: number,
+  isMain: boolean,
+): Array<[number, number, number]> => {
+  const s: Array<[number, number, number]> = [];
+  const context = canvas.getContext("2d");
+  if (context === null) return s;
+  const [sx, sy, sw, sh] = isMain
+    ? [
+        0,
+        (canvas.height * start) | 0,
+        canvas.width,
+        (canvas.height * (end - start)) | 0,
+      ]
+    : [0, 0, canvas.width, canvas.height];
+  const imageData = context.getImageData(sx, sy, sw, sh);
+
+  let sectionStart: number | undefined;
+  for (let y = 0; y < imageData.height; y++) {
+    if (imageData.width === 0) continue;
+    let clean = true;
+    const [rowR, rowG, rowB, rowA] = getPixel(imageData, 0, y);
+    for (let x = 1; x < imageData.width; x++) {
+      const [r, g, b, a] = getPixel(imageData, x, y);
+      if (r !== rowR || g !== rowG || b !== rowB || a !== rowA) {
+        clean = false;
+        break;
+      }
+    }
+    if (clean) {
+      if (sectionStart === undefined) {
+        sectionStart = y / imageData.height;
+      }
+    } else {
+      if (
+        sectionStart !== undefined &&
+        (y / imageData.height - sectionStart) * (end - start) > 0.005
+      ) {
+        const sectionEnd = y / imageData.height;
+        if (sectionStart !== 0) {
+          s.push([sectionStart, sectionEnd, (sectionStart + sectionEnd) / 2]);
+        }
+      }
+      sectionStart = undefined;
+    }
+  }
+  if (sectionStart !== undefined && end === 1) {
+    s.push([sectionStart, 1, 1]);
+    sectionStart = undefined;
+  }
+  return s;
+};

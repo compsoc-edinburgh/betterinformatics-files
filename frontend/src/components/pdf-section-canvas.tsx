@@ -175,17 +175,8 @@ const PdfSectionCanvas: React.FC<Props> = ({
           position: "relative",
           overflow: "hidden",
         }}
+        ref={containerElement}
       >
-        <div
-          style={{
-            position: "absolute",
-            left: -150,
-            top: -150,
-            right: -150,
-            bottom: -150,
-          }}
-          ref={containerElement}
-        />
         {content}
         {visible && (
           <PdfSectionText
@@ -196,8 +187,12 @@ const PdfSectionCanvas: React.FC<Props> = ({
             translateY={translateY}
           />
         )}
-        {addCutText && (
+        {canvas && addCutText && (
           <PdfSectionCanvasOverlay
+            canvas={canvas}
+            start={start}
+            end={end}
+            isMain={isMainCanvas}
             addCutText={addCutText}
             onAddCut={onAddCutHandler}
           />
