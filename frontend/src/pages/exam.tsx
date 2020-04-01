@@ -103,7 +103,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     "edit-state",
     { mode: EditMode.None },
   );
-
+  const snap =
+    editState.mode === EditMode.Add || editState.mode === EditMode.Move
+      ? editState.snap
+      : true;
   useEffect(() => {
     const interval = window.setInterval(
       updateCuts,
@@ -189,7 +192,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 }
                 onCancelMove={() => setEditState({ mode: EditMode.None })}
                 onMove={() =>
-                  setEditState({ mode: EditMode.Move, cut: section.oid })
+                  setEditState({ mode: EditMode.Move, cut: section.oid, snap })
                 }
                 isBeingMoved={
                   editState.mode === EditMode.Move &&
@@ -214,6 +217,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                         ? "Move Cut"
                         : undefined
                     }
+                    snap={snap}
                     onAddCut={(height: number) =>
                       editState.mode === EditMode.Add
                         ? runAddCut(

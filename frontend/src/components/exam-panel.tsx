@@ -55,6 +55,10 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
 }) => {
   const user = useUser()!;
   const isCatAdmin = user.isCategoryAdmin;
+  const snap =
+    editState.mode === EditMode.Add || editState.mode === EditMode.Move
+      ? editState.snap
+      : true;
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
       <ModalHeader>
@@ -104,7 +108,12 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 Readonly
               </IconButton>
               <IconButton
-                onClick={() => setEditState({ mode: EditMode.Add })}
+                onClick={() =>
+                  setEditState({
+                    mode: EditMode.Add,
+                    snap,
+                  })
+                }
                 icon="PLUS"
                 active={editState.mode === EditMode.Add}
               >
@@ -116,6 +125,21 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 disabled={editState.mode !== EditMode.Move}
               >
                 Move Cut
+              </IconButton>
+              <IconButton
+                icon="TARGET"
+                onClick={() =>
+                  (editState.mode === EditMode.Add ||
+                    editState.mode === EditMode.Move) &&
+                  setEditState({ ...editState, snap: !snap })
+                }
+                active={snap}
+                disabled={
+                  editState.mode !== EditMode.Add &&
+                  editState.mode !== EditMode.Move
+                }
+              >
+                Snap
               </IconButton>
             </ButtonGroup>
           </>

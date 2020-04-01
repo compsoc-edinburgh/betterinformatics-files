@@ -16,6 +16,7 @@ interface Props {
 
   onAddCut: (pos: number) => void;
   addCutText?: string;
+  snap?: boolean;
 }
 const PdfSectionCanvasOverlay: React.FC<Props> = ({
   canvas,
@@ -25,6 +26,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({
   onAddCut,
   addCutText,
   viewOptimalCutAreas = false,
+  snap = true,
 }) => {
   const [clientY, setClientY] = useState<number | undefined>(undefined);
   const ref = useRef<HTMLDivElement>(null);
@@ -55,7 +57,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({
         )
       : [0, Infinity];
   const snapPos = height ? relSnapPos * height : undefined;
-  const snapBad = bad * (end - start) > 0.03;
+  const snapBad = !snap || bad * (end - start) > 0.03;
   const displayPos = snapBad ? pos : snapPos;
   useEffect(() => {
     if (window.navigator.vibrate) window.navigator.vibrate([20]);
@@ -100,7 +102,8 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({
           <div
             style={{
               transform: `translateY(${displayPos}px) translateY(-50%)`,
-              backgroundColor: snapBad ? "var(--warning)" : "var(--primary)",
+              backgroundColor:
+                snap && snapBad ? "var(--warning)" : "var(--primary)",
               height: "3px",
               position: "absolute",
               width: "100%",
@@ -109,7 +112,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({
             id="add-cut"
           >
             <Badge
-              color={snapBad ? "warning" : "primary"}
+              color={snap && snapBad ? "warning" : "primary"}
               size="lg"
               style={{
                 position: "absolute",

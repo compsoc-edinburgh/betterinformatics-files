@@ -86,6 +86,7 @@ interface Props {
   onVisibleChange?: (newVisible: boolean) => void;
   onAddCut?: (pos: number) => void;
   addCutText?: string;
+  snap?: boolean;
 }
 const PdfSectionCanvas: React.FC<Props> = ({
   section,
@@ -94,6 +95,7 @@ const PdfSectionCanvas: React.FC<Props> = ({
   onVisibleChange,
   onAddCut,
   addCutText,
+  snap = true,
 }) => {
   const start = section.start.position;
   const end = section.end.position;
@@ -195,6 +197,7 @@ const PdfSectionCanvas: React.FC<Props> = ({
             isMain={isMainCanvas}
             addCutText={addCutText}
             onAddCut={onAddCutHandler}
+            snap={snap}
           />
         )}
       </div>

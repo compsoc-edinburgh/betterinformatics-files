@@ -239,5 +239,5 @@ export enum EditMode {
 }
 export type EditState =
   | { mode: EditMode.None }
-  | { mode: EditMode.Add }
-  | { mode: EditMode.Move; cut: string };
+  | { mode: EditMode.Add; snap: boolean }
+  | { mode: EditMode.Move; cut: string; snap: boolean };
