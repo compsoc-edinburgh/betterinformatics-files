@@ -23,7 +23,7 @@ const styles = {
   }),
   submitButton: css({
     marginLeft: 0,
-    marginRIght: 0,
+    marginRight: 0,
     minWidth: "100px",
   }),
 };
@@ -61,7 +61,7 @@ export default class FAQ extends React.Component<Props, State> {
   addFAQ = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    let newOrder = this.state.faqs
+    let newOrder = (this.state.faqs !== undefined && this.state.faqs.length > 0)
       ? Math.max(...this.state.faqs.map(x => x.order)) + 1
       : 0;
 

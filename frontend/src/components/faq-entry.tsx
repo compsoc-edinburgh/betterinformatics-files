@@ -77,9 +77,11 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
   };
 
   remove = () => {
-    fetchpost(`/api/faq/remove/${this.props.entry.oid}/`, {})
-      .then(() => this.props.entryChanged())
-      .catch(() => undefined);
+    if (window.confirm("Do you really want to remove this entry?")) {
+      fetchpost(`/api/faq/remove/${this.props.entry.oid}/`, {})
+        .then(() => this.props.entryChanged())
+        .catch(() => undefined);
+    }
   };
 
   swap = (other: FAQEntry) => {
