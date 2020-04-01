@@ -1,11 +1,11 @@
 import * as React from "react";
 import { css } from "glamor";
-import {fetchapi, fetchpost, imageHandler} from "../fetch-utils";
+import { fetchapi, fetchpost, imageHandler } from "../fetch-utils";
 import { FAQEntry } from "../interfaces";
 import Editor from "../components/Editor";
 import FAQEntryComponent from "../components/faq-entry";
 import MarkdownText from "../components/markdown-text";
-import {UndoStack} from "../components/Editor/utils/undo-stack";
+import { UndoStack } from "../components/Editor/utils/undo-stack";
 
 const styles = {
   wrapper: css({
@@ -66,9 +66,10 @@ export default class FAQ extends React.Component<Props, State> {
   addFAQ = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    let newOrder = (this.state.faqs !== undefined && this.state.faqs.length > 0)
-      ? Math.max(...this.state.faqs.map(x => x.order)) + 1
-      : 0;
+    let newOrder =
+      this.state.faqs !== undefined && this.state.faqs.length > 0
+        ? Math.max(...this.state.faqs.map(x => x.order)) + 1
+        : 0;
 
     fetchpost("/api/faq/add/", {
       question: this.state.newQuestion,
@@ -124,8 +125,7 @@ export default class FAQ extends React.Component<Props, State> {
               <div {...styles.answerInputElPar}>
                 <Editor
                   value={this.state.newAnswer}
-                  onChange={newValue =>
-                    this.setState({ newAnswer: newValue })}
+                  onChange={newValue => this.setState({ newAnswer: newValue })}
                   imageHandler={imageHandler}
                   preview={str => <MarkdownText value={str} />}
                   undoStack={this.state.undoStack}

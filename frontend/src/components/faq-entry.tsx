@@ -1,11 +1,11 @@
 import * as React from "react";
 import { css } from "glamor";
 import { FAQEntry } from "../interfaces";
-import {fetchpost, imageHandler} from "../fetch-utils";
+import { fetchpost, imageHandler } from "../fetch-utils";
 import Colors from "../colors";
 import Editor from "./Editor";
 import MarkdownText from "./markdown-text";
-import {UndoStack} from "./Editor/utils/undo-stack";
+import { UndoStack } from "./Editor/utils/undo-stack";
 
 const styles = {
   wrapper: css({
@@ -170,8 +170,7 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
         <div {...styles.answerEdit}>
           <Editor
             value={this.state.newAnswer}
-            onChange={newValue =>
-              this.setState({ newAnswer: newValue })}
+            onChange={newValue => this.setState({ newAnswer: newValue })}
             imageHandler={imageHandler}
             preview={str => <MarkdownText value={str} />}
             undoStack={this.state.undoStack}

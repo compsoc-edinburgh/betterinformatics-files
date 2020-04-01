@@ -82,7 +82,11 @@ const EditorFooter: React.FC<Props> = ({
     <div className={footerStyle}>
       <div className={rowStyle}>
         <div className={spacer} />
-        <button onClick={onOpenOverlay} className={addImageButtonStyle} type="button">
+        <button
+          onClick={onOpenOverlay}
+          className={addImageButtonStyle}
+          type="button"
+        >
           <div className={addImageIconStyle}>
             <ImageIcon size={iconSize} />
           </div>
