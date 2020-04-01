@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import IconButton from "./icon-button";
 import React from "react";
 import { ExamMetaData, EditMode, EditState } from "../interfaces";
-import PDF from "../pdf-renderer";
+import PDF from "../pdf/pdf-renderer";
 import { css } from "emotion";
 import { useUser } from "../auth";
 

@@ -1,6 +1,6 @@
 import { PdfSection } from "../interfaces";
 
-import PDF from "../pdf-renderer";
+import PDF from "../pdf/pdf-renderer";
 import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import { TextContentItem, TextContent } from "pdfjs-dist";

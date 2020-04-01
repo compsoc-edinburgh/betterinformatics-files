@@ -15,7 +15,7 @@ import {
 } from "../interfaces";
 import { useRequest } from "@umijs/hooks";
 import { PDFDocumentProxy, getDocument } from "../pdfjs";
-import PDF from "../pdf-renderer";
+import PDF from "../pdf/pdf-renderer";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchapi(`/api/scoreboard/userinfo/${username}/`))

@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useEffect,
 } from "react";
-import { determineOptimalCutPositions } from "../pdf-renderer";
+import { determineOptimalCutPositions } from "../pdf/snap";
 interface Props {
   canvas: HTMLCanvasElement;
   start: number;

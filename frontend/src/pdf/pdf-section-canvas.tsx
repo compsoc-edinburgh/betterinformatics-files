@@ -3,11 +3,12 @@ import { Card } from "@vseth/components";
 import { css } from "glamor";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
+import PdfSectionCanvasOverlay from "../components/pdf-section-canvas-overlay";
+import PdfSectionText from "../components/pdf-section-text";
 import useDpr from "../hooks/useDpr";
 import { PdfSection } from "../interfaces";
-import PDF, { PdfCanvasReference } from "../pdf-renderer";
-import PdfSectionCanvasOverlay from "./pdf-section-canvas-overlay";
-import PdfSectionText from "./pdf-section-text";
+import PDF from "./pdf-renderer";
+import { PdfCanvasReference } from "./reference-counting";
 const styles = {
   lastSection: css({
     marginBottom: "40px",

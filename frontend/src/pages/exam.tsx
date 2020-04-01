@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import AnswerSectionComponent from "../components/answer-section";
 import ExamPanel from "../components/exam-panel";
-import PdfSectionCanvas from "../components/pdf-section-canvas";
+import PdfSectionCanvas from "../pdf/pdf-section-canvas";
 import PrintExam from "../components/print-exam";
 import { loadSections } from "../exam-loader";
 import {
@@ -30,7 +30,7 @@ import {
   EditMode,
   EditState,
 } from "../interfaces";
-import PDF from "../pdf-renderer";
+import PDF from "../pdf/pdf-renderer";
 import { fetchpost } from "../fetch-utils";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
