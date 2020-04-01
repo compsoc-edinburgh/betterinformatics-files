@@ -1,10 +1,11 @@
 import * as React from "react";
 import { css } from "glamor";
 import { FAQEntry } from "../interfaces";
-import moment from "moment";
-import { fetchpost } from "../fetch-utils";
+import {fetchpost, imageHandler} from "../fetch-utils";
 import Colors from "../colors";
-import GlobalConsts from "../globalconsts";
+import Editor from "./Editor";
+import MarkdownText from "./markdown-text";
+import {UndoStack} from "./Editor/utils/undo-stack";
 
 const styles = {
   wrapper: css({
@@ -62,6 +63,7 @@ interface State {
   editing: boolean;
   newQuestion: string;
   newAnswer: string;
+  undoStack: UndoStack;
 }
 
 export default class FAQEntryComponent extends React.Component<Props, State> {
@@ -69,6 +71,7 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
     editing: false,
     newQuestion: "",
     newAnswer: "",
+    undoStack: { prev: [], next: [] },
   };
 
   wrapText = (text: string) => {
@@ -165,14 +168,14 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
           </div>
         </div>
         <div {...styles.answerEdit}>
-          <textarea
-            {...styles.answerInputEl}
-            placeholder="Answer"
-            rows={5}
-            onChange={event =>
-              this.setState({ newAnswer: event.currentTarget.value })
-            }
+          <Editor
             value={this.state.newAnswer}
+            onChange={newValue =>
+              this.setState({ newAnswer: newValue })}
+            imageHandler={imageHandler}
+            preview={str => <MarkdownText value={str} />}
+            undoStack={this.state.undoStack}
+            setUndoStack={undoStack => this.setState({ undoStack })}
           />
         </div>
       </div>
@@ -203,7 +206,9 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
             </div>
           )}
         </div>
-        <div {...styles.answer}>{this.wrapText(entry.answer)}</div>
+        <div {...styles.answer}>
+          <MarkdownText value={entry.answer} />
+        </div>
       </div>
     );
   }

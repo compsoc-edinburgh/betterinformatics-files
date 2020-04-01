@@ -61,19 +61,19 @@ const EditorHeader: React.FC<Props> = ({
       <div className={spacer} />
       {activeMode === "write" && (
         <>
-          <button className={iconButtonStyle} onClick={handlers.onMathClick}>
+          <button className={iconButtonStyle} onClick={handlers.onMathClick} type="button">
             <DollarSign size={iconSize} />
           </button>
-          <button className={iconButtonStyle} onClick={handlers.onCodeClick}>
+          <button className={iconButtonStyle} onClick={handlers.onCodeClick} type="button">
             <Code size={iconSize} />
           </button>
-          <button className={iconButtonStyle} onClick={handlers.onLinkClick}>
+          <button className={iconButtonStyle} onClick={handlers.onLinkClick} type="button">
             <Link size={iconSize} />
           </button>
-          <button className={iconButtonStyle} onClick={handlers.onItalicClick}>
+          <button className={iconButtonStyle} onClick={handlers.onItalicClick} type="button">
             <Italic size={iconSize} />
           </button>
-          <button className={iconButtonStyle} onClick={handlers.onBoldClick}>
+          <button className={iconButtonStyle} onClick={handlers.onBoldClick} type="button">
             <Bold size={iconSize} />
           </button>
         </>

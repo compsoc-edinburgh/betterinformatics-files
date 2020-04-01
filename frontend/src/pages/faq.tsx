@@ -1,8 +1,11 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import {fetchapi, fetchpost, imageHandler} from "../fetch-utils";
 import { FAQEntry } from "../interfaces";
+import Editor from "../components/Editor";
 import FAQEntryComponent from "../components/faq-entry";
+import MarkdownText from "../components/markdown-text";
+import {UndoStack} from "../components/Editor/utils/undo-stack";
 
 const styles = {
   wrapper: css({
@@ -37,12 +40,14 @@ interface State {
   newQuestion: string;
   newAnswer: string;
   err?: string;
+  undoStack: UndoStack;
 }
 
 export default class FAQ extends React.Component<Props, State> {
   state: State = {
     newQuestion: "",
     newAnswer: "",
+    undoStack: { prev: [], next: [] },
   };
 
   componentDidMount() {
@@ -117,14 +122,14 @@ export default class FAQ extends React.Component<Props, State> {
                 />
               </div>
               <div {...styles.answerInputElPar}>
-                <textarea
-                  {...styles.answerInputEl}
-                  placeholder="Answer"
-                  rows={5}
-                  onChange={event =>
-                    this.setState({ newAnswer: event.currentTarget.value })
-                  }
+                <Editor
                   value={this.state.newAnswer}
+                  onChange={newValue =>
+                    this.setState({ newAnswer: newValue })}
+                  imageHandler={imageHandler}
+                  preview={str => <MarkdownText value={str} />}
+                  undoStack={this.state.undoStack}
+                  setUndoStack={undoStack => this.setState({ undoStack })}
                 />
               </div>
               <div>
