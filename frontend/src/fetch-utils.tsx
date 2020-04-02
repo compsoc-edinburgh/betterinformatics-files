@@ -1,6 +1,10 @@
 import { ImageHandle } from "./components/Editor/utils/types";
 
-async function performDataRequest(method: string, url: string, data: { [key: string]: any }) {
+async function performDataRequest(
+  method: string,
+  url: string,
+  data: { [key: string]: any },
+) {
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
   // through the keys and appending the (key, value) pair to the FormData
@@ -62,11 +66,11 @@ export async function fetchput(url: string, data: { [key: string]: any }) {
 }
 
 export async function fetchdelete(url: string) {
-  return performRequest('DELETE', url);
+  return performRequest("DELETE", url);
 }
 
 export async function fetchapi(url: string) {
-  return performRequest('GET', url);
+  return performRequest("GET", url);
 }
 
 export function imageHandler(file: File): Promise<ImageHandle> {
