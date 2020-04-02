@@ -14,6 +14,8 @@ import UploadPdfPage from "./pages/uploadpdf";
 import TutorialPage from "./pages/tutorial";
 import UserPage from "./pages/userinfo";
 import Scoreboard from "./pages/scoreboard";
+import HashLocationHandler from "./components/hash-location-handler";
+import ModQueue from "./pages/modqueue";
 
 const App: React.FC<{}> = () => {
   const serverData = useMemo(() => {
@@ -75,6 +77,7 @@ const App: React.FC<{}> = () => {
               <UserRoute exact path="/exams/:filename" component={ExamPage} />
               <UserRoute exact path="/user/:username" component={UserPage} />
               <UserRoute exact path="/scoreboard" component={Scoreboard} />
+              <UserRoute exact path="/modqueue" component={ModQueue} />
               <Route component={NotFoundPage} />
             </Switch>
           </main>

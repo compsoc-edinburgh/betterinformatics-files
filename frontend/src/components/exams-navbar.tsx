@@ -17,6 +17,9 @@ const ExamsNavbar: React.FC<{}> = () => {
     },
     {
       title: "Mod Queue",
+      linkProps: {
+        to: "/modqueue",
+      },
     },
   ];
   return (
