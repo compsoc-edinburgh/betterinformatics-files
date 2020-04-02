@@ -1,52 +1,57 @@
 from faq.models import FAQuestion
 from util import response
 from myauth import auth_check
-from myauth.models import get_my_user, MyUser
-from categories.models import Category, MetaCategory
-from django.conf import settings
+from django.views import View
 from django.shortcuts import get_object_or_404
 
 
-@response.request_get()
-@auth_check.require_login
-def list_faq(request):
-    res = [
-        {
-            'oid': q.pk,
-            'question': q.question,
-            'answer': q.answer,
-            'order': q.order,
-        } for q in FAQuestion.objects.order_by('order').all()
-    ]
-    return response.success(value=res)
+def get_faq_obj(faq):
+    return {
+        'oid': faq.pk,
+        'question': faq.question,
+        'answer': faq.answer,
+        'order': faq.order,
+    }
 
 
-@response.request_post('question', 'answer', 'order')
-@auth_check.require_admin
-def add_faq(request):
-    faq = FAQuestion(
-        question=request.POST['question'],
-        answer=request.POST['answer'],
-        order=int(request.POST['order']),
-    )
-    faq.save()
-    return response.success(value=faq.pk)
+class FaqRootView(View):
+
+    http_method_names = ['get', 'post']
+
+    def get(self, request):
+        res = [get_faq_obj(q) for q in FAQuestion.objects.order_by('order').all()]
+        return response.success(value=res)
+
+    @response.required_args('question', 'answer', 'order')
+    def post(self, request):
+        faq = FAQuestion(
+            question=request.DATA['question'],
+            answer=request.DATA['answer'],
+            order=int(request.DATA['order']),
+        )
+        faq.save()
+        return response.success(value=get_faq_obj(faq))
 
 
-@response.request_post('question', 'answer', 'order')
-@auth_check.require_admin
-def set_faq(request, id):
-    faq = get_object_or_404(FAQuestion, pk=id)
-    faq.question = request.POST['question']
-    faq.answer = request.POST['answer']
-    faq.order = request.POST['order']
-    faq.save()
-    return response.success()
+class FaqElementView(View):
 
+    http_method_names = ['get', 'put', 'delete']
 
-@response.request_post()
-@auth_check.require_admin
-def remove_faq(request, id):
-    faq = get_object_or_404(FAQuestion, pk=id)
-    faq.delete()
-    return response.success()
+    def get(self, request, id):
+        faq = get_object_or_404(FAQuestion, pk=id)
+        return response.success(value=get_faq_obj(faq))
+
+    @response.required_args('question', 'answer', 'order')
+    def put(self, request, id):
+        faq = get_object_or_404(FAQuestion, pk=id)
+        faq.question = request.DATA['question']
+        faq.answer = request.DATA['answer']
+        faq.order = request.DATA['order']
+        faq.save()
+        return response.success(value=get_faq_obj(faq))
+
+    def delete(self, request, id):
+        faq = get_object_or_404(FAQuestion, pk=id)
+        faq.delete()
+        return response.success()
+

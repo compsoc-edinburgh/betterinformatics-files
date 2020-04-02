@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
 import { FAQEntry } from "../interfaces";
-import { fetchpost, imageHandler } from "../fetch-utils";
+import {fetchdelete, fetchpost, fetchput, imageHandler} from "../fetch-utils";
 import Colors from "../colors";
 import Editor from "./Editor";
 import MarkdownText from "./markdown-text";
@@ -81,7 +81,7 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
 
   remove = () => {
     if (window.confirm("Do you really want to remove this entry?")) {
-      fetchpost(`/api/faq/remove/${this.props.entry.oid}/`, {})
+      fetchdelete(`/api/faq/${this.props.entry.oid}/`)
         .then(() => this.props.entryChanged())
         .catch(() => undefined);
     }
@@ -89,13 +89,13 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
 
   swap = (other: FAQEntry) => {
     const me = this.props.entry;
-    fetchpost(`/api/faq/set/${me.oid}/`, {
+    fetchput(`/api/faq/${me.oid}/`, {
       question: me.question,
       answer: me.answer,
       order: other.order,
     })
       .then(() =>
-        fetchpost(`/api/faq/set/${other.oid}/`, {
+        fetchput(`/api/faq/${other.oid}/`, {
           question: other.question,
           answer: other.answer,
           order: me.order,
@@ -126,7 +126,7 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
   };
 
   save = () => {
-    fetchpost(`/api/faq/set/${this.props.entry.oid}/`, {
+    fetchput(`/api/faq/${this.props.entry.oid}/`, {
       question: this.state.newQuestion,
       answer: this.state.newAnswer,
       order: this.props.entry.order,

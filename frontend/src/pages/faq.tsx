@@ -56,7 +56,7 @@ export default class FAQ extends React.Component<Props, State> {
   }
 
   loadFAQs = () => {
-    fetchapi("/api/faq/list").then(res => {
+    fetchapi("/api/faq/").then(res => {
       this.setState({
         faqs: res.value,
       });
@@ -71,7 +71,7 @@ export default class FAQ extends React.Component<Props, State> {
         ? Math.max(...this.state.faqs.map(x => x.order)) + 1
         : 0;
 
-    fetchpost("/api/faq/add/", {
+    fetchpost("/api/faq/", {
       question: this.state.newQuestion,
       answer: this.state.newAnswer,
       order: newOrder,

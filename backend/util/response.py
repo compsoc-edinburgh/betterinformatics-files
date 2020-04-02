@@ -1,37 +1,24 @@
 from datetime import datetime, timezone, timedelta
 from functools import wraps
-from django.http import JsonResponse, FileResponse
+from django.http import JsonResponse, FileResponse, QueryDict
 from django.http import HttpResponseNotAllowed
+from django.http.multipartparser import MultiPartParser
+from io import BytesIO
 
 
-def required_method(method):
-    def required_args(*req_args, optional=False):
-        def wrap_func(f):
-            @wraps(f)
-            def wrapper(request, *args, **kwargs):
-                if request.method != method:
-                    return HttpResponseNotAllowed([method])
-                if not optional:
-                    for arg in req_args:
-                        if arg not in request.POST:
-                            return missing_argument()
-                return f(request, *args, **kwargs)
-            return wrapper
-        return wrap_func
-    return required_args
-
-
-request_post = required_method('POST')
-request_put = required_method('PUT')
-
-
-def request_delete(f):
-    @wraps(f)
-    def wrapper(request, *args, **kwargs):
-        if request.method != 'DELETE':
-            return HttpResponseNotAllowed(['DELETE'])
-        return f(request, *args, **kwargs)
-    return wrapper
+def request_post(*req_args, optional=False):
+    def wrap_func(f):
+        @wraps(f)
+        def wrapper(request, *args, **kwargs):
+            if request.method != 'POST':
+                return HttpResponseNotAllowed(['POST'])
+            if not optional:
+                for arg in req_args:
+                    if arg not in request.POST:
+                        return missing_argument()
+            return f(request, *args, **kwargs)
+        return wrapper
+    return wrap_func
 
 
 def request_get(*req_args, optional=False):
@@ -45,6 +32,30 @@ def request_get(*req_args, optional=False):
                     if arg not in request.GET:
                         return missing_argument()
             return f(request, *args, **kwargs)
+        return wrapper
+    return wrap_func
+
+
+# Used in class based views
+# Also handles parsing the body of PUT requests
+def required_args(*req_args, optional=False):
+    def wrap_func(f):
+        @wraps(f)
+        def wrapper(self, request, *args, **kwargs):
+            if request.method == 'PUT':
+                try:
+                    parser = MultiPartParser(request.META, BytesIO(request.body), request.upload_handlers)
+                    request.DATA, _ = parser.parse()
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
+            elif request.method == 'POST':
+                request.DATA = request.POST
+            if not optional:
+                for arg in req_args:
+                    if arg not in request.DATA:
+                        return missing_argument()
+            return f(self, request, *args, **kwargs)
         return wrapper
     return wrap_func
 
