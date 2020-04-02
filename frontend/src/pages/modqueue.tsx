@@ -126,11 +126,9 @@ const ModQueue: React.FC = () => {
                       {exam.displayname}
                     </Link>
                     <div>
-                      {exam.public ? (
-                        <Badge color="primary">public</Badge>
-                      ) : (
-                        <Badge color="primary">hidden</Badge>
-                      )}
+                      <Badge color="primary">
+                        {exam.public ? "public" : "hidden"}
+                      </Badge>
                     </div>
                     <p>{exam.remark}</p>
                   </td>
