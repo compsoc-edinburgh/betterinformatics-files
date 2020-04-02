@@ -22,6 +22,7 @@ urlpatterns = [
     path('answersection/<int:oid>/', views_cuts.get_answersection, name='answersection'),
     path('metadata/<str:filename>/', views.exam_metadata, name='metadata'),
     path('setmetadata/<str:filename>/', views.exam_set_metadata, name='setmetadata'),
+    path('getanswer/<int:oid>/', views_answers.get_answer, name='getanswer'),
     path('setanswer/<int:oid>/', views_answers.set_answer, name='setanswer'),
     path('removeanswer/<int:oid>/', views_answers.remove_answer, name='removeanswer'),
     path('setlike/<int:oid>/', views_answers.set_like, name='setlike'),

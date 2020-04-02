@@ -7,6 +7,11 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 
+@auth_check.require_login
+def get_answer(request, oid):
+    answer = get_object_or_404(Answer, pk=oid)
+    return response.success(value=section_util.get_answer_response(request, answer))
+
 @response.args_post('text', 'legacy_answer')
 @auth_check.require_login
 def set_answer(request, oid):
