@@ -81,6 +81,7 @@ export default class FAQ extends React.Component<Props, State> {
           newQuestion: "",
           newAnswer: "",
           err: "",
+          undoStack: { prev: [], next: [] },
         });
         this.loadFAQs();
       })

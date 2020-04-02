@@ -74,11 +74,6 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
     undoStack: { prev: [], next: [] },
   };
 
-  wrapText = (text: string) => {
-    const textSplit = text.split("\n");
-    return textSplit.map(t => <p key={t}>{t}</p>);
-  };
-
   remove = () => {
     if (window.confirm("Do you really want to remove this entry?")) {
       fetchdelete(`/api/faq/${this.props.entry.oid}/`)
@@ -122,6 +117,7 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
       editing: true,
       newQuestion: this.props.entry.question,
       newAnswer: this.props.entry.answer,
+      undoStack: { prev: [], next: [] },
     });
   };
 
