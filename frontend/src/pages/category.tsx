@@ -32,6 +32,7 @@ import {
 } from "../api/hooks";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
+import { hasValidClaim } from "../exam-utils";
 
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
@@ -69,19 +70,6 @@ const dlSelectedExams = (selectedExams: Set<string>) => {
   document.body.appendChild(form);
   form.submit();
   document.body.removeChild(form);
-};
-const hasValidClaim = (exam: CategoryExam) => {
-  if (exam.import_claim !== null && exam.import_claim_time !== null) {
-    if (
-      moment().diff(
-        moment(exam.import_claim_time, GlobalConsts.momentParseString),
-      ) <
-      4 * 60 * 60 * 1000
-    ) {
-      return true;
-    }
-  }
-  return false;
 };
 
 const badgeStyle = css`
