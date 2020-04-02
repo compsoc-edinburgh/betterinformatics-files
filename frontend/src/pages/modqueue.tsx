@@ -37,7 +37,6 @@ const loadFlagged = async () => {
 };
 
 const ModQueue: React.FC = () => {
-  const { username } = useUser()!;
   const [includeHidden, setIncludeHidden] = useState(false);
   const {
     error: examsError,
@@ -47,11 +46,7 @@ const ModQueue: React.FC = () => {
   } = useRequest(() => loadExams(includeHidden), {
     refreshDeps: [includeHidden],
   });
-  const {
-    error: flaggedError,
-    loading: flaggedLoading,
-    data: flaggedAnswers,
-  } = useRequest(loadFlagged);
+  const { error: flaggedError, data: flaggedAnswers } = useRequest(loadFlagged);
   const {
     error: payError,
     loading: payLoading,
