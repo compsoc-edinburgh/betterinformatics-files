@@ -2,10 +2,10 @@ import { useRequest } from "@umijs/hooks";
 import { Badge, Button, Container, Table } from "@vseth/components";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchapi, fetchpost } from "../api/fetch-utils";
+import { fetchapi } from "../api/fetch-utils";
 import { useUser } from "../auth";
+import ClaimButton from "../components/claim-button";
 import LoadingOverlay from "../components/loading-overlay";
-import { hasValidClaim } from "../exam-utils";
 import { CategoryExam, CategoryPaymentExam } from "../interfaces";
 
 interface Props {
@@ -35,11 +35,6 @@ const loadPaymentExams = async () => {
 const loadFlagged = async () => {
   return (await fetchapi("/api/exam/listflagged/")).value as string[];
 };
-const setClaim = async (filename: string, claim: boolean) => {
-  await fetchpost(`/api/exam/claimexam/${filename}/`, {
-    claim: claim,
-  });
-};
 
 const ModQueue: React.FC = () => {
   const { username } = useUser()!;
@@ -62,11 +57,7 @@ const ModQueue: React.FC = () => {
     loading: payLoading,
     data: paymentExams,
   } = useRequest(loadPaymentExams);
-  const { run: runSetClaim, fetches: setClaimFetches } = useRequest(setClaim, {
-    manual: true,
-    fetchKey: id => id,
-    onSuccess: reloadExams,
-  });
+
   const error = examsError || flaggedError || payError;
 
   return (
@@ -132,7 +123,7 @@ const ModQueue: React.FC = () => {
           </thead>
           <tbody>
             {exams &&
-              exams.map(exam => (
+              exams.map((exam: CategoryExam) => (
                 <tr key={exam.filename}>
                   <td>{exam.category_displayname}</td>
                   <td>
@@ -156,29 +147,7 @@ const ModQueue: React.FC = () => {
                       : "Needs Cuts"}
                   </td>
                   <td>
-                    {!exam.finished_cuts || !exam.finished_wiki_transfer ? (
-                      hasValidClaim(exam) ? (
-                        exam.import_claim === username ? (
-                          <Button
-                            onClick={() => runSetClaim(exam.filename, false)}
-                          >
-                            Release Claim
-                          </Button>
-                        ) : (
-                          <span>
-                            Claimed by {exam.import_claim_displayname}
-                          </span>
-                        )
-                      ) : (
-                        <Button
-                          onClick={() => runSetClaim(exam.filename, true)}
-                        >
-                          Claim Exam
-                        </Button>
-                      )
-                    ) : (
-                      <span>-</span>
-                    )}
+                    <ClaimButton exam={exam} reloadExams={reloadExams} />
                   </td>
                 </tr>
               ))}

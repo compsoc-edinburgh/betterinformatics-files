@@ -14,25 +14,23 @@ import {
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import { css } from "emotion";
-import moment from "moment";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { UserContext, useUser } from "../auth";
-import { getMetaCategoriesForCategory } from "../category-utils";
-import CategoryMetaDataEditor from "../components/category-metadata-editor";
-import IconButton from "../components/icon-button";
-import TwoButtons from "../components/two-buttons";
 import { getCookie } from "../api/fetch-utils";
-import GlobalConsts from "../globalconsts";
 import {
   claimExam,
   loadCategoryMetaData,
   loadList,
   loadMetaCategories,
 } from "../api/hooks";
+import { UserContext, useUser } from "../auth";
+import { getMetaCategoriesForCategory } from "../category-utils";
+import CategoryMetaDataEditor from "../components/category-metadata-editor";
+import ClaimButton from "../components/claim-button";
+import IconButton from "../components/icon-button";
+import TwoButtons from "../components/two-buttons";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
-import { hasValidClaim } from "../exam-utils";
 
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
@@ -166,36 +164,8 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                         )
                       }
                       right={
-                        catAdmin &&
-                        (!exam.finished_cuts ||
-                          !exam.finished_wiki_transfer) ? (
-                          hasValidClaim(exam) ? (
-                            exam.import_claim === user.username ? (
-                              <Button
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  runClaimExam(exam.filename, false);
-                                }}
-                              >
-                                Release Claim
-                              </Button>
-                            ) : (
-                              <Button disabled>
-                                Claimed by {exam.import_claim_displayname}
-                              </Button>
-                            )
-                          ) : (
-                            <Button
-                              onClick={e => {
-                                e.stopPropagation();
-                                runClaimExam(exam.filename, true);
-                              }}
-                            >
-                              Claim Exam
-                            </Button>
-                          )
-                        ) : (
-                          <span>-</span>
+                        catAdmin && (
+                          <ClaimButton exam={exam} reloadExams={reload} />
                         )
                       }
                     />
