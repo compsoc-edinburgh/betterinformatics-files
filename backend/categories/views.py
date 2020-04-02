@@ -9,11 +9,13 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories(request):
     return response.success(value=list(Category.objects.order_by('displayname').values_list('displayname', flat=True)))
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories_with_meta(request):
     categories = Category.objects.select_related('meta').order_by('displayname').all()
@@ -29,6 +31,7 @@ def list_categories_with_meta(request):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories_only_admin(request):
     categories = Category.objects.order_by('displayname').all()
@@ -43,6 +46,7 @@ def list_categories_only_admin(request):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories_only_payment(request):
     res = [
@@ -53,6 +57,18 @@ def list_categories_only_payment(request):
         for cat in Category.objects.filter(has_payments=True).order_by('displayname')
     ]
     return response.success(value=res)
+
+
+@response.request_post('category')
+@auth_check.require_admin
+def add_category(request):
+    slug = create_category_slug(request.POST['category'])
+    cat = Category(
+        displayname=request.POST['category'],
+        slug=slug,
+    )
+    cat.save()
+    return response.success(slug=slug)
 
 
 def create_category_slug(category):
@@ -74,20 +90,8 @@ def create_category_slug(category):
     return slug
 
 
+@response.request_post('slug')
 @auth_check.require_admin
-@response.args_post('category')
-def add_category(request):
-    slug = create_category_slug(request.POST['category'])
-    cat = Category(
-        displayname=request.POST['category'],
-        slug=slug,
-    )
-    cat.save()
-    return response.success(slug=slug)
-
-
-@auth_check.require_admin
-@response.args_post('slug')
 def remove_category(request):
     cat = get_object_or_404(Category, slug=request.POST['slug'])
     if cat.slug == 'default':
@@ -97,6 +101,7 @@ def remove_category(request):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def list_exams(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -129,6 +134,7 @@ def list_exams(request, slug):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def get_metadata(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -161,7 +167,7 @@ def get_metadata(request, slug):
     return response.success(value=res)
 
 
-@response.args_post('semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link', optional=True)
+@response.request_post('semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link', optional=True)
 @auth_check.require_admin
 def set_metadata(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -174,7 +180,7 @@ def set_metadata(request, slug):
     return response.success()
 
 
-@response.args_post('key', 'user')
+@response.request_post('key', 'user')
 @auth_check.require_admin
 def add_user_to_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -192,7 +198,7 @@ def add_user_to_set(request, slug):
     return response.success()
 
 
-@response.args_post('key', 'user')
+@response.request_post('key', 'user')
 @auth_check.require_admin
 def remove_user_from_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -210,6 +216,7 @@ def remove_user_from_set(request, slug):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def list_metacategories(request):
     categories = MetaCategory.objects.select_related('parent').prefetch_related('metacategory_set', 'category_set').all()
@@ -236,7 +243,7 @@ def list_metacategories(request):
     return response.success(value=res)
 
 
-@response.args_post('meta1', 'meta2', 'category')
+@response.request_post('meta1', 'meta2', 'category')
 @auth_check.require_admin
 def add_metacategory(request):
     cat = get_object_or_404(Category, slug=request.POST['category'])
@@ -247,7 +254,7 @@ def add_metacategory(request):
     return response.success()
 
 
-@response.args_post('meta1', 'meta2', 'category')
+@response.request_post('meta1', 'meta2', 'category')
 @auth_check.require_admin
 def remove_metacategory(request):
     cat = get_object_or_404(Category, slug=request.POST['category'])
@@ -261,8 +268,8 @@ def remove_metacategory(request):
     return response.success()
 
 
-@response.args_post('meta1', 'order')
-@response.args_post('meta2', optional=True)
+@response.request_post('meta1', 'order')
+@response.request_post('meta2', optional=True)
 @auth_check.require_admin
 def set_metacategory_order(request):
     meta1 = get_object_or_404(MetaCategory, displayname=request.POST['meta1'], parent=None)

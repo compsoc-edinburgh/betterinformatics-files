@@ -15,7 +15,10 @@ class ComsolTest(TestCase):
     loginUser = 0
     user = {}
 
-    def get(self, path, status_code=200, as_json=True):
+    def get(self, path, status_code=200, test_post=True, as_json=True):
+        if test_post:
+            response = self.client.post(path)
+            self.assertEqual(response.status_code, 405)
         response = self.client.get(path)
         self.assertEqual(response.status_code, status_code)
         if as_json:

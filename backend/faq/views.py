@@ -7,6 +7,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 
+@response.request_get()
 @auth_check.require_login
 def list_faq(request):
     res = [
@@ -20,7 +21,7 @@ def list_faq(request):
     return response.success(value=res)
 
 
-@response.args_post('question', 'answer', 'order')
+@response.request_post('question', 'answer', 'order')
 @auth_check.require_admin
 def add_faq(request):
     faq = FAQuestion(
@@ -32,7 +33,7 @@ def add_faq(request):
     return response.success(value=faq.pk)
 
 
-@response.args_post('question', 'answer', 'order')
+@response.request_post('question', 'answer', 'order')
 @auth_check.require_admin
 def set_faq(request, id):
     faq = get_object_or_404(FAQuestion, pk=id)
@@ -43,7 +44,7 @@ def set_faq(request, id):
     return response.success()
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_admin
 def remove_faq(request, id):
     faq = get_object_or_404(FAQuestion, pk=id)

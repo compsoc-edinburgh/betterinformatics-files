@@ -5,7 +5,7 @@ from feedback.models import Feedback
 from django.shortcuts import get_object_or_404
 
 
-@response.args_post('text')
+@response.request_post('text')
 @auth_check.require_login
 def submit(request):
     feedback = Feedback(author=request.user, text=request.POST['text'])
@@ -13,6 +13,7 @@ def submit(request):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_admin
 def list_all(request):
     objs = Feedback.objects.select_related('author').all()
@@ -29,7 +30,7 @@ def list_all(request):
     ])
 
 
-@response.args_post('read', 'done', optional=True)
+@response.request_post('read', 'done', optional=True)
 @auth_check.require_admin
 def flags(request, feedbackid):
     feedback = get_object_or_404(Feedback, pk=feedbackid)
