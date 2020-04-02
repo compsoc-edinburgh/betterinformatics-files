@@ -1,5 +1,5 @@
 import { useInViewport } from "@umijs/hooks";
-import { Card } from "@vseth/components";
+import { Card, Badge } from "@vseth/components";
 import { css } from "glamor";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -180,6 +180,9 @@ const PdfSectionCanvas: React.FC<Props> = ({
         }}
         ref={containerElement}
       >
+        <div style={{ position: "absolute", top: 0, left: 5, zIndex: 1000 }}>
+          <Badge color={isMainCanvas ? "primary" : "secondary"}>&nbsp;</Badge>
+        </div>
         {content}
         {visible && (
           <PdfSectionText

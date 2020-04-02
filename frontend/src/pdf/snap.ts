@@ -11,29 +11,38 @@ export const determineOptimalCutPositions = (
   end: number,
   isMain: boolean,
   {
-    minRegionSize = 0.005,
-    bigSnapRegionPadding = 0.01,
-    bigSnapRegionMinSize = 0.1,
+    minRegionSize = 0.01,
+    bigSnapRegionPadding = 0.02,
+    bigSnapRegionMinSize = 0.15,
   } = {},
 ): SnapRegion[] => {
   const s: Array<SnapRegion> = [];
   const handler = (a: number, b: number, isLast: boolean = false) => {
-    const size = (b - a) * (end - start);
+    const size = (b - a) / (end - start);
     if (size > minRegionSize) {
-      const sectionEnd = b;
+      const snapPoints: number[] = [];
       if (a !== 0) {
-        const snapPoints: number[] = [];
         if (size > bigSnapRegionMinSize) {
-          snapPoints.push(a + bigSnapRegionPadding * (end - start));
+          snapPoints.push(a + bigSnapRegionPadding / (end - start));
           if (!(isLast && end === 1))
-            snapPoints.push(sectionEnd - bigSnapRegionPadding * (end - start));
+            snapPoints.push(b - bigSnapRegionPadding / (end - start));
         } else {
-          if (!isLast) snapPoints.push((a + sectionEnd) / 2);
+          if (!isLast) snapPoints.push((a + b) / 2);
         }
         if (isLast && end === 1) snapPoints.push(1);
         s.push({
           start: a,
-          end: sectionEnd,
+          end: b,
+          snapPoints,
+        });
+      } else {
+        if (size > bigSnapRegionMinSize) {
+          if (!(isLast && end === 1))
+            snapPoints.push(b - bigSnapRegionPadding / (end - start));
+        }
+        s.push({
+          start: a,
+          end: b,
           snapPoints,
         });
       }

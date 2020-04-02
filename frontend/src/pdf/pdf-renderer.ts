@@ -256,10 +256,6 @@ export default class PDF {
           dw,
           dh,
         );
-        ctx.fillStyle = "rgb(0, 159, 227)";
-        ctx.beginPath();
-        ctx.arc(20, 20, 10, 0, 2 * Math.PI, false);
-        ctx.fill();
         renderingReference.release();
       });
 

@@ -57,16 +57,12 @@ interface ExamPageContentProps {
   metaData: ExamMetaData;
   sections?: Section[];
   renderer?: PDF;
-  width: number;
-  sizeRef: React.MutableRefObject<HTMLDivElement>;
   reloadCuts: () => void;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
   metaData,
   sections,
   renderer,
-  width,
-  sizeRef,
   reloadCuts,
 }) => {
   const { filename } = metaData;
@@ -94,6 +90,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       setCutVersions(oldVersions => ({ ...oldVersions, ...response }));
     },
   });
+  const [size, sizeRef] = useSize<HTMLDivElement>();
 
   const [visible, show, hide] = useSet<string>();
   const [cutVersions, setCutVersions] = useState<CutVersions>({});
@@ -135,6 +132,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   }, [visibleSplits]);
 
   let pageCounter = 0;
+  const width = size.width;
   return (
     <>
       <Container>
@@ -161,7 +159,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         setEditState={setEditState}
       />
       <div ref={sizeRef} style={{ maxWidth: "1000px", margin: "auto" }}>
-        {visibleChangeListeners &&
+        {width &&
+          visibleChangeListeners &&
           sections &&
           sections.map((section, index) =>
             section.kind === SectionKind.Answer ? (
@@ -261,7 +260,6 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
   });
-  const [size, sizeRef] = useSize<HTMLDivElement>();
   const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
     loadSplitRenderer(filename),
   );
@@ -300,11 +298,9 @@ const ExamPage: React.FC<{}> = () => {
         )}
         {metaData && (
           <ExamPageContent
-            width={size.width || 0}
             metaData={metaData}
             sections={sections}
             renderer={renderer}
-            sizeRef={sizeRef}
             reloadCuts={reloadCuts}
           />
         )}
