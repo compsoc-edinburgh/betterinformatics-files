@@ -1,7 +1,6 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
-  Badge,
   Button,
   Card,
   CardBody,
@@ -10,20 +9,20 @@ import {
   FormGroup,
   Input,
   Label,
-  ListGroup,
-  ListGroupItem,
   Row,
   Select,
   TextareaField,
 } from "@vseth/components";
-import React, { useState } from "react";
+import React from "react";
 import { fetchpost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../ts-utils";
-import FileInput from "./file-input";
+import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import IconButton from "./icon-button";
+import OfferedInEditor from "./offered-in-editor";
 import TwoButtons from "./two-buttons";
+import UserSetEditor from "./user-set-editor";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
 const setMetaData = async (
@@ -191,169 +190,6 @@ const permissionOptions = createOptions({
   none: "none",
 });
 
-interface EditorAttachment {
-  displayname: string;
-  filename: File | string;
-}
-interface AttachmentsEditorProps {
-  attachments: EditorAttachment[];
-  setAttachments: (newAttachments: EditorAttachment[]) => void;
-}
-const toKey = (file: File | string) =>
-  file instanceof File ? file.name : file;
-const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
-  attachments,
-  setAttachments,
-}) => {
-  const [file, setFile] = useState<File | undefined>();
-  const [displayName, setDisplayName] = useState("");
-  const onAdd = () => {
-    if (file === undefined) return;
-    setAttachments([
-      ...attachments,
-      { displayname: displayName, filename: file },
-    ]);
-    setFile(undefined);
-    setDisplayName("");
-  };
-  const onRemove = (index: number) => {
-    setAttachments(attachments.filter((_item, i) => i !== index));
-  };
-  return (
-    <ListGroup>
-      {attachments.map(({ displayname, filename }, index) => (
-        <ListGroupItem key={toKey(filename)}>
-          <Button close onClick={() => onRemove(index)} />
-          {displayname} <Badge>{toKey(filename)}</Badge>
-          {filename instanceof File && <Badge color="success">New</Badge>}
-        </ListGroupItem>
-      ))}
-      <ListGroupItem>
-        <Row>
-          <Col md={5}>
-            <FileInput value={file} onChange={setFile} />
-          </Col>
-          <Col md={5}>
-            <Input
-              type="text"
-              placeholder="Display name"
-              value={displayName}
-              onChange={e => setDisplayName(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Button block onClick={onAdd}>
-              Add
-            </Button>
-          </Col>
-        </Row>
-      </ListGroupItem>
-    </ListGroup>
-  );
-};
-
-interface OfferedInEditorProps {
-  offeredIn: Array<readonly [string, string]>;
-  setOfferedIn: (newOfferedIn: Array<readonly [string, string]>) => void;
-}
-const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
-  offeredIn,
-  setOfferedIn,
-}) => {
-  const [newMeta1, setNewMeta1] = useState("");
-  const [newMeta2, setNewMeta2] = useState("");
-  const onAdd = () => {
-    setNewMeta1("");
-    setNewMeta2("");
-    setOfferedIn([...offeredIn, [newMeta1, newMeta2]]);
-  };
-  const onRemove = (meta1: string, meta2: string) => {
-    setOfferedIn(
-      offeredIn.filter(
-        ([meta1s, meta2s]) => meta1s !== meta1 || meta2s !== meta2,
-      ),
-    );
-  };
-  return (
-    <ListGroup>
-      {offeredIn.map(([meta1, meta2]) => (
-        <ListGroupItem key={`${meta1}-${meta2}`}>
-          <Button close onClick={() => onRemove(meta1, meta2)} />
-          {meta1} {meta2}
-        </ListGroupItem>
-      ))}
-      <ListGroupItem>
-        <Row>
-          <Col md={5}>
-            <Input
-              type="text"
-              placeholder="Meta1"
-              value={newMeta1}
-              onChange={e => setNewMeta1(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={5}>
-            <Input
-              type="text"
-              placeholder="Meta2"
-              value={newMeta2}
-              onChange={e => setNewMeta2(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Button block onClick={onAdd}>
-              Add
-            </Button>
-          </Col>
-        </Row>
-      </ListGroupItem>
-    </ListGroup>
-  );
-};
-
-interface UserSetEditorProps {
-  users: string[];
-  setUsers: (newUsers: string[]) => void;
-}
-const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
-  const [username, setUsername] = useState("");
-  const onAdd = () => {
-    if (users.includes(username)) return;
-    setUsername("");
-    setUsers([...users, username]);
-  };
-  const remove = (username: string) => {
-    setUsers(users.filter(un => un !== username));
-  };
-  return (
-    <ListGroup>
-      {users.map(user => (
-        <ListGroupItem key={user}>
-          <Button close onClick={() => remove(user)} />
-          {user}
-        </ListGroupItem>
-      ))}
-      <ListGroupItem>
-        <Row>
-          <Col md={10}>
-            <Input
-              type="text"
-              placeholder="Name"
-              value={username}
-              onChange={e => setUsername(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Button block onClick={onAdd}>
-              Add
-            </Button>
-          </Col>
-        </Row>
-      </ListGroupItem>
-    </ListGroup>
-  );
-};
-
 interface CategoryMetaDataEditorProps {
   currentMetaData: CategoryMetaData;
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -429,7 +265,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         <h6>Meta Data</h6>
         <Row form>
           <Col md={6}>
-            <FormGroup color="primary">
+            <FormGroup>
               <label className="form-input-label">Semester</label>
               <Select
                 options={options(semesterOptions)}

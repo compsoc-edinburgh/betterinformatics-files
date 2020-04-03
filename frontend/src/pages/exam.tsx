@@ -32,6 +32,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { fetchpost } from "../api/fetch-utils";
+import ExamMetadataEditor from "../components/exam-metadata-editor";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
@@ -251,6 +252,7 @@ const ExamPage: React.FC<{}> = () => {
     error: metaDataError,
     loading: metaDataLoading,
     data: metaData,
+    mutate: setMetaData,
   } = useRequest(() => loadExamMetaData(filename), {
     cacheKey: `exam-metaData-${filename}`,
   });
@@ -270,6 +272,7 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
+  const [editing, toggleEditing] = useToggle(true);
 
   const error = metaDataError || cutsError || pdfError;
   return (
@@ -298,14 +301,23 @@ const ExamPage: React.FC<{}> = () => {
             <Spinner />
           </Container>
         )}
-        {metaData && (
-          <ExamPageContent
-            metaData={metaData}
-            sections={sections}
-            renderer={renderer}
-            reloadCuts={reloadCuts}
-          />
-        )}
+        {metaData &&
+          (editing ? (
+            <Container>
+              <ExamMetadataEditor
+                currentMetaData={metaData}
+                toggle={toggleEditing}
+                onMetaDataChange={setMetaData}
+              />
+            </Container>
+          ) : (
+            <ExamPageContent
+              metaData={metaData}
+              sections={sections}
+              renderer={renderer}
+              reloadCuts={reloadCuts}
+            />
+          ))}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>
             <Spinner />

@@ -1,11 +1,5 @@
 import { Badge } from "@vseth/components";
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useMemo,
-  useEffect,
-} from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { determineOptimalCutPositions } from "../pdf/snap";
 interface Props {
   canvas: HTMLCanvasElement;
@@ -61,9 +55,6 @@ const PdfSectionCanvasOverlay: React.FC<Props> = ({
   const snapPos = height ? relSnapPos * height : undefined;
   const snapBad = !snap || bad * (end - start) > 0.03;
   const displayPos = snapBad ? pos : snapPos;
-  useEffect(() => {
-    if (window.navigator.vibrate) window.navigator.vibrate([20]);
-  }, [relSnapPos]);
   const onAdd = () => {
     if (displayPos === undefined) return;
     if (displayPos < 0) return;
