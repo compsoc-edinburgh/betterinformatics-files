@@ -89,124 +89,134 @@ interface Props {
   addCutText?: string;
   snap?: boolean;
 }
-const PdfSectionCanvas: React.FC<Props> = ({
-  section,
-  renderer,
-  targetWidth,
-  onVisibleChange,
-  onAddCut,
-  addCutText,
-  snap = true,
-}) => {
-  const start = section.start.position;
-  const end = section.end.position;
-  const relativeHeight = end - start;
-  const pageNumber = section.start.page;
-
-  const [visible, containerElement] = useInViewport<HTMLDivElement>();
-  const [containerHeight, setContainerHeight] = useState(0);
-  const [translateY, setTranslateY] = useState(0);
-  const [currentScale, setCurrentScale] = useState<number | undefined>(
-    undefined,
-  );
-  const dpr = useDpr();
-  const [canvas, view, width, height, isMainCanvas] = usePdf(
-    visible || false,
+const PdfSectionCanvas: React.FC<Props> = React.memo(
+  ({
+    section,
     renderer,
-    pageNumber,
-    start,
-    end,
-    visible ? (currentScale ? currentScale * dpr : undefined) : undefined,
-  );
-  const v = visible || false;
-  useEffect(() => {
-    if (onVisibleChange) onVisibleChange(v);
-    return () => {
-      if (onVisibleChange) {
-        onVisibleChange(false);
-      }
-    };
-  }, [v, onVisibleChange]);
+    targetWidth,
+    onVisibleChange,
+    onAddCut,
+    addCutText,
+    snap = true,
+  }) => {
+    const start = section.start.position;
+    const end = section.end.position;
+    const relativeHeight = end - start;
+    const pageNumber = section.start.page;
 
-  const canvasMountingPoint = useCallback<(element: HTMLDivElement) => void>(
-    element => {
-      if (element === null) return;
+    const [visible, containerElement] = useInViewport<HTMLDivElement>();
+    const [containerHeight, setContainerHeight] = useState(0);
+    const [translateY, setTranslateY] = useState(0);
+    const [currentScale, setCurrentScale] = useState<number | undefined>(
+      undefined,
+    );
+    const dpr = useDpr();
+    const [canvas, view, width, height, isMainCanvas] = usePdf(
+      visible || false,
+      renderer,
+      pageNumber,
+      start,
+      end,
+      visible ? (currentScale ? currentScale * dpr : undefined) : undefined,
+    );
+    const v = visible || false;
+    useEffect(() => {
+      if (onVisibleChange) onVisibleChange(v);
+      return () => {
+        if (onVisibleChange) {
+          onVisibleChange(false);
+        }
+      };
+    }, [v, onVisibleChange]);
+
+    const canvasMountingPoint = useCallback<(element: HTMLDivElement) => void>(
+      element => {
+        if (element === null) return;
+        if (canvas === null) return;
+        if (isMainCanvas) {
+          canvas.style.transform = `translateY(-${translateY}px)`;
+        } else {
+          canvas.style.transform = "";
+        }
+        while (element.firstChild) element.removeChild(element.firstChild);
+        element.appendChild(canvas);
+      },
+      [canvas, translateY, isMainCanvas],
+    );
+
+    useEffect(() => {
+      if (width === 0) return;
+      const scaling = targetWidth / width;
+      setCurrentScale(scaling);
+      const newHeight = height * scaling;
+      setContainerHeight(relativeHeight * newHeight);
+      setTranslateY(start * newHeight);
       if (canvas === null) return;
       if (isMainCanvas) {
-        canvas.style.transform = `translateY(-${translateY}px)`;
+        canvas.style.transform = `translateY(-${start * newHeight}px)`;
       } else {
         canvas.style.transform = "";
       }
-      while (element.firstChild) element.removeChild(element.firstChild);
-      element.appendChild(canvas);
-    },
-    [canvas, translateY, isMainCanvas],
-  );
+    }, [
+      targetWidth,
+      canvas,
+      width,
+      height,
+      isMainCanvas,
+      relativeHeight,
+      start,
+    ]);
 
-  useEffect(() => {
-    if (width === 0) return;
-    const scaling = targetWidth / width;
-    setCurrentScale(scaling);
-    const newHeight = height * scaling;
-    setContainerHeight(relativeHeight * newHeight);
-    setTranslateY(start * newHeight);
-    if (canvas === null) return;
-    if (isMainCanvas) {
-      canvas.style.transform = `translateY(-${start * newHeight}px)`;
+    const onAddCutHandler = (pos: number) =>
+      onAddCut && onAddCut(start + (end - start) * (pos / containerHeight));
+
+    let content: React.ReactNode;
+    if (canvas) {
+      content = <div ref={canvasMountingPoint} />;
     } else {
-      canvas.style.transform = "";
+      content = <div />;
     }
-  }, [targetWidth, canvas, width, height, isMainCanvas, relativeHeight, start]);
 
-  const onAddCutHandler = (pos: number) =>
-    onAddCut && onAddCut(start + (end - start) * (pos / containerHeight));
-
-  let content: React.ReactNode;
-  if (canvas) {
-    content = <div ref={canvasMountingPoint} />;
-  } else {
-    content = <div />;
-  }
-
-  return (
-    <Card {...(end === 1 ? styles.lastSection : undefined)}>
-      <div
-        style={{
-          width: `${targetWidth}px`,
-          height: `${containerHeight ||
-            targetWidth * relativeHeight * 1.414}px`,
-          position: "relative",
-          overflow: "hidden",
-        }}
-        ref={containerElement}
-      >
-        <div style={{ position: "absolute", top: 0, left: 5, zIndex: 1000 }}>
-          <Badge color={isMainCanvas ? "primary" : "secondary"}>&nbsp;</Badge>
+    return (
+      <Card {...(end === 1 ? styles.lastSection : undefined)}>
+        <div
+          style={{
+            width: `${targetWidth}px`,
+            height: `${containerHeight ||
+              targetWidth * relativeHeight * 1.414}px`,
+            position: "relative",
+            overflow: "hidden",
+          }}
+          ref={containerElement}
+        >
+          <div style={{ position: "absolute", top: 0, left: 5, zIndex: 1000 }}>
+            <Badge color={isMainCanvas ? "primary" : "secondary"}>&nbsp;</Badge>
+          </div>
+          {content}
+          {visible && (
+            <PdfSectionText
+              section={section}
+              renderer={renderer}
+              scale={currentScale || 1}
+              view={view}
+              translateY={translateY}
+            />
+          )}
+          {canvas && addCutText && (
+            <PdfSectionCanvasOverlay
+              canvas={canvas}
+              start={start}
+              end={end}
+              isMain={isMainCanvas}
+              addCutText={addCutText}
+              onAddCut={onAddCutHandler}
+              snap={snap}
+            />
+          )}
         </div>
-        {content}
-        {visible && (
-          <PdfSectionText
-            section={section}
-            renderer={renderer}
-            scale={currentScale || 1}
-            view={view}
-            translateY={translateY}
-          />
-        )}
-        {canvas && addCutText && (
-          <PdfSectionCanvasOverlay
-            canvas={canvas}
-            start={start}
-            end={end}
-            isMain={isMainCanvas}
-            addCutText={addCutText}
-            onAddCut={onAddCutHandler}
-            snap={snap}
-          />
-        )}
-      </div>
-    </Card>
-  );
-};
+      </Card>
+    );
+  },
+);
 
 export default PdfSectionCanvas;
