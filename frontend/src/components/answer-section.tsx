@@ -26,6 +26,7 @@ import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-buttons";
 import TwoButtons from "./two-buttons";
+import useWasInViewport from "../hooks/useWasInViewport";
 
 const loadAnswers = async (oid: string) => {
   return (await fetchapi(`/api/exam/answersection/${oid}/`))
@@ -155,7 +156,7 @@ const AnswerSectionComponent: React.FC<Props> = ({
     [setCutVersion],
   );
 
-  const [inViewport, ref] = useInViewport<HTMLDivElement>();
+  const [inViewport, ref] = useWasInViewport<HTMLDivElement>();
   const visible = inViewport || false;
   useEffect(() => {
     if (
