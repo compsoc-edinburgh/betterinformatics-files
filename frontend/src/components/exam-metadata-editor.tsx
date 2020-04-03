@@ -76,7 +76,7 @@ const applyChanges = async (
   if (oldMetaData.needs_payment !== newMetaData.needs_payment)
     metaDataDiff.needs_payment = newMetaData.needs_payment;
   if (oldMetaData.finished_cuts !== newMetaData.finished_cuts)
-    metaDataDiff.finished_wiki_transfer = newMetaData.finished_wiki_transfer;
+    metaDataDiff.finished_cuts = newMetaData.finished_cuts;
   await setMetaData(filename, metaDataDiff);
   return {
     ...oldMetaData,
