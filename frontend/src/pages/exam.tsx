@@ -33,6 +33,8 @@ import {
 import PDF from "../pdf/pdf-renderer";
 import { fetchpost } from "../api/fetch-utils";
 import ExamMetadataEditor from "../components/exam-metadata-editor";
+import { useUser } from "../auth";
+import IconButton from "../components/icon-button";
 const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
@@ -59,15 +61,17 @@ interface ExamPageContentProps {
   sections?: Section[];
   renderer?: PDF;
   reloadCuts: () => void;
+  toggleEditing: () => void;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
   metaData,
   sections,
   renderer,
   reloadCuts,
+  toggleEditing,
 }) => {
   const { filename } = metaData;
-
+  const user = useUser()!;
   const { run: runAddCut } = useRequest(addCut, {
     manual: true,
     onSuccess: reloadCuts,
@@ -137,6 +141,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   return (
     <>
       <Container>
+        {user.isCategoryAdmin && (
+          <IconButton close icon="EDIT" onClick={() => toggleEditing()} />
+        )}
         <h1>{metaData.displayname}</h1>
       </Container>
 
@@ -272,8 +279,7 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  const [editing, toggleEditing] = useToggle(true);
-
+  const [editing, toggleEditing] = useToggle();
   const error = metaDataError || cutsError || pdfError;
   return (
     <div>
@@ -316,6 +322,7 @@ const ExamPage: React.FC<{}> = () => {
               sections={sections}
               renderer={renderer}
               reloadCuts={reloadCuts}
+              toggleEditing={toggleEditing}
             />
           ))}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
