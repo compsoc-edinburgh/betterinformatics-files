@@ -91,7 +91,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     },
   });
   const [size, sizeRef] = useSize<HTMLDivElement>();
-
+  const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
   const [visible, show, hide] = useSet<string>();
   const [cutVersions, setCutVersions] = useState<CutVersions>({});
   const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
@@ -155,10 +155,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         metaData={metaData}
         renderer={renderer}
         visiblePages={visiblePages}
+        maxWidth={maxWidth}
+        setMaxWidth={setMaxWidth}
         editState={editState}
         setEditState={setEditState}
       />
-      <div ref={sizeRef} style={{ maxWidth: "1000px", margin: "auto" }}>
+      <div ref={sizeRef} style={{ maxWidth, margin: "auto" }}>
         {width &&
           visibleChangeListeners &&
           sections &&

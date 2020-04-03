@@ -1,20 +1,22 @@
-import Panel from "./panel";
+import { useDebounceFn } from "@umijs/hooks";
 import {
-  ModalHeader,
+  ButtonGroup,
+  Input,
   ModalBody,
+  ModalFooter,
+  ModalHeader,
   Pagination,
   PaginationItem,
   PaginationLink,
-  ButtonGroup,
-  ModalFooter,
 } from "@vseth/components";
-import { Link } from "react-router-dom";
-import IconButton from "./icon-button";
-import React from "react";
-import { ExamMetaData, EditMode, EditState } from "../interfaces";
-import PDF from "../pdf/pdf-renderer";
 import { css } from "emotion";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useUser } from "../auth";
+import { EditMode, EditState, ExamMetaData } from "../interfaces";
+import PDF from "../pdf/pdf-renderer";
+import IconButton from "./icon-button";
+import Panel from "./panel";
 
 const intMap = <T,>(from: number, to: number, cb: (num: number) => T) => {
   const acc: T[] = [];
@@ -39,6 +41,9 @@ interface ExamPanelProps {
   renderer?: PDF;
   visiblePages: Set<number>;
 
+  maxWidth: number;
+  setMaxWidth: (newWidth: number) => void;
+
   editState: EditState;
   setEditState: (newState: EditState) => void;
 }
@@ -50,6 +55,9 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
   renderer,
   visiblePages,
 
+  maxWidth,
+  setMaxWidth,
+
   editState,
   setEditState,
 }) => {
@@ -59,6 +67,17 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     editState.mode === EditMode.Add || editState.mode === EditMode.Move
       ? editState.snap
       : true;
+  const [widthValue, setWidthValue] = useState(maxWidth);
+  const { run: changeWidth } = useDebounceFn(
+    (val: number) => setMaxWidth(val),
+    500,
+  );
+  const handler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.currentTarget.value);
+    changeWidth(val);
+    setWidthValue(val);
+  };
+
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
       <ModalHeader>
@@ -88,6 +107,15 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
               </PaginationItem>
             ))}
         </Pagination>
+
+        <h6>Size</h6>
+        <Input
+          type="range"
+          min="500"
+          max="2000"
+          value={widthValue}
+          onChange={handler}
+        />
         <h6>Actions</h6>
         <ButtonGroup>
           <IconButton icon="DOWNLOAD" title="Download PDF" />
