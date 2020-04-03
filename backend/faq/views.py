@@ -18,11 +18,13 @@ class FaqRootView(View):
 
     http_method_names = ['get', 'post']
 
+    @auth_check.require_login
     def get(self, request):
         res = [get_faq_obj(q) for q in FAQuestion.objects.order_by('order').all()]
         return response.success(value=res)
 
     @response.required_args('question', 'answer', 'order')
+    @auth_check.require_admin
     def post(self, request):
         faq = FAQuestion(
             question=request.DATA['question'],
@@ -37,19 +39,22 @@ class FaqElementView(View):
 
     http_method_names = ['get', 'put', 'delete']
 
+    @auth_check.require_login
     def get(self, request, id):
         faq = get_object_or_404(FAQuestion, pk=id)
         return response.success(value=get_faq_obj(faq))
 
-    @response.required_args('question', 'answer', 'order')
+    @response.required_args('question', 'answer', 'order', optional=True)
+    @auth_check.require_admin
     def put(self, request, id):
         faq = get_object_or_404(FAQuestion, pk=id)
-        faq.question = request.DATA['question']
-        faq.answer = request.DATA['answer']
-        faq.order = request.DATA['order']
+        faq.question = request.DATA.get('question', faq.question)
+        faq.answer = request.DATA.get('answer', faq.answer)
+        faq.order = request.DATA.get('order', faq.order)
         faq.save()
         return response.success(value=get_faq_obj(faq))
 
+    @auth_check.require_admin
     def delete(self, request, id):
         faq = get_object_or_404(FAQuestion, pk=id)
         faq.delete()

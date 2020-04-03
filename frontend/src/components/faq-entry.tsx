@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
 import { FAQEntry } from "../interfaces";
-import { fetchdelete, fetchpost, fetchput, imageHandler } from "../fetch-utils";
+import { fetchdelete, fetchput, imageHandler } from "../fetch-utils";
 import Colors from "../colors";
 import Editor from "./Editor";
 import MarkdownText from "./markdown-text";
@@ -85,14 +85,10 @@ export default class FAQEntryComponent extends React.Component<Props, State> {
   swap = (other: FAQEntry) => {
     const me = this.props.entry;
     fetchput(`/api/faq/${me.oid}/`, {
-      question: me.question,
-      answer: me.answer,
       order: other.order,
     })
       .then(() =>
         fetchput(`/api/faq/${other.oid}/`, {
-          question: other.question,
-          answer: other.answer,
           order: me.order,
         }),
       )

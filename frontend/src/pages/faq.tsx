@@ -6,6 +6,7 @@ import Editor from "../components/Editor";
 import FAQEntryComponent from "../components/faq-entry";
 import MarkdownText from "../components/markdown-text";
 import { UndoStack } from "../components/Editor/utils/undo-stack";
+import Colors from "../colors";
 
 const styles = {
   wrapper: css({
@@ -18,7 +19,11 @@ const styles = {
     marginRight: 0,
   }),
   answerInputElPar: css({
-    paddingRight: "12px",
+    padding: "7px",
+    border: "1px solid " + Colors.inputBorder,
+    borderRadius: "2px",
+    boxSizing: "border-box",
+    backgroundColor: "white",
   }),
   answerInputEl: css({
     width: "100%",
@@ -66,7 +71,7 @@ export default class FAQ extends React.Component<Props, State> {
   addFAQ = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    let newOrder =
+    const newOrder =
       this.state.faqs !== undefined && this.state.faqs.length > 0
         ? Math.max(...this.state.faqs.map(x => x.order)) + 1
         : 0;

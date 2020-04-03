@@ -57,19 +57,19 @@ async function performRequest(method: string, url: string) {
   }
 }
 
-export async function fetchpost(url: string, data: { [key: string]: any }) {
+export function fetchpost(url: string, data: { [key: string]: any }) {
   return performDataRequest("POST", url, data);
 }
 
-export async function fetchput(url: string, data: { [key: string]: any }) {
+export function fetchput(url: string, data: { [key: string]: any }) {
   return performDataRequest("PUT", url, data);
 }
 
-export async function fetchdelete(url: string) {
+export function fetchdelete(url: string) {
   return performRequest("DELETE", url);
 }
 
-export async function fetchapi(url: string) {
+export function fetchapi(url: string) {
   return performRequest("GET", url);
 }
 
