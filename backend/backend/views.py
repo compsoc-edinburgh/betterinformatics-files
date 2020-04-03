@@ -22,7 +22,6 @@ def handler500(request):
 
 def cached_serve(request, path, document_root=None, show_indexes=False):
     res = serve(request, path, document_root, show_indexes)
-    if path != 'index.html':
-        DAY = 60*60*24
-        patch_cache_control(res, public=True, max_age=30*DAY)
+    DAY = 60*60*24
+    patch_cache_control(res, public=True, max_age=30*DAY)
     return res
