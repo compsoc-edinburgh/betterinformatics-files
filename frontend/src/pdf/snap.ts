@@ -13,12 +13,12 @@ export const determineOptimalCutPositions = (
   {
     minRegionSize = 0.01,
     bigSnapRegionPadding = 0.02,
-    bigSnapRegionMinSize = 0.15,
+    bigSnapRegionMinSize = 0.07,
   } = {},
 ): SnapRegion[] => {
   const s: Array<SnapRegion> = [];
   const handler = (a: number, b: number, isLast: boolean = false) => {
-    const size = (b - a) / (end - start);
+    const size = (b - a) * (end - start);
     if (size > minRegionSize) {
       const snapPoints: number[] = [];
       if (a !== 0) {
@@ -77,8 +77,10 @@ export const determineOptimalCutPositions = (
       if (sectionStart === undefined) {
         sectionStart = y / imageData.height;
       }
-    } else if (sectionStart !== undefined) {
-      handler(sectionStart, y / imageData.height);
+    } else {
+      if (sectionStart !== undefined) {
+        handler(sectionStart, y / imageData.height);
+      }
       sectionStart = undefined;
     }
   }
