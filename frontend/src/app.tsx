@@ -1,21 +1,20 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Route, Switch } from "react-router-dom";
-import { SetUserContext, User, UserContext, notLoggedIn } from "./auth";
+import { fetchapi, getCookie } from "./api/fetch-utils";
+import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import ExamsNavbar from "./components/exams-navbar";
-import { fetchapi, getCookie } from "./api/fetch-utils";
+import CategoryPage from "./pages/category";
+import ExamPage from "./pages/exam";
 import FeedbackPage from "./pages/feedback";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/login";
-import CategoryPage from "./pages/category";
-import NotFoundPage from "./pages/not-found";
-import ExamPage from "./pages/exam";
-import UploadPdfPage from "./pages/uploadpdf";
-import TutorialPage from "./pages/tutorial";
-import UserPage from "./pages/userinfo";
-import Scoreboard from "./pages/scoreboard";
-import HashLocationHandler from "./components/hash-location-handler";
 import ModQueue from "./pages/modqueue";
+import NotFoundPage from "./pages/not-found";
+import Scoreboard from "./pages/scoreboard";
+import TutorialPage from "./pages/tutorial";
+import UploadPdfPage from "./pages/uploadpdf";
+import UserPage from "./pages/userinfo";
 
 const App: React.FC<{}> = () => {
   const serverData = useMemo(() => {
