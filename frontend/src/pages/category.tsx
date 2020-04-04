@@ -108,7 +108,10 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
     else onDeselect(...exams.map(exam => exam.filename));
   };
   const [confirm, modals] = useConfirm();
-  const { run: runRemoveExam } = useRequest(removeExam, { manual: true });
+  const { run: runRemoveExam } = useRequest(removeExam, {
+    manual: true,
+    onSuccess: reload,
+  });
   const handleRemoveClick = (
     e: React.MouseEvent<HTMLButtonElement>,
     exam: CategoryExam,
