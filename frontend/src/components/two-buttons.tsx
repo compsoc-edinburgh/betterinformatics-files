@@ -4,6 +4,7 @@ const flex = css`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 `;
 const TwoButtons: React.FC<{
   left?: React.ReactNode;

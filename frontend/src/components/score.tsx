@@ -6,6 +6,7 @@ import {
   InputGroup,
   InputGroupAddon,
   Spinner,
+  ButtonGroup,
 } from "@vseth/components";
 import React from "react";
 import { fetchpost } from "../api/fetch-utils";
@@ -35,48 +36,42 @@ const Score: React.FC<Props> = ({
     onSuccess: onSectionChanged,
   });
   return (
-    <InputGroup size="sm">
-      <InputGroupAddon addonType="prepend">
-        <Button
-          size="sm"
-          style={{ minWidth: 0 }}
-          disabled={userVote === -1}
-          outline={userVote === -1}
-          onClick={() => setLike(oid, -1)}
-        >
-          <Icon icon={ICONS.MINUS} size={18} />
-        </Button>
-      </InputGroupAddon>
-      <InputGroupAddon addonType="prepend">
-        <Button
-          size="sm"
-          style={{ minWidth: 0, color: "black" }}
-          disabled={userVote === 0}
-          outline
-          color={expertUpvotes ? "primary" : undefined}
-          onClick={() => setLike(oid, 0)}
-        >
-          {loading ? (
-            <Spinner size="sm" />
-          ) : expertUpvotes ? (
-            expertUpvotes
-          ) : (
-            upvotes
-          )}
-        </Button>
-      </InputGroupAddon>
-      <InputGroupAddon addonType="append">
-        <Button
-          size="sm"
-          style={{ minWidth: 0 }}
-          disabled={userVote === 1}
-          outline={userVote === 1}
-          onClick={() => setLike(oid, 1)}
-        >
-          <Icon icon={ICONS.PLUS} size={18} />
-        </Button>
-      </InputGroupAddon>
-    </InputGroup>
+    <ButtonGroup style={{ width: "auto", margin: "0 1em" }}>
+      <Button
+        size="sm"
+        style={{ minWidth: 0 }}
+        disabled={userVote === -1}
+        outline={userVote === -1}
+        onClick={() => setLike(oid, -1)}
+      >
+        <Icon icon={ICONS.MINUS} size={18} />
+      </Button>
+      <Button
+        size="sm"
+        style={{ minWidth: 0, color: "black" }}
+        disabled={userVote === 0}
+        outline
+        color={expertUpvotes ? "primary" : undefined}
+        onClick={() => setLike(oid, 0)}
+      >
+        {loading ? (
+          <Spinner size="sm" />
+        ) : expertUpvotes ? (
+          expertUpvotes
+        ) : (
+          upvotes
+        )}
+      </Button>
+      <Button
+        size="sm"
+        style={{ minWidth: 0 }}
+        disabled={userVote === 1}
+        outline={userVote === 1}
+        onClick={() => setLike(oid, 1)}
+      >
+        <Icon icon={ICONS.PLUS} size={18} />
+      </Button>
+    </ButtonGroup>
   );
 };
 export default Score;

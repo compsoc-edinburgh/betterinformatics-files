@@ -11,6 +11,8 @@ import {
   DropdownToggle,
   Icon,
   ICONS,
+  InputGroup,
+  ButtonToolbar,
 } from "@vseth/components";
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
@@ -50,6 +52,17 @@ const removeAnwer = async (answerId: string) => {
   return (await fetchpost(`/api/exam/removeanswer/${answerId}/`, {}))
     .value as AnswerSection;
 };
+const setFlagged = async (oid: string, flagged: boolean) => {
+  return (
+    await fetchpost(`/api/exam/setflagged/${oid}/`, {
+      flagged,
+    })
+  ).value as AnswerSection;
+};
+const resetFlagged = async (oid: string) => {
+  return (await fetchpost(`/api/exam/resetflagged/${oid}/`, {}))
+    .value as AnswerSection;
+};
 
 interface Props {
   section?: AnswerSection;
@@ -65,6 +78,15 @@ const AnswerComponent: React.FC<Props> = ({
   onSectionChanged,
   isLegacyAnswer,
 }) => {
+  const {
+    loading: setFlaggedLoading,
+    run: runSetFlagged,
+  } = useRequest(setFlagged, { manual: true, onSuccess: onSectionChanged });
+  const {
+    loading: resetFlaggedLoading,
+    run: runResetFlagged,
+  } = useRequest(resetFlagged, { manual: true, onSuccess: onSectionChanged });
+  const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
     manual: true,
     onSuccess: res => {
@@ -119,16 +141,51 @@ const AnswerComponent: React.FC<Props> = ({
               </h6>
             }
             right={
-              answer &&
-              onSectionChanged && (
-                <Score
-                  oid={answer.oid}
-                  upvotes={answer.upvotes}
-                  expertUpvotes={answer.expertvotes}
-                  userVote={answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0}
-                  onSectionChanged={onSectionChanged}
-                />
-              )
+              <ButtonToolbar style={{ justifyContent: "flex-end" }}>
+                {answer && (answer.flagged > 0 || flaggedLoading) && (
+                  <ButtonGroup
+                    size="sm"
+                    style={{ width: "auto", margin: "0 1em" }}
+                  >
+                    <IconButton
+                      color="danger"
+                      icon="FLAG"
+                      title="Flagged as Inappropriate"
+                      active
+                    >
+                      Inappropriate
+                    </IconButton>
+                    <Button style={{ minWidth: 0 }} color="danger" active>
+                      {answer.flagged}
+                    </Button>
+                    <IconButton
+                      color="danger"
+                      icon={answer.isFlagged ? "CLOSE" : "PLUS"}
+                      onClick={() =>
+                        runSetFlagged(answer.oid, !answer.isFlagged)
+                      }
+                    />
+                    {isAdmin && (
+                      <IconButton
+                        color="danger"
+                        icon="DELETE"
+                        onClick={() => runResetFlagged(answer.oid)}
+                      />
+                    )}
+                  </ButtonGroup>
+                )}
+                {answer && onSectionChanged && (
+                  <Score
+                    oid={answer.oid}
+                    upvotes={answer.upvotes}
+                    expertUpvotes={answer.expertvotes}
+                    userVote={
+                      answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
+                    }
+                    onSectionChanged={onSectionChanged}
+                  />
+                )}
+              </ButtonToolbar>
             }
           />
         </CardHeader>
@@ -210,7 +267,13 @@ const AnswerComponent: React.FC<Props> = ({
                           More
                         </DropdownToggle>
                         <DropdownMenu>
-                          <DropdownItem>Flag as Inappropriate</DropdownItem>
+                          {answer.flagged === 0 && (
+                            <DropdownItem
+                              onClick={() => runSetFlagged(answer.oid, true)}
+                            >
+                              Flag as Inappropriate
+                            </DropdownItem>
+                          )}
                           <DropdownItem
                             onClick={() =>
                               copy(
