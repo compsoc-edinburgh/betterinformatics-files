@@ -1,7 +1,6 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
-  Badge,
   Button,
   Card,
   CardBody,
@@ -9,30 +8,27 @@ import {
   Col,
   Form,
   FormGroup,
-  InputField,
-  ListGroup,
-  ListGroupItem,
   Row,
   Select,
   Spinner,
 } from "@vseth/components";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { loadCategories, uploadPdf } from "../api/hooks";
+import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
 import FileInput from "./file-input";
 
-const UploadPdfCard: React.FC<{}> = () => {
+const UploadTranscriptCard: React.FC<{}> = () => {
   const history = useHistory();
   const {
     error: categoriesError,
     loading: categoriesLoading,
     data: categories,
-  } = useRequest(loadCategories);
+  } = useRequest(loadPaymentCategories);
   const {
     error: uploadError,
     loading: uploadLoading,
     run: upload,
-  } = useRequest(uploadPdf, {
+  } = useRequest(uploadTranscript, {
     manual: true,
     onSuccess: filename => history.push(`/exams/${filename}`),
   });
@@ -46,34 +42,30 @@ const UploadPdfCard: React.FC<{}> = () => {
   }));
 
   const [file, setFile] = useState<File | undefined>();
-  const [displayname, setDisplayname] = useState("");
   const [category, setCategory] = useState<string | undefined>();
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (file && category) {
-      upload(file, displayname, category);
+      upload(file, category);
     } else if (file === undefined) {
       setValidationError("No file selected");
     } else {
       setValidationError("No category selected");
     }
   };
+
   return (
     <Card>
-      <CardHeader>Upload PDF</CardHeader>
+      <CardHeader>Submit Transcript for Oral Exam</CardHeader>
       <CardBody>
+        <p>
+          Please use the following{" "}
+          <a href="/static/transcript_template.tex">template</a>.
+        </p>
         <Form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
           <label className="form-input-label">File</label>
           <FileInput value={file} onChange={setFile} accept="application/pdf" />
-          <InputField
-            label="Name"
-            type="text"
-            placeholder="Name"
-            value={displayname}
-            onChange={e => setDisplayname(e.currentTarget.value)}
-            required
-          />
           <FormGroup>
             <label className="form-input-label">Category</label>
             <Select
@@ -97,4 +89,4 @@ const UploadPdfCard: React.FC<{}> = () => {
     </Card>
   );
 };
-export default UploadPdfCard;
+export default UploadTranscriptCard;

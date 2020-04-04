@@ -1,10 +1,17 @@
 import { Badge, Button } from "@vseth/components";
 import React, { useRef } from "react";
-interface FileInputProps {
+interface FileInputProps
+  extends Omit<
+    React.DetailedHTMLProps<
+      React.InputHTMLAttributes<HTMLInputElement>,
+      HTMLInputElement
+    >,
+    "value" | "onChange"
+  > {
   value?: File;
   onChange: (newFile?: File) => void;
 }
-const FileInput: React.FC<FileInputProps> = ({ value, onChange }) => {
+const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
     <div style={{ position: "relative" }}>
@@ -24,6 +31,7 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange }) => {
             Choose File
           </Button>
           <input
+            {...props}
             hidden
             type="file"
             onChange={e => {

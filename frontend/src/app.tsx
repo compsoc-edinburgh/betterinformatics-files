@@ -15,6 +15,7 @@ import Scoreboard from "./pages/scoreboard";
 import TutorialPage from "./pages/tutorial";
 import UploadPdfPage from "./pages/uploadpdf";
 import UserPage from "./pages/userinfo";
+import UploadTranscriptPage from "./pages/submittranscript";
 
 const App: React.FC<{}> = () => {
   const serverData = useMemo(() => {
@@ -67,6 +68,11 @@ const App: React.FC<{}> = () => {
               <Route exact path="/login" component={LoginPage} />
               <Route exact path="/tutorial" component={TutorialPage} />
               <UserRoute exact path="/uploadpdf" component={UploadPdfPage} />
+              <UserRoute
+                exact
+                path="/submittranscript"
+                component={UploadTranscriptPage}
+              />
               <UserRoute exact path="/feedback" component={FeedbackPage} />
               <UserRoute
                 exact

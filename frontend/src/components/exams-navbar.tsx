@@ -59,6 +59,9 @@ const ExamsNavbar: React.FC<{}> = () => {
           childItems: [
             {
               title: "Submit Transcript",
+              linkProps: {
+                to: "/submittranscript",
+              },
             },
             ...(typeof user === "object" && user.isAdmin ? adminItems : []),
           ],

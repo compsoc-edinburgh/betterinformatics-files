@@ -177,6 +177,10 @@ export const uploadPdf = async (
     await fetchpost("/api/exam/upload/exam/", { file, displayname, category })
   ).filename as string;
 };
+export const uploadTranscript = async (file: Blob, category: string) => {
+  return (await fetchpost("/api/exam/upload/transcript/", { file, category }))
+    .filename as string;
+};
 export const loadCategoryMetaData = async (slug: string) => {
   return (await fetchapi(`/api/category/metadata/${slug}`))
     .value as CategoryMetaData;
@@ -221,4 +225,8 @@ export const loadFeedback = async () => {
   const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
   fb.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
   return fb;
+};
+export const loadPaymentCategories = async () => {
+  return (await fetchapi("/api/category/listonlypayment/"))
+    .value as CategoryMetaData[];
 };
