@@ -1,15 +1,15 @@
-import React from "react";
 import {
-  VSETHNavbar as Navbar,
-  NavbarBrand,
-  ICONS,
   Badge,
+  ICONS,
+  NavbarBrand,
+  VSETHNavbar as Navbar,
 } from "@vseth/components";
-import { useLocation } from "react-router-dom";
-import { useUser } from "../auth";
 import { Item } from "@vseth/components/dist/components/VSETHNav/VSETHNavbar";
-import { useRequest } from "@umijs/hooks";
+import React from "react";
+import { useLocation } from "react-router-dom";
 import { fetchapi } from "../api/fetch-utils";
+import { useUser } from "../auth";
+import { useRequest } from "@umijs/hooks";
 const loadUnreadCount = async () => {
   return (await fetchapi("/api/notification/unreadcount/")).value as number;
 };
