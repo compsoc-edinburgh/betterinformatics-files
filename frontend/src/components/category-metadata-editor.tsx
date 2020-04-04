@@ -12,6 +12,7 @@ import {
   Row,
   Select,
   TextareaField,
+  CardHeader,
 } from "@vseth/components";
 import React from "react";
 import { fetchpost } from "../api/fetch-utils";
@@ -257,128 +258,128 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
     );
   };
   return (
-    <Card>
-      <CardBody>
-        <Button close onClick={toggle} />
-        <h2>Edit Category</h2>
-        {error && <Alert color="danger">{error.message}</Alert>}
-        <h6>Meta Data</h6>
-        <Row form>
-          <Col md={6}>
-            <FormGroup>
-              <label className="form-input-label">Semester</label>
-              <Select
-                options={options(semesterOptions)}
-                value={semesterOptions[semester]}
-                onChange={option =>
-                  setSemester(
-                    (option as SelectOption<typeof semesterOptions>).value,
-                  )
-                }
-              />
-            </FormGroup>
-          </Col>
-          <Col md={6}>
-            <FormGroup>
-              <label className="form-input-label">Form</label>
-              <Select
-                options={options(formOptions)}
-                value={formOptions[form]}
-                onChange={option =>
-                  setForm((option as SelectOption<typeof formOptions>).value)
-                }
-              />
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row form>
-          <Col md={12}>
-            <FormGroup>
-              <label className="form-input-label">Remark</label>
-              <TextareaField
-                textareaProps={{
-                  onChange: e => setRemark(e.currentTarget.value),
-                }}
-              >
-                {remark}
-              </TextareaField>
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row form>
-          <Col md={6}>
-            <FormGroup>
-              <label className="form-input-label">Permission</label>
-              <Select
-                options={options(permissionOptions)}
-                value={permissionOptions[permission]}
-                onChange={option =>
-                  setPermission(
-                    (option as SelectOption<typeof permissionOptions>).value,
-                  )
-                }
-              />
-            </FormGroup>
-          </Col>
-          <Col md={6}>
-            <FormGroup>
-              <label className="form-input-label">More exams link</label>
-              <Input
-                type="url"
-                value={moreExams}
-                onChange={e => setMoreExams(e.currentTarget.value)}
-              />
-            </FormGroup>
-          </Col>
-        </Row>
-        <Row form>
-          <Col md={12}>
-            <FormGroup check>
-              <Input
-                type="checkbox"
-                name="check"
-                id="hasPayments"
-                checked={hasPayments}
-                onChange={e => setHasPayments(e.currentTarget.checked)}
-              />
-              <Label for="hasPayments" check>
-                Has Payments
-              </Label>
-            </FormGroup>
-          </Col>
-        </Row>
-        <h6>Attachments</h6>
-        <AttachmentsEditor
-          attachments={attachments}
-          setAttachments={setAttachments}
-        />
-        <h6>Offered In</h6>
-        <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-        <h6>Admins</h6>
-        <UserSetEditor users={admins} setUsers={setAdmins} />
-        <h6>Experts</h6>
-        <UserSetEditor users={experts} setUsers={setExperts} />
-      </CardBody>
-      <CardFooter>
-        <TwoButtons
-          left={
-            <IconButton
-              icon="SAVE"
-              color="primary"
-              loading={loading}
-              onClick={save}
+    <>
+      <Button close onClick={toggle} />
+      <h2>Edit Category</h2>
+      {error && <Alert color="danger">{error.message}</Alert>}
+      <h6>Meta Data</h6>
+      <Row form>
+        <Col md={6}>
+          <FormGroup>
+            <label className="form-input-label">Semester</label>
+            <Select
+              options={options(semesterOptions)}
+              value={semesterOptions[semester]}
+              onChange={option =>
+                setSemester(
+                  (option as SelectOption<typeof semesterOptions>).value,
+                )
+              }
+            />
+          </FormGroup>
+        </Col>
+        <Col md={6}>
+          <FormGroup>
+            <label className="form-input-label">Form</label>
+            <Select
+              options={options(formOptions)}
+              value={formOptions[form]}
+              onChange={option =>
+                setForm((option as SelectOption<typeof formOptions>).value)
+              }
+            />
+          </FormGroup>
+        </Col>
+      </Row>
+      <Row form>
+        <Col md={12}>
+          <FormGroup>
+            <label className="form-input-label">Remark</label>
+            <TextareaField
+              textareaProps={{
+                onChange: e => setRemark(e.currentTarget.value),
+              }}
             >
-              Save
-            </IconButton>
-          }
-          right={
-            <IconButton icon="CLOSE" onClick={toggle}>
-              Cancel
-            </IconButton>
-          }
-        />
-      </CardFooter>
-    </Card>
+              {remark}
+            </TextareaField>
+          </FormGroup>
+        </Col>
+      </Row>
+      <Row form>
+        <Col md={6}>
+          <FormGroup>
+            <label className="form-input-label">Permission</label>
+            <Select
+              options={options(permissionOptions)}
+              value={permissionOptions[permission]}
+              onChange={option =>
+                setPermission(
+                  (option as SelectOption<typeof permissionOptions>).value,
+                )
+              }
+            />
+          </FormGroup>
+        </Col>
+        <Col md={6}>
+          <FormGroup>
+            <label className="form-input-label">More exams link</label>
+            <Input
+              type="url"
+              value={moreExams}
+              onChange={e => setMoreExams(e.currentTarget.value)}
+            />
+          </FormGroup>
+        </Col>
+      </Row>
+      <Row form>
+        <Col md={12}>
+          <FormGroup check>
+            <Input
+              type="checkbox"
+              name="check"
+              id="hasPayments"
+              checked={hasPayments}
+              onChange={e => setHasPayments(e.currentTarget.checked)}
+            />
+            <Label for="hasPayments" check>
+              Has Payments
+            </Label>
+          </FormGroup>
+        </Col>
+      </Row>
+      <h6>Attachments</h6>
+      <AttachmentsEditor
+        attachments={attachments}
+        setAttachments={setAttachments}
+      />
+      <h6>Offered In</h6>
+      <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
+      <h6>Admins</h6>
+      <UserSetEditor users={admins} setUsers={setAdmins} />
+      <h6>Experts</h6>
+      <UserSetEditor users={experts} setUsers={setExperts} />
+      <Card style={{ marginTop: "1em" }}>
+        <CardHeader>
+          <TwoButtons
+            left={
+              <IconButton
+                icon="SAVE"
+                color="primary"
+                loading={loading}
+                onClick={save}
+              >
+                Save
+              </IconButton>
+            }
+            right={
+              <IconButton icon="CLOSE" onClick={toggle}>
+                Cancel
+              </IconButton>
+            }
+          />
+        </CardHeader>
+      </Card>
+    </>
   );
 };
 export default CategoryMetaDataEditor;
