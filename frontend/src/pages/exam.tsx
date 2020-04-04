@@ -1,4 +1,4 @@
-import { useRequest, useSize, useLocalStorageState } from "@umijs/hooks";
+import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
 import {
   Alert,
   Breadcrumb,
@@ -6,36 +6,27 @@ import {
   Container,
   Spinner,
 } from "@vseth/components";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import AnswerSectionComponent from "../components/answer-section";
-import ExamPanel from "../components/exam-panel";
-import PdfSectionCanvas from "../pdf/pdf-section-canvas";
-import PrintExam from "../components/print-exam";
 import { loadSections } from "../api/exam-loader";
-import {
-  loadCuts,
-  loadCutVersions,
-  loadExamMetaData,
-  loadSplitRenderer,
-} from "../api/hooks";
+import { fetchpost } from "../api/fetch-utils";
+import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
+import { useUser } from "../auth";
+import Exam from "../components/exam";
+import ExamMetadataEditor from "../components/exam-metadata-editor";
+import ExamPanel from "../components/exam-panel";
+import IconButton from "../components/icon-button";
+import PrintExam from "../components/print-exam";
 import useSet from "../hooks/useSet";
 import useToggle from "../hooks/useToggle";
 import {
-  CutVersions,
+  EditMode,
   ExamMetaData,
   PdfSection,
   Section,
-  SectionKind,
-  EditMode,
   EditState,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
-import { fetchpost } from "../api/fetch-utils";
-import ExamMetadataEditor from "../components/exam-metadata-editor";
-import { useUser } from "../auth";
-import IconButton from "../components/icon-button";
-const CUT_VERSION_UPDATE_INTERVAL = 60_000;
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
   await fetchpost(`/api/exam/addcut/${filename}/`, {
@@ -70,7 +61,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   reloadCuts,
   toggleEditing,
 }) => {
-  const { filename } = metaData;
   const user = useUser()!;
   const { run: runAddCut } = useRequest(addCut, {
     manual: true,
@@ -89,44 +79,20 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       reloadCuts();
     },
   });
-  const { run: updateCuts } = useRequest(() => loadCutVersions(filename), {
-    manual: true,
-    onSuccess: response => {
-      setCutVersions(oldVersions => ({ ...oldVersions, ...response }));
-    },
-  });
+
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
-  const [visible, show, hide] = useSet<string>();
-  const [cutVersions, setCutVersions] = useState<CutVersions>({});
+
   const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
   const [panelIsOpen, togglePanel] = useToggle();
-  const [editState, setEditState] = useLocalStorageState<EditState>(
-    "edit-state",
-    { mode: EditMode.None },
-  );
-  const snap =
-    editState.mode === EditMode.Add || editState.mode === EditMode.Move
-      ? editState.snap
-      : true;
-  useEffect(() => {
-    const interval = window.setInterval(
-      updateCuts,
-      CUT_VERSION_UPDATE_INTERVAL,
-    );
-    return () => {
-      window.clearInterval(interval);
-    };
+  const [editState, setEditState] = useState<EditState>({
+    mode: EditMode.None,
   });
 
-  const visibleChangeListeners = useMemo(
-    () =>
-      sections?.map(section =>
-        section.kind === SectionKind.Pdf
-          ? (v: boolean) => (v ? addVisible(section) : removeVisible(section))
-          : undefined,
-      ),
-    [sections, addVisible, removeVisible],
+  const visibleChangeListener = useCallback(
+    (section: PdfSection, v: boolean) =>
+      v ? addVisible(section) : removeVisible(section),
+    [addVisible, removeVisible],
   );
   const visiblePages = useMemo(() => {
     const s = new Set<number>();
@@ -136,7 +102,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     return s;
   }, [visibleSplits]);
 
-  let pageCounter = 0;
   const width = size.width;
   return (
     <>
@@ -169,85 +134,21 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         setEditState={setEditState}
       />
       <div ref={sizeRef} style={{ maxWidth, margin: "auto" }}>
-        {width &&
-          visibleChangeListeners &&
-          sections &&
-          sections.map((section, index) =>
-            section.kind === SectionKind.Answer ? (
-              <AnswerSectionComponent
-                key={section.oid}
-                isExpert={metaData.isExpert}
-                filename={metaData.filename}
-                oid={section.oid}
-                width={width}
-                canDelete={metaData.canEdit}
-                onSectionChange={reloadCuts}
-                onToggleHidden={() =>
-                  visible.has(section.oid)
-                    ? hide(section.oid)
-                    : show(section.oid)
-                }
-                cutName={section.name}
-                onCutNameChange={(newName: string) =>
-                  runUpdateCutName(section.oid, newName)
-                }
-                hidden={!visible.has(section.oid)}
-                cutVersion={cutVersions[section.oid] || section.cutVersion}
-                setCutVersion={newVersion =>
-                  setCutVersions(oldVersions => ({
-                    ...oldVersions,
-                    [section.oid]: newVersion,
-                  }))
-                }
-                onCancelMove={() => setEditState({ mode: EditMode.None })}
-                onMove={() =>
-                  setEditState({ mode: EditMode.Move, cut: section.oid, snap })
-                }
-                isBeingMoved={
-                  editState.mode === EditMode.Move &&
-                  editState.cut === section.oid
-                }
-              />
-            ) : (
-              <React.Fragment key={section.key}>
-                {pageCounter < section.start.page && ++pageCounter && (
-                  <div id={`page-${pageCounter}`} />
-                )}
-                {renderer && (
-                  <PdfSectionCanvas
-                    section={section}
-                    renderer={renderer}
-                    targetWidth={width}
-                    onVisibleChange={visibleChangeListeners[index]}
-                    addCutText={
-                      editState.mode === EditMode.Add
-                        ? "Add Cut"
-                        : editState.mode === EditMode.Move
-                        ? "Move Cut"
-                        : undefined
-                    }
-                    snap={snap}
-                    onAddCut={(height: number) =>
-                      editState.mode === EditMode.Add
-                        ? runAddCut(
-                            metaData.filename,
-                            section.start.page,
-                            height,
-                          )
-                        : editState.mode === EditMode.Move
-                        ? runMoveCut(
-                            metaData.filename,
-                            editState.cut,
-                            section.start.page,
-                            height,
-                          )
-                        : undefined
-                    }
-                  />
-                )}
-              </React.Fragment>
-            ),
-          )}
+        {width && sections && renderer && (
+          <Exam
+            metaData={metaData}
+            sections={sections}
+            width={width}
+            editState={editState}
+            setEditState={setEditState}
+            reloadCuts={reloadCuts}
+            renderer={renderer}
+            onCutNameChange={runUpdateCutName}
+            onAddCut={runAddCut}
+            onMoveCut={runMoveCut}
+            visibleChangeListener={visibleChangeListener}
+          />
+        )}
       </div>
     </>
   );

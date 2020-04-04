@@ -127,7 +127,8 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
           onVisibleChange(false);
         }
       };
-    }, [v, onVisibleChange]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [v]);
 
     const canvasMountingPoint = useCallback<(element: HTMLDivElement) => void>(
       element => {
