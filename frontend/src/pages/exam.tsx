@@ -344,7 +344,7 @@ export default class Exam extends React.Component<Props, State> {
   reportProblem = () => {
     const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
     const body = encodeURIComponent(
-      `Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category}' ...`,
+      `Concerning the exam '${this.state.savedMetaData.displayname}' of the course '${this.state.savedMetaData.category_displayname}' ...`,
     );
     window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
   };
@@ -548,7 +548,11 @@ export default class Exam extends React.Component<Props, State> {
           )}
         {this.state.savedMetaData.legacy_solution && (
           <div {...styles.linkBanner}>
-            <a href={this.state.savedMetaData.legacy_solution} target="_blank">
+            <a
+              href={this.state.savedMetaData.legacy_solution}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Legacy Solution in VISki
             </a>
             {this.state.canEdit && [
@@ -557,6 +561,7 @@ export default class Exam extends React.Component<Props, State> {
                 href={"/legacy/transformwiki/" + wikitransform}
                 target="_blank"
                 key="key"
+                rel="noopener noreferrer"
               >
                 Transform VISki to Markdown
               </a>,
@@ -565,7 +570,11 @@ export default class Exam extends React.Component<Props, State> {
         )}
         {this.state.savedMetaData.master_solution && (
           <div {...styles.linkBanner}>
-            <a href={this.state.savedMetaData.master_solution} target="_blank">
+            <a
+              href={this.state.savedMetaData.master_solution}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Official Solution (external)
             </a>
           </div>
@@ -576,6 +585,7 @@ export default class Exam extends React.Component<Props, State> {
               <a
                 href={"/api/exam/pdf/solution/" + this.props.filename + "/"}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Official Solution
               </a>
@@ -586,6 +596,7 @@ export default class Exam extends React.Component<Props, State> {
             <a
               href={"/api/filestore/get/" + att.filename + "/"}
               target="_blank"
+              rel="noopener noreferrer"
             >
               {att.displayname}
             </a>
