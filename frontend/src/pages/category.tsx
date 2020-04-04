@@ -11,12 +11,13 @@ import {
   ListGroupItem,
   Spinner,
   Table,
+  Icon,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import { css } from "emotion";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { getCookie } from "../api/fetch-utils";
+import { getCookie, fetchpost } from "../api/fetch-utils";
 import {
   loadCategoryMetaData,
   loadList,
@@ -30,6 +31,7 @@ import IconButton from "../components/icon-button";
 import TwoButtons from "../components/two-buttons";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
+import useConfirm from "../hooks/useConfirm";
 
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
@@ -68,6 +70,9 @@ const dlSelectedExams = (selectedExams: Set<string>) => {
   form.submit();
   document.body.removeChild(form);
 };
+const removeExam = async (filename: string) => {
+  await fetchpost(`/api/exam/remove/exam/${filename}/`, {});
+};
 
 const badgeStyle = css`
   margin: 3px;
@@ -102,135 +107,160 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
     if (newValue) onSelect(...exams.map(exam => exam.filename));
     else onDeselect(...exams.map(exam => exam.filename));
   };
+  const [confirm, modals] = useConfirm();
+  const { run: runRemoveExam } = useRequest(removeExam, { manual: true });
+  const handleRemoveClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    exam: CategoryExam,
+  ) => {
+    e.stopPropagation();
+    confirm(
+      `Remove the exam named ${exam.displayname}? This will remove all answers and can not be undone!`,
+      () => runRemoveExam(exam.filename),
+    );
+  };
+
   return (
-    <Card style={{ margin: "0.5em" }}>
-      <CardHeader tag="h4">{examtype}</CardHeader>
-      <div style={{ overflow: "scroll" }}>
-        <Table>
-          <thead>
-            <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  ref={el => el && (el.indeterminate = indeterminate)}
-                  onChange={e => setChecked(e.currentTarget.checked)}
-                />
-              </th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {exams.map(exam => (
-              <tr
-                key={exam.filename}
-                style={{ cursor: "pointer" }}
-                onClick={() => history.push(`/exams/${exam.filename}`)}
-              >
-                <td
-                  onClick={e => e.stopPropagation()}
-                  style={{
-                    cursor: "initial",
-                    width: "1%",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+    <>
+      {modals}
+      <Card style={{ margin: "0.5em" }}>
+        <CardHeader tag="h4">{examtype}</CardHeader>
+        <div style={{ overflow: "scroll" }}>
+          <Table>
+            <thead>
+              <tr>
+                <th>
                   <input
                     type="checkbox"
-                    checked={selected.has(exam.filename)}
-                    onChange={e =>
-                      e.currentTarget.checked
-                        ? onSelect(exam.filename)
-                        : onDeselect(exam.filename)
-                    }
-                    disabled={!exam.canView}
+                    checked={checked}
+                    ref={el => el && (el.indeterminate = indeterminate)}
+                    onChange={e => setChecked(e.currentTarget.checked)}
                   />
-                </td>
-                <td>
-                  <h6>
-                    <TwoButtons
-                      left={
-                        exam.canView ? (
-                          <Link to={`/exams/${exam.filename}`}>
-                            {exam.displayname}
-                          </Link>
-                        ) : (
-                          exam.displayname
-                        )
+                </th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {exams.map(exam => (
+                <tr
+                  key={exam.filename}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => history.push(`/exams/${exam.filename}`)}
+                >
+                  <td
+                    onClick={e => e.stopPropagation()}
+                    style={{
+                      cursor: "initial",
+                      width: "1%",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected.has(exam.filename)}
+                      onChange={e =>
+                        e.currentTarget.checked
+                          ? onSelect(exam.filename)
+                          : onDeselect(exam.filename)
                       }
-                      right={
-                        catAdmin && (
-                          <ClaimButton exam={exam} reloadExams={reload} />
-                        )
-                      }
+                      disabled={!exam.canView}
                     />
-                  </h6>
-                  {user.isAdmin && <Button close />}
-                  <div>
-                    {catAdmin && exam.public ? (
-                      <Badge className={badgeStyle} color="primary">
-                        public
-                      </Badge>
-                    ) : (
-                      <Badge className={badgeStyle} color="primary">
-                        hidden
-                      </Badge>
+                  </td>
+                  <td>
+                    <h6>
+                      <TwoButtons
+                        left={
+                          exam.canView ? (
+                            <Link to={`/exams/${exam.filename}`}>
+                              {exam.displayname}
+                            </Link>
+                          ) : (
+                            exam.displayname
+                          )
+                        }
+                        right={
+                          catAdmin && (
+                            <ClaimButton exam={exam} reloadExams={reload} />
+                          )
+                        }
+                      />
+                    </h6>
+                    {user.isAdmin && (
+                      <IconButton
+                        close
+                        icon="DELETE"
+                        onClick={e => handleRemoveClick(e, exam)}
+                      />
                     )}
-                    {exam.needs_payment && (
-                      <Badge className={badgeStyle} color="info">
-                        oral
-                      </Badge>
-                    )}
-                    {exam.finished_cuts ? (
-                      exam.finished_wiki_transfer ? (
-                        <Badge className={badgeStyle} color="success">
-                          All done
+                    <div>
+                      {catAdmin && exam.public ? (
+                        <Badge className={badgeStyle} color="primary">
+                          public
                         </Badge>
                       ) : (
-                        <Badge className={badgeStyle} color="info">
-                          Needs Wiki Import
+                        <Badge className={badgeStyle} color="primary">
+                          hidden
                         </Badge>
-                      )
-                    ) : (
-                      <Badge className={badgeStyle} color="warning">
-                        Needs Cuts
-                      </Badge>
-                    )}
+                      )}
+                      {exam.needs_payment && (
+                        <Badge className={badgeStyle} color="info">
+                          oral
+                        </Badge>
+                      )}
+                      {exam.finished_cuts ? (
+                        exam.finished_wiki_transfer ? (
+                          <Badge className={badgeStyle} color="success">
+                            All done
+                          </Badge>
+                        ) : (
+                          <Badge className={badgeStyle} color="info">
+                            Needs Wiki Import
+                          </Badge>
+                        )
+                      ) : (
+                        <Badge className={badgeStyle} color="warning">
+                          Needs Cuts
+                        </Badge>
+                      )}
 
-                    {exam.remark && (
-                      <Badge className={badgeStyle} color="dark">
-                        {exam.remark}
-                      </Badge>
-                    )}
-                    {exam.is_printonly && (
+                      {exam.remark && (
+                        <Badge className={badgeStyle} color="dark">
+                          {exam.remark}
+                        </Badge>
+                      )}
+                      {exam.is_printonly && (
+                        <Badge
+                          color="danger"
+                          className={badgeStyle}
+                          title="This exam can only be printed. We can not provide this exam online."
+                        >
+                          (Print Only)
+                        </Badge>
+                      )}
                       <Badge
-                        color="danger"
+                        color="secondary"
                         className={badgeStyle}
-                        title="This exam can only be printed. We can not provide this exam online."
+                        title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
                       >
-                        (Print Only)
+                        {exam.count_answered} / {exam.count_cuts}
                       </Badge>
-                    )}
-                    <Badge
-                      color="secondary"
-                      className={badgeStyle}
-                      title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-                    >
-                      {exam.count_answered} / {exam.count_cuts}
-                    </Badge>
-                    {exam.has_solution && (
-                      <Badge title="Has an official solution." color="success">
-                        Solution
-                      </Badge>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    </Card>
+                      {exam.has_solution && (
+                        <Badge
+                          title="Has an official solution."
+                          color="success"
+                        >
+                          Solution
+                        </Badge>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      </Card>
+    </>
   );
 };
 
