@@ -1,5 +1,18 @@
 import { useRequest } from "@umijs/hooks";
-import { Answer, CategoryExam, CategoryMetaData, CategoryMetaDataMinimal, CutVersions, ExamMetaData, FeedbackEntry, MetaCategory, NotificationInfo, PaymentInfo, ServerCutResponse, UserInfo } from "../interfaces";
+import {
+  Answer,
+  CategoryExam,
+  CategoryMetaData,
+  CategoryMetaDataMinimal,
+  CutVersions,
+  ExamMetaData,
+  FeedbackEntry,
+  MetaCategory,
+  NotificationInfo,
+  PaymentInfo,
+  ServerCutResponse,
+  UserInfo,
+} from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument, PDFDocumentProxy } from "../pdfjs";
 import { fetchapi, fetchpost } from "./fetch-utils";

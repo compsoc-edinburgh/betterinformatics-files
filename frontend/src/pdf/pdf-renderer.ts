@@ -1,6 +1,14 @@
-import pdfjs, { PDFDocumentProxy, PDFPageProxy, PDFPromise, TextContent } from "../pdfjs";
+import pdfjs, {
+  PDFDocumentProxy,
+  PDFPageProxy,
+  PDFPromise,
+  TextContent,
+} from "../pdfjs";
 import { globalFactory } from "./canvas-factory";
-import { PdfCanvasReference, PdfCanvasReferenceManager } from "./reference-counting";
+import {
+  PdfCanvasReference,
+  PdfCanvasReferenceManager,
+} from "./reference-counting";
 import { CanvasObject } from "./utils";
 
 interface MainCanvasPageLoadedData {

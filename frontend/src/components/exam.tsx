@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ExamMetaData,
   Section,
@@ -33,6 +33,10 @@ interface Props {
   ) => void;
   visibleChangeListener: (section: PdfSection, v: boolean) => void;
 }
+function notUndefined<T>(value: T | undefined): value is T {
+  return value !== undefined;
+}
+
 const Exam: React.FC<Props> = React.memo(
   ({
     metaData,
@@ -47,7 +51,6 @@ const Exam: React.FC<Props> = React.memo(
     onMoveCut,
     visibleChangeListener,
   }) => {
-    console.log("rerender exam");
     const [visible, show, hide] = useSet<string>();
     const [cutVersions, setCutVersions] = useState<CutVersions>({});
     useRequest(() => loadCutVersions(metaData.filename), {
@@ -62,6 +65,58 @@ const Exam: React.FC<Props> = React.memo(
         ? editState.snap
         : true;
     let pageCounter = 0;
+    const addCutText =
+      editState.mode === EditMode.Add
+        ? "Add Cut"
+        : editState.mode === EditMode.Move
+        ? "Move Cut"
+        : undefined;
+    const onChangeListeners = useMemo(
+      () =>
+        Object.fromEntries(
+          sections
+            .map(section =>
+              section.kind === SectionKind.Pdf
+                ? ([
+                    section.key,
+                    (v: boolean) => visibleChangeListener(section, v),
+                  ] as const)
+                : undefined,
+            )
+            .filter(notUndefined),
+        ),
+      [sections, visibleChangeListener],
+    );
+    const addCutHandlers = useMemo(
+      () =>
+        Object.fromEntries(
+          sections
+            .map(section =>
+              section.kind === SectionKind.Pdf
+                ? ([
+                    section.key,
+                    (height: number) =>
+                      editState.mode === EditMode.Add
+                        ? onAddCut(
+                            metaData.filename,
+                            section.start.page,
+                            height,
+                          )
+                        : editState.mode === EditMode.Move
+                        ? onMoveCut(
+                            metaData.filename,
+                            editState.cut,
+                            section.start.page,
+                            height,
+                          )
+                        : undefined,
+                  ] as const)
+                : undefined,
+            )
+            .filter(notUndefined),
+        ),
+      [sections, metaData, editState, onAddCut, onMoveCut],
+    );
     return (
       <>
         {sections.map(section =>
@@ -108,27 +163,10 @@ const Exam: React.FC<Props> = React.memo(
                   section={section}
                   renderer={renderer}
                   targetWidth={width}
-                  onVisibleChange={v => visibleChangeListener(section, v)}
-                  addCutText={
-                    editState.mode === EditMode.Add
-                      ? "Add Cut"
-                      : editState.mode === EditMode.Move
-                      ? "Move Cut"
-                      : undefined
-                  }
+                  onVisibleChange={onChangeListeners[section.key]}
+                  addCutText={addCutText}
                   snap={snap}
-                  onAddCut={(height: number) =>
-                    editState.mode === EditMode.Add
-                      ? onAddCut(metaData.filename, section.start.page, height)
-                      : editState.mode === EditMode.Move
-                      ? onMoveCut(
-                          metaData.filename,
-                          editState.cut,
-                          section.start.page,
-                          height,
-                        )
-                      : undefined
-                  }
+                  onAddCut={addCutHandlers[section.key]}
                 />
               )}
             </React.Fragment>
