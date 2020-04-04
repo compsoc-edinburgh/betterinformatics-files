@@ -16,6 +16,7 @@ import TutorialPage from "./pages/tutorial";
 import UploadPdfPage from "./pages/uploadpdf";
 import UserPage from "./pages/userinfo";
 import UploadTranscriptPage from "./pages/submittranscript";
+import HashLocationHandler from "./components/hash-location-handler";
 
 const App: React.FC<{}> = () => {
   /*const _serverData = useMemo(() => {
@@ -58,37 +59,40 @@ const App: React.FC<{}> = () => {
     };
   }, [user]);
   return (
-    <UserContext.Provider value={user}>
-      <SetUserContext.Provider value={setUser}>
-        <div className="mobile-capable">
-          <ExamsNavbar />
-          <main className="main__container">
-            <Switch>
-              <UserRoute exact path="/" component={HomePage} />
-              <Route exact path="/login" component={LoginPage} />
-              <Route exact path="/tutorial" component={TutorialPage} />
-              <UserRoute exact path="/uploadpdf" component={UploadPdfPage} />
-              <UserRoute
-                exact
-                path="/submittranscript"
-                component={UploadTranscriptPage}
-              />
-              <UserRoute exact path="/feedback" component={FeedbackPage} />
-              <UserRoute
-                exact
-                path="/category/:slug"
-                component={CategoryPage}
-              />
-              <UserRoute exact path="/exams/:filename" component={ExamPage} />
-              <UserRoute exact path="/user/:username" component={UserPage} />
-              <UserRoute exact path="/scoreboard" component={Scoreboard} />
-              <UserRoute exact path="/modqueue" component={ModQueue} />
-              <Route component={NotFoundPage} />
-            </Switch>
-          </main>
-        </div>
-      </SetUserContext.Provider>
-    </UserContext.Provider>
+    <>
+      <Route component={HashLocationHandler} />
+      <UserContext.Provider value={user}>
+        <SetUserContext.Provider value={setUser}>
+          <div className="mobile-capable">
+            <ExamsNavbar />
+            <main className="main__container">
+              <Switch>
+                <UserRoute exact path="/" component={HomePage} />
+                <Route exact path="/login" component={LoginPage} />
+                <Route exact path="/tutorial" component={TutorialPage} />
+                <UserRoute exact path="/uploadpdf" component={UploadPdfPage} />
+                <UserRoute
+                  exact
+                  path="/submittranscript"
+                  component={UploadTranscriptPage}
+                />
+                <UserRoute exact path="/feedback" component={FeedbackPage} />
+                <UserRoute
+                  exact
+                  path="/category/:slug"
+                  component={CategoryPage}
+                />
+                <UserRoute exact path="/exams/:filename" component={ExamPage} />
+                <UserRoute exact path="/user/:username" component={UserPage} />
+                <UserRoute exact path="/scoreboard" component={Scoreboard} />
+                <UserRoute exact path="/modqueue" component={ModQueue} />
+                <Route component={NotFoundPage} />
+              </Switch>
+            </main>
+          </div>
+        </SetUserContext.Provider>
+      </UserContext.Provider>
+    </>
   );
 };
 export default App;

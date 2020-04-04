@@ -25,6 +25,7 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TwoButtons from "./two-buttons";
+import { copy } from "../utils/clipboard";
 
 const bodyCanEditStyle = css`
   position: relative;
@@ -105,7 +106,10 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
+      <Card
+        style={{ marginTop: "2em", marginBottom: "2em" }}
+        id={answer?.longId}
+      >
         <CardHeader>
           <TwoButtons
             left={
@@ -207,7 +211,15 @@ const AnswerComponent: React.FC<Props> = ({
                         </DropdownToggle>
                         <DropdownMenu>
                           <DropdownItem>Flag as Inappropriate</DropdownItem>
-                          <DropdownItem>Permalink</DropdownItem>
+                          <DropdownItem
+                            onClick={() =>
+                              copy(
+                                `${document.location.origin}${document.location.pathname}#${answer.longId}`,
+                              )
+                            }
+                          >
+                            Copy Permalink
+                          </DropdownItem>
                         </DropdownMenu>
                       </ButtonDropdown>
                     )}

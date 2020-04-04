@@ -11,13 +11,12 @@ import {
   ListGroupItem,
   Spinner,
   Table,
-  Icon,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import { css } from "emotion";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { getCookie, fetchpost } from "../api/fetch-utils";
+import { fetchpost, getCookie } from "../api/fetch-utils";
 import {
   loadCategoryMetaData,
   loadList,
@@ -29,9 +28,9 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ClaimButton from "../components/claim-button";
 import IconButton from "../components/icon-button";
 import TwoButtons from "../components/two-buttons";
+import useConfirm from "../hooks/useConfirm";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
-import useConfirm from "../hooks/useConfirm";
 
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [

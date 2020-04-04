@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   ExamMetaData,
   Section,
@@ -14,6 +14,7 @@ import { useRequest } from "@umijs/hooks";
 import { loadCutVersions } from "../api/hooks";
 import useSet from "../hooks/useSet";
 import PDF from "../pdf/pdf-renderer";
+import { fetchapi } from "../api/fetch-utils";
 
 interface Props {
   metaData: ExamMetaData;
@@ -71,6 +72,22 @@ const Exam: React.FC<Props> = React.memo(
         : editState.mode === EditMode.Move
         ? "Move Cut"
         : undefined;
+    const hash = document.location.hash.substr(1);
+    useEffect(() => {
+      let cancelled = false;
+      if (hash.length > 0) {
+        fetchapi(`/api/exam/answer/${hash}`)
+          .then(res => {
+            if (cancelled) return;
+            const sectionId = res.value.sectionId;
+            show(sectionId);
+          })
+          .catch(() => {});
+      }
+      return () => {
+        cancelled = true;
+      };
+    }, [hash, show, sections]);
     const onChangeListeners = useMemo(
       () =>
         Object.fromEntries(

@@ -8,9 +8,14 @@ from django.utils import timezone
 
 
 @auth_check.require_login
-def get_answer(request, oid):
-    answer = get_object_or_404(Answer, pk=oid)
-    return response.success(value=section_util.get_answer_response(request, answer))
+def get_answer(request, long_id):
+    try:
+        answer = Answer.objects.get(long_id=long_id)
+        return response.success(value=section_util.get_answer_response(request, answer))
+    except Answer.DoesNotExist as e:
+        return Http404()
+    except Answer.MultipleObjectsReturned as e:
+        return Http404()
 
 @response.args_post('text', 'legacy_answer')
 @auth_check.require_login

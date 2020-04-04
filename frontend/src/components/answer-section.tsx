@@ -163,11 +163,11 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       if (
         (data === undefined || data.cutVersion !== cutVersion) &&
         loading === false &&
-        visible
+        (visible || !hidden)
       ) {
         run();
       }
-    }, [data, loading, visible, run, cutVersion]);
+    }, [data, loading, visible, run, cutVersion, hidden]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = () => {
