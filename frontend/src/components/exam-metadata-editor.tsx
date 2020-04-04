@@ -3,8 +3,7 @@ import {
   Alert,
   Button,
   Card,
-  CardBody,
-  CardFooter,
+  CardHeader,
   Col,
   FormGroup,
   Input,
@@ -12,7 +11,6 @@ import {
   Row,
   Select,
   TextareaField,
-  CardHeader,
 } from "@vseth/components";
 import React from "react";
 import { fetchpost } from "../api/fetch-utils";
