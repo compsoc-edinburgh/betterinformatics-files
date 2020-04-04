@@ -18,7 +18,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { getCookie } from "../api/fetch-utils";
 import {
-  claimExam,
   loadCategoryMetaData,
   loadList,
   loadMetaCategories,

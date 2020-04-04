@@ -1,4 +1,4 @@
-import { useInViewport, useRequest } from "@umijs/hooks";
+import { useRequest } from "@umijs/hooks";
 import {
   Button,
   ButtonDropdown,

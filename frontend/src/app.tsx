@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { fetchapi, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
@@ -18,7 +18,7 @@ import UserPage from "./pages/userinfo";
 import UploadTranscriptPage from "./pages/submittranscript";
 
 const App: React.FC<{}> = () => {
-  const serverData = useMemo(() => {
+  /*const _serverData = useMemo(() => {
     const el = document.getElementById("server_data");
     if (el === null) return undefined;
     try {
@@ -27,7 +27,7 @@ const App: React.FC<{}> = () => {
     } catch (e) {
       return undefined;
     }
-  }, []);
+  }, []);*/
   useEffect(() => {
     if (getCookie("csrftoken") === null) {
       fetchapi("/api/can_i_haz_csrf_cookie/");

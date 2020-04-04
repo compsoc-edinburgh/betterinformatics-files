@@ -1,14 +1,14 @@
-import * as React from "react";
-import { css } from "emotion";
-import { useRef, useCallback, useState } from "react";
-import { ImageHandle } from "./utils/types";
 import {
   Button,
   ButtonGroup,
   Modal,
-  ModalHeader,
   ModalBody,
+  ModalHeader,
 } from "@vseth/components";
+import { css } from "emotion";
+import * as React from "react";
+import { useCallback, useRef, useState } from "react";
+import { ImageHandle } from "./utils/types";
 
 const rowStyle = css`
   text-align: right;
@@ -29,7 +29,6 @@ const EditorFooter: React.FC<Props> = ({
   onDelete,
   onOpenOverlay,
 }) => {
-  const iconSize = 15;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onFile = useCallback(() => {

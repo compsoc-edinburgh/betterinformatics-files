@@ -1,21 +1,8 @@
-import { fetchpost, fetchapi } from "./fetch-utils";
-import {
-  PaymentInfo,
-  UserInfo,
-  NotificationInfo,
-  Answer,
-  CategoryMetaDataMinimal,
-  CategoryMetaData,
-  MetaCategory,
-  CategoryExam,
-  ExamMetaData,
-  CutVersions,
-  ServerCutResponse,
-  FeedbackEntry,
-} from "../interfaces";
 import { useRequest } from "@umijs/hooks";
-import { PDFDocumentProxy, getDocument } from "../pdfjs";
+import { Answer, CategoryExam, CategoryMetaData, CategoryMetaDataMinimal, CutVersions, ExamMetaData, FeedbackEntry, MetaCategory, NotificationInfo, PaymentInfo, ServerCutResponse, UserInfo } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
+import { getDocument, PDFDocumentProxy } from "../pdfjs";
+import { fetchapi, fetchpost } from "./fetch-utils";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchapi(`/api/scoreboard/userinfo/${username}/`))

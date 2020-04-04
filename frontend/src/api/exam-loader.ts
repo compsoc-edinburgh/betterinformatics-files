@@ -1,10 +1,4 @@
-import {
-  Section,
-  AnswerSection,
-  SectionKind,
-  PdfSection,
-  ServerCutPosition,
-} from "../interfaces";
+import { AnswerSection, PdfSection, Section, SectionKind, ServerCutPosition } from "../interfaces";
 import { fetchapi } from "./fetch-utils";
 
 function createPdfSection(

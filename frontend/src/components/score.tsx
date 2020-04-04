@@ -1,16 +1,15 @@
+import { useRequest } from "@umijs/hooks";
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  ICONS,
   Button,
   Icon,
+  ICONS,
+  InputGroup,
+  InputGroupAddon,
   Spinner,
 } from "@vseth/components";
 import React from "react";
 import { fetchpost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
-import { useRequest } from "@umijs/hooks";
 
 const setLikeReq = async (oid: string, like: -1 | 0 | 1) => {
   return (await fetchpost(`/api/exam/setlike/${oid}/`, { like }))

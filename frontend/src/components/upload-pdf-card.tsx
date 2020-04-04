@@ -1,7 +1,6 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
-  Badge,
   Button,
   Card,
   CardBody,
@@ -10,13 +9,11 @@ import {
   Form,
   FormGroup,
   InputField,
-  ListGroup,
-  ListGroupItem,
   Row,
   Select,
   Spinner,
 } from "@vseth/components";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
 import FileInput from "./file-input";

@@ -3,7 +3,6 @@ import { Badge, Button, Container, Table } from "@vseth/components";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchapi } from "../api/fetch-utils";
-import { useUser } from "../auth";
 import ClaimButton from "../components/claim-button";
 import LoadingOverlay from "../components/loading-overlay";
 import { CategoryExam, CategoryPaymentExam } from "../interfaces";
