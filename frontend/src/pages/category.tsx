@@ -6,7 +6,7 @@ import {
   MetaCategory,
 } from "../interfaces";
 import { css } from "glamor";
-import { fetchapi, fetchpost, getCookie } from "../fetch-utils";
+import { fetchGet, fetchPost, getCookie } from "../fetch-utils";
 import { Link, Redirect } from "react-router-dom";
 import {
   filterExams,
@@ -150,7 +150,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   loadExams = () => {
-    fetchapi("/api/category/listexams/" + this.props.categorySlug + "/")
+    fetchGet("/api/category/listexams/" + this.props.categorySlug + "/")
       .then(res => {
         this.setState({
           exams: res.value,
@@ -161,7 +161,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   loadCategory = () => {
-    fetchapi("/api/category/metadata/" + this.props.categorySlug + "/")
+    fetchGet("/api/category/metadata/" + this.props.categorySlug + "/")
       .then(res => {
         this.setState({
           category: res.value,
@@ -172,7 +172,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   loadMetaCategories = () => {
-    fetchapi("/api/category/listmetacategories/")
+    fetchGet("/api/category/listmetacategories/")
       .then(res => {
         this.setState({
           metaCategories: res.value,
@@ -197,7 +197,7 @@ export default class Category extends React.Component<Props, State> {
       return;
     }
     const data = { ...this.state.currentMetaData };
-    fetchpost(
+    fetchPost(
       "/api/category/setmetadata/" + this.state.category.slug + "/",
       data,
     )
@@ -342,7 +342,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   addToSet = (key: string, value: string) => {
-    return fetchpost(
+    return fetchPost(
       "/api/category/addusertoset/" + this.props.categorySlug + "/",
       {
         key: key,
@@ -360,7 +360,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   pullSet = (key: string, value: string) => {
-    return fetchpost(
+    return fetchPost(
       "/api/category/removeuserfromset/" + this.props.categorySlug + "/",
       {
         key: key,
@@ -411,7 +411,7 @@ export default class Category extends React.Component<Props, State> {
     if (!this.state.newMeta1 || !this.state.newMeta2 || !this.state.category) {
       return;
     }
-    fetchpost("/api/category/addmetacategory/", {
+    fetchPost("/api/category/addmetacategory/", {
       meta1: this.state.newMeta1,
       meta2: this.state.newMeta2,
       category: this.state.category.slug,
@@ -434,7 +434,7 @@ export default class Category extends React.Component<Props, State> {
     if (!this.state.category) {
       return;
     }
-    fetchpost("/api/category/removemetacategory/", {
+    fetchPost("/api/category/removemetacategory/", {
       meta1: meta1,
       meta2: meta2,
       category: this.state.category.slug,
@@ -453,7 +453,7 @@ export default class Category extends React.Component<Props, State> {
     // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove category?");
     if (confirmation) {
-      fetchpost("/api/category/remove/", {
+      fetchPost("/api/category/remove/", {
         slug: this.props.categorySlug,
       })
         .then(() => {
@@ -479,7 +479,7 @@ export default class Category extends React.Component<Props, State> {
         "Please enter '" + exam.displayname + "' to delete the exam.",
       );
       if (confirmation2 === exam.displayname) {
-        fetchpost(`/api/exam/remove/exam/${exam.filename}/`, {})
+        fetchPost(`/api/exam/remove/exam/${exam.filename}/`, {})
           .then(() => {
             this.loadExams();
           })
@@ -519,7 +519,7 @@ export default class Category extends React.Component<Props, State> {
   };
 
   claimExam = (exam: CategoryExam, claim: boolean) => {
-    fetchpost(`/api/exam/claimexam/${exam.filename}/`, {
+    fetchPost(`/api/exam/claimexam/${exam.filename}/`, {
       claim: claim,
     })
       .then(() => {

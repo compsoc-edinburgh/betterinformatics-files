@@ -8,7 +8,7 @@ import Header from "./components/header";
 import { css } from "glamor";
 import Feedback from "./pages/feedback";
 import Colors from "./colors";
-import { fetchapi, getCookie } from "./fetch-utils";
+import { fetchGet, getCookie } from "./fetch-utils";
 import Scoreboard from "./pages/scoreboard";
 import UserInfoComponent from "./pages/userinfo";
 import ModQueue from "./pages/modqueue";
@@ -18,6 +18,7 @@ import globalcss from "./globalcss";
 import LoginForm from "./components/loginform";
 import HashLocationHandler from "./components/hash-location-handler";
 import TutorialPage from "./pages/tutorial";
+import FAQ from "./pages/faq";
 
 css.global("body", {
   fontFamily:
@@ -124,7 +125,7 @@ export default class App extends React.Component<{}, State> {
   }
 
   loadMe = () => {
-    fetchapi("/api/auth/me/")
+    fetchGet("/api/auth/me/")
       .then(res =>
         this.setState({
           loadedSessionData: true,
@@ -144,7 +145,7 @@ export default class App extends React.Component<{}, State> {
 
   loadCsrfCookie = () => {
     if (getCookie("csrftoken") == null) {
-      fetchapi("/api/can_i_haz_csrf_cookie/").then(r => {});
+      fetchGet("/api/can_i_haz_csrf_cookie/").then(r => {});
     }
   };
 
@@ -216,6 +217,12 @@ export default class App extends React.Component<{}, State> {
                 path="/feedback"
                 render={props => (
                   <Feedback {...props} isAdmin={this.state.isAdmin} />
+                )}
+              />
+              <Route
+                path="/faq"
+                render={props => (
+                  <FAQ {...props} isAdmin={this.state.isAdmin} />
                 )}
               />
               <Route path="/tutorial" render={_props => <TutorialPage />} />

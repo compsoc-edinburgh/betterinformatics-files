@@ -7,8 +7,8 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 
-@response.args_post('displayname')
-@response.args_post('category', 'exam', optional=True)
+@response.request_post('displayname')
+@response.request_post('category', 'exam', optional=True)
 @auth_check.require_admin
 def upload(request):
     file = request.FILES.get('file')
@@ -30,17 +30,16 @@ def upload(request):
     return response.success(filename=filename)
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_admin
 def remove(request, filename):
     att = get_object_or_404(Attachment, filename=filename)
     att.delete()
-    import logging
-    logging.info(att)
     minio_util.delete_file(settings.COMSOL_FILESTORE_DIR, filename)
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def get(request, filename):
     get_object_or_404(Attachment, filename=filename)

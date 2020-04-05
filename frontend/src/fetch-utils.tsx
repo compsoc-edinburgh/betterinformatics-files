@@ -1,6 +1,10 @@
 import { ImageHandle } from "./components/Editor/utils/types";
 
-export async function fetchpost(url: string, data: { [key: string]: any }) {
+async function performDataRequest(
+  method: string,
+  url: string,
+  data: { [key: string]: any },
+) {
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
   // through the keys and appending the (key, value) pair to the FormData
@@ -20,7 +24,7 @@ export async function fetchpost(url: string, data: { [key: string]: any }) {
     headers: {
       "X-CSRFToken": getCookie("csrftoken") || "",
     },
-    method: "POST",
+    method,
     body: formData,
   });
   try {
@@ -34,9 +38,13 @@ export async function fetchpost(url: string, data: { [key: string]: any }) {
   }
 }
 
-export async function fetchapi(url: string) {
+async function performRequest(method: string, url: string) {
   const response = await fetch(url, {
     credentials: "include",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken") || "",
+    },
+    method: method,
   });
   try {
     const body = await response.json();
@@ -49,9 +57,25 @@ export async function fetchapi(url: string) {
   }
 }
 
+export function fetchPost(url: string, data: { [key: string]: any }) {
+  return performDataRequest("POST", url, data);
+}
+
+export function fetchPut(url: string, data: { [key: string]: any }) {
+  return performDataRequest("PUT", url, data);
+}
+
+export function fetchDelete(url: string) {
+  return performRequest("DELETE", url);
+}
+
+export function fetchGet(url: string) {
+  return performRequest("GET", url);
+}
+
 export function imageHandler(file: File): Promise<ImageHandle> {
   return new Promise((resolve, reject) => {
-    fetchpost("/api/image/upload/", {
+    fetchPost("/api/image/upload/", {
       file: file,
     })
       .then(res => {
@@ -59,7 +83,7 @@ export function imageHandler(file: File): Promise<ImageHandle> {
           name: file.name,
           src: res.filename,
           remove: async () => {
-            await fetchpost(`/api/image/remove/${res.filename}/`, {});
+            await fetchPost(`/api/image/remove/${res.filename}/`, {});
           },
         });
       })

@@ -47,6 +47,7 @@ const TabBar: React.FC<Props> = ({ items }) => {
             buttonStyle,
             item.active ? activeButtonStyle : inactiveButtonStyle,
           )}
+          type="button"
         >
           {item.title}
         </button>

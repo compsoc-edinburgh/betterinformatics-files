@@ -6,16 +6,19 @@ from django.db.models import Q
 from answers import section_util
 
 
+@response.request_get()
 @auth_check.require_login
 def list_exam_types(request):
     return response.success(value=list(ExamType.objects.values_list('displayname', flat=True)))
 
 
+@response.request_get()
 @auth_check.require_login
 def list_exams(request):
     return response.success(value=list(Exam.objects.values_list('filename', flat=True)))
 
 
+@response.request_get()
 @auth_check.require_login
 def list_import_exams(request):
     condition = Q(finished_cuts=False) | Q(finished_wiki_transfer=False)
@@ -46,6 +49,7 @@ def list_import_exams(request):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_admin
 def list_payment_check_exams(request):
     res = [
@@ -59,6 +63,7 @@ def list_payment_check_exams(request):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_admin
 def list_flagged(request):
     answers = Answer.objects.exclude(flagged=None)
@@ -67,6 +72,7 @@ def list_flagged(request):
     ])
 
 
+@response.request_get()
 @auth_check.require_login
 def get_by_user(request, username):
     res = [

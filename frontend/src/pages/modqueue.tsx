@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CategoryExam, CategoryPaymentExam } from "../interfaces";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import { Link } from "react-router-dom";
 import colors from "../colors";
 import GlobalConsts from "../globalconsts";
@@ -63,7 +63,7 @@ export default class ModQueue extends React.Component<Props, State> {
   }
 
   loadExams = () => {
-    fetchapi(
+    fetchGet(
       "/api/exam/listimportexams/" +
         (this.state.includeHidden ? "?includehidden=true" : ""),
     )
@@ -76,7 +76,7 @@ export default class ModQueue extends React.Component<Props, State> {
   };
 
   loadFlagged = () => {
-    fetchapi("/api/exam/listflagged/")
+    fetchGet("/api/exam/listflagged/")
       .then(res => {
         this.setState({
           flaggedAnswers: res.value,
@@ -89,7 +89,7 @@ export default class ModQueue extends React.Component<Props, State> {
     if (!this.props.isAdmin) {
       return;
     }
-    fetchapi("/api/exam/listpaymentcheckexams/")
+    fetchGet("/api/exam/listpaymentcheckexams/")
       .then(res => {
         this.setState({
           paymentExams: res.value,
@@ -119,7 +119,7 @@ export default class ModQueue extends React.Component<Props, State> {
   };
 
   claimExam = (exam: CategoryExam, claim: boolean) => {
-    fetchpost(`/api/exam/claimexam/${exam.filename}/`, {
+    fetchPost(`/api/exam/claimexam/${exam.filename}/`, {
       claim: claim,
     })
       .then(() => {

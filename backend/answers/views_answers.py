@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 
-@response.args_post('text', 'legacy_answer')
+@response.request_post('text', 'legacy_answer')
 @auth_check.require_login
 def set_answer(request, oid):
     section = get_object_or_404(AnswerSection, pk=oid)
@@ -30,7 +30,7 @@ def set_answer(request, oid):
     return response.success(value=section_util.get_answersection_response(request, section))
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_login
 def remove_answer(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
@@ -42,7 +42,7 @@ def remove_answer(request, oid):
     return response.success(value=section_util.get_answersection_response(request, section))
 
 
-@response.args_post('like')
+@response.request_post('like')
 @auth_check.require_login
 def set_like(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
@@ -66,7 +66,7 @@ def set_like(request, oid):
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
 
 
-@response.args_post('vote')
+@response.request_post('vote')
 @auth_check.require_login
 def set_expertvote(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
@@ -84,7 +84,7 @@ def set_expertvote(request, oid):
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
 
 
-@response.args_post('flagged')
+@response.request_post('flagged')
 @auth_check.require_login
 def set_flagged(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
@@ -100,7 +100,7 @@ def set_flagged(request, oid):
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_admin
 def reset_flagged(request, oid):
     answer = get_object_or_404(Answer, pk=oid)

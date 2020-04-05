@@ -4,7 +4,7 @@ import moment from "moment";
 import Comment from "./comment";
 import { css } from "glamor";
 import MarkdownText from "./markdown-text";
-import { fetchpost, imageHandler } from "../fetch-utils";
+import { fetchPost, imageHandler } from "../fetch-utils";
 import Colors from "../colors";
 import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
@@ -189,7 +189,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove answer?");
     if (confirmation) {
-      fetchpost(`/api/exam/removeanswer/${this.props.answer.oid}/`, {})
+      fetchPost(`/api/exam/removeanswer/${this.props.answer.oid}/`, {})
         .then(res => {
           this.props.onSectionChanged(res);
         })
@@ -198,7 +198,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   saveAnswer = () => {
-    fetchpost(`/api/exam/setanswer/${this.props.sectionId}/`, {
+    fetchPost(`/api/exam/setanswer/${this.props.sectionId}/`, {
       text: this.state.text,
       legacy_answer: this.props.answer.isLegacyAnswer,
     })
@@ -247,7 +247,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
         : this.props.answer.isDownvoted
         ? 0
         : -1;
-    fetchpost(`/api/exam/setlike/${this.props.answer.oid}/`, { like: newLike })
+    fetchPost(`/api/exam/setlike/${this.props.answer.oid}/`, { like: newLike })
       .then(res => {
         this.props.onSectionChanged(res);
       })
@@ -255,7 +255,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   toggleAnswerFlag = () => {
-    fetchpost(`/api/exam/setflagged/${this.props.answer.oid}/`, {
+    fetchPost(`/api/exam/setflagged/${this.props.answer.oid}/`, {
       flagged: !this.props.answer.isFlagged,
     })
       .then(res => {
@@ -265,7 +265,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   resetAnswerFlagged = () => {
-    fetchpost(`/api/exam/resetflagged/${this.props.answer.oid}/`, {})
+    fetchPost(`/api/exam/resetflagged/${this.props.answer.oid}/`, {})
       .then(res => {
         this.props.onSectionChanged(res);
       })
@@ -273,7 +273,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
   };
 
   toggleAnswerExpertVote = () => {
-    fetchpost(`/api/exam/setexpertvote/${this.props.answer.oid}/`, {
+    fetchPost(`/api/exam/setexpertvote/${this.props.answer.oid}/`, {
       vote: !this.props.answer.isExpertVoted,
     })
       .then(res => {
