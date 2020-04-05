@@ -75,7 +75,7 @@ export function fetchapi(url: string) {
 
 export function imageHandler(file: File): Promise<ImageHandle> {
   return new Promise((resolve, reject) => {
-    fetchpost("/api/uploadimg", {
+    fetchpost("/api/image/upload/", {
       file: file,
     })
       .then(res => {
@@ -83,7 +83,7 @@ export function imageHandler(file: File): Promise<ImageHandle> {
           name: file.name,
           src: res.filename,
           remove: async () => {
-            await fetchpost(`/api/image/${res.filename}/remove`, {});
+            await fetchpost(`/api/image/remove/${res.filename}/`, {});
           },
         });
       })
