@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 
-@response.args_post('text')
+@response.request_post('text')
 @auth_check.require_login
 def add_comment(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
@@ -19,7 +19,7 @@ def add_comment(request, oid):
     return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
 
 
-@response.args_post('text')
+@response.request_post('text')
 @auth_check.require_login
 def set_comment(request, oid):
     comment = get_object_or_404(Comment, pk=oid)
@@ -32,7 +32,7 @@ def set_comment(request, oid):
     return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_login
 def remove_comment(request, oid):
     comment = get_object_or_404(Comment, pk=oid)

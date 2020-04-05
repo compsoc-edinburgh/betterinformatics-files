@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import { RefObject } from "react";
 import Colors from "../colors";
 
@@ -14,6 +14,7 @@ const styles = {
     bottom: "0",
     paddingTop: "200px",
     paddingBottom: "200px",
+    zIndex: 100,
     "@media (max-height: 799px)": {
       paddingTop: "50px",
       paddingBottom: "50px",
@@ -110,7 +111,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
   }
 
   loadImages = () => {
-    fetchapi("/api/image/list/")
+    fetchGet("/api/image/list/")
       .then(res => {
         res.value.reverse();
         this.setState({ images: res.value });
@@ -135,7 +136,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
       return;
     }
 
-    fetchpost("/api/image/upload/", {
+    fetchPost("/api/image/upload/", {
       file: this.state.file,
     })
       .then(res => {
@@ -169,7 +170,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
     // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove image?");
     if (confirmation) {
-      fetchpost(`/api/image/remove/${image}/`, {})
+      fetchPost(`/api/image/remove/${image}/`, {})
         .then(() => {
           this.loadImages();
         })

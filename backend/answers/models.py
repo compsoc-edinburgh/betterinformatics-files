@@ -45,15 +45,18 @@ class Exam(models.Model):
     def attachment_name(self):
         return (self.category.displayname + '__' + self.displayname + '.pdf').replace(' ', '_')
 
+    def sort_key(self):
+        end = 0
+        while end + 1 < len(self.displayname) and self.displayname[-end-1:].isdigit():
+            end += 1
+        if end == 0:
+            return 0, self.displayname
+        return int(self.displayname[-end:]), self.displayname
+
     def count_answered(self):
         return self.answersection_set.filter(
             Exists(Answer.objects.filter(answer_section=OuterRef('pk')))
         ).count()
-
-    def progress(self):
-        if not self.answersection_set.exists():
-            return 0
-        return self.count_answered() / self.answersection_set.count()
 
 
 class ExamType(models.Model):

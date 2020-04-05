@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from answers import section_util
 
 
+@response.request_get()
 @auth_check.require_login
 def get_cuts(request, filename):
     sections = get_object_or_404(
@@ -23,7 +24,7 @@ def get_cuts(request, filename):
     return response.success(value=pages)
 
 
-@response.args_post('pageNum', 'relHeight')
+@response.request_post('pageNum', 'relHeight')
 @auth_check.require_exam_admin
 def add_cut(request, filename, exam):
     section = AnswerSection(
@@ -40,7 +41,7 @@ def add_cut(request, filename, exam):
     return response.success()
 
 
-@response.args_post('name', 'pageNum', 'relHeight', 'hidden', optional=True)
+@response.request_post('name', 'pageNum', 'relHeight', optional=True)
 @auth_check.require_login
 def edit_cut(request, oid):
     section = get_object_or_404(AnswerSection, pk=oid)
@@ -60,7 +61,7 @@ def edit_cut(request, oid):
     return response.success()
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_login
 def remove_cut(request, oid):
     section = get_object_or_404(AnswerSection, pk=oid)
@@ -70,6 +71,7 @@ def remove_cut(request, oid):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def get_cut_versions(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
@@ -79,6 +81,7 @@ def get_cut_versions(request, filename):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def get_answersection(request, oid):
     section = get_object_or_404(

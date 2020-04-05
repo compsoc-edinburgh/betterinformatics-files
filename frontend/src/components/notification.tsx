@@ -2,7 +2,7 @@ import * as React from "react";
 import { NotificationInfo } from "../interfaces";
 import moment from "moment";
 import { css } from "glamor";
-import { fetchpost } from "../fetch-utils";
+import { fetchPost } from "../fetch-utils";
 import Colors from "../colors";
 import { Link } from "react-router-dom";
 import MarkdownText from "./markdown-text";
@@ -44,7 +44,7 @@ const styles = {
 
 export default class NotificationComponent extends React.Component<Props> {
   readNotification = (notification: NotificationInfo) => {
-    fetchpost("/api/notification/setread/" + notification.oid + "/", {
+    fetchPost("/api/notification/setread/" + notification.oid + "/", {
       read: true,
     });
   };

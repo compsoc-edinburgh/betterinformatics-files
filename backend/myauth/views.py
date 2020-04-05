@@ -4,7 +4,7 @@ from util import response
 from myauth import auth_check
 
 
-@response.args_post()
+@response.request_post()
 def login_view(request):
     username = request.POST.get('username', '').lower()
     password = request.POST.get('password')
@@ -19,12 +19,13 @@ def login_view(request):
         return response.not_allowed()
 
 
-@response.args_post()
+@response.request_post()
 def logout_view(request):
     logout(request)
     return response.success()
 
 
+@response.request_get()
 def me_view(request):
     if request.user.is_authenticated:
         return response.success(
