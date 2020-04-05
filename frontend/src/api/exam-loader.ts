@@ -9,12 +9,15 @@ import { fetchGet } from "./fetch-utils";
 
 function createPdfSection(
   key: string,
+  cutOid: string | undefined,
   page: number,
   start: number,
   end: number,
+  hidden: boolean,
 ): PdfSection {
   return {
     key: key,
+    cutOid,
     kind: SectionKind.Pdf,
     start: {
       page: page,
@@ -24,6 +27,7 @@ function createPdfSection(
       page: page,
       position: end,
     },
+    hidden,
   };
 }
 interface ServerCutResponse {
@@ -40,10 +44,12 @@ export function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       for (const cut of cuts[i]) {
-        const { relHeight: position, oid, cutVersion } = cut;
+        const { relHeight: position, oid, cutVersion, hidden } = cut;
         if (position !== lastpos) {
           const key = akey + "-" + lastpos + "-" + position;
-          sections.push(createPdfSection(key, i, lastpos, position));
+          sections.push(
+            createPdfSection(key, oid, i, lastpos, position, hidden),
+          );
           akey++;
           lastpos = position;
         }
@@ -54,6 +60,7 @@ export function loadSections(
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
+          cutHidden: hidden,
           cutVersion: cutVersion,
           name: cut.name,
         });
@@ -61,7 +68,7 @@ export function loadSections(
     }
     if (lastpos < 1) {
       const key = akey + "-" + lastpos + "-" + 1;
-      sections.push(createPdfSection(key, i, lastpos, 1));
+      sections.push(createPdfSection(key, undefined, i, lastpos, 1, false));
       akey++;
     }
   }

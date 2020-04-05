@@ -7,13 +7,8 @@ const JUMP_TIMEOUT = 40_0000;
 let timeout: number | undefined = undefined;
 // Stop searching for the element we were previously searching for
 let disconnectPrevious: (() => void) | undefined = undefined;
-// Hash of previous location - we wont jump to the same element twice
-//let previousHash: string = "";
 
 function handleLocationChange(hash: string) {
-  //if (previousHash === hash) return;
-  //previousHash = hash;
-
   // Reset state
   if (timeout !== undefined) window.clearTimeout(timeout);
   if (disconnectPrevious) disconnectPrevious();
