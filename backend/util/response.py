@@ -37,20 +37,10 @@ def request_get(*req_args, optional=False):
 
 
 # Used in class based views
-# Also handles parsing the body of PUT requests
 def required_args(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
         def wrapper(self, request, *args, **kwargs):
-            if request.method == 'PUT':
-                try:
-                    parser = MultiPartParser(request.META, BytesIO(request.body), request.upload_handlers)
-                    request.DATA, _ = parser.parse()
-                except Exception as e:
-                    import traceback
-                    traceback.print_exc()
-            elif request.method == 'POST':
-                request.DATA = request.POST
             if not optional:
                 for arg in req_args:
                     if arg not in request.DATA:
