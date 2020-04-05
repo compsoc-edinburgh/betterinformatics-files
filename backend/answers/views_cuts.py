@@ -17,6 +17,7 @@ def get_cuts(request, filename):
             'relHeight': sec.rel_height,
             'cutVersion': sec.cut_version,
             'name': sec.name,
+            'hidden': sec.hidden,
         })
     for page in pages.values():
         page.sort(key=lambda x: x['relHeight'])
@@ -31,7 +32,8 @@ def add_cut(request, filename, exam):
         author=request.user,
         page_num=int(request.POST['pageNum']),
         rel_height=float(request.POST['relHeight']),
-        name=request.POST['name'],
+        name=request.POST['name'] if 'name' in request.POST else '',
+        hidden=request.POST['hidden'] == 'true' if 'hidden' in request.POST else False,
     )
     if not 0 <= section.rel_height <= 1:
         return response.not_possible('Invalid relative height')
@@ -52,6 +54,8 @@ def edit_cut(request, oid):
         section.page_num = int(request.POST['pageNum'])
     if 'relHeight' in request.POST:
         section.rel_height = float(request.POST['relHeight'])
+    if 'hidden' in request.POST:
+        section.hidden = request.POST['hidden'] == 'true'
     section.cut_version += 1
     section.save()
     return response.success()
