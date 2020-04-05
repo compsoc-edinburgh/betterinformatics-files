@@ -9,8 +9,8 @@ class TestAddRemove(ComsolTest):
     def test_add_remove(self):
         self.post('/api/category/add/', {'category': 'Test Category'})
         res = self.get('/api/category/list/')['value']
-        self.assertEqual(res, ['Test Category', 'default'])
-        res = self.get('/api/category/listwithmeta/')['value'][0]
+        self.assertEqual(res, ['default', 'Test Category'])
+        res = self.get('/api/category/listwithmeta/')['value'][1]
         self.assertEqual(res['displayname'], 'Test Category')
         self.post('/api/category/remove/', {'slug': res['slug']})
         res = self.get('/api/category/list/')['value']
@@ -27,9 +27,9 @@ class TestAddRemove(ComsolTest):
         self.post('/api/category/add/', {'category': 'Test Category'})
         res = self.get('/api/category/listwithmeta/')['value']
         self.assertEqual(len(res), 3)
-        self.assertEqual(res[2]['slug'], 'default')
-        self.assertNotEqual(res[0]['slug'], res[1]['slug'])
-        self.assertEqual(res[0]['displayname'], res[1]['displayname'])
+        self.assertEqual(res[0]['slug'], 'default')
+        self.assertNotEqual(res[1]['slug'], res[2]['slug'])
+        self.assertEqual(res[1]['displayname'], res[2]['displayname'])
 
 
 class TestList(ComsolTest):

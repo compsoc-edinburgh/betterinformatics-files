@@ -1,3 +1,6 @@
+from django.db.models import Count, Exists, OuterRef, Q
+
+from answers.models import Answer
 from util import response
 from myauth import auth_check
 from myauth.models import get_my_user, MyUser
@@ -6,51 +9,66 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories(request):
-    return response.success(value=list(sorted(Category.objects.values_list('displayname', flat=True))))
+    return response.success(value=list(Category.objects.order_by('displayname').values_list('displayname', flat=True)))
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories_with_meta(request):
-    categories = Category.objects.all()
-    # TODO optimize db queries with annotate
-    res = sorted([
+    categories = Category.objects.select_related('meta').order_by('displayname').all()
+    res = [
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
-            'examcountpublic': cat.exam_set.filter(public=True).count(),
-            'examcountanswered': cat.exam_count_answered(),
+            'examcountpublic': cat.meta.examcount_public,
+            'examcountanswered': cat.meta.examcount_answered,
             'answerprogress': cat.answer_progress(),
         } for cat in categories
-    ], key=lambda x: x['displayname'])
+    ]
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories_only_admin(request):
-    categories = Category.objects.all()
-    res = sorted([
+    categories = Category.objects.order_by('displayname').all()
+    res = [
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
         }
         for cat in categories
         if auth_check.has_admin_rights_for_category(request, cat)
-    ], key=lambda x: x['displayname'])
+    ]
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def list_categories_only_payment(request):
-    res = sorted([
+    res = [
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
         }
-        for cat in Category.objects.filter(has_payments=True)
-    ], key=lambda x: x['displayname'])
+        for cat in Category.objects.filter(has_payments=True).order_by('displayname')
+    ]
     return response.success(value=res)
+
+
+@response.request_post('category')
+@auth_check.require_admin
+def add_category(request):
+    slug = create_category_slug(request.POST['category'])
+    cat = Category(
+        displayname=request.POST['category'],
+        slug=slug,
+    )
+    cat.save()
+    return response.success(slug=slug)
 
 
 def create_category_slug(category):
@@ -72,20 +90,8 @@ def create_category_slug(category):
     return slug
 
 
+@response.request_post('slug')
 @auth_check.require_admin
-@response.args_post('category')
-def add_category(request):
-    slug = create_category_slug(request.POST['category'])
-    cat = Category(
-        displayname=request.POST['category'],
-        slug=slug,
-    )
-    cat.save()
-    return response.success(slug=slug)
-
-
-@auth_check.require_admin
-@response.args_post('slug')
 def remove_category(request):
     cat = get_object_or_404(Category, slug=request.POST['slug'])
     if cat.slug == 'default':
@@ -95,11 +101,13 @@ def remove_category(request):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def list_exams(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     res = sorted([
         {
+            'sort-key': ex.sort_key(),
             'displayname': ex.displayname,
             'filename': ex.filename,
             'category_displayname': cat.displayname,
@@ -116,12 +124,17 @@ def list_exams(request, slug):
             'finished_wiki_transfer': ex.finished_wiki_transfer,
             'canView': ex.current_user_can_view(request),
             'count_cuts': ex.answersection_set.count(),
-            'count_answered': ex.count_answered(),
-        } for ex in cat.exam_set.all()
-    ], key=lambda x: x['displayname'])
+            'count_answered': ex.count_answered,
+        } for ex in cat.exam_set.select_related('exam_type', 'import_claim').prefetch_related('answersection_set')
+            .annotate(count_answered=Count('answersection', filter=Q(Exists(Answer.objects.filter(answer_section=OuterRef('pk'))))))
+            .all()
+    ], key=lambda x: x['sort-key'], reverse=True)
+    for ex in res:
+        del ex['sort-key']
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def get_metadata(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -154,7 +167,7 @@ def get_metadata(request, slug):
     return response.success(value=res)
 
 
-@response.args_post('semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link', optional=True)
+@response.request_post('semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link', optional=True)
 @auth_check.require_admin
 def set_metadata(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -167,7 +180,7 @@ def set_metadata(request, slug):
     return response.success()
 
 
-@response.args_post('key', 'user')
+@response.request_post('key', 'user')
 @auth_check.require_admin
 def add_user_to_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -185,7 +198,7 @@ def add_user_to_set(request, slug):
     return response.success()
 
 
-@response.args_post('key', 'user')
+@response.request_post('key', 'user')
 @auth_check.require_admin
 def remove_user_from_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
@@ -203,9 +216,10 @@ def remove_user_from_set(request, slug):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def list_metacategories(request):
-    categories = MetaCategory.objects.prefetch_related('metacategory_set', 'category_set').all()
+    categories = MetaCategory.objects.select_related('parent').prefetch_related('metacategory_set', 'category_set').all()
     tree = {}
     for cat in categories:
         tree.setdefault(cat.parent, []).append(cat)
@@ -229,7 +243,7 @@ def list_metacategories(request):
     return response.success(value=res)
 
 
-@response.args_post('meta1', 'meta2', 'category')
+@response.request_post('meta1', 'meta2', 'category')
 @auth_check.require_admin
 def add_metacategory(request):
     cat = get_object_or_404(Category, slug=request.POST['category'])
@@ -240,7 +254,7 @@ def add_metacategory(request):
     return response.success()
 
 
-@response.args_post('meta1', 'meta2', 'category')
+@response.request_post('meta1', 'meta2', 'category')
 @auth_check.require_admin
 def remove_metacategory(request):
     cat = get_object_or_404(Category, slug=request.POST['category'])
@@ -254,8 +268,8 @@ def remove_metacategory(request):
     return response.success()
 
 
-@response.args_post('meta1', 'order')
-@response.args_post('meta2', optional=True)
+@response.request_post('meta1', 'order')
+@response.request_post('meta2', optional=True)
 @auth_check.require_admin
 def set_metacategory_order(request):
     meta1 = get_object_or_404(MetaCategory, displayname=request.POST['meta1'], parent=None)

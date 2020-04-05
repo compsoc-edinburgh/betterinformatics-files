@@ -2,7 +2,7 @@ import * as React from "react";
 import { css } from "glamor";
 import { FeedbackEntry } from "../interfaces";
 import moment from "moment";
-import { fetchpost } from "../fetch-utils";
+import { fetchPost } from "../fetch-utils";
 import Colors from "../colors";
 import GlobalConsts from "../globalconsts";
 
@@ -60,16 +60,16 @@ const styles = {
 
 export default class FeedbackEntryComponent extends React.Component<Props> {
   setRead = (value: boolean) => {
-    fetchpost(`/api/feedback/flags/${this.props.entry.oid}/`, {
-      read: value ? 1 : 0,
+    fetchPost(`/api/feedback/flags/${this.props.entry.oid}/`, {
+      read: value,
     })
       .then(() => this.props.entryChanged())
       .catch(() => undefined);
   };
 
   setDone = (value: boolean) => {
-    fetchpost(`/api/feedback/flags/${this.props.entry.oid}/`, {
-      done: value ? 1 : 0,
+    fetchPost(`/api/feedback/flags/${this.props.entry.oid}/`, {
+      done: value,
     })
       .then(() => this.props.entryChanged())
       .catch(() => undefined);

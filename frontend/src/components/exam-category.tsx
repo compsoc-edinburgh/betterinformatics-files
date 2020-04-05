@@ -1,6 +1,6 @@
 import * as React from "react";
 import AutocompleteInput from "./autocomplete-input";
-import { fetchpost } from "../fetch-utils";
+import { fetchPost } from "../fetch-utils";
 import { Link } from "react-router-dom";
 
 interface Props {
@@ -17,7 +17,7 @@ function submitSave(
   newCategory: string,
   onSave: (exam: string, value: string) => void,
 ) {
-  fetchpost(`/api/exam/setmetadata/${exam}/`, { category: newCategory }).then(
+  fetchPost(`/api/exam/setmetadata/${exam}/`, { category: newCategory }).then(
     () => {
       onSave(exam, newCategory);
     },

@@ -10,6 +10,7 @@ programs:
     before:
       - gunicorn
     env:
+      - DEPLOYMENT_DOMAIN:
       - RUNTIME_SERVIS_PEOPLE_API_SERVER:
       - RUNTIME_SERVIS_PEOPLE_API_PORT:
       - RUNTIME_SERVIS_PEOPLE_API_KEY:

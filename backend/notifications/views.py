@@ -5,6 +5,7 @@ from notifications.models import NotificationSetting, Notification, Notification
 from django.shortcuts import get_object_or_404
 
 
+@response.request_get()
 @auth_check.require_login
 def getenabled(request):
     return response.success(value=list(
@@ -14,7 +15,7 @@ def getenabled(request):
     ))
 
 
-@response.args_post('type', 'enabled')
+@response.request_post('type', 'enabled')
 @auth_check.require_login
 def setenabled(request):
     type_ = int(request.POST['type'])
@@ -26,8 +27,10 @@ def setenabled(request):
     return response.success()
 
 
+@response.request_get()
+@auth_check.require_login
 def get_notifications(request, unread):
-    notifications = Notification.objects.filter(receiver=request.user)
+    notifications = Notification.objects.filter(receiver=request.user).select_related('receiver', 'sender', 'answer', 'answer__answer_section', 'answer__answer_section__exam')
     if unread:
         notifications = notifications.filter(read=False)
     res = [
@@ -50,22 +53,25 @@ def get_notifications(request, unread):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def unread(request):
     return get_notifications(request, True)
 
 
+@response.request_get()
 @auth_check.require_login
 def unreadcount(request):
     return response.success(value=Notification.objects.filter(receiver=request.user, read=False).count())
 
 
+@response.request_get()
 @auth_check.require_login
 def all(request):
     return get_notifications(request, False)
 
 
-@response.args_post('read')
+@response.request_post('read')
 @auth_check.require_login
 def setread(request, oid):
     notification = get_object_or_404(Notification, pk=oid)

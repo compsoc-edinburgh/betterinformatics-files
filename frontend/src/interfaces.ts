@@ -224,3 +224,10 @@ export interface FeedbackEntry {
   read: boolean;
   done: boolean;
 }
+
+export interface FAQEntry {
+  oid: string;
+  question: string;
+  answer: string;
+  order: number;
+}
