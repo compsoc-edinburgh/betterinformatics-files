@@ -16,6 +16,7 @@ import {
   InputGroupButtonDropdown,
   Spinner,
   UncontrolledDropdown,
+  FormGroup,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { useUser } from "../auth";
@@ -191,43 +192,41 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     return (
       <Container fluid>
         {data && ((data.name && data.name.length > 0) || isCatAdmin) && (
-          <Card style={{ marginTop: "1.5em", marginBottom: "0.3em" }}>
-            <CardHeader tag="h6">
-              {isEditingName ? (
-                <InputGroup size="sm">
-                  <Input
-                    type="text"
-                    value={draftName}
-                    placeholder="Name"
-                    onChange={e => setDraftName(e.target.value)}
-                  />
-                  <InputGroupButtonDropdown addonType="append">
-                    <IconButton
-                      icon="SAVE"
-                      block
-                      onClick={() => {
-                        setIsEditingName(false);
-                        onCutNameChange(draftName);
-                      }}
-                    />
-                  </InputGroupButtonDropdown>
-                </InputGroup>
-              ) : (
-                <TwoButtons
-                  left={cutName}
-                  right={
-                    isCatAdmin && (
-                      <IconButton
-                        size="sm"
-                        icon="EDIT"
-                        onClick={() => setIsEditingName(true)}
-                      />
-                    )
-                  }
+          <FormGroup>
+            {isEditingName ? (
+              <InputGroup size="sm">
+                <Input
+                  type="text"
+                  value={draftName}
+                  placeholder="Name"
+                  onChange={e => setDraftName(e.target.value)}
                 />
-              )}
-            </CardHeader>
-          </Card>
+                <InputGroupButtonDropdown addonType="append">
+                  <IconButton
+                    icon="SAVE"
+                    block
+                    onClick={() => {
+                      setIsEditingName(false);
+                      onCutNameChange(draftName);
+                    }}
+                  />
+                </InputGroupButtonDropdown>
+              </InputGroup>
+            ) : (
+              <TwoButtons
+                left={cutName}
+                right={
+                  isCatAdmin && (
+                    <IconButton
+                      size="sm"
+                      icon="EDIT"
+                      onClick={() => setIsEditingName(true)}
+                    />
+                  )
+                }
+              />
+            )}
+          </FormGroup>
         )}
         {!hidden && data && (
           <>

@@ -95,7 +95,7 @@ const AnswerComponent: React.FC<Props> = ({
       setEditing(false);
     },
   });
-  const { isAdmin } = useUser()!;
+  const { isAdmin, isExpert } = useUser()!;
   const [confirm, modals] = useConfirm();
   const { run: runRemoveAnswer } = useRequest(removeAnwer, {
     manual: true,
@@ -141,12 +141,24 @@ const AnswerComponent: React.FC<Props> = ({
               </h6>
             }
             right={
-              <ButtonToolbar style={{ justifyContent: "flex-end" }}>
+              <ButtonToolbar
+                style={{ justifyContent: "flex-end", margin: "0 -0.3em" }}
+              >
+                {answer && answer.expertvotes > -1 && (
+                  <ButtonGroup size="sm" style={{ margin: "0 0.3em" }}>
+                    <IconButton
+                      color="primary"
+                      icon="STAR_FILLED"
+                      title={"This answer is endorsed by an expert"}
+                      active
+                    />
+                    <Button style={{ minWidth: 0 }} color="primary" active>
+                      {answer.expertvotes}
+                    </Button>
+                  </ButtonGroup>
+                )}
                 {answer && (answer.flagged > 0 || flaggedLoading) && (
-                  <ButtonGroup
-                    size="sm"
-                    style={{ width: "auto", margin: "0 1em" }}
-                  >
+                  <ButtonGroup size="sm" style={{ margin: "0 0.3em" }}>
                     <IconButton
                       color="danger"
                       icon="FLAG"

@@ -36,7 +36,7 @@ const Score: React.FC<Props> = ({
     onSuccess: onSectionChanged,
   });
   return (
-    <ButtonGroup style={{ width: "auto", margin: "0 1em" }}>
+    <ButtonGroup style={{ margin: "0 0.3em" }}>
       <Button
         size="sm"
         style={{ minWidth: 0 }}

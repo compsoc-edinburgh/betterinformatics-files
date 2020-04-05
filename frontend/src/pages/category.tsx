@@ -11,6 +11,9 @@ import {
   ListGroupItem,
   Spinner,
   Table,
+  FormGroup,
+  Row,
+  Col,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import { css } from "emotion";
@@ -23,7 +26,7 @@ import {
   loadMetaCategories,
 } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
-import { getMetaCategoriesForCategory } from "../category-utils";
+import { getMetaCategoriesForCategory, filterMatches } from "../category-utils";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ClaimButton from "../components/claim-button";
 import IconButton from "../components/icon-button";
@@ -31,6 +34,7 @@ import TwoButtons from "../components/two-buttons";
 import useConfirm from "../hooks/useConfirm";
 import useSet from "../hooks/useSet";
 import { CategoryExam, CategoryMetaData } from "../interfaces";
+import LoadingOverlay from "../components/loading-overlay";
 
 const mapExamsToExamType = (exams: CategoryExam[]) => {
   return [
@@ -125,7 +129,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <Card style={{ margin: "0.5em" }}>
+      <Card style={{ margin: "0.5em 0" }}>
         <CardHeader tag="h4">{examtype}</CardHeader>
         <div style={{ overflow: "scroll" }}>
           <Table>
@@ -270,44 +274,79 @@ interface ExamListProps {
   metaData: CategoryMetaData;
 }
 const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
-  const { data, loading, error, run: reload } = useRequest(() =>
-    loadList(metaData.slug),
+  const { data, loading, error, run: reload } = useRequest(
+    () => loadList(metaData.slug),
+    { cacheKey: `exam-list-${metaData.slug}` },
+  );
+  const [filter, setFilter] = useState("");
+  const { isCategoryAdmin } = useUser()!;
+  const viewableExams = useMemo(
+    () =>
+      data &&
+      data
+        .filter(exam => exam.public || isCategoryAdmin)
+        .filter(exam => filterMatches(filter, exam.displayname)),
+    [data, isCategoryAdmin, filter],
   );
   const examTypeMap = useMemo(
-    () => (data ? mapExamsToExamType(data) : undefined),
-    [data],
+    () => (viewableExams ? mapExamsToExamType(viewableExams) : undefined),
+    [viewableExams],
   );
   const [selected, onSelect, onDeselect] = useSet<string>();
 
   return (
     <>
-      <Card style={{ margin: "0.5em" }}>
-        <CardHeader>
-          <Button
-            disabled={selected.size === 0}
-            onClick={() => dlSelectedExams(selected)}
-          >
-            Download selected exams
-          </Button>
-        </CardHeader>
-      </Card>
+      <TwoButtons
+        fill="right"
+        left={
+          <FormGroup style={{ margin: "0.1em" }}>
+            <IconButton
+              disabled={selected.size === 0}
+              onClick={() => dlSelectedExams(selected)}
+              block
+              icon="DOWNLOAD"
+            >
+              Download selected exams
+            </IconButton>
+          </FormGroup>
+        }
+        right={
+          <FormGroup style={{ margin: "0.1em" }}>
+            <div className="search" style={{ marginBottom: 0 }}>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Filter..."
+                value={filter}
+                onChange={e => setFilter(e.currentTarget.value)}
+              />
+              <div className="search-icon-wrapper">
+                <div className="search-icon" />
+              </div>
+            </div>
+          </FormGroup>
+        }
+      />
       {error ? (
         <Alert color="danger">{error}</Alert>
       ) : loading ? (
         <Spinner />
       ) : (
         examTypeMap &&
-        examTypeMap.map(([examtype, exams]) => (
-          <ExamTypeCard
-            examtype={examtype}
-            exams={exams}
-            key={examtype}
-            selected={selected}
-            onSelect={onSelect}
-            onDeselect={onDeselect}
-            reload={reload}
-          />
-        ))
+        examTypeMap.map(
+          ([examtype, exams]) =>
+            exams.length > 0 && (
+              <ExamTypeCard
+                examtype={examtype}
+                exams={exams}
+                key={examtype}
+                selected={selected}
+                onSelect={onSelect}
+                onDeselect={onDeselect}
+                reload={reload}
+              />
+            ),
+        )
       )}
     </>
   );
@@ -321,7 +360,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   onMetaDataChange,
   metaData,
 }) => {
-  const { data, loading } = useRequest(loadMetaCategories);
+  const { data, loading } = useRequest(loadMetaCategories, {
+    cacheKey: "meta-categories",
+  });
   const offeredIn = useMemo(
     () =>
       data ? getMetaCategoriesForCategory(data, metaData.slug) : undefined,
@@ -448,31 +489,28 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
 const CategoryPage: React.FC<{}> = () => {
   const { slug } = useParams() as { slug: string };
-  const { data, loading, error, mutate } = useRequest(() =>
-    loadCategoryMetaData(slug),
+  const { data, loading, error, mutate } = useRequest(
+    () => loadCategoryMetaData(slug),
+    { cacheKey: `category-${slug}` },
   );
   const user = useUser();
   return (
     <Container>
-      {error ? (
-        <Alert color="danger">{error.message}</Alert>
-      ) : loading ? (
-        <Spinner />
-      ) : (
-        data && (
-          <UserContext.Provider
-            value={
-              user
-                ? {
-                    ...user,
-                    isCategoryAdmin: user.isCategoryAdmin || data.catadmin,
-                  }
-                : undefined
-            }
-          >
-            <CategoryPageContent metaData={data} onMetaDataChange={mutate} />
-          </UserContext.Provider>
-        )
+      {error && <Alert color="danger">{error.message}</Alert>}
+      {data === undefined && <LoadingOverlay loading={loading} />}
+      {data && (
+        <UserContext.Provider
+          value={
+            user
+              ? {
+                  ...user,
+                  isCategoryAdmin: user.isCategoryAdmin || data.catadmin,
+                }
+              : undefined
+          }
+        >
+          <CategoryPageContent metaData={data} onMetaDataChange={mutate} />
+        </UserContext.Provider>
       )}
     </Container>
   );

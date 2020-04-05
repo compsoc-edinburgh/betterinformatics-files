@@ -9,11 +9,12 @@ const flex = css`
 const TwoButtons: React.FC<{
   left?: React.ReactNode;
   right?: React.ReactNode;
-}> = ({ left, right }) => {
+  fill?: "left" | "right";
+}> = ({ left, right, fill }) => {
   return (
     <div className={flex}>
-      <div>{left}</div>
-      <div>{right}</div>
+      <div style={{ flexGrow: fill === "left" ? 1 : 0 }}>{left}</div>
+      <div style={{ flexGrow: fill === "right" ? 1 : 0 }}>{right}</div>
     </div>
   );
 };

@@ -6,6 +6,7 @@ export interface User {
   displayname: string;
   isAdmin: boolean;
   isCategoryAdmin: boolean;
+  isExpert?: boolean;
 }
 export const notLoggedIn: User = {
   loggedin: false,

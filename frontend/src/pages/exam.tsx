@@ -11,7 +11,7 @@ import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchpost } from "../api/fetch-utils";
 import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
-import { useUser } from "../auth";
+import { useUser, UserContext } from "../auth";
 import Exam from "../components/exam";
 import ExamMetadataEditor from "../components/exam-metadata-editor";
 import ExamPanel from "../components/exam-panel";
@@ -182,6 +182,7 @@ const ExamPage: React.FC<{}> = () => {
   );
   const [editing, toggleEditing] = useToggle();
   const error = metaDataError || cutsError || pdfError;
+  const user = useUser()!;
   return (
     <div>
       <Container>
@@ -218,14 +219,22 @@ const ExamPage: React.FC<{}> = () => {
               />
             </Container>
           ) : (
-            <ExamPageContent
-              metaData={metaData}
-              sections={sections}
-              renderer={renderer}
-              reloadCuts={reloadCuts}
-              toggleEditing={toggleEditing}
-            />
+            <UserContext.Provider
+              value={{
+                ...user,
+                isExpert: user.isExpert || metaData.isExpert,
+              }}
+            >
+              <ExamPageContent
+                metaData={metaData}
+                sections={sections}
+                renderer={renderer}
+                reloadCuts={reloadCuts}
+                toggleEditing={toggleEditing}
+              />
+            </UserContext.Provider>
           ))}
+        )}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>
             <Spinner />
