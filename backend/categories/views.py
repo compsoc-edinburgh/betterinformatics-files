@@ -228,7 +228,7 @@ def list_metacategories(request):
                     'displayname': mcat.displayname,
                     'categories': [
                         cat.slug
-                        for cat in mcat.category_set.order_by('displayname').all()
+                        for cat in sorted(mcat.category_set.all(), key=lambda x: x.displayname)
                     ],
                 } for mcat in sorted(childs, key=lambda x: (x.order, x.displayname))
             ]
