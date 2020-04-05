@@ -7,6 +7,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 
+@response.request_get()
 @auth_check.require_login
 def exam_metadata(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
@@ -31,12 +32,12 @@ def exam_metadata(request, filename):
         'oral_transcript_checked': exam.oral_transcript_checked,
         # 'count_cuts': exam.answersection_set.count(),
         # 'count_answered': exam.count_answered(),
-        'attachments': sorted([
+        'attachments': [
             {
                 'displayname': att.displayname,
                 'filename': att.filename,
-            } for att in exam.attachment_set.all()
-        ], key=lambda x: x['displayname']),
+            } for att in exam.attachment_set.order_by('displayname').all()
+        ],
         'canEdit': auth_check.has_admin_rights_for_exam(request, exam),
         'isExpert': auth_check.is_expert_for_exam(request, exam),
         'canView': exam.current_user_can_view(request),
@@ -45,7 +46,7 @@ def exam_metadata(request, filename):
     return response.success(value=res)
 
 
-@response.args_post(
+@response.request_post(
     'displayname',
     'category',
     'examtype',
@@ -83,7 +84,7 @@ def exam_set_metadata(request, filename, exam):
     return response.success()
 
 
-@response.args_post('claim')
+@response.request_post('claim')
 @auth_check.require_exam_admin
 def claim_exam(request, filename, exam):
     add_claim = request.POST['claim'] != 'false'

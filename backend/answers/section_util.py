@@ -2,8 +2,11 @@ from myauth.models import get_my_user
 from myauth import auth_check
 
 
-def get_answer_response(request, answer):
-    exam_admin = auth_check.has_admin_rights_for_exam(request, answer.answer_section.exam)
+def get_answer_response(request, answer, ignore_exam_admin=False):
+    if ignore_exam_admin:
+        exam_admin = False
+    else:
+        exam_admin = auth_check.has_admin_rights_for_exam(request, answer.answer_section.exam)
     comments = [
         {
             'oid': comment.id,
@@ -14,10 +17,7 @@ def get_answer_response(request, answer):
             'canEdit': comment.author == request.user,
             'time': comment.time,
             'edittime': comment.edittime,
-        } for comment in sorted(
-            answer.comment_set.all(),
-            key=lambda x: (x.time, x.id)
-        )
+        } for comment in answer.comment_set.order_by('time', 'id').all()
     ]
     return {
         'oid': answer.id,
@@ -59,11 +59,23 @@ def get_answersection_response(request, section):
     }
 
 
+def get_answer_fields_to_preselect():
+    return [
+        'author',
+        'answer_section',
+        'answer_section__exam',
+        'answer_section__exam__category',
+    ]
+
+
 def get_answer_fields_to_prefetch():
     return [
-        'upvotes', 'downvotes', 'expertvotes', 'flagged',
-        'comment_set', 'comment_set__author', 'author',
-        'answer_section', 'answer_section__exam', 'answer_section__exam__category',
+        'upvotes',
+        'downvotes',
+        'expertvotes',
+        'flagged',
+        'comment_set',
+        'comment_set__author',
     ]
 
 

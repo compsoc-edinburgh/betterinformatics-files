@@ -39,16 +39,23 @@ COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {'pdf', 'zip', 'tar.gz', 'tar.xz'}
 COMSOL_CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
 ALLOWED_HOSTS = []
+REAL_ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS.append('localhost')
+    REAL_ALLOWED_HOSTS.append('localhost')
 else:
-    ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
+    # ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
+    # USE_X_FORWARDED_HOST = True
+    # In K8s, the host is the IP of the pod and can thus change
+    # As we are behind a reverse proxy, it should be fine to ignore this...
+    ALLOWED_HOSTS.append('*')
+    REAL_ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
 
 CSP_DEFAULT_SRC = ("'self'")
 if DEBUG:
     CSP_SCRIPT_SRC = ("'unsafe-eval'", 'http://localhost:8080/static/', 'http://localhost:3000/static/')
 else:
-    allowed = ['https://{}/static/'.format(host) for host in ALLOWED_HOSTS]
+    allowed = ['https://{}/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
     CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 CSP_IMG_SRC = ("'self'", "https://static.vis.ethz.ch")
@@ -64,6 +71,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'answers.apps.AnswersConfig',
     'categories.apps.CategoriesConfig',
+    'faq.apps.FaqConfig',
     'feedback.apps.FeedbackConfig',
     'filestore.apps.FilestoreConfig',
     'frontend.apps.FrontendConfig',
@@ -74,7 +82,6 @@ INSTALLED_APPS = [
     'payments.apps.PaymentsConfig',
     'scoreboard.apps.ScoreboardConfig',
     'testing.apps.TestingConfig',
-    'mongodb_migration.apps.MongodbMigrationConfig',
 ]
 
 MIDDLEWARE = [
@@ -86,6 +93,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'csp.middleware.CSPMiddleware',
+    'util.middleware.parse_request_middleware',
 ]
 
 if DEBUG and not TESTING:

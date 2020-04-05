@@ -26,6 +26,29 @@ class TestCuts(ComsolTestExamData):
         cut = self.sections[0]
         self.post('/api/exam/removecut/{}/'.format(cut.id), {})
         self.assertEqual(AnswerSection.objects.count(), 3)
+    def test_edit_cut(self):
+        cut = self.sections[0]
+        pageNum = cut.page_num
+        relHeight = cut.rel_height
+        name = cut.name
+        self.post('/api/exam/editcut/{}/'.format(cut.id), {
+            'name': "Test Name > 42",
+            'pageNum': 42,
+            'relHeight': 0.42, 
+        })
+        cut.refresh_from_db()
+        self.assertEqual(cut.name, "Test Name > 42")
+        self.assertEqual(cut.page_num, 42)
+        self.assertEqual(cut.rel_height, 0.42)
+        self.post('/api/exam/editcut/{}/'.format(cut.id), {
+            'name': name,
+            'pageNum': pageNum,
+            'relHeight': relHeight, 
+        })
+        cut.refresh_from_db()
+        self.assertEqual(cut.name, name)
+        self.assertEqual(cut.page_num, pageNum)
+        self.assertEqual(cut.rel_height, relHeight)
 
 
 class TestCutVersion(ComsolTestExamData):

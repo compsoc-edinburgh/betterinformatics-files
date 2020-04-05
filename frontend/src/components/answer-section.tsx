@@ -1,7 +1,7 @@
 import * as React from "react";
 import { AnswerSection, SectionKind } from "../interfaces";
 import { loadAnswerSection } from "../exam-loader";
-import { fetchpost } from "../fetch-utils";
+import { fetchPost } from "../fetch-utils";
 import { css } from "glamor";
 import AnswerComponent from "./answer";
 import GlobalConsts from "../globalconsts";
@@ -125,7 +125,7 @@ export default class AnswerSectionComponent extends React.Component<
     // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove answer section with all answers?");
     if (confirmation) {
-      fetchpost(`/api/exam/removecut/${this.props.oid}/`, {}).then(() => {
+      fetchPost(`/api/exam/removecut/${this.props.oid}/`, {}).then(() => {
         this.props.onSectionChange();
       });
     }
@@ -165,7 +165,7 @@ export default class AnswerSectionComponent extends React.Component<
 
   updateName = async () => {
     try {
-      await fetchpost(`/api/exam/editcut/${this.props.oid}/`, {
+      await fetchPost(`/api/exam/editcut/${this.props.oid}/`, {
         name: this.state.name,
       });
       this.setState({
@@ -191,6 +191,7 @@ export default class AnswerSectionComponent extends React.Component<
             <input
               type="text"
               value={this.state.name || ""}
+              placeholder="Name"
               onChange={e => this.setState({ name: e.target.value })}
             />
             <button onClick={this.updateName}>Save</button>

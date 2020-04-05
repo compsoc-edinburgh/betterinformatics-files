@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Redirect } from "react-router-dom";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import AutocompleteInput from "../components/autocomplete-input";
 import Colors from "../colors";
 import { CategoryMetaDataMinimal } from "../interfaces";
@@ -38,7 +38,7 @@ export default class SubmitTranscript extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/category/listonlypayment/")
+    fetchGet("/api/category/listonlypayment/")
       .then(res =>
         this.setState({
           categories: res.value,
@@ -53,7 +53,7 @@ export default class SubmitTranscript extends React.Component<{}, State> {
   handleUpload = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost("/api/exam/upload/transcript/", {
+    fetchPost("/api/exam/upload/transcript/", {
       file: this.state.file,
       category: this.state.category,
     })

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
 import { Attachment } from "../interfaces";
-import { fetchpost } from "../fetch-utils";
+import { fetchPost } from "../fetch-utils";
 
 const stylesForWidth = {
   justWidth: css({
@@ -55,7 +55,7 @@ export default class Attachments extends React.Component<Props, State> {
     if (!this.state.newDisplayname) {
       return;
     }
-    fetchpost("/api/filestore/upload/", {
+    fetchPost("/api/filestore/upload/", {
       ...this.props.additionalArgs,
       displayname: this.state.newDisplayname,
       file: this.state.newFile,
@@ -80,7 +80,7 @@ export default class Attachments extends React.Component<Props, State> {
   };
 
   removeFile = (att: Attachment) => {
-    fetchpost("/api/filestore/remove/" + att.filename + "/", {}).then(res => {
+    fetchPost("/api/filestore/remove/" + att.filename + "/", {}).then(res => {
       this.props.onRemoveAttachment(att);
     });
   };
