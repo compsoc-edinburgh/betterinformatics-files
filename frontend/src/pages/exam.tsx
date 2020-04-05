@@ -442,7 +442,7 @@ export default class Exam extends React.Component<Props, State> {
   setHidden = (section: PdfSection, hidden: boolean) => {
     const { cutOid } = section;
     if (cutOid) {
-      fetchpost(`/api/exam/editcut/${cutOid}/`, {
+      fetchPost(`/api/exam/editcut/${cutOid}/`, {
         hidden,
       }).then(() => {
         this.setState(prevState => {
@@ -463,7 +463,7 @@ export default class Exam extends React.Component<Props, State> {
         });
       });
     } else {
-      fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
+      fetchPost(`/api/exam/addcut/${this.props.filename}/`, {
         name: "",
         pageNum: section.end.page,
         relHeight: section.end.position,
