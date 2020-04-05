@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'answers.apps.AnswersConfig',
     'categories.apps.CategoriesConfig',
+    'faq.apps.FaqConfig',
     'feedback.apps.FeedbackConfig',
     'filestore.apps.FilestoreConfig',
     'frontend.apps.FrontendConfig',
@@ -83,7 +84,6 @@ INSTALLED_APPS = [
     'payments.apps.PaymentsConfig',
     'scoreboard.apps.ScoreboardConfig',
     'testing.apps.TestingConfig',
-    'mongodb_migration.apps.MongodbMigrationConfig',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +95,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'csp.middleware.CSPMiddleware',
+    'util.middleware.parse_request_middleware',
 ]
 
 if DEBUG and not TESTING:

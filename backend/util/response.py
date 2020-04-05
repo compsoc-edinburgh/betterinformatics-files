@@ -1,10 +1,12 @@
 from datetime import datetime, timezone, timedelta
 from functools import wraps
-from django.http import JsonResponse, FileResponse
+from django.http import JsonResponse, FileResponse, QueryDict
 from django.http import HttpResponseNotAllowed
+from django.http.multipartparser import MultiPartParser
+from io import BytesIO
 
 
-def args_post(*req_args, optional=False):
+def request_post(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
         def wrapper(request, *args, **kwargs):
@@ -19,14 +21,31 @@ def args_post(*req_args, optional=False):
     return wrap_func
 
 
-def args_get(*req_args):
+def request_get(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
         def wrapper(request, *args, **kwargs):
-            for arg in req_args:
-                if arg not in request.GET:
-                    return missing_argument()
+            if request.method != 'GET':
+                return HttpResponseNotAllowed(['GET'])
+            if not optional:
+                for arg in req_args:
+                    if arg not in request.GET:
+                        return missing_argument()
             return f(request, *args, **kwargs)
+        return wrapper
+    return wrap_func
+
+
+# Used in class based views
+def required_args(*req_args, optional=False):
+    def wrap_func(f):
+        @wraps(f)
+        def wrapper(self, request, *args, **kwargs):
+            if not optional:
+                for arg in req_args:
+                    if arg not in request.DATA:
+                        return missing_argument()
+            return f(self, request, *args, **kwargs)
         return wrapper
     return wrap_func
 

@@ -5,14 +5,15 @@ from feedback.models import Feedback
 from django.shortcuts import get_object_or_404
 
 
+@response.request_post('text')
 @auth_check.require_login
-@response.args_post('text')
 def submit(request):
     feedback = Feedback(author=request.user, text=request.POST['text'])
     feedback.save()
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_admin
 def list_all(request):
     objs = Feedback.objects.select_related('author').all()
@@ -29,8 +30,8 @@ def list_all(request):
     ])
 
 
+@response.request_post('read', 'done', optional=True)
 @auth_check.require_admin
-@response.args_post('read', 'done', optional=True)
 def flags(request, feedbackid):
     feedback = get_object_or_404(Feedback, pk=feedbackid)
     for key in ['read', 'done']:

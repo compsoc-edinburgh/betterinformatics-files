@@ -143,7 +143,7 @@ export default class Header extends React.Component<Props, State> {
   }
 
   checkNotificationCount = () => {
-    fetchapi("/api/notification/unreadcount/")
+    fetchGet("/api/notification/unreadcount/")
       .then(res => {
         this.setState({
           notificationCount: res.value,
@@ -190,6 +190,11 @@ export default class Header extends React.Component<Props, State> {
             ? styles.activeMenuWrapper
             : styles.inactiveMenuWrapper)}
         >
+          <div {...styles.menuitem}>
+            <Link to="/faq" onClick={this.linkClicked}>
+              FAQ
+            </Link>
+          </div>
           <div {...styles.menuitem}>
             <Link to="/feedback" onClick={this.linkClicked}>
               Feedback

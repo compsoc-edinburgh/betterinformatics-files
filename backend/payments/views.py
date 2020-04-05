@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 
-@response.args_post('username')
+@response.request_post('username')
 @auth_check.require_admin
 def pay(request):
     user = get_object_or_404(MyUser, username=request.POST['username'])
@@ -16,7 +16,7 @@ def pay(request):
     return response.success()
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_admin
 def remove(request, oid):
     payment = get_object_or_404(Payment, pk=oid)
@@ -24,7 +24,7 @@ def remove(request, oid):
     return response.success()
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_admin
 def refund(request, oid):
     payment = get_object_or_404(Payment, pk=oid)
@@ -53,18 +53,20 @@ def get_user_payments(user):
     return res
 
 
+@response.request_get()
 @auth_check.require_admin
 def query(request, username):
     user = get_object_or_404(MyUser, username=username)
     return response.success(value=get_user_payments(user))
 
 
+@response.request_get()
 @auth_check.require_login
 def get_me(request):
     return response.success(value=get_user_payments(request.user))
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_admin
 def mark_exam_checked(request, filename):
     exam = get_object_or_404(Exam, filename=filename)

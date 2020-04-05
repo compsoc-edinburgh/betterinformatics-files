@@ -17,7 +17,7 @@ function submitSave(
   newCategory: string,
   onSave: (exam: string, value: string) => void,
 ) {
-  fetchpost(`/api/exam/setmetadata/${exam}/`, { category: newCategory }).then(
+  fetchPost(`/api/exam/setmetadata/${exam}/`, { category: newCategory }).then(
     () => {
       onSave(exam, newCategory);
     },

@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.urls import path, re_path, include
 from django.views.static import serve
-from django.shortcuts import redirect
 
 from . import views
 
@@ -23,6 +22,7 @@ urlpatterns = [
     path('', include('health.urls')),
     path('', include('frontend.urls')),
     path('api/exam/', include('answers.urls')),
+    path('api/faq/', include('faq.urls')),
     path('api/category/', include('categories.urls')),
     path('api/feedback/', include('feedback.urls')),
     path('api/filestore/', include('filestore.urls')),
@@ -31,7 +31,7 @@ urlpatterns = [
     path('api/notification/', include('notifications.urls')),
     path('api/payment/', include('payments.urls')),
     path('api/scoreboard/', include('scoreboard.urls')),
-    re_path(r'^static/(?P<path>.*)$', serve, {
+    re_path(r'^static/(?P<path>.*)$', views.cached_serve, {
        'document_root': 'static',
     }),
 ]

@@ -1,0 +1,43 @@
+info:
+  description: "API for VIS Community Solutions."
+  version: "1.0.0"
+  title: "VIS Community Solutions"
+  contact:
+    email: "cat@vis.ethz.ch"
+host: "exams.vis.ethz.ch"
+basePath: "/api"
+paths:
+  /faq:
+    get:
+      description: "Get all FAQs"
+      response:
+        - value: "[FAQ]"
+    post:
+      description: "Add a new FAQ"
+      parameters:
+        - question: "string"
+        - answer: "string"
+        - order: "int"
+      response:
+        - value: "FAQ"
+  /faq/{faqId}:
+    get:
+      description: "Get a FAQ"
+      response:
+        - value: "FAQ"
+    put:
+      description: "Update a FAQ"
+      parameters:
+        - question: "string"
+        - answer: "string"
+        - order: "int"
+      response:
+        - value: "FAQ"
+    delete:
+      description: "Delete a FAQ"
+definitions:
+  FAQ:
+    - oid: "int"
+    - question: "string"
+    - answer: "string"
+    - order: "int"

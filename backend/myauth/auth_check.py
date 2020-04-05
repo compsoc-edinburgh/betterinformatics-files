@@ -68,13 +68,34 @@ def is_expert_for_exam(request, exam):
     return is_expert_for_category(request, exam.category)
 
 
+def _is_class_method(f):
+    """
+    Checks whether the function f is a class method
+    (and thus the first argument has to be the object on which the method was called).
+    This allows us to define a decorator which can decorate both normal functions and class methods.
+    To do this, we check the name of the first argument. If it is self, f is a class method.
+    This assumes that the naming conventions are followed. In particular, all class methods need a first
+    argument called self and all other functions are not allowed to have an argument called self.
+    :param f: The function to check.
+    :return: True if the function is probably a class method.
+    """
+    return f.__code__.co_varnames[0] == 'self'
+
+
 def require_login(f):
     @wraps(f)
     def wrapper(request, *args, **kwargs):
         if not user_authenticated(request):
             return response.not_allowed()
         return f(request, *args, **kwargs)
-    return wrapper
+
+    @wraps(f)
+    def wrapper_class(self, request, *args, **kwargs):
+        if not user_authenticated(request):
+            return response.not_allowed()
+        return f(self, request, *args, **kwargs)
+
+    return wrapper_class if _is_class_method(f) else wrapper
 
 
 def require_exam_admin(f):
@@ -98,4 +119,13 @@ def require_admin(f):
         if not has_admin_rights(request):
             return response.not_allowed()
         return f(request, *args, **kwargs)
-    return wrapper
+
+    @wraps(f)
+    def wrapper_class(self, request, *args, **kwargs):
+        if not user_authenticated(request):
+            return response.not_allowed()
+        if not has_admin_rights(request):
+            return response.not_allowed()
+        return f(self, request, *args, **kwargs)
+
+    return wrapper_class if _is_class_method(f) else wrapper

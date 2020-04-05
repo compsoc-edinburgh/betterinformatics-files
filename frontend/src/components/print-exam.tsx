@@ -50,7 +50,7 @@ export default class PrintExam extends React.Component<Props, State> {
       error: "",
     });
     if (this.state.currentPassword.length > 0) {
-      fetchpost(
+      fetchPost(
         "/api/exam/printpdf/" +
           this.props.examtype +
           "/" +
