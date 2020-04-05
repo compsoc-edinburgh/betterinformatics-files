@@ -27,10 +27,10 @@ def is_user_in_admin_group(user):
 
 
 def has_admin_rights(request):
-    if request.session['simulate_nonadmin']:
-        return False
     if check_api_key(request):
         return True
+    if request.session['simulate_nonadmin']:
+        return False
     return is_user_in_admin_group(request.user)
 
 
