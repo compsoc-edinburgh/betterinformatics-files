@@ -7,6 +7,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 
+@response.request_get()
 @auth_check.require_login
 def exam_metadata(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
@@ -45,7 +46,7 @@ def exam_metadata(request, filename):
     return response.success(value=res)
 
 
-@response.args_post(
+@response.request_post(
     'displayname',
     'category',
     'examtype',
@@ -83,7 +84,7 @@ def exam_set_metadata(request, filename, exam):
     return response.success()
 
 
-@response.args_post('claim')
+@response.request_post('claim')
 @auth_check.require_exam_admin
 def claim_exam(request, filename, exam):
     add_claim = request.POST['claim'] != 'false'

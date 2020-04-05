@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Redirect } from "react-router-dom";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import AutocompleteInput from "../components/autocomplete-input";
 import Colors from "../colors";
 import { CategoryMetaDataMinimal } from "../interfaces";
@@ -41,7 +41,7 @@ export default class UploadPDF extends React.Component<{}, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/category/listonlyadmin/")
+    fetchGet("/api/category/listonlyadmin/")
       .then(res =>
         this.setState({
           categories: res.value,
@@ -65,7 +65,7 @@ export default class UploadPDF extends React.Component<{}, State> {
       return;
     }
 
-    fetchpost("/api/exam/upload/exam/", {
+    fetchPost("/api/exam/upload/exam/", {
       file: this.state.file,
       displayname: this.state.displayName,
       category: category.slug,

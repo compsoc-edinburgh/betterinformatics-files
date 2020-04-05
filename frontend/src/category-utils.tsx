@@ -28,7 +28,7 @@ export function findCategoryByName<T extends CategoryMetaDataAny>(
   categories: T[],
   displayname: string,
 ): T | null {
-  for (let category of categories) {
+  for (const category of categories) {
     if (category.displayname === displayname) {
       return category;
     }

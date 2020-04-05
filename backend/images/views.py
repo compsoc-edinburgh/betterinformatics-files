@@ -5,12 +5,13 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 
+@response.request_get()
 @auth_check.require_login
 def list_images(request):
     return response.success(value=list(Image.objects.filter(owner=request.user).values_list('filename')))
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_login
 def upload_image(request):
     file = request.FILES.get('file')
@@ -26,7 +27,7 @@ def upload_image(request):
     return response.success(filename=filename)
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_login
 def remove_image(request, filename):
     image = get_object_or_404(Image, filename=filename)
@@ -35,6 +36,7 @@ def remove_image(request, filename):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def get_image(request, filename):
     return minio_util.send_file(settings.COMSOL_IMAGE_DIR, filename)

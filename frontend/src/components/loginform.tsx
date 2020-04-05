@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchpost } from "../fetch-utils";
+import { fetchPost } from "../fetch-utils";
 
 interface Props {
   userinfoChanged: () => void;
@@ -44,7 +44,7 @@ export default class LoginForm extends React.Component<Props> {
       simulate_nonadmin: ev.shiftKey ? "true" : "false",
     };
 
-    fetchpost("/api/auth/login/", data)
+    fetchPost("/api/auth/login/", data)
       .then(() => {
         this.props.userinfoChanged();
       })

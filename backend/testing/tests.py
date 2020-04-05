@@ -1,4 +1,5 @@
 from django.test import TestCase, Client
+from django.test.client import encode_multipart, BOUNDARY, MULTIPART_CONTENT
 from answers.models import Exam, ExamType, AnswerSection, Answer, Comment
 from categories.models import Category
 from myauth.models import MyUser
@@ -14,8 +15,12 @@ class ComsolTest(TestCase):
     ]
     loginUser = 0
     user = {}
+    test_http_methods = True
 
-    def get(self, path, status_code=200, as_json=True):
+    def get(self, path, status_code=200, test_post=True, as_json=True):
+        if test_post and self.test_http_methods:
+            response = self.client.post(path)
+            self.assertEqual(response.status_code, 405)
         response = self.client.get(path)
         self.assertEqual(response.status_code, status_code)
         if as_json:
@@ -23,13 +28,30 @@ class ComsolTest(TestCase):
         return response
 
     def post(self, path, args, status_code=200, test_get=True, as_json=True):
-        if test_get:
+        if test_get and self.test_http_methods:
             response = self.client.get(path)
             self.assertEqual(response.status_code, 405)
         for arg in args:
             if isinstance(args[arg], bool):
                 args[arg] = 'true' if args[arg] else 'false'
         response = self.client.post(path, args)
+        self.assertEqual(response.status_code, status_code)
+        if as_json:
+            return response.json()
+        return response
+
+    def put(self, path, args, status_code=200, as_json=True):
+        for arg in args:
+            if isinstance(args[arg], bool):
+                args[arg] = 'true' if args[arg] else 'false'
+        response = self.client.put(path, encode_multipart(BOUNDARY, args), content_type=MULTIPART_CONTENT)
+        self.assertEqual(response.status_code, status_code)
+        if as_json:
+            return response.json()
+        return response
+
+    def delete(self, path, status_code=200, as_json=True):
+        response = self.client.delete(path)
         self.assertEqual(response.status_code, status_code)
         if as_json:
             return response.json()

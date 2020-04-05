@@ -82,13 +82,17 @@ const EditorFooter: React.FC<Props> = ({
     <div className={footerStyle}>
       <div className={rowStyle}>
         <div className={spacer} />
-        <button onClick={onOpenOverlay} className={addImageButtonStyle}>
+        <button
+          onClick={onOpenOverlay}
+          className={addImageButtonStyle}
+          type="button"
+        >
           <div className={addImageIconStyle}>
             <ImageIcon size={iconSize} />
           </div>
           <div className={addImageTextStyle}>Browse Images</div>
         </button>
-        <button onClick={onFile} className={addImageButtonStyle}>
+        <button onClick={onFile} className={addImageButtonStyle} type="button">
           <div className={addImageIconStyle}>
             <Plus size={iconSize} />
           </div>

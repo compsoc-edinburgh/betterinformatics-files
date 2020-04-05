@@ -21,7 +21,7 @@ def prepare_exam_pdf_file(request):
     return None, file
 
 
-@response.args_post('category', 'displayname')
+@response.request_post('category', 'displayname')
 @auth_check.require_login
 def upload_exam_pdf(request):
     err, file = prepare_exam_pdf_file(request)
@@ -43,8 +43,8 @@ def upload_exam_pdf(request):
     return response.success(filename=filename)
 
 
-@response.args_post('category')
-@response.args_post('filename', optional=True)
+@response.request_post('category')
+@response.request_post('filename', optional=True)
 @auth_check.require_login
 def upload_transcript(request):
     err, file = prepare_exam_pdf_file(request)
@@ -79,7 +79,7 @@ def get_existing_exam(request):
     return None, file, exam
 
 
-@response.args_post('filename')
+@response.request_post('filename')
 @auth_check.require_login
 def upload_printonly(request):
     err, file, exam = get_existing_exam(request)
@@ -91,7 +91,7 @@ def upload_printonly(request):
     return response.success()
 
 
-@response.args_post('filename')
+@response.request_post('filename')
 @auth_check.require_login
 def upload_solution(request):
     err, file, exam = get_existing_exam(request)
@@ -103,7 +103,7 @@ def upload_solution(request):
     return response.success()
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_exam_admin
 def remove_exam(request, filename, exam):
     exam.delete()
@@ -111,7 +111,7 @@ def remove_exam(request, filename, exam):
     return response.success()
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_exam_admin
 def remove_printonly(request, filename, exam):
     exam.is_printonly = False
@@ -120,7 +120,7 @@ def remove_printonly(request, filename, exam):
     return response.success()
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_exam_admin
 def remove_solution(request, filename, exam):
     exam.has_solution = False
@@ -129,6 +129,7 @@ def remove_solution(request, filename, exam):
     return response.success()
 
 
+@response.request_get()
 @auth_check.require_login
 def get_exam_pdf(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
@@ -137,6 +138,7 @@ def get_exam_pdf(request, filename):
     return minio_util.send_file(settings.COMSOL_EXAM_DIR, filename, attachment_filename=exam.attachment_name(), as_attachment='download' in request.GET)
 
 
+@response.request_get()
 @auth_check.require_login
 def get_solution_pdf(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
@@ -147,6 +149,7 @@ def get_solution_pdf(request, filename):
     return minio_util.send_file(settings.COMSOL_SOLUTION_DIR, filename, attachment_filename=exam.attachment_name(), as_attachment='download' in request.GET)
 
 
+@response.request_get()
 @auth_check.require_login
 def get_printonly_pdf(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
@@ -173,19 +176,19 @@ def print_pdf(request, filename, minio_dir):
     return response.success()
 
 
-@response.args_post('password')
+@response.request_post('password')
 @auth_check.require_login
 def print_exam(request, filename):
     return print_pdf(request, filename, settings.COMSOL_EXAM_DIR)
 
 
-@response.args_post()
+@response.request_post()
 @auth_check.require_login
 def print_solution(request, filename):
     return print_pdf(request, filename, settings.COMSOL_SOLUTION_DIR)
 
 
-@response.args_post('filenames')
+@response.request_post('filenames')
 @auth_check.require_login
 def zip_export(request):
     filenames = request.POST.getlist('filenames')

@@ -60,6 +60,7 @@ def get_scoreboard_top(scoretype, limit):
     return res
 
 
+@response.request_get()
 @auth_check.require_login
 def userinfo(request, username):
     user = get_object_or_404(MyUser, username=username)
@@ -71,6 +72,7 @@ def userinfo(request, username):
     return response.success(value=res)
 
 
+@response.request_get()
 @auth_check.require_login
 def scoreboard_top(request, scoretype):
     limit = int(request.GET.get('limit', "10"))
