@@ -130,6 +130,7 @@ export default class PDF {
     ];
   }
   createMainCanvas(pageNumber: number, scale: number): MainCanvas {
+    console.log(`Create main canvas ${pageNumber}`);
     const canvasObject = globalFactory.create(undefined, undefined);
     const referenceManager = new PdfCanvasReferenceManager(0);
     const initialRef = referenceManager.createRetainedRef();

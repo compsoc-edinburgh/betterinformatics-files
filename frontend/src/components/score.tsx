@@ -1,13 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import {
-  Button,
-  Icon,
-  ICONS,
-  InputGroup,
-  InputGroupAddon,
-  Spinner,
-  ButtonGroup,
-} from "@vseth/components";
+import { Button, Icon, ICONS, Spinner, ButtonGroup } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
@@ -51,16 +43,9 @@ const Score: React.FC<Props> = ({
         style={{ minWidth: 0, color: "black" }}
         disabled={userVote === 0}
         outline
-        color={expertUpvotes ? "primary" : undefined}
         onClick={() => setLike(oid, 0)}
       >
-        {loading ? (
-          <Spinner size="sm" />
-        ) : expertUpvotes ? (
-          expertUpvotes
-        ) : (
-          upvotes
-        )}
+        {loading ? <Spinner size="sm" /> : upvotes}
       </Button>
       <Button
         size="sm"

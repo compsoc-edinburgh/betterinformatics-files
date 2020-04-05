@@ -63,6 +63,13 @@ const resetFlagged = async (oid: string) => {
   return (await fetchPost(`/api/exam/resetflagged/${oid}/`, {}))
     .value as AnswerSection;
 };
+const setExpertVote = async (oid: string, vote: boolean) => {
+  return (
+    await fetchPost(`/api/exam/setexpertvote/${oid}/`, {
+      vote,
+    })
+  ).value as AnswerSection;
+};
 
 interface Props {
   section?: AnswerSection;
@@ -82,6 +89,10 @@ const AnswerComponent: React.FC<Props> = ({
     loading: setFlaggedLoading,
     run: runSetFlagged,
   } = useRequest(setFlagged, { manual: true, onSuccess: onSectionChanged });
+  const {
+    loading: setExpertVoteLoading,
+    run: runSetExpertVote,
+  } = useRequest(setExpertVote, { manual: true, onSuccess: onSectionChanged });
   const {
     loading: resetFlaggedLoading,
     run: runResetFlagged,
@@ -144,7 +155,7 @@ const AnswerComponent: React.FC<Props> = ({
               <ButtonToolbar
                 style={{ justifyContent: "flex-end", margin: "0 -0.3em" }}
               >
-                {answer && answer.expertvotes > -1 && (
+                {answer && (answer.expertvotes > 0 || setExpertVoteLoading) && (
                   <ButtonGroup size="sm" style={{ margin: "0 0.3em" }}>
                     <IconButton
                       color="primary"
@@ -155,6 +166,13 @@ const AnswerComponent: React.FC<Props> = ({
                     <Button style={{ minWidth: 0 }} color="primary" active>
                       {answer.expertvotes}
                     </Button>
+                    <IconButton
+                      color="primary"
+                      icon={answer.isFlagged ? "CLOSE" : "PLUS"}
+                      onClick={() =>
+                        runSetExpertVote(answer.oid, !answer.isExpertVoted)
+                      }
+                    />
                   </ButtonGroup>
                 )}
                 {answer && (answer.flagged > 0 || flaggedLoading) && (
@@ -279,6 +297,13 @@ const AnswerComponent: React.FC<Props> = ({
                           More
                         </DropdownToggle>
                         <DropdownMenu>
+                          {answer.expertvotes === 0 && isExpert && (
+                            <DropdownItem
+                              onClick={() => runSetExpertVote(answer.oid, true)}
+                            >
+                              Endorse Answer
+                            </DropdownItem>
+                          )}
                           {answer.flagged === 0 && (
                             <DropdownItem
                               onClick={() => runSetFlagged(answer.oid, true)}

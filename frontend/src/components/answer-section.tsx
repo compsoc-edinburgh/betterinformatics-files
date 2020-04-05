@@ -17,6 +17,7 @@ import {
   Spinner,
   UncontrolledDropdown,
   FormGroup,
+  CardFooter,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { useUser } from "../auth";
@@ -190,139 +191,143 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       if (data && cutName.length === 0 && isCatAdmin) setIsEditingName(true);
     }, [data, isCatAdmin, cutName]);
     return (
-      <Container fluid>
+      <>
         {data && ((data.name && data.name.length > 0) || isCatAdmin) && (
-          <FormGroup>
-            {isEditingName ? (
-              <InputGroup size="sm">
-                <Input
-                  type="text"
-                  value={draftName}
-                  placeholder="Name"
-                  onChange={e => setDraftName(e.target.value)}
-                />
-                <InputGroupButtonDropdown addonType="append">
-                  <IconButton
-                    icon="SAVE"
-                    block
-                    onClick={() => {
-                      setIsEditingName(false);
-                      onCutNameChange(draftName);
-                    }}
+          <Card style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
+            <CardFooter>
+              {isEditingName ? (
+                <InputGroup size="sm">
+                  <Input
+                    type="text"
+                    value={draftName}
+                    placeholder="Name"
+                    onChange={e => setDraftName(e.target.value)}
                   />
-                </InputGroupButtonDropdown>
-              </InputGroup>
-            ) : (
-              <TwoButtons
-                left={cutName}
-                right={
-                  isCatAdmin && (
+                  <InputGroupButtonDropdown addonType="append">
                     <IconButton
-                      size="sm"
-                      icon="EDIT"
-                      onClick={() => setIsEditingName(true)}
+                      icon="SAVE"
+                      block
+                      onClick={() => {
+                        setIsEditingName(false);
+                        onCutNameChange(draftName);
+                      }}
                     />
-                  )
-                }
-              />
-            )}
-          </FormGroup>
-        )}
-        {!hidden && data && (
-          <>
-            {data.answers.map(answer => (
-              <AnswerComponent
-                key={answer.oid}
-                section={data}
-                answer={answer}
-                onSectionChanged={setAnswerSection}
-                isLegacyAnswer={answer.isLegacyAnswer}
-              />
-            ))}
-            {hasDraft && (
-              <AnswerComponent
-                section={data}
-                onSectionChanged={setAnswerSection}
-                onDelete={() => setHasDraft(false)}
-                isLegacyAnswer={false}
-              />
-            )}
-            {hasLegacyDraft && (
-              <AnswerComponent
-                section={data}
-                onSectionChanged={setAnswerSection}
-                onDelete={() => setHasLegacyDraft(false)}
-                isLegacyAnswer={true}
-              />
-            )}
-          </>
-        )}
-        <Card
-          style={{ marginTop: "0.3em", marginBottom: "1.5em" }}
-          color={isBeingMoved ? "primary" : undefined}
-        >
-          <CardHeader>
-            <div style={{ display: "flex" }} ref={ref}>
-              {data === undefined ? (
-                <>
-                  <ThreeButtons center={<Spinner />} />
-                </>
+                  </InputGroupButtonDropdown>
+                </InputGroup>
               ) : (
-                <>
-                  <ThreeButtons
-                    left={
-                      isBeingMoved ? (
-                        <Button size="sm" onClick={onCancelMove}>
-                          Cancel
-                        </Button>
-                      ) : (
-                        (data.answers.length === 0 || !hidden) &&
-                        data && (
-                          <AddButton
-                            allowAnswer={data.allow_new_answer}
-                            allowLegacyAnswer={data.allow_new_legacy_answer}
-                            hasAnswerDraft={hasDraft}
-                            hasLegacyAnswerDraft={hasLegacyDraft}
-                            onAnswer={onAddAnswer}
-                            onLegacyAnswer={onAddLegacyAnswer}
-                          />
-                        )
-                      )
-                    }
-                    center={
-                      !isBeingMoved &&
-                      data.answers.length > 0 && (
-                        <Button
-                          color="primary"
-                          size="sm"
-                          onClick={onToggleHidden}
-                        >
-                          {hidden ? "Show Answers" : "Hide Answers"}
-                        </Button>
-                      )
-                    }
-                    right={
-                      isCatAdmin && (
-                        <UncontrolledDropdown>
-                          <DropdownToggle caret size="sm">
-                            <Icon icon={ICONS.DOTS_H} size={18} />
-                          </DropdownToggle>
-                          <DropdownMenu>
-                            <DropdownItem onClick={runRemoveSplit}>
-                              Delete
-                            </DropdownItem>
-                            <DropdownItem onClick={onMove}>Move</DropdownItem>
-                          </DropdownMenu>
-                        </UncontrolledDropdown>
-                      )
-                    }
-                  />
-                </>
+                <TwoButtons
+                  left={cutName}
+                  right={
+                    isCatAdmin && (
+                      <IconButton
+                        size="sm"
+                        icon="EDIT"
+                        onClick={() => setIsEditingName(true)}
+                      />
+                    )
+                  }
+                />
               )}
-            </div>
-          </CardHeader>
-        </Card>
-      </Container>
+            </CardFooter>
+          </Card>
+        )}
+        <Container fluid>
+          {!hidden && data && (
+            <>
+              {data.answers.map(answer => (
+                <AnswerComponent
+                  key={answer.oid}
+                  section={data}
+                  answer={answer}
+                  onSectionChanged={setAnswerSection}
+                  isLegacyAnswer={answer.isLegacyAnswer}
+                />
+              ))}
+              {hasDraft && (
+                <AnswerComponent
+                  section={data}
+                  onSectionChanged={setAnswerSection}
+                  onDelete={() => setHasDraft(false)}
+                  isLegacyAnswer={false}
+                />
+              )}
+              {hasLegacyDraft && (
+                <AnswerComponent
+                  section={data}
+                  onSectionChanged={setAnswerSection}
+                  onDelete={() => setHasLegacyDraft(false)}
+                  isLegacyAnswer={true}
+                />
+              )}
+            </>
+          )}
+          <Card
+            style={{ marginTop: "1em", marginBottom: "1em" }}
+            color={isBeingMoved ? "primary" : undefined}
+          >
+            <CardHeader>
+              <div style={{ display: "flex" }} ref={ref}>
+                {data === undefined ? (
+                  <>
+                    <ThreeButtons center={<Spinner />} />
+                  </>
+                ) : (
+                  <>
+                    <ThreeButtons
+                      left={
+                        isBeingMoved ? (
+                          <Button size="sm" onClick={onCancelMove}>
+                            Cancel
+                          </Button>
+                        ) : (
+                          (data.answers.length === 0 || !hidden) &&
+                          data && (
+                            <AddButton
+                              allowAnswer={data.allow_new_answer}
+                              allowLegacyAnswer={data.allow_new_legacy_answer}
+                              hasAnswerDraft={hasDraft}
+                              hasLegacyAnswerDraft={hasLegacyDraft}
+                              onAnswer={onAddAnswer}
+                              onLegacyAnswer={onAddLegacyAnswer}
+                            />
+                          )
+                        )
+                      }
+                      center={
+                        !isBeingMoved &&
+                        data.answers.length > 0 && (
+                          <Button
+                            color="primary"
+                            size="sm"
+                            onClick={onToggleHidden}
+                          >
+                            {hidden ? "Show Answers" : "Hide Answers"}
+                          </Button>
+                        )
+                      }
+                      right={
+                        isCatAdmin && (
+                          <UncontrolledDropdown>
+                            <DropdownToggle caret size="sm">
+                              <Icon icon={ICONS.DOTS_H} size={18} />
+                            </DropdownToggle>
+                            <DropdownMenu>
+                              <DropdownItem onClick={runRemoveSplit}>
+                                Delete
+                              </DropdownItem>
+                              <DropdownItem onClick={onMove}>Move</DropdownItem>
+                            </DropdownMenu>
+                          </UncontrolledDropdown>
+                        )
+                      }
+                    />
+                  </>
+                )}
+              </div>
+            </CardHeader>
+          </Card>
+        </Container>
+      </>
     );
   },
 );
