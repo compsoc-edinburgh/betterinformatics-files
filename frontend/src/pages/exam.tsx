@@ -12,6 +12,7 @@ import MetaData from "../components/metadata";
 import Colors from "../colors";
 import PrintExam from "../components/print-exam";
 import globalcss from "../globalcss";
+import { TOCNode, TOC } from "../components/table-of-contents";
 
 const RERENDER_INTERVAL = 500;
 const MAX_WIDTH = 1200;
@@ -92,6 +93,7 @@ interface State {
   savedMetaData: ExamMetaData;
   updateIntervalId: number;
   error?: string;
+  toc?: TOCNode;
 }
 
 function widthFromWindow(): number {
@@ -173,6 +175,23 @@ export default class Exam extends React.Component<Props, State> {
       });
   };
 
+  generateTableOfContents = (sections: Section[] | undefined) => {
+    if (sections === undefined) {
+      return undefined;
+    }
+    const rootNode = new TOCNode("[root]", "");
+    for (const section of sections) {
+      if (section.kind === SectionKind.Answer) {
+        const parts = section.name.split(" > ");
+        if (parts.length === 1 && parts[0].length === 0) continue;
+        const jumpTarget = `${section.oid}-${parts.join("-")}`;
+        rootNode.add(parts, jumpTarget);
+      }
+    }
+    if (rootNode.children.length === 0) return undefined;
+    return rootNode;
+  };
+
   loadPDF = async () => {
     try {
       const pdf = await pdfjs.getDocument(
@@ -249,7 +268,10 @@ export default class Exam extends React.Component<Props, State> {
   loadSectionsFromBackend = (numPages: number) => {
     loadSections(this.props.filename, numPages)
       .then(sections => {
-        this.setState({ sections: sections });
+        this.setState({
+          sections: sections,
+          toc: this.generateTableOfContents(sections),
+        });
       })
       .catch(err => {
         this.setState({ error: err.toString() });
@@ -416,7 +438,6 @@ export default class Exam extends React.Component<Props, State> {
         });
       });
   };
-
   render() {
     if (!this.state.savedMetaData.canView) {
       if (
@@ -582,11 +603,13 @@ export default class Exam extends React.Component<Props, State> {
         ))}
         {(renderer && sections && (
           <div style={{ width: width }} {...styles.wrapper}>
+            {this.state.toc && <TOC toc={this.state.toc} />}
             {sections.map(e => {
               switch (e.kind) {
                 case SectionKind.Answer:
                   return (
                     <AnswerSectionComponent
+                      name={e.name}
                       key={e.oid}
                       isAdmin={this.props.isAdmin}
                       isExpert={this.state.savedMetaData.isExpert}
@@ -601,6 +624,14 @@ export default class Exam extends React.Component<Props, State> {
                             )
                           : false
                       }
+                      onCutNameChange={(newName: string) => {
+                        e.name = newName;
+                        this.setState({
+                          toc: this.generateTableOfContents(
+                            this.state.sections,
+                          ),
+                        });
+                      }}
                       onToggleHidden={() => this.toggleHidden(e.oid)}
                       hidden={e.hidden}
                       cutVersion={e.cutVersion}

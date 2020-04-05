@@ -48,6 +48,7 @@ export async function loadSections(
           allow_new_legacy_answer: false,
           hidden: true,
           cutVersion: cutVersion,
+          name: cut.name,
         });
       }
     }
