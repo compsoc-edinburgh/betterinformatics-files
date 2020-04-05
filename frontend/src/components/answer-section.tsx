@@ -185,6 +185,7 @@ export default class AnswerSectionComponent extends React.Component<
             <input
               type="text"
               value={this.state.name || ""}
+              placeholder="Name"
               onChange={e => this.setState({ name: e.target.value })}
             />
             <button onClick={this.updateName}>Save</button>
