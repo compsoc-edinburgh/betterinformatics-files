@@ -14,7 +14,7 @@ import { useRequest } from "@umijs/hooks";
 import { loadCutVersions } from "../api/hooks";
 import useSet from "../hooks/useSet";
 import PDF from "../pdf/pdf-renderer";
-import { fetchapi } from "../api/fetch-utils";
+import { fetchGet } from "../api/fetch-utils";
 
 interface Props {
   metaData: ExamMetaData;
@@ -76,7 +76,7 @@ const Exam: React.FC<Props> = React.memo(
     useEffect(() => {
       let cancelled = false;
       if (hash.length > 0) {
-        fetchapi(`/api/exam/answer/${hash}`)
+        fetchGet(`/api/exam/answer/${hash}`)
           .then(res => {
             if (cancelled) return;
             const sectionId = res.value.sectionId;

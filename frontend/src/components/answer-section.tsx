@@ -20,7 +20,7 @@ import {
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { useUser } from "../auth";
-import { fetchapi, fetchpost } from "../api/fetch-utils";
+import { fetchGet, fetchPost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
@@ -30,11 +30,11 @@ import TwoButtons from "./two-buttons";
 import useWasInViewport from "../hooks/useWasInViewport";
 
 const loadAnswers = async (oid: string) => {
-  return (await fetchapi(`/api/exam/answersection/${oid}/`))
+  return (await fetchGet(`/api/exam/answersection/${oid}/`))
     .value as AnswerSection;
 };
 const removeSplit = async (oid: string) => {
-  return await fetchpost(`/api/exam/removecut/${oid}/`, {});
+  return await fetchPost(`/api/exam/removecut/${oid}/`, {});
 };
 
 interface AddButtonProps {

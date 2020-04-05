@@ -3,11 +3,11 @@ import { useUser } from "../auth";
 import { hasValidClaim } from "../exam-utils";
 import { Button } from "@vseth/components";
 import React from "react";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import { useRequest } from "@umijs/hooks";
 
 const setClaim = async (filename: string, claim: boolean) => {
-  await fetchpost(`/api/exam/claimexam/${filename}/`, {
+  await fetchPost(`/api/exam/claimexam/${filename}/`, {
     claim: claim,
   });
 };

@@ -9,11 +9,11 @@ import {
   ButtonGroup,
 } from "@vseth/components";
 import React from "react";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
 
 const setLikeReq = async (oid: string, like: -1 | 0 | 1) => {
-  return (await fetchpost(`/api/exam/setlike/${oid}/`, { like }))
+  return (await fetchPost(`/api/exam/setlike/${oid}/`, { like }))
     .value as AnswerSection;
 };
 

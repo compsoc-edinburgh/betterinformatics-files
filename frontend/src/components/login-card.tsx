@@ -14,14 +14,14 @@ import {
 } from "@vseth/components";
 import React, { useState } from "react";
 import { useSetUser } from "../auth";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 
 const login = async (
   username: string,
   password: string,
   simulate_nonadmin: boolean,
 ) => {
-  await fetchpost("/api/auth/login/", {
+  await fetchPost("/api/auth/login/", {
     username,
     password,
     simulate_nonadmin: simulate_nonadmin ? "true" : "false",

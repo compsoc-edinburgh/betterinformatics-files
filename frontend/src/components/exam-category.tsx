@@ -1,6 +1,6 @@
 import * as React from "react";
 import AutocompleteInput from "./autocomplete-input";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import { Link } from "react-router-dom";
 
 interface Props {

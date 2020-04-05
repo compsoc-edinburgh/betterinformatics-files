@@ -5,7 +5,7 @@ import {
   CategoryMetaDataMinimal,
   ExamMetaData,
 } from "../interfaces";
-import { fetchapi, fetchpost } from "../api/fetch-utils";
+import { fetchGet, fetchPost } from "../api/fetch-utils";
 import Colors from "../colors";
 import AutocompleteInput from "../components/autocomplete-input";
 import Attachments from "./attachments";

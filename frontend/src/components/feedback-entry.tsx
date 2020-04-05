@@ -8,12 +8,12 @@ import {
 } from "@vseth/components";
 import moment from "moment";
 import * as React from "react";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import GlobalConsts from "../globalconsts";
 import { FeedbackEntry } from "../interfaces";
 
 const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
-  await fetchpost(`/api/feedback/flags/${oid}/`, {
+  await fetchPost(`/api/feedback/flags/${oid}/`, {
     [flag]: value,
   });
 };

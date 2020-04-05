@@ -3,7 +3,7 @@ import { Alert, Button, Container, Table } from "@vseth/components";
 import React from "react";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
-import { fetchapi } from "../api/fetch-utils";
+import { fetchGet } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
 
 const modes = [
@@ -15,7 +15,7 @@ const modes = [
 ] as const;
 type Mode = typeof modes[number];
 const loadScoreboard = async (scoretype: Mode) => {
-  return (await fetchapi(`/api/scoreboard/top/${scoretype}/`))
+  return (await fetchGet(`/api/scoreboard/top/${scoretype}/`))
     .value as UserInfo[];
 };
 const Scoreboard: React.FC<{}> = () => {

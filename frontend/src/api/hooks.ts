@@ -15,10 +15,10 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument, PDFDocumentProxy } from "../pdfjs";
-import { fetchapi, fetchpost } from "./fetch-utils";
+import { fetchGet, fetchPost } from "./fetch-utils";
 
 const loadUserInfo = async (username: string) => {
-  return (await fetchapi(`/api/scoreboard/userinfo/${username}/`))
+  return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))
     .value as UserInfo;
 };
 export const useUserInfo = (username: string) => {
@@ -31,7 +31,7 @@ export const useUserInfo = (username: string) => {
 const loadEnabledNotifications = async (isMyself: boolean) => {
   if (isMyself) {
     return new Set<number>(
-      (await fetchapi(`/api/notification/getenabled/`)).value,
+      (await fetchGet(`/api/notification/getenabled/`)).value,
     );
   } else {
     return undefined;
@@ -48,7 +48,7 @@ export const useEnabledNotifications = (isMyself: boolean) => {
   return [error, loading, data, run] as const;
 };
 const setEnabledNotifications = async (type: number, enabled: boolean) => {
-  await fetchpost(`/api/notification/setenabled/`, {
+  await fetchPost(`/api/notification/setenabled/`, {
     type,
     enabled,
   });
@@ -64,7 +64,7 @@ const loadPayments = async (username: string, isMyself: boolean) => {
   const query = isMyself
     ? "/api/payment/me/"
     : `/api/payment/query/${username}/`;
-  return (await fetchapi(query)).value as PaymentInfo[];
+  return (await fetchGet(query)).value as PaymentInfo[];
 };
 export const usePayments = (username: string, isMyself: boolean) => {
   const { error, loading, data, run } = useRequest(
@@ -77,7 +77,7 @@ export const usePayments = (username: string, isMyself: boolean) => {
   return [error, loading, data, run] as const;
 };
 const addPayment = async (username: string) => {
-  return (await fetchpost("/api/payment/pay/", { username })).value;
+  return (await fetchPost("/api/payment/pay/", { username })).value;
 };
 export const useAddPayments = (cb: () => void) => {
   const { error, loading, run } = useRequest(addPayment, {
@@ -87,7 +87,7 @@ export const useAddPayments = (cb: () => void) => {
   return [error, loading, run] as const;
 };
 const removePayment = async (payment: string) => {
-  return await fetchpost(`/api/payment/remove/${payment}/`, {});
+  return await fetchPost(`/api/payment/remove/${payment}/`, {});
 };
 export const useRemovePayment = (cb: () => void) => {
   const { error, loading, run } = useRequest(removePayment, {
@@ -97,7 +97,7 @@ export const useRemovePayment = (cb: () => void) => {
   return [error, loading, run] as const;
 };
 const refundPayment = async (payment: string) => {
-  return await fetchpost(`/api/payment/refund/${payment}/`, {});
+  return await fetchPost(`/api/payment/refund/${payment}/`, {});
 };
 export const useRefundPayment = (cb: () => void) => {
   const { error, loading, run } = useRequest(refundPayment, {
@@ -108,10 +108,10 @@ export const useRefundPayment = (cb: () => void) => {
 };
 const loadNotifications = async (mode: "all" | "unread") => {
   if (mode === "all") {
-    return (await fetchapi("/api/notification/all/"))
+    return (await fetchGet("/api/notification/all/"))
       .value as NotificationInfo[];
   } else {
-    return (await fetchapi("/api/notification/unread/"))
+    return (await fetchGet("/api/notification/unread/"))
       .value as NotificationInfo[];
   }
 };
@@ -128,7 +128,7 @@ export const useNotifications = (mode: "all" | "unread") => {
 const markAllRead = async (ids: string[]) => {
   return Promise.all(
     ids.map(oid =>
-      fetchpost(`/api/notification/setread/${oid}/`, {
+      fetchPost(`/api/notification/setread/${oid}/`, {
         read: true,
       }),
     ),
@@ -141,7 +141,7 @@ export const useMarkAsRead = () => {
   return [error, loading, (...args: string[]) => run(args)] as const;
 };
 const loadUserAnswers = async (username: string) => {
-  return (await fetchapi(`/api/exam/listbyuser/${username}/`))
+  return (await fetchGet(`/api/exam/listbyuser/${username}/`))
     .value as Answer[];
 };
 export const useUserAnswers = (username: string) => {
@@ -155,7 +155,7 @@ export const useUserAnswers = (username: string) => {
   return [error, loading, data, run] as const;
 };
 const logout = async () => {
-  await fetchpost("/api/auth/logout/", {});
+  await fetchPost("/api/auth/logout/", {});
 };
 export const useLogout = (cb: () => void = () => {}) => {
   const { error, loading, run } = useRequest(logout, {
@@ -165,7 +165,7 @@ export const useLogout = (cb: () => void = () => {}) => {
   return [error, loading, run] as const;
 };
 export const loadCategories = async () => {
-  return (await fetchapi("/api/category/listonlyadmin/"))
+  return (await fetchGet("/api/category/listonlyadmin/"))
     .value as CategoryMetaDataMinimal[];
 };
 export const uploadPdf = async (
@@ -174,32 +174,32 @@ export const uploadPdf = async (
   category: string,
 ) => {
   return (
-    await fetchpost("/api/exam/upload/exam/", { file, displayname, category })
+    await fetchPost("/api/exam/upload/exam/", { file, displayname, category })
   ).filename as string;
 };
 export const uploadTranscript = async (file: Blob, category: string) => {
-  return (await fetchpost("/api/exam/upload/transcript/", { file, category }))
+  return (await fetchPost("/api/exam/upload/transcript/", { file, category }))
     .filename as string;
 };
 export const loadCategoryMetaData = async (slug: string) => {
-  return (await fetchapi(`/api/category/metadata/${slug}`))
+  return (await fetchGet(`/api/category/metadata/${slug}`))
     .value as CategoryMetaData;
 };
 export const loadMetaCategories = async () => {
-  return (await fetchapi("/api/category/listmetacategories"))
+  return (await fetchGet("/api/category/listmetacategories"))
     .value as MetaCategory[];
 };
 export const loadList = async (slug: string) => {
-  return (await fetchapi(`/api/category/listexams/${slug}`))
+  return (await fetchGet(`/api/category/listexams/${slug}`))
     .value as CategoryExam[];
 };
 export const claimExam = async (filename: string, claim: boolean) => {
-  await fetchpost(`/api/exam/claimexam/${filename}/`, {
+  await fetchPost(`/api/exam/claimexam/${filename}/`, {
     claim,
   });
 };
 export const loadExamMetaData = async (filename: string) => {
-  return (await fetchapi(`/api/exam/metadata/${filename}/`))
+  return (await fetchGet(`/api/exam/metadata/${filename}/`))
     .value as ExamMetaData;
 };
 export const loadSplitRenderer = async (filename: string) => {
@@ -210,23 +210,23 @@ export const loadSplitRenderer = async (filename: string) => {
   return [pdf, renderer] as const;
 };
 export const loadCutVersions = async (filename: string) => {
-  return (await fetchapi(`/api/exam/cutversions/${filename}/`))
+  return (await fetchGet(`/api/exam/cutversions/${filename}/`))
     .value as CutVersions;
 };
 export const loadCuts = async (filename: string) => {
-  return (await fetchapi(`/api/exam/cuts/${filename}/`))
+  return (await fetchGet(`/api/exam/cuts/${filename}/`))
     .value as ServerCutResponse;
 };
 export const submitFeedback = async (text: string) => {
-  return await fetchpost("api/feedback/submit/", { text });
+  return await fetchPost("api/feedback/submit/", { text });
 };
 export const loadFeedback = async () => {
-  const fb = (await fetchapi("/api/feedback/list/")).value as FeedbackEntry[];
+  const fb = (await fetchGet("/api/feedback/list/")).value as FeedbackEntry[];
   const getScore = (a: FeedbackEntry) => (a.read ? 10 : 0) + (a.done ? 1 : 0);
   fb.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
   return fb;
 };
 export const loadPaymentCategories = async () => {
-  return (await fetchapi("/api/category/listonlypayment/"))
+  return (await fetchGet("/api/category/listonlypayment/"))
     .value as CategoryMetaData[];
 };

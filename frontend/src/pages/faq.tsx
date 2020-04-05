@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchGet, fetchPost, imageHandler } from "../fetch-utils";
+import { fetchGet, fetchPost, imageHandler } from "../api/fetch-utils";
 import { FAQEntry } from "../interfaces";
 import Editor from "../components/Editor";
 import FAQEntryComponent from "../components/faq-entry";

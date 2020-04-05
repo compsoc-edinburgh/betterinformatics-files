@@ -5,7 +5,7 @@ import {
   SectionKind,
   ServerCutPosition,
 } from "../interfaces";
-import { fetchapi } from "./fetch-utils";
+import { fetchGet } from "./fetch-utils";
 
 function createPdfSection(
   key: string,

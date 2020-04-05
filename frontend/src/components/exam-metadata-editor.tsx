@@ -13,7 +13,7 @@ import {
   TextareaField,
 } from "@vseth/components";
 import React from "react";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import { loadCategories } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { ExamMetaData } from "../interfaces";
@@ -44,7 +44,7 @@ const setMetaData = async (
   changes: Partial<ExamMetaData>,
 ) => {
   if (Object.keys(changes).length === 0) return;
-  await fetchpost(`/api/exam/setmetadata/${filename}/`, changes);
+  await fetchPost(`/api/exam/setmetadata/${filename}/`, changes);
 };
 const examTypeOptions = createOptions({
   Exams: "Exams",

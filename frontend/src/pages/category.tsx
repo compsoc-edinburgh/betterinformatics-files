@@ -19,7 +19,7 @@ import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Bre
 import { css } from "emotion";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
-import { fetchpost, getCookie } from "../api/fetch-utils";
+import { fetchPost, getCookie } from "../api/fetch-utils";
 import {
   loadCategoryMetaData,
   loadList,
@@ -74,7 +74,7 @@ const dlSelectedExams = (selectedExams: Set<string>) => {
   document.body.removeChild(form);
 };
 const removeExam = async (filename: string) => {
-  await fetchpost(`/api/exam/remove/exam/${filename}/`, {});
+  await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
 
 const badgeStyle = css`

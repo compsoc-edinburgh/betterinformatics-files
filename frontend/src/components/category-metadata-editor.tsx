@@ -13,7 +13,7 @@ import {
   TextareaField,
 } from "@vseth/components";
 import React from "react";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../ts-utils";
@@ -29,22 +29,22 @@ const setMetaData = async (
   changes: Partial<CategoryMetaData>,
 ) => {
   if (Object.keys(changes).length === 0) return;
-  await fetchpost(`/api/category/setmetadata/${slug}/`, changes);
+  await fetchPost(`/api/category/setmetadata/${slug}/`, changes);
 };
 const addUserToSet = async (slug: string, key: string, user: string) => {
-  await fetchpost(`/api/category/addusertoset/${slug}/`, {
+  await fetchPost(`/api/category/addusertoset/${slug}/`, {
     key,
     user,
   });
 };
 const removeUserFromSet = async (slug: string, key: string, user: string) => {
-  await fetchpost(`/api/category/removeuserfromset/${slug}/`, {
+  await fetchPost(`/api/category/removeuserfromset/${slug}/`, {
     key,
     user,
   });
 };
 const addMetaCategory = async (slug: string, meta1: string, meta2: string) => {
-  await fetchpost("/api/category/addmetacategory/", {
+  await fetchPost("/api/category/addmetacategory/", {
     meta1,
     meta2,
     category: slug,
@@ -55,7 +55,7 @@ const removeMetaCategory = async (
   meta1: string,
   meta2: string,
 ) => {
-  await fetchpost("/api/category/removemetacategory/", {
+  await fetchPost("/api/category/removemetacategory/", {
     meta1,
     meta2,
     category: slug,
@@ -67,7 +67,7 @@ const addAttachment = async (
   file: File,
 ) => {
   return (
-    await fetchpost("/api/filestore/upload/", {
+    await fetchPost("/api/filestore/upload/", {
       category,
       displayname,
       file,
@@ -75,7 +75,7 @@ const addAttachment = async (
   ).filename as string;
 };
 const removeAttachment = async (filename: string) => {
-  await fetchpost(`/api/filestore/remove/${filename}/`, {});
+  await fetchPost(`/api/filestore/remove/${filename}/`, {});
 };
 
 export interface CategoryMetaDataDraft

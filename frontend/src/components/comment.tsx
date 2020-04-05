@@ -8,7 +8,7 @@ import {
   ButtonGroup,
 } from "@vseth/components";
 import React, { useState } from "react";
-import { fetchpost, imageHandler } from "../api/fetch-utils";
+import { fetchPost, imageHandler } from "../api/fetch-utils";
 import { Answer, AnswerSection, Comment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
@@ -20,20 +20,20 @@ import IconButton from "./icon-button";
 
 const addNewComment = async (answerId: string, text: string) => {
   return (
-    await fetchpost(`/api/exam/addcomment/${answerId}/`, {
+    await fetchPost(`/api/exam/addcomment/${answerId}/`, {
       text,
     })
   ).value as AnswerSection;
 };
 const updateComment = async (commentId: string, text: string) => {
   return (
-    await fetchpost(`/api/exam/setcomment/${commentId}/`, {
+    await fetchPost(`/api/exam/setcomment/${commentId}/`, {
       text,
     })
   ).value as AnswerSection;
 };
 const removeComment = async (commentId: string) => {
-  return (await fetchpost(`/api/exam/removecomment/${commentId}/`, {}))
+  return (await fetchPost(`/api/exam/removecomment/${commentId}/`, {}))
     .value as AnswerSection;
 };
 

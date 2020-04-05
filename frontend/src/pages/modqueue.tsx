@@ -2,7 +2,7 @@ import { useRequest } from "@umijs/hooks";
 import { Badge, Button, Container, Table } from "@vseth/components";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchapi } from "../api/fetch-utils";
+import { fetchGet } from "../api/fetch-utils";
 import ClaimButton from "../components/claim-button";
 import LoadingOverlay from "../components/loading-overlay";
 import { CategoryExam, CategoryPaymentExam } from "../interfaces";
@@ -22,17 +22,17 @@ interface State {
 
 const loadExams = async (includeHidden: boolean) => {
   return (
-    await fetchapi(
+    await fetchGet(
       `/api/exam/listimportexams/${includeHidden ? "?includehidden=true" : ""}`,
     )
   ).value as CategoryExam[];
 };
 const loadPaymentExams = async () => {
-  return (await fetchapi("/api/exam/listpaymentcheckexams/"))
+  return (await fetchGet("/api/exam/listpaymentcheckexams/"))
     .value as CategoryPaymentExam[];
 };
 const loadFlagged = async () => {
-  return (await fetchapi("/api/exam/listflagged/")).value as string[];
+  return (await fetchGet("/api/exam/listflagged/")).value as string[];
 };
 
 const ModQueue: React.FC = () => {

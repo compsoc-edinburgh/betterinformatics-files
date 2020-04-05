@@ -22,7 +22,7 @@ import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
-import { fetchapi, fetchpost } from "../api/fetch-utils";
+import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 
 enum Mode {
@@ -35,11 +35,11 @@ const options = [
 ];
 
 const loadCategories = async () => {
-  return (await fetchapi("/api/category/listwithmeta/"))
+  return (await fetchGet("/api/category/listwithmeta/"))
     .value as CategoryMetaData[];
 };
 const loadMetaCategories = async () => {
-  return (await fetchapi("/api/category/listmetacategories/"))
+  return (await fetchGet("/api/category/listmetacategories/"))
     .value as MetaCategory[];
 };
 const loadCategoryData = async () => {
@@ -53,7 +53,7 @@ const loadCategoryData = async () => {
   ] as const;
 };
 const addCategory = async (category: string) => {
-  await fetchpost("/api/category/add/", { category });
+  await fetchPost("/api/category/add/", { category });
 };
 
 const mapToCategories = (

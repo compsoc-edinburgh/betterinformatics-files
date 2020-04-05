@@ -9,7 +9,7 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
 import { useUser, UserContext } from "../auth";
 import Exam from "../components/exam";
@@ -29,7 +29,7 @@ import {
 import PDF from "../pdf/pdf-renderer";
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
-  await fetchpost(`/api/exam/addcut/${filename}/`, {
+  await fetchPost(`/api/exam/addcut/${filename}/`, {
     pageNum,
     relHeight,
     name: "",
@@ -41,10 +41,10 @@ const moveCut = async (
   pageNum: number,
   relHeight: number,
 ) => {
-  await fetchpost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
+  await fetchPost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
 };
 const updateCutName = async (cut: string, name: string) => {
-  await fetchpost(`/api/exam/editcut/${cut}/`, { name });
+  await fetchPost(`/api/exam/editcut/${cut}/`, { name });
 };
 
 interface ExamPageContentProps {

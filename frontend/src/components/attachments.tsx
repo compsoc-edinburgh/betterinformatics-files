@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
 import { Attachment } from "../interfaces";
-import { fetchpost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 
 const stylesForWidth = {
   justWidth: css({

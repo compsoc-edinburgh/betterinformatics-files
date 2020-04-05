@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import * as React from "react";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../api/fetch-utils";
+import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { RefObject } from "react";
 import Colors from "../colors";
 

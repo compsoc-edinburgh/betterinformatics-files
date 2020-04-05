@@ -17,7 +17,7 @@ import {
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
 import { useUser } from "../auth";
-import { fetchpost, imageHandler } from "../api/fetch-utils";
+import { fetchPost, imageHandler } from "../api/fetch-utils";
 import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentSectionComponent from "./comment-section";
@@ -45,22 +45,22 @@ const updateAnswer = async (
   legacy_answer: boolean,
 ) => {
   return (
-    await fetchpost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
+    await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
   ).value as AnswerSection;
 };
 const removeAnwer = async (answerId: string) => {
-  return (await fetchpost(`/api/exam/removeanswer/${answerId}/`, {}))
+  return (await fetchPost(`/api/exam/removeanswer/${answerId}/`, {}))
     .value as AnswerSection;
 };
 const setFlagged = async (oid: string, flagged: boolean) => {
   return (
-    await fetchpost(`/api/exam/setflagged/${oid}/`, {
+    await fetchPost(`/api/exam/setflagged/${oid}/`, {
       flagged,
     })
   ).value as AnswerSection;
 };
 const resetFlagged = async (oid: string) => {
-  return (await fetchpost(`/api/exam/resetflagged/${oid}/`, {}))
+  return (await fetchPost(`/api/exam/resetflagged/${oid}/`, {}))
     .value as AnswerSection;
 };
 

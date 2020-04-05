@@ -225,6 +225,13 @@ export interface FeedbackEntry {
   done: boolean;
 }
 
+export interface FAQEntry {
+  oid: string;
+  question: string;
+  answer: string;
+  order: number;
+}
+
 export interface CutVersions {
   [oid: string]: number;
 }

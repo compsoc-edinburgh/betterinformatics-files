@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
 import { FAQEntry } from "../interfaces";
-import { fetchDelete, fetchPut, imageHandler } from "../fetch-utils";
+import { fetchDelete, fetchPut, imageHandler } from "../api/fetch-utils";
 import Colors from "../colors";
 import Editor from "./Editor";
 import MarkdownText from "./markdown-text";

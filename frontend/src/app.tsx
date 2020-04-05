@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
-import { fetchapi, getCookie } from "./api/fetch-utils";
+import { fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import ExamsNavbar from "./components/exams-navbar";
@@ -31,14 +31,14 @@ const App: React.FC<{}> = () => {
   }, []);*/
   useEffect(() => {
     if (getCookie("csrftoken") === null) {
-      fetchapi("/api/can_i_haz_csrf_cookie/");
+      fetchGet("/api/can_i_haz_csrf_cookie/");
     }
   }, []);
   const [user, setUser] = useState<User | undefined>(undefined);
   useEffect(() => {
     let cancelled = false;
     if (user === undefined) {
-      fetchapi("/api/auth/me/").then(
+      fetchGet("/api/auth/me/").then(
         res => {
           if (cancelled) return;
           setUser({

@@ -7,11 +7,11 @@ import {
 import { Item } from "@vseth/components/dist/components/VSETHNav/VSETHNavbar";
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { fetchapi } from "../api/fetch-utils";
+import { fetchGet } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import { useRequest } from "@umijs/hooks";
 const loadUnreadCount = async () => {
-  return (await fetchapi("/api/notification/unreadcount/")).value as number;
+  return (await fetchGet("/api/notification/unreadcount/")).value as number;
 };
 const ExamsNavbar: React.FC<{}> = () => {
   const location = useLocation();
