@@ -5,7 +5,7 @@ import {
   CategoryMetaDataMinimal,
   ExamMetaData,
 } from "../interfaces";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import Colors from "../colors";
 import AutocompleteInput from "../components/autocomplete-input";
 import Attachments from "./attachments";
@@ -65,14 +65,14 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    fetchapi("/api/category/listonlyadmin/")
+    fetchGet("/api/category/listonlyadmin/")
       .then(res => {
         this.setState({
           categories: res.value,
         });
       })
       .catch(() => undefined);
-    fetchapi("/api/exam/listexamtypes/")
+    fetchGet("/api/exam/listexamtypes/")
       .then(res => {
         this.setState({
           examTypes: res.value,
@@ -85,7 +85,7 @@ export default class MetaData extends React.Component<Props, State> {
     const metadata = { ...this.state.currentMetaData };
     metadata.has_solution = this.props.savedMetaData.has_solution;
     metadata.is_printonly = this.props.savedMetaData.is_printonly;
-    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, metadata)
+    fetchPost(`/api/exam/setmetadata/${this.props.filename}/`, metadata)
       .then(() => {
         this.props.onChange(metadata);
         this.props.onFinishEdit();
@@ -147,7 +147,7 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   uploadFilePrintonly = () => {
-    fetchpost("/api/exam/upload/printonly/", {
+    fetchPost("/api/exam/upload/printonly/", {
       file: this.state.printonlyFile,
       filename: this.state.currentMetaData.filename,
     })
@@ -164,7 +164,7 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   removeFilePrintonly = () => {
-    fetchpost(
+    fetchPost(
       "/api/exam/remove/printonly/" + this.state.currentMetaData.filename + "/",
       {},
     )
@@ -181,7 +181,7 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   uploadFileSolution = () => {
-    fetchpost("/api/exam/upload/solution/", {
+    fetchPost("/api/exam/upload/solution/", {
       file: this.state.solutionFile,
       filename: this.state.currentMetaData.filename,
     })
@@ -198,7 +198,7 @@ export default class MetaData extends React.Component<Props, State> {
   };
 
   removeFileSolution = () => {
-    fetchpost(
+    fetchPost(
       "/api/exam/remove/solution/" + this.state.currentMetaData.filename + "/",
       {},
     )

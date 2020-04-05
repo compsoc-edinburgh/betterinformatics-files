@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import { FeedbackEntry } from "../interfaces";
 import FeedbackEntryComponent from "../components/feedback-entry";
 import { Link } from "react-router-dom";
@@ -72,7 +72,7 @@ export default class Feedback extends React.Component<Props, State> {
   submitFeedback = (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
-    fetchpost("/api/feedback/submit/", {
+    fetchPost("/api/feedback/submit/", {
       text: this.state.feedbackText,
     })
       .then(() => {
@@ -93,7 +93,7 @@ export default class Feedback extends React.Component<Props, State> {
     this.setState({
       requestedFeedbacks: true,
     });
-    fetchapi("/api/feedback/list/")
+    fetchGet("/api/feedback/list/")
       .then(res => {
         const getScore = (a: FeedbackEntry) =>
           (a.read ? 10 : 0) + (a.done ? 1 : 0);

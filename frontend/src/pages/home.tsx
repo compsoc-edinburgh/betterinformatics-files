@@ -6,7 +6,7 @@ import {
   MetaCategory,
   MetaCategoryWithCategories,
 } from "../interfaces";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import { fillMetaCategories, filterCategories } from "../category-utils";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
@@ -157,7 +157,7 @@ export default class Home extends React.Component<Props, State> {
   }
 
   loadCategories = () => {
-    fetchapi("/api/category/listwithmeta/")
+    fetchGet("/api/category/listwithmeta/")
       .then(res => {
         this.setState({
           categories: this.removeDefaultIfNecessary(res.value),
@@ -169,7 +169,7 @@ export default class Home extends React.Component<Props, State> {
   };
 
   loadMetaCategories = () => {
-    fetchapi("/api/category/listmetacategories/").then(res => {
+    fetchGet("/api/category/listmetacategories/").then(res => {
       this.setState({
         metaCategories: res.value,
       });
@@ -221,7 +221,7 @@ export default class Home extends React.Component<Props, State> {
     if (!this.state.newCategoryName) {
       return;
     }
-    fetchpost("/api/category/add/", {
+    fetchPost("/api/category/add/", {
       category: this.state.newCategoryName,
     })
       .then(res => {

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { css } from "glamor";
-import { fetchapi, fetchpost, imageHandler } from "../fetch-utils";
+import { fetchGet, fetchPost, imageHandler } from "../fetch-utils";
 import { FAQEntry } from "../interfaces";
 import Editor from "../components/Editor";
 import FAQEntryComponent from "../components/faq-entry";
@@ -61,7 +61,7 @@ export default class FAQ extends React.Component<Props, State> {
   }
 
   loadFAQs = () => {
-    fetchapi("/api/faq/").then(res => {
+    fetchGet("/api/faq/").then(res => {
       this.setState({
         faqs: res.value,
       });
@@ -76,7 +76,7 @@ export default class FAQ extends React.Component<Props, State> {
         ? Math.max(...this.state.faqs.map(x => x.order)) + 1
         : 0;
 
-    fetchpost("/api/faq/", {
+    fetchPost("/api/faq/", {
       question: this.state.newQuestion,
       answer: this.state.newAnswer,
       order: newOrder,

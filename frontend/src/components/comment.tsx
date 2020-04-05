@@ -3,7 +3,7 @@ import { AnswerSection, Comment } from "../interfaces";
 import moment from "moment";
 import { css } from "glamor";
 import MarkdownText from "./markdown-text";
-import { fetchpost, imageHandler } from "../fetch-utils";
+import { fetchPost, imageHandler } from "../fetch-utils";
 import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
 import GlobalConsts from "../globalconsts";
@@ -78,7 +78,7 @@ export default class CommentComponent extends React.Component<Props, State> {
     // eslint-disable-next-line no-restricted-globals
     const confirmation = confirm("Remove comment?");
     if (confirmation) {
-      fetchpost(`/api/exam/removecomment/${this.props.comment.oid}/`, {})
+      fetchPost(`/api/exam/removecomment/${this.props.comment.oid}/`, {})
         .then(res => {
           this.props.onSectionChanged(res);
         })
@@ -99,7 +99,7 @@ export default class CommentComponent extends React.Component<Props, State> {
 
   saveComment = () => {
     if (this.props.isNewComment) {
-      fetchpost(`/api/exam/addcomment/${this.props.answerId}/`, {
+      fetchPost(`/api/exam/addcomment/${this.props.answerId}/`, {
         text: this.state.text,
       })
         .then(res => {
@@ -111,7 +111,7 @@ export default class CommentComponent extends React.Component<Props, State> {
         })
         .catch(() => undefined);
     } else {
-      fetchpost(`/api/exam/setcomment/${this.props.comment.oid}/`, {
+      fetchPost(`/api/exam/setcomment/${this.props.comment.oid}/`, {
         text: this.state.text,
       })
         .then(res => {

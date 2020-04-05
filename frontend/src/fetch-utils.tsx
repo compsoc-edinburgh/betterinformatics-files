@@ -24,7 +24,7 @@ async function performDataRequest(
     headers: {
       "X-CSRFToken": getCookie("csrftoken") || "",
     },
-    method: method,
+    method,
     body: formData,
   });
   try {
@@ -57,25 +57,25 @@ async function performRequest(method: string, url: string) {
   }
 }
 
-export function fetchpost(url: string, data: { [key: string]: any }) {
+export function fetchPost(url: string, data: { [key: string]: any }) {
   return performDataRequest("POST", url, data);
 }
 
-export function fetchput(url: string, data: { [key: string]: any }) {
+export function fetchPut(url: string, data: { [key: string]: any }) {
   return performDataRequest("PUT", url, data);
 }
 
-export function fetchdelete(url: string) {
+export function fetchDelete(url: string) {
   return performRequest("DELETE", url);
 }
 
-export function fetchapi(url: string) {
+export function fetchGet(url: string) {
   return performRequest("GET", url);
 }
 
 export function imageHandler(file: File): Promise<ImageHandle> {
   return new Promise((resolve, reject) => {
-    fetchpost("/api/image/upload/", {
+    fetchPost("/api/image/upload/", {
       file: file,
     })
       .then(res => {
@@ -83,7 +83,7 @@ export function imageHandler(file: File): Promise<ImageHandle> {
           name: file.name,
           src: res.filename,
           remove: async () => {
-            await fetchpost(`/api/image/remove/${res.filename}/`, {});
+            await fetchPost(`/api/image/remove/${res.filename}/`, {});
           },
         });
       })

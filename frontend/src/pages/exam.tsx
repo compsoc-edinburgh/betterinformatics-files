@@ -7,7 +7,7 @@ import { debounce } from "lodash";
 import { css } from "glamor";
 import PdfSectionComp from "../components/pdf-section";
 import AnswerSectionComponent from "../components/answer-section";
-import { fetchapi, fetchpost } from "../fetch-utils";
+import { fetchGet, fetchPost } from "../fetch-utils";
 import MetaData from "../components/metadata";
 import Colors from "../colors";
 import PrintExam from "../components/print-exam";
@@ -160,7 +160,7 @@ export default class Exam extends React.Component<Props, State> {
   }
 
   loadMetaData = () => {
-    fetchapi(`/api/exam/metadata/${this.props.filename}/`)
+    fetchGet(`/api/exam/metadata/${this.props.filename}/`)
       .then(res => {
         this.setState({
           canEdit: res.value.canEdit,
@@ -257,7 +257,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   updateCutVersion = () => {
-    fetchapi(`/api/exam/cutversions/${this.props.filename}/`)
+    fetchGet(`/api/exam/cutversions/${this.props.filename}/`)
       .then(res => {
         const versions = res.value;
         this.setState(prevState => ({
@@ -292,7 +292,7 @@ export default class Exam extends React.Component<Props, State> {
       );
     }
 
-    fetchpost(`/api/exam/addcut/${this.props.filename}/`, {
+    fetchPost(`/api/exam/addcut/${this.props.filename}/`, {
       pageNum: section.start.page,
       relHeight: relHeight,
     })
@@ -386,7 +386,7 @@ export default class Exam extends React.Component<Props, State> {
     if (this.state.editingMetaData) {
       this.toggleEditingMetadataActive();
     }
-    fetchpost(`/api/exam/setmetadata/${this.props.filename}/`, update).then(
+    fetchPost(`/api/exam/setmetadata/${this.props.filename}/`, update).then(
       res => {
         this.setState(prevState => ({
           savedMetaData: {
@@ -406,7 +406,7 @@ export default class Exam extends React.Component<Props, State> {
   };
 
   markPaymentExamChecked = () => {
-    fetchpost(`/api/payment/markexamchecked/${this.props.filename}/`, {})
+    fetchPost(`/api/payment/markexamchecked/${this.props.filename}/`, {})
       .then(() => {
         this.loadMetaData();
       })

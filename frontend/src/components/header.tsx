@@ -2,7 +2,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { css } from "glamor";
 import Colors from "../colors";
-import { fetchapi } from "../fetch-utils";
+import { fetchGet } from "../fetch-utils";
 import { Menu } from "react-feather";
 
 interface Props {
@@ -143,7 +143,7 @@ export default class Header extends React.Component<Props, State> {
   }
 
   checkNotificationCount = () => {
-    fetchapi("/api/notification/unreadcount/")
+    fetchGet("/api/notification/unreadcount/")
       .then(res => {
         this.setState({
           notificationCount: res.value,

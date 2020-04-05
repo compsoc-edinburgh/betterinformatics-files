@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
 import { UserInfo } from "../interfaces";
-import { fetchapi } from "../fetch-utils";
+import { fetchGet } from "../fetch-utils";
 import { Link } from "react-router-dom";
 import globalcss from "../globalcss";
 
@@ -67,7 +67,7 @@ export default class Scoreboard extends React.Component<Props, State> {
 
   loadScoreboard = (scoretype: string) => {
     window.location.hash = scoretype;
-    fetchapi("/api/scoreboard/top/" + scoretype + "/")
+    fetchGet("/api/scoreboard/top/" + scoretype + "/")
       .then(res => {
         this.setState({
           scoreboard: res.value,
