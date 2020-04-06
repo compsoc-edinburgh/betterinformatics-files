@@ -19,6 +19,9 @@ const useSet = <T>(defaultValue?: Set<T>) => {
       return copy;
     });
   }, []);
-  return [value, addEntries, deleteEntries] as const;
+  const setEntries = useCallback((...entries: T[]) => {
+    setValue(new Set(entries));
+  }, []);
+  return [value, addEntries, deleteEntries, setEntries] as const;
 };
 export default useSet;

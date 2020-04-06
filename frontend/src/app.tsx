@@ -17,6 +17,8 @@ import UploadPdfPage from "./pages/uploadpdf";
 import UserPage from "./pages/userinfo";
 import UploadTranscriptPage from "./pages/submittranscript";
 import HashLocationHandler from "./components/hash-location-handler";
+import FAQ from "./pages/faq";
+import ImageModal from "./components/image-overlay";
 
 const App: React.FC<{}> = () => {
   /*const _serverData = useMemo(() => {
@@ -76,6 +78,7 @@ const App: React.FC<{}> = () => {
                   path="/submittranscript"
                   component={UploadTranscriptPage}
                 />
+                <UserRoute exact path="/faq" component={FAQ} />
                 <UserRoute exact path="/feedback" component={FeedbackPage} />
                 <UserRoute
                   exact

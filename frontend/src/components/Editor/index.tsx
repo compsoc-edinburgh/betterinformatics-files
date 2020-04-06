@@ -1,26 +1,16 @@
-import * as React from "react";
-import { useCallback, useState, useRef } from "react";
 import { css, cx } from "emotion";
-import { Range, EditorMode, ImageHandle } from "./utils/types";
+import * as React from "react";
+import { useCallback, useRef, useState } from "react";
+import ImageOverlay from "../image-overlay";
 import BasicEditor from "./BasicEditor";
-import EditorHeader from "./EditorHeader";
 import DropZone from "./Dropzone";
 import EditorFooter from "./EditorFooter";
-import ImageOverlay from "../image-overlay";
-import { UndoStack, push, undo, redo } from "./utils/undo-stack";
-import { ListGroupItem, ListGroup } from "@vseth/components";
+import EditorHeader from "./EditorHeader";
+import { EditorMode, ImageHandle, Range } from "./utils/types";
+import { push, redo, undo, UndoStack } from "./utils/undo-stack";
 
 const editorWrapperStyle = css`
   padding: 1.2em;
-`;
-
-const wrapperStyle = css`
-  position: relative;
-  border: 1px solid transparent;
-`;
-const dragHoveredWrapperStyle = css`
-  border: 1px solid #fed330;
-  border-radius: 3px;
 `;
 interface Props {
   value: string;
@@ -232,47 +222,46 @@ const Editor: React.FC<Props> = ({
   }, []);
 
   return (
-    <ListGroup style={{ marginBottom: "1em" }}>
-      <ListGroupItem>
-        <div
-          className={cx(wrapperStyle, isDragHovered && dragHoveredWrapperStyle)}
-          onDragEnter={onDragEnter}
-        >
-          <EditorHeader
-            activeMode={mode}
-            onActiveModeChange={setMode}
-            onMathClick={onMathClick}
-            onCodeClick={onCodeClick}
-            onLinkClick={onLinkClick}
-            onItalicClick={onItalicClick}
-            onBoldClick={onBoldClick}
+    <div
+      className={cx("form-control", isDragHovered && "border-primary")}
+      style={{ marginBottom: "1em", padding: 0 }}
+      onDragEnter={onDragEnter}
+    >
+      <EditorHeader
+        activeMode={mode}
+        onActiveModeChange={setMode}
+        onMathClick={onMathClick}
+        onCodeClick={onCodeClick}
+        onLinkClick={onLinkClick}
+        onItalicClick={onItalicClick}
+        onBoldClick={onBoldClick}
+      />
+      <div className={editorWrapperStyle}>
+        {mode === "write" ? (
+          <BasicEditor
+            value={value}
+            onChange={newValue => setCurrent(newValue)}
+            setSelectionRangeRef={setSelectionRangeRef}
+            getSelectionRangeRef={getSelectionRangeRef}
+            onMetaKey={onMetaKey}
           />
-          <div className={editorWrapperStyle}>
-            {mode === "write" ? (
-              <BasicEditor
-                value={value}
-                onChange={newValue => setCurrent(newValue)}
-                setSelectionRangeRef={setSelectionRangeRef}
-                getSelectionRangeRef={getSelectionRangeRef}
-                onMetaKey={onMetaKey}
-              />
-            ) : (
-              preview(value)
-            )}
-          </div>
-          <EditorFooter
-            onFiles={onFiles}
-            attachments={attachments}
-            onDelete={onDeleteAttachment}
-            onOpenOverlay={onOpenOverlay}
-          />
-          {isDragHovered && (
-            <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />
-          )}
-        </div>
-        {overlayOpen && <ImageOverlay onClose={onImageDialogClose} />}
-      </ListGroupItem>
-    </ListGroup>
+        ) : (
+          preview(value)
+        )}
+      </div>
+      <EditorFooter
+        onFiles={onFiles}
+        attachments={attachments}
+        onDelete={onDeleteAttachment}
+        onOpenOverlay={onOpenOverlay}
+      />
+      {isDragHovered && <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />}
+      <ImageOverlay
+        isOpen={overlayOpen}
+        toggle={() => onImageDialogClose("")}
+        closeWithImage={onImageDialogClose}
+      />
+    </div>
   );
 };
 export default Editor;

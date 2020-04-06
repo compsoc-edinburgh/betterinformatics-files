@@ -3,6 +3,7 @@ import {
   Button,
   ButtonDropdown,
   ButtonGroup,
+  ButtonToolbar,
   Card,
   CardBody,
   CardHeader,
@@ -11,15 +12,14 @@ import {
   DropdownToggle,
   Icon,
   ICONS,
-  InputGroup,
-  ButtonToolbar,
 } from "@vseth/components";
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
-import { useUser } from "../auth";
 import { fetchPost, imageHandler } from "../api/fetch-utils";
+import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection } from "../interfaces";
+import { copy } from "../utils/clipboard";
 import CommentSectionComponent from "./comment-section";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
@@ -27,11 +27,10 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TwoButtons from "./two-buttons";
-import { copy } from "../utils/clipboard";
 
 const bodyCanEditStyle = css`
   position: relative;
-  padding-top: 2em !important;
+  padding-top: 2.3em !important;
 `;
 const actionButtonContainer = css`
   position: absolute;

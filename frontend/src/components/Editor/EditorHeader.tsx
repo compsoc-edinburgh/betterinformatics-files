@@ -1,29 +1,36 @@
 import { EditorMode } from "./utils/types";
 import * as React from "react";
-import TabBar from "./TabBar";
 import { css } from "emotion";
 import { Bold, Italic, Link, Code, DollarSign } from "react-feather";
+import { Nav, NavItem, NavLink } from "@vseth/components";
 
 const iconButtonStyle = css`
   margin: 0;
   border: none;
   cursor: pointer;
   background-color: transparent;
-  padding: 6px;
-  color: rgba(0, 0, 0, 0.4);
+  padding: 0 14px;
+  height: 100%;
+  color: rgba(0, 0, 0, 0.8);
   transition: color 0.1s;
   &:hover {
     color: rgba(0, 0, 0, 0.8);
   }
 `;
-const headerStyle = css`
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
+const navStyle = css`
+  width: 100%;
 `;
-const spacer = css`
-  flex-grow: 1;
+const headerStyle = css`
+  position: relative;
+`;
+const iconsStyle = css`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  top: 0;
+`;
+const linkStyle = css`
+  font-size: 0.8rem !important;
 `;
 
 interface Props {
@@ -44,60 +51,67 @@ const EditorHeader: React.FC<Props> = ({
   const iconSize = 15;
   return (
     <div className={headerStyle}>
-      <TabBar
-        items={[
-          {
-            title: "Write",
-            active: activeMode === "write",
-            onClick: () => onActiveModeChange("write"),
-          },
-          {
-            title: "Preview",
-            active: activeMode === "preview",
-            onClick: () => onActiveModeChange("preview"),
-          },
-        ]}
-      />
-      <div className={spacer} />
-      {activeMode === "write" && (
-        <>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onMathClick}
-            type="button"
+      <Nav tabs className={navStyle}>
+        <NavItem>
+          <NavLink
+            active={activeMode === "write"}
+            onClick={() => onActiveModeChange("write")}
+            className={linkStyle}
           >
-            <DollarSign size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onCodeClick}
-            type="button"
+            Write
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={activeMode === "preview"}
+            onClick={() => onActiveModeChange("preview")}
+            className={linkStyle}
           >
-            <Code size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onLinkClick}
-            type="button"
-          >
-            <Link size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onItalicClick}
-            type="button"
-          >
-            <Italic size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onBoldClick}
-            type="button"
-          >
-            <Bold size={iconSize} />
-          </button>
-        </>
-      )}
+            Preview
+          </NavLink>
+        </NavItem>
+      </Nav>
+      <div className={iconsStyle}>
+        {activeMode === "write" && (
+          <>
+            <button
+              className={iconButtonStyle}
+              onClick={handlers.onMathClick}
+              type="button"
+            >
+              <DollarSign size={iconSize} />
+            </button>
+            <button
+              className={iconButtonStyle}
+              onClick={handlers.onCodeClick}
+              type="button"
+            >
+              <Code size={iconSize} />
+            </button>
+            <button
+              className={iconButtonStyle}
+              onClick={handlers.onLinkClick}
+              type="button"
+            >
+              <Link size={iconSize} />
+            </button>
+            <button
+              className={iconButtonStyle}
+              onClick={handlers.onItalicClick}
+              type="button"
+            >
+              <Italic size={iconSize} />
+            </button>
+            <button
+              className={iconButtonStyle}
+              onClick={handlers.onBoldClick}
+              type="button"
+            >
+              <Bold size={iconSize} />
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };

@@ -49,6 +49,14 @@ const ExamsNavbar: React.FC<{}> = () => {
           },
         },
         {
+          title: "FAQ",
+          icon: ICONS.HELP,
+          active: location.pathname === "/faq",
+          linkProps: {
+            to: "/faq",
+          },
+        },
+        {
           title: "Feedback",
           icon: ICONS.MESSAGE,
           active: location.pathname === "/feedback",

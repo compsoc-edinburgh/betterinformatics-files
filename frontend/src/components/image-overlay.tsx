@@ -1,243 +1,146 @@
-/* eslint-disable jsx-a11y/img-redundant-alt */
-import * as React from "react";
-import { css } from "glamor";
+import { useRequest } from "@umijs/hooks";
+import {
+  Button,
+  Card,
+  CardColumns,
+  CardImg,
+  Modal,
+  ModalBody,
+  ModalHeader,
+} from "@vseth/components";
+import React, { useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
-import { RefObject } from "react";
-import Colors from "../colors";
+import useSet from "../hooks/useSet";
+import FileInput from "./file-input";
+import TwoButtons from "./two-buttons";
 
-const styles = {
-  background: css({
-    background: "rgba(0, 0, 0, 0.2)",
-    position: "fixed",
-    top: "0",
-    left: "0",
-    right: "0",
-    bottom: "0",
-    paddingTop: "200px",
-    paddingBottom: "200px",
-    zIndex: 100,
-    "@media (max-height: 799px)": {
-      paddingTop: "50px",
-      paddingBottom: "50px",
-    },
-  }),
-  dialog: css({
-    background: Colors.cardBackground,
-    boxShadow: Colors.cardShadow,
-    width: "70%",
-    maxWidth: "1200px",
-    height: "100%",
-    margin: "auto",
-    "@media (max-width: 699px)": {
-      width: "90%",
-    },
-  }),
-  header: css({
-    background: Colors.cardHeader,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingRight: "20px",
-  }),
-  title: css({
-    color: Colors.cardHeaderForeground,
-    fontSize: "20px",
-    padding: "20px",
-  }),
-  content: css({
-    padding: "20px",
-    overflow: "auto",
-    height: "calc(100% - 110px)",
-  }),
-  uploadForm: css({
-    textAlign: "center",
-  }),
-  images: css({
-    display: "flex",
-    flexWrap: "wrap",
-    height: "100%",
-    marginTop: "20px",
-  }),
-  imageWrapper: css({
-    width: "138px",
-    height: "138px",
-  }),
-  imageSelected: css({
-    background: Colors.activeImage,
-  }),
-  imageSmallWrapper: css({
-    width: "128px",
-    height: "128px",
-    margin: "5px",
-  }),
-  imageSmall: css({
-    maxWidth: "128px",
-    maxHeight: "128px",
-  }),
-  deleteImgWrapper: css({
-    position: "relative",
-    top: "-133px",
-    left: "5px",
-    height: "32px",
-    width: "32px",
-  }),
-  deleteImg: css({
-    height: "32px",
-    width: "32px",
-    cursor: "pointer",
-  }),
+const loadImage = async () => {
+  return (await fetchGet("/api/image/list/")).value as string[];
+};
+const removeImage = async (image: string) => {
+  await fetchPost(`/api/image/remove/${image}/`, {});
+  return image;
+};
+const uploadImage = async (file: File) => {
+  return (await fetchPost("/api/image/upload/", { file })).filename as string;
 };
 
-interface Props {
-  onClose: (image: string) => void;
+interface ModalProps {
+  isOpen: boolean;
+  toggle: () => void;
+  closeWithImage: (image: string) => void;
 }
-
-interface State {
-  images: string[];
-  file?: Blob;
-  selected: string;
-  error?: string;
-}
-
-export default class ImageOverlay extends React.Component<Props, State> {
-  state: State = {
-    images: [],
-    selected: "",
-  };
-
-  fileInputRef: RefObject<HTMLInputElement> = React.createRef();
-
-  componentDidMount() {
-    this.loadImages();
-  }
-
-  loadImages = () => {
-    fetchGet("/api/image/list/")
-      .then(res => {
-        res.value.reverse();
-        this.setState({ images: res.value });
-      })
-      .catch(e => {
-        this.setState({ error: e.toString() });
-      });
-  };
-
-  cancelDialog = () => {
-    this.props.onClose("");
-  };
-
-  chooseImage = () => {
-    this.props.onClose(this.state.selected);
-  };
-
-  uploadImage = (ev: React.FormEvent<HTMLFormElement>) => {
-    ev.preventDefault();
-
-    if (!this.state.file) {
-      return;
-    }
-
-    fetchPost("/api/image/upload/", {
-      file: this.state.file,
-    })
-      .then(res => {
-        this.setState({
-          selected: res.filename,
-          file: undefined,
-        });
-        if (this.fileInputRef.current) {
-          this.fileInputRef.current.value = "";
-        }
-        this.loadImages();
-      })
-      .catch(() => undefined);
-  };
-
-  handleFileChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    if (ev.target.files != null) {
-      this.setState({
-        file: ev.target.files[0],
-      });
+const ImageModal: React.FC<ModalProps> = ({
+  isOpen,
+  toggle,
+  closeWithImage,
+}) => {
+  const [file, setFile] = useState<File | undefined>(undefined);
+  const { data: images, mutate, run: reload } = useRequest(loadImage, {
+    cacheKey: "images",
+  });
+  const [selected, add, remove, setSelected] = useSet<string>();
+  const { run: runRemoveImage } = useRequest(removeImage, {
+    manual: true,
+    fetchKey: id => id,
+    onSuccess: removed => {
+      mutate(prev => prev.filter(image => image !== removed));
+      remove(removed);
+    },
+  });
+  const { run: runUploadImage } = useRequest(uploadImage, {
+    manual: true,
+    onSuccess: added => {
+      mutate(prevSelected => [...prevSelected, added]);
+      setFile(undefined);
+    },
+  });
+  const removeSelected = () => {
+    for (const image of selected) {
+      runRemoveImage(image);
     }
   };
+  return (
+    <Modal size="lg" isOpen={isOpen} toggle={toggle}>
+      <ModalHeader>Images</ModalHeader>
+      <ModalBody>
+        <TwoButtons
+          fill="left"
+          left={<FileInput value={file} onChange={setFile} accept="image/*" />}
+          right={
+            <Button
+              onClick={() => file && runUploadImage(file)}
+              disabled={file === undefined}
+            >
+              Upload
+            </Button>
+          }
+        />
 
-  onImageClick = (image: string) => {
-    this.setState({
-      selected: image,
-    });
-  };
+        <TwoButtons
+          right={
+            <>
+              <Button style={{ marginTop: "1em" }} onClick={reload}>
+                Reload
+              </Button>
+              <Button
+                style={{ marginTop: "1em" }}
+                color="danger"
+                disabled={selected.size === 0}
+                onClick={removeSelected}
+              >
+                Delete selected
+              </Button>
+            </>
+          }
+        />
 
-  removeImage = (image: string) => {
-    // eslint-disable-next-line no-restricted-globals
-    const confirmation = confirm("Remove image?");
-    if (confirmation) {
-      fetchPost(`/api/image/remove/${image}/`, {})
-        .then(() => {
-          this.loadImages();
-        })
-        .catch(() => undefined);
-    }
-  };
-
-  render() {
-    return (
-      <div {...styles.background}>
-        <div {...styles.dialog}>
-          <div {...styles.header}>
-            <div {...styles.title}>Images</div>
-            <div>
-              <button onClick={this.chooseImage}>Add</button>{" "}
-              <button onClick={this.cancelDialog}>Cancel</button>
-            </div>
-          </div>
-          <div {...styles.content}>
-            <div>
-              <form {...styles.uploadForm} onSubmit={this.uploadImage}>
-                <input
-                  onChange={this.handleFileChange}
-                  type="file"
-                  accept="image/*"
-                  ref={this.fileInputRef}
-                />
-                <button type="submit">Upload</button>
-              </form>
-            </div>
-            {this.state.error && <div>{this.state.error}</div>}
-            <div {...styles.images}>
-              {this.state.images.map(img => (
-                <div
-                  key={img}
-                  onClick={() => this.onImageClick(img)}
-                  {...styles.imageWrapper}
-                  {...(img === this.state.selected
-                    ? styles.imageSelected
-                    : undefined)}
+        <CardColumns
+          style={{
+            columnGap: 0,
+            gridColumnGap: 0,
+            margin: "0 -12px",
+            paddingTop: "1em",
+          }}
+        >
+          {images &&
+            images.map(image => (
+              <div key={image} style={{ padding: "0 12px" }}>
+                <Card
+                  style={{
+                    padding: "3px",
+                    position: "relative",
+                  }}
+                  color={selected.has(image) ? "primary" : undefined}
+                  onClick={e =>
+                    e.metaKey
+                      ? selected.has(image)
+                        ? remove(image)
+                        : add(image)
+                      : setSelected(image)
+                  }
                 >
-                  <div {...styles.imageSmallWrapper}>
-                    <img
-                      {...styles.imageSmall}
-                      key={img}
-                      src={"/api/image/get/" + img + "/"}
-                      alt="Image Preview"
-                    />
-                  </div>
-                  <div
-                    {...styles.deleteImgWrapper}
-                    onClick={() => this.removeImage(img)}
-                  >
-                    <img
-                      {...styles.deleteImg}
-                      src={"/static/delete.svg"}
-                      title="Delete"
-                      alt="Delete"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+                  <CardImg
+                    width="100%"
+                    src={`/api/image/get/${image}/`}
+                    alt={image}
+                  />
+                  {selected.has(image) && selected.size === 1 && (
+                    <div style={{ position: "absolute", bottom: 0, right: 0 }}>
+                      <Button
+                        color="primary"
+                        onClick={() => closeWithImage(image)}
+                      >
+                        Insert
+                      </Button>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            ))}
+        </CardColumns>
+      </ModalBody>
+    </Modal>
+  );
+};
+export default ImageModal;

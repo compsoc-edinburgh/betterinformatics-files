@@ -20,7 +20,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     <Button
       {...props}
       disabled={disabled || loading}
-      style={{ minWidth: 0 }}
+      style={{ minWidth: 0, height: "100%", display: "initial" }}
       size={size}
     >
       {loading ? (
