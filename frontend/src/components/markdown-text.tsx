@@ -4,7 +4,6 @@ import ReactMarkdown from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
 import "katex/dist/katex.min.css";
 import TeX from "@matejmazur/react-katex";
-import Colors from "../colors";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { solarizedLight } from "react-syntax-highlighter/dist/styles/hljs";
 // import MathJax from 'react-mathjax2';
@@ -50,7 +49,6 @@ export default ({ value, background }: Props) => {
   return (
     <div
       {...styles.wrapper}
-      {...css({ background: background || Colors.markdownBackground })}
       {...css({ overflowX: "auto", overflowY: "hidden" })}
     >
       <ReactMarkdown

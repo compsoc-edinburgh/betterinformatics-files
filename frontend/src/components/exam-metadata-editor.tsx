@@ -17,7 +17,7 @@ import { fetchPost } from "../api/fetch-utils";
 import { loadCategories } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { ExamMetaData } from "../interfaces";
-import { createOptions, options, SelectOption } from "../ts-utils";
+import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";

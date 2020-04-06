@@ -4,7 +4,8 @@ import {
   CategoryMetaDataOverview,
   MetaCategory,
   MetaCategoryWithCategories,
-} from "./interfaces";
+} from "../interfaces";
+import { getCookie } from "../api/fetch-utils";
 
 export function filterMatches(filter: string, name: string): boolean {
   const nameLower = name.replace(/\s/g, "").toLowerCase();
@@ -86,3 +87,40 @@ export function getMetaCategoriesForCategory(
     }))
     .filter(meta1 => meta1.meta2.length > 0);
 }
+export const mapExamsToExamType = (exams: CategoryExam[]) => {
+  return [
+    ...exams
+      .reduce((map, exam) => {
+        const examtype = exam.examtype ?? "Exams";
+        const arr = map.get(examtype);
+        if (arr) {
+          arr.push(exam);
+        } else {
+          map.set(examtype, [exam]);
+        }
+        return map;
+      }, new Map<string, CategoryExam[]>())
+      .entries(),
+  ].sort(([a], [b]) => a.localeCompare(b));
+};
+export const dlSelectedExams = (selectedExams: Set<string>) => {
+  const form = document.createElement("form");
+  form.action = "/api/exam/zipexport/";
+  form.method = "POST";
+  form.target = "_blank";
+  for (const filename of selectedExams) {
+    const input = document.createElement("input");
+    input.name = "filenames";
+    input.value = filename;
+    form.appendChild(input);
+  }
+  const csrf = document.createElement("input");
+  csrf.name = "csrfmiddlewaretoken";
+  csrf.value = getCookie("csrftoken") || "";
+  form.appendChild(csrf);
+
+  form.style.display = "none";
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+};

@@ -4,6 +4,7 @@ import {
   ButtonDropdown,
   ButtonGroup,
   Card,
+  CardFooter,
   CardHeader,
   Container,
   DropdownItem,
@@ -16,19 +17,17 @@ import {
   InputGroupButtonDropdown,
   Spinner,
   UncontrolledDropdown,
-  FormGroup,
-  CardFooter,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
-import { useUser } from "../auth";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
+import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
+import useWasInViewport from "../hooks/useWasInViewport";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-buttons";
 import TwoButtons from "./two-buttons";
-import useWasInViewport from "../hooks/useWasInViewport";
 
 const loadAnswers = async (oid: string) => {
   return (await fetchGet(`/api/exam/answersection/${oid}/`))

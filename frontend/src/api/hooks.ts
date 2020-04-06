@@ -14,7 +14,7 @@ import {
   UserInfo,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
-import { getDocument, PDFDocumentProxy } from "../pdfjs";
+import { getDocument, PDFDocumentProxy } from "../pdf/pdfjs";
 import { fetchGet, fetchPost } from "./fetch-utils";
 
 const loadUserInfo = async (username: string) => {

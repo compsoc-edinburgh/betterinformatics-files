@@ -1,21 +1,19 @@
-import React, { useState, useCallback } from "react";
-import { css } from "glamor";
-import { FAQEntry } from "../interfaces";
-import { fetchDelete, fetchPut, imageHandler } from "../api/fetch-utils";
-import Colors from "../colors";
-import Editor from "./Editor";
-import MarkdownText from "./markdown-text";
-import { UndoStack } from "./Editor/utils/undo-stack";
 import {
-  Card,
-  CardHeader,
-  CardBody,
   ButtonGroup,
+  Card,
+  CardBody,
+  CardHeader,
   Input,
 } from "@vseth/components";
-import TwoButtons from "./two-buttons";
-import IconButton from "./icon-button";
+import React, { useCallback, useState } from "react";
+import { imageHandler } from "../api/fetch-utils";
 import useConfirm from "../hooks/useConfirm";
+import { FAQEntry } from "../interfaces";
+import Editor from "./Editor";
+import { UndoStack } from "./Editor/utils/undo-stack";
+import IconButton from "./icon-button";
+import MarkdownText from "./markdown-text";
+import TwoButtons from "./two-buttons";
 interface Props {
   isAdmin?: boolean;
   entry: FAQEntry;

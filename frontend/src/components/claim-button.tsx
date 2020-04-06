@@ -1,6 +1,6 @@
 import { CategoryExam } from "../interfaces";
 import { useUser } from "../auth";
-import { hasValidClaim } from "../exam-utils";
+import { hasValidClaim } from "../utils/exam-utils";
 import { Button } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";

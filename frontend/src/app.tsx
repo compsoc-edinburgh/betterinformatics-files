@@ -4,21 +4,20 @@ import { fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import ExamsNavbar from "./components/exams-navbar";
+import HashLocationHandler from "./components/hash-location-handler";
 import CategoryPage from "./pages/category";
 import ExamPage from "./pages/exam";
+import FAQ from "./pages/faq";
 import FeedbackPage from "./pages/feedback";
 import HomePage from "./pages/home";
 import LoginPage from "./pages/login";
 import ModQueue from "./pages/modqueue";
 import NotFoundPage from "./pages/not-found";
 import Scoreboard from "./pages/scoreboard";
+import UploadTranscriptPage from "./pages/submittranscript";
 import TutorialPage from "./pages/tutorial";
 import UploadPdfPage from "./pages/uploadpdf";
 import UserPage from "./pages/userinfo";
-import UploadTranscriptPage from "./pages/submittranscript";
-import HashLocationHandler from "./components/hash-location-handler";
-import FAQ from "./pages/faq";
-import ImageModal from "./components/image-overlay";
 
 const App: React.FC<{}> = () => {
   /*const _serverData = useMemo(() => {

@@ -16,7 +16,7 @@ import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
-import { createOptions, options, SelectOption } from "../ts-utils";
+import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import IconButton from "./icon-button";
 import OfferedInEditor from "./offered-in-editor";

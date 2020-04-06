@@ -1,7 +1,7 @@
 import * as React from "react";
 import { css } from "glamor";
-import Colors from "../colors";
 import { fetchPost } from "../api/fetch-utils";
+import { Card } from "@vseth/components";
 
 interface Props {
   title: string;
@@ -16,17 +16,6 @@ interface State {
 }
 
 const styles = {
-  wrapper: css({
-    width: "430px",
-    margin: "auto",
-    marginBottom: "20px",
-    padding: "10px",
-    background: Colors.cardBackground,
-    boxShadow: Colors.cardShadow,
-    "@media (max-width: 699px)": {
-      padding: "5px",
-    },
-  }),
   passwordWrapper: css({
     margin: "auto",
     width: "50%",
@@ -77,7 +66,7 @@ export default class PrintExam extends React.Component<Props, State> {
 
   render() {
     return (
-      <div {...styles.wrapper}>
+      <Card>
         <p>
           Unfortunately we can not provide you this {this.props.title} as a PDF.
           The corresponding professor did not allow this.
@@ -112,7 +101,7 @@ export default class PrintExam extends React.Component<Props, State> {
             </button>
           </div>
         )) || <p>Exam successfully printed</p>}
-      </div>
+      </Card>
     );
   }
 }

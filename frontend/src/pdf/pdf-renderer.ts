@@ -3,7 +3,7 @@ import pdfjs, {
   PDFPageProxy,
   PDFPromise,
   TextContent,
-} from "../pdfjs";
+} from "./pdfjs";
 import { globalFactory } from "./canvas-factory";
 import {
   PdfCanvasReference,

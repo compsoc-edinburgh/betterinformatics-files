@@ -2,18 +2,8 @@ import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
 import { css } from "glamor";
-import Colors from "../colors";
+import { Card } from "@vseth/components";
 
-const wrapperStyle = css({
-  background: Colors.cardBackground,
-  boxShadow: Colors.cardShadow,
-  width: "100%",
-  maxWidth: "500px",
-  margin: "auto",
-  marginBottom: "20px",
-  padding: "5px 10px",
-  boxSizing: "border-box",
-});
 const centerStyle = css({
   textAlign: "center",
 });
@@ -70,7 +60,7 @@ interface Props {
 export const TOC: React.FC<Props> = ({ toc }) => {
   const [visible, setVisible] = useState(false);
   return visible ? (
-    <div {...wrapperStyle}>
+    <Card>
       <div {...centerStyle}>
         <h3>
           Contents
@@ -82,15 +72,15 @@ export const TOC: React.FC<Props> = ({ toc }) => {
           <TOCNodeComponent node={child} key={child.name + i} />
         ))}
       </ul>
-    </div>
+    </Card>
   ) : (
-    <div {...wrapperStyle}>
+    <Card>
       <div {...centerStyle}>
         <h3>
           Contents
           <button onClick={() => setVisible(true)}>Show</button>
         </h3>{" "}
       </div>
-    </div>
+    </Card>
   );
 };
