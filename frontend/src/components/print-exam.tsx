@@ -1,7 +1,7 @@
 import * as React from "react";
-import { css } from "glamor";
+import { css } from "emotion";
 import { fetchPost } from "../api/fetch-utils";
-import { Card } from "@vseth/components";
+import { Card, Input, Button, InputField } from "@vseth/components";
 
 interface Props {
   title: string;
@@ -16,16 +16,13 @@ interface State {
 }
 
 const styles = {
-  passwordWrapper: css({
-    margin: "auto",
-    width: "50%",
-  }),
-  passwordBox: css({
-    width: "100%",
-  }),
-  printButton: css({
-    width: "100%",
-  }),
+  passwordWrapper: css`
+    margin: auto;
+    width: 50%;
+  `,
+  printButton: css`
+    width: 100%;
+  `,
 };
 
 export default class PrintExam extends React.Component<Props, State> {
@@ -82,11 +79,10 @@ export default class PrintExam extends React.Component<Props, State> {
         </p>
         {this.state.error && <p>{this.state.error}</p>}
         {(!this.state.printed && (
-          <div {...styles.passwordWrapper}>
-            <label>
-              Password <br />
-              <input
-                {...styles.passwordBox}
+          <>
+            <div>
+              <InputField
+                label="Password"
                 name="password"
                 type="password"
                 onChange={ev =>
@@ -94,12 +90,11 @@ export default class PrintExam extends React.Component<Props, State> {
                 }
                 value={this.state.currentPassword}
               />
-            </label>
-            <br />
-            <button {...styles.printButton} onClick={this.printExam}>
-              Print {this.props.title}
-            </button>
-          </div>
+            </div>
+            <div>
+              <Button onClick={this.printExam}>Print {this.props.title}</Button>
+            </div>
+          </>
         )) || <p>Exam successfully printed</p>}
       </Card>
     );

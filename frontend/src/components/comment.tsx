@@ -1,22 +1,22 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  Button,
+  ButtonGroup,
+  Icon,
+  ICONS,
   ListGroupItem,
   Spinner,
-  ICONS,
-  Icon,
-  ButtonGroup,
 } from "@vseth/components";
 import React, { useState } from "react";
 import { fetchPost, imageHandler } from "../api/fetch-utils";
+import { useUser } from "../auth";
+import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection, Comment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
-import MarkdownText from "./markdown-text";
-import TwoButtons from "./two-buttons";
-import { useUser } from "../auth";
-import useConfirm from "../hooks/useConfirm";
 import IconButton from "./icon-button";
+import MarkdownText from "./markdown-text";
+import SmallButton from "./small-button";
+import TwoButtons from "./two-buttons";
 
 const addNewComment = async (answerId: string, text: string) => {
   return (
@@ -110,27 +110,17 @@ const CommentComponent: React.FC<Props> = ({
   return (
     <ListGroupItem>
       {modals}
-      <div style={{ position: "absolute", top: 0, right: 0 }}>
+      <div className="position-absolute position-top-right">
         <ButtonGroup>
           {!editing && comment?.canEdit && (
-            <Button
-              size="sm"
-              color="white"
-              style={{ minWidth: 0 }}
-              onClick={startEditing}
-            >
+            <SmallButton size="sm" color="white" onClick={startEditing}>
               <Icon icon={ICONS.EDIT} size={18} />
-            </Button>
+            </SmallButton>
           )}
           {comment && (comment.canEdit || isAdmin) && (
-            <Button
-              size="sm"
-              color="white"
-              style={{ minWidth: 0 }}
-              onClick={remove}
-            >
+            <SmallButton size="sm" color="white" onClick={remove}>
               <Icon icon={ICONS.DELETE} size={18} />
-            </Button>
+            </SmallButton>
           )}
         </ButtonGroup>
       </div>
@@ -149,6 +139,7 @@ const CommentComponent: React.FC<Props> = ({
           <TwoButtons
             left={
               <IconButton
+                className="m-1"
                 size="sm"
                 color="primary"
                 disabled={loading}
@@ -159,7 +150,12 @@ const CommentComponent: React.FC<Props> = ({
               </IconButton>
             }
             right={
-              <IconButton size="sm" onClick={onCancel} icon="CLOSE">
+              <IconButton
+                className="m-1"
+                size="sm"
+                onClick={onCancel}
+                icon="CLOSE"
+              >
                 {comment === undefined ? "Delete Draft" : "Cancel"}
               </IconButton>
             }

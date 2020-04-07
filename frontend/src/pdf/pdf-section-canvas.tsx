@@ -1,5 +1,6 @@
+import styled from "@emotion/styled";
 import { Badge, Card } from "@vseth/components";
-import { css } from "glamor";
+import { css } from "emotion";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import PdfSectionCanvasOverlay from "../components/pdf-section-canvas-overlay";
@@ -9,10 +10,17 @@ import useDpr from "../hooks/useDpr";
 import { PdfSection } from "../interfaces";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
+
+const BadgeWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+`;
 const styles = {
-  lastSection: css({
-    marginBottom: "40px",
-  }),
+  lastSection: css`
+    margin-bottom: 40px;
+  `,
 };
 
 const usePdf = (
@@ -179,7 +187,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     }
 
     return (
-      <Card {...(end === 1 ? styles.lastSection : undefined)}>
+      <Card className={end === 1 ? styles.lastSection : undefined}>
         <div
           style={{
             width: `${targetWidth}px`,
@@ -190,9 +198,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
           }}
           ref={containerElement}
         >
-          <div style={{ position: "absolute", top: 0, left: 5, zIndex: 1000 }}>
+          <BadgeWrapper>
             <Badge color={isMainCanvas ? "primary" : "secondary"}>&nbsp;</Badge>
-          </div>
+          </BadgeWrapper>
           {content}
           {visible && (
             <PdfSectionText

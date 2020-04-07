@@ -1,5 +1,5 @@
 import * as React from "react";
-import { css } from "glamor";
+import { css } from "emotion";
 import { useState } from "react";
 interface SectionProps {
   backgroundColor?: string;
@@ -29,7 +29,7 @@ const Section: React.FC<SectionProps> = ({
               backgroundRepeat: "no-repeat",
             }
       }
-      {...sectionStyle}
+      className={sectionStyle}
     >
       <div
         style={{
@@ -45,31 +45,31 @@ const Section: React.FC<SectionProps> = ({
   );
 };
 
-const slideshowStyle = css({
-  position: "absolute",
-  top: "0",
-  left: "0",
-  right: "0",
-  bottom: "0",
-  zIndex: "100000",
-  background: "white",
-});
-const leftPanelStyle = css({
-  position: "absolute",
-  left: "0",
-  top: "0",
-  bottom: "0",
-  width: "50%",
-  zIndex: "100001",
-});
-const rightPanelStyle = css({
-  position: "absolute",
-  right: "0",
-  top: "0",
-  bottom: "0",
-  width: "50%",
-  zIndex: "100001",
-});
+const slideshowStyle = css`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 420000;
+  background: white;
+`;
+const leftPanelStyle = css`
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 4200042;
+`;
+const rightPanelStyle = css`
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  z-index: 4300043;
+`;
 interface SlideshowProps {
   children: React.ReactElement<typeof Section>[];
 }
@@ -77,15 +77,15 @@ const wrappingMod = (a: number, b: number) => ((a % b) + b) % b;
 const Slideshow: React.FC<SlideshowProps> = ({ children }) => {
   const [slideNumber, setSlideNumber] = useState(0);
   return (
-    <div {...slideshowStyle}>
+    <div className={slideshowStyle}>
       <div
-        {...leftPanelStyle}
+        className={leftPanelStyle}
         onClick={() =>
           setSlideNumber(prevNum => wrappingMod(prevNum - 1, children.length))
         }
       />
       <div
-        {...rightPanelStyle}
+        className={rightPanelStyle}
         onClick={() =>
           setSlideNumber(prevNum => wrappingMod(prevNum + 1, children.length))
         }

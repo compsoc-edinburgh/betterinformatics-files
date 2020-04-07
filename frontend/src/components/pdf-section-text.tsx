@@ -98,10 +98,8 @@ const PdfSectionText: React.FC<Props> = ({
   const textContent = useTextLayer(true, renderer, pageNumber, start, end);
   return (
     <div
+      className="position-absolute position-top-left"
       style={{
-        position: "absolute",
-        top: "0",
-        left: "0",
         transform: `translateY(-${translateY}px) scale(${scale})`,
         transformOrigin: "top left",
         display: view ? "block" : "none",

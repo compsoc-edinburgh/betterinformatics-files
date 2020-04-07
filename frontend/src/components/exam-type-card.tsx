@@ -67,7 +67,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <Card style={{ margin: "0.5em 0" }}>
+      <Card className="my-1">
         <CardHeader tag="h4">{examtype}</CardHeader>
         <div style={{ overflow: "scroll" }}>
           <Table>

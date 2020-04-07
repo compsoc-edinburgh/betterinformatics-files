@@ -14,7 +14,7 @@ interface FileInputProps
 const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
-    <div style={{ position: "relative" }}>
+    <div className="position-relative">
       {value ? (
         <div className="form-control">
           <Button close onClick={() => onChange(undefined)} />
@@ -25,7 +25,7 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
         <div className="form-control">
           &nbsp;
           <Button
-            style={{ position: "absolute", top: 0, left: 0 }}
+            className="position-absolute position-left"
             onClick={() => fileInputRef.current && fileInputRef.current.click()}
           >
             Choose File

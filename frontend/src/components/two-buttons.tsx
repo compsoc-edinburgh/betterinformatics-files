@@ -6,6 +6,9 @@ const flex = css`
   align-items: center;
   flex-wrap: wrap;
 `;
+const grow = css`
+  flex-grow: 1;
+`;
 const TwoButtons: React.FC<{
   left?: React.ReactNode;
   right?: React.ReactNode;
@@ -13,8 +16,8 @@ const TwoButtons: React.FC<{
 }> = ({ left, right, fill }) => {
   return (
     <div className={flex}>
-      <div style={{ flexGrow: fill === "left" ? 1 : 0 }}>{left}</div>
-      <div style={{ flexGrow: fill === "right" ? 1 : 0 }}>{right}</div>
+      <div className={fill === "left" ? grow : ""}>{left}</div>
+      <div className={fill === "right" ? grow : ""}>{right}</div>
     </div>
   );
 };

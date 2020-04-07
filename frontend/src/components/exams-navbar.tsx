@@ -93,7 +93,7 @@ const ExamsNavbar: React.FC<{}> = () => {
               {unreadCount !== undefined && unreadCount > 0 && (
                 <>
                   {" "}
-                  <Badge style={{ fontSize: "0.9em" }}>{unreadCount}</Badge>
+                  <Badge className="small">{unreadCount}</Badge>
                 </>
               )}
             </span>

@@ -2,8 +2,7 @@ import {
   Alert,
   Button,
   Card,
-  CardBody,
-  CardHeader,
+  CardFooter,
   Col,
   Container,
   Row,
@@ -45,44 +44,54 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
 
       <Container fluid>
         <Row>
-          <Col xs={12} md={6}>
-            <Card style={{ margin: "0.5em" }}>
+          <Col md={6} lg={4}>
+            <Card className="m-1">
               <LoadingOverlay loading={!userInfo} />
-              <CardHeader tag="h4">Score</CardHeader>
-              <CardBody tag="h5">{userInfo ? userInfo.score : "-"}</CardBody>
+              <h3 className="p-4 m-0">{userInfo ? userInfo.score : "-"}</h3>
+              <CardFooter tag="h6" className="m-0">
+                Score
+              </CardFooter>
             </Card>
           </Col>
-          <Col xs={12} md={6}>
-            <Card style={{ margin: "0.5em" }}>
+          <Col md={6} lg={4}>
+            <Card className="m-1">
               <LoadingOverlay loading={!userInfo} />
-              <CardHeader tag="h4">Answers</CardHeader>
-              <CardBody tag="h5">
+              <h3 className="p-4 m-0">
                 {userInfo ? userInfo.score_answers : "-"}
-              </CardBody>
+              </h3>
+              <CardFooter tag="h6" className="m-0">
+                Answers
+              </CardFooter>
             </Card>
           </Col>
-          <Col xs={12} md={6}>
-            <Card style={{ margin: "0.5em" }}>
+          <Col md={6} lg={4}>
+            <Card className="m-1">
               <LoadingOverlay loading={!userInfo} />
-              <CardHeader tag="h4">Comments</CardHeader>
-              <CardBody tag="h5">
+              <h3 className="p-4 m-0">
                 {userInfo ? userInfo.score_comments : "-"}
-              </CardBody>
+              </h3>
+              <CardFooter tag="h6" className="m-0">
+                Comments
+              </CardFooter>
             </Card>
           </Col>
           {userInfo && userInfo.score_cuts > 0 && (
-            <Col xs={12} md={6}>
-              <Card style={{ margin: "0.5em" }}>
-                <CardHeader tag="h4">Exam Import</CardHeader>
-                <CardBody tag="h5">{userInfo.score_cuts}</CardBody>
+            <Col md={6} lg={4}>
+              <Card className="m-1">
+                <h3 className="p-4 m-0">{userInfo.score_cuts}</h3>
+                <CardFooter tag="h6" className="m-0">
+                  Exam Import
+                </CardFooter>
               </Card>
             </Col>
           )}
           {userInfo && userInfo.score_legacy > 0 && (
-            <Col xs={12} md={6}>
-              <Card style={{ margin: "0.5em" }}>
-                <CardHeader tag="h4">Wiki Import</CardHeader>
-                <CardBody tag="h5">{userInfo.score_legacy}</CardBody>
+            <Col md={6} lg={4}>
+              <Card className="m-1">
+                <h3 className="p-4 m-0">{userInfo.score_legacy}</h3>
+                <CardFooter tag="h6" className="m-0">
+                  Wiki Import
+                </CardFooter>
               </Card>
             </Col>
           )}

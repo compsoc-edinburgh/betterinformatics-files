@@ -1,6 +1,18 @@
 import { Badge } from "@vseth/components";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { determineOptimalCutPositions } from "../pdf/snap";
+import { css } from "emotion";
+
+const wrapperStyle = css`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  touch-action: none;
+  user-select: none;
+  cursor: pointer;
+`;
+
 interface Props {
   canvas: HTMLCanvasElement;
   start: number;
@@ -64,15 +76,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
     };
     return (
       <div
-        style={{
-          width: "100%",
-          height: "100%",
-          position: "absolute",
-          top: "0",
-          touchAction: "none",
-          userSelect: "none",
-          cursor: "pointer",
-        }}
+        className={wrapperStyle}
         onPointerMove={pointerMove}
         onPointerLeave={leave}
         ref={ref}
@@ -92,32 +96,30 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
             />
           ))}
         {displayPos !== undefined && (
-          <>
-            <div
+          <div
+            style={{
+              transform: `translateY(${displayPos}px) translateY(-50%)`,
+              backgroundColor:
+                snap && snapBad ? "var(--warning)" : "var(--primary)",
+              height: "3px",
+              position: "absolute",
+              width: "100%",
+              margin: 0,
+            }}
+            id="add-cut"
+          >
+            <Badge
+              color={snap && snapBad ? "warning" : "primary"}
+              size="lg"
               style={{
-                transform: `translateY(${displayPos}px) translateY(-50%)`,
-                backgroundColor:
-                  snap && snapBad ? "var(--warning)" : "var(--primary)",
-                height: "3px",
                 position: "absolute",
-                width: "100%",
-                margin: 0,
+                top: "0",
+                transform: "translateY(-50%)",
               }}
-              id="add-cut"
             >
-              <Badge
-                color={snap && snapBad ? "warning" : "primary"}
-                size="lg"
-                style={{
-                  position: "absolute",
-                  top: "0",
-                  transform: "translateY(-50%)",
-                }}
-              >
-                {addCutText}
-              </Badge>
-            </div>
-          </>
+              {addCutText}
+            </Badge>
+          </div>
         )}
       </div>
     );

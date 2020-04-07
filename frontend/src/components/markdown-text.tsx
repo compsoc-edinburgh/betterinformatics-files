@@ -1,5 +1,5 @@
 import * as React from "react";
-import { css } from "glamor";
+import { css } from "emotion";
 import ReactMarkdown from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
 import "katex/dist/katex.min.css";
@@ -13,25 +13,25 @@ interface Props {
   background?: string;
 }
 
-const styles = {
-  wrapper: css({
-    "& p:first-child": {
-      marginBlockStart: "0",
-    },
-    "& p:last-child": {
-      marginBlockEnd: "0",
-    },
-    "& img": {
-      maxWidth: "100%",
-    },
-    "@media (max-width: 699px)": {
-      "& p": {
-        marginBlockStart: "0.5em",
-        marginBlockEnd: "0.5em",
-      },
-    },
-  }),
-};
+const wrapperStyle = css`
+  overflow-x: auto;
+  overflow-y: hidden;
+  & p:first-child {
+    margin-block-start: 0;
+  }
+  & p:last-child {
+    margin-block-end: 0;
+  }
+  & img {
+    max-width: 100%;
+  }
+  @media (max-width: 699px) {
+    & p {
+      margin-block-start: 0.5em;
+      margin-block-end: 0.5em;
+    }
+  }
+`;
 
 export default ({ value, background }: Props) => {
   if (value.length === 0) {
@@ -47,10 +47,7 @@ export default ({ value, background }: Props) => {
     ),
   };
   return (
-    <div
-      {...styles.wrapper}
-      {...css({ overflowX: "auto", overflowY: "hidden" })}
-    >
+    <div className={wrapperStyle}>
       <ReactMarkdown
         source={value}
         transformImageUri={uri => {

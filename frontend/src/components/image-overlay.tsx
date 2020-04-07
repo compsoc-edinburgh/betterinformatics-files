@@ -80,11 +80,11 @@ const ImageModal: React.FC<ModalProps> = ({
         <TwoButtons
           right={
             <>
-              <Button style={{ marginTop: "1em" }} onClick={reload}>
+              <Button className="mt-1" onClick={reload}>
                 Reload
               </Button>
               <Button
-                style={{ marginTop: "1em" }}
+                className="mt-1"
                 color="danger"
                 disabled={selected.size === 0}
                 onClick={removeSelected}
@@ -107,10 +107,7 @@ const ImageModal: React.FC<ModalProps> = ({
             images.map(image => (
               <div key={image} style={{ padding: "0 12px" }}>
                 <Card
-                  style={{
-                    padding: "3px",
-                    position: "relative",
-                  }}
+                  className="p-2"
                   color={selected.has(image) ? "primary" : undefined}
                   onClick={e =>
                     e.metaKey

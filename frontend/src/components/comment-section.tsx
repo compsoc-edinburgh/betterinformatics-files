@@ -8,6 +8,9 @@ const showMoreStyle = css`
   text-decoration: underline;
   cursor: pointer;
 `;
+const listGroupStyle = css`
+  margintop: 1em;
+`;
 
 interface Props {
   hasDraft: boolean;
@@ -24,7 +27,7 @@ const CommentSectionComponent: React.FC<Props> = ({
   const [expanded, setExpanded] = useState(false);
   return (
     <>
-      <ListGroup style={{ marginTop: "1em" }}>
+      <ListGroup className={listGroupStyle}>
         {(expanded ? answer.comments : answer.comments.slice(0, 3)).map(
           comment => (
             <CommentComponent

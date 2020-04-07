@@ -32,7 +32,7 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
     { manual: true, onSuccess: entryChanged },
   );
   return (
-    <Card style={{ margin: "0.5em" }}>
+    <Card className="my-1">
       <CardHeader>
         <h6>
           {entry.authorDisplayName} •{" "}

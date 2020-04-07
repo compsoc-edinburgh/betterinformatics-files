@@ -22,6 +22,7 @@ import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 import TwoButtons from "./two-buttons";
+import ButtonWrapperCard from "./button-wrapper-card";
 const stringKeys = [
   "displayname",
   "category",
@@ -310,27 +311,25 @@ const ExamMetadataEditor: React.FC<Props> = ({
         attachments={draftState.attachments}
         setAttachments={a => setKey("attachments", a)}
       />
-      <Card style={{ marginTop: "1em" }}>
-        <CardHeader>
-          <TwoButtons
-            left={
-              <IconButton
-                icon="SAVE"
-                color="primary"
-                loading={loading}
-                onClick={save}
-              >
-                Save
-              </IconButton>
-            }
-            right={
-              <IconButton icon="CLOSE" onClick={toggle}>
-                Cancel
-              </IconButton>
-            }
-          />
-        </CardHeader>
-      </Card>
+      <ButtonWrapperCard>
+        <TwoButtons
+          left={
+            <IconButton
+              icon="SAVE"
+              color="primary"
+              loading={loading}
+              onClick={save}
+            >
+              Save
+            </IconButton>
+          }
+          right={
+            <IconButton icon="CLOSE" onClick={toggle}>
+              Cancel
+            </IconButton>
+          }
+        />
+      </ButtonWrapperCard>
     </>
   );
 };

@@ -43,7 +43,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
       <TwoButtons
         fill="right"
         left={
-          <FormGroup style={{ margin: "0.1em" }}>
+          <FormGroup className="m-1">
             <IconButton
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(selected)}
@@ -55,8 +55,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           </FormGroup>
         }
         right={
-          <FormGroup style={{ margin: "0.1em" }}>
-            <div className="search" style={{ marginBottom: 0 }}>
+          <FormGroup className="m-1">
+            <div className="search mb-0">
               <input
                 type="text"
                 className="search-input"

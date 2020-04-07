@@ -14,6 +14,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import TwoButtons from "./two-buttons";
+import { useUser } from "../auth";
 interface Props {
   isAdmin?: boolean;
   entry: FAQEntry;
@@ -47,25 +48,26 @@ const FAQEntryComponent: React.FC<Props> = ({
     onUpdate({ question, answer });
     setEditing(false);
   };
+  const { isAdmin } = useUser()!;
   return (
-    <Card style={{ margin: "1em 0" }}>
+    <Card className="my-1">
       {modals}
-      <CardHeader tag="h3">
-        {!editing && (
-          <IconButton close icon="EDIT" onClick={() => startEditing()} />
-        )}
-        {editing ? (
-          <Input
-            type="text"
-            placeholder="Question"
-            value={question}
-            onChange={e => setQuestion(e.target.value)}
-          />
-        ) : (
-          entry.question
-        )}
-      </CardHeader>
       <CardBody>
+        <h4>
+          {!editing && (
+            <IconButton close icon="EDIT" onClick={() => startEditing()} />
+          )}
+          {editing ? (
+            <Input
+              type="text"
+              placeholder="Question"
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
+            />
+          ) : (
+            entry.question
+          )}
+        </h4>
         {editing ? (
           <Editor
             imageHandler={imageHandler}
@@ -78,43 +80,52 @@ const FAQEntryComponent: React.FC<Props> = ({
         ) : (
           <MarkdownText value={entry.answer} />
         )}
-        <TwoButtons
-          left={
-            editing && (
-              <IconButton color="primary" size="sm" icon="SAVE" onClick={save}>
-                Save
-              </IconButton>
-            )
-          }
-          right={
-            <ButtonGroup size="sm">
-              <IconButton
-                icon="ARROW_UP"
-                disabled={prevEntry === undefined}
-                onClick={() => prevEntry && onSwap(entry, prevEntry)}
-              />
-              <IconButton
-                icon="ARROW_DOWN"
-                disabled={nextEntry === undefined}
-                onClick={() => nextEntry && onSwap(entry, nextEntry)}
-              />
-              <IconButton
-                icon="DELETE"
-                onClick={() =>
-                  confirm(
-                    "Are you sure that you want to remove this?",
-                    onRemove,
-                  )
-                }
-              />
-              {editing && (
-                <IconButton icon="CLOSE" onClick={cancel}>
-                  Cancel
-                </IconButton>
-              )}
-            </ButtonGroup>
-          }
-        />
+        {isAdmin && (
+          <div className="my-2">
+            <TwoButtons
+              left={
+                editing && (
+                  <IconButton
+                    color="primary"
+                    size="sm"
+                    icon="SAVE"
+                    onClick={save}
+                  >
+                    Save
+                  </IconButton>
+                )
+              }
+              right={
+                <ButtonGroup size="sm">
+                  <IconButton
+                    icon="ARROW_UP"
+                    disabled={prevEntry === undefined}
+                    onClick={() => prevEntry && onSwap(entry, prevEntry)}
+                  />
+                  <IconButton
+                    icon="ARROW_DOWN"
+                    disabled={nextEntry === undefined}
+                    onClick={() => nextEntry && onSwap(entry, nextEntry)}
+                  />
+                  <IconButton
+                    icon="DELETE"
+                    onClick={() =>
+                      confirm(
+                        "Are you sure that you want to remove this?",
+                        onRemove,
+                      )
+                    }
+                  />
+                  {editing && (
+                    <IconButton icon="CLOSE" onClick={cancel}>
+                      Cancel
+                    </IconButton>
+                  )}
+                </ButtonGroup>
+              }
+            />
+          </div>
+        )}
       </CardBody>
     </Card>
   );

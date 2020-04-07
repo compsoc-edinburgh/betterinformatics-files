@@ -224,7 +224,6 @@ const Editor: React.FC<Props> = ({
   return (
     <div
       className={cx("form-control", isDragHovered && "border-primary")}
-      style={{ marginBottom: "1em", padding: 0 }}
       onDragEnter={onDragEnter}
     >
       <EditorHeader

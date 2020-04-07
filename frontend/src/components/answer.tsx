@@ -27,15 +27,26 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TwoButtons from "./two-buttons";
+import styled from "@emotion/styled";
+import SmallButton from "./small-button";
+
+const AnswerWrapper = styled(Card)`
+  margin-top: 1em;
+  margin-bottom: 1em;
+`;
+
+const AuthorWrapper = styled.h6`
+  margin: 0;
+`;
+
+const AnswerToolbar = styled(ButtonToolbar)`
+  justify-content: flex-end;
+  margin: 0 -0.3em;
+`;
 
 const bodyCanEditStyle = css`
   position: relative;
   padding-top: 2.3em !important;
-`;
-const actionButtonContainer = css`
-  position: absolute;
-  top: 0;
-  right: 0;
 `;
 
 const updateAnswer = async (
@@ -138,33 +149,28 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <Card
-        style={{ marginTop: "2em", marginBottom: "2em" }}
-        id={answer?.longId}
-      >
+      <AnswerWrapper id={answer?.longId}>
         <CardHeader>
           <TwoButtons
             left={
-              <h6 style={{ margin: 0 }}>
+              <AuthorWrapper>
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
-              </h6>
+              </AuthorWrapper>
             }
             right={
-              <ButtonToolbar
-                style={{ justifyContent: "flex-end", margin: "0 -0.3em" }}
-              >
+              <AnswerToolbar>
                 {answer && (answer.expertvotes > 0 || setExpertVoteLoading) && (
-                  <ButtonGroup size="sm" style={{ margin: "0 0.3em" }}>
+                  <ButtonGroup className="m-1" size="sm">
                     <IconButton
                       color="primary"
                       icon="STAR_FILLED"
                       title={"This answer is endorsed by an expert"}
                       active
                     />
-                    <Button style={{ minWidth: 0 }} color="primary" active>
+                    <SmallButton color="primary" active>
                       {answer.expertvotes}
-                    </Button>
+                    </SmallButton>
                     <IconButton
                       color="primary"
                       icon={answer.isFlagged ? "CLOSE" : "PLUS"}
@@ -175,7 +181,7 @@ const AnswerComponent: React.FC<Props> = ({
                   </ButtonGroup>
                 )}
                 {answer && (answer.flagged > 0 || flaggedLoading) && (
-                  <ButtonGroup size="sm" style={{ margin: "0 0.3em" }}>
+                  <ButtonGroup className="m-1" size="sm">
                     <IconButton
                       color="danger"
                       icon="FLAG"
@@ -184,9 +190,9 @@ const AnswerComponent: React.FC<Props> = ({
                     >
                       Inappropriate
                     </IconButton>
-                    <Button style={{ minWidth: 0 }} color="danger" active>
+                    <SmallButton color="danger" active>
                       {answer.flagged}
-                    </Button>
+                    </SmallButton>
                     <IconButton
                       color="danger"
                       icon={answer.isFlagged ? "CLOSE" : "PLUS"}
@@ -214,32 +220,22 @@ const AnswerComponent: React.FC<Props> = ({
                     onSectionChanged={onSectionChanged}
                   />
                 )}
-              </ButtonToolbar>
+              </AnswerToolbar>
             }
           />
         </CardHeader>
         <CardBody className={canRemove ? bodyCanEditStyle : ""}>
-          <div className={actionButtonContainer}>
+          <div className="position-absolute position-top-right">
             <ButtonGroup>
               {!editing && canEdit && (
-                <Button
-                  size="sm"
-                  color="white"
-                  style={{ minWidth: 0 }}
-                  onClick={startEdit}
-                >
+                <SmallButton size="sm" color="white" onClick={startEdit}>
                   <Icon icon={ICONS.EDIT} size={18} />
-                </Button>
+                </SmallButton>
               )}
               {answer && canRemove && (
-                <Button
-                  size="sm"
-                  color="white"
-                  style={{ minWidth: 0 }}
-                  onClick={remove}
-                >
+                <SmallButton size="sm" color="white" onClick={remove}>
                   <Icon icon={ICONS.DELETE} size={18} />
-                </Button>
+                </SmallButton>
               )}
             </ButtonGroup>
           </div>
@@ -260,6 +256,7 @@ const AnswerComponent: React.FC<Props> = ({
               <>
                 {(answer === undefined || editing) && (
                   <IconButton
+                    className="m-1"
                     color="primary"
                     size="sm"
                     onClick={save}
@@ -274,7 +271,7 @@ const AnswerComponent: React.FC<Props> = ({
             right={
               onSectionChanged && (
                 <>
-                  <ButtonGroup>
+                  <ButtonGroup className="m-1">
                     {(answer === undefined || editing) && (
                       <IconButton size="sm" onClick={onCancel} icon="CLOSE">
                         {editing ? "Cancel" : "Delete Draft"}
@@ -338,7 +335,7 @@ const AnswerComponent: React.FC<Props> = ({
               />
             )}
         </CardBody>
-      </Card>
+      </AnswerWrapper>
     </>
   );
 };

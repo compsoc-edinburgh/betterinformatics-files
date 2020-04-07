@@ -2,14 +2,18 @@ import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
 import React from "react";
 import { CategoryMetaData } from "../interfaces";
 import { useHistory } from "react-router-dom";
+import styled from "@emotion/styled";
+
+const CategoryCardWrapper = styled(Card)`
+  cursor: pointer;
+`;
 
 const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
   category,
 }) => {
   const history = useHistory();
   return (
-    <Card
-      style={{ cursor: "pointer" }}
+    <CategoryCardWrapper
       onClick={() => history.push(`/category/${category.slug}`)}
     >
       <CardBody>
@@ -22,7 +26,7 @@ const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
       <CardFooter>
         <Progress value={category.answerprogress} max={1} />
       </CardFooter>
-    </Card>
+    </CategoryCardWrapper>
   );
 };
 export default CategoryCard;

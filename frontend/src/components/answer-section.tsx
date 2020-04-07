@@ -28,6 +28,18 @@ import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-buttons";
 import TwoButtons from "./two-buttons";
+import styled from "@emotion/styled";
+import Flex from "./flex";
+
+const NameCard = styled(Card)`
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+`;
+
+const AnswerSectionButtonWrapper = styled(Card)`
+  margin-top: 1em;
+  margin-bottom: 1em;
+`;
 
 const loadAnswers = async (oid: string) => {
   return (await fetchGet(`/api/exam/answersection/${oid}/`))
@@ -97,11 +109,7 @@ const AddButton: React.FC<AddButtonProps> = ({
 };
 
 interface Props {
-  isExpert: boolean;
-  filename: string;
   oid: string;
-  width: number;
-  canDelete: boolean;
   onSectionChange: () => void;
   onToggleHidden: () => void;
   hidden: boolean;
@@ -118,11 +126,7 @@ interface Props {
 
 const AnswerSectionComponent: React.FC<Props> = React.memo(
   ({
-    isExpert,
-    filename,
     oid,
-    width,
-    canDelete,
     onSectionChange,
     onToggleHidden,
     hidden,
@@ -192,7 +196,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     return (
       <>
         {data && ((data.name && data.name.length > 0) || isCatAdmin) && (
-          <Card style={{ borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
+          <NameCard>
             <CardFooter>
               {isEditingName ? (
                 <InputGroup size="sm">
@@ -228,7 +232,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                 />
               )}
             </CardFooter>
-          </Card>
+          </NameCard>
         )}
         <Container fluid>
           {!hidden && data && (
@@ -260,12 +264,11 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
               )}
             </>
           )}
-          <Card
-            style={{ marginTop: "1em", marginBottom: "1em" }}
+          <AnswerSectionButtonWrapper
             color={isBeingMoved ? "primary" : undefined}
           >
             <CardHeader>
-              <div style={{ display: "flex" }} ref={ref}>
+              <Flex ref={ref}>
                 {data === undefined ? (
                   <>
                     <ThreeButtons center={<Spinner />} />
@@ -322,9 +325,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                     />
                   </>
                 )}
-              </div>
+              </Flex>
             </CardHeader>
-          </Card>
+          </AnswerSectionButtonWrapper>
         </Container>
       </>
     );

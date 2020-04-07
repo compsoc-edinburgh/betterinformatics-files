@@ -16,6 +16,8 @@ import {
   Row,
   Select,
   Spinner,
+  CardColumns,
+  Card,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { User, useUser } from "../auth";
@@ -122,10 +124,11 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           </Button>
         </ModalFooter>
       </Modal>
-
-      <Button onClick={() => setIsOpen(true)}>
-        <Icon icon={ICONS.PLUS} size={40} style={{ margin: "auto" }} />
-      </Button>
+      <Card style={{ minHeight: "10em" }}>
+        <Button onClick={() => setIsOpen(true)} className="position-cover">
+          <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
+        </Button>
+      </Card>
     </>
   );
 };

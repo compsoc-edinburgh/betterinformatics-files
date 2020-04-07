@@ -135,16 +135,16 @@ export const FAQC: React.FC = () => {
           />
         ))}
       {hasDraft ? (
-        <Card style={{ margin: "1em 0" }}>
-          <CardHeader tag="h4">
-            <Input
-              type="text"
-              placeholder="Question"
-              value={question}
-              onChange={e => setQuestion(e.target.value)}
-            />
-          </CardHeader>
+        <Card className="my-2">
           <CardBody>
+            <h4>
+              <Input
+                type="text"
+                placeholder="Question"
+                value={question}
+                onChange={e => setQuestion(e.target.value)}
+              />
+            </h4>
             <Editor
               imageHandler={imageHandler}
               value={answer}
@@ -175,12 +175,15 @@ export const FAQC: React.FC = () => {
           </CardFooter>
         </Card>
       ) : (
-        <IconButton
-          block
-          size="lg"
-          icon="PLUS"
-          onClick={() => setHasDraft(true)}
-        />
+        <Card className="my-2" style={{ minHeight: "3em" }}>
+          <IconButton
+            className="position-cover"
+            block
+            size="lg"
+            icon="PLUS"
+            onClick={() => setHasDraft(true)}
+          />
+        </Card>
       )}
     </Container>
   );

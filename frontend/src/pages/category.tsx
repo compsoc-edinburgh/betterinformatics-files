@@ -65,7 +65,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             <IconButton close icon="EDIT" onClick={() => setEditing(true)} />
           )}
           <h1>{metaData.displayname}</h1>
-          <ListGroup style={{ marginBottom: "2em" }}>
+          <ListGroup className="m-2">
             {metaData.semester && (
               <ListGroupItem>
                 Semester: <Badge>{metaData.semester}</Badge>

@@ -84,7 +84,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
   const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
-  const [panelIsOpen, togglePanel] = useToggle(true);
+  const [panelIsOpen, togglePanel] = useToggle();
   const [editState, setEditState] = useState<EditState>({
     mode: EditMode.None,
   });
@@ -205,7 +205,7 @@ const ExamPage: React.FC<{}> = () => {
           </Container>
         )}
         {metaDataLoading && (
-          <Container style={{ position: "absolute" }}>
+          <Container className="position-absolute">
             <Spinner />
           </Container>
         )}

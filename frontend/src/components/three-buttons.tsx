@@ -1,25 +1,22 @@
 import { Container, Row, Col } from "@vseth/components";
 import React from "react";
-import { css } from "glamor";
-const noPadding = css({
-  paddingLeft: "0 !important",
-  paddingRight: "0 !important",
-});
+import { css, cx } from "emotion";
+
 const ThreeButtons: React.FC<{
   left?: React.ReactNode;
   center?: React.ReactNode;
   right?: React.ReactNode;
 }> = ({ left, center, right }) => {
   return (
-    <Container fluid {...noPadding}>
+    <Container fluid className="p-0">
       <Row>
-        <Col xs={4} style={{ textAlign: "left" }} {...noPadding}>
+        <Col xs={4} className="px-0 text-left">
           {left}
         </Col>
-        <Col xs={4} style={{ textAlign: "center" }} {...noPadding}>
+        <Col xs={4} className="px-0 text-center">
           {center}
         </Col>
-        <Col xs={4} style={{ textAlign: "right" }} {...noPadding}>
+        <Col xs={4} className="px-0 text-right">
           {right}
         </Col>
       </Row>

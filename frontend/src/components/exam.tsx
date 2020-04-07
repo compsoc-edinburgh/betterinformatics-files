@@ -140,11 +140,7 @@ const Exam: React.FC<Props> = React.memo(
           section.kind === SectionKind.Answer ? (
             <AnswerSectionComponent
               key={section.oid}
-              isExpert={metaData.isExpert}
-              filename={metaData.filename}
               oid={section.oid}
-              width={width}
-              canDelete={metaData.canEdit}
               onSectionChange={reloadCuts}
               onToggleHidden={() =>
                 visible.has(section.oid) ? hide(section.oid) : show(section.oid)

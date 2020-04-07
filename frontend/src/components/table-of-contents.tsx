@@ -1,12 +1,7 @@
 import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
-import { css } from "glamor";
 import { Card } from "@vseth/components";
-
-const centerStyle = css({
-  textAlign: "center",
-});
 
 export class TOCNode {
   name: string;
@@ -61,7 +56,7 @@ export const TOC: React.FC<Props> = ({ toc }) => {
   const [visible, setVisible] = useState(false);
   return visible ? (
     <Card>
-      <div {...centerStyle}>
+      <div className="text-center">
         <h3>
           Contents
           <button onClick={() => setVisible(false)}>Hide</button>
@@ -75,7 +70,7 @@ export const TOC: React.FC<Props> = ({ toc }) => {
     </Card>
   ) : (
     <Card>
-      <div {...centerStyle}>
+      <div className="text-center">
         <h3>
           Contents
           <button onClick={() => setVisible(true)}>Show</button>

@@ -22,6 +22,7 @@ import IconButton from "./icon-button";
 import OfferedInEditor from "./offered-in-editor";
 import TwoButtons from "./two-buttons";
 import UserSetEditor from "./user-set-editor";
+import ButtonWrapperCard from "./button-wrapper-card";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
 const setMetaData = async (
@@ -356,27 +357,25 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <UserSetEditor users={admins} setUsers={setAdmins} />
       <h6>Experts</h6>
       <UserSetEditor users={experts} setUsers={setExperts} />
-      <Card style={{ marginTop: "1em" }}>
-        <CardHeader>
-          <TwoButtons
-            left={
-              <IconButton
-                icon="SAVE"
-                color="primary"
-                loading={loading}
-                onClick={save}
-              >
-                Save
-              </IconButton>
-            }
-            right={
-              <IconButton icon="CLOSE" onClick={toggle}>
-                Cancel
-              </IconButton>
-            }
-          />
-        </CardHeader>
-      </Card>
+      <ButtonWrapperCard>
+        <TwoButtons
+          left={
+            <IconButton
+              icon="SAVE"
+              color="primary"
+              loading={loading}
+              onClick={save}
+            >
+              Save
+            </IconButton>
+          }
+          right={
+            <IconButton icon="CLOSE" onClick={toggle}>
+              Cancel
+            </IconButton>
+          }
+        />
+      </ButtonWrapperCard>
     </>
   );
 };
