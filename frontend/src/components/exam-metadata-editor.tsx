@@ -2,8 +2,6 @@ import { useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  Card,
-  CardHeader,
   Col,
   FormGroup,
   Input,
@@ -16,13 +14,13 @@ import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import { loadCategories } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
-import { ExamMetaData } from "../interfaces";
+import { Attachment, ExamMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
+import ButtonWrapperCard from "./button-wrapper-card";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 import TwoButtons from "./two-buttons";
-import ButtonWrapperCard from "./button-wrapper-card";
 const stringKeys = [
   "displayname",
   "category",
@@ -47,6 +45,31 @@ const setMetaData = async (
   if (Object.keys(changes).length === 0) return;
   await fetchPost(`/api/exam/setmetadata/${filename}/`, changes);
 };
+const addAttachment = async (exam: string, displayname: string, file: File) => {
+  return (
+    await fetchPost("/api/filestore/upload/", {
+      exam,
+      displayname,
+      file,
+    })
+  ).filename as string;
+};
+const removeAttachment = async (filename: string) => {
+  await fetchPost(`/api/filestore/remove/${filename}/`, {});
+};
+const setPrintOnly = async (filename: string, file: File) => {
+  await fetchPost(`/api/exam/upload/printonly/`, { file, filename });
+};
+const removePrintOnly = async (filename: string) => {
+  await fetchPost(`/api/exam/remove/printonly/${filename}/`, {});
+};
+const setSolution = async (filename: string, file: File) => {
+  await fetchPost(`/api/exam/upload/solution/`, { file, filename });
+};
+const removeSolution = async (filename: string) => {
+  await fetchPost(`/api/exam/remove/solution/${filename}/`, {});
+};
+
 const examTypeOptions = createOptions({
   Exams: "Exams",
   "Old Exams": "Old Exams",
@@ -58,6 +81,8 @@ const applyChanges = async (
   filename: string,
   oldMetaData: ExamMetaData,
   newMetaData: ExamMetaDataDraft,
+  printonly: File | true | undefined,
+  masterSolution: File | true | undefined,
 ) => {
   const metaDataDiff: Partial<ExamMetaData> = {};
   for (const key of stringKeys)
@@ -67,9 +92,49 @@ const applyChanges = async (
     if (oldMetaData[key] !== newMetaData[key])
       metaDataDiff[key] = newMetaData[key];
   await setMetaData(filename, metaDataDiff);
+  const newAttachments: Attachment[] = [];
+  for (const attachment of newMetaData.attachments) {
+    if (attachment.filename instanceof File) {
+      const newFilename = await addAttachment(
+        filename,
+        attachment.displayname,
+        attachment.filename,
+      );
+      newAttachments.push({
+        displayname: attachment.displayname,
+        filename: newFilename,
+      });
+    }
+  }
+  for (const attachment of oldMetaData.attachments) {
+    if (
+      newMetaData.attachments.find(
+        otherAttachment => otherAttachment.filename === attachment.filename,
+      )
+    ) {
+      newAttachments.push(attachment);
+    } else {
+      await removeAttachment(attachment.filename);
+    }
+  }
+  if (printonly === undefined && oldMetaData.is_printonly) {
+    await removePrintOnly(filename);
+    metaDataDiff.is_printonly = false;
+  } else if (printonly instanceof File) {
+    await setPrintOnly(filename, printonly);
+    metaDataDiff.is_printonly = true;
+  }
+  if (masterSolution === undefined && oldMetaData.has_solution) {
+    await removeSolution(filename);
+    metaDataDiff.has_solution = false;
+  } else if (masterSolution instanceof File) {
+    await setSolution(filename, masterSolution);
+    metaDataDiff.has_solution = true;
+  }
   return {
     ...oldMetaData,
     ...metaDataDiff,
+    attachments: newAttachments,
     category_displayname: newMetaData.category_displayname,
   };
 };
@@ -115,14 +180,20 @@ const ExamMetadataEditor: React.FC<Props> = ({
       [key]: value,
     }));
   };
-  const [printonlyFile, setPrintonlyFile] = useInitialState<File | undefined>(
-    undefined,
-  );
-  const [masterFile, setMasterFile] = useInitialState<File | undefined>(
-    undefined,
+  const [printonlyFile, setPrintonlyFile] = useInitialState<
+    File | true | undefined
+  >(currentMetaData.is_printonly ? true : undefined);
+  const [masterFile, setMasterFile] = useInitialState<File | true | undefined>(
+    currentMetaData.has_solution ? true : undefined,
   );
   const save = () => {
-    runApplyChanges(currentMetaData.filename, currentMetaData, draftState);
+    runApplyChanges(
+      currentMetaData.filename,
+      currentMetaData,
+      draftState,
+      printonlyFile,
+      masterFile,
+    );
   };
 
   return (
@@ -279,16 +350,42 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <Col md={6}>
           <FormGroup>
             <label className="form-input-label">Print Only File</label>
-            <FileInput
-              value={printonlyFile}
-              onChange={e => setPrintonlyFile(e)}
-            />
+            {printonlyFile === true ? (
+              <div className="form-control">
+                <a
+                  href={`/api/exam/pdf/solution/${currentMetaData.filename}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Current File
+                </a>
+                <Button close onClick={() => setPrintonlyFile(undefined)} />
+              </div>
+            ) : (
+              <FileInput
+                value={printonlyFile}
+                onChange={e => setPrintonlyFile(e)}
+              />
+            )}
           </FormGroup>
         </Col>
         <Col md={6}>
           <FormGroup>
             <label className="form-input-label">Master Solution</label>
-            <FileInput value={masterFile} onChange={e => setMasterFile(e)} />
+            {masterFile === true ? (
+              <div className="form-control">
+                <a
+                  href={`/api/exam/pdf/solution/${currentMetaData.filename}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Current File
+                </a>
+                <Button close onClick={() => setMasterFile(undefined)} />
+              </div>
+            ) : (
+              <FileInput value={masterFile} onChange={e => setMasterFile(e)} />
+            )}
           </FormGroup>
         </Col>
       </Row>

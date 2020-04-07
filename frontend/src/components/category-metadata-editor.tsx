@@ -2,8 +2,6 @@ import { useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  Card,
-  CardHeader,
   Col,
   FormGroup,
   Input,
@@ -18,11 +16,11 @@ import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
+import ButtonWrapperCard from "./button-wrapper-card";
 import IconButton from "./icon-button";
 import OfferedInEditor from "./offered-in-editor";
 import TwoButtons from "./two-buttons";
 import UserSetEditor from "./user-set-editor";
-import ButtonWrapperCard from "./button-wrapper-card";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
 const setMetaData = async (

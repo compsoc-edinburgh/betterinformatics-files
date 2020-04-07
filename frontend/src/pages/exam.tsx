@@ -5,6 +5,11 @@ import {
   BreadcrumbItem,
   Container,
   Spinner,
+  Row,
+  Col,
+  CardBody,
+  Card,
+  Button,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -27,6 +32,7 @@ import {
   EditState,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
+import { cx } from "emotion";
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
   await fetchPost(`/api/exam/addcut/${filename}/`, {
@@ -103,6 +109,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   }, [visibleSplits]);
 
   const width = size.width;
+  const wikitransform = metaData.legacy_solution
+    ? metaData.legacy_solution.split("/").pop()
+    : "";
+
   return (
     <>
       <Container>
@@ -110,18 +120,119 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           <IconButton close icon="EDIT" onClick={() => toggleEditing()} />
         )}
         <h1>{metaData.displayname}</h1>
-      </Container>
+        <Row form>
+          {!metaData.canView && (
+            <Col md={6} lg={4}>
+              <Card className="m-1">
+                <CardBody>
+                  {metaData.needs_payment && !metaData.hasPayed ? (
+                    <>
+                      You have to pay a deposit of 20 CHF in the VIS bureau in
+                      order to see oral exams. After submitting a report of your
+                      own oral exam you can get your deposit back.
+                    </>
+                  ) : (
+                    <>You can not view this exam at this time.</>
+                  )}
+                </CardBody>
+              </Card>
+            </Col>
+          )}
+          {metaData.is_printonly && (
+            <Col md={6} lg={4}>
+              <PrintExam
+                title="exam"
+                examtype="exam"
+                filename={metaData.filename}
+              />
+            </Col>
+          )}
+          {metaData.has_solution && metaData.solution_printonly && (
+            <Col md={6} lg={4}>
+              <PrintExam
+                title="solution"
+                examtype="solution"
+                filename={metaData.filename}
+              />
+            </Col>
+          )}
+          {metaData.legacy_solution && (
+            <Col md={6} lg={4}>
+              <Card className="m-1">
+                <a
+                  href={metaData.legacy_solution}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button
+                    className={cx(
+                      "h-100",
+                      "p-3",
+                      metaData.canEdit ? "w-50" : "w-100",
+                    )}
+                  >
+                    Legacy Solution in VISki
+                  </Button>
+                </a>
+                {metaData.canEdit && (
+                  <a
+                    href={"/legacy/transformwiki/" + wikitransform}
+                    target="_blank"
+                    key="key"
+                    rel="noopener noreferrer"
+                  >
+                    <Button className="h-100 w-50 p-3">Transform</Button>
+                  </a>
+                )}
+              </Card>
+            </Col>
+          )}
+          {metaData.master_solution && (
+            <Col md={6} lg={4}>
+              <a
+                href={metaData.master_solution}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Card className="m-1">
+                  <Button className="w-100 h-100 p-3">
+                    Official Solution (external)
+                  </Button>
+                </Card>
+              </a>
+            </Col>
+          )}
 
-      {metaData.is_printonly && (
-        <PrintExam title="exam" examtype="exam" filename={metaData.filename} />
-      )}
-      {metaData.has_solution && metaData.solution_printonly && (
-        <PrintExam
-          title="solution"
-          examtype="solution"
-          filename={metaData.filename}
-        />
-      )}
+          {metaData.has_solution && !metaData.solution_printonly && (
+            <Col md={6} lg={4}>
+              <a
+                href={"/api/exam/pdf/solution/" + metaData.filename + "/"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Card className="m-1">
+                  <Button className="w-100 h-100 p-3">Official Solution</Button>
+                </Card>
+              </a>
+            </Col>
+          )}
+          {metaData.attachments.map(attachment => (
+            <Col md={6} lg={4} key={attachment.filename}>
+              <a
+                href={"/api/filestore/get/" + attachment.filename + "/"}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Card className="m-1">
+                  <Button className="w-100 h-100 p-3">
+                    {attachment.displayname}
+                  </Button>
+                </Card>
+              </a>
+            </Col>
+          ))}
+        </Row>
+      </Container>
       <ExamPanel
         isOpen={panelIsOpen}
         toggle={togglePanel}
@@ -133,7 +244,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         editState={editState}
         setEditState={setEditState}
       />
-      <div ref={sizeRef} style={{ maxWidth, margin: "auto" }}>
+      <div ref={sizeRef} style={{ maxWidth, margin: "1em auto" }}>
         {width && sections && renderer && (
           <Exam
             metaData={metaData}

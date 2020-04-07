@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Badge, Card } from "@vseth/components";
-import { css } from "emotion";
+import { css, cx } from "emotion";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import PdfSectionCanvasOverlay from "../components/pdf-section-canvas-overlay";
@@ -198,9 +198,17 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
           }}
           ref={containerElement}
         >
-          <BadgeWrapper>
-            <Badge color={isMainCanvas ? "primary" : "secondary"}>&nbsp;</Badge>
-          </BadgeWrapper>
+          <div
+            className={cx(
+              "position-absolute",
+              "position-top-left",
+              "m-3",
+              "p-1",
+              "rounded-circle",
+              isMainCanvas ? "bg-success" : "bg-info",
+            )}
+            style={{ zIndex: 42424242 }}
+          />
           {content}
           {visible && (
             <PdfSectionText

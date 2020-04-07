@@ -50,7 +50,11 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
       <ListGroupItem>
         <Row>
           <Col md={5}>
-            <FileInput value={file} onChange={setFile} />
+            <FileInput
+              accept="application/pdf"
+              value={file}
+              onChange={setFile}
+            />
           </Col>
           <Col md={5}>
             <Input

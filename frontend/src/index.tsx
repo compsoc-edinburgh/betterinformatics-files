@@ -2,7 +2,6 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import App from "./app";
 import { BrowserRouter } from "react-router-dom";
-import "@vseth/vseth-theme/dist/vseth-bootstrap-theme.css";
 
 ReactDOM.render(
   <BrowserRouter>
