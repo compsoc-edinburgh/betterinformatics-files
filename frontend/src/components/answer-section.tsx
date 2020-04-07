@@ -22,7 +22,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
-import useWasInViewport from "../hooks/useWasInViewport";
+import useLoad from "../hooks/useLoad";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
@@ -158,7 +158,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       [setCutVersion],
     );
 
-    const [inViewport, ref] = useWasInViewport<HTMLDivElement>();
+    const [inViewport, ref] = useLoad<HTMLDivElement>();
     const visible = inViewport || false;
     useEffect(() => {
       if (

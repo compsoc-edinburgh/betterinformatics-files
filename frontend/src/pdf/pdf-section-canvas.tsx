@@ -1,10 +1,10 @@
-import { useInViewport } from "@umijs/hooks";
-import { Card, Badge } from "@vseth/components";
+import { Badge, Card } from "@vseth/components";
 import { css } from "glamor";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import PdfSectionCanvasOverlay from "../components/pdf-section-canvas-overlay";
 import PdfSectionText from "../components/pdf-section-text";
+import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import useDpr from "../hooks/useDpr";
 import { PdfSection } from "../interfaces";
 import PDF from "./pdf-renderer";
@@ -104,7 +104,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const relativeHeight = end - start;
     const pageNumber = section.start.page;
 
-    const [visible, containerElement] = useInViewport<HTMLDivElement>();
+    const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
     const [containerHeight, setContainerHeight] = useState(0);
     const [translateY, setTranslateY] = useState(0);
     const [currentScale, setCurrentScale] = useState<number | undefined>(

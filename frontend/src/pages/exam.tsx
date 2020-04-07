@@ -84,7 +84,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
   const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
-  const [panelIsOpen, togglePanel] = useToggle();
+  const [panelIsOpen, togglePanel] = useToggle(true);
   const [editState, setEditState] = useState<EditState>({
     mode: EditMode.None,
   });
@@ -234,7 +234,6 @@ const ExamPage: React.FC<{}> = () => {
               />
             </UserContext.Provider>
           ))}
-        )}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>
             <Spinner />

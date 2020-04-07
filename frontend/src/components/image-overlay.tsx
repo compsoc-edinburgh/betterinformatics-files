@@ -117,6 +117,8 @@ const ImageModal: React.FC<ModalProps> = ({
                       ? selected.has(image)
                         ? remove(image)
                         : add(image)
+                      : selected.has(image)
+                      ? setSelected()
                       : setSelected(image)
                   }
                 >
