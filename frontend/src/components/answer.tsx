@@ -311,81 +311,83 @@ export default class AnswerComponent extends React.Component<Props, State> {
               GlobalConsts.momentFormatString,
             )}
           </div>
-          <div {...styles.voteWrapper}>
-            {!this.props.isReadonly &&
-              this.props.isExpert && [
-                <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
+          {this.props.answer.oid.length > 0 && (
+            <div {...styles.voteWrapper}>
+              {!this.props.isReadonly &&
+                this.props.isExpert && [
+                  <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
+                  <div
+                    {...styles.voteImgWrapper}
+                    onClick={this.toggleAnswerExpertVote}
+                    title="Endorse Answer"
+                  >
+                    <img
+                      {...styles.expertVoteImg}
+                      src={
+                        "/static/expert" +
+                        (answer.isExpertVoted ? "_active" : "") +
+                        ".svg"
+                      }
+                      alt="Endorse Answer"
+                    />
+                  </div>,
+                ]}
+              {(this.props.isReadonly || !this.props.isExpert) &&
+                answer.expertvotes > 0 && [
+                  answer.expertvotes > 1 && (
+                    <div {...styles.expertVoteCount}>{answer.expertvotes}</div>
+                  ),
+                  <div>
+                    <img
+                      {...styles.expertVoteImg}
+                      src="/static/expert_active.svg"
+                      title={
+                        "Expert Endorsed" +
+                        (answer.expertvotes > 1
+                          ? " (" + answer.expertvotes + " votes)"
+                          : "")
+                      }
+                      alt="This answer is endorsed by an expert"
+                    />
+                  </div>,
+                ]}
+              {!this.props.isReadonly && (
                 <div
                   {...styles.voteImgWrapper}
-                  onClick={this.toggleAnswerExpertVote}
-                  title="Endorse Answer"
+                  onClick={() => this.toggleAnswerLike(-1)}
+                  title="Downvote Answer"
                 >
                   <img
-                    {...styles.expertVoteImg}
+                    {...styles.voteImg}
                     src={
-                      "/static/expert" +
-                      (answer.isExpertVoted ? "_active" : "") +
+                      "/static/downvote" +
+                      (answer.isDownvoted ? "_orange" : "_white") +
                       ".svg"
                     }
-                    alt="Endorse Answer"
+                    alt="Downvote"
                   />
-                </div>,
-              ]}
-            {(this.props.isReadonly || !this.props.isExpert) &&
-              answer.expertvotes > 0 && [
-                answer.expertvotes > 1 && (
-                  <div {...styles.expertVoteCount}>{answer.expertvotes}</div>
-                ),
-                <div>
+                </div>
+              )}
+              <div {...styles.voteCount}>{answer.upvotes}</div>
+              {!this.props.isReadonly && (
+                <div
+                  {...styles.voteImgWrapper}
+                  onClick={() => this.toggleAnswerLike(1)}
+                  title="Upvote Answer"
+                >
                   <img
-                    {...styles.expertVoteImg}
-                    src="/static/expert_active.svg"
-                    title={
-                      "Expert Endorsed" +
-                      (answer.expertvotes > 1
-                        ? " (" + answer.expertvotes + " votes)"
-                        : "")
+                    {...styles.voteImg}
+                    src={
+                      "/static/upvote" +
+                      (answer.isUpvoted ? "_orange" : "_white") +
+                      ".svg"
                     }
-                    alt="This answer is endorsed by an expert"
+                    alt="Upvote"
                   />
-                </div>,
-              ]}
-            {!this.props.isReadonly && (
-              <div
-                {...styles.voteImgWrapper}
-                onClick={() => this.toggleAnswerLike(-1)}
-                title="Downvote Answer"
-              >
-                <img
-                  {...styles.voteImg}
-                  src={
-                    "/static/downvote" +
-                    (answer.isDownvoted ? "_orange" : "_white") +
-                    ".svg"
-                  }
-                  alt="Downvote"
-                />
-              </div>
-            )}
-            <div {...styles.voteCount}>{answer.upvotes}</div>
-            {!this.props.isReadonly && (
-              <div
-                {...styles.voteImgWrapper}
-                onClick={() => this.toggleAnswerLike(1)}
-                title="Upvote Answer"
-              >
-                <img
-                  {...styles.voteImg}
-                  src={
-                    "/static/upvote" +
-                    (answer.isUpvoted ? "_orange" : "_white") +
-                    ".svg"
-                  }
-                  alt="Upvote"
-                />
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         {!this.state.editing && (
           <div {...styles.answer}>
