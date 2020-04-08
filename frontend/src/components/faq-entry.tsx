@@ -1,12 +1,7 @@
-import {
-  ButtonGroup,
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-} from "@vseth/components";
+import { ButtonGroup, Card, CardBody, Input } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
+import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
 import { FAQEntry } from "../interfaces";
 import Editor from "./Editor";
@@ -14,7 +9,6 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import TwoButtons from "./two-buttons";
-import { useUser } from "../auth";
 interface Props {
   isAdmin?: boolean;
   entry: FAQEntry;

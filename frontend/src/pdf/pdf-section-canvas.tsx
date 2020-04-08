@@ -1,5 +1,4 @@
-import styled from "@emotion/styled";
-import { Badge, Card } from "@vseth/components";
+import { Card } from "@vseth/components";
 import { css, cx } from "emotion";
 import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -11,12 +10,6 @@ import { PdfSection } from "../interfaces";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
 
-const BadgeWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-`;
 const styles = {
   lastSection: css`
     margin-bottom: 40px;

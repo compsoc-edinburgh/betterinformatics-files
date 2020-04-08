@@ -1,6 +1,6 @@
+import styled from "@emotion/styled";
 import { useRequest } from "@umijs/hooks";
 import {
-  Button,
   ButtonDropdown,
   ButtonGroup,
   ButtonToolbar,
@@ -26,9 +26,8 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
-import TwoButtons from "./two-buttons";
-import styled from "@emotion/styled";
 import SmallButton from "./small-button";
+import TwoButtons from "./two-buttons";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;

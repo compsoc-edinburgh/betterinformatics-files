@@ -1,6 +1,5 @@
-import { Container, Row, Col } from "@vseth/components";
+import { Col, Container, Row } from "@vseth/components";
 import React from "react";
-import { css, cx } from "emotion";
 
 const ThreeButtons: React.FC<{
   left?: React.ReactNode;

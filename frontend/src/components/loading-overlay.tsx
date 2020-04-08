@@ -1,5 +1,5 @@
 import { Spinner } from "@vseth/components";
-import { css, cx } from "emotion";
+import { css } from "emotion";
 import React from "react";
 
 const style = css`

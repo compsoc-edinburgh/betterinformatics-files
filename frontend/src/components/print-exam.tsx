@@ -1,14 +1,6 @@
+import { Button, Card, CardBody, InputField } from "@vseth/components";
 import * as React from "react";
-import { css } from "emotion";
 import { fetchPost } from "../api/fetch-utils";
-import {
-  Card,
-  Input,
-  Button,
-  InputField,
-  Container,
-  CardBody,
-} from "@vseth/components";
 
 interface Props {
   title: string;
@@ -21,16 +13,6 @@ interface State {
   currentPassword: string;
   error?: string;
 }
-
-const styles = {
-  passwordWrapper: css`
-    margin: auto;
-    width: 50%;
-  `,
-  printButton: css`
-    width: 100%;
-  `,
-};
 
 export default class PrintExam extends React.Component<Props, State> {
   state: State = {

@@ -1,15 +1,15 @@
 import { ListGroup } from "@vseth/components";
+import { css } from "emotion";
 import React, { useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentComponent from "./comment";
-import { css } from "emotion";
 
 const showMoreStyle = css`
   text-decoration: underline;
   cursor: pointer;
 `;
 const listGroupStyle = css`
-  margintop: 1em;
+  margin-top: 1em;
 `;
 
 interface Props {
