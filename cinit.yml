@@ -34,7 +34,7 @@ programs:
       - "-b"
       - "0.0.0.0:80"
       - "-w"
-      - "4"
+      - '{% if DEPLOYMENT_DOMAIN is ending_with("svis.ethz.ch") or DEPLOYMENT_DOMAIN == "localhost" %}4{% else %}8{% endif %}'
       - "--log-level"
       - "debug"
       - "--preload"
