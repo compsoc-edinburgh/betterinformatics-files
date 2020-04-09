@@ -16,15 +16,15 @@ function createPdfSection(
   hidden: boolean,
 ): PdfSection {
   return {
-    key: key,
+    key,
     cutOid,
     kind: SectionKind.Pdf,
     start: {
-      page: page,
+      page,
       position: start,
     },
     end: {
-      page: page,
+      page,
       position: end,
     },
     hidden,
@@ -54,14 +54,14 @@ export function loadSections(
           lastpos = position;
         }
         sections.push({
-          oid: oid,
+          oid,
           kind: SectionKind.Answer,
           answers: [],
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
           cutHidden: hidden,
-          cutVersion: cutVersion,
+          cutVersion,
           name: cut.name,
         });
       }

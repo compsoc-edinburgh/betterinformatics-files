@@ -8,7 +8,7 @@ import { useRequest } from "@umijs/hooks";
 
 const setClaim = async (filename: string, claim: boolean) => {
   await fetchPost(`/api/exam/claimexam/${filename}/`, {
-    claim: claim,
+    claim,
   });
 };
 

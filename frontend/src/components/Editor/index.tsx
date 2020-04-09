@@ -144,7 +144,7 @@ const Editor: React.FC<Props> = ({
           const selection = getSelectionRangeRef.current();
           if (selection === undefined) return true;
           const [newState, newStack] = undo(undoStack, {
-            value: value,
+            value,
             selection,
             time: new Date(),
           });
@@ -158,7 +158,7 @@ const Editor: React.FC<Props> = ({
           const selection = getSelectionRangeRef.current();
           if (selection === undefined) return true;
           const [newState, newStack] = redo(undoStack, {
-            value: value,
+            value,
             selection,
             time: new Date(),
           });

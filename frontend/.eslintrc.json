@@ -11,6 +11,7 @@
         "functions": "always-multiline"
       }
     ],
+    "object-shorthand": "error",
     "prefer-const": "error",
     "no-new": "error",
     "guard-for-in": "error"

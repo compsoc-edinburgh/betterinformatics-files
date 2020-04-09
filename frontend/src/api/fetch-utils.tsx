@@ -44,7 +44,7 @@ async function performRequest(method: string, url: string) {
     headers: {
       "X-CSRFToken": getCookie("csrftoken") || "",
     },
-    method: method,
+    method,
   });
   try {
     const body = await response.json();
@@ -91,7 +91,7 @@ export function fetchGet(url: string) {
 export function imageHandler(file: File): Promise<ImageHandle> {
   return new Promise((resolve, reject) => {
     fetchPost("/api/image/upload/", {
-      file: file,
+      file,
     })
       .then(res => {
         resolve({
