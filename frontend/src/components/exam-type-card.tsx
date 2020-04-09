@@ -81,7 +81,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                     onChange={e => setChecked(e.currentTarget.checked)}
                   />
                 </th>
-                <th></th>
+                <th />
               </tr>
             </thead>
             <tbody>

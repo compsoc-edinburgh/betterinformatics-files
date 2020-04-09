@@ -11,9 +11,11 @@
         "functions": "always-multiline"
       }
     ],
+    "react/no-typos": "error",
     "object-shorthand": "error",
     "prefer-const": "error",
     "no-new": "error",
+    "react/self-closing-comp": "error",
     "guard-for-in": "error"
   }
 }
