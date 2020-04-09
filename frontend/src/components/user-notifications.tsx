@@ -1,12 +1,11 @@
 import { Alert, Button, FormGroup, Label, Spinner } from "@vseth/components";
-import React, { useEffect, useState } from "react";
-import { useUser } from "../auth";
+import React, { useState } from "react";
 import {
   useEnabledNotifications,
-  useMarkAsRead,
   useNotifications,
   useSetEnabledNotifications,
 } from "../api/hooks";
+import { useUser } from "../auth";
 import NotificationComponent from "./notification";
 
 interface UserNotificationsProps {
@@ -32,21 +31,8 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
     setEnabledLoading,
     setEnabled,
   ] = useSetEnabledNotifications(reloadEnabled);
-  const [markAsReadError, markAsReadLoading, markAsRead] = useMarkAsRead();
-  const error =
-    notificationsError || enabledError || setEnabledError || markAsReadError;
+  const error = notificationsError || enabledError || setEnabledError;
   const checkboxLoading = enabledLoading || setEnabledLoading;
-  useEffect(() => {
-    if (markAsReadLoading || markAsReadError) return;
-    if (isMyself && notifications) {
-      const unread = notifications
-        .filter(notification => !notification.read)
-        .map(notification => notification.oid);
-      if (unread.length === 0) return;
-      markAsRead(...unread);
-    }
-  }, [isMyself, notifications, markAsRead, markAsReadLoading, markAsReadError]);
-
   return (
     <>
       <h2>Notifications</h2>
@@ -84,7 +70,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           Other answer to same question
         </Label>
       </FormGroup>
-      {(notificationsLoading || markAsReadLoading) && <Spinner />}
+      {notificationsLoading && <Spinner />}
       {notifications &&
         notifications.map(notification => (
           <NotificationComponent

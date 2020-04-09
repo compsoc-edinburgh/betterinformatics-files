@@ -10,7 +10,7 @@ import {
   PaginationLink,
 } from "@vseth/components";
 import { css } from "emotion";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../auth";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
@@ -77,6 +77,23 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     changeWidth(val);
     setWidthValue(val);
   };
+  const download = useCallback(() => {
+    window.open(`/api/exam/pdf/exam/${metaData.filename}/?download`, "_blank");
+  }, [metaData.filename]);
+  const reportProblem = useCallback(() => {
+    const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
+    const body = encodeURIComponent(
+      `Concerning the exam '${metaData.displayname}' of the course '${metaData.category_displayname}' ...`,
+    );
+    window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
+  }, [metaData]);
+  const scrollToTop = useCallback(() => {
+    const c = document.documentElement.scrollTop || document.body.scrollTop;
+    if (c > 0) {
+      window.requestAnimationFrame(scrollToTop);
+      window.scrollTo(0, c - c / 10 - 1);
+    }
+  }, []);
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
@@ -86,7 +103,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           to={`/category/${metaData ? metaData.category : ""}`}
         >
           {metaData && metaData.category_displayname}
-        </Link>{" "}
+        </Link>
         <small>{metaData && metaData.displayname}</small>
       </ModalHeader>
       <ModalBody>
@@ -118,10 +135,17 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         />
         <h6>Actions</h6>
         <ButtonGroup>
-          <IconButton icon="DOWNLOAD" title="Download PDF" />
-          <IconButton icon="LOCK_ALT_OPEN" title="Show All" />
-          <IconButton icon="MESSAGE" title="Report Problem" />
-          <IconButton icon="ARROW_UP" title="Back to the top" />
+          <IconButton icon="DOWNLOAD" title="Download PDF" onClick={download} />
+          <IconButton
+            icon="MESSAGE"
+            title="Report Problem"
+            onClick={reportProblem}
+          />
+          <IconButton
+            icon="ARROW_UP"
+            title="Back to the top"
+            onClick={scrollToTop}
+          />
         </ButtonGroup>
 
         {isCatAdmin && (

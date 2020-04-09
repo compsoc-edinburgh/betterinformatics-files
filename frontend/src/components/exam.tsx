@@ -55,8 +55,7 @@ const Exam: React.FC<Props> = React.memo(
     const [visible, show, hide] = useSet<string>();
     const [cutVersions, setCutVersions] = useState<CutVersions>({});
     useRequest(() => loadCutVersions(metaData.filename), {
-      manual: true,
-      pollingInterval: 60_000,
+      pollingInterval: 6_000,
       onSuccess: response => {
         setCutVersions(oldVersions => ({ ...oldVersions, ...response }));
       },

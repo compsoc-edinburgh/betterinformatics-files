@@ -125,7 +125,7 @@ export const useNotifications = (mode: "all" | "unread") => {
   );
   return [error, loading, data, run] as const;
 };
-const markAllRead = async (ids: string[]) => {
+const markAllRead = async (...ids: string[]) => {
   return Promise.all(
     ids.map(oid =>
       fetchPost(`/api/notification/setread/${oid}/`, {
@@ -138,7 +138,7 @@ export const useMarkAsRead = () => {
   const { error, loading, run } = useRequest(markAllRead, {
     manual: true,
   });
-  return [error, loading, (...args: string[]) => run(args)] as const;
+  return [error, loading, run] as const;
 };
 const loadUserAnswers = async (username: string) => {
   return (await fetchGet(`/api/exam/listbyuser/${username}/`))

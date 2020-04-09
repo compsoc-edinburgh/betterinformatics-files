@@ -147,9 +147,12 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         onSectionChange();
       },
     });
-    const { loading, run } = useRequest(() => loadAnswers(oid), {
+    const { run } = useRequest(() => loadAnswers(oid), {
       manual: true,
-      onSuccess: data => setData(data),
+      onSuccess: data => {
+        setData(data);
+        setCutVersion(data.cutVersion);
+      },
     });
 
     const [data, setData] = useState<AnswerSection | undefined>();
@@ -167,12 +170,11 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     useEffect(() => {
       if (
         (data === undefined || data.cutVersion !== cutVersion) &&
-        loading === false &&
         (visible || !hidden)
       ) {
         run();
       }
-    }, [data, loading, visible, run, cutVersion, hidden]);
+    }, [data, visible, run, cutVersion, hidden]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = () => {
@@ -286,7 +288,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                           data && (
                             <AddButton
                               allowAnswer={data.allow_new_answer}
-                              allowLegacyAnswer={data.allow_new_legacy_answer}
+                              allowLegacyAnswer={
+                                data.allow_new_legacy_answer && isCatAdmin
+                              }
                               hasAnswerDraft={hasDraft}
                               hasLegacyAnswerDraft={hasLegacyDraft}
                               onAnswer={onAddAnswer}

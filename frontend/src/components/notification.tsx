@@ -1,11 +1,10 @@
-import { useInViewport } from "@umijs/hooks";
-import { Card, CardBody, CardHeader, Alert } from "@vseth/components";
+import { Alert, Card, CardBody, CardHeader } from "@vseth/components";
 import moment from "moment";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import GlobalConsts from "../globalconsts";
 import { useMarkAsRead } from "../api/hooks";
+import GlobalConsts from "../globalconsts";
 import { NotificationInfo } from "../interfaces";
 import MarkdownText from "./markdown-text";
 interface Props {
@@ -13,21 +12,14 @@ interface Props {
 }
 
 const NotificationComponent: React.FC<Props> = ({ notification }) => {
-  const [inViewport, ref] = useInViewport<HTMLDivElement>();
-  const visible = inViewport || false;
-  const [read, setRead] = useState(notification.read);
-  useEffect(() => {
-    setRead(notification.read);
-  }, [notification]);
   const [error, , markAsRead] = useMarkAsRead();
   useEffect(() => {
-    if (visible && !read) {
-      setRead(true);
-      markAsRead(notification.oid);
-    }
-  }, [markAsRead, read, visible, notification.oid]);
+    markAsRead(notification.oid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notification.oid]);
+
   return (
-    <div ref={ref}>
+    <div>
       {error && <Alert color="danger">{error.message}</Alert>}
       <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
         <CardHeader>

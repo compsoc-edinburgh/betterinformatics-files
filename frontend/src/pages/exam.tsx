@@ -3,20 +3,20 @@ import {
   Alert,
   Breadcrumb,
   BreadcrumbItem,
-  Container,
-  Spinner,
-  Row,
-  Col,
-  CardBody,
-  Card,
   Button,
+  Card,
+  CardBody,
+  Col,
+  Container,
+  Row,
+  Spinner,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
 import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
-import { useUser, UserContext } from "../auth";
+import { UserContext, useUser } from "../auth";
 import Exam from "../components/exam";
 import ExamMetadataEditor from "../components/exam-metadata-editor";
 import ExamPanel from "../components/exam-panel";
@@ -26,13 +26,12 @@ import useSet from "../hooks/useSet";
 import useToggle from "../hooks/useToggle";
 import {
   EditMode,
+  EditState,
   ExamMetaData,
   PdfSection,
   Section,
-  EditState,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
-import { cx } from "emotion";
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
   await fetchPost(`/api/exam/addcut/${filename}/`, {
@@ -158,33 +157,30 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           )}
           {metaData.legacy_solution && (
             <Col md={6} lg={4}>
-              <Card className="m-1">
-                <a
-                  href={metaData.legacy_solution}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button
-                    className={cx(
-                      "h-100",
-                      "p-3",
-                      metaData.canEdit ? "w-50" : "w-100",
-                    )}
-                  >
+              <a
+                href={metaData.legacy_solution}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Card className="m-1">
+                  <Button className="w-100 h-100 p-3">
                     Legacy Solution in VISki
                   </Button>
-                </a>
-                {metaData.canEdit && (
-                  <a
-                    href={"/legacy/transformwiki/" + wikitransform}
-                    target="_blank"
-                    key="key"
-                    rel="noopener noreferrer"
-                  >
-                    <Button className="h-100 w-50 p-3">Transform</Button>
-                  </a>
-                )}
-              </Card>
+                </Card>
+              </a>
+            </Col>
+          )}
+          {metaData.legacy_solution && metaData.canEdit && (
+            <Col md={6} lg={4}>
+              <a
+                href={"/legacy/transformwiki/" + wikitransform}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Card className="m-1">
+                  <Button className="w-100 h-100 p-3">Transform Wiki</Button>
+                </Card>
+              </a>
             </Col>
           )}
           {metaData.master_solution && (
