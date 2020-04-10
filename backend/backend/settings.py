@@ -57,7 +57,7 @@ if DEBUG:
 else:
     allowed = ['https://{}/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
     CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://static.vseth.ethz.ch")
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_CONNECT_SRC = ("'self'", "https://static.vseth.ethz.ch")
 CSP_IMG_SRC = ("'self'", "data:", "https://static.vis.ethz.ch", "https://static.vseth.ethz.ch")
