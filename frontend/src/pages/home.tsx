@@ -124,7 +124,10 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
         </ModalFooter>
       </Modal>
       <Card style={{ minHeight: "10em" }}>
-        <Button onClick={() => setIsOpen(true)} className="position-cover">
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="position-cover w-100"
+        >
           <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
         </Button>
       </Card>
