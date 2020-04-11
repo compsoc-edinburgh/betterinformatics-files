@@ -297,7 +297,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
     textarea.style.height = "2em";
     textarea.style.padding = "0";
     textarea.style.background = "transparent";
-    textarea.value = window.location.href.split("#")[0] + "#" + answer.longId;
+    textarea.value = `${document.location.origin}${document.location.pathname}#${answer.longId}`;
     document.body.appendChild(textarea);
     textarea.focus();
     textarea.select();
