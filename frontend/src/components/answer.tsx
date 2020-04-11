@@ -290,18 +290,18 @@ export default class AnswerComponent extends React.Component<Props, State> {
 
   copyPermalink = (answer: Answer) => {
     const textarea = document.createElement("textarea");
-    textarea.style.position = 'fixed';
-    textarea.style.top = '0';
-    textarea.style.left = '0';
-    textarea.style.width = '2em';
-    textarea.style.height = '2em';
-    textarea.style.padding = '0';
-    textarea.style.background = 'transparent';
-    textarea.value = window.location.href.split('#')[0] + "#" + answer.longId;
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "0";
+    textarea.style.width = "2em";
+    textarea.style.height = "2em";
+    textarea.style.padding = "0";
+    textarea.style.background = "transparent";
+    textarea.value = window.location.href.split("#")[0] + "#" + answer.longId;
     document.body.appendChild(textarea);
     textarea.focus();
     textarea.select();
-    document.execCommand('copy');
+    document.execCommand("copy");
     document.body.removeChild(textarea);
   };
 
