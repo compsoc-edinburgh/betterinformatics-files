@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Alert, FormGroup, Spinner } from "@vseth/components";
+import { Alert, FormGroup, Spinner, Col } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
@@ -39,7 +39,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   const [selected, onSelect, onDeselect] = useSet<string>();
 
   return (
-    <>
+    <Col lg={6}>
       <TwoButtons
         fill="right"
         left={
@@ -92,7 +92,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             ),
         )
       )}
-    </>
+    </Col>
   );
 };
 export default ExamList;

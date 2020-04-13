@@ -104,7 +104,9 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         >
           {metaData && metaData.category_displayname}
         </Link>
-        <small>{metaData && metaData.displayname}</small>
+        <p>
+          <small>{metaData && metaData.displayname}</small>
+        </p>
       </ModalHeader>
       <ModalBody>
         <h6>Pages</h6>
