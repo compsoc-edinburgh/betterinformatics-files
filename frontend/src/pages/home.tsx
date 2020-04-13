@@ -25,6 +25,7 @@ import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
+import ContentContainer from "../components/secondary-container";
 
 enum Mode {
   Alphabetical,
@@ -177,14 +178,15 @@ const HomePage: React.FC<{}> = () => {
   }, [run]);
 
   return (
-    <Container>
-      <LoadingOverlay loading={loading} />
-      <h1>Community Solutions</h1>
-
-      <Form>
+    <>
+      <Container>
+        <LoadingOverlay loading={loading} />
+        <h1>Community Solutions</h1>
+      </Container>
+      <Container>
         <Row form>
           <Col md={4}>
-            <FormGroup>
+            <FormGroup className="m-1">
               <Select
                 options={[options[Mode.Alphabetical], options[Mode.BySemester]]}
                 defaultValue={options[mode]}
@@ -193,8 +195,8 @@ const HomePage: React.FC<{}> = () => {
             </FormGroup>
           </Col>
           <Col md={8}>
-            <FormGroup>
-              <div className="search">
+            <FormGroup className="m-1">
+              <div className="search m-0">
                 <input
                   type="text"
                   className="search-input"
@@ -209,48 +211,55 @@ const HomePage: React.FC<{}> = () => {
             </FormGroup>
           </Col>
         </Row>
-      </Form>
-      {error ? (
-        <Alert color="danger">{error.message}</Alert>
-      ) : mode === Mode.Alphabetical ? (
-        <>
-          <Grid>
-            {filteredCategories &&
-              filteredCategories.map(category => (
-                <CategoryCard category={category} key={category.slug} />
-              ))}
-            {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
-          </Grid>
-        </>
-      ) : (
-        <>
-          {filteredMetaCategories &&
-            filteredMetaCategories.map(([meta1display, meta2]) => (
-              <div key={meta1display}>
-                <h4>{meta1display}</h4>
-                {meta2.map(([meta2display, categories]) => (
-                  <div key={meta2display}>
-                    <h5>{meta2display}</h5>
-                    <Grid>
-                      {categories.map(category => (
-                        <CategoryCard category={category} key={category.slug} />
-                      ))}
-                    </Grid>
-                  </div>
-                ))}
-              </div>
-            ))}
-          {isAdmin && (
+      </Container>
+      <ContentContainer>
+        <Container>
+          {error ? (
+            <Alert color="danger">{error.message}</Alert>
+          ) : mode === Mode.Alphabetical ? (
             <>
-              <h4>New Category</h4>
               <Grid>
-                <AddCategory onAddCategory={onAddCategory} />
+                {filteredCategories &&
+                  filteredCategories.map(category => (
+                    <CategoryCard category={category} key={category.slug} />
+                  ))}
+                {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
               </Grid>
             </>
+          ) : (
+            <>
+              {filteredMetaCategories &&
+                filteredMetaCategories.map(([meta1display, meta2]) => (
+                  <div key={meta1display}>
+                    <h4>{meta1display}</h4>
+                    {meta2.map(([meta2display, categories]) => (
+                      <div key={meta2display}>
+                        <h5>{meta2display}</h5>
+                        <Grid>
+                          {categories.map(category => (
+                            <CategoryCard
+                              category={category}
+                              key={category.slug}
+                            />
+                          ))}
+                        </Grid>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              {isAdmin && (
+                <>
+                  <h4>New Category</h4>
+                  <Grid>
+                    <AddCategory onAddCategory={onAddCategory} />
+                  </Grid>
+                </>
+              )}
+            </>
           )}
-        </>
-      )}
-    </Container>
+        </Container>
+      </ContentContainer>
+    </>
   );
 };
 export default HomePage;

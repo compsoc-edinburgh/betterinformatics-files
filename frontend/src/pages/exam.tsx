@@ -32,6 +32,7 @@ import {
   Section,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
+import ContentContainer from "../components/secondary-container";
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
   await fetchPost(`/api/exam/addcut/${filename}/`, {
@@ -104,6 +105,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     for (const split of visibleSplits) {
       s.add(split.start.page);
     }
+    console.log(s);
     return s;
   }, [visibleSplits]);
 
@@ -240,23 +242,25 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         editState={editState}
         setEditState={setEditState}
       />
-      <div ref={sizeRef} style={{ maxWidth, margin: "1em auto" }}>
-        {width && sections && renderer && (
-          <Exam
-            metaData={metaData}
-            sections={sections}
-            width={width}
-            editState={editState}
-            setEditState={setEditState}
-            reloadCuts={reloadCuts}
-            renderer={renderer}
-            onCutNameChange={runUpdateCutName}
-            onAddCut={runAddCut}
-            onMoveCut={runMoveCut}
-            visibleChangeListener={visibleChangeListener}
-          />
-        )}
-      </div>
+      <ContentContainer>
+        <div ref={sizeRef} style={{ maxWidth, margin: "1em auto" }}>
+          {width && sections && renderer && (
+            <Exam
+              metaData={metaData}
+              sections={sections}
+              width={width}
+              editState={editState}
+              setEditState={setEditState}
+              reloadCuts={reloadCuts}
+              renderer={renderer}
+              onCutNameChange={runUpdateCutName}
+              onAddCut={runAddCut}
+              onMoveCut={runMoveCut}
+              visibleChangeListener={visibleChangeListener}
+            />
+          )}
+        </div>
+      </ContentContainer>
     </>
   );
 };
