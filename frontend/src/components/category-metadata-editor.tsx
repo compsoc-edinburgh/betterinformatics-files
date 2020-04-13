@@ -4,14 +4,14 @@ import {
   Button,
   Col,
   FormGroup,
-  Input,
-  Label,
+  InputField,
   Row,
   Select,
   TextareaField,
 } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
+import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../utils/ts-utils";
@@ -209,56 +209,30 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       onMetaDataChange(newMetaData);
     },
   });
-
-  const [semester, setSemester] = useInitialState<keyof typeof semesterOptions>(
-    currentMetaData.semester as keyof typeof semesterOptions,
-  );
-  const [form, setForm] = useInitialState<keyof typeof formOptions>(
-    currentMetaData.form as keyof typeof formOptions,
-  );
-  const [permission, setPermission] = useInitialState<
-    keyof typeof permissionOptions
-  >(currentMetaData.permission as keyof typeof permissionOptions);
-  const [remark, setRemark] = useInitialState(currentMetaData.remark);
-  const [moreExams, setMoreExams] = useInitialState(
-    currentMetaData.more_exams_link,
-  );
-  const [hasPayments, setHasPayments] = useInitialState(
-    currentMetaData.has_payments,
-  );
-  const [attachments, setAttachments] = useInitialState<EditorAttachment[]>(
-    currentMetaData.attachments,
-  );
   const [offeredIn, setOfferedIn] = useInitialState<
     Array<readonly [string, string]>
   >(propOfferedIn);
-  const [admins, setAdmins] = useInitialState(currentMetaData.admins);
-  const [experts, setExperts] = useInitialState(currentMetaData.experts);
-  const save = () => {
+  const {
+    registerInput,
+    registerCheckbox,
+    reset,
+    formState,
+    setFormValue,
+    onSubmit,
+  } = useForm(currentMetaData as CategoryMetaDataDraft, data => {
     runApplyChanges(
       currentMetaData.slug,
       currentMetaData,
-      {
-        ...currentMetaData,
-        semester,
-        form,
-        permission,
-        remark,
-        more_exams_link: moreExams,
-        has_payments: hasPayments,
-        attachments,
-        admins,
-        experts,
-      },
+      data,
       propOfferedIn,
       offeredIn,
     );
-  };
+  });
   return (
     <>
       <Button close onClick={toggle} />
       <h2>Edit Category</h2>
-      {error && <Alert color="danger">{error.message}</Alert>}
+      {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6>Meta Data</h6>
       <Row form>
         <Col md={6}>
@@ -266,9 +240,14 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             <label className="form-input-label">Semester</label>
             <Select
               options={options(semesterOptions)}
-              value={semesterOptions[semester]}
+              value={
+                semesterOptions[
+                  formState.semester as keyof typeof semesterOptions
+                ]
+              }
               onChange={option =>
-                setSemester(
+                setFormValue(
+                  "semester",
                   (option as SelectOption<typeof semesterOptions>).value,
                 )
               }
@@ -280,37 +259,32 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             <label className="form-input-label">Form</label>
             <Select
               options={options(formOptions)}
-              value={formOptions[form]}
+              value={formOptions[formState.form as keyof typeof formOptions]}
               onChange={option =>
-                setForm((option as SelectOption<typeof formOptions>).value)
+                setFormValue(
+                  "form",
+                  (option as SelectOption<typeof formOptions>).value,
+                )
               }
             />
           </FormGroup>
         </Col>
       </Row>
-      <Row form>
-        <Col md={12}>
-          <FormGroup>
-            <label className="form-input-label">Remark</label>
-            <TextareaField
-              textareaProps={{
-                onChange: e => setRemark(e.currentTarget.value),
-              }}
-            >
-              {remark}
-            </TextareaField>
-          </FormGroup>
-        </Col>
-      </Row>
+      <TextareaField label="Remark" textareaProps={registerInput("remark")} />
       <Row form>
         <Col md={6}>
           <FormGroup>
             <label className="form-input-label">Permission</label>
             <Select
               options={options(permissionOptions)}
-              value={permissionOptions[permission]}
+              value={
+                permissionOptions[
+                  formState.permission as keyof typeof permissionOptions
+                ]
+              }
               onChange={option =>
-                setPermission(
+                setFormValue(
+                  "permission",
                   (option as SelectOption<typeof permissionOptions>).value,
                 )
               }
@@ -318,43 +292,35 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           </FormGroup>
         </Col>
         <Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">More exams link</label>
-            <Input
-              type="url"
-              value={moreExams}
-              onChange={e => setMoreExams(e.currentTarget.value)}
-            />
-          </FormGroup>
+          <InputField
+            type="url"
+            label="More Exams Link"
+            {...registerInput("more_exams_link")}
+          />
         </Col>
       </Row>
-      <Row form>
-        <Col md={12}>
-          <FormGroup check>
-            <Input
-              type="checkbox"
-              name="check"
-              id="hasPayments"
-              checked={hasPayments}
-              onChange={e => setHasPayments(e.currentTarget.checked)}
-            />
-            <Label for="hasPayments" check>
-              Has Payments
-            </Label>
-          </FormGroup>
-        </Col>
-      </Row>
+      <InputField
+        type="checkbox"
+        label="Has Payments"
+        {...registerCheckbox("has_payments")}
+      />
       <h6>Attachments</h6>
       <AttachmentsEditor
-        attachments={attachments}
-        setAttachments={setAttachments}
+        attachments={formState.attachments}
+        setAttachments={a => setFormValue("attachments", a)}
       />
       <h6>Offered In</h6>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
       <h6>Admins</h6>
-      <UserSetEditor users={admins} setUsers={setAdmins} />
+      <UserSetEditor
+        users={formState.admins}
+        setUsers={u => setFormValue("admins", u)}
+      />
       <h6>Experts</h6>
-      <UserSetEditor users={experts} setUsers={setExperts} />
+      <UserSetEditor
+        users={formState.experts}
+        setUsers={e => setFormValue("experts", e)}
+      />
       <ButtonWrapperCard>
         <TwoButtons
           left={
@@ -362,13 +328,19 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               icon="SAVE"
               color="primary"
               loading={loading}
-              onClick={save}
+              onClick={onSubmit}
             >
               Save
             </IconButton>
           }
           right={
-            <IconButton icon="CLOSE" onClick={toggle}>
+            <IconButton
+              icon="CLOSE"
+              onClick={() => {
+                reset();
+                toggle();
+              }}
+            >
               Cancel
             </IconButton>
           }

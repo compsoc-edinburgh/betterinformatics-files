@@ -9,6 +9,7 @@ import {
   Row,
   Select,
   TextareaField,
+  InputField,
 } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -21,6 +22,7 @@ import ButtonWrapperCard from "./button-wrapper-card";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 import TwoButtons from "./two-buttons";
+import useForm from "../hooks/useForm";
 const stringKeys = [
   "displayname",
   "category",
@@ -91,6 +93,8 @@ const applyChanges = async (
   for (const key of booleanKeys)
     if (oldMetaData[key] !== newMetaData[key])
       metaDataDiff[key] = newMetaData[key];
+    else console.log(key, oldMetaData[key], newMetaData[key]);
+  console.log(metaDataDiff);
   await setMetaData(filename, metaDataDiff);
   const newAttachments: Attachment[] = [];
   for (const attachment of newMetaData.attachments) {
@@ -168,60 +172,53 @@ const ExamMetadataEditor: React.FC<Props> = ({
       onMetaDataChange(newMetaData);
     },
   });
-  const [draftState, setDraftState] = useInitialState<ExamMetaDataDraft>(
-    currentMetaData,
-  );
-  const setKey = <T, K extends keyof ExamMetaDataDraft>(
-    key: K,
-    value: ExamMetaDataDraft[K],
-  ) => {
-    setDraftState(prevState => ({
-      ...prevState,
-      [key]: value,
-    }));
-  };
+
   const [printonlyFile, setPrintonlyFile] = useInitialState<
     File | true | undefined
   >(currentMetaData.is_printonly ? true : undefined);
   const [masterFile, setMasterFile] = useInitialState<File | true | undefined>(
     currentMetaData.has_solution ? true : undefined,
   );
-  const save = () => {
-    runApplyChanges(
-      currentMetaData.filename,
-      currentMetaData,
-      draftState,
-      printonlyFile,
-      masterFile,
-    );
-  };
+
+  const {
+    registerInput,
+    registerCheckbox,
+    formState,
+    setFormValue,
+    onSubmit,
+  } = useForm(
+    currentMetaData as ExamMetaDataDraft,
+    values =>
+      runApplyChanges(
+        currentMetaData.filename,
+        currentMetaData,
+        values,
+        printonlyFile,
+        masterFile,
+      ),
+    ["category", "category_displayname", "examtype", "remark", "attachments"],
+  );
 
   return (
     <>
       <Button close onClick={toggle} />
       <h2>Edit Exam</h2>
-      {error && <Alert color="danger">{error.message}</Alert>}
+      {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6>Meta Data</h6>
       <Row form>
         <Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Display name</label>
-            <Input
-              type="text"
-              value={draftState.displayname}
-              onChange={e => setKey("displayname", e.currentTarget.value)}
-            />
-          </FormGroup>
+          <InputField
+            type="text"
+            label="Display name"
+            {...registerInput("displayname")}
+          />
         </Col>
         <Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Resolve alias</label>
-            <Input
-              type="text"
-              value={draftState.resolve_alias}
-              onChange={e => setKey("resolve_alias", e.currentTarget.value)}
-            />
-          </FormGroup>
+          <InputField
+            type="text"
+            label="Resolve Alias"
+            {...registerInput("resolve_alias")}
+          />
         </Col>
       </Row>
       <Row form>
@@ -230,10 +227,10 @@ const ExamMetadataEditor: React.FC<Props> = ({
             <label className="form-input-label">Category</label>
             <Select
               options={categoryOptions ? (options(categoryOptions) as any) : []}
-              value={categoryOptions && categoryOptions[draftState.category]}
+              value={categoryOptions && categoryOptions[formState.category]}
               onChange={(e: any) => {
-                setKey("category", e.value as string);
-                setKey("category_displayname", e.label as string);
+                setFormValue("category", e.value as string);
+                setFormValue("category_displayname", e.label as string);
               }}
               isLoading={categoriesLoading}
               required
@@ -247,11 +244,11 @@ const ExamMetadataEditor: React.FC<Props> = ({
               options={options(examTypeOptions)}
               value={
                 examTypeOptions[
-                  draftState.examtype as keyof typeof examTypeOptions
+                  formState.examtype as keyof typeof examTypeOptions
                 ]
               }
               onChange={option =>
-                setKey(
+                setFormValue(
                   "examtype",
                   (option as SelectOption<typeof examTypeOptions>).value,
                 )
@@ -267,8 +264,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
               type="checkbox"
               name="check"
               id="isPublic"
-              checked={draftState.public}
-              onChange={e => setKey("public", e.currentTarget.checked)}
+              {...registerCheckbox("public")}
             />
             <Label for="isPublic" check>
               Public
@@ -281,8 +277,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
               type="checkbox"
               name="check"
               id="needsPayment"
-              checked={draftState.needs_payment}
-              onChange={e => setKey("needs_payment", e.currentTarget.checked)}
+              {...registerCheckbox("needs_payment")}
             />
             <Label for="needsPayment" check>
               Needs Payment
@@ -297,8 +292,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
               type="checkbox"
               name="check"
               id="cuts"
-              checked={draftState.finished_cuts}
-              onChange={e => setKey("finished_cuts", e.currentTarget.checked)}
+              {...registerCheckbox("finished_cuts")}
             />
             <Label for="cuts" check>
               Finished Cuts
@@ -307,14 +301,12 @@ const ExamMetadataEditor: React.FC<Props> = ({
         </Col>
         <Col md={6}>
           <FormGroup check>
-            <Input
+            <InputField
               type="checkbox"
+              label="Finished Wiki Transfer"
               name="check"
               id="wiki"
-              checked={draftState.finished_wiki_transfer}
-              onChange={e =>
-                setKey("finished_wiki_transfer", e.currentTarget.checked)
-              }
+              {...registerCheckbox("finished_wiki_transfer")}
             />
             <Label for="wiki" check>
               Finished Wiki Transfer
@@ -326,11 +318,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <Col md={6}>
           <FormGroup>
             <label className="form-input-label">Legacy Solution</label>
-            <Input
-              type="url"
-              value={draftState.legacy_solution}
-              onChange={e => setKey("legacy_solution", e.currentTarget.value)}
-            />
+            <Input type="url" {...registerInput("legacy_solution")} />
           </FormGroup>
         </Col>
         <Col md={6}>
@@ -338,11 +326,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
             <label className="form-input-label">
               Master Solution <i>(extern)</i>
             </label>
-            <Input
-              type="url"
-              value={draftState.master_solution}
-              onChange={e => setKey("master_solution", e.currentTarget.value)}
-            />
+            <Input type="url" {...registerInput("master_solution")} />
           </FormGroup>
         </Col>
       </Row>
@@ -395,18 +379,18 @@ const ExamMetadataEditor: React.FC<Props> = ({
             <label className="form-input-label">Remark</label>
             <TextareaField
               textareaProps={{
-                onChange: e => setKey("remark", e.currentTarget.value),
+                onChange: e => setFormValue("remark", e.currentTarget.value),
               }}
             >
-              {draftState.remark}
+              {formState.remark}
             </TextareaField>
           </FormGroup>
         </Col>
       </Row>
       <h6>Attachments</h6>
       <AttachmentsEditor
-        attachments={draftState.attachments}
-        setAttachments={a => setKey("attachments", a)}
+        attachments={formState.attachments}
+        setAttachments={a => setFormValue("attachments", a)}
       />
       <ButtonWrapperCard>
         <TwoButtons
@@ -415,7 +399,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
               icon="SAVE"
               color="primary"
               loading={loading}
-              onClick={save}
+              onClick={onSubmit}
             >
               Save
             </IconButton>
