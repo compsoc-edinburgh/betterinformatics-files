@@ -33,7 +33,9 @@ const Editor: React.FC<Props> = ({
   const [isDragHovered, setIsDragHovered] = useState(false);
   const [attachments, setAttachments] = useState<ImageHandle[]>([]);
   const [overlayOpen, setOverlayOpen] = useState(false);
-
+  const textareaElRef = useRef<HTMLTextAreaElement>(
+    null,
+  ) as React.MutableRefObject<HTMLTextAreaElement>;
   const setCurrent = useCallback(
     (newValue: string, newSelection?: Range) => {
       if (newSelection) setSelectionRangeRef.current(newSelection);
@@ -224,6 +226,7 @@ const Editor: React.FC<Props> = ({
   return (
     <div
       className={cx("form-control", isDragHovered && "border-primary")}
+      onClick={() => textareaElRef.current && textareaElRef.current.focus()}
       onDragEnter={onDragEnter}
     >
       <EditorHeader
@@ -238,6 +241,7 @@ const Editor: React.FC<Props> = ({
       <div className={editorWrapperStyle}>
         {mode === "write" ? (
           <BasicEditor
+            textareaElRef={textareaElRef}
             value={value}
             onChange={newValue => setCurrent(newValue)}
             setSelectionRangeRef={setSelectionRangeRef}

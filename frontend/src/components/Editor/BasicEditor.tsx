@@ -40,6 +40,8 @@ interface Props {
   getSelectionRangeRef: React.RefObject<() => Range | undefined>;
   setSelectionRangeRef: React.RefObject<(newSelection: Range) => void>;
 
+  textareaElRef: React.MutableRefObject<HTMLTextAreaElement>;
+
   onMetaKey: (str: string, shift: boolean) => boolean;
 }
 const BasicEditor: React.FC<Props> = ({
@@ -47,9 +49,9 @@ const BasicEditor: React.FC<Props> = ({
   onChange,
   getSelectionRangeRef,
   setSelectionRangeRef,
+  textareaElRef,
   onMetaKey,
 }) => {
-  const textareaElRef = useRef<HTMLTextAreaElement>(null);
   const preElRef = useRef<HTMLPreElement>(null);
 
   // tslint:disable-next-line: no-any
@@ -97,7 +99,7 @@ const BasicEditor: React.FC<Props> = ({
     const preEl = preElRef.current;
     if (preEl === null) return;
     textareaEl.style.height = `${preEl.clientHeight}px`;
-  }, []);
+  }, [textareaElRef]);
 
   useEffect(() => {
     onResize();
