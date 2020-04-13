@@ -9,6 +9,7 @@ import useDpr from "../hooks/useDpr";
 import { PdfSection } from "../interfaces";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
+import { useInViewport } from "@umijs/hooks";
 
 const styles = {
   lastSection: css`
@@ -120,7 +121,8 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       end,
       visible ? (currentScale ? currentScale * dpr : undefined) : undefined,
     );
-    const v = visible || false;
+    const [inViewport, inViewportRef] = useInViewport<HTMLDivElement>();
+    const v = inViewport || false;
     useEffect(() => {
       if (onVisibleChange) onVisibleChange(v);
       return () => {
@@ -181,48 +183,50 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
 
     return (
       <Card className={end === 1 ? styles.lastSection : undefined}>
-        <div
-          style={{
-            width: `${targetWidth}px`,
-            height: `${containerHeight ||
-              targetWidth * relativeHeight * 1.414}px`,
-            position: "relative",
-            overflow: "hidden",
-          }}
-          ref={containerElement}
-        >
+        <div ref={inViewportRef}>
           <div
-            className={cx(
-              "position-absolute",
-              "position-top-left",
-              "m-3",
-              "p-1",
-              "rounded-circle",
-              isMainCanvas ? "bg-success" : "bg-info",
+            style={{
+              width: `${targetWidth}px`,
+              height: `${containerHeight ||
+                targetWidth * relativeHeight * 1.414}px`,
+              position: "relative",
+              overflow: "hidden",
+            }}
+            ref={containerElement}
+          >
+            <div
+              className={cx(
+                "position-absolute",
+                "position-top-left",
+                "m-3",
+                "p-1",
+                "rounded-circle",
+                isMainCanvas ? "bg-success" : "bg-info",
+              )}
+              style={{ zIndex: 42424242 }}
+            />
+            {content}
+            {visible && (
+              <PdfSectionText
+                section={section}
+                renderer={renderer}
+                scale={currentScale || 1}
+                view={view}
+                translateY={translateY}
+              />
             )}
-            style={{ zIndex: 42424242 }}
-          />
-          {content}
-          {visible && (
-            <PdfSectionText
-              section={section}
-              renderer={renderer}
-              scale={currentScale || 1}
-              view={view}
-              translateY={translateY}
-            />
-          )}
-          {canvas && addCutText && (
-            <PdfSectionCanvasOverlay
-              canvas={canvas}
-              start={start}
-              end={end}
-              isMain={isMainCanvas}
-              addCutText={addCutText}
-              onAddCut={onAddCutHandler}
-              snap={snap}
-            />
-          )}
+            {canvas && addCutText && (
+              <PdfSectionCanvasOverlay
+                canvas={canvas}
+                start={start}
+                end={end}
+                isMain={isMainCanvas}
+                addCutText={addCutText}
+                onAddCut={onAddCutHandler}
+                snap={snap}
+              />
+            )}
+          </div>
         </div>
       </Card>
     );
