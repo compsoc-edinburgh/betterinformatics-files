@@ -1,10 +1,14 @@
+import { Button } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
+import { DebugContext, defaultDebugOptions } from "./components/Debug";
+import DebugModal from "./components/Debug/DebugModal";
 import ExamsNavbar from "./components/exams-navbar";
 import HashLocationHandler from "./components/hash-location-handler";
+import useToggle from "./hooks/useToggle";
 import CategoryPage from "./pages/category";
 import ExamPage from "./pages/exam";
 import FAQ from "./pages/faq";
@@ -59,41 +63,73 @@ const App: React.FC<{}> = () => {
       cancelled = true;
     };
   }, [user]);
+  const [debugPanel, toggleDebugPanel] = useToggle(false);
+  const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (
     <>
-      <Route component={HashLocationHandler} />
-      <UserContext.Provider value={user}>
-        <SetUserContext.Provider value={setUser}>
-          <div className="mobile-capable">
-            <ExamsNavbar />
-            <main className="main__container">
-              <Switch>
-                <UserRoute exact path="/" component={HomePage} />
-                <Route exact path="/login" component={LoginPage} />
-                <Route exact path="/tutorial" component={TutorialPage} />
-                <UserRoute exact path="/uploadpdf" component={UploadPdfPage} />
-                <UserRoute
-                  exact
-                  path="/submittranscript"
-                  component={UploadTranscriptPage}
-                />
-                <UserRoute exact path="/faq" component={FAQ} />
-                <UserRoute exact path="/feedback" component={FeedbackPage} />
-                <UserRoute
-                  exact
-                  path="/category/:slug"
-                  component={CategoryPage}
-                />
-                <UserRoute exact path="/exams/:filename" component={ExamPage} />
-                <UserRoute exact path="/user/:username" component={UserPage} />
-                <UserRoute exact path="/scoreboard" component={Scoreboard} />
-                <UserRoute exact path="/modqueue" component={ModQueue} />
-                <Route component={NotFoundPage} />
-              </Switch>
-            </main>
+      {process.env.NODE_ENV === "development" && (
+        <>
+          <div className="position-fixed" style={{ bottom: 0, left: 0 }}>
+            <Button color="white" onClick={toggleDebugPanel}>
+              DEBUG
+            </Button>
           </div>
-        </SetUserContext.Provider>
-      </UserContext.Provider>
+          <DebugModal
+            isOpen={debugPanel}
+            toggle={toggleDebugPanel}
+            debugOptions={debugOptions}
+            setDebugOptions={setDebugOptions}
+          />
+        </>
+      )}
+
+      <Route component={HashLocationHandler} />
+      <DebugContext.Provider value={debugOptions}>
+        <UserContext.Provider value={user}>
+          <SetUserContext.Provider value={setUser}>
+            <div className="mobile-capable">
+              <ExamsNavbar />
+              <main className="main__container">
+                <Switch>
+                  <UserRoute exact path="/" component={HomePage} />
+                  <Route exact path="/login" component={LoginPage} />
+                  <Route exact path="/tutorial" component={TutorialPage} />
+                  <UserRoute
+                    exact
+                    path="/uploadpdf"
+                    component={UploadPdfPage}
+                  />
+                  <UserRoute
+                    exact
+                    path="/submittranscript"
+                    component={UploadTranscriptPage}
+                  />
+                  <UserRoute exact path="/faq" component={FAQ} />
+                  <UserRoute exact path="/feedback" component={FeedbackPage} />
+                  <UserRoute
+                    exact
+                    path="/category/:slug"
+                    component={CategoryPage}
+                  />
+                  <UserRoute
+                    exact
+                    path="/exams/:filename"
+                    component={ExamPage}
+                  />
+                  <UserRoute
+                    exact
+                    path="/user/:username"
+                    component={UserPage}
+                  />
+                  <UserRoute exact path="/scoreboard" component={Scoreboard} />
+                  <UserRoute exact path="/modqueue" component={ModQueue} />
+                  <Route component={NotFoundPage} />
+                </Switch>
+              </main>
+            </div>
+          </SetUserContext.Provider>
+        </UserContext.Provider>
+      </DebugContext.Provider>
     </>
   );
 };

@@ -26,6 +26,7 @@ import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import ContentContainer from "../components/secondary-container";
+import TooltipButton from "../components/TooltipButton";
 
 enum Mode {
   Alphabetical,
@@ -125,12 +126,13 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
         </ModalFooter>
       </Modal>
       <Card style={{ minHeight: "10em" }}>
-        <Button
+        <TooltipButton
+          tooltip="Add a new category"
           onClick={() => setIsOpen(true)}
           className="position-cover w-100"
         >
           <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
-        </Button>
+        </TooltipButton>
       </Card>
     </>
   );

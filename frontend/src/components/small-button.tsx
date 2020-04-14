@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
-import { Button } from "@vseth/components";
+import TooltipButton from "./TooltipButton";
 
-const SmallButton = styled(Button)`
+const SmallButton = styled(TooltipButton)`
   min-width: 0;
 `;
 

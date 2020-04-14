@@ -210,6 +210,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   />
                   <InputGroupButtonDropdown addonType="append">
                     <IconButton
+                      tooltip="Save PDF section name"
                       icon="SAVE"
                       block
                       onClick={() => {
@@ -225,6 +226,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   right={
                     isCatAdmin && (
                       <IconButton
+                        tooltip="Edit PDF section name"
                         size="sm"
                         icon="EDIT"
                         onClick={() => setIsEditingName(true)}

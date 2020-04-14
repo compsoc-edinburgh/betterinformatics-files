@@ -65,7 +65,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       ) : (
         <>
           {user.isCategoryAdmin && (
-            <IconButton close icon="EDIT" onClick={() => setEditing(true)} />
+            <IconButton
+              tooltip="Edit category metadata"
+              close
+              icon="EDIT"
+              onClick={() => setEditing(true)}
+            />
           )}
           <h1>{metaData.displayname}</h1>
           <Row>

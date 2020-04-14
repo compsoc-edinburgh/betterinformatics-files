@@ -118,7 +118,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     <>
       <Container>
         {user.isCategoryAdmin && (
-          <IconButton close icon="EDIT" onClick={() => toggleEditing()} />
+          <IconButton
+            tooltip="Edit exam metadata"
+            close
+            icon="EDIT"
+            onClick={() => toggleEditing()}
+          />
         )}
         <h1>{metaData.displayname}</h1>
         <Row form>

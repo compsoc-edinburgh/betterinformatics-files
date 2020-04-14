@@ -132,6 +132,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                     {user.isAdmin && (
                       <IconButton
                         close
+                        tooltip="Delete exam"
                         icon="DELETE"
                         onClick={e => handleRemoveClick(e, exam)}
                       />

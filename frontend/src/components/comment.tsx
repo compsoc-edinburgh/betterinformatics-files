@@ -113,12 +113,22 @@ const CommentComponent: React.FC<Props> = ({
       <div className="position-absolute position-top-right">
         <ButtonGroup>
           {!editing && comment?.canEdit && (
-            <SmallButton size="sm" color="white" onClick={startEditing}>
+            <SmallButton
+              tooltip="Edit comment"
+              size="sm"
+              color="white"
+              onClick={startEditing}
+            >
               <Icon icon={ICONS.EDIT} size={18} />
             </SmallButton>
           )}
           {comment && (comment.canEdit || isAdmin) && (
-            <SmallButton size="sm" color="white" onClick={remove}>
+            <SmallButton
+              tooltip="Delete comment"
+              size="sm"
+              color="white"
+              onClick={remove}
+            >
               <Icon icon={ICONS.DELETE} size={18} />
             </SmallButton>
           )}

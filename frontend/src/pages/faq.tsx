@@ -176,6 +176,7 @@ export const FAQC: React.FC = () => {
       ) : (
         <Card className="my-2" style={{ minHeight: "3em" }}>
           <IconButton
+            tooltip="Add new FAQ entry"
             className="position-cover"
             block
             size="lg"

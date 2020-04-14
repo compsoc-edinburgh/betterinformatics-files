@@ -137,15 +137,19 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         />
         <h6>Actions</h6>
         <ButtonGroup>
-          <IconButton icon="DOWNLOAD" title="Download PDF" onClick={download} />
           <IconButton
+            tooltip="Download this exam as a PDF file"
+            icon="DOWNLOAD"
+            onClick={download}
+          />
+          <IconButton
+            tooltip="Report problem"
             icon="MESSAGE"
-            title="Report Problem"
             onClick={reportProblem}
           />
           <IconButton
+            tooltip="Back to the top"
             icon="ARROW_UP"
-            title="Back to the top"
             onClick={scrollToTop}
           />
         </ButtonGroup>
@@ -155,6 +159,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             <h6>Edit Mode</h6>
             <ButtonGroup vertical>
               <IconButton
+                tooltip="Disable editing"
                 onClick={() => setEditState({ mode: EditMode.None })}
                 icon="CLOSE"
                 active={editState.mode === EditMode.None}
@@ -162,6 +167,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 Readonly
               </IconButton>
               <IconButton
+                tooltip="Add new cuts"
                 onClick={() =>
                   setEditState({
                     mode: EditMode.Add,
@@ -174,6 +180,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 Add Cuts
               </IconButton>
               <IconButton
+                tooltip="The highlighted cut including its answers will be moved to the new location"
                 icon="CONNECTION_OBJECT_BOTTOM"
                 active={editState.mode === EditMode.Move}
                 disabled={editState.mode !== EditMode.Move}
@@ -181,6 +188,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 Move Cut
               </IconButton>
               <IconButton
+                tooltip="Toggle snapping behavior"
                 icon="TARGET"
                 onClick={() =>
                   (editState.mode === EditMode.Add ||

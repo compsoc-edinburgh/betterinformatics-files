@@ -162,9 +162,9 @@ const AnswerComponent: React.FC<Props> = ({
                 {answer && (answer.expertvotes > 0 || setExpertVoteLoading) && (
                   <ButtonGroup className="m-1" size="sm">
                     <IconButton
+                      tooltip="This answer is endorsed by an expert"
                       color="primary"
                       icon="STAR_FILLED"
-                      title={"This answer is endorsed by an expert"}
                       active
                     />
                     <SmallButton color="primary" active>
@@ -172,7 +172,12 @@ const AnswerComponent: React.FC<Props> = ({
                     </SmallButton>
                     <IconButton
                       color="primary"
-                      icon={answer.isFlagged ? "CLOSE" : "PLUS"}
+                      tooltip={
+                        answer.isExpertVoted
+                          ? "Remove expert vote"
+                          : "Add expert vote"
+                      }
+                      icon={answer.isExpertVoted ? "CLOSE" : "PLUS"}
                       onClick={() =>
                         runSetExpertVote(answer.oid, !answer.isExpertVoted)
                       }
@@ -182,6 +187,7 @@ const AnswerComponent: React.FC<Props> = ({
                 {answer && (answer.flagged > 0 || flaggedLoading) && (
                   <ButtonGroup className="m-1" size="sm">
                     <IconButton
+                      tooltip="This answer was flagged as inappropriate by a user. A moderator will decide if the answer should be removed."
                       color="danger"
                       icon="FLAG"
                       title="Flagged as Inappropriate"
@@ -189,7 +195,11 @@ const AnswerComponent: React.FC<Props> = ({
                     >
                       Inappropriate
                     </IconButton>
-                    <SmallButton color="danger" active>
+                    <SmallButton
+                      color="danger"
+                      tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                      active
+                    >
                       {answer.flagged}
                     </SmallButton>
                     <IconButton
@@ -201,6 +211,7 @@ const AnswerComponent: React.FC<Props> = ({
                     />
                     {isAdmin && (
                       <IconButton
+                        tooltip="Remove all inappropriate flags"
                         color="danger"
                         icon="DELETE"
                         onClick={() => runResetFlagged(answer.oid)}
@@ -227,12 +238,22 @@ const AnswerComponent: React.FC<Props> = ({
           <div className="position-absolute position-top-right">
             <ButtonGroup>
               {!editing && canEdit && (
-                <SmallButton size="sm" color="white" onClick={startEdit}>
+                <SmallButton
+                  size="sm"
+                  color="white"
+                  onClick={startEdit}
+                  tooltip="Edit answer"
+                >
                   <Icon icon={ICONS.EDIT} size={18} />
                 </SmallButton>
               )}
               {answer && canRemove && (
-                <SmallButton size="sm" color="white" onClick={remove}>
+                <SmallButton
+                  size="sm"
+                  color="white"
+                  onClick={remove}
+                  tooltip="Delete answer"
+                >
                   <Icon icon={ICONS.DELETE} size={18} />
                 </SmallButton>
               )}

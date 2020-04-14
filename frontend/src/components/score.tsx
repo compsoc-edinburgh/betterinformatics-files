@@ -31,6 +31,7 @@ const Score: React.FC<Props> = ({
   return (
     <ButtonGroup className="m-1">
       <SmallButton
+        tooltip="Downvote"
         size="sm"
         disabled={userVote === -1}
         outline={userVote === -1}
@@ -39,6 +40,7 @@ const Score: React.FC<Props> = ({
         <Icon icon={ICONS.MINUS} size={18} />
       </SmallButton>
       <SmallButton
+        tooltip="Reset vote"
         size="sm"
         style={{ color: "black" }}
         disabled={userVote === 0}
@@ -48,6 +50,7 @@ const Score: React.FC<Props> = ({
         {loading ? <Spinner size="sm" /> : upvotes}
       </SmallButton>
       <SmallButton
+        tooltip="Upvote"
         size="sm"
         disabled={userVote === 1}
         outline={userVote === 1}

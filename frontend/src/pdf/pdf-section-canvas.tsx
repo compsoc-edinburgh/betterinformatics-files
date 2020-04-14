@@ -1,7 +1,7 @@
 import { Card } from "@vseth/components";
 import { css, cx } from "emotion";
 import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useContext } from "react";
 import PdfSectionCanvasOverlay from "../components/pdf-section-canvas-overlay";
 import PdfSectionText from "../components/pdf-section-text";
 import useAlmostInViewport from "../hooks/useAlmostInViewport";
@@ -10,6 +10,7 @@ import { PdfSection } from "../interfaces";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
 import { useInViewport } from "@umijs/hooks";
+import { DebugContext } from "../components/Debug";
 
 const styles = {
   lastSection: css`
@@ -106,6 +107,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const relativeHeight = end - start;
     const pageNumber = section.start.page;
 
+    const { displayCanvasType } = useContext(DebugContext);
     const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
     const [containerHeight, setContainerHeight] = useState(0);
     const [translateY, setTranslateY] = useState(0);
@@ -194,18 +196,19 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
             }}
             ref={containerElement}
           >
-            <div
-              className={cx(
-                "position-absolute",
-                "position-top-left",
-                "m-3",
-                "p-1",
-                "rounded-circle",
-                isMainCanvas ? "bg-success" : "bg-info",
-              )}
-              style={{ zIndex: 42424242 }}
-            />
             {content}
+            {displayCanvasType && (
+              <div
+                className={cx(
+                  "position-absolute",
+                  "position-top-left",
+                  "m-3",
+                  "p-1",
+                  "rounded-circle",
+                  isMainCanvas ? "bg-success" : "bg-info",
+                )}
+              />
+            )}
             {visible && (
               <PdfSectionText
                 section={section}

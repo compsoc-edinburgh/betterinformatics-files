@@ -49,7 +49,12 @@ const FAQEntryComponent: React.FC<Props> = ({
       <CardBody>
         <h4>
           {!editing && (
-            <IconButton close icon="EDIT" onClick={() => startEditing()} />
+            <IconButton
+              tooltip="Edit FAQ entry"
+              close
+              icon="EDIT"
+              onClick={() => startEditing()}
+            />
           )}
           {editing ? (
             <Input
@@ -92,16 +97,19 @@ const FAQEntryComponent: React.FC<Props> = ({
               right={
                 <ButtonGroup size="sm">
                   <IconButton
+                    tooltip="Move up"
                     icon="ARROW_UP"
                     disabled={prevEntry === undefined}
                     onClick={() => prevEntry && onSwap(entry, prevEntry)}
                   />
                   <IconButton
+                    tooltip="Move down"
                     icon="ARROW_DOWN"
                     disabled={nextEntry === undefined}
                     onClick={() => nextEntry && onSwap(entry, nextEntry)}
                   />
                   <IconButton
+                    tooltip="Delete FAQ entry"
                     icon="DELETE"
                     onClick={() =>
                       confirm(

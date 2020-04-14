@@ -1,6 +1,6 @@
 import { Button, Icon, ICONS } from "@vseth/components";
 import { css, cx, keyframes } from "emotion";
-import React from "react";
+import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 const panelStyle = css`
   position: fixed;
@@ -20,13 +20,18 @@ const iconContainerStyle = css`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 1em 0;
 `;
 const closeButtonStyle = css`
+  display: inline-block;
+  font-size: 0.5em;
   &.btn {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
+`;
+const modalWrapper = css`
+  width: 100%;
+  height: 100%;
 `;
 const modalStyle = css`
   &.modal-content {
@@ -37,6 +42,8 @@ const modalStyle = css`
 interface PanelProps {
   isOpen: boolean;
   toggle: () => void;
+  iconPadding?: CSSProperties["padding"];
+  buttonText?: string;
 }
 
 const duration = 200;
@@ -68,11 +75,17 @@ const transitionStyles = {
   exited: { transform: "translate(100%)" },
 };
 
-const Panel: React.FC<PanelProps> = ({ children, isOpen, toggle }) => {
+const Panel: React.FC<PanelProps> = ({
+  children,
+  isOpen,
+  toggle,
+  iconPadding = "1em 0",
+  buttonText,
+}) => {
   return (
     <>
       <div className={panelStyle}>
-        <div className={iconContainerStyle}>
+        <div className={iconContainerStyle} style={{ padding: iconPadding }}>
           <Button
             size="lg"
             color="primary"
@@ -80,6 +93,11 @@ const Panel: React.FC<PanelProps> = ({ children, isOpen, toggle }) => {
             onClick={toggle}
           >
             <Icon icon={ICONS["ARROW_LEFT"]} size={24} />
+            {buttonText && (
+              <div>
+                <small>{buttonText}</small>
+              </div>
+            )}
           </Button>
         </div>
       </div>
@@ -91,7 +109,10 @@ const Panel: React.FC<PanelProps> = ({ children, isOpen, toggle }) => {
               ...transitionStyles[state as keyof typeof transitionStyles],
             }}
           >
-            <div className={iconContainerStyle}>
+            <div
+              className={iconContainerStyle}
+              style={{ padding: iconPadding }}
+            >
               <Button
                 size="lg"
                 color="primary"
@@ -99,9 +120,14 @@ const Panel: React.FC<PanelProps> = ({ children, isOpen, toggle }) => {
                 onClick={toggle}
               >
                 <Icon icon={ICONS["CLOSE"]} size={24} />
+                {buttonText && (
+                  <div>
+                    <small>{buttonText}</small>
+                  </div>
+                )}
               </Button>
             </div>
-            <div>
+            <div className={modalWrapper}>
               <div className={cx("modal-content", modalStyle)}>{children}</div>
             </div>
           </div>
