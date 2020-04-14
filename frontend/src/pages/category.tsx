@@ -3,12 +3,12 @@ import {
   Alert,
   Badge,
   Breadcrumb,
+  Col,
   Container,
   ListGroup,
   ListGroupItem,
-  Spinner,
   Row,
-  Col,
+  Spinner,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import React, { useCallback, useMemo, useState } from "react";
@@ -21,7 +21,6 @@ import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
-import { error } from "console";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;

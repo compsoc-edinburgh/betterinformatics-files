@@ -5,7 +5,6 @@ import {
   Card,
   Col,
   Container,
-  Form,
   FormGroup,
   Icon,
   ICONS,
@@ -24,9 +23,9 @@ import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
-import { CategoryMetaData, MetaCategory } from "../interfaces";
 import ContentContainer from "../components/secondary-container";
 import TooltipButton from "../components/TooltipButton";
+import { CategoryMetaData, MetaCategory } from "../interfaces";
 
 enum Mode {
   Alphabetical,

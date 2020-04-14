@@ -1,9 +1,9 @@
-import { EditorMode } from "./utils/types";
-import * as React from "react";
+import { Nav, NavItem, NavLink } from "@vseth/components";
 import { css } from "emotion";
-import { Bold, Italic, Link, Code, DollarSign } from "react-feather";
-import { Nav, NavItem, NavLink, Button } from "@vseth/components";
+import * as React from "react";
+import { Bold, Code, DollarSign, Italic, Link } from "react-feather";
 import TooltipButton from "../TooltipButton";
+import { EditorMode } from "./utils/types";
 
 const iconButtonStyle = css`
   margin: 0;
