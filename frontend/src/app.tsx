@@ -67,22 +67,6 @@ const App: React.FC<{}> = () => {
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (
     <>
-      {process.env.NODE_ENV === "development" && (
-        <>
-          <div className="position-fixed" style={{ bottom: 0, left: 0 }}>
-            <Button color="white" onClick={toggleDebugPanel}>
-              DEBUG
-            </Button>
-          </div>
-          <DebugModal
-            isOpen={debugPanel}
-            toggle={toggleDebugPanel}
-            debugOptions={debugOptions}
-            setDebugOptions={setDebugOptions}
-          />
-        </>
-      )}
-
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
@@ -130,6 +114,21 @@ const App: React.FC<{}> = () => {
           </SetUserContext.Provider>
         </UserContext.Provider>
       </DebugContext.Provider>
+      {process.env.NODE_ENV === "development" && (
+        <>
+          <div className="position-fixed" style={{ bottom: 0, left: 0 }}>
+            <Button color="white" onClick={toggleDebugPanel}>
+              DEBUG
+            </Button>
+          </div>
+          <DebugModal
+            isOpen={debugPanel}
+            toggle={toggleDebugPanel}
+            debugOptions={debugOptions}
+            setDebugOptions={setDebugOptions}
+          />
+        </>
+      )}
     </>
   );
 };
