@@ -17,6 +17,31 @@ interface CheckedElement {
 type ResetFnMap<T extends FormData> = {
   [name in keyof T]?: () => void;
 };
+/**
+ * A hook which can be used to manage a form that consists of
+ * both uncontrolled and controlled input elements. Uncontrolled
+ * input elements are generally preferred.
+ * @param initialData The initial data the form should be populated
+ * with. Include keys that are initially undefined as this value
+ * will be used to infer the form data type.
+ * @param formSubmit An optional callback that is invoked with the
+ * current data when the returned onSubmit is invoked.
+ * @param _state An array of keys that are controlled by controlled
+ * input elements. Currently this array is only used for type-checking
+ * @example
+ * const {
+ *   registerInput,
+ *   registerCheckbox,
+ *   onSubmit
+ * } = useForm({
+ *     name: "",
+ *     password: "",
+ *   },
+ *   ({name, password}) =>
+ *     login(name, password),
+ *   []
+ * );
+ */
 const useForm = <
   S extends keyof T,
   T extends FormData,
