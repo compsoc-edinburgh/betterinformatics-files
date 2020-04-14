@@ -1,6 +1,7 @@
 import * as React from "react";
 import { css } from "emotion";
 import { useState } from "react";
+import useTitle from "../hooks/useTitle";
 interface SectionProps {
   backgroundColor?: string;
   background?: string;
@@ -95,6 +96,7 @@ const Slideshow: React.FC<SlideshowProps> = ({ children }) => {
   );
 };
 const TutorialPage: React.FC<{}> = () => {
+  useTitle("Tutorial - VIS Community Solutions");
   return (
     <Slideshow>
       <Section backgroundColor="#394b59">

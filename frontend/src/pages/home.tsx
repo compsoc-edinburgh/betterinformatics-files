@@ -26,6 +26,7 @@ import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import TooltipButton from "../components/TooltipButton";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
+import useTitle from "../hooks/useTitle";
 
 enum Mode {
   Alphabetical,
@@ -138,8 +139,9 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 };
 
 const HomePage: React.FC<{}> = () => {
+  useTitle("VIS Community Solutions");
   const { isAdmin } = useUser() as User;
-  const [mode, setMode] = useLocalStorageState<Mode>("mode", Mode.Alphabetical);
+  const [mode, setMode] = useLocalStorageState("mode", Mode.Alphabetical);
   const [filter, setFilter] = useState("");
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",

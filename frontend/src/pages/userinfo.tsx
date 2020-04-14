@@ -8,8 +8,10 @@ import UserPayments from "../components/user-payments";
 import UserScoreCard from "../components/user-score-card";
 import { useUserInfo } from "../api/hooks";
 import ContentContainer from "../components/secondary-container";
+import useTitle from "../hooks/useTitle";
 const UserPage: React.FC<{}> = () => {
   const { username } = useParams() as { username: string };
+  useTitle(`${username} - VIS Community Solutions`);
   const user = useUser()!;
   const isMyself = user.username === username;
   const [userInfoError, userInfoLoading, userInfo] = useUserInfo(username);

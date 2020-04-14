@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { useRequest } from "@umijs/hooks";
 import {
   ButtonDropdown,
   ButtonGroup,
@@ -15,7 +14,14 @@ import {
 } from "@vseth/components";
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
-import { fetchPost, imageHandler } from "../api/fetch-utils";
+import { imageHandler } from "../api/fetch-utils";
+import {
+  useRemoveAnswer,
+  useResetFlaggedVote,
+  useSetExpertVote,
+  useSetFlagged,
+  useUpdateAnswer,
+} from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection } from "../interfaces";
@@ -48,38 +54,6 @@ const bodyCanEditStyle = css`
   padding-top: 2.3em !important;
 `;
 
-const updateAnswer = async (
-  answerId: string,
-  text: string,
-  legacy_answer: boolean,
-) => {
-  return (
-    await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
-  ).value as AnswerSection;
-};
-const removeAnwer = async (answerId: string) => {
-  return (await fetchPost(`/api/exam/removeanswer/${answerId}/`, {}))
-    .value as AnswerSection;
-};
-const setFlagged = async (oid: string, flagged: boolean) => {
-  return (
-    await fetchPost(`/api/exam/setflagged/${oid}/`, {
-      flagged,
-    })
-  ).value as AnswerSection;
-};
-const resetFlagged = async (oid: string) => {
-  return (await fetchPost(`/api/exam/resetflagged/${oid}/`, {}))
-    .value as AnswerSection;
-};
-const setExpertVote = async (oid: string, vote: boolean) => {
-  return (
-    await fetchPost(`/api/exam/setexpertvote/${oid}/`, {
-      vote,
-    })
-  ).value as AnswerSection;
-};
-
 interface Props {
   section?: AnswerSection;
   answer?: Answer;
@@ -94,33 +68,21 @@ const AnswerComponent: React.FC<Props> = ({
   onSectionChanged,
   isLegacyAnswer,
 }) => {
-  const {
-    loading: setFlaggedLoading,
-    run: runSetFlagged,
-  } = useRequest(setFlagged, { manual: true, onSuccess: onSectionChanged });
-  const {
-    loading: setExpertVoteLoading,
-    run: runSetExpertVote,
-  } = useRequest(setExpertVote, { manual: true, onSuccess: onSectionChanged });
-  const {
-    loading: resetFlaggedLoading,
-    run: runResetFlagged,
-  } = useRequest(resetFlagged, { manual: true, onSuccess: onSectionChanged });
-  const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
-  const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
-    manual: true,
-    onSuccess: res => {
-      if (onSectionChanged) onSectionChanged(res);
-      if (answer === undefined && onDelete) onDelete();
-      setEditing(false);
-    },
+  const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
+  const [resetFlaggedLoading, resetFlagged] = useResetFlaggedVote(
+    onSectionChanged,
+  );
+  const [setExpertVoteLoading, setExpertVote] = useSetExpertVote(
+    onSectionChanged,
+  );
+  const removeAnswer = useRemoveAnswer(onSectionChanged);
+  const [updating, update] = useUpdateAnswer(res => {
+    setEditing(false);
+    if (onSectionChanged) onSectionChanged(res);
+    if (answer === undefined && onDelete) onDelete();
   });
   const { isAdmin, isExpert } = useUser()!;
   const [confirm, modals] = useConfirm();
-  const { run: runRemoveAnswer } = useRequest(removeAnwer, {
-    manual: true,
-    onSuccess: onSectionChanged,
-  });
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
@@ -136,13 +98,14 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) runUpdateAnswer(section.oid, draftText, false);
-  }, [section, draftText, runUpdateAnswer]);
-  const remove = () => {
-    if (answer) confirm("Remove answer?", () => runRemoveAnswer(answer.oid));
-  };
+    if (section) update(section.oid, draftText, false);
+  }, [section, draftText, update]);
+  const remove = useCallback(() => {
+    if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
+  }, [confirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
+  const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const canEdit = onSectionChanged && (answer?.canEdit || false);
   const canRemove = onSectionChanged && (isAdmin || answer?.canEdit || false);
   return (
@@ -179,7 +142,7 @@ const AnswerComponent: React.FC<Props> = ({
                       }
                       icon={answer.isExpertVoted ? "CLOSE" : "PLUS"}
                       onClick={() =>
-                        runSetExpertVote(answer.oid, !answer.isExpertVoted)
+                        setExpertVote(answer.oid, !answer.isExpertVoted)
                       }
                     />
                   </ButtonGroup>
@@ -205,16 +168,14 @@ const AnswerComponent: React.FC<Props> = ({
                     <IconButton
                       color="danger"
                       icon={answer.isFlagged ? "CLOSE" : "PLUS"}
-                      onClick={() =>
-                        runSetFlagged(answer.oid, !answer.isFlagged)
-                      }
+                      onClick={() => setFlagged(answer.oid, !answer.isFlagged)}
                     />
                     {isAdmin && (
                       <IconButton
                         tooltip="Remove all inappropriate flags"
                         color="danger"
                         icon="DELETE"
-                        onClick={() => runResetFlagged(answer.oid)}
+                        onClick={() => resetFlagged(answer.oid)}
                       />
                     )}
                   </ButtonGroup>
@@ -315,14 +276,14 @@ const AnswerComponent: React.FC<Props> = ({
                         <DropdownMenu>
                           {answer.expertvotes === 0 && isExpert && (
                             <DropdownItem
-                              onClick={() => runSetExpertVote(answer.oid, true)}
+                              onClick={() => setFlagged(answer.oid, true)}
                             >
                               Endorse Answer
                             </DropdownItem>
                           )}
                           {answer.flagged === 0 && (
                             <DropdownItem
-                              onClick={() => runSetFlagged(answer.oid, true)}
+                              onClick={() => setFlagged(answer.oid, true)}
                             >
                               Flag as Inappropriate
                             </DropdownItem>

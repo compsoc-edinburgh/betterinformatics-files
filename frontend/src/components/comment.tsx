@@ -17,25 +17,8 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import TwoButtons from "./two-buttons";
-
-const addNewComment = async (answerId: string, text: string) => {
-  return (
-    await fetchPost(`/api/exam/addcomment/${answerId}/`, {
-      text,
-    })
-  ).value as AnswerSection;
-};
-const updateComment = async (commentId: string, text: string) => {
-  return (
-    await fetchPost(`/api/exam/setcomment/${commentId}/`, {
-      text,
-    })
-  ).value as AnswerSection;
-};
-const removeComment = async (commentId: string) => {
-  return (await fetchPost(`/api/exam/removecomment/${commentId}/`, {}))
-    .value as AnswerSection;
-};
+import { addNewComment, updateComment, removeComment } from "../api/comment";
+import { useMutation } from "../api/hooks";
 
 interface Props {
   answer: Answer;
@@ -54,32 +37,17 @@ const CommentComponent: React.FC<Props> = ({
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
-  const { loading: addNewLoading, run: runAddNewComment } = useRequest(
-    addNewComment,
-    {
-      manual: true,
-      onSuccess: res => {
-        if (onDelete) onDelete();
-        onSectionChanged(res);
-      },
-    },
-  );
-  const { loading: updateLoading, run: runUpdateComment } = useRequest(
-    updateComment,
-    {
-      manual: true,
-      onSuccess: res => {
-        setEditing(false);
-        onSectionChanged(res);
-      },
-    },
-  );
-  const { loading: removeLoading, run: runRemoveComment } = useRequest(
+  const [addNewLoading, runAddNewComment] = useMutation(addNewComment, res => {
+    if (onDelete) onDelete();
+    onSectionChanged(res);
+  });
+  const [updateLoading, runUpdateComment] = useMutation(updateComment, res => {
+    setEditing(false);
+    onSectionChanged(res);
+  });
+  const [removeLoading, runRemoveComment] = useMutation(
     removeComment,
-    {
-      manual: true,
-      onSuccess: onSectionChanged,
-    },
+    onSectionChanged,
   );
   const loading = addNewLoading || updateLoading || removeLoading;
 

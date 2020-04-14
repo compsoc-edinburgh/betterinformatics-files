@@ -16,6 +16,7 @@ import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
 import { loadFeedback, submitFeedback } from "../api/hooks";
+import useTitle from "../hooks/useTitle";
 
 enum AdminMode {
   Read,
@@ -139,6 +140,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
   );
 };
 const FeedbackPage: React.FC<{}> = () => {
+  useTitle("Feedback - VIS Community Solutions");
   const { isAdmin } = useUser() as User;
   return isAdmin ? (
     <FeedbackAdminView />

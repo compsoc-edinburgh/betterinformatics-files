@@ -1,7 +1,9 @@
 import { Container } from "@vseth/components";
 import React from "react";
+import useTitle from "../hooks/useTitle";
 
 const NotFoundPage: React.FC<{}> = () => {
+  useTitle("404 - VIS Community Solutions");
   return (
     <Container>
       <h1>This is a 404.</h1>

@@ -13,7 +13,7 @@ import {
   Select,
   Spinner,
 } from "@vseth/components";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
 import FileInput from "./file-input";
@@ -36,12 +36,14 @@ const UploadPdfCard: React.FC<{}> = () => {
   const [validationError, setValidationError] = useState("");
   const error = categoriesError || uploadError || validationError;
   const loading = categoriesLoading || uploadLoading;
-
-  const options = categories?.map(category => ({
-    value: category.slug,
-    label: category.displayname,
-  }));
-
+  const options = useMemo(
+    () =>
+      categories?.map(category => ({
+        value: category.slug,
+        label: category.displayname,
+      })),
+    [categories],
+  );
   const [file, setFile] = useState<File | undefined>();
   const [displayname, setDisplayname] = useState("");
   const [category, setCategory] = useState<string | undefined>();

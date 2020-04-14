@@ -71,12 +71,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           </FormGroup>
         }
       />
-      {error ? (
-        <Alert color="danger">{error}</Alert>
-      ) : loading ? (
-        <Spinner />
-      ) : (
-        examTypeMap &&
+      {error && <Alert color="danger">{error}</Alert>}
+      {loading && <Spinner />}
+      {examTypeMap &&
         examTypeMap.map(
           ([examtype, exams]) =>
             exams.length > 0 && (
@@ -90,8 +87,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
                 reload={reload}
               />
             ),
-        )
-      )}
+        )}
     </Col>
   );
 };

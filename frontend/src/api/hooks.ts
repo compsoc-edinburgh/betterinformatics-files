@@ -12,15 +12,19 @@ import {
   PaymentInfo,
   ServerCutResponse,
   UserInfo,
+  AnswerSection,
+  FAQEntry,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument, PDFDocumentProxy } from "../pdf/pdfjs";
-import { fetchGet, fetchPost } from "./fetch-utils";
+import { fetchGet, fetchPost, fetchPut, fetchDelete } from "./fetch-utils";
+import { useState } from "react";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))
     .value as UserInfo;
 };
+
 export const useUserInfo = (username: string) => {
   const { error, loading, data } = useRequest(() => loadUserInfo(username), {
     refreshDeps: [username],
@@ -229,4 +233,112 @@ export const loadFeedback = async () => {
 export const loadPaymentCategories = async () => {
   return (await fetchGet("/api/category/listonlypayment/"))
     .value as CategoryMetaData[];
+};
+const loadAnswers = async (oid: string) => {
+  return (await fetchGet(`/api/exam/answersection/${oid}/`))
+    .value as AnswerSection;
+};
+export const useLoadAnswers = (
+  oid: string,
+  onSuccess: (data: AnswerSection) => void,
+) => {
+  const { run } = useRequest(() => loadAnswers(oid), {
+    manual: true,
+    onSuccess,
+  });
+  return run;
+};
+const removeSplit = async (oid: string) => {
+  return await fetchPost(`/api/exam/removecut/${oid}/`, {});
+};
+export const useRemoveSplit = (oid: string, onSuccess: () => void) => {
+  const { run: runRemoveSplit } = useRequest(() => removeSplit(oid), {
+    manual: true,
+    onSuccess,
+  });
+  return runRemoveSplit;
+};
+
+const updateAnswer = async (
+  answerId: string,
+  text: string,
+  legacy_answer: boolean,
+) => {
+  return (
+    await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
+  ).value as AnswerSection;
+};
+const removeAnwer = async (answerId: string) => {
+  return (await fetchPost(`/api/exam/removeanswer/${answerId}/`, {}))
+    .value as AnswerSection;
+};
+const setFlagged = async (oid: string, flagged: boolean) => {
+  return (
+    await fetchPost(`/api/exam/setflagged/${oid}/`, {
+      flagged,
+    })
+  ).value as AnswerSection;
+};
+const resetFlagged = async (oid: string) => {
+  return (await fetchPost(`/api/exam/resetflagged/${oid}/`, {}))
+    .value as AnswerSection;
+};
+const setExpertVote = async (oid: string, vote: boolean) => {
+  return (
+    await fetchPost(`/api/exam/setexpertvote/${oid}/`, {
+      vote,
+    })
+  ).value as AnswerSection;
+};
+
+export const useSetFlagged = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: setFlaggedLoading,
+    run: runSetFlagged,
+  } = useRequest(setFlagged, { manual: true, onSuccess: onSectionChanged });
+  return [setFlaggedLoading, runSetFlagged] as const;
+};
+export const useSetExpertVote = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: setExpertVoteLoading,
+    run: runSetExpertVote,
+  } = useRequest(setExpertVote, { manual: true, onSuccess: onSectionChanged });
+  return [setExpertVoteLoading, runSetExpertVote] as const;
+};
+export const useResetFlaggedVote = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: resetFlaggedLoading,
+    run: runResetFlagged,
+  } = useRequest(resetFlagged, { manual: true, onSuccess: onSectionChanged });
+  return [resetFlaggedLoading, runResetFlagged] as const;
+};
+export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
+  const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
+    manual: true,
+    onSuccess,
+  });
+  return [updating, runUpdateAnswer] as const;
+};
+export const useRemoveAnswer = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const { run: runRemoveAnswer } = useRequest(removeAnwer, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
+  return runRemoveAnswer;
+};
+
+export const useMutation = <B, T extends any[]>(
+  service: (...args: T) => Promise<B>,
+  onSuccess?: (res: B) => void,
+) => {
+  const { loading, run } = useRequest(service, { manual: true, onSuccess });
+  return [loading, run] as const;
 };

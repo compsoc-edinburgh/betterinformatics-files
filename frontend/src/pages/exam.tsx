@@ -33,6 +33,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import ContentContainer from "../components/secondary-container";
+import useTitle from "../hooks/useTitle";
 
 const addCut = async (filename: string, pageNum: number, relHeight: number) => {
   await fetchPost(`/api/exam/addcut/${filename}/`, {
@@ -280,6 +281,7 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadExamMetaData(filename), {
     cacheKey: `exam-metaData-${filename}`,
   });
+  useTitle(`${metaData?.displayname ?? filename} - VIS Community Solutions`);
   const {
     error: cutsError,
     loading: cutsLoading,

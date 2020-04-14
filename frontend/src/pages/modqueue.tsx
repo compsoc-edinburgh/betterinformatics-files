@@ -6,6 +6,7 @@ import { fetchGet } from "../api/fetch-utils";
 import ClaimButton from "../components/claim-button";
 import LoadingOverlay from "../components/loading-overlay";
 import { CategoryExam, CategoryPaymentExam } from "../interfaces";
+import useTitle from "../hooks/useTitle";
 
 interface Props {
   username: string;
@@ -36,6 +37,7 @@ const loadFlagged = async () => {
 };
 
 const ModQueue: React.FC = () => {
+  useTitle("Import Queue - VIS Community Solutions");
   const [includeHidden, setIncludeHidden] = useState(false);
   const {
     error: examsError,

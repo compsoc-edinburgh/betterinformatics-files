@@ -1,13 +1,13 @@
-import React, { useState } from "react";
 import {
-  ListGroup,
-  ListGroupItem,
-  Button,
   Badge,
-  Row,
+  Button,
   Col,
   Input,
+  ListGroup,
+  ListGroupItem,
+  Row,
 } from "@vseth/components";
+import React, { useState } from "react";
 import FileInput from "./file-input";
 
 export interface EditorAttachment {

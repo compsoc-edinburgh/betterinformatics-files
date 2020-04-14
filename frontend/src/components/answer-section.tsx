@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import styled from "@emotion/styled";
 import {
   Button,
   ButtonDropdown,
@@ -19,17 +19,16 @@ import {
   UncontrolledDropdown,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
-import { fetchGet, fetchPost } from "../api/fetch-utils";
+import { useLoadAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
 import useLoad from "../hooks/useLoad";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
+import Flex from "./flex";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-buttons";
 import TwoButtons from "./two-buttons";
-import styled from "@emotion/styled";
-import Flex from "./flex";
 
 const NameCard = styled(Card)`
   border-top-left-radius: 0;
@@ -40,14 +39,6 @@ const AnswerSectionButtonWrapper = styled(Card)`
   margin-top: 1em;
   margin-bottom: 1em;
 `;
-
-const loadAnswers = async (oid: string) => {
-  return (await fetchGet(`/api/exam/answersection/${oid}/`))
-    .value as AnswerSection;
-};
-const removeSplit = async (oid: string) => {
-  return await fetchPost(`/api/exam/removecut/${oid}/`, {});
-};
 
 interface AddButtonProps {
   allowAnswer: boolean;
@@ -140,23 +131,15 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     onMove,
     isBeingMoved,
   }) => {
-    const { run: runRemoveSplit } = useRequest(() => removeSplit(oid), {
-      manual: true,
-      onSuccess: () => {
-        if (isBeingMoved) onCancelMove();
-        onSectionChange();
-      },
-    });
-    const { run } = useRequest(() => loadAnswers(oid), {
-      manual: true,
-      onSuccess: data => {
-        setData(data);
-        setCutVersion(data.cutVersion);
-      },
-    });
-
     const [data, setData] = useState<AnswerSection | undefined>();
-
+    const run = useLoadAnswers(oid, data => {
+      setData(data);
+      setCutVersion(data.cutVersion);
+    });
+    const runRemoveSplit = useRemoveSplit(oid, () => {
+      if (isBeingMoved) onCancelMove();
+      onSectionChange();
+    });
     const setAnswerSection = useCallback(
       (newData: AnswerSection) => {
         setCutVersion(newData.cutVersion);
@@ -164,7 +147,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       },
       [setCutVersion],
     );
-
     const [inViewport, ref] = useLoad<HTMLDivElement>();
     const visible = inViewport || false;
     useEffect(() => {
@@ -274,9 +256,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             <CardHeader>
               <Flex ref={ref}>
                 {data === undefined ? (
-                  <>
-                    <ThreeButtons center={<Spinner />} />
-                  </>
+                  <ThreeButtons center={<Spinner />} />
                 ) : (
                   <>
                     <ThreeButtons

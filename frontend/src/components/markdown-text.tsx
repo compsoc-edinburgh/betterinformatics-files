@@ -10,7 +10,6 @@ import { solarizedLight } from "react-syntax-highlighter/dist/styles/hljs";
 
 interface Props {
   value: string;
-  background?: string;
 }
 
 const wrapperStyle = css`
@@ -33,7 +32,7 @@ const wrapperStyle = css`
   }
 `;
 
-export default ({ value, background }: Props) => {
+export default ({ value }: Props) => {
   if (value.length === 0) {
     return <div />;
   }

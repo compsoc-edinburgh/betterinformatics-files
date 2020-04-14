@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
+import useTitle from "../hooks/useTitle";
 
 const modes = [
   "score",
@@ -19,6 +20,7 @@ const loadScoreboard = async (scoretype: Mode) => {
     .value as UserInfo[];
 };
 const Scoreboard: React.FC<{}> = () => {
+  useTitle("Scoreboard - VIS Community Solutions");
   const [mode, setMode] = useLocalStorageState<Mode>(
     "scoreboard-mode",
     "score",

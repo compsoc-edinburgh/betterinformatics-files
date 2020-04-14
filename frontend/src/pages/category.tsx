@@ -21,6 +21,7 @@ import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
+import useTitle from "../hooks/useTitle";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -175,6 +176,7 @@ const CategoryPage: React.FC<{}> = () => {
     () => loadCategoryMetaData(slug),
     { cacheKey: `category-${slug}` },
   );
+  useTitle(`${data?.displayname ?? slug} - VIS Community Solutions`);
   const user = useUser();
   return (
     <Container>

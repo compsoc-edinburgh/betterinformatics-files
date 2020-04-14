@@ -1,4 +1,3 @@
-import { useRequest } from "@umijs/hooks";
 import {
   Button,
   Card,
@@ -8,22 +7,11 @@ import {
   ModalBody,
   ModalHeader,
 } from "@vseth/components";
-import React, { useState } from "react";
-import { fetchGet, fetchPost } from "../api/fetch-utils";
+import React, { useEffect, useState } from "react";
+import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
 import TwoButtons from "./two-buttons";
-
-const loadImage = async () => {
-  return (await fetchGet("/api/image/list/")).value as string[];
-};
-const removeImage = async (image: string) => {
-  await fetchPost(`/api/image/remove/${image}/`, {});
-  return image;
-};
-const uploadImage = async (file: File) => {
-  return (await fetchPost("/api/image/upload/", { file })).filename as string;
-};
 
 interface ModalProps {
   isOpen: boolean;
@@ -35,29 +23,13 @@ const ImageModal: React.FC<ModalProps> = ({
   toggle,
   closeWithImage,
 }) => {
+  const { images, add, remove, reload } = useImages();
+  const [selected, select, unselect, setSelected] = useSet<string>();
+  useEffect(() => setSelected(), [images, setSelected]);
   const [file, setFile] = useState<File | undefined>(undefined);
-  const { data: images, mutate, run: reload } = useRequest(loadImage, {
-    cacheKey: "images",
-  });
-  const [selected, add, remove, setSelected] = useSet<string>();
-  const { run: runRemoveImage } = useRequest(removeImage, {
-    manual: true,
-    fetchKey: id => id,
-    onSuccess: removed => {
-      mutate(prev => prev.filter(image => image !== removed));
-      remove(removed);
-    },
-  });
-  const { run: runUploadImage } = useRequest(uploadImage, {
-    manual: true,
-    onSuccess: added => {
-      mutate(prevSelected => [...prevSelected, added]);
-      setFile(undefined);
-    },
-  });
   const removeSelected = () => {
     for (const image of selected) {
-      runRemoveImage(image);
+      remove(image);
     }
   };
   return (
@@ -69,7 +41,7 @@ const ImageModal: React.FC<ModalProps> = ({
           left={<FileInput value={file} onChange={setFile} accept="image/*" />}
           right={
             <Button
-              onClick={() => file && runUploadImage(file)}
+              onClick={() => file && add(file) && setFile(undefined)}
               disabled={file === undefined}
             >
               Upload
@@ -112,8 +84,8 @@ const ImageModal: React.FC<ModalProps> = ({
                   onClick={e =>
                     e.metaKey
                       ? selected.has(image)
-                        ? remove(image)
-                        : add(image)
+                        ? unselect(image)
+                        : select(image)
                       : selected.has(image)
                       ? setSelected()
                       : setSelected(image)
