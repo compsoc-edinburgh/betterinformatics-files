@@ -1,18 +1,18 @@
 import { useRef, useCallback } from "react";
 const noUserSelect = `
-  *:not(input):not(textarea) {
+  * {
     user-select: none !important;
     -webkit-user-select: none !important;
     -webkit-touch-callout: none !important;
   }
 `;
-let node: HTMLStyleElement | undefined;
 const createStyle = () => {
-  node = document.createElement("style");
+  const node = document.createElement("style");
   node.innerHTML = noUserSelect;
-  // document.head.appendChild(node);
+  document.head.appendChild(node);
+  return node;
 };
-const removeStyle = () => {
+const removeStyle = (node: HTMLStyleElement | undefined) => {
   if (node && document.head === node.parentElement)
     document.head.removeChild(node);
 };
@@ -25,6 +25,7 @@ const useLongPress = <T>(
 ) => {
   const timer = useRef<number | undefined>();
   const pos = useRef<Point>([0, 0]);
+  const style = useRef<HTMLStyleElement | undefined>();
   const handler = useCallback(() => {
     timer.current = undefined;
     onHold();
@@ -33,9 +34,9 @@ const useLongPress = <T>(
   const onPointerDown = useCallback(
     (e: React.PointerEvent<T>) => {
       e.preventDefault();
+      style.current = createStyle();
       pos.current = [e.clientX, e.clientY];
       const timeoutId = window.setTimeout(handler, longPressTime);
-      createStyle();
       timer.current = timeoutId;
     },
     [handler, longPressTime, pos, timer],
@@ -43,7 +44,7 @@ const useLongPress = <T>(
 
   const onPointerUp = useCallback(
     (e: React.PointerEvent<T>) => {
-      removeStyle();
+      removeStyle(style.current);
       if (timer.current) {
         window.clearTimeout(timer.current);
         timer.current = undefined;
