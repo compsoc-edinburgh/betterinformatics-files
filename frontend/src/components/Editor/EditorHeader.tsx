@@ -27,9 +27,12 @@ const navStyle = css`
 const headerStyle = css`
   position: relative;
 `;
-const iconsStyle = css``;
 const linkStyle = css`
   font-size: 0.8rem !important;
+`;
+const tabContainer = css`
+  display: flex;
+  flex-grow: 1;
 `;
 
 interface Props {
@@ -51,7 +54,7 @@ const EditorHeader: React.FC<Props> = ({
   return (
     <div className={headerStyle}>
       <Nav tabs className={navStyle}>
-        <div>
+        <div className={tabContainer}>
           <NavItem>
             <NavLink
               active={activeMode === "write"}
@@ -71,7 +74,7 @@ const EditorHeader: React.FC<Props> = ({
             </NavLink>
           </NavItem>
         </div>
-        <div className={iconsStyle}>
+        <div>
           {activeMode === "write" && (
             <>
               <TooltipButton
