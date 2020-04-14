@@ -9,7 +9,7 @@ const panelStyle = css`
   display: flex;
   flex-direction: row;
   padding: 3.5em 0;
-  z-index: 5000;
+  z-index: 900;
   max-width: 500px;
   max-height: 100%;
   box-sizing: border-box;
