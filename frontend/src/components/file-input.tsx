@@ -6,7 +6,7 @@ interface FileInputProps
       React.InputHTMLAttributes<HTMLInputElement>,
       HTMLInputElement
     >,
-    "value" | "onChange"
+    "value" | "onChange" | "contentEditable"
   > {
   value?: File;
   onChange: (newFile?: File) => void;
@@ -31,7 +31,7 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
             Choose File
           </Button>
           <input
-            {...props}
+            accept={props.accept}
             hidden
             type="file"
             onChange={e => {
