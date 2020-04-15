@@ -218,7 +218,7 @@ const HomePage: React.FC<{}> = () => {
       <ContentContainer>
         <Container>
           {error ? (
-            <Alert color="danger">{error.message}</Alert>
+            <Alert color="danger">{error.toString()}</Alert>
           ) : mode === Mode.Alphabetical ? (
             <>
               <Grid>

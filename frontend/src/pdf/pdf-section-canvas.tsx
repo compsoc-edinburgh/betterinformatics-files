@@ -11,6 +11,7 @@ import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
 import { useInViewport } from "@umijs/hooks";
 import { DebugContext } from "../components/Debug";
+import IconButton from "../components/icon-button";
 
 const styles = {
   lastSection: css`
@@ -91,6 +92,8 @@ interface Props {
   onAddCut?: (pos: number) => void;
   addCutText?: string;
   snap?: boolean;
+  displayHideShowButtons?: boolean;
+  onSectionHiddenChange?: (section: PdfSection, newState: boolean) => void;
 }
 const PdfSectionCanvas: React.FC<Props> = React.memo(
   ({
@@ -101,6 +104,8 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     onAddCut,
     addCutText,
     snap = true,
+    displayHideShowButtons = false,
+    onSectionHiddenChange = () => {},
   }) => {
     const start = section.start.position;
     const end = section.end.position;
@@ -113,6 +118,10 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const [translateY, setTranslateY] = useState(0);
     const [currentScale, setCurrentScale] = useState<number | undefined>(
       undefined,
+    );
+    const toggleVisibility = useCallback(
+      () => onSectionHiddenChange(section, !section.hidden),
+      [],
     );
     const dpr = useDpr();
     const [canvas, view, width, height, isMainCanvas] = usePdf(
@@ -193,6 +202,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
                 targetWidth * relativeHeight * 1.414}px`,
               position: "relative",
               overflow: "hidden",
+              filter: section.hidden ? "contrast(0.5)" : undefined,
             }}
             ref={containerElement}
           >
@@ -201,13 +211,23 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
               <div
                 className={cx(
                   "position-absolute",
-                  "position-top-left",
+                  "position-top-right",
                   "m-3",
                   "p-1",
                   "rounded-circle",
                   isMainCanvas ? "bg-success" : "bg-info",
                 )}
               />
+            )}
+            {displayHideShowButtons && (
+              <div className="position-absolute position-top-left m-2 p1">
+                <IconButton
+                  size="sm"
+                  icon={section.hidden ? "VIEW" : "VIEW_OFF"}
+                  tooltip="Toggle visibility"
+                  onClick={toggleVisibility}
+                />
+              </div>
             )}
             {visible && (
               <PdfSectionText

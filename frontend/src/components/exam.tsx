@@ -25,6 +25,7 @@ interface Props {
   reloadCuts: () => void;
   renderer: PDF;
   onCutNameChange: (oid: string, name: string) => void;
+  onSectionHiddenChange: (section: PdfSection, newState: boolean) => void;
   onAddCut: (filename: string, page: number, height: number) => void;
   onMoveCut: (
     filename: string,
@@ -33,6 +34,9 @@ interface Props {
     height: number,
   ) => void;
   visibleChangeListener: (section: PdfSection, v: boolean) => void;
+  displayHiddenPdfSections?: boolean;
+  displayHiddenAnswerSections?: boolean;
+  displayHideShowButtons?: boolean;
 }
 function notUndefined<T>(value: T | undefined): value is T {
   return value !== undefined;
@@ -49,8 +53,12 @@ const Exam: React.FC<Props> = React.memo(
     renderer,
     onCutNameChange,
     onAddCut,
+    onSectionHiddenChange,
     onMoveCut,
     visibleChangeListener,
+    displayHiddenPdfSections = false,
+    displayHiddenAnswerSections = false,
+    displayHideShowButtons = true,
   }) => {
     const [visible, show, hide] = useSet<string>();
     const [cutVersions, setCutVersions] = useState<CutVersions>({});
@@ -136,53 +144,63 @@ const Exam: React.FC<Props> = React.memo(
     return (
       <>
         {sections.map(section =>
-          section.kind === SectionKind.Answer ? (
-            <AnswerSectionComponent
-              key={section.oid}
-              oid={section.oid}
-              onSectionChange={reloadCuts}
-              onToggleHidden={() =>
-                visible.has(section.oid) ? hide(section.oid) : show(section.oid)
-              }
-              cutName={section.name}
-              onCutNameChange={(newName: string) =>
-                onCutNameChange(section.oid, newName)
-              }
-              hidden={!visible.has(section.oid)}
-              cutVersion={cutVersions[section.oid] || section.cutVersion}
-              setCutVersion={newVersion =>
-                setCutVersions(oldVersions => ({
-                  ...oldVersions,
-                  [section.oid]: newVersion,
-                }))
-              }
-              onCancelMove={() => setEditState({ mode: EditMode.None })}
-              onMove={() =>
-                setEditState({ mode: EditMode.Move, cut: section.oid, snap })
-              }
-              isBeingMoved={
-                editState.mode === EditMode.Move &&
-                editState.cut === section.oid
-              }
-            />
-          ) : (
-            <React.Fragment key={section.key}>
-              {pageCounter < section.start.page && ++pageCounter && (
-                <div id={`page-${pageCounter}`} />
-              )}
-              {renderer && (
-                <PdfSectionCanvas
-                  section={section}
-                  renderer={renderer}
-                  targetWidth={width}
-                  onVisibleChange={onChangeListeners[section.key]}
-                  addCutText={addCutText}
-                  snap={snap}
-                  onAddCut={addCutHandlers[section.key]}
+          section.kind === SectionKind.Answer
+            ? (displayHiddenAnswerSections || !section.cutHidden) && (
+                <AnswerSectionComponent
+                  key={section.oid}
+                  oid={section.oid}
+                  onSectionChange={reloadCuts}
+                  onToggleHidden={() =>
+                    visible.has(section.oid)
+                      ? hide(section.oid)
+                      : show(section.oid)
+                  }
+                  cutName={section.name}
+                  onCutNameChange={(newName: string) =>
+                    onCutNameChange(section.oid, newName)
+                  }
+                  hidden={!visible.has(section.oid)}
+                  cutVersion={cutVersions[section.oid] || section.cutVersion}
+                  setCutVersion={newVersion =>
+                    setCutVersions(oldVersions => ({
+                      ...oldVersions,
+                      [section.oid]: newVersion,
+                    }))
+                  }
+                  onCancelMove={() => setEditState({ mode: EditMode.None })}
+                  onMove={() =>
+                    setEditState({
+                      mode: EditMode.Move,
+                      cut: section.oid,
+                      snap,
+                    })
+                  }
+                  isBeingMoved={
+                    editState.mode === EditMode.Move &&
+                    editState.cut === section.oid
+                  }
                 />
-              )}
-            </React.Fragment>
-          ),
+              )
+            : (displayHiddenPdfSections || !section.hidden) && (
+                <React.Fragment key={section.key}>
+                  {pageCounter < section.start.page && ++pageCounter && (
+                    <div id={`page-${pageCounter}`} />
+                  )}
+                  {renderer && (
+                    <PdfSectionCanvas
+                      displayHideShowButtons={displayHideShowButtons}
+                      onSectionHiddenChange={onSectionHiddenChange}
+                      section={section}
+                      renderer={renderer}
+                      targetWidth={width}
+                      onVisibleChange={onChangeListeners[section.key]}
+                      snap={snap}
+                      addCutText={addCutText}
+                      onAddCut={addCutHandlers[section.key]}
+                    />
+                  )}
+                </React.Fragment>
+              ),
         )}
       </>
     );

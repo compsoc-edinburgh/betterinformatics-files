@@ -30,16 +30,23 @@ import {
   ExamMetaData,
   PdfSection,
   Section,
+  ServerCutResponse,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import ContentContainer from "../components/secondary-container";
 import useTitle from "../hooks/useTitle";
 
-const addCut = async (filename: string, pageNum: number, relHeight: number) => {
+const addCut = async (
+  filename: string,
+  pageNum: number,
+  relHeight: number,
+  hidden = false,
+) => {
   await fetchPost(`/api/exam/addcut/${filename}/`, {
     pageNum,
     relHeight,
     name: "",
+    hidden,
   });
 };
 const moveCut = async (
@@ -53,12 +60,16 @@ const moveCut = async (
 const updateCutName = async (cut: string, name: string) => {
   await fetchPost(`/api/exam/editcut/${cut}/`, { name });
 };
+const updateCutHidden = async (cut: string, hidden: boolean) => {
+  await fetchPost(`/api/exam/editcut/${cut}/`, { hidden });
+};
 
 interface ExamPageContentProps {
   metaData: ExamMetaData;
   sections?: Section[];
   renderer?: PDF;
   reloadCuts: () => void;
+  mutateCuts: (mutation: (old: ServerCutResponse) => ServerCutResponse) => void;
   toggleEditing: () => void;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
@@ -66,6 +77,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   sections,
   renderer,
   reloadCuts,
+  mutateCuts,
   toggleEditing,
 }) => {
   const user = useUser()!;
@@ -82,10 +94,49 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   });
   const { run: runUpdateCutName } = useRequest(updateCutName, {
     manual: true,
-    onSuccess: () => {
-      reloadCuts();
+    onSuccess: (_data, [oid, newName]) => {
+      mutateCuts(oldCuts =>
+        Object.keys(oldCuts).reduce(function(result, key) {
+          result[key] = oldCuts[key].map(cutPosition =>
+            cutPosition.oid === oid
+              ? { ...cutPosition, name: newName }
+              : cutPosition,
+          );
+          return result;
+        }, {} as ServerCutResponse),
+      );
     },
   });
+  const { run: runUpateCutHidden } = useRequest(updateCutHidden, {
+    manual: true,
+    onSuccess: (_data, [oid, newHidden]) => {
+      mutateCuts(oldCuts =>
+        Object.keys(oldCuts).reduce(function(result, key) {
+          result[key] = oldCuts[key].map(cutPosition =>
+            cutPosition.oid === oid
+              ? { ...cutPosition, hidden: newHidden }
+              : cutPosition,
+          );
+          return result;
+        }, {} as ServerCutResponse),
+      );
+    },
+  });
+  const onSectionHiddenChange = useCallback(
+    (section: PdfSection, newState: boolean) => {
+      if (section.cutOid) {
+        runUpateCutHidden(section.cutOid, newState);
+      } else {
+        runAddCut(
+          metaData.filename,
+          section.end.page,
+          section.end.position,
+          newState,
+        );
+      }
+    },
+    [runAddCut, metaData, runUpateCutHidden],
+  );
 
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
@@ -260,6 +311,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               reloadCuts={reloadCuts}
               renderer={renderer}
               onCutNameChange={runUpdateCutName}
+              onSectionHiddenChange={onSectionHiddenChange}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}
@@ -287,6 +339,7 @@ const ExamPage: React.FC<{}> = () => {
     loading: cutsLoading,
     data: cuts,
     run: reloadCuts,
+    mutate: mutateCuts,
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
   });
@@ -348,6 +401,7 @@ const ExamPage: React.FC<{}> = () => {
                 sections={sections}
                 renderer={renderer}
                 reloadCuts={reloadCuts}
+                mutateCuts={mutateCuts}
                 toggleEditing={toggleEditing}
               />
             </UserContext.Provider>
