@@ -4,6 +4,7 @@ from answers.models import AnswerSection, Answer
 from answers import section_util
 from notifications import notification_util
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.utils import timezone
 
 
