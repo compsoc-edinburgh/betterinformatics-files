@@ -1,6 +1,7 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Answer,
+  AnswerSection,
   CategoryExam,
   CategoryMetaData,
   CategoryMetaDataMinimal,
@@ -12,13 +13,10 @@ import {
   PaymentInfo,
   ServerCutResponse,
   UserInfo,
-  AnswerSection,
-  FAQEntry,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument, PDFDocumentProxy } from "../pdf/pdfjs";
-import { fetchGet, fetchPost, fetchPut, fetchDelete } from "./fetch-utils";
-import { useState } from "react";
+import { fetchGet, fetchPost } from "./fetch-utils";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))

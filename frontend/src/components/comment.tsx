@@ -1,4 +1,3 @@
-import { useRequest } from "@umijs/hooks";
 import {
   ButtonGroup,
   Icon,
@@ -7,7 +6,9 @@ import {
   Spinner,
 } from "@vseth/components";
 import React, { useState } from "react";
-import { fetchPost, imageHandler } from "../api/fetch-utils";
+import { addNewComment, removeComment, updateComment } from "../api/comment";
+import { imageHandler } from "../api/fetch-utils";
+import { useMutation } from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection, Comment } from "../interfaces";
@@ -17,8 +18,6 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import TwoButtons from "./two-buttons";
-import { addNewComment, updateComment, removeComment } from "../api/comment";
-import { useMutation } from "../api/hooks";
 
 interface Props {
   answer: Answer;

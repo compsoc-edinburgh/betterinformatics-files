@@ -1,9 +1,7 @@
-import { PdfSection } from "../interfaces";
-
-import PDF from "../pdf/pdf-renderer";
+import { TextContent, TextContentItem } from "pdfjs-dist";
 import * as React from "react";
-import { useState, useEffect, useRef } from "react";
-import { TextContentItem, TextContent } from "pdfjs-dist";
+import { useEffect, useRef, useState } from "react";
+import PDF from "../pdf/pdf-renderer";
 
 const useTextLayer = (
   shouldRender: boolean,
