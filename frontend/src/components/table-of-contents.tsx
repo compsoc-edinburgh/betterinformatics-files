@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
-import { Card } from "@vseth/components";
+import { Card, CardHeader, CardBody, Button } from "@vseth/components";
+import TwoButtons from "./two-buttons";
 
 export class TOCNode {
   name: string;
@@ -55,27 +56,29 @@ interface Props {
 export const TOC: React.FC<Props> = ({ toc }) => {
   const [visible, setVisible] = useState(false);
   return visible ? (
-    <Card>
-      <div className="text-center">
-        <h3>
-          Contents
-          <button onClick={() => setVisible(false)}>Hide</button>
-        </h3>
-      </div>
-      <ul>
-        {toc.children.map((child, i) => (
-          <TOCNodeComponent node={child} key={child.name + i} />
-        ))}
-      </ul>
+    <Card className="m-1">
+      <CardHeader>
+        <TwoButtons
+          left="Contents"
+          right={<Button onClick={() => setVisible(false)}>Hide</Button>}
+        />
+      </CardHeader>
+      <CardBody>
+        <ul>
+          {toc.children.map((child, i) => (
+            <TOCNodeComponent node={child} key={child.name + i} />
+          ))}
+        </ul>
+      </CardBody>
     </Card>
   ) : (
-    <Card>
-      <div className="text-center">
-        <h3>
-          Contents
-          <button onClick={() => setVisible(true)}>Show</button>
-        </h3>{" "}
-      </div>
+    <Card className="m-1">
+      <CardHeader>
+        <TwoButtons
+          left="Contents"
+          right={<Button onClick={() => setVisible(true)}>Show</Button>}
+        />
+      </CardHeader>
     </Card>
   );
 };

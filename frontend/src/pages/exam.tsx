@@ -31,10 +31,12 @@ import {
   PdfSection,
   Section,
   ServerCutResponse,
+  SectionKind,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import ContentContainer from "../components/secondary-container";
 import useTitle from "../hooks/useTitle";
+import { TOCNode, TOC } from "../components/table-of-contents";
 
 const addCut = async (
   filename: string,
@@ -166,6 +168,24 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     displayHideShowButtons: false,
   });
 
+  const toc = useMemo(() => {
+    if (sections === undefined) {
+      return undefined;
+    }
+    const rootNode = new TOCNode("[root]", "");
+    for (const section of sections) {
+      if (section.kind === SectionKind.Answer) {
+        if (section.cutHidden) continue;
+        const parts = section.name.split(" > ");
+        if (parts.length === 1 && parts[0].length === 0) continue;
+        const jumpTarget = `${section.oid}-${parts.join("-")}`;
+        rootNode.add(parts, jumpTarget);
+      }
+    }
+    if (rootNode.children.length === 0) return undefined;
+    return rootNode;
+  }, [sections]);
+
   return (
     <>
       <Container>
@@ -287,6 +307,13 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             </Col>
           ))}
         </Row>
+        {toc && (
+          <Row form>
+            <Col lg={12}>
+              <TOC toc={toc} />
+            </Col>
+          </Row>
+        )}
       </Container>
 
       <ContentContainer>

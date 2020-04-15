@@ -177,10 +177,13 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     useEffect(() => {
       if (data && cutName.length === 0 && isCatAdmin) setIsEditingName(true);
     }, [data, isCatAdmin, cutName]);
+    const nameParts = cutName.split(" > ");
+    const id = `${oid}-${nameParts.join("-")}`;
+
     return (
       <>
         {data && ((data.name && data.name.length > 0) || isCatAdmin) && (
-          <NameCard>
+          <NameCard id={id}>
             <CardFooter>
               {isEditingName ? (
                 <InputGroup size="sm">
