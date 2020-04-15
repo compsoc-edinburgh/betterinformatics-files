@@ -1,6 +1,6 @@
 import { ImageHandle } from "../components/Editor/utils/types";
 
-async function performDataRequest(
+async function performDataRequest<T>(
   method: string,
   url: string,
   data: { [key: string]: any },
@@ -32,13 +32,13 @@ async function performDataRequest(
     if (!response.ok) {
       return Promise.reject(body.err);
     }
-    return body;
+    return body as T;
   } catch (e) {
     return Promise.reject(e.toString());
   }
 }
 
-async function performRequest(method: string, url: string) {
+async function performRequest<T>(method: string, url: string) {
   const response = await fetch(url, {
     credentials: "include",
     headers: {
@@ -51,7 +51,7 @@ async function performRequest(method: string, url: string) {
     if (!response.ok) {
       return Promise.reject(body.err);
     }
-    return body;
+    return body as T;
   } catch (e) {
     return Promise.reject(e.toString());
   }
@@ -72,20 +72,20 @@ export function getCookie(name: string): string | null {
   }
   return cookieValue;
 }
-export function fetchPost(url: string, data: { [key: string]: any }) {
-  return performDataRequest("POST", url, data);
+export function fetchPost<T = any>(url: string, data: { [key: string]: any }) {
+  return performDataRequest<T>("POST", url, data);
 }
 
-export function fetchPut(url: string, data: { [key: string]: any }) {
-  return performDataRequest("PUT", url, data);
+export function fetchPut<T = any>(url: string, data: { [key: string]: any }) {
+  return performDataRequest<T>("PUT", url, data);
 }
 
-export function fetchDelete(url: string) {
-  return performRequest("DELETE", url);
+export function fetchDelete<T = any>(url: string) {
+  return performRequest<T>("DELETE", url);
 }
 
-export function fetchGet(url: string) {
-  return performRequest("GET", url);
+export function fetchGet<T = any>(url: string) {
+  return performRequest<T>("GET", url);
 }
 
 export function imageHandler(file: File): Promise<ImageHandle> {
