@@ -8,12 +8,11 @@ const panelStyle = css`
   right: 0;
   display: flex;
   flex-direction: row;
-  padding: 3.5em 0;
-  z-index: 900;
+  padding: 3.5em 0 3.5em 0;
+  z-index: 100;
   max-width: 500px;
-  max-height: 100%;
+  height: 100%;
   box-sizing: border-box;
-  overflow-y: scroll;
   transition: transform 0.5s;
 `;
 const iconContainerStyle = css`
@@ -32,11 +31,18 @@ const closeButtonStyle = css`
 const modalWrapper = css`
   width: 100%;
   height: 100%;
+  display: flex;
+  align-items: flex-end;
 `;
 const modalStyle = css`
+  max-height: 100%;
+  overflow: scroll;
   &.modal-content {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+  }
+  & .modal-header {
+    display: block;
   }
 `;
 interface PanelProps {

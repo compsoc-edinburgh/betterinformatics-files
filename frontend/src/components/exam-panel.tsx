@@ -8,6 +8,8 @@ import {
   Pagination,
   PaginationItem,
   PaginationLink,
+  FormGroup,
+  Label,
 } from "@vseth/components";
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
@@ -204,6 +206,13 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 Snap
               </IconButton>
             </ButtonGroup>
+            <h6>Display Options</h6>
+            <FormGroup check>
+              <Input type="checkbox" name="check" id="isPublic" />
+              <Label for="isPublic" check>
+                Display hidden PDF sections
+              </Label>
+            </FormGroup>
           </>
         )}
       </ModalBody>

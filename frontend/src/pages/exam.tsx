@@ -61,6 +61,7 @@ const updateCutName = async (cut: string, name: string) => {
   await fetchPost(`/api/exam/editcut/${cut}/`, { name });
 };
 const updateCutHidden = async (cut: string, hidden: boolean) => {
+  console.log("updateCutHidden", cut, hidden);
   await fetchPost(`/api/exam/editcut/${cut}/`, { hidden });
 };
 
@@ -124,10 +125,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   });
   const onSectionHiddenChange = useCallback(
     (section: string | [number, number], newState: boolean) => {
-      if (typeof section === "string") {
-        runUpateCutHidden(section, newState);
-      } else {
+      if (Array.isArray(section)) {
         runAddCut(metaData.filename, section[0], section[1], newState);
+      } else {
+        runUpateCutHidden(section, newState);
       }
     },
     [runAddCut, metaData, runUpateCutHidden],
@@ -152,7 +153,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     for (const split of visibleSplits) {
       s.add(split.start.page);
     }
-    console.log(s);
     return s;
   }, [visibleSplits]);
 
@@ -283,17 +283,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           ))}
         </Row>
       </Container>
-      <ExamPanel
-        isOpen={panelIsOpen}
-        toggle={togglePanel}
-        metaData={metaData}
-        renderer={renderer}
-        visiblePages={visiblePages}
-        maxWidth={maxWidth}
-        setMaxWidth={setMaxWidth}
-        editState={editState}
-        setEditState={setEditState}
-      />
+
       <ContentContainer>
         <div ref={sizeRef} style={{ maxWidth, margin: "1em auto" }}>
           {width && sections && renderer && (
@@ -314,6 +304,17 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           )}
         </div>
       </ContentContainer>
+      <ExamPanel
+        isOpen={panelIsOpen}
+        toggle={togglePanel}
+        metaData={metaData}
+        renderer={renderer}
+        visiblePages={visiblePages}
+        maxWidth={maxWidth}
+        setMaxWidth={setMaxWidth}
+        editState={editState}
+        setEditState={setEditState}
+      />
     </>
   );
 };
