@@ -159,14 +159,14 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     }, [data, visible, run, cutVersion, hidden]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
-    const onAddAnswer = () => {
+    const onAddAnswer = useCallback(() => {
       setHasDraft(true);
       if (hidden) onToggleHidden();
-    };
-    const onAddLegacyAnswer = () => {
+    }, [hidden, onToggleHidden]);
+    const onAddLegacyAnswer = useCallback(() => {
       setHasLegacyDraft(true);
       if (hidden) onToggleHidden();
-    };
+    }, [hidden, onToggleHidden]);
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
