@@ -1,6 +1,7 @@
 import { fetchGet, fetchPost, fetchPut, fetchDelete } from "./fetch-utils";
 import { FAQEntry } from "../interfaces";
 import { useRequest } from "@umijs/hooks";
+import { useMutation } from "./hooks";
 
 const laodFAQs = async () => {
   return (await fetchGet("/api/faq/")).value as FAQEntry[];
@@ -31,43 +32,28 @@ const sorted = (arg: FAQEntry[]) => arg.sort((a, b) => a.order - b.order);
 
 export const useFAQ = () => {
   const { data: faqs, mutate } = useRequest(laodFAQs, { cacheKey: "faqs" });
-  const { run: runAddFAQ } = useRequest(addFAQ, {
-    manual: true,
-    onSuccess: newFAQ => {
-      mutate(prevEntries => sorted([...prevEntries, newFAQ]));
-    },
+  const [, runAddFAQ] = useMutation(addFAQ, newFAQ => {
+    mutate(prevEntries => sorted([...prevEntries, newFAQ]));
   });
-  const { run: runUpdateFAQ } = useRequest(updateFAQ, {
-    manual: true,
-    onSuccess: changed => {
-      mutate(prevEntry =>
-        sorted(
-          prevEntry.map(entry => (entry.oid === changed.oid ? changed : entry)),
+  const [, runUpdateFAQ] = useMutation(updateFAQ, changed =>
+    mutate(prevEntry =>
+      sorted(
+        prevEntry.map(entry => (entry.oid === changed.oid ? changed : entry)),
+      ),
+    ),
+  );
+  const [, runSwapFAQ] = useMutation(swapFAQ, ([newA, newB]) => {
+    mutate(prevEntry =>
+      sorted(
+        prevEntry.map(entry =>
+          entry.oid === newA.oid ? newA : entry.oid === newB.oid ? newB : entry,
         ),
-      );
-    },
+      ),
+    );
   });
-  const { run: runSwapFAQ } = useRequest(swapFAQ, {
-    manual: true,
-    onSuccess: ([newA, newB]) => {
-      mutate(prevEntry =>
-        sorted(
-          prevEntry.map(entry =>
-            entry.oid === newA.oid
-              ? newA
-              : entry.oid === newB.oid
-              ? newB
-              : entry,
-          ),
-        ),
-      );
-    },
-  });
-  const { run: runDeleteFAQ } = useRequest(deleteFAQ, {
-    manual: true,
-    onSuccess: removedOid =>
-      mutate(prevEntry => prevEntry.filter(entry => entry.oid !== removedOid)),
-  });
+  const [, runDeleteFAQ] = useMutation(deleteFAQ, removedOid =>
+    mutate(prevEntry => prevEntry.filter(entry => entry.oid !== removedOid)),
+  );
   return {
     faqs,
     add: runAddFAQ,
