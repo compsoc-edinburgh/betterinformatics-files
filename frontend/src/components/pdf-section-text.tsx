@@ -79,23 +79,24 @@ const PdfTextElement: React.FC<TextElementProps> = ({
 };
 
 interface Props {
-  section: PdfSection;
+  page: number;
+  start: number;
+  end: number;
   renderer: PDF;
   view?: number[];
   scale: number;
   translateY: number;
 }
 const PdfSectionText: React.FC<Props> = ({
-  section,
+  page,
+  start,
+  end,
   renderer,
   view,
   scale,
   translateY,
 }) => {
-  const pageNumber = section.start.page;
-  const start = section.start.position;
-  const end = section.end.position;
-  const textContent = useTextLayer(true, renderer, pageNumber, start, end);
+  const textContent = useTextLayer(true, renderer, page, start, end);
   return (
     <div
       className="position-absolute position-top-left"

@@ -1,17 +1,16 @@
+import { useInViewport } from "@umijs/hooks";
 import { Card } from "@vseth/components";
 import { css, cx } from "emotion";
 import * as React from "react";
-import { useCallback, useEffect, useState, useContext } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { DebugContext } from "../components/Debug";
+import IconButton from "../components/icon-button";
 import PdfSectionCanvasOverlay from "../components/pdf-section-canvas-overlay";
 import PdfSectionText from "../components/pdf-section-text";
 import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import useDpr from "../hooks/useDpr";
-import { PdfSection } from "../interfaces";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
-import { useInViewport } from "@umijs/hooks";
-import { DebugContext } from "../components/Debug";
-import IconButton from "../components/icon-button";
 
 const styles = {
   lastSection: css`
@@ -85,21 +84,33 @@ const usePdf = (
 };
 
 interface Props {
-  section: PdfSection;
+  oid: string | undefined;
+  page: number;
+  start: number;
+  end: number;
   renderer: PDF;
-  targetWidth: number;
+  hidden?: boolean;
+  targetWidth?: number;
   onVisibleChange?: (newVisible: boolean) => void;
   onAddCut?: (pos: number) => void;
   addCutText?: string;
   snap?: boolean;
   displayHideShowButtons?: boolean;
-  onSectionHiddenChange?: (section: PdfSection, newState: boolean) => void;
+  onSectionHiddenChange?: (
+    section: string | [number, number],
+    newState: boolean,
+  ) => void;
 }
 const PdfSectionCanvas: React.FC<Props> = React.memo(
   ({
-    section,
+    oid,
+    page,
+    start,
+    end,
     renderer,
-    targetWidth,
+
+    hidden = false,
+    targetWidth = 300,
     onVisibleChange,
     onAddCut,
     addCutText,
@@ -107,10 +118,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     displayHideShowButtons = false,
     onSectionHiddenChange = () => {},
   }) => {
-    const start = section.start.position;
-    const end = section.end.position;
     const relativeHeight = end - start;
-    const pageNumber = section.start.page;
 
     const { displayCanvasType } = useContext(DebugContext);
     const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
@@ -120,14 +128,14 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       undefined,
     );
     const toggleVisibility = useCallback(
-      () => onSectionHiddenChange(section, !section.hidden),
-      [],
+      () => onSectionHiddenChange(oid ? oid : [page, end], !hidden),
+      [oid, page, end, hidden, onSectionHiddenChange],
     );
     const dpr = useDpr();
     const [canvas, view, width, height, isMainCanvas] = usePdf(
       visible || false,
       renderer,
-      pageNumber,
+      page,
       start,
       end,
       visible ? (currentScale ? currentScale * dpr : undefined) : undefined,
@@ -202,7 +210,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
                 targetWidth * relativeHeight * 1.414}px`,
               position: "relative",
               overflow: "hidden",
-              filter: section.hidden ? "contrast(0.5)" : undefined,
+              filter: hidden ? "contrast(0.5)" : undefined,
             }}
             ref={containerElement}
           >
@@ -223,7 +231,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
               <div className="position-absolute position-top-left m-2 p1">
                 <IconButton
                   size="sm"
-                  icon={section.hidden ? "VIEW" : "VIEW_OFF"}
+                  icon={hidden ? "VIEW" : "VIEW_OFF"}
                   tooltip="Toggle visibility"
                   onClick={toggleVisibility}
                 />
@@ -231,7 +239,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
             )}
             {visible && (
               <PdfSectionText
-                section={section}
+                page={page}
+                start={start}
+                end={end}
                 renderer={renderer}
                 scale={currentScale || 1}
                 view={view}

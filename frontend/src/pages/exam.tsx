@@ -123,16 +123,11 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     },
   });
   const onSectionHiddenChange = useCallback(
-    (section: PdfSection, newState: boolean) => {
-      if (section.cutOid) {
-        runUpateCutHidden(section.cutOid, newState);
+    (section: string | [number, number], newState: boolean) => {
+      if (typeof section === "string") {
+        runUpateCutHidden(section, newState);
       } else {
-        runAddCut(
-          metaData.filename,
-          section.end.page,
-          section.end.position,
-          newState,
-        );
+        runAddCut(metaData.filename, section[0], section[1], newState);
       }
     },
     [runAddCut, metaData, runUpateCutHidden],

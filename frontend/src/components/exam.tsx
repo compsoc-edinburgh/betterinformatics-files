@@ -25,7 +25,10 @@ interface Props {
   reloadCuts: () => void;
   renderer: PDF;
   onCutNameChange: (oid: string, name: string) => void;
-  onSectionHiddenChange: (section: PdfSection, newState: boolean) => void;
+  onSectionHiddenChange: (
+    section: string | [number, number],
+    newState: boolean,
+  ) => void;
   onAddCut: (filename: string, page: number, height: number) => void;
   onMoveCut: (
     filename: string,
@@ -188,12 +191,19 @@ const Exam: React.FC<Props> = React.memo(
                   )}
                   {renderer && (
                     <PdfSectionCanvas
-                      displayHideShowButtons={displayHideShowButtons}
+                      /* PDF cut data */
+                      oid={section.cutOid}
+                      page={section.start.page}
+                      start={section.start.position}
+                      end={section.end.position}
+                      hidden={section.hidden}
+                      /* Handler */
                       onSectionHiddenChange={onSectionHiddenChange}
-                      section={section}
+                      displayHideShowButtons={displayHideShowButtons}
                       renderer={renderer}
                       targetWidth={width}
                       onVisibleChange={onChangeListeners[section.key]}
+                      /* Add cut */
                       snap={snap}
                       addCutText={addCutText}
                       onAddCut={addCutHandlers[section.key]}
