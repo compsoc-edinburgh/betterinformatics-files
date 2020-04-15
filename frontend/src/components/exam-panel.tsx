@@ -36,6 +36,12 @@ const paginationStyle = css`
   }
 `;
 
+export interface DisplayOptions {
+  displayHiddenPdfSections: boolean;
+  displayHiddenAnswerSections: boolean;
+  displayHideShowButtons: boolean;
+}
+
 interface ExamPanelProps {
   isOpen: boolean;
   toggle: () => void;
@@ -48,6 +54,9 @@ interface ExamPanelProps {
 
   editState: EditState;
   setEditState: (newState: EditState) => void;
+
+  displayOptions: DisplayOptions;
+  setDisplayOptions: (newOptions: DisplayOptions) => void;
 }
 
 const ExamPanel: React.FC<ExamPanelProps> = ({
@@ -62,6 +71,9 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
 
   editState,
   setEditState,
+
+  displayOptions,
+  setDisplayOptions,
 }) => {
   const user = useUser()!;
   const isCatAdmin = user.isCategoryAdmin;
@@ -89,6 +101,10 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     );
     window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
   }, [metaData]);
+  const setOption = <T extends keyof DisplayOptions>(
+    name: T,
+    value: DisplayOptions[T],
+  ) => setDisplayOptions({ ...displayOptions, [name]: value });
   const scrollToTop = useCallback(() => {
     const c = document.documentElement.scrollTop || document.body.scrollTop;
     if (c > 0) {
@@ -208,9 +224,45 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             </ButtonGroup>
             <h6>Display Options</h6>
             <FormGroup check>
-              <Input type="checkbox" name="check" id="isPublic" />
-              <Label for="isPublic" check>
+              <Input
+                type="checkbox"
+                name="check"
+                id="displayHiddenPdfSections"
+                checked={displayOptions.displayHiddenPdfSections}
+                onChange={e =>
+                  setOption("displayHiddenPdfSections", e.target.checked)
+                }
+              />
+              <Label for="displayHiddenPdfSections" check>
                 Display hidden PDF sections
+              </Label>
+            </FormGroup>
+            <FormGroup check>
+              <Input
+                type="checkbox"
+                name="check"
+                id="displayHiddenAnswerSections"
+                checked={displayOptions.displayHiddenAnswerSections}
+                onChange={e =>
+                  setOption("displayHiddenAnswerSections", e.target.checked)
+                }
+              />
+              <Label for="displayHiddenAnswerSections" check>
+                Display hidden answer sections
+              </Label>
+            </FormGroup>
+            <FormGroup check>
+              <Input
+                type="checkbox"
+                name="check"
+                id="displayHideShowButtons"
+                checked={displayOptions.displayHideShowButtons}
+                onChange={e =>
+                  setOption("displayHideShowButtons", e.target.checked)
+                }
+              />
+              <Label for="displayHideShowButtons" check>
+                Display Hide / Show buttons
               </Label>
             </FormGroup>
           </>

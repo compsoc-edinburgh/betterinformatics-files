@@ -160,6 +160,11 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const wikitransform = metaData.legacy_solution
     ? metaData.legacy_solution.split("/").pop()
     : "";
+  const [displayOptions, setDisplayOptions] = useState({
+    displayHiddenPdfSections: false,
+    displayHiddenAnswerSections: false,
+    displayHideShowButtons: false,
+  });
 
   return (
     <>
@@ -300,6 +305,11 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}
+              displayHiddenPdfSections={displayOptions.displayHiddenPdfSections}
+              displayHiddenAnswerSections={
+                displayOptions.displayHiddenAnswerSections
+              }
+              displayHideShowButtons={displayOptions.displayHideShowButtons}
             />
           )}
         </div>
@@ -314,6 +324,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         setMaxWidth={setMaxWidth}
         editState={editState}
         setEditState={setEditState}
+        displayOptions={displayOptions}
+        setDisplayOptions={setDisplayOptions}
       />
     </>
   );
