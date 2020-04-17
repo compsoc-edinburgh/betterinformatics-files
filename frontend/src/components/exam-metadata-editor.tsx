@@ -301,7 +301,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         </Col>
         <Col md={6}>
           <FormGroup check>
-            <InputField
+            <Input
               type="checkbox"
               label="Finished Wiki Transfer"
               name="check"
