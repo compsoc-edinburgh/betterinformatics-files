@@ -1,12 +1,12 @@
-import React, { useState } from "react";
 import {
+  Button,
+  Input,
+  InputGroup,
+  InputGroupAddon,
   ListGroup,
   ListGroupItem,
-  Button,
-  Row,
-  Col,
-  Input,
 } from "@vseth/components";
+import React, { useState } from "react";
 
 interface UserSetEditorProps {
   users: string[];
@@ -23,31 +23,29 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
     setUsers(users.filter(un => un !== username));
   };
   return (
-    <ListGroup>
-      {users.map(user => (
-        <ListGroupItem key={user}>
-          <Button close onClick={() => remove(user)} />
-          {user}
-        </ListGroupItem>
-      ))}
-      <ListGroupItem>
-        <Row>
-          <Col md={10}>
-            <Input
-              type="text"
-              placeholder="Name"
-              value={username}
-              onChange={e => setUsername(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Button block onClick={onAdd}>
-              Add
-            </Button>
-          </Col>
-        </Row>
-      </ListGroupItem>
-    </ListGroup>
+    <>
+      <ListGroup>
+        {users.map(user => (
+          <ListGroupItem key={user}>
+            <Button close onClick={() => remove(user)} />
+            {user}
+          </ListGroupItem>
+        ))}
+      </ListGroup>
+      <InputGroup>
+        <Input
+          type="text"
+          placeholder="Name"
+          value={username}
+          onChange={e => setUsername(e.currentTarget.value)}
+        />
+        <InputGroupAddon addonType="append">
+          <Button block onClick={onAdd}>
+            Add
+          </Button>
+        </InputGroupAddon>
+      </InputGroup>
+    </>
   );
 };
 export default UserSetEditor;

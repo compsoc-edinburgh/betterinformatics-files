@@ -14,15 +14,15 @@ interface FileInputProps
 const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
-    <div className="position-relative">
+    <div className="form-control position-relative">
       {value ? (
-        <div className="form-control">
+        <>
           <Button close onClick={() => onChange(undefined)} />
           {value.name}
           <Badge>{value.type}</Badge> <Badge>{value.size}</Badge>
-        </div>
+        </>
       ) : (
-        <div className="form-control">
+        <>
           &nbsp;
           <Button
             className="position-absolute position-left"
@@ -40,7 +40,7 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
             }}
             ref={fileInputRef}
           />
-        </div>
+        </>
       )}
     </div>
   );

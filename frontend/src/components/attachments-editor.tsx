@@ -1,11 +1,11 @@
 import {
   Badge,
   Button,
-  Col,
   Input,
+  InputGroup,
+  InputGroupAddon,
   ListGroup,
   ListGroupItem,
-  Row,
 } from "@vseth/components";
 import React, { useState } from "react";
 import FileInput from "./file-input";
@@ -39,39 +39,32 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
     setAttachments(attachments.filter((_item, i) => i !== index));
   };
   return (
-    <ListGroup>
-      {attachments.map(({ displayname, filename }, index) => (
-        <ListGroupItem key={toKey(filename)}>
-          <Button close onClick={() => onRemove(index)} />
-          {displayname} <Badge>{toKey(filename)}</Badge>
-          {filename instanceof File && <Badge color="success">New</Badge>}
-        </ListGroupItem>
-      ))}
-      <ListGroupItem>
-        <Row>
-          <Col md={5}>
-            <FileInput
-              accept="application/pdf"
-              value={file}
-              onChange={setFile}
-            />
-          </Col>
-          <Col md={5}>
-            <Input
-              type="text"
-              placeholder="Display name"
-              value={displayName}
-              onChange={e => setDisplayName(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Button block onClick={onAdd}>
-              Add
-            </Button>
-          </Col>
-        </Row>
-      </ListGroupItem>
-    </ListGroup>
+    <>
+      <ListGroup>
+        {attachments.map(({ displayname, filename }, index) => (
+          <ListGroupItem key={toKey(filename)}>
+            <Button close onClick={() => onRemove(index)} />
+            {displayname} <Badge>{toKey(filename)}</Badge>
+            {filename instanceof File && <Badge color="success">New</Badge>}
+          </ListGroupItem>
+        ))}
+      </ListGroup>
+      <InputGroup>
+        <FileInput accept="application/pdf" value={file} onChange={setFile} />
+
+        <Input
+          type="text"
+          placeholder="Display name"
+          value={displayName}
+          onChange={e => setDisplayName(e.currentTarget.value)}
+        />
+        <InputGroupAddon addonType="append">
+          <Button block onClick={onAdd}>
+            Add
+          </Button>
+        </InputGroupAddon>
+      </InputGroup>
+    </>
   );
 };
 export default AttachmentsEditor;

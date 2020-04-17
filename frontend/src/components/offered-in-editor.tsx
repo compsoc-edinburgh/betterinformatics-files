@@ -1,12 +1,12 @@
-import React, { useState } from "react";
 import {
+  Button,
+  Input,
+  InputGroup,
+  InputGroupAddon,
   ListGroup,
   ListGroupItem,
-  Button,
-  Row,
-  Col,
-  Input,
 } from "@vseth/components";
+import React, { useState } from "react";
 
 interface OfferedInEditorProps {
   offeredIn: Array<readonly [string, string]>;
@@ -31,39 +31,35 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
     );
   };
   return (
-    <ListGroup>
-      {offeredIn.map(([meta1, meta2]) => (
-        <ListGroupItem key={`${meta1}-${meta2}`}>
-          <Button close onClick={() => onRemove(meta1, meta2)} />
-          {meta1} {meta2}
-        </ListGroupItem>
-      ))}
-      <ListGroupItem>
-        <Row>
-          <Col md={5}>
-            <Input
-              type="text"
-              placeholder="Meta1"
-              value={newMeta1}
-              onChange={e => setNewMeta1(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={5}>
-            <Input
-              type="text"
-              placeholder="Meta2"
-              value={newMeta2}
-              onChange={e => setNewMeta2(e.currentTarget.value)}
-            />
-          </Col>
-          <Col md={2}>
-            <Button block onClick={onAdd}>
-              Add
-            </Button>
-          </Col>
-        </Row>
-      </ListGroupItem>
-    </ListGroup>
+    <>
+      <ListGroup>
+        {offeredIn.map(([meta1, meta2]) => (
+          <ListGroupItem key={`${meta1}-${meta2}`}>
+            <Button close onClick={() => onRemove(meta1, meta2)} />
+            {meta1} {meta2}
+          </ListGroupItem>
+        ))}
+      </ListGroup>
+      <InputGroup>
+        <Input
+          type="text"
+          placeholder="Meta1"
+          value={newMeta1}
+          onChange={e => setNewMeta1(e.currentTarget.value)}
+        />
+        <Input
+          type="text"
+          placeholder="Meta2"
+          value={newMeta2}
+          onChange={e => setNewMeta2(e.currentTarget.value)}
+        />
+        <InputGroupAddon addonType="append">
+          <Button block onClick={onAdd}>
+            Add
+          </Button>
+        </InputGroupAddon>
+      </InputGroup>
+    </>
   );
 };
 export default OfferedInEditor;
