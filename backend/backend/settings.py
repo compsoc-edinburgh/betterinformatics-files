@@ -154,6 +154,9 @@ if IN_ENVIRON:
             'PASSWORD': os.environ['RUNTIME_POSTGRES_DB_PW'],
             'HOST': os.environ['RUNTIME_POSTGRES_DB_SERVER'],
             'PORT': os.environ['RUNTIME_POSTGRES_DB_PORT'],
+            'OPTIONS': {
+                'sslmode': 'disable'
+            },
             'CONN_MAX_AGE': 60,
         }
     }
