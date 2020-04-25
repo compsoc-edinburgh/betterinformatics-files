@@ -39,7 +39,6 @@ programs:
       - "/dev/shm"
       - "--log-level"
       - "debug"
-      - "--preload"
     workdir: /app
     user: app-user
     group: app-user
