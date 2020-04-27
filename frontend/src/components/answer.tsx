@@ -328,7 +328,7 @@ export default class AnswerComponent extends React.Component<Props, State> {
               GlobalConsts.momentFormatString,
             )}
           </div>
-          {this.props.answer.oid.length > 0 && (
+          {this.props.answer.oid !== undefined && this.props.answer.oid !== "" && (
             <div {...styles.voteWrapper}>
               {!this.props.isReadonly &&
                 this.props.isExpert && [
