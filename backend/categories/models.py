@@ -31,6 +31,16 @@ class CategoryMetaData(models.Model):
         managed = False
 
 
+class ExamCounts(models.Model):
+    exam = models.OneToOneField('answers.Exam', related_name='counts', on_delete=models.DO_NOTHING)
+
+    count_cuts = models.IntegerField()
+    count_answered = models.IntegerField()
+
+    class Meta:
+        managed = False
+
+
 class MetaCategory(models.Model):
     displayname = models.CharField(max_length=256)
     parent = models.ForeignKey('MetaCategory', null=True, on_delete=models.CASCADE)

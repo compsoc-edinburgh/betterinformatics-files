@@ -123,11 +123,9 @@ def list_exams(request, slug):
             'finished_cuts': ex.finished_cuts,
             'finished_wiki_transfer': ex.finished_wiki_transfer,
             'canView': ex.current_user_can_view(request),
-            'count_cuts': ex.answersection_set.count(),
-            'count_answered': ex.count_answered,
-        } for ex in cat.exam_set.select_related('exam_type', 'import_claim').prefetch_related('answersection_set')
-            .annotate(count_answered=Count('answersection', filter=Q(Exists(Answer.objects.filter(answer_section=OuterRef('pk'))))))
-            .all()
+            'count_cuts': ex.counts.count_cuts,
+            'count_answered': ex.counts.count_answered,
+        } for ex in cat.exam_set.select_related('exam_type', 'import_claim', 'counts').all()
     ], key=lambda x: x['sort-key'], reverse=True)
     for ex in res:
         del ex['sort-key']
