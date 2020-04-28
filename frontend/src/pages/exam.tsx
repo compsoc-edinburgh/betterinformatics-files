@@ -99,7 +99,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     manual: true,
     onSuccess: (_data, [oid, newName]) => {
       mutateCuts(oldCuts =>
-        Object.keys(oldCuts).reduce(function(result, key) {
+        Object.keys(oldCuts).reduce((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
             cutPosition.oid === oid
               ? { ...cutPosition, name: newName }
@@ -114,7 +114,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     manual: true,
     onSuccess: (_data, [oid, newHidden]) => {
       mutateCuts(oldCuts =>
-        Object.keys(oldCuts).reduce(function(result, key) {
+        Object.keys(oldCuts).reduce((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
             cutPosition.oid === oid
               ? { ...cutPosition, hidden: newHidden }

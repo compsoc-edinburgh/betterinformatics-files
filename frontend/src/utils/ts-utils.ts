@@ -9,7 +9,7 @@ type OptionsResult<T> = {
   [key in keyof T]: { value: key; label: T[key] };
 };
 export const fromEntries = <T extends Array<[string, unknown]>>(o: T) =>
-  o.reduce(function(prev: any, curr) {
+  o.reduce((prev: any, curr) => {
     prev[curr[0]] = curr[1];
     return prev;
   }, {});
