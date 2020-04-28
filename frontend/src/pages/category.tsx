@@ -151,7 +151,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   <ListGroup flush>
                     {metaData.attachments.map(att => (
                       <a
-                        href={"/api/filestore/get/" + att.filename + "/"}
+                        href={`/api/filestore/get/${att.filename}/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         key={att.filename}

@@ -108,7 +108,7 @@ const BasicEditor: React.FC<Props> = ({
   return (
     <div className={wrapperStyle}>
       <pre ref={preElRef} className={cx(commonStyle, preStyle)}>
-        {value + "\n"}
+        {`${value}\n`}
       </pre>
       <textarea
         value={value}

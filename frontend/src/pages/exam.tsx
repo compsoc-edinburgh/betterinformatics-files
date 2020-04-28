@@ -252,7 +252,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           {metaData.legacy_solution && metaData.canEdit && (
             <Col md={6} lg={4}>
               <a
-                href={"/legacy/transformwiki/" + wikitransform}
+                href={`/legacy/transformwiki/${wikitransform}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -281,7 +281,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           {metaData.has_solution && !metaData.solution_printonly && (
             <Col md={6} lg={4}>
               <a
-                href={"/api/exam/pdf/solution/" + metaData.filename + "/"}
+                href={`/api/exam/pdf/solution/${metaData.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -294,7 +294,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           {metaData.attachments.map(attachment => (
             <Col md={6} lg={4} key={attachment.filename}>
               <a
-                href={"/api/filestore/get/" + attachment.filename + "/"}
+                href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

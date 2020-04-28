@@ -93,7 +93,7 @@ const Scoreboard: React.FC<{}> = () => {
                 <tr key={board.username}>
                   <td>{idx + 1}</td>
                   <td>
-                    <Link to={"/user/" + board.username}>
+                    <Link to={`/user/${board.username}`}>
                       {board.displayName}
                     </Link>
                   </td>

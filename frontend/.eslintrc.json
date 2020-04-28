@@ -11,6 +11,8 @@
         "functions": "always-multiline"
       }
     ],
+    "template-curly-spacing": "error",
+    "prefer-template": "error",
     "react/no-typos": "error",
     "object-shorthand": "error",
     "prefer-const": "error",

@@ -88,12 +88,12 @@ const ModQueue: React.FC = () => {
                   <tr key={exam.filename}>
                     <td>{exam.category_displayname}</td>
                     <td>
-                      <Link to={"/exams/" + exam.filename} target="_blank">
+                      <Link to={`/exams/${exam.filename}`} target="_blank">
                         {exam.displayname}
                       </Link>
                     </td>
                     <td>
-                      <Link to={"/user/" + exam.payment_uploader}>
+                      <Link to={`/user/${exam.payment_uploader}`}>
                         {exam.payment_uploader_displayname}
                       </Link>
                     </td>

@@ -53,7 +53,7 @@ export default ({ value }: Props) => {
           if (uri.includes("/")) {
             return uri;
           } else {
-            return "/api/image/get/" + uri + "/";
+            return `/api/image/get/${uri}/`;
           }
         }}
         plugins={[RemarkMathPlugin]}

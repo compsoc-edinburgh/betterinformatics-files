@@ -63,7 +63,7 @@ const Editor: React.FC<Props> = ({
       const before = value.substring(0, selection.start);
       const content = value.substring(selection.start, selection.end);
       const after = value.substring(selection.end);
-      const newContent = "![" + content + `](${handle.src})`;
+      const newContent = `![${content}](${handle.src})`;
       const newSelection = {
         start: selection.start + 2,
         end: selection.start + content.length + 2,
@@ -79,7 +79,7 @@ const Editor: React.FC<Props> = ({
     const before = value.substring(0, selection.start);
     const content = value.substring(selection.start, selection.end);
     const after = value.substring(selection.end);
-    const newContent = "[" + content + "](https://www.example.com)";
+    const newContent = `[${content}](https://www.example.com)`;
     const newSelection = {
       start: selection.start + content.length + 3,
       end: selection.start + newContent.length - 1,

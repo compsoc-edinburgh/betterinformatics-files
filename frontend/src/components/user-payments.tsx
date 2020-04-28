@@ -87,7 +87,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                   )}
                   {payment.uploaded_filename && (
                     <ListGroupItem>
-                      <Link to={"/exams/" + payment.uploaded_filename}>
+                      <Link to={`/exams/${payment.uploaded_filename}`}>
                         Uploaded Transcript
                       </Link>
                     </ListGroupItem>

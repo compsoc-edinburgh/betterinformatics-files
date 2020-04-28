@@ -26,11 +26,7 @@ export default class PrintExam extends React.Component<Props, State> {
     });
     if (this.state.currentPassword.length > 0) {
       fetchPost(
-        "/api/exam/printpdf/" +
-          this.props.examtype +
-          "/" +
-          this.props.filename +
-          "/",
+        `/api/exam/printpdf/${this.props.examtype}/${this.props.filename}/`,
         { password: this.state.currentPassword },
       )
         .then(() => {
