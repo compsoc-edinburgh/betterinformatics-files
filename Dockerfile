@@ -40,5 +40,6 @@ COPY --from=0 /usr/src/app/build/static ./static
 COPY ./frontend/public/exam10.pdf ./exam10.pdf
 COPY ./frontend/public/static ./static
 COPY ./backend/ ./
+RUN python3 manage.py check
 
 EXPOSE 80
