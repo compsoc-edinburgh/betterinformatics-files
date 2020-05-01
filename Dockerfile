@@ -11,6 +11,7 @@ COPY ./frontend/.prettierrc.json ./.prettierrc.json
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
 RUN yarn run check-format || ( >&2 echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'; exit 1 )
+RUN yarn run lint || ( >&2 echo -e '\n\n=========\nYour code violates our set of linting rules.\nSee "Editing frontend code" in README.md.\n=========\n\n'; exit 1 )
 RUN yarn run build
 
 
