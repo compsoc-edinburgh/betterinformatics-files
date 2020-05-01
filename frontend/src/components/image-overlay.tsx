@@ -217,7 +217,7 @@ export default class ImageOverlay extends React.Component<Props, State> {
                       {...styles.imageSmall}
                       key={img}
                       src={"/api/image/get/" + img + "/"}
-                      alt="Image Preview"
+                      alt={`Preview of ${img}`}
                     />
                   </div>
                   <div
