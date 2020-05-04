@@ -37,7 +37,6 @@ interface MainCanvas {
  */
 export default class PDF {
   private document: PDFDocumentProxy;
-  private page?: PDFPageProxy;
   private pageMap: Map<number, PDFPromise<PDFPageProxy>> = new Map();
   // SVGs aren't mentioned in pdf-js types :(
   // tslint:disable-next-line: no-any
