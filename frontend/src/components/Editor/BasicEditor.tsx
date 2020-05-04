@@ -8,7 +8,7 @@ const wrapperStyle = css`
 `;
 const commonStyle = css`
   font-family: "Fira Code", monospace;
-  font-size: 14px;
+  font-size: 0.875rem;
   white-space: pre-wrap;
   word-wrap: break-word;
   width: 100%;
