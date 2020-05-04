@@ -19,8 +19,7 @@ function detectMobile() {
     return navigator.userAgent.match(toMatchItem);
   });
 }
-let isMobile = detectMobile();
-window.setInterval(() => (isMobile = detectMobile()), 10000);
+const isMobile = detectMobile();
 
 export interface TooltipButtonProps extends ButtonProps {
   tooltip?: React.ReactNode;
