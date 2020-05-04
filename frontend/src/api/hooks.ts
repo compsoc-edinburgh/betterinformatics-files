@@ -136,7 +136,7 @@ const markAllRead = async (...ids: string[]) => {
     ),
   );
 };
-export const useMarkAsRead = () => {
+export const useMarkAllAsRead = () => {
   const { error, loading, run } = useRequest(markAllRead, {
     manual: true,
   });
@@ -236,7 +236,7 @@ const loadAnswers = async (oid: string) => {
   return (await fetchGet(`/api/exam/answersection/${oid}/`))
     .value as AnswerSection;
 };
-export const useLoadAnswers = (
+export const useAnswers = (
   oid: string,
   onSuccess: (data: AnswerSection) => void,
 ) => {

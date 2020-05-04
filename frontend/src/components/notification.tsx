@@ -3,7 +3,7 @@ import moment from "moment";
 import * as React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useMarkAsRead } from "../api/hooks";
+import { useMarkAllAsRead } from "../api/hooks";
 import GlobalConsts from "../globalconsts";
 import { NotificationInfo } from "../interfaces";
 import MarkdownText from "./markdown-text";
@@ -12,9 +12,9 @@ interface Props {
 }
 
 const NotificationComponent: React.FC<Props> = ({ notification }) => {
-  const [error, , markAsRead] = useMarkAsRead();
+  const [error, , markAllAsRead] = useMarkAllAsRead();
   useEffect(() => {
-    markAsRead(notification.oid);
+    markAllAsRead(notification.oid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notification.oid]);
 
