@@ -87,14 +87,16 @@ const applyChanges = async (
   masterSolution: File | true | undefined,
 ) => {
   const metaDataDiff: Partial<ExamMetaData> = {};
-  for (const key of stringKeys)
-    if (oldMetaData[key] !== newMetaData[key])
+  for (const key of stringKeys) {
+    if (oldMetaData[key] !== newMetaData[key]) {
       metaDataDiff[key] = newMetaData[key];
-  for (const key of booleanKeys)
-    if (oldMetaData[key] !== newMetaData[key])
+    }
+  }
+  for (const key of booleanKeys) {
+    if (oldMetaData[key] !== newMetaData[key]) {
       metaDataDiff[key] = newMetaData[key];
-    else console.log(key, oldMetaData[key], newMetaData[key]);
-  console.log(metaDataDiff);
+    }
+  }
   await setMetaData(filename, metaDataDiff);
   const newAttachments: Attachment[] = [];
   for (const attachment of newMetaData.attachments) {
