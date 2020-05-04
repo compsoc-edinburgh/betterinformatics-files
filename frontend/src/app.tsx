@@ -24,17 +24,11 @@ import UploadPdfPage from "./pages/uploadpdf";
 import UserPage from "./pages/userinfo";
 
 const App: React.FC<{}> = () => {
-  /*const _serverData = useMemo(() => {
-    const el = document.getElementById("server_data");
-    if (el === null) return undefined;
-    try {
-      const data = JSON.parse(el.textContent || "");
-      return data;
-    } catch (e) {
-      return undefined;
-    }
-  }, []);*/
   useEffect(() => {
+    // We need to manually get the csrf cookie when the frontend is served using
+    // `yarn start` as only certain pages will set the csrf cookie.
+    // Technically the application won't work until the promise resolves, but we just
+    // hope that the user doesn't do anything in that time.
     if (getCookie("csrftoken") === null) {
       fetchGet("/api/can_i_haz_csrf_cookie/");
     }
