@@ -266,7 +266,7 @@ const updateAnswer = async (
     await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
   ).value as AnswerSection;
 };
-const removeAnwer = async (answerId: string) => {
+const removeAnswer = async (answerId: string) => {
   return (await fetchPost(`/api/exam/removeanswer/${answerId}/`, {}))
     .value as AnswerSection;
 };
@@ -326,7 +326,7 @@ export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
 export const useRemoveAnswer = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const { run: runRemoveAnswer } = useRequest(removeAnwer, {
+  const { run: runRemoveAnswer } = useRequest(removeAnswer, {
     manual: true,
     onSuccess: onSectionChanged,
   });

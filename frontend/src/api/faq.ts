@@ -3,7 +3,7 @@ import { FAQEntry } from "../interfaces";
 import { useRequest } from "@umijs/hooks";
 import { useMutation } from "./hooks";
 
-const laodFAQs = async () => {
+const loadFAQs = async () => {
   return (await fetchGet("/api/faq/")).value as FAQEntry[];
 };
 const addFAQ = async (question: string, answer: string, order: number) => {
@@ -31,7 +31,7 @@ const deleteFAQ = async (oid: string) => {
 const sorted = (arg: FAQEntry[]) => arg.sort((a, b) => a.order - b.order);
 
 export const useFAQ = () => {
-  const { data: faqs, mutate } = useRequest(laodFAQs, { cacheKey: "faqs" });
+  const { data: faqs, mutate } = useRequest(loadFAQs, { cacheKey: "faqs" });
   const [, runAddFAQ] = useMutation(addFAQ, newFAQ => {
     mutate(prevEntries => sorted([...prevEntries, newFAQ]));
   });
