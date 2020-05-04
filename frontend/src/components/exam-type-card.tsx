@@ -16,7 +16,7 @@ const removeExam = async (filename: string) => {
 };
 
 const badgeStyle = css`
-  margin: 3px;
+  margin: 0.15rem;
   font-size: 0.85rem !important;
 `;
 
