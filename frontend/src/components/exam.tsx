@@ -146,9 +146,10 @@ const Exam: React.FC<Props> = React.memo(
     );
     return (
       <>
-        {sections.map(section =>
-          section.kind === SectionKind.Answer
-            ? (displayHiddenAnswerSections || !section.cutHidden) && (
+        {sections.map(section => {
+          if (section.kind === SectionKind.Answer) {
+            if (displayHiddenAnswerSections || !section.cutHidden) {
+              return (
                 <AnswerSectionComponent
                   key={section.oid}
                   oid={section.oid}
@@ -183,8 +184,13 @@ const Exam: React.FC<Props> = React.memo(
                     editState.cut === section.oid
                   }
                 />
-              )
-            : (displayHiddenPdfSections || !section.hidden) && (
+              );
+            } else {
+              return null;
+            }
+          } else {
+            if (displayHiddenPdfSections || !section.hidden) {
+              return (
                 <React.Fragment key={section.key}>
                   {pageCounter < section.start.page && ++pageCounter && (
                     <div id={`page-${pageCounter}`} />
@@ -210,8 +216,12 @@ const Exam: React.FC<Props> = React.memo(
                     />
                   )}
                 </React.Fragment>
-              ),
-        )}
+              );
+            } else {
+              return null;
+            }
+          }
+        })}
       </>
     );
   },
