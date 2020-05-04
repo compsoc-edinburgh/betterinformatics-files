@@ -15,6 +15,13 @@ interface MainCanvasPageLoadedData {
   width: number;
   height: number;
 }
+/**
+ * Each page has one main canvas that pdf-js renders to. This interface
+ * describes the data that is associated with such a canvas. Please notice
+ * that is not guaranteed that the content is rendered until the `rendered`
+ * Promie is resolved. The `pageLoaded` promise is guaranteed to always resolve
+ * before `rendered` is resolved.
+ */
 interface MainCanvas {
   scale: number;
   currentMainRef: PdfCanvasReference | undefined;
@@ -23,22 +30,32 @@ interface MainCanvas {
   pageLoaded: Promise<MainCanvasPageLoadedData>;
   rendered: Promise<void>;
 }
+/**
+ * The PDF class represents our rendering layer on top of pdf-js. It's a renderer
+ * that only renders its `PDFDocumentProxy`. Loading a `PDFDocumentProxy`
+ * is the responsibility of the caller.
+ */
 export default class PDF {
-  document: PDFDocumentProxy;
-  page?: PDFPageProxy;
-  pageMap: Map<number, PDFPromise<PDFPageProxy>> = new Map();
+  private document: PDFDocumentProxy;
+  private page?: PDFPageProxy;
+  private pageMap: Map<number, PDFPromise<PDFPageProxy>> = new Map();
+  // SVGs aren't mentioned in pdf-js types :(
   // tslint:disable-next-line: no-any
-  operatorListMap: Map<number, PDFPromise<any[]>> = new Map();
+  private operatorListMap: Map<number, PDFPromise<any[]>> = new Map();
   // tslint:disable-next-line: no-any
-  gfxMap: Map<number, any> = new Map();
-  svgMap: Map<number, SVGElement> = new Map();
-  embedFontsSvgMap: Map<number, SVGElement> = new Map();
-  textMap: Map<number, PDFPromise<TextContent>> = new Map();
-  mainCanvasMap: Map<number, Set<MainCanvas>> = new Map();
+  private gfxMap: Map<number, any> = new Map();
+  private svgMap: Map<number, SVGElement> = new Map();
+  private embedFontsSvgMap: Map<number, SVGElement> = new Map();
+  private textMap: Map<number, PDFPromise<TextContent>> = new Map();
+  /**
+   * Each `Set` once set shouldn't change anymore as it saves us from having to lookup
+   * again. You therefore need to clear each set if you want to remove all references.
+   */
+  private mainCanvasMap: Map<number, Set<MainCanvas>> = new Map();
   constructor(document: PDFDocumentProxy) {
     this.document = document;
   }
-  async getPage(pageNumber: number): Promise<PDFPageProxy> {
+  private async getPage(pageNumber: number): Promise<PDFPageProxy> {
     const cachedPage = this.pageMap.get(pageNumber);
     if (cachedPage !== undefined) return cachedPage;
 
@@ -47,7 +64,7 @@ export default class PDF {
     return loadedPage;
   }
   // tslint:disable-next-line: no-any
-  async getOperatorList(pageNumber: number): Promise<any[]> {
+  private async getOperatorList(pageNumber: number): Promise<any[]> {
     const cachedOperatorList = this.operatorListMap.get(pageNumber);
     if (cachedOperatorList !== undefined) return cachedOperatorList;
     const page = await this.getPage(pageNumber);
@@ -57,7 +74,7 @@ export default class PDF {
     return operatorList;
   }
   // tslint:disable-next-line: no-any
-  async getGfx(pageNumber: number): Promise<any> {
+  private async getGfx(pageNumber: number): Promise<any> {
     const cachedGfx = this.gfxMap.get(pageNumber);
     if (cachedGfx !== undefined) return cachedGfx;
 
@@ -72,9 +89,15 @@ export default class PDF {
     this.gfxMap.set(pageNumber, gfx);
     return gfx;
   }
+  /**
+   * Renders the page `pageNumber` to an SVGElement. The returned instance will
+   * be unique and the caller is free to mount it anywhere in the tree.
+   * @param pageNumber
+   * @param embedFonts Wheter the fonts should be embedded into the SVG
+   */
   async renderSvg(
     pageNumber: number,
-    embedFonts: boolean,
+    embedFonts: boolean = false,
   ): Promise<SVGElement> {
     if (embedFonts) {
       const cachedSvg = this.embedFontsSvgMap.get(pageNumber);
@@ -99,6 +122,20 @@ export default class PDF {
 
     return element;
   }
+  /**
+   * Renders the page `pageNumber` to `canvasObject` with a scale of
+   * `scale`. Creates a reference using `referenceManager` that is active
+   * until rendering is finished. It expects that `canvasObject` is not
+   * reused until the reference is released. The method also sets the
+   * `width` and `height` of the `canvasObject`.
+   * @param referenceManager
+   * @param canvasObject
+   * @param pageNumber
+   * @param scale
+   * @returns two promises:
+   * [0]: when the page is loaded,
+   * [1]: when the page is rendered
+   */
   renderCanvas(
     referenceManager: PdfCanvasReferenceManager,
     canvasObject: CanvasObject,
@@ -114,6 +151,8 @@ export default class PDF {
       canvasObject.canvas.height = viewport.height;
       canvasObject.canvas.style.width = "100%";
       canvasObject.canvas.style.height = "100%";
+      // we need the `as unknown as any` because the types don't specify the
+      // `canvasFactory` and typescript would complain.
       await page.render(({
         canvasContext: canvasObject.context,
         viewport,
@@ -129,8 +168,13 @@ export default class PDF {
       renderingPromise,
     ];
   }
-  createMainCanvas(pageNumber: number, scale: number): MainCanvas {
-    console.log(`Create main canvas ${pageNumber}`);
+  /**
+   * Creates a new mainCanvas for `pageNumber` and renders the page to it.
+   * The `MainCanvas` object contains all the necessary data.
+   * @param pageNumber
+   * @param scale
+   */
+  private createMainCanvas(pageNumber: number, scale: number): MainCanvas {
     const canvasObject = globalFactory.create(undefined, undefined);
     const referenceManager = new PdfCanvasReferenceManager(0);
     const initialRef = referenceManager.createRetainedRef();
@@ -154,6 +198,7 @@ export default class PDF {
       })(),
       rendered: renderingPromise,
     };
+    // Add the mainCanvas to the correct set
     const existingSet = this.mainCanvasMap.get(pageNumber);
     const newSet = new Set([mainCanvas]);
     const mainCanvasSet = existingSet || newSet;
@@ -162,24 +207,43 @@ export default class PDF {
     } else {
       this.mainCanvasMap.set(pageNumber, newSet);
     }
+    // Remove it if we no longer need it
     let timeout: number | undefined;
     initialRef.addListener(() => {
       mainCanvas.currentMainRef = undefined;
     });
     referenceManager.addListener((cnt: number) => {
       if (cnt <= 0) {
+        // We keep the mainCanvas around a bit so that it can be reused.
+        // 10_000 turned out to be a decent value.
         timeout = window.setTimeout(() => {
           globalFactory.destroy(canvasObject);
           mainCanvasSet.delete(mainCanvas);
         }, 10000);
       } else {
+        // If the reference is used again we abort its removal.
         if (timeout) window.clearTimeout(timeout);
         timeout = undefined;
       }
     });
     return mainCanvas;
   }
-
+  /**
+   * Renders `pageNumber` from `start` to `end` using at least `scale`.
+   * It returns a promise that resolves when the content is rendered. The method
+   * can either return a main canvas or just the specified section. If a main
+   * canvas is returned you are responsible for aligning it correctly. It assumes
+   * that scaling a canvas down doesn't reduce the quality. You are also responsible
+   * for releasing the retained reference that gets returned.
+   * @param pageNumber
+   * @param scale Minimum scale
+   * @param start Relative y-start on page
+   * @param end Relative y-end on page
+   * @returns A promise resolving to an array:
+   * [0]: The canvas,
+   * [1]: Wether the canvas is a main canvas,
+   * [2]: The reference you have to release if you no longer need the canvas.
+   */
   async renderCanvasSplit(
     pageNumber: number,
     scale: number,
@@ -193,21 +257,26 @@ export default class PDF {
       for (const existingMainCanvas of mainCanvasSet) {
         if (
           existingMainCanvas.scale + 0.001 >= scale &&
+          // It might be possible that there is a main canvas that is suitable
+          // and currently has no use. Prefer to use that one instead.
           (mainCanvas === undefined || mainCanvas.currentMainRef !== undefined)
         ) {
           mainCanvas = existingMainCanvas;
         }
       }
+      // Did we find a main canvas that isn't used?
       if (mainCanvas && mainCanvas.currentMainRef === undefined) {
         isMainUser = true;
         mainCanvas.currentMainRef = mainCanvas?.referenceManager.createRetainedRef();
       }
     }
+    // It looks like we have to render from scratch
     if (mainCanvas === undefined) {
       mainCanvas = this.createMainCanvas(pageNumber, scale);
       isMainUser = true;
     }
-
+    // This isn't possible but it's hard to tell typescript that it is not
+    // possible.
     if (mainCanvas === undefined) throw new Error();
     const ref = isMainUser
       ? mainCanvas.currentMainRef!
@@ -215,13 +284,17 @@ export default class PDF {
 
     if (isMainUser) {
       ref.addListener(() => {
+        // Typescript still thinks that mainCanvas could be undefined...
         if (mainCanvas === undefined) throw new Error();
         mainCanvas.currentMainRef = undefined;
       });
+      // Wait until rendering is finished (needed for snap location detection)
       await mainCanvas.rendered;
       return [mainCanvas.canvasObject.canvas, true, ref];
     } else {
       const mainRef = mainCanvas.referenceManager.createRetainedRef();
+      // It should also be possible to await mainCanvas.pageLoaded first
+      // but it doesn't really matter.
       const [pageSize, page] = await Promise.all([
         mainCanvas.pageLoaded,
         this.getPage(pageNumber),
@@ -234,12 +307,14 @@ export default class PDF {
       const childRef = newManager.createRetainedRef();
       obj.canvas.style.width = "100%";
       obj.canvas.style.height = "100%";
+      //source
       const [sx, sy, sw, sh] = [
         0,
         pageSize.height * start,
         pageSize.width,
         (end - start) * pageSize.height,
       ];
+      // destination
       const [dx, dy, dw, dh] = [0, 0, width, height];
       const renderingReference = newManager.createRetainedRef();
       mainCanvas.rendered.then(() => {
@@ -270,6 +345,10 @@ export default class PDF {
       return [obj.canvas, false, childRef];
     }
   }
+  /**
+   * Renders the text layer of the specified `pageNumber`
+   * @param pageNumber
+   */
   async renderText(pageNumber: number): Promise<TextContent> {
     const cachedPromise = this.textMap.get(pageNumber);
     if (cachedPromise !== undefined) return cachedPromise;
