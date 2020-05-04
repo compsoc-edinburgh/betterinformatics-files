@@ -19,7 +19,7 @@ import {
   UncontrolledDropdown,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
-import { useLoadAnswers, useRemoveSplit } from "../api/hooks";
+import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
 import useLoad from "../hooks/useLoad";
@@ -132,7 +132,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     isBeingMoved,
   }) => {
     const [data, setData] = useState<AnswerSection | undefined>();
-    const run = useLoadAnswers(oid, data => {
+    const run = useAnswers(oid, data => {
       setData(data);
       setCutVersion(data.cutVersion);
     });
