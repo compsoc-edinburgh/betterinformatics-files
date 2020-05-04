@@ -39,6 +39,17 @@ const DebugModal: React.FC<Props> = ({
             })
           }
         />
+        <InputField
+          type="checkbox"
+          label="Display snap regions"
+          checked={debugOptions.viewOptimalCutAreas}
+          onChange={e =>
+            setDebugOptions({
+              ...debugOptions,
+              viewOptimalCutAreas: e.currentTarget.checked,
+            })
+          }
+        />
       </ModalBody>
     </Modal>
   );

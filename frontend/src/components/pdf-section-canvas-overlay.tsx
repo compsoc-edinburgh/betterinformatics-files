@@ -1,7 +1,14 @@
 import { Badge } from "@vseth/components";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useContext,
+} from "react";
 import { determineOptimalCutPositions } from "../pdf/snap";
 import { css } from "emotion";
+import { DebugContext } from "./Debug";
 
 const wrapperStyle = css`
   width: 100%;
@@ -18,23 +25,14 @@ interface Props {
   start: number;
   end: number;
   isMain: boolean;
-  viewOptimalCutAreas?: boolean;
 
   onAddCut: (pos: number) => void;
   addCutText?: string;
   snap?: boolean;
 }
 const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
-  ({
-    canvas,
-    start,
-    end,
-    isMain,
-    onAddCut,
-    addCutText,
-    viewOptimalCutAreas = false,
-    snap = true,
-  }) => {
+  ({ canvas, start, end, isMain, onAddCut, addCutText, snap = true }) => {
+    const { viewOptimalCutAreas } = useContext(DebugContext);
     const [clientY, setClientY] = useState<number | undefined>(undefined);
     const ref = useRef<HTMLDivElement>(null);
     const pointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -83,17 +81,31 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
         onPointerUp={onAdd}
       >
         {viewOptimalCutAreas &&
-          optimalCutAreas.map(({ start, end }) => (
-            <div
-              key={`${start}-${end}`}
-              style={{
-                position: "absolute",
-                width: "100%",
-                top: `${start * 100}%`,
-                height: `${(end - start) * 100}%`,
-                backgroundColor: "rgba(0,0,0,0.2)",
-              }}
-            />
+          optimalCutAreas.map(({ start, end, snapPoints }) => (
+            <React.Fragment key={`${start}-${end}`}>
+              <div
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  top: `${start * 100}%`,
+                  height: `${(end - start) * 100}%`,
+                  backgroundColor: "rgba(0,0,0,0.2)",
+                }}
+              />
+              {snapPoints.map(position => (
+                <div
+                  key={position}
+                  style={{
+                    width: "100%",
+                    height: "1px",
+                    backgroundColor: "var(--info)",
+                    top: `${position * 100}%`,
+                    position: "absolute",
+                    margin: 0,
+                  }}
+                />
+              ))}
+            </React.Fragment>
           ))}
         {displayPos !== undefined && (
           <div
