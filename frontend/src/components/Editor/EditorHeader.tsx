@@ -10,7 +10,7 @@ const iconButtonStyle = css`
   border: none;
   cursor: pointer;
   background-color: transparent;
-  padding: 0 14px;
+  padding: 0 0.875rem;
   height: 100%;
   color: rgba(0, 0, 0, 0.8);
   transition: color 0.1s;
