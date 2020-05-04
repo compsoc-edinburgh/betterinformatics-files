@@ -36,7 +36,7 @@ interface MainCanvas {
  * is the responsibility of the caller.
  */
 export default class PDF {
-  private document: PDFDocumentProxy;
+  document: PDFDocumentProxy;
   private pageMap: Map<number, PDFPromise<PDFPageProxy>> = new Map();
   // SVGs aren't mentioned in pdf-js types :(
   // tslint:disable-next-line: no-any
@@ -54,7 +54,7 @@ export default class PDF {
   constructor(document: PDFDocumentProxy) {
     this.document = document;
   }
-  private async getPage(pageNumber: number): Promise<PDFPageProxy> {
+  async getPage(pageNumber: number): Promise<PDFPageProxy> {
     const cachedPage = this.pageMap.get(pageNumber);
     if (cachedPage !== undefined) return cachedPage;
 
