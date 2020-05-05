@@ -12,7 +12,16 @@ import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
 import TwoButtons from "./two-buttons";
-
+import { css } from "emotion";
+const columnStyle = css`
+  column-gap: 0;
+  grid-column-gap: 0;
+  margin: 0 -0.75em;
+  padding-top: 1em;
+`;
+const cardWrapperStyle = css`
+  padding: 0 0.75em;
+`;
 interface ModalProps {
   isOpen: boolean;
   toggle: () => void;
@@ -67,17 +76,10 @@ const ImageModal: React.FC<ModalProps> = ({
           }
         />
 
-        <CardColumns
-          style={{
-            columnGap: 0,
-            gridColumnGap: 0,
-            margin: "0 -12px",
-            paddingTop: "1em",
-          }}
-        >
+        <CardColumns className={columnStyle}>
           {images &&
             images.map(image => (
-              <div key={image} style={{ padding: "0 12px" }}>
+              <div key={image} className={cardWrapperStyle}>
                 <Card
                   className="p-2"
                   color={selected.has(image) ? "primary" : undefined}
