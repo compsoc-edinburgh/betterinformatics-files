@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = os.environ.get('RUNTIME_POSTGRES_DB_USER', 'docker') == 'docker'
 IN_ENVIRON = 'RUNTIME_POSTGRES_DB_SERVER' in os.environ
 TESTING = sys.argv[1:2] == ['test']
-STAGING = 'DEPLOYMENT_DOMAIN' in os.environ and os.environ['DEPLOYMENT_DOMAIN'].endswith('svis.ethz.ch')
+STAGING = os.environ.get('DEPLOYMENT_DOMAIN', '').endswith('svis.ethz.ch')
 
 SECRET_KEY = 'VERY SAFE SECRET KEY' if DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET']
 API_KEY = 'API_KEY' if DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_API_KEY']
