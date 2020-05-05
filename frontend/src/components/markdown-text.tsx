@@ -6,7 +6,6 @@ import "katex/dist/katex.min.css";
 import TeX from "@matejmazur/react-katex";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { solarizedLight } from "react-syntax-highlighter/dist/styles/hljs";
-// import MathJax from 'react-mathjax2';
 
 interface Props {
   value: string;
