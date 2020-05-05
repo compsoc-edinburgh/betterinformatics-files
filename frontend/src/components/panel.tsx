@@ -2,6 +2,7 @@ import { Button, Icon, ICONS } from "@vseth/components";
 import { css, cx, keyframes } from "emotion";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
+import GlobalConsts from "../globalconsts";
 const panelStyle = css`
   position: fixed;
   bottom: 0;
@@ -9,7 +10,7 @@ const panelStyle = css`
   display: flex;
   flex-direction: row;
   padding: 3.5em 0 3.5em 0;
-  z-index: 100;
+  z-index: ${GlobalConsts.zIndex.panel};
   max-width: 500px;
   height: 100%;
   box-sizing: border-box;

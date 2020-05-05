@@ -1,10 +1,11 @@
 import { Spinner } from "@vseth/components";
 import { css } from "emotion";
 import React from "react";
+import GlobalConsts from "../globalconsts";
 
 const style = css`
   background-color: rgba(0, 0, 0, 0.1);
-  z-index: 42;
+  z-index: ${GlobalConsts.zIndex.imageOverlay};
   transition: background-color 1s;
 `;
 const inactiveStyle = css`
@@ -15,7 +16,7 @@ const inactiveStyle = css`
   height: 0;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0);
-  z-index: 42;
+  z-index: ${GlobalConsts.zIndex.imageOverlay};
   transition: background-color 1s;
 `;
 const LoadingOverlay: React.FC<{ loading: boolean }> = ({ loading }) => {
