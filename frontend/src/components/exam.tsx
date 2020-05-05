@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   ExamMetaData,
   Section,
@@ -80,6 +80,24 @@ const Exam: React.FC<Props> = React.memo(
     displayHiddenAnswerSections = false,
     displayHideShowButtons = true,
   }) => {
+    const getAddCutHandler = useCallback(
+      (section: PdfSection) => {
+        return (height: number) => {
+          if (editState.mode === EditMode.Add) {
+            onAddCut(metaData.filename, section.start.page, height);
+          } else if (editState.mode === EditMode.Move) {
+            onMoveCut(
+              metaData.filename,
+              editState.cut,
+              section.start.page,
+              height,
+            );
+          }
+        };
+      },
+      [editState, metaData.filename, onAddCut, onMoveCut],
+    );
+
     const [visible, show, hide] = useSet<string>();
     const [cutVersions, setCutVersions] = useState<CutVersions>({});
     useRequest(() => loadCutVersions(metaData.filename), {
@@ -133,26 +151,12 @@ const Exam: React.FC<Props> = React.memo(
       sections,
       section => {
         if (section.kind === SectionKind.Pdf) {
-          return [
-            section.key,
-            (height: number) => {
-              if (editState.mode === EditMode.Add) {
-                onAddCut(metaData.filename, section.start.page, height);
-              } else if (editState.mode === EditMode.Move) {
-                onMoveCut(
-                  metaData.filename,
-                  editState.cut,
-                  section.start.page,
-                  height,
-                );
-              }
-            },
-          ] as const;
+          return [section.key, getAddCutHandler(section)];
         } else {
           return undefined;
         }
       },
-      [sections, metaData.filename, editState, onAddCut, onMoveCut],
+      [sections, getAddCutHandler],
     );
     return (
       <>
