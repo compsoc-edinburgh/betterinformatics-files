@@ -2,6 +2,7 @@ import * as React from "react";
 import { css } from "emotion";
 import { useState } from "react";
 import useTitle from "../hooks/useTitle";
+import GlobalConsts from "../globalconsts";
 interface SectionProps {
   backgroundColor?: string;
   background?: string;
@@ -52,7 +53,7 @@ const slideshowStyle = css`
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 420000;
+  z-index: ${GlobalConsts.zIndex.tutorialSlideShow};
   background: white;
 `;
 const leftPanelStyle = css`
@@ -61,7 +62,7 @@ const leftPanelStyle = css`
   top: 0;
   bottom: 0;
   width: 50%;
-  z-index: 4200042;
+  z-index: ${GlobalConsts.zIndex.tutorialSlideShowOverlayArea};
 `;
 const rightPanelStyle = css`
   position: absolute;
@@ -69,7 +70,7 @@ const rightPanelStyle = css`
   top: 0;
   bottom: 0;
   width: 50%;
-  z-index: 4300043;
+  z-index: ${GlobalConsts.zIndex.tutorialSlideShowOverlayArea};
 `;
 interface SlideshowProps {
   children: React.ReactElement<typeof Section>[];
