@@ -12,11 +12,9 @@ import useDpr from "../hooks/useDpr";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
 
-const styles = {
-  lastSection: css`
-    margin-bottom: 40px;
-  `,
-};
+const lastSection = css`
+  margin-bottom: 2rem;
+`;
 
 const usePdf = (
   shouldRender: boolean,
@@ -201,7 +199,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     }
 
     return (
-      <Card className={end === 1 ? styles.lastSection : undefined}>
+      <Card className={end === 1 ? lastSection : undefined}>
         <div ref={inViewportRef}>
           <div
             style={{
