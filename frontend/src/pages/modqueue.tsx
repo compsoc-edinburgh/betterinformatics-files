@@ -73,7 +73,7 @@ const ModQueue: React.FC = () => {
       {paymentExams && paymentExams.length > 0 && (
         <div>
           <h2>Transcripts</h2>
-          <div style={{ position: "relative" }}>
+          <div className="position-relative">
             <LoadingOverlay loading={payLoading} />
             <Table>
               <thead>
@@ -106,7 +106,7 @@ const ModQueue: React.FC = () => {
       )}
       <h2>Import Queue</h2>
       {error && <div>{error}</div>}
-      <div className="position.relative">
+      <div className="position-relative">
         <LoadingOverlay loading={examsLoading} />
         <Table>
           <thead>
