@@ -27,7 +27,7 @@ import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import Flex from "./flex";
 import IconButton from "./icon-button";
-import ThreeButtons from "./three-buttons";
+import ThreeButtons from "./three-columns";
 import TwoButtons from "./two-buttons";
 
 const NameCard = styled(Card)`

@@ -1,7 +1,7 @@
 import { Col, Container, Row } from "@vseth/components";
 import React from "react";
 
-const ThreeButtons: React.FC<{
+const ThreeColumns: React.FC<{
   left?: React.ReactNode;
   center?: React.ReactNode;
   right?: React.ReactNode;
@@ -22,4 +22,4 @@ const ThreeButtons: React.FC<{
     </Container>
   );
 };
-export default ThreeButtons;
+export default ThreeColumns;
