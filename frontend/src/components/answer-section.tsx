@@ -257,7 +257,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             color={isBeingMoved ? "primary" : undefined}
           >
             <CardHeader>
-              <Flex ref={ref}>
+              <div className="d-flex" ref={ref}>
                 {data === undefined ? (
                   <ThreeButtons center={<Spinner />} />
                 ) : (
@@ -314,7 +314,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                     />
                   </>
                 )}
-              </Flex>
+              </div>
             </CardHeader>
           </AnswerSectionButtonWrapper>
         </Container>
