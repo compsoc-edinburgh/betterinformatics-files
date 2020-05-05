@@ -44,6 +44,23 @@ interface Props {
 function notUndefined<T>(value: T | undefined): value is T {
   return value !== undefined;
 }
+function compactMap<S, T>(array: T[], fn: (arg: T) => S | undefined) {
+  return array.map(fn).filter(notUndefined);
+}
+function objectFromMap<S, T, K extends string | number | symbol>(
+  array: T[],
+  fn: (arg: T) => readonly [K, S] | undefined,
+) {
+  return Object.fromEntries(compactMap(array, fn)) as Record<K, S>;
+}
+function useObjectFromMap<S, T, K extends string | number | symbol>(
+  array: T[],
+  fn: (arg: T) => readonly [K, S] | undefined,
+  deps: any[],
+) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => objectFromMap(array, fn), [array, fn, ...deps]);
+}
 
 const Exam: React.FC<Props> = React.memo(
   ({
@@ -98,51 +115,44 @@ const Exam: React.FC<Props> = React.memo(
         cancelled = true;
       };
     }, [hash, show, sections]);
-    const onChangeListeners = useMemo(
-      () =>
-        Object.fromEntries(
-          sections
-            .map(section =>
-              section.kind === SectionKind.Pdf
-                ? ([
-                    section.key,
-                    (v: boolean) => visibleChangeListener(section, v),
-                  ] as const)
-                : undefined,
-            )
-            .filter(notUndefined),
-        ),
+    const onChangeListeners = useObjectFromMap(
+      sections,
+      section => {
+        if (section.kind === SectionKind.Pdf) {
+          return [
+            section.key,
+            (v: boolean) => visibleChangeListener(section, v),
+          ];
+        } else {
+          return undefined;
+        }
+      },
       [sections, visibleChangeListener],
     );
-    const addCutHandlers = useMemo(
-      () =>
-        Object.fromEntries(
-          sections
-            .map(section =>
-              section.kind === SectionKind.Pdf
-                ? ([
-                    section.key,
-                    (height: number) =>
-                      editState.mode === EditMode.Add
-                        ? onAddCut(
-                            metaData.filename,
-                            section.start.page,
-                            height,
-                          )
-                        : editState.mode === EditMode.Move
-                        ? onMoveCut(
-                            metaData.filename,
-                            editState.cut,
-                            section.start.page,
-                            height,
-                          )
-                        : undefined,
-                  ] as const)
-                : undefined,
-            )
-            .filter(notUndefined),
-        ),
-      [sections, metaData, editState, onAddCut, onMoveCut],
+    const addCutHandlers = useObjectFromMap(
+      sections,
+      section => {
+        if (section.kind === SectionKind.Pdf) {
+          return [
+            section.key,
+            (height: number) => {
+              if (editState.mode === EditMode.Add) {
+                onAddCut(metaData.filename, section.start.page, height);
+              } else if (editState.mode === EditMode.Move) {
+                onMoveCut(
+                  metaData.filename,
+                  editState.cut,
+                  section.start.page,
+                  height,
+                );
+              }
+            },
+          ] as const;
+        } else {
+          return undefined;
+        }
+      },
+      [sections, metaData.filename, editState, onAddCut, onMoveCut],
     );
     return (
       <>
