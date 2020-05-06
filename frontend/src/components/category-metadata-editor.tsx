@@ -19,7 +19,6 @@ import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import ButtonWrapperCard from "./button-wrapper-card";
 import IconButton from "./icon-button";
 import OfferedInEditor from "./offered-in-editor";
-import TwoButtons from "./two-buttons";
 import UserSetEditor from "./user-set-editor";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
@@ -322,18 +321,8 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         setUsers={e => setFormValue("experts", e)}
       />
       <ButtonWrapperCard>
-        <TwoButtons
-          left={
-            <IconButton
-              icon="SAVE"
-              color="primary"
-              loading={loading}
-              onClick={onSubmit}
-            >
-              Save
-            </IconButton>
-          }
-          right={
+        <Row className="flex-between">
+          <Col xs="auto">
             <IconButton
               icon="CLOSE"
               onClick={() => {
@@ -343,8 +332,18 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             >
               Cancel
             </IconButton>
-          }
-        />
+          </Col>
+          <Col xs="auto">
+            <IconButton
+              icon="SAVE"
+              color="primary"
+              loading={loading}
+              onClick={onSubmit}
+            >
+              Save
+            </IconButton>
+          </Col>
+        </Row>
       </ButtonWrapperCard>
     </>
   );

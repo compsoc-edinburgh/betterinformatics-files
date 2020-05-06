@@ -4,6 +4,8 @@ import {
   ICONS,
   ListGroupItem,
   Spinner,
+  Row,
+  Col,
 } from "@vseth/components";
 import React, { useState } from "react";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
@@ -17,7 +19,6 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
-import TwoButtons from "./two-buttons";
 
 interface Props {
   answer: Answer;
@@ -113,8 +114,8 @@ const CommentComponent: React.FC<Props> = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-          <TwoButtons
-            left={
+          <Row className="flex-between">
+            <Col xs="auto">
               <IconButton
                 className="m-1"
                 size="sm"
@@ -125,8 +126,8 @@ const CommentComponent: React.FC<Props> = ({
               >
                 {loading ? <Spinner /> : "Save"}
               </IconButton>
-            }
-            right={
+            </Col>
+            <Col xs="auto">
               <IconButton
                 className="m-1"
                 size="sm"
@@ -135,8 +136,8 @@ const CommentComponent: React.FC<Props> = ({
               >
                 {comment === undefined ? "Delete Draft" : "Cancel"}
               </IconButton>
-            }
-          />
+            </Col>
+          </Row>
         </>
       ) : (
         <MarkdownText value={comment.text} />

@@ -4,6 +4,8 @@ import {
   CardFooter,
   Container,
   Input,
+  Row,
+  Col,
 } from "@vseth/components";
 import * as React from "react";
 import { useState } from "react";
@@ -14,7 +16,6 @@ import { UndoStack } from "../components/Editor/utils/undo-stack";
 import FAQEntryComponent from "../components/faq-entry";
 import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
-import TwoButtons from "../components/two-buttons";
 import useTitle from "../hooks/useTitle";
 import { css } from "emotion";
 const newButtonStyle = css`
@@ -88,8 +89,8 @@ export const FAQC: React.FC = () => {
             />
           </CardBody>
           <CardFooter>
-            <TwoButtons
-              left={
+            <Row className="flex-between">
+              <Col xs="auto">
                 <IconButton
                   color="primary"
                   size="sm"
@@ -98,13 +99,13 @@ export const FAQC: React.FC = () => {
                 >
                   Save
                 </IconButton>
-              }
-              right={
+              </Col>
+              <Col xs="auto">
                 <IconButton size="sm" icon="CLOSE" onClick={handleDeleteDraft}>
                   Delete Draft
                 </IconButton>
-              }
-            />
+              </Col>
+            </Row>
           </CardFooter>
         </Card>
       ) : (

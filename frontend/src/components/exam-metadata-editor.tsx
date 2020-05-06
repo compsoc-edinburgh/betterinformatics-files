@@ -21,7 +21,6 @@ import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import ButtonWrapperCard from "./button-wrapper-card";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
-import TwoButtons from "./two-buttons";
 import useForm from "../hooks/useForm";
 const stringKeys = [
   "displayname",
@@ -395,8 +394,13 @@ const ExamMetadataEditor: React.FC<Props> = ({
         setAttachments={a => setFormValue("attachments", a)}
       />
       <ButtonWrapperCard>
-        <TwoButtons
-          left={
+        <Row className="flex-between">
+          <Col xs="auto">
+            <IconButton icon="CLOSE" onClick={toggle}>
+              Cancel
+            </IconButton>
+          </Col>
+          <Col xs="auto">
             <IconButton
               icon="SAVE"
               color="primary"
@@ -405,13 +409,8 @@ const ExamMetadataEditor: React.FC<Props> = ({
             >
               Save
             </IconButton>
-          }
-          right={
-            <IconButton icon="CLOSE" onClick={toggle}>
-              Cancel
-            </IconButton>
-          }
-        />
+          </Col>
+        </Row>
       </ButtonWrapperCard>
     </>
   );

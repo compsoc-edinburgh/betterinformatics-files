@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Card, CardHeader, Table } from "@vseth/components";
+import { Badge, Card, CardHeader, Table, Row, Col } from "@vseth/components";
 import { css } from "emotion";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -9,7 +9,6 @@ import useConfirm from "../hooks/useConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
-import TwoButtons from "./two-buttons";
 
 const removeExam = async (filename: string) => {
   await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
@@ -117,24 +116,24 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                     />
                   </td>
                   <td>
-                    <h6>
-                      <TwoButtons
-                        left={
-                          exam.canView ? (
+                    <Row>
+                      <Col>
+                        <h6>
+                          {exam.canView ? (
                             <Link to={`/exams/${exam.filename}`}>
                               {exam.displayname}
                             </Link>
                           ) : (
                             exam.displayname
-                          )
-                        }
-                        right={
-                          catAdmin && (
-                            <ClaimButton exam={exam} reloadExams={reload} />
-                          )
-                        }
-                      />
-                    </h6>
+                          )}
+                        </h6>
+                      </Col>
+                      <Col xs="auto">
+                        {catAdmin && (
+                          <ClaimButton exam={exam} reloadExams={reload} />
+                        )}
+                      </Col>
+                    </Row>
                     {user.isAdmin && (
                       <IconButton
                         close

@@ -6,12 +6,13 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
+  Row,
+  Col,
 } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
-import TwoButtons from "./two-buttons";
 import { css } from "emotion";
 const columnStyle = css`
   column-gap: 0;
@@ -45,36 +46,33 @@ const ImageModal: React.FC<ModalProps> = ({
     <Modal size="lg" isOpen={isOpen} toggle={toggle}>
       <ModalHeader>Images</ModalHeader>
       <ModalBody>
-        <TwoButtons
-          fill="left"
-          left={<FileInput value={file} onChange={setFile} accept="image/*" />}
-          right={
+        <Row>
+          <Col>
+            <FileInput value={file} onChange={setFile} accept="image/*" />
+          </Col>
+          <Col xs="auto">
             <Button
               onClick={() => file && add(file) && setFile(undefined)}
               disabled={file === undefined}
             >
               Upload
             </Button>
-          }
-        />
+          </Col>
+        </Row>
 
-        <TwoButtons
-          right={
-            <>
-              <Button className="mt-1" onClick={reload}>
-                Reload
-              </Button>
-              <Button
-                className="mt-1"
-                color="danger"
-                disabled={selected.size === 0}
-                onClick={removeSelected}
-              >
-                Delete selected
-              </Button>
-            </>
-          }
-        />
+        <div className="text-right">
+          <Button className="mt-1" onClick={reload}>
+            Reload
+          </Button>
+          <Button
+            className="mt-1"
+            color="danger"
+            disabled={selected.size === 0}
+            onClick={removeSelected}
+          >
+            Delete selected
+          </Button>
+        </div>
 
         <CardColumns className={columnStyle}>
           {images &&

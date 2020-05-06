@@ -17,6 +17,8 @@ import {
   InputGroupButtonDropdown,
   Spinner,
   UncontrolledDropdown,
+  Col,
+  Row,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
@@ -27,7 +29,6 @@ import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-columns";
-import TwoButtons from "./two-buttons";
 
 const NameCard = styled(Card)`
   border-top-left-radius: 0;
@@ -205,19 +206,21 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   </InputGroupButtonDropdown>
                 </InputGroup>
               ) : (
-                <TwoButtons
-                  left={cutName}
-                  right={
-                    isCatAdmin && (
+                <Row>
+                  <Col className="d-flex flex-center flex-column">
+                    <h6 className="m-0">{cutName}</h6>
+                  </Col>
+                  <Col xs="auto">
+                    {isCatAdmin && (
                       <IconButton
                         tooltip="Edit PDF section name"
                         size="sm"
                         icon="EDIT"
                         onClick={() => setIsEditingName(true)}
                       />
-                    )
-                  }
-                />
+                    )}
+                  </Col>
+                </Row>
               )}
             </CardFooter>
           </NameCard>

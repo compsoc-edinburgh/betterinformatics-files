@@ -12,7 +12,6 @@ import { notLoggedIn, useSetUser } from "../auth";
 import { useLogout } from "../api/hooks";
 import { UserInfo } from "../interfaces";
 import LoadingOverlay from "./loading-overlay";
-import TwoButtons from "./two-buttons";
 
 interface UserScoreCardProps {
   username?: string;
@@ -31,16 +30,18 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   return (
     <>
       {logoutError && <Alert color="danger">{logoutError.message}</Alert>}
-      <TwoButtons
-        left={<h1>{userInfo?.displayName || username}</h1>}
-        right={
-          isMyself && (
+      <Row>
+        <Col>
+          <h1>{userInfo?.displayName || username}</h1>
+        </Col>
+        <Col xs="auto">
+          {isMyself && (
             <Button disabled={logoutLoading} onClick={logout}>
               Logout
             </Button>
-          )
-        }
-      />
+          )}
+        </Col>
+      </Row>
 
       <Container fluid>
         <Row>

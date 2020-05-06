@@ -1,4 +1,4 @@
-import { ButtonGroup, Card, CardBody, Input } from "@vseth/components";
+import { ButtonGroup, Card, CardBody, Input, Col } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
 import { useUser } from "../auth";
@@ -8,7 +8,6 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
-import TwoButtons from "./two-buttons";
 interface Props {
   isAdmin?: boolean;
   entry: FAQEntry;
@@ -80,52 +79,50 @@ const FAQEntryComponent: React.FC<Props> = ({
           <MarkdownText value={entry.answer} />
         )}
         {isAdmin && (
-          <div className="my-2">
-            <TwoButtons
-              left={
-                editing && (
-                  <IconButton
-                    color="primary"
-                    size="sm"
-                    icon="SAVE"
-                    onClick={save}
-                  >
-                    Save
+          <div className="my-2 d-flex flex-between">
+            <Col xs="auto">
+              {editing && (
+                <IconButton
+                  color="primary"
+                  size="sm"
+                  icon="SAVE"
+                  onClick={save}
+                >
+                  Save
+                </IconButton>
+              )}
+            </Col>
+            <Col xs="auto">
+              <ButtonGroup size="sm">
+                <IconButton
+                  tooltip="Move up"
+                  icon="ARROW_UP"
+                  disabled={prevEntry === undefined}
+                  onClick={() => prevEntry && onSwap(entry, prevEntry)}
+                />
+                <IconButton
+                  tooltip="Move down"
+                  icon="ARROW_DOWN"
+                  disabled={nextEntry === undefined}
+                  onClick={() => nextEntry && onSwap(entry, nextEntry)}
+                />
+                <IconButton
+                  tooltip="Delete FAQ entry"
+                  icon="DELETE"
+                  onClick={() =>
+                    confirm(
+                      "Are you sure that you want to remove this?",
+                      onRemove,
+                    )
+                  }
+                />
+                {editing && (
+                  <IconButton icon="CLOSE" onClick={cancel}>
+                    Cancel
                   </IconButton>
-                )
-              }
-              right={
-                <ButtonGroup size="sm">
-                  <IconButton
-                    tooltip="Move up"
-                    icon="ARROW_UP"
-                    disabled={prevEntry === undefined}
-                    onClick={() => prevEntry && onSwap(entry, prevEntry)}
-                  />
-                  <IconButton
-                    tooltip="Move down"
-                    icon="ARROW_DOWN"
-                    disabled={nextEntry === undefined}
-                    onClick={() => nextEntry && onSwap(entry, nextEntry)}
-                  />
-                  <IconButton
-                    tooltip="Delete FAQ entry"
-                    icon="DELETE"
-                    onClick={() =>
-                      confirm(
-                        "Are you sure that you want to remove this?",
-                        onRemove,
-                      )
-                    }
-                  />
-                  {editing && (
-                    <IconButton icon="CLOSE" onClick={cancel}>
-                      Cancel
-                    </IconButton>
-                  )}
-                </ButtonGroup>
-              }
-            />
+                )}
+              </ButtonGroup>
+            </Col>
           </div>
         )}
       </CardBody>

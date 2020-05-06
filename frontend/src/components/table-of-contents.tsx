@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
-import { Card, CardHeader, CardBody, Button } from "@vseth/components";
-import TwoButtons from "./two-buttons";
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Button,
+  Row,
+  Col,
+} from "@vseth/components";
 
 export class TOCNode {
   name: string;
@@ -58,10 +64,14 @@ export const TOC: React.FC<Props> = ({ toc }) => {
   return visible ? (
     <Card className="m-1">
       <CardHeader>
-        <TwoButtons
-          left="Contents"
-          right={<Button onClick={() => setVisible(false)}>Hide</Button>}
-        />
+        <Row className="flex-between">
+          <Col xs="auto" className="d-flex flex-center flex-column">
+            <h6 className="m-0">Contents</h6>
+          </Col>
+          <Col xs="auto">
+            <Button onClick={() => setVisible(false)}>Hide</Button>
+          </Col>
+        </Row>
       </CardHeader>
       <CardBody>
         <ul>
@@ -74,10 +84,14 @@ export const TOC: React.FC<Props> = ({ toc }) => {
   ) : (
     <Card className="m-1">
       <CardHeader>
-        <TwoButtons
-          left="Contents"
-          right={<Button onClick={() => setVisible(true)}>Show</Button>}
-        />
+        <Row className="flex-between">
+          <Col xs="auto" className="d-flex flex-center flex-column">
+            <h6 className="m-0">Contents</h6>
+          </Col>
+          <Col xs="auto">
+            <Button onClick={() => setVisible(true)}>Show</Button>
+          </Col>
+        </Row>
       </CardHeader>
     </Card>
   );

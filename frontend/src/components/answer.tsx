@@ -11,6 +11,8 @@ import {
   DropdownToggle,
   Icon,
   ICONS,
+  Row,
+  Col,
 } from "@vseth/components";
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
@@ -33,7 +35,6 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
-import TwoButtons from "./two-buttons";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;
@@ -113,14 +114,14 @@ const AnswerComponent: React.FC<Props> = ({
       {modals}
       <AnswerWrapper id={answer?.longId}>
         <CardHeader>
-          <TwoButtons
-            left={
+          <Row className="flex-between">
+            <Col xs="auto">
               <AuthorWrapper>
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
               </AuthorWrapper>
-            }
-            right={
+            </Col>
+            <Col xs="auto">
               <AnswerToolbar>
                 {answer && (answer.expertvotes > 0 || setExpertVoteLoading) && (
                   <ButtonGroup className="m-1" size="sm">
@@ -192,8 +193,8 @@ const AnswerComponent: React.FC<Props> = ({
                   />
                 )}
               </AnswerToolbar>
-            }
-          />
+            </Col>
+          </Row>
         </CardHeader>
         <CardBody className={canRemove ? bodyCanEditStyle : ""}>
           <div className="position-absolute position-top-right">
@@ -232,25 +233,23 @@ const AnswerComponent: React.FC<Props> = ({
           ) : (
             <MarkdownText value={answer?.text ?? ""} />
           )}
-          <TwoButtons
-            left={
-              <>
-                {(answer === undefined || editing) && (
-                  <IconButton
-                    className="m-1"
-                    color="primary"
-                    size="sm"
-                    onClick={save}
-                    loading={updating}
-                    icon="SAVE"
-                  >
-                    Save
-                  </IconButton>
-                )}
-              </>
-            }
-            right={
-              onSectionChanged && (
+          <Row className="flex-between">
+            <Col xs="auto">
+              {(answer === undefined || editing) && (
+                <IconButton
+                  className="m-1"
+                  color="primary"
+                  size="sm"
+                  onClick={save}
+                  loading={updating}
+                  icon="SAVE"
+                >
+                  Save
+                </IconButton>
+              )}
+            </Col>
+            <Col xs="auto">
+              {onSectionChanged && (
                 <>
                   <ButtonGroup className="m-1">
                     {(answer === undefined || editing) && (
@@ -302,9 +301,10 @@ const AnswerComponent: React.FC<Props> = ({
                     )}
                   </ButtonGroup>
                 </>
-              )
-            }
-          />
+              )}
+            </Col>
+          </Row>
+
           {answer &&
             onSectionChanged &&
             (hasCommentDraft || answer.comments.length > 0) && (

@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Alert, FormGroup, Spinner, Col } from "@vseth/components";
+import { Alert, FormGroup, Spinner, Col, Row } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
@@ -11,7 +11,6 @@ import {
 } from "../utils/category-utils";
 import ExamTypeCard from "./exam-type-card";
 import IconButton from "./icon-button";
-import TwoButtons from "./two-buttons";
 import useSet from "../hooks/useSet";
 
 interface ExamListProps {
@@ -40,10 +39,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <Col lg={6}>
-      <TwoButtons
-        fill="right"
-        left={
-          <FormGroup className="m-1">
+      <Row form className="my-2">
+        <Col xs="auto">
+          <FormGroup className="m-0">
             <IconButton
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(selected)}
@@ -53,9 +51,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               Download selected exams
             </IconButton>
           </FormGroup>
-        }
-        right={
-          <FormGroup className="m-1">
+        </Col>
+        <Col>
+          <FormGroup className="m-0">
             <div className="search mb-0">
               <input
                 type="text"
@@ -69,8 +67,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               </div>
             </div>
           </FormGroup>
-        }
-      />
+        </Col>
+      </Row>
       {error && <Alert color="danger">{error}</Alert>}
       {loading && <Spinner />}
       {examTypeMap &&
