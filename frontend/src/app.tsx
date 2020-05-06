@@ -9,19 +9,19 @@ import DebugModal from "./components/Debug/DebugModal";
 import ExamsNavbar from "./components/exams-navbar";
 import HashLocationHandler from "./components/hash-location-handler";
 import useToggle from "./hooks/useToggle";
-import CategoryPage from "./pages/category";
-import ExamPage from "./pages/exam";
-import FAQ from "./pages/faq";
-import FeedbackPage from "./pages/feedback";
-import HomePage from "./pages/home";
-import LoginPage from "./pages/login";
-import ModQueue from "./pages/modqueue";
-import NotFoundPage from "./pages/not-found";
-import Scoreboard from "./pages/scoreboard";
-import UploadTranscriptPage from "./pages/submittranscript";
-import TutorialPage from "./pages/tutorial";
-import UploadPdfPage from "./pages/uploadpdf";
-import UserPage from "./pages/userinfo";
+import CategoryPage from "./pages/category-page";
+import ExamPage from "./pages/exam-page";
+import FAQ from "./pages/faq-page";
+import FeedbackPage from "./pages/feedback-page";
+import HomePage from "./pages/home-page";
+import LoginPage from "./pages/login-page";
+import ModQueue from "./pages/modqueue-page";
+import NotFoundPage from "./pages/not-found-page";
+import Scoreboard from "./pages/scoreboard-page";
+import UploadTranscriptPage from "./pages/submittranscript-page";
+import TutorialPage from "./pages/tutorial-page";
+import UploadPdfPage from "./pages/uploadpdf-page";
+import UserPage from "./pages/userinfo-page";
 
 const App: React.FC<{}> = () => {
   useEffect(() => {
