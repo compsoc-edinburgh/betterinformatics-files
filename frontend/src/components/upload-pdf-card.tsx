@@ -63,8 +63,14 @@ const UploadPdfCard: React.FC<{}> = () => {
       <CardBody>
         <Form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
-          <label className="form-input-label">File</label>
-          <FileInput value={file} onChange={setFile} accept="application/pdf" />
+          <FormGroup>
+            <label className="form-input-label">File</label>
+            <FileInput
+              value={file}
+              onChange={setFile}
+              accept="application/pdf"
+            />
+          </FormGroup>
           <InputField
             label="Name"
             type="text"
