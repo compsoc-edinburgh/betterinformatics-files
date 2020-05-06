@@ -233,22 +233,19 @@ export const loadPaymentCategories = async () => {
     .value as CategoryMetaData[];
 };
 const loadAnswers = async (oid: string) => {
-  return (await fetchGet(`/api/exam/answersection/${oid}/`))
+  const section = (await fetchGet(`/api/exam/answersection/${oid}/`))
     .value as AnswerSection;
+  const getScore = (answer: Answer) => answer.expertvotes * 10 + answer.upvotes;
+  section.answers.sort((a, b) => getScore(b) - getScore(a));
+  return section;
 };
-const value = (answer: Answer) => answer.expertvotes * 10 + answer.upvotes;
-const sortAnswers = (answer: Answer[]) =>
-  answer.sort((a, b) => value(b) - value(a));
 export const useAnswers = (
   oid: string,
   onSuccess: (data: AnswerSection) => void,
 ) => {
   const { run } = useRequest(() => loadAnswers(oid), {
     manual: true,
-    onSuccess(section) {
-      section.answers = sortAnswers(section.answers);
-      onSuccess(section);
-    },
+    onSuccess,
   });
   return run;
 };
