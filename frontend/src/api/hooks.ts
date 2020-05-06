@@ -236,13 +236,19 @@ const loadAnswers = async (oid: string) => {
   return (await fetchGet(`/api/exam/answersection/${oid}/`))
     .value as AnswerSection;
 };
+const value = (answer: Answer) => answer.expertvotes * 10 + answer.upvotes;
+const sortAnswers = (answer: Answer[]) =>
+  answer.sort((a, b) => value(b) - value(a));
 export const useAnswers = (
   oid: string,
   onSuccess: (data: AnswerSection) => void,
 ) => {
   const { run } = useRequest(() => loadAnswers(oid), {
     manual: true,
-    onSuccess,
+    onSuccess(section) {
+      section.answers = sortAnswers(section.answers);
+      onSuccess(section);
+    },
   });
   return run;
 };
