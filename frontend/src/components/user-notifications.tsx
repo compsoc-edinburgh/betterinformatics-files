@@ -75,7 +75,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           checked={enabled ? enabled.has(3) : false}
           disabled={checkboxLoading}
           onChange={e => setEnabled(3, e.currentTarget.checked)}
-        />{" "}
+        />
         <Label for="otherAnswerToSameQuestion" check>
           Other answer to same question
         </Label>
