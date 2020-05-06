@@ -115,7 +115,7 @@ const AnswerComponent: React.FC<Props> = ({
       <AnswerWrapper id={answer?.longId}>
         <CardHeader>
           <Row className="flex-between">
-            <Col xs="auto">
+            <Col xs="auto" className="d-flex flex-center flex-column">
               <AuthorWrapper>
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
@@ -196,7 +196,7 @@ const AnswerComponent: React.FC<Props> = ({
             </Col>
           </Row>
         </CardHeader>
-        <CardBody className={canRemove ? bodyCanEditStyle : ""}>
+        <CardBody className={canRemove ? "pt-4 position-relative" : ""}>
           <div className="position-absolute position-top-right">
             <ButtonGroup>
               {!editing && canEdit && (
@@ -231,7 +231,9 @@ const AnswerComponent: React.FC<Props> = ({
               setUndoStack={setUndoStack}
             />
           ) : (
-            <MarkdownText value={answer?.text ?? ""} />
+            <div className="py-3">
+              <MarkdownText value={answer?.text ?? ""} />
+            </div>
           )}
           <Row className="flex-between">
             <Col xs="auto">

@@ -233,7 +233,10 @@ export default class PDF {
    * can either return a main canvas or just the specified section. If a main
    * canvas is returned you are responsible for aligning it correctly. It assumes
    * that scaling a canvas down doesn't reduce the quality. You are also responsible
-   * for releasing the retained reference that gets returned.
+   * for releasing the retained reference that gets returned. There is no guarantee
+   * the size of the the canvas that the promise resolves to. It's aspect ratio will
+   * match the aspect ration of the pdf page if the canvas is a main canvas. Otherwise
+   * the aspect ratio will match the aspect ratio of the section.
    * @param pageNumber
    * @param scale Minimum scale
    * @param start Relative y-start on page
@@ -255,6 +258,8 @@ export default class PDF {
     if (mainCanvasSet) {
       for (const existingMainCanvas of mainCanvasSet) {
         if (
+          // We allow slightly main canvas with a slightly smaller size. This
+          // might not be the best way to
           existingMainCanvas.scale + 0.001 >= scale &&
           // It might be possible that there is a main canvas that is suitable
           // and currently has no use. Prefer to use that one instead.

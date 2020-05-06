@@ -117,7 +117,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
   return (
     <Container>
       <h2>Feedback</h2>
-      <Nav tabs>
+      <Nav tabs className="my-3">
         <NavItem>
           <NavLink
             className={mode === AdminMode.Read ? "active" : ""}

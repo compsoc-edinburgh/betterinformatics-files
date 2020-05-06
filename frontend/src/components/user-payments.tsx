@@ -124,9 +124,9 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
       {isAdmin &&
         payments &&
         payments.filter(payment => payment.active).length === 0 && (
-          <Container fluid>
-            <Button onClick={() => add(username)}>Add Payment</Button>
-          </Container>
+          <Button className="my-3" onClick={() => add(username)}>
+            Add Payment
+          </Button>
         )}
     </>
   );

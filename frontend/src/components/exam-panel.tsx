@@ -127,7 +127,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         </p>
       </ModalHeader>
       <ModalBody>
-        <h6>Pages</h6>
+        <h6 className="my-3 mx-2">Pages</h6>
         <Pagination className={paginationStyle}>
           {renderer &&
             intMap(1, renderer.document.numPages, pageNum => (
@@ -145,7 +145,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             ))}
         </Pagination>
 
-        <h6>Size</h6>
+        <h6 className="my-3 mx-2">Size</h6>
         <Input
           type="range"
           min="500"
@@ -153,7 +153,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           value={widthValue}
           onChange={handler}
         />
-        <h6>Actions</h6>
+        <h6 className="my-3 mx-2">Actions</h6>
         <ButtonGroup>
           <IconButton
             tooltip="Download this exam as a PDF file"
@@ -174,7 +174,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
 
         {isCatAdmin && (
           <>
-            <h6>Edit Mode</h6>
+            <h6 className="my-3 mx-2">Edit Mode</h6>
             <ButtonGroup vertical>
               <IconButton
                 tooltip="Disable editing"
@@ -222,7 +222,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 Snap
               </IconButton>
             </ButtonGroup>
-            <h6>Display Options</h6>
+            <h6 className="my-3 mx-2">Display Options</h6>
             <FormGroup check>
               <Input
                 type="checkbox"
