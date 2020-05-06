@@ -6,7 +6,10 @@ import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
 import useTitle from "../hooks/useTitle";
-
+import { css } from "emotion";
+const overflowScroll = css`
+  overflow: scroll;
+`;
 const modes = [
   "score",
   "score_answers",
@@ -34,7 +37,7 @@ const Scoreboard: React.FC<{}> = () => {
       <h1>Scoreboard</h1>
       {error && <Alert color="danger">{error.message}</Alert>}
       <LoadingOverlay loading={loading} />
-      <div style={{ overflow: "scroll" }}>
+      <div className={overflowScroll}>
         <Table>
           <thead>
             <tr>

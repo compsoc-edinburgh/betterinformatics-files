@@ -21,7 +21,7 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
   return (
     <div>
       {error && <Alert color="danger">{error.message}</Alert>}
-      <Card style={{ marginTop: "2em", marginBottom: "2em" }}>
+      <Card className="my-2">
         <CardHeader>
           <h6>
             <Link to={notification.link}>{notification.title}</Link>

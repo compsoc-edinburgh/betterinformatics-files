@@ -317,7 +317,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       </Container>
 
       <ContentContainer>
-        <div ref={sizeRef} style={{ maxWidth, margin: "1em auto" }}>
+        <div ref={sizeRef} style={{ maxWidth }} className="mx-auto my-3">
           {width && sections && renderer && (
             <Exam
               metaData={metaData}

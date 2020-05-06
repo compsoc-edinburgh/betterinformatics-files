@@ -19,7 +19,17 @@ const badgeStyle = css`
   margin: 0.15rem;
   font-size: 0.85rem !important;
 `;
-
+const firstCellStyle = css`
+  cursor: initial;
+  width: 1%;
+  white-space: nowrap;
+`;
+const overflowScroll = css`
+  overflow: scroll;
+`;
+const cursorPointer = css`
+  cursor: pointer;
+`;
 interface ExamTypeCardProps {
   examtype: string;
   exams: CategoryExam[];
@@ -69,7 +79,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
       {modals}
       <Card className="my-1">
         <CardHeader tag="h4">{examtype}</CardHeader>
-        <div style={{ overflow: "scroll" }}>
+        <div className={overflowScroll}>
           <Table>
             <thead>
               <tr>
@@ -88,16 +98,12 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
               {exams.map(exam => (
                 <tr
                   key={exam.filename}
-                  style={{ cursor: "pointer" }}
+                  className={cursorPointer}
                   onClick={() => history.push(`/exams/${exam.filename}`)}
                 >
                   <td
                     onClick={e => e.stopPropagation()}
-                    style={{
-                      cursor: "initial",
-                      width: "1%",
-                      whiteSpace: "nowrap",
-                    }}
+                    className={firstCellStyle}
                   >
                     <input
                       type="checkbox"

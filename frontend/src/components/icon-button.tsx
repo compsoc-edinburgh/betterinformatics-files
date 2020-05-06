@@ -5,6 +5,11 @@ import TooltipButton from "./TooltipButton";
 const childStyle = css`
   padding-left: 0.8em;
 `;
+const buttonStyle = css`
+  min-width: 0;
+  height: 100%;
+  display: initial;
+`;
 interface IconButtonProps extends ButtonProps {
   icon: keyof typeof ICONS;
   loading?: boolean;
@@ -24,7 +29,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       tooltip={tooltip}
       {...props}
       disabled={disabled || loading}
-      style={{ minWidth: 0, height: "100%", display: "initial" }}
+      className={buttonStyle}
       size={size}
     >
       {loading ? (
@@ -40,7 +45,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     <Button
       {...props}
       disabled={disabled || loading}
-      style={{ minWidth: 0, height: "100%", display: "initial" }}
+      className={buttonStyle}
       size={size}
     >
       {loading ? (

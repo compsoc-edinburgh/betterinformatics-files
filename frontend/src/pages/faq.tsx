@@ -16,7 +16,10 @@ import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import TwoButtons from "../components/two-buttons";
 import useTitle from "../hooks/useTitle";
-
+import { css } from "emotion";
+const newButtonStyle = css`
+  min-height: 3em;
+`;
 export const FAQC: React.FC = () => {
   useTitle("FAQ - VIS Community Solutions");
   const { faqs, add, update, swap, remove } = useFAQ();
@@ -105,7 +108,7 @@ export const FAQC: React.FC = () => {
           </CardFooter>
         </Card>
       ) : (
-        <Card className="my-2" style={{ minHeight: "3em" }}>
+        <Card className={`my-2 ${newButtonStyle}`}>
           <IconButton
             tooltip="Add new FAQ entry"
             className="position-cover"

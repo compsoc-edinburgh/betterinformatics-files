@@ -42,7 +42,7 @@ const Score: React.FC<Props> = ({
       <SmallButton
         tooltip="Reset vote"
         size="sm"
-        style={{ color: "black" }}
+        className="text-dark"
         disabled={userVote === 0}
         outline
         onClick={() => setLike(oid, 0)}

@@ -99,7 +99,7 @@ const ImageModal: React.FC<ModalProps> = ({
                     alt={image}
                   />
                   {selected.has(image) && selected.size === 1 && (
-                    <div style={{ position: "absolute", bottom: 0, right: 0 }}>
+                    <div className="position-absolute position-bottom-right">
                       <Button
                         color="primary"
                         onClick={() => closeWithImage(image)}

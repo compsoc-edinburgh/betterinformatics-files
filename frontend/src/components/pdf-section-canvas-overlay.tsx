@@ -19,6 +19,12 @@ const wrapperStyle = css`
   user-select: none;
   cursor: pointer;
 `;
+const badgeStyle = css`
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-50%);
+`;
 
 interface Props {
   canvas: HTMLCanvasElement;
@@ -84,9 +90,8 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
           optimalCutAreas.map(({ start, end, snapPoints }) => (
             <React.Fragment key={`${start}-${end}`}>
               <div
+                className="position-absolute w-100"
                 style={{
-                  position: "absolute",
-                  width: "100%",
                   top: `${start * 100}%`,
                   height: `${(end - start) * 100}%`,
                   backgroundColor: "rgba(0,0,0,0.2)",
@@ -95,13 +100,11 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
               {snapPoints.map(position => (
                 <div
                   key={position}
+                  className="position-absolute w-100 m-0"
                   style={{
-                    width: "100%",
                     height: "1px",
                     backgroundColor: "var(--info)",
                     top: `${position * 100}%`,
-                    position: "absolute",
-                    margin: 0,
                   }}
                 />
               ))}
@@ -123,11 +126,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
             <Badge
               color={snap && snapBad ? "warning" : "primary"}
               size="lg"
-              style={{
-                position: "absolute",
-                top: "0",
-                transform: "translateY(-50%)",
-              }}
+              className={badgeStyle}
             >
               {addCutText}
             </Badge>

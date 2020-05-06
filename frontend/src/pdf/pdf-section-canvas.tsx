@@ -202,12 +202,11 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       <Card className={end === 1 ? lastSection : undefined}>
         <div ref={inViewportRef}>
           <div
+            className="cover-container"
             style={{
               width: `${targetWidth}px`,
               height: `${containerHeight ||
                 targetWidth * relativeHeight * 1.414}px`,
-              position: "relative",
-              overflow: "hidden",
               filter: hidden ? "contrast(0.5)" : undefined,
             }}
             ref={containerElement}
