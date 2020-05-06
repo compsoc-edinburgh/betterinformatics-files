@@ -1,25 +1,16 @@
-import * as React from "react";
-import { useCallback, useState, useRef } from "react";
 import { css, cx } from "emotion";
-import { Range, EditorMode, ImageHandle } from "./utils/types";
+import * as React from "react";
+import { useCallback, useRef, useState } from "react";
+import ImageOverlay from "../image-overlay";
 import BasicEditor from "./BasicEditor";
-import EditorHeader from "./EditorHeader";
 import DropZone from "./Dropzone";
 import EditorFooter from "./EditorFooter";
-import ImageOverlay from "../image-overlay";
-import { UndoStack, push, undo, redo } from "./utils/undo-stack";
+import EditorHeader from "./EditorHeader";
+import { EditorMode, ImageHandle, Range } from "./utils/types";
+import { push, redo, undo, UndoStack } from "./utils/undo-stack";
 
 const editorWrapperStyle = css`
   padding: 1.2em;
-`;
-
-const wrapperStyle = css`
-  position: relative;
-  border: 1px solid transparent;
-`;
-const dragHoveredWrapperStyle = css`
-  border: 1px solid #fed330;
-  border-radius: 3px;
 `;
 interface Props {
   value: string;
@@ -42,7 +33,9 @@ const Editor: React.FC<Props> = ({
   const [isDragHovered, setIsDragHovered] = useState(false);
   const [attachments, setAttachments] = useState<ImageHandle[]>([]);
   const [overlayOpen, setOverlayOpen] = useState(false);
-
+  const textareaElRef = useRef<HTMLTextAreaElement>(
+    null,
+  ) as React.MutableRefObject<HTMLTextAreaElement>;
   const setCurrent = useCallback(
     (newValue: string, newSelection?: Range) => {
       if (newSelection) setSelectionRangeRef.current(newSelection);
@@ -70,7 +63,7 @@ const Editor: React.FC<Props> = ({
       const before = value.substring(0, selection.start);
       const content = value.substring(selection.start, selection.end);
       const after = value.substring(selection.end);
-      const newContent = "![" + content + `](${handle.src})`;
+      const newContent = `![${content}](${handle.src})`;
       const newSelection = {
         start: selection.start + 2,
         end: selection.start + content.length + 2,
@@ -86,7 +79,7 @@ const Editor: React.FC<Props> = ({
     const before = value.substring(0, selection.start);
     const content = value.substring(selection.start, selection.end);
     const after = value.substring(selection.end);
-    const newContent = "[" + content + "](https://www.example.com)";
+    const newContent = `[${content}](https://www.example.com)`;
     const newSelection = {
       start: selection.start + content.length + 3,
       end: selection.start + newContent.length - 1,
@@ -153,7 +146,7 @@ const Editor: React.FC<Props> = ({
           const selection = getSelectionRangeRef.current();
           if (selection === undefined) return true;
           const [newState, newStack] = undo(undoStack, {
-            value: value,
+            value,
             selection,
             time: new Date(),
           });
@@ -167,7 +160,7 @@ const Editor: React.FC<Props> = ({
           const selection = getSelectionRangeRef.current();
           if (selection === undefined) return true;
           const [newState, newStack] = redo(undoStack, {
-            value: value,
+            value,
             selection,
             time: new Date(),
           });
@@ -231,45 +224,47 @@ const Editor: React.FC<Props> = ({
   }, []);
 
   return (
-    <>
-      <div
-        className={cx(wrapperStyle, isDragHovered && dragHoveredWrapperStyle)}
-        onDragEnter={onDragEnter}
-      >
-        <EditorHeader
-          activeMode={mode}
-          onActiveModeChange={setMode}
-          onMathClick={onMathClick}
-          onCodeClick={onCodeClick}
-          onLinkClick={onLinkClick}
-          onItalicClick={onItalicClick}
-          onBoldClick={onBoldClick}
-        />
-        <div className={editorWrapperStyle}>
-          {mode === "write" ? (
-            <BasicEditor
-              value={value}
-              onChange={newValue => setCurrent(newValue)}
-              setSelectionRangeRef={setSelectionRangeRef}
-              getSelectionRangeRef={getSelectionRangeRef}
-              onMetaKey={onMetaKey}
-            />
-          ) : (
-            preview(value)
-          )}
-        </div>
-        <EditorFooter
-          onFiles={onFiles}
-          attachments={attachments}
-          onDelete={onDeleteAttachment}
-          onOpenOverlay={onOpenOverlay}
-        />
-        {isDragHovered && (
-          <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />
+    <div
+      className={cx("form-control", isDragHovered && "border-primary")}
+      onClick={() => textareaElRef.current && textareaElRef.current.focus()}
+      onDragEnter={onDragEnter}
+    >
+      <EditorHeader
+        activeMode={mode}
+        onActiveModeChange={setMode}
+        onMathClick={onMathClick}
+        onCodeClick={onCodeClick}
+        onLinkClick={onLinkClick}
+        onItalicClick={onItalicClick}
+        onBoldClick={onBoldClick}
+      />
+      <div className={editorWrapperStyle}>
+        {mode === "write" ? (
+          <BasicEditor
+            textareaElRef={textareaElRef}
+            value={value}
+            onChange={newValue => setCurrent(newValue)}
+            setSelectionRangeRef={setSelectionRangeRef}
+            getSelectionRangeRef={getSelectionRangeRef}
+            onMetaKey={onMetaKey}
+          />
+        ) : (
+          preview(value)
         )}
       </div>
-      {overlayOpen && <ImageOverlay onClose={onImageDialogClose} />}
-    </>
+      <EditorFooter
+        onFiles={onFiles}
+        attachments={attachments}
+        onDelete={onDeleteAttachment}
+        onOpenOverlay={onOpenOverlay}
+      />
+      {isDragHovered && <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />}
+      <ImageOverlay
+        isOpen={overlayOpen}
+        toggle={() => onImageDialogClose("")}
+        closeWithImage={onImageDialogClose}
+      />
+    </div>
   );
 };
 export default Editor;

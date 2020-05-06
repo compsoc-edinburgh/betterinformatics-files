@@ -1,338 +1,328 @@
-import * as React from "react";
-import { AnswerSection, SectionKind } from "../interfaces";
-import { loadAnswerSection } from "../exam-loader";
-import { fetchPost } from "../fetch-utils";
-import { css } from "glamor";
+import styled from "@emotion/styled";
+import {
+  Button,
+  ButtonDropdown,
+  ButtonGroup,
+  Card,
+  CardFooter,
+  CardHeader,
+  Container,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Icon,
+  ICONS,
+  Input,
+  InputGroup,
+  InputGroupButtonDropdown,
+  Spinner,
+  UncontrolledDropdown,
+  Col,
+  Row,
+} from "@vseth/components";
+import React, { useCallback, useEffect, useState } from "react";
+import { useAnswers, useRemoveSplit } from "../api/hooks";
+import { useUser } from "../auth";
+import useInitialState from "../hooks/useInitialState";
+import useLoad from "../hooks/useLoad";
+import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
-import GlobalConsts from "../globalconsts";
-import { Edit } from "react-feather";
-import { Link } from "react-router-dom";
-import moment from "moment";
+import IconButton from "./icon-button";
+import ThreeButtons from "./three-columns";
+
+const NameCard = styled(Card)`
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+`;
+
+const AnswerSectionButtonWrapper = styled(Card)`
+  margin-top: 1em;
+  margin-bottom: 1em;
+`;
+
+interface AddButtonProps {
+  allowAnswer: boolean;
+  allowLegacyAnswer: boolean;
+  hasAnswerDraft: boolean;
+  hasLegacyAnswerDraft: boolean;
+  onAnswer: () => void;
+  onLegacyAnswer: () => void;
+}
+const AddButton: React.FC<AddButtonProps> = ({
+  allowAnswer,
+  allowLegacyAnswer,
+  hasAnswerDraft,
+  hasLegacyAnswerDraft,
+  onAnswer,
+  onLegacyAnswer,
+}) => {
+  const [isOpen, setOpen] = useState(false);
+  const toggle = useCallback(() => setOpen(old => !old), []);
+  if (allowAnswer && allowLegacyAnswer) {
+    return (
+      <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+        <DropdownToggle size="sm" caret>
+          Add Answer
+        </DropdownToggle>
+        <DropdownMenu>
+          <DropdownItem onClick={onAnswer} disabled={hasAnswerDraft}>
+            Add Answer
+          </DropdownItem>
+          <DropdownItem
+            onClick={onLegacyAnswer}
+            disabled={hasLegacyAnswerDraft}
+          >
+            Add Legacy Answer
+          </DropdownItem>
+        </DropdownMenu>
+      </ButtonDropdown>
+    );
+  } else {
+    return (
+      <ButtonGroup>
+        {allowAnswer && (
+          <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
+            Add Answer
+          </Button>
+        )}
+        {allowLegacyAnswer && (
+          <Button
+            size="sm"
+            onClick={onLegacyAnswer}
+            disabled={hasLegacyAnswerDraft}
+          >
+            Add Legacy Answer
+          </Button>
+        )}
+      </ButtonGroup>
+    );
+  }
+};
 
 interface Props {
-  name: string;
-  moveEnabled: boolean;
-  isMoveTarget: boolean;
-  moveTargetChange: (wantsToBeMoved: boolean) => void;
-  isAdmin: boolean;
-  isExpert: boolean;
-  filename: string;
   oid: string;
-  width: number;
-  canDelete: boolean;
   onSectionChange: () => void;
-  onCutNameChange: (newName: string) => void;
   onToggleHidden: () => void;
   hidden: boolean;
   cutVersion: number;
+  setCutVersion: (newVersion: number) => void;
+
+  cutName: string;
+  onCutNameChange: (newName: string) => void;
+
+  onCancelMove: () => void;
+  onMove: () => void;
+  isBeingMoved: boolean;
 }
 
-interface State {
-  name: string;
-  editingName: boolean;
-  section?: AnswerSection;
-  addingAnswer: boolean;
-  addingLegacyAnswer: boolean;
-}
+const AnswerSectionComponent: React.FC<Props> = React.memo(
+  ({
+    oid,
+    onSectionChange,
+    onToggleHidden,
+    hidden,
+    cutVersion,
+    setCutVersion,
 
-const styles = {
-  wrapper: css({
-    width: "80%",
-    margin: "20px auto",
-    "@media (max-width: 699px)": {
-      width: "95%",
-    },
-  }),
-  threebuttons: css({
-    textAlign: "center",
-    display: "flex",
-    justifyContent: "space-between",
-    "& > div": {
-      width: ["200px", "calc(100% / 3)"],
-    },
-  }),
-  leftButton: css({
-    textAlign: "left",
-  }),
-  rightButton: css({
-    textAlign: "right",
-  }),
-  answerWrapper: css({
-    marginBottom: "10px",
-  }),
-  divideLine: css({
-    width: "100%",
-    height: "1px",
-    margin: "0",
-    backgroundColor: "black",
-    position: "relative",
-    bottom: "20px",
-    zIndex: "-100",
-    "@media (max-width: 699px)": {
-      display: "none",
-    },
-  }),
-  namePart: css({
-    display: "inline-block",
-    backgroundColor: "#dadada",
-    padding: "0.25rem",
-    margin: "0.2rem",
-    borderRadius: "3px",
-  }),
-};
+    cutName,
+    onCutNameChange,
 
-export default class AnswerSectionComponent extends React.Component<
-  Props,
-  State
-> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      name: this.props.name,
-      editingName: false,
-      addingAnswer: false,
-      addingLegacyAnswer: false,
-    };
-  }
-
-  componentDidMount() {
-    loadAnswerSection(this.props.oid)
-      .then(res => {
-        this.setState({ section: res });
-        const hash = window.location.hash.substr(1);
-        const hashAnswer = res.answers.find(answer => answer.longId === hash);
-        if (hashAnswer) {
-          this.props.onToggleHidden();
-          if (hashAnswer.divRef) {
-            hashAnswer.divRef.scrollIntoView();
-          }
-        }
-      })
-      .catch(() => undefined);
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>) {
-    if (prevProps.cutVersion !== this.props.cutVersion) {
-      loadAnswerSection(this.props.oid)
-        .then(res => {
-          this.setState({ section: res });
-        })
-        .catch(() => undefined);
-    }
-  }
-
-  removeSection = async () => {
-    // eslint-disable-next-line no-restricted-globals
-    const confirmation = confirm("Remove answer section with all answers?");
-    if (confirmation) {
-      fetchPost(`/api/exam/removecut/${this.props.oid}/`, {}).then(() => {
-        this.props.onSectionChange();
-      });
-    }
-  };
-  moveSection = () => {
-    this.props.moveTargetChange(!this.props.isMoveTarget);
-  };
-
-  addAnswer = (legacy: boolean) => {
-    this.setState({
-      addingAnswer: true,
-      addingLegacyAnswer: legacy,
+    onCancelMove,
+    onMove,
+    isBeingMoved,
+  }) => {
+    const [data, setData] = useState<AnswerSection | undefined>();
+    const run = useAnswers(oid, data => {
+      setData(data);
+      setCutVersion(data.cutVersion);
     });
-    if (this.props.hidden) {
-      this.props.onToggleHidden();
-    }
-  };
-
-  // takes the parsed json for the answersection which was returned from the server
-  onSectionChanged = (res: { value: AnswerSection }) => {
-    const answersection = res.value;
-    //answersection.key = this.props.oid;
-    answersection.kind = SectionKind.Answer;
-    this.setState({
-      section: answersection,
-      addingAnswer: false,
-      addingLegacyAnswer: false,
+    const runRemoveSplit = useRemoveSplit(oid, () => {
+      if (isBeingMoved) onCancelMove();
+      onSectionChange();
     });
-  };
-
-  onCancelEdit = () => {
-    this.setState({
-      addingAnswer: false,
-      addingLegacyAnswer: false,
-    });
-  };
-
-  updateName = async () => {
-    try {
-      await fetchPost(`/api/exam/editcut/${this.props.oid}/`, {
-        name: this.state.name,
-      });
-      this.setState({
-        editingName: false,
-      });
-      this.props.onCutNameChange(this.state.name);
-    } catch (e) {
-      return;
-    }
-  };
-
-  render() {
-    const { section } = this.state;
-    if (!section) {
-      return <div>Loading...</div>;
-    }
-    const nameParts = this.state.name.split(" > ");
-    const id = `${this.props.oid}-${nameParts.join("-")}`;
-    const name = (
-      <div>
-        {this.state.editingName ? (
-          <>
-            <input
-              type="text"
-              value={this.state.name || ""}
-              placeholder="Name"
-              onChange={e => this.setState({ name: e.target.value })}
-            />
-            <button onClick={this.updateName}>Save</button>
-          </>
-        ) : (
-          <>
-            {this.state.name.length > 0 && (
-              <Link to={`#${encodeURI(id)}`} id={id}>
-                {nameParts.map((part, i) => (
-                  <div {...styles.namePart} key={part + i}>
-                    {part}
-                  </div>
-                ))}
-              </Link>
-            )}
-            {this.props.canDelete && (
-              <button onClick={() => this.setState({ editingName: true })}>
-                <Edit size={12} />
-              </button>
-            )}
-          </>
-        )}
-      </div>
+    const setAnswerSection = useCallback(
+      (newData: AnswerSection) => {
+        setCutVersion(newData.cutVersion);
+        setData(newData);
+      },
+      [setCutVersion],
     );
-    const editingSection = (
-      <div {...styles.rightButton}>
-        {this.props.canDelete && (
-          <button onClick={this.removeSection}>Remove</button>
-        )}
-        {this.props.moveEnabled && this.props.canDelete && (
-          <button onClick={this.moveSection}>
-            {this.props.isMoveTarget ? "Cancel" : "Move"}
-          </button>
-        )}
-      </div>
+    const [inViewport, ref] = useLoad<HTMLDivElement>();
+    const visible = inViewport || false;
+    useEffect(() => {
+      if (
+        (data === undefined || data.cutVersion !== cutVersion) &&
+        (visible || !hidden)
+      ) {
+        run();
+      }
+    }, [data, visible, run, cutVersion, hidden]);
+    const [hasDraft, setHasDraft] = useState(false);
+    const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
+    const onAddAnswer = useCallback(() => {
+      setHasDraft(true);
+      if (hidden) onToggleHidden();
+    }, [hidden, onToggleHidden]);
+    const onAddLegacyAnswer = useCallback(() => {
+      setHasLegacyDraft(true);
+      if (hidden) onToggleHidden();
+    }, [hidden, onToggleHidden]);
+    const user = useUser()!;
+    const isCatAdmin = user.isCategoryAdmin;
+
+    const [draftName, setDraftName] = useInitialState(cutName);
+    const [isEditingName, setIsEditingName] = useState(
+      data && cutName.length === 0 && isCatAdmin,
     );
-    if (this.props.hidden && section.answers.length > 0) {
-      return (
-        <div {...styles.wrapper}>
-          {name}
-          <div key="showhidebutton" {...styles.threebuttons}>
-            <div />
-            <div>
-              <button onClick={this.props.onToggleHidden}>Show Answers</button>
-            </div>
-            {editingSection}
-          </div>
-          <div {...styles.divideLine} />
-        </div>
-      );
-    }
+    useEffect(() => {
+      if (data && cutName.length === 0 && isCatAdmin) setIsEditingName(true);
+    }, [data, isCatAdmin, cutName]);
+    const nameParts = cutName.split(" > ");
+    const id = `${oid}-${nameParts.join("-")}`;
+
     return (
-      <div {...styles.wrapper}>
-        {name}
-        {(section.answers.length > 0 || this.state.addingAnswer) && (
-          <div {...styles.answerWrapper}>
-            {this.state.addingAnswer && (
-              <AnswerComponent
-                isReadonly={false}
-                isAdmin={this.props.isAdmin}
-                isExpert={this.props.isExpert}
-                filename={this.props.filename}
-                sectionId={this.props.oid}
-                answer={{
-                  oid: "",
-                  longId: "",
-                  upvotes: 1,
-                  expertvotes: 0,
-                  authorId: "",
-                  authorDisplayName: this.state.addingLegacyAnswer
-                    ? "New Legacy Answer"
-                    : "New Answer",
-                  canEdit: true,
-                  isUpvoted: true,
-                  isDownvoted: false,
-                  isExpertVoted: false,
-                  isFlagged: false,
-                  flagged: 0,
-                  comments: [],
-                  text: "",
-                  time: moment().format(GlobalConsts.momentParseString),
-                  edittime: moment().format(GlobalConsts.momentParseString),
-                  filename: this.props.filename,
-                  sectionId: this.props.oid,
-                  isLegacyAnswer: this.state.addingLegacyAnswer,
-                }}
-                onSectionChanged={this.onSectionChanged}
-                onCancelEdit={this.onCancelEdit}
-              />
-            )}
-            {section.answers.map(e => (
-              <AnswerComponent
-                key={e.oid}
-                isReadonly={false}
-                isAdmin={this.props.isAdmin}
-                isExpert={this.props.isExpert}
-                answer={e}
-                filename={this.props.filename}
-                sectionId={this.props.oid}
-                onSectionChanged={this.onSectionChanged}
-                onCancelEdit={this.onCancelEdit}
-              />
-            ))}
-          </div>
-        )}
-        <div key="showhidebutton" {...styles.threebuttons}>
-          <div {...styles.leftButton}>
-            {(section.allow_new_answer || section.allow_new_legacy_answer) &&
-              !this.state.addingAnswer && (
-                <div>
-                  <button
-                    className="primary"
-                    title={
-                      section.allow_new_answer &&
-                      section.allow_new_legacy_answer
-                        ? "Hold Shift to add a Legacy Answer"
-                        : undefined
-                    }
-                    onClick={ev =>
-                      this.addAnswer(
-                        !section.allow_new_answer ||
-                          (section.allow_new_legacy_answer && ev.shiftKey),
-                      )
-                    }
-                  >
-                    {section.allow_new_answer
-                      ? "Add Answer"
-                      : "Add Legacy Answer"}
-                  </button>
-                </div>
+      <>
+        {data && ((data.name && data.name.length > 0) || isCatAdmin) && (
+          <NameCard id={id}>
+            <CardFooter>
+              {isEditingName ? (
+                <InputGroup size="sm">
+                  <Input
+                    type="text"
+                    value={draftName}
+                    placeholder="Name"
+                    onChange={e => setDraftName(e.target.value)}
+                  />
+                  <InputGroupButtonDropdown addonType="append">
+                    <IconButton
+                      tooltip="Save PDF section name"
+                      icon="SAVE"
+                      block
+                      onClick={() => {
+                        setIsEditingName(false);
+                        onCutNameChange(draftName);
+                      }}
+                    />
+                  </InputGroupButtonDropdown>
+                </InputGroup>
+              ) : (
+                <Row>
+                  <Col className="d-flex flex-center flex-column">
+                    <h6 className="m-0">{cutName}</h6>
+                  </Col>
+                  <Col xs="auto">
+                    {isCatAdmin && (
+                      <IconButton
+                        tooltip="Edit PDF section name"
+                        size="sm"
+                        icon="EDIT"
+                        onClick={() => setIsEditingName(true)}
+                      />
+                    )}
+                  </Col>
+                </Row>
               )}
-          </div>
-          <div>
-            {section.answers.length > 0 && (
-              <button onClick={this.props.onToggleHidden}>Hide Answers</button>
-            )}
-          </div>
-          {editingSection}
-        </div>
-        <div {...styles.divideLine} />
-      </div>
+            </CardFooter>
+          </NameCard>
+        )}
+        <Container fluid>
+          {!hidden && data && (
+            <>
+              {data.answers.map(answer => (
+                <AnswerComponent
+                  key={answer.oid}
+                  section={data}
+                  answer={answer}
+                  onSectionChanged={setAnswerSection}
+                  isLegacyAnswer={answer.isLegacyAnswer}
+                />
+              ))}
+              {hasDraft && (
+                <AnswerComponent
+                  section={data}
+                  onSectionChanged={setAnswerSection}
+                  onDelete={() => setHasDraft(false)}
+                  isLegacyAnswer={false}
+                />
+              )}
+              {hasLegacyDraft && (
+                <AnswerComponent
+                  section={data}
+                  onSectionChanged={setAnswerSection}
+                  onDelete={() => setHasLegacyDraft(false)}
+                  isLegacyAnswer={true}
+                />
+              )}
+            </>
+          )}
+          <AnswerSectionButtonWrapper
+            color={isBeingMoved ? "primary" : undefined}
+          >
+            <CardHeader>
+              <div className="d-flex" ref={ref}>
+                {data === undefined ? (
+                  <ThreeButtons center={<Spinner />} />
+                ) : (
+                  <>
+                    <ThreeButtons
+                      left={
+                        isBeingMoved ? (
+                          <Button size="sm" onClick={onCancelMove}>
+                            Cancel
+                          </Button>
+                        ) : (
+                          (data.answers.length === 0 || !hidden) &&
+                          data && (
+                            <AddButton
+                              allowAnswer={data.allow_new_answer}
+                              allowLegacyAnswer={
+                                data.allow_new_legacy_answer && isCatAdmin
+                              }
+                              hasAnswerDraft={hasDraft}
+                              hasLegacyAnswerDraft={hasLegacyDraft}
+                              onAnswer={onAddAnswer}
+                              onLegacyAnswer={onAddLegacyAnswer}
+                            />
+                          )
+                        )
+                      }
+                      center={
+                        !isBeingMoved &&
+                        data.answers.length > 0 && (
+                          <Button
+                            color="primary"
+                            size="sm"
+                            onClick={onToggleHidden}
+                          >
+                            {hidden ? "Show Answers" : "Hide Answers"}
+                          </Button>
+                        )
+                      }
+                      right={
+                        isCatAdmin && (
+                          <UncontrolledDropdown>
+                            <DropdownToggle caret size="sm">
+                              <Icon icon={ICONS.DOTS_H} size={18} />
+                            </DropdownToggle>
+                            <DropdownMenu>
+                              <DropdownItem onClick={runRemoveSplit}>
+                                Delete
+                              </DropdownItem>
+                              <DropdownItem onClick={onMove}>Move</DropdownItem>
+                            </DropdownMenu>
+                          </UncontrolledDropdown>
+                        )
+                      }
+                    />
+                  </>
+                )}
+              </div>
+            </CardHeader>
+          </AnswerSectionButtonWrapper>
+        </Container>
+      </>
     );
-  }
-}
+  },
+);
+
+export default AnswerSectionComponent;

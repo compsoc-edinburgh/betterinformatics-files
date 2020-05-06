@@ -1,206 +1,132 @@
-import * as React from "react";
-import { css } from "glamor";
+import { ButtonGroup, Card, CardBody, Input, Col } from "@vseth/components";
+import React, { useCallback, useState } from "react";
+import { imageHandler } from "../api/fetch-utils";
+import { useUser } from "../auth";
+import useConfirm from "../hooks/useConfirm";
 import { FAQEntry } from "../interfaces";
-import { fetchDelete, fetchPut, imageHandler } from "../fetch-utils";
-import Colors from "../colors";
 import Editor from "./Editor";
-import MarkdownText from "./markdown-text";
 import { UndoStack } from "./Editor/utils/undo-stack";
-
-const styles = {
-  wrapper: css({
-    marginTop: "10px",
-    background: Colors.cardBackground,
-    padding: "10px",
-    marginBottom: "20px",
-    boxShadow: Colors.cardShadow,
-  }),
-  header: css({
-    marginLeft: "-10px",
-    marginRight: "-10px",
-    marginTop: "-10px",
-    padding: "7px",
-    paddingLeft: "10px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  }),
-  buttons: css({
-    margin: "0",
-  }),
-  question: css({
-    fontWeight: "bold",
-  }),
-  answer: css({
-    marginTop: "-10px",
-  }),
-  answerEdit: css({
-    paddingRight: "14px",
-  }),
-  inputElPar: css({
-    flexGrow: 1,
-  }),
-  inputEl: css({
-    width: "100%",
-    marginLeft: 0,
-    marginRight: 0,
-  }),
-  answerInputEl: css({
-    width: "100%",
-    padding: "5px",
-  }),
-};
-
+import IconButton from "./icon-button";
+import MarkdownText from "./markdown-text";
 interface Props {
   isAdmin?: boolean;
   entry: FAQEntry;
   prevEntry?: FAQEntry;
   nextEntry?: FAQEntry;
-  entryChanged: () => void;
+  onUpdate: (changes: Partial<FAQEntry>) => void;
+  onSwap: (me: FAQEntry, other: FAQEntry) => void;
+  onRemove: () => void;
 }
-
-interface State {
-  editing: boolean;
-  newQuestion: string;
-  newAnswer: string;
-  undoStack: UndoStack;
-}
-
-export default class FAQEntryComponent extends React.Component<Props, State> {
-  state: State = {
-    editing: false,
-    newQuestion: "",
-    newAnswer: "",
-    undoStack: { prev: [], next: [] },
+const FAQEntryComponent: React.FC<Props> = ({
+  entry,
+  onUpdate,
+  prevEntry,
+  nextEntry,
+  onSwap,
+  onRemove,
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [confirm, modals] = useConfirm();
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
+  const startEditing = useCallback(() => {
+    setQuestion(entry.question);
+    setAnswer(entry.answer);
+    setUndoStack({ prev: [], next: [] });
+    setEditing(true);
+  }, [entry.question, entry.answer]);
+  const cancel = useCallback(() => setEditing(false), []);
+  const save = () => {
+    onUpdate({ question, answer });
+    setEditing(false);
   };
-
-  remove = () => {
-    if (window.confirm("Do you really want to remove this entry?")) {
-      fetchDelete(`/api/faq/${this.props.entry.oid}/`)
-        .then(() => this.props.entryChanged())
-        .catch(() => undefined);
-    }
-  };
-
-  swap = (other: FAQEntry) => {
-    const me = this.props.entry;
-    fetchPut(`/api/faq/${me.oid}/`, {
-      order: other.order,
-    })
-      .then(() =>
-        fetchPut(`/api/faq/${other.oid}/`, {
-          order: me.order,
-        }),
-      )
-      .then(() => this.props.entryChanged())
-      .catch(() => undefined);
-  };
-
-  moveUp = () => {
-    if (this.props.prevEntry) {
-      this.swap(this.props.prevEntry);
-    }
-  };
-
-  moveDown = () => {
-    if (this.props.nextEntry) {
-      this.swap(this.props.nextEntry);
-    }
-  };
-
-  startEdit = () => {
-    this.setState({
-      editing: true,
-      newQuestion: this.props.entry.question,
-      newAnswer: this.props.entry.answer,
-      undoStack: { prev: [], next: [] },
-    });
-  };
-
-  save = () => {
-    fetchPut(`/api/faq/${this.props.entry.oid}/`, {
-      question: this.state.newQuestion,
-      answer: this.state.newAnswer,
-      order: this.props.entry.order,
-    })
-      .then(() => {
-        this.setState({
-          editing: false,
-        });
-        this.props.entryChanged();
-      })
-      .catch(() => undefined);
-  };
-
-  cancel = () => {
-    this.setState({
-      editing: false,
-    });
-  };
-
-  render_edit() {
-    return (
-      <div {...styles.wrapper}>
-        <div {...styles.header}>
-          <div {...styles.inputElPar}>
-            <input
-              {...styles.inputEl}
+  const { isAdmin } = useUser()!;
+  return (
+    <Card className="my-1">
+      {modals}
+      <CardBody>
+        <h4>
+          {!editing && (
+            <IconButton
+              tooltip="Edit FAQ entry"
+              close
+              icon="EDIT"
+              onClick={() => startEditing()}
+            />
+          )}
+          {editing ? (
+            <Input
               type="text"
               placeholder="Question"
-              title="Question"
-              onChange={event =>
-                this.setState({ newQuestion: event.currentTarget.value })
-              }
-              value={this.state.newQuestion}
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
             />
-          </div>
-          <div {...styles.buttons}>
-            <button onClick={this.save}>Save</button>
-            <button onClick={this.cancel}>Cancel</button>
-          </div>
-        </div>
-        <div {...styles.answerEdit}>
-          <Editor
-            value={this.state.newAnswer}
-            onChange={newValue => this.setState({ newAnswer: newValue })}
-            imageHandler={imageHandler}
-            preview={str => <MarkdownText value={str} />}
-            undoStack={this.state.undoStack}
-            setUndoStack={undoStack => this.setState({ undoStack })}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  render() {
-    if (this.state.editing) {
-      return this.render_edit();
-    }
-
-    const entry = this.props.entry;
-
-    return (
-      <div {...styles.wrapper}>
-        <div {...styles.header}>
-          <div {...styles.question}>{entry.question}</div>
-          {this.props.isAdmin && (
-            <div {...styles.buttons}>
-              <button onClick={this.moveUp} disabled={!this.props.prevEntry}>
-                Up
-              </button>
-              <button onClick={this.moveDown} disabled={!this.props.nextEntry}>
-                Down
-              </button>
-              <button onClick={this.startEdit}>Edit</button>
-              <button onClick={this.remove}>Remove</button>
-            </div>
+          ) : (
+            entry.question
           )}
-        </div>
-        <div {...styles.answer}>
+        </h4>
+        {editing ? (
+          <Editor
+            imageHandler={imageHandler}
+            value={answer}
+            onChange={setAnswer}
+            undoStack={undoStack}
+            setUndoStack={setUndoStack}
+            preview={value => <MarkdownText value={value} />}
+          />
+        ) : (
           <MarkdownText value={entry.answer} />
-        </div>
-      </div>
-    );
-  }
-}
+        )}
+        {isAdmin && (
+          <div className="my-2 d-flex flex-between">
+            <Col xs="auto">
+              {editing && (
+                <IconButton
+                  color="primary"
+                  size="sm"
+                  icon="SAVE"
+                  onClick={save}
+                >
+                  Save
+                </IconButton>
+              )}
+            </Col>
+            <Col xs="auto">
+              <ButtonGroup size="sm">
+                <IconButton
+                  tooltip="Move up"
+                  icon="ARROW_UP"
+                  disabled={prevEntry === undefined}
+                  onClick={() => prevEntry && onSwap(entry, prevEntry)}
+                />
+                <IconButton
+                  tooltip="Move down"
+                  icon="ARROW_DOWN"
+                  disabled={nextEntry === undefined}
+                  onClick={() => nextEntry && onSwap(entry, nextEntry)}
+                />
+                <IconButton
+                  tooltip="Delete FAQ entry"
+                  icon="DELETE"
+                  onClick={() =>
+                    confirm(
+                      "Are you sure that you want to remove this?",
+                      onRemove,
+                    )
+                  }
+                />
+                {editing && (
+                  <IconButton icon="CLOSE" onClick={cancel}>
+                    Cancel
+                  </IconButton>
+                )}
+              </ButtonGroup>
+            </Col>
+          </div>
+        )}
+      </CardBody>
+    </Card>
+  );
+};
+export default FAQEntryComponent;

@@ -235,3 +235,20 @@ export interface FAQEntry {
   answer: string;
   order: number;
 }
+
+export interface CutVersions {
+  [oid: string]: number;
+}
+export interface ServerCutResponse {
+  [pageNumber: string]: ServerCutPosition[];
+}
+
+export enum EditMode {
+  None,
+  Add,
+  Move,
+}
+export type EditState =
+  | { mode: EditMode.None }
+  | { mode: EditMode.Add; snap: boolean }
+  | { mode: EditMode.Move; cut: string; snap: boolean };

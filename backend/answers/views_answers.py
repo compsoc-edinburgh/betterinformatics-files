@@ -4,8 +4,19 @@ from answers.models import AnswerSection, Answer
 from answers import section_util
 from notifications import notification_util
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.utils import timezone
 
+
+@auth_check.require_login
+def get_answer(request, long_id):
+    try:
+        answer = Answer.objects.get(long_id=long_id)
+        return response.success(value=section_util.get_answer_response(request, answer))
+    except Answer.DoesNotExist as e:
+        return Http404()
+    except Answer.MultipleObjectsReturned as e:
+        return Http404()
 
 @response.request_post('text', 'legacy_answer')
 @auth_check.require_login
