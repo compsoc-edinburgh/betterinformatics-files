@@ -1,4 +1,11 @@
-import { Alert, Button, FormGroup, Label, Spinner } from "@vseth/components";
+import {
+  Alert,
+  Button,
+  FormGroup,
+  Label,
+  Spinner,
+  Input,
+} from "@vseth/components";
 import React, { useState } from "react";
 import {
   useEnabledNotifications,
@@ -38,35 +45,38 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
       <h2>Notifications</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <FormGroup check>
-        <Label>
-          <input
-            type="checkbox"
-            checked={enabled ? enabled.has(1) : false}
-            disabled={checkboxLoading}
-            onChange={e => setEnabled(1, e.currentTarget.checked)}
-          />{" "}
+        <Input
+          type="checkbox"
+          id="commentToMyAnswer"
+          checked={enabled ? enabled.has(1) : false}
+          disabled={checkboxLoading}
+          onChange={e => setEnabled(1, e.currentTarget.checked)}
+        />
+        <Label for="commentToMyAnswer" check>
           Comment to my answer
         </Label>
       </FormGroup>
       <FormGroup check>
-        <Label>
-          <input
-            type="checkbox"
-            checked={enabled ? enabled.has(2) : false}
-            disabled={checkboxLoading}
-            onChange={e => setEnabled(2, e.currentTarget.checked)}
-          />{" "}
+        <Input
+          type="checkbox"
+          id="commentToMyComment"
+          checked={enabled ? enabled.has(2) : false}
+          disabled={checkboxLoading}
+          onChange={e => setEnabled(2, e.currentTarget.checked)}
+        />
+        <Label for="commentToMyComment" check>
           Comment to my comment
         </Label>
       </FormGroup>
       <FormGroup check>
-        <Label>
-          <input
-            type="checkbox"
-            checked={enabled ? enabled.has(3) : false}
-            disabled={checkboxLoading}
-            onChange={e => setEnabled(3, e.currentTarget.checked)}
-          />{" "}
+        <Input
+          type="checkbox"
+          id="otherAnswerToSameQuestion"
+          checked={enabled ? enabled.has(3) : false}
+          disabled={checkboxLoading}
+          onChange={e => setEnabled(3, e.currentTarget.checked)}
+        />{" "}
+        <Label for="otherAnswerToSameQuestion" check>
           Other answer to same question
         </Label>
       </FormGroup>
@@ -78,7 +88,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
             key={notification.oid}
           />
         ))}
-      <div>
+      <div className="my-3">
         <Button onClick={() => setShowRead(prev => !prev)}>
           {showRead ? "Hide Read Notifications" : "Show Read Notifications"}
         </Button>
