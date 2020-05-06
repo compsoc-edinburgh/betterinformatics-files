@@ -35,9 +35,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <>
-          <Icon icon={ICONS[icon]} size={size === "lg" ? 20 : 18} />
-        </>
+        <Icon icon={ICONS[icon]} size={size === "lg" ? 20 : 18} />
       )}
       {children && <span className={childStyle}>{children}</span>}
     </TooltipButton>
@@ -51,9 +49,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <>
-          <Icon icon={ICONS[icon]} size={size === "lg" ? 20 : 18} />
-        </>
+        <Icon icon={ICONS[icon]} size={size === "lg" ? 20 : 18} />
       )}
       {children && <span className={childStyle}>{children}</span>}
     </Button>
