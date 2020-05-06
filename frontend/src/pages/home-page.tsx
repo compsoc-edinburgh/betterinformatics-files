@@ -234,10 +234,10 @@ const HomePage: React.FC<{}> = () => {
               {filteredMetaCategories &&
                 filteredMetaCategories.map(([meta1display, meta2]) => (
                   <div key={meta1display}>
-                    <h4>{meta1display}</h4>
+                    <h4 className="my-4">{meta1display}</h4>
                     {meta2.map(([meta2display, categories]) => (
                       <div key={meta2display}>
-                        <h5>{meta2display}</h5>
+                        <h5 className="my-4">{meta2display}</h5>
                         <Grid>
                           {categories.map(category => (
                             <CategoryCard
