@@ -14,7 +14,6 @@ import {
   Row,
   Col,
 } from "@vseth/components";
-import { css } from "emotion";
 import React, { useCallback, useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
 import {
