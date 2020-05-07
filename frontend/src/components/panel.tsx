@@ -37,7 +37,7 @@ const modalWrapper = css`
 `;
 const modalStyle = css`
   max-height: 100%;
-  overflow: scroll;
+  overflow: auto;
   &.modal-content {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;

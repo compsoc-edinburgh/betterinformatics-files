@@ -24,7 +24,7 @@ const firstCellStyle = css`
   white-space: nowrap;
 `;
 const overflowScroll = css`
-  overflow: scroll;
+  overflow: auto;
 `;
 const cursorPointer = css`
   cursor: pointer;
