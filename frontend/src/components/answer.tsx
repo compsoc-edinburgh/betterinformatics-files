@@ -14,7 +14,6 @@ import {
   Row,
   Col,
 } from "@vseth/components";
-import { css } from "emotion";
 import React, { useCallback, useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
 import {
@@ -48,11 +47,6 @@ const AuthorWrapper = styled.h6`
 const AnswerToolbar = styled(ButtonToolbar)`
   justify-content: flex-end;
   margin: 0 -0.3em;
-`;
-
-const bodyCanEditStyle = css`
-  position: relative;
-  padding-top: 2.3em !important;
 `;
 
 interface Props {
@@ -99,8 +93,8 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText, false);
-  }, [section, draftText, update]);
+    if (section) update(section.oid, draftText, isLegacyAnswer);
+  }, [section, draftText, update, isLegacyAnswer]);
   const remove = useCallback(() => {
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
