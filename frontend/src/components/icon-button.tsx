@@ -7,8 +7,7 @@ const childStyle = css`
 `;
 const buttonStyle = css`
   min-width: 0;
-  height: 100%;
-  display: initial;
+  align-content: center;
 `;
 interface IconButtonProps extends ButtonProps {
   icon: keyof typeof ICONS;
@@ -19,6 +18,7 @@ const IconButton: React.FC<IconButtonProps> = ({
   size,
   loading,
   icon,
+  className,
   disabled,
   children,
   tooltip,
@@ -29,13 +29,13 @@ const IconButton: React.FC<IconButtonProps> = ({
       tooltip={tooltip}
       {...props}
       disabled={disabled || loading}
-      className={buttonStyle}
+      className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <Icon icon={ICONS[icon]} size={size === "lg" ? 20 : 18} />
+        <Icon icon={ICONS[icon]} size="1em" />
       )}
       {children && <span className={childStyle}>{children}</span>}
     </TooltipButton>
@@ -43,13 +43,13 @@ const IconButton: React.FC<IconButtonProps> = ({
     <Button
       {...props}
       disabled={disabled || loading}
-      className={buttonStyle}
+      className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <Icon icon={ICONS[icon]} size={size === "lg" ? 20 : 18} />
+        <Icon icon={ICONS[icon]} size="1em" />
       )}
       {children && <span className={childStyle}>{children}</span>}
     </Button>
