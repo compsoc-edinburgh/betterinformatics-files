@@ -4,15 +4,18 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import ensure_csrf_cookie
 import json
+import os
 
-
+globID = os.environ.get('RUNTIME_FRONTEND_GLOBID', 'vseth-1116-vis')
 @ensure_csrf_cookie
 def index(request):
     with open('index.html') as f:
         html = f.read()
         html = html.replace('__SERVER_DATA__', json.dumps({
-            'org_id': '0000'
+            'globID': globID
         }))
+        html = html.replace('https://static.vseth.ethz.ch/assets/vseth-0000-vseth/theme.css',
+                            'https://static.vseth.ethz.ch/assets/{}/theme.css'.format(globID))
     return HttpResponse(html, content_type='text/html', charset='utf-8')
 
 
