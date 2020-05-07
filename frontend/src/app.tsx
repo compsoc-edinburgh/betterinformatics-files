@@ -1,4 +1,4 @@
-import { Button } from "@vseth/components";
+import { Button, VSETHContext } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { fetchGet, getCookie } from "./api/fetch-utils";
@@ -60,7 +60,7 @@ const App: React.FC<{}> = () => {
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (
-    <>
+    <VSETHContext>
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
@@ -123,7 +123,7 @@ const App: React.FC<{}> = () => {
           />
         </>
       )}
-    </>
+    </VSETHContext>
   );
 };
 export default App;
