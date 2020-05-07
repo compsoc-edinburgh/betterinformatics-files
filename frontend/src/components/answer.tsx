@@ -1,558 +1,326 @@
-import * as React from "react";
+import styled from "@emotion/styled";
+import {
+  ButtonDropdown,
+  ButtonGroup,
+  ButtonToolbar,
+  Card,
+  CardBody,
+  CardHeader,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Icon,
+  ICONS,
+  Row,
+  Col,
+} from "@vseth/components";
+import { css } from "emotion";
+import React, { useCallback, useState } from "react";
+import { imageHandler } from "../api/fetch-utils";
+import {
+  useRemoveAnswer,
+  useResetFlaggedVote,
+  useSetExpertVote,
+  useSetFlagged,
+  useUpdateAnswer,
+} from "../api/hooks";
+import { useUser } from "../auth";
+import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection } from "../interfaces";
-import moment from "moment";
-import Comment from "./comment";
-import { css } from "glamor";
-import MarkdownText from "./markdown-text";
-import { fetchPost, imageHandler } from "../fetch-utils";
-import Colors from "../colors";
-import { Link } from "react-router-dom";
-import globalcss from "../globalcss";
-import GlobalConsts from "../globalconsts";
-import colors from "../colors";
+import { copy } from "../utils/clipboard";
+import CommentSectionComponent from "./comment-section";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
+import IconButton from "./icon-button";
+import MarkdownText from "./markdown-text";
+import Score from "./score";
+import SmallButton from "./small-button";
+
+const AnswerWrapper = styled(Card)`
+  margin-top: 1em;
+  margin-bottom: 1em;
+`;
+
+const AuthorWrapper = styled.h6`
+  margin: 0;
+`;
+
+const AnswerToolbar = styled(ButtonToolbar)`
+  justify-content: flex-end;
+  margin: 0 -0.3em;
+`;
+
+const bodyCanEditStyle = css`
+  position: relative;
+  padding-top: 2.3em !important;
+`;
 
 interface Props {
-  isReadonly: boolean;
-  isAdmin: boolean;
-  isExpert: boolean;
-  filename: string;
-  sectionId: string;
-  answer: Answer;
-  onSectionChanged: (res: { value: AnswerSection }) => void;
-  onCancelEdit: () => void;
+  section?: AnswerSection;
+  answer?: Answer;
+  onSectionChanged?: (newSection: AnswerSection) => void;
+  onDelete?: () => void;
+  isLegacyAnswer: boolean;
 }
+const AnswerComponent: React.FC<Props> = ({
+  section,
+  answer,
+  onDelete,
+  onSectionChanged,
+  isLegacyAnswer,
+}) => {
+  const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
+  const [resetFlaggedLoading, resetFlagged] = useResetFlaggedVote(
+    onSectionChanged,
+  );
+  const [setExpertVoteLoading, setExpertVote] = useSetExpertVote(
+    onSectionChanged,
+  );
+  const removeAnswer = useRemoveAnswer(onSectionChanged);
+  const [updating, update] = useUpdateAnswer(res => {
+    setEditing(false);
+    if (onSectionChanged) onSectionChanged(res);
+    if (answer === undefined && onDelete) onDelete();
+  });
+  const { isAdmin, isExpert } = useUser()!;
+  const [confirm, modals] = useConfirm();
+  const [isOpen, setIsOpen] = useState(false);
+  const toggle = useCallback(() => setIsOpen(old => !old), []);
+  const [editing, setEditing] = useState(false);
 
-interface State {
-  editing: boolean;
-  imageDialog: boolean;
-  text: string;
-  undoStack: UndoStack;
-  savedText: string;
-  addingComment: boolean;
-  allCommentsVisible: boolean;
-}
+  const [draftText, setDraftText] = useState("");
+  const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
+  const startEdit = useCallback(() => {
+    setDraftText(answer?.text ?? "");
+    setEditing(true);
+  }, [answer]);
+  const onCancel = useCallback(() => {
+    setEditing(false);
+    if (answer === undefined && onDelete) onDelete();
+  }, [onDelete, answer]);
+  const save = useCallback(() => {
+    if (section) update(section.oid, draftText, false);
+  }, [section, draftText, update]);
+  const remove = useCallback(() => {
+    if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
+  }, [confirm, removeAnswer, answer]);
+  const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
-const styles = {
-  wrapper: css({
-    background: Colors.cardBackground,
-    padding: "10px",
-    marginBottom: "20px",
-    boxShadow: Colors.cardShadow,
-    "@media (max-width: 699px)": {
-      padding: "5px",
-    },
-  }),
-  header: css({
-    fontSize: "24px",
-    marginBottom: "10px",
-    marginLeft: "-10px",
-    marginRight: "-10px",
-    marginTop: "-10px",
-    padding: "10px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    background: Colors.cardHeader,
-    color: Colors.cardHeaderForeground,
-    "@media (max-width: 699px)": {
-      fontSize: "20px",
-      marginLeft: "-5px",
-      marginRight: "-5px",
-      marginTop: "-5px",
-    },
-  }),
-  voteWrapper: css({
-    display: "flex",
-    alignItems: "center",
-  }),
-  voteImgWrapper: css({
-    cursor: "pointer",
-  }),
-  voteImg: css({
-    height: "26px",
-    marginLeft: "11px",
-    marginRight: "11px",
-    marginBottom: "-4px", // no idea what's going on...
-    "@media (max-width: 699px)": {
-      height: "20px",
-      marginBottom: "-3px",
-    },
-  }),
-  expertVoteImg: css({
-    height: "26px",
-    marginLeft: "3px",
-    marginRight: "11px",
-    marginBottom: "-4px", // no idea what's going on...
-    "@media (max-width: 699px)": {
-      height: "20px",
-      marginBottom: "-3px",
-    },
-  }),
-  voteCount: css({
-    marginLeft: "9px",
-    marginRight: "9px",
-  }),
-  expertVoteCount: css({
-    marginLeft: "9px",
-    marginRight: "3px",
-  }),
-  answer: css({
-    marginTop: "15px",
-    marginLeft: "10px",
-    marginRight: "10px",
-  }),
-  answerInput: css({
-    marginLeft: "5px",
-    marginRight: "5px",
-  }),
-  answerTexHint: css({
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: "10px",
-    marginLeft: "5px",
-    marginRight: "5px",
-    color: colors.silentText,
-  }),
-  comments: css({
-    marginLeft: "25px",
-    marginTop: "10px",
-    marginRight: "25px",
-  }),
-  textareaInput: css({
-    width: "100%",
-    resize: "vertical",
-    marginTop: "10px",
-    marginBottom: "5px",
-    padding: "5px",
-    boxSizing: "border-box",
-  }),
-  actionButtons: css({
-    width: "100%",
-    display: "flex",
-    justifyContent: "flex-end",
-    marginRight: "25px",
-  }),
-  actionButton: css({
-    cursor: "pointer",
-    marginLeft: "10px",
-  }),
-  actionImg: css({
-    height: "26px",
-  }),
-  permalink: css({
-    marginRight: "5px",
-    "& a:link, & a:visited": {
-      color: Colors.silentText,
-    },
-    "& a:hover": {
-      color: Colors.linkHover,
-    },
-  }),
-  moreComments: css({
-    cursor: "pointer",
-    color: colors.silentText,
-    borderTop: "1px solid " + Colors.commentBorder,
-    paddingTop: "2px",
-  }),
-};
-
-export default class AnswerComponent extends React.Component<Props, State> {
-  state: State = {
-    editing: this.props.answer.canEdit && this.props.answer.text.length === 0,
-    imageDialog: false,
-    savedText: this.props.answer.text,
-    text: this.props.answer.text,
-    allCommentsVisible: false,
-    addingComment: false,
-    undoStack: { prev: [], next: [] },
-  };
-
-  componentDidUpdate(
-    prevProps: Readonly<Props>,
-    prevState: Readonly<State>,
-  ): void {
-    if (prevProps.answer.text !== this.props.answer.text) {
-      this.setState({
-        text: this.props.answer.text,
-        savedText: this.props.answer.text,
-      });
-    }
-  }
-
-  setMainDivRef = (element: HTMLDivElement) => {
-    this.props.answer.divRef = element;
-  };
-
-  removeAnswer = () => {
-    // eslint-disable-next-line no-restricted-globals
-    const confirmation = confirm("Remove answer?");
-    if (confirmation) {
-      fetchPost(`/api/exam/removeanswer/${this.props.answer.oid}/`, {})
-        .then(res => {
-          this.props.onSectionChanged(res);
-        })
-        .catch(() => undefined);
-    }
-  };
-
-  saveAnswer = () => {
-    fetchPost(`/api/exam/setanswer/${this.props.sectionId}/`, {
-      text: this.state.text,
-      legacy_answer: this.props.answer.isLegacyAnswer,
-    })
-      .then(res => {
-        this.setState(prevState => ({
-          editing: false,
-          savedText: prevState.text,
-        }));
-        this.props.onSectionChanged(res);
-      })
-      .catch(() => undefined);
-  };
-
-  cancelEdit = () => {
-    this.setState(prevState => ({
-      editing: false,
-      text: prevState.savedText,
-    }));
-    this.props.onCancelEdit();
-  };
-
-  startEdit = () => {
-    this.setState({
-      editing: true,
-    });
-  };
-
-  toggleAddingComment = () => {
-    this.setState(prevState => ({
-      addingComment: !prevState.addingComment,
-    }));
-  };
-
-  answerTextareaChange = (newValue: string) => {
-    this.setState({
-      text: newValue,
-    });
-  };
-
-  toggleAnswerLike = (like: Number) => {
-    const newLike =
-      like === 1
-        ? this.props.answer.isUpvoted
-          ? 0
-          : 1
-        : this.props.answer.isDownvoted
-        ? 0
-        : -1;
-    fetchPost(`/api/exam/setlike/${this.props.answer.oid}/`, { like: newLike })
-      .then(res => {
-        this.props.onSectionChanged(res);
-      })
-      .catch(() => undefined);
-  };
-
-  toggleAnswerFlag = () => {
-    fetchPost(`/api/exam/setflagged/${this.props.answer.oid}/`, {
-      flagged: !this.props.answer.isFlagged,
-    })
-      .then(res => {
-        this.props.onSectionChanged(res);
-      })
-      .catch(() => undefined);
-  };
-
-  resetAnswerFlagged = () => {
-    fetchPost(`/api/exam/resetflagged/${this.props.answer.oid}/`, {})
-      .then(res => {
-        this.props.onSectionChanged(res);
-      })
-      .catch(() => undefined);
-  };
-
-  toggleAnswerExpertVote = () => {
-    fetchPost(`/api/exam/setexpertvote/${this.props.answer.oid}/`, {
-      vote: !this.props.answer.isExpertVoted,
-    })
-      .then(res => {
-        this.props.onSectionChanged(res);
-      })
-      .catch(() => undefined);
-  };
-
-  toggleComments = () => {
-    this.setState(prevState => ({
-      allCommentsVisible: !prevState.allCommentsVisible,
-    }));
-  };
-
-  copyPermalink = (answer: Answer) => {
-    const textarea = document.createElement("textarea");
-    textarea.style.position = "fixed";
-    textarea.style.top = "0";
-    textarea.style.left = "0";
-    textarea.style.width = "2em";
-    textarea.style.height = "2em";
-    textarea.style.padding = "0";
-    textarea.style.background = "transparent";
-    textarea.value = `${document.location.origin}${document.location.pathname}#${answer.longId}`;
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-  };
-
-  render() {
-    const { answer } = this.props;
-    let comments = answer.comments;
-    const commentLimit = this.props.isReadonly ? 0 : 3;
-    if (!this.state.allCommentsVisible && comments.length > commentLimit) {
-      comments = comments.slice(0, commentLimit);
-    }
-    return (
-      <div {...styles.wrapper}>
-        <div ref={this.setMainDivRef} {...styles.header}>
-          <div>
-            <b {...globalcss.noLinkColor}>
-              {(answer.authorId.length > 0 && (
-                <Link to={`/user/${answer.authorId}`}>
-                  {answer.authorDisplayName}
-                </Link>
-              )) || <span>{answer.authorDisplayName}</span>}
-            </b>{" "}
-            •{" "}
-            {moment(answer.time, GlobalConsts.momentParseString).format(
-              GlobalConsts.momentFormatString,
-            )}
+  const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
+  const canEdit = onSectionChanged && (answer?.canEdit || false);
+  const canRemove = onSectionChanged && (isAdmin || answer?.canEdit || false);
+  return (
+    <>
+      {modals}
+      <AnswerWrapper id={answer?.longId}>
+        <CardHeader>
+          <Row className="flex-between">
+            <Col xs="auto" className="d-flex flex-center flex-column">
+              <AuthorWrapper>
+                {answer?.authorDisplayName ??
+                  (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
+              </AuthorWrapper>
+            </Col>
+            <Col xs="auto">
+              <AnswerToolbar>
+                {answer && (answer.expertvotes > 0 || setExpertVoteLoading) && (
+                  <ButtonGroup className="m-1" size="sm">
+                    <IconButton
+                      tooltip="This answer is endorsed by an expert"
+                      color="primary"
+                      icon="STAR_FILLED"
+                      active
+                    />
+                    <SmallButton color="primary" active>
+                      {answer.expertvotes}
+                    </SmallButton>
+                    <IconButton
+                      color="primary"
+                      tooltip={
+                        answer.isExpertVoted
+                          ? "Remove expert vote"
+                          : "Add expert vote"
+                      }
+                      icon={answer.isExpertVoted ? "CLOSE" : "PLUS"}
+                      onClick={() =>
+                        setExpertVote(answer.oid, !answer.isExpertVoted)
+                      }
+                    />
+                  </ButtonGroup>
+                )}
+                {answer && (answer.flagged > 0 || flaggedLoading) && (
+                  <ButtonGroup className="m-1" size="sm">
+                    <IconButton
+                      tooltip="This answer was flagged as inappropriate by a user. A moderator will decide if the answer should be removed."
+                      color="danger"
+                      icon="FLAG"
+                      title="Flagged as Inappropriate"
+                      active
+                    >
+                      Inappropriate
+                    </IconButton>
+                    <SmallButton
+                      color="danger"
+                      tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                      active
+                    >
+                      {answer.flagged}
+                    </SmallButton>
+                    <IconButton
+                      color="danger"
+                      icon={answer.isFlagged ? "CLOSE" : "PLUS"}
+                      onClick={() => setFlagged(answer.oid, !answer.isFlagged)}
+                    />
+                    {isAdmin && (
+                      <IconButton
+                        tooltip="Remove all inappropriate flags"
+                        color="danger"
+                        icon="DELETE"
+                        onClick={() => resetFlagged(answer.oid)}
+                      />
+                    )}
+                  </ButtonGroup>
+                )}
+                {answer && onSectionChanged && (
+                  <Score
+                    oid={answer.oid}
+                    upvotes={answer.upvotes}
+                    expertUpvotes={answer.expertvotes}
+                    userVote={
+                      answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
+                    }
+                    onSectionChanged={onSectionChanged}
+                  />
+                )}
+              </AnswerToolbar>
+            </Col>
+          </Row>
+        </CardHeader>
+        <CardBody className={canRemove ? "pt-4 position-relative" : ""}>
+          <div className="position-absolute position-top-right">
+            <ButtonGroup>
+              {!editing && canEdit && (
+                <SmallButton
+                  size="sm"
+                  color="white"
+                  onClick={startEdit}
+                  tooltip="Edit answer"
+                >
+                  <Icon icon={ICONS.EDIT} size={18} />
+                </SmallButton>
+              )}
+              {answer && canRemove && (
+                <SmallButton
+                  size="sm"
+                  color="white"
+                  onClick={remove}
+                  tooltip="Delete answer"
+                >
+                  <Icon icon={ICONS.DELETE} size={18} />
+                </SmallButton>
+              )}
+            </ButtonGroup>
           </div>
-          {this.props.answer.oid !== undefined && this.props.answer.oid !== "" && (
-            <div {...styles.voteWrapper}>
-              {!this.props.isReadonly &&
-                this.props.isExpert && [
-                  <div {...styles.expertVoteCount}>{answer.expertvotes}</div>,
-                  <div
-                    {...styles.voteImgWrapper}
-                    onClick={this.toggleAnswerExpertVote}
-                    title="Endorse Answer"
-                  >
-                    <img
-                      {...styles.expertVoteImg}
-                      src={
-                        "/static/expert" +
-                        (answer.isExpertVoted ? "_active" : "") +
-                        ".svg"
-                      }
-                      alt="Endorse Answer"
-                    />
-                  </div>,
-                ]}
-              {(this.props.isReadonly || !this.props.isExpert) &&
-                answer.expertvotes > 0 && [
-                  answer.expertvotes > 1 && (
-                    <div {...styles.expertVoteCount}>{answer.expertvotes}</div>
-                  ),
-                  <div>
-                    <img
-                      {...styles.expertVoteImg}
-                      src="/static/expert_active.svg"
-                      title={
-                        "Expert Endorsed" +
-                        (answer.expertvotes > 1
-                          ? " (" + answer.expertvotes + " votes)"
-                          : "")
-                      }
-                      alt="This answer is endorsed by an expert"
-                    />
-                  </div>,
-                ]}
-              {!this.props.isReadonly && (
-                <div
-                  {...styles.voteImgWrapper}
-                  onClick={() => this.toggleAnswerLike(-1)}
-                  title="Downvote Answer"
-                >
-                  <img
-                    {...styles.voteImg}
-                    src={
-                      "/static/downvote" +
-                      (answer.isDownvoted ? "_orange" : "_white") +
-                      ".svg"
-                    }
-                    alt="Downvote"
-                  />
-                </div>
-              )}
-              <div {...styles.voteCount}>{answer.upvotes}</div>
-              {!this.props.isReadonly && (
-                <div
-                  {...styles.voteImgWrapper}
-                  onClick={() => this.toggleAnswerLike(1)}
-                  title="Upvote Answer"
-                >
-                  <img
-                    {...styles.voteImg}
-                    src={
-                      "/static/upvote" +
-                      (answer.isUpvoted ? "_orange" : "_white") +
-                      ".svg"
-                    }
-                    alt="Upvote"
-                  />
-                </div>
-              )}
+          {editing || answer === undefined ? (
+            <Editor
+              value={draftText}
+              onChange={setDraftText}
+              imageHandler={imageHandler}
+              preview={value => <MarkdownText value={value} />}
+              undoStack={undoStack}
+              setUndoStack={setUndoStack}
+            />
+          ) : (
+            <div className="py-3">
+              <MarkdownText value={answer?.text ?? ""} />
             </div>
           )}
-        </div>
-        {!this.state.editing && (
-          <div {...styles.answer}>
-            <MarkdownText value={this.state.text} />
-          </div>
-        )}
-        {this.state.editing && (
-          <div>
-            <div {...styles.answerInput}>
-              <Editor
-                value={this.state.text}
-                onChange={this.answerTextareaChange}
-                imageHandler={imageHandler}
-                preview={str => <MarkdownText value={str} />}
-                undoStack={this.state.undoStack}
-                setUndoStack={undoStack => this.setState({ undoStack })}
-              />
-            </div>
-            <div {...styles.answerTexHint}>
-              <div {...styles.actionButtons}>
-                <div {...styles.actionButton} onClick={this.saveAnswer}>
-                  <img
-                    {...styles.actionImg}
-                    src="/static/save.svg"
-                    title="Save"
-                    alt="Save"
-                  />
-                </div>
-                <div {...styles.actionButton} onClick={this.cancelEdit}>
-                  <img
-                    {...styles.actionImg}
-                    src="/static/cancel.svg"
-                    title="Cancel"
-                    alt="Cancel"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!this.state.editing && (
-          <div {...styles.actionButtons}>
-            <div {...styles.permalink}>
-              <small>
-                <Link
-                  onClick={() => this.copyPermalink(answer)}
-                  to={"/exams/" + this.props.filename + "#" + answer.longId}
-                  title="Copy link to clipboard"
+          <Row className="flex-between">
+            <Col xs="auto">
+              {(answer === undefined || editing) && (
+                <IconButton
+                  className="m-1"
+                  color="primary"
+                  size="sm"
+                  onClick={save}
+                  loading={updating}
+                  icon="SAVE"
                 >
-                  Permalink
-                </Link>
-              </small>
-            </div>
-            {!this.props.isReadonly && this.state.savedText.length > 0 && (
-              <div {...styles.actionButton} onClick={this.toggleAddingComment}>
-                <img
-                  {...styles.actionImg}
-                  src="/static/comment.svg"
-                  title="Add Comment"
-                  alt="Add Comment"
-                />
-              </div>
-            )}
-            {!this.props.isReadonly && answer.canEdit && (
-              <div {...styles.actionButton} onClick={this.startEdit}>
-                <img
-                  {...styles.actionImg}
-                  src="/static/edit.svg"
-                  title="Edit Answer"
-                  alt="Edit Answer"
-                />
-              </div>
-            )}
-            {!this.props.isReadonly && (answer.canEdit || this.props.isAdmin) && (
-              <div {...styles.actionButton} onClick={this.removeAnswer}>
-                <img
-                  {...styles.actionImg}
-                  src="/static/delete.svg"
-                  title="Delete Answer"
-                  alt="Delete Answer"
-                />
-              </div>
-            )}
-            {!this.props.isReadonly && (
-              <div {...styles.actionButton} onClick={this.toggleAnswerFlag}>
-                <img
-                  {...styles.actionImg}
-                  src={
-                    answer.isFlagged
-                      ? "/static/flag_active.svg"
-                      : "/static/flag.svg"
-                  }
-                  title="Flag as Inappropriate"
-                  alt="Flag as Inappropriate"
-                />
-              </div>
-            )}
-            {!this.props.isReadonly && answer.flagged > 0 && (
-              <div {...styles.actionButton} onClick={this.resetAnswerFlagged}>
-                {answer.flagged}
-              </div>
-            )}
-          </div>
-        )}
+                  Save
+                </IconButton>
+              )}
+            </Col>
+            <Col xs="auto">
+              {onSectionChanged && (
+                <>
+                  <ButtonGroup className="m-1">
+                    {(answer === undefined || editing) && (
+                      <IconButton size="sm" onClick={onCancel} icon="CLOSE">
+                        {editing ? "Cancel" : "Delete Draft"}
+                      </IconButton>
+                    )}
+                    {answer !== undefined && (
+                      <IconButton
+                        size="sm"
+                        onClick={() => setHasCommentDraft(true)}
+                        icon="PLUS"
+                        disabled={hasCommentDraft}
+                      >
+                        Add Comment
+                      </IconButton>
+                    )}
+                    {answer !== undefined && (
+                      <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+                        <DropdownToggle size="sm" caret>
+                          More
+                        </DropdownToggle>
+                        <DropdownMenu>
+                          {answer.expertvotes === 0 && isExpert && (
+                            <DropdownItem
+                              onClick={() => setFlagged(answer.oid, true)}
+                            >
+                              Endorse Answer
+                            </DropdownItem>
+                          )}
+                          {answer.flagged === 0 && (
+                            <DropdownItem
+                              onClick={() => setFlagged(answer.oid, true)}
+                            >
+                              Flag as Inappropriate
+                            </DropdownItem>
+                          )}
+                          <DropdownItem
+                            onClick={() =>
+                              copy(
+                                `${document.location.origin}${document.location.pathname}#${answer.longId}`,
+                              )
+                            }
+                          >
+                            Copy Permalink
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </ButtonDropdown>
+                    )}
+                  </ButtonGroup>
+                </>
+              )}
+            </Col>
+          </Row>
 
-        {(answer.comments.length > 0 || this.state.addingComment) && (
-          <div {...styles.comments}>
-            {this.state.addingComment && (
-              <Comment
-                isNewComment={true}
-                isReadonly={this.props.isReadonly}
-                isAdmin={this.props.isAdmin}
-                sectionId={this.props.sectionId}
-                answerId={answer.oid}
-                comment={{
-                  oid: "",
-                  longId: "",
-                  text: "",
-                  authorId: "",
-                  authorDisplayName: "",
-                  canEdit: true,
-                  time: "",
-                  edittime: "",
-                }}
-                onSectionChanged={this.props.onSectionChanged}
-                onNewCommentSaved={this.toggleAddingComment}
+          {answer &&
+            onSectionChanged &&
+            (hasCommentDraft || answer.comments.length > 0) && (
+              <CommentSectionComponent
+                hasDraft={hasCommentDraft}
+                answer={answer}
+                onSectionChanged={onSectionChanged}
+                onDraftDelete={() => setHasCommentDraft(false)}
               />
             )}
-            {comments.map(e => (
-              <Comment
-                key={e.oid}
-                isReadonly={this.props.isReadonly}
-                isAdmin={this.props.isAdmin}
-                comment={e}
-                sectionId={this.props.sectionId}
-                answerId={answer.oid}
-                onSectionChanged={this.props.onSectionChanged}
-              />
-            ))}
-            {comments.length < answer.comments.length && (
-              <div {...styles.moreComments} onClick={this.toggleComments}>
-                Show {answer.comments.length - comments.length} more comments...
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-}
+        </CardBody>
+      </AnswerWrapper>
+    </>
+  );
+};
+
+export default AnswerComponent;

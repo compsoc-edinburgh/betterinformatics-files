@@ -1,22 +1,14 @@
 import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
-import { css } from "glamor";
-import Colors from "../colors";
-
-const wrapperStyle = css({
-  background: Colors.cardBackground,
-  boxShadow: Colors.cardShadow,
-  width: "100%",
-  maxWidth: "500px",
-  margin: "auto",
-  marginBottom: "20px",
-  padding: "5px 10px",
-  boxSizing: "border-box",
-});
-const centerStyle = css({
-  textAlign: "center",
-});
+import {
+  Card,
+  CardHeader,
+  CardBody,
+  Button,
+  Row,
+  Col,
+} from "@vseth/components";
 
 export class TOCNode {
   name: string;
@@ -70,27 +62,37 @@ interface Props {
 export const TOC: React.FC<Props> = ({ toc }) => {
   const [visible, setVisible] = useState(false);
   return visible ? (
-    <div {...wrapperStyle}>
-      <div {...centerStyle}>
-        <h3>
-          Contents
-          <button onClick={() => setVisible(false)}>Hide</button>
-        </h3>
-      </div>
-      <ul>
-        {toc.children.map((child, i) => (
-          <TOCNodeComponent node={child} key={child.name + i} />
-        ))}
-      </ul>
-    </div>
+    <Card className="m-1">
+      <CardHeader>
+        <Row className="flex-between">
+          <Col xs="auto" className="d-flex flex-center flex-column">
+            <h6 className="m-0">Contents</h6>
+          </Col>
+          <Col xs="auto">
+            <Button onClick={() => setVisible(false)}>Hide</Button>
+          </Col>
+        </Row>
+      </CardHeader>
+      <CardBody>
+        <ul>
+          {toc.children.map((child, i) => (
+            <TOCNodeComponent node={child} key={child.name + i} />
+          ))}
+        </ul>
+      </CardBody>
+    </Card>
   ) : (
-    <div {...wrapperStyle}>
-      <div {...centerStyle}>
-        <h3>
-          Contents
-          <button onClick={() => setVisible(true)}>Show</button>
-        </h3>{" "}
-      </div>
-    </div>
+    <Card className="m-1">
+      <CardHeader>
+        <Row className="flex-between">
+          <Col xs="auto" className="d-flex flex-center flex-column">
+            <h6 className="m-0">Contents</h6>
+          </Col>
+          <Col xs="auto">
+            <Button onClick={() => setVisible(true)}>Show</Button>
+          </Col>
+        </Row>
+      </CardHeader>
+    </Card>
   );
 };

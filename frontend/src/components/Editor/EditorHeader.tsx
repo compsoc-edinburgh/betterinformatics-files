@@ -1,28 +1,37 @@
-import { EditorMode } from "./utils/types";
-import * as React from "react";
-import TabBar from "./TabBar";
+import { Nav, NavItem, NavLink } from "@vseth/components";
 import { css } from "emotion";
-import { Bold, Italic, Link, Code, DollarSign } from "react-feather";
+import * as React from "react";
+import { Bold, Code, DollarSign, Italic, Link } from "react-feather";
+import TooltipButton from "../TooltipButton";
+import { EditorMode } from "./utils/types";
 
 const iconButtonStyle = css`
   margin: 0;
   border: none;
   cursor: pointer;
   background-color: transparent;
-  padding: 6px;
-  color: rgba(0, 0, 0, 0.4);
+  padding: 0 0.875rem;
+  height: 100%;
+  color: rgba(0, 0, 0, 0.8);
   transition: color 0.1s;
+  min-width: 0;
   &:hover {
     color: rgba(0, 0, 0, 0.8);
   }
 `;
-const headerStyle = css`
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+const navStyle = css`
+  width: 100%;
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
+  justify-content: space-between;
 `;
-const spacer = css`
+const headerStyle = css`
+  position: relative;
+`;
+const linkStyle = css`
+  font-size: 0.8rem !important;
+`;
+const tabContainer = css`
+  display: flex;
   flex-grow: 1;
 `;
 
@@ -44,60 +53,87 @@ const EditorHeader: React.FC<Props> = ({
   const iconSize = 15;
   return (
     <div className={headerStyle}>
-      <TabBar
-        items={[
-          {
-            title: "Write",
-            active: activeMode === "write",
-            onClick: () => onActiveModeChange("write"),
-          },
-          {
-            title: "Preview",
-            active: activeMode === "preview",
-            onClick: () => onActiveModeChange("preview"),
-          },
-        ]}
-      />
-      <div className={spacer} />
-      {activeMode === "write" && (
-        <>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onMathClick}
-            type="button"
-          >
-            <DollarSign size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onCodeClick}
-            type="button"
-          >
-            <Code size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onLinkClick}
-            type="button"
-          >
-            <Link size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onItalicClick}
-            type="button"
-          >
-            <Italic size={iconSize} />
-          </button>
-          <button
-            className={iconButtonStyle}
-            onClick={handlers.onBoldClick}
-            type="button"
-          >
-            <Bold size={iconSize} />
-          </button>
-        </>
-      )}
+      <Nav tabs className={navStyle}>
+        <div className={tabContainer}>
+          <NavItem>
+            <NavLink
+              active={activeMode === "write"}
+              onClick={() => onActiveModeChange("write")}
+              className={linkStyle}
+            >
+              Write
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              active={activeMode === "preview"}
+              onClick={() => onActiveModeChange("preview")}
+              className={linkStyle}
+            >
+              Preview
+            </NavLink>
+          </NavItem>
+        </div>
+        <div>
+          {activeMode === "write" && (
+            <>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onMathClick}
+                type="button"
+                size="sm"
+                tooltip="Inline Math"
+              >
+                <DollarSign size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onCodeClick}
+                type="button"
+                size="sm"
+                tooltip="Code Block"
+              >
+                <Code size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onLinkClick}
+                type="button"
+                size="sm"
+                tooltip="Hyperlink"
+              >
+                <Link size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onItalicClick}
+                type="button"
+                size="sm"
+                tooltip={
+                  <>
+                    Italic<kbd>Ctrl + I</kbd>{" "}
+                  </>
+                }
+              >
+                <Italic size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onBoldClick}
+                type="button"
+                size="sm"
+                tooltip={
+                  <>
+                    Bold<kbd>Ctrl + B</kbd>{" "}
+                  </>
+                }
+              >
+                <Bold size={iconSize} />
+              </TooltipButton>
+            </>
+          )}
+        </div>
+      </Nav>
     </div>
   );
 };

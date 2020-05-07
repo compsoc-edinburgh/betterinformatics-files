@@ -3,11 +3,17 @@ from answers.models import Exam
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import ensure_csrf_cookie
+import json
 
 
 @ensure_csrf_cookie
 def index(request):
-    return response.send_file('index.html')
+    with open('index.html') as f:
+        html = f.read()
+        html = html.replace('__SERVER_DATA__', json.dumps({
+            'org_id': '0000'
+        }))
+    return HttpResponse(html, content_type='text/html', charset='utf-8')
 
 
 def favicon(request):

@@ -1,40 +1,37 @@
 import * as React from "react";
-import { css } from "glamor";
+import { css } from "emotion";
 import ReactMarkdown from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
 import "katex/dist/katex.min.css";
 import TeX from "@matejmazur/react-katex";
-import Colors from "../colors";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { solarizedLight } from "react-syntax-highlighter/dist/styles/hljs";
-// import MathJax from 'react-mathjax2';
 
 interface Props {
   value: string;
-  background?: string;
 }
 
-const styles = {
-  wrapper: css({
-    "& p:first-child": {
-      marginBlockStart: "0",
-    },
-    "& p:last-child": {
-      marginBlockEnd: "0",
-    },
-    "& img": {
-      maxWidth: "100%",
-    },
-    "@media (max-width: 699px)": {
-      "& p": {
-        marginBlockStart: "0.5em",
-        marginBlockEnd: "0.5em",
-      },
-    },
-  }),
-};
+const wrapperStyle = css`
+  overflow-x: auto;
+  overflow-y: hidden;
+  & p:first-child {
+    margin-block-start: 0;
+  }
+  & p:last-child {
+    margin-block-end: 0;
+  }
+  & img {
+    max-width: 100%;
+  }
+  @media (max-width: 699px) {
+    & p {
+      margin-block-start: 0.5em;
+      margin-block-end: 0.5em;
+    }
+  }
+`;
 
-export default ({ value, background }: Props) => {
+export default ({ value }: Props) => {
   if (value.length === 0) {
     return <div />;
   }
@@ -48,18 +45,14 @@ export default ({ value, background }: Props) => {
     ),
   };
   return (
-    <div
-      {...styles.wrapper}
-      {...css({ background: background || Colors.markdownBackground })}
-      {...css({ overflow: "auto" })}
-    >
+    <div className={wrapperStyle}>
       <ReactMarkdown
         source={value}
         transformImageUri={uri => {
           if (uri.includes("/")) {
             return uri;
           } else {
-            return "/api/image/get/" + uri + "/";
+            return `/api/image/get/${uri}/`;
           }
         }}
         plugins={[RemarkMathPlugin]}
