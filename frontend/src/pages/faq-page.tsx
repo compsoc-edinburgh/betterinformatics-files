@@ -38,7 +38,7 @@ export const FAQC: React.FC = () => {
     add(
       question,
       answer,
-      (faqs || []).reduce((old, value) => Math.max(old, value.order), 0) + 1,
+      (faqs || []).reduce((old, value) => Math.max(old, value.order), -1) + 1,
     );
     handleDeleteDraft();
   };
