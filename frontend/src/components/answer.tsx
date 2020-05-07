@@ -50,11 +50,6 @@ const AnswerToolbar = styled(ButtonToolbar)`
   margin: 0 -0.3em;
 `;
 
-const bodyCanEditStyle = css`
-  position: relative;
-  padding-top: 2.3em !important;
-`;
-
 interface Props {
   section?: AnswerSection;
   answer?: Answer;
