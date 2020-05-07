@@ -8,7 +8,7 @@ import { UserInfo } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 import { css } from "emotion";
 const overflowScroll = css`
-  overflow: scroll;
+  overflow: auto;
 `;
 const modes = [
   "score",
