@@ -99,8 +99,8 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText, false);
-  }, [section, draftText, update]);
+    if (section) update(section.oid, draftText, isLegacyAnswer);
+  }, [section, draftText, update, isLegacyAnswer]);
   const remove = useCallback(() => {
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
