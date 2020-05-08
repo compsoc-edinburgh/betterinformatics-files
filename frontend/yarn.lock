@@ -1544,10 +1544,10 @@
     lodash.throttle "^4.1.1"
     umi-request "^1.2.17"
 
-"@vseth/components@^1.5.0-alpha.23":
-  version "1.5.0-alpha.23"
-  resolved "https://registry.yarnpkg.com/@vseth/components/-/components-1.5.0-alpha.23.tgz#25b15855723289f8a2c26c2417f5c46b36c6a107"
-  integrity sha512-GDwY/Jb8Oe4tEkreBGqVN8+rjRAVDsFR20MojHdsy6fqVwpuPv/S6NXKzKHfLA4WlOAYix45nqwwLtb7PJ7R6A==
+"@vseth/components@2.0.0-alpha.1":
+  version "2.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@vseth/components/-/components-2.0.0-alpha.1.tgz#9474b344508c8c7a84d472e02774c15fe14de95e"
+  integrity sha512-Gr7kFY7Gf+mUytqUvVr1JLahdqy+GoJ2RnzyIHRvj9CJNC8mFNUJfhgQ5caMb5Nalq3odMpZB4xdeJzWpPXfRw==
   dependencies:
     "@types/classnames" "^2.2.7"
     "@types/react-jsonschema-form" "^1.6.4"
@@ -1560,11 +1560,6 @@
     reactstrap "^8.1.1"
     unstated-next "^1.1.0"
     use-onclickoutside "^0.3.1"
-
-"@vseth/vseth-theme@^1.5.0-alpha.9":
-  version "1.5.0-alpha.9"
-  resolved "https://registry.yarnpkg.com/@vseth/vseth-theme/-/vseth-theme-1.5.0-alpha.9.tgz#d49a1647a03ec3c27f4f93a6a906dbef3a29a6a3"
-  integrity sha512-EnFFGoWWPX7+lEAL/zGluQJLxrEVRBup71aL1bfh0WtL1eN7uq66OAoeqFZKWBJrdt0UlE4KDQSUGXbcFETd+g==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"

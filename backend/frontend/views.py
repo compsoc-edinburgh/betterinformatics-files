@@ -1,18 +1,20 @@
 from util import response, legacy_importer
 from answers.models import Exam
+from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import ensure_csrf_cookie
 import json
-
 
 @ensure_csrf_cookie
 def index(request):
     with open('index.html') as f:
         html = f.read()
         html = html.replace('__SERVER_DATA__', json.dumps({
-            'org_id': '0000'
+            'globID': settings.COMSOL_FRONTEND_GLOB_ID
         }))
+        html = html.replace('https://static.vseth.ethz.ch/assets/vseth-0000-vseth/theme.css',
+                            'https://static.vseth.ethz.ch/assets/{}/theme.css'.format(globID))
     return HttpResponse(html, content_type='text/html', charset='utf-8')
 
 
