@@ -11,8 +11,8 @@ import json
 def index(request):
     glob_id = settings.COMSOL_FRONTEND_GLOB_ID
     context = {
-        'globID': glob_id,
-        '__SERVER_DATA__': json.dumps({ 'globID': glob_id })
+        'GLOB_ID': glob_id,
+        'SERVER_DATA': json.dumps({ 'globID': glob_id })
     }
     return render(request, 'index.html', context)
 
