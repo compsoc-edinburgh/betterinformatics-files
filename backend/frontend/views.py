@@ -9,11 +9,7 @@ import json
 
 @ensure_csrf_cookie
 def index(request):
-    glob_id = settings.COMSOL_FRONTEND_GLOB_ID
-    context = {
-        'GLOB_ID': glob_id,
-        'SERVER_DATA': json.dumps({ 'globID': glob_id })
-    }
+    context = { 'GLOB_ID': settings.COMSOL_FRONTEND_GLOB_ID }
     return render(request, 'index.html', context)
 
 
