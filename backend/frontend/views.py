@@ -6,6 +6,7 @@ from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import ensure_csrf_cookie
 import json
 
+
 @ensure_csrf_cookie
 def index(request):
     with open('index.html') as f:
@@ -14,7 +15,7 @@ def index(request):
             'globID': settings.COMSOL_FRONTEND_GLOB_ID
         }))
         html = html.replace('https://static.vseth.ethz.ch/assets/vseth-0000-vseth/theme.css',
-                            'https://static.vseth.ethz.ch/assets/{}/theme.css'.format(globID))
+                            'https://static.vseth.ethz.ch/assets/{}/theme.css'.format(settings.COMSOL_FRONTEND_GLOB_ID))
     return HttpResponse(html, content_type='text/html', charset='utf-8')
 
 
