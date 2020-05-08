@@ -6,6 +6,7 @@ from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import ensure_csrf_cookie
 import json
 
+
 @ensure_csrf_cookie
 def index(request):
     glob_id = settings.COMSOL_FRONTEND_GLOB_ID
