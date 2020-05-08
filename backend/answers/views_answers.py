@@ -14,9 +14,9 @@ def get_answer(request, long_id):
         answer = Answer.objects.get(long_id=long_id)
         return response.success(value=section_util.get_answer_response(request, answer))
     except Answer.DoesNotExist as e:
-        return Http404()
+        raise Http404()
     except Answer.MultipleObjectsReturned as e:
-        return Http404()
+        raise Http404()
 
 @response.request_post('text', 'legacy_answer')
 @auth_check.require_login
