@@ -190,31 +190,31 @@ const AnswerComponent: React.FC<Props> = ({
             </Col>
           </Row>
         </CardHeader>
-        <CardBody className={canRemove ? "pt-4 position-relative" : ""}>
-          <div className="position-absolute position-top-right">
-            <ButtonGroup>
-              {!editing && canEdit && (
-                <SmallButton
-                  size="sm"
-                  color="white"
-                  onClick={startEdit}
-                  tooltip="Edit answer"
-                >
-                  <Icon icon={ICONS.EDIT} size={18} />
-                </SmallButton>
-              )}
-              {answer && canRemove && (
-                <SmallButton
-                  size="sm"
-                  color="white"
-                  onClick={remove}
-                  tooltip="Delete answer"
-                >
-                  <Icon icon={ICONS.DELETE} size={18} />
-                </SmallButton>
-              )}
-            </ButtonGroup>
-          </div>
+        <div className="text-right">
+          <ButtonGroup>
+            {!editing && canEdit && (
+              <SmallButton
+                size="sm"
+                color="white"
+                onClick={startEdit}
+                tooltip="Edit answer"
+              >
+                <Icon icon={ICONS.EDIT} size={18} />
+              </SmallButton>
+            )}
+            {answer && canRemove && (
+              <SmallButton
+                size="sm"
+                color="white"
+                onClick={remove}
+                tooltip="Delete answer"
+              >
+                <Icon icon={ICONS.DELETE} size={18} />
+              </SmallButton>
+            )}
+          </ButtonGroup>
+        </div>
+        <CardBody className="pt-0">
           {editing || answer === undefined ? (
             <Editor
               value={draftText}
