@@ -34,7 +34,7 @@ COPY cinit.yml /etc/cinit.d/community-solutions.yml
 ENV PYTHONUNBUFFERED True
 
 COPY --from=0 /usr/src/app/build/manifest.json ./manifest.json
-COPY --from=0 /usr/src/app/build/index.html ./index.html
+COPY --from=0 /usr/src/app/build/index.html ./templates/index.html
 COPY --from=0 /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=0 /usr/src/app/build/static ./static
 COPY ./frontend/public/exam10.pdf ./exam10.pdf
