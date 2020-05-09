@@ -61,8 +61,13 @@ views as gunicorn does not reload the files automatically.
 
 There is an autoformatter for the frontend code
 ([prettier](https://prettier.io/)). It can be run once using `yarn run format`.
-If you commit any code which was not autoformatted, then the CI will fail. It
-is convenient to run prettier whenever you save a file using an IDE plugin.
+Some aspects of code quality and coding style are checked automatically using 
+[eslint](https://eslint.org). You can run eslint using `yarn run lint`. There are plugins
+for most editors so that you can see warnings and errors as you type.
+
+If you commit any code which was not autoformatted or doesn't conform to our set of
+eslint rules, then the CI will fail. It is convenient to run prettier whenever you
+save a file using an IDE plugin.
 
 ## Generate test data
 To generate test data, connect to the running container with
