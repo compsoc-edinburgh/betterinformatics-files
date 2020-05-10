@@ -10,10 +10,8 @@ const style = css`
   position: absolute;
   top: 0;
   left: 0;
-  width: 0;
-  height: 0;
-  width: 100%;
-  height: 100%;
+  bottom: 0;
+  right: 0;
   background-color: rgba(0, 0, 0, 0.1);
   z-index: ${GlobalConsts.zIndex.imageOverlay};
   animation: ${fadeIn} 1s;
