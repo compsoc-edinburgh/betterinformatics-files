@@ -77,12 +77,11 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
     <>
       {modals}
       <Card className="my-1">
-        <CardHeader tag="h4">{examtype}</CardHeader>
         <div className={overflowScroll}>
           <Table>
             <thead>
               <tr>
-                <th>
+                <th className="align-middle">
                   <input
                     type="checkbox"
                     checked={checked}
@@ -90,7 +89,9 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                     onChange={e => setChecked(e.currentTarget.checked)}
                   />
                 </th>
-                <th />
+                <th className="align-middle">
+                  <h4 className="m-0 py-1">{examtype}</h4>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -136,6 +137,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                     </Row>
                     {user.isAdmin && (
                       <IconButton
+                        className="mt-2"
                         close
                         tooltip="Delete exam"
                         icon="DELETE"
