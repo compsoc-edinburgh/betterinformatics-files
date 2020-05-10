@@ -162,17 +162,16 @@ const AnswerComponent: React.FC<Props> = ({
                     </SmallButton>
                     <IconButton
                       color="danger"
-                      icon={answer.isFlagged ? "CLOSE" : "PLUS"}
+                      tooltip={
+                        answer.isExpertVoted
+                          ? "Remove inappropriate flag"
+                          : "Add inappropriate flag"
+                      }
+                      size="sm"
+                      loading={flaggedLoading}
+                      icon={answer.isFlagged ? "MINUS" : "PLUS"}
                       onClick={() => setFlagged(answer.oid, !answer.isFlagged)}
                     />
-                    {isAdmin && (
-                      <IconButton
-                        tooltip="Remove all inappropriate flags"
-                        color="danger"
-                        icon="DELETE"
-                        onClick={() => resetFlagged(answer.oid)}
-                      />
-                    )}
                   </ButtonGroup>
                 )}
                 {answer && onSectionChanged && (
@@ -292,6 +291,13 @@ const AnswerComponent: React.FC<Props> = ({
                           >
                             Copy Permalink
                           </DropdownItem>
+                          {isAdmin && answer.flagged > 0 && (
+                            <DropdownItem
+                              onClick={() => resetFlagged(answer.oid)}
+                            >
+                              Remove all inappropriate flags
+                            </DropdownItem>
+                          )}
                         </DropdownMenu>
                       </ButtonDropdown>
                     )}
