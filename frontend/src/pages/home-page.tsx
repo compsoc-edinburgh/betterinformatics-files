@@ -183,7 +183,6 @@ const HomePage: React.FC<{}> = () => {
   return (
     <>
       <Container>
-        <LoadingOverlay loading={loading} />
         <h1>Community Solutions</h1>
       </Container>
       <Container>
@@ -215,7 +214,8 @@ const HomePage: React.FC<{}> = () => {
           </Col>
         </Row>
       </Container>
-      <ContentContainer>
+      <ContentContainer className="position-relative">
+        <LoadingOverlay loading={loading} />
         <Container>
           {error ? (
             <Alert color="danger">{error.toString()}</Alert>
