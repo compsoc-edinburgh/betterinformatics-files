@@ -115,7 +115,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
     AdminMode.Read,
   );
   return (
-    <Container>
+    <Container className="mb-5">
       <h2>Feedback</h2>
       <Nav tabs className="my-3">
         <NavItem>
@@ -145,7 +145,7 @@ const FeedbackPage: React.FC<{}> = () => {
   return isAdmin ? (
     <FeedbackAdminView />
   ) : (
-    <Container>
+    <Container className="mb-5">
       <h2>Feedback</h2>
       <FeedbackForm />
     </Container>

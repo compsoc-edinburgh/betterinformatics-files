@@ -179,7 +179,7 @@ const CategoryPage: React.FC<{}> = () => {
   useTitle(`${data?.displayname ?? slug} - VIS Community Solutions`);
   const user = useUser();
   return (
-    <Container>
+    <Container className="mb-5">
       {error && <Alert color="danger">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay loading={loading} />}
       {data && (

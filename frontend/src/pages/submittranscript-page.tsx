@@ -6,7 +6,7 @@ import useTitle from "../hooks/useTitle";
 const UploadTranscriptPage: React.FC<{}> = () => {
   useTitle("Upload Transcript - VIS Community Solutions");
   return (
-    <Container>
+    <Container className="mb-5">
       <Row>
         <Col />
         <Col lg="6">

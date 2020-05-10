@@ -44,7 +44,7 @@ export const FAQC: React.FC = () => {
   };
 
   return (
-    <Container>
+    <Container className="mb-5">
       <div>
         <h1>FAQs</h1>
         <p>

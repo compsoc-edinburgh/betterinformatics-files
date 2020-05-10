@@ -390,7 +390,7 @@ const ExamPage: React.FC<{}> = () => {
   const error = metaDataError || cutsError || pdfError;
   const user = useUser()!;
   return (
-    <div>
+    <div className="mb-5">
       <Container>
         <Breadcrumb>
           <BreadcrumbItem>

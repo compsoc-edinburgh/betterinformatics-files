@@ -33,7 +33,7 @@ const Scoreboard: React.FC<{}> = () => {
     cacheKey: `scoreboard-${mode}`,
   });
   return (
-    <Container>
+    <Container className="mb-5">
       <h1>Scoreboard</h1>
       {error && <Alert color="danger">{error.message}</Alert>}
       <LoadingOverlay loading={loading} />
