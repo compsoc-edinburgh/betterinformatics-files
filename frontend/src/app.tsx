@@ -67,7 +67,7 @@ const App: React.FC<{}> = () => {
           <SetUserContext.Provider value={setUser}>
             <div className="mobile-capable">
               <ExamsNavbar />
-              <main className="main__container">
+              <main className="main__container mb-5">
                 <Switch>
                   <UserRoute exact path="/" component={HomePage} />
                   <Route exact path="/login" component={LoginPage} />
