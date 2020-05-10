@@ -90,7 +90,7 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                   />
                 </th>
                 <th className="align-middle">
-                  <h4 className="m-0 p-1">{examtype}</h4>
+                  <h4 className="m-0 py-1">{examtype}</h4>
                 </th>
               </tr>
             </thead>
