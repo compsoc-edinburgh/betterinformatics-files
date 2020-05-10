@@ -57,7 +57,7 @@ const ModQueue: React.FC = () => {
   const error = examsError || flaggedError || payError;
 
   return (
-    <Container className="mb-5">
+    <Container>
       {flaggedAnswers && flaggedAnswers.length > 0 && (
         <div>
           <h2>Flagged Answers</h2>

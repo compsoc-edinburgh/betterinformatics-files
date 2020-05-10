@@ -18,7 +18,7 @@ const UserPage: React.FC<{}> = () => {
   const error = userInfoError;
   const loading = userInfoLoading;
   return (
-    <div className="mb-5">
+    <>
       <Container>
         <UserScoreCard
           username={username}
@@ -43,7 +43,7 @@ const UserPage: React.FC<{}> = () => {
           </Row>
         </Container>
       </ContentContainer>
-    </div>
+    </>
   );
 };
 export default UserPage;

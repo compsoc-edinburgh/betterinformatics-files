@@ -6,7 +6,7 @@ import useTitle from "../hooks/useTitle";
 const LoginPage: React.FC<{}> = () => {
   useTitle("Login - VIS Community Solutions");
   return (
-    <Container className="mb-5">
+    <Container>
       <Row>
         <Col />
         <Col lg="6">

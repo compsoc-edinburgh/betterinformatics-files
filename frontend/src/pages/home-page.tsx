@@ -181,7 +181,7 @@ const HomePage: React.FC<{}> = () => {
   }, [run]);
 
   return (
-    <div className="mb-5">
+    <>
       <Container>
         <LoadingOverlay loading={loading} />
         <h1>Community Solutions</h1>
@@ -262,7 +262,7 @@ const HomePage: React.FC<{}> = () => {
           )}
         </Container>
       </ContentContainer>
-    </div>
+    </>
   );
 };
 export default HomePage;

@@ -6,7 +6,7 @@ import useTitle from "../hooks/useTitle";
 const UploadPdfPage: React.FC<{}> = () => {
   useTitle("Upload PDF - VIS Community Solutions");
   return (
-    <Container className="mb-5">
+    <Container>
       <Row>
         <Col />
         <Col lg="6">
