@@ -22,7 +22,10 @@ import UploadTranscriptPage from "./pages/submittranscript-page";
 import TutorialPage from "./pages/tutorial-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-
+import { css } from "emotion";
+const minHeight = css`
+  min-height: 100vh;
+`;
 const App: React.FC<{}> = () => {
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
@@ -65,9 +68,9 @@ const App: React.FC<{}> = () => {
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
-            <div className="mobile-capable">
+            <div className={`mobile-capable position-relative ${minHeight}`}>
               <ExamsNavbar />
-              <main className="main__container mb-5">
+              <main className="main__container pb-5">
                 <Switch>
                   <UserRoute exact path="/" component={HomePage} />
                   <Route exact path="/login" component={LoginPage} />
