@@ -40,6 +40,7 @@ interface Props {
   displayHiddenPdfSections?: boolean;
   displayHiddenAnswerSections?: boolean;
   displayHideShowButtons?: boolean;
+  displayEmptyCutLabels?: boolean;
 }
 function notUndefined<T>(value: T | undefined): value is T {
   return value !== undefined;
@@ -79,6 +80,7 @@ const Exam: React.FC<Props> = React.memo(
     displayHiddenPdfSections = false,
     displayHiddenAnswerSections = false,
     displayHideShowButtons = true,
+    displayEmptyCutLabels = false,
   }) => {
     const getAddCutHandler = useCallback(
       (section: PdfSection) => {
@@ -165,6 +167,7 @@ const Exam: React.FC<Props> = React.memo(
             if (displayHiddenAnswerSections || !section.cutHidden) {
               return (
                 <AnswerSectionComponent
+                  displayEmptyCutLabels={displayEmptyCutLabels}
                   key={section.oid}
                   oid={section.oid}
                   onSectionChange={reloadCuts}

@@ -166,6 +166,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     displayHiddenPdfSections: false,
     displayHiddenAnswerSections: false,
     displayHideShowButtons: false,
+    displayEmptyCutLabels: false,
   });
 
   const toc = useMemo(() => {
@@ -336,6 +337,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               displayHiddenAnswerSections={
                 displayOptions.displayHiddenAnswerSections
               }
+              displayEmptyCutLabels={displayOptions.displayEmptyCutLabels}
               displayHideShowButtons={displayOptions.displayHideShowButtons}
             />
           )}
