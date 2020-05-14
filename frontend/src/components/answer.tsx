@@ -117,31 +117,39 @@ const AnswerComponent: React.FC<Props> = ({
             </Col>
             <Col xs="auto">
               <AnswerToolbar>
-                {answer && (answer.expertvotes > 0 || setExpertVoteLoading) && (
-                  <ButtonGroup className="m-1" size="sm">
-                    <IconButton
-                      tooltip="This answer is endorsed by an expert"
-                      color="primary"
-                      icon="STAR_FILLED"
-                      active
-                    />
-                    <SmallButton color="primary" active>
-                      {answer.expertvotes}
-                    </SmallButton>
-                    <IconButton
-                      color="primary"
-                      tooltip={
-                        answer.isExpertVoted
-                          ? "Remove expert vote"
-                          : "Add expert vote"
-                      }
-                      icon={answer.isExpertVoted ? "CLOSE" : "PLUS"}
-                      onClick={() =>
-                        setExpertVote(answer.oid, !answer.isExpertVoted)
-                      }
-                    />
-                  </ButtonGroup>
-                )}
+                {answer &&
+                  (answer.expertvotes > 0 ||
+                    setExpertVoteLoading ||
+                    isExpert) && (
+                    <ButtonGroup className="m-1" size="sm">
+                      <IconButton
+                        color="primary"
+                        size="sm"
+                        tooltip="This answer is endorsed by an expert"
+                        icon="STAR_FILLED"
+                        active
+                      />
+                      <SmallButton color="primary" size="sm" active>
+                        {answer.expertvotes}
+                      </SmallButton>
+                      {isExpert && (
+                        <IconButton
+                          color="primary"
+                          size="sm"
+                          loading={setExpertVoteLoading}
+                          tooltip={
+                            answer.isExpertVoted
+                              ? "Remove expert vote"
+                              : "Add expert vote"
+                          }
+                          icon={answer.isExpertVoted ? "MINUS" : "PLUS"}
+                          onClick={() =>
+                            setExpertVote(answer.oid, !answer.isExpertVoted)
+                          }
+                        />
+                      )}
+                    </ButtonGroup>
+                  )}
                 {answer &&
                   (answer.isFlagged ||
                     (answer.flagged > 0 && isAdmin) ||
@@ -273,13 +281,6 @@ const AnswerComponent: React.FC<Props> = ({
                           More
                         </DropdownToggle>
                         <DropdownMenu>
-                          {answer.expertvotes === 0 && isExpert && (
-                            <DropdownItem
-                              onClick={() => setFlagged(answer.oid, true)}
-                            >
-                              Endorse Answer
-                            </DropdownItem>
-                          )}
                           {answer.flagged === 0 && (
                             <DropdownItem
                               onClick={() => setFlagged(answer.oid, true)}

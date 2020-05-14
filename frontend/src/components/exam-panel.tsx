@@ -40,6 +40,7 @@ export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
   displayHiddenAnswerSections: boolean;
   displayHideShowButtons: boolean;
+  displayEmptyCutLabels: boolean;
 }
 
 interface ExamPanelProps {
@@ -263,6 +264,20 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
               />
               <Label for="displayHideShowButtons" check>
                 Display Hide / Show buttons
+              </Label>
+            </FormGroup>
+            <FormGroup check>
+              <Input
+                type="checkbox"
+                name="check"
+                id="displayEmptyCutLabels"
+                checked={displayOptions.displayEmptyCutLabels}
+                onChange={e =>
+                  setOption("displayEmptyCutLabels", e.target.checked)
+                }
+              />
+              <Label for="displayEmptyCutLabels" check>
+                Display empty cut labels
               </Label>
             </FormGroup>
           </>
