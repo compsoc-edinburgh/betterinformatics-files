@@ -343,3 +343,9 @@ export const useMutation = <B, T extends any[]>(
   const { loading, run } = useRequest(service, { manual: true, onSuccess });
   return [loading, run] as const;
 };
+
+export const removeCategory = async (slug: string) => {
+  await fetchPost("/api/category/remove/", { slug });
+};
+export const useRemoveCategory = (onSuccess?: () => void) =>
+  useMutation(removeCategory, onSuccess);

@@ -12,8 +12,12 @@ import {
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { loadCategoryMetaData, loadMetaCategories } from "../api/hooks";
+import { Link, useParams, useHistory } from "react-router-dom";
+import {
+  loadCategoryMetaData,
+  loadMetaCategories,
+  useRemoveCategory,
+} from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
@@ -22,6 +26,7 @@ import LoadingOverlay from "../components/loading-overlay";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import useTitle from "../hooks/useTitle";
+import useConfirm from "../hooks/useConfirm";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -34,6 +39,17 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const { data, loading } = useRequest(loadMetaCategories, {
     cacheKey: "meta-categories",
   });
+  const history = useHistory();
+  const [removeLoading, remove] = useRemoveCategory(() => history.push("/"));
+  const [confirm, modals] = useConfirm();
+  const onRemove = useCallback(
+    () =>
+      confirm(
+        `Do you really want to remove the category "${metaData.displayname}"?`,
+        () => remove(metaData.slug),
+      ),
+    [confirm, remove, metaData],
+  );
   const offeredIn = useMemo(
     () =>
       data ? getMetaCategoriesForCategory(data, metaData.slug) : undefined,
@@ -44,6 +60,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const user = useUser()!;
   return (
     <>
+      {modals}
       <Breadcrumb>
         <BreadcrumbItem>
           <Link to="/">Home</Link>
@@ -65,12 +82,23 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       ) : (
         <>
           {user.isCategoryAdmin && (
-            <IconButton
-              tooltip="Edit category metadata"
-              close
-              icon="EDIT"
-              onClick={() => setEditing(true)}
-            />
+            <>
+              <IconButton
+                className="m-1"
+                tooltip="Edit category metadata"
+                close
+                icon="EDIT"
+                onClick={() => setEditing(true)}
+              />
+              <IconButton
+                className="m-1"
+                tooltip="Remove category"
+                close
+                loading={removeLoading}
+                icon="DELETE"
+                onClick={onRemove}
+              />
+            </>
           )}
           <h1>{metaData.displayname}</h1>
           <Row>
