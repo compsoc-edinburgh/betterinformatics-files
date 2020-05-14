@@ -163,7 +163,7 @@ const AnswerComponent: React.FC<Props> = ({
                     <IconButton
                       color="danger"
                       tooltip={
-                        answer.isExpertVoted
+                        answer.isFlagged
                           ? "Remove inappropriate flag"
                           : "Add inappropriate flag"
                       }
