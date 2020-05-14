@@ -156,7 +156,7 @@ const AnswerComponent: React.FC<Props> = ({
                     flaggedLoading) && (
                     <ButtonGroup className="m-1" size="sm">
                       <IconButton
-                        tooltip="This answer was flagged as inappropriate by a user. A moderator will decide if the answer should be removed."
+                        tooltip="This answer was flagged as inappropriate by a user. A moderator will decide whether the answer should be removed."
                         color="danger"
                         icon="FLAG"
                         title="Flagged as Inappropriate"
