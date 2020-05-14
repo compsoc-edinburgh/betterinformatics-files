@@ -150,39 +150,43 @@ const AnswerComponent: React.FC<Props> = ({
                       )}
                     </ButtonGroup>
                   )}
-                {answer && (answer.flagged > 0 || flaggedLoading) && (
-                  <ButtonGroup className="m-1" size="sm">
-                    <IconButton
-                      tooltip="This answer was flagged as inappropriate by a user. A moderator will decide if the answer should be removed."
-                      color="danger"
-                      icon="FLAG"
-                      title="Flagged as Inappropriate"
-                      active
-                    >
-                      Inappropriate
-                    </IconButton>
-                    <SmallButton
-                      color="danger"
-                      tooltip={`${answer.flagged} users consider this answer inappropriate.`}
-                      active
-                    >
-                      {answer.flagged}
-                    </SmallButton>
-                    <IconButton
-                      color="danger"
-                      icon={answer.isFlagged ? "CLOSE" : "PLUS"}
-                      onClick={() => setFlagged(answer.oid, !answer.isFlagged)}
-                    />
-                    {isAdmin && (
+                {answer &&
+                  (answer.isFlagged ||
+                    (answer.flagged > 0 && isAdmin) ||
+                    flaggedLoading) && (
+                    <ButtonGroup className="m-1" size="sm">
                       <IconButton
-                        tooltip="Remove all inappropriate flags"
+                        tooltip="This answer was flagged as inappropriate by a user. A moderator will decide whether the answer should be removed."
                         color="danger"
-                        icon="DELETE"
-                        onClick={() => resetFlagged(answer.oid)}
+                        icon="FLAG"
+                        title="Flagged as Inappropriate"
+                        active
+                      >
+                        Inappropriate
+                      </IconButton>
+                      <SmallButton
+                        color="danger"
+                        tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                        active
+                      >
+                        {answer.flagged}
+                      </SmallButton>
+                      <IconButton
+                        color="danger"
+                        tooltip={
+                          answer.isFlagged
+                            ? "Remove inappropriate flag"
+                            : "Add inappropriate flag"
+                        }
+                        size="sm"
+                        loading={flaggedLoading}
+                        icon={answer.isFlagged ? "MINUS" : "PLUS"}
+                        onClick={() =>
+                          setFlagged(answer.oid, !answer.isFlagged)
+                        }
                       />
-                    )}
-                  </ButtonGroup>
-                )}
+                    </ButtonGroup>
+                  )}
                 {answer && onSectionChanged && (
                   <Score
                     oid={answer.oid}
@@ -293,6 +297,13 @@ const AnswerComponent: React.FC<Props> = ({
                           >
                             Copy Permalink
                           </DropdownItem>
+                          {isAdmin && answer.flagged > 0 && (
+                            <DropdownItem
+                              onClick={() => resetFlagged(answer.oid)}
+                            >
+                              Remove all inappropriate flags
+                            </DropdownItem>
+                          )}
                         </DropdownMenu>
                       </ButtonDropdown>
                     )}
