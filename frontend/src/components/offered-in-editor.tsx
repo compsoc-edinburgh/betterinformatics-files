@@ -1,19 +1,16 @@
 import {
   Alert,
   Button,
+  Col,
   Creatable,
-  Input,
-  InputGroup,
-  InputGroupAddon,
+  Form,
+  FormGroup,
+  Label,
   ListGroup,
   ListGroupItem,
   Row,
-  Col,
-  Label,
-  FormGroup,
-  Form,
 } from "@vseth/components";
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useMetaCategories } from "../api/hooks";
 
 interface OfferedInEditorProps {
