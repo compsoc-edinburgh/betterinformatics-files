@@ -28,6 +28,10 @@ const overflowScroll = css`
 `;
 const cursorPointer = css`
   cursor: pointer;
+
+  &:focus {
+    outline: 1px solid black;
+  }
 `;
 interface ExamTypeCardProps {
   examtype: string;
@@ -100,6 +104,12 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                   key={exam.filename}
                   className={cursorPointer}
                   onClick={() => history.push(`/exams/${exam.filename}`)}
+                  onKeyDown={e => {
+                    if (e.keyCode === 13) {
+                      history.push(`/exams/${exam.filename}`);
+                    }
+                  }}
+                  tabIndex={0}
                 >
                   <td
                     onClick={e => e.stopPropagation()}
