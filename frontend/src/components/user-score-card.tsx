@@ -40,29 +40,33 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   return (
     <>
       {logoutError && <Alert color="danger">{logoutError.message}</Alert>}
-      <Row>
+      <Row form>
         <Col>
           <h1>{userInfo?.displayName || username}</h1>
         </Col>
-        <Col xs="auto">
-          {isMyself && (
-            <>
-              {(user.isAdmin || user.simulateNonadmin) && (
+
+        {isMyself && (
+          <>
+            {(user.isAdmin || user.simulateNonadmin) && (
+              <Col xs="auto">
                 <Button
                   disabled={logoutLoading}
                   onClick={() => runSetNonAdmin(!user.simulateNonadmin)}
+                  className="m-2"
                 >
                   {user.isAdmin
                     ? "View without admin privileges"
                     : "View with admin privileges"}
                 </Button>
-              )}
-              <Button disabled={logoutLoading} onClick={logout}>
+              </Col>
+            )}
+            <Col xs="auto">
+              <Button disabled={logoutLoading} onClick={logout} className="m-2">
                 Logout
               </Button>
-            </>
-          )}
-        </Col>
+            </Col>
+          </>
+        )}
       </Row>
 
       <Container fluid>
