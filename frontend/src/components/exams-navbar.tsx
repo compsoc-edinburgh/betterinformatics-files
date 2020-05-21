@@ -81,7 +81,9 @@ const ExamsNavbar: React.FC<{}> = () => {
                 to: "/submittranscript",
               },
             },
-            ...(typeof user === "object" && user.isAdmin ? adminItems : []),
+            ...(typeof user === "object" && user.isCategoryAdmin
+              ? adminItems
+              : []),
           ],
         },
         {
