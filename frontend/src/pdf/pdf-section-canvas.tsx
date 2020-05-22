@@ -15,6 +15,9 @@ import { PdfCanvasReference } from "./reference-counting";
 const lastSection = css`
   margin-bottom: 2rem;
 `;
+const canvasWrapperStyle = css`
+  font-size: 0;
+`;
 
 const usePdf = (
   shouldRender: boolean,
@@ -193,7 +196,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
 
     let content: React.ReactNode;
     if (canvas) {
-      content = <div ref={canvasMountingPoint} />;
+      content = (
+        <div className={canvasWrapperStyle} ref={canvasMountingPoint} />
+      );
     } else {
       content = <div />;
     }
