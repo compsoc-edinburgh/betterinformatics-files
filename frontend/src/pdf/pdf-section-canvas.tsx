@@ -17,6 +17,7 @@ const lastSection = css`
 `;
 const canvasWrapperStyle = css`
   font-size: 0;
+  user-select: none;
 `;
 
 const usePdf = (
