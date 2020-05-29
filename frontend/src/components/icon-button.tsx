@@ -35,7 +35,12 @@ const IconButton: React.FC<IconButtonProps> = ({
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <Icon icon={ICONS[icon]} size="1em" />
+        <>
+          <div className="d-inline-block" style={{ width: 0 }}>
+            &nbsp;
+          </div>
+          <Icon icon={ICONS[icon]} size="1em" />
+        </>
       )}
       {children && <span className={childStyle}>{children}</span>}
     </TooltipButton>
@@ -49,7 +54,12 @@ const IconButton: React.FC<IconButtonProps> = ({
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <Icon icon={ICONS[icon]} size="1em" />
+        <>
+          <div className="d-inline-block" style={{ width: 0 }}>
+            &nbsp;
+          </div>
+          <Icon icon={ICONS[icon]} size="1em" />
+        </>
       )}
       {children && <span className={childStyle}>{children}</span>}
     </Button>
