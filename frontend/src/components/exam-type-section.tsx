@@ -85,7 +85,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       </h3>
       <Row form>
         {exams.map(exam => (
-          <Col key={exam.filename} sm={12} md={6} lg={4}>
+          <Col key={exam.filename} sm={12} lg={6} xl={4}>
             <Card
               className={`${exam.canView ? cursorPointer : ""} my-1`}
               onClick={() =>
