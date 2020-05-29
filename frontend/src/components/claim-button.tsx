@@ -5,6 +5,7 @@ import { Button } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import { useRequest } from "@umijs/hooks";
+import TooltipButton from "./TooltipButton";
 
 const setClaim = async (filename: string, claim: boolean) => {
   await fetchPost(`/api/exam/claimexam/${filename}/`, {
@@ -26,24 +27,45 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
     hasValidClaim(exam) ? (
       exam.import_claim === username ? (
         <Button
-          onClick={() => runSetClaim(exam.filename, false)}
+          size="sm"
+          color="dark"
+          outline
+          onClick={e => {
+            e.stopPropagation();
+            runSetClaim(exam.filename, false);
+          }}
           disabled={loading}
         >
           Release Claim
         </Button>
       ) : (
-        <span>Claimed by {exam.import_claim_displayname}</span>
+        <TooltipButton
+          size="sm"
+          color="white"
+          active
+          tooltip={`Claimed by ${exam.import_claim_displayname}`}
+        >
+          Claimed
+        </TooltipButton>
       )
     ) : (
       <Button
-        onClick={() => runSetClaim(exam.filename, true)}
+        size="sm"
+        color="dark"
+        outline
+        onClick={e => {
+          e.stopPropagation();
+          runSetClaim(exam.filename, true);
+        }}
         disabled={loading}
       >
         Claim Exam
       </Button>
     )
   ) : (
-    <span>-</span>
+    <Button size="sm" color="white" disabled>
+      Claim Exam
+    </Button>
   );
 };
 export default ClaimButton;

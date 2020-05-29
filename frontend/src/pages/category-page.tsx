@@ -101,7 +101,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             </>
           )}
           <h1>{metaData.displayname}</h1>
-          <Row>
+          <Row form>
             <Col lg="6">
               <ListGroup className="m-2">
                 {metaData.semester && (
@@ -172,7 +172,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </ListGroup>
             </Col>
             <ExamList metaData={metaData} />
-            <Col lg={6}>
+            <Col lg={12}>
               {metaData.attachments.length > 0 && (
                 <>
                   <h2>Attachments</h2>

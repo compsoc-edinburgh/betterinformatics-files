@@ -9,7 +9,7 @@ import {
   filterMatches,
   mapExamsToExamType,
 } from "../utils/category-utils";
-import ExamTypeCard from "./exam-type-card";
+import ExamTypeCard from "./exam-type-section";
 import IconButton from "./icon-button";
 import useSet from "../hooks/useSet";
 
@@ -38,55 +38,59 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   const [selected, onSelect, onDeselect] = useSet<string>();
 
   return (
-    <Col lg={6}>
-      <Row form className="my-2">
-        <Col xs="auto">
-          <FormGroup className="m-0">
-            <IconButton
-              disabled={selected.size === 0}
-              onClick={() => dlSelectedExams(selected)}
-              block
-              icon="DOWNLOAD"
-            >
-              Download selected exams
-            </IconButton>
-          </FormGroup>
-        </Col>
-        <Col>
-          <FormGroup className="m-0">
-            <div className="search mb-0">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Filter..."
-                value={filter}
-                onChange={e => setFilter(e.currentTarget.value)}
-              />
-              <div className="search-icon-wrapper">
-                <div className="search-icon" />
+    <>
+      <Col lg={6} className="d-flex align-items-end">
+        <Row form className="my-2 w-100">
+          <Col xs="auto">
+            <FormGroup className="m-0">
+              <IconButton
+                disabled={selected.size === 0}
+                onClick={() => dlSelectedExams(selected)}
+                block
+                icon="DOWNLOAD"
+              >
+                Download selected exams
+              </IconButton>
+            </FormGroup>
+          </Col>
+          <Col>
+            <FormGroup className="m-0">
+              <div className="search mb-0">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Filter..."
+                  value={filter}
+                  onChange={e => setFilter(e.currentTarget.value)}
+                />
+                <div className="search-icon-wrapper">
+                  <div className="search-icon" />
+                </div>
               </div>
-            </div>
-          </FormGroup>
-        </Col>
-      </Row>
-      {error && <Alert color="danger">{error}</Alert>}
-      {loading && <Spinner />}
-      {examTypeMap &&
-        examTypeMap.map(
-          ([examtype, exams]) =>
-            exams.length > 0 && (
-              <ExamTypeCard
-                examtype={examtype}
-                exams={exams}
-                key={examtype}
-                selected={selected}
-                onSelect={onSelect}
-                onDeselect={onDeselect}
-                reload={reload}
-              />
-            ),
-        )}
-    </Col>
+            </FormGroup>
+          </Col>
+        </Row>
+        {error && <Alert color="danger">{error}</Alert>}
+        {loading && <Spinner />}
+      </Col>
+      <Col lg={12}>
+        {examTypeMap &&
+          examTypeMap.map(
+            ([examtype, exams]) =>
+              exams.length > 0 && (
+                <ExamTypeCard
+                  examtype={examtype}
+                  exams={exams}
+                  key={examtype}
+                  selected={selected}
+                  onSelect={onSelect}
+                  onDeselect={onDeselect}
+                  reload={reload}
+                />
+              ),
+          )}
+      </Col>
+    </>
   );
 };
 export default ExamList;

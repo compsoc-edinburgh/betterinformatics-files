@@ -9,6 +9,9 @@ const buttonStyle = css`
   min-width: 0;
   align-content: center;
 `;
+const spacerStyle = css`
+  width: 0;
+`;
 interface IconButtonProps extends ButtonProps {
   icon: keyof typeof ICONS;
   loading?: boolean;
@@ -36,9 +39,7 @@ const IconButton: React.FC<IconButtonProps> = ({
         <Spinner size={size} />
       ) : (
         <>
-          <div className="d-inline-block" style={{ width: 0 }}>
-            &nbsp;
-          </div>
+          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
           <Icon icon={ICONS[icon]} size="1em" />
         </>
       )}
@@ -55,9 +56,7 @@ const IconButton: React.FC<IconButtonProps> = ({
         <Spinner size={size} />
       ) : (
         <>
-          <div className="d-inline-block" style={{ width: 0 }}>
-            &nbsp;
-          </div>
+          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
           <Icon icon={ICONS[icon]} size="1em" />
         </>
       )}
