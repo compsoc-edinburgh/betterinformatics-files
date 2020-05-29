@@ -9,7 +9,7 @@ import {
   filterMatches,
   mapExamsToExamType,
 } from "../utils/category-utils";
-import ExamTypeCard from "./exam-type-section";
+import ExamTypeSection from "./exam-type-section";
 import IconButton from "./icon-button";
 import useSet from "../hooks/useSet";
 
@@ -78,7 +78,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           examTypeMap.map(
             ([examtype, exams]) =>
               exams.length > 0 && (
-                <ExamTypeCard
+                <ExamTypeSection
                   examtype={examtype}
                   exams={exams}
                   key={examtype}

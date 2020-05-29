@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Card, CardHeader, Table, Row, Col } from "@vseth/components";
+import { Badge, Card, Col, Row } from "@vseth/components";
 import { css } from "emotion";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -9,7 +9,6 @@ import useConfirm from "../hooks/useConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
-import Grid from "./grid";
 
 const removeExam = async (filename: string) => {
   await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
@@ -34,7 +33,7 @@ interface ExamTypeCardProps {
   onDeselect: (...filenames: string[]) => void;
   reload: () => void;
 }
-const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
+const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   examtype,
   exams,
 
@@ -216,4 +215,4 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
   );
 };
 
-export default ExamTypeCard;
+export default ExamTypeSection;
