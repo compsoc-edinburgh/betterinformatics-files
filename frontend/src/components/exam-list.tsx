@@ -12,6 +12,11 @@ import {
 import ExamTypeSection from "./exam-type-section";
 import IconButton from "./icon-button";
 import useSet from "../hooks/useSet";
+import { css } from "emotion";
+
+const grow = css`
+  flex-grow: 1;
+`;
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -39,57 +44,53 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
-      <Col lg={6} className="d-flex align-items-end">
-        <Row form className="my-2 w-100">
-          <Col xs="auto">
-            <FormGroup className="m-0">
-              <IconButton
-                disabled={selected.size === 0}
-                onClick={() => dlSelectedExams(selected)}
-                block
-                icon="DOWNLOAD"
-              >
-                Download selected exams
-              </IconButton>
-            </FormGroup>
-          </Col>
-          <Col>
-            <FormGroup className="m-0">
-              <div className="search mb-0">
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Filter..."
-                  value={filter}
-                  onChange={e => setFilter(e.currentTarget.value)}
-                />
-                <div className="search-icon-wrapper">
-                  <div className="search-icon" />
-                </div>
+      <Col lg={6} className="d-flex px-2">
+        <div className="d-flex w-100">
+          <FormGroup className="m-0">
+            <IconButton
+              disabled={selected.size === 0}
+              onClick={() => dlSelectedExams(selected)}
+              block
+              icon="DOWNLOAD"
+            >
+              Download selected exams
+            </IconButton>
+          </FormGroup>
+          <FormGroup className={`m-0 ml-2 ${grow}`}>
+            <div className="search mb-0">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Filter..."
+                value={filter}
+                onChange={e => setFilter(e.currentTarget.value)}
+              />
+              <div className="search-icon-wrapper">
+                <div className="search-icon" />
               </div>
-            </FormGroup>
-          </Col>
-        </Row>
+            </div>
+          </FormGroup>
+        </div>
+
         {error && <Alert color="danger">{error}</Alert>}
         {loading && <Spinner />}
       </Col>
-      <Col lg={12}>
-        {examTypeMap &&
-          examTypeMap.map(
-            ([examtype, exams]) =>
-              exams.length > 0 && (
-                <ExamTypeSection
-                  examtype={examtype}
-                  exams={exams}
-                  key={examtype}
-                  selected={selected}
-                  onSelect={onSelect}
-                  onDeselect={onDeselect}
-                  reload={reload}
-                />
-              ),
-          )}
-      </Col>
+
+      {examTypeMap &&
+        examTypeMap.map(
+          ([examtype, exams]) =>
+            exams.length > 0 && (
+              <ExamTypeSection
+                examtype={examtype}
+                exams={exams}
+                key={examtype}
+                selected={selected}
+                onSelect={onSelect}
+                onDeselect={onDeselect}
+                reload={reload}
+              />
+            ),
+        )}
     </>
   );
 };

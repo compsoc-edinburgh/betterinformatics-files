@@ -100,10 +100,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               />
             </>
           )}
-          <h1>{metaData.displayname}</h1>
-          <Row form>
-            <Col lg="6">
-              <ListGroup className="m-2">
+          <h1 className="mb-3">{metaData.displayname}</h1>
+          <div>
+            <Col lg="6" style={{ float: "left" }} className="px-2">
+              <ListGroup>
                 {metaData.semester && (
                   <ListGroupItem>
                     Semester: <Badge>{metaData.semester}</Badge>
@@ -191,7 +191,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </>
               )}
             </Col>
-          </Row>
+          </div>
         </>
       )}
     </>

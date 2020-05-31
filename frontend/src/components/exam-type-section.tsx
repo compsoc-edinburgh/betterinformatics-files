@@ -73,7 +73,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     <>
       {modals}
 
-      <h3 className="my-3 d-flex align-items-center">
+      <h3 className="mt-2 mb-3 pl-2 d-flex align-items-center">
         <input
           className="mr-3"
           type="checkbox"
@@ -83,134 +83,133 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
         />
         {examtype}
       </h3>
-      <Row form>
-        {exams.map(exam => (
-          <Col key={exam.filename} sm={12} lg={6} xl={4}>
-            <Card
-              className={`${exam.canView ? cursorPointer : ""} my-1`}
-              onClick={() =>
-                exam.canView && history.push(`/exams/${exam.filename}`)
-              }
-              onKeyDown={e => {
-                if (e.keyCode === 13 && exam.canView) {
-                  history.push(`/exams/${exam.filename}`);
-                }
-              }}
-              tabIndex={0}
-              body
-            >
-              <Row>
-                <Col xs="auto">
-                  <input
-                    type="checkbox"
-                    checked={selected.has(exam.filename)}
-                    onClick={e => e.stopPropagation()}
-                    onChange={e => {
-                      e.currentTarget.checked
-                        ? onSelect(exam.filename)
-                        : onDeselect(exam.filename);
-                    }}
-                    disabled={!exam.canView}
-                  />
-                </Col>
-                <Col>
-                  <Row>
-                    <Col>
-                      <h6 className="mb-3">
-                        {exam.canView ? (
-                          <Link
-                            to={`/exams/${exam.filename}`}
-                            className="text-dark"
-                          >
-                            {exam.displayname}
-                          </Link>
-                        ) : (
-                          exam.displayname
-                        )}
-                      </h6>
-                    </Col>
-                    <Col xs="auto">
-                      {user.isAdmin && (
-                        <IconButton
-                          size="sm"
-                          color="white"
-                          tooltip="Delete exam"
-                          icon="DELETE"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleRemoveClick(e, exam);
-                          }}
-                        />
-                      )}
-                      {catAdmin && (
-                        <ClaimButton exam={exam} reloadExams={reload} />
-                      )}
-                    </Col>
-                  </Row>
-                  <div>
-                    {catAdmin && exam.public ? (
-                      <Badge className={badgeStyle} color="primary">
-                        public
-                      </Badge>
-                    ) : (
-                      <Badge className={badgeStyle} color="primary">
-                        hidden
-                      </Badge>
-                    )}
-                    {exam.needs_payment && (
-                      <Badge className={badgeStyle} color="info">
-                        oral
-                      </Badge>
-                    )}
-                    {exam.finished_cuts ? (
-                      exam.finished_wiki_transfer ? (
-                        <Badge className={badgeStyle} color="success">
-                          All done
-                        </Badge>
-                      ) : (
-                        <Badge className={badgeStyle} color="info">
-                          Needs Wiki Import
-                        </Badge>
-                      )
-                    ) : (
-                      <Badge className={badgeStyle} color="warning">
-                        Needs Cuts
-                      </Badge>
-                    )}
 
-                    {exam.remark && (
-                      <Badge className={badgeStyle} color="dark">
-                        {exam.remark}
-                      </Badge>
+      {exams.map(exam => (
+        <Col className="d-inline-flex flex-column px-2" lg={6}>
+          <Card
+            className={`${exam.canView ? cursorPointer : ""} my-1`}
+            onClick={() =>
+              exam.canView && history.push(`/exams/${exam.filename}`)
+            }
+            onKeyDown={e => {
+              if (e.keyCode === 13 && exam.canView) {
+                history.push(`/exams/${exam.filename}`);
+              }
+            }}
+            tabIndex={0}
+            body
+          >
+            <Row>
+              <Col xs="auto">
+                <input
+                  type="checkbox"
+                  checked={selected.has(exam.filename)}
+                  onClick={e => e.stopPropagation()}
+                  onChange={e => {
+                    e.currentTarget.checked
+                      ? onSelect(exam.filename)
+                      : onDeselect(exam.filename);
+                  }}
+                  disabled={!exam.canView}
+                />
+              </Col>
+              <Col>
+                <Row>
+                  <Col>
+                    <h6 className="mb-3">
+                      {exam.canView ? (
+                        <Link
+                          to={`/exams/${exam.filename}`}
+                          className="text-dark"
+                        >
+                          {exam.displayname}
+                        </Link>
+                      ) : (
+                        exam.displayname
+                      )}
+                    </h6>
+                  </Col>
+                  <Col xs="auto">
+                    {user.isAdmin && (
+                      <IconButton
+                        size="sm"
+                        color="white"
+                        tooltip="Delete exam"
+                        icon="DELETE"
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleRemoveClick(e, exam);
+                        }}
+                      />
                     )}
-                    {exam.is_printonly && (
-                      <Badge
-                        color="danger"
-                        className={badgeStyle}
-                        title="This exam can only be printed. We can not provide this exam online."
-                      >
-                        (Print Only)
-                      </Badge>
+                    {catAdmin && (
+                      <ClaimButton exam={exam} reloadExams={reload} />
                     )}
-                    <Badge
-                      color="secondary"
-                      className={badgeStyle}
-                      title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-                    >
-                      {exam.count_answered} / {exam.count_cuts}
+                  </Col>
+                </Row>
+                <div>
+                  {catAdmin && exam.public ? (
+                    <Badge className={badgeStyle} color="primary">
+                      public
                     </Badge>
-                    {exam.has_solution && (
-                      <Badge title="Has an official solution." color="success">
-                        Solution
+                  ) : (
+                    <Badge className={badgeStyle} color="primary">
+                      hidden
+                    </Badge>
+                  )}
+                  {exam.needs_payment && (
+                    <Badge className={badgeStyle} color="info">
+                      oral
+                    </Badge>
+                  )}
+                  {exam.finished_cuts ? (
+                    exam.finished_wiki_transfer ? (
+                      <Badge className={badgeStyle} color="success">
+                        All done
                       </Badge>
-                    )}
-                  </div>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+                    ) : (
+                      <Badge className={badgeStyle} color="info">
+                        Needs Wiki Import
+                      </Badge>
+                    )
+                  ) : (
+                    <Badge className={badgeStyle} color="warning">
+                      Needs Cuts
+                    </Badge>
+                  )}
+
+                  {exam.remark && (
+                    <Badge className={badgeStyle} color="dark">
+                      {exam.remark}
+                    </Badge>
+                  )}
+                  {exam.is_printonly && (
+                    <Badge
+                      color="danger"
+                      className={badgeStyle}
+                      title="This exam can only be printed. We can not provide this exam online."
+                    >
+                      (Print Only)
+                    </Badge>
+                  )}
+                  <Badge
+                    color="secondary"
+                    className={badgeStyle}
+                    title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
+                  >
+                    {exam.count_answered} / {exam.count_cuts}
+                  </Badge>
+                  {exam.has_solution && (
+                    <Badge title="Has an official solution." color="success">
+                      Solution
+                    </Badge>
+                  )}
+                </div>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+      ))}
     </>
   );
 };
