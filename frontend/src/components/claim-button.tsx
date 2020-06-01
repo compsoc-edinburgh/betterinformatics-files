@@ -62,10 +62,6 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
         Claim Exam
       </Button>
     )
-  ) : (
-    <Button size="sm" color="white" disabled>
-      Claim Exam
-    </Button>
-  );
+  ) : null;
 };
 export default ClaimButton;
