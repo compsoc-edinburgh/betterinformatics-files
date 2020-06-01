@@ -44,8 +44,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
-      <Col lg={6} className="d-flex px-2">
-        <div className="d-flex w-100">
+      <Row>
+        <Col lg={12} className="d-flex flex-row flex-between px-2">
           <FormGroup className="m-0">
             <IconButton
               disabled={selected.size === 0}
@@ -56,7 +56,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               Download selected exams
             </IconButton>
           </FormGroup>
-          <FormGroup className={`m-0 ml-2 ${grow}`}>
+          <FormGroup className={`m-0 ml-2`}>
             <div className="search mb-0">
               <input
                 type="text"
@@ -71,27 +71,28 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               </div>
             </div>
           </FormGroup>
-        </div>
 
-        {error && <Alert color="danger">{error}</Alert>}
-        {loading && <Spinner />}
-      </Col>
-
-      {examTypeMap &&
-        examTypeMap.map(
-          ([examtype, exams]) =>
-            exams.length > 0 && (
-              <ExamTypeSection
-                examtype={examtype}
-                exams={exams}
-                key={examtype}
-                selected={selected}
-                onSelect={onSelect}
-                onDeselect={onDeselect}
-                reload={reload}
-              />
-            ),
-        )}
+          {error && <Alert color="danger">{error}</Alert>}
+          {loading && <Spinner />}
+        </Col>
+      </Row>
+      <Row>
+        {examTypeMap &&
+          examTypeMap.map(
+            ([examtype, exams]) =>
+              exams.length > 0 && (
+                <ExamTypeSection
+                  examtype={examtype}
+                  exams={exams}
+                  key={examtype}
+                  selected={selected}
+                  onSelect={onSelect}
+                  onDeselect={onDeselect}
+                  reload={reload}
+                />
+              ),
+          )}
+      </Row>
     </>
   );
 };

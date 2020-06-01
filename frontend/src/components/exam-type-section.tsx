@@ -10,6 +10,16 @@ import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
 
+const gridStyles = css`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  grid-column-gap: 9px;
+  grid-row-gap: 9px;
+`;
+const Grid: React.FC<{}> = ({ children }) => {
+  return <div className={gridStyles}>{children}</div>;
+};
+
 const removeExam = async (filename: string) => {
   await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
@@ -72,144 +82,146 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-
-      <h3 className="mt-2 mb-3 pl-2 d-flex align-items-center">
-        <input
-          className="mr-3"
-          type="checkbox"
-          checked={checked}
-          ref={el => el && (el.indeterminate = indeterminate)}
-          onChange={e => setChecked(e.currentTarget.checked)}
-        />
-        {examtype}
-      </h3>
-
-      {exams.map(exam => (
-        <Col className="d-inline-flex flex-column px-2" lg={6}>
-          <Card
-            className={`${exam.canView ? cursorPointer : ""} my-1 p-3`}
-            onClick={() =>
-              exam.canView && history.push(`/exams/${exam.filename}`)
-            }
-            onKeyDown={e => {
-              if (e.keyCode === 13 && exam.canView) {
-                history.push(`/exams/${exam.filename}`);
+      <Col lg={12}>
+        <h3 className="mt-2 mb-3 pl-2 d-flex align-items-center">
+          <input
+            className="mr-3"
+            type="checkbox"
+            checked={checked}
+            ref={el => el && (el.indeterminate = indeterminate)}
+            onChange={e => setChecked(e.currentTarget.checked)}
+          />
+          {examtype}
+        </h3>
+      </Col>
+      <Col lg={12}>
+        <Grid>
+          {exams.map(exam => (
+            <Card
+              className={`${exam.canView ? cursorPointer : ""} p-3`}
+              onClick={() =>
+                exam.canView && history.push(`/exams/${exam.filename}`)
               }
-            }}
-            tabIndex={0}
-          >
-            <Row>
-              <Col xs="auto">
-                <input
-                  type="checkbox"
-                  checked={selected.has(exam.filename)}
-                  onClick={e => e.stopPropagation()}
-                  onChange={e => {
-                    e.currentTarget.checked
-                      ? onSelect(exam.filename)
-                      : onDeselect(exam.filename);
-                  }}
-                  disabled={!exam.canView}
-                />
-              </Col>
-              <Col>
-                <Row>
-                  <Col>
-                    <h6 className="mb-1">
-                      {exam.canView ? (
-                        <Link
-                          to={`/exams/${exam.filename}`}
-                          className="text-dark"
-                        >
-                          {exam.displayname}
-                        </Link>
-                      ) : (
-                        exam.displayname
+              onKeyDown={e => {
+                if (e.keyCode === 13 && exam.canView) {
+                  history.push(`/exams/${exam.filename}`);
+                }
+              }}
+              tabIndex={0}
+            >
+              <Row>
+                <Col xs="auto">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(exam.filename)}
+                    onClick={e => e.stopPropagation()}
+                    onChange={e => {
+                      e.currentTarget.checked
+                        ? onSelect(exam.filename)
+                        : onDeselect(exam.filename);
+                    }}
+                    disabled={!exam.canView}
+                  />
+                </Col>
+                <Col>
+                  <Row>
+                    <Col>
+                      <h6 className="mb-1">
+                        {exam.canView ? (
+                          <Link
+                            to={`/exams/${exam.filename}`}
+                            className="text-dark"
+                          >
+                            {exam.displayname}
+                          </Link>
+                        ) : (
+                          exam.displayname
+                        )}
+                      </h6>
+                    </Col>
+                    <Col xs="auto">
+                      {user.isAdmin && (
+                        <IconButton
+                          size="sm"
+                          color="white"
+                          tooltip="Delete exam"
+                          icon="DELETE"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleRemoveClick(e, exam);
+                          }}
+                        />
                       )}
-                    </h6>
-                  </Col>
-                  <Col xs="auto">
-                    {user.isAdmin && (
-                      <IconButton
-                        size="sm"
-                        color="white"
-                        tooltip="Delete exam"
-                        icon="DELETE"
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleRemoveClick(e, exam);
-                        }}
-                      />
-                    )}
-                    {catAdmin && (
-                      <ClaimButton exam={exam} reloadExams={reload} />
-                    )}
-                  </Col>
-                </Row>
-                <div>
-                  {catAdmin &&
-                    (exam.public ? (
-                      <Badge className={badgeStyle} color="primary">
-                        public
-                      </Badge>
-                    ) : (
-                      <Badge className={badgeStyle} color="primary">
-                        hidden
-                      </Badge>
-                    ))}
-                  {exam.needs_payment && (
-                    <Badge className={badgeStyle} color="info">
-                      oral
-                    </Badge>
-                  )}
-                  {exam.finished_cuts ? (
-                    exam.finished_wiki_transfer ? (
-                      <Badge className={badgeStyle} color="success">
-                        All done
-                      </Badge>
-                    ) : (
+                      {catAdmin && (
+                        <ClaimButton exam={exam} reloadExams={reload} />
+                      )}
+                    </Col>
+                  </Row>
+                  <div>
+                    {catAdmin &&
+                      (exam.public ? (
+                        <Badge className={badgeStyle} color="primary">
+                          public
+                        </Badge>
+                      ) : (
+                        <Badge className={badgeStyle} color="primary">
+                          hidden
+                        </Badge>
+                      ))}
+                    {exam.needs_payment && (
                       <Badge className={badgeStyle} color="info">
-                        Needs Wiki Import
+                        oral
                       </Badge>
-                    )
-                  ) : (
-                    <Badge className={badgeStyle} color="warning">
-                      Needs Cuts
-                    </Badge>
-                  )}
+                    )}
+                    {exam.finished_cuts ? (
+                      exam.finished_wiki_transfer ? (
+                        <Badge className={badgeStyle} color="success">
+                          All done
+                        </Badge>
+                      ) : (
+                        <Badge className={badgeStyle} color="info">
+                          Needs Wiki Import
+                        </Badge>
+                      )
+                    ) : (
+                      <Badge className={badgeStyle} color="warning">
+                        Needs Cuts
+                      </Badge>
+                    )}
 
-                  {exam.remark && (
-                    <Badge className={badgeStyle} color="dark">
-                      {exam.remark}
-                    </Badge>
-                  )}
-                  {exam.is_printonly && (
+                    {exam.remark && (
+                      <Badge className={badgeStyle} color="dark">
+                        {exam.remark}
+                      </Badge>
+                    )}
+                    {exam.is_printonly && (
+                      <Badge
+                        color="danger"
+                        className={badgeStyle}
+                        title="This exam can only be printed. We can not provide this exam online."
+                      >
+                        (Print Only)
+                      </Badge>
+                    )}
                     <Badge
-                      color="danger"
+                      color="secondary"
                       className={badgeStyle}
-                      title="This exam can only be printed. We can not provide this exam online."
+                      title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
                     >
-                      (Print Only)
+                      {exam.count_answered} / {exam.count_cuts}
                     </Badge>
-                  )}
-                  <Badge
-                    color="secondary"
-                    className={badgeStyle}
-                    title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-                  >
-                    {exam.count_answered} / {exam.count_cuts}
-                  </Badge>
-                  {exam.has_solution && (
-                    <Badge title="Has an official solution." color="success">
-                      Solution
-                    </Badge>
-                  )}
-                </div>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      ))}
+                    {exam.has_solution && (
+                      <Badge title="Has an official solution." color="success">
+                        Solution
+                      </Badge>
+                    )}
+                  </div>
+                </Col>
+              </Row>
+            </Card>
+          ))}
+        </Grid>
+      </Col>
     </>
   );
 };
