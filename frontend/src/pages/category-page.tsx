@@ -84,26 +84,33 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         )
       ) : (
         <>
-          {user.isCategoryAdmin && (
-            <>
-              <IconButton
-                className="m-1"
-                tooltip="Edit category metadata"
-                close
-                icon="EDIT"
-                onClick={() => setEditing(true)}
-              />
-              <IconButton
-                className="m-1"
-                tooltip="Remove category"
-                close
-                loading={removeLoading}
-                icon="DELETE"
-                onClick={onRemove}
-              />
-            </>
-          )}
-          <h1 className="mb-3">{metaData.displayname}</h1>
+          <Row>
+            <Col>
+              <h1 className="mb-3">{metaData.displayname}</h1>
+            </Col>
+            {user.isCategoryAdmin && (
+              <Col md="auto" className="d-flex align-items-center">
+                <IconButton
+                  size="sm"
+                  className="m-1"
+                  icon="EDIT"
+                  onClick={() => setEditing(true)}
+                >
+                  Edit
+                </IconButton>
+                <IconButton
+                  color="danger"
+                  size="sm"
+                  className="m-1"
+                  loading={removeLoading}
+                  icon="DELETE"
+                  onClick={onRemove}
+                >
+                  Delete
+                </IconButton>
+              </Col>
+            )}
+          </Row>
 
           <Row className="my-2">
             {metaData.semester && (
