@@ -148,15 +148,16 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   </Col>
                 </Row>
                 <div>
-                  {catAdmin && exam.public ? (
-                    <Badge className={badgeStyle} color="primary">
-                      public
-                    </Badge>
-                  ) : (
-                    <Badge className={badgeStyle} color="primary">
-                      hidden
-                    </Badge>
-                  )}
+                  {catAdmin &&
+                    (exam.public ? (
+                      <Badge className={badgeStyle} color="primary">
+                        public
+                      </Badge>
+                    ) : (
+                      <Badge className={badgeStyle} color="primary">
+                        hidden
+                      </Badge>
+                    ))}
                   {exam.needs_payment && (
                     <Badge className={badgeStyle} color="info">
                       oral
