@@ -6,9 +6,9 @@ import {
   Col,
   Container,
   ListGroup,
-  ListGroupItem,
   Row,
   Spinner,
+  ListGroupItem,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import React, { useCallback, useMemo, useState } from "react";
@@ -27,6 +27,9 @@ import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import useTitle from "../hooks/useTitle";
 import useConfirm from "../hooks/useConfirm";
+import { css } from "emotion";
+
+const metadataColStyle = css``;
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -81,117 +84,127 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         )
       ) : (
         <>
-          {user.isCategoryAdmin && (
-            <>
-              <IconButton
-                className="m-1"
-                tooltip="Edit category metadata"
-                close
-                icon="EDIT"
-                onClick={() => setEditing(true)}
-              />
-              <IconButton
-                className="m-1"
-                tooltip="Remove category"
-                close
-                loading={removeLoading}
-                icon="DELETE"
-                onClick={onRemove}
-              />
-            </>
-          )}
-          <h1>{metaData.displayname}</h1>
           <Row>
-            <Col lg="6">
-              <ListGroup className="m-2">
-                {metaData.semester && (
-                  <ListGroupItem>
-                    Semester: <Badge>{metaData.semester}</Badge>
-                  </ListGroupItem>
+            <Col>
+              <h1 className="mb-3">{metaData.displayname}</h1>
+            </Col>
+            {user.isCategoryAdmin && (
+              <Col md="auto" className="d-flex align-items-center">
+                <IconButton
+                  size="sm"
+                  className="m-1"
+                  icon="EDIT"
+                  onClick={() => setEditing(true)}
+                >
+                  Edit
+                </IconButton>
+                <IconButton
+                  color="danger"
+                  size="sm"
+                  className="m-1"
+                  loading={removeLoading}
+                  icon="DELETE"
+                  onClick={onRemove}
+                >
+                  Delete
+                </IconButton>
+              </Col>
+            )}
+          </Row>
+
+          <Row className="my-2">
+            {metaData.semester && (
+              <Col className={metadataColStyle} md="auto">
+                Semester: <Badge>{metaData.semester}</Badge>
+              </Col>
+            )}
+            {metaData.form && (
+              <Col className={metadataColStyle} md="auto">
+                Form: <Badge>{metaData.form}</Badge>
+              </Col>
+            )}
+            {metaData.more_exams_link && (
+              <Col className={metadataColStyle} md="auto">
+                <a
+                  href={metaData.more_exams_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Additional Exams
+                </a>
+              </Col>
+            )}
+            {metaData.remark && <div>Remark: {metaData.remark}</div>}
+          </Row>
+          {(offeredIn === undefined || offeredIn.length > 0) && (
+            <div>
+              Offered in:
+              <div>
+                {loading ? (
+                  <Spinner />
+                ) : (
+                  <ul>
+                    {offeredIn?.map(meta1 =>
+                      meta1.meta2.map(meta2 => (
+                        <li key={meta1.displayname + meta2.displayname}>
+                          {meta2.displayname} in {meta1.displayname}
+                        </li>
+                      )),
+                    )}
+                  </ul>
                 )}
-                {metaData.form && (
-                  <ListGroupItem>
-                    Form: <Badge>{metaData.form}</Badge>
-                  </ListGroupItem>
-                )}
-                {(offeredIn === undefined || offeredIn.length > 0) && (
-                  <ListGroupItem>
-                    Offered in:
-                    <div>
-                      {loading ? (
-                        <Spinner />
-                      ) : (
-                        <ul>
-                          {offeredIn?.map(meta1 =>
-                            meta1.meta2.map(meta2 => (
-                              <li key={meta1.displayname + meta2.displayname}>
-                                {meta2.displayname} in {meta1.displayname}
-                              </li>
-                            )),
-                          )}
-                        </ul>
-                      )}
-                    </div>
-                  </ListGroupItem>
-                )}
-                {metaData.more_exams_link && (
-                  <ListGroupItem>
+              </div>
+            </div>
+          )}
+          <Row className="my-2">
+            {metaData.experts.includes(user.username) && (
+              <Col>
+                <Alert>
+                  You are an expert for this category. You can endorse correct
+                  answers.
+                </Alert>
+              </Col>
+            )}
+            {metaData.has_payments && (
+              <Col>
+                <Alert>
+                  You have to pay a deposit of 20 CHF in the VIS bureau in order
+                  to see oral exams.
+                  <br />
+                  After submitting a report of your own oral exam you can get
+                  your deposit back.
+                </Alert>
+              </Col>
+            )}
+            {metaData.catadmin && (
+              <Col>
+                <Alert color="info">
+                  You can edit exams in this category. Please do so responsibly.
+                </Alert>
+              </Col>
+            )}
+          </Row>
+
+          <ExamList metaData={metaData} />
+          <Col lg={12}>
+            {metaData.attachments.length > 0 && (
+              <>
+                <h2>Attachments</h2>
+                <ListGroup flush>
+                  {metaData.attachments.map(att => (
                     <a
-                      href={metaData.more_exams_link}
+                      href={`/api/filestore/get/${att.filename}/`}
                       target="_blank"
                       rel="noopener noreferrer"
+                      key={att.filename}
                     >
-                      Additional Exams
+                      <div>{att.displayname}</div>
                     </a>
-                  </ListGroupItem>
-                )}
-                {metaData.remark && (
-                  <ListGroupItem>Remark: {metaData.remark}</ListGroupItem>
-                )}
-                {metaData.experts.includes(user.username) && (
-                  <ListGroupItem>
-                    You are an expert for this category. You can endorse correct
-                    answers.
-                  </ListGroupItem>
-                )}
-                {metaData.has_payments && (
-                  <ListGroupItem>
-                    You have to pay a deposit of 20 CHF in the VIS bureau in
-                    order to see oral exams.
-                    <br />
-                    After submitting a report of your own oral exam you can get
-                    your deposit back.
-                  </ListGroupItem>
-                )}
-                {metaData.catadmin && (
-                  <ListGroupItem>
-                    You can edit exams in this category. Please do so
-                    responsibly.
-                  </ListGroupItem>
-                )}
-              </ListGroup>
-            </Col>
-            <ExamList metaData={metaData} />
-            <Col lg={6}>
-              {metaData.attachments.length > 0 && (
-                <>
-                  <h2>Attachments</h2>
-                  <ListGroup flush>
-                    {metaData.attachments.map(att => (
-                      <a
-                        href={`/api/filestore/get/${att.filename}/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        key={att.filename}
-                      >
-                        <ListGroupItem>{att.displayname}</ListGroupItem>
-                      </a>
-                    ))}
-                  </ListGroup>
-                </>
-              )}
-            </Col>
-          </Row>
+                  ))}
+                </ListGroup>
+              </>
+            )}
+          </Col>
         </>
       )}
     </>

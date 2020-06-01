@@ -9,6 +9,9 @@ const buttonStyle = css`
   min-width: 0;
   align-content: center;
 `;
+const spacerStyle = css`
+  width: 0;
+`;
 interface IconButtonProps extends ButtonProps {
   icon: keyof typeof ICONS;
   loading?: boolean;
@@ -35,7 +38,10 @@ const IconButton: React.FC<IconButtonProps> = ({
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <Icon icon={ICONS[icon]} size="1em" />
+        <>
+          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+          <Icon icon={ICONS[icon]} size="1em" />
+        </>
       )}
       {children && <span className={childStyle}>{children}</span>}
     </TooltipButton>
@@ -49,7 +55,10 @@ const IconButton: React.FC<IconButtonProps> = ({
       {loading ? (
         <Spinner size={size} />
       ) : (
-        <Icon icon={ICONS[icon]} size="1em" />
+        <>
+          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+          <Icon icon={ICONS[icon]} size="1em" />
+        </>
       )}
       {children && <span className={childStyle}>{children}</span>}
     </Button>

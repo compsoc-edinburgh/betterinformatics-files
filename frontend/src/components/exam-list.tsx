@@ -9,7 +9,7 @@ import {
   filterMatches,
   mapExamsToExamType,
 } from "../utils/category-utils";
-import ExamTypeCard from "./exam-type-card";
+import ExamTypeSection from "./exam-type-section";
 import IconButton from "./icon-button";
 import useSet from "../hooks/useSet";
 
@@ -38,9 +38,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   const [selected, onSelect, onDeselect] = useSet<string>();
 
   return (
-    <Col lg={6}>
-      <Row form className="my-2">
-        <Col xs="auto">
+    <>
+      <Row>
+        <Col lg={12} className="d-flex flex-row flex-between px-2">
           <FormGroup className="m-0">
             <IconButton
               disabled={selected.size === 0}
@@ -51,9 +51,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               Download selected exams
             </IconButton>
           </FormGroup>
-        </Col>
-        <Col>
-          <FormGroup className="m-0">
+          <FormGroup className="m-0 ml-2">
             <div className="search mb-0">
               <input
                 type="text"
@@ -68,15 +66,16 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               </div>
             </div>
           </FormGroup>
+
+          {error && <Alert color="danger">{error}</Alert>}
+          {loading && <Spinner />}
         </Col>
       </Row>
-      {error && <Alert color="danger">{error}</Alert>}
-      {loading && <Spinner />}
       {examTypeMap &&
         examTypeMap.map(
           ([examtype, exams]) =>
             exams.length > 0 && (
-              <ExamTypeCard
+              <ExamTypeSection
                 examtype={examtype}
                 exams={exams}
                 key={examtype}
@@ -87,7 +86,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               />
             ),
         )}
-    </Col>
+    </>
   );
 };
 export default ExamList;

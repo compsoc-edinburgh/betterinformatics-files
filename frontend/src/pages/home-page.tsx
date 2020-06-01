@@ -16,6 +16,7 @@ import {
   Row,
   Select,
   Spinner,
+  ButtonGroup,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
@@ -180,20 +181,29 @@ const HomePage: React.FC<{}> = () => {
   return (
     <>
       <Container>
-        <h1>Community Solutions</h1>
+        <h1 className="mb-3">Community Solutions</h1>
       </Container>
       <Container>
-        <Row form>
-          <Col md={4}>
+        <Row className="d-flex flex-row flex-between px-2">
+          <Col md="auto">
             <FormGroup className="m-1">
-              <Select
-                options={[options[Mode.Alphabetical], options[Mode.BySemester]]}
-                defaultValue={options[mode]}
-                onChange={(e: any) => setMode(e.value | 0)}
-              />
+              <ButtonGroup>
+                <Button
+                  onClick={() => setMode(Mode.Alphabetical)}
+                  active={mode === Mode.Alphabetical}
+                >
+                  Alphabetical
+                </Button>
+                <Button
+                  onClick={() => setMode(Mode.BySemester)}
+                  active={mode === Mode.BySemester}
+                >
+                  By Semester
+                </Button>
+              </ButtonGroup>
             </FormGroup>
           </Col>
-          <Col md={8}>
+          <Col md="auto">
             <FormGroup className="m-1">
               <div className="search m-0">
                 <input
