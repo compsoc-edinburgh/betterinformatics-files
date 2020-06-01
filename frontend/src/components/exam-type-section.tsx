@@ -16,7 +16,7 @@ const removeExam = async (filename: string) => {
 
 const badgeStyle = css`
   margin: 0.15rem;
-  font-size: 0.85rem !important;
+  font-size: 0.75rem !important;
 `;
 const cursorPointer = css`
   cursor: pointer;
@@ -87,7 +87,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       {exams.map(exam => (
         <Col className="d-inline-flex flex-column px-2" lg={6}>
           <Card
-            className={`${exam.canView ? cursorPointer : ""} my-1`}
+            className={`${exam.canView ? cursorPointer : ""} my-1 p-3`}
             onClick={() =>
               exam.canView && history.push(`/exams/${exam.filename}`)
             }
@@ -97,7 +97,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               }
             }}
             tabIndex={0}
-            body
           >
             <Row>
               <Col xs="auto">
@@ -116,7 +115,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               <Col>
                 <Row>
                   <Col>
-                    <h6 className="mb-3">
+                    <h6 className="mb-1">
                       {exam.canView ? (
                         <Link
                           to={`/exams/${exam.filename}`}
