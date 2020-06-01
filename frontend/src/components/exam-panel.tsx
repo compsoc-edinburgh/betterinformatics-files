@@ -198,14 +198,15 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
               >
                 Add Cuts
               </IconButton>
-              <IconButton
-                tooltip="The highlighted cut including its answers will be moved to the new location"
-                icon="CONNECTION_OBJECT_BOTTOM"
-                active={editState.mode === EditMode.Move}
-                disabled={editState.mode !== EditMode.Move}
-              >
-                Move Cut
-              </IconButton>
+              {editState.mode === EditMode.Move && (
+                <IconButton
+                  tooltip="The highlighted cut including its answers will be moved to the new location"
+                  icon="CONNECTION_OBJECT_BOTTOM"
+                  active={editState.mode === EditMode.Move}
+                >
+                  Move Cut
+                </IconButton>
+              )}
               <IconButton
                 tooltip="Toggle snapping behavior"
                 icon="TARGET"
@@ -283,7 +284,13 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           </>
         )}
       </ModalBody>
-      <ModalFooter>All answers are licensed as CC BY-NC-SA 4.0.</ModalFooter>
+      <ModalFooter>
+        All answers are licensed as &nbsp;
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+          CC BY-NC-SA 4.0
+        </a>
+        .
+      </ModalFooter>
     </Panel>
   );
 };

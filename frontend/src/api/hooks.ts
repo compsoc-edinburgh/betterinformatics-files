@@ -191,6 +191,10 @@ export const loadMetaCategories = async () => {
   return (await fetchGet("/api/category/listmetacategories"))
     .value as MetaCategory[];
 };
+export const useMetaCategories = () => {
+  const { error, loading, data } = useRequest(loadMetaCategories);
+  return [error, loading, data] as const;
+};
 export const loadList = async (slug: string) => {
   return (await fetchGet(`/api/category/listexams/${slug}`))
     .value as CategoryExam[];

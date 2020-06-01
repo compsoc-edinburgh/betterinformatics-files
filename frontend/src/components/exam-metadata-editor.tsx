@@ -205,7 +205,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
       <Button close onClick={toggle} />
       <h2>Edit Exam</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <h6>Meta Data</h6>
+      <h6>Metadata</h6>
       <Row form>
         <Col md={6}>
           <InputField

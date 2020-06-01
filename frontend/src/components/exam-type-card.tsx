@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Card, CardHeader, Table, Row, Col } from "@vseth/components";
+import { Badge, Card, Col, Row, Table } from "@vseth/components";
 import { css } from "emotion";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -28,6 +28,10 @@ const overflowScroll = css`
 `;
 const cursorPointer = css`
   cursor: pointer;
+
+  &:focus {
+    outline: 1px solid black;
+  }
 `;
 interface ExamTypeCardProps {
   examtype: string;
@@ -100,6 +104,12 @@ const ExamTypeCard: React.FC<ExamTypeCardProps> = ({
                   key={exam.filename}
                   className={cursorPointer}
                   onClick={() => history.push(`/exams/${exam.filename}`)}
+                  onKeyDown={e => {
+                    if (e.keyCode === 13) {
+                      history.push(`/exams/${exam.filename}`);
+                    }
+                  }}
+                  tabIndex={0}
                 >
                   <td
                     onClick={e => e.stopPropagation()}

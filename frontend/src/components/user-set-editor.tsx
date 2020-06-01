@@ -1,10 +1,13 @@
 import {
   Button,
-  Input,
-  InputGroup,
-  InputGroupAddon,
+  Col,
+  Form,
+  FormGroup,
+  InputField,
+  Label,
   ListGroup,
   ListGroupItem,
+  Row,
 } from "@vseth/components";
 import React, { useState } from "react";
 
@@ -32,19 +35,33 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
           </ListGroupItem>
         ))}
       </ListGroup>
-      <InputGroup>
-        <Input
-          type="text"
-          placeholder="Name"
-          value={username}
-          onChange={e => setUsername(e.currentTarget.value)}
-        />
-        <InputGroupAddon addonType="append">
-          <Button block onClick={onAdd}>
-            Add
-          </Button>
-        </InputGroupAddon>
-      </InputGroup>
+      <Form
+        onSubmit={e => {
+          e.preventDefault();
+          onAdd();
+        }}
+      >
+        <Row form className="mt-2">
+          <Col>
+            <InputField
+              type="text"
+              label="Name"
+              value={username}
+              onChange={e => setUsername(e.currentTarget.value)}
+            />
+          </Col>
+          <Col md={2}>
+            <FormGroup>
+              <Label for="Meta 2" className="form-input-label">
+                &nbsp;
+              </Label>
+              <Button block type="submit">
+                Add
+              </Button>
+            </FormGroup>
+          </Col>
+        </Row>
+      </Form>
     </>
   );
 };

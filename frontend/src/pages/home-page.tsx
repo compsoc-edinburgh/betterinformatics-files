@@ -27,6 +27,7 @@ import ContentContainer from "../components/secondary-container";
 import TooltipButton from "../components/TooltipButton";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import useTitle from "../hooks/useTitle";
+import { loadMetaCategories } from "../api/hooks";
 
 enum Mode {
   Alphabetical,
@@ -40,10 +41,6 @@ const options = [
 const loadCategories = async () => {
   return (await fetchGet("/api/category/listwithmeta/"))
     .value as CategoryMetaData[];
-};
-const loadMetaCategories = async () => {
-  return (await fetchGet("/api/category/listmetacategories/"))
-    .value as MetaCategory[];
 };
 const loadCategoryData = async () => {
   const [categories, metaCategories] = await Promise.all([
@@ -205,6 +202,7 @@ const HomePage: React.FC<{}> = () => {
                   placeholder="Filter..."
                   value={filter}
                   onChange={e => setFilter(e.currentTarget.value)}
+                  autoFocus
                 />
                 <div className="search-icon-wrapper">
                   <div className="search-icon" />
