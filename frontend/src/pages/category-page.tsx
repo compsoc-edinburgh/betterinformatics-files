@@ -216,7 +216,7 @@ const CategoryPage: React.FC<{}> = () => {
             user
               ? {
                   ...user,
-                  isCategoryAdmin: user.isCategoryAdmin || data.catadmin,
+                  isCategoryAdmin: user.isAdmin || data.catadmin,
                 }
               : undefined
           }
