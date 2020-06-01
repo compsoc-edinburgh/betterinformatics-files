@@ -1,16 +1,8 @@
 import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
 import React from "react";
-import { CategoryMetaData } from "../interfaces";
 import { useHistory } from "react-router-dom";
-import { css } from "emotion";
-
-const style = css`
-  cursor: pointer;
-  &:focus {
-    outline: 1.5px solid var(--gray-dark);
-    outline-offset: 2px;
-  }
-`;
+import { CategoryMetaData } from "../interfaces";
+import { focusOutline } from "../utils/style";
 
 const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
   category,
@@ -23,7 +15,7 @@ const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
   };
   return (
     <Card
-      className={style}
+      className={focusOutline}
       tabIndex={0}
       onClick={() => history.push(`/category/${category.slug}`)}
       onKeyDown={handleKeyDown}

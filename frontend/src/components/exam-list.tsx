@@ -12,11 +12,6 @@ import {
 import ExamTypeSection from "./exam-type-section";
 import IconButton from "./icon-button";
 import useSet from "../hooks/useSet";
-import { css } from "emotion";
-
-const grow = css`
-  flex-grow: 1;
-`;
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -56,7 +51,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               Download selected exams
             </IconButton>
           </FormGroup>
-          <FormGroup className={`m-0 ml-2`}>
+          <FormGroup className="m-0 ml-2">
             <div className="search mb-0">
               <input
                 type="text"
@@ -76,23 +71,21 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           {loading && <Spinner />}
         </Col>
       </Row>
-      <Row>
-        {examTypeMap &&
-          examTypeMap.map(
-            ([examtype, exams]) =>
-              exams.length > 0 && (
-                <ExamTypeSection
-                  examtype={examtype}
-                  exams={exams}
-                  key={examtype}
-                  selected={selected}
-                  onSelect={onSelect}
-                  onDeselect={onDeselect}
-                  reload={reload}
-                />
-              ),
-          )}
-      </Row>
+      {examTypeMap &&
+        examTypeMap.map(
+          ([examtype, exams]) =>
+            exams.length > 0 && (
+              <ExamTypeSection
+                examtype={examtype}
+                exams={exams}
+                key={examtype}
+                selected={selected}
+                onSelect={onSelect}
+                onDeselect={onDeselect}
+                reload={reload}
+              />
+            ),
+        )}
     </>
   );
 };
