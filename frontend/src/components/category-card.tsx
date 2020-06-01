@@ -21,7 +21,6 @@ const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
       history.push(`/category/${category.slug}`);
     }
   };
-
   return (
     <Card
       className={style}

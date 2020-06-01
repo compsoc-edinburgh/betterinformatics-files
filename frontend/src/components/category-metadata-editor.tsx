@@ -8,6 +8,8 @@ import {
   Row,
   Select,
   TextareaField,
+  Input,
+  Label,
 } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -232,7 +234,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <Button close onClick={toggle} />
       <h2>Edit Category</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <h6>Meta Data</h6>
+      <h6 className="mb-3 mt-4">Metadata</h6>
       <Row form>
         <Col md={6}>
           <FormGroup>
@@ -298,24 +300,30 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           />
         </Col>
       </Row>
-      <InputField
-        type="checkbox"
-        label="Has Payments"
-        {...registerCheckbox("has_payments")}
-      />
-      <h6>Attachments</h6>
+      <FormGroup check>
+        <Input
+          type="checkbox"
+          name="check"
+          id="Has Payments"
+          {...registerCheckbox("has_payments")}
+        />
+        <Label for="Has Payments" check>
+          Has Payments
+        </Label>
+      </FormGroup>
+      <h6 className="mb-3 mt-4">Attachments</h6>
       <AttachmentsEditor
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <h6>Offered In</h6>
+      <h6 className="mb-3 mt-4">Offered In</h6>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-      <h6>Admins</h6>
+      <h6 className="mb-3 mt-4">Admins</h6>
       <UserSetEditor
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
       />
-      <h6>Experts</h6>
+      <h6 className="mb-3 mt-4">Experts</h6>
       <UserSetEditor
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}

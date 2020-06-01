@@ -16,6 +16,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       {answers &&
         answers.map(answer => (
           <AnswerComponent
+            hasId={false}
             key={answer.oid}
             answer={answer}
             isLegacyAnswer={answer.isLegacyAnswer}

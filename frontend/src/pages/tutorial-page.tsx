@@ -176,7 +176,7 @@ const TutorialPage: React.FC<{}> = () => {
           <li>
             Check if solutions exists
             <ol>
-              <li>If VISki exists, enter URL in meta data</li>
+              <li>If VISki exists, enter URL in metadata</li>
               <li>
                 If VISki does not exist,
                 <br />
