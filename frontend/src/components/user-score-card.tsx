@@ -8,10 +8,15 @@ import {
   Row,
 } from "@vseth/components";
 import React from "react";
-import { notLoggedIn, useSetUser } from "../auth";
+import { notLoggedIn, useSetUser, useUser } from "../auth";
 import { useLogout } from "../api/hooks";
 import { UserInfo } from "../interfaces";
 import LoadingOverlay from "./loading-overlay";
+import { useRequest } from "@umijs/hooks";
+import { fetchPost } from "../api/fetch-utils";
+
+const setNonAdmin = (simulate_nonadmin: boolean) =>
+  fetchPost("/api/auth/simulate_nonadmin/", { simulate_nonadmin });
 
 interface UserScoreCardProps {
   username?: string;
@@ -24,23 +29,44 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   isMyself,
 }) => {
   const setUser = useSetUser();
+  const user = useUser()!;
   const [logoutError, logoutLoading, logout] = useLogout(() =>
     setUser(notLoggedIn),
   );
+  const { run: runSetNonAdmin } = useRequest(setNonAdmin, {
+    manual: true,
+    onSuccess: () => setUser(undefined),
+  });
   return (
     <>
       {logoutError && <Alert color="danger">{logoutError.message}</Alert>}
-      <Row>
+      <Row form>
         <Col>
           <h1>{userInfo?.displayName || username}</h1>
         </Col>
-        <Col xs="auto">
-          {isMyself && (
-            <Button disabled={logoutLoading} onClick={logout}>
-              Logout
-            </Button>
-          )}
-        </Col>
+
+        {isMyself && (
+          <>
+            {(user.isAdmin || user.simulateNonadmin) && (
+              <Col xs="auto">
+                <Button
+                  disabled={logoutLoading}
+                  onClick={() => runSetNonAdmin(!user.simulateNonadmin)}
+                  className="m-2"
+                >
+                  {user.isAdmin
+                    ? "View without admin privileges"
+                    : "View with admin privileges"}
+                </Button>
+              </Col>
+            )}
+            <Col xs="auto">
+              <Button disabled={logoutLoading} onClick={logout} className="m-2">
+                Logout
+              </Button>
+            </Col>
+          </>
+        )}
       </Row>
 
       <Container fluid>

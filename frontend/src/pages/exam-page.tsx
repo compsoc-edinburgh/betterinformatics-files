@@ -190,7 +190,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   return (
     <>
       <Container>
-        {user.isCategoryAdmin && (
+        {metaData.canEdit && (
           <IconButton
             tooltip="Edit exam metadata"
             close
@@ -431,6 +431,7 @@ const ExamPage: React.FC<{}> = () => {
               value={{
                 ...user,
                 isExpert: user.isExpert || metaData.isExpert,
+                isCategoryAdmin: user.isAdmin || metaData.canEdit,
               }}
             >
               <ExamPageContent

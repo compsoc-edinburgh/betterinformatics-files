@@ -76,8 +76,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
   displayOptions,
   setDisplayOptions,
 }) => {
-  const user = useUser()!;
-  const isCatAdmin = user.isCategoryAdmin;
+  const canEdit = metaData.canEdit;
   const snap =
     editState.mode === EditMode.Add || editState.mode === EditMode.Move
       ? editState.snap
@@ -173,7 +172,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           />
         </ButtonGroup>
 
-        {isCatAdmin && (
+        {canEdit && (
           <>
             <h6 className="my-3 mx-2">Edit Mode</h6>
             <ButtonGroup vertical>

@@ -49,6 +49,7 @@ const App: React.FC<{}> = () => {
             displayname: res.displayname,
             isAdmin: res.adminrights,
             isCategoryAdmin: res.adminrightscat,
+            simulateNonadmin: res.simulate_nonadmin,
           });
         },
         () => {
