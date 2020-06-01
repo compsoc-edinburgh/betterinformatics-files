@@ -234,7 +234,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <Button close onClick={toggle} />
       <h2>Edit Category</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <h6 className="mb-3 mt-4">Meta Data</h6>
+      <h6 className="mb-3 mt-4">Metadata</h6>
       <Row form>
         <Col md={6}>
           <FormGroup>
