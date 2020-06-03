@@ -39,7 +39,7 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
     setAttachments(attachments.filter((_item, i) => i !== index));
   };
   return (
-    <>
+    <div className="mb-5">
       <ListGroup>
         {attachments.map(({ displayname, filename }, index) => (
           <ListGroupItem key={toKey(filename)}>
@@ -64,7 +64,7 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
           </Button>
         </InputGroupAddon>
       </InputGroup>
-    </>
+    </div>
   );
 };
 export default AttachmentsEditor;

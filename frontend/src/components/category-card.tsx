@@ -1,20 +1,24 @@
 import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
 import React from "react";
-import { CategoryMetaData } from "../interfaces";
 import { useHistory } from "react-router-dom";
-import styled from "@emotion/styled";
-
-const CategoryCardWrapper = styled(Card)`
-  cursor: pointer;
-`;
+import { CategoryMetaData } from "../interfaces";
+import { focusOutline } from "../utils/style";
 
 const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
   category,
 }) => {
   const history = useHistory();
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.keyCode === 13) {
+      history.push(`/category/${category.slug}`);
+    }
+  };
   return (
-    <CategoryCardWrapper
+    <Card
+      className={focusOutline}
+      tabIndex={0}
       onClick={() => history.push(`/category/${category.slug}`)}
+      onKeyDown={handleKeyDown}
     >
       <CardBody>
         <h5>{category.displayname}</h5>
@@ -26,7 +30,7 @@ const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
       <CardFooter>
         <Progress value={category.answerprogress} max={1} />
       </CardFooter>
-    </CategoryCardWrapper>
+    </Card>
   );
 };
 export default CategoryCard;

@@ -44,7 +44,12 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
   useEffect(() => setMounted(true), []);
   return (
     <>
-      <Button {...longPress} id={`btn-${buttonId}`} {...buttonProps}>
+      <Button
+        {...longPress}
+        id={`btn-${buttonId}`}
+        {...buttonProps}
+        onClick={e => e.stopPropagation()}
+      >
         <span ref={ref} /> {children}
         {mounted && tooltip && (
           <Tooltip

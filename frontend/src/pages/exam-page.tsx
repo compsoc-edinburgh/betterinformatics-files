@@ -190,15 +190,24 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   return (
     <>
       <Container>
-        {user.isCategoryAdmin && (
-          <IconButton
-            tooltip="Edit exam metadata"
-            close
-            icon="EDIT"
-            onClick={() => toggleEditing()}
-          />
-        )}
-        <h1>{metaData.displayname}</h1>
+        <Row>
+          <Col>
+            <h1 className="mb-3">{metaData.displayname}</h1>
+          </Col>
+          {user.isCategoryAdmin && (
+            <Col md="auto" className="d-flex align-items-center">
+              <IconButton
+                size="sm"
+                className="m-1"
+                icon="EDIT"
+                onClick={() => toggleEditing()}
+              >
+                Edit
+              </IconButton>
+            </Col>
+          )}
+        </Row>
+
         <Row form>
           {!metaData.canView && (
             <Col md={6} lg={4}>
@@ -431,6 +440,7 @@ const ExamPage: React.FC<{}> = () => {
               value={{
                 ...user,
                 isExpert: user.isExpert || metaData.isExpert,
+                isCategoryAdmin: user.isAdmin || metaData.canEdit,
               }}
             >
               <ExamPageContent

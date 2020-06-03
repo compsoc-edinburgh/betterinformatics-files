@@ -34,14 +34,11 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
+import { Link } from "react-router-dom";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;
   margin-bottom: 1em;
-`;
-
-const AuthorWrapper = styled.h6`
-  margin: 0;
 `;
 
 const AnswerToolbar = styled(ButtonToolbar)`
@@ -55,6 +52,7 @@ interface Props {
   onSectionChanged?: (newSection: AnswerSection) => void;
   onDelete?: () => void;
   isLegacyAnswer: boolean;
+  hasId?: boolean;
 }
 const AnswerComponent: React.FC<Props> = ({
   section,
@@ -62,6 +60,7 @@ const AnswerComponent: React.FC<Props> = ({
   onDelete,
   onSectionChanged,
   isLegacyAnswer,
+  hasId = true,
 }) => {
   const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetFlagged] = useResetFlaggedVote(
@@ -106,14 +105,17 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <AnswerWrapper id={answer?.longId}>
+      <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
           <Row className="flex-between">
             <Col xs="auto" className="d-flex flex-center flex-column">
-              <AuthorWrapper>
+              <Link
+                className="text-lead m-0"
+                to={answer ? `/exams/${answer.filename}#${answer.longId}` : ""}
+              >
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
-              </AuthorWrapper>
+              </Link>
             </Col>
             <Col xs="auto">
               <AnswerToolbar>
@@ -228,14 +230,21 @@ const AnswerComponent: React.FC<Props> = ({
         </div>
         <CardBody className="pt-0">
           {editing || answer === undefined ? (
-            <Editor
-              value={draftText}
-              onChange={setDraftText}
-              imageHandler={imageHandler}
-              preview={value => <MarkdownText value={value} />}
-              undoStack={undoStack}
-              setUndoStack={setUndoStack}
-            />
+            <>
+              <Editor
+                value={draftText}
+                onChange={setDraftText}
+                imageHandler={imageHandler}
+                preview={value => <MarkdownText value={value} />}
+                undoStack={undoStack}
+                setUndoStack={setUndoStack}
+              />
+              Your answer will be licensed as{" "}
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                CC BY-NC-SA 4.0
+              </a>
+              .
+            </>
           ) : (
             <div className="py-3">
               <MarkdownText value={answer?.text ?? ""} />
@@ -291,7 +300,7 @@ const AnswerComponent: React.FC<Props> = ({
                           <DropdownItem
                             onClick={() =>
                               copy(
-                                `${document.location.origin}${document.location.pathname}#${answer.longId}`,
+                                `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
                               )
                             }
                           >
