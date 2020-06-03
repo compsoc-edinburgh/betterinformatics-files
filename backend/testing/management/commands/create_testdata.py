@@ -128,9 +128,9 @@ class Command(BaseCommand):
                     finished_wiki_transfer=(i+category.id % 9 != 0),
                     needs_payment=needs_payment,
                 )
-                pdf_utils.analyze_pdf(exam, os.path.join(
-                    settings.COMSOL_UPLOAD_FOLDER, 'exam10.pdf'))
                 exam.save()
+                pdf_utils.analyze_pdf(exam, os.path.join(
+                    settings.COMSOL_EXAM_DIR, 'exam10.pdf'))
 
                 if i + category.id % 3 == 0:
                     exam.has_solution = True
