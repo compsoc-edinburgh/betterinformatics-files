@@ -4,6 +4,30 @@ import tempfile
 from bs4 import BeautifulSoup
 from backend import settings
 from answers.models import ExamPage, ExamPageFlow, ExamWord
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def get_page_text(path_to_pdf, page, tmpdirname):
+    text_path = tmpdirname + "temp.txt"
+    DEVNULL = open(os.devnull, 'w')
+    return_code = subprocess.call([
+        'pdftotext',
+        '-f',
+        str(page),
+        '-l',
+        str(page),
+        u'{pdf_path}'.format(pdf_path=path_to_pdf),
+        u'{text_path}'.format(text_path=text_path),
+    ], stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
+    if return_code:
+        logger.warning('Failed reading PDF text: {path_to_pdf} page {page}'.format(
+            path_to_pdf=path_to_pdf, page=page
+        ))
+        return ''
+    with open(text_path, 'r') as file:
+        return file.read()
 
 
 def analyze_pdf(exam, path_to_pdf):
@@ -26,15 +50,9 @@ def analyze_pdf(exam, path_to_pdf):
         ExamPage.objects.filter(exam=exam).delete()
         exam_word_objects = []
         for page in textdoc.find_all('page'):
-            page_words = []
             w = float(page['width'])
             h = float(page['height'])
-            for flow in page.find_all('flow'):
-                for block in flow.find_all('block'):
-                    for line in block.find_all('line'):
-                        for word in line.find_all('word'):
-                            page_words.append(word.string)
-            page_text = ' '.join(page_words)
+            page_text = get_page_text(path_to_pdf, page_number, tmpdirname)
             exam_page = ExamPage(
                 exam=exam, page_number=page_number, width=w, height=h, text=page_text)
             exam_page.save()

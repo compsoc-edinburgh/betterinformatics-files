@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('uploadpdf/', views.index, name='uploadpdf'),
+    path('search/', views.index, name='search'),
     path('submittranscript/', views.index, name='submittranscript'),
     path('feedback/', views.index, name='feedback'),
     path('faq/', views.index, name='faq'),
@@ -17,6 +18,8 @@ urlpatterns = [
     path('favicon.ico', views.favicon, name='favicon'),
     path('manifest.json', views.manifest, name='manifest'),
     path('resolve/<str:filename>/', views.resolve, name='resolve'),
-    path('legacy/transformwiki/<str:examname>/', views.legacy_wiki_transform, name='transformwiki'),
-    path('api/can_i_haz_csrf_cookie/', views.can_i_haz_csrf_cookie, name='can_i_haz_csrf_cookie'),
+    path('legacy/transformwiki/<str:examname>/',
+         views.legacy_wiki_transform, name='transformwiki'),
+    path('api/can_i_haz_csrf_cookie/', views.can_i_haz_csrf_cookie,
+         name='can_i_haz_csrf_cookie'),
 ]
