@@ -13,6 +13,9 @@ from filestore.models import Attachment
 from images.models import Image
 from notifications.models import Notification, NotificationSetting, NotificationType
 from payments.models import Payment
+import os
+from answers import pdf_utils
+
 
 class Command(BaseCommand):
     help = 'Creates some testdata'
@@ -44,8 +47,10 @@ class Command(BaseCommand):
         self.stdout.write('Create images')
         for user in MyUser.objects.all():
             for i in range(user.id % 10 + 5):
-                filename = minio_util.generate_filename(16, settings.COMSOL_IMAGE_DIR, '.svg')
-                minio_util.save_file_to_minio(settings.COMSOL_IMAGE_DIR, filename, 'static/expert_active.svg')
+                filename = minio_util.generate_filename(
+                    16, settings.COMSOL_IMAGE_DIR, '.svg')
+                minio_util.save_file_to_minio(
+                    settings.COMSOL_IMAGE_DIR, filename, 'static/expert_active.svg')
                 Image(filename=filename, owner=user).save()
 
     def create_meta_categories(self):
@@ -56,24 +61,26 @@ class Command(BaseCommand):
         for meta in metas:
             meta.save()
             for i in range(5):
-                MetaCategory(displayname='Subcategory {} of {}'.format(i+1, meta.displayname), parent=meta).save()
+                MetaCategory(displayname='Subcategory {} of {}'.format(
+                    i+1, meta.displayname), parent=meta).save()
 
     def create_categories(self):
         self.stdout.write('Create categories')
         Category(displayname='default', slug='default').save()
-        for i in range(7):
+        for i in range(70):
+            self.stdout.write('Creating category ' + str(i+1))
             category = Category(
                 displayname='Category ' + str(i+1),
                 slug='category' + str(i+1),
-                form=(['written'] * 5 + ['oral'])[i%6],
+                form=(['written'] * 5 + ['oral'])[i % 6],
                 remark=[
                     'Test remark',
                     'Slightly longer remark',
                     'This is a very long remark.\nIt even has multiple lines.\nHowever, it is not useful at all.\n\nThank you for reading!'
-                ][i%3],
-                semester=['HS', 'FS'][i%2],
+                ][i % 3],
+                semester=['HS', 'FS'][i % 2],
                 permission='public',
-                has_payments=(i%5 == 0),
+                has_payments=(i % 5 == 0),
             )
             category.save()
             for j, user in enumerate(MyUser.objects.all()):
@@ -98,16 +105,21 @@ class Command(BaseCommand):
         self.stdout.write('Create exams')
         for category in Category.objects.all():
             for i in range(6):
-                filename = minio_util.generate_filename(8, settings.COMSOL_EXAM_DIR, '.pdf')
-                minio_util.save_file_to_minio(settings.COMSOL_EXAM_DIR, filename, 'exam10.pdf')
-                needs_payment = category.has_payments and (i+category.id % 3 == 0)
+                filename = minio_util.generate_filename(
+                    8, settings.COMSOL_EXAM_DIR, '.pdf')
+                minio_util.save_file_to_minio(
+                    settings.COMSOL_EXAM_DIR, filename, 'exam10.pdf')
+                needs_payment = category.has_payments and (
+                    i+category.id % 3 == 0)
                 if needs_payment:
                     exam_type = ExamType.objects.get(displayname='Transcripts')
                 else:
-                    exam_type = ExamType.objects.get(displayname='Exams') if (i+category.id % 4 != 0) else ExamType.objects.get(displayname='Midterms')
+                    exam_type = ExamType.objects.get(displayname='Exams') if (
+                        i+category.id % 4 != 0) else ExamType.objects.get(displayname='Midterms')
                 exam = Exam(
                     filename=filename,
-                    displayname='Exam {} in {}'.format(i+1, category.displayname),
+                    displayname='Exam {} in {}'.format(
+                        i+1, category.displayname),
                     exam_type=exam_type,
                     category=category,
                     resolve_alias='resolve_' + filename,
@@ -116,16 +128,20 @@ class Command(BaseCommand):
                     finished_wiki_transfer=(i+category.id % 9 != 0),
                     needs_payment=needs_payment,
                 )
+                pdf_utils.analyze_pdf(exam, os.path.join(
+                    settings.COMSOL_UPLOAD_FOLDER, 'exam10.pdf'))
                 exam.save()
 
                 if i + category.id % 3 == 0:
                     exam.has_solution = True
-                    minio_util.save_file_to_minio(settings.COMSOL_SOLUTION_DIR, filename, 'exam10.pdf')
+                    minio_util.save_file_to_minio(
+                        settings.COMSOL_SOLUTION_DIR, filename, 'exam10.pdf')
                     exam.save()
 
                 if i + category.id % 5 == 0:
                     exam.is_printonly = True
-                    minio_util.save_file_to_minio(settings.COMSOL_PRINTONLY_DIR, filename, 'exam10.pdf')
+                    minio_util.save_file_to_minio(
+                        settings.COMSOL_PRINTONLY_DIR, filename, 'exam10.pdf')
                     exam.save()
 
     def create_answer_sections(self):
@@ -136,7 +152,7 @@ class Command(BaseCommand):
                 for i in range(4):
                     AnswerSection(
                         exam=exam,
-                        author=users[(exam.id+page+i)%len(users)],
+                        author=users[(exam.id+page+i) % len(users)],
                         page_num=page,
                         rel_height=0.2 + 0.15*i,
                         name='Aufgabe ' + str(i),
@@ -146,15 +162,16 @@ class Command(BaseCommand):
         self.stdout.write('Create answers')
         users = MyUser.objects.all()
         for section in AnswerSection.objects.all():
-            for i in range(section.id%7):
-                author = users[(section.id+i)%len(users)]
+            for i in range(section.id % 7):
+                author = users[(section.id+i) % len(users)]
                 answer = Answer(
                     answer_section=section,
                     author=author,
                     text=[
                         'This is a test answer.\n\nIt has multiple lines.',
                         'This is maths: $\pi = 3$\n\nHowever, it is wrong.',
-                        'This is an image: ![Testimage]({})'.format(Image.objects.filter(owner=author).first().filename),
+                        'This is an image: ![Testimage]({})'.format(
+                            Image.objects.filter(owner=author).first().filename),
                     ][(section.id+i) % 3],
                 )
                 if i == 6:
@@ -175,15 +192,16 @@ class Command(BaseCommand):
         self.stdout.write('Create comments')
         users = MyUser.objects.all()
         for answer in Answer.objects.all():
-            for i in range(answer.id%17):
-                author = users[(answer.id+i)%len(users)]
+            for i in range(answer.id % 17):
+                author = users[(answer.id+i) % len(users)]
                 comment = Comment(
                     answer=answer,
                     author=author,
                     text=[
                         'This is a comment ({}).'.format(i+1),
-                        'This is a test image: [Testimage]({})'.format(Image.objects.filter(owner=author).first().filename),
-                    ][(answer.id+i)%2]
+                        'This is a test image: [Testimage]({})'.format(
+                            Image.objects.filter(owner=author).first().filename),
+                    ][(answer.id+i) % 2]
                 )
                 comment.save()
 
@@ -193,17 +211,19 @@ class Command(BaseCommand):
         for i in range(122):
             Feedback(
                 text='Feedback ' + str(i+1),
-                author=users[i%len(users)],
-                read=i%7 == 0,
-                done=i%17 == 0,
+                author=users[i % len(users)],
+                read=i % 7 == 0,
+                done=i % 17 == 0,
             ).save()
 
     def create_attachments(self):
         self.stdout.write('Create attachments')
         for exam in Exam.objects.all():
             if exam.id % 7 == 0:
-                filename = minio_util.generate_filename(16, settings.COMSOL_FILESTORE_DIR, '.pdf')
-                minio_util.save_file_to_minio(settings.COMSOL_FILESTORE_DIR, filename, 'exam10.pdf')
+                filename = minio_util.generate_filename(
+                    16, settings.COMSOL_FILESTORE_DIR, '.pdf')
+                minio_util.save_file_to_minio(
+                    settings.COMSOL_FILESTORE_DIR, filename, 'exam10.pdf')
                 Attachment(
                     displayname='Attachment ' + str(exam.id),
                     filename=filename,
@@ -211,8 +231,10 @@ class Command(BaseCommand):
                 ).save()
         for category in Category.objects.all():
             if category.id % 7 == 0:
-                filename = minio_util.generate_filename(16, settings.COMSOL_FILESTORE_DIR, '.pdf')
-                minio_util.save_file_to_minio(settings.COMSOL_FILESTORE_DIR, filename, 'exam10.pdf')
+                filename = minio_util.generate_filename(
+                    16, settings.COMSOL_FILESTORE_DIR, '.pdf')
+                minio_util.save_file_to_minio(
+                    settings.COMSOL_FILESTORE_DIR, filename, 'exam10.pdf')
                 Attachment(
                     displayname='Attachment ' + str(category.id),
                     filename=filename,
@@ -224,18 +246,18 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         answers = Answer.objects.all()
         for user in MyUser.objects.all():
-            for i in range(user.id%22):
+            for i in range(user.id % 22):
                 Notification(
-                    sender=users[i%len(users)],
+                    sender=users[i % len(users)],
                     receiver=user,
                     type=[
                         NotificationType.NEW_ANSWER_TO_ANSWER,
                         NotificationType.NEW_COMMENT_TO_ANSWER,
                         NotificationType.NEW_COMMENT_TO_COMMENT,
-                    ][i%3].value,
+                    ][i % 3].value,
                     title='Test Notification',
                     text='Test Notification',
-                    answer=answers[(user.id+i)%len(answers)],
+                    answer=answers[(user.id+i) % len(answers)],
                 ).save()
 
     def create_payments(self):
@@ -247,14 +269,17 @@ class Command(BaseCommand):
                     user=user
                 ).save()
                 if user.id % 9 == 0:
-                    filename = minio_util.generate_filename(8, settings.COMSOL_EXAM_DIR, '.pdf')
-                    minio_util.save_file_to_minio(settings.COMSOL_EXAM_DIR, filename, 'exam10.pdf')
+                    filename = minio_util.generate_filename(
+                        8, settings.COMSOL_EXAM_DIR, '.pdf')
+                    minio_util.save_file_to_minio(
+                        settings.COMSOL_EXAM_DIR, filename, 'exam10.pdf')
                     exam_type = ExamType.objects.get(displayname='Transcripts')
                     exam = Exam(
                         filename=filename,
-                        displayname='Transcript by {}'.format(user.displayname()),
+                        displayname='Transcript by {}'.format(
+                            user.displayname()),
                         exam_type=exam_type,
-                        category=categories[user.id%len(categories)],
+                        category=categories[user.id % len(categories)],
                         resolve_alias='resolve_' + filename,
                         public=False,
                         finished_cuts=False,
@@ -269,7 +294,6 @@ class Command(BaseCommand):
                         user=user,
                         payment_time=timezone.now() - timedelta(days=365),
                     ).save()
-
 
     def handle(self, *args, **options):
         self.flush_db()

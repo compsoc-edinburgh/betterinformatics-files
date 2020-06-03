@@ -8,6 +8,7 @@ from . import views_files
 from . import views_listings
 
 urlpatterns = [
+    path('search/', views_listings.search, name='search'),
     path('listexamtypes/', views_listings.list_exam_types, name='listexamtypes'),
     path('listexams/', views_listings.list_exams, name='listexams'),
     path('listimportexams/', views_listings.list_import_exams, name='listimportexams'),

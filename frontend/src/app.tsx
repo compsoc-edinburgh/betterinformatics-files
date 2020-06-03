@@ -23,6 +23,7 @@ import TutorialPage from "./pages/tutorial-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { css } from "emotion";
+import SearchPage from "./pages/search-page";
 const minHeight = css`
   min-height: 100vh;
 `;
@@ -103,6 +104,7 @@ const App: React.FC<{}> = () => {
                     path="/user/:username"
                     component={UserPage}
                   />
+                  <UserRoute exact path="/search/" component={SearchPage} />
                   <UserRoute exact path="/scoreboard" component={Scoreboard} />
                   <UserRoute exact path="/modqueue" component={ModQueue} />
                   <Route component={NotFoundPage} />

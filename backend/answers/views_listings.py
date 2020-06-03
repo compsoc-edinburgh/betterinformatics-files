@@ -1,9 +1,121 @@
 from util import response
 from myauth import auth_check
 from myauth.models import get_my_user
-from answers.models import Exam, ExamType, Answer
-from django.db.models import Q
+from answers.models import Answer, Comment, Exam, ExamPage, ExamType
+from django.db.models import Q, F
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity
 from answers import section_util
+from myauth.auth_check import has_admin_rights
+
+
+@response.request_post('term')
+@auth_check.require_login
+def search(request):
+    term = request.POST['term']
+    user = request.user
+
+    user_admin_category_set = user.category_admin_set.values_list(
+        'id', flat=True)
+
+    trigram_similarity = TrigramSimilarity('text', term)
+    exam_page_search_query = SearchQuery(term, config='english')
+    exam_page_search_rank = SearchRank(
+        F('search_vector'), exam_page_search_query)
+
+    answer_answer_section_exam_can_view = Q(answer__answer_section__exam__public=True) | Q(
+        answer__answer_section__exam__category__in=user_admin_category_set)
+    answer_section_exam_can_view = Q(answer_section__exam__public=True) | Q(
+        answer_section__exam__category__in=user_admin_category_set)
+    exam_can_view = Q(exam__public=True) | Q(
+        exam__category__in=user_admin_category_set)
+    can_view = Q(public=True) | Q(category__in=user_admin_category_set)
+    if not user.has_payed():
+        answer_answer_section_exam_can_view = answer_answer_section_exam_can_view & Q(
+            answer__answer_section__exam__needs_payment=False
+        )
+        answer_section_exam_can_view = answer_section_exam_can_view & Q(
+            answer_section__exam__needs_payment=False
+        )
+        exam_can_view = exam_can_view & Q(exam__needs_payment=False)
+        can_view = can_view & Q(needs_payment=False)
+
+    exam_pages_query = ExamPage.objects
+    if not has_admin_rights(request):
+        exam_pages_query = exam_pages_query.filter(exam_can_view)
+    exam_pages_query = exam_pages_query.filter(
+        search_vector=term
+    ).annotate(
+        rank=exam_page_search_rank + trigram_similarity
+    )[:15]
+
+    exams = (Exam.objects.filter(id__in=[
+        examPage.exam.id for examPage in exam_pages_query
+    ]) | Exam.objects.filter(search_vector=term))
+    if not has_admin_rights(request):
+        exams = exams.filter(can_view)
+
+    examDict = dict()
+    examScore = dict()
+    examPages = dict()
+    for exam in exams:
+        examScore[exam.id] = 0
+        examPages[exam.id] = []
+    for examPage in exam_pages_query:
+        examScore[examPage.exam.id] += examPage.rank
+        examPages[examPage.exam.id].append(
+            (examPage.page_number, examPage.rank))
+
+    answer_search_query = SearchQuery(term, config='english')
+    answer_search_rank = SearchRank(F('search_vector'), answer_search_query)
+    answers = Answer.objects
+    if not has_admin_rights(request):
+        answers = answers.filter(answer_section_exam_can_view)
+    answers = answers.filter(search_vector=term).annotate(
+        rank=answer_search_rank,
+        filename=F('answer_section__exam__filename')
+    ).prefetch_related('author')[:15]
+
+    comment_search_query = SearchQuery(term, config='english')
+    comment_search_rank = SearchRank(
+        F('search_vector'), comment_search_query)
+    comments = Comment.objects
+    if not has_admin_rights(request):
+        comments = comments.filter(answer_answer_section_exam_can_view)
+    comments = comments.filter(search_vector=term).annotate(
+        rank=comment_search_rank,
+        filename=F('answer__answer_section__exam__filename')
+    ).prefetch_related('author')[:15]
+
+    res = []
+    for exam in exams:
+        res.append({
+            'type': 'exam',
+            'filename': exam.filename,
+            'displayname': exam.displayname,
+            'rank': examScore[exam.id],
+            'pages': examPages[exam.id],
+        })
+    for answer in answers:
+        res.append({
+            'type': 'answer',
+            'text': answer.text,
+            'author': answer.author.username,
+            'author_displayname': get_my_user(answer.author).displayname(),
+            'filename': answer.filename,
+            'rank': answer.rank,
+            'long_id': answer.long_id
+        })
+    for comment in comments:
+        res.append({
+            'type': 'comment',
+            'text': comment.text,
+            'author': comment.author.username,
+            'author_displayname': get_my_user(comment.author).displayname(),
+            'filename': comment.filename,
+            'rank': comment.rank,
+            'long_id': comment.long_id
+        })
+    return response.success(value=sorted(res, key=lambda x: -x['rank']))
 
 
 @response.request_get()
@@ -76,12 +188,15 @@ def list_flagged(request):
 @auth_check.require_login
 def get_by_user(request, username):
     res = [
-        section_util.get_answer_response(request, answer, ignore_exam_admin=True)
+        section_util.get_answer_response(
+            request, answer, ignore_exam_admin=True)
         for answer in sorted(
-            Answer.objects.filter(author__username=username, is_legacy_answer=False)
-                .select_related(*section_util.get_answer_fields_to_preselect())
-                .prefetch_related(*section_util.get_answer_fields_to_prefetch()),
-            key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count(), x.time)
+            Answer.objects.filter(
+                author__username=username, is_legacy_answer=False)
+            .select_related(*section_util.get_answer_fields_to_preselect())
+            .prefetch_related(*section_util.get_answer_fields_to_prefetch()),
+            key=lambda x: (-x.expertvotes.count(),
+                           x.downvotes.count() - x.upvotes.count(), x.time)
         )
     ]
     return response.success(value=res)
