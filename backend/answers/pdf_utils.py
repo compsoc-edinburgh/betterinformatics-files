@@ -3,7 +3,7 @@ import os
 import tempfile
 from bs4 import BeautifulSoup
 from backend import settings
-from answers.models import ExamPage, ExamPageFlow, ExamWord
+from answers.models import ExamPage as ExamPageModel, ExamPageFlow as ExamPageFlowModel, ExamWord as ExamWordModel
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ def get_page_text(path_to_pdf, page, tmpdirname):
         return file.read()
 
 
-def analyze_pdf(exam, path_to_pdf):
+def analyze_pdf(exam, path_to_pdf, ExamPage=ExamPageFlowModel, ExamPageFlow=ExamPageFlowModel, ExamWord=ExamWordModel):
     base_path = settings.COMSOL_UPLOAD_FOLDER
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
         html_path = tmpdirname + "temp.html"

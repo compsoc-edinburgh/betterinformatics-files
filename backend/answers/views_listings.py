@@ -49,7 +49,7 @@ def search(request):
     )[:15]
 
     exams = (Exam.objects.filter(id__in=[
-        examPage.exam.id for examPage in exam_pages_query
+        examPage.exam_id for examPage in exam_pages_query
     ]) | Exam.objects.filter(search_vector=term))
     if not has_admin_rights(request):
         exams = exams.filter(can_view)
@@ -61,8 +61,8 @@ def search(request):
         examScore[exam.id] = 0
         examPages[exam.id] = []
     for examPage in exam_pages_query:
-        examScore[examPage.exam.id] += examPage.rank
-        examPages[examPage.exam.id].append(
+        examScore[examPage.exam_id] += examPage.rank
+        examPages[examPage.exam_id].append(
             (examPage.page_number, examPage.rank))
 
     answer_search_query = SearchQuery(term, config='english')
