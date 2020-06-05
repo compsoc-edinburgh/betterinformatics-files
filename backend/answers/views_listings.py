@@ -3,142 +3,15 @@ from myauth import auth_check
 from myauth.models import get_my_user
 from answers.models import Answer, Comment, Exam, ExamPage, ExamType
 from django.db.models.functions import Concat
-from django.db.models import Q, F, When, Case, Value as V
+from django.db.models import Q, F, When, Case, Value as V, Func, TextField
 from django.contrib.postgres.search import (
     SearchQuery,
     SearchRank,
     SearchVector,
-    TrigramSimilarity
+    TrigramSimilarity,
 )
 from answers import section_util
 from myauth.auth_check import has_admin_rights
-
-
-@response.request_post("term")
-@auth_check.require_login
-def search(request):
-    term = request.POST["term"]
-    user = request.user
-
-    user_admin_category_set = user.category_admin_set.values_list(
-        "id", flat=True)
-    query = SearchQuery(term, config="english")
-    trigram_similarity = TrigramSimilarity("text", term)
-
-    answer_answer_section_exam_can_view = Q(
-        answer__answer_section__exam__public=True
-    ) | Q(answer__answer_section__exam__category__in=user_admin_category_set)
-    answer_section_exam_can_view = Q(answer_section__exam__public=True) | Q(
-        answer_section__exam__category__in=user_admin_category_set
-    )
-    exam_can_view = Q(exam__public=True) | Q(
-        exam__category__in=user_admin_category_set)
-    can_view = Q(public=True) | Q(category__in=user_admin_category_set)
-    if not user.has_payed():
-        answer_answer_section_exam_can_view = answer_answer_section_exam_can_view & Q(
-            answer__answer_section__exam__needs_payment=False
-        )
-        answer_section_exam_can_view = answer_section_exam_can_view & Q(
-            answer_section__exam__needs_payment=False
-        )
-        exam_can_view = exam_can_view & Q(exam__needs_payment=False)
-        can_view = can_view & Q(needs_payment=False)
-
-    exam_pages_query = ExamPage.objects
-    if not has_admin_rights(request):
-        exam_pages_query = exam_pages_query.filter(exam_can_view)
-    exam_pages_query = exam_pages_query.filter(search_vector=term).annotate(
-        rank=SearchRank(F("search_vector"), query) + trigram_similarity
-    )[:15]
-
-    exams = (Exam.objects.filter(
-        id__in=[examPage.exam_id for examPage in exam_pages_query]
-    ) | Exam.objects.filter(search_vector=term)).annotate(
-        rank=SearchRank(F("search_vector"), query)
-    )
-    if not has_admin_rights(request):
-        exams = exams.filter(can_view)
-
-    examDict = dict()
-    examScore = dict()
-    examPages = dict()
-    for exam in exams:
-        examScore[exam.id] = exam.rank
-        examPages[exam.id] = []
-    for examPage in exam_pages_query:
-        examScore[examPage.exam_id] += examPage.rank
-        examPages[examPage.exam_id].append(
-            (examPage.page_number, examPage.rank))
-
-    answers = Answer.objects
-    if not has_admin_rights(request):
-        answers = answers.filter(answer_section_exam_can_view)
-    answers = (
-        answers.filter(search_vector=term)
-        .annotate(
-            rank=SearchRank(F("search_vector"), query),
-            filename=F("answer_section__exam__filename"),
-            author_username=F("author__username"),
-            headline=SearchHeadline('text', query, options={
-                'StartSel': '<b>',
-                'StopSel': '</b>'
-            }),
-            author_displayname=Case(
-                When(
-                    Q(author__first_name__isnull=True),
-                    "author__first_name",
-                ),
-                default=Concat(
-                    "author__first_name",
-                    V(" "),
-                    "author__last_name"
-                ),
-            ),
-        )
-        .values("headline", "author_username", "author_displayname", "filename", "rank", "long_id")[:15]
-    )
-
-    comments = Comment.objects
-    if not has_admin_rights(request):
-        comments = comments.filter(answer_answer_section_exam_can_view)
-    comments = (
-        comments.filter(search_vector=term)
-        .annotate(
-            rank=SearchRank(F("search_vector"), query),
-            filename=F("answer__answer_section__exam__filename"),
-            author_username=F("author__username"),
-            author_displayname=Case(
-                When(
-                    Q(author__first_name__isnull=True),
-                    "author__first_name",
-                ),
-                default=Concat(
-                    "author__first_name",
-                    V(" "),
-                    "author__last_name"
-                ),
-            ),
-        ).values("text", "author_username", "author_displayname", "filename", "rank", "long_id")[:15]
-    )
-
-    res = []
-    for exam in exams:
-        res.append(
-            {
-                "type": "exam",
-                "filename": exam.filename,
-                "displayname": exam.displayname,
-                "rank": examScore[exam.id],
-                "pages": examPages[exam.id],
-            }
-        )
-    for answer in answers:
-        answer["type"] = "answer"
-        res.append(answer)
-    for comment in comments:
-        comment["type"] = "comment"
-        res.append(comment)
-    return response.success(value=sorted(res, key=lambda x: -x["rank"]))
 
 
 @response.request_get()
@@ -166,9 +39,7 @@ def list_import_exams(request):
         if auth_check.has_admin_rights(request):
             return exams
         return [
-            exam
-            for exam in exams
-            if auth_check.has_admin_rights_for_exam(request, exam)
+            exam for exam in exams if auth_check.has_admin_rights_for_exam(request, exam)
         ]
 
     res = [
