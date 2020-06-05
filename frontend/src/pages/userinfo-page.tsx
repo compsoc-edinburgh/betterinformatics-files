@@ -1,4 +1,11 @@
-import { Alert, Col, Container, Row, Spinner } from "@vseth/components";
+import {
+  Alert,
+  Col,
+  Container,
+  Row,
+  Spinner,
+  CardColumns,
+} from "@vseth/components";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useUser } from "../auth";
@@ -30,17 +37,20 @@ const UserPage: React.FC<{}> = () => {
       </Container>
       <ContentContainer>
         <Container>
-          {(isMyself || user.isAdmin) && <UserPayments username={username} />}
           <Row>
-            <Col sm={{ size: 12, order: 1 }} md={{ size: 6, order: 0 }}>
-              <UserAnswers username={username} />
-            </Col>
+            {(isMyself || user.isAdmin) && (
+              <Col md={6}>
+                <UserPayments username={username} />
+              </Col>
+            )}
             {isMyself && (
-              <Col sm={{ size: 12, order: 0 }} md={{ size: 6, order: 1 }}>
+              <Col md={6}>
                 <UserNotifications username={username} />
               </Col>
             )}
           </Row>
+
+          <UserAnswers username={username} />
         </Container>
       </ContentContainer>
     </>
