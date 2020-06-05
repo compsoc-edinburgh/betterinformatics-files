@@ -9,7 +9,8 @@ const columnStyle = css`
   margin: 0 -0.75em;
   padding-top: 1em;
   padding-bottom: 1em;
-  @media (min-width: 600px) {
+  column-count: 1;
+  @media (min-width: 800px) {
     column-count: 2;
   }
 `;
