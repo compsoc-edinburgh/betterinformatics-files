@@ -14,6 +14,8 @@ from django.contrib.postgres.search import (
     TrigramSimilarity,
 )
 import logging
+import time
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 flatten = lambda l: [item for sublist in l for item in sublist]
@@ -23,6 +25,17 @@ flatten_and_filter = lambda l: (
 
 
 def parse_recursive(text, start_re, end_re, i, start_len, end_len):
+    """
+    Recursively parses `text` into an area where list elements correspond to sections
+    in `text` which were surrounded by `start_re` and `end_re`. `start_len`end `end_len`
+    can be used to remove the separators. `i` is the index from which the function starts
+    matching. The function assumes that the string is well formed. In the case that `end_re`
+    occurs more times then `end_re` the returned `i` can be used to include the rest
+    of `text`. 
+
+    Returns:
+        `list, number`: The parsing result and the index where parsing stopped
+    """
     start_re
     parts = []
     s = text[i:]
@@ -52,6 +65,13 @@ def parse_recursive(text, start_re, end_re, i, start_len, end_len):
 
 
 def parse_nested(text, start_re, end_re, i, start_len, end_len):
+    """
+    Uses `parse_recursive` but handles strings that are not well formed.
+
+    Returns:
+        `list`: The parsing result
+    """
+
     res, i = parse_recursive(text, start_re, end_re, 0, start_len, end_len)
     if i < len(text):
         res += text[i:]
@@ -59,6 +79,10 @@ def parse_nested(text, start_re, end_re, i, start_len, end_len):
 
 
 def parse_headline(text, start, end, frag):
+    """
+    Returns the parsed result of a psql headline function where `start`, `end`and
+    `frag` are the psql parameters and `text` is the text result. 
+    """
     start_re = re.compile(".*?(" + re.escape(str(start)) + ")", flags=re.DOTALL)
     end_re = re.compile(".*?(" + re.escape(str(end)) + ")", flags=re.DOTALL)
 
@@ -69,6 +93,10 @@ def parse_headline(text, start, end, frag):
 
 
 def generate_boundary():
+    """
+    Generates a random boundary that can be used for finding matches using psql
+    headline 
+    """
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"
     res = ""
     while len(res) < 8:
@@ -108,7 +136,7 @@ def headline(
 
 
 def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
-    query = SearchQuery(term, config="english")
+    query = SearchQuery(term)
     trigram_similarity = TrigramSimilarity("text", term)
 
     start_boundary = generate_boundary()
@@ -119,33 +147,36 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     if not has_payed:
         can_view = can_view & Q(needs_payment=False)
 
-    exam_pages_query = ExamPage.objects
+    exams = (
+        Exam.objects.filter(
+            id__in=ExamPage.objects.filter(search_vector=term).only("exam_id")
+        )
+        | Exam.objects.filter(search_vector=term)
+    ).annotate(
+        rank=SearchRank(F("search_vector"), query),
+        headline=headline(
+            F("displayname"), query, start_boundary, end_boundary, fragment_delimeter,
+        ),
+        category_displayname=F("category__displayname"),
+        category_slug=F("category__slug"),
+    )
     if not is_admin:
-        exam_pages_query = exam_pages_query.filter(can_view)
+        exams = exams.filter(can_view)
+    exams = exams.only("filename")[:amount]
+
     exam_pages_query = (
-        exam_pages_query.filter(search_vector=term)
+        ExamPage.objects.filter(
+            exam__in=list(exams.values_list("id", flat=True)), search_vector=term
+        )
         .annotate(
             rank=SearchRank(F("search_vector"), query) + trigram_similarity,
             headline=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter,
             ),
         )
-        .order_by("page_number")[: (amount * 10)]
+        .order_by("page_number")
+        .only("page_number", "exam_id")
     )
-
-    exams = (
-        Exam.objects.filter(id__in=[examPage.exam_id for examPage in exam_pages_query])
-        | Exam.objects.filter(search_vector=term)[:amount]
-    ).annotate(
-        rank=SearchRank(F("search_vector"), query),
-        headline=headline(
-            F("displayname"), query, start_boundary, end_boundary, fragment_delimeter,
-        ),
-    )[
-        :amount
-    ]
-    if not is_admin:
-        exams = exams.filter(can_view)
 
     examDict = dict()
     examScore = dict()
@@ -173,7 +204,8 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
             "headline": parse_headline(
                 exam.headline, start_boundary, end_boundary, fragment_delimeter
             ),
-            "displayname": exam.displayname,
+            "category_displayname": exam.category_displayname,
+            "category_slug": exam.category_slug,
             "rank": examScore[exam.id],
             "pages": examPages[exam.id],
         }
@@ -182,7 +214,7 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
 
 
 def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
-    query = SearchQuery(term, config="english")
+    query = SearchQuery(term)
     trigram_similarity = TrigramSimilarity("text", term)
 
     start_boundary = generate_boundary()
@@ -203,24 +235,34 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
         answers.filter(search_vector=term)
         .annotate(
             rank=SearchRank(F("search_vector"), query),
-            filename=F("answer_section__exam__filename"),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__first_name",),
+                When(Q(author__first_name__isnull=True), "author__last_name",),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter, 1, 2
             ),
+            # Exam
+            exam_displayname=F("answer_section__exam__displayname"),
+            filename=F("answer_section__exam__filename"),
+            # Category
+            category_displayname=F("answer_section__exam__category__displayname"),
+            category_slug=F("answer_section__exam__category__slug"),
         )
         .values(
             "author_username",
             "author_displayname",
             "text",
             "highlighted_words",
-            "filename",
             "rank",
             "long_id",
+            # Exam
+            "exam_displayname",
+            "filename",
+            # Category
+            "category_displayname",
+            "category_slug",
         )[:amount]
     )
     for answer in answers:
@@ -241,7 +283,7 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
 
 
 def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
-    query = SearchQuery(term, config="english")
+    query = SearchQuery(term)
     trigram_similarity = TrigramSimilarity("text", term)
 
     start_boundary = generate_boundary()
@@ -262,24 +304,36 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
         comments.filter(search_vector=term)
         .annotate(
             rank=SearchRank(F("search_vector"), query),
-            filename=F("answer__answer_section__exam__filename"),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__first_name",),
+                When(Q(author__first_name__isnull=True), "author__last_name",),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter, 1, 2
             ),
+            # Exam
+            exam_displayname=F("answer__answer_section__exam__displayname"),
+            filename=F("answer__answer_section__exam__filename"),
+            # Category
+            category_displayname=F(
+                "answer__answer_section__exam__category__displayname"
+            ),
+            category_slug=F("answer__answer_section__exam__category__slug"),
         )
         .values(
             "author_username",
             "author_displayname",
             "text",
             "highlighted_words",
-            "filename",
             "rank",
             "long_id",
+            # Exam
+            "exam_displayname",
+            "filename",
+            # Category
+            "category_displayname",
+            "category_slug",
         )[:amount]
     )
     for comment in comments:
@@ -304,39 +358,33 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
 def search(request):
     term = request.POST["term"]
     amount = min(request.POST.get("amount", 15), 30)
-    include_exams = request.POST.get("include_exams", "true") != "false"
-    include_answers = request.POST.get("include_answers", "true") != "false"
-    include_comments = request.POST.get("include_comments", "true") != "false"
+    include_exams = request.POST.get("include_exams", "true") == "true"
+    include_answers = request.POST.get("include_answers", "true") == "true"
+    include_comments = request.POST.get("include_comments", "true") == "true"
 
     user = request.user
     user_admin_categories = user.category_admin_set.values_list("id", flat=True)
-    query = SearchQuery(term, config="english")
     has_payed = user.has_payed()
     is_admin = has_admin_rights(request)
+    exams_start = time.time()
     exams = (
         search_exams(term, has_payed, is_admin, user_admin_categories, amount)
         if include_exams
         else []
     )
+    answers_start = time.time()
     answers = (
         search_answers(term, has_payed, is_admin, user_admin_categories, amount)
         if include_answers
         else []
     )
+    comments_start = time.time()
     comments = (
         search_comments(term, has_payed, is_admin, user_admin_categories, amount)
         if include_comments
         else []
     )
-
-    logger.info(
-        "Found: {exam_count} exams, {answer_count} answers, {comment_count} comments".format(
-            exam_count=len(exams),
-            answer_count=len(answers),
-            comment_count=len(comments),
-        )
-    )
-
+    start_merge = time.time()
     res = []
     for exam in exams:
         exam["type"] = "exam"
@@ -347,4 +395,22 @@ def search(request):
     for comment in comments:
         comment["type"] = "comment"
         res.append(comment)
-    return response.success(value=sorted(res, key=lambda x: -x["rank"]))
+    res = sorted(res, key=lambda x: -x["rank"])
+    end = time.time()
+    if settings.DEBUG:
+        logger.info(
+            "Found: {exam_count} exams, {answer_count} answers, {comment_count} comments".format(
+                exam_count=len(exams),
+                answer_count=len(answers),
+                comment_count=len(comments),
+            )
+        )
+        logger.info(
+            "Time spend: exams: {a} ms, answers: {b} ms, comments: {c} ms, sorting: {d} ms".format(
+                a=(answers_start - exams_start) * 1000,
+                b=(comments_start - answers_start) * 1000,
+                c=(start_merge - comments_start) * 1000,
+                d=(end - start_merge) * 1000,
+            )
+        )
+    return response.success(value=res)

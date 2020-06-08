@@ -8,13 +8,33 @@ import {
   PaginationItem,
   PaginationLink,
   Row,
+  Breadcrumb,
+  BreadcrumbItem,
+  Badge,
+  CardColumns,
 } from "@vseth/components";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { fetchPost } from "../api/fetch-utils";
 import LoadingOverlay from "../components/loading-overlay";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
+import { css } from "emotion";
+import { useQueryParam, StringParam } from "use-query-params";
+import { highlightWords } from "../utils/dom-utils";
+import { escapeRegExp } from "../utils/regex-utils";
+
+const columnStyle = css`
+  column-gap: 0;
+  grid-column-gap: 0;
+  margin: 0 -0.75em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  column-count: 1;
+  @media (min-width: 900px) {
+    column-count: 2;
+  }
+`;
 
 type HighlightedMatch = string | HighlightedMatch[];
 type HighlightedMatches = HighlightedMatch[];
@@ -22,30 +42,48 @@ type Page = [number, number, HighlightedMatches];
 interface ExamSearchResult {
   type: "exam";
   rank: number;
-  filename: string;
+
   headline: HighlightedMatches;
-  displayname: string;
+
   pages: Page[];
+
+  displayname: string;
+  filename: string;
+
+  category_displayname: string;
+  category_slug: string;
 }
 interface AnswerSearchResult {
   type: "answer";
   rank: number;
+
   text: string;
   highlighted_words: string[];
   author_username: string;
   author_displayname: string;
-  filename: string;
   long_id: string;
+
+  exam_displayname: string;
+  filename: string;
+
+  category_displayname: string;
+  category_slug: string;
 }
 interface CommentSearchResult {
   type: "comment";
   rank: number;
+
   text: string;
   highlighted_words: string[];
   author_username: string;
   author_displayname: string;
-  filename: string;
   long_id: string;
+
+  exam_displayname: string;
+  filename: string;
+
+  category_displayname: string;
+  category_slug: string;
 }
 type SearchResult = ExamSearchResult | AnswerSearchResult | CommentSearchResult;
 type SearchResponse = SearchResult[];
@@ -73,59 +111,12 @@ const HighlightedContent: React.FC<{
     );
   }
 };
-function escapeRegExp(str: string) {
-  return str.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-}
-function highlightWordsInTextNode(
-  revert: (() => void)[],
-  element: Text,
-  regex: RegExp,
-) {
-  const text = element.nodeValue || "";
-  const m = regex.test(text);
-  if (!m) return;
-  const el = document.createElement("span");
-  let i = 0;
-  while (i < text.length) {
-    const rest = text.substring(i);
-    const m = rest.match(regex);
-    if (m) {
-      const start = m.index || 0;
-      const t = document.createTextNode(rest.substring(0, start));
-      el.appendChild(t);
 
-      const mark = document.createElement("mark");
-      mark.innerText = m[0];
-      el.appendChild(mark);
-
-      i += start + m[0].length;
-    } else {
-      const t = document.createTextNode(rest);
-      el.appendChild(t);
-      break;
-    }
+const noMarginBreadcrumb = css`
+  & .breadcrumb {
+    margin: 0;
   }
-  const parentNode = element.parentNode!;
-  revert.push(() => {
-    parentNode.replaceChild(element, el);
-  });
-  parentNode.replaceChild(el, element);
-}
-function highlightWords(
-  revert: (() => void)[],
-  element: HTMLElement,
-  regex: RegExp,
-) {
-  const children = element.childNodes;
-  for (let i = 0; i < children.length; i++) {
-    const c = children[i];
-    if (c.nodeType === Node.TEXT_NODE) {
-      highlightWordsInTextNode(revert, c as Text, regex);
-    } else if (c instanceof HTMLElement) {
-      highlightWords(revert, c, regex);
-    }
-  }
-}
+`;
 const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
   content,
   matches,
@@ -151,7 +142,8 @@ const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
 };
 const SearchPage: React.FC<{}> = () => {
   useTitle("VIS Community Solutions");
-  const [term, setTerm] = useState("");
+  const [optionalTerm, setTerm] = useQueryParam("q", StringParam);
+  const term = optionalTerm || "";
   const debouncedTerm = useDebounce(term, 600);
   const { data, error, loading } = useRequest(
     () => (debouncedTerm ? loadSearch(debouncedTerm) : Promise.resolve([])),
@@ -160,104 +152,192 @@ const SearchPage: React.FC<{}> = () => {
     },
   );
   return (
-    <Container>
-      <FormGroup className="m-1">
-        <div className="search m-0">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Filter..."
-            value={term}
-            onChange={e => setTerm(e.currentTarget.value)}
-            autoFocus
-          />
-          <div className="search-icon-wrapper">
-            <div className="search-icon" />
+    <>
+      <Container>
+        <FormGroup className="m-1">
+          <div className="search m-0">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Filter..."
+              value={term}
+              onChange={e => setTerm(e.currentTarget.value)}
+              autoFocus
+            />
+            <div className="search-icon-wrapper">
+              <div className="search-icon" />
+            </div>
           </div>
-        </div>
-      </FormGroup>
+        </FormGroup>
+      </Container>
       <div className="position-relative">
         <LoadingOverlay loading={loading || debouncedTerm !== term} />
-        {data && (
+        <Container>
           <div>
-            {data.map(result => {
-              if (result.type === "exam") {
-                return (
-                  <Card body key={`exam-${result.filename}`} className="my-2">
-                    <h6>
-                      {result.headline.map((part, i) => (
-                        <HighlightedContent content={part} key={i} />
-                      ))}
-                    </h6>
-                    {result.pages.map(([page, _, matches]) => (
-                      <Row>
-                        <Col xs="auto">
-                          <Pagination>
-                            <PaginationItem active>
-                              <PaginationLink
-                                href={`/exams/${result.filename}/#page-${page}`}
-                                className="border"
-                              >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          </Pagination>
-                        </Col>
-                        <Col>
-                          {matches.map((part, i) => (
-                            <>
-                              <span className="text-muted">...</span>
+            {data && data.length === 0 && debouncedTerm !== "" && (
+              <div className="text-center p-4">
+                <h4>No Result</h4>
+                <p>We couldn't find anything matching your search term.</p>
+              </div>
+            )}
+            {data && (
+              <CardColumns className={columnStyle}>
+                {data.map(result => {
+                  if (result.type === "exam") {
+                    return (
+                      <div className="px-2" key={`exam-${result.filename}`}>
+                        <Card className="mb-3 px-3 pb-3 pt-2">
+                          <Row>
+                            <Col
+                              xs="auto"
+                              className="d-flex flex-column justify-content-center"
+                            >
+                              <Badge>Exam</Badge>
+                            </Col>
+                            <Col xs="auto">
+                              <Breadcrumb className={noMarginBreadcrumb}>
+                                <BreadcrumbItem>
+                                  <Link
+                                    to={`/category/${result.category_slug}`}
+                                  >
+                                    {result.category_displayname}
+                                  </Link>
+                                </BreadcrumbItem>
+                              </Breadcrumb>
+                            </Col>
+                          </Row>
+                          <h6>
+                            {result.headline.map((part, i) => (
                               <HighlightedContent content={part} key={i} />
-                              <span className="text-muted">...</span>
-                              {i !== matches.length - 1 && " "}
-                            </>
+                            ))}
+                          </h6>
+                          {result.pages.map(([page, _, matches]) => (
+                            <Row>
+                              <Col xs="auto">
+                                <Pagination>
+                                  <PaginationItem active>
+                                    <PaginationLink
+                                      href={`/exams/${result.filename}/#page-${page}`}
+                                      className="border"
+                                    >
+                                      {page}
+                                    </PaginationLink>
+                                  </PaginationItem>
+                                </Pagination>
+                              </Col>
+                              <Col>
+                                {matches.map((part, i) => (
+                                  <>
+                                    <span className="text-muted">...</span>
+                                    <HighlightedContent
+                                      content={part}
+                                      key={i}
+                                    />
+                                    <span className="text-muted">...</span>
+                                    {i !== matches.length - 1 && " "}
+                                  </>
+                                ))}
+                              </Col>
+                            </Row>
                           ))}
-                        </Col>
-                      </Row>
-                    ))}
-                  </Card>
-                );
-              } else if (result.type === "answer") {
-                return (
-                  <Card body key={`exam-${result.long_id}`} className="my-2">
-                    <Link
-                      className="text-link"
-                      to={`/exams/${result.filename}/#${result.long_id}`}
-                    >
-                      <h6>{result.author_displayname}</h6>
-                    </Link>
-                    <HighlightedMarkdown
-                      content={result.text}
-                      matches={result.highlighted_words}
-                    />
-                  </Card>
-                );
-              } else {
-                return (
-                  <Card body key={`exam-${result.long_id}`} className="my-2">
-                    <Link
-                      className="text-link"
-                      to={`/exams/${result.filename}/#${result.long_id}`}
-                    >
-                      <h6>{result.author_displayname}</h6>
-                    </Link>
-                    <HighlightedMarkdown
-                      content={result.text}
-                      matches={result.highlighted_words}
-                    />
-                  </Card>
-                );
-              }
-            })}
+                        </Card>
+                      </div>
+                    );
+                  } else if (result.type === "answer") {
+                    return (
+                      <div className="px-2" key={`exam-${result.long_id}`}>
+                        <Card className="mb-3 px-3 pb-3 pt-2">
+                          <Row>
+                            <Col
+                              xs="auto"
+                              className="d-flex flex-column justify-content-center"
+                            >
+                              <Badge>Answer</Badge>
+                            </Col>
+                            <Col xs="auto">
+                              <Breadcrumb className={noMarginBreadcrumb}>
+                                <BreadcrumbItem>
+                                  <Link
+                                    to={`/category/${result.category_slug}`}
+                                  >
+                                    {result.category_displayname}
+                                  </Link>
+                                </BreadcrumbItem>
+                                <BreadcrumbItem>
+                                  <Link to={`/exam/${result.filename}`}>
+                                    {result.exam_displayname}
+                                  </Link>
+                                </BreadcrumbItem>
+                              </Breadcrumb>
+                            </Col>
+                          </Row>
+                          <Link
+                            className="text-link"
+                            to={`/exams/${result.filename}/#${result.long_id}`}
+                          >
+                            <h6>{result.author_displayname}</h6>
+                          </Link>
+                          <HighlightedMarkdown
+                            content={result.text}
+                            matches={result.highlighted_words}
+                          />
+                        </Card>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="px-2" key={`exam-${result.long_id}`}>
+                        <Card className="mb-3 px-3 pb-3 pt-2">
+                          <Row>
+                            <Col
+                              xs="auto"
+                              className="d-flex flex-column justify-content-center"
+                            >
+                              <Badge>Comment</Badge>
+                            </Col>
+                            <Col xs="auto">
+                              <Breadcrumb className={noMarginBreadcrumb}>
+                                <BreadcrumbItem>
+                                  <Link
+                                    to={`/category/${result.category_slug}`}
+                                  >
+                                    {result.category_displayname}
+                                  </Link>
+                                </BreadcrumbItem>
+                                <BreadcrumbItem>
+                                  <Link to={`/exam/${result.filename}`}>
+                                    {result.exam_displayname}
+                                  </Link>
+                                </BreadcrumbItem>
+                              </Breadcrumb>
+                            </Col>
+                          </Row>
+                          <Link
+                            className="text-link"
+                            to={`/exams/${result.filename}/#${result.long_id}`}
+                          >
+                            <h6>{result.author_displayname}</h6>
+                          </Link>
+                          <HighlightedMarkdown
+                            content={result.text}
+                            matches={result.highlighted_words}
+                          />
+                        </Card>
+                      </div>
+                    );
+                  }
+                })}
+              </CardColumns>
+            )}
+            {error && (
+              <div>
+                Error: <pre>{JSON.stringify(error, null, 3)}</pre>
+              </div>
+            )}
           </div>
-        )}
-        {error && (
-          <div>
-            Error: <pre>{JSON.stringify(error, null, 3)}</pre>
-          </div>
-        )}
+        </Container>
       </div>
-    </Container>
+    </>
   );
 };
 export default SearchPage;
