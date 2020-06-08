@@ -10,6 +10,7 @@ import {
   Select,
   TextareaField,
   InputField,
+  Creatable,
 } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -241,7 +242,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <Col md={6}>
           <FormGroup>
             <label className="form-input-label">Exam type</label>
-            <Select
+            <Creatable
               options={options(examTypeOptions)}
               value={
                 examTypeOptions[
@@ -374,20 +375,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
           </FormGroup>
         </Col>
       </Row>
-      <Row form>
-        <Col md={12}>
-          <FormGroup>
-            <label className="form-input-label">Remark</label>
-            <TextareaField
-              textareaProps={{
-                onChange: e => setFormValue("remark", e.currentTarget.value),
-              }}
-            >
-              {formState.remark}
-            </TextareaField>
-          </FormGroup>
-        </Col>
-      </Row>
+      <TextareaField label="Remark" textareaProps={registerInput("remark")} />
       <h6>Attachments</h6>
       <AttachmentsEditor
         attachments={formState.attachments}

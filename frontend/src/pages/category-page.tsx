@@ -39,7 +39,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   onMetaDataChange,
   metaData,
 }) => {
-  const { data, loading } = useRequest(loadMetaCategories, {
+  const { data, loading, run } = useRequest(loadMetaCategories, {
     cacheKey: "meta-categories",
   });
   const history = useHistory();
@@ -61,6 +61,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const [editing, setEditing] = useState(false);
   const toggle = useCallback(() => setEditing(a => !a), []);
   const user = useUser()!;
+  const editorOnMetaDataChange = useCallback(
+    (newMetaData: CategoryMetaData) => {
+      onMetaDataChange(newMetaData);
+      run();
+    },
+    [run, onMetaDataChange],
+  );
   return (
     <>
       {modals}
@@ -73,7 +80,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       {editing ? (
         offeredIn && (
           <CategoryMetaDataEditor
-            onMetaDataChange={onMetaDataChange}
+            onMetaDataChange={editorOnMetaDataChange}
             isOpen={editing}
             toggle={toggle}
             currentMetaData={metaData}
