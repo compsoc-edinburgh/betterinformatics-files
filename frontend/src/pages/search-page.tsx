@@ -144,7 +144,7 @@ const SearchPage: React.FC<{}> = () => {
   useTitle("VIS Community Solutions");
   const [optionalTerm, setTerm] = useQueryParam("q", StringParam);
   const term = optionalTerm || "";
-  const debouncedTerm = useDebounce(term, 600);
+  const debouncedTerm = useDebounce(term, 300);
   const { data, error, loading } = useRequest(
     () => (debouncedTerm ? loadSearch(debouncedTerm) : Promise.resolve([])),
     {
