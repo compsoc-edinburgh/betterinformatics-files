@@ -75,6 +75,7 @@ const removeSolution = async (filename: string) => {
 const examTypeOptions = createOptions({
   Exams: "Exams",
   "Old Exams": "Old Exams",
+  Transcripts: "Transcripts",
 });
 export interface ExamMetaDataDraft extends Omit<ExamMetaData, "attachments"> {
   attachments: EditorAttachment[];
@@ -247,7 +248,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
               value={
                 examTypeOptions[
                   formState.examtype as keyof typeof examTypeOptions
-                ]
+                ] || { value: formState.examtype, label: formState.examtype }
               }
               onChange={option =>
                 setFormValue(
