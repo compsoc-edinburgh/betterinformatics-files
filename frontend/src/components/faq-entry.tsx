@@ -47,7 +47,7 @@ const FAQEntryComponent: React.FC<Props> = ({
       {modals}
       <CardBody>
         <h4>
-          {!editing && (
+          {!editing && isAdmin && (
             <IconButton
               tooltip="Edit FAQ entry"
               close
