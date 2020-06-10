@@ -67,7 +67,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <h3 className="mt-2 mb-3 pl-2 d-flex align-items-center">
+      <h3 className="mt-4 mb-3 pl-2 d-flex align-items-center">
         <input
           className="mr-3"
           type="checkbox"

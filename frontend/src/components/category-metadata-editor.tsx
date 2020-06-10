@@ -175,8 +175,10 @@ const applyChanges = async (
 };
 
 const semesterOptions = createOptions({
+  None: "--",
   HS: "HS",
   FS: "FS",
+  Both: "Both",
 });
 const formOptions = createOptions({
   oral: "Oral",
