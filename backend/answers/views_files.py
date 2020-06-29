@@ -160,8 +160,7 @@ def get_printonly_pdf(request, filename):
     return minio_util.send_file(settings.COMSOL_PRINTONLY_DIR, filename, attachment_filename=exam.attachment_name(), as_attachment='download' in request.GET)
 
 
-def print_pdf(request, filename, minio_dir):
-    exam = get_object_or_404(Exam, filename=filename)
+def print_pdf(exam, request, filename, minio_dir):
     if not exam.current_user_can_view(request):
         return response.not_allowed()
     try:
@@ -175,17 +174,19 @@ def print_pdf(request, filename, minio_dir):
         pass
     return response.success()
 
-
 @response.request_post('password')
 @auth_check.require_login
 def print_exam(request, filename):
-    return print_pdf(request, filename, settings.COMSOL_EXAM_DIR)
+    exam = get_object_or_404(Exam, filename=filename)
+    minio_dir = settings.COMSOL_PRINTONLY_DIR if exam.is_printonly else settings.COMSOL_EXAM_DIR
+    return print_pdf(exam, request, filename, minio_dir)
 
 
-@response.request_post()
+@response.request_post('password')
 @auth_check.require_login
 def print_solution(request, filename):
-    return print_pdf(request, filename, settings.COMSOL_SOLUTION_DIR)
+    exam = get_object_or_404(Exam, filename=filename)
+    return print_pdf(exam, request, filename, settings.COMSOL_SOLUTION_DIR)
 
 
 @response.request_post('filenames')
