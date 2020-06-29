@@ -340,7 +340,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
             {printonlyFile === true ? (
               <div className="form-control">
                 <a
-                  href={`/api/exam/pdf/solution/${currentMetaData.filename}/`}
+                  href={`/api/exam/pdf/printonly/${currentMetaData.filename}/`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
