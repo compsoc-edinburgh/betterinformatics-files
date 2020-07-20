@@ -159,7 +159,7 @@ const SearchPage: React.FC<{}> = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Filter..."
+              placeholder="Search"
               value={term}
               onChange={e => setTerm(e.currentTarget.value)}
               autoFocus
