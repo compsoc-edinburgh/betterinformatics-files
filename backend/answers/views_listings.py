@@ -1,17 +1,17 @@
-from util import response
-from myauth import auth_check
-from myauth.models import get_my_user
-from answers.models import Answer, Comment, Exam, ExamPage, ExamType
-from django.db.models.functions import Concat
-from django.db.models import Q, F, When, Case, Value as V, Func, TextField
 from django.contrib.postgres.search import (
     SearchQuery,
     SearchRank,
     SearchVector,
     TrigramSimilarity,
 )
+from django.db.models import Q
+
 from answers import section_util
+from answers.models import Answer, Comment, Exam, ExamPage, ExamType
+from myauth import auth_check
 from myauth.auth_check import has_admin_rights
+from myauth.models import get_my_user
+from util import response
 
 
 @response.request_get()
@@ -39,7 +39,9 @@ def list_import_exams(request):
         if auth_check.has_admin_rights(request):
             return exams
         return [
-            exam for exam in exams if auth_check.has_admin_rights_for_exam(request, exam)
+            exam
+            for exam in exams
+            if auth_check.has_admin_rights_for_exam(request, exam)
         ]
 
     res = [
@@ -101,11 +103,9 @@ def list_flagged(request):
 @auth_check.require_login
 def get_by_user(request, username):
     res = [
-        section_util.get_answer_response(
-            request, answer, ignore_exam_admin=True)
+        section_util.get_answer_response(request, answer, ignore_exam_admin=True)
         for answer in sorted(
-            Answer.objects.filter(
-                author__username=username, is_legacy_answer=False)
+            Answer.objects.filter(author__username=username, is_legacy_answer=False)
             .select_related(*section_util.get_answer_fields_to_preselect())
             .prefetch_related(*section_util.get_answer_fields_to_prefetch()),
             key=lambda x: (
