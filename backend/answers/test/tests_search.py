@@ -20,6 +20,13 @@ class TestSearch(ComsolTestExamsData):
                 {"category": "default", "displayname": "Test", "file": infile},
             )["filename"]
             ExamPage.objects.update(search_vector=SearchVector("text"))
-            res = self.post("/api/exam/search/", {"term": "uniqueidthatwecansearch"})
-
-            logger.info(res)
+            res = self.post("/api/exam/search/", {"term": "uniqueidthatwecansearch"})[
+                "value"
+            ]
+            self.assertEqual(len(res), 1)
+            match = res[0]
+            self.assertEqual(match["type"], "exam")
+            self.assertEqual(len(match["headline"]), 1)
+            self.assertEqual(match["category_displayname"], "default")
+            self.assertEqual(match["category_slug"], "default")
+            self.assertEqual(len(match["pages"]), 1)
