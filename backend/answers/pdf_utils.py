@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_page_text(path_to_pdf, page, tmpdirname):
-    text_path = tmpdirname + "temp.txt"
+    text_path = os.path.join(tmpdirname, "temp.txt")
     DEVNULL = open(os.devnull, "w")
     return_code = subprocess.call(
         [
@@ -50,7 +50,7 @@ def analyze_pdf(
 ):
     base_path = settings.COMSOL_UPLOAD_FOLDER
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
-        html_path = tmpdirname + "temp.html"
+        html_path = os.path.join(tmpdirname, "temp.html")
         DEVNULL = open(os.devnull, "w")
         return_code = subprocess.call(
             [

@@ -17,6 +17,30 @@ import logging
 import time
 from django.conf import settings
 
+"""
+Search function that uses the full text search capabilities to search for a given query in
+the collection of exams, comments and answers. To make full text search performant the full
+text search vector is stored in the db. When one of the fields from which the ts_vector is 
+derived is updated the vector is automatically updated using the trigger. During the search
+process itself a GIN (Generailzed Inverted Index) is used to find matching model instances.
+Postgresql also provides us with two rank functions so that the documents can be sorted by
+how relevant they are. Django uses `ts_rank` by default which as documented does the following:
+
+> Ranks vectors based on the frequency of their matching lexemes.
+
+(https://www.postgresql.org/docs/9.1/textsearch-controls.html)
+
+Once we have the matching model instances we also want to highlight the matches so that a
+user can see whether something is really the document they were looking for. PSQL gives us 
+`ts_headline` which by default surrounds matches with <b>match</b>. Because we would like to
+render to HTML on the client we parse the result of ts_headline again and instead of inserting
+<b> we insert random strings so that it becomes highly unlikely that the user can accidentally
+(there might also be security implications) highlight some text.
+
+The results of the different document types are merged and sorted again on the server (It's
+find in this case because only very few documents will be left)
+"""
+
 logger = logging.getLogger(__name__)
 flatten = lambda l: [item for sublist in l for item in sublist]
 flatten_and_filter = lambda l: (
@@ -36,7 +60,6 @@ def parse_recursive(text, start_re, end_re, i, start_len, end_len):
     Returns:
         `list, number`: The parsing result and the index where parsing stopped
     """
-    start_re
     parts = []
     s = text[i:]
     while i < len(text):
@@ -64,7 +87,7 @@ def parse_recursive(text, start_re, end_re, i, start_len, end_len):
     return parts, i
 
 
-def parse_nested(text, start_re, end_re, i, start_len, end_len):
+def parse_nested(text, start_re, end_re, start_len, end_len):
     """
     Uses `parse_recursive` but handles strings that are not well formed.
 
@@ -87,7 +110,7 @@ def parse_headline(text, start, end, frag):
     end_re = re.compile(".*?(" + re.escape(str(end)) + ")", flags=re.DOTALL)
 
     return [
-        parse_nested(frag, start_re, end_re, 0, len(start), len(end))
+        parse_nested(frag, start_re, end_re, len(start), len(end))
         for frag in text.split(frag)
     ]
 
@@ -113,6 +136,22 @@ def headline(
     min_words=15,
     max_words=35,
 ):
+    """A function that can be used in django queries to call the psql ts_headline
+    function. Given a text field and  a full text search query it returns a string
+    that contains the highlighted matches that should be shown as search results. 
+
+    Args:
+        text (F): F object of the column / expression that should be highlighted
+        query (SearchQuery): The query which should be used during highlighting
+        start_boundary (str): string that should be inserted at the beginning of a match
+        end_boundary (str): string that should be inserted at the end of a match
+        fragment_delimeter (str): string that is inserted between two fragments by psql
+        min_words (int, optional): minimum number of words per fragment. Defaults to 15.
+        max_words (int, optional): maximum number of words per fragment. Defaults to 35.
+
+    Returns:
+        Func: A django ORM function expression compiling to a ts_headline function call
+    """
     return Func(
         text,
         query,
@@ -149,7 +188,7 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
 
     exams = (
         Exam.objects.filter(
-            id__in=ExamPage.objects.filter(search_vector=term).only("exam_id")
+            id__in=ExamPage.objects.filter(search_vector=term).values("exam_id")
         )
         | Exam.objects.filter(search_vector=term)
     ).annotate(
@@ -187,7 +226,7 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     for examPage in exam_pages_query:
         if examPage.exam_id not in examScore:
             continue
-        examScore[examPage.exam_id] += examPage.rank
+        examScore[examPage.exam_id] = max(examPage.rank, examScore[examPage.exam_id])
         examPages[examPage.exam_id].append(
             (
                 examPage.page_number,
@@ -215,7 +254,6 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
 
 def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
     query = SearchQuery(term)
-    trigram_similarity = TrigramSimilarity("text", term)
 
     start_boundary = generate_boundary()
     end_boundary = generate_boundary()
@@ -284,7 +322,6 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
 
 def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
     query = SearchQuery(term)
-    trigram_similarity = TrigramSimilarity("text", term)
 
     start_boundary = generate_boundary()
     end_boundary = generate_boundary()
@@ -406,7 +443,7 @@ def search(request):
             )
         )
         logger.info(
-            "Time spend: exams: {a} ms, answers: {b} ms, comments: {c} ms, sorting: {d} ms".format(
+            "Time spent: exams: {a} ms, answers: {b} ms, comments: {c} ms, sorting: {d} ms".format(
                 a=(answers_start - exams_start) * 1000,
                 b=(comments_start - answers_start) * 1000,
                 c=(start_merge - comments_start) * 1000,

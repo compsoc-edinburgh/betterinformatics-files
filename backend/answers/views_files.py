@@ -67,8 +67,8 @@ def upload_transcript(request):
         oral_transcript_uploader=request.user,
     )
     exam.save()
-    pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     minio_util.save_uploaded_file_to_minio(settings.COMSOL_EXAM_DIR, filename, file)
+    pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     return response.success(filename=filename)
 
 
