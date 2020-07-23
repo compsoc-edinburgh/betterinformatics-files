@@ -1,20 +1,21 @@
 import { useDebounceFn } from "@umijs/hooks";
 import {
   ButtonGroup,
+  Col,
+  FormGroup,
   Input,
+  Label,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Pagination,
   PaginationItem,
   PaginationLink,
-  FormGroup,
-  Label,
+  Row,
 } from "@vseth/components";
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { useUser } from "../auth";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import IconButton from "./icon-button";
@@ -175,54 +176,55 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         {canEdit && (
           <>
             <h6 className="my-3 mx-2">Edit Mode</h6>
-            <ButtonGroup vertical>
-              <IconButton
-                tooltip="Disable editing"
-                onClick={() => setEditState({ mode: EditMode.None })}
-                icon="CLOSE"
-                active={editState.mode === EditMode.None}
-              >
-                Readonly
-              </IconButton>
-              <IconButton
-                tooltip="Add new cuts"
-                onClick={() =>
-                  setEditState({
-                    mode: EditMode.Add,
-                    snap,
-                  })
-                }
-                icon="PLUS"
-                active={editState.mode === EditMode.Add}
-              >
-                Add Cuts
-              </IconButton>
-              {editState.mode === EditMode.Move && (
-                <IconButton
-                  tooltip="The highlighted cut including its answers will be moved to the new location"
-                  icon="CONNECTION_OBJECT_BOTTOM"
-                  active={editState.mode === EditMode.Move}
-                >
-                  Move Cut
-                </IconButton>
+            <Row form>
+              {editState.mode !== EditMode.None && (
+                <Col xs="auto">
+                  <IconButton
+                    size="sm"
+                    tooltip="Disable editing"
+                    onClick={() => setEditState({ mode: EditMode.None })}
+                    icon="CLOSE"
+                  >
+                    Stop Editing
+                  </IconButton>
+                </Col>
               )}
-              <IconButton
-                tooltip="Toggle snapping behavior"
-                icon="TARGET"
-                onClick={() =>
-                  (editState.mode === EditMode.Add ||
-                    editState.mode === EditMode.Move) &&
-                  setEditState({ ...editState, snap: !snap })
-                }
-                active={snap}
-                disabled={
-                  editState.mode !== EditMode.Add &&
-                  editState.mode !== EditMode.Move
-                }
-              >
-                Snap
-              </IconButton>
-            </ButtonGroup>
+              {editState.mode !== EditMode.Add && (
+                <Col xs="auto">
+                  <IconButton
+                    size="sm"
+                    tooltip="Add new cuts"
+                    onClick={() =>
+                      setEditState({
+                        mode: EditMode.Add,
+                        snap,
+                      })
+                    }
+                    icon="PLUS"
+                  >
+                    Add Cuts
+                  </IconButton>
+                </Col>
+              )}
+            </Row>
+            <div className="my-1">
+              {editState.mode !== EditMode.None && (
+                <FormGroup check>
+                  <Input
+                    type="checkbox"
+                    name="check"
+                    id="snap"
+                    checked={editState.snap}
+                    onChange={e =>
+                      setEditState({ ...editState, snap: e.target.checked })
+                    }
+                  />
+                  <Label for="snap" check>
+                    Snap
+                  </Label>
+                </FormGroup>
+              )}
+            </div>
             <h6 className="my-3 mx-2">Display Options</h6>
             <FormGroup check>
               <Input

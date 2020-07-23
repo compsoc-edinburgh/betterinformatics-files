@@ -10,6 +10,7 @@ import {
   Select,
   TextareaField,
   InputField,
+  Creatable,
 } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -74,6 +75,7 @@ const removeSolution = async (filename: string) => {
 const examTypeOptions = createOptions({
   Exams: "Exams",
   "Old Exams": "Old Exams",
+  Transcripts: "Transcripts",
 });
 export interface ExamMetaDataDraft extends Omit<ExamMetaData, "attachments"> {
   attachments: EditorAttachment[];
@@ -241,12 +243,12 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <Col md={6}>
           <FormGroup>
             <label className="form-input-label">Exam type</label>
-            <Select
+            <Creatable
               options={options(examTypeOptions)}
               value={
                 examTypeOptions[
                   formState.examtype as keyof typeof examTypeOptions
-                ]
+                ] || { value: formState.examtype, label: formState.examtype }
               }
               onChange={option =>
                 setFormValue(
@@ -374,20 +376,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
           </FormGroup>
         </Col>
       </Row>
-      <Row form>
-        <Col md={12}>
-          <FormGroup>
-            <label className="form-input-label">Remark</label>
-            <TextareaField
-              textareaProps={{
-                onChange: e => setFormValue("remark", e.currentTarget.value),
-              }}
-            >
-              {formState.remark}
-            </TextareaField>
-          </FormGroup>
-        </Col>
-      </Row>
+      <TextareaField label="Remark" textareaProps={registerInput("remark")} />
       <h6>Attachments</h6>
       <AttachmentsEditor
         attachments={formState.attachments}

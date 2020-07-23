@@ -100,8 +100,9 @@ const AnswerComponent: React.FC<Props> = ({
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
-  const canEdit = onSectionChanged && (answer?.canEdit || false);
-  const canRemove = onSectionChanged && (isAdmin || answer?.canEdit || false);
+  const canEdit = section && onSectionChanged && (answer?.canEdit || false);
+  const canRemove =
+    section && onSectionChanged && (isAdmin || answer?.canEdit || false);
   return (
     <>
       {modals}

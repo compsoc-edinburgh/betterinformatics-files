@@ -2,27 +2,29 @@ import {
   Card,
   CardBody,
   CardFooter,
+  Col,
   Container,
   Input,
   Row,
-  Col,
 } from "@vseth/components";
+import { css } from "emotion";
 import * as React from "react";
 import { useState } from "react";
-import { imageHandler } from "../api/fetch-utils";
 import { useFAQ } from "../api/faq";
+import { imageHandler } from "../api/fetch-utils";
+import { useUser } from "../auth";
 import Editor from "../components/Editor";
 import { UndoStack } from "../components/Editor/utils/undo-stack";
 import FAQEntryComponent from "../components/faq-entry";
 import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
-import { css } from "emotion";
 const newButtonStyle = css`
   min-height: 3em;
 `;
-export const FAQC: React.FC = () => {
+export const FAQPage: React.FC = () => {
   useTitle("FAQ - VIS Community Solutions");
+  const { isAdmin } = useUser()!;
   const { faqs, add, update, swap, remove } = useFAQ();
   const [hasDraft, setHasDraft] = useState(false);
   const [question, setQuestion] = useState("");
@@ -109,18 +111,20 @@ export const FAQC: React.FC = () => {
           </CardFooter>
         </Card>
       ) : (
-        <Card className={`my-2 ${newButtonStyle}`}>
-          <IconButton
-            tooltip="Add new FAQ entry"
-            className="position-cover"
-            block
-            size="lg"
-            icon="PLUS"
-            onClick={() => setHasDraft(true)}
-          />
-        </Card>
+        isAdmin && (
+          <Card className={`my-2 ${newButtonStyle}`}>
+            <IconButton
+              tooltip="Add new FAQ entry"
+              className="position-cover"
+              block
+              size="lg"
+              icon="PLUS"
+              onClick={() => setHasDraft(true)}
+            />
+          </Card>
+        )
       )}
     </Container>
   );
 };
-export default FAQC;
+export default FAQPage;
