@@ -1,6 +1,10 @@
 import { useDebounce, useRequest } from "@umijs/hooks";
 import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
   Card,
+  CardColumns,
   Col,
   Container,
   FormGroup,
@@ -8,20 +12,15 @@ import {
   PaginationItem,
   PaginationLink,
   Row,
-  Breadcrumb,
-  BreadcrumbItem,
-  Badge,
-  CardColumns,
 } from "@vseth/components";
-import React, { useEffect, useRef } from "react";
+import { css } from "emotion";
+import React from "react";
 import { Link } from "react-router-dom";
+import { StringParam, useQueryParam } from "use-query-params";
 import { fetchPost } from "../api/fetch-utils";
 import LoadingOverlay from "../components/loading-overlay";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
-import { css } from "emotion";
-import { useQueryParam, StringParam } from "use-query-params";
-import { highlightWords } from "../utils/dom-utils";
 import { escapeRegExp } from "../utils/regex-utils";
 
 const columnStyle = css`
@@ -122,23 +121,7 @@ const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
   matches,
 }) => {
   const regex = new RegExp(`${matches.map(escapeRegExp).join("|")}`);
-  const ref = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const revert: (() => void)[] = [];
-    highlightWords(revert, el, regex);
-    return () => {
-      for (const op of revert) {
-        op();
-      }
-    };
-  }, [regex, ref]);
-  return (
-    <div ref={ref}>
-      <MarkdownText value={content} />
-    </div>
-  );
+  return <MarkdownText value={content} regex={regex} />;
 };
 const SearchPage: React.FC<{}> = () => {
   useTitle("VIS Community Solutions");
@@ -227,7 +210,7 @@ const SearchPage: React.FC<{}> = () => {
                               </Col>
                               <Col>
                                 {matches.map((part, i) => (
-                                  <>
+                                  <React.Fragment key={i}>
                                     <span className="text-muted">...</span>
                                     <HighlightedContent
                                       content={part}
@@ -235,7 +218,7 @@ const SearchPage: React.FC<{}> = () => {
                                     />
                                     <span className="text-muted">...</span>
                                     {i !== matches.length - 1 && " "}
-                                  </>
+                                  </React.Fragment>
                                 ))}
                               </Col>
                             </Row>
