@@ -195,7 +195,7 @@ const SearchPage: React.FC<{}> = () => {
                             ))}
                           </h6>
                           {result.pages.map(([page, _, matches]) => (
-                            <Row>
+                            <Row key={page}>
                               <Col xs="auto">
                                 <Pagination>
                                   <PaginationItem active>
