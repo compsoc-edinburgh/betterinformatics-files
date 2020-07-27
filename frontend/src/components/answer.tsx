@@ -35,6 +35,7 @@ import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
 import { Link } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;
@@ -103,20 +104,35 @@ const AnswerComponent: React.FC<Props> = ({
   const canEdit = section && onSectionChanged && (answer?.canEdit || false);
   const canRemove =
     section && onSectionChanged && (isAdmin || answer?.canEdit || false);
+  const { username } = useUser()!;
   return (
     <>
       {modals}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
           <Row className="flex-between">
-            <Col xs="auto" className="d-flex flex-center flex-column">
+            <Col xs="auto" className="d-flex align-items-center flex-row">
               <Link
-                className="text-lead m-0"
+                className="mr-2"
                 to={answer ? `/exams/${answer.filename}#${answer.longId}` : ""}
+              >
+                <Icon icon={ICONS.LINK} size="1em" />
+              </Link>
+              <Link
+                className="mx-2 d-flex flex-column"
+                to={`/user/${answer?.authorId ?? username}`}
               >
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
+                <span className="text-muted">
+                  @{answer?.authorId ?? username}
+                </span>
               </Link>
+              {answer && (
+                <div className="text-muted mx-2" title={answer.edittime}>
+                  {formatDistanceToNow(new Date(answer.edittime))} ago
+                </div>
+              )}
             </Col>
             <Col xs="auto">
               <AnswerToolbar>
