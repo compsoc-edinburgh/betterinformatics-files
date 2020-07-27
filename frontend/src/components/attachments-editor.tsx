@@ -50,7 +50,11 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
         ))}
       </ListGroup>
       <InputGroup>
-        <FileInput accept="application/pdf" value={file} onChange={setFile} />
+        <FileInput
+          accept=".pdf,.zip,.tar.gz,.tar.xz"
+          value={file}
+          onChange={setFile}
+        />
 
         <Input
           type="text"
