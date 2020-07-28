@@ -207,7 +207,7 @@ const AnswerComponent: React.FC<Props> = ({
         </CardHeader>
         <CardBody className="pt-0">
           {editing || answer === undefined ? (
-            <>
+            <div className="pt-3">
               <Editor
                 value={draftText}
                 onChange={setDraftText}
@@ -221,7 +221,7 @@ const AnswerComponent: React.FC<Props> = ({
                 CC BY-NC-SA 4.0
               </a>
               .
-            </>
+            </div>
           ) : (
             <div className="py-3">
               <MarkdownText value={answer?.text ?? ""} />
