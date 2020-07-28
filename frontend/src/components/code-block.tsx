@@ -16,6 +16,8 @@ export default ({ value, language }: Props) => {
         padding: "0.8em",
         borderRadius: "0.2rem",
         border: "0.05rem solid rgba(0,0,0, 0.1)",
+        wordWrap: "normal",
+        overflowX: "auto",
       }}
     >
       {value ?? ""}
