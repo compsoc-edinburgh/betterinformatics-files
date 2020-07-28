@@ -3,7 +3,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneLight } from "react-syntax-highlighter/dist/styles/hljs";
 
 interface Props {
-  value: string;
+  value?: string;
   language: string;
 }
 
@@ -18,7 +18,7 @@ export default ({ value, language }: Props) => {
         border: "0.05rem solid rgba(0,0,0, 0.1)",
       }}
     >
-      {value}
+      {value ?? ""}
     </SyntaxHighlighter>
   );
 };
