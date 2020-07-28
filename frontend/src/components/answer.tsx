@@ -35,6 +35,7 @@ import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
 import { Link } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;
@@ -103,22 +104,39 @@ const AnswerComponent: React.FC<Props> = ({
   const canEdit = section && onSectionChanged && (answer?.canEdit || false);
   const canRemove =
     section && onSectionChanged && (isAdmin || answer?.canEdit || false);
+  const { username } = useUser()!;
   return (
     <>
       {modals}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
-          <Row className="flex-between">
-            <Col xs="auto" className="d-flex flex-center flex-column">
-              <Link
-                className="text-lead m-0"
-                to={answer ? `/exams/${answer.filename}#${answer.longId}` : ""}
-              >
+          <div className="d-flex flex-between">
+            <div className="d-flex align-items-center flex-row flex-wrap">
+              {!hasId && (
+                <Link
+                  className="mr-2"
+                  to={
+                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                  }
+                >
+                  <Icon icon={ICONS.LINK} size="1em" />
+                </Link>
+              )}
+              <Link to={`/user/${answer?.authorId ?? username}`}>
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
+                <span className="text-muted ml-1">
+                  @{answer?.authorId ?? username}
+                </span>
               </Link>
-            </Col>
-            <Col xs="auto">
+              <span className="text-muted mx-1">·</span>
+              {answer && (
+                <div className="text-muted" title={answer.edittime}>
+                  {formatDistanceToNow(new Date(answer.edittime))} ago
+                </div>
+              )}
+            </div>
+            <div className="d-flex">
               <AnswerToolbar>
                 {answer &&
                   (answer.expertvotes > 0 ||
@@ -202,8 +220,8 @@ const AnswerComponent: React.FC<Props> = ({
                   />
                 )}
               </AnswerToolbar>
-            </Col>
-          </Row>
+            </div>
+          </div>
         </CardHeader>
         <CardBody className="pt-0">
           {editing || answer === undefined ? (

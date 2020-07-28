@@ -21,7 +21,7 @@ const columnStyle = css`
   padding-top: 1em;
   padding-bottom: 1em;
   column-count: 1;
-  @media (min-width: 800px) {
+  @media (min-width: 1000px) {
     column-count: 2;
   }
 `;
