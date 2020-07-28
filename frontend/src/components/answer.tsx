@@ -205,33 +205,9 @@ const AnswerComponent: React.FC<Props> = ({
             </Col>
           </Row>
         </CardHeader>
-        <div className="text-right">
-          <ButtonGroup>
-            {!editing && canEdit && (
-              <SmallButton
-                size="sm"
-                color="white"
-                onClick={startEdit}
-                tooltip="Edit answer"
-              >
-                <Icon icon={ICONS.EDIT} size={18} />
-              </SmallButton>
-            )}
-            {answer && canRemove && (
-              <SmallButton
-                size="sm"
-                color="white"
-                onClick={remove}
-                tooltip="Delete answer"
-              >
-                <Icon icon={ICONS.DELETE} size={18} />
-              </SmallButton>
-            )}
-          </ButtonGroup>
-        </div>
         <CardBody className="pt-0">
           {editing || answer === undefined ? (
-            <>
+            <div className="pt-3">
               <Editor
                 value={draftText}
                 onChange={setDraftText}
@@ -245,7 +221,7 @@ const AnswerComponent: React.FC<Props> = ({
                 CC BY-NC-SA 4.0
               </a>
               .
-            </>
+            </div>
           ) : (
             <div className="py-3">
               <MarkdownText value={answer?.text ?? ""} />
@@ -313,6 +289,14 @@ const AnswerComponent: React.FC<Props> = ({
                             >
                               Remove all inappropriate flags
                             </DropdownItem>
+                          )}
+                          {!editing && canEdit && (
+                            <DropdownItem onClick={startEdit}>
+                              Edit
+                            </DropdownItem>
+                          )}
+                          {answer && canRemove && (
+                            <DropdownItem onClick={remove}>Delete</DropdownItem>
                           )}
                         </DropdownMenu>
                       </ButtonDropdown>
