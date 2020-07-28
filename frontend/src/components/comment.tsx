@@ -34,7 +34,7 @@ const CommentComponent: React.FC<Props> = ({
   onSectionChanged,
   onDelete,
 }) => {
-  const { isAdmin } = useUser()!;
+  const { isAdmin, username } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
@@ -76,11 +76,10 @@ const CommentComponent: React.FC<Props> = ({
     if (comment)
       confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
-  const { username } = useUser()!;
   return (
     <ListGroupItem>
       {modals}
-      <div className="position-absolute position-top-right">
+      <div className="float-right">
         <ButtonGroup>
           {!editing && comment?.canEdit && (
             <SmallButton
