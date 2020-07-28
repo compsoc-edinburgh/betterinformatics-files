@@ -105,15 +105,15 @@ const CommentComponent: React.FC<Props> = ({
         </ButtonGroup>
       </div>
       <div className="d-flex align-items-center flex-row">
-        <Link
-          className="mr-2 d-flex flex-column"
-          to={`/user/${comment?.authorId ?? username}`}
-        >
+        <Link to={`/user/${comment?.authorId ?? username}`}>
           {comment?.authorDisplayName ?? "(Draft)"}
-          <span className="text-muted">@{comment?.authorId ?? username}</span>
+          <span className="text-muted ml-1">
+            @{comment?.authorId ?? username}
+          </span>
         </Link>
+        <span className="text-muted mx-1">·</span>
         {comment && (
-          <div className="text-muted mx-2" title={comment.edittime}>
+          <div className="text-muted" title={comment.edittime}>
             {formatDistanceToNow(new Date(comment.edittime))} ago
           </div>
         )}

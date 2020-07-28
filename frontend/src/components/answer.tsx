@@ -110,31 +110,33 @@ const AnswerComponent: React.FC<Props> = ({
       {modals}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
-          <Row className="flex-between">
-            <Col xs="auto" className="d-flex align-items-center flex-row">
-              <Link
-                className="mr-2"
-                to={answer ? `/exams/${answer.filename}#${answer.longId}` : ""}
-              >
-                <Icon icon={ICONS.LINK} size="1em" />
-              </Link>
-              <Link
-                className="mx-2 d-flex flex-column"
-                to={`/user/${answer?.authorId ?? username}`}
-              >
+          <div className="d-flex flex-between">
+            <div className="d-flex align-items-center flex-row flex-wrap">
+              {!hasId && (
+                <Link
+                  className="mr-2"
+                  to={
+                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                  }
+                >
+                  <Icon icon={ICONS.LINK} size="1em" />
+                </Link>
+              )}
+              <Link to={`/user/${answer?.authorId ?? username}`}>
                 {answer?.authorDisplayName ??
                   (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
-                <span className="text-muted">
+                <span className="text-muted ml-1">
                   @{answer?.authorId ?? username}
                 </span>
               </Link>
+              <span className="text-muted mx-1">·</span>
               {answer && (
-                <div className="text-muted mx-2" title={answer.edittime}>
+                <div className="text-muted" title={answer.edittime}>
                   {formatDistanceToNow(new Date(answer.edittime))} ago
                 </div>
               )}
-            </Col>
-            <Col xs="auto">
+            </div>
+            <div className="d-flex">
               <AnswerToolbar>
                 {answer &&
                   (answer.expertvotes > 0 ||
@@ -218,8 +220,8 @@ const AnswerComponent: React.FC<Props> = ({
                   />
                 )}
               </AnswerToolbar>
-            </Col>
-          </Row>
+            </div>
+          </div>
         </CardHeader>
         <div className="text-right">
           <ButtonGroup>
