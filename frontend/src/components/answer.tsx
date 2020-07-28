@@ -122,13 +122,16 @@ const AnswerComponent: React.FC<Props> = ({
                   <Icon icon={ICONS.LINK} size="1em" />
                 </Link>
               )}
-              <Link to={`/user/${answer?.authorId ?? username}`}>
-                {answer?.authorDisplayName ??
-                  (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
-                <span className="text-muted ml-1">
-                  @{answer?.authorId ?? username}
-                </span>
-              </Link>
+              {isLegacyAnswer ? (
+                answer?.authorDisplayName ?? "(Legacy Draft)"
+              ) : (
+                <Link to={`/user/${answer?.authorId ?? username}`}>
+                  {answer?.authorDisplayName ?? "(Draft)"}
+                  <span className="text-muted ml-1">
+                    @{answer?.authorId ?? username}
+                  </span>
+                </Link>
+              )}
               <span className="text-muted mx-1">·</span>
               {answer && (
                 <div className="text-muted" title={answer.edittime}>
