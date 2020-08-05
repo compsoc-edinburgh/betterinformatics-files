@@ -128,7 +128,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       );
     },
   });
-  const { run: runUpateCutHidden } = useRequest(updateCutHidden, {
+  const { run: runUpdateCutHidden } = useRequest(updateCutHidden, {
     manual: true,
     onSuccess: (_data, [oid, newHidden]) => {
       mutateCuts(oldCuts =>
@@ -148,10 +148,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       if (Array.isArray(section)) {
         runAddCut(metaData.filename, section[0], section[1], newState);
       } else {
-        runUpateCutHidden(section, newState);
+        runUpdateCutHidden(section, newState);
       }
     },
-    [runAddCut, metaData, runUpateCutHidden],
+    [runAddCut, metaData, runUpdateCutHidden],
   );
 
   const [size, sizeRef] = useSize<HTMLDivElement>();
