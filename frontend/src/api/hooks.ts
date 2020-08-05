@@ -353,3 +353,8 @@ export const removeCategory = async (slug: string) => {
 };
 export const useRemoveCategory = (onSuccess?: () => void) =>
   useMutation(removeCategory, onSuccess);
+
+export const markAsChecked = async (filename: string) => {
+  return (await fetchPost(`/api/payment/markexamchecked/${filename}/`, {}))
+    .value;
+};

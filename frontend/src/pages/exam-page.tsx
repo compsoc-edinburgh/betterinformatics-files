@@ -15,7 +15,12 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
-import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
+import {
+  loadCuts,
+  loadExamMetaData,
+  loadSplitRenderer,
+  markAsChecked,
+} from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import Exam from "../components/exam";
 import ExamMetadataEditor from "../components/exam-metadata-editor";
@@ -73,6 +78,9 @@ interface ExamPageContentProps {
   renderer?: PDF;
   reloadCuts: () => void;
   mutateCuts: (mutation: (old: ServerCutResponse) => ServerCutResponse) => void;
+  mutateMetaData: (
+    x: ExamMetaData | undefined | ((data: ExamMetaData) => ExamMetaData),
+  ) => void;
   toggleEditing: () => void;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
@@ -81,8 +89,18 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   renderer,
   reloadCuts,
   mutateCuts,
+  mutateMetaData,
   toggleEditing,
 }) => {
+  const { run: runMarkChecked } = useRequest(markAsChecked, {
+    manual: true,
+    onSuccess() {
+      mutateMetaData(metaData => ({
+        ...metaData,
+        oral_transcript_checked: true,
+      }));
+    },
+  });
   const user = useUser()!;
   const { run: runAddCut } = useRequest(addCut, {
     manual: true,
@@ -196,6 +214,19 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           </Col>
           {user.isCategoryAdmin && (
             <Col md="auto" className="d-flex align-items-center">
+              {user.isAdmin &&
+                metaData.is_oral_transcript &&
+                !metaData.oral_transcript_checked && (
+                  <IconButton
+                    size="sm"
+                    icon="CHECK"
+                    onClick={() => runMarkChecked(metaData.filename)}
+                  >
+                    {" "}
+                    Mark as Checked
+                  </IconButton>
+                )}
+
               <IconButton
                 size="sm"
                 className="m-1"
@@ -449,6 +480,7 @@ const ExamPage: React.FC<{}> = () => {
                 renderer={renderer}
                 reloadCuts={reloadCuts}
                 mutateCuts={mutateCuts}
+                mutateMetaData={setMetaData}
                 toggleEditing={toggleEditing}
               />
             </UserContext.Provider>
