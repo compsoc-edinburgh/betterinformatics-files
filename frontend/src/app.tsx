@@ -19,7 +19,6 @@ import ModQueue from "./pages/modqueue-page";
 import NotFoundPage from "./pages/not-found-page";
 import Scoreboard from "./pages/scoreboard-page";
 import UploadTranscriptPage from "./pages/submittranscript-page";
-import TutorialPage from "./pages/tutorial-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { css } from "emotion";
@@ -75,7 +74,6 @@ const App: React.FC<{}> = () => {
                 <Switch>
                   <UserRoute exact path="/" component={HomePage} />
                   <Route exact path="/login" component={LoginPage} />
-                  <Route exact path="/tutorial" component={TutorialPage} />
                   <UserRoute
                     exact
                     path="/uploadpdf"
