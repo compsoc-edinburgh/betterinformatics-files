@@ -7,7 +7,9 @@ import {
   Row,
   Col,
 } from "@vseth/components";
+import { formatDistanceToNow } from "date-fns";
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
 import { imageHandler } from "../api/fetch-utils";
 import { useMutation } from "../api/hooks";
@@ -32,7 +34,7 @@ const CommentComponent: React.FC<Props> = ({
   onSectionChanged,
   onDelete,
 }) => {
-  const { isAdmin } = useUser()!;
+  const { isAdmin, username } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
@@ -74,11 +76,10 @@ const CommentComponent: React.FC<Props> = ({
     if (comment)
       confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
-
   return (
     <ListGroupItem>
       {modals}
-      <div className="position-absolute position-top-right">
+      <div className="float-right">
         <ButtonGroup>
           {!editing && comment?.canEdit && (
             <SmallButton
@@ -102,8 +103,21 @@ const CommentComponent: React.FC<Props> = ({
           )}
         </ButtonGroup>
       </div>
+      <div className="d-flex align-items-center flex-row">
+        <Link to={`/user/${comment?.authorId ?? username}`}>
+          {comment?.authorDisplayName ?? "(Draft)"}
+          <span className="text-muted ml-1">
+            @{comment?.authorId ?? username}
+          </span>
+        </Link>
+        <span className="text-muted mx-1">·</span>
+        {comment && (
+          <div className="text-muted" title={comment.edittime}>
+            {formatDistanceToNow(new Date(comment.edittime))} ago
+          </div>
+        )}
+      </div>
 
-      <h6>{comment?.authorDisplayName ?? "(Draft)"}</h6>
       {comment === undefined || editing ? (
         <>
           <Editor

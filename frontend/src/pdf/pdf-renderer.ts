@@ -296,7 +296,6 @@ export default class PDF {
       await mainCanvas.rendered;
       return [mainCanvas.canvasObject.canvas, true, ref];
     } else {
-      const mainRef = mainCanvas.referenceManager.createRetainedRef();
       // It should also be possible to await mainCanvas.pageLoaded first
       // but it doesn't really matter.
       const [pageSize, page] = await Promise.all([
@@ -323,7 +322,7 @@ export default class PDF {
       const renderingReference = newManager.createRetainedRef();
       mainCanvas.rendered.then(() => {
         const ctx = obj.context;
-        if (ctx === null) throw new Error("Redering failed.");
+        if (ctx === null) throw new Error("Rendering failed.");
         if (mainCanvas === undefined) throw new Error();
         ctx.drawImage(
           mainCanvas.canvasObject.canvas,
@@ -341,7 +340,7 @@ export default class PDF {
 
       newManager.addListener((cnt: number) => {
         if (cnt <= 0) {
-          mainRef.release();
+          ref.release();
           globalFactory.destroy(obj);
         }
       });

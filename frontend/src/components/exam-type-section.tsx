@@ -90,6 +90,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               }
             }}
             tabIndex={0}
+            key={exam.filename}
           >
             <Row>
               <Col xs="auto">

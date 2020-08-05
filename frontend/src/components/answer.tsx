@@ -35,6 +35,7 @@ import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
 import { Link } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;
@@ -103,22 +104,42 @@ const AnswerComponent: React.FC<Props> = ({
   const canEdit = section && onSectionChanged && (answer?.canEdit || false);
   const canRemove =
     section && onSectionChanged && (isAdmin || answer?.canEdit || false);
+  const { username } = useUser()!;
   return (
     <>
       {modals}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
-          <Row className="flex-between">
-            <Col xs="auto" className="d-flex flex-center flex-column">
-              <Link
-                className="text-lead m-0"
-                to={answer ? `/exams/${answer.filename}#${answer.longId}` : ""}
-              >
-                {answer?.authorDisplayName ??
-                  (isLegacyAnswer ? "(Legacy Draft)" : "(Draft)")}
-              </Link>
-            </Col>
-            <Col xs="auto">
+          <div className="d-flex flex-between">
+            <div className="d-flex align-items-center flex-row flex-wrap">
+              {!hasId && (
+                <Link
+                  className="mr-2"
+                  to={
+                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                  }
+                >
+                  <Icon icon={ICONS.LINK} size="1em" />
+                </Link>
+              )}
+              {isLegacyAnswer ? (
+                answer?.authorDisplayName ?? "(Legacy Draft)"
+              ) : (
+                <Link to={`/user/${answer?.authorId ?? username}`}>
+                  {answer?.authorDisplayName ?? "(Draft)"}
+                  <span className="text-muted ml-1">
+                    @{answer?.authorId ?? username}
+                  </span>
+                </Link>
+              )}
+              <span className="text-muted mx-1">·</span>
+              {answer && (
+                <div className="text-muted" title={answer.edittime}>
+                  {formatDistanceToNow(new Date(answer.edittime))} ago
+                </div>
+              )}
+            </div>
+            <div className="d-flex">
               <AnswerToolbar>
                 {answer &&
                   (answer.expertvotes > 0 ||
@@ -202,36 +223,12 @@ const AnswerComponent: React.FC<Props> = ({
                   />
                 )}
               </AnswerToolbar>
-            </Col>
-          </Row>
+            </div>
+          </div>
         </CardHeader>
-        <div className="text-right">
-          <ButtonGroup>
-            {!editing && canEdit && (
-              <SmallButton
-                size="sm"
-                color="white"
-                onClick={startEdit}
-                tooltip="Edit answer"
-              >
-                <Icon icon={ICONS.EDIT} size={18} />
-              </SmallButton>
-            )}
-            {answer && canRemove && (
-              <SmallButton
-                size="sm"
-                color="white"
-                onClick={remove}
-                tooltip="Delete answer"
-              >
-                <Icon icon={ICONS.DELETE} size={18} />
-              </SmallButton>
-            )}
-          </ButtonGroup>
-        </div>
         <CardBody className="pt-0">
           {editing || answer === undefined ? (
-            <>
+            <div className="pt-3">
               <Editor
                 value={draftText}
                 onChange={setDraftText}
@@ -245,7 +242,7 @@ const AnswerComponent: React.FC<Props> = ({
                 CC BY-NC-SA 4.0
               </a>
               .
-            </>
+            </div>
           ) : (
             <div className="py-3">
               <MarkdownText value={answer?.text ?? ""} />
@@ -313,6 +310,14 @@ const AnswerComponent: React.FC<Props> = ({
                             >
                               Remove all inappropriate flags
                             </DropdownItem>
+                          )}
+                          {!editing && canEdit && (
+                            <DropdownItem onClick={startEdit}>
+                              Edit
+                            </DropdownItem>
+                          )}
+                          {answer && canRemove && (
+                            <DropdownItem onClick={remove}>Delete</DropdownItem>
                           )}
                         </DropdownMenu>
                       </ButtonDropdown>

@@ -3,9 +3,8 @@ import { css } from "emotion";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { solarizedLight } from "react-syntax-highlighter/dist/styles/hljs";
 import * as RemarkMathPlugin from "remark-math";
+import CodeBlock from "./code-block";
 
 interface Props {
   value: string;
@@ -62,9 +61,7 @@ export default ({ value, regex }: Props) => {
     math: (props: { value: string }) => <TeX math={props.value} block />,
     inlineMath: (props: { value: string }) => <TeX math={props.value} />,
     code: (props: { value: string; language: string }) => (
-      <SyntaxHighlighter language={props.language} style={solarizedLight}>
-        {props.value || " "}
-      </SyntaxHighlighter>
+      <CodeBlock language={props.language} value={props.value} />
     ),
   };
   return (
