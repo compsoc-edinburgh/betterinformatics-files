@@ -222,7 +222,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                     icon="CHECK"
                     onClick={() => runMarkChecked(metaData.filename)}
                   >
-                    {" "}
                     Mark as Checked
                   </IconButton>
                 )}
