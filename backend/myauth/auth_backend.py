@@ -15,6 +15,7 @@ def add_auth(request):
         if not auth.startswith("Bearer "):
             return None
         encoded = auth.split(" ")[1]
+        # TODO: Disable verification when flag is enabled and the application is running locally
         decoded = decode(encoded, public_key)
         request.decoded_token = decoded
 
