@@ -62,7 +62,7 @@ else:
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://static.vseth.ethz.ch")
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_CONNECT_SRC = ("'self'", "https://static.vseth.ethz.ch")
-CSP_IMG_SRC = ("'self'", "data:", "https://static.vis.ethz.ch", "https://static.vseth.ethz.ch")
+CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 
 
 # Application definition
