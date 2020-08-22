@@ -18,10 +18,6 @@ def user_authenticated(request):
     return False
 
 
-def is_user_in_admin_group(user):
-    return False
-
-
 def has_admin_rights(request):
     if check_api_key(request):
         return True

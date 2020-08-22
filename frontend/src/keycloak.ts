@@ -1,5 +1,5 @@
 import Keycloak from "keycloak-js";
-
+// TODO: Read config from server
 const keycloak = Keycloak({
   url: "https://auth.vseth.ethz.ch/auth",
   realm: "VSETH",

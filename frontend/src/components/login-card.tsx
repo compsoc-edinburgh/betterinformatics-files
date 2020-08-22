@@ -4,7 +4,7 @@ import React from "react";
 
 const LoginCard: React.FC<{}> = () => {
   const [keycloak, initialized] = useKeycloak();
-
+  // TODO: Handle failed login
   return (
     <Card>
       <CardHeader>Login</CardHeader>
@@ -15,7 +15,7 @@ const LoginCard: React.FC<{}> = () => {
             disabled={!initialized}
             onClick={() => keycloak.login()}
           >
-            Login using VSETH auth
+            Login using VSETH
           </Button>
         </div>
       </CardBody>

@@ -1,7 +1,8 @@
-from jwt import InvalidTokenError, decode
+from jwt import decode
 import logging
 from myauth.models import MyUser
 
+# TODO: Read from env
 public_key = b"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtP+L+6HuC6g/d6xJxjdSgTMYusm9HehmbfB/NKbjKPBVQ7ebnoMuvPDI8MMRsQS4/vx5bdkofxD1qresiCJukBFZoZ25r7/WyPLv09VgaHiwevO+Ygy7pb2aySO9ByDrWTfwj2mN4N80GyNXJbH452vYXNdETPmBpawEp5O4uRs08tqxMYq0C4mWSTnAWZazuijmfA0FXUi7juVUEqtqfJYGMWtj5nEOhjvv3u7uNpMPRjz/pk+Ffb+qQZ6PBymCx+jrBm1ThEtRAeSEauXlxHvsfsCEt8fAr1YUR9Xu/16VbA/phZ5gzSrv8D+wdFdEB4BqvI0PpR1TJHzvdD82JQIDAQAB\n-----END PUBLIC KEY-----"
 
 
@@ -36,6 +37,7 @@ def add_auth(request):
 
 def AuthenticationMiddleware(get_response):
     def middleware(request):
+        # TODO: Add error checks
         add_auth(request)
         logging.info("request.user: %s", request.user)
         response = get_response(request)
