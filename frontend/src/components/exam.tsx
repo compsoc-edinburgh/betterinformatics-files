@@ -123,7 +123,7 @@ const Exam: React.FC<Props> = React.memo(
     useEffect(() => {
       let cancelled = false;
       if (hash.length > 0) {
-        fetchGet(`/api/exam/answer/${hash}`)
+        fetchGet(`/api/exam/answer/${hash}/`)
           .then(res => {
             if (cancelled) return;
             const sectionId = res.value.sectionId;

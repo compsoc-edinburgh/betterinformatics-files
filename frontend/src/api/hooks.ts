@@ -14,9 +14,10 @@ import {
   ServerCutResponse,
   UserInfo,
 } from "../interfaces";
+import keycloak from "../keycloak";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument, PDFDocumentProxy } from "../pdf/pdfjs";
-import { fetchGet, fetchPost } from "./fetch-utils";
+import { fetchGet, fetchPost, getHeaders, minValidity } from "./fetch-utils";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))
@@ -184,11 +185,11 @@ export const uploadTranscript = async (file: Blob, category: string) => {
     .filename as string;
 };
 export const loadCategoryMetaData = async (slug: string) => {
-  return (await fetchGet(`/api/category/metadata/${slug}`))
+  return (await fetchGet(`/api/category/metadata/${slug}/`))
     .value as CategoryMetaData;
 };
 export const loadMetaCategories = async () => {
-  return (await fetchGet("/api/category/listmetacategories"))
+  return (await fetchGet("/api/category/listmetacategories/"))
     .value as MetaCategory[];
 };
 export const useMetaCategories = () => {
@@ -196,7 +197,7 @@ export const useMetaCategories = () => {
   return [error, loading, data] as const;
 };
 export const loadList = async (slug: string) => {
-  return (await fetchGet(`/api/category/listexams/${slug}`))
+  return (await fetchGet(`/api/category/listexams/${slug}/`))
     .value as CategoryExam[];
 };
 export const claimExam = async (filename: string, claim: boolean) => {
@@ -209,8 +210,13 @@ export const loadExamMetaData = async (filename: string) => {
     .value as ExamMetaData;
 };
 export const loadSplitRenderer = async (filename: string) => {
+  if (keycloak.isTokenExpired(minValidity))
+    await keycloak.updateToken(minValidity);
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
-    getDocument(`/api/exam/pdf/exam/${filename}`).promise.then(resolve, reject),
+    getDocument({
+      url: `/api/exam/pdf/exam/${filename}/`,
+      httpHeaders: getHeaders(),
+    }).promise.then(resolve, reject),
   );
   const renderer = new PDF(pdf);
   return [pdf, renderer] as const;
@@ -224,7 +230,7 @@ export const loadCuts = async (filename: string) => {
     .value as ServerCutResponse;
 };
 export const submitFeedback = async (text: string) => {
-  return await fetchPost("api/feedback/submit/", { text });
+  return await fetchPost("/api/feedback/submit/", { text });
 };
 export const loadFeedback = async () => {
   const fb = (await fetchGet("/api/feedback/list/")).value as FeedbackEntry[];

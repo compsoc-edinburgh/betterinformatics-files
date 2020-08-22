@@ -22,10 +22,12 @@ import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { css } from "emotion";
+import { useKeycloak } from "@react-keycloak/web";
 const minHeight = css`
   min-height: 100vh;
 `;
 const App: React.FC<{}> = () => {
+  const { initialized } = useKeycloak();
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
     // `yarn start` as only certain pages will set the csrf cookie.
@@ -37,6 +39,7 @@ const App: React.FC<{}> = () => {
   }, []);
   const [user, setUser] = useState<User | undefined>(undefined);
   useEffect(() => {
+    if (!initialized) return;
     let cancelled = false;
     if (user === undefined) {
       fetchGet("/api/auth/me/").then(
@@ -59,7 +62,7 @@ const App: React.FC<{}> = () => {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, initialized]);
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (

@@ -1,10 +1,27 @@
 import { ImageHandle } from "../components/Editor/utils/types";
+import keycloak from "../keycloak";
+/**
+ * Minimum validity of the keycloak token in seconds when a request to the API starts
+ */
+export const minValidity = 10;
+
+export function getHeaders() {
+  const headers: Record<string, string> = {
+    "X-CSRFToken": getCookie("csrftoken") || "",
+  };
+  if (keycloak.token) {
+    headers["Authorization"] = `Bearer ${keycloak.token}`;
+  }
+  return headers;
+}
 
 async function performDataRequest<T>(
   method: string,
   url: string,
   data: { [key: string]: any },
 ) {
+  if (keycloak.isTokenExpired(minValidity))
+    await keycloak.updateToken(minValidity);
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
   // through the keys and appending the (key, value) pair to the FormData
@@ -19,11 +36,10 @@ async function performDataRequest<T>(
       }
     }
   }
+
   const response = await fetch(url, {
     credentials: "include",
-    headers: {
-      "X-CSRFToken": getCookie("csrftoken") || "",
-    },
+    headers: getHeaders(),
     method,
     body: formData,
   });
@@ -39,11 +55,11 @@ async function performDataRequest<T>(
 }
 
 async function performRequest<T>(method: string, url: string) {
+  if (keycloak.isTokenExpired(minValidity))
+    await keycloak.updateToken(minValidity);
   const response = await fetch(url, {
     credentials: "include",
-    headers: {
-      "X-CSRFToken": getCookie("csrftoken") || "",
-    },
+    headers: getHeaders(),
     method,
   });
   try {
