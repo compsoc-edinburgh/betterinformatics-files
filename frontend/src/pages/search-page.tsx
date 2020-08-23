@@ -21,6 +21,7 @@ import { fetchPost } from "../api/fetch-utils";
 import LoadingOverlay from "../components/loading-overlay";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
+import { HighlightedMatch, SearchResponse } from "../interfaces";
 import { escapeRegExp } from "../utils/regex-utils";
 
 const columnStyle = css`
@@ -34,58 +35,6 @@ const columnStyle = css`
     column-count: 2;
   }
 `;
-
-type HighlightedMatch = string | HighlightedMatch[];
-type HighlightedMatches = HighlightedMatch[];
-type Page = [number, number, HighlightedMatches];
-interface ExamSearchResult {
-  type: "exam";
-  rank: number;
-
-  headline: HighlightedMatches;
-
-  pages: Page[];
-
-  displayname: string;
-  filename: string;
-
-  category_displayname: string;
-  category_slug: string;
-}
-interface AnswerSearchResult {
-  type: "answer";
-  rank: number;
-
-  text: string;
-  highlighted_words: string[];
-  author_username: string;
-  author_displayname: string;
-  long_id: string;
-
-  exam_displayname: string;
-  filename: string;
-
-  category_displayname: string;
-  category_slug: string;
-}
-interface CommentSearchResult {
-  type: "comment";
-  rank: number;
-
-  text: string;
-  highlighted_words: string[];
-  author_username: string;
-  author_displayname: string;
-  long_id: string;
-
-  exam_displayname: string;
-  filename: string;
-
-  category_displayname: string;
-  category_slug: string;
-}
-type SearchResult = ExamSearchResult | AnswerSearchResult | CommentSearchResult;
-type SearchResponse = SearchResult[];
 
 const loadSearch = async (term: string) => {
   return (await fetchPost("/api/exam/search/", { term }))
