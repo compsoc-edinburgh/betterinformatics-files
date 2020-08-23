@@ -1,7 +1,18 @@
-from jwt import decode
 import logging
-from myauth.models import MyUser
+
 from django.conf import settings
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from jwt import (
+    InvalidTokenError,
+    decode,
+    DecodeError,
+    InvalidSignatureError,
+    ExpiredSignatureError,
+    InvalidAlgorithmError,
+)
+
+from myauth.models import MyUser
+from notifications.models import NotificationSetting, NotificationType
 
 
 def add_auth(request):
@@ -31,13 +42,47 @@ def add_auth(request):
             user.last_name = decoded["family_name"]
             user.save()
             request.user = user
+
+            for type_ in [
+                NotificationType.NEW_COMMENT_TO_ANSWER,
+                NotificationType.NEW_ANSWER_TO_ANSWER,
+            ]:
+                setting = NotificationSetting(user=user, type=type_.value)
+                setting.save()
     return None
 
 
 def AuthenticationMiddleware(get_response):
     def middleware(request):
-        # TODO: Add error checks
+
         add_auth(request)
+
+        # except InvalidTokenError:
+        #     logging.error("invalid token error")
+        #     raise PermissionDenied
+
+        # except DecodeError:
+        #     logging.error("decode error")
+        #     raise PermissionDenied
+
+        # except InvalidSignatureError:
+        #     logging.error("invalid signature error")
+        #     raise SuspiciousOperation
+
+        # except ExpiredSignatureError:
+        #     logging.error("expired signature error")
+        #     raise PermissionDenied
+
+        # except InvalidAlgorithmError:
+        #     logging.error("invalid algorithm error")
+        #     raise SuspiciousOperation
+
+        # except Key as e:
+        #     logging.error("Something else: %s", e)
+        #     raise SuspiciousOperation
+        # else:
+        #     logging.error("WTF")
+
         response = get_response(request)
 
         return response

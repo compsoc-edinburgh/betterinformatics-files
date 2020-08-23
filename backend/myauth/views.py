@@ -1,5 +1,4 @@
 from util import response
-from django.contrib.auth import authenticate, login, logout
 from util import response
 from django.views import View
 from myauth import auth_check
