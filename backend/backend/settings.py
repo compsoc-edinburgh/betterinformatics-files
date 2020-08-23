@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
 import os
 import sys
 
@@ -44,7 +43,18 @@ COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 )
-COMSOL_FRONTEND_GLOB_ID = os.environ.get("RUNTIME_FRONTEND_GLOB_ID", "vseth-1116-vis")
+COMSOL_FRONTEND_GLOB_ID = os.environ.get(
+    "RUNTIME_FRONTEND_GLOB_ID", "vseth-1116-vis")
+
+JWT_PUBLIC_KEY = (
+    bytes(os.environ["JWT_PUBLIC_KEY"], "utf-8").decode("unicode_escape")
+    if "JWT_PUBLIC_KEY" in os.environ
+    else b""
+)
+JWT_VERIFY_SIGNATURE = (
+    os.environ.get("JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
+)
+JWT_RESOURCE_GROUP = os.environ.get("JWT_RESOURCE_GROUP", "")
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
@@ -67,7 +77,8 @@ if DEBUG:
         "http://localhost:3000/static/",
     )
 else:
-    allowed = ["https://{}/static/".format(host) for host in REAL_ALLOWED_HOSTS]
+    allowed = ["https://{}/static/".format(host)
+               for host in REAL_ALLOWED_HOSTS]
     CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
 CSP_STYLE_SRC = (
     "'self'",
@@ -140,8 +151,8 @@ TEMPLATES = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": not DEBUG,
-    "formatters": {"simple": {"format": "[{levelname}] {message}", "style": "{",},},
-    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simple"},},
+    "formatters": {"simple": {"format": "[{levelname}] {message}", "style": "{", }, },
+    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simple"}, },
     "root": {
         "handlers": ["console"],
         "level": "INFO" if (DEBUG or STAGING) else "WARNING",
@@ -168,7 +179,7 @@ if IN_ENVIRON:
         }
     }
 else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.dummy",}}
+    DATABASES = {"default": {"ENGINE": "django.db.backends.dummy", }}
     print("Warning: no database configured!")
 
 
