@@ -54,34 +54,22 @@ def add_auth(request):
 
 def AuthenticationMiddleware(get_response):
     def middleware(request):
+        try:
+            add_auth(request)
+        except InvalidTokenError:
+            raise PermissionDenied
 
-        add_auth(request)
+        except DecodeError:
+            raise PermissionDenied
 
-        # except InvalidTokenError:
-        #     logging.error("invalid token error")
-        #     raise PermissionDenied
+        except InvalidSignatureError:
+            raise SuspiciousOperation
 
-        # except DecodeError:
-        #     logging.error("decode error")
-        #     raise PermissionDenied
+        except ExpiredSignatureError:
+            raise PermissionDenied
 
-        # except InvalidSignatureError:
-        #     logging.error("invalid signature error")
-        #     raise SuspiciousOperation
-
-        # except ExpiredSignatureError:
-        #     logging.error("expired signature error")
-        #     raise PermissionDenied
-
-        # except InvalidAlgorithmError:
-        #     logging.error("invalid algorithm error")
-        #     raise SuspiciousOperation
-
-        # except Key as e:
-        #     logging.error("Something else: %s", e)
-        #     raise SuspiciousOperation
-        # else:
-        #     logging.error("WTF")
+        except InvalidAlgorithmError:
+            raise PermissionDenied
 
         response = get_response(request)
 
