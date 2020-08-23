@@ -14,8 +14,6 @@ def me_view(request):
             adminrightscat=auth_check.has_admin_rights_for_any_category(request),
             username=request.user.username,
             displayname=request.user.displayname(),
-            simulate_nonadmin="simulate_nonadmin" in request
-            and request.simulate_nonadmin,
         )
     else:
         return response.success(

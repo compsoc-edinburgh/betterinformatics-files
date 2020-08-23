@@ -8,11 +8,11 @@ import {
   ListGroup,
   Row,
   Spinner,
-  ListGroupItem,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
+import { css } from "emotion";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -23,11 +23,10 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
+import useConfirm from "../hooks/useConfirm";
+import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
-import useTitle from "../hooks/useTitle";
-import useConfirm from "../hooks/useConfirm";
-import { css } from "emotion";
 
 const metadataColStyle = css``;
 

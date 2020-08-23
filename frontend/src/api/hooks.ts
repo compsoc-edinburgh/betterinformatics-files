@@ -157,16 +157,6 @@ export const useUserAnswers = (username: string) => {
   );
   return [error, loading, data, run] as const;
 };
-const logout = async () => {
-  await fetchPost("/api/auth/logout/", {});
-};
-export const useLogout = (cb: () => void = () => {}) => {
-  const { error, loading, run } = useRequest(logout, {
-    manual: true,
-    onSuccess: cb,
-  });
-  return [error, loading, run] as const;
-};
 export const loadCategories = async () => {
   return (await fetchGet("/api/category/listonlyadmin/"))
     .value as CategoryMetaDataMinimal[];

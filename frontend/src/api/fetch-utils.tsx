@@ -12,6 +12,9 @@ export function getHeaders() {
   if (keycloak.token) {
     headers["Authorization"] = `Bearer ${keycloak.token}`;
   }
+  if (localStorage.getItem("simulate_nonadmin")) {
+    headers["Simulatenonadmin"] = "true";
+  }
   return headers;
 }
 

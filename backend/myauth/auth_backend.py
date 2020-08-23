@@ -7,9 +7,9 @@ public_key = b"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBC
 
 
 def add_auth(request):
-    request.simulate_nonadmin = False
     request.user = None
     headers = request.headers
+    request.simulate_nonadmin = "Simulatenonadmin" in headers
     if "Authorization" in headers:
         auth = headers["Authorization"]
         if not auth.startswith("Bearer "):
@@ -20,9 +20,9 @@ def add_auth(request):
         request.decoded_token = decoded
 
         username = decoded["preferred_username"]
+        # TODO: Make "vis-community-solutions" configurable (using env?)
         roles = decoded["resource_access"]["vis-community-solutions"]["roles"]
         request.roles = roles
-        logging.info("roles: %s", roles)
 
         try:
             user = MyUser.objects.get(username=username)
@@ -40,7 +40,6 @@ def AuthenticationMiddleware(get_response):
     def middleware(request):
         # TODO: Add error checks
         add_auth(request)
-        logging.info("request.user: %s", request.user)
         response = get_response(request)
 
         return response

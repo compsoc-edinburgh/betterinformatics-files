@@ -2,6 +2,7 @@ import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
+  ButtonGroup,
   Card,
   Col,
   Container,
@@ -14,21 +15,19 @@ import {
   ModalFooter,
   ModalHeader,
   Row,
-  Select,
   Spinner,
-  ButtonGroup,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
+import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import TooltipButton from "../components/TooltipButton";
-import { CategoryMetaData, MetaCategory } from "../interfaces";
 import useTitle from "../hooks/useTitle";
-import { loadMetaCategories } from "../api/hooks";
+import { CategoryMetaData, MetaCategory } from "../interfaces";
 
 enum Mode {
   Alphabetical,

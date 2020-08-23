@@ -21,7 +21,7 @@ def user_authenticated(request):
 def has_admin_rights(request):
     if check_api_key(request):
         return True
-    if "simulate_nonadmin" in request and request.simulate_nonadmin:
+    if request.simulate_nonadmin:
         return False
     return "admin" in request.roles
 
