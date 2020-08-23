@@ -6,15 +6,17 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Col,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
   Icon,
   ICONS,
   Row,
-  Col,
 } from "@vseth/components";
+import { formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
@@ -25,8 +27,10 @@ import {
 } from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
+import useToggle from "../hooks/useToggle";
 import { Answer, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
+import CodeBlock from "./code-block";
 import CommentSectionComponent from "./comment-section";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
@@ -34,8 +38,6 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
-import { Link } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;
@@ -63,6 +65,7 @@ const AnswerComponent: React.FC<Props> = ({
   isLegacyAnswer,
   hasId = true,
 }) => {
+  const [viewSource, toggleViewSource] = useToggle(false);
   const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetFlagged] = useResetFlaggedVote(
     onSectionChanged,
@@ -245,7 +248,11 @@ const AnswerComponent: React.FC<Props> = ({
             </div>
           ) : (
             <div className="py-3">
-              <MarkdownText value={answer?.text ?? ""} />
+              {viewSource ? (
+                <CodeBlock value={answer?.text ?? ""} language="markdown" />
+              ) : (
+                <MarkdownText value={answer?.text ?? ""} />
+              )}
             </div>
           )}
           <Row className="flex-between">
@@ -319,6 +326,9 @@ const AnswerComponent: React.FC<Props> = ({
                           {answer && canRemove && (
                             <DropdownItem onClick={remove}>Delete</DropdownItem>
                           )}
+                          <DropdownItem onClick={toggleViewSource}>
+                            Toggle Source Code Mode
+                          </DropdownItem>
                         </DropdownMenu>
                       </ButtonDropdown>
                     )}
