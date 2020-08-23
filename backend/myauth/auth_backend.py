@@ -36,6 +36,18 @@ def add_auth(request):
         try:
             user = MyUser.objects.get(username=username)
             request.user = user
+            changed = False
+
+            if decoded["given_name"] != user.first_name:
+                changed = True
+                user.first_name = decoded["given_name"]
+
+            if decoded["family_name"] != user.last_name:
+                changed = True
+                user.last_name = decoded["family_name"]
+
+            if changed:
+                user.save()
         except MyUser.DoesNotExist:
             user = MyUser(username=username)
             user.first_name = decoded["given_name"]
