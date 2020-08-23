@@ -195,13 +195,13 @@ const SearchPage: React.FC<{}> = () => {
                             ))}
                           </h6>
                           {result.pages.map(([page, _, matches]) => (
-                            <Row key={page}>
-                              <Col xs="auto">
+                            <Row key={page} className="position-relative">
+                              <Col xs="auto" className="position-static">
                                 <Pagination>
                                   <PaginationItem active>
                                     <PaginationLink
                                       href={`/exams/${result.filename}/#page-${page}`}
-                                      className="border"
+                                      className="border stretched-link position-static"
                                     >
                                       {page}
                                     </PaginationLink>
@@ -228,7 +228,7 @@ const SearchPage: React.FC<{}> = () => {
                     );
                   } else if (result.type === "answer") {
                     return (
-                      <div className="px-2" key={`exam-${result.long_id}`}>
+                      <div className="px-2" key={`answer-${result.long_id}`}>
                         <Card className="mb-3 px-3 pb-3 pt-2">
                           <Row>
                             <Col
@@ -254,22 +254,24 @@ const SearchPage: React.FC<{}> = () => {
                               </Breadcrumb>
                             </Col>
                           </Row>
-                          <Link
-                            className="text-link"
-                            to={`/exams/${result.filename}/#${result.long_id}`}
-                          >
-                            <h6>{result.author_displayname}</h6>
-                          </Link>
-                          <HighlightedMarkdown
-                            content={result.text}
-                            matches={result.highlighted_words}
-                          />
+                          <div className="position-relative">
+                            <Link
+                              className="text-link stretched-link"
+                              to={`/exams/${result.filename}/#${result.long_id}`}
+                            >
+                              <h6>{result.author_displayname}</h6>
+                            </Link>
+                            <HighlightedMarkdown
+                              content={result.text}
+                              matches={result.highlighted_words}
+                            />
+                          </div>
                         </Card>
                       </div>
                     );
                   } else {
                     return (
-                      <div className="px-2" key={`exam-${result.long_id}`}>
+                      <div className="px-2" key={`comment-${result.long_id}`}>
                         <Card className="mb-3 px-3 pb-3 pt-2">
                           <Row>
                             <Col
@@ -295,16 +297,18 @@ const SearchPage: React.FC<{}> = () => {
                               </Breadcrumb>
                             </Col>
                           </Row>
-                          <Link
-                            className="text-link"
-                            to={`/exams/${result.filename}/#${result.long_id}`}
-                          >
-                            <h6>{result.author_displayname}</h6>
-                          </Link>
-                          <HighlightedMarkdown
-                            content={result.text}
-                            matches={result.highlighted_words}
-                          />
+                          <div className="position-relative">
+                            <Link
+                              className="text-link stretched-link"
+                              to={`/exams/${result.filename}/#${result.long_id}`}
+                            >
+                              <h6>{result.author_displayname}</h6>
+                            </Link>
+                            <HighlightedMarkdown
+                              content={result.text}
+                              matches={result.highlighted_words}
+                            />
+                          </div>
                         </Card>
                       </div>
                     );
@@ -314,7 +318,10 @@ const SearchPage: React.FC<{}> = () => {
             )}
             {error && (
               <div>
-                Error: <pre>{JSON.stringify(error, null, 3)}</pre>
+                An error occurred:{" "}
+                <div>
+                  <pre>{JSON.stringify(error, null, 3)}</pre>
+                </div>
               </div>
             )}
           </div>
