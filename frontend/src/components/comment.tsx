@@ -7,7 +7,7 @@ import {
   Row,
   Col,
 } from "@vseth/components";
-import { formatDistanceToNow } from "date-fns";
+import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
@@ -103,7 +103,7 @@ const CommentComponent: React.FC<Props> = ({
           )}
         </ButtonGroup>
       </div>
-      <div className="d-flex align-items-center flex-row">
+      <div>
         <Link to={`/user/${comment?.authorId ?? username}`}>
           {comment?.authorDisplayName ?? "(Draft)"}
           <span className="text-muted ml-1">
@@ -112,10 +112,22 @@ const CommentComponent: React.FC<Props> = ({
         </Link>
         <span className="text-muted mx-1">·</span>
         {comment && (
-          <div className="text-muted" title={comment.edittime}>
-            {formatDistanceToNow(new Date(comment.edittime))} ago
-          </div>
+          <span className="text-muted" title={comment.time}>
+            {formatDistanceToNow(new Date(comment.time))} ago
+          </span>
         )}
+        {comment &&
+          differenceInSeconds(
+            new Date(comment.edittime),
+            new Date(comment.time),
+          ) > 1 && (
+            <>
+              <span className="text-muted mx-1">·</span>
+              <span className="text-muted" title={comment.edittime}>
+                edited {formatDistanceToNow(new Date(comment.edittime))} ago
+              </span>
+            </>
+          )}
       </div>
 
       {comment === undefined || editing ? (
