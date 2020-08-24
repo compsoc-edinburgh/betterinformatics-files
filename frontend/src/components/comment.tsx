@@ -134,11 +134,12 @@ const CommentComponent: React.FC<Props> = ({
                 className="m-1"
                 size="sm"
                 color="primary"
-                disabled={loading}
+                loading={loading}
+                disabled={draftText.trim().length === 0}
                 onClick={onSave}
                 icon="SAVE"
               >
-                {loading ? <Spinner /> : "Save"}
+                Save
               </IconButton>
             </Col>
             <Col xs="auto">

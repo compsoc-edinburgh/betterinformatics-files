@@ -264,6 +264,7 @@ const AnswerComponent: React.FC<Props> = ({
                   size="sm"
                   onClick={save}
                   loading={updating}
+                  disabled={draftText.trim().length === 0}
                   icon="SAVE"
                 >
                   Save
