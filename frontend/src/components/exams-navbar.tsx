@@ -17,7 +17,7 @@ const ExamsNavbar: React.FC<{}> = () => {
   const location = useLocation();
   const user = useUser();
   const { data: unreadCount } = useRequest(loadUnreadCount, {
-    pollingInterval: 30_000,
+    pollingInterval: 300_000,
   });
   const username = user?.username;
   const adminItems: Item[] = [
