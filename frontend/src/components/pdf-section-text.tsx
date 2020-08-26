@@ -128,6 +128,7 @@ const PdfSectionText: React.FC<Props> = React.memo(
           transformOrigin: "top left",
           display: view ? "block" : "none",
           color: "transparent",
+          opacity: "0.7",
         }}
       >
         {textContent &&
