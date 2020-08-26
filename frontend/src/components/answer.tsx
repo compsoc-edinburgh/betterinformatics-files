@@ -14,7 +14,7 @@ import {
   ICONS,
   Row,
 } from "@vseth/components";
-import { formatDistanceToNow } from "date-fns";
+import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
@@ -113,8 +113,8 @@ const AnswerComponent: React.FC<Props> = ({
       {modals}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
-          <div className="d-flex flex-between">
-            <div className="d-flex align-items-center flex-row flex-wrap">
+          <div className="d-flex flex-between align-items-center">
+            <div>
               {!hasId && (
                 <Link
                   className="mr-2"
@@ -137,10 +137,23 @@ const AnswerComponent: React.FC<Props> = ({
               )}
               <span className="text-muted mx-1">·</span>
               {answer && (
-                <div className="text-muted" title={answer.edittime}>
-                  {formatDistanceToNow(new Date(answer.edittime))} ago
-                </div>
+                <span className="text-muted" title={answer.time}>
+                  {formatDistanceToNow(new Date(answer.time))} ago
+                </span>
               )}
+              {answer &&
+                differenceInSeconds(
+                  new Date(answer.edittime),
+                  new Date(answer.time),
+                ) > 1 && (
+                  <>
+                    <span className="text-muted mx-1">·</span>
+                    <span className="text-muted" title={answer.edittime}>
+                      edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
+                      ago
+                    </span>
+                  </>
+                )}
             </div>
             <div className="d-flex">
               <AnswerToolbar>
