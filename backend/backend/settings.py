@@ -191,7 +191,7 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = []
 
-AUTHENTICATION_BACKENDS = ["myauth.people_auth.PeopleAuthBackend"]
+AUTHENTICATION_BACKENDS = []
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
