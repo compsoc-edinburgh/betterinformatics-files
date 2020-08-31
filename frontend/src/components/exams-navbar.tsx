@@ -64,7 +64,6 @@ const ExamsNavbar: React.FC<{}> = () => {
         },
         {
           title: "Scoreboard",
-          icon: ICONS.LIST,
           active: location.pathname === "/scoreboard",
           linkProps: {
             to: "/scoreboard",
@@ -85,6 +84,14 @@ const ExamsNavbar: React.FC<{}> = () => {
               ? adminItems
               : []),
           ],
+        },
+        {
+          title: "Search",
+          icon: ICONS.SEARCH,
+          active: location.pathname.indexOf("/search") === 0,
+          linkProps: {
+            to: "/search",
+          },
         },
         {
           title: ((

@@ -252,3 +252,60 @@ export type EditState =
   | { mode: EditMode.None }
   | { mode: EditMode.Add; snap: boolean }
   | { mode: EditMode.Move; cut: string; snap: boolean };
+
+// Search endpoint
+
+export type HighlightedMatch = string | HighlightedMatch[];
+export type HighlightedMatches = HighlightedMatch[];
+export type Page = [number, number, HighlightedMatches];
+export interface ExamSearchResult {
+  type: "exam";
+  rank: number;
+
+  headline: HighlightedMatches;
+
+  pages: Page[];
+
+  displayname: string;
+  filename: string;
+
+  category_displayname: string;
+  category_slug: string;
+}
+export interface AnswerSearchResult {
+  type: "answer";
+  rank: number;
+
+  text: string;
+  highlighted_words: string[];
+  author_username: string;
+  author_displayname: string;
+  long_id: string;
+
+  exam_displayname: string;
+  filename: string;
+
+  category_displayname: string;
+  category_slug: string;
+}
+export interface CommentSearchResult {
+  type: "comment";
+  rank: number;
+
+  text: string;
+  highlighted_words: string[];
+  author_username: string;
+  author_displayname: string;
+  long_id: string;
+
+  exam_displayname: string;
+  filename: string;
+
+  category_displayname: string;
+  category_slug: string;
+}
+export type SearchResult =
+  | ExamSearchResult
+  | AnswerSearchResult
+  | CommentSearchResult;
+export type SearchResponse = SearchResult[];
