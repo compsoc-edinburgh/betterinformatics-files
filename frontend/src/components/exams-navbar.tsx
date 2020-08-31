@@ -89,7 +89,9 @@ const ExamsNavbar: React.FC<{}> = () => {
           title: "Search",
           icon: ICONS.SEARCH,
           active: location.pathname.indexOf("/search") === 0,
-          linkProps: { to: "/search" },
+          linkProps: {
+            to: "/search",
+          },
         },
         {
           title: ((
