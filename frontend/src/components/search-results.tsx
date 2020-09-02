@@ -91,9 +91,11 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   </Col>
                 </Row>
                 <h6>
-                  {result.headline.map((part, i) => (
-                    <HighlightedContent content={part} key={i} />
-                  ))}
+                  <Link to={`/exams/${result.filename}/`}>
+                    {result.headline.map((part, i) => (
+                      <HighlightedContent content={part} key={i} />
+                    ))}
+                  </Link>
                 </h6>
                 {result.pages.map(([page, _, matches]) => (
                   <Row key={page} className="position-relative">
