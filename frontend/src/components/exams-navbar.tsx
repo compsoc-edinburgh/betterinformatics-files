@@ -49,20 +49,6 @@ const ExamsNavbar: React.FC<{}> = () => {
           },
         },
         {
-          title: "FAQ",
-          active: location.pathname === "/faq",
-          linkProps: {
-            to: "/faq",
-          },
-        },
-        {
-          title: "Feedback",
-          active: location.pathname === "/feedback",
-          linkProps: {
-            to: "/feedback",
-          },
-        },
-        {
           title: "Scoreboard",
           active: location.pathname === "/scoreboard",
           linkProps: {
@@ -74,6 +60,20 @@ const ExamsNavbar: React.FC<{}> = () => {
           active: false,
 
           childItems: [
+            {
+              title: "FAQ",
+              active: location.pathname === "/faq",
+              linkProps: {
+                to: "/faq",
+              },
+            },
+            {
+              title: "Feedback",
+              active: location.pathname === "/feedback",
+              linkProps: {
+                to: "/feedback",
+              },
+            },
             {
               title: "Submit Transcript",
               linkProps: {
