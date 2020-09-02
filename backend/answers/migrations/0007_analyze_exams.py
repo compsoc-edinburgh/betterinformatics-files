@@ -4,6 +4,7 @@ from backend import settings
 from util import minio_util
 from answers import pdf_utils
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,32 +21,38 @@ def forwards_func(apps, schema_editor):
         for exam in all_exams:
             filename = exam.filename
             minio_util.save_file(
-                settings.COMSOL_EXAM_DIR,
-                filename, tmpdirname + filename
+                settings.COMSOL_EXAM_DIR, filename, tmpdirname + filename
             )
             res = pdf_utils.analyze_pdf(
-                exam, tmpdirname + filename,
+                exam,
+                tmpdirname + filename,
                 ExamPage=ExamPage,
                 ExamPageFlow=ExamPageFlow,
-                ExamWord=ExamWord
+                ExamWord=ExamWord,
             )
             finished += 1
             logger.info(
                 "({finished}/{total}) {res}    {displayname}".format(
                     displayname=exam.displayname,
-                    res=u'[+]' if res else u'[-]',
+                    res=u"[+]" if res else u"[-]",
                     finished=finished,
-                    total=total
+                    total=total,
                 )
             )
+
+
+# Empty reverse func is required so that django sees that the
+# RunPython migration is reversible
+def reverse_func(apps, schema_editor):
+    pass
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('answers', '0006_auto_20200602_1436'),
+        ("answers", "0006_auto_20200602_1436"),
     ]
 
     operations = [
-        migrations.RunPython(forwards_func),
+        migrations.RunPython(forwards_func, reverse_func),
     ]
