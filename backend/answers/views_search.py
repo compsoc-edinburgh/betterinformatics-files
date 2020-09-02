@@ -176,7 +176,6 @@ def headline(
 
 def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     query = SearchQuery(term)
-    trigram_similarity = TrigramSimilarity("text", term)
 
     start_boundary = generate_boundary()
     end_boundary = generate_boundary()
@@ -208,7 +207,7 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
             exam__in=list(exams.values_list("id", flat=True)), search_vector=term
         )
         .annotate(
-            rank=SearchRank(F("search_vector"), query) + trigram_similarity,
+            rank=SearchRank(F("search_vector"), query),
             headline=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter,
             ),
