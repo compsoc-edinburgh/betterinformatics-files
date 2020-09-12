@@ -64,15 +64,17 @@ JWT_PUBLIC_KEY = (
     test_public_key
     if TESTING
     else (
-        bytes(os.environ["JWT_PUBLIC_KEY"], "utf-8").decode("unicode_escape")
-        if "JWT_PUBLIC_KEY" in os.environ
+        bytes(os.environ["RUNTIME_JWT_PUBLIC_KEY"], "utf-8").decode("unicode_escape")
+        if "RUNTIME_JWT_PUBLIC_KEY" in os.environ
         else b""
     )
 )
 JWT_VERIFY_SIGNATURE = (
-    os.environ.get("JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
+    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
 )
-JWT_RESOURCE_GROUP = "group" if TESTING else os.environ.get("JWT_RESOURCE_GROUP", "")
+JWT_RESOURCE_GROUP = (
+    "group" if TESTING else os.environ.get("RUNTIME_JWT_RESOURCE_GROUP", "")
+)
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
