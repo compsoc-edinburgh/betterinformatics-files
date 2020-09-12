@@ -43,7 +43,21 @@ COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 )
+
 COMSOL_FRONTEND_GLOB_ID = os.environ.get("RUNTIME_FRONTEND_GLOB_ID", "vseth-1116-vis")
+
+# The following config settings configure the config with which a keycloak js client instance is
+# constructed in the React frontend.
+COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
+    "RUNTIME_FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
+)
+COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
+    "RUNTIME_FRONTEND_KEYCLOAK_REALM", "VSETH"
+)
+COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
+    "RUNTIME_FRONTEND_KEYCLOAK_CLIENT_ID", "vis-community-solutions"
+)
+
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
 test_public_key = open("testing/jwtRS256.key.pub", "rb").read()
 JWT_PUBLIC_KEY = (
