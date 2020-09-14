@@ -17,7 +17,7 @@ const ExamsNavbar: React.FC<{}> = () => {
   const location = useLocation();
   const user = useUser();
   const { data: unreadCount } = useRequest(loadUnreadCount, {
-    pollingInterval: 30_000,
+    pollingInterval: 300_000,
   });
   const username = user?.username;
   const adminItems: Item[] = [
@@ -49,22 +49,7 @@ const ExamsNavbar: React.FC<{}> = () => {
           },
         },
         {
-          title: "FAQ",
-          active: location.pathname === "/faq",
-          linkProps: {
-            to: "/faq",
-          },
-        },
-        {
-          title: "Feedback",
-          active: location.pathname === "/feedback",
-          linkProps: {
-            to: "/feedback",
-          },
-        },
-        {
           title: "Scoreboard",
-          icon: ICONS.LIST,
           active: location.pathname === "/scoreboard",
           linkProps: {
             to: "/scoreboard",
@@ -76,6 +61,20 @@ const ExamsNavbar: React.FC<{}> = () => {
 
           childItems: [
             {
+              title: "FAQ",
+              active: location.pathname === "/faq",
+              linkProps: {
+                to: "/faq",
+              },
+            },
+            {
+              title: "Feedback",
+              active: location.pathname === "/feedback",
+              linkProps: {
+                to: "/feedback",
+              },
+            },
+            {
               title: "Submit Transcript",
               linkProps: {
                 to: "/submittranscript",
@@ -85,6 +84,14 @@ const ExamsNavbar: React.FC<{}> = () => {
               ? adminItems
               : []),
           ],
+        },
+        {
+          title: "Search",
+          icon: ICONS.SEARCH,
+          active: location.pathname.indexOf("/search") === 0,
+          linkProps: {
+            to: "/search",
+          },
         },
         {
           title: ((

@@ -6,15 +6,17 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Col,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
   Icon,
   ICONS,
   Row,
-  Col,
 } from "@vseth/components";
+import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
@@ -25,8 +27,10 @@ import {
 } from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
+import useToggle from "../hooks/useToggle";
 import { Answer, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
+import CodeBlock from "./code-block";
 import CommentSectionComponent from "./comment-section";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
@@ -34,8 +38,6 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
-import { Link } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
 
 const AnswerWrapper = styled(Card)`
   margin-top: 1em;
@@ -63,6 +65,7 @@ const AnswerComponent: React.FC<Props> = ({
   isLegacyAnswer,
   hasId = true,
 }) => {
+  const [viewSource, toggleViewSource] = useToggle(false);
   const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetFlagged] = useResetFlaggedVote(
     onSectionChanged,
@@ -110,8 +113,8 @@ const AnswerComponent: React.FC<Props> = ({
       {modals}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
-          <div className="d-flex flex-between">
-            <div className="d-flex align-items-center flex-row flex-wrap">
+          <div className="d-flex flex-between align-items-center">
+            <div>
               {!hasId && (
                 <Link
                   className="mr-2"
@@ -134,10 +137,23 @@ const AnswerComponent: React.FC<Props> = ({
               )}
               <span className="text-muted mx-1">·</span>
               {answer && (
-                <div className="text-muted" title={answer.edittime}>
-                  {formatDistanceToNow(new Date(answer.edittime))} ago
-                </div>
+                <span className="text-muted" title={answer.time}>
+                  {formatDistanceToNow(new Date(answer.time))} ago
+                </span>
               )}
+              {answer &&
+                differenceInSeconds(
+                  new Date(answer.edittime),
+                  new Date(answer.time),
+                ) > 1 && (
+                  <>
+                    <span className="text-muted mx-1">·</span>
+                    <span className="text-muted" title={answer.edittime}>
+                      edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
+                      ago
+                    </span>
+                  </>
+                )}
             </div>
             <div className="d-flex">
               <AnswerToolbar>
@@ -245,7 +261,11 @@ const AnswerComponent: React.FC<Props> = ({
             </div>
           ) : (
             <div className="py-3">
-              <MarkdownText value={answer?.text ?? ""} />
+              {viewSource ? (
+                <CodeBlock value={answer?.text ?? ""} language="markdown" />
+              ) : (
+                <MarkdownText value={answer?.text ?? ""} />
+              )}
             </div>
           )}
           <Row className="flex-between">
@@ -257,6 +277,7 @@ const AnswerComponent: React.FC<Props> = ({
                   size="sm"
                   onClick={save}
                   loading={updating}
+                  disabled={draftText.trim().length === 0}
                   icon="SAVE"
                 >
                   Save
@@ -319,6 +340,9 @@ const AnswerComponent: React.FC<Props> = ({
                           {answer && canRemove && (
                             <DropdownItem onClick={remove}>Delete</DropdownItem>
                           )}
+                          <DropdownItem onClick={toggleViewSource}>
+                            Toggle Source Code Mode
+                          </DropdownItem>
                         </DropdownMenu>
                       </ButtonDropdown>
                     )}

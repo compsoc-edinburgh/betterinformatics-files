@@ -8,6 +8,7 @@ import os
 import io
 import tempfile
 import zipfile
+from answers import pdf_utils
 
 
 def prepare_exam_pdf_file(request):
@@ -40,6 +41,7 @@ def upload_exam_pdf(request):
     )
     exam.save()
     minio_util.save_uploaded_file_to_minio(settings.COMSOL_EXAM_DIR, filename, file)
+    pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     return response.success(filename=filename)
 
 
@@ -66,6 +68,7 @@ def upload_transcript(request):
     )
     exam.save()
     minio_util.save_uploaded_file_to_minio(settings.COMSOL_EXAM_DIR, filename, file)
+    pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     return response.success(filename=filename)
 
 
