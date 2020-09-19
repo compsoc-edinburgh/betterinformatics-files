@@ -10,11 +10,11 @@ from django.http import FileResponse
 if settings.IN_ENVIRON:
     # Minio seems to run unsecured on port 80 in the debug environment
     minio_client = Minio(
-        os.environ['RUNTIME_MINIO_SERVER'],
-        access_key=os.environ['RUNTIME_MINIO_ACCESS_KEY'],
-        secret_key=os.environ['RUNTIME_MINIO_SECRET_KEY'],
+        os.environ['SIP_S3_FILES_HOST'] + ":" + os.environ['SIP_S3_FILES_PORT'],
+        access_key=os.environ['SIP_S3_FILES_ACCESS_KEY'],
+        secret_key=os.environ['SIP_S3_FILES_SECRET_KEY'],
         secure=not settings.DEBUG and not settings.TESTING)
-    minio_bucket = os.environ['RUNTIME_MINIO_BUCKET_NAME']
+    minio_bucket = os.environ['SIP_S3_FILES_BUCKET_NAME']
 
 
 def save_uploaded_file_to_disk(dest, uploaded_file):

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
 import sys
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,8 +20,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-DEBUG = os.environ.get("RUNTIME_POSTGRES_DB_USER", "docker") == "docker"
-IN_ENVIRON = "RUNTIME_POSTGRES_DB_SERVER" in os.environ
+DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
+IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
 STAGING = os.environ.get("DEPLOYMENT_DOMAIN", "").endswith("svis.ethz.ch")
 
@@ -55,7 +56,7 @@ COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
     "RUNTIME_FRONTEND_KEYCLOAK_REALM", "VSETH"
 )
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
-    "RUNTIME_FRONTEND_KEYCLOAK_CLIENT_ID", "vis-community-solutions"
+    "SIP_AUTH_EXAMS_CLIENT_ID", "vis-community-solutions"
 )
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
@@ -73,7 +74,7 @@ JWT_VERIFY_SIGNATURE = (
     os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
 )
 JWT_RESOURCE_GROUP = (
-    "group" if TESTING else os.environ.get("RUNTIME_JWT_RESOURCE_GROUP", "")
+    "group" if TESTING else os.environ.get("SIP_AUTH_EXAMS_CLIENT_ID", "")
 )
 
 ALLOWED_HOSTS = []
@@ -188,11 +189,11 @@ if IN_ENVIRON:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql_psycopg2",
-            "NAME": os.environ["RUNTIME_POSTGRES_DB_NAME"],
-            "USER": os.environ["RUNTIME_POSTGRES_DB_USER"],
-            "PASSWORD": os.environ["RUNTIME_POSTGRES_DB_PW"],
-            "HOST": os.environ["RUNTIME_POSTGRES_DB_SERVER"],
-            "PORT": os.environ["RUNTIME_POSTGRES_DB_PORT"],
+            "NAME": os.environ["SIP_POSTGRES_DB_NAME"],
+            "USER": os.environ["SIP_POSTGRES_DB_USER"],
+            "PASSWORD": os.environ["SIP_POSTGRES_DB_PW"],
+            "HOST": os.environ["SIP_POSTGRES_DB_SERVER"],
+            "PORT": os.environ["SIP_POSTGRES_DB_PORT"],
             "OPTIONS": {"sslmode": "disable"},
             "CONN_MAX_AGE": 60,
         }
@@ -200,6 +201,7 @@ if IN_ENVIRON:
 else:
     DATABASES = {"default": {"ENGINE": "django.db.backends.dummy",}}
     print("Warning: no database configured!")
+    print(os.environ)
 
 
 # Password validation

@@ -1,0 +1,42 @@
+---
+ingress:
+  - name: "http-default"
+    subdomain: exams
+    http:
+      - path: /
+        port: 80
+postgres:
+  - name: db
+s3:
+  - name: files
+auth:
+  - name: exams
+    accessType: public
+    clientProtocol: openid-connect
+    validRedirectURIs:
+      - /callback
+    scopes:
+      defaultClientScopes:
+        - profile
+    roles:
+      - name: admin
+        description: Admin of the application
+      - name: not-admin
+        description: Not-admins of the application
+env:
+  - name: "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET"
+    secret:
+      key: key
+      create: random
+  - name: "SIP_AUTH_EXAMS_CLIENT_ID"
+    secret:
+      key: jwt-verification
+      create: provided
+  - name: "RUNTIME_FRONTEND_GLOB_ID"
+    secret:
+      key: frontend-glob-id
+      create: provided
+  - name: "RUNTIME_FRONTEND_KEYCLOAK_URL"
+    value: https://auth.vseth.ethz.ch/auth
+  - name: "RUNTIME_FRONTEND_KEYCLOAK_REALM"
+    value: VSETH
