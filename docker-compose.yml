@@ -1,0 +1,54 @@
+version: "3"
+services:
+  minio:
+    image: minio/minio
+    container_name: minio-community-solutions
+    environment:
+      - MINIO_ACCESS_KEY=minio
+      - MINIO_SECRET_KEY=minio123
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./data/minio:/export
+    command: server /export
+  postgres:
+    image: postgres
+    container_name: pg-community-solutions
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/sql:/var/lib/postgresql/data
+  community-solutions:
+    build: .
+    container_name: community-solutions
+    ports:
+      - "8080:80"
+    environment:
+      - DEPLOYMENT_DOMAIN=localhost
+
+      - RUNTIME_POSTGRES_DB_SERVER=pg-community-solutions
+      - RUNTIME_POSTGRES_DB_PORT=5432
+      - RUNTIME_POSTGRES_DB_NAME=postgres
+      - RUNTIME_POSTGRES_DB_USER=docker
+      - RUNTIME_POSTGRES_DB_PW=docker
+
+      - RUNTIME_MINIO_SERVER=minio-community-solutions:9000
+      - RUNTIME_MINIO_ACCESS_KEY=minio
+      - RUNTIME_MINIO_SECRET_KEY=minio123
+      - RUNTIME_MINIO_BUCKET_NAME=community-solutions
+
+      - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
+      - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
+
+      - RUNTIME_FRONTEND_KEYCLOAK_URL=https://auth.vseth.ethz.ch/auth
+      - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
+      - RUNTIME_FRONTEND_KEYCLOAK_CLIENT_ID=vis-community-solutions
+
+      - RUNTIME_JWT_VERIFY_SIGNATURE=FALSE
+      - RUNTIME_JWT_RESOURCE_GROUP=vis-community-solutions
+    depends_on:
+      - "postgres"
+      - "minio"
