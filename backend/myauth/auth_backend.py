@@ -1,5 +1,3 @@
-import logging
-
 from django.conf import settings
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from jwt import (
@@ -18,7 +16,7 @@ from notifications.models import NotificationSetting, NotificationType
 def add_auth(request):
     request.user = None
     headers = request.headers
-    request.simulate_nonadmin = "Simulatenonadmin" in headers
+    request.simulate_nonadmin = "X-SimulateNonAdmin" in headers
     if "Authorization" in headers:
         auth = headers["Authorization"]
         if not auth.startswith("Bearer "):

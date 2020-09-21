@@ -13,7 +13,7 @@ export function getHeaders() {
     headers["Authorization"] = `Bearer ${keycloak.token}`;
   }
   if (localStorage.getItem("simulate_nonadmin")) {
-    headers["Simulatenonadmin"] = "true";
+    headers["X-SimulateNonAdmin"] = "true";
   }
   return headers;
 }
