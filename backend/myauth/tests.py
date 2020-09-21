@@ -2,6 +2,7 @@ from testing.tests import ComsolTest
 from jwt import encode
 
 invalid_key = open("myauth/invalid.key", "rb").read()
+private_key = open("testing/jwtRS256.key", "rb").read()
 
 
 class TestMyAuthAdmin(ComsolTest):
@@ -94,3 +95,55 @@ class TestJWT(ComsolTest):
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
         )
         self.assertEqual(response.status_code, 403)
+
+    def test_token_with_wrong_algorithm(self):
+        user = self.loginUsers[0]
+        username = user["username"]
+        given_name = user["given_name"]
+        family_name = user["family_name"]
+        admin = user["admin"]
+        roles = ["admin"] if admin else []
+        encoded = encode(
+            {
+                "resource_access": {"group": {"roles": roles}},
+                "scope": "openid profile",
+                "website": "https://www.vis.ethz.ch",
+                "name": given_name + " " + family_name,
+                "preferred_username": username,
+                "given_name": given_name,
+                "family_name": family_name,
+            },
+            private_key,
+            algorithm="PS256",
+        )
+        token = "Bearer " + encoded.decode("utf-8")
+        response = self.client.get(
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_correct_token(self):
+        user = self.loginUsers[0]
+        username = user["username"]
+        given_name = user["given_name"]
+        family_name = user["family_name"]
+        admin = user["admin"]
+        roles = ["admin"] if admin else []
+        encoded = encode(
+            {
+                "resource_access": {"group": {"roles": roles}},
+                "scope": "openid profile",
+                "website": "https://www.vis.ethz.ch",
+                "name": given_name + " " + family_name,
+                "preferred_username": username,
+                "given_name": given_name,
+                "family_name": family_name,
+            },
+            private_key,
+            algorithm="RS256",
+        )
+        token = "Bearer " + encoded.decode("utf-8")
+        response = self.client.get(
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+        )
+        self.assertEqual(response.status_code, 200)

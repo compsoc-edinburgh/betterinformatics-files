@@ -25,7 +25,10 @@ def add_auth(request):
             return None
         encoded = auth.split(" ")[1]
         decoded = decode(
-            encoded, settings.JWT_PUBLIC_KEY, verify=settings.JWT_VERIFY_SIGNATURE
+            encoded,
+            settings.JWT_PUBLIC_KEY,
+            verify=settings.JWT_VERIFY_SIGNATURE,
+            algorithms=["RS256"],
         )
         request.decoded_token = decoded
 
