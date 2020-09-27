@@ -11,6 +11,19 @@ services:
     volumes:
       - ./data/minio:/export
     command: server /export
+  pgadmin:
+    image: dpage/pgadmin4:4.26
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: docker
+      PGADMIN_DEFAULT_PASSWORD: docker
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "8081:80"
+    volumes:
+      - ./data/pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - "postgres"
   postgres:
     image: postgres
     container_name: pg-community-solutions
