@@ -46,7 +46,6 @@ interface AddButtonProps {
   allowLegacyAnswer: boolean;
   hasAnswerDraft: boolean;
   hasLegacyAnswerDraft: boolean;
-  smallDisplay: boolean;
   onAnswer: () => void;
   onLegacyAnswer: () => void;
 }
@@ -55,10 +54,10 @@ const AddButton: React.FC<AddButtonProps> = ({
   allowLegacyAnswer,
   hasAnswerDraft,
   hasLegacyAnswerDraft,
-  smallDisplay,
   onAnswer,
   onLegacyAnswer,
 }) => {
+  const isSmallDisplay = useIsSmallDisplay();
   const [isOpen, setOpen] = useState(false);
   const toggle = useCallback(() => setOpen(old => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
@@ -75,7 +74,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            {smallDisplay ? "Add Legacy" : "Add Legacy Answer"}
+            {isSmallDisplay ? "Add Legacy" : "Add Legacy Answer"}
           </DropdownItem>
         </DropdownMenu>
       </ButtonDropdown>
@@ -94,7 +93,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            {smallDisplay ? "Add Legacy" : "Add Legacy Answer"}
+            {isSmallDisplay ? "Add Legacy" : "Add Legacy Answer"}
           </Button>
         )}
       </ButtonGroup>
@@ -177,11 +176,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
     const isSmallDisplay = useIsSmallDisplay();
-    // const [isSmallDisplay, setSmallDisplay] = useState(false);
-    // useEffect(() => {
-    //   console.log(window.innerWidth < 450);
-    //   setSmallDisplay(window.innerWidth < 450);
-    // }, [window.innerWidth]);
 
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
@@ -221,22 +215,22 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                     </InputGroupButtonDropdown>
                   </InputGroup>
                 ) : (
-                  <Row>
-                    <Col className="d-flex flex-center flex-column">
-                      <h6 className="m-0">{cutName}</h6>
-                    </Col>
-                    <Col xs="auto">
-                      {isCatAdmin && (
-                        <IconButton
-                          tooltip="Edit PDF section name"
-                          size="sm"
-                          icon="EDIT"
-                          onClick={() => setIsEditingName(true)}
-                        />
-                      )}
-                    </Col>
-                  </Row>
-                )}
+                    <Row>
+                      <Col className="d-flex flex-center flex-column">
+                        <h6 className="m-0">{cutName}</h6>
+                      </Col>
+                      <Col xs="auto">
+                        {isCatAdmin && (
+                          <IconButton
+                            tooltip="Edit PDF section name"
+                            size="sm"
+                            icon="EDIT"
+                            onClick={() => setIsEditingName(true)}
+                          />
+                        )}
+                      </Col>
+                    </Row>
+                  )}
               </CardFooter>
             </NameCard>
           )}
@@ -278,67 +272,66 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                 {data === undefined ? (
                   <ThreeButtons center={<Spinner />} />
                 ) : (
-                  <>
-                    <ThreeButtons
-                      left={
-                        isBeingMoved ? (
-                          <Button size="sm" onClick={onCancelMove}>
-                            Cancel
-                          </Button>
-                        ) : (
-                          (data.answers.length === 0 || !hidden) &&
-                          data && (
-                            <AddButton
-                              allowAnswer={data.allow_new_answer}
-                              allowLegacyAnswer={
-                                data.allow_new_legacy_answer && isCatAdmin
-                              }
-                              hasAnswerDraft={hasDraft}
-                              hasLegacyAnswerDraft={hasLegacyDraft}
-                              onAnswer={onAddAnswer}
-                              onLegacyAnswer={onAddLegacyAnswer}
-                              smallDisplay={isSmallDisplay}
-                            />
+                    <>
+                      <ThreeButtons
+                        left={
+                          isBeingMoved ? (
+                            <Button size="sm" onClick={onCancelMove}>
+                              Cancel
+                            </Button>
+                          ) : (
+                              (data.answers.length === 0 || !hidden) &&
+                              data && (
+                                <AddButton
+                                  allowAnswer={data.allow_new_answer}
+                                  allowLegacyAnswer={
+                                    data.allow_new_legacy_answer && isCatAdmin
+                                  }
+                                  hasAnswerDraft={hasDraft}
+                                  hasLegacyAnswerDraft={hasLegacyDraft}
+                                  onAnswer={onAddAnswer}
+                                  onLegacyAnswer={onAddLegacyAnswer}
+                                />
+                              )
+                            )
+                        }
+                        center={
+                          !isBeingMoved &&
+                          data.answers.length > 0 && (
+                            <Button
+                              color="primary"
+                              size="sm"
+                              onClick={onToggleHidden}
+                              block={isSmallDisplay}
+                            >
+                              {isSmallDisplay && isCatAdmin
+                                ? hidden
+                                  ? "Show"
+                                  : "Hide"
+                                : hidden
+                                  ? "Show Answers"
+                                  : "Hide Answers"}
+                            </Button>
                           )
-                        )
-                      }
-                      center={
-                        !isBeingMoved &&
-                        data.answers.length > 0 && (
-                          <Button
-                            color="primary"
-                            size="sm"
-                            onClick={onToggleHidden}
-                            block={isSmallDisplay}
-                          >
-                            {isSmallDisplay && isCatAdmin
-                              ? hidden
-                                ? "Show"
-                                : "Hide"
-                              : hidden
-                              ? "Show Answers"
-                              : "Hide Answers"}
-                          </Button>
-                        )
-                      }
-                      right={
-                        isCatAdmin && (
-                          <UncontrolledDropdown>
-                            <DropdownToggle caret size="sm">
-                              <Icon icon={ICONS.DOTS_H} size={18} />
-                            </DropdownToggle>
-                            <DropdownMenu>
-                              <DropdownItem onClick={runRemoveSplit}>
-                                Delete
+                        }
+                        right={
+                          isCatAdmin && (
+                            <UncontrolledDropdown>
+                              <DropdownToggle caret size="sm">
+                                <Icon icon={ICONS.DOTS_H} size={18} />
+                              </DropdownToggle>
+                              <DropdownMenu>
+                                <DropdownItem onClick={runRemoveSplit}>
+                                  Delete
                               </DropdownItem>
-                              <DropdownItem onClick={onMove}>Move</DropdownItem>
-                            </DropdownMenu>
-                          </UncontrolledDropdown>
-                        )
-                      }
-                    />
-                  </>
-                )}
+                                <DropdownItem onClick={onMove}>Move</DropdownItem>
+                              </DropdownMenu>
+                            </UncontrolledDropdown>
+                          )
+                        }
+                      />
+                    </>
+                  )}
               </div>
             </CardHeader>
           </AnswerSectionButtonWrapper>
