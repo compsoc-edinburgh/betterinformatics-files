@@ -25,6 +25,7 @@ import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
 import useLoad from "../hooks/useLoad";
+import useIsSmallDisplay from "../hooks/useIsSmallDisplay";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
@@ -45,6 +46,7 @@ interface AddButtonProps {
   allowLegacyAnswer: boolean;
   hasAnswerDraft: boolean;
   hasLegacyAnswerDraft: boolean;
+  smallDisplay: boolean;
   onAnswer: () => void;
   onLegacyAnswer: () => void;
 }
@@ -53,6 +55,7 @@ const AddButton: React.FC<AddButtonProps> = ({
   allowLegacyAnswer,
   hasAnswerDraft,
   hasLegacyAnswerDraft,
+  smallDisplay,
   onAnswer,
   onLegacyAnswer,
 }) => {
@@ -72,7 +75,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            Add Legacy Answer
+            {smallDisplay ? "Add Legacy" : "Add Legacy Answer"}
           </DropdownItem>
         </DropdownMenu>
       </ButtonDropdown>
@@ -91,7 +94,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            Add Legacy Answer
+            {smallDisplay ? "Add Legacy" : "Add Legacy Answer"}
           </Button>
         )}
       </ButtonGroup>
@@ -173,6 +176,12 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     }, [hidden, onToggleHidden]);
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
+    const isSmallDisplay = useIsSmallDisplay();
+    // const [isSmallDisplay, setSmallDisplay] = useState(false);
+    // useEffect(() => {
+    //   console.log(window.innerWidth < 450);
+    //   setSmallDisplay(window.innerWidth < 450);
+    // }, [window.innerWidth]);
 
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
@@ -288,6 +297,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               hasLegacyAnswerDraft={hasLegacyDraft}
                               onAnswer={onAddAnswer}
                               onLegacyAnswer={onAddLegacyAnswer}
+                              smallDisplay={isSmallDisplay}
                             />
                           )
                         )
@@ -299,8 +309,15 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             color="primary"
                             size="sm"
                             onClick={onToggleHidden}
+                            block={isSmallDisplay}
                           >
-                            {hidden ? "Show Answers" : "Hide Answers"}
+                            {isSmallDisplay && isCatAdmin
+                              ? hidden
+                                ? "Show"
+                                : "Hide"
+                              : hidden
+                              ? "Show Answers"
+                              : "Hide Answers"}
                           </Button>
                         )
                       }
