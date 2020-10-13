@@ -24,37 +24,31 @@ def get_answer(request, long_id):
 def set_answer(request, oid):
     section = get_object_or_404(AnswerSection, pk=oid)
     legacy_answer = request.POST["legacy_answer"] != "false"
-    if legacy_answer:
-        if not auth_check.has_admin_rights_for_exam(request, section.exam):
-            return response.not_allowed()
-        changed = Answer.objects.filter(
-            answer_section=section, is_legacy_answer=True
-        ).update(text=request.POST["text"], edittime=timezone.now())
-        # If nothing changed after executing the above query we should be able
-        # to safely assume that there is no legacy answer for that answer_section
-        # because we are changing the edittime which always changes. We therefore
-        # create a new answer here
-        if changed == 0:
-            obj = Answer(
-                answer_section=section,
-                author=request.user,
-                is_legacy_answer=True,
-                text=request.POST["text"],
-                edittime=timezone.now(),
-            )
-            obj.save()
+    text = request.POST["text"]
+
+    if legacy_answer and not auth_check.has_admin_rights_for_exam(
+        request, section.exam
+    ):
+        return response.not_allowed()
+    where = {"answer_section": section, "is_legacy_answer": legacy_answer}
+
+    if not legacy_answer:
+        where["author"] = request.user
+
+    answer, created = None, False
+    if not text:
+        Answer.objects.filter(*where).delete()
     else:
-        answer, created = Answer.objects.get_or_create(
-            answer_section=section, author=request.user, is_legacy_answer=False
-        )
-        if created:
-            answer.upvotes.add(request.user)
-            notification_util.new_answer_to_answer(answer)
-        answer.text = request.POST["text"]
-        answer.edittime = timezone.now()
-        answer.save()
-        if not answer.text:
-            answer.delete()
+        defaults = {
+            "author": request.user,
+            "text": text,
+            "edittime": timezone.now(),
+        }
+        answer, created = Answer.objects.update_or_create(**where, defaults=defaults)
+    if created and not legacy_answer:
+        answer.upvotes.add(request.user)
+        notification_util.new_answer_to_answer(answer)
+
     section_util.increase_section_version(section)
     return response.success(
         value=section_util.get_answersection_response(request, section)
