@@ -1,14 +1,13 @@
-import { update } from "lodash";
 import { useState, useEffect } from "react";
 
 const useIsSmallDisplay = () => {
-  const [smallDisplay, setSmallDisplay] = useState(false);
+  const isSmall = window.innerWidth <= 450;
+  const [smallDisplay, setSmallDisplay] = useState(isSmall);
 
   useEffect(() => {
     const updateWindowSize = () => {
-      setSmallDisplay(window.innerWidth <= 450);
+      setSmallDisplay(isSmall);
     };
-    updateWindowSize();
 
     window.addEventListener("resize", updateWindowSize);
     return () => {
