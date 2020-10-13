@@ -215,22 +215,22 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                     </InputGroupButtonDropdown>
                   </InputGroup>
                 ) : (
-                    <Row>
-                      <Col className="d-flex flex-center flex-column">
-                        <h6 className="m-0">{cutName}</h6>
-                      </Col>
-                      <Col xs="auto">
-                        {isCatAdmin && (
-                          <IconButton
-                            tooltip="Edit PDF section name"
-                            size="sm"
-                            icon="EDIT"
-                            onClick={() => setIsEditingName(true)}
-                          />
-                        )}
-                      </Col>
-                    </Row>
-                  )}
+                  <Row>
+                    <Col className="d-flex flex-center flex-column">
+                      <h6 className="m-0">{cutName}</h6>
+                    </Col>
+                    <Col xs="auto">
+                      {isCatAdmin && (
+                        <IconButton
+                          tooltip="Edit PDF section name"
+                          size="sm"
+                          icon="EDIT"
+                          onClick={() => setIsEditingName(true)}
+                        />
+                      )}
+                    </Col>
+                  </Row>
+                )}
               </CardFooter>
             </NameCard>
           )}
@@ -272,66 +272,66 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                 {data === undefined ? (
                   <ThreeButtons center={<Spinner />} />
                 ) : (
-                    <>
-                      <ThreeButtons
-                        left={
-                          isBeingMoved ? (
-                            <Button size="sm" onClick={onCancelMove}>
-                              Cancel
-                            </Button>
-                          ) : (
-                              (data.answers.length === 0 || !hidden) &&
-                              data && (
-                                <AddButton
-                                  allowAnswer={data.allow_new_answer}
-                                  allowLegacyAnswer={
-                                    data.allow_new_legacy_answer && isCatAdmin
-                                  }
-                                  hasAnswerDraft={hasDraft}
-                                  hasLegacyAnswerDraft={hasLegacyDraft}
-                                  onAnswer={onAddAnswer}
-                                  onLegacyAnswer={onAddLegacyAnswer}
-                                />
-                              )
-                            )
-                        }
-                        center={
-                          !isBeingMoved &&
-                          data.answers.length > 0 && (
-                            <Button
-                              color="primary"
-                              size="sm"
-                              onClick={onToggleHidden}
-                              block={isSmallDisplay}
-                            >
-                              {isSmallDisplay && isCatAdmin
-                                ? hidden
-                                  ? "Show"
-                                  : "Hide"
-                                : hidden
-                                  ? "Show Answers"
-                                  : "Hide Answers"}
-                            </Button>
+                  <>
+                    <ThreeButtons
+                      left={
+                        isBeingMoved ? (
+                          <Button size="sm" onClick={onCancelMove}>
+                            Cancel
+                          </Button>
+                        ) : (
+                          (data.answers.length === 0 || !hidden) &&
+                          data && (
+                            <AddButton
+                              allowAnswer={data.allow_new_answer}
+                              allowLegacyAnswer={
+                                data.allow_new_legacy_answer && isCatAdmin
+                              }
+                              hasAnswerDraft={hasDraft}
+                              hasLegacyAnswerDraft={hasLegacyDraft}
+                              onAnswer={onAddAnswer}
+                              onLegacyAnswer={onAddLegacyAnswer}
+                            />
                           )
-                        }
-                        right={
-                          isCatAdmin && (
-                            <UncontrolledDropdown>
-                              <DropdownToggle caret size="sm">
-                                <Icon icon={ICONS.DOTS_H} size={18} />
-                              </DropdownToggle>
-                              <DropdownMenu>
-                                <DropdownItem onClick={runRemoveSplit}>
-                                  Delete
+                        )
+                      }
+                      center={
+                        !isBeingMoved &&
+                        data.answers.length > 0 && (
+                          <Button
+                            color="primary"
+                            size="sm"
+                            onClick={onToggleHidden}
+                            block={isSmallDisplay}
+                          >
+                            {isSmallDisplay && isCatAdmin
+                              ? hidden
+                                ? "Show"
+                                : "Hide"
+                              : hidden
+                              ? "Show Answers"
+                              : "Hide Answers"}
+                          </Button>
+                        )
+                      }
+                      right={
+                        isCatAdmin && (
+                          <UncontrolledDropdown>
+                            <DropdownToggle caret size="sm">
+                              <Icon icon={ICONS.DOTS_H} size={18} />
+                            </DropdownToggle>
+                            <DropdownMenu>
+                              <DropdownItem onClick={runRemoveSplit}>
+                                Delete
                               </DropdownItem>
-                                <DropdownItem onClick={onMove}>Move</DropdownItem>
-                              </DropdownMenu>
-                            </UncontrolledDropdown>
-                          )
-                        }
-                      />
-                    </>
-                  )}
+                              <DropdownItem onClick={onMove}>Move</DropdownItem>
+                            </DropdownMenu>
+                          </UncontrolledDropdown>
+                        )
+                      }
+                    />
+                  </>
+                )}
               </div>
             </CardHeader>
           </AnswerSectionButtonWrapper>
