@@ -13,6 +13,18 @@ from myauth.models import MyUser
 from notifications.models import NotificationSetting, NotificationType
 
 
+def generate_unique_username(preferred_username):
+    def exists(username):
+        return MyUser.objects.filter(username=username).exists()
+
+    if not exists(preferred_username):
+        return preferred_username
+    suffix = 0
+    while exists(preferred_username + str(suffix)):
+        suffix += 1
+    return preferred_username + str(suffix)
+
+
 def add_auth(request):
     request.user = None
     headers = request.headers
@@ -32,12 +44,13 @@ def add_auth(request):
         )
         request.decoded_token = decoded
 
-        username = decoded["preferred_username"]
+        preferred_username = decoded["preferred_username"]
+        sub = decoded["sub"]
         roles = decoded["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
         request.roles = roles
 
         try:
-            user = MyUser.objects.get(username=username)
+            user = MyUser.objects.get(password=sub)
             request.user = user
             changed = False
 
@@ -52,9 +65,10 @@ def add_auth(request):
             if changed:
                 user.save()
         except MyUser.DoesNotExist:
-            user = MyUser(username=username)
+            user = MyUser(password=sub)
             user.first_name = decoded["given_name"]
             user.last_name = decoded["family_name"]
+            user.username = generate_unique_username(preferred_username)
             user.save()
             request.user = user
 
