@@ -28,7 +28,7 @@ def generate_unique_username(preferred_username):
 def add_auth(request):
     request.user = None
     headers = request.headers
-    request.simulate_nonadmin = "X-SimulateNonAdmin" in headers
+    request.simulate_nonadmin = "SimulateNonAdmin" in headers
     if "Authorization" in headers:
         auth = headers["Authorization"]
         if not auth.startswith("Bearer "):
