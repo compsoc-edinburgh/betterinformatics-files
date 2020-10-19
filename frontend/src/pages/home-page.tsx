@@ -36,10 +36,6 @@ enum Mode {
   Alphabetical,
   BySemester,
 }
-const options = [
-  { value: Mode.Alphabetical.toString(), label: "Alphabetical" },
-  { value: Mode.BySemester.toString(), label: "By Semester" },
-];
 
 const loadCategories = async () => {
   return (await fetchGet("/api/category/listwithmeta/"))
