@@ -11,6 +11,17 @@ from jwt import (
 
 from myauth.models import MyUser, Profile
 from notifications.models import NotificationSetting, NotificationType
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class NoUsernameException(Exception):
+    def __init__(self, givenName, familyName, sub):
+        super().__init__()
+        self.givenName = givenName
+        self.familyName = familyName
+        self.sub = sub
 
 
 def generate_unique_username(preferred_username):
@@ -44,13 +55,20 @@ def add_auth(request):
         )
         request.decoded_token = decoded
 
-        preferred_username = decoded["preferred_username"]
         sub = decoded["sub"]
+        if (
+            not ("preferred_username" in decoded)
+            or len(decoded["preferred_username"]) == 0
+        ):
+            raise NoUsernameException(
+                decoded["given_name"], decoded["family_name"], sub
+            )
+        preferred_username = decoded["preferred_username"]
         roles = decoded["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
         request.roles = roles
 
         try:
-            user = Profile.objects.get(sub=sub).user
+            user = MyUser.objects.get(profile__sub=sub)
             request.user = user
             changed = False
 
@@ -64,7 +82,7 @@ def add_auth(request):
 
             if changed:
                 user.save()
-        except Profile.DoesNotExist:
+        except MyUser.DoesNotExist:
             user = MyUser()
             user.first_name = decoded["given_name"]
             user.last_name = decoded["family_name"]
@@ -102,6 +120,15 @@ def AuthenticationMiddleware(get_response):
             raise PermissionDenied
 
         except InvalidAlgorithmError:
+            raise PermissionDenied
+
+        except NoUsernameException as err:
+            logger.warning(
+                "received jwt without preferred_username set: givenName: %s, familyName: %s, sub: %s",
+                err.givenName,
+                err.familyName,
+                err.sub,
+            )
             raise PermissionDenied
 
         response = get_response(request)
