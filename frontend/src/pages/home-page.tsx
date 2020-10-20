@@ -29,15 +29,13 @@ import TooltipButton from "../components/TooltipButton";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 import { loadMetaCategories } from "../api/hooks";
+import useSearch from "../hooks/useSearch";
+import Fuse from "fuse.js";
 
 enum Mode {
   Alphabetical,
   BySemester,
 }
-const options = [
-  { value: Mode.Alphabetical.toString(), label: "Alphabetical" },
-  { value: Mode.BySemester.toString(), label: "By Semester" },
-];
 
 const loadCategories = async () => {
   return (await fetchGet("/api/category/listwithmeta/"))
@@ -58,14 +56,21 @@ const addCategory = async (category: string) => {
 };
 
 const mapToCategories = (
-  categories: CategoryMetaData[],
+  categories: Fuse.FuseResult<CategoryMetaData>[],
   meta1: MetaCategory[],
 ) => {
-  const categoryMap = new Map<string, CategoryMetaData>();
-  for (const category of categories) categoryMap.set(category.slug, category);
-  const meta1Map: Map<string, Array<[string, CategoryMetaData[]]>> = new Map();
+  const categoryMap = new Map<string, Fuse.FuseResult<CategoryMetaData>>();
+  for (const category of categories)
+    categoryMap.set(category.item.slug, category);
+  const meta1Map: Map<
+    string,
+    Array<[string, Fuse.FuseResult<CategoryMetaData>[]]>
+  > = new Map();
   for (const { displayname: meta1display, meta2 } of meta1) {
-    const meta2Map: Map<string, CategoryMetaData[]> = new Map();
+    const meta2Map: Map<
+      string,
+      Fuse.FuseResult<CategoryMetaData>[]
+    > = new Map();
     for (const {
       displayname: meta2display,
       categories: categoryNames,
@@ -155,23 +160,21 @@ const HomePage: React.FC<{}> = () => {
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
-  const filteredCategories = useMemo(
-    () =>
-      categories
-        ? categories.filter(({ displayname }) =>
-            displayname
-              .toLocaleLowerCase()
-              .includes(filter.toLocaleLowerCase()),
-          )
-        : undefined,
-    [filter, categories],
+  const searchResult = useSearch(
+    categories ?? [],
+    {
+      includeScore: true,
+      includeMatches: true,
+      keys: ["displayname", "slug"],
+    },
+    filter.length ? filter : undefined,
   );
   const filteredMetaCategories = useMemo(
     () =>
-      filteredCategories && metaCategories
-        ? mapToCategories(filteredCategories, metaCategories)
+      metaCategories
+        ? mapToCategories(searchResult, metaCategories)
         : undefined,
-    [filteredCategories, metaCategories],
+    [searchResult, metaCategories],
   );
 
   const onAddCategory = useCallback(() => {
@@ -230,10 +233,9 @@ const HomePage: React.FC<{}> = () => {
           ) : mode === Mode.Alphabetical ? (
             <>
               <Grid>
-                {filteredCategories &&
-                  filteredCategories.map(category => (
-                    <CategoryCard category={category} key={category.slug} />
-                  ))}
+                {searchResult.map(category => (
+                  <CategoryCard category={category} key={category.item.slug} />
+                ))}
                 {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
               </Grid>
             </>
@@ -250,7 +252,7 @@ const HomePage: React.FC<{}> = () => {
                           {categories.map(category => (
                             <CategoryCard
                               category={category}
-                              key={category.slug}
+                              key={category.item.slug}
                             />
                           ))}
                         </Grid>
