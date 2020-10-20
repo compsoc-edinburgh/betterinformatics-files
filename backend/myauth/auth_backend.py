@@ -9,7 +9,7 @@ from jwt import (
     InvalidAlgorithmError,
 )
 
-from myauth.models import MyUser
+from myauth.models import MyUser, Profile
 from notifications.models import NotificationSetting, NotificationType
 
 
@@ -50,7 +50,7 @@ def add_auth(request):
         request.roles = roles
 
         try:
-            user = MyUser.objects.get(password=sub)
+            user = Profile.objects.get(sub=sub).user
             request.user = user
             changed = False
 
@@ -64,12 +64,16 @@ def add_auth(request):
 
             if changed:
                 user.save()
-        except MyUser.DoesNotExist:
-            user = MyUser(password=sub)
+        except Profile.DoesNotExist:
+            user = MyUser()
             user.first_name = decoded["given_name"]
             user.last_name = decoded["family_name"]
             user.username = generate_unique_username(preferred_username)
             user.save()
+
+            profile = Profile(user=user, sub=sub)
+            profile.save()
+
             request.user = user
 
             for type_ in [
