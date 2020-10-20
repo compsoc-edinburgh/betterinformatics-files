@@ -1,5 +1,6 @@
 from testing.tests import ComsolTest, get_token
 from jwt import encode
+import logging
 
 invalid_key = open("myauth/invalid.key", "rb").read()
 private_key = open("testing/jwtRS256.key", "rb").read()
@@ -167,9 +168,11 @@ class TestAuth(ComsolTest):
                 "displayname": "Jonas Schneider",
             }
         )
+        logging.disable(logging.CRITICAL)
         response = self.client.get(
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
         )
+        logging.disable(logging.NOTSET)
         self.assertEqual(response.status_code, 403)
 
     def test_no_preferred_username(self):
@@ -177,7 +180,7 @@ class TestAuth(ComsolTest):
             {
                 "sub": "12-42-13-90",
                 "resource_access": {"group": {"roles": ["admin"]}},
-                "scope": "openid profile",
+            cloc    "scope": "openid profile",
                 "website": "https://www.vis.ethz.ch",
                 "name": "A B",
                 "given_name": "Given",
@@ -187,7 +190,9 @@ class TestAuth(ComsolTest):
             algorithm="RS256",
         )
         token = "Bearer " + encoded.decode("utf-8")
+        logging.disable(logging.CRITICAL)
         response = self.client.get(
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
         )
+        logging.disable(logging.NOTSET)
         self.assertEqual(response.status_code, 403)
