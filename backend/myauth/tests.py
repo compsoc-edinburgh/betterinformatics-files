@@ -180,7 +180,7 @@ class TestAuth(ComsolTest):
             {
                 "sub": "12-42-13-90",
                 "resource_access": {"group": {"roles": ["admin"]}},
-            cloc    "scope": "openid profile",
+                "scope": "openid profile",
                 "website": "https://www.vis.ethz.ch",
                 "name": "A B",
                 "given_name": "Given",
