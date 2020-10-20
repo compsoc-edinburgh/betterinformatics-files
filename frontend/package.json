@@ -23,6 +23,7 @@
     "@vseth/components": "2.0.0-alpha.1",
     "date-fns": "^2.15.0",
     "emotion": "^10.0.27",
+    "fuse.js": "^6.4.1",
     "katex": "^0.10.0",
     "keycloak-js": "^11.0.1",
     "lodash": "^4.17.5",
