@@ -23,6 +23,6 @@ class MyUser(User):
 
 class Profile(models.Model):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile"
+        MyUser, on_delete=models.CASCADE, related_name="profile"
     )
     sub = models.CharField(max_length=256, primary_key=True)
