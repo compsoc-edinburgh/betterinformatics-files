@@ -21,9 +21,11 @@ export const processMatch = (
   value: string,
 ): Array<[string, boolean]> => {
   if (m === undefined) return [[value, false]];
+  const a = [...m];
+  a.sort(([a], [b]) => a - b);
   const res: Array<[string, boolean]> = [];
   let last = 0;
-  for (const [start, end] of m) {
+  for (const [start, end] of a) {
     if (start > last) res.push([value.substring(last, start), false]);
     res.push([value.substring(start, end + 1), true]);
     last = end + 1;
