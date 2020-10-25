@@ -169,6 +169,7 @@ const HomePage: React.FC<{}> = () => {
       keys: ["displayname"],
       minMatchCharLength: 2,
       useExtendedSearch: true,
+      ignoreLocation: true,
       threshold: 0.2,
     },
     debouncedFilter.length ? debouncedFilter : undefined,
