@@ -9,6 +9,7 @@ import { css } from "emotion";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import { ImageHandle } from "./utils/types";
+import useIsSmallDisplay from "../../hooks/useIsSmallDisplay";
 
 const rowStyle = css`
   text-align: right;
@@ -54,6 +55,7 @@ const EditorFooter: React.FC<Props> = ({
     [onFiles],
   );
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const isSmallDisplay = useIsSmallDisplay();
   const toggleHelp = useCallback(() => setIsHelpOpen(prev => !prev), []);
   return (
     <div>
@@ -62,9 +64,13 @@ const EditorFooter: React.FC<Props> = ({
           <Button size="sm" onClick={toggleHelp}>
             Help
           </Button>
-          <Button size="sm" onClick={onOpenOverlay}>
-            Browse Images
-          </Button>
+          {
+            !isSmallDisplay ?
+              <Button size="sm" onClick={onOpenOverlay}>
+                Browse Images
+              </Button>
+              : null
+          }
           <Button size="sm" onClick={onFile}>
             Add Image
           </Button>
