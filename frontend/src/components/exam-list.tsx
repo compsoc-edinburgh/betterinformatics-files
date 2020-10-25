@@ -12,6 +12,7 @@ import {
 import ExamTypeSection from "./exam-type-section";
 import IconButton from "./icon-button";
 import useSet from "../hooks/useSet";
+import useIsSmallDisplay from "../hooks/useIsSmallDisplay";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -23,6 +24,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   );
   const [filter, setFilter] = useState("");
   const { isCategoryAdmin } = useUser()!;
+  const isSmallDisplay = useIsSmallDisplay();
   const viewableExams = useMemo(
     () =>
       data &&
@@ -40,8 +42,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   return (
     <>
       <Row>
-        <Col lg={12} className="d-flex flex-row flex-between px-2">
-          <FormGroup className="m-0">
+        {/* <Col lg={12} className="d-flex flex-row flex-between px-2"> */}
+        <Col lg={12} className={ isSmallDisplay ? "d-flex flex-column" : "d-flex flex-row flex-between px-2"}>
+          <FormGroup className="m-1">
             <IconButton
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(selected)}
@@ -51,7 +54,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               Download selected exams
             </IconButton>
           </FormGroup>
-          <FormGroup className="m-0 ml-2">
+          <FormGroup className="m-1">
             <div className="search mb-0">
               <input
                 type="text"
