@@ -72,7 +72,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         if (result.type === "exam") {
           return (
             <div className="px-2" key={`exam-${result.filename}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2">
+              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
                 <Row>
                   <Col
                     xs="auto"
@@ -129,7 +129,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else if (result.type === "answer") {
           return (
             <div className="px-2" key={`answer-${result.long_id}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2">
+              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
                 <Row>
                   <Col
                     xs="auto"
@@ -170,7 +170,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else {
           return (
             <div className="px-2" key={`comment-${result.long_id}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2">
+              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
                 <Row>
                   <Col
                     xs="auto"
