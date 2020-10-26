@@ -21,14 +21,23 @@ export const processMatch = (
   value: string,
 ): Array<[string, boolean]> => {
   if (m === undefined) return [[value, false]];
-  const res: Array<[string, boolean]> = [];
-  let last = 0;
+  const s = new Set<number>();
   for (const [start, end] of m) {
-    if (start > last) res.push([value.substring(last, start), false]);
-    res.push([value.substring(start, end + 1), true]);
-    last = end + 1;
+    for (let i = start; i <= end; i++) {
+      s.add(i);
+    }
   }
-  if (value.length > last)
-    res.push([value.substring(last, value.length), false]);
+  const res: Array<[string, boolean]> = [];
+  let index = 0;
+  while (index < value.length) {
+    const matches = s.has(index);
+    let substr = value[index];
+    index++;
+    while (s.has(index) === matches && index < value.length) {
+      substr += value[index];
+      index++;
+    }
+    res.push([substr, matches]);
+  }
   return res;
 };
