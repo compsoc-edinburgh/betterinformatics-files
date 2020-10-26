@@ -1,5 +1,3 @@
-import logging
-
 from django.conf import settings
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from jwt import (
@@ -11,30 +9,66 @@ from jwt import (
     InvalidAlgorithmError,
 )
 
-from myauth.models import MyUser
+from myauth.models import MyUser, Profile
 from notifications.models import NotificationSetting, NotificationType
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class NoUsernameException(Exception):
+    def __init__(self, givenName, familyName, sub):
+        super().__init__()
+        self.givenName = givenName
+        self.familyName = familyName
+        self.sub = sub
+
+
+def generate_unique_username(preferred_username):
+    def exists(username):
+        return MyUser.objects.filter(username=username).exists()
+
+    if not exists(preferred_username):
+        return preferred_username
+    suffix = 0
+    while exists(preferred_username + str(suffix)):
+        suffix += 1
+    return preferred_username + str(suffix)
 
 
 def add_auth(request):
     request.user = None
     headers = request.headers
-    request.simulate_nonadmin = "Simulatenonadmin" in headers
+    request.simulate_nonadmin = "SimulateNonAdmin" in headers
     if "Authorization" in headers:
         auth = headers["Authorization"]
         if not auth.startswith("Bearer "):
             return None
+        # auth.split(" ") is guaranteed to have at least two elements because
+        # auth starts with "Bearer "
         encoded = auth.split(" ")[1]
         decoded = decode(
-            encoded, settings.JWT_PUBLIC_KEY, verify=settings.JWT_VERIFY_SIGNATURE
+            encoded,
+            settings.JWT_PUBLIC_KEY,
+            verify=settings.JWT_VERIFY_SIGNATURE,
+            algorithms=["RS256"],
         )
         request.decoded_token = decoded
 
-        username = decoded["preferred_username"]
+        sub = decoded["sub"]
+        if (
+            not ("preferred_username" in decoded)
+            or len(decoded["preferred_username"]) == 0
+        ):
+            raise NoUsernameException(
+                decoded["given_name"], decoded["family_name"], sub
+            )
+        preferred_username = decoded["preferred_username"]
         roles = decoded["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
         request.roles = roles
 
         try:
-            user = MyUser.objects.get(username=username)
+            user = MyUser.objects.get(profile__sub=sub)
             request.user = user
             changed = False
 
@@ -49,10 +83,14 @@ def add_auth(request):
             if changed:
                 user.save()
         except MyUser.DoesNotExist:
-            user = MyUser(username=username)
+            user = MyUser()
             user.first_name = decoded["given_name"]
             user.last_name = decoded["family_name"]
+            user.username = generate_unique_username(preferred_username)
             user.save()
+
+            profile = Profile.objects.create(user=user, sub=sub)
+
             request.user = user
 
             for type_ in [
@@ -81,6 +119,15 @@ def AuthenticationMiddleware(get_response):
             raise PermissionDenied
 
         except InvalidAlgorithmError:
+            raise PermissionDenied
+
+        except NoUsernameException as err:
+            logger.warning(
+                "received jwt without preferred_username set: givenName: %s, familyName: %s, sub: %s",
+                err.givenName,
+                err.familyName,
+                err.sub,
+            )
             raise PermissionDenied
 
         response = get_response(request)

@@ -1,7 +1,9 @@
-from testing.tests import ComsolTest
+from testing.tests import ComsolTest, get_token
 from jwt import encode
+import logging
 
 invalid_key = open("myauth/invalid.key", "rb").read()
+private_key = open("testing/jwtRS256.key", "rb").read()
 
 
 class TestMyAuthAdmin(ComsolTest):
@@ -71,13 +73,15 @@ class TestJWT(ComsolTest):
 
     def test_token_with_wrong_key(self):
         user = self.loginUsers[0]
-        username = user["username"]
+        sub = user["sub"] + "42"
+        username = user["username"] + "42"
         given_name = user["given_name"]
         family_name = user["family_name"]
         admin = user["admin"]
         roles = ["admin"] if admin else []
         encoded = encode(
             {
+                "sub": sub,
                 "resource_access": {"group": {"roles": roles}},
                 "scope": "openid profile",
                 "website": "https://www.vis.ethz.ch",
@@ -93,4 +97,102 @@ class TestJWT(ComsolTest):
         response = self.client.get(
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
         )
+        self.assertEqual(response.status_code, 403)
+
+    def test_token_with_wrong_algorithm(self):
+        user = self.loginUsers[0]
+        sub = user["sub"] + "42"
+        username = user["username"] + "42"
+        given_name = user["given_name"]
+        family_name = user["family_name"]
+        admin = user["admin"]
+        roles = ["admin"] if admin else []
+        encoded = encode(
+            {
+                "sub": sub,
+                "resource_access": {"group": {"roles": roles}},
+                "scope": "openid profile",
+                "website": "https://www.vis.ethz.ch",
+                "name": given_name + " " + family_name,
+                "preferred_username": username,
+                "given_name": given_name,
+                "family_name": family_name,
+            },
+            private_key,
+            algorithm="PS256",
+        )
+        token = "Bearer " + encoded.decode("utf-8")
+        response = self.client.get(
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_correct_token(self):
+        user = self.loginUsers[0]
+        sub = user["sub"] + "42"
+        username = user["username"] + "42"
+        given_name = user["given_name"]
+        family_name = user["family_name"]
+        admin = user["admin"]
+        roles = ["admin"] if admin else []
+        encoded = encode(
+            {
+                "sub": sub,
+                "resource_access": {"group": {"roles": roles}},
+                "scope": "openid profile",
+                "website": "https://www.vis.ethz.ch",
+                "name": given_name + " " + family_name,
+                "preferred_username": username,
+                "given_name": given_name,
+                "family_name": family_name,
+            },
+            private_key,
+            algorithm="RS256",
+        )
+        token = "Bearer " + encoded.decode("utf-8")
+        response = self.client.get(
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+        )
+        self.assertEqual(response.status_code, 200)
+
+
+class TestAuth(ComsolTest):
+    def test_empty_preferred_username(self):
+        token = get_token(
+            {
+                "sub": "42",
+                "username": "",
+                "given_name": "Jonas",
+                "family_name": "Schneider",
+                "admin": True,
+                "displayname": "Jonas Schneider",
+            }
+        )
+        logging.disable(logging.CRITICAL)
+        response = self.client.get(
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+        )
+        logging.disable(logging.NOTSET)
+        self.assertEqual(response.status_code, 403)
+
+    def test_no_preferred_username(self):
+        encoded = encode(
+            {
+                "sub": "12-42-13-90",
+                "resource_access": {"group": {"roles": ["admin"]}},
+                "scope": "openid profile",
+                "website": "https://www.vis.ethz.ch",
+                "name": "A B",
+                "given_name": "Given",
+                "family_name": "Family",
+            },
+            private_key,
+            algorithm="RS256",
+        )
+        token = "Bearer " + encoded.decode("utf-8")
+        logging.disable(logging.CRITICAL)
+        response = self.client.get(
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+        )
+        logging.disable(logging.NOTSET)
         self.assertEqual(response.status_code, 403)

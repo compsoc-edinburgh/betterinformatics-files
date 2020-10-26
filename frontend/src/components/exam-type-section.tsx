@@ -156,21 +156,22 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       oral
                     </Badge>
                   )}
-                  {exam.finished_cuts ? (
-                    exam.finished_wiki_transfer ? (
-                      <Badge className={badgeStyle} color="success">
-                        All done
-                      </Badge>
+                  {catAdmin &&
+                    (exam.finished_cuts ? (
+                      exam.finished_wiki_transfer ? (
+                        <Badge className={badgeStyle} color="success">
+                          All done
+                        </Badge>
+                      ) : (
+                        <Badge className={badgeStyle} color="info">
+                          Needs Wiki Import
+                        </Badge>
+                      )
                     ) : (
-                      <Badge className={badgeStyle} color="info">
-                        Needs Wiki Import
+                      <Badge className={badgeStyle} color="warning">
+                        Needs Cuts
                       </Badge>
-                    )
-                  ) : (
-                    <Badge className={badgeStyle} color="warning">
-                      Needs Cuts
-                    </Badge>
-                  )}
+                    ))}
 
                   {exam.remark && (
                     <Badge className={badgeStyle} color="dark">

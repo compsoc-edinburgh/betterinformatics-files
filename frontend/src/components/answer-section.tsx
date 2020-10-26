@@ -25,6 +25,7 @@ import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
 import useLoad from "../hooks/useLoad";
+import useIsSmallDisplay from "../hooks/useIsSmallDisplay";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
@@ -56,6 +57,7 @@ const AddButton: React.FC<AddButtonProps> = ({
   onAnswer,
   onLegacyAnswer,
 }) => {
+  const isSmallDisplay = useIsSmallDisplay();
   const [isOpen, setOpen] = useState(false);
   const toggle = useCallback(() => setOpen(old => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
@@ -72,7 +74,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            Add Legacy Answer
+            {isSmallDisplay ? "Add Legacy" : "Add Legacy Answer"}
           </DropdownItem>
         </DropdownMenu>
       </ButtonDropdown>
@@ -91,7 +93,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            Add Legacy Answer
+            {isSmallDisplay ? "Add Legacy" : "Add Legacy Answer"}
           </Button>
         )}
       </ButtonGroup>
@@ -173,6 +175,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     }, [hidden, onToggleHidden]);
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
+    const isSmallDisplay = useIsSmallDisplay();
 
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
@@ -299,8 +302,15 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             color="primary"
                             size="sm"
                             onClick={onToggleHidden}
+                            block={isSmallDisplay}
                           >
-                            {hidden ? "Show Answers" : "Hide Answers"}
+                            {isSmallDisplay && isCatAdmin
+                              ? hidden
+                                ? "Show"
+                                : "Hide"
+                              : hidden
+                              ? "Show Answers"
+                              : "Hide Answers"}
                           </Button>
                         )
                       }

@@ -10,6 +10,7 @@ private_key = open("testing/jwtRS256.key", "rb").read()
 
 
 def get_token(user):
+    sub = user["sub"]
     username = user["username"]
     given_name = user["given_name"]
     family_name = user["family_name"]
@@ -17,6 +18,7 @@ def get_token(user):
     roles = ["admin"] if admin else []
     encoded = encode(
         {
+            "sub": sub,
             "resource_access": {"group": {"roles": roles}},
             "scope": "openid profile",
             "website": "https://www.vis.ethz.ch",
@@ -35,6 +37,7 @@ class ComsolTest(TestCase):
 
     loginUsers = [
         {
+            "sub": "42",
             "username": "schneij",
             "given_name": "Jonas",
             "family_name": "Schneider",
@@ -42,6 +45,7 @@ class ComsolTest(TestCase):
             "displayname": "Jonas Schneider",
         },
         {
+            "sub": "42-1",
             "username": "fletchz",
             "given_name": "Zoe",
             "family_name": "Fletcher",
@@ -49,6 +53,7 @@ class ComsolTest(TestCase):
             "displayname": "Zoe Fletcher",
         },
         {
+            "sub": "42-2",
             "username": "morica",
             "given_name": "Carla",
             "family_name": "Morin",
@@ -159,15 +164,16 @@ class ComsolTestExamData(ComsolTest):
 
     def setUp(self, call_my_setup=True):
         super(ComsolTestExamData, self).setUp(call_my_setup=False)
+        saved = self.user
         for user in self.loginUsers:
-            if user["username"] != self.user["username"]:
-                MyUser(
-                    username=user["username"],
-                    first_name=user["given_name"],
-                    last_name=user["family_name"],
-                ).save()
+            self.user = user
+            self.get("/api/notification/unreadcount/")
+        self.user = saved
 
-        self.category = Category(displayname="Test Category", slug="TestCategory",)
+        self.category = Category(
+            displayname="Test Category",
+            slug="TestCategory",
+        )
         self.category.save()
 
         self.exam = Exam(
@@ -244,7 +250,10 @@ class ComsolTestExamData(ComsolTest):
 class ComsolTestExamsData(ComsolTest):
     def setUp(self, call_my_setup=True):
         super(ComsolTestExamsData, self).setUp(call_my_setup=False)
-        self.category = Category(displayname="Test Category", slug="TestCategory",)
+        self.category = Category(
+            displayname="Test Category",
+            slug="TestCategory",
+        )
         self.category.save()
         self.exams = []
         for i in range(3):
@@ -264,4 +273,3 @@ class ComsolTestExamsData(ComsolTest):
 
         if call_my_setup:
             self.mySetUp()
-
