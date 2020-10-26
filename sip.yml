@@ -20,8 +20,6 @@ auth:
     roles:
       - name: admin
         description: Admin of the application
-      - name: not-admin
-        description: Not-admins of the application
 env:
   - name: "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET"
     secret:
