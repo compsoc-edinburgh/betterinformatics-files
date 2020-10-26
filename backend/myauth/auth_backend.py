@@ -89,8 +89,7 @@ def add_auth(request):
             user.username = generate_unique_username(preferred_username)
             user.save()
 
-            profile = Profile(user=user, sub=sub)
-            profile.save()
+            profile = Profile.objects.create(user=user, sub=sub)
 
             request.user = user
 
