@@ -2,7 +2,7 @@ version: "3"
 services:
   minio:
     image: minio/minio
-    container_name: minio-community-solutions
+    container_name: minio
     environment:
       - MINIO_ACCESS_KEY=minio
       - MINIO_SECRET_KEY=minio123
@@ -19,14 +19,14 @@ services:
       PGADMIN_DEFAULT_PASSWORD: docker
       PGADMIN_LISTEN_PORT: 80
     ports:
-      - "8081:80"
+      - "8082:80"
     volumes:
       - ./data/pgadmin-data:/var/lib/pgadmin
     depends_on:
       - "postgres"
   postgres:
     image: postgres
-    container_name: pg-community-solutions
+    container_name: postgres
     environment:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=docker
@@ -38,17 +38,17 @@ services:
     build: .
     container_name: community-solutions
     ports:
-      - "8080:80"
+      - "8081:80"
     environment:
       - DEPLOYMENT_DOMAIN=localhost
 
-      - SIP_POSTGRES_DB_SERVER=pg-community-solutions
+      - SIP_POSTGRES_DB_SERVER=postgres
       - SIP_POSTGRES_DB_PORT=5432
       - SIP_POSTGRES_DB_NAME=postgres
       - SIP_POSTGRES_DB_USER=docker
       - SIP_POSTGRES_DB_PW=docker
 
-      - SIP_S3_FILES_HOST=minio-community-solutions
+      - SIP_S3_FILES_HOST=minio
       - SIP_S3_FILES_PORT=9000
       - SIP_S3_FILES_ACCESS_KEY=minio
       - SIP_S3_FILES_SECRET_KEY=minio123
@@ -60,8 +60,7 @@ services:
       - RUNTIME_FRONTEND_KEYCLOAK_URL=https://auth.vseth.ethz.ch/auth
       - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
 
-      - SIP_AUTH_OIDC_JWKS={"keys":[{"kid":"zZGDhEQkxAdToDfrwHYriQ2JBbebmLG1y2RWXG3wn_g","kty":"RSA","alg":"RS256","use":"sig","n":"tP-L-6HuC6g_d6xJxjdSgTMYusm9HehmbfB_NKbjKPBVQ7ebnoMuvPDI8MMRsQS4_vx5bdkofxD1qresiCJukBFZoZ25r7_WyPLv09VgaHiwevO-Ygy7pb2aySO9ByDrWTfwj2mN4N80GyNXJbH452vYXNdETPmBpawEp5O4uRs08tqxMYq0C4mWSTnAWZazuijmfA0FXUi7juVUEqtqfJYGMWtj5nEOhjvv3u7uNpMPRjz_pk-Ffb-qQZ6PBymCx-jrBm1ThEtRAeSEauXlxHvsfsCEt8fAr1YUR9Xu_16VbA_phZ5gzSrv8D-wdFdEB4BqvI0PpR1TJHzvdD82JQ","e":"AQAB","x5c":["MIICmTCCAYECBgFp08lypTANBgkqhkiG9w0BAQsFADAQMQ4wDAYDVQQDDAVWU0VUSDAeFw0xOTAzMzExMjQ0NDhaFw0yOTAzMzExMjQ2MjhaMBAxDjAMBgNVBAMMBVZTRVRIMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtP+L+6HuC6g/d6xJxjdSgTMYusm9HehmbfB/NKbjKPBVQ7ebnoMuvPDI8MMRsQS4/vx5bdkofxD1qresiCJukBFZoZ25r7/WyPLv09VgaHiwevO+Ygy7pb2aySO9ByDrWTfwj2mN4N80GyNXJbH452vYXNdETPmBpawEp5O4uRs08tqxMYq0C4mWSTnAWZazuijmfA0FXUi7juVUEqtqfJYGMWtj5nEOhjvv3u7uNpMPRjz/pk+Ffb+qQZ6PBymCx+jrBm1ThEtRAeSEauXlxHvsfsCEt8fAr1YUR9Xu/16VbA/phZ5gzSrv8D+wdFdEB4BqvI0PpR1TJHzvdD82JQIDAQABMA0GCSqGSIb3DQEBCwUAA4IBAQAhoJ5wE1NVzAclV4KTpFpYPLhoxX6urXAM3/r5E/GFyl1lMww1GJtGCwrdNOFlKfZLh00B2jP7tXFgT7byTjuQjzNH6YWVHzR42pyAN9r5O1hUEOBYp8XeOYKxs1vx6sosiGF6zkbSRE7nSQh3L7VtRKAgU1rw4oqSUVMFIXk+gBbmHi+ZpTWUD/lpHRwBN7wLfZ06glkPqfAOBvAnwG8tvrn61iQbZggjRFZAUBNf2+s68oim8VuAxR2AB+WcGwRKBjceMyVVflpOQhm7wE+rpD4EHWVMsYTWbmcwc/DGyAyCMGUR6LZDCJrCXclr8SPegjPLlxy9ymLYG+2QYrei"],"x5t":"v-3hmaHcRvHUU18Dj5MAQC0MB9c","x5t#S256":"ZXWD5GtYyteHUfVXUbhILrNDhj0JzZhwG5GJVWIQHKM"}]}
-      - SIP_AUTH_EXAMS_CLIENT_ID=vis-community-solutions
+      - SIP_AUTH_OIDC_CLIENT_ID=vis-community-solutions
 
       - RUNTIME_JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtP+L+6HuC6g/d6xJxjdSgTMYusm9HehmbfB/NKbjKPBVQ7ebnoMuvPDI8MMRsQS4/vx5bdkofxD1qresiCJukBFZoZ25r7/WyPLv09VgaHiwevO+Ygy7pb2aySO9ByDrWTfwj2mN4N80GyNXJbH452vYXNdETPmBpawEp5O4uRs08tqxMYq0C4mWSTnAWZazuijmfA0FXUi7juVUEqtqfJYGMWtj5nEOhjvv3u7uNpMPRjz/pk+Ffb+qQZ6PBymCx+jrBm1ThEtRAeSEauXlxHvsfsCEt8fAr1YUR9Xu/16VbA/phZ5gzSrv8D+wdFdEB4BqvI0PpR1TJHzvdD82JQIDAQAB\n-----END PUBLIC KEY-----
     depends_on:

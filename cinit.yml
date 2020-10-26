@@ -1,4 +1,11 @@
 programs:
+  - name: sleep
+    path: /bin/sleep
+    args:
+      - 1
+    before:
+      - migrate
+      - gunicorn
   - name: migrate
     path: /usr/bin/python3
     args:
@@ -31,8 +38,7 @@ programs:
       - RUNTIME_FRONTEND_KEYCLOAK_URL:
       - RUNTIME_FRONTEND_KEYCLOAK_REALM:
 
-      - SIP_AUTH_OIDC_JWKS:
-      - SIP_AUTH_EXAMS_CLIENT_ID:
+      - SIP_AUTH_OIDC_CLIENT_ID:
 
       - RUNTIME_JWT_PUBLIC_KEY:
 
@@ -77,8 +83,7 @@ programs:
       - RUNTIME_FRONTEND_KEYCLOAK_URL:
       - RUNTIME_FRONTEND_KEYCLOAK_REALM:
 
-      - SIP_AUTH_OIDC_JWKS:
-      - SIP_AUTH_EXAMS_CLIENT_ID:
+      - SIP_AUTH_OIDC_CLIENT_ID:
 
       - RUNTIME_JWT_PUBLIC_KEY:
 

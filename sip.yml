@@ -10,7 +10,7 @@ postgres:
 s3:
   - name: files
 auth:
-  - name: exams
+  - name: oidc
     accessType: public
     clientProtocol: openid-connect
     validRedirectURIs:
@@ -28,9 +28,13 @@ env:
     secret:
       key: key
       create: random
-  - name: "SIP_AUTH_EXAMS_CLIENT_ID"
+  - name: "RUNTIME_COMMUNITY_SOLUTIONS_API_KEY"
     secret:
-      key: jwt-verification
+      key: api-key
+      create: provided
+  - name: "RUNTIME_JWT_PUBLIC_KEY"
+    secret:
+      key: jwt-public-key
       create: provided
   - name: "RUNTIME_FRONTEND_GLOB_ID"
     secret:

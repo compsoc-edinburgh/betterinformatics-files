@@ -56,7 +56,7 @@ COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
     "RUNTIME_FRONTEND_KEYCLOAK_REALM", "VSETH"
 )
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
-    "SIP_AUTH_EXAMS_CLIENT_ID", "vis-community-solutions"
+    "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
@@ -74,7 +74,7 @@ JWT_VERIFY_SIGNATURE = (
     os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
 )
 JWT_RESOURCE_GROUP = (
-    "group" if TESTING else os.environ.get("SIP_AUTH_EXAMS_CLIENT_ID", "")
+    "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
 )
 
 ALLOWED_HOSTS = []
@@ -171,8 +171,15 @@ TEMPLATES = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": not DEBUG,
-    "formatters": {"simple": {"format": "[{levelname}] {message}", "style": "{",},},
-    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simple"},},
+    "formatters": {
+        "simple": {
+            "format": "[{levelname}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+    },
     "root": {
         "handlers": ["console"],
         "level": "INFO" if (DEBUG or STAGING) else "WARNING",
@@ -199,7 +206,11 @@ if IN_ENVIRON:
         }
     }
 else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.dummy",}}
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.dummy",
+        }
+    }
     print("Warning: no database configured!")
     print(os.environ)
 
