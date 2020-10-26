@@ -16,8 +16,7 @@ auth:
     validRedirectURIs:
       - /callback
     scopes:
-      defaultClientScopes:
-        - profile
+      defaultClientScopes: []
     roles:
       - name: admin
         description: Admin of the application
