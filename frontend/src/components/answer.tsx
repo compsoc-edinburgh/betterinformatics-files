@@ -84,6 +84,7 @@ const AnswerComponent: React.FC<Props> = ({
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
+  
 
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
@@ -111,6 +112,7 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
+      {}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
           <div className="d-flex flex-between align-items-center">
@@ -268,7 +270,7 @@ const AnswerComponent: React.FC<Props> = ({
               )}
             </div>
           )}
-          <Row className="flex-between">
+          <Row className="flex-between" form>
             <Col xs="auto">
               {(answer === undefined || editing) && (
                 <IconButton
@@ -290,7 +292,8 @@ const AnswerComponent: React.FC<Props> = ({
                   <ButtonGroup className="m-1">
                     {(answer === undefined || editing) && (
                       <IconButton size="sm" onClick={onCancel} icon="CLOSE">
-                        {editing ? "Cancel" : "Delete Draft"}
+                        {editing
+                          ? "Cancel" : "Delete Draft"}
                       </IconButton>
                     )}
                     {answer !== undefined && (

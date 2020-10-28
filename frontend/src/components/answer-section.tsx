@@ -25,7 +25,6 @@ import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
 import useLoad from "../hooks/useLoad";
-import useIsSmallDisplay from "../hooks/useIsSmallDisplay";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
@@ -57,12 +56,11 @@ const AddButton: React.FC<AddButtonProps> = ({
   onAnswer,
   onLegacyAnswer,
 }) => {
-  const isSmallDisplay = useIsSmallDisplay();
   const [isOpen, setOpen] = useState(false);
   const toggle = useCallback(() => setOpen(old => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
     return (
-      <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+      <ButtonDropdown isOpen={isOpen} toggle={toggle} className="text-left">
         <DropdownToggle size="sm" caret>
           Add Answer
         </DropdownToggle>
@@ -74,14 +72,14 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            {isSmallDisplay ? "Add Legacy" : "Add Legacy Answer"}
+            Add Legacy Answer
           </DropdownItem>
         </DropdownMenu>
       </ButtonDropdown>
     );
   } else {
     return (
-      <ButtonGroup>
+      <ButtonGroup className="text-left">
         {allowAnswer && (
           <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
@@ -93,7 +91,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
-            {isSmallDisplay ? "Add Legacy" : "Add Legacy Answer"}
+            Add Legacy Answer
           </Button>
         )}
       </ButtonGroup>
@@ -175,7 +173,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     }, [hidden, onToggleHidden]);
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
-    const isSmallDisplay = useIsSmallDisplay();
 
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
@@ -302,13 +299,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             color="primary"
                             size="sm"
                             onClick={onToggleHidden}
-                            block={isSmallDisplay}
+                            className="text-xs-right text-md-center"
                           >
-                            {isSmallDisplay && isCatAdmin
-                              ? hidden
-                                ? "Show"
-                                : "Hide"
-                              : hidden
+                              {hidden
                               ? "Show Answers"
                               : "Hide Answers"}
                           </Button>

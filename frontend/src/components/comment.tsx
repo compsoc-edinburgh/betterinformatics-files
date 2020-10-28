@@ -140,7 +140,7 @@ const CommentComponent: React.FC<Props> = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-          <Row className="flex-between">
+          <Row className="flex-between" form>
             <Col xs="auto">
               <IconButton
                 className="m-1"
@@ -161,7 +161,9 @@ const CommentComponent: React.FC<Props> = ({
                 onClick={onCancel}
                 icon="CLOSE"
               >
-                {comment === undefined ? "Delete Draft" : "Cancel"}
+                {comment === undefined
+                  ? "Delete Draft"
+                  : "Cancel"}
               </IconButton>
             </Col>
           </Row>

@@ -7,17 +7,11 @@ const ThreeColumns: React.FC<{
   right?: React.ReactNode;
 }> = ({ left, center, right }) => {
   return (
-    <Container fluid className="px-0">
+    <Container fluid className="px-0 align-items-center">
       <Row>
-        <Col xs={4} className="px-0 text-left">
-          {left}
-        </Col>
-        <Col xs={4} className="px-3 text-center">
-          {center}
-        </Col>
-        <Col xs={4} className="px-0 text-right">
-          {right}
-        </Col>
+        <Col md={4} xs={6} className="px-0">{left}</Col>
+        <Col md={4} xs={6} className="px-0">{center}</Col>
+        <Col md={4} xs={12} className="px-0">{right}</Col>
       </Row>
     </Container>
   );

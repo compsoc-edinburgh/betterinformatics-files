@@ -95,6 +95,7 @@ const EditorHeader: React.FC<Props> = ({
               >
                 <Code size={iconSize} />
               </TooltipButton>
+
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onLinkClick}
