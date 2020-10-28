@@ -9,9 +9,9 @@ const ThreeColumns: React.FC<{
   return (
     <Container fluid className="px-0 align-items-center">
       <Row>
-        <Col md={4} xs={6} className="px-0">{left}</Col>
-        <Col md={4} xs={6} className="px-0">{center}</Col>
-        <Col md={4} xs={12} className="px-0">{right}</Col>
+        <Col sm={4} xs={6} className="px-0 text-left">{left}</Col>
+        <Col sm={4} xs={6} className="px-0 @media (max-width: 767px) { text-right { text-align:center }} text-sm-center">{center}</Col>
+        <Col sm={4} xs={12} className="px-0 text-right">{right}</Col>
       </Row>
     </Container>
   );

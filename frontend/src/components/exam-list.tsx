@@ -40,8 +40,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   return (
     <>
       <Row>
-        <Col lg={12} className="d-flex flex-row flex-between flex-wrap px-2">
-          <FormGroup className="m-1">
+        <Col lg={12} className="d-flex flex-row flex-between flex-wrap px-2 align-center">
+          <FormGroup className="m-1 text-center">
             <IconButton
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(selected)}
@@ -51,7 +51,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               Download selected exams
             </IconButton>
           </FormGroup>
-          <FormGroup className="m-1">
+          <FormGroup className="m-1 text-center">
             <div className="search mb-0">
               <input
                 type="text"
@@ -71,6 +71,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           {loading && <Spinner />}
         </Col>
       </Row>
+
+  
       {examTypeMap &&
         examTypeMap.map(
           ([examtype, exams]) =>

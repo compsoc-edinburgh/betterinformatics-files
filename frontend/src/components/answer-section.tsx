@@ -299,7 +299,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             color="primary"
                             size="sm"
                             onClick={onToggleHidden}
-                            className="text-xs-right text-md-center"
+                            className="d-inline-block"
                           >
                               {hidden
                               ? "Show Answers"
