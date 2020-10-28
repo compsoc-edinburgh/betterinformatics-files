@@ -65,7 +65,7 @@ const EditorFooter: React.FC<Props> = ({
 
           <Button size="sm" onClick={onOpenOverlay}>
             Browse Images
-              </Button>
+          </Button>
           <Button size="sm" onClick={onFile}>
             Add Image
           </Button>

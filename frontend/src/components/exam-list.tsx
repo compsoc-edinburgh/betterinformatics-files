@@ -40,7 +40,10 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   return (
     <>
       <Row>
-        <Col lg={12} className="d-flex flex-row flex-between flex-wrap px-2 align-center">
+        <Col
+          lg={12}
+          className="d-flex flex-row flex-between flex-wrap px-2 align-center"
+        >
           <FormGroup className="m-1 text-center">
             <IconButton
               disabled={selected.size === 0}
@@ -72,7 +75,6 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         </Col>
       </Row>
 
-  
       {examTypeMap &&
         examTypeMap.map(
           ([examtype, exams]) =>

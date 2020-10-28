@@ -161,9 +161,7 @@ const CommentComponent: React.FC<Props> = ({
                 onClick={onCancel}
                 icon="CLOSE"
               >
-                {comment === undefined
-                  ? "Delete Draft"
-                  : "Cancel"}
+                {comment === undefined ? "Delete Draft" : "Cancel"}
               </IconButton>
             </Col>
           </Row>

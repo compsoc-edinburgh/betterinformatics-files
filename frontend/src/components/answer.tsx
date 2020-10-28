@@ -84,7 +84,6 @@ const AnswerComponent: React.FC<Props> = ({
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
-  
 
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
@@ -292,8 +291,7 @@ const AnswerComponent: React.FC<Props> = ({
                   <ButtonGroup className="m-1">
                     {(answer === undefined || editing) && (
                       <IconButton size="sm" onClick={onCancel} icon="CLOSE">
-                        {editing
-                          ? "Cancel" : "Delete Draft"}
+                        {editing ? "Cancel" : "Delete Draft"}
                       </IconButton>
                     )}
                     {answer !== undefined && (

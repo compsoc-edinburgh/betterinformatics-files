@@ -301,9 +301,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             onClick={onToggleHidden}
                             className="d-inline-block"
                           >
-                              {hidden
-                              ? "Show Answers"
-                              : "Hide Answers"}
+                            {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
                         )
                       }
