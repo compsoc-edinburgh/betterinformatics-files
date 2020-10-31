@@ -11,6 +11,7 @@ from util.func_cache import cache
 
 from myauth.models import MyUser, Profile
 from jwcrypto.jws import InvalidJWSObject, InvalidJWSOperation, InvalidJWSSignature
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,12 @@ def add_auth(request):
             claims = json.loads(claims)
 
         request.claims = claims
+
+        now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        if "exp" in claims and claims["exp"] < now:
+            raise PermissionDenied
+        if "nbf" in claims and claims["nbf"] > now:
+            raise PermissionDenied
 
         sub = claims["sub"]
         if (
