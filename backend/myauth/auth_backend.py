@@ -1,19 +1,33 @@
+import logging
+import urllib.request
+import json
+
 from django.conf import settings
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from jwt import (
-    InvalidTokenError,
-    decode,
-    DecodeError,
-    InvalidSignatureError,
-    ExpiredSignatureError,
-    InvalidAlgorithmError,
-)
+from django.core.exceptions import PermissionDenied
+from jwcrypto.jwk import JWKSet
+from jwcrypto.jwt import JWT, JWTMissingKey
+from notifications.models import NotificationSetting, NotificationType
+from util.func_cache import cache
 
 from myauth.models import MyUser, Profile
-from notifications.models import NotificationSetting, NotificationType
-import logging
+from jwcrypto.jws import InvalidJWSObject, InvalidJWSOperation, InvalidJWSSignature
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
+
+
+@cache(60)
+def get_key_set():
+    """Returns a `JWKSet` object that is populated using the keys at the `settings.OIDC_JWKS_URL`
+    url. The returned object will be cached to prevent loading the jwks on every request.
+
+    Returns:
+        JWKSet: Cached JWK set
+    """
+    json_data = urllib.request.urlopen(settings.OIDC_JWKS_URL).read()
+    key_set = JWKSet.from_json(json_data)
+
+    return key_set
 
 
 class NoUsernameException(Exception):
@@ -47,24 +61,35 @@ def add_auth(request):
         # auth.split(" ") is guaranteed to have at least two elements because
         # auth starts with "Bearer "
         encoded = auth.split(" ")[1]
-        decoded = decode(
-            encoded,
-            settings.JWT_PUBLIC_KEY,
-            verify=settings.JWT_VERIFY_SIGNATURE,
-            algorithms=["RS256"],
-        )
-        request.decoded_token = decoded
 
-        sub = decoded["sub"]
+        token = JWT()
+        key_set = get_key_set()
+        # deserialize will raise an error if the encoded token is not valid / isn't signed correctly
+        # it does however not validate any claims
+        token.deserialize(encoded, key_set)
+        claims = token.claims
+        # claims can be a string - we ensure that it is a parsed json object here
+        if type(claims) is str:
+            claims = json.loads(claims)
+
+        request.claims = claims
+
+        now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        # Validate "nbf" (Not Before) Claim if present
+        if "exp" in claims and claims["exp"] < now:
+            raise PermissionDenied
+        # Valdiate "exp" (Expiration Time) Claim if present
+        if "nbf" in claims and claims["nbf"] > now:
+            raise PermissionDenied
+
+        sub = claims["sub"]
         if (
-            not ("preferred_username" in decoded)
-            or len(decoded["preferred_username"]) == 0
+            not ("preferred_username" in claims)
+            or len(claims["preferred_username"]) == 0
         ):
-            raise NoUsernameException(
-                decoded["given_name"], decoded["family_name"], sub
-            )
-        preferred_username = decoded["preferred_username"]
-        roles = decoded["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
+            raise NoUsernameException(claims["given_name"], claims["family_name"], sub)
+        preferred_username = claims["preferred_username"]
+        roles = claims["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
         request.roles = roles
 
         try:
@@ -72,20 +97,20 @@ def add_auth(request):
             request.user = user
             changed = False
 
-            if decoded["given_name"] != user.first_name:
+            if claims["given_name"] != user.first_name:
                 changed = True
-                user.first_name = decoded["given_name"]
+                user.first_name = claims["given_name"]
 
-            if decoded["family_name"] != user.last_name:
+            if claims["family_name"] != user.last_name:
                 changed = True
-                user.last_name = decoded["family_name"]
+                user.last_name = claims["family_name"]
 
             if changed:
                 user.save()
         except MyUser.DoesNotExist:
             user = MyUser()
-            user.first_name = decoded["given_name"]
-            user.last_name = decoded["family_name"]
+            user.first_name = claims["given_name"]
+            user.last_name = claims["family_name"]
             user.username = generate_unique_username(preferred_username)
             user.save()
 
@@ -106,19 +131,19 @@ def AuthenticationMiddleware(get_response):
     def middleware(request):
         try:
             add_auth(request)
-        except InvalidTokenError:
+        except InvalidJWSSignature:
             raise PermissionDenied
 
-        except DecodeError:
+        except InvalidJWSObject:
             raise PermissionDenied
 
-        except InvalidSignatureError:
-            raise SuspiciousOperation
-
-        except ExpiredSignatureError:
+        except InvalidJWSOperation:
             raise PermissionDenied
 
-        except InvalidAlgorithmError:
+        except JWTMissingKey:
+            raise PermissionDenied
+
+        except ValueError:
             raise PermissionDenied
 
         except NoUsernameException as err:

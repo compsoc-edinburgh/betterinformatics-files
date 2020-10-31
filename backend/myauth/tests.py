@@ -1,9 +1,15 @@
-from testing.tests import ComsolTest, get_token
-from jwt import encode
 import logging
+from testing.tests import ComsolTest, get_token
+from jwcrypto.jwt import JWT
+from jwcrypto.jwk import JWK
 
-invalid_key = open("myauth/invalid.key", "rb").read()
-private_key = open("testing/jwtRS256.key", "rb").read()
+private_key_data = open("testing/jwtRS256.key", "rb").read()
+key = JWK()
+key.import_from_pem(private_key_data)
+
+invalid_private_key_data = open("myauth/invalid.key", "rb").read()
+invalid_key = JWK()
+invalid_key.import_from_pem(invalid_private_key_data)
 
 
 class TestMyAuthAdmin(ComsolTest):
@@ -79,8 +85,9 @@ class TestJWT(ComsolTest):
         family_name = user["family_name"]
         admin = user["admin"]
         roles = ["admin"] if admin else []
-        encoded = encode(
-            {
+        token = JWT(
+            header={"alg": "RS256", "typ": "JWT", "kid": invalid_key.key_id},
+            claims={
                 "sub": sub,
                 "resource_access": {"group": {"roles": roles}},
                 "scope": "openid profile",
@@ -90,12 +97,11 @@ class TestJWT(ComsolTest):
                 "given_name": given_name,
                 "family_name": family_name,
             },
-            invalid_key,
-            algorithm="RS256",
         )
-        token = "Bearer " + encoded.decode("utf-8")
+        token.make_signed_token(invalid_key)
+        token_str = "Bearer " + token.serialize()
         response = self.client.get(
-            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token_str
         )
         self.assertEqual(response.status_code, 403)
 
@@ -107,8 +113,9 @@ class TestJWT(ComsolTest):
         family_name = user["family_name"]
         admin = user["admin"]
         roles = ["admin"] if admin else []
-        encoded = encode(
-            {
+        token = JWT(
+            header={"alg": "PS256", "typ": "JWT", "kid": key.key_id},
+            claims={
                 "sub": sub,
                 "resource_access": {"group": {"roles": roles}},
                 "scope": "openid profile",
@@ -118,14 +125,13 @@ class TestJWT(ComsolTest):
                 "given_name": given_name,
                 "family_name": family_name,
             },
-            private_key,
-            algorithm="PS256",
         )
-        token = "Bearer " + encoded.decode("utf-8")
+        token.make_signed_token(key)
+        token_str = "Bearer " + token.serialize()
         response = self.client.get(
-            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token_str
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
     def test_correct_token(self):
         user = self.loginUsers[0]
@@ -135,8 +141,9 @@ class TestJWT(ComsolTest):
         family_name = user["family_name"]
         admin = user["admin"]
         roles = ["admin"] if admin else []
-        encoded = encode(
-            {
+        token = JWT(
+            header={"alg": "RS256", "typ": "JWT", "kid": key.key_id},
+            claims={
                 "sub": sub,
                 "resource_access": {"group": {"roles": roles}},
                 "scope": "openid profile",
@@ -146,12 +153,11 @@ class TestJWT(ComsolTest):
                 "given_name": given_name,
                 "family_name": family_name,
             },
-            private_key,
-            algorithm="RS256",
         )
-        token = "Bearer " + encoded.decode("utf-8")
+        token.make_signed_token(key)
+        token_str = "Bearer " + token.serialize()
         response = self.client.get(
-            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token_str
         )
         self.assertEqual(response.status_code, 200)
 
@@ -176,23 +182,23 @@ class TestAuth(ComsolTest):
         self.assertEqual(response.status_code, 403)
 
     def test_no_preferred_username(self):
-        encoded = encode(
-            {
-                "sub": "12-42-13-90",
+        token = JWT(
+            header={"alg": "RS256", "typ": "JWT", "kid": key.key_id},
+            claims={
+                "sub": "424242",
                 "resource_access": {"group": {"roles": ["admin"]}},
                 "scope": "openid profile",
                 "website": "https://www.vis.ethz.ch",
-                "name": "A B",
-                "given_name": "Given",
-                "family_name": "Family",
+                "name": "Given Family",
+                "given_name": "given_name",
+                "family_name": "family_name",
             },
-            private_key,
-            algorithm="RS256",
         )
-        token = "Bearer " + encoded.decode("utf-8")
+        token.make_signed_token(key)
+        token_str = "Bearer " + token.serialize()
         logging.disable(logging.CRITICAL)
         response = self.client.get(
-            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
+            "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token_str
         )
         logging.disable(logging.NOTSET)
         self.assertEqual(response.status_code, 403)
