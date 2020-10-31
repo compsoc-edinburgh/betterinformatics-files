@@ -18,6 +18,12 @@ logger = logging.getLogger(__name__)
 
 @cache(60)
 def get_key_set():
+    """Returns a `JWKSet` object that is populated using the keys at the `settings.OIDC_JWKS_URL`
+    url. The returned object will be cached to prevent loading the jwks on every request.
+
+    Returns:
+        JWKSet: Cached JWK set
+    """
     json_data = urllib.request.urlopen(settings.OIDC_JWKS_URL).read()
     key_set = JWKSet.from_json(json_data)
 
@@ -58,16 +64,21 @@ def add_auth(request):
 
         token = JWT()
         key_set = get_key_set()
+        # deserialize will raise an error if the encoded token is not valid / isn't signed correctly
+        # it does however not validate any claims
         token.deserialize(encoded, key_set)
         claims = token.claims
+        # claims can be a string - we ensure that it is a parsed json object here
         if type(claims) is str:
             claims = json.loads(claims)
 
         request.claims = claims
 
         now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        # Validate "nbf" (Not Before) Claim if present
         if "exp" in claims and claims["exp"] < now:
             raise PermissionDenied
+        # Valdiate "exp" (Expiration Time) Claim if present
         if "nbf" in claims and claims["nbf"] > now:
             raise PermissionDenied
 

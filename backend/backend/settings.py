@@ -65,6 +65,8 @@ COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
 )
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
+# During testing we use the public / private key pair located in the testing directory
+# We convert it from pem to a data_url so that even while testing the jwk is loaded from an url
 test_pub_key_data = open("testing/jwtRS256.key.pub", "rb").read()
 test_key = JWK()
 test_key.import_from_pem(test_pub_key_data)
