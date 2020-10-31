@@ -10,8 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
+from base64 import b64encode
 import sys
 import json
+from jwcrypto.jwk import JWKSet, JWK
+from jwcrypto.jwt import JWT
+import logging
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -60,14 +65,20 @@ COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
 )
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
-test_public_key = open("testing/jwtRS256.key.pub", "rb").read()
-JWT_PUBLIC_KEY = (
-    test_public_key
+test_pub_key_data = open("testing/jwtRS256.key.pub", "rb").read()
+test_key = JWK()
+test_key.import_from_pem(test_pub_key_data)
+key_data = JWKSet(keys=test_key).export(private_keys=False)
+pub_key_set_url = "data:text/plain;base64," + b64encode(
+    key_data.encode("utf-8")
+).decode("utf-8")
+
+OIDC_JWKS_URL = (
+    pub_key_set_url
     if TESTING
-    else (
-        bytes(os.environ["RUNTIME_JWT_PUBLIC_KEY"], "utf-8").decode("unicode_escape")
-        if "RUNTIME_JWT_PUBLIC_KEY" in os.environ
-        else b""
+    else os.environ.get(
+        "SIP_AUTH_OIDC_JWKS_URL",
+        "https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/certs",
     )
 )
 JWT_VERIFY_SIGNATURE = (
