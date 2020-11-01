@@ -54,11 +54,12 @@ else:
     REAL_ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
 
 CSP_DEFAULT_SRC = ("'self'")
+allowed = []
 if DEBUG:
-    CSP_SCRIPT_SRC = ("'unsafe-eval'", 'http://localhost:8080/static/', 'http://localhost:3000/static/')
+    allowed = [h for host in REAL_ALLOWED_HOSTS for h in ('http://{}:8080/static/'.format(host), 'http://{}:3000/static/'.format(host))]
 else:
     allowed = ['https://{}/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
-    CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
+CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://static.vseth.ethz.ch")
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_CONNECT_SRC = ("'self'", "https://static.vseth.ethz.ch")
