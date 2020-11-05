@@ -1,5 +1,12 @@
 import { useMemo } from "react";
-
+/**
+ * Computes a cost that estimates autocompletion relevance
+ * The resulting cost will be between 0-255
+ * 0 is perfect - "Advanced Algorithms", "Advanced" will have a cost of 0
+ * 10 is already fairly bad
+ * @param a The source string
+ * @param b The search term
+ */
 function minCost(a: string, b: string) {
   // Convert to lowercase to facilitate case insensitive searching
   const ac = a.toLowerCase();
