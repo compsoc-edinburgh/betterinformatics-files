@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 function minScore(a: string, b: string) {
+  // Convert to lowercase to facilitate case insensitive searching
   const ac = a.toLowerCase();
   const bc = b.toLowerCase();
   const m = a.length;
@@ -36,6 +37,13 @@ function minScore(a: string, b: string) {
       //
       const matched = ac[i - 1] === bc[j - 1];
       // Matching chars are nice
+      // but as we are ignoring jumps in a we want these to cost as well:
+      // Advanced Algorithms, avcdag is bad
+      // Advanced Algorithms, dvancedgorithm is better
+      // Advanced Algorithms, AdvAlgo is really good
+      // Advanced Algorithms, Advanced Algorithms is equalls good
+      // These fuzzy searching metrics were made for autocompletion and as such partial results will
+      // be quite common
       if (matched) {
         sCost = 3;
       }
