@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-function minScore(a: string, b: string) {
+function minCost(a: string, b: string) {
   // Convert to lowercase to facilitate case insensitive searching
   const ac = a.toLowerCase();
   const bc = b.toLowerCase();
@@ -118,7 +118,7 @@ export type SearchResult<T> = {
   match: number[];
 } & T;
 /**
- * A React wrapper around the minScore function
+ * A React wrapper around the minCost function
  * @param data The array that should be searched in
  * @param pattern The pattern that should be searched for
  * @param maxScore The max score that the items in the output should have (score is bad)
@@ -140,7 +140,7 @@ const useSearch = <T>(
         ? allResults
         : data
             .map(w => {
-              const [score, match] = minScore(getter(w), pattern);
+              const [score, match] = minCost(getter(w), pattern);
               return { score, match, ...w };
             })
             .filter(({ score }) => score < maxScore)
