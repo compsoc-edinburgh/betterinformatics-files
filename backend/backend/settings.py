@@ -56,7 +56,7 @@ else:
 CSP_DEFAULT_SRC = ("'self'")
 allowed = []
 if DEBUG:
-    allowed = [h for host in REAL_ALLOWED_HOSTS for h in ('http://{}:8080/static/'.format(host), 'http://{}:3000/static/'.format(host))]
+    allowed = ['http://{}:8080/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
 else:
     allowed = ['https://{}/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
