@@ -15,7 +15,7 @@ import {
   ModalFooter,
   ModalHeader,
   Row,
-  Spinner
+  Spinner,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
