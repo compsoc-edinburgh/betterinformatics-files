@@ -3,7 +3,7 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
-import { hl } from "../utils/search-utils";
+import { highlight } from "../utils/search-utils";
 import { focusOutline } from "../utils/style";
 
 interface Props {
@@ -24,7 +24,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       onKeyDown={handleKeyDown}
     >
       <CardBody>
-        <h5>{hl(category.displayname, category.match)}</h5>
+        <h5>{highlight(category.displayname, category.match)}</h5>
         <div>
           Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
         </div>

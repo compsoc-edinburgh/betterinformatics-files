@@ -1,17 +1,23 @@
 import React from "react";
 
-export const hl = (w: string, idx: number[]) => {
-  const a = [];
-  let om = 0;
-  for (const i of idx) {
-    if (om < i) a.push(<span key={`nm${i}`}>{w.substring(om, i)}</span>);
-    om = i + 1;
-    a.push(
+export const highlight = (text: string, indexArray: number[]) => {
+  const res = [];
+  let prevMatchingIndex = 0;
+  for (const i of indexArray) {
+    if (prevMatchingIndex < i)
+      res.push(
+        // nm = non-matching
+        <span key={`nm${i}`}>{text.substring(prevMatchingIndex, i)}</span>,
+      );
+    prevMatchingIndex = i + 1;
+    res.push(
+      // m = matching
       <mark className="p-0" key={`m${i}`}>
-        {w[i]}
+        {text[i]}
       </mark>,
     );
   }
-  if (om < w.length) a.push(<span key={"end"}>{w.substring(om)}</span>);
-  return a;
+  if (prevMatchingIndex < text.length)
+    res.push(<span key="end">{text.substring(prevMatchingIndex)}</span>);
+  return res;
 };
