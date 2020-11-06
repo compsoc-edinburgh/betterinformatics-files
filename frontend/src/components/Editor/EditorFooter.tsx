@@ -12,6 +12,7 @@ import { ImageHandle } from "./utils/types";
 
 const rowStyle = css`
   text-align: right;
+  margin-left: -0.5rem;
 `;
 const fileInputStyle = css`
   visibility: hidden;
@@ -31,11 +32,6 @@ const EditorFooter: React.FC<Props> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onFile = useCallback(() => {
-    const fileInput = fileInputRef.current;
-    if (fileInput === null) return;
-    fileInput.click();
-  }, []);
   const onChangeHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const fileInput = fileInputRef.current;
@@ -62,12 +58,8 @@ const EditorFooter: React.FC<Props> = ({
           <Button size="sm" onClick={toggleHelp}>
             Help
           </Button>
-
           <Button size="sm" onClick={onOpenOverlay}>
             Browse Images
-          </Button>
-          <Button size="sm" onClick={onFile}>
-            Add Image
           </Button>
         </ButtonGroup>
         <input

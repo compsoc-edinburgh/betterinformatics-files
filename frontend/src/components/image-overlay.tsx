@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
+import IconButton from "./icon-button";
 import { css } from "emotion";
 const columnStyle = css`
   column-gap: 0;
@@ -61,7 +62,7 @@ const ImageModal: React.FC<ModalProps> = ({
         </Row>
 
         <div className="text-right">
-          <Button className="mt-1" onClick={reload}>
+          <Button className="mt-1 mr-1" onClick={reload}>
             Reload
           </Button>
           <Button
@@ -110,6 +111,16 @@ const ImageModal: React.FC<ModalProps> = ({
               </div>
             ))}
         </CardColumns>
+        {images?.length === 0 && (
+          <div className="d-flex justify-content-center m-4">
+            No Images Uploaded Yet!
+          </div>
+        )}
+        <Row className="d-flex justify-content-center">
+          <IconButton className="m-1" size="sm" onClick={toggle} icon="CLOSE">
+            Close Image Browser
+          </IconButton>
+        </Row>
       </ModalBody>
     </Modal>
   );

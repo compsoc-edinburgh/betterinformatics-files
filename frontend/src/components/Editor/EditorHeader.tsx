@@ -1,4 +1,4 @@
-import { Nav, NavItem, NavLink } from "@vseth/components";
+import { Nav, NavItem, NavLink, Row, Col } from "@vseth/components";
 import { css } from "emotion";
 import * as React from "react";
 import { Bold, Code, DollarSign, Italic, Link } from "react-feather";
@@ -74,63 +74,68 @@ const EditorHeader: React.FC<Props> = ({
             </NavLink>
           </NavItem>
         </div>
-        <div>
+        <div className="mh-100 d-flex justify-content-center">
           {activeMode === "write" && (
             <>
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onMathClick}
-                type="button"
-                size="sm"
-                tooltip="Inline Math"
-              >
-                <DollarSign size={iconSize} />
-              </TooltipButton>
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onCodeClick}
-                type="button"
-                size="sm"
-                tooltip="Code Block"
-              >
-                <Code size={iconSize} />
-              </TooltipButton>
-
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onLinkClick}
-                type="button"
-                size="sm"
-                tooltip="Hyperlink"
-              >
-                <Link size={iconSize} />
-              </TooltipButton>
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onItalicClick}
-                type="button"
-                size="sm"
-                tooltip={
-                  <>
-                    Italic<kbd>Ctrl + I</kbd>{" "}
-                  </>
-                }
-              >
-                <Italic size={iconSize} />
-              </TooltipButton>
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onBoldClick}
-                type="button"
-                size="sm"
-                tooltip={
-                  <>
-                    Bold<kbd>Ctrl + B</kbd>{" "}
-                  </>
-                }
-              >
-                <Bold size={iconSize} />
-              </TooltipButton>
+              <Col>
+                <Row>
+                  <TooltipButton
+                    className={iconButtonStyle}
+                    onClick={handlers.onMathClick}
+                    type="button"
+                    size="sm"
+                    tooltip="Inline Math"
+                  >
+                    <DollarSign size={iconSize} />
+                  </TooltipButton>
+                  <TooltipButton
+                    className={iconButtonStyle}
+                    onClick={handlers.onCodeClick}
+                    type="button"
+                    size="sm"
+                    tooltip="Code Block"
+                  >
+                    <Code size={iconSize} />
+                  </TooltipButton>
+                  <TooltipButton
+                    className={iconButtonStyle}
+                    onClick={handlers.onLinkClick}
+                    type="button"
+                    size="sm"
+                    tooltip="Hyperlink"
+                  >
+                    <Link size={iconSize} />
+                  </TooltipButton>
+                </Row>
+                <Row>
+                  <TooltipButton
+                    className={iconButtonStyle}
+                    onClick={handlers.onItalicClick}
+                    type="button"
+                    size="sm"
+                    tooltip={
+                      <>
+                        Italic<kbd>Ctrl + I</kbd>{" "}
+                      </>
+                    }
+                  >
+                    <Italic size={iconSize} />
+                  </TooltipButton>
+                  <TooltipButton
+                    className={iconButtonStyle}
+                    onClick={handlers.onBoldClick}
+                    type="button"
+                    size="sm"
+                    tooltip={
+                      <>
+                        Bold<kbd>Ctrl + B</kbd>{" "}
+                      </>
+                    }
+                  >
+                    <Bold size={iconSize} />
+                  </TooltipButton>
+                </Row>
+              </Col>
             </>
           )}
         </div>

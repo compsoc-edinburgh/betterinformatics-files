@@ -307,7 +307,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       }
                       right={
                         isCatAdmin && (
-                          <UncontrolledDropdown>
+                          <UncontrolledDropdown className="mt-1 mt-sm-0">
                             <DropdownToggle caret size="sm">
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </DropdownToggle>

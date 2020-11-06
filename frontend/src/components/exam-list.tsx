@@ -40,11 +40,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   return (
     <>
       <Row>
-        <Col
-          lg={12}
-          className="d-flex flex-row flex-between flex-wrap px-2 align-center"
-        >
-          <FormGroup className="m-1 text-center">
+        <Col md={6} xs={12} className="text-center text-md-left">
+          <FormGroup className="m-1 text-center d-inline-block">
             <IconButton
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(selected)}
@@ -54,7 +51,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               Download selected exams
             </IconButton>
           </FormGroup>
-          <FormGroup className="m-1 text-center">
+        </Col>
+        <Col md={6} xs={12} className="text-center text-md-right">
+          <FormGroup className="m-1 d-inline-block">
             <div className="search mb-0">
               <input
                 type="text"
@@ -69,10 +68,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               </div>
             </div>
           </FormGroup>
-
-          {error && <Alert color="danger">{error}</Alert>}
-          {loading && <Spinner />}
         </Col>
+        {error && <Alert color="danger">{error}</Alert>}
+        {loading && <Spinner />}
       </Row>
 
       {examTypeMap &&
