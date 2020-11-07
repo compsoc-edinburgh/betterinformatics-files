@@ -18,27 +18,51 @@ def get_answer(request, long_id):
     except Answer.MultipleObjectsReturned as e:
         raise Http404()
 
-@response.request_post('text', 'legacy_answer')
+
+@response.request_post("text", "legacy_answer")
 @auth_check.require_login
 def set_answer(request, oid):
-    section = get_object_or_404(AnswerSection, pk=oid)
-    legacy_answer = request.POST['legacy_answer'] != 'false'
-    if legacy_answer:
-        if not auth_check.has_admin_rights_for_exam(request, section.exam):
-            return response.not_allowed()
-        answer, created = Answer.objects.get_or_create(answer_section=section, author=request.user, is_legacy_answer=True)
+    section = get_object_or_404(
+        AnswerSection.objects.select_related("exam").prefetch_related(
+            "answer_set",
+            "answer_set__comment_set",
+            "answer_set__upvotes",
+            "answer_set__downvotes",
+            "answer_set__expertvotes",
+            "answer_set__flagged",
+        ),
+        pk=oid,
+    )
+    legacy_answer = request.POST["legacy_answer"] != "false"
+    text = request.POST["text"]
+
+    if legacy_answer and not auth_check.has_admin_rights_for_exam(
+        request, section.exam
+    ):
+        return response.not_allowed()
+    where = {"answer_section": section, "is_legacy_answer": legacy_answer}
+
+    if not legacy_answer:
+        where["author"] = request.user
+
+    answer, created = None, False
+    if not text:
+        Answer.objects.filter(*where).delete()
     else:
-        answer, created = Answer.objects.get_or_create(answer_section=section, author=request.user, is_legacy_answer=False)
-        if created:
-            answer.upvotes.add(request.user)
-            notification_util.new_answer_to_answer(answer)
-    answer.text = request.POST['text']
-    answer.edittime = timezone.now()
-    answer.save()
-    if not answer.text:
-        answer.delete()
+        defaults = {
+            "author": request.user,
+            "text": text,
+            "edittime": timezone.now(),
+        }
+        answer, created = Answer.objects.update_or_create(**where, defaults=defaults)
+    if created and not legacy_answer:
+        answer.upvotes.add(request.user)
+        notification_util.new_answer_to_answer(answer)
+
     section_util.increase_section_version(section)
-    return response.success(value=section_util.get_answersection_response(request, section))
+    return response.success(
+        value=section_util.get_answersection_response(request, section)
+    )
 
 
 @response.request_post()
@@ -50,14 +74,16 @@ def remove_answer(request, oid):
     section = answer.answer_section
     answer.delete()
     section_util.increase_section_version(section)
-    return response.success(value=section_util.get_answersection_response(request, section))
+    return response.success(
+        value=section_util.get_answersection_response(request, section)
+    )
 
 
-@response.request_post('like')
+@response.request_post("like")
 @auth_check.require_login
 def set_like(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
-    like = int(request.POST['like'])
+    like = int(request.POST["like"])
     old_like = 0
     if answer.upvotes.filter(pk=request.user.pk).exists():
         old_like = 1
@@ -74,16 +100,18 @@ def set_like(request, oid):
             answer.downvotes.add(request.user)
         answer.save()
     section_util.increase_section_version(answer.answer_section)
-    return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
+    return response.success(
+        value=section_util.get_answersection_response(request, answer.answer_section)
+    )
 
 
-@response.request_post('vote')
+@response.request_post("vote")
 @auth_check.require_login
 def set_expertvote(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
     if not auth_check.is_expert_for_exam(request, answer.answer_section.exam):
         return response.not_allowed()
-    vote = request.POST['vote'] != 'false'
+    vote = request.POST["vote"] != "false"
     old_vote = answer.expertvotes.filter(pk=request.user.pk).exists()
     if vote != old_vote:
         if old_vote:
@@ -92,14 +120,16 @@ def set_expertvote(request, oid):
             answer.expertvotes.add(request.user)
         answer.save()
     section_util.increase_section_version(answer.answer_section)
-    return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
+    return response.success(
+        value=section_util.get_answersection_response(request, answer.answer_section)
+    )
 
 
-@response.request_post('flagged')
+@response.request_post("flagged")
 @auth_check.require_login
 def set_flagged(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
-    flagged = request.POST['flagged'] != 'false'
+    flagged = request.POST["flagged"] != "false"
     old_flagged = answer.flagged.filter(pk=request.user.pk).exists()
     if flagged != old_flagged:
         if old_flagged:
@@ -108,7 +138,9 @@ def set_flagged(request, oid):
             answer.flagged.add(request.user)
         answer.save()
     section_util.increase_section_version(answer.answer_section)
-    return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
+    return response.success(
+        value=section_util.get_answersection_response(request, answer.answer_section)
+    )
 
 
 @response.request_post()
@@ -118,4 +150,6 @@ def reset_flagged(request, oid):
     answer.flagged.clear()
     answer.save()
     section_util.increase_section_version(answer.answer_section)
-    return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
+    return response.success(
+        value=section_util.get_answersection_response(request, answer.answer_section)
+    )

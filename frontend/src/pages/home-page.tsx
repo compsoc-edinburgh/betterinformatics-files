@@ -1,4 +1,4 @@
-import { useLocalStorageState, useRequest } from "@umijs/hooks";
+import { useDebounce, useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
@@ -159,14 +159,19 @@ const HomePage: React.FC<{}> = () => {
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
+  const debouncedFilter = useDebounce(filter, 50);
   const searchResult = useSearch(
     categories ?? [],
     {
       includeScore: true,
       includeMatches: true,
-      keys: ["displayname", "slug"],
+      keys: ["displayname"],
+      minMatchCharLength: 2,
+      useExtendedSearch: true,
+      ignoreLocation: true,
+      threshold: 0.2,
     },
-    filter.length ? filter : undefined,
+    debouncedFilter.length ? debouncedFilter : undefined,
   );
   const filteredMetaCategories = useMemo(
     () =>
