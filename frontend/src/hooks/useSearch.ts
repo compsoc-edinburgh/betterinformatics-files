@@ -25,7 +25,6 @@ import { useMemo } from "react";
  * @param lm The lastMatch array that should be used
  * @param a The string that is not the search term
  * @param b The search term
- * @param arrayStride The stride that should be used for cost, pred, lm
  * @param bStart The index where dp computation should be started, pass 0 if cost, pred, lm are empty
  */
 function minCost(
@@ -42,26 +41,29 @@ function minCost(
   const m = a.length;
   const n = b.length;
 
-  const arrayStride = n + 1;
+  const arrayStride = m + 1;
+
+  cost[0] = 0;
 
   // Initialize dp array: the algorithm is ok with starting at an arbitrary location in `a`...
   for (let i = 1; i <= m; i++) {
-    cost[arrayStride * i] = 9;
+    cost[i] = 2;
   }
   // ...but it doesn't like starting with an arbitrary position in `b`
   // 255 is the worst score - it will always be cheaper to remove these chars in the main
   // DP part
-  for (let j = bStart + 1; j <= n; j++) {
-    cost[j] = 255;
+  for (let j = 1; j <= n; j++) {
+    cost[arrayStride * j] = 255;
   }
-  for (let i = 1; i <= m; i++) {
-    const prevRowIndex = arrayStride * (i - 1);
-    const rowIndex = arrayStride * i;
-    for (let j = bStart + 1; j <= n; j++) {
+
+  for (let j = bStart + 1; j <= n; j++) {
+    const prevRowIndex = arrayStride * (j - 1);
+    const rowIndex = arrayStride * j;
+    for (let i = 1; i <= m; i++) {
       // Replacement cost / benefit:
       // We don't want the algorithm to replace chars
-      let sCost = 10;
-      //
+      let sCost = 12;
+
       const matched = ac[i - 1] === bc[j - 1];
       // Matching chars are nice
       // but as we are ignoring jumps in a we want these to cost as well:
@@ -72,43 +74,43 @@ function minCost(
       // These fuzzy searching metrics were made for autocompletion and as such partial results will
       // be quite common
       if (matched) {
-        sCost = 3;
+        sCost = 6;
       }
       // Matches where the last char was also a match are really good
-      const t = lm[prevRowIndex + (j - 1)];
+      const t = lm[prevRowIndex + (i - 1)];
       if (matched && t === i - 1) {
-        sCost = -1;
+        sCost = 0;
       }
       // Matches at the beginning or after a space are what we want
       if (matched && (i === 1 || ac[i - 2] === " ")) {
-        sCost = -2;
+        sCost = 0;
       }
 
-      // Our DP recursion has three possibilities ignore a char in a, ignore a char in b and replace /
+      // Our DP recursion has three possibilities: ignore a char in a, ignore a char in b and replace /
       // match
 
       // Ignore char in a isn't costly, but also isn't free because sCost won't result in a "free" match
-      const sa = cost[prevRowIndex + j];
+      const sa = cost[rowIndex + (i - 1)];
       // Ignoring a char in our search term isn't what we want, but if the search term is long we might be
       // ok with it
-      const sb = cost[rowIndex + (j - 1)] + Math.max(9 - bc.length, 5);
+      const sb = cost[prevRowIndex + i] + 6;
       // Determined by the rules seen above
-      const sc = cost[prevRowIndex + (j - 1)] + sCost;
-      cost[rowIndex + j] = Math.min(sa, sb, sc);
+      const sc = cost[prevRowIndex + (i - 1)] + sCost;
+      cost[rowIndex + i] = Math.min(sa, sb, sc);
 
       if (sa < sb && sa < sc) {
         // Ignore a is the best option
-        pred[rowIndex + j] = 0;
-        lm[rowIndex + j] = lm[prevRowIndex + j];
+        pred[rowIndex + i] = 0;
+        lm[rowIndex + i] = lm[rowIndex + (i - 1)];
       } else if (sb < sc) {
         // Ignore b is the best option
-        pred[rowIndex + j] = 1;
-        lm[rowIndex + j] = lm[rowIndex + (j - 1)];
+        pred[rowIndex + i] = 1;
+        lm[rowIndex + i] = lm[prevRowIndex + i];
       } else {
         // Match / Replace is the best option
-        pred[rowIndex + j] = matched ? 2 : 3;
+        pred[rowIndex + i] = matched ? 2 : 3;
         // Update last match dp array if the char matched
-        lm[rowIndex + j] = matched ? i : lm[prevRowIndex + (j - 1)];
+        lm[rowIndex + i] = matched ? i : lm[prevRowIndex + (i - 1)];
       }
     }
   }
@@ -120,7 +122,7 @@ function minCost(
   const res: number[] = [];
   while (bi > 0) {
     // What kind of action was applied here
-    const p = pred[arrayStride * bi + bj];
+    const p = pred[arrayStride * bj + bi];
     if (p === 0) {
       bi--;
     } else if (p === 1) {
@@ -128,29 +130,21 @@ function minCost(
     } else {
       bi--;
       bj--;
-      // We found a match
       if (p === 2) res.push(bi);
+      // We found a match
     }
   }
   // The matches were inserted in the wrong order
   res.reverse();
 
   // Our score can be found in the bottom right corner
-  const min = cost[arrayStride * m + n];
+  const min = Math.max(0, cost[arrayStride * n + m]);
   return [min, res] as const;
 }
 
 export interface SearchCacheEntry {
-  /**
-   * search term that was matched against in the cost / pred / lm arrays
-   */
   b: string;
-  /**
-   * The number of rows that cost / pred / lm have, the stride is determined by the
-   * cache key a - it is always a.length + 1
-   */
   rows: number;
-
   cost: Uint8ClampedArray;
   pred: Uint8ClampedArray;
   lm: Uint8ClampedArray;
@@ -181,7 +175,7 @@ function prefixLength(a: string, b: string) {
 /**
  * How much memory should be reserved for append operations?
  */
-const CACHE_APPEND_SPACE = 3;
+const CACHE_APPEND_SPACE = 5;
 
 /**
  * Uses the provided cache to avoid allocating dp tables and speed up the computation by not
@@ -228,7 +222,7 @@ export function cachedMinCost(cache: SearchCache, a: string, b: string) {
 }
 
 /**
- * represents a search result
+ * represents a search term
  */
 export type SearchResult<T> = {
   /**
@@ -236,7 +230,7 @@ export type SearchResult<T> = {
    */
   score: number;
   /**
-   * The indices which matched
+   * The indices which matched, sorted in ascending order
    */
   match: number[];
 } & T;
