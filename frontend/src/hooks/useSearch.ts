@@ -1,43 +1,62 @@
 import { useMemo } from "react";
+
 /**
  * Computes a cost that estimates autocompletion relevance
  * The resulting cost will be between 0-255
  * 0 is perfect - "Advanced Algorithms", "Advanced" will have a cost of 0
  * 10 is already fairly bad
- * @param a The source string
+ *
+ * 2d arrays `cost[i][j] = cost[(bSize + 1) * i + j]`
+ * `cost[i][j]` is the minimal editing cost between `a.substr(0, i)` and `b.substr(0, j)`
+ *
+ * Pred array for extracting the match array:
+ * ```
+ * 0 = removed char in a
+ * 1 = removed char in b
+ * 2 = matching char
+ * 3 = replaced char
+ * ```
+ *
+ * last matching location for the min cost solution that enabled the
+ * cost in `cost[i][j]`
+ *
+ * @param cost The cost array that should be used
+ * @param pred The pred array that should be used
+ * @param lm The lastMatch array that should be used
+ * @param a The string that is not the search term
  * @param b The search term
+ * @param arrayStride The stride that should be used for cost, pred, lm
+ * @param bStart The index where dp computation should be started, pass 0 if cost, pred, lm are empty
  */
-function minCost(a: string, b: string) {
+function minCost(
+  cost: Uint8ClampedArray,
+  pred: Uint8ClampedArray,
+  lm: Uint8ClampedArray,
+  a: string,
+  b: string,
+  arrayStride: number,
+  bStart: number,
+) {
   // Convert to lowercase to facilitate case insensitive searching
   const ac = a.toLowerCase();
   const bc = b.toLowerCase();
   const m = a.length;
   const n = b.length;
 
-  // 2d arrays cost[i][j] = cost[(n + 1) * i + j]
-  // cost[i][j] is the minimal editing cost between a.substr(0, i) and b.substr(0, j)
-  const cost = new Uint8ClampedArray((m + 1) * (n + 1));
-  // Pred array for extracting the match array:
-  // 0 = removed char in a
-  // 1 = removed char in b
-  // 2 = matching char
-  // 3 = replaced char
-  const pred = new Uint8ClampedArray((m + 1) * (n + 1));
-  // last matching location for the min cost solution that enabled the
-  // cost in cost[i][j]
-  const lm = new Uint8ClampedArray((m + 1) * (n + 1));
   // Initialize dp array: the algorithm is ok with starting at an arbitrary location in `a`...
   for (let i = 1; i <= m; i++) {
-    cost[(n + 1) * i] = 9;
+    cost[arrayStride * i] = 9;
   }
   // ...but it doesn't like starting with an arbitrary position in `b`
   // 255 is the worst score - it will always be cheaper to remove these chars in the main
   // DP part
-  for (let j = 1; j <= n; j++) {
+  for (let j = bStart + 1; j <= n; j++) {
     cost[j] = 255;
   }
-  for (let j = 1; j <= n; j++) {
-    for (let i = 1; i <= m; i++) {
+  for (let i = 1; i <= m; i++) {
+    const prevRowIndex = arrayStride * (i - 1);
+    const rowIndex = arrayStride * i;
+    for (let j = bStart + 1; j <= n; j++) {
       // Replacement cost / benefit:
       // We don't want the algorithm to replace chars
       let sCost = 10;
@@ -48,14 +67,14 @@ function minCost(a: string, b: string) {
       // Advanced Algorithms, avcdag is bad
       // Advanced Algorithms, dvancedgorithm is better
       // Advanced Algorithms, AdvAlgo is really good
-      // Advanced Algorithms, Advanced Algorithms is equalls good
+      // Advanced Algorithms, Advanced Algorithms is equally good
       // These fuzzy searching metrics were made for autocompletion and as such partial results will
       // be quite common
       if (matched) {
         sCost = 3;
       }
       // Matches where the last char was also a match are really good
-      const t = lm[(n + 1) * (i - 1) + (j - 1)];
+      const t = lm[prevRowIndex + (j - 1)];
       if (matched && t === i - 1) {
         sCost = -1;
       }
@@ -68,27 +87,27 @@ function minCost(a: string, b: string) {
       // match
 
       // Ignore char in a isn't costly, but also isn't free because sCost won't result in a "free" match
-      const sa = cost[(n + 1) * (i - 1) + j];
+      const sa = cost[prevRowIndex + j];
       // Ignoring a char in our search term isn't what we want, but if the search term is long we might be
       // ok with it
-      const sb = cost[(n + 1) * i + (j - 1)] + Math.max(9 - bc.length, 5);
+      const sb = cost[rowIndex + (j - 1)] + Math.max(9 - bc.length, 5);
       // Determined by the rules seen above
-      const sc = cost[(n + 1) * (i - 1) + (j - 1)] + sCost;
-      cost[(n + 1) * i + j] = Math.min(sa, sb, sc);
+      const sc = cost[prevRowIndex + (j - 1)] + sCost;
+      cost[rowIndex + j] = Math.min(sa, sb, sc);
 
       if (sa < sb && sa < sc) {
         // Ignore a is the best option
-        pred[(n + 1) * i + j] = 0;
-        lm[(n + 1) * i + j] = lm[(n + 1) * (i - 1) + j];
+        pred[rowIndex + j] = 0;
+        lm[rowIndex + j] = lm[prevRowIndex + j];
       } else if (sb < sc) {
         // Ignore b is the best option
-        pred[(n + 1) * i + j] = 1;
-        lm[(n + 1) * i + j] = lm[(n + 1) * i + (j - 1)];
+        pred[rowIndex + j] = 1;
+        lm[rowIndex + j] = lm[rowIndex + (j - 1)];
       } else {
         // Match / Replace is the best option
-        pred[(n + 1) * i + j] = matched ? 2 : 3;
+        pred[rowIndex + j] = matched ? 2 : 3;
         // Update last match dp array if the char matched
-        lm[(n + 1) * i + j] = matched ? i : lm[(n + 1) * (i - 1) + (j - 1)];
+        lm[rowIndex + j] = matched ? i : lm[prevRowIndex + (j - 1)];
       }
     }
   }
@@ -97,10 +116,10 @@ function minCost(a: string, b: string) {
   // Start at the bottom right
   let bj = n;
   let bi = m;
-  const res = [];
+  const res: number[] = [];
   while (bi > 0) {
     // What kind of action was applied here
-    const p = pred[(n + 1) * bi + bj];
+    const p = pred[arrayStride * bi + bj];
     if (p === 0) {
       bi--;
     } else if (p === 1) {
@@ -116,14 +135,103 @@ function minCost(a: string, b: string) {
   res.reverse();
 
   // Our score can be found in the bottom right corner
-  const min = cost[(n + 1) * m + n];
+  const min = cost[arrayStride * m + n];
   return [min, res] as const;
 }
 
+export interface SearchCacheEntry {
+  b: string;
+  stride: number;
+  cost: Uint8ClampedArray;
+  pred: Uint8ClampedArray;
+  lm: Uint8ClampedArray;
+}
+export type SearchCache = Map<string, SearchCacheEntry>;
+
+/**
+ * Determines the number of matching characters at the beginning of the two strings
+ *
+ * Examples:
+ * ```ts
+ * "test", "tes" => 3
+ * "cat", "bat" => 0
+ * "dog", "dog" => 3
+ * "", "" => 0
+ * ```
+ * @param a A string
+ * @param b Another string
+ */
+function prefixLength(a: string, b: string) {
+  const maxIndex = Math.min(a.length, b.length);
+  let i = 0;
+  while (i < maxIndex && a[i] === b[i]) i++;
+
+  return i;
+}
+
+/**
+ * How much memory should be reserved for append operations?
+ */
+const CACHE_APPEND_SPACE = 3;
+
+/**
+ * Uses the provided cache to avoid allocating dp tables and speed up the computation by not
+ * computing parts of the dp table again. This results in linear time performance for removal / insertion
+ * at the end of string `b`. Such search terms are heavily favored: If the previous search was `"Diskrete"`
+ * the next search with `"DiskreteM"` will only take `O(n)` time.
+ *
+ * Initial allocation & search terms will always take `O(nm)` time.
+ *
+ * In general a search term which isn't `CACHE_APPEND_SPACE` characters longer than some previous search
+ * will take `O(n + (m - prefixLength(a, b)) * n)`
+ *
+ * The memory usage will be in `O(n + longestSearchTerm)` - use a new cache if the old is useless.
+ * @param cache The cache that should be used, it will also be filled with the potentially new entry
+ * @param a The string that is not the search term
+ * @param b The search term
+ */
+export function cachedMinCost(cache: SearchCache, a: string, b: string) {
+  // Let's see if we encountered that string before
+  const cacheEntry = cache.get(a);
+
+  // We need `b.length + 1` because the minCost uses the first row to optimize its
+  // base cases
+  if (cacheEntry !== undefined && cacheEntry.stride >= b.length + 1) {
+    const arrayStride = cacheEntry.stride;
+    const cost = cacheEntry.cost;
+    const pred = cacheEntry.pred;
+    const lm = cacheEntry.lm;
+    const start = prefixLength(b, cacheEntry.b);
+
+    cache.set(a, { b, stride: arrayStride, cost, pred, lm });
+    return minCost(cost, pred, lm, a, b, arrayStride, start);
+  }
+
+  const m = a.length;
+
+  const arrayStride = m + CACHE_APPEND_SPACE + 1;
+  const cost = new Uint8ClampedArray((m + 1) * arrayStride);
+  const pred = new Uint8ClampedArray((m + 1) * arrayStride);
+  const lm = new Uint8ClampedArray((m + 1) * arrayStride);
+
+  cache.set(a, { b, stride: arrayStride, cost, pred, lm });
+  return minCost(cost, pred, lm, a, b, arrayStride, 0);
+}
+
+/**
+ * represents a search term
+ */
 export type SearchResult<T> = {
+  /**
+   * A positive integer from 0-255, 0 is a perfect match, 255 is a really bad match
+   */
   score: number;
+  /**
+   * The indices which matched
+   */
   match: number[];
 } & T;
+
 /**
  * A React wrapper around the minCost function
  * @param data The array that should be searched in
@@ -137,6 +245,7 @@ const useSearch = <T>(
   maxScore: number,
   getter: (t: T) => string,
 ) => {
+  const cache = useMemo(() => new Map() as SearchCache, []);
   const allResults = useMemo(
     () => data.map(w => ({ score: 0, match: [], ...w })),
     [data],
@@ -147,12 +256,12 @@ const useSearch = <T>(
         ? allResults
         : data
             .map(w => {
-              const [score, match] = minCost(getter(w), pattern);
+              const [score, match] = cachedMinCost(cache, getter(w), pattern);
               return { score, match, ...w };
             })
             .filter(({ score }) => score < maxScore)
             .sort(({ score: aScore }, { score: bScore }) => aScore - bScore),
-    [pattern, data, getter, maxScore, allResults],
+    [pattern, data, getter, maxScore, allResults, cache],
   );
 
   return res;
