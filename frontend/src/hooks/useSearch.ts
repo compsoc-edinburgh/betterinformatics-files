@@ -219,7 +219,7 @@ export function cachedMinCost(cache: SearchCache, a: string, b: string) {
 }
 
 /**
- * represents a search term
+ * represents a search result
  */
 export type SearchResult<T> = {
   /**
