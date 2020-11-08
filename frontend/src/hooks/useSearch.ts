@@ -141,8 +141,16 @@ function minCost(
 }
 
 export interface SearchCacheEntry {
+  /**
+   * search term that was matched against in the cost / pred / lm arrays
+   */
   b: string;
+  /**
+   * The number of rows that cost / pred / lm have, the stride is determined by the
+   * cache key a - it is always a.length + 1
+   */
   rows: number;
+
   cost: Uint8ClampedArray;
   pred: Uint8ClampedArray;
   lm: Uint8ClampedArray;
