@@ -34,7 +34,6 @@ function minCost(
   lm: Uint8ClampedArray,
   a: string,
   b: string,
-  arrayStride: number,
   bStart: number,
 ) {
   // Convert to lowercase to facilitate case insensitive searching
@@ -42,6 +41,8 @@ function minCost(
   const bc = b.toLowerCase();
   const m = a.length;
   const n = b.length;
+
+  const arrayStride = n + 1;
 
   // Initialize dp array: the algorithm is ok with starting at an arbitrary location in `a`...
   for (let i = 1; i <= m; i++) {
@@ -141,7 +142,7 @@ function minCost(
 
 export interface SearchCacheEntry {
   b: string;
-  stride: number;
+  rows: number;
   cost: Uint8ClampedArray;
   pred: Uint8ClampedArray;
   lm: Uint8ClampedArray;
@@ -196,26 +197,26 @@ export function cachedMinCost(cache: SearchCache, a: string, b: string) {
 
   // We need `b.length + 1` because the minCost uses the first row to optimize its
   // base cases
-  if (cacheEntry !== undefined && cacheEntry.stride >= b.length + 1) {
-    const arrayStride = cacheEntry.stride;
+  if (cacheEntry !== undefined && cacheEntry.rows >= b.length + 1) {
+    const rows = cacheEntry.rows;
     const cost = cacheEntry.cost;
     const pred = cacheEntry.pred;
     const lm = cacheEntry.lm;
     const start = prefixLength(b, cacheEntry.b);
 
-    cache.set(a, { b, stride: arrayStride, cost, pred, lm });
-    return minCost(cost, pred, lm, a, b, arrayStride, start);
+    cache.set(a, { b, rows, cost, pred, lm });
+    return minCost(cost, pred, lm, a, b, start);
   }
 
   const m = a.length;
 
-  const arrayStride = m + CACHE_APPEND_SPACE + 1;
-  const cost = new Uint8ClampedArray((m + 1) * arrayStride);
-  const pred = new Uint8ClampedArray((m + 1) * arrayStride);
-  const lm = new Uint8ClampedArray((m + 1) * arrayStride);
+  const rows = b.length + CACHE_APPEND_SPACE + 1;
+  const cost = new Uint8ClampedArray((m + 1) * rows);
+  const pred = new Uint8ClampedArray((m + 1) * rows);
+  const lm = new Uint8ClampedArray((m + 1) * rows);
 
-  cache.set(a, { b, stride: arrayStride, cost, pred, lm });
-  return minCost(cost, pred, lm, a, b, arrayStride, 0);
+  cache.set(a, { b, rows, cost, pred, lm });
+  return minCost(cost, pred, lm, a, b, 0);
 }
 
 /**
