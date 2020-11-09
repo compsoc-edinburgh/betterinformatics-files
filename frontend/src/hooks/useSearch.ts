@@ -62,7 +62,7 @@ function minCost(
     for (let i = 1; i <= m; i++) {
       // Replacement cost / benefit:
       // We don't want the algorithm to replace chars
-      let sCost = 12;
+      let sCost = 5;
 
       const matched = ac[i - 1] === bc[j - 1];
       // Matching chars are nice
@@ -74,7 +74,7 @@ function minCost(
       // These fuzzy searching metrics were made for autocompletion and as such partial results will
       // be quite common
       if (matched) {
-        sCost = 6;
+        sCost = 3;
       }
       // Matches where the last char was also a match are really good
       const t = lm[prevRowIndex + (i - 1)];

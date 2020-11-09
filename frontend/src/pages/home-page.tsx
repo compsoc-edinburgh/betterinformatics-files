@@ -159,7 +159,7 @@ const HomePage: React.FC<{}> = () => {
   const searchResult = useSearch(
     categories ?? [],
     filter,
-    10,
+    Math.min(filter.length * 2, 12),
     displayNameGetter,
   );
   const filteredMetaCategories = useMemo(
