@@ -20,47 +20,58 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-DEBUG = os.environ.get('RUNTIME_POSTGRES_DB_USER', 'docker') == 'docker'
-IN_ENVIRON = 'RUNTIME_POSTGRES_DB_SERVER' in os.environ
-TESTING = sys.argv[1:2] == ['test']
-STAGING = os.environ.get('DEPLOYMENT_DOMAIN', '').endswith('svis.ethz.ch')
+DEBUG = os.environ.get("RUNTIME_POSTGRES_DB_USER", "docker") == "docker"
+IN_ENVIRON = "RUNTIME_POSTGRES_DB_SERVER" in os.environ
+TESTING = sys.argv[1:2] == ["test"]
+STAGING = os.environ.get("DEPLOYMENT_DOMAIN", "").endswith("svis.ethz.ch")
 
-SECRET_KEY = 'VERY SAFE SECRET KEY' if DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET']
-API_KEY = 'API_KEY' if DEBUG else os.environ['RUNTIME_COMMUNITY_SOLUTIONS_API_KEY']
+SECRET_KEY = (
+    "VERY SAFE SECRET KEY"
+    if DEBUG
+    else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET"]
+)
+API_KEY = "API_KEY" if DEBUG else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_API_KEY"]
 
-COMSOL_UPLOAD_FOLDER = 'intermediate_pdf_storage'
-COMSOL_EXAM_DIR = 'exams/'
-COMSOL_PRINTONLY_DIR = 'printonly/'
-COMSOL_SOLUTION_DIR = 'solutions/'
-COMSOL_IMAGE_DIR = 'imgs/'
-COMSOL_FILESTORE_DIR = 'files/'
-COMSOL_EXAM_ALLOWED_EXTENSIONS = {'pdf'}
-COMSOL_IMAGE_ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'svg', 'gif'}
-COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {'pdf', 'zip', 'tar.gz', 'tar.xz'}
-COMSOL_CATEGORY_SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-COMSOL_FRONTEND_GLOB_ID = os.environ.get('RUNTIME_FRONTEND_GLOB_ID', 'vseth-1116-vis')
+COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
+COMSOL_EXAM_DIR = "exams/"
+COMSOL_PRINTONLY_DIR = "printonly/"
+COMSOL_SOLUTION_DIR = "solutions/"
+COMSOL_IMAGE_DIR = "imgs/"
+COMSOL_FILESTORE_DIR = "files/"
+COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
+COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "svg", "gif"}
+COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
+COMSOL_CATEGORY_SLUG_CHARS = (
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+)
+COMSOL_FRONTEND_GLOB_ID = os.environ.get("RUNTIME_FRONTEND_GLOB_ID", "vseth-1116-vis")
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
-    ALLOWED_HOSTS.append('localhost')
-    REAL_ALLOWED_HOSTS.append('localhost')
+    ALLOWED_HOSTS.append("localhost")
+    REAL_ALLOWED_HOSTS.append("localhost")
 else:
     # ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
     # USE_X_FORWARDED_HOST = True
     # In K8s, the host is the IP of the pod and can thus change
     # As we are behind a reverse proxy, it should be fine to ignore this...
-    ALLOWED_HOSTS.append('*')
-    REAL_ALLOWED_HOSTS.append(os.environ['DEPLOYMENT_DOMAIN'])
+    ALLOWED_HOSTS.append("*")
+    REAL_ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_DOMAIN"])
 
-CSP_DEFAULT_SRC = ("'self'")
+CSP_DEFAULT_SRC = "'self'"
 allowed = []
 if DEBUG:
-    allowed = ['http://{}:8080/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
+    allowed = ["http://{}:8080/static/".format(host) for host in REAL_ALLOWED_HOSTS]
 else:
-    allowed = ['https://{}/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
+    allowed = ["https://{}/static/".format(host) for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://static.vseth.ethz.ch")
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://fonts.googleapis.com",
+    "https://static.vseth.ethz.ch",
+)
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_CONNECT_SRC = ("'self'", "https://static.vseth.ethz.ch")
 CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
@@ -69,82 +80,82 @@ CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.postgres',
-    'answers.apps.AnswersConfig',
-    'categories.apps.CategoriesConfig',
-    'faq.apps.FaqConfig',
-    'feedback.apps.FeedbackConfig',
-    'filestore.apps.FilestoreConfig',
-    'frontend.apps.FrontendConfig',
-    'health.apps.HealthConfig',
-    'images.apps.ImagesConfig',
-    'myauth.apps.MyAuthConfig',
-    'notifications.apps.NotificationsConfig',
-    'payments.apps.PaymentsConfig',
-    'scoreboard.apps.ScoreboardConfig',
-    'testing.apps.TestingConfig',
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.postgres",
+    "answers.apps.AnswersConfig",
+    "categories.apps.CategoriesConfig",
+    "faq.apps.FaqConfig",
+    "feedback.apps.FeedbackConfig",
+    "filestore.apps.FilestoreConfig",
+    "frontend.apps.FrontendConfig",
+    "health.apps.HealthConfig",
+    "images.apps.ImagesConfig",
+    "myauth.apps.MyAuthConfig",
+    "notifications.apps.NotificationsConfig",
+    "payments.apps.PaymentsConfig",
+    "scoreboard.apps.ScoreboardConfig",
+    "testing.apps.TestingConfig",
+    "django_prometheus",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'csp.middleware.CSPMiddleware',
-    'util.middleware.parse_request_middleware',
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "util.middleware.parse_request_middleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 if (STAGING or DEBUG) and not TESTING:
-    MIDDLEWARE.append('backend.debugging.db_profiling_middleware')
+    MIDDLEWARE.append("backend.debugging.db_profiling_middleware")
 
-ROOT_URLCONF = 'backend.urls'
+ROOT_URLCONF = "backend.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': not DEBUG,
-    'formatters': {
-        'simple': {
-            'format': '[{levelname}] {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": not DEBUG,
+    "formatters": {
+        "simple": {
+            "format": "[{levelname}] {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO' if (DEBUG or STAGING) else 'WARNING',
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO" if (DEBUG or STAGING) else "WARNING",
     },
 }
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+WSGI_APPLICATION = "backend.wsgi.application"
 
 
 # Database
@@ -152,26 +163,24 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 if IN_ENVIRON:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RUNTIME_POSTGRES_DB_NAME'],
-            'USER': os.environ['RUNTIME_POSTGRES_DB_USER'],
-            'PASSWORD': os.environ['RUNTIME_POSTGRES_DB_PW'],
-            'HOST': os.environ['RUNTIME_POSTGRES_DB_SERVER'],
-            'PORT': os.environ['RUNTIME_POSTGRES_DB_PORT'],
-            'OPTIONS': {
-                'sslmode': 'disable'
-            },
-            'CONN_MAX_AGE': 60,
+        "default": {
+            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "NAME": os.environ["RUNTIME_POSTGRES_DB_NAME"],
+            "USER": os.environ["RUNTIME_POSTGRES_DB_USER"],
+            "PASSWORD": os.environ["RUNTIME_POSTGRES_DB_PW"],
+            "HOST": os.environ["RUNTIME_POSTGRES_DB_SERVER"],
+            "PORT": os.environ["RUNTIME_POSTGRES_DB_PORT"],
+            "OPTIONS": {"sslmode": "disable"},
+            "CONN_MAX_AGE": 60,
         }
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.dummy',
+        "default": {
+            "ENGINE": "django.db.backends.dummy",
         }
     }
-    print('Warning: no database configured!')
+    print("Warning: no database configured!")
 
 
 # Password validation
@@ -179,14 +188,14 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = []
 
-AUTHENTICATION_BACKENDS = ['myauth.people_auth.PeopleAuthBackend']
+AUTHENTICATION_BACKENDS = ["myauth.people_auth.PeopleAuthBackend"]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = False
 
@@ -198,4 +207,4 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
