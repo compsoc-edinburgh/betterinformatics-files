@@ -1,4 +1,4 @@
-import { useDebounce, useLocalStorageState, useRequest } from "@umijs/hooks";
+import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
@@ -26,10 +26,11 @@ import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import TooltipButton from "../components/TooltipButton";
+import useSearch, { SearchResult } from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
-import useSearch from "../hooks/useSearch";
-import Fuse from "fuse.js";
+
+const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
 enum Mode {
   Alphabetical,
@@ -55,21 +56,17 @@ const addCategory = async (category: string) => {
 };
 
 const mapToCategories = (
-  categories: Fuse.FuseResult<CategoryMetaData>[],
+  categories: SearchResult<CategoryMetaData>[],
   meta1: MetaCategory[],
 ) => {
-  const categoryMap = new Map<string, Fuse.FuseResult<CategoryMetaData>>();
-  for (const category of categories)
-    categoryMap.set(category.item.slug, category);
+  const categoryMap = new Map<string, SearchResult<CategoryMetaData>>();
+  for (const category of categories) categoryMap.set(category.slug, category);
   const meta1Map: Map<
     string,
-    Array<[string, Fuse.FuseResult<CategoryMetaData>[]]>
+    Array<[string, SearchResult<CategoryMetaData>[]]>
   > = new Map();
   for (const { displayname: meta1display, meta2 } of meta1) {
-    const meta2Map: Map<
-      string,
-      Fuse.FuseResult<CategoryMetaData>[]
-    > = new Map();
+    const meta2Map: Map<string, SearchResult<CategoryMetaData>[]> = new Map();
     for (const {
       displayname: meta2display,
       categories: categoryNames,
@@ -159,19 +156,11 @@ const HomePage: React.FC<{}> = () => {
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
-  const debouncedFilter = useDebounce(filter, 50);
   const searchResult = useSearch(
     categories ?? [],
-    {
-      includeScore: true,
-      includeMatches: true,
-      keys: ["displayname"],
-      minMatchCharLength: 2,
-      useExtendedSearch: true,
-      ignoreLocation: true,
-      threshold: 0.2,
-    },
-    debouncedFilter.length ? debouncedFilter : undefined,
+    filter,
+    Math.min(filter.length * 2, 12),
+    displayNameGetter,
   );
   const filteredMetaCategories = useMemo(
     () =>
@@ -238,7 +227,7 @@ const HomePage: React.FC<{}> = () => {
             <>
               <Grid>
                 {searchResult.map(category => (
-                  <CategoryCard category={category} key={category.item.slug} />
+                  <CategoryCard category={category} key={category.slug} />
                 ))}
                 {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
               </Grid>
@@ -256,7 +245,7 @@ const HomePage: React.FC<{}> = () => {
                           {categories.map(category => (
                             <CategoryCard
                               category={category}
-                              key={category.item.slug}
+                              key={category.slug}
                             />
                           ))}
                         </Grid>
