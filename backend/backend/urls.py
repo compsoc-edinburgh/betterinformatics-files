@@ -52,7 +52,7 @@ urlpatterns = [
             "document_root": "static",
         },
     ),
-    path(r"metrics/", restrict_proxied(exports.ExportToDjangoView)),
+    path("metrics/", restrict_proxied(exports.ExportToDjangoView)),
 ]
 
 handler400 = views.handler400
