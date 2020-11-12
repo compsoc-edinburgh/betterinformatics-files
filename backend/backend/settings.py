@@ -164,7 +164,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 if IN_ENVIRON:
     DATABASES = {
         "default": {
-            "ENGINE": "django_prometheus.db.backends.postgresql_psycopg2",
+            "ENGINE": "django_prometheus.db.backends.postgresql",
             "NAME": os.environ["RUNTIME_POSTGRES_DB_NAME"],
             "USER": os.environ["RUNTIME_POSTGRES_DB_USER"],
             "PASSWORD": os.environ["RUNTIME_POSTGRES_DB_PW"],
