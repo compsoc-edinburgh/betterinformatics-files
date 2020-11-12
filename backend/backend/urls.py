@@ -15,26 +15,44 @@ Including another URLconf
 """
 from django.urls import path, re_path, include
 from django.views.static import serve
+from functools import wraps
+from util import response
+from django_prometheus import exports
 
 from . import views
 
+
+def restrict_proxied(f):
+    @wraps(f)
+    def wrapper(request):
+        if "X-Forwarded-For" in request.headers:
+            return response.not_allowed()
+        return f(request)
+
+    return wrapper
+
+
 urlpatterns = [
-    path('', include('health.urls')),
-    path('', include('frontend.urls')),
-    path('api/exam/', include('answers.urls')),
-    path('api/faq/', include('faq.urls')),
-    path('api/category/', include('categories.urls')),
-    path('api/feedback/', include('feedback.urls')),
-    path('api/filestore/', include('filestore.urls')),
-    path('api/image/', include('images.urls')),
-    path('api/auth/', include('myauth.urls')),
-    path('api/notification/', include('notifications.urls')),
-    path('api/payment/', include('payments.urls')),
-    path('api/scoreboard/', include('scoreboard.urls')),
-    re_path(r'^static/(?P<path>.*)$', views.cached_serve, {
-       'document_root': 'static',
-    }),
-    path('', include('django_prometheus.urls')),
+    path("", include("health.urls")),
+    path("", include("frontend.urls")),
+    path("api/exam/", include("answers.urls")),
+    path("api/faq/", include("faq.urls")),
+    path("api/category/", include("categories.urls")),
+    path("api/feedback/", include("feedback.urls")),
+    path("api/filestore/", include("filestore.urls")),
+    path("api/image/", include("images.urls")),
+    path("api/auth/", include("myauth.urls")),
+    path("api/notification/", include("notifications.urls")),
+    path("api/payment/", include("payments.urls")),
+    path("api/scoreboard/", include("scoreboard.urls")),
+    re_path(
+        r"^static/(?P<path>.*)$",
+        views.cached_serve,
+        {
+            "document_root": "static",
+        },
+    ),
+    path("metrics/", restrict_proxied(exports.ExportToDjangoView)),
 ]
 
 handler400 = views.handler400

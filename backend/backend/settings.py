@@ -164,7 +164,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 if IN_ENVIRON:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "ENGINE": "django_prometheus.db.backends.postgresql",
             "NAME": os.environ["RUNTIME_POSTGRES_DB_NAME"],
             "USER": os.environ["RUNTIME_POSTGRES_DB_USER"],
             "PASSWORD": os.environ["RUNTIME_POSTGRES_DB_PW"],
@@ -181,7 +181,6 @@ else:
         }
     }
     print("Warning: no database configured!")
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
