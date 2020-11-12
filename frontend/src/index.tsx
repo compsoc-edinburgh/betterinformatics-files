@@ -15,6 +15,10 @@ ReactDOM.render(
       <ReactKeycloakProvider
         authClient={keycloak}
         onTokens={tokens => {
+          // "kc-store-tokens" enables storing keycloak tokens in localStorage
+          // Currently this is exclusively a debug feature so that page reloads
+          // don't require the developer to press the login button again. It is potentially
+          // a security issue to store these tokens in localStorage
           if (localStorage.getItem("kc-store-tokens")) {
             localStorage.setItem("kc-idToken", JSON.stringify(tokens.idToken));
             localStorage.setItem(
