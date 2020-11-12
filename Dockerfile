@@ -3,7 +3,7 @@ FROM node:13.11-alpine
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .
 COPY ./frontend/yarn.lock .
-RUN yarn
+RUN yarn --ignore-engines
 COPY ./frontend/tsconfig.json .
 COPY ./frontend/.eslintrc.json .
 COPY ./frontend/.env.production .
