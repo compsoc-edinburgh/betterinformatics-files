@@ -6,3 +6,4 @@ venv
 .DS_Store
 __pycache__
 temp-gen
+data
