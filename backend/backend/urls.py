@@ -34,6 +34,7 @@ urlpatterns = [
     re_path(r'^static/(?P<path>.*)$', views.cached_serve, {
        'document_root': 'static',
     }),
+    path('', include('django_prometheus.urls')),
 ]
 
 handler400 = views.handler400
