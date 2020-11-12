@@ -15,9 +15,18 @@ Including another URLconf
 """
 from django.urls import path, re_path, include
 from django.views.static import serve
+from functools import wraps
+from util import response
 
 from . import views
 
+def restrict_proxied(f) :
+    @wraps(f)
+    def wrapper(request):
+        if "X-Forwarded-For" in request.headers:
+            return response.not_allowed()
+        return f(request)
+    return wrapper
 urlpatterns = [
     path('', include('health.urls')),
     path('', include('frontend.urls')),
@@ -34,7 +43,7 @@ urlpatterns = [
     re_path(r'^static/(?P<path>.*)$', views.cached_serve, {
        'document_root': 'static',
     }),
-    path('', include('django_prometheus.urls')),
+    path('', ),
 ]
 
 handler400 = views.handler400
