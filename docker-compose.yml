@@ -52,7 +52,7 @@ services:
       - SIP_S3_FILES_PORT=9000
       - SIP_S3_FILES_ACCESS_KEY=minio
       - SIP_S3_FILES_SECRET_KEY=minio123
-      - SIP_S3_FILES_BUCKET_NAME=community-solutions
+      - SIP_S3_FILES_BUCKET=community-solutions
 
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
