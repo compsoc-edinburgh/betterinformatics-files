@@ -14,7 +14,7 @@ auth:
     accessType: public
     clientProtocol: openid-connect
     validRedirectURIs:
-      - /callback
+      - http://exams.com.staging-sip.ethz.ch
     scopes:
       defaultClientScopes: []
     roles:
