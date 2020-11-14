@@ -6,8 +6,13 @@ import { ReactKeycloakProvider } from "@react-keycloak/web";
 import keycloak from "./keycloak";
 import { QueryParamProvider } from "use-query-params";
 
-const optParse = (str: string | null) =>
-  str === null ? undefined : JSON.parse(str);
+const optParse = (str: string | null) => {
+  try {
+    return str === null ? undefined : JSON.parse(str);
+  } catch (e) {
+    return undefined;
+  }
+};
 
 ReactDOM.render(
   <BrowserRouter>
