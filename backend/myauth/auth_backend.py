@@ -89,7 +89,11 @@ def add_auth(request):
         ):
             raise NoUsernameException(claims["given_name"], claims["family_name"], sub)
         preferred_username = claims["preferred_username"]
-        roles = claims["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
+        roles = (
+            claims["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
+            if "resource_access" in claims
+            else []
+        )
         request.roles = roles
 
         try:
