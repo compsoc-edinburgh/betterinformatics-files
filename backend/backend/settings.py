@@ -175,7 +175,7 @@ TEMPLATES = [
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": not DEBUG,
+    "disable_existing_loggers": not (DEBUG or STAGING),
     "formatters": {
         "simple": {
             "format": "[{levelname}] {message}",
