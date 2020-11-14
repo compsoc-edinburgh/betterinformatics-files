@@ -1,18 +1,13 @@
-import { Modal } from "@vseth/components";
 import React from "react";
 import { Route, RouteProps } from "react-router-dom";
 import { useUser } from ".";
-import LoginCard from "../components/login-card";
 import LoadingOverlay from "../components/loading-overlay";
+import LoginOverlay from "../pages/login-page";
 
 const UserRouteContent = <T extends RouteProps>({ props }: { props: T }) => {
   const user = useUser();
   if (user !== undefined && !user.loggedin) {
-    return (
-      <Modal isOpen={true}>
-        <LoginCard />
-      </Modal>
-    );
+    return <LoginOverlay />;
   } else {
     return (
       <>
