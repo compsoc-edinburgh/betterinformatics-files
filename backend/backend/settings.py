@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
-STAGING = os.environ.get("DEPLOYMENT_DOMAIN", "").endswith("svis.ethz.ch")
+STAGING = True
 
 SECRET_KEY = (
     "VERY SAFE SECRET KEY"
