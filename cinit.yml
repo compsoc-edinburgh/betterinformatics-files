@@ -76,3 +76,4 @@ programs:
       - RUNTIME_JWT_PUBLIC_KEY:
       - RUNTIME_JWT_VERIFY_SIGNATURE:
       - RUNTIME_JWT_RESOURCE_GROUP:
+      - prometheus_multiproc_dir: /dev/shm

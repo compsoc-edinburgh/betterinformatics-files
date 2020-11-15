@@ -5,3 +5,4 @@ psycopg2-binary==2.8.5
 django-csp==3.6
 pyjwt[crypto]==1.7.1
 beautifulsoup4==4.9.1
+django-prometheus==2.1.0

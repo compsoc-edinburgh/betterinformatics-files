@@ -89,14 +89,19 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_DOMAIN"])
 
-CSP_DEFAULT_SRC = ("'self'")
+CSP_DEFAULT_SRC = "'self'"
 allowed = []
 if DEBUG:
-    allowed = ['http://{}:8080/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
+    allowed = ["http://{}:8080/static/".format(host) for host in REAL_ALLOWED_HOSTS]
 else:
-    allowed = ['https://{}/static/'.format(host) for host in REAL_ALLOWED_HOSTS]
+    allowed = ["https://{}/static/".format(host) for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://static.vseth.ethz.ch")
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://fonts.googleapis.com",
+    "https://static.vseth.ethz.ch",
+)
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_CONNECT_SRC = (
     "'self'",
@@ -111,8 +116,10 @@ CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     "answers.apps.AnswersConfig",
     "categories.apps.CategoriesConfig",
     "faq.apps.FaqConfig",
@@ -129,6 +136,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "myauth.auth_backend.AuthenticationMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -136,6 +144,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
     "util.middleware.parse_request_middleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 if (STAGING or DEBUG) and not TESTING:
@@ -162,8 +171,15 @@ TEMPLATES = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": not DEBUG,
-    "formatters": {"simple": {"format": "[{levelname}] {message}", "style": "{",},},
-    "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "simple"},},
+    "formatters": {
+        "simple": {
+            "format": "[{levelname}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+    },
     "root": {
         "handlers": ["console"],
         "level": "INFO" if (DEBUG or STAGING) else "WARNING",
@@ -179,7 +195,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 if IN_ENVIRON:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "ENGINE": "django_prometheus.db.backends.postgresql",
             "NAME": os.environ["RUNTIME_POSTGRES_DB_NAME"],
             "USER": os.environ["RUNTIME_POSTGRES_DB_USER"],
             "PASSWORD": os.environ["RUNTIME_POSTGRES_DB_PW"],
@@ -190,7 +206,11 @@ if IN_ENVIRON:
         }
     }
 else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.dummy",}}
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.dummy",
+        }
+    }
     print("Warning: no database configured!")
 
 
