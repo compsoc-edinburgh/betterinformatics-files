@@ -88,6 +88,7 @@ programs:
       - RUNTIME_FRONTEND_KEYCLOAK_REALM:
 
       - RUNTIME_JWT_PUBLIC_KEY:
+      - prometheus_multiproc_dir: /dev/shm
 
       # Only for debug purposes
       - RUNTIME_JWT_VERIFY_SIGNATURE:
