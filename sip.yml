@@ -14,7 +14,8 @@ auth:
     accessType: public
     clientProtocol: openid-connect
     validRedirectURIs:
-      - /callback
+      - http://exams.com.staging-sip.ethz.ch/
+      - https://exams.com.staging-sip.ethz.ch/
     scopes:
       defaultClientScopes: []
     roles:
@@ -28,10 +29,6 @@ env:
   - name: "RUNTIME_COMMUNITY_SOLUTIONS_API_KEY"
     secret:
       key: api-key
-      create: provided
-  - name: "RUNTIME_JWT_PUBLIC_KEY"
-    secret:
-      key: jwt-public-key
       create: provided
   - name: "RUNTIME_FRONTEND_GLOB_ID"
     secret:

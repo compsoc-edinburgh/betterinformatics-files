@@ -4,9 +4,14 @@ from answers.models import Exam, ExamType, AnswerSection, Answer, Comment
 from categories.models import Category
 from myauth.models import MyUser
 import logging
-from jwt import encode
+from jwcrypto.jwk import JWK
+from jwcrypto.jwt import JWT
 
-private_key = open("testing/jwtRS256.key", "rb").read()
+
+private_key_data = open("testing/jwtRS256.key", "rb").read()
+key = JWK()
+key.import_from_pem(private_key_data)
+
 
 
 def get_token(user):
@@ -16,8 +21,10 @@ def get_token(user):
     family_name = user["family_name"]
     admin = user["admin"]
     roles = ["admin"] if admin else []
-    encoded = encode(
-        {
+
+    token = JWT(
+        header={"alg": "RS256", "typ": "JWT", "kid": key.key_id},
+        claims={
             "sub": sub,
             "resource_access": {"group": {"roles": roles}},
             "scope": "openid profile",
@@ -27,10 +34,10 @@ def get_token(user):
             "given_name": given_name,
             "family_name": family_name,
         },
-        private_key,
-        algorithm="RS256",
     )
-    return "Bearer " + encoded.decode("utf-8")
+    token.make_signed_token(key)
+
+    return "Bearer " + token.serialize()
 
 
 class ComsolTest(TestCase):

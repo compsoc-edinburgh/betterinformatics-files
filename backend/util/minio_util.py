@@ -14,7 +14,7 @@ if settings.IN_ENVIRON:
         access_key=os.environ['SIP_S3_FILES_ACCESS_KEY'],
         secret_key=os.environ['SIP_S3_FILES_SECRET_KEY'],
         secure=not settings.DEBUG and not settings.TESTING)
-    minio_bucket = os.environ['SIP_S3_FILES_BUCKET_NAME']
+    minio_bucket = os.environ['SIP_S3_FILES_BUCKET']
 
 
 def save_uploaded_file_to_disk(dest, uploaded_file):

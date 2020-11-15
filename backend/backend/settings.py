@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
+from base64 import b64encode
 import sys
-import json
+from jwcrypto.jwk import JWKSet, JWK
+from jwcrypto.jwt import JWT
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
-STAGING = os.environ.get("DEPLOYMENT_DOMAIN", "").endswith("svis.ethz.ch")
+STAGING = True
 
 SECRET_KEY = (
     "VERY SAFE SECRET KEY"
@@ -60,14 +63,22 @@ COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
 )
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
-test_public_key = open("testing/jwtRS256.key.pub", "rb").read()
-JWT_PUBLIC_KEY = (
-    test_public_key
+# During testing we use the public / private key pair located in the testing directory
+# We convert it from pem to a data_url so that even while testing the jwk is loaded from an url
+test_pub_key_data = open("testing/jwtRS256.key.pub", "rb").read()
+test_key = JWK()
+test_key.import_from_pem(test_pub_key_data)
+key_data = JWKSet(keys=test_key).export(private_keys=False)
+pub_key_set_url = "data:text/plain;base64," + b64encode(
+    key_data.encode("utf-8")
+).decode("utf-8")
+
+OIDC_JWKS_URL = (
+    pub_key_set_url
     if TESTING
-    else (
-        bytes(os.environ["RUNTIME_JWT_PUBLIC_KEY"], "utf-8").decode("unicode_escape")
-        if "RUNTIME_JWT_PUBLIC_KEY" in os.environ
-        else b""
+    else os.environ.get(
+        "SIP_AUTH_OIDC_JWKS_URL",
+        "https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/certs",
     )
 )
 JWT_VERIFY_SIGNATURE = (
@@ -91,15 +102,12 @@ else:
     REAL_ALLOWED_HOSTS.append(os.environ["DEPLOYMENT_DOMAIN"])
 
 CSP_DEFAULT_SRC = "'self'"
+allowed = []
 if DEBUG:
-    CSP_SCRIPT_SRC = (
-        "'unsafe-eval'",
-        "http://localhost:8080/static/",
-        "http://localhost:3000/static/",
-    )
+    allowed = ["http://{}:8080/static/".format(host) for host in REAL_ALLOWED_HOSTS]
 else:
     allowed = ["https://{}/static/".format(host) for host in REAL_ALLOWED_HOSTS]
-    CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
+CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",
@@ -120,8 +128,10 @@ CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     "answers.apps.AnswersConfig",
     "categories.apps.CategoriesConfig",
     "faq.apps.FaqConfig",
@@ -138,6 +148,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "myauth.auth_backend.AuthenticationMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -145,6 +156,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
     "util.middleware.parse_request_middleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 if (STAGING or DEBUG) and not TESTING:
@@ -170,7 +182,7 @@ TEMPLATES = [
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": not DEBUG,
+    "disable_existing_loggers": not (DEBUG or STAGING),
     "formatters": {
         "simple": {
             "format": "[{levelname}] {message}",
@@ -195,7 +207,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 if IN_ENVIRON:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql_psycopg2",
+            "ENGINE": "django_prometheus.db.backends.postgresql",
             "NAME": os.environ["SIP_POSTGRES_DB_NAME"],
             "USER": os.environ["SIP_POSTGRES_DB_USER"],
             "PASSWORD": os.environ["SIP_POSTGRES_DB_PW"],
