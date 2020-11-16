@@ -45,7 +45,7 @@ const ImageModal: React.FC<ModalProps> = ({
   };
   return (
     <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader>Images</ModalHeader>
+      <ModalHeader toggle={toggle}>Images</ModalHeader>
       <ModalBody>
         <Row>
           <Col>
@@ -111,16 +111,6 @@ const ImageModal: React.FC<ModalProps> = ({
               </div>
             ))}
         </CardColumns>
-        {images?.length === 0 && (
-          <div className="d-flex justify-content-center m-4">
-            No Images Uploaded Yet!
-          </div>
-        )}
-        <Row className="d-flex justify-content-center">
-          <IconButton className="m-1" size="sm" onClick={toggle} icon="CLOSE">
-            Close Image Browser
-          </IconButton>
-        </Row>
       </ModalBody>
     </Modal>
   );

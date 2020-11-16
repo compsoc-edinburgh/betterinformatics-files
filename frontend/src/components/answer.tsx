@@ -111,7 +111,6 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      {}
       <AnswerWrapper id={hasId ? answer?.longId : undefined}>
         <CardHeader>
           <div className="d-flex flex-between align-items-center">

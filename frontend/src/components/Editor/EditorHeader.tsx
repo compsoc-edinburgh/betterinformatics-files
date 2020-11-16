@@ -18,17 +18,11 @@ const iconButtonStyle = css`
   &:hover {
     color: rgba(0, 0, 0, 0.8);
   }
-  col-sm
-  px-0
 `;
 const navStyle = css`
   width: 100%;
   display: flex;
   justify-content: space-between;
-`;
-const tooltipStyle = `
-  col-sm
-  px-0
 `;
 const headerStyle = css`
   position: relative;
@@ -80,75 +74,73 @@ const EditorHeader: React.FC<Props> = ({
             </NavLink>
           </NavItem>
         </div>
-        <div className="d-flex justify-content-center">
-          {activeMode === "write" && (
-            <Row className="m-0 d-flex justify-content-center">
-              <Col className={tooltipStyle}>
-                <TooltipButton
-                  className={iconButtonStyle}
-                  onClick={handlers.onMathClick}
-                  type="button"
-                  size="sm"
-                  tooltip="Inline Math"
-                >
-                  <DollarSign size={iconSize} />
-                </TooltipButton>
-              </Col>
-              <Col className={tooltipStyle}>
-                <TooltipButton
-                  className={iconButtonStyle}
-                  onClick={handlers.onCodeClick}
-                  type="button"
-                  size="sm"
-                  tooltip="Code Block"
-                >
-                  <Code size={iconSize} />
-                </TooltipButton>
-              </Col>
-              <Col className={tooltipStyle}>
-                <TooltipButton
-                  className={iconButtonStyle}
-                  onClick={handlers.onLinkClick}
-                  type="button"
-                  size="sm"
-                  tooltip="Hyperlink"
-                >
-                  <Link size={iconSize} />
-                </TooltipButton>
-              </Col>
-              <Col className={tooltipStyle}>
-                <TooltipButton
-                  className={iconButtonStyle}
-                  onClick={handlers.onItalicClick}
-                  type="button"
-                  size="sm"
-                  tooltip={
-                    <>
-                      Italic<kbd>Ctrl + I</kbd>{" "}
-                    </>
-                  }
-                >
-                  <Italic size={iconSize} />
-                </TooltipButton>
-              </Col>
-              <Col className={tooltipStyle}>
-                <TooltipButton
-                  className={iconButtonStyle}
-                  onClick={handlers.onBoldClick}
-                  type="button"
-                  size="sm"
-                  tooltip={
-                    <>
-                      Bold<kbd>Ctrl + B</kbd>{" "}
-                    </>
-                  }
-                >
-                  <Bold size={iconSize} />
-                </TooltipButton>
-              </Col>
-            </Row>
-          )}
-        </div>
+        {activeMode === "write" && (
+          <Row className="m-0 d-flex justify-content-center">
+            <Col className={"col-sm px-0"}>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onMathClick}
+                type="button"
+                size="sm"
+                tooltip="Inline Math"
+              >
+                <DollarSign size={iconSize} />
+              </TooltipButton>
+            </Col>
+            <Col className={"col-sm px-0"}>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onCodeClick}
+                type="button"
+                size="sm"
+                tooltip="Code Block"
+              >
+                <Code size={iconSize} />
+              </TooltipButton>
+            </Col>
+            <Col className={"col-sm px-0"}>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onLinkClick}
+                type="button"
+                size="sm"
+                tooltip="Hyperlink"
+              >
+                <Link size={iconSize} />
+              </TooltipButton>
+            </Col>
+            <Col className={"col-sm px-0"}>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onItalicClick}
+                type="button"
+                size="sm"
+                tooltip={
+                  <>
+                    Italic<kbd>Ctrl + I</kbd>{" "}
+                  </>
+                }
+              >
+                <Italic size={iconSize} />
+              </TooltipButton>
+            </Col>
+            <Col className={"col-sm px-0"}>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onBoldClick}
+                type="button"
+                size="sm"
+                tooltip={
+                  <>
+                    Bold<kbd>Ctrl + B</kbd>{" "}
+                  </>
+                }
+              >
+                <Bold size={iconSize} />
+              </TooltipButton>
+            </Col>
+          </Row>
+        )}
       </Nav>
     </div>
   );

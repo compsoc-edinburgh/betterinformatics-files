@@ -39,6 +39,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
+      {error && <Alert color="danger">{error}</Alert>}
+      {loading && <Spinner />}
       <Row>
         <Col md={6} xs={12} className="text-center text-md-left">
           <FormGroup className="m-1 text-center d-inline-block">
@@ -69,8 +71,6 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             </div>
           </FormGroup>
         </Col>
-        {error && <Alert color="danger">{error}</Alert>}
-        {loading && <Spinner />}
       </Row>
 
       {examTypeMap &&
