@@ -4,6 +4,9 @@ from myauth import auth_check
 from django.db.models import Exists, OuterRef
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
+
+from django_prometheus.models import ExportModelOperationsMixin
+
 import random
 
 
@@ -126,7 +129,7 @@ def generate_long_id():
     return res
 
 
-class Answer(models.Model):
+class Answer(ExportModelOperationsMixin('answer'), models.Model):
     answer_section = models.ForeignKey(
         'AnswerSection', on_delete=models.CASCADE)
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -151,7 +154,7 @@ class Answer(models.Model):
         indexes = [GinIndex(fields=["search_vector"])]
 
 
-class Comment(models.Model):
+class Comment(ExportModelOperationsMixin('comment'), models.Model):
     answer = models.ForeignKey('Answer', on_delete=models.CASCADE)
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     text = models.TextField()
