@@ -1,22 +1,5 @@
-FROM node:13.11-alpine
-
-WORKDIR /usr/src/app
-COPY ./frontend/package.json .
-COPY ./frontend/yarn.lock .
-RUN yarn --ignore-engines
-COPY ./frontend/tsconfig.json .
-COPY ./frontend/.eslintrc.json .
-COPY ./frontend/.env.production .
-COPY ./frontend/.prettierrc.json ./.prettierrc.json
-COPY ./frontend/public ./public
-COPY ./frontend/src ./src
-RUN yarn run check-format || ( >&2 echo -e '\n\n=========\nSome code has not been autoformated. See "Editing frontend code" in README.md.\n=========\n\n'; exit 1 )
-RUN yarn run lint || ( >&2 echo -e '\n\n=========\nYour code violates our set of linting rules.\nSee "Editing frontend code" in README.md.\n=========\n\n'; exit 1 )
-RUN yarn run build
-
-
-FROM eu.gcr.io/vseth-public/base:delta
-LABEL maintainer='schmidbe@vis.ethz.ch'
+FROM eu.gcr.io/vseth-public/base:delta AS backend
+LABEL maintainer='lmoeller@vis.ethz.ch'
 
 WORKDIR /app
 
@@ -34,13 +17,29 @@ COPY cinit.yml /etc/cinit.d/community-solutions.yml
 # prevent guincorn from buffering prints from python workers
 ENV PYTHONUNBUFFERED True
 
-COPY --from=0 /usr/src/app/build/manifest.json ./manifest.json
-COPY --from=0 /usr/src/app/build/index.html ./templates/index.html
-COPY --from=0 /usr/src/app/build/favicon.ico ./favicon.ico
-COPY --from=0 /usr/src/app/build/static ./static
 COPY ./frontend/public/exam10.pdf ./exam10.pdf
 COPY ./frontend/public/static ./static
 COPY ./backend/ ./
-RUN python3 manage.py check
+
+FROM node:13.11-alpine AS frontend-build
+
+WORKDIR /usr/src/app
+COPY ./frontend/package.json .
+COPY ./frontend/yarn.lock .
+RUN yarn --ignore-engines
+COPY ./frontend/tsconfig.json .
+COPY ./frontend/.eslintrc.json .
+COPY ./frontend/.env.production .
+COPY ./frontend/.prettierrc.json ./.prettierrc.json
+COPY ./frontend/public ./public
+COPY ./frontend/src ./src
+RUN yarn run build
+
+FROM backend AS combined
+
+COPY --from=frontend-build /usr/src/app/build/manifest.json ./manifest.json
+COPY --from=frontend-build /usr/src/app/build/index.html ./templates/index.html
+COPY --from=frontend-build /usr/src/app/build/favicon.ico ./favicon.ico
+COPY --from=frontend-build /usr/src/app/build/static ./static
 
 EXPOSE 80

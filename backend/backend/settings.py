@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     "payments.apps.PaymentsConfig",
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
+    "django_probes",
 ]
 
 MIDDLEWARE = [
