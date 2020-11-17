@@ -76,7 +76,7 @@ const EditorHeader: React.FC<Props> = ({
         </div>
         {activeMode === "write" && (
           <Row className="m-0 d-flex justify-content-center">
-            <Col className={"col-sm px-0"}>
+            <Col className="col-sm px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onMathClick}
