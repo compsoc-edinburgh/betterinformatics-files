@@ -12,6 +12,7 @@ from util.func_cache import cache
 from myauth.models import MyUser, Profile
 from jwcrypto.jws import InvalidJWSObject, InvalidJWSOperation, InvalidJWSSignature
 from datetime import datetime, timezone
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -96,38 +97,39 @@ def add_auth(request):
         )
         request.roles = roles
 
-        try:
-            user = MyUser.objects.get(profile__sub=sub)
-            request.user = user
-            changed = False
+        with transaction.atomic():
+            existing_user = MyUser.objects.filter(profile__sub=sub).first()
+            if existing_user != None:
+                request.user = existing_user
+                changed = False
 
-            if claims["given_name"] != user.first_name:
-                changed = True
+                if claims["given_name"] != existing_user.first_name:
+                    changed = True
+                    existing_user.first_name = claims["given_name"]
+
+                if claims["family_name"] != existing_user.last_name:
+                    changed = True
+                    existing_user.last_name = claims["family_name"]
+
+                if changed:
+                    existing_user.save()
+            else:
+                user = MyUser()
                 user.first_name = claims["given_name"]
-
-            if claims["family_name"] != user.last_name:
-                changed = True
                 user.last_name = claims["family_name"]
-
-            if changed:
+                user.username = generate_unique_username(preferred_username)
                 user.save()
-        except MyUser.DoesNotExist:
-            user = MyUser()
-            user.first_name = claims["given_name"]
-            user.last_name = claims["family_name"]
-            user.username = generate_unique_username(preferred_username)
-            user.save()
 
-            profile = Profile.objects.create(user=user, sub=sub)
+                Profile.objects.create(user=user, sub=sub)
 
-            request.user = user
+                request.user = user
 
-            for type_ in [
-                NotificationType.NEW_COMMENT_TO_ANSWER,
-                NotificationType.NEW_ANSWER_TO_ANSWER,
-            ]:
-                setting = NotificationSetting(user=user, type=type_.value)
-                setting.save()
+                for type_ in [
+                    NotificationType.NEW_COMMENT_TO_ANSWER,
+                    NotificationType.NEW_ANSWER_TO_ANSWER,
+                ]:
+                    setting = NotificationSetting(user=user, type=type_.value)
+                    setting.save()
     return None
 
 
