@@ -109,7 +109,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               <Col>
                 <Row>
                   <Col>
-                    <h6 className="mb-1">
+                    <h6 className="mb-1 text-nowrap">
                       {exam.canView ? (
                         <Link
                           to={`/exams/${exam.filename}`}

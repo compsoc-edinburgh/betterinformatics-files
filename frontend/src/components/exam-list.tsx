@@ -41,9 +41,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     <>
       {error && <Alert color="danger">{error}</Alert>}
       {loading && <Spinner />}
-      <Row>
+      <Row className="d-flex flex-between">
         <Col md={6} xs={12} className="text-center text-md-left">
-          <FormGroup className="m-1 text-center d-inline-block">
+          <FormGroup className="mb-2 d-md-inline-block">
             <IconButton
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(selected)}
@@ -55,7 +55,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           </FormGroup>
         </Col>
         <Col md={6} xs={12} className="text-center text-md-right">
-          <FormGroup className="m-1 d-inline-block">
+          <FormGroup className="d-md-inline-block">
             <div className="search mb-0">
               <input
                 type="text"
