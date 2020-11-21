@@ -1,4 +1,4 @@
-version: "3"
+version: "3.4"
 services:
   minio:
     image: minio/minio
@@ -40,6 +40,7 @@ services:
       args:
         git_branch: <docker>
         git_commit: <compose>
+      target: backend
     container_name: community-solutions
     ports:
       - "8080:80"
@@ -66,5 +67,6 @@ services:
 
       - SIP_AUTH_OIDC_CLIENT_ID=vis-community-solutions
     depends_on:
-      - "postgres"
-      - "minio"
+      - postgres
+      - minio
+

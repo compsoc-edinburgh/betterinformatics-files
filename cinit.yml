@@ -1,11 +1,43 @@
 programs:
-  - name: sleep
-    path: /bin/sleep
+  - name: wait-for-db
+    path: /usr/bin/python3
     args:
-      - 1
+      - "manage.py"
+      - "wait_for_database"
+    workdir: /app
+    user: app-user
+    group: app-user
     before:
       - migrate
-      - gunicorn
+    env:
+      - DEPLOYMENT_DOMAIN: exams.com.staging-sip.ethz.ch
+
+      - SIP_S3_FILES_HOST:
+      - SIP_S3_FILES_PORT:
+      - SIP_S3_FILES_ACCESS_KEY:
+      - SIP_S3_FILES_SECRET_KEY:
+      - SIP_S3_FILES_BUCKET:
+
+      - SIP_POSTGRES_DB_SERVER:
+      - SIP_POSTGRES_DB_PORT:
+      - SIP_POSTGRES_DB_NAME:
+      - SIP_POSTGRES_DB_USER:
+      - SIP_POSTGRES_DB_PW:
+
+      - SIP_AUTH_OIDC_CLIENT_ID:
+      - SIP_AUTH_OIDC_JWKS_URL:
+
+      - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET:
+      - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY:
+
+      - RUNTIME_FRONTEND_GLOB_ID:
+      - RUNTIME_FRONTEND_KEYCLOAK_URL:
+      - RUNTIME_FRONTEND_KEYCLOAK_REALM:
+
+      - RUNTIME_JWT_PUBLIC_KEY:
+
+      # Only for debug purposes
+      - RUNTIME_JWT_VERIFY_SIGNATURE:
   - name: migrate
     path: /usr/bin/python3
     args:
