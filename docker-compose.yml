@@ -42,7 +42,8 @@ services:
     ports:
       - "8081:80"
     environment:
-      - DEPLOYMENT_DOMAIN=localhost
+      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN=localhost
+      - SIP_INGRESS_HTTP_DEFAULT_CNAMES=
 
       - SIP_POSTGRES_DB_SERVER=postgres
       - SIP_POSTGRES_DB_PORT=5432
