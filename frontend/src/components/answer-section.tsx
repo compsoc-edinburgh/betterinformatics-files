@@ -278,7 +278,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                           </Button>
                         ) : (
                           (data.answers.length === 0 || !hidden) &&
-                          data && (
+                          data &&
+                          (data.allow_new_answer ||
+                            (data.allow_new_legacy_answer && isCatAdmin)) && (
                             <AddButton
                               allowAnswer={data.allow_new_answer}
                               allowLegacyAnswer={
@@ -307,7 +309,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       }
                       right={
                         isCatAdmin && (
-                          <UncontrolledDropdown className="mt-1 mt-sm-0">
+                          <UncontrolledDropdown>
                             <DropdownToggle caret size="sm">
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </DropdownToggle>
