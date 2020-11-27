@@ -3,7 +3,8 @@ import React from "react";
 
 const gridStyles = css`
   @media screen and (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    display: flex;
+    flex-direction: column;
   }
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
