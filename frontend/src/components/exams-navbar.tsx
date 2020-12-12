@@ -45,7 +45,6 @@ const ExamsNavbar: React.FC<{}> = () => {
       secondaryNavItems={[
         {
           title: "Home",
-
           icon: HomeIcon,
           active: location.pathname === "/",
           href: "/",
