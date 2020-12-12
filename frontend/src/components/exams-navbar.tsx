@@ -1,9 +1,14 @@
 import {
   Badge,
-  ICONS,
   NavbarBrand,
   VSETHNavbar as Navbar,
+  NavLink,
 } from "@vseth/components";
+import {
+  HomeIcon,
+  SearchIcon,
+  UserIcon,
+} from "@vseth/components/dist/components/Icon/Icon";
 import { Item } from "@vseth/components/dist/components/VSETHNav/VSETHNavbar";
 import React from "react";
 import { useLocation } from "react-router-dom";
@@ -30,8 +35,10 @@ const ExamsNavbar: React.FC<{}> = () => {
       href: "/modqueue",
     },
   ];
+
   return (
     <Navbar
+      NavLink={NavLink}
       lang={"en"}
       secondaryLogo={<NavbarBrand href="/">Community Solutions</NavbarBrand>}
       primaryActionItems={[]}
@@ -39,7 +46,7 @@ const ExamsNavbar: React.FC<{}> = () => {
         {
           title: "Home",
 
-          icon: ICONS.HOME,
+          icon: HomeIcon,
           active: location.pathname === "/",
           href: "/",
         },
@@ -74,7 +81,7 @@ const ExamsNavbar: React.FC<{}> = () => {
         },
         {
           title: "Search",
-          icon: ICONS.SEARCH,
+          icon: SearchIcon,
           active: location.pathname.indexOf("/search") === 0,
           href: "/search",
         },
@@ -90,7 +97,7 @@ const ExamsNavbar: React.FC<{}> = () => {
               )}
             </span>
           ) as unknown) as string,
-          icon: ICONS.USER,
+          icon: UserIcon,
           active: location.pathname === `/user/${username}`,
           href: `/user/${username}`,
         },
