@@ -1,7 +1,7 @@
 import { Button, Icon, ICONS } from "@vseth/components";
 import { css, cx, keyframes } from "emotion";
 import React, { CSSProperties } from "react";
-import Transition from "react-transition-group/Transition";
+import Transition from "react-transition-group";
 import GlobalConsts from "../globalconsts";
 const panelStyle = css`
   position: fixed;
