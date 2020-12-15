@@ -3,12 +3,10 @@ import {
   NavbarBrand,
   VSETHNavbar as Navbar,
   NavLink,
-} from "@vseth/components";
-import {
   HomeIcon,
   SearchIcon,
   UserIcon,
-} from "@vseth/components/dist/components/Icon/Icon";
+} from "@vseth/components";
 import { Item } from "@vseth/components/dist/components/VSETHNav/VSETHNavbar";
 import React from "react";
 import { useLocation } from "react-router-dom";
