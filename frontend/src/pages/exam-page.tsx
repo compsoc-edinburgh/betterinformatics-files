@@ -14,7 +14,7 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
-import { fetchPost } from "../api/fetch-utils";
+import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
 import {
   loadCuts,
   loadExamMetaData,
@@ -320,15 +320,18 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
 
           {metaData.has_solution && !metaData.solution_printonly && (
             <Col md={6} lg={4}>
-              <a
-                href={`/api/exam/pdf/solution/${metaData.filename}/`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">Official Solution</Button>
-                </Card>
-              </a>
+              <Card className="m-1">
+                <Button
+                  className="w-100 h-100 p-3"
+                  onClick={() =>
+                    downloadIndirect(
+                      `/api/exam/pdf/solution/${metaData.filename}/`,
+                    )
+                  }
+                >
+                  Official Solution
+                </Button>
+              </Card>
             </Col>
           )}
           {metaData.attachments.map(attachment => (
