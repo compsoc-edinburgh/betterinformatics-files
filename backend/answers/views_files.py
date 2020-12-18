@@ -138,7 +138,7 @@ def get_exam_pdf(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
     if not exam.current_user_can_view(request):
         return response.not_allowed()
-    return minio_util.send_file(settings.COMSOL_EXAM_DIR, filename, attachment_filename=exam.attachment_name(), as_attachment='download' in request.GET)
+    return response.success(value=minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_EXAM_DIR + filename))
 
 
 @response.request_get()
@@ -149,7 +149,7 @@ def get_solution_pdf(request, filename):
         return response.not_allowed()
     if not exam.has_solution:
         return response.not_found()
-    return minio_util.send_file(settings.COMSOL_SOLUTION_DIR, filename, attachment_filename=exam.attachment_name(), as_attachment='download' in request.GET)
+    return response.success(value=minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_SOLUTION_DIR + filename))
 
 
 @response.request_get()
@@ -160,7 +160,7 @@ def get_printonly_pdf(request, filename):
         return response.not_allowed()
     if not exam.is_printonly:
         return response.not_found()
-    return minio_util.send_file(settings.COMSOL_PRINTONLY_DIR, filename, attachment_filename=exam.attachment_name(), as_attachment='download' in request.GET)
+    return response.success(value=minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_PRINTONLY_DIR + filename))
 
 
 def print_pdf(exam, request, filename, minio_dir):

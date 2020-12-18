@@ -107,6 +107,19 @@ export function fetchGet<T = any>(url: string) {
   return performRequest<T>("GET", url);
 }
 
+export async function downloadIndirect(url: string) {
+  const { value: signedUrl } = await fetchGet(url);
+
+  const a = document.createElement("a");
+  document.body.appendChild(a);
+  a.href = signedUrl;
+  a.setAttribute("download", "download");
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+  }, 0);
+}
+
 export function imageHandler(file: File): Promise<ImageHandle> {
   return new Promise((resolve, reject) => {
     fetchPost("/api/image/upload/", {
