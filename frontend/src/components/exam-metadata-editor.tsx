@@ -341,6 +341,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
               <div className="form-control">
                 <Button
                   size="sm"
+                  className="py-0"
                   onClick={() =>
                     downloadIndirect(
                       `/api/exam/pdf/printonly/${currentMetaData.filename}/`,
@@ -366,9 +367,10 @@ const ExamMetadataEditor: React.FC<Props> = ({
               <div className="form-control">
                 <Button
                   size="sm"
+                  className="py-0"
                   onClick={() =>
                     downloadIndirect(
-                      `/api/exam/pdf/printonly/${currentMetaData.filename}/`,
+                      `/api/exam/pdf/solution/${currentMetaData.filename}/`,
                     )
                   }
                 >
