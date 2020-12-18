@@ -160,7 +160,7 @@ def get_printonly_pdf(request, filename):
         return response.not_allowed()
     if not exam.is_printonly:
         return response.not_found()
-    return minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_PRINTONLY_DIR + filename)
+    return response.success(value=minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_PRINTONLY_DIR + filename))
 
 
 def print_pdf(exam, request, filename, minio_dir):
