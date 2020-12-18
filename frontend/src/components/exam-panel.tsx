@@ -16,6 +16,7 @@ import {
 import { css } from "emotion";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { downloadIndirect } from "../api/fetch-utils";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import IconButton from "./icon-button";
@@ -93,7 +94,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     setWidthValue(val);
   };
   const download = useCallback(() => {
-    window.open(`/api/exam/pdf/exam/${metaData.filename}/?download`, "_blank");
+    downloadIndirect(`/api/exam/pdf/exam/${metaData.filename}/`);
   }, [metaData.filename]);
   const reportProblem = useCallback(() => {
     const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");

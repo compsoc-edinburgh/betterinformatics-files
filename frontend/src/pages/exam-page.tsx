@@ -14,7 +14,7 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
-import { fetchPost } from "../api/fetch-utils";
+import { downloadIndirect, fetchPost } from "../api/fetch-utils";
 import {
   loadCuts,
   loadExamMetaData,
@@ -27,7 +27,10 @@ import ExamMetadataEditor from "../components/exam-metadata-editor";
 import ExamPanel from "../components/exam-panel";
 import IconButton from "../components/icon-button";
 import PrintExam from "../components/print-exam";
+import ContentContainer from "../components/secondary-container";
+import { TOC, TOCNode } from "../components/table-of-contents";
 import useSet from "../hooks/useSet";
+import useTitle from "../hooks/useTitle";
 import useToggle from "../hooks/useToggle";
 import {
   EditMode,
@@ -35,13 +38,10 @@ import {
   ExamMetaData,
   PdfSection,
   Section,
-  ServerCutResponse,
   SectionKind,
+  ServerCutResponse,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
-import ContentContainer from "../components/secondary-container";
-import useTitle from "../hooks/useTitle";
-import { TOCNode, TOC } from "../components/table-of-contents";
 
 const addCut = async (
   filename: string,
@@ -320,15 +320,18 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
 
           {metaData.has_solution && !metaData.solution_printonly && (
             <Col md={6} lg={4}>
-              <a
-                href={`/api/exam/pdf/solution/${metaData.filename}/`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">Official Solution</Button>
-                </Card>
-              </a>
+              <Card className="m-1">
+                <Button
+                  className="w-100 h-100 p-3"
+                  onClick={() =>
+                    downloadIndirect(
+                      `/api/exam/pdf/solution/${metaData.filename}/`,
+                    )
+                  }
+                >
+                  Official Solution
+                </Button>
+              </Card>
             </Col>
           )}
           {metaData.attachments.map(attachment => (
