@@ -122,6 +122,7 @@ CSP_CONNECT_SRC = (
     "'self'",
     "https://static.vseth.ethz.ch",
     "https://auth.vseth.ethz.ch",
+    "https://" + os.environ["SIP_S3_FILES_HOST"]
 )
 CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 
