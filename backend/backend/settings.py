@@ -61,6 +61,13 @@ COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
+FRONTEND_SERVER_DATA = {
+    "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", "")
+    "title_suffix": os.environ.get("FRONTEND_TITLE_PREFIX", "")
+}
+
+FAVICON_URL = os.environ.get("RUNTIME_FRONTEND_FAVICON_URL", "/favicon.ico")
+
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
 # During testing we use the public / private key pair located in the testing directory
