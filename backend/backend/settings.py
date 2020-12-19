@@ -63,7 +63,7 @@ COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
 )
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", "")
-    "title_suffix": os.environ.get("FRONTEND_TITLE_PREFIX", "")
+    "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", "")
 }
 
 FAVICON_URL = os.environ.get("RUNTIME_FRONTEND_FAVICON_URL", "/favicon.ico")
