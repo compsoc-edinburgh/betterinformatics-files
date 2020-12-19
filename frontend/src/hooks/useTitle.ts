@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import serverData from "../utils/server-data";
 
 const useTitle = (title: string) => {
   useEffect(() => {
-    document.title = title;
+    document.title = `${serverData.title_prefix} ${title} ${serverData.title_suffix} `;
   }, [title]);
 };
 

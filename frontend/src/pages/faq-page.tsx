@@ -23,7 +23,7 @@ const newButtonStyle = css`
   min-height: 3em;
 `;
 export const FAQPage: React.FC = () => {
-  useTitle("FAQ - VIS Community Solutions");
+  useTitle("FAQ");
   const { isAdmin } = useUser()!;
   const { faqs, add, update, swap, remove } = useFAQ();
   const [hasDraft, setHasDraft] = useState(false);

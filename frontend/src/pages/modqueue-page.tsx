@@ -37,7 +37,7 @@ const loadFlagged = async () => {
 };
 
 const ModQueue: React.FC = () => {
-  useTitle("Import Queue - VIS Community Solutions");
+  useTitle("Import Queue");
   const [includeHidden, setIncludeHidden] = useState(false);
   const {
     error: examsError,

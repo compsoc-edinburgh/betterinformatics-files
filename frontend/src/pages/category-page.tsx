@@ -174,8 +174,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             {metaData.has_payments && (
               <Col>
                 <Alert>
-                  You have to pay a deposit of 20 CHF in the VIS bureau in order
-                  to see oral exams.
+                  You have to pay a deposit in order to see oral exams.
                   <br />
                   After submitting a report of your own oral exam you can get
                   your deposit back.
@@ -223,7 +222,7 @@ const CategoryPage: React.FC<{}> = () => {
     () => loadCategoryMetaData(slug),
     { cacheKey: `category-${slug}` },
   );
-  useTitle(`${data?.displayname ?? slug} - VIS Community Solutions`);
+  useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
     <Container>

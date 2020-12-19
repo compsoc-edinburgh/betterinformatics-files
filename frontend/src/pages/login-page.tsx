@@ -4,7 +4,7 @@ import LoginOverlay from "../components/login-overlay";
 import useTitle from "../hooks/useTitle";
 
 const LoginPage: React.FC<{}> = () => {
-  useTitle("Login - VIS Community Solutions");
+  useTitle("Login");
   return (
     <Container>
       <LoginOverlay />

@@ -140,7 +140,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
   );
 };
 const FeedbackPage: React.FC<{}> = () => {
-  useTitle("Feedback - VIS Community Solutions");
+  useTitle("Feedback");
   const { isAdmin } = useUser() as User;
   return isAdmin ? (
     <FeedbackAdminView />
