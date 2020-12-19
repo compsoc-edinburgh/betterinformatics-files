@@ -10,11 +10,14 @@
     <meta name="git_branch" content="%REACT_APP_GIT_BRANCH%" />
     <meta name="git_commit" content="%REACT_APP_GIT_COMMIT%" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="shortcut icon" href="%REACT_APP_FAVICON_URL%" />
     <link
       rel="stylesheet"
       href="https://static.vseth.ethz.ch/assets/%REACT_APP_GLOB_ID%/theme.css"
     />
+    <script type="application/json" id="server-data">
+      %REACT_APP_SERVER_DATA%
+    </script>
     <script type="application/json" id="vseth-context-data">
       {
         "globID": "%REACT_APP_GLOB_ID%",
@@ -25,7 +28,7 @@
         }
       }
     </script>
-    <title>VIS Community Solutions</title>
+    <title>Community Solutions</title>
   </head>
 
   <body>
