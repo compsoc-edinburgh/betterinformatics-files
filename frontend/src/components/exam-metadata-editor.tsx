@@ -13,7 +13,7 @@ import {
   Creatable,
 } from "@vseth/components";
 import React from "react";
-import { fetchPost } from "../api/fetch-utils";
+import { downloadIndirect, fetchPost } from "../api/fetch-utils";
 import { loadCategories } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
@@ -339,13 +339,17 @@ const ExamMetadataEditor: React.FC<Props> = ({
             <label className="form-input-label">Print Only File</label>
             {printonlyFile === true ? (
               <div className="form-control">
-                <a
-                  href={`/api/exam/pdf/printonly/${currentMetaData.filename}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Button
+                  size="sm"
+                  className="py-0"
+                  onClick={() =>
+                    downloadIndirect(
+                      `/api/exam/pdf/printonly/${currentMetaData.filename}/`,
+                    )
+                  }
                 >
                   Current File
-                </a>
+                </Button>
                 <Button close onClick={() => setPrintonlyFile(undefined)} />
               </div>
             ) : (
@@ -361,13 +365,17 @@ const ExamMetadataEditor: React.FC<Props> = ({
             <label className="form-input-label">Master Solution</label>
             {masterFile === true ? (
               <div className="form-control">
-                <a
-                  href={`/api/exam/pdf/solution/${currentMetaData.filename}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Button
+                  size="sm"
+                  className="py-0"
+                  onClick={() =>
+                    downloadIndirect(
+                      `/api/exam/pdf/solution/${currentMetaData.filename}/`,
+                    )
+                  }
                 >
                   Current File
-                </a>
+                </Button>
                 <Button close onClick={() => setMasterFile(undefined)} />
               </div>
             ) : (

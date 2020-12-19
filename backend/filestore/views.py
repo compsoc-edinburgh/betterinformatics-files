@@ -40,7 +40,6 @@ def remove(request, filename):
 
 
 @response.request_get()
-@auth_check.require_login
 def get(request, filename):
     get_object_or_404(Attachment, filename=filename)
     return minio_util.send_file(settings.COMSOL_FILESTORE_DIR, filename, attachment_filename=filename)

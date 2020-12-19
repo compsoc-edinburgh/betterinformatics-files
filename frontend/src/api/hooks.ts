@@ -200,12 +200,12 @@ export const loadExamMetaData = async (filename: string) => {
     .value as ExamMetaData;
 };
 export const loadSplitRenderer = async (filename: string) => {
-  if (keycloak.isTokenExpired(minValidity))
-    await keycloak.updateToken(minValidity);
+  const { value: signedUrl } = await fetchGet(
+    `/api/exam/pdf/exam/${filename}/`,
+  );
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
     getDocument({
-      url: `/api/exam/pdf/exam/${filename}/`,
-      httpHeaders: getHeaders(),
+      url: signedUrl,
     }).promise.then(resolve, reject),
   );
   const renderer = new PDF(pdf);

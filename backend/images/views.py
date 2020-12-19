@@ -37,6 +37,5 @@ def remove_image(request, filename):
 
 
 @response.request_get()
-@auth_check.require_login
 def get_image(request, filename):
     return minio_util.send_file(settings.COMSOL_IMAGE_DIR, filename)
