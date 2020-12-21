@@ -10,7 +10,7 @@ from django_prometheus.models import ExportModelOperationsMixin
 import random
 
 
-class Exam(models.Model):
+class Exam(ExportModelOperationsMixin('exam'), models.Model):
     filename = models.CharField(max_length=256, unique=True)
     displayname = models.CharField(max_length=256)
     category = models.ForeignKey(
