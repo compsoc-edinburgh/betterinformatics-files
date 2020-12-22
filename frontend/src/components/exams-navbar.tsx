@@ -2,14 +2,14 @@ import {
   Badge,
   NavbarBrand,
   VSETHNavbar as Navbar,
-  NavLink,
+  NavLinkProps,
   HomeIcon,
   SearchIcon,
   UserIcon,
 } from "@vseth/components";
 import { Item } from "@vseth/components/dist/components/VSETHNav/VSETHNavbar";
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, NavLink } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import { useRequest } from "@umijs/hooks";
@@ -34,9 +34,24 @@ const ExamsNavbar: React.FC<{}> = () => {
     },
   ];
 
+
+  const navlink: React.FC<NavLinkProps> = ({
+    href,
+    innerRef,
+    children,
+  }) => {
+      return (
+        <NavLink to={href || ""} className="nav-link" innerRef={innerRef}>
+          {children}
+        </NavLink>
+      );
+  };
+  
+  
+
   return (
     <Navbar
-      NavLink={NavLink}
+      NavLink={navlink}
       lang={"en"}
       secondaryLogo={<NavbarBrand href="/">Community Solutions</NavbarBrand>}
       primaryActionItems={[]}
