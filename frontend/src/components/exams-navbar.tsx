@@ -34,9 +34,9 @@ const ExamsNavbar: React.FC<{}> = () => {
     },
   ];
 
-  const navlink: React.FC<NavLinkProps> = ({ href, innerRef, children }) => {
+  const navlink: React.FC<NavLinkProps> = ({ href, children }) => {
     return (
-      <NavLink to={href || ""} className="nav-link" innerRef={innerRef}>
+      <NavLink to={href || ""} className="nav-link">
         {children}
       </NavLink>
     );
