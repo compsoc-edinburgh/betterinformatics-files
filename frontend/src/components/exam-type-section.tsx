@@ -141,6 +141,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   </Col>
                 </Row>
                 <div>
+                  {exam.remark && (
+                    <div className="text-meta">{exam.remark}</div>
+                  )}
                   {catAdmin &&
                     (exam.public ? (
                       <Badge className={badgeStyle} color="primary">
@@ -173,11 +176,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       </Badge>
                     ))}
 
-                  {exam.remark && (
-                    <Badge className={badgeStyle} color="dark">
-                      {exam.remark}
-                    </Badge>
-                  )}
                   {exam.is_printonly && (
                     <Badge
                       color="danger"
