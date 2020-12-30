@@ -62,7 +62,7 @@ COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
 FRONTEND_SERVER_DATA = {
-    "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", "")
+    "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", "")
 }
 
