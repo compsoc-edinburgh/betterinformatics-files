@@ -17,6 +17,7 @@ import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
 import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
+import serverData from "../utils/server-data";
 
 enum AdminMode {
   Read,
@@ -50,8 +51,8 @@ const FeedbackForm: React.FC<{}> = () => {
       <p>What do you like? What could we improve? Ideas for new features?</p>
       <p>
         Use the form below or write to{" "}
-        <a href="mailto:communitysolutions@vis.ethz.ch">
-          communitysolutions@vis.ethz.ch
+        <a href={`mailto:${serverData.email_address}`}>
+          {serverData.email_address}
         </a>
         .
       </p>

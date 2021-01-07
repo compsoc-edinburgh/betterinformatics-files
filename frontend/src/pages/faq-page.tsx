@@ -19,6 +19,7 @@ import FAQEntryComponent from "../components/faq-entry";
 import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
+import serverData from "../utils/server-data";
 const newButtonStyle = css`
   min-height: 3em;
 `;
@@ -52,8 +53,8 @@ export const FAQPage: React.FC = () => {
         <p>
           If you have any question not yet answered below, feel free to contact
           us at{" "}
-          <a href="mailto:communitysolutions@vis.ethz.ch">
-            communitysolutions@vis.ethz.ch
+          <a href={`mailto:${serverData.email_address}`}>
+            {serverData.email_address}
           </a>
           .
         </p>

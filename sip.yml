@@ -42,6 +42,10 @@ env:
     secret:
       key: frontend-title-suffix
       create: provided
+  - name: "FRONTEND_EMAIL_ADDRESS"
+    secret:
+      key: frontend-email-address
+      create: provided
   - name: "FRONTEND_FAVICON_URL"
     secret:
       key: frontend-favicon-url

@@ -43,7 +43,7 @@ services:
       target: backend
     container_name: community-solutions
     ports:
-      - "8080:80"
+      - "8081:80"
     environment:
       - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN=localhost
       - SIP_INGRESS_HTTP_DEFAULT_CNAMES=
@@ -67,6 +67,11 @@ services:
       - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
 
       - SIP_AUTH_OIDC_CLIENT_ID=vis-community-solutions
+
+      - FRONTEND_TITLE_PREFIX=prefix
+      - FRONTEND_TITLE_SUFFIX=suffix
+      - FRONTEND_FAVICON_URL=favicon
+      - FRONTEND_EMAIL_ADDRESS=nothing@localhost
     depends_on:
       - postgres
       - minio
