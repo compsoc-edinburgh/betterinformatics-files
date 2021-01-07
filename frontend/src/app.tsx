@@ -1,4 +1,4 @@
-import { Button, VSETHContext } from "@vseth/components";
+import { Button, Container, Logo, VSETHContext } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { fetchGet, getCookie } from "./api/fetch-utils";
@@ -71,45 +71,63 @@ const App: React.FC<{}> = () => {
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
-            <div className={`mobile-capable position-relative ${minHeight}`}>
-              <ExamsNavbar />
-              <main className="main__container pb-5">
-                <Switch>
-                  <UserRoute exact path="/" component={HomePage} />
-                  <Route exact path="/login" component={LoginPage} />
-                  <UserRoute
-                    exact
-                    path="/uploadpdf"
-                    component={UploadPdfPage}
-                  />
-                  <UserRoute
-                    exact
-                    path="/submittranscript"
-                    component={UploadTranscriptPage}
-                  />
-                  <UserRoute exact path="/faq" component={FAQ} />
-                  <UserRoute exact path="/feedback" component={FeedbackPage} />
-                  <UserRoute
-                    exact
-                    path="/category/:slug"
-                    component={CategoryPage}
-                  />
-                  <UserRoute
-                    exact
-                    path="/exams/:filename"
-                    component={ExamPage}
-                  />
-                  <UserRoute
-                    exact
-                    path="/user/:username"
-                    component={UserPage}
-                  />
-                  <UserRoute exact path="/search/" component={SearchPage} />
-                  <UserRoute exact path="/scoreboard" component={Scoreboard} />
-                  <UserRoute exact path="/modqueue" component={ModQueue} />
-                  <Route component={NotFoundPage} />
-                </Switch>
-              </main>
+            <div
+              className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
+            >
+              <div>
+                <ExamsNavbar />
+                <main className="main__container pb-5">
+                  <Switch>
+                    <UserRoute exact path="/" component={HomePage} />
+                    <Route exact path="/login" component={LoginPage} />
+                    <UserRoute
+                      exact
+                      path="/uploadpdf"
+                      component={UploadPdfPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/submittranscript"
+                      component={UploadTranscriptPage}
+                    />
+                    <UserRoute exact path="/faq" component={FAQ} />
+                    <UserRoute
+                      exact
+                      path="/feedback"
+                      component={FeedbackPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/category/:slug"
+                      component={CategoryPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/exams/:filename"
+                      component={ExamPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/user/:username"
+                      component={UserPage}
+                    />
+                    <UserRoute exact path="/search/" component={SearchPage} />
+                    <UserRoute
+                      exact
+                      path="/scoreboard"
+                      component={Scoreboard}
+                    />
+                    <UserRoute exact path="/modqueue" component={ModQueue} />
+                    <Route component={NotFoundPage} />
+                  </Switch>
+                </main>
+              </div>
+              <div className="py-3">
+                <Container>
+                  <Logo variant="logo-mono" />
+                  <hr />
+                </Container>
+              </div>
             </div>
           </SetUserContext.Provider>
         </UserContext.Provider>

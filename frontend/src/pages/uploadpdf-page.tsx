@@ -4,7 +4,7 @@ import UploadPdfCard from "../components/upload-pdf-card";
 import useTitle from "../hooks/useTitle";
 
 const UploadPdfPage: React.FC<{}> = () => {
-  useTitle("Upload PDF - VIS Community Solutions");
+  useTitle("Upload PDF");
   return (
     <Container>
       <Row>

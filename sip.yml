@@ -30,9 +30,25 @@ env:
     secret:
       key: api-key
       create: provided
-  - name: "RUNTIME_FRONTEND_GLOB_ID"
+  - name: "FRONTEND_GLOB_ID"
     secret:
       key: frontend-glob-id
+      create: provided
+  - name: "FRONTEND_TITLE_PREFIX"
+    secret:
+      key: frontend-title-prefix
+      create: provided
+  - name: "FRONTEND_TITLE_SUFFIX"
+    secret:
+      key: frontend-title-suffix
+      create: provided
+  - name: "FRONTEND_EMAIL_ADDRESS"
+    secret:
+      key: frontend-email-address
+      create: provided
+  - name: "FRONTEND_FAVICON_URL"
+    secret:
+      key: frontend-favicon-url
       create: provided
   - name: "RUNTIME_FRONTEND_KEYCLOAK_URL"
     value: https://auth.vseth.ethz.ch/auth

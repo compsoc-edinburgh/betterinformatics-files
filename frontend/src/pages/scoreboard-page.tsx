@@ -23,7 +23,7 @@ const loadScoreboard = async (scoretype: Mode) => {
     .value as UserInfo[];
 };
 const Scoreboard: React.FC<{}> = () => {
-  useTitle("Scoreboard - VIS Community Solutions");
+  useTitle("Scoreboard");
   const [mode, setMode] = useLocalStorageState<Mode>(
     "scoreboard-mode",
     "score",

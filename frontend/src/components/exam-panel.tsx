@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import { downloadIndirect } from "../api/fetch-utils";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
+import serverData from "../utils/server-data";
 import IconButton from "./icon-button";
 import Panel from "./panel";
 
@@ -97,11 +98,11 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     downloadIndirect(`/api/exam/pdf/exam/${metaData.filename}/`);
   }, [metaData.filename]);
   const reportProblem = useCallback(() => {
-    const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
+    const subject = encodeURIComponent("Community Solutions: Feedback");
     const body = encodeURIComponent(
       `Concerning the exam '${metaData.displayname}' of the course '${metaData.category_displayname}' ...`,
     );
-    window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${serverData.email_address}?subject=${subject}&body=${body}`;
   }, [metaData]);
   const setOption = <T extends keyof DisplayOptions>(
     name: T,

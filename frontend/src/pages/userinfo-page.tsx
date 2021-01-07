@@ -11,7 +11,7 @@ import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
 const UserPage: React.FC<{}> = () => {
   const { username } = useParams() as { username: string };
-  useTitle(`${username} - VIS Community Solutions`);
+  useTitle(username);
   const user = useUser()!;
   const isMyself = user.username === username;
   const [userInfoError, userInfoLoading, userInfo] = useUserInfo(username);

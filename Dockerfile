@@ -1,3 +1,6 @@
+ARG git_branch="<none>"
+ARG git_commit="<none>"
+
 FROM eu.gcr.io/vseth-public/base:delta AS backend
 LABEL maintainer='lmoeller@vis.ethz.ch'
 
@@ -19,9 +22,12 @@ ENV PYTHONUNBUFFERED True
 
 COPY ./frontend/public/exam10.pdf ./exam10.pdf
 COPY ./frontend/public/static ./static
+
 COPY ./backend/ ./
 
 FROM node:13.11-alpine AS frontend-build
+ARG git_branch
+ARG git_commit
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .

@@ -14,6 +14,8 @@ def index(request):
         "KEYCLOAK_URL": settings.COMSOL_FRONTEND_KEYCLOAK_URL,
         "KEYCLOAK_REALM": settings.COMSOL_FRONTEND_KEYCLOAK_REALM,
         "KEYCLOAK_CLIENT_ID": settings.COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID,
+        "FAVICON_URL": settings.FAVICON_URL,
+        "REACT_APP_SERVER_DATA": json.dumps(settings.FRONTEND_SERVER_DATA)
     }
     return render(request, "index.html", context)
 

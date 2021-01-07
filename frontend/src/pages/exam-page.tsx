@@ -245,9 +245,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 <CardBody>
                   {metaData.needs_payment && !metaData.hasPayed ? (
                     <>
-                      You have to pay a deposit of 20 CHF in the VIS bureau in
-                      order to see oral exams. After submitting a report of your
-                      own oral exam you can get your deposit back.
+                      You have to pay a deposit in order to see oral exams.
+                      After submitting a report of your own oral exam you can
+                      get your deposit back.
                     </>
                   ) : (
                     <>You can not view this exam at this time.</>
@@ -412,7 +412,7 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadExamMetaData(filename), {
     cacheKey: `exam-metaData-${filename}`,
   });
-  useTitle(`${metaData?.displayname ?? filename} - VIS Community Solutions`);
+  useTitle(metaData?.displayname ?? filename);
   const {
     error: cutsError,
     loading: cutsLoading,

@@ -48,19 +48,27 @@ COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 )
 
-COMSOL_FRONTEND_GLOB_ID = os.environ.get("RUNTIME_FRONTEND_GLOB_ID", "vseth-1116-vis")
+COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "vseth-1116-vis")
 
 # The following config settings configure the config with which a keycloak js client instance is
 # constructed in the React frontend.
 COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
-    "RUNTIME_FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
+    "FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
 )
 COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
-    "RUNTIME_FRONTEND_KEYCLOAK_REALM", "VSETH"
+    "FRONTEND_KEYCLOAK_REALM", "VSETH"
 )
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
+FRONTEND_SERVER_DATA = {
+    "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
+    "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
+    "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", "")
+}
+
+FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
+
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
 # During testing we use the public / private key pair located in the testing directory

@@ -138,7 +138,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 };
 
 const HomePage: React.FC<{}> = () => {
-  useTitle("VIS Community Solutions");
+  useTitle("Home");
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState("mode", Mode.Alphabetical);
   const [filter, setFilter] = useState("");

@@ -15,7 +15,7 @@ services:
     image: dpage/pgadmin4:4.26
     container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: docker
+      PGADMIN_DEFAULT_EMAIL: docker@vis.ch
       PGADMIN_DEFAULT_PASSWORD: docker
       PGADMIN_LISTEN_PORT: 80
     ports:
@@ -37,6 +37,9 @@ services:
   community-solutions:
     build:
       context: .
+      args:
+        git_branch: <docker>
+        git_commit: <compose>
       target: backend
     container_name: community-solutions
     ports:
@@ -64,6 +67,11 @@ services:
       - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
 
       - SIP_AUTH_OIDC_CLIENT_ID=vis-community-solutions
+
+      - FRONTEND_TITLE_PREFIX=prefix
+      - FRONTEND_TITLE_SUFFIX=suffix
+      - FRONTEND_FAVICON_URL=favicon
+      - FRONTEND_EMAIL_ADDRESS=nothing@localhost
     depends_on:
       - postgres
       - minio
