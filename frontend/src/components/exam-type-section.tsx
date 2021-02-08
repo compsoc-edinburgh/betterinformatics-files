@@ -123,20 +123,22 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     </h6>
                   </Col>
                   <Col xs="auto">
+                    {catAdmin && (
+                      <ClaimButton exam={exam} reloadExams={reload} />
+                    )}
                     {user.isAdmin && (
                       <IconButton
                         size="sm"
-                        color="white"
+                        color="dark"
                         tooltip="Delete exam"
                         icon="DELETE"
+                        outline
+                        className="ml-2 m-1"
                         onClick={e => {
                           e.stopPropagation();
                           handleRemoveClick(e, exam);
                         }}
                       />
-                    )}
-                    {catAdmin && (
-                      <ClaimButton exam={exam} reloadExams={reload} />
                     )}
                   </Col>
                 </Row>
