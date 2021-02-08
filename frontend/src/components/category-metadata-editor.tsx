@@ -248,7 +248,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
                   formState.semester as keyof typeof semesterOptions
                 ]
               }
-              onChange={option =>
+              onChange={(option: any) =>
                 setFormValue(
                   "semester",
                   (option as SelectOption<typeof semesterOptions>).value,
@@ -263,7 +263,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             <Select
               options={options(formOptions)}
               value={formOptions[formState.form as keyof typeof formOptions]}
-              onChange={option =>
+              onChange={(option: any) =>
                 setFormValue(
                   "form",
                   (option as SelectOption<typeof formOptions>).value,
@@ -285,7 +285,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
                   formState.permission as keyof typeof permissionOptions
                 ]
               }
-              onChange={option =>
+              onChange={(option: any) =>
                 setFormValue(
                   "permission",
                   (option as SelectOption<typeof permissionOptions>).value,

@@ -1,12 +1,15 @@
 import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
 import React from "react";
 import { useHistory } from "react-router-dom";
+import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
+import { highlight } from "../utils/search-utils";
 import { focusOutline } from "../utils/style";
 
-const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
-  category,
-}) => {
+interface Props {
+  category: SearchResult<CategoryMetaData>;
+}
+const CategoryCard: React.FC<Props> = ({ category }) => {
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.keyCode === 13) {
@@ -21,7 +24,7 @@ const CategoryCard: React.FC<{ category: CategoryMetaData }> = ({
       onKeyDown={handleKeyDown}
     >
       <CardBody>
-        <h5>{category.displayname}</h5>
+        <h5>{highlight(category.displayname, category.match)}</h5>
         <div>
           Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
         </div>

@@ -62,3 +62,4 @@ programs:
       - RUNTIME_POSTGRES_DB_PW:
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET:
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY:
+      - prometheus_multiproc_dir: /dev/shm
