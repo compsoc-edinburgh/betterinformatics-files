@@ -12,7 +12,7 @@ const ThreeColumns: React.FC<{
         <Col
           sm={4}
           xs={6}
-          className={`px-0 text-left ${!left ? "d-none d-sm-block " : ""}`}
+          className={`px-0 text-left ${!left ? "d-none d-sm-block" : ""}`}
         >
           {left}
         </Col>
@@ -21,7 +21,7 @@ const ThreeColumns: React.FC<{
           xs={left || right ? 6 : 12}
           className={`px-0 text-sm-center ${
             left ? "text-right" : right ? "text-left" : "text-center"
-          } ${!center ? "d-none d-sm-block " : ""}`}
+          } ${!center ? " d-none d-sm-block" : ""}`}
         >
           {center}
         </Col>
@@ -29,7 +29,7 @@ const ThreeColumns: React.FC<{
           sm={4}
           xs={(left && center) || (!left && !center) ? 12 : 6}
           className={`px-0 text-right ${left && center ? "mt-1 mt-sm-0" : ""} ${
-            !right ? "d-none d-sm-block " : ""
+            !right ? " d-none d-sm-block" : ""
           }`}
         >
           {right}

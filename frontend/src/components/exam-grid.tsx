@@ -2,7 +2,7 @@ import { css } from "emotion";
 import React from "react";
 
 const gridStyles = css`
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767.98px) {
     display: flex;
     flex-direction: column;
   }
