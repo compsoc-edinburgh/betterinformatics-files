@@ -1,4 +1,4 @@
-import { Nav, NavItem, NavLink } from "@vseth/components";
+import { Nav, NavItem, NavLink, Row, Col } from "@vseth/components";
 import { css } from "emotion";
 import * as React from "react";
 import { Bold, Code, DollarSign, Italic, Link } from "react-feather";
@@ -74,9 +74,9 @@ const EditorHeader: React.FC<Props> = ({
             </NavLink>
           </NavItem>
         </div>
-        <div>
-          {activeMode === "write" && (
-            <>
+        {activeMode === "write" && (
+          <Row className="m-0 d-flex justify-content-center">
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onMathClick}
@@ -86,6 +86,8 @@ const EditorHeader: React.FC<Props> = ({
               >
                 <DollarSign size={iconSize} />
               </TooltipButton>
+            </Col>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onCodeClick}
@@ -95,6 +97,8 @@ const EditorHeader: React.FC<Props> = ({
               >
                 <Code size={iconSize} />
               </TooltipButton>
+            </Col>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onLinkClick}
@@ -104,6 +108,8 @@ const EditorHeader: React.FC<Props> = ({
               >
                 <Link size={iconSize} />
               </TooltipButton>
+            </Col>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onItalicClick}
@@ -117,6 +123,8 @@ const EditorHeader: React.FC<Props> = ({
               >
                 <Italic size={iconSize} />
               </TooltipButton>
+            </Col>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onBoldClick}
@@ -130,9 +138,9 @@ const EditorHeader: React.FC<Props> = ({
               >
                 <Bold size={iconSize} />
               </TooltipButton>
-            </>
-          )}
-        </div>
+            </Col>
+          </Row>
+        )}
       </Nav>
     </div>
   );

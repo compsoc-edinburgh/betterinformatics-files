@@ -141,7 +141,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </a>
               </Col>
             )}
-            {metaData.remark && <div>Remark: {metaData.remark}</div>}
+            {metaData.remark && (
+              <Col className={metadataColStyle} md="auto">
+                Remark: {metaData.remark}
+              </Col>
+            )}
           </Row>
           {(offeredIn === undefined || offeredIn.length > 0) && (
             <div>
