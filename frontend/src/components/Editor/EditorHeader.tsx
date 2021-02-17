@@ -87,7 +87,7 @@ const EditorHeader: React.FC<Props> = ({
                 <DollarSign size={iconSize} />
               </TooltipButton>
             </Col>
-            <Col className={"col-sm px-0"}>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onCodeClick}
@@ -98,7 +98,7 @@ const EditorHeader: React.FC<Props> = ({
                 <Code size={iconSize} />
               </TooltipButton>
             </Col>
-            <Col className={"col-sm px-0"}>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onLinkClick}
@@ -109,7 +109,7 @@ const EditorHeader: React.FC<Props> = ({
                 <Link size={iconSize} />
               </TooltipButton>
             </Col>
-            <Col className={"col-sm px-0"}>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onItalicClick}
@@ -124,7 +124,7 @@ const EditorHeader: React.FC<Props> = ({
                 <Italic size={iconSize} />
               </TooltipButton>
             </Col>
-            <Col className={"col-sm px-0"}>
+            <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}
                 onClick={handlers.onBoldClick}
