@@ -114,22 +114,29 @@ def add_auth(request):
                 if changed:
                     existing_user.save()
             else:
-                user = MyUser()
-                user.first_name = claims["given_name"]
-                user.last_name = claims["family_name"]
-                user.username = generate_unique_username(preferred_username)
-                user.save()
+                old_existing_user = MyUser.objects.filter(username=preferred_username).first()
+                if old_existing_user != None:
+                    Profile.objects.create(user=old_existing_user, sub=sub)
+                    request.user = old_existing_user
 
-                Profile.objects.create(user=user, sub=sub)
+                else:
 
-                request.user = user
+                    user = MyUser()
+                    user.first_name = claims["given_name"]
+                    user.last_name = claims["family_name"]
+                    user.username = generate_unique_username(preferred_username)
+                    user.save()
 
-                for type_ in [
-                    NotificationType.NEW_COMMENT_TO_ANSWER,
-                    NotificationType.NEW_ANSWER_TO_ANSWER,
-                ]:
-                    setting = NotificationSetting(user=user, type=type_.value)
-                    setting.save()
+                    Profile.objects.create(user=user, sub=sub)
+
+                    request.user = user
+
+                    for type_ in [
+                        NotificationType.NEW_COMMENT_TO_ANSWER,
+                        NotificationType.NEW_ANSWER_TO_ANSWER,
+                    ]:
+                        setting = NotificationSetting(user=user, type=type_.value)
+                        setting.save()
     return None
 
 
