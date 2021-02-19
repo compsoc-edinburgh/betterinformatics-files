@@ -1,12 +1,15 @@
 import {
   Badge,
-  ICONS,
   NavbarBrand,
   VSETHNavbar as Navbar,
+  NavLinkProps,
+  HomeIcon,
+  SearchIcon,
+  UserIcon,
 } from "@vseth/components";
 import { Item } from "@vseth/components/dist/components/VSETHNav/VSETHNavbar";
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, NavLink } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import { useRequest } from "@umijs/hooks";
@@ -23,37 +26,39 @@ const ExamsNavbar: React.FC<{}> = () => {
   const adminItems: Item[] = [
     {
       title: "Upload Exam",
-      linkProps: {
-        to: "/uploadpdf",
-      },
+      href: "/uploadpdf",
     },
     {
       title: "Mod Queue",
-      linkProps: {
-        to: "/modqueue",
-      },
+      href: "/modqueue",
     },
   ];
+
+  const navlink: React.FC<NavLinkProps> = ({ href, children }) => {
+    return (
+      <NavLink to={href || ""} className="nav-link">
+        {children}
+      </NavLink>
+    );
+  };
+
   return (
     <Navbar
+      NavLink={navlink}
       lang={"en"}
       secondaryLogo={<NavbarBrand href="/">Community Solutions</NavbarBrand>}
       primaryActionItems={[]}
       secondaryNavItems={[
         {
           title: "Home",
-          icon: ICONS.HOME,
+          icon: HomeIcon,
           active: location.pathname === "/",
-          linkProps: {
-            to: "/",
-          },
+          href: "/",
         },
         {
           title: "Scoreboard",
           active: location.pathname === "/scoreboard",
-          linkProps: {
-            to: "/scoreboard",
-          },
+          href: "/scoreboard",
         },
         {
           title: "More",
@@ -63,22 +68,16 @@ const ExamsNavbar: React.FC<{}> = () => {
             {
               title: "FAQ",
               active: location.pathname === "/faq",
-              linkProps: {
-                to: "/faq",
-              },
+              href: "/faq",
             },
             {
               title: "Feedback",
               active: location.pathname === "/feedback",
-              linkProps: {
-                to: "/feedback",
-              },
+              href: "/feedback",
             },
             {
               title: "Submit Transcript",
-              linkProps: {
-                to: "/submittranscript",
-              },
+              href: "/submittranscript",
             },
             ...(typeof user === "object" && user.isCategoryAdmin
               ? adminItems
@@ -87,11 +86,9 @@ const ExamsNavbar: React.FC<{}> = () => {
         },
         {
           title: "Search",
-          icon: ICONS.SEARCH,
+          icon: SearchIcon,
           active: location.pathname.indexOf("/search") === 0,
-          linkProps: {
-            to: "/search",
-          },
+          href: "/search",
         },
         {
           title: ((
@@ -105,11 +102,9 @@ const ExamsNavbar: React.FC<{}> = () => {
               )}
             </span>
           ) as unknown) as string,
-          icon: ICONS.USER,
+          icon: UserIcon,
           active: location.pathname === `/user/${username}`,
-          linkProps: {
-            to: `/user/${username}`,
-          },
+          href: `/user/${username}`,
         },
       ]}
     />

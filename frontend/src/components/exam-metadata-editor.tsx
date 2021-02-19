@@ -250,7 +250,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
                   formState.examtype as keyof typeof examTypeOptions
                 ] || { value: formState.examtype, label: formState.examtype }
               }
-              onChange={option =>
+              onChange={(option: any) =>
                 setFormValue(
                   "examtype",
                   (option as SelectOption<typeof examTypeOptions>).value,
