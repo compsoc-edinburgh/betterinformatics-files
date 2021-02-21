@@ -140,7 +140,7 @@ const CommentComponent: React.FC<Props> = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-          <Row className="flex-between">
+          <Row className="flex-between" form>
             <Col xs="auto">
               <IconButton
                 className="m-1"

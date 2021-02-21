@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
+import IconButton from "./icon-button";
 import { css } from "emotion";
 const columnStyle = css`
   column-gap: 0;
@@ -44,7 +45,7 @@ const ImageModal: React.FC<ModalProps> = ({
   };
   return (
     <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader>Images</ModalHeader>
+      <ModalHeader toggle={toggle}>Images</ModalHeader>
       <ModalBody>
         <Row>
           <Col>
@@ -61,7 +62,7 @@ const ImageModal: React.FC<ModalProps> = ({
         </Row>
 
         <div className="text-right">
-          <Button className="mt-1" onClick={reload}>
+          <Button className="mt-1 mr-1" onClick={reload}>
             Reload
           </Button>
           <Button

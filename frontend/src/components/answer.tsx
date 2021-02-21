@@ -268,7 +268,7 @@ const AnswerComponent: React.FC<Props> = ({
               )}
             </div>
           )}
-          <Row className="flex-between">
+          <Row className="flex-between" form>
             <Col xs="auto">
               {(answer === undefined || editing) && (
                 <IconButton

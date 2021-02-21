@@ -247,7 +247,11 @@ const useSearch = <T>(
   pattern: string,
   maxScore: number,
   getter: (t: T) => string,
-) => {
+): SearchResult<T>[] => {
+  // We remove spacing from the beginning and also reduce multiple consecutive whitespace
+  // to a single space character, converting all types of whitespace to " " in the process.
+  const sanitizedPattern = pattern.trimStart().replace(/\s+/g, " ");
+
   const cache = useMemo(() => new Map() as SearchCache, []);
   const allResults = useMemo(
     () => data.map(w => ({ score: 0, match: [], ...w })),
@@ -255,16 +259,20 @@ const useSearch = <T>(
   );
   const res = useMemo(
     () =>
-      pattern.length === 0
+      sanitizedPattern.length === 0
         ? allResults
         : data
             .map(w => {
-              const [score, match] = cachedMinCost(cache, getter(w), pattern);
+              const [score, match] = cachedMinCost(
+                cache,
+                getter(w),
+                sanitizedPattern,
+              );
               return { score, match, ...w };
             })
             .filter(({ score }) => score < maxScore)
             .sort(({ score: aScore }, { score: bScore }) => aScore - bScore),
-    [pattern, data, getter, maxScore, allResults, cache],
+    [sanitizedPattern, data, getter, maxScore, allResults, cache],
   );
 
   return res;
