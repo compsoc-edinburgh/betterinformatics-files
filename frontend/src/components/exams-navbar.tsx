@@ -13,6 +13,8 @@ import { useLocation, NavLink } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import { useRequest } from "@umijs/hooks";
+import { Link } from "react-router-dom";
+
 const loadUnreadCount = async () => {
   return (await fetchGet("/api/notification/unreadcount/")).value as number;
 };
@@ -46,7 +48,11 @@ const ExamsNavbar: React.FC<{}> = () => {
     <Navbar
       NavLink={navlink}
       lang={"en"}
-      secondaryLogo={<NavbarBrand href="/">Community Solutions</NavbarBrand>}
+      secondaryLogo={
+        <NavbarBrand to="/" tag={Link}>
+          Community Solutions
+        </NavbarBrand>
+      }
       primaryActionItems={[]}
       secondaryNavItems={[
         {
