@@ -91,7 +91,7 @@ const ExamsNavbar: React.FC<{}> = () => {
           href: "/search",
         },
         {
-          title: ((
+          title: (
             <span>
               Account
               {unreadCount !== undefined && unreadCount > 0 && (
@@ -101,7 +101,7 @@ const ExamsNavbar: React.FC<{}> = () => {
                 </>
               )}
             </span>
-          ) as unknown) as string,
+          ),
           icon: UserIcon,
           active: location.pathname === `/user/${username}`,
           href: `/user/${username}`,
