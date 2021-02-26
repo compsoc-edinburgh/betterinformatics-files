@@ -130,7 +130,7 @@ CSP_CONNECT_SRC = (
     "'self'",
     "https://static.vseth.ethz.ch",
     "https://auth.vseth.ethz.ch",
-    "https://" + os.environ["SIP_S3_FILES_HOST"]
+    "https://" + os.environ.get("SIP_S3_FILES_HOST", "minio")
 )
 CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 
