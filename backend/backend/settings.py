@@ -55,16 +55,14 @@ COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "vseth-1116-vis")
 COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
     "FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
 )
-COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
-    "FRONTEND_KEYCLOAK_REALM", "VSETH"
-)
+COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get("FRONTEND_KEYCLOAK_REALM", "VSETH")
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
-    "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", "")
+    "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", ""),
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
@@ -130,7 +128,10 @@ CSP_CONNECT_SRC = (
     "'self'",
     "https://static.vseth.ethz.ch",
     "https://auth.vseth.ethz.ch",
-    "https://" + os.environ.get("SIP_S3_FILES_HOST", "minio") + ":" + os.environ("SIP_S3_FILES_PORT", "80")
+    "https://"
+    + os.environ.get("SIP_S3_FILES_HOST", "minio")
+    + ":"
+    + os.environ.get("SIP_S3_FILES_PORT", "80"),
 )
 CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 
