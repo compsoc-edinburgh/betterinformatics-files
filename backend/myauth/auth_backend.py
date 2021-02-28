@@ -39,6 +39,10 @@ class NoUsernameException(Exception):
         self.sub = sub
 
 
+class InvalidHomeOrganizationException(Exception):
+    pass
+
+
 def generate_unique_username(preferred_username):
     def exists(username):
         return MyUser.objects.filter(username=username).exists()
@@ -90,6 +94,9 @@ def add_auth(request):
         ):
             raise NoUsernameException(claims["given_name"], claims["family_name"], sub)
         preferred_username = claims["preferred_username"]
+        home_organization = claims["home_organization"]
+        if home_organization != "ethz.ch":
+            raise InvalidHomeOrganizationException()
         roles = (
             claims["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]
             if "resource_access" in claims
@@ -114,7 +121,9 @@ def add_auth(request):
                 if changed:
                     existing_user.save()
             else:
-                old_existing_user = MyUser.objects.filter(username=preferred_username).first()
+                old_existing_user = MyUser.objects.filter(
+                    username=preferred_username
+                ).first()
                 if old_existing_user != None:
                     Profile.objects.create(user=old_existing_user, sub=sub)
                     request.user = old_existing_user
@@ -145,19 +154,22 @@ def AuthenticationMiddleware(get_response):
         try:
             add_auth(request)
         except InvalidJWSSignature:
-            raise PermissionDenied
+            raise PermissionDenied("jws signature invalid")
 
         except InvalidJWSObject:
-            raise PermissionDenied
+            raise PermissionDenied("invalid jws object")
 
         except InvalidJWSOperation:
-            raise PermissionDenied
+            raise PermissionDenied("invalid jws operation")
 
         except JWTMissingKey:
-            raise PermissionDenied
+            raise PermissionDenied("jwt missing key")
 
         except ValueError:
             raise PermissionDenied
+
+        except InvalidHomeOrganizationException:
+            raise PermissionDenied("invalid home organisatoin")
 
         except NoUsernameException as err:
             logger.warning(
@@ -166,7 +178,7 @@ def AuthenticationMiddleware(get_response):
                 err.familyName,
                 err.sub,
             )
-            raise PermissionDenied
+            raise PermissionDenied("no username set")
 
         response = get_response(request)
 
