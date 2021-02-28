@@ -124,14 +124,15 @@ CSP_STYLE_SRC = (
     "https://static.vseth.ethz.ch",
 )
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
+
+s3_host = os.environ.get("SIP_S3_FILES_HOST", "minio")
+s3_port = os.environ.get("SIP_S3_FILES_PORT", "9000")
 CSP_CONNECT_SRC = (
     "'self'",
     "https://static.vseth.ethz.ch",
     "https://auth.vseth.ethz.ch",
-    "https://"
-    + os.environ.get("SIP_S3_FILES_HOST", "minio")
-    + ":"
-    + os.environ.get("SIP_S3_FILES_PORT", "80"),
+    "https://" + s3_host + ":" + s3_port,
+    "http://" + s3_host + ":" + s3_port,
 )
 CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
 
