@@ -14,10 +14,11 @@ auth:
     accessType: public
     clientProtocol: openid-connect
     validRedirectURIs:
-      - http://exams.com.staging-sip.ethz.ch/
-      - https://exams.com.staging-sip.ethz.ch/
+      - https://exams.com.staging-sip.ethz.ch/*
     scopes:
-      defaultClientScopes: []
+      defaultClientScopes:
+        - profile
+        - home_organization
     roles:
       - name: admin
         description: Admin of the application
