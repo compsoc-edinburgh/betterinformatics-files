@@ -65,5 +65,4 @@ urlpatterns = [
          views_files.print_exam, name='printexam'),
     path('printpdf/solution/<str:filename>/',
          views_files.print_solution, name='printsolution'),
-    path('zipexport/', views_files.zip_export, name='zipexport'),
 ]

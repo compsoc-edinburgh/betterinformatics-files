@@ -5,8 +5,7 @@ import {
   MetaCategory,
   MetaCategoryWithCategories,
 } from "../interfaces";
-import axios from "axios";
-import JSZip from "jszip";
+const jszip = import("jszip");
 import { performDataRequest } from "../api/fetch-utils";
 
 export function filterMatches(filter: string, name: string): boolean {
@@ -106,18 +105,15 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
   ].sort(([a], [b]) => a.localeCompare(b));
 };
 export const dlSelectedExams = async (selectedExams: Set<string>) => {
+  const JSZip = await jszip;
   const zip = new JSZip();
 
   
   await Promise.all(
       Array.from(selectedExams).map(async (exam) => {
         const responseUrl = await performDataRequest("GET", `/api/exam/pdf/exam/${exam}.pdf`, {});
-        const responseFile = await axios({
-            url: responseUrl.value,
-            method: "GET",
-        });
-
-        zip.file(exam, responseFile.data);
+        const responseFile = await fetch(responseUrl.value)
+        zip.file(exam, responseFile);
       })
   );
 
