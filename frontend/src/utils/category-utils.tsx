@@ -5,7 +5,6 @@ import {
   MetaCategory,
   MetaCategoryWithCategories,
 } from "../interfaces";
-const jszip = import("jszip");
 import { performDataRequest } from "../api/fetch-utils";
 
 export function filterMatches(filter: string, name: string): boolean {
@@ -105,6 +104,7 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
   ].sort(([a], [b]) => a.localeCompare(b));
 };
 export const dlSelectedExams = async (selectedExams: Set<string>) => {
+  const jszip = import("jszip");
   const JSZip = await jszip;
   const zip = new JSZip();
 
