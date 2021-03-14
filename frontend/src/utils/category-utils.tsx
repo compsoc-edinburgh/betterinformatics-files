@@ -5,7 +5,9 @@ import {
   MetaCategory,
   MetaCategoryWithCategories,
 } from "../interfaces";
-import { getCookie } from "../api/fetch-utils";
+import axios from "axios";
+import JSZip from "jszip";
+import { performDataRequest } from "../api/fetch-utils";
 
 export function filterMatches(filter: string, name: string): boolean {
   const nameLower = name.replace(/\s/g, "").toLowerCase();
@@ -103,24 +105,32 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
       .entries(),
   ].sort(([a], [b]) => a.localeCompare(b));
 };
-export const dlSelectedExams = (selectedExams: Set<string>) => {
-  const form = document.createElement("form");
-  form.action = "/api/exam/zipexport/";
-  form.method = "POST";
-  form.target = "_blank";
-  for (const filename of selectedExams) {
-    const input = document.createElement("input");
-    input.name = "filenames";
-    input.value = filename;
-    form.appendChild(input);
-  }
-  const csrf = document.createElement("input");
-  csrf.name = "csrfmiddlewaretoken";
-  csrf.value = getCookie("csrftoken") || "";
-  form.appendChild(csrf);
+export const dlSelectedExams = async (selectedExams: Set<string>) => {
+  const zip = new JSZip();
 
-  form.style.display = "none";
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
+  
+  await Promise.all(
+      Array.from(selectedExams).map(async (exam) => {
+        const responseUrl = await performDataRequest("GET", `/api/exam/pdf/exam/${exam}.pdf`, {});
+        const responseFile = await axios({
+            url: responseUrl.value,
+            method: "GET",
+        });
+
+        zip.file(exam, responseFile.data);
+      })
+  );
+
+  const content = await zip.generateAsync({ type: "blob" });
+  const name = `exams.zip`;
+  const url = window.URL.createObjectURL(new Blob([content]));
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
 };
