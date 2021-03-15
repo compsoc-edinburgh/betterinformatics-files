@@ -119,7 +119,7 @@ export const dlSelectedExams = async (selectedExams: Set<string>) => {
 
   const content = await zip.generateAsync({ type: "blob" });
   const name = "exams.zip";
-  const url = window.URL.createObjectURL(new Blob([content]));
+  const url = window.URL.createObjectURL(content);
 
   const a = document.createElement("a");
   a.href = url;
