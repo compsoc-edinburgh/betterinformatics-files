@@ -104,9 +104,8 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
   ].sort(([a], [b]) => a.localeCompare(b));
 };
 export const dlSelectedExams = async (selectedExams: Set<string>) => {
-  const jszip = import("jszip");
-  const JSZip = await jszip;
-  const zip = new JSZip();
+  const JSZip = await import("jszip").then(e => e.default);
+  const zip =  new JSZip();
 
   
   await Promise.all(
