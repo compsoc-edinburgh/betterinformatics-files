@@ -5,7 +5,7 @@ import {
   MetaCategory,
   MetaCategoryWithCategories,
 } from "../interfaces";
-import { performDataRequest } from "../api/fetch-utils";
+import { fetchGet } from "../api/fetch-utils";
 
 export function filterMatches(filter: string, name: string): boolean {
   const nameLower = name.replace(/\s/g, "").toLowerCase();
