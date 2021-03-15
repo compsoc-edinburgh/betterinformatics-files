@@ -111,7 +111,7 @@ export const dlSelectedExams = async (selectedExams: Set<string>) => {
   
   await Promise.all(
       Array.from(selectedExams).map(async (exam) => {
-        const responseUrl = await performDataRequest("GET", `/api/exam/pdf/exam/${exam}.pdf`, {});
+        const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam}/`);
         const responseFile = await fetch(responseUrl.value).then(r => r.arrayBuffer())
         zip.file(exam, responseFile);
       })
