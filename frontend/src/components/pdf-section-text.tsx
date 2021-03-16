@@ -1,4 +1,4 @@
-import { TextContent, TextContentItem } from "pdfjs-dist";
+import { TextContent } from "pdfjs-dist/types/display/api";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PDF from "../pdf/pdf-renderer";
@@ -49,7 +49,8 @@ const useTextLayer = (
 };
 
 interface TextElementProps {
-  item: TextContentItem;
+  // tslint:disable-next-line: no-any
+  item: any;
   // Style currently isn't used. Setting the font family breaks alignment
   // tslint:disable-next-line: no-any
   styles: any;
