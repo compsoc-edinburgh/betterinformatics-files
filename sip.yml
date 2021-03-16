@@ -19,6 +19,7 @@ auth:
       defaultClientScopes:
         - profile
         - home-organization
+        - roles
     roles:
       - name: admin
         description: Admin of the application
