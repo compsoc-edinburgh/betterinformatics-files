@@ -1,4 +1,5 @@
 import { useRequest } from "@umijs/hooks";
+import { PDFDocumentProxy } from "pdfjs-dist/types/display/api";
 import {
   Answer,
   AnswerSection,
@@ -14,10 +15,9 @@ import {
   ServerCutResponse,
   UserInfo,
 } from "../interfaces";
-import keycloak from "../keycloak";
 import PDF from "../pdf/pdf-renderer";
-import { getDocument, PDFDocumentProxy } from "../pdf/pdfjs";
-import { fetchGet, fetchPost, getHeaders, minValidity } from "./fetch-utils";
+import { getDocument } from "../pdf/pdfjs";
+import { fetchGet, fetchPost } from "./fetch-utils";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))

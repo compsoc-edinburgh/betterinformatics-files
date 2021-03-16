@@ -105,15 +105,16 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
 };
 export const dlSelectedExams = async (selectedExams: Set<string>) => {
   const JSZip = await import("jszip").then(e => e.default);
-  const zip =  new JSZip();
+  const zip = new JSZip();
 
-  
   await Promise.all(
-      Array.from(selectedExams).map(async (exam) => {
-        const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam}/`);
-        const responseFile = await fetch(responseUrl.value).then(r => r.arrayBuffer())
-        zip.file(exam, responseFile);
-      })
+    Array.from(selectedExams).map(async exam => {
+      const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam}/`);
+      const responseFile = await fetch(responseUrl.value).then(r =>
+        r.arrayBuffer(),
+      );
+      zip.file(exam, responseFile);
+    }),
   );
 
   const content = await zip.generateAsync({ type: "blob" });
