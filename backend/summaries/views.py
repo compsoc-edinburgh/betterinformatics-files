@@ -4,7 +4,7 @@ from django.views import View
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from util import response, minio_util
-from answers.models import Category
+from categories.models import Category
 
 
 def get_summary_obj(summary):
@@ -87,7 +87,7 @@ class SummaryRootView(View):
         return response.success(value=get_summary_obj(summary))
 
 
-class SummaryEntityView(View):
+class SummaryElementView(View):
     http_method_names = ["get"]
 
     @auth_check.require_login
