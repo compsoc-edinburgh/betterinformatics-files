@@ -1,6 +1,6 @@
 import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
@@ -17,14 +17,11 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     }
   };
   return (
-    <Card
-      className={focusOutline}
-      tabIndex={0}
-      onClick={() => history.push(`/category/${category.slug}`)}
-      onKeyDown={handleKeyDown}
-    >
+    <Card className={focusOutline} tabIndex={0} onKeyDown={handleKeyDown}>
       <CardBody>
-        <h5>{highlight(category.displayname, category.match)}</h5>
+        <Link to={`/category/${category.slug}`} className="stretched-link">
+          <h5>{highlight(category.displayname, category.match)}</h5>
+        </Link>
         <div>
           Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
         </div>
