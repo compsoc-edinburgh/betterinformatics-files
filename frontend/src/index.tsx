@@ -37,7 +37,7 @@ ReactDOM.render(
           checkLoginIframe: false,
           silentCheckSsoFallback: false,
           onLoad: "",
-          flow: "implicit",
+          pkceMethod: "S256",
           idToken: optParse(localStorage.getItem("kc-idToken")),
           refreshToken: optParse(localStorage.getItem("kc-refreshToken")),
           token: optParse(localStorage.getItem("kc-token")),

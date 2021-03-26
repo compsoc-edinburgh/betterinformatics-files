@@ -45,6 +45,7 @@ urlpatterns = [
     path("api/notification/", include("notifications.urls")),
     path("api/payment/", include("payments.urls")),
     path("api/scoreboard/", include("scoreboard.urls")),
+    path("api/summary/", include("summaries.urls")),
     re_path(
         r"^static/(?P<path>.*)$",
         views.cached_serve,
