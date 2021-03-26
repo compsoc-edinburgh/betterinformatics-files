@@ -53,6 +53,11 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
             return False
         if self.needs_payment and not request.user.has_payed():
             return False
+        if (
+            self.oral_transcript_uploader is not None
+            and self.oral_transcript_uploader.pk == request.user.pk
+        ):
+            return True
         return True
 
     def attachment_name(self):
