@@ -51,6 +51,9 @@ def has_admin_rights_for_category(request, category):
 def has_admin_rights_for_exam(request, exam):
     return has_admin_rights_for_category(request, exam.category)
 
+def has_admin_rights_for_summary(request, summary):
+    return has_admin_rights_for_category(request, summary.category)
+
 
 def is_expert_for_category(request, category):
     return request.user.category_expert_set.filter(pk=category.pk).exists()
