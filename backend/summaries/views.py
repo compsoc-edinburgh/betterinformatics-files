@@ -7,15 +7,19 @@ from util import response, minio_util
 from categories.models import Category
 
 
-def get_summary_obj(summary):
+def get_summary_obj(summary: Summary):
     return {
-        "slug": summary.pk,
-        "displayName": summary.display_name,
+        "slug": summary.slug,
+        "display_name": summary.display_name,
         "category": summary.category.slug,
+        "category_display_name": summary.category.displayname,
+        "author": summary.author.username,
+        "filename": summary.filename,
+        "mime_type": summary.mime_type,
     }
 
 
-def create_summary_slug(summary_name, author_name):
+def create_summary_slug(summary_name: str, author_name: str):
     """
     Create a valid and unique slug for the summary display name
     :param summary: display name
@@ -24,7 +28,7 @@ def create_summary_slug(summary_name, author_name):
     oslug = "".join(
         filter(
             lambda x: x in settings.COMSOL_SUMMARY_SLUG_CHARS,
-            author_name + " " + summary_name,
+            author_name.lower() + "-" + summary_name.lower(),
         )
     )
 
@@ -54,50 +58,71 @@ def prepare_summary_pdf_file(request):
 
 
 class SummaryRootView(View):
-    http_method_names = ["get", "post"]
+    http_method_names = ["get", "post", "put"]
 
     @auth_check.require_login
     def get(self, request):
+        category = request.GET.get("category")
+
+        objects = Summary.objects
+        if category != "":
+            objects = objects.filter(category__slug=category)
         res = [
             get_summary_obj(summary)
-            for summary in Summary.objects.prefetch_related("category").all()
+            for summary in objects.prefetch_related("category", "author").all()
         ]
         return response.success(value=res)
 
-    @response.required_args("display_name", "category", "file")
-    @auth_check.require_admin
+    @response.required_args("display_name", "category")
+    @auth_check.require_login
     def post(self, request):
         err, file, ext = prepare_summary_pdf_file(request)
         category = get_object_or_404(Category, slug=request.POST["category"])
         if err is not None:
             return err
-        filename = minio_util.generate_filename(16, settings.COMSOL_SUMMARY_DIR, ext)
+        filename = minio_util.generate_filename(
+            16, settings.COMSOL_SUMMARY_DIR, "." + ext
+        )
+        display_name = request.POST["display_name"]
         summary = Summary(
-            question=request.DATA["question"],
-            answer=request.DATA["answer"],
-            order=int(request.DATA["order"]),
-            filename=filename,
+            slug=create_summary_slug(display_name, request.user.username),
+            display_name=display_name,
             category=category,
+            author=request.user,
+            filename=filename,
+            mime_type=file.content_type,
         )
         summary.save()
         minio_util.save_uploaded_file_to_minio(
-            settings.COMSOL_SUMMARY_DIR, filename, file
+            settings.COMSOL_SUMMARY_DIR, filename, file, file.content_type
         )
 
         return response.success(value=get_summary_obj(summary))
 
 
 class SummaryElementView(View):
-    http_method_names = ["get"]
+    http_method_names = ["get", "delete"]
 
     @auth_check.require_login
-    def get(self, request, id):
-        summary = get_object_or_404(Summary, pk=id)
+    def get(self, request, slug):
+        summary = get_object_or_404(Summary, slug=slug)
         return response.success(value=get_summary_obj(summary))
+
+    @auth_check.require_login
+    def delete(self, request, slug):
+        summary = get_object_or_404(Summary, slug=slug)
+        if not summary.current_user_can_delete(request):
+            return response.not_allowed()
+        summary.delete()
+        return response.success(value=True)
 
 
 @response.request_get()
-@auth_check.require_login
-def get_summary_file(request, slug):
-    summary = get_object_or_404(Summary, slug=slug)
-    return minio_util.send_file(settings.COMSOL_SUMMARY_DIR, summary.filename)
+def get_summary_file(request, filename):
+    summary = get_object_or_404(Summary, filename=filename)
+    return minio_util.send_file(
+        settings.COMSOL_SUMMARY_DIR,
+        filename,
+        as_attachment=True,
+        attachment_filename=filename,
+    )
