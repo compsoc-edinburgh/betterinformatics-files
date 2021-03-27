@@ -1,3 +1,4 @@
+import minio
 from summaries.models import Summary
 from myauth import auth_check
 from django.views import View
@@ -5,6 +6,9 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from util import response, minio_util
 from categories.models import Category
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_summary_obj(summary: Summary):
@@ -58,7 +62,7 @@ def prepare_summary_pdf_file(request):
 
 
 class SummaryRootView(View):
-    http_method_names = ["get", "post", "put"]
+    http_method_names = ["get", "post"]
 
     @auth_check.require_login
     def get(self, request):
@@ -77,9 +81,9 @@ class SummaryRootView(View):
     @auth_check.require_login
     def post(self, request):
         err, file, ext = prepare_summary_pdf_file(request)
-        category = get_object_or_404(Category, slug=request.POST["category"])
         if err is not None:
             return err
+        category = get_object_or_404(Category, slug=request.POST["category"])
         filename = minio_util.generate_filename(
             16, settings.COMSOL_SUMMARY_DIR, "." + ext
         )
@@ -101,11 +105,37 @@ class SummaryRootView(View):
 
 
 class SummaryElementView(View):
-    http_method_names = ["get", "delete"]
+    http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
     def get(self, request, slug):
         summary = get_object_or_404(Summary, slug=slug)
+        return response.success(value=get_summary_obj(summary))
+
+    @auth_check.require_login
+    def put(self, request, slug):
+        summary = get_object_or_404(Summary, slug=slug)
+        if not summary.current_user_can_edit(request):
+            return response.not_allowed()
+        if "display_name" in request.DATA:
+            summary.display_name = request.DATA["display_name"]
+        logger.info(
+            "data: {data}, files: {files}".format(
+                data=request.DATA,
+                files=request.FILES,
+            )
+        )
+        if "file" in request.FILES:
+            err, file, ext = prepare_summary_pdf_file(request)
+            if err is not None:
+                return err
+            minio_util.save_uploaded_file_to_minio(
+                settings.COMSOL_SUMMARY_DIR,
+                summary.filename,
+                file,
+                file.content_type,
+            )
+        summary.save()
         return response.success(value=get_summary_obj(summary))
 
     @auth_check.require_login
@@ -114,12 +144,16 @@ class SummaryElementView(View):
         if not summary.current_user_can_delete(request):
             return response.not_allowed()
         summary.delete()
-        return response.success(value=True)
+        success = minio_util.delete_file(
+            settings.COMSOL_SUMMARY_DIR,
+            summary.filename,
+        )
+        return response.success(value=success)
 
 
 @response.request_get()
 def get_summary_file(request, filename):
-    summary = get_object_or_404(Summary, filename=filename)
+    get_object_or_404(Summary, filename=filename)
     return minio_util.send_file(
         settings.COMSOL_SUMMARY_DIR,
         filename,
