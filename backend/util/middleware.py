@@ -10,9 +10,8 @@ def parse_request_middleware(get_response):
                 parser = MultiPartParser(
                     request.META, BytesIO(request.body), request.upload_handlers
                 )
-                _, files = request.parse_file_upload(request.META, request)
+                request.DATA, files = parser.parse()
                 request.FILES.update(files)
-                request.DATA, _ = parser.parse()
             except Exception as e:
                 import traceback
 
