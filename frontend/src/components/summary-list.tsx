@@ -24,7 +24,10 @@ const SummaryList: React.FC<Props> = ({ slug }) => {
   return (
     <>
       <Modal isOpen={isOpen} toggle={() => setIsOpen(r => !r)}>
-        <CreateSummaryForm categorySlug={slug} />
+        <CreateSummaryForm
+          categorySlug={slug}
+          toggle={() => setIsOpen(r => !r)}
+        />
       </Modal>
 
       <Grid>

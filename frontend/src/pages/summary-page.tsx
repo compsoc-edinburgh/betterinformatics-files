@@ -9,10 +9,11 @@ import {
   NavItem,
   NavLink,
 } from "@vseth/components";
+import { SSL_OP_TLS_ROLLBACK_BUG } from "constants";
 import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { download } from "../api/fetch-utils";
-import { useSummary } from "../api/hooks";
+import { useDeleteSummary, useSummary } from "../api/hooks";
 import FileInput from "../components/file-input";
 import IconButton from "../components/icon-button";
 import ContentContainer from "../components/secondary-container";
@@ -20,6 +21,7 @@ import SummaryCommentForm from "../components/summary-comment-form";
 import SummaryMarkdown from "../components/summary-markdown";
 import SummaryMarkdownEditor from "../components/summary-markdown-editor";
 import SummaryPdf from "../components/summary-pdf";
+import SummarySettings from "../components/summary-settings";
 import { Summary } from "../interfaces";
 
 const isPdf = (summary: Summary) => summary.mime_type === "application/pdf";
@@ -127,56 +129,46 @@ const SummaryPage: React.FC<Props> = () => {
           </NavItem>
         </Container>
       </Nav>
-      <ContentContainer>
-        <Container>
-          {tab === SummaryTab.SUMMARY &&
-            data &&
-            (Components?.Viewer ? (
-              <Components.Viewer
-                summary={data}
-                url={`/api/summary/file/${data.filename}`}
-              />
-            ) : (
-              <div className="py-4 text-center text-large">
-                This summary can only be downloaded.
-              </div>
-            ))}
-          {tab === SummaryTab.COMMENTS && (
-            <>
-              <div className="py-4 text-center">There are no comments yet.</div>
-              <Card className="p-2">
-                <SummaryCommentForm />
-              </Card>
-            </>
-          )}
-          {tab === SummaryTab.EDIT && data && Components?.Editor && (
+
+      {tab === SummaryTab.SUMMARY &&
+        data &&
+        (Components?.Viewer ? (
+          <Components.Viewer
+            summary={data}
+            url={`/api/summary/file/${data.filename}`}
+          />
+        ) : (
+          <div className="py-4 text-center text-large">
+            This summary can only be downloaded.
+          </div>
+        ))}
+      {tab === SummaryTab.COMMENTS && (
+        <ContentContainer>
+          <Container>
+            <div className="py-4 text-center">There are no comments yet.</div>
+            <Card className="p-2">
+              <SummaryCommentForm />
+            </Card>
+          </Container>
+        </ContentContainer>
+      )}
+      {tab === SummaryTab.EDIT && data && Components?.Editor && (
+        <ContentContainer>
+          <Container>
             <Components.Editor
               summary={data}
               url={`/api/summary/file/${data.filename}`}
             />
-          )}
-          {tab === SummaryTab.SETTINGS && (
-            <>
-              <InputField label="Display Name" value={data?.display_name} />
-              <FileInput onChange={() => void 0} />
-              <h3 className="mt-5 mb-4">Danger Zone</h3>
-              <div className="d-flex flex-wrap justify-content-between align-items-center">
-                <div className="d-flex flex-column">
-                  <h6>Delete this summary</h6>
-                  <div>
-                    Deleting the summary will delete the associated file and all
-                    comments. This cannot be undone.
-                  </div>
-                </div>
-
-                <Button color="danger" onClick={() => console.log("Ello")}>
-                  Delete
-                </Button>
-              </div>
-            </>
-          )}
-        </Container>
-      </ContentContainer>
+          </Container>
+        </ContentContainer>
+      )}
+      {tab === SummaryTab.SETTINGS && data && (
+        <ContentContainer>
+          <Container>
+            <SummarySettings data={data} slug={slug} />
+          </Container>
+        </ContentContainer>
+      )}
     </>
   );
 };

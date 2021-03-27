@@ -1,26 +1,53 @@
+import { useRequest } from "@umijs/hooks";
+import { Button } from "@vseth/components";
+import { file } from "jszip";
 import React, { useState } from "react";
-import { imageHandler } from "../api/fetch-utils";
+import { imageHandler, NamedBlob } from "../api/fetch-utils";
+import { updateSummary, useUpdateSummary } from "../api/hooks";
+import { Summary } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 
-interface Props {}
-const SummaryMarkdownEditor: React.FC<Props> = () => {
+interface Props {
+  url: string;
+  summary: Summary;
+}
+const SummaryMarkdownEditor: React.FC<Props> = ({ url, summary }) => {
   const [draftText, setDraftText] = useState("");
+  const { error: mdError, loading: mdLoading, data } = useRequest(
+    () => fetch(url).then(r => r.text()),
+    { onSuccess: text => setDraftText(text) },
+  );
+  const [, updateSummary] = useUpdateSummary(summary.slug, () => void 0);
   const [undoStack, setUndoStack] = useState<UndoStack>({
     prev: [],
     next: [],
   });
   return (
     <div>
-      <Editor
-        value={draftText}
-        onChange={setDraftText}
-        imageHandler={imageHandler}
-        preview={value => <MarkdownText value={value} />}
-        undoStack={undoStack}
-        setUndoStack={setUndoStack}
-      />
+      {" "}
+      <div className="form-group">
+        <Editor
+          value={draftText}
+          onChange={setDraftText}
+          imageHandler={imageHandler}
+          preview={value => <MarkdownText value={value} />}
+          undoStack={undoStack}
+          setUndoStack={setUndoStack}
+        />
+      </div>
+      <div className="form-group d-flex justify-content-end">
+        <Button
+          onClick={() =>
+            updateSummary({
+              file: new NamedBlob(new Blob([draftText]), "file.md"),
+            })
+          }
+        >
+          Save
+        </Button>
+      </div>
     </div>
   );
 };

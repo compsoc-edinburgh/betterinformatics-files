@@ -1,16 +1,25 @@
 import { useRequest } from "@umijs/hooks";
+import { Card, Container } from "@vseth/components";
 import React from "react";
-import { fetchGet } from "../api/fetch-utils";
 import MarkdownText from "./markdown-text";
 interface SummaryMarkdownProps {
   url: string;
 }
 const SummaryMarkdown: React.FC<SummaryMarkdownProps> = ({ url }) => {
-  const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
+  const { error: mdError, loading: mdLoading, data } = useRequest(() =>
     fetch(url).then(r => r.text()),
   );
 
-  return <>{data && <MarkdownText value={data} />}</>;
+  return (
+    <Container className="py-5">
+      {data !== undefined &&
+        (data.length > 0 ? (
+          <MarkdownText value={data} />
+        ) : (
+          "This summary currently doesn't have any content."
+        ))}
+    </Container>
+  );
 };
 
 export default SummaryMarkdown;
