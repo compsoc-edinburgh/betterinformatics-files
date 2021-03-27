@@ -18,7 +18,13 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
-import { fetchGet, fetchPost } from "./fetch-utils";
+import {
+  fetchDelete,
+  fetchGet,
+  fetchPost,
+  fetchPut,
+  NamedBlob,
+} from "./fetch-utils";
 
 const loadUserInfo = async (username: string) => {
   return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))
@@ -339,7 +345,7 @@ export const useRemoveAnswer = (
 
 export const useMutation = <B, T extends any[]>(
   service: (...args: T) => Promise<B>,
-  onSuccess?: (res: B) => void,
+  onSuccess?: (res: B, params: T) => void,
 ) => {
   const { loading, run } = useRequest(service, { manual: true, onSuccess });
   return [loading, run] as const;
@@ -359,7 +365,7 @@ export const markAsChecked = async (filename: string) => {
 export const createSummary = async (
   displayName: string,
   categorySlug: string,
-  file: File,
+  file: File | NamedBlob,
 ) => {
   return (
     await fetchPost(`/api/summary/`, {
@@ -369,7 +375,7 @@ export const createSummary = async (
     })
   ).value as Summary;
 };
-export const useCreateSummary = (onSuccess?: () => void) =>
+export const useCreateSummary = (onSuccess?: (summary: Summary) => void) =>
   useMutation(createSummary, onSuccess);
 
 export const loadSummaries = async (categorySlug: string) => {
@@ -395,3 +401,26 @@ export const useSummary = (summarySlug: string) => {
   });
   return [error, loading, data] as const;
 };
+
+export const deleteSummary = async (summarySlug: string) => {
+  return (await fetchDelete(`/api/summary/${encodeURIComponent(summarySlug)}/`))
+    .value as true;
+};
+export const useDeleteSummary = (summarySlug: string, cb: () => void) =>
+  useMutation(() => deleteSummary(summarySlug), cb);
+
+export interface SummaryUpdate {
+  display_name?: string;
+  category_slug?: string;
+  file?: File | NamedBlob;
+}
+export const updateSummary = async (
+  summarySlug: string,
+  data: SummaryUpdate,
+) => {
+  return (
+    await fetchPut(`/api/summary/${encodeURIComponent(summarySlug)}/`, data)
+  ).value as Summary;
+};
+export const useUpdateSummary = (summarySlug: string, cb: () => void) =>
+  useMutation((data: SummaryUpdate) => updateSummary(summarySlug, data), cb);
