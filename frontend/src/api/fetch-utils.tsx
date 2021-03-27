@@ -17,7 +17,9 @@ export function getHeaders() {
   }
   return headers;
 }
-
+export class NamedBlob {
+  constructor(public blob: Blob, public filename: string) {}
+}
 async function performDataRequest<T>(
   method: string,
   url: string,
@@ -32,8 +34,11 @@ async function performDataRequest<T>(
   for (const key in data) {
     if (Object.prototype.hasOwnProperty.call(data, key)) {
       const val = data[key];
+      if (val === undefined) continue;
       if (val instanceof File || val instanceof Blob) {
         formData.append(key, val);
+      } else if (val instanceof NamedBlob) {
+        formData.append(key, val.blob, val.filename);
       } else {
         formData.append(key, val.toString());
       }
@@ -111,7 +116,7 @@ export function download(url: string, name?: string) {
   const a = document.createElement("a");
   document.body.appendChild(a);
   a.href = url;
-  //a.setAttribute("download", name ?? "file");
+  a.setAttribute("download", name ?? "file");
   a.click();
   setTimeout(() => {
     document.body.removeChild(a);
