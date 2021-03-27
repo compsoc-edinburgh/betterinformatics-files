@@ -81,10 +81,7 @@ const SummaryPage: React.FC<Props> = () => {
           <IconButton
             icon="DOWNLOAD"
             onClick={() =>
-              data &&
-              download(
-                `http://localhost:8081/api/summary/file/${data?.filename}`,
-              )
+              data && download(`/api/summary/file/${data?.filename}`)
             }
           />
         </div>
