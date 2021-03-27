@@ -13,6 +13,7 @@ import {
   NotificationInfo,
   PaymentInfo,
   ServerCutResponse,
+  Summary,
   UserInfo,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
@@ -353,4 +354,44 @@ export const useRemoveCategory = (onSuccess?: () => void) =>
 export const markAsChecked = async (filename: string) => {
   return (await fetchPost(`/api/payment/markexamchecked/${filename}/`, {}))
     .value;
+};
+
+export const createSummary = async (
+  displayName: string,
+  categorySlug: string,
+  file: File,
+) => {
+  return (
+    await fetchPost(`/api/summary/`, {
+      display_name: displayName,
+      category: categorySlug,
+      file,
+    })
+  ).value as Summary;
+};
+export const useCreateSummary = (onSuccess?: () => void) =>
+  useMutation(createSummary, onSuccess);
+
+export const loadSummaries = async (categorySlug: string) => {
+  return (
+    await fetchGet(`/api/summary/?category=${encodeURIComponent(categorySlug)}`)
+  ).value as Summary[];
+};
+export const useSummaries = (categorySlug: string) => {
+  const { error, loading, data } = useRequest(
+    () => loadSummaries(categorySlug),
+    { cacheKey: `summaries-${categorySlug}` },
+  );
+  return [error, loading, data] as const;
+};
+
+export const loadSummary = async (summarySlug: string) => {
+  return (await fetchGet(`/api/summary/${encodeURIComponent(summarySlug)}/`))
+    .value as Summary;
+};
+export const useSummary = (summarySlug: string) => {
+  const { error, loading, data } = useRequest(() => loadSummary(summarySlug), {
+    cacheKey: `summary-${summarySlug}`,
+  });
+  return [error, loading, data] as const;
 };

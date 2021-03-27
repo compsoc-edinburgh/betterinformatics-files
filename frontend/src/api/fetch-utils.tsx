@@ -107,17 +107,20 @@ export function fetchGet<T = any>(url: string) {
   return performRequest<T>("GET", url);
 }
 
-export async function downloadIndirect(url: string) {
-  const { value: signedUrl } = await fetchGet(url);
-
+export function download(url: string, name?: string) {
   const a = document.createElement("a");
   document.body.appendChild(a);
-  a.href = signedUrl;
-  a.setAttribute("download", "download");
+  a.href = url;
+  //a.setAttribute("download", name ?? "file");
   a.click();
   setTimeout(() => {
     document.body.removeChild(a);
   }, 0);
+}
+
+export async function downloadIndirect(url: string) {
+  const { value: signedUrl } = await fetchGet(url);
+  download(signedUrl);
 }
 
 export function imageHandler(file: File): Promise<ImageHandle> {

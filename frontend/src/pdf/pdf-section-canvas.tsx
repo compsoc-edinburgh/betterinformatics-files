@@ -86,7 +86,7 @@ const usePdf = (
 };
 
 interface Props {
-  oid: string | undefined;
+  oid?: string;
   page: number;
   start: number;
   end: number;

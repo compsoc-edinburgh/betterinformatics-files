@@ -309,3 +309,13 @@ export type SearchResult =
   | AnswerSearchResult
   | CommentSearchResult;
 export type SearchResponse = SearchResult[];
+
+export interface Summary {
+  slug: string;
+  display_name: string;
+  category: string;
+  category_display_name: string;
+  author: string;
+  filename: string;
+  mime_type: string;
+}
