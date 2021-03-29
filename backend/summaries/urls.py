@@ -13,7 +13,7 @@ urlpatterns = [
         name="comments_root",
     ),
     path(
-        "<slug:summary_slug>/comments/<int:id>",
+        "<slug:summary_slug>/comments/<int:id>/",
         views.SummaryCommentElementView.as_view(),
         name="comments_root",
     ),
