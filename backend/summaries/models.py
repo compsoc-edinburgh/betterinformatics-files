@@ -1,6 +1,8 @@
+from django.utils import timezone
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 from myauth import auth_check
+from util.models import CommentMixin
 
 
 class Summary(ExportModelOperationsMixin("summary"), models.Model):
@@ -15,7 +17,24 @@ class Summary(ExportModelOperationsMixin("summary"), models.Model):
     mime_type = models.CharField(max_length=256)
 
     def current_user_can_delete(self, request):
-        is_admin = auth_check.has_admin_rights_for_exam(request, self)
+        is_admin = auth_check.has_admin_rights_for_summary(request, self)
+        if is_admin:
+            return True
+        if self.author.pk == request.user.pk:
+            return True
+        return False
+
+    def current_user_can_edit(self, request):
+        return self.author.pk == request.user.pk
+
+
+class Comment(CommentMixin):
+    summary = models.ForeignKey(
+        "Summary", related_name="comments", on_delete=models.CASCADE
+    )
+
+    def current_user_can_delete(self, request):
+        is_admin = auth_check.has_admin_rights_for_summary(request, self.summary)
         if is_admin:
             return True
         if self.author.pk == request.user.pk:

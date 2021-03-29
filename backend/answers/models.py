@@ -4,7 +4,7 @@ from myauth import auth_check
 from django.db.models import Exists, OuterRef
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
-
+from util.models import CommentMixin
 from django_prometheus.models import ExportModelOperationsMixin
 
 import random
@@ -153,17 +153,7 @@ class Answer(ExportModelOperationsMixin('answer'), models.Model):
     class Meta:
         indexes = [GinIndex(fields=["search_vector"])]
 
-
-class Comment(ExportModelOperationsMixin('comment'), models.Model):
-    answer = models.ForeignKey('Answer', on_delete=models.CASCADE)
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    text = models.TextField()
-    time = models.DateTimeField(default=timezone.now)
-    edittime = models.DateTimeField(default=timezone.now)
+class Comment(ExportModelOperationsMixin('comment'), CommentMixin):
+    answer = models.ForeignKey('Answer', related_name="comments", on_delete=models.CASCADE)
     long_id = models.CharField(
         max_length=256, default=generate_long_id, unique=True)
-
-    search_vector = SearchVectorField()
-
-    class Meta:
-        indexes = [GinIndex(fields=["search_vector"])]

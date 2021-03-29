@@ -1,5 +1,6 @@
+from datetime import timezone
 import minio
-from summaries.models import Summary
+from summaries.models import Comment, Summary
 from myauth import auth_check
 from django.views import View
 from django.conf import settings
@@ -7,12 +8,23 @@ from django.shortcuts import get_object_or_404
 from util import response, minio_util
 from categories.models import Category
 import logging
+from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
 
 
-def get_summary_obj(summary: Summary):
+def get_comment_obj(comment: Comment):
     return {
+        "id": comment.pk,
+        "text": comment.text,
+        "time": comment.time,
+        "edittime": comment.edittime,
+        "author": comment.author.username,
+    }
+
+
+def get_summary_obj(summary: Summary, include_comments: bool = False):
+    obj = {
         "slug": summary.slug,
         "display_name": summary.display_name,
         "category": summary.category.slug,
@@ -21,6 +33,9 @@ def get_summary_obj(summary: Summary):
         "filename": summary.filename,
         "mime_type": summary.mime_type,
     }
+    if include_comments:
+        obj["comments"] = [get_comment_obj(comment) for comment in summary.comments]
+    return obj
 
 
 def create_summary_slug(summary_name: str, author_name: str):
@@ -65,21 +80,26 @@ class SummaryRootView(View):
     http_method_names = ["get", "post"]
 
     @auth_check.require_login
-    def get(self, request):
-        category = request.GET.get("category")
-
+    def get(self, request: HttpRequest):
         objects = Summary.objects
-        if category != "":
+
+        category = request.GET.get("category")
+        if category is not None:
             objects = objects.filter(category__slug=category)
+
+        include_comments = "include_comments" in request.GET
+        if include_comments:
+            objects = objects.prefetch_related("comments", "comments__author")
+
         res = [
-            get_summary_obj(summary)
+            get_summary_obj(summary, include_comments)
             for summary in objects.prefetch_related("category", "author").all()
         ]
         return response.success(value=res)
 
     @response.required_args("display_name", "category")
     @auth_check.require_login
-    def post(self, request):
+    def post(self, request: HttpRequest):
         err, file, ext = prepare_summary_pdf_file(request)
         if err is not None:
             return err
@@ -108,23 +128,21 @@ class SummaryElementView(View):
     http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
-    def get(self, request, slug):
-        summary = get_object_or_404(Summary, slug=slug)
-        return response.success(value=get_summary_obj(summary))
+    def get(self, request: HttpRequest, slug: str):
+        objects = Summary.objects
+        include_comments = "include_comments" in request.GET.get("include_comments")
+        if include_comments:
+            objects = objects.prefetch_related("comments", "comments__author")
+        summary = get_object_or_404(objects, slug=slug)
+        return response.success(value=get_summary_obj(summary, include_comments))
 
     @auth_check.require_login
-    def put(self, request, slug):
+    def put(self, request: HttpRequest, slug: str):
         summary = get_object_or_404(Summary, slug=slug)
         if not summary.current_user_can_edit(request):
             return response.not_allowed()
         if "display_name" in request.DATA:
             summary.display_name = request.DATA["display_name"]
-        logger.info(
-            "data: {data}, files: {files}".format(
-                data=request.DATA,
-                files=request.FILES,
-            )
-        )
         if "file" in request.FILES:
             err, file, ext = prepare_summary_pdf_file(request)
             if err is not None:
@@ -139,7 +157,7 @@ class SummaryElementView(View):
         return response.success(value=get_summary_obj(summary))
 
     @auth_check.require_login
-    def delete(self, request, slug):
+    def delete(self, request: HttpRequest, slug: str):
         summary = get_object_or_404(Summary, slug=slug)
         if not summary.current_user_can_delete(request):
             return response.not_allowed()
@@ -150,6 +168,50 @@ class SummaryElementView(View):
         )
         return response.success(value=success)
 
+
+class SummaryCommentRootView(View):
+    http_method_names = ["get", "post"]
+
+    @auth_check.require_login
+    def get(self, request: HttpRequest, summary_slug: str):
+        summary = get_object_or_404(Summary, slug=summary_slug)
+        objects = Comment.objects.filter(summary=summary).all()
+        return response.success(value=[get_comment_obj(comment) for comment in objects])
+
+    @response.required_args("text")
+    @auth_check.require_login
+    def post(self, request: HttpRequest, summary_slug: str):
+        summary = get_object_or_404(Summary, slug=summary_slug)
+        comment = Comment(summary=summary, text=request.POST["text"])
+        comment.save()
+        return response.success(value=get_comment_obj(comment))
+
+class SummaryCommentElementView(View):
+    http_method_names = ["get", "delete", "put"]
+
+    @auth_check.require_login
+    def get(self, request: HttpRequest, summary_slug: str, id: int):
+        comment = get_object_or_404(Comment, pk=id, summary__slug=summary_slug)
+        return get_comment_obj(comment)
+
+    def put(self, request: HttpRequest, summary_slug: str, id: int):
+        objects = Comment.objects.prefetch_related("author")
+        comment = get_object_or_404(objects, pk=id, summary__slug=summary_slug)
+        if not comment.current_user_can_edit(request):
+            return response.not_allowed()
+        comment.edittime = timezone.now()
+        if "text" in request.DATA:
+            comment.text = request.DATA["text"]
+        comment.save()
+        return response.success(value=get_comment_obj(comment))
+    
+    def delete(self, request: HttpRequest, summary_slug: str, id: int):
+        objects = Comment.objects.prefetch_related("author")
+        comment = get_object_or_404(objects, pk=id, summary__slug=summary_slug)
+        if not comment.current_user_can_delete(request):
+            return response.not_allowed()
+        comment.delete()
+        return response.success(value=True)
 
 @response.request_get()
 def get_summary_file(request, filename):
