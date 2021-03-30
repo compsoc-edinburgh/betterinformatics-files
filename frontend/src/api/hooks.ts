@@ -14,6 +14,7 @@ import {
   PaymentInfo,
   ServerCutResponse,
   Summary,
+  SummaryComment,
   UserInfo,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
@@ -392,14 +393,20 @@ export const useSummaries = (categorySlug: string) => {
 };
 
 export const loadSummary = async (summarySlug: string) => {
-  return (await fetchGet(`/api/summary/${encodeURIComponent(summarySlug)}/`))
-    .value as Summary;
+  return (
+    await fetchGet(
+      `/api/summary/${encodeURIComponent(summarySlug)}/?include_comments`,
+    )
+  ).value as Summary;
 };
 export const useSummary = (summarySlug: string) => {
-  const { error, loading, data } = useRequest(() => loadSummary(summarySlug), {
-    cacheKey: `summary-${summarySlug}`,
-  });
-  return [error, loading, data] as const;
+  const { error, loading, data, mutate } = useRequest(
+    () => loadSummary(summarySlug),
+    {
+      cacheKey: `summary-${summarySlug}`,
+    },
+  );
+  return [error, loading, data, mutate] as const;
 };
 
 export const deleteSummary = async (summarySlug: string) => {
@@ -424,3 +431,41 @@ export const updateSummary = async (
 };
 export const useUpdateSummary = (summarySlug: string, cb: () => void) =>
   useMutation((data: SummaryUpdate) => updateSummary(summarySlug, data), cb);
+
+export const createSummaryComment = async (
+  summarySlug: string,
+  text: string,
+) => {
+  return (
+    await fetchPost(
+      `/api/summary/${encodeURIComponent(summarySlug)}/comments/`,
+      { text },
+    )
+  ).value as SummaryComment;
+};
+export const useCreateSummaryComment = (
+  summarySlug: string,
+  onSuccess?: (res: SummaryComment) => void,
+) =>
+  useMutation(
+    (text: string) => createSummaryComment(summarySlug, text),
+    onSuccess,
+  );
+
+export const deleteSummaryComment = async (
+  summarySlug: string,
+  commentId: number,
+) => {
+  return (
+    await fetchDelete(
+      `/api/summary/${encodeURIComponent(summarySlug)}/comments/${commentId}/`,
+    )
+  ).value as true;
+};
+
+export const useDeleteSummaryComment = (
+  summarySlug: string,
+  commentId: number,
+  onSuccess?: (res: boolean) => void,
+) => useMutation(() => deleteSummaryComment(summarySlug, commentId), onSuccess);
+export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;

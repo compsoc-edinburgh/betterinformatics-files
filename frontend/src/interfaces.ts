@@ -318,4 +318,10 @@ export interface Summary {
   author: string;
   filename: string;
   mime_type: string;
+  comments: SummaryComment[];
+}
+
+export interface SummaryComment extends Omit<Comment, "longId" | "oid"> {
+  oid: number;
+  summaryId: number;
 }

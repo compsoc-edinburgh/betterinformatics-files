@@ -12,27 +12,64 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('summaries', '0001_initial'),
+        ("summaries", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField()),
-                ('time', models.DateTimeField(default=django.utils.timezone.now)),
-                ('edittime', models.DateTimeField(default=django.utils.timezone.now)),
-                ('search_vector', django.contrib.postgres.search.SearchVectorField()),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='summaries_comments', to=settings.AUTH_USER_MODEL)),
-                ('summary', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='summaries.Summary')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField()),
+                ("time", models.DateTimeField(default=django.utils.timezone.now)),
+                ("edittime", models.DateTimeField(default=django.utils.timezone.now)),
+                ("search_vector", django.contrib.postgres.search.SearchVectorField()),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="summaries_comments",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "summary",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comments",
+                        to="summaries.Summary",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AddIndex(
-            model_name='comment',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_vector'], name='summaries_c_search__02d77d_gin'),
+            model_name="comment",
+            index=django.contrib.postgres.indexes.GinIndex(
+                fields=["search_vector"], name="summaries_c_search__02d77d_gin"
+            ),
+        ),
+        migrations.RunSQL(
+            sql="""
+                CREATE TRIGGER summary_comment_update_trigger
+                BEFORE INSERT OR UPDATE OF text
+                ON summaries_comment
+                FOR EACH ROW EXECUTE PROCEDURE
+                tsvector_update_trigger(search_vector, 'pg_catalog.english', text);
+            """,
+            reverse_sql="""
+                DROP TRIGGER IF EXISTS summary_comment_update_trigger
+                ON summaries_comment;
+            """,
         ),
     ]
