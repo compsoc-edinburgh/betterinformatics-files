@@ -10,6 +10,7 @@ class Summary(ExportModelOperationsMixin("summary"), models.Model):
     display_name = models.CharField(max_length=256)
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
+    likes = models.ManyToManyField("auth.User", related_name="liked_summaries")
 
     # Immutable, created when the summary is first uploaded
     filename = models.CharField(max_length=256, unique=True)

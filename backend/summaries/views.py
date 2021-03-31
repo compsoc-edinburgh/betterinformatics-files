@@ -148,8 +148,10 @@ class SummaryElementView(View):
     http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, slug: str):
-        objects = Summary.objects.prefetch_related("category", "author")
+        objects = Summary.objects.prefetch_related("category", "author").annotate(
+            like_count=like_count,
+            liked=user_liked(request),
+        )
 
         include_comments = "include_comments" in request.GET
         if include_comments:
@@ -167,6 +169,11 @@ class SummaryElementView(View):
         if "display_name" in request.DATA:
             summary.display_name = request.DATA["display_name"]
             summary.slug = create_summary_slug(summary.display_name, summary)
+        if "liked" in request.DATA:
+            if request.DATA["liked"] == "true":
+                summary.likes.add(request.user)
+            else:
+                summary.likes.remove(request.user)
         if "file" in request.FILES:
             err, file, ext = prepare_summary_pdf_file(request)
             if err is not None:
