@@ -1,11 +1,11 @@
+import { Card, Icon, ICONS } from "@vseth/components";
+import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React from "react";
 import { Link } from "react-router-dom";
-import { Card, Icon, ICONS } from "@vseth/components";
-import SmallButton from "./small-button";
-import { Summary, SummaryComment } from "../interfaces";
+import { Mutate, useDeleteSummaryComment } from "../api/hooks";
 import { useUser } from "../auth/";
-import { useDeleteSummaryComment, Mutate } from "../api/hooks";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { Summary, SummaryComment } from "../interfaces";
+import SmallButton from "./small-button";
 
 interface Props {
   summaryAuthor: string;

@@ -1,11 +1,9 @@
 import {
-  Badge,
   Card,
   CardBody,
   CardTitle,
   Icon,
   ICONS,
-  Label,
   LikeFilledIcon,
   LikeIcon,
   Modal,
@@ -16,6 +14,7 @@ import { useSummaries } from "../api/hooks";
 import CreateSummaryForm from "./create-summary-form";
 import Grid from "./grid";
 import TooltipButton from "./TooltipButton";
+
 interface Props {
   slug: string;
 }

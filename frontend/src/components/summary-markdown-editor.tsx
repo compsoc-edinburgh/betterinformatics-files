@@ -1,9 +1,8 @@
 import { useRequest } from "@umijs/hooks";
 import { Button } from "@vseth/components";
-import { file } from "jszip";
 import React, { useState } from "react";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";
-import { updateSummary, useUpdateSummary } from "../api/hooks";
+import { useUpdateSummary } from "../api/hooks";
 import { Summary } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";

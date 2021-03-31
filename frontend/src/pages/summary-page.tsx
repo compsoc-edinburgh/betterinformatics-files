@@ -1,35 +1,26 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
-  Button,
   Card,
   Container,
-  Icon,
-  ICONS,
-  InputField,
   Nav,
   NavItem,
   NavLink,
 } from "@vseth/components";
-import { SSL_OP_TLS_ROLLBACK_BUG } from "constants";
 import React, { useState } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { download } from "../api/fetch-utils";
-import { useDeleteSummary, useSummary } from "../api/hooks";
-import { useUser } from "../auth";
-import FileInput from "../components/file-input";
+import { useSummary } from "../api/hooks";
 import IconButton from "../components/icon-button";
+import LikeButton from "../components/like-button";
 import ContentContainer from "../components/secondary-container";
-import SmallButton from "../components/small-button";
+import SummaryCommentComponent from "../components/summary-comment";
 import SummaryCommentForm from "../components/summary-comment-form";
 import SummaryMarkdown from "../components/summary-markdown";
 import SummaryMarkdownEditor from "../components/summary-markdown-editor";
 import SummaryPdf from "../components/summary-pdf";
 import SummarySettings from "../components/summary-settings";
 import { Summary } from "../interfaces";
-import SummaryCommentComponent from "../components/summary-comment";
-import { keyframes, css } from "emotion";
-import LikeButton from "../components/like-button";
 
 const isPdf = (summary: Summary) => summary.mime_type === "application/pdf";
 const isMarkdown = (summary: Summary) =>

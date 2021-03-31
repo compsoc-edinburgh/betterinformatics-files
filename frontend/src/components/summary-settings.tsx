@@ -1,15 +1,14 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  InputField,
   Button,
-  FormGroup,
-  Select,
   DeleteIcon,
+  FormGroup,
+  InputField,
   SaveIcon,
+  Select,
   Spinner,
 } from "@vseth/components";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import {
   loadCategories,
