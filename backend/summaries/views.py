@@ -55,7 +55,7 @@ def create_summary_slug(summary_name: str, author_name: str):
     oslug = "".join(
         filter(
             lambda x: x in settings.COMSOL_SUMMARY_SLUG_CHARS,
-            author_name.lower() + "-" + summary_name.lower(),
+            summary_name.lower().replace(" ", "-"),
         )
     )
 
