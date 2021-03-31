@@ -1,4 +1,5 @@
 from datetime import timezone
+from typing import Union
 from myauth.models import get_my_user
 import minio
 from summaries.models import Comment, Summary
@@ -11,6 +12,8 @@ from django.db.models import Count
 from categories.models import Category
 import logging
 from django.http import HttpRequest
+from django.db.models import Q
+import os.path
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +42,10 @@ def get_summary_obj(
         "filename": summary.filename,
         "mime_type": summary.mime_type,
     }
+    if hasattr(summary, "like_count"):
+        obj["like_count"] = summary.like_count
+    if hasattr(summary, "liked"):
+        obj["liked"] = summary.like_count
     if include_comments:
         obj["comments"] = [
             get_comment_obj(comment, request) for comment in summary.comments.all()
@@ -78,12 +85,7 @@ def prepare_summary_pdf_file(request):
     file = request.FILES.get("file")
     if not file:
         return response.missing_argument(), None
-    orig_filename = file.name
-    ext = minio_util.check_filename(
-        orig_filename, settings.COMSOL_SUMMARY_ALLOWED_EXTENSIONS
-    )
-    if not ext:
-        return response.not_possible("Invalid File Extension"), None
+    _, ext = os.path.splitext(file.name)
     return None, file, ext
 
 
@@ -124,12 +126,10 @@ class SummaryRootView(View):
         if err is not None:
             return err
         category = get_object_or_404(Category, slug=request.POST["category"])
-        filename = minio_util.generate_filename(
-            16, settings.COMSOL_SUMMARY_DIR, "." + ext
-        )
+        filename = minio_util.generate_filename(16, settings.COMSOL_SUMMARY_DIR, ext)
         display_name = request.POST["display_name"]
         summary = Summary(
-            slug=create_summary_slug(display_name, request),
+            slug=create_summary_slug(display_name),
             display_name=display_name,
             category=category,
             author=request.user,
@@ -148,6 +148,7 @@ class SummaryElementView(View):
     http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
+    def get(self, request: HttpRequest, username: str, slug: str):
         objects = Summary.objects.prefetch_related("category", "author").annotate(
             like_count=like_count,
             liked=user_liked(request),
@@ -156,19 +157,22 @@ class SummaryElementView(View):
         include_comments = "include_comments" in request.GET
         if include_comments:
             objects = objects.prefetch_related("comments", "comments__author")
-        summary = get_object_or_404(objects, slug=slug)
+        summary = get_object_or_404(objects, author__username=username, slug=slug)
         return response.success(
             value=get_summary_obj(summary, request, include_comments)
         )
 
     @auth_check.require_login
-    def put(self, request: HttpRequest, slug: str):
-        summary = get_object_or_404(Summary, slug=slug)
+    def put(self, request: HttpRequest, username: str, slug: str):
+        summary = get_object_or_404(Summary, author__username=username, slug=slug)
         if not summary.current_user_can_edit(request):
             return response.not_allowed()
         if "display_name" in request.DATA:
             summary.display_name = request.DATA["display_name"]
             summary.slug = create_summary_slug(summary.display_name, summary)
+        if "category" in request.DATA:
+            category = get_object_or_404(Category, slug=request.DATA["category"])
+            summary.category = category
         if "liked" in request.DATA:
             if request.DATA["liked"] == "true":
                 summary.likes.add(request.user)
@@ -181,7 +185,7 @@ class SummaryElementView(View):
             if not summary.filename.endswith(ext):
                 minio_util.delete_file(settings.COMSOL_SUMMARY_DIR, summary.filename)
                 filename = minio_util.generate_filename(
-                    16, settings.COMSOL_SUMMARY_DIR, "." + ext
+                    16, settings.COMSOL_SUMMARY_DIR, ext
                 )
                 summary.filename = filename
                 summary.mime_type = file.content_type
@@ -196,9 +200,9 @@ class SummaryElementView(View):
         return response.success(value=get_summary_obj(summary, request))
 
     @auth_check.require_login
-    def delete(self, request: HttpRequest, slug: str):
+    def delete(self, request: HttpRequest, username: str, slug: str):
         objects = Summary.objects.prefetch_related("author")
-        summary = get_object_or_404(objects, slug=slug)
+        summary = get_object_or_404(objects, author__username=username, slug=slug)
         if not summary.current_user_can_delete(request):
             return response.not_allowed()
         summary.delete()
@@ -213,8 +217,10 @@ class SummaryCommentRootView(View):
     http_method_names = ["get", "post"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, summary_slug: str):
-        summary = get_object_or_404(Summary, slug=summary_slug)
+    def get(self, request: HttpRequest, username: str, summary_slug: str):
+        summary = get_object_or_404(
+            Summary, author__username=username, slug=summary_slug
+        )
         objects = Comment.objects.filter(summary=summary).all()
         return response.success(
             value=[get_comment_obj(comment, request) for comment in objects]
@@ -222,8 +228,10 @@ class SummaryCommentRootView(View):
 
     @response.required_args("text")
     @auth_check.require_login
-    def post(self, request: HttpRequest, summary_slug: str):
-        summary = get_object_or_404(Summary, slug=summary_slug)
+    def post(self, request: HttpRequest, username: str, summary_slug: str):
+        summary = get_object_or_404(
+            Summary, author__username=username, slug=summary_slug
+        )
         comment = Comment(
             summary=summary, text=request.POST["text"], author=request.user
         )
@@ -235,13 +243,23 @@ class SummaryCommentElementView(View):
     http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, summary_slug: str, id: int):
-        comment = get_object_or_404(Comment, pk=id, summary__slug=summary_slug)
+    def get(self, request: HttpRequest, username: str, summary_slug: str, id: int):
+        comment = get_object_or_404(
+            Comment,
+            pk=id,
+            summary__author__username=username,
+            summary__slug=summary_slug,
+        )
         return get_comment_obj(comment, request)
 
-    def put(self, request: HttpRequest, summary_slug: str, id: int):
+    def put(self, request: HttpRequest, username: str, summary_slug: str, id: int):
         objects = Comment.objects.prefetch_related("author")
-        comment = get_object_or_404(objects, pk=id, summary__slug=summary_slug)
+        comment = get_object_or_404(
+            objects,
+            pk=id,
+            summary__author__username=username,
+            summary__slug=summary_slug,
+        )
         if not comment.current_user_can_edit(request):
             return response.not_allowed()
         comment.edittime = timezone.now()
@@ -250,9 +268,14 @@ class SummaryCommentElementView(View):
         comment.save()
         return response.success(value=get_comment_obj(comment, request))
 
-    def delete(self, request: HttpRequest, summary_slug: str, id: int):
+    def delete(self, request: HttpRequest, username: str, summary_slug: str, id: int):
         objects = Comment.objects.prefetch_related("author")
-        comment = get_object_or_404(objects, pk=id, summary__slug=summary_slug)
+        comment = get_object_or_404(
+            objects,
+            pk=id,
+            summary__author__username=username,
+            summary__slug=summary_slug,
+        )
         if not comment.current_user_can_delete(request):
             return response.not_allowed()
         comment.delete()

@@ -6,7 +6,7 @@ from util.models import CommentMixin
 
 
 class Summary(ExportModelOperationsMixin("summary"), models.Model):
-    slug = models.CharField(max_length=256, unique=True)
+    slug = models.CharField(max_length=256, db_index=True)
     display_name = models.CharField(max_length=256)
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
