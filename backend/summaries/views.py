@@ -46,7 +46,7 @@ def get_summary_obj(
     return obj
 
 
-def create_summary_slug(summary_name: str, author_name: str):
+def create_summary_slug(summary_name: str, existing: Union[Summary, None] = None):
     """
     Create a valid and unique slug for the summary display name
     :param summary: display name
@@ -60,7 +60,10 @@ def create_summary_slug(summary_name: str, author_name: str):
     )
 
     def exists(aslug):
-        return Summary.objects.filter(slug=aslug).exists()
+        objects = Summary.objects.filter(slug=aslug)
+        if existing is not None:
+            objects = objects.exclude(pk=existing.pk)
+        return objects.exists()
 
     slug = oslug
     cnt = 0
@@ -163,6 +166,7 @@ class SummaryElementView(View):
             return response.not_allowed()
         if "display_name" in request.DATA:
             summary.display_name = request.DATA["display_name"]
+            summary.slug = create_summary_slug(summary.display_name, summary)
         if "file" in request.FILES:
             err, file, ext = prepare_summary_pdf_file(request)
             if err is not None:
