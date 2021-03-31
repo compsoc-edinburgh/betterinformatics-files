@@ -319,6 +319,8 @@ export interface Summary {
   filename: string;
   mime_type: string;
   comments: SummaryComment[];
+  liked: boolean;
+  like_count: number;
 }
 
 export interface SummaryComment extends Omit<Comment, "longId" | "oid"> {

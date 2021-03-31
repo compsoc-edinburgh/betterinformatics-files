@@ -19,7 +19,11 @@ const SummaryMarkdownEditor: React.FC<Props> = ({ url, summary }) => {
     () => fetch(url).then(r => r.text()),
     { onSuccess: text => setDraftText(text) },
   );
-  const [, updateSummary] = useUpdateSummary(summary.slug, () => void 0);
+  const [, updateSummary] = useUpdateSummary(
+    summary.author,
+    summary.slug,
+    () => void 0,
+  );
   const [undoStack, setUndoStack] = useState<UndoStack>({
     prev: [],
     next: [],

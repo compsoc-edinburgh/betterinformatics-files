@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { NamedBlob } from "../api/fetch-utils";
 import { useCreateSummary } from "../api/hooks";
+import { useUser } from "../auth";
 import FileInput from "./file-input";
 
 interface Props {
@@ -18,11 +19,12 @@ interface Props {
 }
 
 const CreateSummaryForm: React.FC<Props> = ({ categorySlug, toggle }) => {
+  const { username } = useUser()!;
   const [displayName, setDisplayName] = useState("");
   const [file, setFile] = useState<File | undefined>(undefined);
   const history = useHistory();
   const [loading, run] = useCreateSummary(({ slug }) => {
-    history.push(`/summary/${slug}/`);
+    history.push(`/user/${username}/summary/${slug}/`);
   });
   return (
     <>

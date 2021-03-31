@@ -392,16 +392,18 @@ export const useSummaries = (categorySlug: string) => {
   return [error, loading, data] as const;
 };
 
-export const loadSummary = async (summarySlug: string) => {
+export const loadSummary = async (author: string, summarySlug: string) => {
   return (
     await fetchGet(
-      `/api/summary/${encodeURIComponent(summarySlug)}/?include_comments`,
+      `/api/summary/${author}/${encodeURIComponent(
+        summarySlug,
+      )}/?include_comments`,
     )
   ).value as Summary;
 };
-export const useSummary = (summarySlug: string) => {
+export const useSummary = (author: string, summarySlug: string) => {
   const { error, loading, data, mutate } = useRequest(
-    () => loadSummary(summarySlug),
+    () => loadSummary(author, summarySlug),
     {
       cacheKey: `summary-${summarySlug}`,
     },
@@ -409,63 +411,91 @@ export const useSummary = (summarySlug: string) => {
   return [error, loading, data, mutate] as const;
 };
 
-export const deleteSummary = async (summarySlug: string) => {
-  return (await fetchDelete(`/api/summary/${encodeURIComponent(summarySlug)}/`))
-    .value as true;
+export const deleteSummary = async (author: string, summarySlug: string) => {
+  return (
+    await fetchDelete(
+      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
+    )
+  ).value as true;
 };
-export const useDeleteSummary = (summarySlug: string, cb: () => void) =>
-  useMutation(() => deleteSummary(summarySlug), cb);
+export const useDeleteSummary = (
+  author: string,
+  summarySlug: string,
+  cb: () => void,
+) => useMutation(() => deleteSummary(author, summarySlug), cb);
 
 export interface SummaryUpdate {
   display_name?: string;
-  category_slug?: string;
+  category?: string;
   file?: File | NamedBlob;
+  liked?: boolean;
 }
 export const updateSummary = async (
+  author: string,
   summarySlug: string,
   data: SummaryUpdate,
 ) => {
   return (
-    await fetchPut(`/api/summary/${encodeURIComponent(summarySlug)}/`, data)
+    await fetchPut(
+      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
+      data,
+    )
   ).value as Summary;
 };
-export const useUpdateSummary = (summarySlug: string, cb: () => void) =>
-  useMutation((data: SummaryUpdate) => updateSummary(summarySlug, data), cb);
+export const useUpdateSummary = (
+  author: string,
+  summarySlug: string,
+  cb: (summary: Summary) => void,
+) =>
+  useMutation(
+    (data: SummaryUpdate) => updateSummary(author, summarySlug, data),
+    cb,
+  );
 
 export const createSummaryComment = async (
+  author: string,
   summarySlug: string,
   text: string,
 ) => {
   return (
     await fetchPost(
-      `/api/summary/${encodeURIComponent(summarySlug)}/comments/`,
+      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/comments/`,
       { text },
     )
   ).value as SummaryComment;
 };
 export const useCreateSummaryComment = (
+  author: string,
   summarySlug: string,
   onSuccess?: (res: SummaryComment) => void,
 ) =>
   useMutation(
-    (text: string) => createSummaryComment(summarySlug, text),
+    (text: string) => createSummaryComment(author, summarySlug, text),
     onSuccess,
   );
 
 export const deleteSummaryComment = async (
+  author: string,
   summarySlug: string,
   commentId: number,
 ) => {
   return (
     await fetchDelete(
-      `/api/summary/${encodeURIComponent(summarySlug)}/comments/${commentId}/`,
+      `/api/summary/${author}/${encodeURIComponent(
+        summarySlug,
+      )}/comments/${commentId}/`,
     )
   ).value as true;
 };
 
 export const useDeleteSummaryComment = (
+  author: string,
   summarySlug: string,
   commentId: number,
   onSuccess?: (res: boolean) => void,
-) => useMutation(() => deleteSummaryComment(summarySlug, commentId), onSuccess);
+) =>
+  useMutation(
+    () => deleteSummaryComment(author, summarySlug, commentId),
+    onSuccess,
+  );
 export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;

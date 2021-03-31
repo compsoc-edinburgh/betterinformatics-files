@@ -104,7 +104,7 @@ const App: React.FC<{}> = () => {
                     />
                     <UserRoute
                       exact
-                      path="/summary/:slug"
+                      path="/user/:author/summary/:slug"
                       component={SummaryPage}
                     />
                     <UserRoute

@@ -16,12 +16,14 @@ interface IconButtonProps extends ButtonProps {
   icon: keyof typeof ICONS;
   loading?: boolean;
   tooltip?: React.ReactNode;
+  iconClassName?: string;
 }
 const IconButton: React.FC<IconButtonProps> = ({
   size,
   loading,
   icon,
   className,
+  iconClassName,
   disabled,
   children,
   tooltip,
@@ -40,7 +42,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       ) : (
         <>
           <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-          <Icon icon={ICONS[icon]} size="1em" />
+          <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
         </>
       )}
       {children && <span className={childStyle}>{children}</span>}
@@ -57,7 +59,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       ) : (
         <>
           <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-          <Icon icon={ICONS[icon]} size="1em" />
+          <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
         </>
       )}
       {children && <span className={childStyle}>{children}</span>}

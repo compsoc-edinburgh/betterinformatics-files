@@ -28,6 +28,8 @@ import SummaryPdf from "../components/summary-pdf";
 import SummarySettings from "../components/summary-settings";
 import { Summary } from "../interfaces";
 import SummaryCommentComponent from "../components/summary-comment";
+import { keyframes, css } from "emotion";
+import LikeButton from "../components/like-button";
 
 const isPdf = (summary: Summary) => summary.mime_type === "application/pdf";
 const isMarkdown = (summary: Summary) =>
@@ -63,8 +65,8 @@ enum SummaryTab {
 
 interface Props {}
 const SummaryPage: React.FC<Props> = () => {
-  const { slug } = useParams() as { slug: string };
-  const [error, loading, data, mutate] = useSummary(slug);
+  const { author, slug } = useParams() as { slug: string; author: string };
+  const [error, loading, data, mutate] = useSummary(author, slug);
 
   const [tab, setTab] = useState<SummaryTab>(SummaryTab.SUMMARY);
   const Components = getComponents(data);
@@ -82,25 +84,19 @@ const SummaryPage: React.FC<Props> = () => {
           </BreadcrumbItem>
           <BreadcrumbItem>{data && data.display_name}</BreadcrumbItem>
         </Breadcrumb>
-        <div className="d-flex justify-content-between">
-          <h1>{data?.display_name ?? slug}</h1>
-          <div>
-            <IconButton
-              icon="LIKE_FILLED"
-              color="danger"
-              className="mr-1"
-              onClick={() =>
-                data && download(`/api/summary/file/${data?.filename}`)
-              }
-            />
-            <IconButton
-              icon="DOWNLOAD"
-              onClick={() =>
-                data && download(`/api/summary/file/${data?.filename}`)
-              }
-            />
+        {data && (
+          <div className="d-flex justify-content-between align-items-center">
+            <h1>{data.display_name ?? slug}</h1>
+            <div>
+              <LikeButton summary={data} mutate={mutate} />
+              <IconButton
+                icon="DOWNLOAD"
+                onClick={() => download(`/api/summary/file/${data?.filename}`)}
+                color="white"
+              />
+            </div>
           </div>
-        </div>
+        )}
         Author:{" "}
         {data && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
       </Container>
@@ -163,14 +159,19 @@ const SummaryPage: React.FC<Props> = () => {
             )}
             {data.comments.map(comment => (
               <SummaryCommentComponent
-                comment={comment}
+                summaryAuthor={data.author}
                 summarySlug={slug}
+                comment={comment}
                 key={comment.oid}
                 mutate={mutate}
               />
             ))}
             <Card className="p-2">
-              <SummaryCommentForm summarySlug={slug} mutate={mutate} />
+              <SummaryCommentForm
+                summaryAuthor={author}
+                summarySlug={slug}
+                mutate={mutate}
+              />
             </Card>
           </Container>
         </ContentContainer>
@@ -188,7 +189,7 @@ const SummaryPage: React.FC<Props> = () => {
       {tab === SummaryTab.SETTINGS && data && (
         <ContentContainer>
           <Container>
-            <SummarySettings data={data} slug={slug} />
+            <SummarySettings data={data} slug={slug} mutate={mutate} />
           </Container>
         </ContentContainer>
       )}

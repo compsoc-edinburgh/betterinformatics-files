@@ -6,6 +6,8 @@ import {
   Icon,
   ICONS,
   Label,
+  LikeFilledIcon,
+  LikeIcon,
   Modal,
 } from "@vseth/components";
 import React, { useState } from "react";
@@ -35,12 +37,22 @@ const SummaryList: React.FC<Props> = ({ slug }) => {
           summaries.map(summary => (
             <Card key={summary.slug}>
               <CardBody>
-                <Link to={`/summary/${summary.slug}`}>
+                <Link to={`/user/${summary.author}/summary/${summary.slug}`}>
                   <CardTitle tag="h6">{summary.display_name}</CardTitle>
                 </Link>
-                <Link to={`/user/${summary.author}`}>@{summary.author}</Link>
                 <div>
-                  <Badge color="secondary">{summary.mime_type}</Badge>
+                  <Link to={`/user/${summary.author}`} className="text-muted">
+                    @{summary.author}
+                  </Link>
+                  {summary.liked ? (
+                    <span className="text-danger ml-2">
+                      <LikeFilledIcon className="mr-1" /> {summary.like_count}
+                    </span>
+                  ) : (
+                    <span className="text-muted ml-2">
+                      <LikeIcon className="mr-1" /> {summary.like_count}
+                    </span>
+                  )}
                 </div>
               </CardBody>
             </Card>

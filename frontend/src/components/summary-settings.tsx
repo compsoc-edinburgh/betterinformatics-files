@@ -1,41 +1,109 @@
-import { InputField, Button } from "@vseth/components";
+import { useRequest } from "@umijs/hooks";
+import {
+  InputField,
+  Button,
+  FormGroup,
+  Select,
+  DeleteIcon,
+  SaveIcon,
+  Spinner,
+} from "@vseth/components";
 import React from "react";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { useDeleteSummary, useUpdateSummary } from "../api/hooks";
+import {
+  loadCategories,
+  Mutate,
+  useDeleteSummary,
+  useUpdateSummary,
+} from "../api/hooks";
 import { Summary } from "../interfaces";
+import { createOptions, options } from "../utils/ts-utils";
 import FileInput from "./file-input";
 
 interface Props {
   data: Summary;
+  mutate: Mutate<Summary>;
   slug: string;
 }
 
-const SummarySettings: React.FC<Props> = ({ slug, data }) => {
+const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const history = useHistory();
-  const [, updateSummary] = useUpdateSummary(slug, () => void 0);
+  const { loading: categoriesLoading, data: categories } = useRequest(
+    loadCategories,
+  );
+  const categoryOptions =
+    categories &&
+    createOptions(
+      Object.fromEntries(
+        categories.map(
+          category => [category.slug, category.displayname] as const,
+        ),
+      ) as { [key: string]: string },
+    );
+
+  const [loading, updateSummary] = useUpdateSummary(
+    data.author,
+    slug,
+    result => {
+      mutate(s => ({ ...s, ...result }));
+      setDisplayName(undefined);
+      setFile(undefined);
+      setCategory(undefined);
+      if (result.slug !== data.slug) {
+        history.replace(`/user/${result.author}/summary/${result.slug}`);
+      }
+    },
+  );
   const [, deleteSummary] = useDeleteSummary(
+    data.author,
     slug,
     () => data && history.push(`/category/${data.category}`),
   );
+
+  const [displayName, setDisplayName] = useState<string | undefined>();
   const [file, setFile] = useState<File | undefined>();
-  const [displayName, setDisplayName] = useState(data.display_name);
+  const [category, setCategory] = useState<string | undefined>();
   return (
     <>
       <InputField
         label="Display Name"
-        value={displayName}
+        value={displayName ?? data.display_name}
         onChange={e => setDisplayName(e.currentTarget.value)}
       />
-      <div className="form-group">
+      <FormGroup>
         <label className="form-input-label">Replace file</label>
         <FileInput value={file} onChange={setFile} />
-      </div>
+      </FormGroup>
+      <FormGroup>
+        <label className="form-input-label">Category</label>
+        <Select
+          options={categoryOptions ? (options(categoryOptions) as any) : []}
+          value={
+            categoryOptions &&
+            (category
+              ? categoryOptions[category]
+              : categoryOptions[data.category])
+          }
+          onChange={(e: any) => {
+            setCategory(e.value as string);
+          }}
+          isLoading={categoriesLoading}
+          required
+        />
+      </FormGroup>
       <div className="form-group d-flex justify-content-end">
         <Button
-          onClick={() => updateSummary({ display_name: displayName, file })}
+          onClick={() =>
+            updateSummary({ display_name: displayName, file, category })
+          }
         >
           Save
+          {loading ? (
+            <Spinner className="ml-2" size="sm" />
+          ) : (
+            <SaveIcon className="ml-2" />
+          )}
         </Button>
       </div>
 
@@ -45,12 +113,12 @@ const SummarySettings: React.FC<Props> = ({ slug, data }) => {
           <h6>Delete this summary</h6>
           <div>
             Deleting the summary will delete the associated file and all
-            comments. This cannot be undone.
+            comments. <b>This cannot be undone.</b>
           </div>
         </div>
 
         <Button color="danger" onClick={deleteSummary}>
-          Delete
+          Delete <DeleteIcon className="ml-2" />
         </Button>
       </div>
     </>
