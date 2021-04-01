@@ -498,4 +498,32 @@ export const useDeleteSummaryComment = (
     () => deleteSummaryComment(author, summarySlug, commentId),
     onSuccess,
   );
+
+export const updateSummaryComment = async (
+  author: string,
+  summarySlug: string,
+  commentId: number,
+  text: string,
+) => {
+  return (
+    await fetchPut(
+      `/api/summary/${author}/${encodeURIComponent(
+        summarySlug,
+      )}/comments/${commentId}/`,
+      { text },
+    )
+  ).value as SummaryComment;
+};
+
+export const useUpdateSummaryComment = (
+  author: string,
+  summarySlug: string,
+  commentId: number,
+  onSuccess?: (res: SummaryComment) => void,
+) =>
+  useMutation(
+    (text: string) =>
+      updateSummaryComment(author, summarySlug, commentId, text),
+    onSuccess,
+  );
 export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;

@@ -1,7 +1,6 @@
-from datetime import timezone
+from django.utils import timezone
 from typing import Union
 from myauth.models import get_my_user
-import minio
 from summaries.models import Comment, Summary
 from myauth import auth_check
 from django.views import View
