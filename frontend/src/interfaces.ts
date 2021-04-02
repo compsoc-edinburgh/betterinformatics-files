@@ -321,6 +321,9 @@ export interface Summary {
   comments: SummaryComment[];
   liked: boolean;
   like_count: number;
+
+  can_edit: boolean;
+  can_delete: boolean;
 }
 
 export interface SummaryComment extends Omit<Comment, "longId" | "oid"> {

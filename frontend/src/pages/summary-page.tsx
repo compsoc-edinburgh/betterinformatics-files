@@ -109,7 +109,7 @@ const SummaryPage: React.FC<Props> = () => {
               Comments
             </NavLink>
           </NavItem>
-          {Components?.Editor !== undefined && (
+          {data && data.can_edit && Components?.Editor !== undefined && (
             <NavItem>
               <NavLink
                 onClick={() => setTab(SummaryTab.EDIT)}
@@ -119,14 +119,16 @@ const SummaryPage: React.FC<Props> = () => {
               </NavLink>
             </NavItem>
           )}
-          <NavItem>
-            <NavLink
-              onClick={() => setTab(SummaryTab.SETTINGS)}
-              active={tab === SummaryTab.SETTINGS}
-            >
-              Settings
-            </NavLink>
-          </NavItem>
+          {data && (data.can_delete || data.can_edit) && (
+            <NavItem>
+              <NavLink
+                onClick={() => setTab(SummaryTab.SETTINGS)}
+                active={tab === SummaryTab.SETTINGS}
+              >
+                Settings
+              </NavLink>
+            </NavItem>
+          )}
         </Container>
       </Nav>
 

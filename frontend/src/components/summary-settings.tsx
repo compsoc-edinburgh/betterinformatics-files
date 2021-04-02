@@ -65,61 +65,68 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const [category, setCategory] = useState<string | undefined>();
   return (
     <>
-      <InputField
-        label="Display Name"
-        value={displayName ?? data.display_name}
-        onChange={e => setDisplayName(e.currentTarget.value)}
-      />
-      <FormGroup>
-        <label className="form-input-label">Replace file</label>
-        <FileInput value={file} onChange={setFile} />
-      </FormGroup>
-      <FormGroup>
-        <label className="form-input-label">Category</label>
-        <Select
-          options={categoryOptions ? (options(categoryOptions) as any) : []}
-          value={
-            categoryOptions &&
-            (category
-              ? categoryOptions[category]
-              : categoryOptions[data.category])
-          }
-          onChange={(e: any) => {
-            setCategory(e.value as string);
-          }}
-          isLoading={categoriesLoading}
-          required
-        />
-      </FormGroup>
-      <div className="form-group d-flex justify-content-end">
-        <Button
-          onClick={() =>
-            updateSummary({ display_name: displayName, file, category })
-          }
-        >
-          Save
-          {loading ? (
-            <Spinner className="ml-2" size="sm" />
-          ) : (
-            <SaveIcon className="ml-2" />
-          )}
-        </Button>
-      </div>
-
-      <h3 className="mt-5 mb-4">Danger Zone</h3>
-      <div className="d-flex flex-wrap justify-content-between align-items-center">
-        <div className="d-flex flex-column">
-          <h6>Delete this summary</h6>
-          <div>
-            Deleting the summary will delete the associated file and all
-            comments. <b>This cannot be undone.</b>
+      {data.can_edit && (
+        <>
+          <InputField
+            label="Display Name"
+            value={displayName ?? data.display_name}
+            onChange={e => setDisplayName(e.currentTarget.value)}
+          />
+          <FormGroup>
+            <label className="form-input-label">Replace file</label>
+            <FileInput value={file} onChange={setFile} />
+          </FormGroup>
+          <FormGroup>
+            <label className="form-input-label">Category</label>
+            <Select
+              options={categoryOptions ? (options(categoryOptions) as any) : []}
+              value={
+                categoryOptions &&
+                (category
+                  ? categoryOptions[category]
+                  : categoryOptions[data.category])
+              }
+              onChange={(e: any) => {
+                setCategory(e.value as string);
+              }}
+              isLoading={categoriesLoading}
+              required
+            />
+          </FormGroup>
+          <div className="form-group d-flex justify-content-end">
+            <Button
+              onClick={() =>
+                updateSummary({ display_name: displayName, file, category })
+              }
+            >
+              Save
+              {loading ? (
+                <Spinner className="ml-2" size="sm" />
+              ) : (
+                <SaveIcon className="ml-2" />
+              )}
+            </Button>
           </div>
-        </div>
+        </>
+      )}
+      {data.can_delete && (
+        <>
+          <h3 className="mt-5 mb-4">Danger Zone</h3>
+          <div className="d-flex flex-wrap justify-content-between align-items-center">
+            <div className="d-flex flex-column">
+              <h6>Delete this summary</h6>
+              <div>
+                Deleting the summary will delete the associated file and all
+                comments. <b>This cannot be undone.</b>
+              </div>
+            </div>
 
-        <Button color="danger" onClick={deleteSummary}>
-          Delete <DeleteIcon className="ml-2" />
-        </Button>
-      </div>
+            <Button color="danger" onClick={deleteSummary}>
+              Delete <DeleteIcon className="ml-2" />
+            </Button>
+          </div>
+        </>
+      )}
     </>
   );
 };

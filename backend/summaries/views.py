@@ -40,6 +40,8 @@ def get_summary_obj(
         "author": summary.author.username,
         "filename": summary.filename,
         "mime_type": summary.mime_type,
+        "can_edit": summary.current_user_can_edit(request),
+        "can_delete": summary.current_user_can_delete(request),
     }
     if hasattr(summary, "like_count"):
         obj["like_count"] = summary.like_count
