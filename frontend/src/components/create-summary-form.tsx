@@ -1,10 +1,12 @@
 import {
-  ModalHeader,
-  ModalBody,
-  InputField,
-  ModalFooter,
   Button,
-  Row,
+  FormGroup,
+  InputField,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  PlusIcon,
+  Spinner,
 } from "@vseth/components";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -36,12 +38,19 @@ const CreateSummaryForm: React.FC<Props> = ({ categorySlug, toggle }) => {
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-
-        <FileInput value={file} onChange={setFile} />
+        <FormGroup>
+          <label className="form-input-label">File</label>
+          <FileInput value={file} onChange={setFile} />
+          <div className="form-text text-muted">
+            If you don't select any file we will create an empty markdown file
+            for you that you can edit afterwards.
+          </div>
+        </FormGroup>
       </ModalBody>
       <ModalFooter>
         <Button
-          disabled={displayName === ""}
+          color="primary"
+          disabled={loading || displayName === ""}
           onClick={() =>
             run(
               displayName,
@@ -54,7 +63,12 @@ const CreateSummaryForm: React.FC<Props> = ({ categorySlug, toggle }) => {
             )
           }
         >
-          Add Summary
+          Add{" "}
+          {loading ? (
+            <Spinner className="ml-2" size="sm" />
+          ) : (
+            <PlusIcon className="ml-2" />
+          )}
         </Button>
       </ModalFooter>
     </>
