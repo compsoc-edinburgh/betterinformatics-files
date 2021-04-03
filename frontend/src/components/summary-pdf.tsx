@@ -18,6 +18,15 @@ const loadSummaryRenderer = async (url: string) => {
   const renderer = new PDF(pdf);
   return [pdf, renderer] as const;
 };
+
+const getPages = (pdf: PDF | undefined) => {
+  if (pdf === undefined) return [];
+
+  const result = [];
+  for (let i = 1; i <= pdf.document.numPages; i++) result.push(i);
+  return result;
+};
+
 interface SummaryPdfProps {
   url: string;
 }
@@ -36,14 +45,16 @@ const SummaryPdf: React.FC<SummaryPdfProps> = ({ url }) => {
         <div ref={sizeRef} className="mx-auto my-3">
           {renderer && (
             <div className="d-flex flex-column">
-              <PdfSectionCanvas
-                oid={undefined}
-                page={1}
-                start={0}
-                end={1}
-                targetWidth={size.width}
-                renderer={renderer}
-              />
+              {getPages(renderer).map(pageNumber => (
+                <PdfSectionCanvas
+                  oid={undefined}
+                  page={pageNumber}
+                  start={0}
+                  end={1}
+                  targetWidth={size.width}
+                  renderer={renderer}
+                />
+              ))}
             </div>
           )}
         </div>
