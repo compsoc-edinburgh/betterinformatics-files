@@ -80,10 +80,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       <ExamGrid>
         {exams.map(exam => (
           <Card
-            className={`${exam.canView ? focusOutline : ""} p-3`}
-            onClick={() =>
-              exam.canView && history.push(`/exams/${exam.filename}`)
-            }
+            className={`${focusOutline} p-3`}
             onKeyDown={e => {
               if (e.keyCode === 13 && exam.canView) {
                 history.push(`/exams/${exam.filename}`);
@@ -107,41 +104,18 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 />
               </Col>
               <Col>
-                <Row>
-                  <Col>
-                    <h6 className="mb-1">
-                      {exam.canView ? (
-                        <Link
-                          to={`/exams/${exam.filename}`}
-                          className="text-dark"
-                        >
-                          {exam.displayname}
-                        </Link>
-                      ) : (
-                        exam.displayname
-                      )}
-                    </h6>
-                  </Col>
-                  <Col xs="auto">
-                    {catAdmin && (
-                      <ClaimButton exam={exam} reloadExams={reload} />
-                    )}
-                    {user.isAdmin && (
-                      <IconButton
-                        size="sm"
-                        color="dark"
-                        tooltip="Delete exam"
-                        icon="DELETE"
-                        outline
-                        className="ml-2 m-1"
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleRemoveClick(e, exam);
-                        }}
-                      />
-                    )}
-                  </Col>
-                </Row>
+                <h6 className="mb-1">
+                  {exam.canView ? (
+                    <Link
+                      to={`/exams/${exam.filename}`}
+                      className="text-dark stretched-link"
+                    >
+                      {exam.displayname}
+                    </Link>
+                  ) : (
+                    exam.displayname
+                  )}
+                </h6>
                 <div>
                   {exam.remark && (
                     <div className="text-meta">{exam.remark}</div>
@@ -200,6 +174,20 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     </Badge>
                   )}
                 </div>
+              </Col>
+              <Col xs="auto">
+                {catAdmin && <ClaimButton exam={exam} reloadExams={reload} />}
+                {user.isAdmin && (
+                  <IconButton
+                    size="sm"
+                    color="dark"
+                    tooltip="Delete exam"
+                    icon="DELETE"
+                    outline
+                    className="ml-2 m-1"
+                    onClick={e => handleRemoveClick(e, exam)}
+                  />
+                )}
               </Col>
             </Row>
           </Card>
