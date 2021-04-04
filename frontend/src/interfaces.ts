@@ -330,6 +330,7 @@ export interface SummaryFile {
   display_name: string;
   filename: string;
   mime_type: string;
+  key?: string;
 }
 
 export interface SummaryComment extends Omit<Comment, "longId" | "oid"> {

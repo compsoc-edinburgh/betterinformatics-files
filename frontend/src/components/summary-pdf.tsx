@@ -47,6 +47,7 @@ const SummaryPdf: React.FC<SummaryPdfProps> = ({ url }) => {
             <div className="d-flex flex-column">
               {getPages(renderer).map(pageNumber => (
                 <PdfSectionCanvas
+                  key={pageNumber}
                   oid={undefined}
                   page={pageNumber}
                   start={0}
