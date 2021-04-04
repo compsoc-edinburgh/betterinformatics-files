@@ -17,6 +17,11 @@ export function getHeaders() {
   }
   return headers;
 }
+/**
+ * `NamedBlob` is essentially a 2-tuple consisting of a `Blob` and a `string` acting as
+ * a filename. A `NamedBlob` can be passed to `performDataRequest` if the `Blob` should have
+ * a multipart filename attached to it.
+ */
 export class NamedBlob {
   constructor(public blob: Blob, public filename: string) {}
 }
