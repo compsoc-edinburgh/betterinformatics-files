@@ -1,36 +1,49 @@
 import {
-  Button,
-  FormGroup,
-  InputField,
-  ModalBody,
-  ModalFooter,
   ModalHeader,
-  PlusIcon,
+  ModalBody,
+  InputField,
+  FormGroup,
+  ModalFooter,
+  Button,
   Spinner,
+  PlusIcon,
 } from "@vseth/components";
-import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import * as React from "react";
+import { useState } from "react";
 import { NamedBlob } from "../api/fetch-utils";
-import { useCreateSummary } from "../api/hooks";
-import { useUser } from "../auth";
+import { Mutate, useCreateSummaryFile } from "../api/hooks";
+import { Toggle } from "../hooks/useToggle";
+import { Summary } from "../interfaces";
 import FileInput from "./file-input";
 
 interface Props {
-  categorySlug: string;
-  toggle: () => void;
+  summary: Summary;
+  toggle: Toggle;
+  mutate: Mutate<Summary>;
 }
 
-const CreateSummaryForm: React.FC<Props> = ({ categorySlug, toggle }) => {
-  const { username } = useUser()!;
+const CreateSummaryFileModal: React.FC<Props> = ({
+  toggle,
+  summary,
+  mutate,
+}) => {
   const [displayName, setDisplayName] = useState("");
   const [file, setFile] = useState<File | undefined>(undefined);
-  const history = useHistory();
-  const [loading, run] = useCreateSummary(({ slug }) => {
-    history.push(`/user/${username}/summary/${slug}/`);
-  });
+
+  const [loading, createSummaryFile] = useCreateSummaryFile(
+    summary.author,
+    summary.slug,
+    f => {
+      toggle(false);
+      mutate(s => ({ ...s, files: [...s.files, f] }));
+      setDisplayName("");
+      setFile(undefined);
+    },
+  );
+
   return (
     <>
-      <ModalHeader toggle={toggle}>Add Summary</ModalHeader>
+      <ModalHeader toggle={loading ? undefined : toggle}>Add File</ModalHeader>
       <ModalBody>
         <InputField
           label="Display Name"
@@ -52,9 +65,8 @@ const CreateSummaryForm: React.FC<Props> = ({ categorySlug, toggle }) => {
           color="primary"
           disabled={loading || displayName === ""}
           onClick={() =>
-            run(
+            createSummaryFile(
               displayName,
-              categorySlug,
               file ??
                 new NamedBlob(
                   new Blob([], { type: "application/octet-stream" }),
@@ -75,4 +87,4 @@ const CreateSummaryForm: React.FC<Props> = ({ categorySlug, toggle }) => {
   );
 };
 
-export default CreateSummaryForm;
+export default CreateSummaryFileModal;

@@ -1,9 +1,19 @@
 import { useRequest } from "@umijs/hooks";
 import {
+  Badge,
   Button,
+  ButtonToolbar,
+  Col,
   DeleteIcon,
   FormGroup,
   InputField,
+  ListGroup,
+  ListGroupItem,
+  ListGroupItemHeading,
+  ListGroupItemText,
+  Modal,
+  PlusIcon,
+  Row,
   SaveIcon,
   Select,
   Spinner,
@@ -16,9 +26,13 @@ import {
   useDeleteSummary,
   useUpdateSummary,
 } from "../api/hooks";
+import useToggle from "../hooks/useToggle";
 import { Summary } from "../interfaces";
 import { createOptions, options } from "../utils/ts-utils";
+import CreateSummaryFileModal from "./create-summary-file-modal";
 import FileInput from "./file-input";
+import IconButton from "./icon-button";
+import SummaryFileItem from "./summary-file-item";
 
 interface Props {
   data: Summary;
@@ -47,7 +61,6 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
     result => {
       mutate(s => ({ ...s, ...result }));
       setDisplayName(undefined);
-      setFile(undefined);
       setCategory(undefined);
       if (result.slug !== data.slug) {
         history.replace(`/user/${result.author}/summary/${result.slug}`);
@@ -61,10 +74,17 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
   );
 
   const [displayName, setDisplayName] = useState<string | undefined>();
-  const [file, setFile] = useState<File | undefined>();
   const [category, setCategory] = useState<string | undefined>();
+  const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
     <>
+      <Modal isOpen={addModalIsOpen} toggle={toggleAddModalIsOpen}>
+        <CreateSummaryFileModal
+          toggle={toggleAddModalIsOpen}
+          summary={data}
+          mutate={mutate}
+        />
+      </Modal>
       {data.can_edit && (
         <>
           <InputField
@@ -72,10 +92,6 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
             value={displayName ?? data.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <FormGroup>
-            <label className="form-input-label">Replace file</label>
-            <FileInput value={file} onChange={setFile} />
-          </FormGroup>
           <FormGroup>
             <label className="form-input-label">Category</label>
             <Select
@@ -96,7 +112,7 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
           <div className="form-group d-flex justify-content-end">
             <Button
               onClick={() =>
-                updateSummary({ display_name: displayName, file, category })
+                updateSummary({ display_name: displayName, category })
               }
             >
               Save
@@ -109,6 +125,24 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
           </div>
         </>
       )}
+      <h3 className="mt-5 mb-4">Files</h3>
+      <ListGroup className="mb-2">
+        {data.files.map(file => (
+          <SummaryFileItem
+            key={file.oid}
+            summary={data}
+            file={file}
+            mutate={mutate}
+          />
+        ))}
+      </ListGroup>
+      <div className="form-group d-flex justify-content-end">
+        <Button onClick={toggleAddModalIsOpen}>
+          Add
+          <PlusIcon className="ml-2" />
+        </Button>
+      </div>
+
       {data.can_delete && (
         <>
           <h3 className="mt-5 mb-4">Danger Zone</h3>
@@ -116,7 +150,7 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
             <div className="d-flex flex-column">
               <h6>Delete this summary</h6>
               <div>
-                Deleting the summary will delete the associated file and all
+                Deleting the summary will delete all associated files and all
                 comments. <b>This cannot be undone.</b>
               </div>
             </div>

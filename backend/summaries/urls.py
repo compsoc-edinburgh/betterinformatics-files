@@ -19,6 +19,16 @@ urlpatterns = [
     path(
         "<str:username>/<slug:summary_slug>/comments/<int:id>/",
         views.SummaryCommentElementView.as_view(),
-        name="comments_root",
+        name="comments_element",
+    ),
+    path(
+        "<str:username>/<slug:summary_slug>/files/",
+        views.SummaryFileRootView.as_view(),
+        name="files_root",
+    ),
+    path(
+        "<str:username>/<slug:summary_slug>/files/<int:id>/",
+        views.SummaryFileElementView.as_view(),
+        name="files_element",
     ),
 ]

@@ -37,14 +37,14 @@ const IconButton: React.FC<IconButtonProps> = ({
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
-      {loading ? (
-        <Spinner size={size} />
-      ) : (
-        <>
-          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+      <>
+        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+        {loading ? (
+          <Spinner size="sm" />
+        ) : (
           <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
-        </>
-      )}
+        )}
+      </>
       {children && <span className={childStyle}>{children}</span>}
     </TooltipButton>
   ) : (
@@ -54,14 +54,14 @@ const IconButton: React.FC<IconButtonProps> = ({
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
-      {loading ? (
-        <Spinner size={size} />
-      ) : (
-        <>
-          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+      <>
+        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+        {loading ? (
+          <Spinner size="sm" s />
+        ) : (
           <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
-        </>
-      )}
+        )}
+      </>
       {children && <span className={childStyle}>{children}</span>}
     </Button>
   );

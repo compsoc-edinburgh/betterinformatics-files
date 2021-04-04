@@ -12,11 +12,6 @@ class Summary(ExportModelOperationsMixin("summary"), models.Model):
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     likes = models.ManyToManyField("auth.User", related_name="liked_summaries")
 
-    # Immutable, created when the summary is first uploaded
-    filename = models.CharField(max_length=256, unique=True)
-    # Can be changed
-    mime_type = models.CharField(max_length=256)
-
     def current_user_can_delete(self, request):
         is_admin = auth_check.has_admin_rights_for_summary(request, self)
         if is_admin:
@@ -44,3 +39,14 @@ class Comment(CommentMixin):
 
     def current_user_can_edit(self, request):
         return self.author.pk == request.user.pk
+
+
+class SummaryFile(models.Model):
+    summary = models.ForeignKey(
+        "Summary", related_name="files", on_delete=models.CASCADE
+    )
+    display_name = models.CharField(max_length=256)
+    # Immutable, created when the summary is first uploaded
+    filename = models.CharField(max_length=256, unique=True)
+    # Can be changed
+    mime_type = models.CharField(max_length=256)

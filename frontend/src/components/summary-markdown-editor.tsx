@@ -1,27 +1,27 @@
 import { useRequest } from "@umijs/hooks";
-import { Button } from "@vseth/components";
+import { Button, SaveIcon, Spinner } from "@vseth/components";
 import React, { useState } from "react";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";
-import { useUpdateSummary } from "../api/hooks";
-import { Summary } from "../interfaces";
+import { useUpdateSummaryFile } from "../api/hooks";
+import { Summary, SummaryFile } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 
 interface Props {
-  url: string;
   summary: Summary;
+  file: SummaryFile;
+  url: string;
 }
-const SummaryMarkdownEditor: React.FC<Props> = ({ url, summary }) => {
+const SummaryMarkdownEditor: React.FC<Props> = ({ summary, file, url }) => {
   const [draftText, setDraftText] = useState("");
-  const { error: mdError, loading: mdLoading, data } = useRequest(
-    () => fetch(url).then(r => r.text()),
-    { onSuccess: text => setDraftText(text) },
-  );
-  const [, updateSummary] = useUpdateSummary(
+  useRequest(() => fetch(url).then(r => r.text()), {
+    onSuccess: text => setDraftText(text),
+  });
+  const [loading, updateSummary] = useUpdateSummaryFile(
     summary.author,
     summary.slug,
-    () => void 0,
+    file.oid,
   );
   const [undoStack, setUndoStack] = useState<UndoStack>({
     prev: [],
@@ -29,7 +29,6 @@ const SummaryMarkdownEditor: React.FC<Props> = ({ url, summary }) => {
   });
   return (
     <div>
-      {" "}
       <div className="form-group">
         <Editor
           value={draftText}
@@ -48,6 +47,11 @@ const SummaryMarkdownEditor: React.FC<Props> = ({ url, summary }) => {
             })
           }
         >
+          {loading ? (
+            <Spinner size="sm" className="mr-2" />
+          ) : (
+            <SaveIcon className="mr-2" />
+          )}
           Save
         </Button>
       </div>

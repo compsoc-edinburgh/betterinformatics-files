@@ -15,6 +15,7 @@ import {
   ServerCutResponse,
   Summary,
   SummaryComment,
+  SummaryFile,
   UserInfo,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
@@ -26,6 +27,8 @@ import {
   fetchPut,
   NamedBlob,
 } from "./fetch-utils";
+
+export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;
 
 const loadUserInfo = async (username: string) => {
   return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))
@@ -366,13 +369,11 @@ export const markAsChecked = async (filename: string) => {
 export const createSummary = async (
   displayName: string,
   categorySlug: string,
-  file: File | NamedBlob,
 ) => {
   return (
     await fetchPost(`/api/summary/`, {
       display_name: displayName,
       category: categorySlug,
-      file,
     })
   ).value as Summary;
 };
@@ -397,15 +398,20 @@ export const loadSummary = async (author: string, summarySlug: string) => {
     await fetchGet(
       `/api/summary/${author}/${encodeURIComponent(
         summarySlug,
-      )}/?include_comments`,
+      )}/?include_comments&include_files`,
     )
   ).value as Summary;
 };
-export const useSummary = (author: string, summarySlug: string) => {
+export const useSummary = (
+  author: string,
+  summarySlug: string,
+  onSuccess?: (summary: Summary) => void,
+) => {
   const { error, loading, data, mutate } = useRequest(
     () => loadSummary(author, summarySlug),
     {
       cacheKey: `summary-${summarySlug}`,
+      onSuccess,
     },
   );
   return [error, loading, data, mutate] as const;
@@ -427,7 +433,6 @@ export const useDeleteSummary = (
 export interface SummaryUpdate {
   display_name?: string;
   category?: string;
-  file?: File | NamedBlob;
   liked?: boolean;
 }
 export const updateSummary = async (
@@ -526,4 +531,80 @@ export const useUpdateSummaryComment = (
       updateSummaryComment(author, summarySlug, commentId, text),
     onSuccess,
   );
-export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;
+
+export const createSummaryFile = async (
+  author: string,
+  summarySlug: string,
+  display_name: string,
+  file: NamedBlob | File,
+) => {
+  return (
+    await fetchPost(
+      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/files/`,
+      { file, display_name },
+    )
+  ).value as SummaryFile;
+};
+export const useCreateSummaryFile = (
+  author: string,
+  summarySlug: string,
+  onSuccess?: (res: SummaryFile) => void,
+) =>
+  useMutation(
+    (display_name: string, file: NamedBlob | File) =>
+      createSummaryFile(author, summarySlug, display_name, file),
+    onSuccess,
+  );
+export const deleteSummaryFile = async (
+  author: string,
+  summarySlug: string,
+  fileId: number,
+) => {
+  return (
+    await fetchDelete(
+      `/api/summary/${author}/${encodeURIComponent(
+        summarySlug,
+      )}/files/${fileId}/`,
+    )
+  ).value as true;
+};
+
+export const useDeleteSummaryFile = (
+  author: string,
+  summarySlug: string,
+  fileId: number,
+  onSuccess?: (res: boolean) => void,
+) =>
+  useMutation(() => deleteSummaryFile(author, summarySlug, fileId), onSuccess);
+
+interface SummaryFileUpdate {
+  display_name?: string;
+  file?: NamedBlob | File;
+}
+export const updateSummaryFile = async (
+  author: string,
+  summarySlug: string,
+  fileId: number,
+  update: SummaryFileUpdate,
+) => {
+  return (
+    await fetchPut(
+      `/api/summary/${author}/${encodeURIComponent(
+        summarySlug,
+      )}/files/${fileId}/`,
+      update,
+    )
+  ).value as SummaryFile;
+};
+
+export const useUpdateSummaryFile = (
+  author: string,
+  summarySlug: string,
+  fileId: number,
+  onSuccess?: (res: SummaryFile) => void,
+) =>
+  useMutation(
+    (update: SummaryFileUpdate) =>
+      updateSummaryFile(author, summarySlug, fileId, update),
+    onSuccess,
+  );

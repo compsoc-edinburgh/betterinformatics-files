@@ -316,14 +316,20 @@ export interface Summary {
   category: string;
   category_display_name: string;
   author: string;
-  filename: string;
-  mime_type: string;
   comments: SummaryComment[];
+  files: SummaryFile[];
   liked: boolean;
   like_count: number;
 
   can_edit: boolean;
   can_delete: boolean;
+}
+
+export interface SummaryFile {
+  oid: number;
+  display_name: string;
+  filename: string;
+  mime_type: string;
 }
 
 export interface SummaryComment extends Omit<Comment, "longId" | "oid"> {

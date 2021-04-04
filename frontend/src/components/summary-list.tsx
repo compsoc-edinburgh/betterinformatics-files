@@ -11,7 +11,7 @@ import {
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSummaries } from "../api/hooks";
-import CreateSummaryForm from "./create-summary-form";
+import CreateSummaryForm from "./create-summary-modal";
 import Grid from "./grid";
 import TooltipButton from "./TooltipButton";
 
