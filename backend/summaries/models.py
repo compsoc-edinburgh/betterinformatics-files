@@ -24,7 +24,7 @@ class Summary(ExportModelOperationsMixin("summary"), models.Model):
         return self.author.pk == request.user.pk
 
 
-class Comment(CommentMixin):
+class Comment(ExportModelOperationsMixin("summary_comment"), CommentMixin):
     summary = models.ForeignKey(
         "Summary", related_name="comments", on_delete=models.CASCADE
     )
@@ -41,7 +41,7 @@ class Comment(CommentMixin):
         return self.author.pk == request.user.pk
 
 
-class SummaryFile(models.Model):
+class SummaryFile(ExportModelOperationsMixin("summary_file"), models.Model):
     summary = models.ForeignKey(
         "Summary", related_name="files", on_delete=models.CASCADE
     )
