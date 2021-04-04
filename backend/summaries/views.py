@@ -1,5 +1,12 @@
+from django.http.response import (
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseNotAllowed,
+)
 from django.utils import timezone
 from typing import Union
+
+from django.views.decorators.csrf import csrf_exempt
 from myauth.models import get_my_user
 from summaries.models import Comment, Summary, SummaryFile
 from myauth import auth_check
@@ -13,6 +20,7 @@ import logging
 from django.http import HttpRequest
 from django.db.models import Q
 import os.path
+from django.core.signing import Signer, BadSignature
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +37,21 @@ def get_comment_obj(comment: Comment, request: HttpRequest):
     }
 
 
-def get_file_obj(file: SummaryFile):
-    return {
+summary_update_signer = Signer(salt="edit_summary")
+
+
+def get_file_obj(file: SummaryFile, include_key: bool = False):
+    obj = {
         "oid": file.pk,
         "display_name": file.display_name,
         "filename": file.filename,
         "mime_type": file.mime_type,
     }
+
+    if include_key:
+        obj["key"] = summary_update_signer.sign(file.pk)
+
+    return obj
 
 
 def get_summary_obj(
@@ -64,7 +80,10 @@ def get_summary_obj(
         ]
 
     if include_files:
-        obj["files"] = [get_file_obj(file) for file in summary.files.all()]
+        obj["files"] = [
+            get_file_obj(file, summary.current_user_can_edit(request))
+            for file in summary.files.all()
+        ]
 
     return obj
 
@@ -404,3 +423,37 @@ def get_summary_file(request, filename):
         as_attachment=True,
         attachment_filename=filename,
     )
+
+
+@csrf_exempt
+@response.request_post()
+def update_file(request: HttpRequest):
+    token = request.headers.get("Authorization", "")
+    summary_file_pk = 0
+    try:
+        summary_file_pk = int(summary_update_signer.unsign(token))
+    except BadSignature:
+        return HttpResponseForbidden("authorization token signature didn't match")
+    except ValueError:
+        return HttpResponseForbidden("invalid authorization token")
+
+    summary_file = get_object_or_404(
+        SummaryFile,
+        pk=summary_file_pk,
+    )
+    summary_file.edittime = timezone.now()
+
+    err, file, ext = prepare_summary_pdf_file(request)
+    if err is not None:
+        return err
+
+    minio_util.save_uploaded_file_to_minio(
+        settings.COMSOL_SUMMARY_DIR,
+        summary_file.filename,
+        file,
+        summary_file.mime_type,
+    )
+
+    summary_file.save()
+
+    return HttpResponse("updated")

@@ -4,6 +4,7 @@ from . import views
 
 
 urlpatterns = [
+    path("update", views.update_file, name="update_file"),
     path("file/<filename>", views.get_summary_file, name="file"),
     path("", views.SummaryRootView.as_view(), name="root"),
     path(
