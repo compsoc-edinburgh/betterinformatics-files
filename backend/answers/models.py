@@ -117,6 +117,7 @@ class AnswerSection(models.Model):
     cut_version = models.IntegerField(default=1)
     name = models.CharField(max_length=256, default="")
     hidden = models.BooleanField(default=False)
+    has_answers = models.BooleanField(default=True)
 
 
 def generate_long_id():

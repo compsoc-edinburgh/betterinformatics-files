@@ -18,6 +18,7 @@ def get_cuts(request, filename):
             'cutVersion': sec.cut_version,
             'name': sec.name,
             'hidden': sec.hidden,
+            'has_answers': sec.has_answers
         })
     for page in pages.values():
         page.sort(key=lambda x: x['relHeight'])
@@ -56,6 +57,8 @@ def edit_cut(request, oid):
         section.rel_height = float(request.POST['relHeight'])
     if 'hidden' in request.POST:
         section.hidden = request.POST['hidden'] == 'true'
+    if 'has_answers' in request.POST:
+        section.has_answers = request.POST['has_answers'] == 'true'
     section.cut_version += 1
     section.save()
     return response.success()
