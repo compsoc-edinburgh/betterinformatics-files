@@ -140,7 +140,7 @@ const Exam: React.FC<Props> = React.memo(
     }, [hash, show, sections]);
     useEffect(() => {
       sections.forEach(section => {
-        if(section.kind === SectionKind.Answer && section.has_answers) {
+        if (section.kind === SectionKind.Answer && section.has_answers) {
           show_answers(section.oid);
         }
       });
@@ -192,8 +192,11 @@ const Exam: React.FC<Props> = React.memo(
                     onCutNameChange(section.oid, newName)
                   }
                   onHasAnswersChange={() => {
-                      onHasAnswersChange(section.oid, !has_answers.has(section.oid));
-                      has_answers.has(section.oid)
+                    onHasAnswersChange(
+                      section.oid,
+                      !has_answers.has(section.oid),
+                    );
+                    has_answers.has(section.oid)
                       ? hide_answers(section.oid)
                       : show_answers(section.oid);
                   }}

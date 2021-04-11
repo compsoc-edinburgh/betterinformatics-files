@@ -107,7 +107,7 @@ interface Props {
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
   onHasAnswersChange: () => void;
-  has_answers: boolean,
+  has_answers: boolean;
 
   cutName: string;
   onCutNameChange: (newName: string) => void;
@@ -238,7 +238,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
               </CardFooter>
             </NameCard>
           )}
-        <Container fluid style={{filter: !has_answers ? "contrast(0.5)" : undefined }}>
+        <Container
+          fluid
+          style={{ filter: !has_answers ? "contrast(0.5)" : undefined }}
+        >
           {!hidden && data && (
             <>
               {data.answers.map(answer => (
