@@ -237,7 +237,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           {!hidden && data && (
             <>
               {data.answers.map(answer => (
-
                 <AnswerComponent
                   key={answer.oid}
                   section={data}
@@ -275,26 +274,28 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   <>
                     <ThreeButtons
                       left={
+                        <>
+                          {displayHideShowButtons ? (
+                            <IconButton
+                              className="mr-1"
+                              size="sm"
+                              icon={hidden ? "VIEW" : "VIEW_OFF"}
+                              tooltip="Toggle visibility"
+                              onClick={() => console.log("Hi Michael")}
+                            />
+                          ) : (
+                            <></>
+                          )}
 
-                        isBeingMoved ? (
-                          <Button size="sm" onClick={onCancelMove}>
-                            Cancel
-                          </Button>
-                        ) : (
-                          (data.answers.length === 0 || !hidden) &&
-                          data &&
-                          (data.allow_new_answer ||
-                            (data.allow_new_legacy_answer && isCatAdmin)) && (
-                            <>
-                              {displayHideShowButtons && (
-                                <IconButton
-                                  className="mr-1"
-                                  size="sm"
-                                  icon={hidden ? "VIEW" : "VIEW_OFF"}
-                                  tooltip="Toggle visibility"
-                                  onClick={() => console.log("Hi Michael")}
-                                />
-                              )}
+                          {isBeingMoved ? (
+                            <Button size="sm" onClick={onCancelMove}>
+                              Cancel
+                            </Button>
+                          ) : (
+                            (data.answers.length === 0 || !hidden) &&
+                            data &&
+                            (data.allow_new_answer ||
+                              (data.allow_new_legacy_answer && isCatAdmin)) && (
                               <AddButton
                                 allowAnswer={data.allow_new_answer}
                                 allowLegacyAnswer={
@@ -305,10 +306,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                                 onAnswer={onAddAnswer}
                                 onLegacyAnswer={onAddLegacyAnswer}
                               />
-
-                            </>
-                          )
-                        )
+                            )
+                          )}
+                        </>
                       }
                       center={
                         !isBeingMoved &&
