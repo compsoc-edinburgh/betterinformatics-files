@@ -168,6 +168,7 @@ const Exam: React.FC<Props> = React.memo(
               return (
                 <AnswerSectionComponent
                   displayEmptyCutLabels={displayEmptyCutLabels}
+                  displayHideShowButtons={displayHideShowButtons}
                   key={section.oid}
                   oid={section.oid}
                   onSectionChange={reloadCuts}

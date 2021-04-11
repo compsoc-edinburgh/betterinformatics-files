@@ -115,6 +115,7 @@ interface Props {
   isBeingMoved: boolean;
 
   displayEmptyCutLabels: boolean;
+  displayHideShowButtons: boolean;
 }
 
 const AnswerSectionComponent: React.FC<Props> = React.memo(
@@ -134,6 +135,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     isBeingMoved,
 
     displayEmptyCutLabels,
+    displayHideShowButtons,
   }) => {
     const [data, setData] = useState<AnswerSection | undefined>();
     const run = useAnswers(oid, data => {
@@ -235,6 +237,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           {!hidden && data && (
             <>
               {data.answers.map(answer => (
+
                 <AnswerComponent
                   key={answer.oid}
                   section={data}
@@ -272,6 +275,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   <>
                     <ThreeButtons
                       left={
+
                         isBeingMoved ? (
                           <Button size="sm" onClick={onCancelMove}>
                             Cancel
@@ -281,16 +285,28 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                           data &&
                           (data.allow_new_answer ||
                             (data.allow_new_legacy_answer && isCatAdmin)) && (
-                            <AddButton
-                              allowAnswer={data.allow_new_answer}
-                              allowLegacyAnswer={
-                                data.allow_new_legacy_answer && isCatAdmin
-                              }
-                              hasAnswerDraft={hasDraft}
-                              hasLegacyAnswerDraft={hasLegacyDraft}
-                              onAnswer={onAddAnswer}
-                              onLegacyAnswer={onAddLegacyAnswer}
-                            />
+                            <>
+                              {displayHideShowButtons && (
+                                <IconButton
+                                  className="mr-1"
+                                  size="sm"
+                                  icon={hidden ? "VIEW" : "VIEW_OFF"}
+                                  tooltip="Toggle visibility"
+                                  onClick={() => console.log("Hi Michael")}
+                                />
+                              )}
+                              <AddButton
+                                allowAnswer={data.allow_new_answer}
+                                allowLegacyAnswer={
+                                  data.allow_new_legacy_answer && isCatAdmin
+                                }
+                                hasAnswerDraft={hasDraft}
+                                hasLegacyAnswerDraft={hasLegacyDraft}
+                                onAnswer={onAddAnswer}
+                                onLegacyAnswer={onAddLegacyAnswer}
+                              />
+
+                            </>
                           )
                         )
                       }
