@@ -46,11 +46,25 @@ export function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       for (const cut of cuts[i]) {
-        const { relHeight: position, oid, cutVersion, hidden, has_answers } = cut;
+        const {
+          relHeight: position,
+          oid,
+          cutVersion,
+          hidden,
+          has_answers,
+        } = cut;
         if (position !== lastpos) {
           const key = `${akey}-${lastpos}-${position}`;
           sections.push(
-            createPdfSection(key, oid, i, lastpos, position, hidden, has_answers),
+            createPdfSection(
+              key,
+              oid,
+              i,
+              lastpos,
+              position,
+              hidden,
+              has_answers,
+            ),
           );
           akey++;
           lastpos = position;
@@ -71,7 +85,9 @@ export function loadSections(
     }
     if (lastpos < 1) {
       const key = `${akey}-${lastpos}-${1}`;
-      sections.push(createPdfSection(key, undefined, i, lastpos, 1, false, true));
+      sections.push(
+        createPdfSection(key, undefined, i, lastpos, 1, false, true),
+      );
       akey++;
     }
   }
