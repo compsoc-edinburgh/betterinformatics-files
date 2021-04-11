@@ -238,7 +238,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
               </CardFooter>
             </NameCard>
           )}
-        <Container fluid>
+        <Container fluid style={{filter: !has_answers ? "contrast(0.5)" : undefined }}>
           {!hidden && data && (
             <>
               {data.answers.map(answer => (
