@@ -14,14 +14,12 @@ class Summary(ExportModelOperationsMixin("summary"), models.Model):
 
     def current_user_can_delete(self, request):
         is_admin = auth_check.has_admin_rights_for_summary(request, self)
-        if is_admin:
-            return True
-        if self.author.pk == request.user.pk:
-            return True
-        return False
+        is_owner = self.author.pk == request.user.pk
+        return is_admin or is_owner
 
     def current_user_can_edit(self, request):
-        return self.author.pk == request.user.pk
+        is_owner = self.author.pk == request.user.pk
+        return is_owner
 
 
 class Comment(ExportModelOperationsMixin("summary_comment"), CommentMixin):
@@ -31,14 +29,12 @@ class Comment(ExportModelOperationsMixin("summary_comment"), CommentMixin):
 
     def current_user_can_delete(self, request):
         is_admin = auth_check.has_admin_rights_for_summary(request, self.summary)
-        if is_admin:
-            return True
-        if self.author.pk == request.user.pk:
-            return True
-        return False
+        is_owner = self.author.pk == request.user.pk
+        return is_admin or is_owner
 
     def current_user_can_edit(self, request):
-        return self.author.pk == request.user.pk
+        is_owner = self.author.pk == request.user.pk
+        return is_owner
 
 
 class SummaryFile(ExportModelOperationsMixin("summary_file"), models.Model):
