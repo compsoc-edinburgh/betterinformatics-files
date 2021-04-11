@@ -73,7 +73,7 @@ export interface ServerCutPosition {
   cutVersion: number;
   name: string;
   hidden: boolean;
-  has_answers: true;
+  has_answers: boolean;
 }
 
 export interface Attachment {

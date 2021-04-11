@@ -106,6 +106,8 @@ interface Props {
   hidden: boolean;
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
+  onHasAnswersChange: () => void;
+  has_answers: boolean,
 
   cutName: string;
   onCutNameChange: (newName: string) => void;
@@ -136,6 +138,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     displayEmptyCutLabels,
     displayHideShowButtons,
+
+    onHasAnswersChange,
+    has_answers,
   }) => {
     const [data, setData] = useState<AnswerSection | undefined>();
     const run = useAnswers(oid, data => {
@@ -279,9 +284,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             <IconButton
                               className="mr-1"
                               size="sm"
-                              icon={hidden ? "VIEW" : "VIEW_OFF"}
+                              icon={has_answers ? "VIEW_OFF" : "VIEW"}
                               tooltip="Toggle visibility"
-                              onClick={() => console.log("Hi Michael")}
+                              onClick={onHasAnswersChange}
                             />
                           ) : (
                             <></>

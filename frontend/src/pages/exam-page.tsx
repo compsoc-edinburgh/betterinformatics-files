@@ -71,6 +71,9 @@ const updateCutHidden = async (cut: string, hidden: boolean) => {
   console.log("updateCutHidden", cut, hidden);
   await fetchPost(`/api/exam/editcut/${cut}/`, { hidden });
 };
+const updateCutHasAnswers = async (cut: string, has_answers: boolean) => {
+  await fetchPost(`/api/exam/editcut/${cut}/`, { has_answers });
+};
 
 interface ExamPageContentProps {
   metaData: ExamMetaData;
@@ -136,6 +139,21 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           result[key] = oldCuts[key].map(cutPosition =>
             cutPosition.oid === oid
               ? { ...cutPosition, hidden: newHidden }
+              : cutPosition,
+          );
+          return result;
+        }, {} as ServerCutResponse),
+      );
+    },
+  });
+  const { run: runUpdateCutHasAnswers } = useRequest(updateCutHasAnswers, {
+    manual: true,
+    onSuccess: (_data, [oid, new_has_answers]) => {
+      mutateCuts(oldCuts =>
+        Object.keys(oldCuts).reduce((result, key) => {
+          result[key] = oldCuts[key].map(cutPosition =>
+            cutPosition.oid === oid
+              ? { ...cutPosition, has_answers: new_has_answers }
               : cutPosition,
           );
           return result;
@@ -372,6 +390,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               renderer={renderer}
               onCutNameChange={runUpdateCutName}
               onSectionHiddenChange={onSectionHiddenChange}
+              onHasAnswersChange={runUpdateCutHasAnswers}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}
