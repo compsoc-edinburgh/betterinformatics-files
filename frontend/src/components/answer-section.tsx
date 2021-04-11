@@ -305,9 +305,13 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             (data.allow_new_answer ||
                               (data.allow_new_legacy_answer && isCatAdmin)) && (
                               <AddButton
-                                allowAnswer={data.allow_new_answer}
+                                allowAnswer={
+                                  data.allow_new_answer && has_answers
+                                }
                                 allowLegacyAnswer={
-                                  data.allow_new_legacy_answer && isCatAdmin
+                                  data.allow_new_legacy_answer &&
+                                  isCatAdmin &&
+                                  has_answers
                                 }
                                 hasAnswerDraft={hasDraft}
                                 hasLegacyAnswerDraft={hasLegacyDraft}
@@ -326,6 +330,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             size="sm"
                             onClick={onToggleHidden}
                             className="d-inline-block"
+                            disabled={!has_answers}
                           >
                             {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
@@ -333,7 +338,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       }
                       right={
                         isCatAdmin && (
-                          <UncontrolledDropdown>
+                          <UncontrolledDropdown disabled={!has_answers}>
                             <DropdownToggle caret size="sm">
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </DropdownToggle>
