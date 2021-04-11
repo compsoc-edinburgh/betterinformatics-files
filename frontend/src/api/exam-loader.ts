@@ -14,6 +14,7 @@ function createPdfSection(
   start: number,
   end: number,
   hidden: boolean,
+  has_answers: boolean,
 ): PdfSection {
   return {
     key,
@@ -28,6 +29,7 @@ function createPdfSection(
       position: end,
     },
     hidden,
+    has_answers,
   };
 }
 interface ServerCutResponse {
@@ -44,11 +46,11 @@ export function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       for (const cut of cuts[i]) {
-        const { relHeight: position, oid, cutVersion, hidden } = cut;
+        const { relHeight: position, oid, cutVersion, hidden, has_answers } = cut;
         if (position !== lastpos) {
           const key = `${akey}-${lastpos}-${position}`;
           sections.push(
-            createPdfSection(key, oid, i, lastpos, position, hidden),
+            createPdfSection(key, oid, i, lastpos, position, hidden, has_answers),
           );
           akey++;
           lastpos = position;
@@ -60,6 +62,7 @@ export function loadSections(
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
+          has_answers: cut.has_answers,
           cutHidden: hidden,
           cutVersion,
           name: cut.name,
@@ -68,7 +71,7 @@ export function loadSections(
     }
     if (lastpos < 1) {
       const key = `${akey}-${lastpos}-${1}`;
-      sections.push(createPdfSection(key, undefined, i, lastpos, 1, false));
+      sections.push(createPdfSection(key, undefined, i, lastpos, 1, false, true));
       akey++;
     }
   }

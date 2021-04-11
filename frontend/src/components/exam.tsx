@@ -164,7 +164,7 @@ const Exam: React.FC<Props> = React.memo(
       <>
         {sections.map(section => {
           if (section.kind === SectionKind.Answer) {
-            if (displayHiddenAnswerSections || !section.cutHidden) {
+            if (displayHiddenAnswerSections || section.has_answers) {
               return (
                 <AnswerSectionComponent
                   displayEmptyCutLabels={displayEmptyCutLabels}
