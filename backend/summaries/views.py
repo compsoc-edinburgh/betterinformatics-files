@@ -1,7 +1,6 @@
 from django.http.response import (
     HttpResponse,
     HttpResponseForbidden,
-    HttpResponseNotAllowed,
 )
 from django.utils import timezone
 from typing import Union
@@ -266,6 +265,7 @@ class SummaryCommentElementView(View):
         )
         return get_comment_obj(comment, request)
 
+    @auth_check.require_login
     def put(self, request: HttpRequest, username: str, summary_slug: str, id: int):
         objects = Comment.objects.prefetch_related("author")
         comment = get_object_or_404(
@@ -282,6 +282,7 @@ class SummaryCommentElementView(View):
         comment.save()
         return response.success(value=get_comment_obj(comment, request))
 
+    @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, summary_slug: str, id: int):
         objects = Comment.objects.prefetch_related("author")
         comment = get_object_or_404(
@@ -351,6 +352,7 @@ class SummaryFileElementView(View):
         )
         return get_file_obj(summary_file)
 
+    @auth_check.require_login
     def put(self, request: HttpRequest, username: str, summary_slug: str, id: int):
         summary = get_object_or_404(
             Summary, author__username=username, slug=summary_slug
@@ -392,6 +394,7 @@ class SummaryFileElementView(View):
         summary_file.save()
         return response.success(value=get_file_obj(summary_file))
 
+    @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, summary_slug: str, id: int):
         summary = get_object_or_404(
             Summary, author__username=username, slug=summary_slug
