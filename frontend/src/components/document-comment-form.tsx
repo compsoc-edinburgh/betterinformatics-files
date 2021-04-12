@@ -1,21 +1,21 @@
 import { SendIcon, Spinner } from "@vseth/components";
 import React, { useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
-import { Mutate, useCreateSummaryComment } from "../api/hooks";
-import { Summary } from "../interfaces";
+import { Mutate, useCreateDocumentComment } from "../api/hooks";
+import { Document } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import TooltipButton from "./TooltipButton";
 
 interface Props {
-  summaryAuthor: string;
-  summarySlug: string;
-  mutate: Mutate<Summary>;
+  documentAuthor: string;
+  documentSlug: string;
+  mutate: Mutate<Document>;
 }
-const SummaryCommentForm: React.FC<Props> = ({
-  summaryAuthor,
-  summarySlug,
+const DocumentCommentForm: React.FC<Props> = ({
+  documentAuthor,
+  documentSlug,
   mutate,
 }) => {
   const [draftText, setDraftText] = useState("");
@@ -23,11 +23,11 @@ const SummaryCommentForm: React.FC<Props> = ({
     prev: [],
     next: [],
   });
-  const [loading, createSummaryComment] = useCreateSummaryComment(
-    summaryAuthor,
-    summarySlug,
-    summary => {
-      mutate(data => ({ ...data, comments: [...data.comments, summary] }));
+  const [loading, createDocumentComment] = useCreateDocumentComment(
+    documentAuthor,
+    documentSlug,
+    document => {
+      mutate(data => ({ ...data, comments: [...data.comments, document] }));
       setDraftText("");
       setUndoStack({
         prev: [],
@@ -50,7 +50,7 @@ const SummaryCommentForm: React.FC<Props> = ({
         <TooltipButton
           color="primary"
           disabled={loading || draftText.length === 0}
-          onClick={() => createSummaryComment(draftText)}
+          onClick={() => createDocumentComment(draftText)}
         >
           Submit{" "}
           {loading ? (
@@ -64,4 +64,4 @@ const SummaryCommentForm: React.FC<Props> = ({
   );
 };
 
-export default SummaryCommentForm;
+export default DocumentCommentForm;

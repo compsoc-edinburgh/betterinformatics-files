@@ -11,28 +11,28 @@ import {
 import * as React from "react";
 import { useState } from "react";
 import { NamedBlob } from "../api/fetch-utils";
-import { Mutate, useCreateSummaryFile } from "../api/hooks";
+import { Mutate, useCreateDocumentFile } from "../api/hooks";
 import { Toggle } from "../hooks/useToggle";
-import { Summary } from "../interfaces";
+import { Document } from "../interfaces";
 import FileInput from "./file-input";
 
 interface Props {
-  summary: Summary;
+  document: Document;
   toggle: Toggle;
-  mutate: Mutate<Summary>;
+  mutate: Mutate<Document>;
 }
 
-const CreateSummaryFileModal: React.FC<Props> = ({
+const CreateDocumentFileModal: React.FC<Props> = ({
   toggle,
-  summary,
+  document,
   mutate,
 }) => {
   const [displayName, setDisplayName] = useState("");
   const [file, setFile] = useState<File | undefined>(undefined);
 
-  const [loading, createSummaryFile] = useCreateSummaryFile(
-    summary.author,
-    summary.slug,
+  const [loading, createDocumentFile] = useCreateDocumentFile(
+    document.author,
+    document.slug,
     f => {
       toggle(false);
       mutate(s => ({ ...s, files: [...s.files, f] }));
@@ -65,12 +65,12 @@ const CreateSummaryFileModal: React.FC<Props> = ({
           color="primary"
           disabled={loading || displayName === ""}
           onClick={() =>
-            createSummaryFile(
+            createDocumentFile(
               displayName,
               file ??
                 new NamedBlob(
                   new Blob([], { type: "application/octet-stream" }),
-                  "summary.md",
+                  "document.md",
                 ),
             )
           }
@@ -87,4 +87,4 @@ const CreateSummaryFileModal: React.FC<Props> = ({
   );
 };
 
-export default CreateSummaryFileModal;
+export default CreateDocumentFileModal;

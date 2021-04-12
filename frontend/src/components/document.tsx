@@ -10,8 +10,8 @@ import {
 } from "@vseth/components";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useSummaries } from "../api/hooks";
-import CreateSummaryForm from "./create-summary-modal";
+import { useDocuments } from "../api/hooks";
+import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
 import TooltipButton from "./TooltipButton";
 
@@ -19,13 +19,13 @@ interface Props {
   slug: string;
 }
 
-const SummaryList: React.FC<Props> = ({ slug }) => {
+const DocumentList: React.FC<Props> = ({ slug }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [error, loading, summaries] = useSummaries(slug);
+  const [error, loading, summaries] = useDocuments(slug);
   return (
     <>
       <Modal isOpen={isOpen} toggle={() => setIsOpen(r => !r)}>
-        <CreateSummaryForm
+        <CreateDocumentForm
           categorySlug={slug}
           toggle={() => setIsOpen(r => !r)}
         />
@@ -33,23 +33,23 @@ const SummaryList: React.FC<Props> = ({ slug }) => {
 
       <Grid>
         {summaries &&
-          summaries.map(summary => (
-            <Card key={summary.slug}>
+          summaries.map(document => (
+            <Card key={document.slug}>
               <CardBody>
-                <Link to={`/user/${summary.author}/summary/${summary.slug}`}>
-                  <CardTitle tag="h6">{summary.display_name}</CardTitle>
+                <Link to={`/user/${document.author}/document/${document.slug}`}>
+                  <CardTitle tag="h6">{document.display_name}</CardTitle>
                 </Link>
                 <div>
-                  <Link to={`/user/${summary.author}`} className="text-muted">
-                    @{summary.author}
+                  <Link to={`/user/${document.author}`} className="text-muted">
+                    @{document.author}
                   </Link>
-                  {summary.liked ? (
+                  {document.liked ? (
                     <span className="text-danger ml-2">
-                      <LikeFilledIcon className="mr-1" /> {summary.like_count}
+                      <LikeFilledIcon className="mr-1" /> {document.like_count}
                     </span>
                   ) : (
                     <span className="text-muted ml-2">
-                      <LikeIcon className="mr-1" /> {summary.like_count}
+                      <LikeIcon className="mr-1" /> {document.like_count}
                     </span>
                   )}
                 </div>
@@ -58,7 +58,7 @@ const SummaryList: React.FC<Props> = ({ slug }) => {
           ))}
         <Card style={{ minHeight: "4em" }}>
           <TooltipButton
-            tooltip="Add a new summary"
+            tooltip="Add a new document"
             onClick={() => setIsOpen(true)}
             className="position-cover w-100"
           >
@@ -69,4 +69,4 @@ const SummaryList: React.FC<Props> = ({ slug }) => {
     </>
   );
 };
-export default SummaryList;
+export default DocumentList;

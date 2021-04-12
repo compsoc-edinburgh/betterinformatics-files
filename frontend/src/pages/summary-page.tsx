@@ -17,73 +17,73 @@ import {
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { download } from "../api/fetch-utils";
-import { useSummary } from "../api/hooks";
+import { useDocument } from "../api/hooks";
 import IconButton from "../components/icon-button";
 import LikeButton from "../components/like-button";
 import ContentContainer from "../components/secondary-container";
-import SummaryCode from "../components/summary-code";
-import SummaryCommentComponent from "../components/summary-comment";
-import SummaryCommentForm from "../components/summary-comment-form";
-import SummaryMarkdown from "../components/summary-markdown";
-import SummaryMarkdownEditor from "../components/summary-markdown-editor";
-import SummaryPdf from "../components/summary-pdf";
-import SummarySettings from "../components/summary-settings";
-import { useSummaryDownload } from "../hooks/useSummaryDownload";
+import DocumentCode from "../components/document-code";
+import DocumentCommentComponent from "../components/document-comment";
+import DocumentCommentForm from "../components/document-comment-form";
+import DocumentMarkdown from "../components/document-markdown";
+import DocumentMarkdownEditor from "../components/document-markdown-editor";
+import DocumentPdf from "../components/document-pdf";
+import DocumentSettings from "../components/document-settings";
+import { useDocumentDownload } from "../hooks/useDocumentDownload";
 import useToggle from "../hooks/useToggle";
-import { Summary, SummaryFile } from "../interfaces";
+import { Document, DocumentFile } from "../interfaces";
 
-const isPdf = (file: SummaryFile) => file.mime_type === "application/pdf";
-const isMarkdown = (file: SummaryFile) =>
+const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
+const isMarkdown = (file: DocumentFile) =>
   file.mime_type === "application/octet-stream" &&
   file.filename.endsWith(".md");
-const isTex = (file: SummaryFile) => file.mime_type === "application/x-tex";
+const isTex = (file: DocumentFile) => file.mime_type === "application/x-tex";
 
 const getComponents = (
-  file: SummaryFile | undefined,
+  file: DocumentFile | undefined,
 ):
   | {
-      Viewer: React.FC<{ summary: Summary; file: SummaryFile; url: string }>;
+      Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
       Editor:
-        | React.FC<{ summary: Summary; file: SummaryFile; url: string }>
+        | React.FC<{ document: Document; file: DocumentFile; url: string }>
         | undefined;
     }
   | undefined => {
   if (file === undefined) return undefined;
 
   if (isPdf(file)) {
-    return { Viewer: SummaryPdf, Editor: undefined };
+    return { Viewer: DocumentPdf, Editor: undefined };
   }
   if (isMarkdown(file)) {
-    return { Viewer: SummaryMarkdown, Editor: SummaryMarkdownEditor };
+    return { Viewer: DocumentMarkdown, Editor: DocumentMarkdownEditor };
   }
   if (isTex(file)) {
-    return { Viewer: SummaryCode, Editor: undefined };
+    return { Viewer: DocumentCode, Editor: undefined };
   }
 
   return undefined;
 };
 
-enum SummaryTab {
+enum DocumentTab {
   NONE = "NONE",
   COMMENTS = "COMMENTS",
   SETTINGS = "SETTINGS",
 }
 
-const getFile = (summary: Summary | undefined, oid: number) =>
-  summary ? summary.files.find(x => x.oid === oid) : undefined;
+const getFile = (document: Document | undefined, oid: number) =>
+  document ? document.files.find(x => x.oid === oid) : undefined;
 
 interface Props {}
-const SummaryPage: React.FC<Props> = () => {
+const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
-  const [error, loading, data, mutate] = useSummary(author, slug, summary => {
-    if (summary.files.length > 0) setTab(summary.files[0].oid);
+  const [error, loading, data, mutate] = useDocument(author, slug, document => {
+    if (document.files.length > 0) setTab(document.files[0].oid);
   });
 
-  const [tab, setTab] = useState<SummaryTab | number>(SummaryTab.NONE);
+  const [tab, setTab] = useState<DocumentTab | number>(DocumentTab.NONE);
   const activeFile = typeof tab === "number" ? getFile(data, tab) : undefined;
   const Components = getComponents(activeFile);
   const [editing, toggleEditing] = useToggle();
-  const [loadingDownload, startDownload] = useSummaryDownload(data);
+  const [loadingDownload, startDownload] = useDocumentDownload(data);
   return (
     <>
       <Container>
@@ -109,7 +109,7 @@ const SummaryPage: React.FC<Props> = () => {
                 loading={loadingDownload}
               />
 
-              <LikeButton summary={data} mutate={mutate} />
+              <LikeButton document={data} mutate={mutate} />
             </div>
           </div>
         )}
@@ -141,8 +141,8 @@ const SummaryPage: React.FC<Props> = () => {
             <Col xs="auto">
               <NavItem className="m-0">
                 <NavLink
-                  onClick={() => setTab(SummaryTab.COMMENTS)}
-                  active={tab === SummaryTab.COMMENTS}
+                  onClick={() => setTab(DocumentTab.COMMENTS)}
+                  active={tab === DocumentTab.COMMENTS}
                 >
                   Comments
                 </NavLink>
@@ -153,8 +153,8 @@ const SummaryPage: React.FC<Props> = () => {
               <Col xs="auto">
                 <NavItem className="m-0">
                   <NavLink
-                    onClick={() => setTab(SummaryTab.SETTINGS)}
-                    active={tab === SummaryTab.SETTINGS}
+                    onClick={() => setTab(DocumentTab.SETTINGS)}
+                    active={tab === DocumentTab.SETTINGS}
                   >
                     Settings
                   </NavLink>
@@ -180,16 +180,16 @@ const SummaryPage: React.FC<Props> = () => {
               {!editing && (
                 <Components.Viewer
                   file={activeFile!}
-                  summary={data}
-                  url={`/api/summary/file/${activeFile?.filename}`}
+                  document={data}
+                  url={`/api/document/file/${activeFile?.filename}`}
                 />
               )}
               {editing && (
                 <Container>
                   <Components.Editor
                     file={activeFile!}
-                    summary={data}
-                    url={`/api/summary/file/${activeFile?.filename}`}
+                    document={data}
+                    url={`/api/document/file/${activeFile?.filename}`}
                   />
                 </Container>
               )}
@@ -197,8 +197,8 @@ const SummaryPage: React.FC<Props> = () => {
           ) : (
             <Components.Viewer
               file={activeFile!}
-              summary={data}
-              url={`/api/summary/file/${activeFile?.filename}`}
+              document={data}
+              url={`/api/document/file/${activeFile?.filename}`}
             />
           )
         ) : (
@@ -210,7 +210,7 @@ const SummaryPage: React.FC<Props> = () => {
               <Button
                 className="m-2"
                 onClick={() =>
-                  download(`/api/summary/file/${activeFile?.filename}`)
+                  download(`/api/document/file/${activeFile?.filename}`)
                 }
               >
                 <DownloadIcon className="mr-2" />
@@ -219,25 +219,25 @@ const SummaryPage: React.FC<Props> = () => {
             </div>
           </Container>
         ))}
-      {tab === SummaryTab.COMMENTS && data && (
+      {tab === DocumentTab.COMMENTS && data && (
         <ContentContainer>
           <Container>
             {data.comments.length === 0 && (
               <div className="py-4 text-center">There are no comments yet.</div>
             )}
             {data.comments.map(comment => (
-              <SummaryCommentComponent
-                summaryAuthor={data.author}
-                summarySlug={slug}
+              <DocumentCommentComponent
+                documentAuthor={data.author}
+                documentSlug={slug}
                 comment={comment}
                 key={comment.oid}
                 mutate={mutate}
               />
             ))}
             <Card className="p-2">
-              <SummaryCommentForm
-                summaryAuthor={author}
-                summarySlug={slug}
+              <DocumentCommentForm
+                documentAuthor={author}
+                documentSlug={slug}
                 mutate={mutate}
               />
             </Card>
@@ -245,10 +245,10 @@ const SummaryPage: React.FC<Props> = () => {
         </ContentContainer>
       )}
 
-      {tab === SummaryTab.SETTINGS && data && (
+      {tab === DocumentTab.SETTINGS && data && (
         <ContentContainer>
           <Container>
-            <SummarySettings data={data} slug={slug} mutate={mutate} />
+            <DocumentSettings data={data} slug={slug} mutate={mutate} />
           </Container>
         </ContentContainer>
       )}
@@ -256,4 +256,4 @@ const SummaryPage: React.FC<Props> = () => {
   );
 };
 
-export default SummaryPage;
+export default DocumentPage;

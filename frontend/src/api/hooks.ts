@@ -13,9 +13,9 @@ import {
   NotificationInfo,
   PaymentInfo,
   ServerCutResponse,
-  Summary,
-  SummaryComment,
-  SummaryFile,
+  Document,
+  DocumentComment,
+  DocumentFile,
   UserInfo,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
@@ -366,245 +366,250 @@ export const markAsChecked = async (filename: string) => {
     .value;
 };
 
-export const createSummary = async (
+export const createDocument = async (
   displayName: string,
   categorySlug: string,
 ) => {
   return (
-    await fetchPost(`/api/summary/`, {
+    await fetchPost(`/api/document/`, {
       display_name: displayName,
       category: categorySlug,
     })
-  ).value as Summary;
+  ).value as Document;
 };
-export const useCreateSummary = (onSuccess?: (summary: Summary) => void) =>
-  useMutation(createSummary, onSuccess);
+export const useCreateDocument = (onSuccess?: (document: Document) => void) =>
+  useMutation(createDocument, onSuccess);
 
-export const loadSummaries = async (categorySlug: string) => {
+export const loadDocuments = async (categorySlug: string) => {
   return (
-    await fetchGet(`/api/summary/?category=${encodeURIComponent(categorySlug)}`)
-  ).value as Summary[];
+    await fetchGet(
+      `/api/document/?category=${encodeURIComponent(categorySlug)}`,
+    )
+  ).value as Document[];
 };
-export const useSummaries = (categorySlug: string) => {
+export const useDocuments = (categorySlug: string) => {
   const { error, loading, data } = useRequest(
-    () => loadSummaries(categorySlug),
+    () => loadDocuments(categorySlug),
     { cacheKey: `summaries-${categorySlug}` },
   );
   return [error, loading, data] as const;
 };
 
-export const loadSummary = async (author: string, summarySlug: string) => {
+export const loadDocument = async (author: string, documentSlug: string) => {
   return (
     await fetchGet(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
+      `/api/document/${author}/${encodeURIComponent(
+        documentSlug,
       )}/?include_comments&include_files`,
     )
-  ).value as Summary;
+  ).value as Document;
 };
-export const useSummary = (
+export const useDocument = (
   author: string,
-  summarySlug: string,
-  onSuccess?: (summary: Summary) => void,
+  documentSlug: string,
+  onSuccess?: (document: Document) => void,
 ) => {
   const { error, loading, data, mutate } = useRequest(
-    () => loadSummary(author, summarySlug),
+    () => loadDocument(author, documentSlug),
     {
-      cacheKey: `summary-${summarySlug}`,
+      cacheKey: `document-${documentSlug}`,
       onSuccess,
     },
   );
   return [error, loading, data, mutate] as const;
 };
 
-export const deleteSummary = async (author: string, summarySlug: string) => {
+export const deleteDocument = async (author: string, documentSlug: string) => {
   return (
     await fetchDelete(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
+      `/api/document/${author}/${encodeURIComponent(documentSlug)}/`,
     )
   ).value as true;
 };
-export const useDeleteSummary = (
+export const useDeleteDocument = (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   cb: () => void,
-) => useMutation(() => deleteSummary(author, summarySlug), cb);
+) => useMutation(() => deleteDocument(author, documentSlug), cb);
 
-export interface SummaryUpdate {
+export interface DocumentUpdate {
   display_name?: string;
   category?: string;
   liked?: boolean;
 }
-export const updateSummary = async (
+export const updateDocument = async (
   author: string,
-  summarySlug: string,
-  data: SummaryUpdate,
+  documentSlug: string,
+  data: DocumentUpdate,
 ) => {
   return (
     await fetchPut(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
+      `/api/document/${author}/${encodeURIComponent(documentSlug)}/`,
       data,
     )
-  ).value as Summary;
+  ).value as Document;
 };
-export const useUpdateSummary = (
+export const useUpdateDocument = (
   author: string,
-  summarySlug: string,
-  cb: (summary: Summary) => void,
+  documentSlug: string,
+  cb: (document: Document) => void,
 ) =>
   useMutation(
-    (data: SummaryUpdate) => updateSummary(author, summarySlug, data),
+    (data: DocumentUpdate) => updateDocument(author, documentSlug, data),
     cb,
   );
 
-export const createSummaryComment = async (
+export const createDocumentComment = async (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   text: string,
 ) => {
   return (
     await fetchPost(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/comments/`,
+      `/api/document/${author}/${encodeURIComponent(documentSlug)}/comments/`,
       { text },
     )
-  ).value as SummaryComment;
+  ).value as DocumentComment;
 };
-export const useCreateSummaryComment = (
+export const useCreateDocumentComment = (
   author: string,
-  summarySlug: string,
-  onSuccess?: (res: SummaryComment) => void,
+  documentSlug: string,
+  onSuccess?: (res: DocumentComment) => void,
 ) =>
   useMutation(
-    (text: string) => createSummaryComment(author, summarySlug, text),
+    (text: string) => createDocumentComment(author, documentSlug, text),
     onSuccess,
   );
 
-export const deleteSummaryComment = async (
+export const deleteDocumentComment = async (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   commentId: number,
 ) => {
   return (
     await fetchDelete(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
+      `/api/document/${author}/${encodeURIComponent(
+        documentSlug,
       )}/comments/${commentId}/`,
     )
   ).value as true;
 };
 
-export const useDeleteSummaryComment = (
+export const useDeleteDocumentComment = (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   commentId: number,
   onSuccess?: (res: boolean) => void,
 ) =>
   useMutation(
-    () => deleteSummaryComment(author, summarySlug, commentId),
+    () => deleteDocumentComment(author, documentSlug, commentId),
     onSuccess,
   );
 
-export const updateSummaryComment = async (
+export const updateDocumentComment = async (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   commentId: number,
   text: string,
 ) => {
   return (
     await fetchPut(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
+      `/api/document/${author}/${encodeURIComponent(
+        documentSlug,
       )}/comments/${commentId}/`,
       { text },
     )
-  ).value as SummaryComment;
+  ).value as DocumentComment;
 };
 
-export const useUpdateSummaryComment = (
+export const useUpdateDocumentComment = (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   commentId: number,
-  onSuccess?: (res: SummaryComment) => void,
+  onSuccess?: (res: DocumentComment) => void,
 ) =>
   useMutation(
     (text: string) =>
-      updateSummaryComment(author, summarySlug, commentId, text),
+      updateDocumentComment(author, documentSlug, commentId, text),
     onSuccess,
   );
 
-export const createSummaryFile = async (
+export const createDocumentFile = async (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   display_name: string,
   file: NamedBlob | File,
 ) => {
   return (
     await fetchPost(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/files/`,
+      `/api/document/${author}/${encodeURIComponent(documentSlug)}/files/`,
       { file, display_name },
     )
-  ).value as SummaryFile;
+  ).value as DocumentFile;
 };
-export const useCreateSummaryFile = (
+export const useCreateDocumentFile = (
   author: string,
-  summarySlug: string,
-  onSuccess?: (res: SummaryFile) => void,
+  documentSlug: string,
+  onSuccess?: (res: DocumentFile) => void,
 ) =>
   useMutation(
     (display_name: string, file: NamedBlob | File) =>
-      createSummaryFile(author, summarySlug, display_name, file),
+      createDocumentFile(author, documentSlug, display_name, file),
     onSuccess,
   );
-export const deleteSummaryFile = async (
+export const deleteDocumentFile = async (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   fileId: number,
 ) => {
   return (
     await fetchDelete(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
+      `/api/document/${author}/${encodeURIComponent(
+        documentSlug,
       )}/files/${fileId}/`,
     )
   ).value as true;
 };
 
-export const useDeleteSummaryFile = (
+export const useDeleteDocumentFile = (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   fileId: number,
   onSuccess?: (res: boolean) => void,
 ) =>
-  useMutation(() => deleteSummaryFile(author, summarySlug, fileId), onSuccess);
+  useMutation(
+    () => deleteDocumentFile(author, documentSlug, fileId),
+    onSuccess,
+  );
 
-interface SummaryFileUpdate {
+interface DocumentFileUpdate {
   display_name?: string;
   file?: NamedBlob | File;
 }
-export const updateSummaryFile = async (
+export const updateDocumentFile = async (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   fileId: number,
-  update: SummaryFileUpdate,
+  update: DocumentFileUpdate,
 ) => {
   return (
     await fetchPut(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
+      `/api/document/${author}/${encodeURIComponent(
+        documentSlug,
       )}/files/${fileId}/`,
       update,
     )
-  ).value as SummaryFile;
+  ).value as DocumentFile;
 };
 
-export const useUpdateSummaryFile = (
+export const useUpdateDocumentFile = (
   author: string,
-  summarySlug: string,
+  documentSlug: string,
   fileId: number,
-  onSuccess?: (res: SummaryFile) => void,
+  onSuccess?: (res: DocumentFile) => void,
 ) =>
   useMutation(
-    (update: SummaryFileUpdate) =>
-      updateSummaryFile(author, summarySlug, fileId, update),
+    (update: DocumentFileUpdate) =>
+      updateDocumentFile(author, documentSlug, fileId, update),
     onSuccess,
   );

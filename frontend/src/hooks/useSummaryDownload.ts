@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { download } from "../api/fetch-utils";
-import { Summary } from "../interfaces";
+import { Document } from "../interfaces";
 
-export const useSummaryDownload = (summary: Summary | undefined) => {
+export const useDocumentDownload = (document: Document | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    if (summary === undefined) return;
+    if (document === undefined) return;
     if (!isLoading) return;
     const controllers: AbortController[] = [];
     let cancel = false;
@@ -18,9 +18,9 @@ export const useSummaryDownload = (summary: Summary | undefined) => {
     };
 
     (async () => {
-      if (summary.files.length === 0) return;
-      if (summary.files.length === 1) {
-        download(`/api/summary/file/${summary.files[0].filename}`);
+      if (document.files.length === 0) return;
+      if (document.files.length === 1) {
+        download(`/api/document/file/${document.files[0].filename}`);
         setIsLoading(false);
         return;
       }
@@ -30,14 +30,14 @@ export const useSummaryDownload = (summary: Summary | undefined) => {
       const zip = new JSZip();
 
       await Promise.all(
-        summary.files.map(async file => {
+        document.files.map(async file => {
           const controller =
             window.AbortController !== undefined
               ? new AbortController()
               : undefined;
           if (controller !== undefined) controllers.push(controller);
           const responseFile = await fetch(
-            `/api/summary/file/${file.filename}`,
+            `/api/document/file/${file.filename}`,
             {
               signal: controller?.signal,
             },
@@ -63,7 +63,7 @@ export const useSummaryDownload = (summary: Summary | undefined) => {
 
       const content = await zip.generateAsync({ type: "blob" });
       if (cancel) return;
-      const name = `${summary.display_name}.zip`;
+      const name = `${document.display_name}.zip`;
       const url = window.URL.createObjectURL(content);
 
       const a = document.createElement("a");
@@ -78,7 +78,7 @@ export const useSummaryDownload = (summary: Summary | undefined) => {
     })();
 
     return abort;
-  }, [isLoading, summary]);
+  }, [isLoading, document]);
   const startDownload = useCallback(() => setIsLoading(true), []);
   return [isLoading, startDownload] as const;
 };

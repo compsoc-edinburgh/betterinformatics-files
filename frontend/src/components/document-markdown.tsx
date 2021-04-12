@@ -3,10 +3,10 @@ import { Container } from "@vseth/components";
 import React from "react";
 import MarkdownText from "./markdown-text";
 
-interface SummaryMarkdownProps {
+interface DocumentMarkdownProps {
   url: string;
 }
-const SummaryMarkdown: React.FC<SummaryMarkdownProps> = ({ url }) => {
+const DocumentMarkdown: React.FC<DocumentMarkdownProps> = ({ url }) => {
   const { error: mdError, loading: mdLoading, data } = useRequest(() =>
     fetch(url).then(r => r.text()),
   );
@@ -17,10 +17,10 @@ const SummaryMarkdown: React.FC<SummaryMarkdownProps> = ({ url }) => {
         (data.length > 0 ? (
           <MarkdownText value={data} />
         ) : (
-          "This summary currently doesn't have any content."
+          "This document currently doesn't have any content."
         ))}
     </Container>
   );
 };
 
-export default SummaryMarkdown;
+export default DocumentMarkdown;
