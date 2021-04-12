@@ -152,7 +152,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "answers.apps.AnswersConfig",
-    "documents.apps.SummariesConfig",
+    "documents.apps.DocumentsConfig",
     "categories.apps.CategoriesConfig",
     "faq.apps.FaqConfig",
     "feedback.apps.FeedbackConfig",
