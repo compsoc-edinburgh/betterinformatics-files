@@ -21,7 +21,7 @@ interface Props {
 
 const DocumentList: React.FC<Props> = ({ slug }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [error, loading, summaries] = useDocuments(slug);
+  const [error, loading, documents] = useDocuments(slug);
   return (
     <>
       <Modal isOpen={isOpen} toggle={() => setIsOpen(r => !r)}>
@@ -32,8 +32,8 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       </Modal>
 
       <Grid>
-        {summaries &&
-          summaries.map(document => (
+        {documents &&
+          documents.map(document => (
             <Card key={document.slug}>
               <CardBody>
                 <Link to={`/user/${document.author}/document/${document.slug}`}>

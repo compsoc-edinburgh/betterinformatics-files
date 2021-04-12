@@ -390,7 +390,7 @@ export const loadDocuments = async (categorySlug: string) => {
 export const useDocuments = (categorySlug: string) => {
   const { error, loading, data } = useRequest(
     () => loadDocuments(categorySlug),
-    { cacheKey: `summaries-${categorySlug}` },
+    { cacheKey: `documents-${categorySlug}` },
   );
   return [error, loading, data] as const;
 };
