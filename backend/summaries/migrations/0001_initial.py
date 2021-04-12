@@ -11,20 +11,40 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('categories', '0007_examcounts'),
+        ("categories", "0007_examcounts"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Summary',
+            name="Document",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('slug', models.CharField(max_length=256, unique=True)),
-                ('display_name', models.CharField(max_length=256)),
-                ('filename', models.CharField(max_length=256, unique=True)),
-                ('mime_type', models.CharField(max_length=256)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='categories.Category')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("slug", models.CharField(max_length=256, unique=True)),
+                ("display_name", models.CharField(max_length=256)),
+                ("filename", models.CharField(max_length=256, unique=True)),
+                ("mime_type", models.CharField(max_length=256)),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="categories.Category",
+                    ),
+                ),
             ],
         ),
     ]

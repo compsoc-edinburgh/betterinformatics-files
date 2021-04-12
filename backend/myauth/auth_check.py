@@ -51,8 +51,9 @@ def has_admin_rights_for_category(request, category):
 def has_admin_rights_for_exam(request, exam):
     return has_admin_rights_for_category(request, exam.category)
 
-def has_admin_rights_for_summary(request, summary):
-    return has_admin_rights_for_category(request, summary.category)
+
+def has_admin_rights_for_document(request, document):
+    return has_admin_rights_for_category(request, document.category)
 
 
 def is_expert_for_category(request, category):
