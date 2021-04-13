@@ -76,7 +76,7 @@ export function loadSections(
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
-          has_answers: cut.has_answers,
+          has_answers,
           cutHidden: hidden,
           cutVersion,
           name: cut.name,
