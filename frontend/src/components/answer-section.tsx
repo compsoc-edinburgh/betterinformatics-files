@@ -292,7 +292,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               onClick={onHasAnswersChange}
                             />
                           ) : (
-                            <></>
+                            null
                           )}
 
                           {isBeingMoved ? (
