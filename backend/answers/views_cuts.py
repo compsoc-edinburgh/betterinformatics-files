@@ -35,6 +35,7 @@ def add_cut(request, filename, exam):
         rel_height=float(request.POST['relHeight']),
         name=request.POST['name'] if 'name' in request.POST else '',
         hidden=request.POST['hidden'] == 'true' if 'hidden' in request.POST else False,
+        has_answers=request.POST['has_answers'] == 'true' if 'has_answers' in request.POST else False,
     )
     if not 0 <= section.rel_height <= 1:
         return response.not_possible('Invalid relative height')
