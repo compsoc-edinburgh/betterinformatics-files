@@ -137,7 +137,6 @@ const Exam: React.FC<Props> = React.memo(
         cancelled = true;
       };
     }, [hash, show, sections]);
-
     const onChangeListeners = useObjectFromMap(
       sections,
       section => {

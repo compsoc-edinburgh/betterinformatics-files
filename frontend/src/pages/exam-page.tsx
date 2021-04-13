@@ -64,16 +64,11 @@ const moveCut = async (
 ) => {
   await fetchPost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
 };
-const updateCutName = async (cut: string, name: string) => {
-  await fetchPost(`/api/exam/editcut/${cut}/`, { name });
-};
-const updateCutHidden = async (cut: string, hidden: boolean) => {
-  console.log("updateCutHidden", cut, hidden);
-  await fetchPost(`/api/exam/editcut/${cut}/`, { hidden });
-};
-const updateCutHasAnswers = async (cut: string, has_answers: boolean) => {
-  await fetchPost(`/api/exam/editcut/${cut}/`, { has_answers });
-};
+
+type CutUpdate = Partial<{name: string, hidden: boolean, has_answers: boolean}>;
+const updateCut = async (cut: string, update: CutUpdate) => {
+  await fetchPost(`/api/exam/editcut/${cut}/`, { update });
+}
 
 interface ExamPageContentProps {
   metaData: ExamMetaData;
@@ -116,14 +111,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       setEditState({ mode: EditMode.None });
     },
   });
-  const { run: runUpdateCutName } = useRequest(updateCutName, {
+  const { run: runUpdateCutName } = useRequest(updateCut, {
     manual: true,
-    onSuccess: (_data, [oid, newName]) => {
+    onSuccess: (_data, [oid, update]) => {
       mutateCuts(oldCuts =>
         Object.keys(oldCuts).reduce((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
-            cutPosition.oid === oid
-              ? { ...cutPosition, name: newName }
+            cutPosition.oid === oid && update.name !== undefined
+              ? { ...cutPosition, name: update.name }
               : cutPosition,
           );
           return result;
@@ -131,14 +126,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       );
     },
   });
-  const { run: runUpdateCutHidden } = useRequest(updateCutHidden, {
+  const { run: runUpdateCutHidden } = useRequest(updateCut, {
     manual: true,
-    onSuccess: (_data, [oid, newHidden]) => {
+    onSuccess: (_data, [oid, update]) => {
       mutateCuts(oldCuts =>
         Object.keys(oldCuts).reduce((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
-            cutPosition.oid === oid
-              ? { ...cutPosition, hidden: newHidden }
+            cutPosition.oid === oid && update.hidden !== undefined
+              ? { ...cutPosition, hidden: update.hidden }
               : cutPosition,
           );
           return result;
@@ -146,14 +141,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       );
     },
   });
-  const { run: runUpdateCutHasAnswers } = useRequest(updateCutHasAnswers, {
+  const { run: runUpdateCutHasAnswers } = useRequest(updateCut, {
     manual: true,
-    onSuccess: (_data, [oid, new_has_answers]) => {
+    onSuccess: (_data, [oid, update]) => {
       mutateCuts(oldCuts =>
         Object.keys(oldCuts).reduce((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
-            cutPosition.oid === oid
-              ? { ...cutPosition, has_answers: new_has_answers }
+            cutPosition.oid === oid && update.has_answers !== undefined
+              ? { ...cutPosition, has_answers: update.has_answers }
               : cutPosition,
           );
           return result;
@@ -162,9 +157,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     },
   });
   const onSectionHiddenChange = useCallback(
-    (section: string | [number, number], newState: boolean) => {
+    (section: string | [number, number], newState: CutUpdate) => {
       if (Array.isArray(section)) {
-        runAddCut(metaData.filename, section[0], section[1], newState);
+        runAddCut(metaData.filename, section[0], section[1], newState.hidden);
       } else {
         runUpdateCutHidden(section, newState);
       }
@@ -388,9 +383,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               setEditState={setEditState}
               reloadCuts={reloadCuts}
               renderer={renderer}
-              onCutNameChange={runUpdateCutName}
-              onSectionHiddenChange={onSectionHiddenChange}
-              onHasAnswersChange={runUpdateCutHasAnswers}
+              onCutNameChange={(oid: string, name: string) => runUpdateCutName(oid, {name})}
+              onSectionHiddenChange={(oid: string | [number, number], hidden: boolean) => onSectionHiddenChange(oid, {hidden})}
+              onHasAnswersChange={(oid: string, has_answers: boolean) => runUpdateCutHasAnswers(oid, {has_answers})}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}
