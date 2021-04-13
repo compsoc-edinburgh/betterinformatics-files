@@ -102,7 +102,6 @@ const Exam: React.FC<Props> = React.memo(
       [editState, metaData.filename, onAddCut, onMoveCut],
     );
 
-    const [has_answers, show_answers, hide_answers] = useSet<string>();
     const [visible, show, hide] = useSet<string>();
     const [cutVersions, setCutVersions] = useState<CutVersions>({});
     useRequest(() => loadCutVersions(metaData.filename), {
@@ -138,13 +137,7 @@ const Exam: React.FC<Props> = React.memo(
         cancelled = true;
       };
     }, [hash, show, sections]);
-    useEffect(() => {
-      sections.forEach(section => {
-        if (section.kind === SectionKind.Answer && section.has_answers) {
-          show_answers(section.oid);
-        }
-      });
-    }, []);
+
     const onChangeListeners = useObjectFromMap(
       sections,
       section => {
@@ -194,14 +187,11 @@ const Exam: React.FC<Props> = React.memo(
                   onHasAnswersChange={() => {
                     onHasAnswersChange(
                       section.oid,
-                      !has_answers.has(section.oid),
+                      !section.has_answers,
                     );
-                    has_answers.has(section.oid)
-                      ? hide_answers(section.oid)
-                      : show_answers(section.oid);
                   }}
                   hidden={!visible.has(section.oid)}
-                  has_answers={has_answers.has(section.oid)}
+                  has_answers={section.has_answers}
                   cutVersion={cutVersions[section.oid] || section.cutVersion}
                   setCutVersion={newVersion =>
                     setCutVersions(oldVersions => ({
