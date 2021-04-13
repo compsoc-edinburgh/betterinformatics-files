@@ -62,6 +62,12 @@ export interface PdfSection {
   has_answers: boolean;
 }
 
+export interface CutUpdate {
+  name: string,
+  hidden: boolean,
+  has_answers: boolean
+};
+
 export interface CutPosition {
   page: number; // the first page is 1
   position: number;

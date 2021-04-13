@@ -40,6 +40,7 @@ import {
   Section,
   SectionKind,
   ServerCutResponse,
+  CutUpdate,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 
@@ -65,8 +66,8 @@ const moveCut = async (
   await fetchPost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
 };
 
-type CutUpdate = Partial<{name: string, hidden: boolean, has_answers: boolean}>;
-const updateCut = async (cut: string, update: CutUpdate) => {
+
+const updateCut = async (cut: string, update: Partial<CutUpdate>) => {
   await fetchPost(`/api/exam/editcut/${cut}/`, update );
 }
 
@@ -126,12 +127,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       );
     },
   });
-  const onSectionHiddenChange = useCallback(
-    (section: string | [number, number], newState: CutUpdate) => {
+  const onSectionChange = useCallback(
+    (section: string | [number, number], update: Partial<CutUpdate>) => {
       if (Array.isArray(section)) {
-        runAddCut(metaData.filename, section[0], section[1], newState.hidden);
+        runAddCut(metaData.filename, section[0], section[1], update.hidden);
       } else {
-        runUpdate(section, newState);
+        runUpdate(section, update);
       }
     },
     [runAddCut, metaData, runUpdate],
@@ -353,9 +354,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               setEditState={setEditState}
               reloadCuts={reloadCuts}
               renderer={renderer}
-              onCutNameChange={(oid: string, name: string) => runUpdate(oid, {name})}
-              onSectionHiddenChange={(oid: string | [number, number], hidden: boolean) => onSectionHiddenChange(oid, {hidden})}
-              onHasAnswersChange={(oid: string, has_answers: boolean) => runUpdate(oid, {has_answers})}
+              onUpdateCut={(oid: string | [number, number], update: Partial<CutUpdate> ) => onSectionChange(oid, update)}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}

@@ -7,6 +7,7 @@ import {
   EditState,
   CutVersions,
   PdfSection,
+  CutUpdate,
 } from "../interfaces";
 import AnswerSectionComponent from "./answer-section";
 import PdfSectionCanvas from "../pdf/pdf-section-canvas";
@@ -24,11 +25,9 @@ interface Props {
   setEditState: (newEditState: EditState) => void;
   reloadCuts: () => void;
   renderer: PDF;
-  onCutNameChange: (oid: string, name: string) => void;
-  onHasAnswersChange: (section: string, newState: boolean) => void;
-  onSectionHiddenChange: (
+  onUpdateCut: (
     section: string | [number, number],
-    newState: boolean,
+    update: Partial<CutUpdate>,
   ) => void;
   onAddCut: (filename: string, page: number, height: number) => void;
   onMoveCut: (
@@ -73,10 +72,8 @@ const Exam: React.FC<Props> = React.memo(
     setEditState,
     reloadCuts,
     renderer,
-    onCutNameChange,
     onAddCut,
-    onSectionHiddenChange,
-    onHasAnswersChange,
+    onUpdateCut,
     onMoveCut,
     visibleChangeListener,
     displayHiddenPdfSections = false,
@@ -119,8 +116,8 @@ const Exam: React.FC<Props> = React.memo(
       editState.mode === EditMode.Add
         ? "Add Cut"
         : editState.mode === EditMode.Move
-        ? "Move Cut"
-        : undefined;
+          ? "Move Cut"
+          : undefined;
     const hash = document.location.hash.substr(1);
     useEffect(() => {
       let cancelled = false;
@@ -180,15 +177,10 @@ const Exam: React.FC<Props> = React.memo(
                       : show(section.oid)
                   }
                   cutName={section.name}
-                  onCutNameChange={(newName: string) =>
-                    onCutNameChange(section.oid, newName)
+                  onCutNameChange={(name: string) =>
+                    onUpdateCut(section.oid, { name })
                   }
-                  onHasAnswersChange={() => {
-                    onHasAnswersChange(
-                      section.oid,
-                      !section.has_answers,
-                    );
-                  }}
+                  onHasAnswersChange={() => onUpdateCut(section.oid, { has_answers: !section.has_answers })}
                   hidden={!visible.has(section.oid)}
                   has_answers={section.has_answers}
                   cutVersion={cutVersions[section.oid] || section.cutVersion}
@@ -231,7 +223,7 @@ const Exam: React.FC<Props> = React.memo(
                       end={section.end.position}
                       hidden={section.hidden}
                       /* Handler */
-                      onSectionHiddenChange={onSectionHiddenChange}
+                      onSectionHiddenChange={onUpdateCut}
                       displayHideShowButtons={displayHideShowButtons}
                       renderer={renderer}
                       targetWidth={width}
