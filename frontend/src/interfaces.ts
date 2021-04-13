@@ -59,7 +59,6 @@ export interface PdfSection {
   start: CutPosition;
   end: CutPosition;
   hidden: boolean;
-  has_answers: boolean;
 }
 
 export interface CutUpdate {

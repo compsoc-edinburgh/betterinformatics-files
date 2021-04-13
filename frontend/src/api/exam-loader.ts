@@ -14,7 +14,6 @@ function createPdfSection(
   start: number,
   end: number,
   hidden: boolean,
-  has_answers: boolean,
 ): PdfSection {
   return {
     key,
@@ -29,7 +28,6 @@ function createPdfSection(
       position: end,
     },
     hidden,
-    has_answers,
   };
 }
 interface ServerCutResponse {
@@ -63,7 +61,6 @@ export function loadSections(
               lastpos,
               position,
               hidden,
-              has_answers,
             ),
           );
           akey++;
@@ -86,7 +83,7 @@ export function loadSections(
     if (lastpos < 1) {
       const key = `${akey}-${lastpos}-${1}`;
       sections.push(
-        createPdfSection(key, undefined, i, lastpos, 1, false, true),
+        createPdfSection(key, undefined, i, lastpos, 1, false),
       );
       akey++;
     }
