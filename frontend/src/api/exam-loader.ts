@@ -54,14 +54,7 @@ export function loadSections(
         if (position !== lastpos) {
           const key = `${akey}-${lastpos}-${position}`;
           sections.push(
-            createPdfSection(
-              key,
-              oid,
-              i,
-              lastpos,
-              position,
-              hidden,
-            ),
+            createPdfSection(key, oid, i, lastpos, position, hidden),
           );
           akey++;
           lastpos = position;
@@ -82,9 +75,7 @@ export function loadSections(
     }
     if (lastpos < 1) {
       const key = `${akey}-${lastpos}-${1}`;
-      sections.push(
-        createPdfSection(key, undefined, i, lastpos, 1, false),
-      );
+      sections.push(createPdfSection(key, undefined, i, lastpos, 1, false));
       akey++;
     }
   }

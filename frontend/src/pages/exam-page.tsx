@@ -66,10 +66,9 @@ const moveCut = async (
   await fetchPost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
 };
 
-
 const updateCut = async (cut: string, update: Partial<CutUpdate>) => {
-  await fetchPost(`/api/exam/editcut/${cut}/`, update );
-}
+  await fetchPost(`/api/exam/editcut/${cut}/`, update);
+};
 
 interface ExamPageContentProps {
   metaData: ExamMetaData;
@@ -354,7 +353,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               setEditState={setEditState}
               reloadCuts={reloadCuts}
               renderer={renderer}
-              onUpdateCut={(oid: string | [number, number], update: Partial<CutUpdate> ) => onSectionChange(oid, update)}
+              onUpdateCut={(
+                oid: string | [number, number],
+                update: Partial<CutUpdate>,
+              ) => onSectionChange(oid, update)}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}

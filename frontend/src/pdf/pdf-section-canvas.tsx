@@ -131,7 +131,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       undefined,
     );
     const toggleVisibility = useCallback(
-      () => onSectionHiddenChange(oid ? oid : [page, end], {hidden: !hidden}),
+      () => onSectionHiddenChange(oid ? oid : [page, end], { hidden: !hidden }),
       [oid, page, end, hidden, onSectionHiddenChange],
     );
     const dpr = useDpr();

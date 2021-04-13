@@ -116,8 +116,8 @@ const Exam: React.FC<Props> = React.memo(
       editState.mode === EditMode.Add
         ? "Add Cut"
         : editState.mode === EditMode.Move
-          ? "Move Cut"
-          : undefined;
+        ? "Move Cut"
+        : undefined;
     const hash = document.location.hash.substr(1);
     useEffect(() => {
       let cancelled = false;
@@ -180,7 +180,11 @@ const Exam: React.FC<Props> = React.memo(
                   onCutNameChange={(name: string) =>
                     onUpdateCut(section.oid, { name })
                   }
-                  onHasAnswersChange={() => onUpdateCut(section.oid, { has_answers: !section.has_answers })}
+                  onHasAnswersChange={() =>
+                    onUpdateCut(section.oid, {
+                      has_answers: !section.has_answers,
+                    })
+                  }
                   hidden={!visible.has(section.oid)}
                   has_answers={section.has_answers}
                   cutVersion={cutVersions[section.oid] || section.cutVersion}

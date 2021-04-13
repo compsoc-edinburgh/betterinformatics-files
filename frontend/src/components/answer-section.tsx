@@ -291,9 +291,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               tooltip="Toggle visibility"
                               onClick={onHasAnswersChange}
                             />
-                          ) : (
-                            null
-                          )}
+                          ) : null}
 
                           {isBeingMoved ? (
                             <Button size="sm" onClick={onCancelMove}>
