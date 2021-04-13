@@ -353,10 +353,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               setEditState={setEditState}
               reloadCuts={reloadCuts}
               renderer={renderer}
-              onUpdateCut={(
-                oid: string | [number, number],
-                update: Partial<CutUpdate>,
-              ) => onSectionChange(oid, update)}
+              onUpdateCut={onSectionChange}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}
