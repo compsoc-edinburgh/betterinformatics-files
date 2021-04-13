@@ -67,7 +67,7 @@ const moveCut = async (
 
 type CutUpdate = Partial<{name: string, hidden: boolean, has_answers: boolean}>;
 const updateCut = async (cut: string, update: CutUpdate) => {
-  await fetchPost(`/api/exam/editcut/${cut}/`, { update });
+  await fetchPost(`/api/exam/editcut/${cut}/`, update );
 }
 
 interface ExamPageContentProps {
@@ -111,44 +111,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       setEditState({ mode: EditMode.None });
     },
   });
-  const { run: runUpdateCutName } = useRequest(updateCut, {
+  const { run: runUpdate } = useRequest(updateCut, {
     manual: true,
     onSuccess: (_data, [oid, update]) => {
       mutateCuts(oldCuts =>
         Object.keys(oldCuts).reduce((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
-            cutPosition.oid === oid && update.name !== undefined
-              ? { ...cutPosition, name: update.name }
-              : cutPosition,
-          );
-          return result;
-        }, {} as ServerCutResponse),
-      );
-    },
-  });
-  const { run: runUpdateCutHidden } = useRequest(updateCut, {
-    manual: true,
-    onSuccess: (_data, [oid, update]) => {
-      mutateCuts(oldCuts =>
-        Object.keys(oldCuts).reduce((result, key) => {
-          result[key] = oldCuts[key].map(cutPosition =>
-            cutPosition.oid === oid && update.hidden !== undefined
-              ? { ...cutPosition, hidden: update.hidden }
-              : cutPosition,
-          );
-          return result;
-        }, {} as ServerCutResponse),
-      );
-    },
-  });
-  const { run: runUpdateCutHasAnswers } = useRequest(updateCut, {
-    manual: true,
-    onSuccess: (_data, [oid, update]) => {
-      mutateCuts(oldCuts =>
-        Object.keys(oldCuts).reduce((result, key) => {
-          result[key] = oldCuts[key].map(cutPosition =>
-            cutPosition.oid === oid && update.has_answers !== undefined
-              ? { ...cutPosition, has_answers: update.has_answers }
+            cutPosition.oid === oid
+              ? { ...cutPosition, ...update }
               : cutPosition,
           );
           return result;
@@ -161,10 +131,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       if (Array.isArray(section)) {
         runAddCut(metaData.filename, section[0], section[1], newState.hidden);
       } else {
-        runUpdateCutHidden(section, newState);
+        runUpdate(section, newState);
       }
     },
-    [runAddCut, metaData, runUpdateCutHidden],
+    [runAddCut, metaData, runUpdate],
   );
 
   const [size, sizeRef] = useSize<HTMLDivElement>();
@@ -383,9 +353,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               setEditState={setEditState}
               reloadCuts={reloadCuts}
               renderer={renderer}
-              onCutNameChange={(oid: string, name: string) => runUpdateCutName(oid, {name})}
+              onCutNameChange={(oid: string, name: string) => runUpdate(oid, {name})}
               onSectionHiddenChange={(oid: string | [number, number], hidden: boolean) => onSectionHiddenChange(oid, {hidden})}
-              onHasAnswersChange={(oid: string, has_answers: boolean) => runUpdateCutHasAnswers(oid, {has_answers})}
+              onHasAnswersChange={(oid: string, has_answers: boolean) => runUpdate(oid, {has_answers})}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}
