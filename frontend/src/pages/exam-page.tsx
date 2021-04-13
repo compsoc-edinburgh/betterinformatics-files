@@ -57,14 +57,6 @@ const addCut = async (
     hidden,
   });
 };
-const moveCut = async (
-  filename: string,
-  cut: string,
-  pageNum: number,
-  relHeight: number,
-) => {
-  await fetchPost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
-};
 
 const updateCut = async (cut: string, update: Partial<CutUpdate>) => {
   await fetchPost(`/api/exam/editcut/${cut}/`, update);
@@ -104,7 +96,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     manual: true,
     onSuccess: reloadCuts,
   });
-  const { run: runMoveCut } = useRequest(moveCut, {
+  const { run: runMoveCut } = useRequest(updateCut, {
     manual: true,
     onSuccess: () => {
       reloadCuts();

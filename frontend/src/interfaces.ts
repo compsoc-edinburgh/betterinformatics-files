@@ -62,6 +62,9 @@ export interface PdfSection {
 }
 
 export interface CutUpdate {
+  filename: string,
+  pageNum: number,
+  relHeight: number,
   name: string,
   hidden: boolean,
   has_answers: boolean

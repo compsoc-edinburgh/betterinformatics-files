@@ -30,12 +30,7 @@ interface Props {
     update: Partial<CutUpdate>,
   ) => void;
   onAddCut: (filename: string, page: number, height: number) => void;
-  onMoveCut: (
-    filename: string,
-    cut: string,
-    page: number,
-    height: number,
-  ) => void;
+  onMoveCut: (cut: string, update: Partial<CutUpdate>) => void;
   visibleChangeListener: (section: PdfSection, v: boolean) => void;
   displayHiddenPdfSections?: boolean;
   displayHiddenAnswerSections?: boolean;
@@ -87,12 +82,11 @@ const Exam: React.FC<Props> = React.memo(
           if (editState.mode === EditMode.Add) {
             onAddCut(metaData.filename, section.start.page, height);
           } else if (editState.mode === EditMode.Move) {
-            onMoveCut(
-              metaData.filename,
-              editState.cut,
-              section.start.page,
-              height,
-            );
+            onMoveCut(editState.cut, {
+              filename: metaData.filename,
+              pageNum: section.start.page,
+              relHeight: height,
+            });
           }
         };
       },
