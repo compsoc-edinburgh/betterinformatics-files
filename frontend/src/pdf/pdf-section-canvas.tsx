@@ -11,6 +11,7 @@ import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import useDpr from "../hooks/useDpr";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
+import { CutUpdate } from "../interfaces";
 
 const lastSection = css`
   margin-bottom: 2rem;
@@ -100,7 +101,7 @@ interface Props {
   displayHideShowButtons?: boolean;
   onSectionHiddenChange?: (
     section: string | [number, number],
-    newState: boolean,
+    update: Partial<CutUpdate>,
   ) => void;
 }
 const PdfSectionCanvas: React.FC<Props> = React.memo(
@@ -130,7 +131,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       undefined,
     );
     const toggleVisibility = useCallback(
-      () => onSectionHiddenChange(oid ? oid : [page, end], !hidden),
+      () => onSectionHiddenChange(oid ? oid : [page, end], { hidden: !hidden }),
       [oid, page, end, hidden, onSectionHiddenChange],
     );
     const dpr = useDpr();

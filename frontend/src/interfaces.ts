@@ -12,6 +12,7 @@ export interface AnswerSection {
   allow_new_answer: boolean; // whether the current user can add an answer
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
   cutHidden: boolean;
+  has_answers: boolean;
   hidden: boolean; // whether the element is currently hidden
   cutVersion: number; // version of the answer section, should reload if changed
   name: string;
@@ -60,6 +61,15 @@ export interface PdfSection {
   hidden: boolean;
 }
 
+export interface CutUpdate {
+  filename: string,
+  pageNum: number,
+  relHeight: number,
+  name: string,
+  hidden: boolean,
+  has_answers: boolean
+};
+
 export interface CutPosition {
   page: number; // the first page is 1
   position: number;
@@ -71,6 +81,7 @@ export interface ServerCutPosition {
   cutVersion: number;
   name: string;
   hidden: boolean;
+  has_answers: boolean;
 }
 
 export interface Attachment {

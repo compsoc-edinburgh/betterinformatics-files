@@ -106,6 +106,8 @@ interface Props {
   hidden: boolean;
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
+  onHasAnswersChange: () => void;
+  has_answers: boolean;
 
   cutName: string;
   onCutNameChange: (newName: string) => void;
@@ -115,6 +117,7 @@ interface Props {
   isBeingMoved: boolean;
 
   displayEmptyCutLabels: boolean;
+  displayHideShowButtons: boolean;
 }
 
 const AnswerSectionComponent: React.FC<Props> = React.memo(
@@ -134,6 +137,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     isBeingMoved,
 
     displayEmptyCutLabels,
+    displayHideShowButtons,
+
+    onHasAnswersChange,
+    has_answers,
   }) => {
     const [data, setData] = useState<AnswerSection | undefined>();
     const run = useAnswers(oid, data => {
@@ -231,7 +238,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
               </CardFooter>
             </NameCard>
           )}
-        <Container fluid>
+        <Container
+          fluid
+          style={{ filter: !has_answers ? "contrast(0.5)" : undefined }}
+        >
           {!hidden && data && (
             <>
               {data.answers.map(answer => (
@@ -272,27 +282,43 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   <>
                     <ThreeButtons
                       left={
-                        isBeingMoved ? (
-                          <Button size="sm" onClick={onCancelMove}>
-                            Cancel
-                          </Button>
-                        ) : (
-                          (data.answers.length === 0 || !hidden) &&
-                          data &&
-                          (data.allow_new_answer ||
-                            (data.allow_new_legacy_answer && isCatAdmin)) && (
-                            <AddButton
-                              allowAnswer={data.allow_new_answer}
-                              allowLegacyAnswer={
-                                data.allow_new_legacy_answer && isCatAdmin
-                              }
-                              hasAnswerDraft={hasDraft}
-                              hasLegacyAnswerDraft={hasLegacyDraft}
-                              onAnswer={onAddAnswer}
-                              onLegacyAnswer={onAddLegacyAnswer}
+                        <>
+                          {displayHideShowButtons ? (
+                            <IconButton
+                              className="mr-1"
+                              size="sm"
+                              icon={has_answers ? "VIEW_OFF" : "VIEW"}
+                              tooltip="Toggle visibility"
+                              onClick={onHasAnswersChange}
                             />
-                          )
-                        )
+                          ) : null}
+
+                          {isBeingMoved ? (
+                            <Button size="sm" onClick={onCancelMove}>
+                              Cancel
+                            </Button>
+                          ) : (
+                            (data.answers.length === 0 || !hidden) &&
+                            data &&
+                            (data.allow_new_answer ||
+                              (data.allow_new_legacy_answer && isCatAdmin)) && (
+                              <AddButton
+                                allowAnswer={
+                                  data.allow_new_answer && has_answers
+                                }
+                                allowLegacyAnswer={
+                                  data.allow_new_legacy_answer &&
+                                  isCatAdmin &&
+                                  has_answers
+                                }
+                                hasAnswerDraft={hasDraft}
+                                hasLegacyAnswerDraft={hasLegacyDraft}
+                                onAnswer={onAddAnswer}
+                                onLegacyAnswer={onAddLegacyAnswer}
+                              />
+                            )
+                          )}
+                        </>
                       }
                       center={
                         !isBeingMoved &&
@@ -302,6 +328,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             size="sm"
                             onClick={onToggleHidden}
                             className="d-inline-block"
+                            disabled={!has_answers}
                           >
                             {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
@@ -309,7 +336,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       }
                       right={
                         isCatAdmin && (
-                          <UncontrolledDropdown>
+                          <UncontrolledDropdown disabled={!has_answers}>
                             <DropdownToggle caret size="sm">
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </DropdownToggle>
