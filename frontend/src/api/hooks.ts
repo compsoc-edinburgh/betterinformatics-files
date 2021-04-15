@@ -418,12 +418,11 @@ export const useSummary = (
 };
 
 export const deleteSummary = async (author: string, summarySlug: string) => {
-  return (
-    await fetchDelete(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
-    )
-  ).value as true;
+  await fetchDelete(
+    `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
+  );
 };
+
 export const useDeleteSummary = (
   author: string,
   summarySlug: string,
@@ -484,20 +483,18 @@ export const deleteSummaryComment = async (
   summarySlug: string,
   commentId: number,
 ) => {
-  return (
-    await fetchDelete(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
-      )}/comments/${commentId}/`,
-    )
-  ).value as true;
+  await fetchDelete(
+    `/api/summary/${author}/${encodeURIComponent(
+      summarySlug,
+    )}/comments/${commentId}/`,
+  );
 };
 
 export const useDeleteSummaryComment = (
   author: string,
   summarySlug: string,
   commentId: number,
-  onSuccess?: (res: boolean) => void,
+  onSuccess?: () => void,
 ) =>
   useMutation(
     () => deleteSummaryComment(author, summarySlug, commentId),
@@ -560,20 +557,18 @@ export const deleteSummaryFile = async (
   summarySlug: string,
   fileId: number,
 ) => {
-  return (
-    await fetchDelete(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
-      )}/files/${fileId}/`,
-    )
-  ).value as true;
+  await fetchDelete(
+    `/api/summary/${author}/${encodeURIComponent(
+      summarySlug,
+    )}/files/${fileId}/`,
+  );
 };
 
 export const useDeleteSummaryFile = (
   author: string,
   summarySlug: string,
   fileId: number,
-  onSuccess?: (res: boolean) => void,
+  onSuccess?: () => void,
 ) =>
   useMutation(() => deleteSummaryFile(author, summarySlug, fileId), onSuccess);
 

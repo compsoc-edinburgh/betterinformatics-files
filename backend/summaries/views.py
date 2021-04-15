@@ -223,7 +223,7 @@ class SummaryElementView(View):
         if not summary.current_user_can_delete(request):
             return response.not_allowed()
         summary.delete()
-        return response.success(value=True)
+        return response.success()
 
 
 class SummaryCommentRootView(View):
@@ -294,7 +294,7 @@ class SummaryCommentElementView(View):
         if not comment.current_user_can_delete(request):
             return response.not_allowed()
         comment.delete()
-        return response.success(value=True)
+        return response.success()
 
 
 class SummaryFileRootView(View):
