@@ -381,9 +381,8 @@ export const useCreateSummary = (onSuccess?: (summary: Summary) => void) =>
   useMutation(createSummary, onSuccess);
 
 export const loadSummaries = async (categorySlug: string) => {
-  return (
-    await fetchGet(`/api/summary/?category=${encodeURIComponent(categorySlug)}`)
-  ).value as Summary[];
+  return (await fetchGet(`/api/summary/?category=${categorySlug}`))
+    .value as Summary[];
 };
 export const useSummaries = (categorySlug: string) => {
   const { error, loading, data } = useRequest(
@@ -396,9 +395,7 @@ export const useSummaries = (categorySlug: string) => {
 export const loadSummary = async (author: string, summarySlug: string) => {
   return (
     await fetchGet(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
-      )}/?include_comments&include_files`,
+      `/api/summary/${author}/${summarySlug}/?include_comments&include_files`,
     )
   ).value as Summary;
 };
@@ -418,9 +415,7 @@ export const useSummary = (
 };
 
 export const deleteSummary = async (author: string, summarySlug: string) => {
-  await fetchDelete(
-    `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
-  );
+  await fetchDelete(`/api/summary/${author}/${summarySlug}/`);
 };
 
 export const useDeleteSummary = (
@@ -439,12 +434,8 @@ export const updateSummary = async (
   summarySlug: string,
   data: SummaryUpdate,
 ) => {
-  return (
-    await fetchPut(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/`,
-      data,
-    )
-  ).value as Summary;
+  return (await fetchPut(`/api/summary/${author}/${summarySlug}/`, data))
+    .value as Summary;
 };
 export const useUpdateSummary = (
   author: string,
@@ -462,10 +453,7 @@ export const createSummaryComment = async (
   text: string,
 ) => {
   return (
-    await fetchPost(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/comments/`,
-      { text },
-    )
+    await fetchPost(`/api/summary/${author}/${summarySlug}/comments/`, { text })
   ).value as SummaryComment;
 };
 export const useCreateSummaryComment = (
@@ -484,9 +472,7 @@ export const deleteSummaryComment = async (
   commentId: number,
 ) => {
   await fetchDelete(
-    `/api/summary/${author}/${encodeURIComponent(
-      summarySlug,
-    )}/comments/${commentId}/`,
+    `/api/summary/${author}/${summarySlug}/comments/${commentId}/`,
   );
 };
 
@@ -509,9 +495,7 @@ export const updateSummaryComment = async (
 ) => {
   return (
     await fetchPut(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
-      )}/comments/${commentId}/`,
+      `/api/summary/${author}/${summarySlug}/comments/${commentId}/`,
       { text },
     )
   ).value as SummaryComment;
@@ -536,10 +520,10 @@ export const createSummaryFile = async (
   file: NamedBlob | File,
 ) => {
   return (
-    await fetchPost(
-      `/api/summary/${author}/${encodeURIComponent(summarySlug)}/files/`,
-      { file, display_name },
-    )
+    await fetchPost(`/api/summary/${author}/${summarySlug}/files/`, {
+      file,
+      display_name,
+    })
   ).value as SummaryFile;
 };
 export const useCreateSummaryFile = (
@@ -557,11 +541,7 @@ export const deleteSummaryFile = async (
   summarySlug: string,
   fileId: number,
 ) => {
-  await fetchDelete(
-    `/api/summary/${author}/${encodeURIComponent(
-      summarySlug,
-    )}/files/${fileId}/`,
-  );
+  await fetchDelete(`/api/summary/${author}/${summarySlug}/files/${fileId}/`);
 };
 
 export const useDeleteSummaryFile = (
@@ -584,9 +564,7 @@ export const updateSummaryFile = async (
 ) => {
   return (
     await fetchPut(
-      `/api/summary/${author}/${encodeURIComponent(
-        summarySlug,
-      )}/files/${fileId}/`,
+      `/api/summary/${author}/${summarySlug}/files/${fileId}/`,
       update,
     )
   ).value as SummaryFile;
