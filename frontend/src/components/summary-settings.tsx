@@ -1,19 +1,15 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  Badge,
   Button,
-  ButtonToolbar,
-  Col,
   DeleteIcon,
   FormGroup,
   InputField,
   ListGroup,
-  ListGroupItem,
-  ListGroupItemHeading,
-  ListGroupItemText,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   PlusIcon,
-  Row,
   SaveIcon,
   Select,
   Spinner,
@@ -30,8 +26,6 @@ import useToggle from "../hooks/useToggle";
 import { Summary } from "../interfaces";
 import { createOptions, options } from "../utils/ts-utils";
 import CreateSummaryFileModal from "./create-summary-file-modal";
-import FileInput from "./file-input";
-import IconButton from "./icon-button";
 import SummaryFileItem from "./summary-file-item";
 
 interface Props {
@@ -67,11 +61,12 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
       }
     },
   );
-  const [, deleteSummary] = useDeleteSummary(
+  const [deleteLoading, deleteSummary] = useDeleteSummary(
     data.author,
     slug,
     () => data && history.push(`/category/${data.category}`),
   );
+  const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
@@ -155,12 +150,31 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
               </div>
             </div>
 
-            <Button color="danger" onClick={deleteSummary}>
+            <Button color="danger" onClick={toggleDeleteModalIsOpen}>
               Delete <DeleteIcon className="ml-2" />
             </Button>
           </div>
         </>
       )}
+      <Modal isOpen={deleteModalIsOpen} toggle={toggleDeleteModalIsOpen}>
+        <ModalHeader toggle={toggleDeleteModalIsOpen}>
+          Are you absolutely sure?
+        </ModalHeader>
+        <ModalBody>
+          Deleting the summary will delete all associated files and all
+          comments. <b>This cannot be undone.</b>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+          <Button
+            onClick={deleteSummary}
+            color="danger"
+            loading={deleteSummary}
+          >
+            Delete this summary
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 };

@@ -102,7 +102,7 @@ def create_summary_slug(
         )
     )
     if oslug == "":
-        oslug = "summary"
+        oslug = "🧠"
 
     def exists(aslug):
         objects = Summary.objects.filter(slug=aslug, author=author)
