@@ -193,7 +193,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     return (
       <>
-        {data &&
+        {
           ((cutName && cutName.length > 0) ||
             (isCatAdmin && displayEmptyCutLabels)) && (
             <NameCard id={id}>
