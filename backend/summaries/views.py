@@ -336,7 +336,8 @@ class SummaryFileRootView(View):
             settings.COMSOL_SUMMARY_DIR, filename, file, file.content_type
         )
 
-        return response.success(value=get_file_obj(summary_file))
+        # We know that the current user can edit the summary and can therefore always include the key
+        return response.success(value=get_file_obj(summary_file, True))
 
 
 class SummaryFileElementView(View):
@@ -350,7 +351,9 @@ class SummaryFileElementView(View):
             summary__author__username=username,
             summary__slug=summary_slug,
         )
-        return get_file_obj(summary_file)
+        return get_file_obj(
+            summary_file, summary_file.summary.current_user_can_edit(request)
+        )
 
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, summary_slug: str, id: int):
@@ -392,7 +395,8 @@ class SummaryFileElementView(View):
             )
 
         summary_file.save()
-        return response.success(value=get_file_obj(summary_file))
+        # We know that the current user can edit the summary and can therefore always include the key
+        return response.success(value=get_file_obj(summary_file, True))
 
     @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, summary_slug: str, id: int):
@@ -419,7 +423,8 @@ class SummaryFileElementView(View):
 
 @response.request_get()
 def get_summary_file(request, filename):
-    get_object_or_404(SummaryFile, filename=filename)
+    summary_file = get_object_or_404(SummaryFile, filename=filename)
+    _, ext = os.path.splitext(file.name)
     return minio_util.send_file(
         settings.COMSOL_SUMMARY_DIR,
         filename,
