@@ -6,6 +6,9 @@ import {
   InputField,
   ListGroup,
   Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   PlusIcon,
   SaveIcon,
   Select,
@@ -62,11 +65,12 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
       }
     },
   );
-  const [, deleteDocument] = useDeleteDocument(
+  const [deleteLoading, deleteDocument] = useDeleteDocument(
     data.author,
     slug,
     () => data && history.push(`/category/${data.category}`),
   );
+  const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
@@ -173,12 +177,31 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               </div>
             </div>
 
-            <Button color="danger" onClick={deleteDocument}>
+            <Button color="danger" onClick={toggleDeleteModalIsOpen}>
               Delete <DeleteIcon className="ml-2" />
             </Button>
           </div>
         </>
       )}
+      <Modal isOpen={deleteModalIsOpen} toggle={toggleDeleteModalIsOpen}>
+        <ModalHeader toggle={toggleDeleteModalIsOpen}>
+          Are you absolutely sure?
+        </ModalHeader>
+        <ModalBody>
+          Deleting the document will delete all associated files and all
+          comments. <b>This cannot be undone.</b>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+          <Button
+            onClick={deleteDocument}
+            color="danger"
+            loading={deleteDocument}
+          >
+            Delete this document
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 };
