@@ -24,6 +24,7 @@ import UserPage from "./pages/userinfo-page";
 import { css } from "emotion";
 import { useKeycloak } from "@react-keycloak/web";
 import SearchPage from "./pages/search-page";
+import DocumentPage from "./pages/document-page";
 const minHeight = css`
   min-height: 100vh;
 `;
@@ -100,6 +101,11 @@ const App: React.FC<{}> = () => {
                       exact
                       path="/category/:slug"
                       component={CategoryPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/user/:author/document/:slug"
+                      component={DocumentPage}
                     />
                     <UserRoute
                       exact

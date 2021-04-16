@@ -46,8 +46,8 @@ const FeedbackForm: React.FC<{}> = () => {
 
   return (
     <>
-      {success && <Alert>Feedback was submited successfully.</Alert>}
-      <p>Please tell us what you think about the new Community Solutions!</p>
+      {success && <Alert>Feedback was submitted successfully.</Alert>}
+      <p>Please tell us what you think about Community Solutions!</p>
       <p>What do you like? What could we improve? Ideas for new features?</p>
       <p>
         Use the form below or write to{" "}

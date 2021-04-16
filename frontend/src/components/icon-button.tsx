@@ -16,12 +16,14 @@ interface IconButtonProps extends ButtonProps {
   icon: keyof typeof ICONS;
   loading?: boolean;
   tooltip?: React.ReactNode;
+  iconClassName?: string;
 }
 const IconButton: React.FC<IconButtonProps> = ({
   size,
   loading,
   icon,
   className,
+  iconClassName,
   disabled,
   children,
   tooltip,
@@ -35,14 +37,14 @@ const IconButton: React.FC<IconButtonProps> = ({
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
-      {loading ? (
-        <Spinner size={size} />
-      ) : (
-        <>
-          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-          <Icon icon={ICONS[icon]} size="1em" />
-        </>
-      )}
+      <>
+        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+        {loading ? (
+          <Spinner size="sm" />
+        ) : (
+          <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
+        )}
+      </>
       {children && <span className={childStyle}>{children}</span>}
     </TooltipButton>
   ) : (
@@ -52,14 +54,14 @@ const IconButton: React.FC<IconButtonProps> = ({
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
-      {loading ? (
-        <Spinner size={size} />
-      ) : (
-        <>
-          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-          <Icon icon={ICONS[icon]} size="1em" />
-        </>
-      )}
+      <>
+        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+        {loading ? (
+          <Spinner size="sm" s />
+        ) : (
+          <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
+        )}
+      </>
       {children && <span className={childStyle}>{children}</span>}
     </Button>
   );
