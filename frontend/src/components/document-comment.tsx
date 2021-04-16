@@ -15,11 +15,11 @@ import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
 import {
   Mutate,
-  useDeleteSummaryComment,
-  useUpdateSummaryComment,
+  useDeleteDocumentComment,
+  useUpdateDocumentComment,
 } from "../api/hooks";
-import { useUser } from "../auth/";
-import { Summary, SummaryComment } from "../interfaces";
+import { useUser } from "../auth";
+import { Document, DocumentComment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
@@ -27,38 +27,38 @@ import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
 
 interface Props {
-  summaryAuthor: string;
-  summarySlug: string;
-  comment: SummaryComment;
-  mutate: Mutate<Summary>;
+  documentAuthor: string;
+  documentSlug: string;
+  comment: DocumentComment;
+  mutate: Mutate<Document>;
 }
-const SummaryCommentComponent = ({
-  summaryAuthor,
-  summarySlug,
+const DocumentCommentComponent = ({
+  documentAuthor,
+  documentSlug,
   comment,
   mutate,
 }: Props) => {
   const { isAdmin } = useUser()!;
-  const [editLoading, updateComment] = useUpdateSummaryComment(
-    summaryAuthor,
-    summarySlug,
+  const [editLoading, updateComment] = useUpdateDocumentComment(
+    documentAuthor,
+    documentSlug,
     comment.oid,
     res => {
       setHasDraft(false);
-      mutate(summary => ({
-        ...summary,
-        comments: summary.comments.map(c => (c.oid !== res.oid ? c : res)),
+      mutate(document => ({
+        ...document,
+        comments: document.comments.map(c => (c.oid !== res.oid ? c : res)),
       }));
     },
   );
-  const [loading, deleteComment] = useDeleteSummaryComment(
-    summaryAuthor,
-    summarySlug,
+  const [loading, deleteComment] = useDeleteDocumentComment(
+    documentAuthor,
+    documentSlug,
     comment.oid,
     () =>
-      mutate(summary => ({
-        ...summary,
-        comments: summary.comments.filter(c => c.oid !== comment.oid),
+      mutate(document => ({
+        ...document,
+        comments: document.comments.filter(c => c.oid !== comment.oid),
       })),
   );
   const [hasDraft, setHasDraft] = useState(false);
@@ -160,4 +160,4 @@ const SummaryCommentComponent = ({
   );
 };
 
-export default SummaryCommentComponent;
+export default DocumentCommentComponent;

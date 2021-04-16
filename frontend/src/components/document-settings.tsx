@@ -19,22 +19,22 @@ import { useHistory } from "react-router-dom";
 import {
   loadCategories,
   Mutate,
-  useDeleteSummary,
-  useUpdateSummary,
+  useDeleteDocument,
+  useUpdateDocument,
 } from "../api/hooks";
 import useToggle from "../hooks/useToggle";
-import { Summary } from "../interfaces";
+import { Document } from "../interfaces";
 import { createOptions, options } from "../utils/ts-utils";
-import CreateSummaryFileModal from "./create-summary-file-modal";
-import SummaryFileItem from "./summary-file-item";
+import CreateDocumentFileModal from "./create-document-file-modal";
+import DocumentFileItem from "./document-file-item";
 
 interface Props {
-  data: Summary;
-  mutate: Mutate<Summary>;
+  data: Document;
+  mutate: Mutate<Document>;
   slug: string;
 }
 
-const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
+const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const history = useHistory();
   const { loading: categoriesLoading, data: categories } = useRequest(
     loadCategories,
@@ -49,7 +49,7 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
       ) as { [key: string]: string },
     );
 
-  const [loading, updateSummary] = useUpdateSummary(
+  const [loading, updateDocument] = useUpdateDocument(
     data.author,
     slug,
     result => {
@@ -57,11 +57,11 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
       setDisplayName(undefined);
       setCategory(undefined);
       if (result.slug !== data.slug) {
-        history.replace(`/user/${result.author}/summary/${result.slug}`);
+        history.replace(`/user/${result.author}/document/${result.slug}`);
       }
     },
   );
-  const [deleteLoading, deleteSummary] = useDeleteSummary(
+  const [deleteLoading, deleteDocument] = useDeleteDocument(
     data.author,
     slug,
     () => data && history.push(`/category/${data.category}`),
@@ -74,9 +74,9 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
   return (
     <>
       <Modal isOpen={addModalIsOpen} toggle={toggleAddModalIsOpen}>
-        <CreateSummaryFileModal
+        <CreateDocumentFileModal
           toggle={toggleAddModalIsOpen}
-          summary={data}
+          document={data}
           mutate={mutate}
         />
       </Modal>
@@ -107,7 +107,7 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
           <div className="form-group d-flex justify-content-end">
             <Button
               onClick={() =>
-                updateSummary({ display_name: displayName, category })
+                updateDocument({ display_name: displayName, category })
               }
             >
               Save
@@ -123,9 +123,9 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
       <h3 className="mt-5 mb-4">Files</h3>
       <ListGroup className="mb-2">
         {data.files.map(file => (
-          <SummaryFileItem
+          <DocumentFileItem
             key={file.oid}
-            summary={data}
+            document={data}
             file={file}
             mutate={mutate}
           />
@@ -143,9 +143,9 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
           <h3 className="mt-5 mb-4">Danger Zone</h3>
           <div className="d-flex flex-wrap justify-content-between align-items-center">
             <div className="d-flex flex-column">
-              <h6>Delete this summary</h6>
+              <h6>Delete this document</h6>
               <div>
-                Deleting the summary will delete all associated files and all
+                Deleting the document will delete all associated files and all
                 comments. <b>This cannot be undone.</b>
               </div>
             </div>
@@ -161,17 +161,17 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
           Are you absolutely sure?
         </ModalHeader>
         <ModalBody>
-          Deleting the summary will delete all associated files and all
+          Deleting the document will delete all associated files and all
           comments. <b>This cannot be undone.</b>
         </ModalBody>
         <ModalFooter>
           <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
           <Button
-            onClick={deleteSummary}
+            onClick={deleteDocument}
             color="danger"
-            loading={deleteSummary}
+            loading={deleteDocument}
           >
-            Delete this summary
+            Delete this document
           </Button>
         </ModalFooter>
       </Modal>
@@ -179,4 +179,4 @@ const SummarySettings: React.FC<Props> = ({ slug, data, mutate }) => {
   );
 };
 
-export default SummarySettings;
+export default DocumentSettings;

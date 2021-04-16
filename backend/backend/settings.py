@@ -39,17 +39,17 @@ COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
 COMSOL_EXAM_DIR = "exams/"
 COMSOL_PRINTONLY_DIR = "printonly/"
 COMSOL_SOLUTION_DIR = "solutions/"
-COMSOL_SUMMARY_DIR = "summaries/"
+COMSOL_DOCUMENT_DIR = "documents/"
 COMSOL_IMAGE_DIR = "imgs/"
 COMSOL_FILESTORE_DIR = "files/"
 COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
-COMSOL_SUMMARY_ALLOWED_EXTENSIONS = {"pdf", "zip", "md"}
+COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {"pdf", "zip", "md"}
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "svg", "gif"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 )
-COMSOL_SUMMARY_SLUG_CHARS = (
+COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
@@ -152,7 +152,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "answers.apps.AnswersConfig",
-    "summaries.apps.SummariesConfig",
+    "documents.apps.DocumentsConfig",
     "categories.apps.CategoriesConfig",
     "faq.apps.FaqConfig",
     "feedback.apps.FeedbackConfig",

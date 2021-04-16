@@ -2,8 +2,8 @@ import { Button } from "@vseth/components";
 import { keyframes, css } from "emotion";
 import React from "react";
 import { useState } from "react";
-import { Mutate, useUpdateSummary } from "../api/hooks";
-import { Summary } from "../interfaces";
+import { Mutate, useUpdateDocument } from "../api/hooks";
+import { Document } from "../interfaces";
 const rubberBandAnimation = keyframes`
 	0% {
 		transform: scaleX(1)
@@ -155,24 +155,24 @@ const notLikedNumberInactive = css`
 `;
 
 interface Props {
-  summary: Summary;
-  mutate: Mutate<Summary>;
+  document: Document;
+  mutate: Mutate<Document>;
 }
 
-const LikeButton: React.FC<Props> = ({ summary, mutate }) => {
-  const [loading, updateSummary] = useUpdateSummary(
-    summary.author,
-    summary.slug,
+const LikeButton: React.FC<Props> = ({ document, mutate }) => {
+  const [loading, updateDocument] = useUpdateDocument(
+    document.author,
+    document.slug,
     () => void 0,
   );
-  const nonLikeCount = summary.like_count - (summary.liked ? 1 : 0);
-  const likeCount = summary.like_count + (summary.liked ? 0 : 1);
+  const nonLikeCount = document.like_count - (document.liked ? 1 : 0);
+  const likeCount = document.like_count + (document.liked ? 0 : 1);
   return (
     <Button
       color="white"
       onClick={() => {
-        updateSummary({ liked: !summary.liked });
-        if (!summary.liked) {
+        updateDocument({ liked: !document.liked });
+        if (!document.liked) {
           mutate(s => ({ ...s, liked: true, like_count: likeCount }));
         } else {
           mutate(s => ({ ...s, liked: false, like_count: nonLikeCount }));
@@ -185,25 +185,25 @@ const LikeButton: React.FC<Props> = ({ summary, mutate }) => {
         viewBox="0 0 24 24"
         stroke="currentColor"
         height="1em"
-        className={summary.liked ? bounce : rubberBand}
+        className={document.liked ? bounce : rubberBand}
       >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          className={summary.liked ? redFilled : outlined}
+          className={document.liked ? redFilled : outlined}
           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
         />
       </svg>
       <div className="ml-2 position-relative">
         <div
-          className={summary.liked ? likedNumberActive : likedNumberInactive}
+          className={document.liked ? likedNumberActive : likedNumberInactive}
         >
           {likeCount}
         </div>
         <div
           className={
-            !summary.liked ? notLikedNumberActive : notLikedNumberInactive
+            !document.liked ? notLikedNumberActive : notLikedNumberInactive
           }
         >
           {nonLikeCount}

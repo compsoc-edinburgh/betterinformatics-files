@@ -3,10 +3,10 @@ import { Container } from "@vseth/components";
 import React from "react";
 import CodeBlock from "./code-block";
 
-interface SummaryCodeProps {
+interface DocumentCodeProps {
   url: string;
 }
-const SummaryCode: React.FC<SummaryCodeProps> = ({ url }) => {
+const DocumentCode: React.FC<DocumentCodeProps> = ({ url }) => {
   const { data } = useRequest(() => fetch(url).then(r => r.text()));
 
   return (
@@ -15,10 +15,10 @@ const SummaryCode: React.FC<SummaryCodeProps> = ({ url }) => {
         (data.length > 0 ? (
           <CodeBlock value={data} language="tex" />
         ) : (
-          "This summary currently doesn't have any content."
+          "This document currently doesn't have any content."
         ))}
     </Container>
   );
 };
 
-export default SummaryCode;
+export default DocumentCode;

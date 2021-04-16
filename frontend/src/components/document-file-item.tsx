@@ -12,34 +12,33 @@ import {
   InputField,
   Button,
   ModalFooter,
-  PlusIcon,
   Spinner,
   SaveIcon,
 } from "@vseth/components";
 import React, { useState } from "react";
 import {
   Mutate,
-  useDeleteSummaryFile,
-  useUpdateSummaryFile,
+  useDeleteDocumentFile,
+  useUpdateDocumentFile,
 } from "../api/hooks";
 import useToggle from "../hooks/useToggle";
-import { Summary, SummaryFile } from "../interfaces";
+import { Document, DocumentFile } from "../interfaces";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 
 interface Props {
-  summary: Summary;
-  file: SummaryFile;
-  mutate: Mutate<Summary>;
+  document: Document;
+  file: DocumentFile;
+  mutate: Mutate<Document>;
 }
 
-const SummaryFileItem: React.FC<Props> = ({ file, summary, mutate }) => {
+const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
 
-  const [deleteLoading, deleteFile] = useDeleteSummaryFile(
-    summary.author,
-    summary.slug,
+  const [deleteLoading, deleteFile] = useDeleteDocumentFile(
+    document.author,
+    document.slug,
     file.oid,
     () => {
       mutate(s => ({
@@ -48,9 +47,9 @@ const SummaryFileItem: React.FC<Props> = ({ file, summary, mutate }) => {
       }));
     },
   );
-  const [updateLoading, updateFile] = useUpdateSummaryFile(
-    summary.author,
-    summary.slug,
+  const [updateLoading, updateFile] = useUpdateDocumentFile(
+    document.author,
+    document.slug,
     file.oid,
     file => {
       setDisplayName(undefined);
@@ -113,7 +112,7 @@ const SummaryFileItem: React.FC<Props> = ({ file, summary, mutate }) => {
           </p>
           <p>
             The token is valid for an endpoint that can be found at{" "}
-            <code>POST /api/summary/update</code>. The token has to be supplied
+            <code>POST /api/document/update</code>. The token has to be supplied
             as an Authorization header, a replacement file can be sent as
             multipart-form upload with the key "file". The content type and
             filename of the new file are ignored, the extension and the filename
@@ -126,11 +125,11 @@ const SummaryFileItem: React.FC<Props> = ({ file, summary, mutate }) => {
           <p>
             With <code>curl</code> this file could be replaced with the
             following command assuming that the new file is located in the
-            current working directory and named "my_summary.pdf".
+            current working directory and named "my_document.pdf".
           </p>
           <pre>
             <code>
-              {`curl ${window.location.origin}/api/summary/update \\\n  -H "Authorization: ${file.key}" \\\n  -F "file=@my_summary.pdf"`}
+              {`curl ${window.location.origin}/api/document/update \\\n  -H "Authorization: ${file.key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
         </ModalBody>
@@ -175,4 +174,4 @@ const SummaryFileItem: React.FC<Props> = ({ file, summary, mutate }) => {
   );
 };
 
-export default SummaryFileItem;
+export default DocumentFileItem;

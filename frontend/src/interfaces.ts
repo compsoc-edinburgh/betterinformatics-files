@@ -310,14 +310,14 @@ export type SearchResult =
   | CommentSearchResult;
 export type SearchResponse = SearchResult[];
 
-export interface Summary {
+export interface Document {
   slug: string;
   display_name: string;
   category: string;
   category_display_name: string;
   author: string;
-  comments: SummaryComment[];
-  files: SummaryFile[];
+  comments: DocumentComment[];
+  files: DocumentFile[];
   liked: boolean;
   like_count: number;
 
@@ -325,7 +325,7 @@ export interface Summary {
   can_delete: boolean;
 }
 
-export interface SummaryFile {
+export interface DocumentFile {
   oid: number;
   display_name: string;
   filename: string;
@@ -333,7 +333,7 @@ export interface SummaryFile {
   key?: string;
 }
 
-export interface SummaryComment extends Omit<Comment, "longId" | "oid"> {
+export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
   oid: number;
-  summaryId: number;
+  documentId: number;
 }

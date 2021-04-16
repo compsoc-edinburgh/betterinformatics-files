@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("summaries", "0001_initial"),
+        ("documents", "0001_initial"),
     ]
 
     operations = [
@@ -36,16 +36,16 @@ class Migration(migrations.Migration):
                     "author",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="summaries_comments",
+                        related_name="documents_comments",
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 (
-                    "summary",
+                    "document",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="comments",
-                        to="summaries.Summary",
+                        to="documents.Document",
                     ),
                 ),
             ],
@@ -56,20 +56,20 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="comment",
             index=django.contrib.postgres.indexes.GinIndex(
-                fields=["search_vector"], name="summaries_c_search__02d77d_gin"
+                fields=["search_vector"], name="documents_c_search__02d77d_gin"
             ),
         ),
         migrations.RunSQL(
             sql="""
-                CREATE TRIGGER summary_comment_update_trigger
+                CREATE TRIGGER document_comment_update_trigger
                 BEFORE INSERT OR UPDATE OF text
-                ON summaries_comment
+                ON documents_comment
                 FOR EACH ROW EXECUTE PROCEDURE
                 tsvector_update_trigger(search_vector, 'pg_catalog.english', text);
             """,
             reverse_sql="""
-                DROP TRIGGER IF EXISTS summary_comment_update_trigger
-                ON summaries_comment;
+                DROP TRIGGER IF EXISTS document_comment_update_trigger
+                ON documents_comment;
             """,
         ),
     ]

@@ -2,25 +2,25 @@ import { useRequest } from "@umijs/hooks";
 import { Button, SaveIcon, Spinner } from "@vseth/components";
 import React, { useState } from "react";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";
-import { useUpdateSummaryFile } from "../api/hooks";
-import { Summary, SummaryFile } from "../interfaces";
+import { useUpdateDocumentFile } from "../api/hooks";
+import { Document, DocumentFile } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 
 interface Props {
-  summary: Summary;
-  file: SummaryFile;
+  document: Document;
+  file: DocumentFile;
   url: string;
 }
-const SummaryMarkdownEditor: React.FC<Props> = ({ summary, file, url }) => {
+const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
   const [draftText, setDraftText] = useState("");
   useRequest(() => fetch(url).then(r => r.text()), {
     onSuccess: text => setDraftText(text),
   });
-  const [loading, updateSummary] = useUpdateSummaryFile(
-    summary.author,
-    summary.slug,
+  const [loading, updateDocument] = useUpdateDocumentFile(
+    document.author,
+    document.slug,
     file.oid,
   );
   const [undoStack, setUndoStack] = useState<UndoStack>({
@@ -42,7 +42,7 @@ const SummaryMarkdownEditor: React.FC<Props> = ({ summary, file, url }) => {
       <div className="form-group d-flex justify-content-end">
         <Button
           onClick={() =>
-            updateSummary({
+            updateDocument({
               file: new NamedBlob(new Blob([draftText]), "file.md"),
             })
           }
@@ -59,4 +59,4 @@ const SummaryMarkdownEditor: React.FC<Props> = ({ summary, file, url }) => {
   );
 };
 
-export default SummaryMarkdownEditor;
+export default DocumentMarkdownEditor;

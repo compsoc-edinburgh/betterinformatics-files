@@ -23,7 +23,7 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
-import SummaryList from "../components/summary-list";
+import DocumentList from "../components/document-list";
 import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
@@ -196,8 +196,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Row>
           <ExamList metaData={metaData} />
 
-          <h2 className="mb-3 mt-5">Summaries</h2>
-          <SummaryList slug={metaData.slug} />
+          <h2 className="mb-3 mt-5">Documents</h2>
+          <DocumentList slug={metaData.slug} />
 
           {metaData.attachments.length > 0 && (
             <>

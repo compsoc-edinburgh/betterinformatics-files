@@ -8,7 +8,7 @@ import PdfSectionCanvas from "../pdf/pdf-section-canvas";
 import { getDocument } from "../pdf/pdfjs";
 import ContentContainer from "./secondary-container";
 
-const loadSummaryRenderer = async (url: string) => {
+const loadDocumentRenderer = async (url: string) => {
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
     getDocument({
       httpHeaders: getHeaders(),
@@ -27,12 +27,12 @@ const getPages = (pdf: PDF | undefined) => {
   return result;
 };
 
-interface SummaryPdfProps {
+interface DocumentPdfProps {
   url: string;
 }
-const SummaryPdf: React.FC<SummaryPdfProps> = ({ url }) => {
+const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
   const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
-    loadSummaryRenderer(url),
+    loadDocumentRenderer(url),
   );
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const [pdf, renderer] = data ? data : [];
@@ -64,4 +64,4 @@ const SummaryPdf: React.FC<SummaryPdfProps> = ({ url }) => {
   );
 };
 
-export default SummaryPdf;
+export default DocumentPdf;
