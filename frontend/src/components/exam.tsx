@@ -123,6 +123,7 @@ const Exam: React.FC<Props> = React.memo(
             show(sectionId);
           })
           .catch(() => {});
+        window.location.hash = hash;
       }
       return () => {
         cancelled = true;
