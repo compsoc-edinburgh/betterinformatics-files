@@ -99,8 +99,8 @@ const SummaryFileItem: React.FC<Props> = ({ file, summary, mutate }) => {
           </Button>
         </ModalFooter>
       </Modal>
-      <Modal toggle={toggleEditIsOpen} isOpen={keyIsOpen} size="lg">
-        <ModalHeader toggle={toggleEditIsOpen}>Access Token</ModalHeader>
+      <Modal toggle={toggleKeyIsOpen} isOpen={keyIsOpen} size="lg">
+        <ModalHeader toggle={toggleKeyIsOpen}>Access Token</ModalHeader>
         <ModalBody>
           <p>
             Token: <code>{file.key}</code>
