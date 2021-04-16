@@ -6,7 +6,7 @@ from django.utils import timezone
 from typing import Union
 
 from django.views.decorators.csrf import csrf_exempt
-from myauth.models import get_my_user
+from myauth.models import MyUser, get_my_user
 from documents.models import Comment, Document, DocumentFile
 from myauth import auth_check
 from django.views import View
