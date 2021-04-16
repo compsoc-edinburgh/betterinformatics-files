@@ -381,11 +381,8 @@ export const useCreateDocument = (onSuccess?: (document: Document) => void) =>
   useMutation(createDocument, onSuccess);
 
 export const loadDocuments = async (categorySlug: string) => {
-  return (
-    await fetchGet(
-      `/api/document/?category=${encodeURIComponent(categorySlug)}`,
-    )
-  ).value as Document[];
+  return (await fetchGet(`/api/document/?category=${categorySlug}`))
+    .value as Document[];
 };
 export const useDocuments = (categorySlug: string) => {
   const { error, loading, data } = useRequest(
@@ -398,9 +395,7 @@ export const useDocuments = (categorySlug: string) => {
 export const loadDocument = async (author: string, documentSlug: string) => {
   return (
     await fetchGet(
-      `/api/document/${author}/${encodeURIComponent(
-        documentSlug,
-      )}/?include_comments&include_files`,
+      `/api/document/${author}/${documentSlug}/?include_comments&include_files`,
     )
   ).value as Document;
 };
@@ -420,12 +415,9 @@ export const useDocument = (
 };
 
 export const deleteDocument = async (author: string, documentSlug: string) => {
-  return (
-    await fetchDelete(
-      `/api/document/${author}/${encodeURIComponent(documentSlug)}/`,
-    )
-  ).value as true;
+  await fetchDelete(`/api/document/${author}/${documentSlug}/`);
 };
+
 export const useDeleteDocument = (
   author: string,
   documentSlug: string,
@@ -442,12 +434,8 @@ export const updateDocument = async (
   documentSlug: string,
   data: DocumentUpdate,
 ) => {
-  return (
-    await fetchPut(
-      `/api/document/${author}/${encodeURIComponent(documentSlug)}/`,
-      data,
-    )
-  ).value as Document;
+  return (await fetchPut(`/api/document/${author}/${documentSlug}/`, data))
+    .value as Document;
 };
 export const useUpdateDocument = (
   author: string,
@@ -465,10 +453,9 @@ export const createDocumentComment = async (
   text: string,
 ) => {
   return (
-    await fetchPost(
-      `/api/document/${author}/${encodeURIComponent(documentSlug)}/comments/`,
-      { text },
-    )
+    await fetchPost(`/api/document/${author}/${documentSlug}/comments/`, {
+      text,
+    })
   ).value as DocumentComment;
 };
 export const useCreateDocumentComment = (
@@ -486,20 +473,16 @@ export const deleteDocumentComment = async (
   documentSlug: string,
   commentId: number,
 ) => {
-  return (
-    await fetchDelete(
-      `/api/document/${author}/${encodeURIComponent(
-        documentSlug,
-      )}/comments/${commentId}/`,
-    )
-  ).value as true;
+  await fetchDelete(
+    `/api/document/${author}/${documentSlug}/comments/${commentId}/`,
+  );
 };
 
 export const useDeleteDocumentComment = (
   author: string,
   documentSlug: string,
   commentId: number,
-  onSuccess?: (res: boolean) => void,
+  onSuccess?: () => void,
 ) =>
   useMutation(
     () => deleteDocumentComment(author, documentSlug, commentId),
@@ -514,9 +497,7 @@ export const updateDocumentComment = async (
 ) => {
   return (
     await fetchPut(
-      `/api/document/${author}/${encodeURIComponent(
-        documentSlug,
-      )}/comments/${commentId}/`,
+      `/api/document/${author}/${documentSlug}/comments/${commentId}/`,
       { text },
     )
   ).value as DocumentComment;
@@ -541,10 +522,10 @@ export const createDocumentFile = async (
   file: NamedBlob | File,
 ) => {
   return (
-    await fetchPost(
-      `/api/document/${author}/${encodeURIComponent(documentSlug)}/files/`,
-      { file, display_name },
-    )
+    await fetchPost(`/api/document/${author}/${documentSlug}/files/`, {
+      file,
+      display_name,
+    })
   ).value as DocumentFile;
 };
 export const useCreateDocumentFile = (
@@ -562,20 +543,14 @@ export const deleteDocumentFile = async (
   documentSlug: string,
   fileId: number,
 ) => {
-  return (
-    await fetchDelete(
-      `/api/document/${author}/${encodeURIComponent(
-        documentSlug,
-      )}/files/${fileId}/`,
-    )
-  ).value as true;
+  await fetchDelete(`/api/document/${author}/${documentSlug}/files/${fileId}/`);
 };
 
 export const useDeleteDocumentFile = (
   author: string,
   documentSlug: string,
   fileId: number,
-  onSuccess?: (res: boolean) => void,
+  onSuccess?: () => void,
 ) =>
   useMutation(
     () => deleteDocumentFile(author, documentSlug, fileId),
@@ -594,9 +569,7 @@ export const updateDocumentFile = async (
 ) => {
   return (
     await fetchPut(
-      `/api/document/${author}/${encodeURIComponent(
-        documentSlug,
-      )}/files/${fileId}/`,
+      `/api/document/${author}/${documentSlug}/files/${fileId}/`,
       update,
     )
   ).value as DocumentFile;

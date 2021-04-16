@@ -1,19 +1,19 @@
 import {
-  Badge,
-  Button,
-  Col,
-  FormGroup,
-  InputField,
   ListGroupItem,
   ListGroupItemHeading,
   ListGroupItemText,
+  Badge,
+  Row,
+  Col,
+  ModalHeader,
   Modal,
   ModalBody,
+  FormGroup,
+  InputField,
+  Button,
   ModalFooter,
-  ModalHeader,
-  Row,
-  SaveIcon,
   Spinner,
+  SaveIcon,
 } from "@vseth/components";
 import React, { useState } from "react";
 import {
@@ -99,7 +99,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         </ModalFooter>
       </Modal>
       <Modal toggle={toggleKeyIsOpen} isOpen={keyIsOpen} size="lg">
-        <ModalHeader toggle={toggleEditIsOpen}>Access Token</ModalHeader>
+        <ModalHeader toggle={toggleKeyIsOpen}>Access Token</ModalHeader>
         <ModalBody>
           <p>
             Token: <code>{file.key}</code>

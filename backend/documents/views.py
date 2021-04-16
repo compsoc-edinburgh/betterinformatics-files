@@ -87,7 +87,9 @@ def get_document_obj(
     return obj
 
 
-def create_document_slug(document_name: str, existing: Union[Document, None] = None):
+def create_document_slug(
+    document_name: str, author: MyUser, existing: Union[Document, None] = None
+):
     """
     Create a valid and unique slug for the document display name
     :param document: display name
@@ -99,9 +101,11 @@ def create_document_slug(document_name: str, existing: Union[Document, None] = N
             document_name.lower().replace(" ", "-"),
         )
     )
+    if oslug == "":
+        oslug = "🧠"
 
     def exists(aslug):
-        objects = Document.objects.filter(slug=aslug)
+        objects = Document.objects.filter(slug=aslug, author=author)
         if existing is not None:
             objects = objects.exclude(pk=existing.pk)
         return objects.exists()
@@ -109,8 +113,8 @@ def create_document_slug(document_name: str, existing: Union[Document, None] = N
     slug = oslug
     cnt = 0
     while exists(slug):
-        cnt += 1
         slug = oslug + "_" + str(cnt)
+        cnt += 1
 
     return slug
 
@@ -164,7 +168,7 @@ class DocumentRootView(View):
         category = get_object_or_404(Category, slug=request.POST["category"])
         display_name = request.POST["display_name"]
         document = Document(
-            slug=create_document_slug(display_name),
+            slug=create_document_slug(display_name, request.user),
             display_name=display_name,
             category=category,
             author=request.user,
@@ -204,7 +208,9 @@ class DocumentElementView(View):
             return response.not_allowed()
         if "display_name" in request.DATA:
             document.display_name = request.DATA["display_name"]
-            document.slug = create_document_slug(document.display_name, document)
+            document.slug = create_document_slug(
+                document.display_name, request.user, document
+            )
         if "category" in request.DATA:
             category = get_object_or_404(Category, slug=request.DATA["category"])
             document.category = category
@@ -223,7 +229,7 @@ class DocumentElementView(View):
         if not document.current_user_can_delete(request):
             return response.not_allowed()
         document.delete()
-        return response.success(value=True)
+        return response.success()
 
 
 class DocumentCommentRootView(View):
@@ -294,7 +300,7 @@ class DocumentCommentElementView(View):
         if not comment.current_user_can_delete(request):
             return response.not_allowed()
         comment.delete()
-        return response.success(value=True)
+        return response.success()
 
 
 class DocumentFileRootView(View):
@@ -336,7 +342,8 @@ class DocumentFileRootView(View):
             settings.COMSOL_DOCUMENT_DIR, filename, file, file.content_type
         )
 
-        return response.success(value=get_file_obj(document_file))
+        # We know that the current user can edit the document and can therefore always include the key
+        return response.success(value=get_file_obj(document_file, True))
 
 
 class DocumentFileElementView(View):
@@ -350,7 +357,9 @@ class DocumentFileElementView(View):
             document__author__username=username,
             document__slug=document_slug,
         )
-        return get_file_obj(document_file)
+        return get_file_obj(
+            document_file, document_file.document.current_user_can_edit(request)
+        )
 
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, document_slug: str, id: int):
@@ -392,7 +401,8 @@ class DocumentFileElementView(View):
             )
 
         document_file.save()
-        return response.success(value=get_file_obj(document_file))
+        # We know that the current user can edit the document and can therefore always include the key
+        return response.success(value=get_file_obj(document_file, True))
 
     @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, document_slug: str, id: int):
@@ -419,12 +429,14 @@ class DocumentFileElementView(View):
 
 @response.request_get()
 def get_document_file(request, filename):
-    get_object_or_404(DocumentFile, filename=filename)
+    document_file = get_object_or_404(DocumentFile, filename=filename)
+    _, ext = os.path.splitext(document_file.filename)
+    attachment_filename = document_file.display_name + ext
     return minio_util.send_file(
         settings.COMSOL_DOCUMENT_DIR,
         filename,
         as_attachment=True,
-        attachment_filename=filename,
+        attachment_filename=attachment_filename,
     )
 
 
