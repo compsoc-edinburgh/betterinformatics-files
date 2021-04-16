@@ -424,7 +424,7 @@ class SummaryFileElementView(View):
 @response.request_get()
 def get_summary_file(request, filename):
     summary_file = get_object_or_404(SummaryFile, filename=filename)
-    _, ext = os.path.splitext(filename.name)
+    _, ext = os.path.splitext(summary_file.name)
     attachment_filename = summary_file.display_name + ext
     return minio_util.send_file(
         settings.COMSOL_SUMMARY_DIR,
