@@ -208,7 +208,9 @@ class SummaryElementView(View):
             return response.not_allowed()
         if "display_name" in request.DATA:
             summary.display_name = request.DATA["display_name"]
-            summary.slug = create_summary_slug(summary.display_name, request.user, summary)
+            summary.slug = create_summary_slug(
+                summary.display_name, request.user, summary
+            )
         if "category" in request.DATA:
             category = get_object_or_404(Category, slug=request.DATA["category"])
             summary.category = category
@@ -428,7 +430,7 @@ class SummaryFileElementView(View):
 @response.request_get()
 def get_summary_file(request, filename):
     summary_file = get_object_or_404(SummaryFile, filename=filename)
-    _, ext = os.path.splitext(summary_file.name)
+    _, ext = os.path.splitext(summary_file.filename)
     attachment_filename = summary_file.display_name + ext
     return minio_util.send_file(
         settings.COMSOL_SUMMARY_DIR,
