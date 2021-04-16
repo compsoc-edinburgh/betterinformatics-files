@@ -6,7 +6,7 @@ from django.utils import timezone
 from typing import Union
 
 from django.views.decorators.csrf import csrf_exempt
-from myauth.models import get_my_user
+from myauth.models import MyUser, get_my_user
 from summaries.models import Comment, Summary, SummaryFile
 from myauth import auth_check
 from django.views import View
@@ -87,7 +87,9 @@ def get_summary_obj(
     return obj
 
 
-def create_summary_slug(summary_name: str, existing: Union[Summary, None] = None):
+def create_summary_slug(
+    summary_name: str, author: MyUser, existing: Union[Summary, None] = None
+):
     """
     Create a valid and unique slug for the summary display name
     :param summary: display name
@@ -101,7 +103,7 @@ def create_summary_slug(summary_name: str, existing: Union[Summary, None] = None
     )
 
     def exists(aslug):
-        objects = Summary.objects.filter(slug=aslug)
+        objects = Summary.objects.filter(slug=aslug, author=author)
         if existing is not None:
             objects = objects.exclude(pk=existing.pk)
         return objects.exists()
@@ -109,8 +111,8 @@ def create_summary_slug(summary_name: str, existing: Union[Summary, None] = None
     slug = oslug
     cnt = 0
     while exists(slug):
-        cnt += 1
         slug = oslug + "_" + str(cnt)
+        cnt += 1
 
     return slug
 
@@ -164,7 +166,7 @@ class SummaryRootView(View):
         category = get_object_or_404(Category, slug=request.POST["category"])
         display_name = request.POST["display_name"]
         summary = Summary(
-            slug=create_summary_slug(display_name),
+            slug=create_summary_slug(display_name, request.user),
             display_name=display_name,
             category=category,
             author=request.user,
@@ -204,7 +206,7 @@ class SummaryElementView(View):
             return response.not_allowed()
         if "display_name" in request.DATA:
             summary.display_name = request.DATA["display_name"]
-            summary.slug = create_summary_slug(summary.display_name, summary)
+            summary.slug = create_summary_slug(summary.display_name, request.user, summary)
         if "category" in request.DATA:
             category = get_object_or_404(Category, slug=request.DATA["category"])
             summary.category = category
