@@ -48,7 +48,7 @@ def _new_comment_to_comment(old_comment, new_comment):
 
 def new_comment_to_comment(answer, new_comment):
     done = set()
-    for comment in answer.comment_set.all():
+    for comment in answer.answers_comments.all():
         if comment != new_comment and comment.author not in done:
             done.add(comment.author)
             _new_comment_to_comment(comment, new_comment)

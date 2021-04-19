@@ -17,7 +17,7 @@ def get_user_scores(user, res):
     res.update({
         'score': user.scores.upvotes - user.scores.downvotes,
         'score_answers': count_answers(False),
-        'score_comments': user.comment_set.count(),
+        'score_comments': user.answers_comments.count(),
         'score_cuts': user.answersection_set.count(),
         'score_legacy': count_answers(True),
     })
@@ -49,7 +49,7 @@ def get_scoreboard_top(scoretype, limit):
     else:
         return response.not_found()
 
-    users = users.select_related('scores').prefetch_related('answer_set', 'comment_set', 'answersection_set')
+    users = users.select_related('scores').prefetch_related('answer_set', 'answers_comments', 'answersection_set')
 
     res = [
         get_user_scores(user, {
