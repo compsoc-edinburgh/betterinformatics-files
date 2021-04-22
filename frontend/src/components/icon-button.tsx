@@ -1,5 +1,5 @@
 import { Button, Icon, ICONS, Spinner, ButtonProps } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import React from "react";
 import TooltipButton from "./TooltipButton";
 const childStyle = css`

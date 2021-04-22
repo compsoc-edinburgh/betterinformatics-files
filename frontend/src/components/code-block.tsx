@@ -1,13 +1,13 @@
 import * as React from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomOneLight } from "react-syntax-highlighter/dist/styles/hljs";
+import atomOneLight from "react-syntax-highlighter/dist/esm/styles/hljs/atom-one-dark";
 
 interface Props {
   value?: string;
   language: string;
 }
 
-export default ({ value, language }: Props) => {
+const CodeBlock = ({ value, language }: Props) => {
   return (
     <SyntaxHighlighter
       language={language}
@@ -24,3 +24,5 @@ export default ({ value, language }: Props) => {
     </SyntaxHighlighter>
   );
 };
+
+export default CodeBlock;

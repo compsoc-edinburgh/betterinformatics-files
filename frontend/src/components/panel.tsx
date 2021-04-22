@@ -1,5 +1,5 @@
 import { Button, Icon, ICONS } from "@vseth/components";
-import { css, cx, keyframes } from "emotion";
+import { css, cx, keyframes } from "@emotion/css";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import GlobalConsts from "../globalconsts";
@@ -109,7 +109,7 @@ const Panel: React.FC<PanelProps> = ({
         </div>
       </div>
       <Transition in={isOpen} timeout={duration} unmountOnExit>
-        {state => (
+        {(state) => (
           <div
             className={panelStyle}
             style={{

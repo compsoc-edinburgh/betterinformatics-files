@@ -1,5 +1,5 @@
 import TeX from "@matejmazur/react-katex";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";

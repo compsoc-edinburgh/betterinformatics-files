@@ -10,7 +10,7 @@ import {
   Spinner,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import {
@@ -58,7 +58,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     [data, metaData],
   );
   const [editing, setEditing] = useState(false);
-  const toggle = useCallback(() => setEditing(a => !a), []);
+  const toggle = useCallback(() => setEditing((a) => !a), []);
   const user = useUser()!;
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
@@ -83,8 +83,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             isOpen={editing}
             toggle={toggle}
             currentMetaData={metaData}
-            offeredIn={offeredIn.flatMap(b =>
-              b.meta2.map(d => [b.displayname, d.displayname] as const),
+            offeredIn={offeredIn.flatMap((b) =>
+              b.meta2.map((d) => [b.displayname, d.displayname] as const),
             )}
           />
         )
@@ -154,8 +154,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   <Spinner />
                 ) : (
                   <ul>
-                    {offeredIn?.map(meta1 =>
-                      meta1.meta2.map(meta2 => (
+                    {offeredIn?.map((meta1) =>
+                      meta1.meta2.map((meta2) => (
                         <li key={meta1.displayname + meta2.displayname}>
                           {meta2.displayname} in {meta1.displayname}
                         </li>
@@ -200,7 +200,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <>
                 <h2>Attachments</h2>
                 <ListGroup flush>
-                  {metaData.attachments.map(att => (
+                  {metaData.attachments.map((att) => (
                     <a
                       href={`/api/filestore/get/${att.filename}/`}
                       target="_blank"

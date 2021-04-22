@@ -7,7 +7,7 @@ import {
   Input,
   Row,
 } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import * as React from "react";
 import { useState } from "react";
 import { useFAQ } from "../api/faq";
@@ -66,7 +66,7 @@ export const FAQPage: React.FC = () => {
             entry={faq}
             prevEntry={idx > 0 ? faqs[idx - 1] : undefined}
             nextEntry={idx + 1 < faqs.length ? faqs[idx + 1] : undefined}
-            onUpdate={changes => update(faq.oid, changes)}
+            onUpdate={(changes) => update(faq.oid, changes)}
             onSwap={swap}
             onRemove={() => remove(faq.oid)}
           />
@@ -79,7 +79,7 @@ export const FAQPage: React.FC = () => {
                 type="text"
                 placeholder="Question"
                 value={question}
-                onChange={e => setQuestion(e.target.value)}
+                onChange={(e) => setQuestion(e.target.value)}
               />
             </h4>
             <Editor
@@ -88,7 +88,7 @@ export const FAQPage: React.FC = () => {
               onChange={setAnswer}
               undoStack={undoStack}
               setUndoStack={setUndoStack}
-              preview={value => <MarkdownText value={value} />}
+              preview={(value) => <MarkdownText value={value} />}
             />
           </CardBody>
           <CardFooter>

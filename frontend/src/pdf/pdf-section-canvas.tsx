@@ -1,6 +1,6 @@
 import { useInViewport } from "@umijs/hooks";
 import { Card } from "@vseth/components";
-import { css, cx } from "emotion";
+import { css, cx } from "@emotion/css";
 import * as React from "react";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { DebugContext } from "../components/Debug";
@@ -156,7 +156,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     }, [v]);
 
     const canvasMountingPoint = useCallback<(element: HTMLDivElement) => void>(
-      element => {
+      (element) => {
         if (element === null) return;
         if (canvas === null) return;
         if (isMainCanvas) {
@@ -212,8 +212,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
             className="cover-container"
             style={{
               width: `${targetWidth}px`,
-              height: `${containerHeight ||
-                targetWidth * relativeHeight * 1.414}px`,
+              height: `${
+                containerHeight || targetWidth * relativeHeight * 1.414
+              }px`,
               filter: hidden ? "contrast(0.5)" : undefined,
             }}
             ref={containerElement}

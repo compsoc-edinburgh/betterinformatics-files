@@ -2,7 +2,7 @@ import { useUserAnswers } from "../api/hooks";
 import React, { createContext, useContext } from "react";
 import { Alert, Spinner, CardColumns } from "@vseth/components";
 import AnswerComponent from "./answer";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import { KeycloakInstance } from "keycloak-js";
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
@@ -38,7 +38,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       {loading && <Spinner />}
       <CardColumns className={columnStyle}>
         {answers &&
-          answers.map(answer => (
+          answers.map((answer) => (
             <div className="px-2" key={answer.oid}>
               <AnswerComponent
                 hasId={false}

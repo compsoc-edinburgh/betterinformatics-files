@@ -1,5 +1,5 @@
 import { Nav, NavItem, NavLink, Row, Col } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import * as React from "react";
 import { Bold, Code, DollarSign, Italic, Link } from "react-feather";
 import TooltipButton from "../TooltipButton";
