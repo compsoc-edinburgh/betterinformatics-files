@@ -63,9 +63,9 @@ const ModQueue: React.FC = () => {
           <h2>Flagged Answers</h2>
           {flaggedAnswers.map(answer => (
             <div>
-              <a href={answer} target="_blank" rel="noopener noreferrer">
+              <Link to={answer} target="_blank" rel="noopener noreferrer">
                 {answer}
-              </a>
+              </Link>
             </div>
           ))}
         </div>

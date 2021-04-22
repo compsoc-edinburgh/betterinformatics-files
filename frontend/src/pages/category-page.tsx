@@ -23,6 +23,7 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
+import DocumentList from "../components/document-list";
 import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
@@ -193,27 +194,28 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </Col>
             )}
           </Row>
-
           <ExamList metaData={metaData} />
-          <Col lg={12}>
-            {metaData.attachments.length > 0 && (
-              <>
-                <h2>Attachments</h2>
-                <ListGroup flush>
-                  {metaData.attachments.map((att) => (
-                    <a
-                      href={`/api/filestore/get/${att.filename}/`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      key={att.filename}
-                    >
-                      <div>{att.displayname}</div>
-                    </a>
-                  ))}
-                </ListGroup>
-              </>
-            )}
-          </Col>
+
+          <h2 className="mb-3 mt-5">Documents</h2>
+          <DocumentList slug={metaData.slug} />
+
+          {metaData.attachments.length > 0 && (
+            <>
+              <h2 className="mb-3 mt-5">Attachments</h2>
+              <ListGroup flush>
+                {metaData.attachments.map((att) => (
+                  <a
+                    href={`/api/filestore/get/${att.filename}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    key={att.filename}
+                  >
+                    <div>{att.displayname}</div>
+                  </a>
+                ))}
+              </ListGroup>
+            </>
+          )}
         </>
       )}
     </>

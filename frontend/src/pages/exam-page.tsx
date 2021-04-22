@@ -49,12 +49,14 @@ const addCut = async (
   pageNum: number,
   relHeight: number,
   hidden = false,
+  has_answers = true,
 ) => {
   await fetchPost(`/api/exam/addcut/${filename}/`, {
     pageNum,
     relHeight,
     name: "",
     hidden,
+    has_answers,
   });
 };
 

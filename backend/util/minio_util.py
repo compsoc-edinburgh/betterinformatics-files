@@ -23,10 +23,10 @@ def save_uploaded_file_to_disk(dest, uploaded_file):
             destination.write(chunk)
 
 
-def save_uploaded_file_to_minio(directory, filename, uploaded_file):
+def save_uploaded_file_to_minio(directory, filename, uploaded_file, content_type='application/octet-stream'):
     temp_file_path = os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename)
     save_uploaded_file_to_disk(temp_file_path, uploaded_file)
-    minio_client.fput_object(minio_bucket, directory + filename, temp_file_path)
+    minio_client.fput_object(minio_bucket, directory + filename, temp_file_path, content_type=content_type)
 
 
 def save_file_to_minio(directory, filename, path):
@@ -56,7 +56,7 @@ def send_file(directory, filename, as_attachment=False, attachment_filename=None
         return FileResponse(
             data,
             as_attachment=as_attachment,
-            filename=attachment_filename,
+            filename=attachment_filename
         )
     except NoSuchKey as n:
         return response.not_found()
