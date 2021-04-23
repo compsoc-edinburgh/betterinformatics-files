@@ -14,7 +14,7 @@ import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 const columnStyle = css`
   column-gap: 0;
   grid-column-gap: 0;
@@ -77,12 +77,12 @@ const ImageModal: React.FC<ModalProps> = ({
 
         <CardColumns className={columnStyle}>
           {images &&
-            images.map(image => (
+            images.map((image) => (
               <div key={image} className={cardWrapperStyle}>
                 <Card
                   className="p-2"
                   color={selected.has(image) ? "primary" : undefined}
-                  onClick={e =>
+                  onClick={(e) =>
                     e.metaKey
                       ? selected.has(image)
                         ? unselect(image)

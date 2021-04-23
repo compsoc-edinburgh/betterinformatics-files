@@ -1,5 +1,5 @@
 import { Spinner } from "@vseth/components";
-import { css, keyframes } from "emotion";
+import { css, keyframes } from "@emotion/css";
 import React from "react";
 import GlobalConsts from "../globalconsts";
 const fadeIn = keyframes`

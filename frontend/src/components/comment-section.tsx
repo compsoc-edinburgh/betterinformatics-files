@@ -1,5 +1,5 @@
 import { ListGroup } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import React, { useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentComponent from "./comment";
@@ -29,7 +29,7 @@ const CommentSectionComponent: React.FC<Props> = ({
     <>
       <ListGroup className={listGroupStyle}>
         {(expanded ? answer.comments : answer.comments.slice(0, 3)).map(
-          comment => (
+          (comment) => (
             <CommentComponent
               answer={answer}
               onSectionChanged={onSectionChanged}

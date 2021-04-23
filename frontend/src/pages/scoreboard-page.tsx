@@ -6,7 +6,7 @@ import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
 import useTitle from "../hooks/useTitle";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 const overflowScroll = css`
   overflow: auto;
 `;

@@ -7,7 +7,7 @@ import React, {
   useContext,
 } from "react";
 import { determineOptimalCutPositions } from "../pdf/snap";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import { DebugContext } from "./Debug";
 
 const wrapperStyle = css`
@@ -60,7 +60,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
     const [relSnapPos, bad] =
       relPos !== undefined && ref.current
         ? optimalCutAreas
-            .flatMap(area => area.snapPoints)
+            .flatMap((area) => area.snapPoints)
             .reduce(
               ([prev, prevBad], snap) =>
                 Math.abs(snap - relPos) < Math.abs(prev - relPos)
@@ -97,7 +97,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
                   backgroundColor: "rgba(0,0,0,0.2)",
                 }}
               />
-              {snapPoints.map(position => (
+              {snapPoints.map((position) => (
                 <div
                   key={position}
                   className="position-absolute w-100 m-0"

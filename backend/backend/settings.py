@@ -34,6 +34,7 @@ SECRET_KEY = (
     else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET"]
 )
 API_KEY = "API_KEY" if DEBUG else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_API_KEY"]
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
 COMSOL_EXAM_DIR = "exams/"

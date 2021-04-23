@@ -1,5 +1,5 @@
 import { Button } from "@vseth/components";
-import { keyframes, css } from "emotion";
+import { keyframes, css } from "@emotion/css";
 import React from "react";
 import { useState } from "react";
 import { Mutate, useUpdateDocument } from "../api/hooks";
@@ -173,9 +173,9 @@ const LikeButton: React.FC<Props> = ({ document, mutate }) => {
       onClick={() => {
         updateDocument({ liked: !document.liked });
         if (!document.liked) {
-          mutate(s => ({ ...s, liked: true, like_count: likeCount }));
+          mutate((s) => ({ ...s, liked: true, like_count: likeCount }));
         } else {
-          mutate(s => ({ ...s, liked: false, like_count: nonLikeCount }));
+          mutate((s) => ({ ...s, liked: false, like_count: nonLikeCount }));
         }
       }}
     >

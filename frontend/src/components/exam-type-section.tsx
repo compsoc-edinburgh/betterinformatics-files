@@ -1,6 +1,6 @@
 import { useRequest } from "@umijs/hooks";
 import { Badge, Card, Col, Row } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { fetchPost } from "../api/fetch-utils";
@@ -40,13 +40,13 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   const user = useUser()!;
   const catAdmin = user.isCategoryAdmin;
   const history = useHistory();
-  const allSelected = exams.every(exam => selected.has(exam.filename));
-  const someSelected = exams.some(exam => selected.has(exam.filename));
+  const allSelected = exams.every((exam) => selected.has(exam.filename));
+  const someSelected = exams.some((exam) => selected.has(exam.filename));
   const checked = someSelected;
   const indeterminate = someSelected && !allSelected;
   const setChecked = (newValue: boolean) => {
-    if (newValue) onSelect(...exams.map(exam => exam.filename));
-    else onDeselect(...exams.map(exam => exam.filename));
+    if (newValue) onSelect(...exams.map((exam) => exam.filename));
+    else onDeselect(...exams.map((exam) => exam.filename));
   };
   const [confirm, modals] = useConfirm();
   const { run: runRemoveExam } = useRequest(removeExam, {
@@ -72,16 +72,16 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
           className="mr-3"
           type="checkbox"
           checked={checked}
-          ref={el => el && (el.indeterminate = indeterminate)}
-          onChange={e => setChecked(e.currentTarget.checked)}
+          ref={(el) => el && (el.indeterminate = indeterminate)}
+          onChange={(e) => setChecked(e.currentTarget.checked)}
         />
         {examtype}
       </h3>
       <ExamGrid>
-        {exams.map(exam => (
+        {exams.map((exam) => (
           <Card
             className={`${focusOutline} p-3`}
-            onKeyDown={e => {
+            onKeyDown={(e) => {
               if (e.keyCode === 13 && exam.canView) {
                 history.push(`/exams/${exam.filename}`);
               }
@@ -94,8 +94,8 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 <input
                   type="checkbox"
                   checked={selected.has(exam.filename)}
-                  onClick={e => e.stopPropagation()}
-                  onChange={e => {
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
                     e.currentTarget.checked
                       ? onSelect(exam.filename)
                       : onDeselect(exam.filename);
@@ -185,7 +185,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     icon="DELETE"
                     outline
                     className="ml-2 m-1"
-                    onClick={e => handleRemoveClick(e, exam)}
+                    onClick={(e) => handleRemoveClick(e, exam)}
                   />
                 )}
               </Col>

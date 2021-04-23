@@ -21,7 +21,7 @@ import Scoreboard from "./pages/scoreboard-page";
 import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import { useKeycloak } from "@react-keycloak/web";
 import SearchPage from "./pages/search-page";
 import DocumentPage from "./pages/document-page";
@@ -45,7 +45,7 @@ const App: React.FC<{}> = () => {
     let cancelled = false;
     if (user === undefined) {
       fetchGet("/api/auth/me/").then(
-        res => {
+        (res) => {
           if (cancelled) return;
           setUser({
             loggedin: res.loggedin,

@@ -5,7 +5,7 @@ import {
   ModalBody,
   ModalHeader,
 } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import { ImageHandle } from "./utils/types";
@@ -50,7 +50,7 @@ const EditorFooter: React.FC<Props> = ({
     [onFiles],
   );
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const toggleHelp = useCallback(() => setIsHelpOpen(prev => !prev), []);
+  const toggleHelp = useCallback(() => setIsHelpOpen((prev) => !prev), []);
   return (
     <div>
       <div className={rowStyle}>
