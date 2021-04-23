@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import {
   Button,
   ButtonDropdown,
@@ -19,7 +18,9 @@ import {
   UncontrolledDropdown,
   Col,
   Row,
+  CardProps,
 } from "@vseth/components";
+import { css } from "@emotion/css";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
@@ -30,15 +31,22 @@ import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-columns";
 
-const NameCard = styled(Card)`
+const nameCardStyle = css`
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 `;
 
-const AnswerSectionButtonWrapper = styled(Card)`
+const NameCard = (props: CardProps) => (
+  <Card className={nameCardStyle} {...props} />
+);
+
+const answerSectionButtonWrapperStyle = css`
   margin-top: 1em;
   margin-bottom: 1em;
 `;
+const AnswerSectionButtonWrapper = (props: CardProps) => (
+  <Card className={answerSectionButtonWrapperStyle} {...props} />
+);
 
 interface AddButtonProps {
   allowAnswer: boolean;
@@ -57,7 +65,7 @@ const AddButton: React.FC<AddButtonProps> = ({
   onLegacyAnswer,
 }) => {
   const [isOpen, setOpen] = useState(false);
-  const toggle = useCallback(() => setOpen(old => !old), []);
+  const toggle = useCallback(() => setOpen((old) => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
     return (
       <ButtonDropdown isOpen={isOpen} toggle={toggle} className="text-left">
@@ -143,7 +151,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     has_answers,
   }) => {
     const [data, setData] = useState<AnswerSection | undefined>();
-    const run = useAnswers(oid, data => {
+    const run = useAnswers(oid, (data) => {
       setData(data);
       setCutVersion(data.cutVersion);
     });
@@ -204,7 +212,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       type="text"
                       value={draftName}
                       placeholder="Name"
-                      onChange={e => setDraftName(e.target.value)}
+                      onChange={(e) => setDraftName(e.target.value)}
                     />
                     <InputGroupButtonDropdown addonType="append">
                       <IconButton
@@ -244,7 +252,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         >
           {!hidden && data && (
             <>
-              {data.answers.map(answer => (
+              {data.answers.map((answer) => (
                 <AnswerComponent
                   key={answer.oid}
                   section={data}

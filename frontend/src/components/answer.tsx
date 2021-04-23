@@ -1,11 +1,13 @@
-import styled from "@emotion/styled";
+import { css } from "@emotion/css";
 import {
   ButtonDropdown,
   ButtonGroup,
   ButtonToolbar,
+  ButtonToolbarProps,
   Card,
   CardBody,
   CardHeader,
+  CardProps,
   Col,
   DropdownItem,
   DropdownMenu,
@@ -39,15 +41,22 @@ import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
 
-const AnswerWrapper = styled(Card)`
+const answerWrapperStyle = css`
   margin-top: 1em;
   margin-bottom: 1em;
 `;
+const AnswerWrapper = (props: CardProps) => (
+  <Card className={answerWrapperStyle} {...props} />
+);
 
-const AnswerToolbar = styled(ButtonToolbar)`
+const answerToolbarStyle = css`
   justify-content: flex-end;
   margin: 0 -0.3em;
 `;
+
+const AnswerToolbar = (props: ButtonToolbarProps) => (
+  <ButtonToolbar className={answerToolbarStyle} {...props} />
+);
 
 interface Props {
   section?: AnswerSection;
@@ -74,7 +83,7 @@ const AnswerComponent: React.FC<Props> = ({
     onSectionChanged,
   );
   const removeAnswer = useRemoveAnswer(onSectionChanged);
-  const [updating, update] = useUpdateAnswer(res => {
+  const [updating, update] = useUpdateAnswer((res) => {
     setEditing(false);
     if (onSectionChanged) onSectionChanged(res);
     if (answer === undefined && onDelete) onDelete();
@@ -82,7 +91,7 @@ const AnswerComponent: React.FC<Props> = ({
   const { isAdmin, isExpert } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [isOpen, setIsOpen] = useState(false);
-  const toggle = useCallback(() => setIsOpen(old => !old), []);
+  const toggle = useCallback(() => setIsOpen((old) => !old), []);
   const [editing, setEditing] = useState(false);
 
   const [draftText, setDraftText] = useState("");
@@ -249,7 +258,7 @@ const AnswerComponent: React.FC<Props> = ({
                 value={draftText}
                 onChange={setDraftText}
                 imageHandler={imageHandler}
-                preview={value => <MarkdownText value={value} />}
+                preview={(value) => <MarkdownText value={value} />}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />
