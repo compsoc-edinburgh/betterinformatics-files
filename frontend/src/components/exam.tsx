@@ -123,6 +123,9 @@ const Exam: React.FC<Props> = React.memo(
             show(sectionId);
           })
           .catch(() => {});
+
+        // This line below is bad code, should be properly fixed by making hash-location-handler better
+        window.location.hash = hash;
       }
       return () => {
         cancelled = true;
