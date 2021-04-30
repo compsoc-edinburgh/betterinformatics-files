@@ -3,5 +3,11 @@
   "extends": [
     "config:base",
     "group:all"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["react-markdown"],
+      "allowedVersions": "<6.0.0"
+    }
   ]
 }
