@@ -247,7 +247,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           )}
         <Container
           fluid
-          style={{ filter: !has_answers ? "contrast(0.5)" : undefined }}
         >
           {!hidden && data && (
             <>
@@ -279,7 +278,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </>
           )}
           <AnswerSectionButtonWrapper
-            color={isBeingMoved ? "primary" : undefined}
+            color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <CardHeader>
               <div className="d-flex" ref={ref}>
@@ -311,12 +310,11 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               (data.allow_new_legacy_answer && isCatAdmin)) && (
                               <AddButton
                                 allowAnswer={
-                                  data.allow_new_answer && has_answers
+                                  data.allow_new_answer
                                 }
                                 allowLegacyAnswer={
                                   data.allow_new_legacy_answer &&
-                                  isCatAdmin &&
-                                  has_answers
+                                  isCatAdmin
                                 }
                                 hasAnswerDraft={hasDraft}
                                 hasLegacyAnswerDraft={hasLegacyDraft}
@@ -335,7 +333,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             size="sm"
                             onClick={onToggleHidden}
                             className="d-inline-block"
-                            disabled={!has_answers}
                           >
                             {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
@@ -343,7 +340,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       }
                       right={
                         isCatAdmin && (
-                          <UncontrolledDropdown disabled={!has_answers}>
+                          <UncontrolledDropdown>
                             <DropdownToggle caret size="sm">
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </DropdownToggle>
