@@ -16,6 +16,7 @@ import {
 } from "@vseth/components";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { imageHandler } from "../api/fetch-utils";
 import {
   loadCategories,
   Mutate,
@@ -27,6 +28,9 @@ import { Document } from "../interfaces";
 import { createOptions, options } from "../utils/ts-utils";
 import CreateDocumentFileModal from "./create-document-file-modal";
 import DocumentFileItem from "./document-file-item";
+import Editor from "./Editor";
+import { UndoStack } from "./Editor/utils/undo-stack";
+import MarkdownText from "./markdown-text";
 
 interface Props {
   data: Document;
@@ -70,6 +74,14 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
+  const [descriptionDraftText, setDescriptionDraftText] = useState<
+    string | undefined
+  >(undefined);
+  const [descriptionUndoStack, setDescriptionUndoStack] = useState<UndoStack>({
+    prev: [],
+    next: [],
+  });
+
   const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
     <>
@@ -104,10 +116,25 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               required
             />
           </FormGroup>
+          <FormGroup>
+            <label className="form-input-label">Description</label>
+            <Editor
+              value={descriptionDraftText ?? data.description}
+              onChange={setDescriptionDraftText}
+              imageHandler={imageHandler}
+              preview={value => <MarkdownText value={value} />}
+              undoStack={descriptionUndoStack}
+              setUndoStack={setDescriptionUndoStack}
+            />
+          </FormGroup>
           <div className="form-group d-flex justify-content-end">
             <Button
               onClick={() =>
-                updateDocument({ display_name: displayName, category })
+                updateDocument({
+                  display_name: displayName,
+                  category,
+                  description: descriptionDraftText,
+                })
               }
             >
               Save

@@ -62,6 +62,7 @@ def get_document_obj(
     obj = {
         "slug": document.slug,
         "display_name": document.display_name,
+        "description": document.description,
         "category": document.category.slug,
         "category_display_name": document.category.displayname,
         "author": document.author.username,
@@ -167,9 +168,12 @@ class DocumentRootView(View):
     def post(self, request: HttpRequest):
         category = get_object_or_404(Category, slug=request.POST["category"])
         display_name = request.POST["display_name"]
+        # description is optional
+        description = request.POST.get("description", "")
         document = Document(
             slug=create_document_slug(display_name, request.user),
             display_name=display_name,
+            description=description,
             category=category,
             author=request.user,
         )
@@ -206,6 +210,8 @@ class DocumentElementView(View):
         document = get_object_or_404(Document, author__username=username, slug=slug)
         if not document.current_user_can_edit(request):
             return response.not_allowed()
+        if "description" in request.DATA:
+            document.description = request.DATA["description"]
         if "display_name" in request.DATA:
             document.display_name = request.DATA["display_name"]
             document.slug = create_document_slug(

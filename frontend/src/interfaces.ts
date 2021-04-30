@@ -324,6 +324,7 @@ export type SearchResponse = SearchResult[];
 export interface Document {
   slug: string;
   display_name: string;
+  description: string;
   category: string;
   category_display_name: string;
   author: string;

@@ -8,6 +8,7 @@ from util.models import CommentMixin
 class Document(ExportModelOperationsMixin("document"), models.Model):
     slug = models.CharField(max_length=256, db_index=True)
     display_name = models.CharField(max_length=256)
+    description = models.CharField(max_length=4096)
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     likes = models.ManyToManyField("auth.User", related_name="liked_documents")
