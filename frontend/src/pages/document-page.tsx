@@ -35,8 +35,11 @@ import MarkdownText from "../components/markdown-text";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
-  file.mime_type === "application/octet-stream" &&
-  file.filename.endsWith(".md");
+  file.filename.endsWith(".md") &&
+  (file.mime_type === "application/octet-stream" ||
+    file.mime_type === "text/x-markdown" ||
+    file.mime_type === "text/markdown");
+
 const isTex = (file: DocumentFile) => file.mime_type === "application/x-tex";
 
 const getComponents = (
@@ -71,14 +74,18 @@ enum DocumentTab {
 }
 
 const getFile = (document: Document | undefined, oid: number) =>
-  document ? document.files.find(x => x.oid === oid) : undefined;
+  document ? document.files.find((x) => x.oid === oid) : undefined;
 
 interface Props {}
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
-  const [error, loading, data, mutate] = useDocument(author, slug, document => {
-    if (document.files.length > 0) setTab(document.files[0].oid);
-  });
+  const [error, loading, data, mutate] = useDocument(
+    author,
+    slug,
+    (document) => {
+      if (document.files.length > 0) setTab(document.files[0].oid);
+    },
+  );
 
   const [tab, setTab] = useState<DocumentTab | number>(DocumentTab.NONE);
   const activeFile = typeof tab === "number" ? getFile(data, tab) : undefined;
@@ -129,7 +136,7 @@ const DocumentPage: React.FC<Props> = () => {
         <Container>
           <Row className="d-flex flex-wrap">
             {data &&
-              data.files.map(file => (
+              data.files.map((file) => (
                 <Col key={file.oid} xs="auto">
                   <NavItem className="m-0">
                     <NavLink
@@ -231,7 +238,7 @@ const DocumentPage: React.FC<Props> = () => {
             {data.comments.length === 0 && (
               <div className="py-4 text-center">There are no comments yet.</div>
             )}
-            {data.comments.map(comment => (
+            {data.comments.map((comment) => (
               <DocumentCommentComponent
                 documentAuthor={data.author}
                 documentSlug={slug}
