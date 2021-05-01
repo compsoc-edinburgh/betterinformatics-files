@@ -33,9 +33,9 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   const [loading, createDocumentFile] = useCreateDocumentFile(
     document.author,
     document.slug,
-    f => {
+    (f) => {
       toggle(false);
-      mutate(s => ({ ...s, files: [...s.files, f] }));
+      mutate((s) => ({ ...s, files: [...s.files, f] }));
       setDisplayName("");
       setFile(undefined);
     },
@@ -49,11 +49,15 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           label="Display Name"
           type="text"
           value={displayName}
-          onChange={e => setDisplayName(e.currentTarget.value)}
+          onChange={(e) => setDisplayName(e.currentTarget.value)}
         />
         <FormGroup>
           <label className="form-input-label">File</label>
-          <FileInput value={file} onChange={setFile} />
+          <FileInput
+            value={file}
+            onChange={setFile}
+            accept=".pdf,.tex,.md,.txt"
+          />
           <div className="form-text text-muted">
             If you don't select any file we will create an empty markdown file
             for you that you can edit afterwards.
