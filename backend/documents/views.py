@@ -121,10 +121,7 @@ def create_document_slug(
 
 
 def is_allowed(ext: str, mime_type: str):
-    for (allowedExt, allowedMime) in settings.COMSOL_DOCUMENT_ALLOWED_EXTENSIONS:
-        if allowedExt == ext and allowedMime == mime_type:
-            return True
-    return False
+    return (ext, mime_type) in settings.COMSOL_DOCUMENT_ALLOWED_EXTENSIONS
 
 
 def prepare_document_file(request: HttpRequest):
