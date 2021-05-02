@@ -12,6 +12,7 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     likes = models.ManyToManyField("auth.User", related_name="liked_documents")
+    api_key = models.CharField(max_length=1024)
 
     def current_user_can_delete(self, request):
         is_admin = auth_check.has_admin_rights_for_document(request, self)

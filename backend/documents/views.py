@@ -20,8 +20,13 @@ from django.http import HttpRequest
 from django.db.models import Q
 import os.path
 from django.core.signing import Signer, BadSignature
+import secrets
 
 logger = logging.getLogger(__name__)
+
+
+def generate_api_key():
+    return secrets.token_urlsafe(32)
 
 
 def get_comment_obj(comment: Comment, request: HttpRequest):
@@ -36,21 +41,13 @@ def get_comment_obj(comment: Comment, request: HttpRequest):
     }
 
 
-document_update_signer = Signer(salt="edit_document")
-
-
-def get_file_obj(file: DocumentFile, include_key: bool = False):
-    obj = {
+def get_file_obj(file: DocumentFile):
+    return {
         "oid": file.pk,
         "display_name": file.display_name,
         "filename": file.filename,
         "mime_type": file.mime_type,
     }
-
-    if include_key:
-        obj["key"] = document_update_signer.sign(file.pk)
-
-    return obj
 
 
 def get_document_obj(
@@ -73,6 +70,8 @@ def get_document_obj(
         obj["like_count"] = document.like_count
     if hasattr(document, "liked"):
         obj["liked"] = document.liked
+    if document.current_user_can_edit(request):
+        obj["api_key"] = document.api_key
 
     if include_comments:
         obj["comments"] = [
@@ -80,10 +79,7 @@ def get_document_obj(
         ]
 
     if include_files:
-        obj["files"] = [
-            get_file_obj(file, document.current_user_can_edit(request))
-            for file in document.files.all()
-        ]
+        obj["files"] = [get_file_obj(file) for file in document.files.all()]
 
     return obj
 
@@ -448,20 +444,18 @@ def get_document_file(request, filename):
 
 @csrf_exempt
 @response.request_post()
-def update_file(request: HttpRequest):
+def update_file(request: HttpRequest, document_slug: str, id: int):
     token = request.headers.get("Authorization", "")
-    document_file_pk = 0
-    try:
-        document_file_pk = int(document_update_signer.unsign(token))
-    except BadSignature:
-        return HttpResponseForbidden("authorization token signature didn't match")
-    except ValueError:
+    document = get_object_or_404(Document, slug=document_slug)
+    if document.api_key != token:
         return HttpResponseForbidden("invalid authorization token")
 
     document_file = get_object_or_404(
         DocumentFile,
-        pk=document_file_pk,
+        document__pk=document.pk,
+        pk=id,
     )
+
     document_file.edittime = timezone.now()
 
     err, file, ext = prepare_document_pdf_file(request)

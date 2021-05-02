@@ -102,7 +102,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         <ModalHeader toggle={toggleKeyIsOpen}>Access Token</ModalHeader>
         <ModalBody>
           <p>
-            Token: <code>{file.key}</code>
+            Token: <code>{document.api_key}</code>
           </p>
           <p>
             This token can be used to replace the file without needing to login
@@ -112,7 +112,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </p>
           <p>
             The token is valid for an endpoint that can be found at{" "}
-            <code>POST /api/document/update</code>. The token has to be supplied
+            <code>POST /api/document/document_slug/files/file_id/update</code>. The token has to be supplied
             as an Authorization header, a replacement file can be sent as
             multipart-form upload with the key "file". The content type and
             filename of the new file are ignored, the extension and the filename
@@ -129,7 +129,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </p>
           <pre>
             <code>
-              {`curl ${window.location.origin}/api/document/update \\\n  -H "Authorization: ${file.key}" \\\n  -F "file=@my_document.pdf"`}
+              {`curl ${window.location.origin}/api/document/${document.slug}/files/${file.oid}/update \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
         </ModalBody>
