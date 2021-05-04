@@ -47,6 +47,7 @@ programs:
       - SIP_S3_FILES_ACCESS_KEY:
       - SIP_S3_FILES_SECRET_KEY:
       - SIP_S3_FILES_BUCKET:
+      - SIP_S3_FILES_USE_SSL:
   - name: gunicorn
     path: /usr/local/bin/gunicorn
     args:
@@ -73,6 +74,7 @@ programs:
       - SIP_S3_FILES_ACCESS_KEY:
       - SIP_S3_FILES_SECRET_KEY:
       - SIP_S3_FILES_BUCKET:
+      - SIP_S3_FILES_USE_SSL:
 
       - SIP_POSTGRES_DB_SERVER:
       - SIP_POSTGRES_DB_PORT:

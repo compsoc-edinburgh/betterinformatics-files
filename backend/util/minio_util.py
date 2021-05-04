@@ -13,7 +13,7 @@ from util import response
 
 if "SIP_S3_FILES_HOST" in os.environ:
     endpoint = (
-        "http://"
+        ("https://" if os.environ["SIP_S3_FILES_USE_SSL"] == "true" else "http://")
         + os.environ["SIP_S3_FILES_HOST"]
         + ":"
         + os.environ["SIP_S3_FILES_PORT"]
