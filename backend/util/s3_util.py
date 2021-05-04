@@ -37,7 +37,7 @@ def save_uploaded_file_to_disk(dest: str, uploaded_file: UploadedFile):
             destination.write(chunk)
 
 
-def save_uploaded_file_to_minio(
+def save_uploaded_file_to_s3(
     directory: str,
     filename: str,
     uploaded_file: UploadedFile,
@@ -51,14 +51,16 @@ def save_uploaded_file_to_minio(
         )
 
 
-def save_file_to_minio(
+def save_file_to_s3(
     directory: str,
     filename: str,
     path: str,
     content_type: str = "application/octet-stream",
 ):
     with open(path, "rb") as file:
-        s3_bucket.put_object(Body=file, Key=directory + filename, ContentType=content_type)
+        s3_bucket.put_object(
+            Body=file, Key=directory + filename, ContentType=content_type
+        )
 
 
 def delete_file(directory, filename):
@@ -104,7 +106,7 @@ def send_file(
         return response.not_found()
 
 
-def is_file_in_minio(directory, filename):
+def is_file_in_s3(directory, filename):
     try:
         s3_client.head_object(Bucket=s3_bucket_name, Key=directory + filename)
         return True
@@ -123,7 +125,7 @@ def generate_filename(length, directory, extension):
     res = ""
     while len(res) < length:
         res += random.choice(chars)
-    if is_file_in_minio(directory, res + extension):
+    if is_file_in_s3(directory, res + extension):
         return generate_filename(length, directory, extension)
     return res + extension
 

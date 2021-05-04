@@ -1,7 +1,7 @@
 from django.db import migrations
 import tempfile
 from backend import settings
-from util import minio_util
+from util import s3_util
 from answers import pdf_utils
 import logging
 
@@ -20,9 +20,7 @@ def forwards_func(apps, schema_editor):
     with tempfile.TemporaryDirectory(dir=base_path) as tmpdirname:
         for exam in all_exams:
             filename = exam.filename
-            minio_util.save_file(
-                settings.COMSOL_EXAM_DIR, filename, tmpdirname + filename
-            )
+            s3_util.save_file(settings.COMSOL_EXAM_DIR, filename, tmpdirname + filename)
             res = pdf_utils.analyze_pdf(
                 exam,
                 tmpdirname + filename,
