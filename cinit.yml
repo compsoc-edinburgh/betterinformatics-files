@@ -10,35 +10,11 @@ programs:
     before:
       - migrate
     env:
-      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN:
-      - SIP_INGRESS_HTTP_DEFAULT_CNAMES:
-
-      - SIP_S3_FILES_HOST:
-      - SIP_S3_FILES_PORT:
-      - SIP_S3_FILES_ACCESS_KEY:
-      - SIP_S3_FILES_SECRET_KEY:
-      - SIP_S3_FILES_BUCKET:
-
       - SIP_POSTGRES_DB_SERVER:
       - SIP_POSTGRES_DB_PORT:
       - SIP_POSTGRES_DB_NAME:
       - SIP_POSTGRES_DB_USER:
       - SIP_POSTGRES_DB_PW:
-
-      - SIP_AUTH_OIDC_CLIENT_ID:
-      - SIP_AUTH_OIDC_JWKS_URL:
-
-      - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET:
-      - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY:
-
-      - FRONTEND_GLOB_ID:
-      - FRONTEND_KEYCLOAK_URL:
-      - FRONTEND_KEYCLOAK_REALM:
-
-      - RUNTIME_JWT_PUBLIC_KEY:
-
-      # Only for debug purposes
-      - RUNTIME_JWT_VERIFY_SIGNATURE:
   - name: migrate
     path: /usr/bin/python3
     args:
@@ -50,35 +26,27 @@ programs:
     before:
       - gunicorn
     env:
-      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN:
-      - SIP_INGRESS_HTTP_DEFAULT_CNAMES:
-
-      - SIP_S3_FILES_HOST:
-      - SIP_S3_FILES_PORT:
-      - SIP_S3_FILES_ACCESS_KEY:
-      - SIP_S3_FILES_SECRET_KEY:
-      - SIP_S3_FILES_BUCKET:
-
       - SIP_POSTGRES_DB_SERVER:
       - SIP_POSTGRES_DB_PORT:
       - SIP_POSTGRES_DB_NAME:
       - SIP_POSTGRES_DB_USER:
       - SIP_POSTGRES_DB_PW:
-
-      - SIP_AUTH_OIDC_CLIENT_ID:
-      - SIP_AUTH_OIDC_JWKS_URL:
-
-      - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET:
-      - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY:
-
-      - FRONTEND_GLOB_ID:
-      - FRONTEND_KEYCLOAK_URL:
-      - FRONTEND_KEYCLOAK_REALM:
-
-      - RUNTIME_JWT_PUBLIC_KEY:
-
-      # Only for debug purposes
-      - RUNTIME_JWT_VERIFY_SIGNATURE:
+  - name: configure-cors
+    path: /usr/bin/python3
+    args:
+      - "manage.py"
+      - "configure_cors"
+    workdir: /app
+    user: app-user
+    group: app-user
+    before:
+      - gunicorn
+    env:
+      - SIP_S3_FILES_HOST:
+      - SIP_S3_FILES_PORT:
+      - SIP_S3_FILES_ACCESS_KEY:
+      - SIP_S3_FILES_SECRET_KEY:
+      - SIP_S3_FILES_BUCKET:
   - name: gunicorn
     path: /usr/local/bin/gunicorn
     args:

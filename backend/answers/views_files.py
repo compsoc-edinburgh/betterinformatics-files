@@ -5,9 +5,6 @@ from answers.models import Exam, ExamType
 from categories.models import Category
 from django.shortcuts import get_object_or_404
 import os
-import io
-import tempfile
-import zipfile
 from answers import pdf_utils
 
 
@@ -138,7 +135,9 @@ def get_exam_pdf(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
     if not exam.current_user_can_view(request):
         return response.not_allowed()
-    return response.success(value=minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_EXAM_DIR + filename))
+    return response.success(
+        value=minio_util.presigned_get_object(settings.COMSOL_EXAM_DIR, filename)
+    )
 
 
 @response.request_get()
@@ -149,7 +148,9 @@ def get_solution_pdf(request, filename):
         return response.not_allowed()
     if not exam.has_solution:
         return response.not_found()
-    return response.success(value=minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_SOLUTION_DIR + filename))
+    return response.success(
+        value=minio_util.presigned_get_object(settings.COMSOL_SOLUTION_DIR, filename)
+    )
 
 
 @response.request_get()
@@ -160,7 +161,9 @@ def get_printonly_pdf(request, filename):
         return response.not_allowed()
     if not exam.is_printonly:
         return response.not_found()
-    return response.success(value=minio_util.minio_client.presigned_get_object(minio_util.minio_bucket, settings.COMSOL_PRINTONLY_DIR + filename))
+    return response.success(
+        value=minio_util.presigned_get_object(settings.COMSOL_PRINTONLY_DIR, filename)
+    )
 
 
 def print_pdf(exam, request, filename, minio_dir):

@@ -100,6 +100,14 @@ JWT_RESOURCE_GROUP = (
     "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
 )
 
+CNAMES = os.environ.get("SIP_INGRESS_HTTP_DEFAULT_CNAMES", "")
+PRIMARY_DEPLOYMENT_DOMAIN = os.environ.get(
+    "SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN", ""
+)
+DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
+    [] if CNAMES == "" else CNAMES.split(" ")
+)
+
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
@@ -111,10 +119,7 @@ else:
     # In K8s, the host is the IP of the pod and can thus change
     # As we are behind a reverse proxy, it should be fine to ignore this...
     ALLOWED_HOSTS.append("*")
-
-    REAL_ALLOWED_HOSTS.append(os.environ["SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN"])
-    cnames_env = os.environ["SIP_INGRESS_HTTP_DEFAULT_CNAMES"]
-    REAL_ALLOWED_HOSTS.extend([] if cnames_env == "" else cnames_env.split(" "))
+    REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
 CSP_DEFAULT_SRC = "'self'"
 allowed = []
@@ -162,6 +167,7 @@ INSTALLED_APPS = [
     "health.apps.HealthConfig",
     "images.apps.ImagesConfig",
     "myauth.apps.MyAuthConfig",
+    "util.apps.UtilConfig",
     "notifications.apps.NotificationsConfig",
     "payments.apps.PaymentsConfig",
     "scoreboard.apps.ScoreboardConfig",
@@ -246,7 +252,6 @@ else:
         }
     }
     print("Warning: no database configured!")
-    print(os.environ)
 
 
 # Password validation

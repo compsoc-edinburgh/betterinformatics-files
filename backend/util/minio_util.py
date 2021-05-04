@@ -1,75 +1,114 @@
 import os
 import random
+from typing import Optional
 
+import boto3
+from botocore.client import Config
+from botocore.exceptions import ClientError
 from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile
 from django.http import FileResponse
-from minio import Minio, S3Error
 
 from util import response
 
-if settings.IN_ENVIRON:
-    # Minio seems to run unsecured on port 80 in the debug environment
-    minio_client = Minio(
-        os.environ["SIP_S3_FILES_HOST"] + ":" + os.environ["SIP_S3_FILES_PORT"],
-        access_key=os.environ["SIP_S3_FILES_ACCESS_KEY"],
-        secret_key=os.environ["SIP_S3_FILES_SECRET_KEY"],
-        secure=not settings.DEBUG and not settings.TESTING,
+if "SIP_S3_FILES_HOST" in os.environ:
+    endpoint = (
+        "http://"
+        + os.environ["SIP_S3_FILES_HOST"]
+        + ":"
+        + os.environ["SIP_S3_FILES_PORT"]
     )
-    minio_bucket = os.environ["SIP_S3_FILES_BUCKET"]
+    options = {
+        "endpoint_url": endpoint,
+        "aws_access_key_id": os.environ["SIP_S3_FILES_ACCESS_KEY"],
+        "aws_secret_access_key": os.environ["SIP_S3_FILES_SECRET_KEY"],
+        "config": Config(signature_version="s3v4"),
+        "region_name": "vis-is-great-1",
+    }
+    s3 = boto3.resource("s3", **options)
+    s3_client = boto3.client("s3", **options)
+    s3_bucket_name = os.environ["SIP_S3_FILES_BUCKET"]
+    s3_bucket = s3.Bucket(s3_bucket_name)
 
 
-def save_uploaded_file_to_disk(dest, uploaded_file):
+def save_uploaded_file_to_disk(dest: str, uploaded_file: UploadedFile):
     with open(dest, "wb+") as destination:
         for chunk in uploaded_file.chunks():
             destination.write(chunk)
 
 
 def save_uploaded_file_to_minio(
-    directory, filename, uploaded_file, content_type="application/octet-stream"
+    directory: str,
+    filename: str,
+    uploaded_file: UploadedFile,
+    content_type: str = "application/octet-stream",
 ):
     temp_file_path = os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename)
     save_uploaded_file_to_disk(temp_file_path, uploaded_file)
-    minio_client.fput_object(
-        minio_bucket, directory + filename, temp_file_path, content_type=content_type
-    )
+    with open(temp_file_path, "rb") as temp_file:
+        s3_bucket.put_object(
+            Body=temp_file, Key=directory + filename, ContentType=content_type
+        )
 
 
-def save_file_to_minio(directory, filename, path):
-    minio_client.fput_object(minio_bucket, directory + filename, path)
+def save_file_to_minio(
+    directory: str,
+    filename: str,
+    path: str,
+    content_type: str = "application/octet-stream",
+):
+    with open(path, "rb") as file:
+        s3_bucket.put(Body=file, Key=directory + filename, ContentType=content_type)
 
 
 def delete_file(directory, filename):
     try:
-        minio_client.remove_object(minio_bucket, directory + filename)
-    except S3Error:
+        s3_client.delete_object(Bucket=s3_bucket_name, Key=directory + filename)
+    except ClientError:
         return False
     return True
 
 
-def save_file(directory, filename, destination):
+def save_file(directory: str, filename: str, destination: str):
     try:
-        minio_client.fget_object(minio_bucket, directory + filename, destination)
+        s3_bucket.download_file(directory + filename, destination)
         return True
-    except S3Error:
+    except ClientError:
         return False
 
 
-def send_file(directory, filename, as_attachment=False, attachment_filename=None):
+def presigned_get_object(directory: str, filename: str):
+    return s3_client.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={"Bucket": s3_bucket_name, "Key": directory + filename},
+        HttpMethod="GET",
+    )
+
+
+def send_file(
+    directory: str,
+    filename: str,
+    as_attachment: bool = False,
+    attachment_filename: Optional[str] = None,
+):
     try:
         attachment_filename = attachment_filename or filename
-        data = minio_client.get_object(minio_bucket, directory + filename)
-        return FileResponse(
-            data, as_attachment=as_attachment, filename=attachment_filename
+        data = s3_client.get_object(
+            Bucket=s3_bucket_name,
+            Key=directory + filename,
         )
-    except S3Error:
+        return FileResponse(
+            data["Body"], as_attachment=as_attachment, filename=attachment_filename
+        )
+    except ClientError:
         return response.not_found()
 
 
 def is_file_in_minio(directory, filename):
     try:
-        minio_client.stat_object(minio_bucket, directory + filename)
+        s3_client.head_object(Bucket=s3_bucket_name, Key=directory + filename)
         return True
-    except S3Error:
+    except ClientError:
         return False
 
 
