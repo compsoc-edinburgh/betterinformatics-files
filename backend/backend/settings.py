@@ -31,7 +31,9 @@ STAGING = True
 SECRET_KEY = (
     "VERY SAFE SECRET KEY"
     if DEBUG
-    else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET"]
+    else os.environ.get(
+        "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET", "VERY SAFE SECRET KEY"
+    )
 )
 API_KEY = "API_KEY" if DEBUG else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_API_KEY"]
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
@@ -233,7 +235,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if IN_ENVIRON:
+if "SIP_POSTGRES_DB_NAME" in os.environ:
     DATABASES = {
         "default": {
             "ENGINE": "django_prometheus.db.backends.postgresql",

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    def handle(self):
+    def handle(self, *args, **options):
         s3_bucket_cors = s3.BucketCors(s3_bucket_name)
         try:
             s3_bucket_cors.put(
