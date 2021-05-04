@@ -58,7 +58,7 @@ def save_file_to_minio(
     content_type: str = "application/octet-stream",
 ):
     with open(path, "rb") as file:
-        s3_bucket.put(Body=file, Key=directory + filename, ContentType=content_type)
+        s3_bucket.put_object(Body=file, Key=directory + filename, ContentType=content_type)
 
 
 def delete_file(directory, filename):
