@@ -46,8 +46,8 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
         <>
           <h2>Paid Oral Exams</h2>
           {payments
-            .filter(payment => payment.active)
-            .map(payment => (
+            .filter((payment) => payment.active)
+            .map((payment) => (
               <Alert key={payment.oid}>
                 You have paid for all oral exams until{" "}
                 {moment(
@@ -58,7 +58,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
               </Alert>
             ))}
           <Grid>
-            {payments.map(payment =>
+            {payments.map((payment) =>
               openPayment === payment.oid ? (
                 <ListGroup key={payment.oid} onClick={() => setOpenPayment("")}>
                   <ListGroupItem>
@@ -91,11 +91,13 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                       </Link>
                     </ListGroupItem>
                   )}
-                  {!payment.refund_time && isAdmin && (
+                  {isAdmin && (
                     <ListGroupItem>
-                      <Button onClick={() => refund(payment.oid)}>
-                        Mark Refunded
-                      </Button>
+                      {!payment.refund_time && (
+                        <Button onClick={() => refund(payment.oid)}>
+                          Mark Refunded
+                        </Button>
+                      )}
                       <Button onClick={() => remove(payment.oid)}>
                         Remove Payment
                       </Button>
@@ -122,7 +124,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
       )}
       {isAdmin &&
         payments &&
-        payments.filter(payment => payment.active).length === 0 && (
+        payments.filter((payment) => payment.active).length === 0 && (
           <Button className="my-3" onClick={() => add(username)}>
             Add Payment
           </Button>
