@@ -87,7 +87,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const { run: runMarkChecked } = useRequest(markAsChecked, {
     manual: true,
     onSuccess() {
-      mutateMetaData(metaData => ({
+      mutateMetaData((metaData) => ({
         ...metaData,
         oral_transcript_checked: true,
       }));
@@ -108,9 +108,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const { run: runUpdate } = useRequest(updateCut, {
     manual: true,
     onSuccess: (_data, [oid, update]) => {
-      mutateCuts(oldCuts =>
+      mutateCuts((oldCuts) =>
         Object.keys(oldCuts).reduce((result, key) => {
-          result[key] = oldCuts[key].map(cutPosition =>
+          result[key] = oldCuts[key].map((cutPosition) =>
             cutPosition.oid === oid
               ? { ...cutPosition, ...update }
               : cutPosition,
@@ -123,7 +123,13 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const onSectionChange = useCallback(
     (section: string | [number, number], update: Partial<CutUpdate>) => {
       if (Array.isArray(section)) {
-        runAddCut(metaData.filename, section[0], section[1], update.hidden);
+        runAddCut(
+          metaData.filename,
+          section[0],
+          section[1],
+          update.hidden,
+          false,
+        );
       } else {
         runUpdate(section, update);
       }
@@ -311,7 +317,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               </Card>
             </Col>
           )}
-          {metaData.attachments.map(attachment => (
+          {metaData.attachments.map((attachment) => (
             <Col md={6} lg={4} key={attachment.filename}>
               <a
                 href={`/api/filestore/get/${attachment.filename}/`}
