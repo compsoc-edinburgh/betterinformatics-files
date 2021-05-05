@@ -94,7 +94,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                   {isAdmin && (
                     <ListGroupItem>
                       {!payment.refund_time && (
-                        <Button onClick={() => refund(payment.oid)}>
+                        <Button onClick={() => refund(payment.oid)} className="mr-1">
                           Mark Refunded
                         </Button>
                       )}
