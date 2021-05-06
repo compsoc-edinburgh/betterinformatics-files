@@ -55,6 +55,7 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".md", "text/markdown"),
     (".md", "text/x-markdown"),
     (".txt", "text/plain"),
+    (".zpi", "application/zip")
 }
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "svg", "gif"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
