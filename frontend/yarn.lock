@@ -7444,10 +7444,10 @@ jszip@3.6.0:
     readable-stream "~2.3.6"
     set-immediate-shim "~1.0.1"
 
-katex@0.13.7:
-  version "0.13.7"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.13.7.tgz#4b4e5c285467584163cb14f78cd24ab64373cc13"
-  integrity sha512-EcwE7uFwlumQf4r+NRpx6Q1mCkoscVVfKiX20AHsusrwiJACMSzstfJ4Z0Poh1WxWTwmTBR1tOA9Qpq8C56oyQ==
+katex@0.13.8:
+  version "0.13.8"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.13.8.tgz#64b7ea956941f10d490a49f256f7defb8c02a335"
+  integrity sha512-Em4VLhPveFcD1nyqfP7RPC0xsTEd7Hi8VtQQUYUqXpZqFd8FEw9iTmYaDtcBUfGUEC9rZvpvE5egcr7yOJRmzw==
   dependencies:
     commander "^6.0.0"
 
