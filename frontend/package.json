@@ -24,7 +24,7 @@
     "@vseth/components": "2.0.0-alpha.6",
     "date-fns": "2.21.2",
     "jszip": "3.6.0",
-    "katex": "0.13.7",
+    "katex": "0.13.8",
     "keycloak-js": "13.0.0",
     "lodash": "4.17.21",
     "moment": "2.29.1",
