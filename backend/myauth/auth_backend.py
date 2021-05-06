@@ -102,6 +102,8 @@ def add_auth(request):
             if "resource_access" in claims
             else []
         )
+        if settings.IS_PREVIEW:
+            roles = ["admin"]
         request.roles = roles
 
         with transaction.atomic():

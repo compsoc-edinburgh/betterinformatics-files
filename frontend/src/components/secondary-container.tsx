@@ -9,7 +9,7 @@ const contentContainerBg = css`
 const ContentContainer: React.FC<Props> = ({ children, className }) => {
   return (
     <div
-      className={`border-gray-300 border-top border-bottom py-5 px-0 ${contentContainerBg}${
+      className={`border-gray-300 border-top border-bottom py-5 px-0 my-3 ${contentContainerBg}${
         className ? ` ${className}` : ""
       }`}
     >

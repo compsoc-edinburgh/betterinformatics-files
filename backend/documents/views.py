@@ -12,7 +12,7 @@ from myauth import auth_check
 from django.views import View
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from util import response, minio_util
+from util import response, s3_util
 from django.db.models import Count
 from categories.models import Category
 import logging
@@ -341,7 +341,7 @@ class DocumentFileRootView(View):
         if err is not None:
             return err
 
-        filename = minio_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
             display_name=request.POST["display_name"],
             document=document,
@@ -350,7 +350,7 @@ class DocumentFileRootView(View):
         )
         document_file.save()
 
-        minio_util.save_uploaded_file_to_minio(
+        s3_util.save_uploaded_file_to_s3(
             settings.COMSOL_DOCUMENT_DIR, filename, file, file.content_type
         )
 
@@ -396,16 +396,16 @@ class DocumentFileElementView(View):
             if err is not None:
                 return err
             if not document_file.filename.endswith(ext):
-                minio_util.delete_file(
+                s3_util.delete_file(
                     settings.COMSOL_DOCUMENT_DIR, document_file.filename
                 )
-                filename = minio_util.generate_filename(
+                filename = s3_util.generate_filename(
                     16, settings.COMSOL_DOCUMENT_DIR, ext
                 )
                 document_file.filename = filename
                 document_file.mime_type = file.content_type
 
-            minio_util.save_uploaded_file_to_minio(
+            s3_util.save_uploaded_file_to_s3(
                 settings.COMSOL_DOCUMENT_DIR,
                 document_file.filename,
                 file,
@@ -431,7 +431,7 @@ class DocumentFileElementView(View):
         )
 
         document_file.delete()
-        success = minio_util.delete_file(
+        success = s3_util.delete_file(
             settings.COMSOL_DOCUMENT_DIR,
             document_file.filename,
         )
@@ -444,7 +444,7 @@ def get_document_file(request, filename):
     document_file = get_object_or_404(DocumentFile, filename=filename)
     _, ext = os.path.splitext(document_file.filename)
     attachment_filename = document_file.display_name + ext
-    return minio_util.send_file(
+    return s3_util.send_file(
         settings.COMSOL_DOCUMENT_DIR,
         filename,
         as_attachment=True,
@@ -474,7 +474,7 @@ def update_file(request: HttpRequest):
     if err is not None:
         return err
 
-    minio_util.save_uploaded_file_to_minio(
+    s3_util.save_uploaded_file_to_s3(
         settings.COMSOL_DOCUMENT_DIR,
         document_file.filename,
         file,
