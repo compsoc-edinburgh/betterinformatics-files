@@ -176,7 +176,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       ) {
         run();
       }
-    }, [data, visible, run, cutVersion, hidden]);
+    }, [data, visible, run, cutVersion, hidden, has_answers]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = useCallback(() => {
@@ -210,6 +210,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           setHidden={() => {
             onHasAnswersChange();
             setDeleteAnswersWarning(false);
+            if(data) {
+              data.answers = [];
+              setAnswerSection(data);
+            }
           }}
         />
         {((cutName && cutName.length > 0) ||
@@ -310,6 +314,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                                 console.log(data.answers);
                                 if (data.answers.length == 0 || !has_answers) {
                                   onHasAnswersChange();
+                                  
                                 } else {
                                   setDeleteAnswersWarning(true);
                                 }
@@ -324,6 +329,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             </Button>
                           ) : (
                             (data.answers.length === 0 || !hidden) &&
+                            has_answers &&
                             data &&
                             (data.allow_new_answer ||
                               (data.allow_new_legacy_answer && isCatAdmin)) && (
