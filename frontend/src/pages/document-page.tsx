@@ -31,6 +31,7 @@ import DocumentSettings from "../components/document-settings";
 import { useDocumentDownload } from "../hooks/useDocumentDownload";
 import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
+import MarkdownText from "../components/markdown-text";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -118,6 +119,11 @@ const DocumentPage: React.FC<Props> = () => {
           {data && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
         </div>
         {error && <Alert color="danger">{error.toString()}</Alert>}
+        {data && data.description && (
+          <div>
+            <MarkdownText value={data.description} />
+          </div>
+        )}
       </Container>
       <Nav tabs className="mt-4">
         <Container>

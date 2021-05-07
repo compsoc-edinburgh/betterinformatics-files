@@ -43,11 +43,11 @@ const DocumentCommentComponent = ({
     documentAuthor,
     documentSlug,
     comment.oid,
-    res => {
+    (res) => {
       setHasDraft(false);
-      mutate(document => ({
+      mutate((document) => ({
         ...document,
-        comments: document.comments.map(c => (c.oid !== res.oid ? c : res)),
+        comments: document.comments.map((c) => (c.oid !== res.oid ? c : res)),
       }));
     },
   );
@@ -56,9 +56,9 @@ const DocumentCommentComponent = ({
     documentSlug,
     comment.oid,
     () =>
-      mutate(document => ({
+      mutate((document) => ({
         ...document,
-        comments: document.comments.filter(c => c.oid !== comment.oid),
+        comments: document.comments.filter((c) => c.oid !== comment.oid),
       })),
   );
   const [hasDraft, setHasDraft] = useState(false);
@@ -67,7 +67,7 @@ const DocumentCommentComponent = ({
     prev: [],
     next: [],
   });
-  const toggle = () => setHasDraft(e => !e);
+  const toggle = () => setHasDraft((e) => !e);
   return (
     <>
       <Modal toggle={toggle} isOpen={hasDraft} size="lg">
@@ -77,7 +77,7 @@ const DocumentCommentComponent = ({
             value={draftText}
             onChange={setDraftText}
             imageHandler={imageHandler}
-            preview={value => <MarkdownText value={value} />}
+            preview={(value) => <MarkdownText value={value} />}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
@@ -154,7 +154,7 @@ const DocumentCommentComponent = ({
             )}
           </div>
         </div>
-        {comment.text}
+        <MarkdownText value={comment.text} />
       </Card>
     </>
   );

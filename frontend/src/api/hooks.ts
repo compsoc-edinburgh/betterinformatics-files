@@ -428,6 +428,7 @@ export interface DocumentUpdate {
   display_name?: string;
   category?: string;
   liked?: boolean;
+  description?: string;
 }
 export const updateDocument = async (
   author: string,
