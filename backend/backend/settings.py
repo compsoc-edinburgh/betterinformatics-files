@@ -48,7 +48,15 @@ COMSOL_DOCUMENT_DIR = "documents/"
 COMSOL_IMAGE_DIR = "imgs/"
 COMSOL_FILESTORE_DIR = "files/"
 COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
-COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {"pdf", "zip", "md"}
+COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
+    (".pdf", "application/pdf"),
+    (".tex", "application/x-tex"),
+    (".md", "application/octet-stream"),
+    (".md", "text/markdown"),
+    (".md", "text/x-markdown"),
+    (".txt", "text/plain"),
+    (".zip", "application/zip")
+}
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "svg", "gif"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (

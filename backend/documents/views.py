@@ -120,11 +120,17 @@ def create_document_slug(
     return slug
 
 
-def prepare_document_pdf_file(request):
+def is_allowed(ext: str, mime_type: str):
+    return (ext, mime_type) in settings.COMSOL_DOCUMENT_ALLOWED_EXTENSIONS
+
+
+def prepare_document_file(request: HttpRequest):
     file = request.FILES.get("file")
     if not file:
-        return response.missing_argument(), None
+        return response.missing_argument(), None, None
     _, ext = os.path.splitext(file.name)
+    if not is_allowed(ext, file.content_type):
+        return response.not_allowed(), None, None
     return None, file, ext
 
 
@@ -331,7 +337,7 @@ class DocumentFileRootView(View):
         if not document.current_user_can_edit(request):
             return response.not_allowed()
 
-        err, file, ext = prepare_document_pdf_file(request)
+        err, file, ext = prepare_document_file(request)
         if err is not None:
             return err
 
@@ -386,7 +392,7 @@ class DocumentFileElementView(View):
             document_file.display_name = request.DATA["display_name"]
 
         if "file" in request.FILES:
-            err, file, ext = prepare_document_pdf_file(request)
+            err, file, ext = prepare_document_file(request)
             if err is not None:
                 return err
             if not document_file.filename.endswith(ext):
@@ -464,7 +470,7 @@ def update_file(request: HttpRequest):
     )
     document_file.edittime = timezone.now()
 
-    err, file, ext = prepare_document_pdf_file(request)
+    err, file, ext = prepare_document_file(request)
     if err is not None:
         return err
 
