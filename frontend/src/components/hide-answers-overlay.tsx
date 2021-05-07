@@ -9,28 +9,27 @@ import {
   interface ModalProps {
     isOpen: boolean;
     toggle: () => void;
-    closeWithImage: (image: string) => void;
+    setHidden: () => void;
   }
   const HideAnswersModal: React.FC<ModalProps> = ({
     isOpen,
     toggle,
+    setHidden,
   }) => {
     return (
       <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Hide Answers?</ModalHeader>
+        <ModalHeader toggle={toggle}>Hide Section?</ModalHeader>
         <ModalBody>
-          <Row>
-            All corresponding Answers will be deleted, this cannot be undone!
-          </Row>
+          <p>All corresponding Answers will be deleted, this cannot be undone!</p>
   
           <div className="text-right">
-            <Button className="mt-1 mr-1" onClick={() => isOpen = false}>
+            <Button className="mt-1 mr-1" onClick={toggle}>
               Cancel
             </Button>
             <Button
               className="mt-1"
               color="danger"
-              onClick={() => console.log("DELETE")}
+              onClick={setHidden}
             >
               Delete Answers
             </Button>

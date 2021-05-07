@@ -179,13 +179,9 @@ const Exam: React.FC<Props> = React.memo(
                     onUpdateCut(section.oid, { name })
                   }
                   onHasAnswersChange={async () => {
-                      if ((await loadAnswerSection(section.oid)).answers === []) {
                         onUpdateCut(section.oid, {
                           has_answers: !section.has_answers,
                         })
-                      } else {
-                        
-                      }
                     }
                   }
                   hidden={!visible.has(section.oid)}

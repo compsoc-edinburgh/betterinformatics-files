@@ -25,6 +25,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
+import HideAnswersModal from "../components/hide-answers-overlay";
 import useLoad from "../hooks/useLoad";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
@@ -189,6 +190,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
+    const [deleteAnswersWarning, setDeleteAnswersWarning] = useState(false);
+
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
       data && cutName.length === 0 && isCatAdmin,
@@ -201,8 +204,16 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     return (
       <>
+        <HideAnswersModal
+          isOpen={deleteAnswersWarning}
+          toggle={() => setDeleteAnswersWarning(false)}
+          setHidden={() => {
+            onHasAnswersChange();
+            setDeleteAnswersWarning(false);
+          }}
+        />
         {((cutName && cutName.length > 0) ||
-            (isCatAdmin && displayEmptyCutLabels)) && (
+          (isCatAdmin && displayEmptyCutLabels)) && (
             <NameCard id={id}>
               <CardFooter>
                 {isEditingName ? (
@@ -295,7 +306,15 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               size="sm"
                               icon={has_answers ? "VIEW_OFF" : "VIEW"}
                               tooltip="Toggle visibility"
-                              onClick={onHasAnswersChange}
+                              onClick={() => {
+                                console.log(data.answers);
+                                if (data.answers.length == 0 || !has_answers) {
+                                  onHasAnswersChange();
+                                } else {
+                                  setDeleteAnswersWarning(true);
+                                }
+                              }
+                              }
                             />
                           ) : null}
 
