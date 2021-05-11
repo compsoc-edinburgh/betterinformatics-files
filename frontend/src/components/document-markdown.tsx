@@ -16,7 +16,7 @@ const DocumentMarkdown: React.FC<DocumentMarkdownProps> = ({ url }) => {
 
   return (
     <Container className="py-5">
-      {mdError && "Error loading PDF"}
+      {mdError && "Error loading Markdown"}
       {data !== undefined &&
         (data.length > 0 ? (
           <MarkdownText value={data} />
