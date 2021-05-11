@@ -7,12 +7,16 @@ interface DocumentMarkdownProps {
   url: string;
 }
 const DocumentMarkdown: React.FC<DocumentMarkdownProps> = ({ url }) => {
-  const { error: mdError, loading: mdLoading, data } = useRequest(() =>
-    fetch(url).then(r => r.text()),
+  const { error: mdError, data } = useRequest(
+    () => fetch(url).then((r) => r.text()),
+    {
+      refreshDeps: [url],
+    },
   );
 
   return (
     <Container className="py-5">
+      {mdError && "Error loading PDF"}
       {data !== undefined &&
         (data.length > 0 ? (
           <MarkdownText value={data} />
