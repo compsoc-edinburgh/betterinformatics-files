@@ -16,7 +16,6 @@ import { loadCutVersions } from "../api/hooks";
 import useSet from "../hooks/useSet";
 import PDF from "../pdf/pdf-renderer";
 import { fetchGet } from "../api/fetch-utils";
-import { loadAnswerSection } from "../api/exam-loader";
 
 interface Props {
   metaData: ExamMetaData;
@@ -111,8 +110,8 @@ const Exam: React.FC<Props> = React.memo(
       editState.mode === EditMode.Add
         ? "Add Cut"
         : editState.mode === EditMode.Move
-          ? "Move Cut"
-          : undefined;
+        ? "Move Cut"
+        : undefined;
     const hash = document.location.hash.substr(1);
     useEffect(() => {
       let cancelled = false;
@@ -123,7 +122,7 @@ const Exam: React.FC<Props> = React.memo(
             const sectionId = res.value.sectionId;
             show(sectionId);
           })
-          .catch(() => { });
+          .catch(() => {});
 
         // This line below is bad code, should be properly fixed by making hash-location-handler better
         window.location.hash = hash;
@@ -179,9 +178,9 @@ const Exam: React.FC<Props> = React.memo(
                     onUpdateCut(section.oid, { name })
                   }
                   onHasAnswersChange={async () => {
-                        onUpdateCut(section.oid, {
-                          has_answers: !section.has_answers,
-                        })
+                      onUpdateCut(section.oid, {
+                        has_answers: !section.has_answers,
+                      })
                     }
                   }
                   hidden={!visible.has(section.oid)}
