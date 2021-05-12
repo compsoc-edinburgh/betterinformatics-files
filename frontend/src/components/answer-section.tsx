@@ -314,7 +314,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                                 console.log(data.answers);
                                 if (data.answers.length == 0 || !has_answers) {
                                   onHasAnswersChange();
-                                  
+                                  data.allow_new_answer = true;
+                                  data.allow_new_legacy_answer = true;
                                 } else {
                                   setDeleteAnswersWarning(true);
                                 }
