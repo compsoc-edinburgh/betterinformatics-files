@@ -311,7 +311,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               icon={has_answers ? "VIEW_OFF" : "VIEW"}
                               tooltip="Toggle visibility"
                               onClick={() => {
-                                console.log(data.answers);
                                 if (data.answers.length == 0 || !has_answers) {
                                   onHasAnswersChange();
                                   data.allow_new_answer = true;
