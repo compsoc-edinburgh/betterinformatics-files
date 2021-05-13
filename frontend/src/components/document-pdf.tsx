@@ -31,12 +31,14 @@ interface DocumentPdfProps {
   url: string;
 }
 const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
-  const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
-    loadDocumentRenderer(url),
+  const { error: pdfError, data } = useRequest(
+    () => loadDocumentRenderer(url),
+    {
+      refreshDeps: [url],
+    },
   );
   const [size, sizeRef] = useSize<HTMLDivElement>();
-  const [pdf, renderer] = data ? data : [];
-  console.log(size.width);
+  const renderer = data ? data[1] : undefined;
   return (
     <ContentContainer>
       <Container>
@@ -45,7 +47,7 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
         <div ref={sizeRef} className="mx-auto my-3">
           {renderer && (
             <div className="d-flex flex-column">
-              {getPages(renderer).map(pageNumber => (
+              {getPages(renderer).map((pageNumber) => (
                 <PdfSectionCanvas
                   key={pageNumber}
                   oid={undefined}

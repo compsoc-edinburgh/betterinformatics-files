@@ -78,7 +78,11 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           />
           <FormGroup>
             <label className="form-input-label">Replace File</label>
-            <FileInput value={replaceFile} onChange={setFile} />
+            <FileInput
+              value={replaceFile}
+              onChange={setFile}
+              accept=".pdf,.tex,.md,.txt,.zip"
+            />
           </FormGroup>
         </ModalBody>
         <ModalFooter>

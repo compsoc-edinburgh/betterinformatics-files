@@ -25,7 +25,7 @@ COPY ./frontend/public/static ./static
 
 COPY ./backend/ ./
 
-FROM node:14-alpine AS frontend-build
+FROM node:16-alpine AS frontend-build
 ARG git_branch
 ARG git_commit
 

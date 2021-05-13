@@ -12,7 +12,7 @@ services:
       - ./data/minio:/export
     command: server /export
   pgadmin:
-    image: dpage/pgadmin4:4.26
+    image: dpage/pgadmin4:5.2
     container_name: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: docker@vis.ch
@@ -59,6 +59,7 @@ services:
       - SIP_S3_FILES_ACCESS_KEY=minio
       - SIP_S3_FILES_SECRET_KEY=minio123
       - SIP_S3_FILES_BUCKET=community-solutions
+      - SIP_S3_FILES_USE_SSL=false
 
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42

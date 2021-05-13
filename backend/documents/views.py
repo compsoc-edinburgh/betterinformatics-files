@@ -13,7 +13,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from myauth import auth_check
 from myauth.models import MyUser, get_my_user
-from util import minio_util, response
+from util import minio_util, response, s3_util
 
 from documents.models import Comment, Document, DocumentFile, generate_api_key
 
@@ -107,11 +107,17 @@ def create_document_slug(
     return slug
 
 
-def prepare_document_pdf_file(request):
+def is_allowed(ext: str, mime_type: str):
+    return (ext, mime_type) in settings.COMSOL_DOCUMENT_ALLOWED_EXTENSIONS
+
+
+def prepare_document_file(request: HttpRequest):
     file = request.FILES.get("file")
     if not file:
-        return response.missing_argument(), None
+        return response.missing_argument(), None, None
     _, ext = os.path.splitext(file.name)
+    if not is_allowed(ext, file.content_type):
+        return response.not_allowed(), None, None
     return None, file, ext
 
 
@@ -318,11 +324,11 @@ class DocumentFileRootView(View):
         if not document.current_user_can_edit(request):
             return response.not_allowed()
 
-        err, file, ext = prepare_document_pdf_file(request)
+        err, file, ext = prepare_document_file(request)
         if err is not None:
             return err
 
-        filename = minio_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
             display_name=request.POST["display_name"],
             document=document,
@@ -331,7 +337,7 @@ class DocumentFileRootView(View):
         )
         document_file.save()
 
-        minio_util.save_uploaded_file_to_minio(
+        s3_util.save_uploaded_file_to_s3(
             settings.COMSOL_DOCUMENT_DIR, filename, file, file.content_type
         )
 
@@ -373,20 +379,20 @@ class DocumentFileElementView(View):
             document_file.display_name = request.DATA["display_name"]
 
         if "file" in request.FILES:
-            err, file, ext = prepare_document_pdf_file(request)
+            err, file, ext = prepare_document_file(request)
             if err is not None:
                 return err
             if not document_file.filename.endswith(ext):
-                minio_util.delete_file(
+                s3_util.delete_file(
                     settings.COMSOL_DOCUMENT_DIR, document_file.filename
                 )
-                filename = minio_util.generate_filename(
+                filename = s3_util.generate_filename(
                     16, settings.COMSOL_DOCUMENT_DIR, ext
                 )
                 document_file.filename = filename
                 document_file.mime_type = file.content_type
 
-            minio_util.save_uploaded_file_to_minio(
+            s3_util.save_uploaded_file_to_s3(
                 settings.COMSOL_DOCUMENT_DIR,
                 document_file.filename,
                 file,
@@ -412,7 +418,7 @@ class DocumentFileElementView(View):
         )
 
         document_file.delete()
-        success = minio_util.delete_file(
+        success = s3_util.delete_file(
             settings.COMSOL_DOCUMENT_DIR,
             document_file.filename,
         )
@@ -438,7 +444,7 @@ def get_document_file(request, filename):
     document_file = get_object_or_404(DocumentFile, filename=filename)
     _, ext = os.path.splitext(document_file.filename)
     attachment_filename = document_file.display_name + ext
-    return minio_util.send_file(
+    return s3_util.send_file(
         settings.COMSOL_DOCUMENT_DIR,
         filename,
         as_attachment=True,
@@ -464,11 +470,11 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
 
     document_file.edittime = timezone.now()
 
-    err, file, ext = prepare_document_pdf_file(request)
+    err, file, ext = prepare_document_file(request)
     if err is not None:
         return err
 
-    minio_util.save_uploaded_file_to_minio(
+    s3_util.save_uploaded_file_to_s3(
         settings.COMSOL_DOCUMENT_DIR,
         document_file.filename,
         file,
