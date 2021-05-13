@@ -1,32 +1,23 @@
-from django.http.response import (
-    HttpResponse,
-    HttpResponseForbidden,
-)
-from django.utils import timezone
+import logging
+import os.path
 from typing import Union
 
-from django.views.decorators.csrf import csrf_exempt
-from myauth.models import MyUser, get_my_user
-from documents.models import Comment, Document, DocumentFile
-from myauth import auth_check
-from django.views import View
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from util import response, minio_util
-from django.db.models import Count
 from categories.models import Category
-import logging
+from django.conf import settings
+from django.db.models import Count, Q
 from django.http import HttpRequest
-from django.db.models import Q
-import os.path
-from django.core.signing import Signer, BadSignature
-import secrets
+from django.http.response import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from myauth import auth_check
+from myauth.models import MyUser, get_my_user
+from util import minio_util, response
+
+from documents.models import Comment, Document, DocumentFile, generate_api_key
 
 logger = logging.getLogger(__name__)
-
-
-def generate_api_key():
-    return secrets.token_urlsafe(32)
 
 
 def get_comment_obj(comment: Comment, request: HttpRequest):
@@ -429,6 +420,19 @@ class DocumentFileElementView(View):
         return response.success(value=success)
 
 
+@response.request_post()
+@auth_check.require_login
+def regenerate_api_key(request: HttpRequest, username: str, document_slug: str):
+    document = get_object_or_404(
+        Document, author__username=username, slug=document_slug
+    )
+    if not document.current_user_can_edit(request):
+        return response.not_allowed()
+    document.api_key = generate_api_key()
+    document.save()
+    return response.success(value=get_document_obj(document, request))
+
+
 @response.request_get()
 def get_document_file(request, filename):
     document_file = get_object_or_404(DocumentFile, filename=filename)
@@ -444,9 +448,11 @@ def get_document_file(request, filename):
 
 @csrf_exempt
 @response.request_post()
-def update_file(request: HttpRequest, document_slug: str, id: int):
+def update_file(request: HttpRequest, username: str, document_slug: str, id: int):
     token = request.headers.get("Authorization", "")
-    document = get_object_or_404(Document, slug=document_slug)
+    document = get_object_or_404(
+        Document, author__username=username, slug=document_slug
+    )
     if document.api_key != token:
         return HttpResponseForbidden("invalid authorization token")
 

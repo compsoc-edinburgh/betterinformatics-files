@@ -141,7 +141,7 @@ export const useNotifications = (mode: "all" | "unread") => {
 };
 const markAllRead = async (...ids: string[]) => {
   return Promise.all(
-    ids.map(oid =>
+    ids.map((oid) =>
       fetchPost(`/api/notification/setread/${oid}/`, {
         read: true,
       }),
@@ -587,3 +587,22 @@ export const useUpdateDocumentFile = (
       updateDocumentFile(author, documentSlug, fileId, update),
     onSuccess,
   );
+
+export const regenerateDocumentAPIKey = async (
+  author: string,
+  documentSlug: string,
+) => {
+  return (
+    await fetchPost(
+      `/api/document/${author}/${documentSlug}/regenerate_api_key/`,
+      {},
+    )
+  ).value as Document;
+};
+
+export const useRegenerateDocumentAPIKey = (
+  author: string,
+  documentSlug: string,
+  onSuccess?: (res: Document) => void,
+) =>
+  useMutation(() => regenerateDocumentAPIKey(author, documentSlug), onSuccess);

@@ -21,6 +21,7 @@ import {
   loadCategories,
   Mutate,
   useDeleteDocument,
+  useRegenerateDocumentAPIKey,
   useUpdateDocument,
 } from "../api/hooks";
 import useToggle from "../hooks/useToggle";
@@ -30,6 +31,7 @@ import CreateDocumentFileModal from "./create-document-file-modal";
 import DocumentFileItem from "./document-file-item";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
+import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 
 interface Props {
@@ -48,7 +50,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
     createOptions(
       Object.fromEntries(
         categories.map(
-          category => [category.slug, category.displayname] as const,
+          (category) => [category.slug, category.displayname] as const,
         ),
       ) as { [key: string]: string },
     );
@@ -56,14 +58,20 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const [loading, updateDocument] = useUpdateDocument(
     data.author,
     slug,
-    result => {
-      mutate(s => ({ ...s, ...result }));
+    (result) => {
+      mutate((s) => ({ ...s, ...result }));
       setDisplayName(undefined);
       setCategory(undefined);
       if (result.slug !== data.slug) {
         history.replace(`/user/${result.author}/document/${result.slug}`);
       }
     },
+  );
+  const [
+    regenerateLoading,
+    regenerate,
+  ] = useRegenerateDocumentAPIKey(data.author, slug, (result) =>
+    mutate((s) => ({ ...s, ...result })),
   );
   const [deleteLoading, deleteDocument] = useDeleteDocument(
     data.author,
@@ -97,7 +105,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           <InputField
             label="Display Name"
             value={displayName ?? data.display_name}
-            onChange={e => setDisplayName(e.currentTarget.value)}
+            onChange={(e) => setDisplayName(e.currentTarget.value)}
           />
           <FormGroup>
             <label className="form-input-label">Category</label>
@@ -122,7 +130,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               value={descriptionDraftText ?? data.description}
               onChange={setDescriptionDraftText}
               imageHandler={imageHandler}
-              preview={value => <MarkdownText value={value} />}
+              preview={(value) => <MarkdownText value={value} />}
               undoStack={descriptionUndoStack}
               setUndoStack={setDescriptionUndoStack}
             />
@@ -148,8 +156,21 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
         </>
       )}
       <h3 className="mt-5 mb-4">Files</h3>
+      {data.api_key && (
+        <div className="flex align-items-center my-2">
+          API Key:
+          <pre className="mx-2 my-auto">{data.api_key}</pre>
+          <IconButton
+            loading={regenerateLoading}
+            onClick={regenerate}
+            size="sm"
+            icon="REPEAT"
+            tooltip="Regenerating the API token will invalidate the old one and generate a new one"
+          />
+        </div>
+      )}
       <ListGroup className="mb-2">
-        {data.files.map(file => (
+        {data.files.map((file) => (
           <DocumentFileItem
             key={file.oid}
             document={data}
@@ -164,7 +185,6 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           <PlusIcon className="ml-2" />
         </Button>
       </div>
-
       {data.can_delete && (
         <>
           <h3 className="mt-5 mb-4">Danger Zone</h3>
