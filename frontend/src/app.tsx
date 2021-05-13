@@ -1,4 +1,15 @@
-import { Button, Container, Logo, VSETHContext } from "@vseth/components";
+import { css } from "@emotion/css";
+import { useKeycloak } from "@react-keycloak/web";
+import {
+  Button,
+  Col,
+  Container,
+  GitlabIcon,
+  LikeFilledIcon,
+  Logo,
+  Row,
+  VSETHContext,
+} from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import { fetchGet, getCookie } from "./api/fetch-utils";
@@ -10,6 +21,7 @@ import ExamsNavbar from "./components/exams-navbar";
 import HashLocationHandler from "./components/hash-location-handler";
 import useToggle from "./hooks/useToggle";
 import CategoryPage from "./pages/category-page";
+import DocumentPage from "./pages/document-page";
 import ExamPage from "./pages/exam-page";
 import FAQ from "./pages/faq-page";
 import FeedbackPage from "./pages/feedback-page";
@@ -18,13 +30,11 @@ import LoginPage from "./pages/login-page";
 import ModQueue from "./pages/modqueue-page";
 import NotFoundPage from "./pages/not-found-page";
 import Scoreboard from "./pages/scoreboard-page";
+import SearchPage from "./pages/search-page";
 import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-import { css } from "@emotion/css";
-import { useKeycloak } from "@react-keycloak/web";
-import SearchPage from "./pages/search-page";
-import DocumentPage from "./pages/document-page";
+import serverData from "./utils/server-data";
 const minHeight = css`
   min-height: 100vh;
 `;
@@ -131,7 +141,30 @@ const App: React.FC<{}> = () => {
               <div className="py-3">
                 <Container>
                   <Logo variant="logo-mono" />
-                  <hr />
+                  <div className="bg-primary my-3" style={{ height: 2 }} />
+                  <Row>
+                    <Col xs="auto" form className="font-weight-bold">
+                      Made with <LikeFilledIcon color="red" className="mx-1" />{" "}
+                      by volunteers at{" "}
+                      <a
+                        href="http://vis.ethz.ch/"
+                        title="Verein der Informatik Studierenden an der ETH Zürich"
+                      >
+                        VIS
+                      </a>
+                    </Col>
+                    <Col xs="auto" form>
+                      <a href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions">
+                        <GitlabIcon /> Repository
+                      </a>
+                    </Col>
+                    <Col xs="auto" form>
+                      <a href={serverData.imprint}>Imprint</a>
+                    </Col>
+                    <Col xs="auto" form>
+                      <a href={serverData.privacy_policy}>Privacy Policy</a>
+                    </Col>
+                  </Row>
                 </Container>
               </div>
             </div>
