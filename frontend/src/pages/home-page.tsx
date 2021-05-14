@@ -218,7 +218,7 @@ const HomePage: React.FC<{}> = () => {
           </Col>
         </Row>
       </Container>
-      <ContentContainer className="position-relative">
+      <ContentContainer className="position-relative my-3">
         <LoadingOverlay loading={loading} />
         <Container>
           {error ? (
