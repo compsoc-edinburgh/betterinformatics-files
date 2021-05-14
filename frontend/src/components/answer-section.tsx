@@ -210,10 +210,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           setHidden={() => {
             onHasAnswersChange();
             setDeleteAnswersWarning(false);
-            if(data) {
-              data.answers = [];
-              setAnswerSection(data);
-            }
           }}
         />
         {((cutName && cutName.length > 0) ||
@@ -313,8 +309,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               onClick={() => {
                                 if (data.answers.length == 0 || !has_answers) {
                                   onHasAnswersChange();
-                                  data.allow_new_answer = true;
-                                  data.allow_new_legacy_answer = true;
                                 } else {
                                   setDeleteAnswersWarning(true);
                                 }
