@@ -111,7 +111,7 @@ def is_allowed(ext: str, mime_type: str):
     return (ext, mime_type) in settings.COMSOL_DOCUMENT_ALLOWED_EXTENSIONS
 
 
-def prepare_document_file(request: HttpRequest):
+def prepare_document_file(request: HttpRequest, override_allowed=False):
     file = request.FILES.get("file")
     if not file:
         return response.missing_argument(), None, None
@@ -472,13 +472,26 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
     if err is not None:
         return err
 
+    changed = False
+
+    if file.content_type != document_file.mime_type:
+        document_file.mime_type = file.content_type
+        changed = True
+
+    if not document_file.filename.endswith(ext):
+        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR, document_file.filename)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
+        document_file.filename = filename
+        changed = True
+
+    if changed:
+        document_file.save()
+        
     s3_util.save_uploaded_file_to_s3(
         settings.COMSOL_DOCUMENT_DIR,
         document_file.filename,
         file,
         document_file.mime_type,
     )
-
-    document_file.save()
 
     return HttpResponse("updated")
