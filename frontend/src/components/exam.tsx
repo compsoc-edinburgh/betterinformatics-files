@@ -28,7 +28,7 @@ interface Props {
   onUpdateCut: (
     section: string | [number, number],
     update: Partial<CutUpdate>,
-  ) => Promise<void>;
+  ) => void;
   onAddCut: (filename: string, page: number, height: number) => void;
   onMoveCut: (cut: string, update: Partial<CutUpdate>) => void;
   visibleChangeListener: (section: PdfSection, v: boolean) => void;
@@ -177,8 +177,8 @@ const Exam: React.FC<Props> = React.memo(
                   onCutNameChange={(name: string) =>
                     onUpdateCut(section.oid, { name })
                   }
-                  onHasAnswersChange={async () => {
-                      await onUpdateCut(section.oid, {
+                  onHasAnswersChange={() => {
+                      onUpdateCut(section.oid, {
                         has_answers: !section.has_answers,
                       });
                       reloadCuts();

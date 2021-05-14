@@ -121,11 +121,11 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     },
   });
   const onSectionChange = useCallback(
-    async (section: string | [number, number], update: Partial<CutUpdate>) => {
+    (section: string | [number, number], update: Partial<CutUpdate>) => {
       if (Array.isArray(section)) {
-        await runAddCut(metaData.filename, section[0], section[1], update.hidden);
+        runAddCut(metaData.filename, section[0], section[1], update.hidden);
       } else {
-        await runUpdate(section, update);
+        runUpdate(section, update);
       }
     },
     [runAddCut, metaData, runUpdate],
