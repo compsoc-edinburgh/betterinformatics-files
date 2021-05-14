@@ -51,7 +51,6 @@ async function performDataRequest<T>(
     }
   }
 
-  console.log(`fetch ${method} ${url}`);
   const response = await fetch(url, {
     credentials: "include",
     headers: getHeaders(),
@@ -116,7 +115,6 @@ export function fetchDelete<T = any>(url: string) {
 }
 
 export function fetchGet<T = any>(url: string) {
-  console.log(url);
   return performRequest<T>("GET", url);
 }
 
