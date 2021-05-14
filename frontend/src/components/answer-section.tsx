@@ -191,6 +191,22 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const isCatAdmin = user.isCategoryAdmin;
 
     const [deleteAnswersWarning, setDeleteAnswersWarning] = useState(false);
+    const hideAnswers = (() => {
+      onHasAnswersChange();
+      setDeleteAnswersWarning(false);
+      if (data) {
+        setData({ ...data, answers: [], allow_new_answer: true, allow_new_legacy_answer: true });
+      }
+    });
+    const hideAnswersWithWarning = (() => {
+      if(data) {
+        if (data.answers.length === 0 || !has_answers) {
+          hideAnswers();
+        } else {
+          setDeleteAnswersWarning(true);
+        }
+      }
+    });
 
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
@@ -207,10 +223,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         <HideAnswersModal
           isOpen={deleteAnswersWarning}
           toggle={() => setDeleteAnswersWarning(false)}
-          setHidden={() => {
-            onHasAnswersChange();
-            setDeleteAnswersWarning(false);
-          }}
+          setHidden={hideAnswers}
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
@@ -306,14 +319,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               size="sm"
                               icon={has_answers ? "VIEW_OFF" : "VIEW"}
                               tooltip="Toggle visibility"
-                              onClick={() => {
-                                if (data.answers.length == 0 || !has_answers) {
-                                  onHasAnswersChange();
-                                } else {
-                                  setDeleteAnswersWarning(true);
-                                }
-                              }
-                              }
+                              onClick={hideAnswersWithWarning}
                             />
                           ) : null}
 
