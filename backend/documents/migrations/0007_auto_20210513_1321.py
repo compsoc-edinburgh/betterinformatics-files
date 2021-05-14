@@ -12,17 +12,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveIndex(
-            model_name='comment',
-            name='documents_c_search__02d77d_gin',
-        ),
         migrations.AddField(
             model_name='document',
             name='api_key',
             field=models.CharField(default=documents.models.generate_api_key, max_length=1024),
-        ),
-        migrations.AddIndex(
-            model_name='comment',
-            index=django.contrib.postgres.indexes.GinIndex(fields=['search_vector'], name='documents_c_search__fb153e_gin'),
         ),
     ]
