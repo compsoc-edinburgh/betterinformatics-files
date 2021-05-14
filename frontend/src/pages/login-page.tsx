@@ -19,8 +19,10 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             </h6>
           </Col>
           <Col
+            xs={11}
             md={7}
-            lg={4}
+            lg={6}
+            xl={4}
             className="py-4 position-relative d-flex align-items-center mx-auto"
           >
             <svg
