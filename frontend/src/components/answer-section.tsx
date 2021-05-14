@@ -176,7 +176,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       ) {
         run();
       }
-    }, [data, visible, run, cutVersion, hidden, has_answers]);
+    }, [data, visible, run, cutVersion, hidden]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = useCallback(() => {

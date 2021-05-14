@@ -177,12 +177,10 @@ const Exam: React.FC<Props> = React.memo(
                   onCutNameChange={(name: string) =>
                     onUpdateCut(section.oid, { name })
                   }
-                  onHasAnswersChange={() => {
-                      onUpdateCut(section.oid, {
-                        has_answers: !section.has_answers,
-                      });
-                      reloadCuts();
-                    }
+                  onHasAnswersChange={() =>
+                    onUpdateCut(section.oid, {
+                      has_answers: !section.has_answers,
+                    })
                   }
                   hidden={!visible.has(section.oid)}
                   has_answers={section.has_answers}
