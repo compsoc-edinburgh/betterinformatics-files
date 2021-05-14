@@ -62,13 +62,13 @@ export interface PdfSection {
 }
 
 export interface CutUpdate {
-  filename: string,
-  pageNum: number,
-  relHeight: number,
-  name: string,
-  hidden: boolean,
-  has_answers: boolean
-};
+  filename: string;
+  pageNum: number;
+  relHeight: number;
+  name: string;
+  hidden: boolean;
+  has_answers: boolean;
+}
 
 export interface CutPosition {
   page: number; // the first page is 1
@@ -335,6 +335,7 @@ export interface Document {
 
   can_edit: boolean;
   can_delete: boolean;
+  api_key?: string;
 }
 
 export interface DocumentFile {
@@ -342,7 +343,6 @@ export interface DocumentFile {
   display_name: string;
   filename: string;
   mime_type: string;
-  key?: string;
 }
 
 export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {

@@ -31,9 +31,13 @@ STAGING = True
 SECRET_KEY = (
     "VERY SAFE SECRET KEY"
     if DEBUG
-    else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET"]
+    else os.environ.get(
+        "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET", "VERY SAFE SECRET KEY"
+    )
 )
-API_KEY = "API_KEY" if DEBUG else os.environ["RUNTIME_COMMUNITY_SOLUTIONS_API_KEY"]
+API_KEY = (
+    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
+)
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
@@ -44,7 +48,15 @@ COMSOL_DOCUMENT_DIR = "documents/"
 COMSOL_IMAGE_DIR = "imgs/"
 COMSOL_FILESTORE_DIR = "files/"
 COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
-COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {"pdf", "zip", "md"}
+COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
+    (".pdf", "application/pdf"),
+    (".tex", "application/x-tex"),
+    (".md", "application/octet-stream"),
+    (".md", "text/markdown"),
+    (".md", "text/x-markdown"),
+    (".txt", "text/plain"),
+    (".zip", "application/zip")
+}
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "svg", "gif"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
@@ -72,6 +84,7 @@ FRONTEND_SERVER_DATA = {
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
+IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE"
 
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
@@ -100,6 +113,14 @@ JWT_RESOURCE_GROUP = (
     "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
 )
 
+CNAMES = os.environ.get("SIP_INGRESS_HTTP_DEFAULT_CNAMES", "")
+PRIMARY_DEPLOYMENT_DOMAIN = os.environ.get(
+    "SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN", ""
+)
+DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
+    [] if CNAMES == "" else CNAMES.split(" ")
+)
+
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
@@ -111,10 +132,7 @@ else:
     # In K8s, the host is the IP of the pod and can thus change
     # As we are behind a reverse proxy, it should be fine to ignore this...
     ALLOWED_HOSTS.append("*")
-
-    REAL_ALLOWED_HOSTS.append(os.environ["SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN"])
-    cnames_env = os.environ["SIP_INGRESS_HTTP_DEFAULT_CNAMES"]
-    REAL_ALLOWED_HOSTS.extend([] if cnames_env == "" else cnames_env.split(" "))
+    REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
 CSP_DEFAULT_SRC = "'self'"
 allowed = []
@@ -131,7 +149,7 @@ CSP_STYLE_SRC = (
 )
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 
-s3_host = os.environ.get("SIP_S3_FILES_HOST", "minio")
+s3_host = os.environ.get("SIP_S3_FILES_HOST", "s3")
 s3_port = os.environ.get("SIP_S3_FILES_PORT", "9000")
 CSP_CONNECT_SRC = (
     "'self'",
@@ -162,6 +180,7 @@ INSTALLED_APPS = [
     "health.apps.HealthConfig",
     "images.apps.ImagesConfig",
     "myauth.apps.MyAuthConfig",
+    "util.apps.UtilConfig",
     "notifications.apps.NotificationsConfig",
     "payments.apps.PaymentsConfig",
     "scoreboard.apps.ScoreboardConfig",
@@ -226,7 +245,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-if IN_ENVIRON:
+if "SIP_POSTGRES_DB_NAME" in os.environ:
     DATABASES = {
         "default": {
             "ENGINE": "django_prometheus.db.backends.postgresql",
@@ -246,7 +265,6 @@ else:
         }
     }
     print("Warning: no database configured!")
-    print(os.environ)
 
 
 # Password validation

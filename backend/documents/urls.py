@@ -4,7 +4,16 @@ from . import views
 
 
 urlpatterns = [
-    path("update", views.update_file, name="update_file"),
+    path(
+        "<str:username>/<str:document_slug>/files/<int:id>/update/",
+        views.update_file,
+        name="update_file",
+    ),
+    path(
+        "<str:username>/<str:document_slug>/regenerate_api_key/",
+        views.regenerate_api_key,
+        name="regenerate_api_key",
+    ),
     path("file/<filename>", views.get_document_file, name="file"),
     path("", views.DocumentRootView.as_view(), name="root"),
     path(

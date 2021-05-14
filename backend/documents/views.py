@@ -1,25 +1,21 @@
-from django.http.response import (
-    HttpResponse,
-    HttpResponseForbidden,
-)
-from django.utils import timezone
+import logging
+import os.path
 from typing import Union
 
-from django.views.decorators.csrf import csrf_exempt
-from myauth.models import MyUser, get_my_user
-from documents.models import Comment, Document, DocumentFile
-from myauth import auth_check
-from django.views import View
-from django.conf import settings
-from django.shortcuts import get_object_or_404
-from util import response, minio_util
-from django.db.models import Count
 from categories.models import Category
-import logging
+from django.conf import settings
+from django.db.models import Count, Q
 from django.http import HttpRequest
-from django.db.models import Q
-import os.path
-from django.core.signing import Signer, BadSignature
+from django.http.response import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from myauth import auth_check
+from myauth.models import MyUser, get_my_user
+from util import s3_util, response
+
+from documents.models import Comment, Document, DocumentFile, generate_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -36,21 +32,13 @@ def get_comment_obj(comment: Comment, request: HttpRequest):
     }
 
 
-document_update_signer = Signer(salt="edit_document")
-
-
-def get_file_obj(file: DocumentFile, include_key: bool = False):
-    obj = {
+def get_file_obj(file: DocumentFile):
+    return {
         "oid": file.pk,
         "display_name": file.display_name,
         "filename": file.filename,
         "mime_type": file.mime_type,
     }
-
-    if include_key:
-        obj["key"] = document_update_signer.sign(file.pk)
-
-    return obj
 
 
 def get_document_obj(
@@ -73,6 +61,8 @@ def get_document_obj(
         obj["like_count"] = document.like_count
     if hasattr(document, "liked"):
         obj["liked"] = document.liked
+    if document.current_user_can_edit(request):
+        obj["api_key"] = document.api_key
 
     if include_comments:
         obj["comments"] = [
@@ -80,10 +70,7 @@ def get_document_obj(
         ]
 
     if include_files:
-        obj["files"] = [
-            get_file_obj(file, document.current_user_can_edit(request))
-            for file in document.files.all()
-        ]
+        obj["files"] = [get_file_obj(file) for file in document.files.all()]
 
     return obj
 
@@ -120,11 +107,17 @@ def create_document_slug(
     return slug
 
 
-def prepare_document_pdf_file(request):
+def is_allowed(ext: str, mime_type: str):
+    return (ext, mime_type) in settings.COMSOL_DOCUMENT_ALLOWED_EXTENSIONS
+
+
+def prepare_document_file(request: HttpRequest, override_allowed=False):
     file = request.FILES.get("file")
     if not file:
-        return response.missing_argument(), None
+        return response.missing_argument(), None, None
     _, ext = os.path.splitext(file.name)
+    if not is_allowed(ext, file.content_type):
+        return response.not_allowed(), None, None
     return None, file, ext
 
 
@@ -331,11 +324,11 @@ class DocumentFileRootView(View):
         if not document.current_user_can_edit(request):
             return response.not_allowed()
 
-        err, file, ext = prepare_document_pdf_file(request)
+        err, file, ext = prepare_document_file(request)
         if err is not None:
             return err
 
-        filename = minio_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
             display_name=request.POST["display_name"],
             document=document,
@@ -344,12 +337,12 @@ class DocumentFileRootView(View):
         )
         document_file.save()
 
-        minio_util.save_uploaded_file_to_minio(
+        s3_util.save_uploaded_file_to_s3(
             settings.COMSOL_DOCUMENT_DIR, filename, file, file.content_type
         )
 
         # We know that the current user can edit the document and can therefore always include the key
-        return response.success(value=get_file_obj(document_file, True))
+        return response.success(value=get_file_obj(document_file))
 
 
 class DocumentFileElementView(View):
@@ -363,9 +356,7 @@ class DocumentFileElementView(View):
             document__author__username=username,
             document__slug=document_slug,
         )
-        return get_file_obj(
-            document_file, document_file.document.current_user_can_edit(request)
-        )
+        return get_file_obj(document_file)
 
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, document_slug: str, id: int):
@@ -386,20 +377,20 @@ class DocumentFileElementView(View):
             document_file.display_name = request.DATA["display_name"]
 
         if "file" in request.FILES:
-            err, file, ext = prepare_document_pdf_file(request)
+            err, file, ext = prepare_document_file(request)
             if err is not None:
                 return err
             if not document_file.filename.endswith(ext):
-                minio_util.delete_file(
+                s3_util.delete_file(
                     settings.COMSOL_DOCUMENT_DIR, document_file.filename
                 )
-                filename = minio_util.generate_filename(
+                filename = s3_util.generate_filename(
                     16, settings.COMSOL_DOCUMENT_DIR, ext
                 )
                 document_file.filename = filename
                 document_file.mime_type = file.content_type
 
-            minio_util.save_uploaded_file_to_minio(
+            s3_util.save_uploaded_file_to_s3(
                 settings.COMSOL_DOCUMENT_DIR,
                 document_file.filename,
                 file,
@@ -408,7 +399,7 @@ class DocumentFileElementView(View):
 
         document_file.save()
         # We know that the current user can edit the document and can therefore always include the key
-        return response.success(value=get_file_obj(document_file, True))
+        return response.success(value=get_file_obj(document_file))
 
     @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, document_slug: str, id: int):
@@ -425,7 +416,7 @@ class DocumentFileElementView(View):
         )
 
         document_file.delete()
-        success = minio_util.delete_file(
+        success = s3_util.delete_file(
             settings.COMSOL_DOCUMENT_DIR,
             document_file.filename,
         )
@@ -433,12 +424,25 @@ class DocumentFileElementView(View):
         return response.success(value=success)
 
 
+@response.request_post()
+@auth_check.require_login
+def regenerate_api_key(request: HttpRequest, username: str, document_slug: str):
+    document = get_object_or_404(
+        Document, author__username=username, slug=document_slug
+    )
+    if not document.current_user_can_edit(request):
+        return response.not_allowed()
+    document.api_key = generate_api_key()
+    document.save()
+    return response.success(value=get_document_obj(document, request))
+
+
 @response.request_get()
 def get_document_file(request, filename):
     document_file = get_object_or_404(DocumentFile, filename=filename)
     _, ext = os.path.splitext(document_file.filename)
     attachment_filename = document_file.display_name + ext
-    return minio_util.send_file(
+    return s3_util.send_file(
         settings.COMSOL_DOCUMENT_DIR,
         filename,
         as_attachment=True,
@@ -448,33 +452,46 @@ def get_document_file(request, filename):
 
 @csrf_exempt
 @response.request_post()
-def update_file(request: HttpRequest):
+def update_file(request: HttpRequest, username: str, document_slug: str, id: int):
     token = request.headers.get("Authorization", "")
-    document_file_pk = 0
-    try:
-        document_file_pk = int(document_update_signer.unsign(token))
-    except BadSignature:
-        return HttpResponseForbidden("authorization token signature didn't match")
-    except ValueError:
+    document = get_object_or_404(
+        Document, author__username=username, slug=document_slug
+    )
+    if document.api_key != token:
         return HttpResponseForbidden("invalid authorization token")
 
     document_file = get_object_or_404(
         DocumentFile,
-        pk=document_file_pk,
+        document__pk=document.pk,
+        pk=id,
     )
+
     document_file.edittime = timezone.now()
 
-    err, file, ext = prepare_document_pdf_file(request)
+    err, file, ext = prepare_document_file(request)
     if err is not None:
         return err
 
-    minio_util.save_uploaded_file_to_minio(
+    changed = False
+
+    if file.content_type != document_file.mime_type:
+        document_file.mime_type = file.content_type
+        changed = True
+
+    if not document_file.filename.endswith(ext):
+        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR, document_file.filename)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
+        document_file.filename = filename
+        changed = True
+
+    if changed:
+        document_file.save()
+        
+    s3_util.save_uploaded_file_to_s3(
         settings.COMSOL_DOCUMENT_DIR,
         document_file.filename,
         file,
         document_file.mime_type,
     )
-
-    document_file.save()
 
     return HttpResponse("updated")

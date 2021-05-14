@@ -41,9 +41,9 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
     document.slug,
     file.oid,
     () => {
-      mutate(s => ({
+      mutate((s) => ({
         ...s,
-        files: s.files.filter(f => f.oid !== file.oid),
+        files: s.files.filter((f) => f.oid !== file.oid),
       }));
     },
   );
@@ -51,12 +51,12 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
     document.author,
     document.slug,
     file.oid,
-    file => {
+    (file) => {
       setDisplayName(undefined);
       setFile(undefined);
-      mutate(s => ({
+      mutate((s) => ({
         ...s,
-        files: s.files.map(f => (f.oid !== file.oid ? f : file)),
+        files: s.files.map((f) => (f.oid !== file.oid ? f : file)),
       }));
       toggleEditIsOpen(false);
     },
@@ -74,11 +74,15 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             label="Display Name"
             type="text"
             value={displayName ?? file.display_name}
-            onChange={e => setDisplayName(e.currentTarget.value)}
+            onChange={(e) => setDisplayName(e.currentTarget.value)}
           />
           <FormGroup>
             <label className="form-input-label">Replace File</label>
-            <FileInput value={replaceFile} onChange={setFile} />
+            <FileInput
+              value={replaceFile}
+              onChange={setFile}
+              accept=".pdf,.tex,.md,.txt,.zip"
+            />
           </FormGroup>
         </ModalBody>
         <ModalFooter>
@@ -102,21 +106,25 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         <ModalHeader toggle={toggleKeyIsOpen}>Access Token</ModalHeader>
         <ModalBody>
           <p>
-            Token: <code>{file.key}</code>
+            Token: <code>{document.api_key}</code>
           </p>
           <p>
-            This token can be used to replace the file without needing to login
-            manually. You could for example use it in a GitLab / Github CI
-            script to update the file whenever you push changes to a git
-            repository.
+            This token can be used to replace any file of this document without
+            needing to login manually. You could for example use it in a GitLab
+            / Github CI script to update the files whenever you push changes to
+            a git repository.
           </p>
           <p>
             The token is valid for an endpoint that can be found at{" "}
-            <code>POST /api/document/update</code>. The token has to be supplied
-            as an Authorization header, a replacement file can be sent as
-            multipart-form upload with the key "file". The content type and
-            filename of the new file are ignored, the extension and the filename
-            won't change.
+            <code>
+              {
+                "POST /api/document/<str:username>/<str:document_slug>/files/<int:id>/update/"
+              }
+            </code>
+            . The token has to be supplied as an Authorization header, a
+            replacement file can be sent as multipart-form upload with the key
+            "file". The content type and filename of the new file are ignored,
+            the extension and the filename won't change.
           </p>
           <p>
             The token shouldn't be made public - you should always store it in a
@@ -129,7 +137,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </p>
           <pre>
             <code>
-              {`curl ${window.location.origin}/api/document/update \\\n  -H "Authorization: ${file.key}" \\\n  -F "file=@my_document.pdf"`}
+              {`curl ${window.location.origin}/api/document/${document.author}/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
         </ModalBody>

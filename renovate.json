@@ -12,6 +12,10 @@
     {
       "matchPackageNames": ["react-markdown"],
       "allowedVersions": "<6.0.0"
+    },
+    {
+      "matchPackageNames": ["boto3"],
+      "extends": ["schedule:monthly"]
     }
   ]
 }

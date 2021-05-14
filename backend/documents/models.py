@@ -1,8 +1,13 @@
+import secrets
 from django.utils import timezone
 from django.db import models
 from django_prometheus.models import ExportModelOperationsMixin
 from myauth import auth_check
 from util.models import CommentMixin
+
+
+def generate_api_key():
+    return secrets.token_urlsafe(32)
 
 
 class Document(ExportModelOperationsMixin("document"), models.Model):
@@ -12,6 +17,7 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     likes = models.ManyToManyField("auth.User", related_name="liked_documents")
+    api_key = models.CharField(max_length=1024, default=generate_api_key)
 
     def current_user_can_delete(self, request):
         is_admin = auth_check.has_admin_rights_for_document(request, self)
