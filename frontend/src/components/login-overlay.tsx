@@ -10,7 +10,8 @@ const LoginOverlay: React.FC<{}> = () => {
         <h4 className="mb-4 font-weight-bold text-white">Please Sign in</h4>
         <Button
           size="lg"
-          color="primary"
+          color="white"
+          outline
           disabled={!initialized}
           onClick={() => keycloak.login()}
         >
