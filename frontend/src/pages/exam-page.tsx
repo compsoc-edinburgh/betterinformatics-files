@@ -342,7 +342,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         )}
       </Container>
 
-      <ContentContainer>
+      <ContentContainer className="my-3">
         <div ref={sizeRef} style={{ maxWidth }} className="mx-auto my-3">
           {width && sections && renderer && (
             <Exam
