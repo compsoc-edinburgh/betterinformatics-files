@@ -13,7 +13,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from myauth import auth_check
 from myauth.models import MyUser, get_my_user
-from util import minio_util, response, s3_util
+from util import s3_util, response
 
 from documents.models import Comment, Document, DocumentFile, generate_api_key
 
