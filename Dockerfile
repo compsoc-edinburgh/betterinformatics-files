@@ -8,12 +8,13 @@ WORKDIR /app
 
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
 
-RUN apt-get install -y \
-	python3 python3-pip python3-dev \
-	smbclient poppler-utils
-
 COPY ./backend/requirements.txt ./requirements.txt
-RUN pip3 install -r requirements.txt
+RUN apt-get install -y --no-install-recommends \
+	python3 python3-pip \
+	python3-setuptools python3-cryptography \
+	smbclient poppler-utils && \
+	pip3 install -r requirements.txt && \
+	rm -rf /var/lib/apt/lists/*
 
 COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
