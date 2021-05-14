@@ -144,7 +144,12 @@ const App: React.FC<{}> = () => {
                   <div className="bg-primary my-3" style={{ height: 2 }} />
                   <Row>
                     <Col xs="auto" form className="font-weight-bold">
-                      Made with <LikeFilledIcon color="red" className="mx-1" />{" "}
+                      Made with{" "}
+                      <LikeFilledIcon
+                        color="currenColor"
+                        className="mx-1 text-danger"
+                        aria-label="love"
+                      />{" "}
                       by volunteers at{" "}
                       <a
                         href="http://vis.ethz.ch/"
