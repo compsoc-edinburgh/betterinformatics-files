@@ -342,7 +342,7 @@ class DocumentFileRootView(View):
         )
 
         # We know that the current user can edit the document and can therefore always include the key
-        return response.success(value=get_file_obj(document_file, True))
+        return response.success(value=get_file_obj(document_file))
 
 
 class DocumentFileElementView(View):
@@ -356,9 +356,7 @@ class DocumentFileElementView(View):
             document__author__username=username,
             document__slug=document_slug,
         )
-        return get_file_obj(
-            document_file, document_file.document.current_user_can_edit(request)
-        )
+        return get_file_obj(document_file)
 
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, document_slug: str, id: int):
@@ -401,7 +399,7 @@ class DocumentFileElementView(View):
 
         document_file.save()
         # We know that the current user can edit the document and can therefore always include the key
-        return response.success(value=get_file_obj(document_file, True))
+        return response.success(value=get_file_obj(document_file))
 
     @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, document_slug: str, id: int):
