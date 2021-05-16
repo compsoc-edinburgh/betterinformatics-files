@@ -24,6 +24,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         <Link
           to={`/category/${category.slug}`}
           onClick={(e) => {
+            if (keycloak.authenticated) return;
             e.preventDefault();
             history.push(`/category/${category.slug}`);
             if (!keycloak.authenticated) keycloak.login();
