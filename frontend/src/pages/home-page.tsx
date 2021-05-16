@@ -72,8 +72,8 @@ const mapToCategories = (
       categories: categoryNames,
     } of meta2) {
       const categories = categoryNames
-        .map(name => categoryMap.get(name)!)
-        .filter(a => a !== undefined);
+        .map((name) => categoryMap.get(name)!)
+        .filter((a) => a !== undefined);
       if (categories.length === 0) continue;
       meta2Map.set(meta2display, categories);
     }
@@ -112,7 +112,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
             label="Category Name"
             type="text"
             value={categoryName}
-            onChange={e => setCategoryName(e.currentTarget.value)}
+            onChange={(e) => setCategoryName(e.currentTarget.value)}
           />
         </ModalBody>
         <ModalFooter>
@@ -139,6 +139,16 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
 const HomePage: React.FC<{}> = () => {
   useTitle("Home");
+  return (
+    <>
+      <Container>
+        <h1 className="mb-3">Community Solutions</h1>
+      </Container>
+      <CategoryList />
+    </>
+  );
+};
+export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState("mode", Mode.Alphabetical);
   const [filter, setFilter] = useState("");
@@ -177,9 +187,6 @@ const HomePage: React.FC<{}> = () => {
   return (
     <>
       <Container>
-        <h1 className="mb-3">Community Solutions</h1>
-      </Container>
-      <Container>
         <Row className="d-flex flex-row flex-between px-2">
           <Col md="auto">
             <FormGroup className="m-1">
@@ -207,7 +214,7 @@ const HomePage: React.FC<{}> = () => {
                   className="search-input"
                   placeholder="Filter..."
                   value={filter}
-                  onChange={e => setFilter(e.currentTarget.value)}
+                  onChange={(e) => setFilter(e.currentTarget.value)}
                   autoFocus
                 />
                 <div className="search-icon-wrapper">
@@ -226,7 +233,7 @@ const HomePage: React.FC<{}> = () => {
           ) : mode === Mode.Alphabetical ? (
             <>
               <Grid>
-                {searchResult.map(category => (
+                {searchResult.map((category) => (
                   <CategoryCard category={category} key={category.slug} />
                 ))}
                 {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
@@ -242,7 +249,7 @@ const HomePage: React.FC<{}> = () => {
                       <div key={meta2display}>
                         <h5 className="my-3">{meta2display}</h5>
                         <Grid>
-                          {categories.map(category => (
+                          {categories.map((category) => (
                             <CategoryCard
                               category={category}
                               key={category.slug}

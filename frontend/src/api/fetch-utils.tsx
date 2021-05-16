@@ -30,8 +30,9 @@ async function performDataRequest<T>(
   url: string,
   data: { [key: string]: any },
 ) {
-  if (keycloak.isTokenExpired(minValidity))
+  if (keycloak.token && keycloak.isTokenExpired(minValidity))
     await keycloak.updateToken(minValidity);
+
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
   // through the keys and appending the (key, value) pair to the FormData
@@ -68,7 +69,7 @@ async function performDataRequest<T>(
 }
 
 async function performRequest<T>(method: string, url: string) {
-  if (keycloak.isTokenExpired(minValidity))
+  if (keycloak.token && keycloak.isTokenExpired(minValidity))
     await keycloak.updateToken(minValidity);
   const response = await fetch(url, {
     credentials: "include",
@@ -138,7 +139,7 @@ export function imageHandler(file: File): Promise<ImageHandle> {
     fetchPost("/api/image/upload/", {
       file,
     })
-      .then(res => {
+      .then((res) => {
         resolve({
           name: file.name,
           src: res.filename,
@@ -147,6 +148,6 @@ export function imageHandler(file: File): Promise<ImageHandle> {
           },
         });
       })
-      .catch(e => reject(e));
+      .catch((e) => reject(e));
   });
 }

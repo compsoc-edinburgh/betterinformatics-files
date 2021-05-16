@@ -48,6 +48,14 @@ env:
     secret:
       key: frontend-email-address
       create: provided
+  - name: "FRONTEND_IMPRINT"
+    secret:
+      key: frontend-imprint
+      create: provided
+  - name: "FRONTEND_PRIVACY_POLICY"
+    secret:
+      key: frontend-privacy-policy
+      create: provided
   - name: "FRONTEND_FAVICON_URL"
     secret:
       key: frontend-favicon-url

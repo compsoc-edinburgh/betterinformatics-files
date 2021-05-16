@@ -10,13 +10,11 @@ from django.shortcuts import get_object_or_404
 
 
 @response.request_get()
-@auth_check.require_login
 def list_categories(request):
     return response.success(value=list(Category.objects.order_by('displayname').values_list('displayname', flat=True)))
 
 
 @response.request_get()
-@auth_check.require_login
 def list_categories_with_meta(request):
     categories = Category.objects.select_related('meta').order_by('displayname').all()
     res = [
@@ -215,7 +213,6 @@ def remove_user_from_set(request, slug):
 
 
 @response.request_get()
-@auth_check.require_login
 def list_metacategories(request):
     categories = MetaCategory.objects.select_related('parent').prefetch_related('metacategory_set', 'category_set').all()
     tree = {}

@@ -1,24 +1,24 @@
 import { useKeycloak } from "@react-keycloak/web";
+import { Button } from "@vseth/components";
 import React from "react";
-import IconButton from "./icon-button";
 
 const LoginOverlay: React.FC<{}> = () => {
   const { keycloak, initialized } = useKeycloak();
   return (
-    <>
-      <div className="py-4 text-center">
-        <div className="my-3">Please Sign in</div>
-        <IconButton
+    <div className="text-center position-cover d-flex align-items-center justify-content-center">
+      <div>
+        <h4 className="mb-4 font-weight-bold text-white">Please Sign in</h4>
+        <Button
           size="lg"
-          icon="VSETH"
-          color="primary"
+          color="white"
+          outline
           disabled={!initialized}
           onClick={() => keycloak.login()}
         >
-          Sign in with VSETH
-        </IconButton>
+          Sign in with AAI
+        </Button>
       </div>
-    </>
+    </div>
   );
 };
 export default LoginOverlay;

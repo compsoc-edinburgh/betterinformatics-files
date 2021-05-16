@@ -81,6 +81,8 @@ FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
     "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", ""),
+    "imprint": os.environ.get("FRONTEND_IMPRINT", ""),
+    "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")

@@ -2,6 +2,8 @@ interface IServerData {
   title_prefix: string;
   title_suffix: string;
   email_address: string;
+  imprint: string;
+  privacy_policy: string;
 }
 const getServerData = () => {
   const element = document.getElementById("server-data");
