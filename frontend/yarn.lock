@@ -2081,10 +2081,10 @@
     "@types/scheduler" "*"
     csstype "^3.0.2"
 
-"@types/react@17.0.5":
-  version "17.0.5"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.5.tgz#3d887570c4489011f75a3fc8f965bf87d09a1bea"
-  integrity sha512-bj4biDB9ZJmGAYTWSKJly6bMr4BLUiBrx9ujiJEoP9XIDY9CTaPGxE5QWN/1WjpPLzYF7/jRNnV2nNxNe970sw==
+"@types/react@17.0.6":
+  version "17.0.6"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.6.tgz#0ec564566302c562bf497d73219797a5e0297013"
+  integrity sha512-u/TtPoF/hrvb63LdukET6ncaplYsvCvmkceasx8oG84/ZCsoLxz9Z/raPBP4lTAiWW1Jb889Y9svHmv8R26dWw==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -7444,10 +7444,10 @@ jszip@3.6.0:
     readable-stream "~2.3.6"
     set-immediate-shim "~1.0.1"
 
-katex@0.13.10:
-  version "0.13.10"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.13.10.tgz#2a30dc4ca9f47ff343a7f37062abec96897b56a6"
-  integrity sha512-NUUY4U7I2NUAzNY7DwK5afH7zZS5k9OiCgmh1T13svIv+Toemrmzj1WtUlFOrLM4bXGrb/LWWrdrNCBLSdNTKA==
+katex@0.13.11:
+  version "0.13.11"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.13.11.tgz#66138ebf173f25ef130cd3a3ea3ea1d12a3f1362"
+  integrity sha512-yJBHVIgwlAaapzlbvTpVF/ZOs8UkTj/sd46Fl8+qAf2/UiituPYVeapVD8ADZtqyRg/qNWUKt7gJoyYVWLrcXw==
   dependencies:
     commander "^6.0.0"
 
