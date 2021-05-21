@@ -12,7 +12,7 @@ services:
       - ./data/minio:/export
     command: server /export
   pgadmin:
-    image: dpage/pgadmin4:5.2
+    image: dpage/pgadmin4:5.3
     container_name: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: docker@vis.ch

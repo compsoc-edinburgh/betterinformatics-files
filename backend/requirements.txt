@@ -6,4 +6,4 @@ jwcrypto==0.8
 beautifulsoup4==4.9.3
 django-prometheus==2.1.0
 django-probes==1.6.0
-boto3==1.17.75
+boto3==1.17.77
