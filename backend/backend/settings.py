@@ -55,7 +55,7 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".md", "text/markdown"),
     (".md", "text/x-markdown"),
     (".txt", "text/plain"),
-    (".zip", "application/zip")
+    (".zip", "application/zip"),
 }
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "svg", "gif"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
@@ -82,7 +82,8 @@ FRONTEND_SERVER_DATA = {
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
     "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", ""),
     "imprint": os.environ.get("FRONTEND_IMPRINT", ""),
-    "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
+    "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", "")
+    or "https://account.vseth.ethz.ch/privacy",
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
