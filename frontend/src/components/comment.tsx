@@ -1,11 +1,10 @@
 import {
   ButtonGroup,
+  Col,
   Icon,
   ICONS,
   ListGroupItem,
-  Spinner,
   Row,
-  Col,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useState } from "react";
@@ -39,14 +38,20 @@ const CommentComponent: React.FC<Props> = ({
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
-  const [addNewLoading, runAddNewComment] = useMutation(addNewComment, res => {
-    if (onDelete) onDelete();
-    onSectionChanged(res);
-  });
-  const [updateLoading, runUpdateComment] = useMutation(updateComment, res => {
-    setEditing(false);
-    onSectionChanged(res);
-  });
+  const [addNewLoading, runAddNewComment] = useMutation(
+    addNewComment,
+    (res) => {
+      if (onDelete) onDelete();
+      onSectionChanged(res);
+    },
+  );
+  const [updateLoading, runUpdateComment] = useMutation(
+    updateComment,
+    (res) => {
+      setEditing(false);
+      onSectionChanged(res);
+    },
+  );
   const [removeLoading, runRemoveComment] = useMutation(
     removeComment,
     onSectionChanged,
@@ -136,7 +141,7 @@ const CommentComponent: React.FC<Props> = ({
             value={draftText}
             onChange={setDraftText}
             imageHandler={imageHandler}
-            preview={value => <MarkdownText value={value} />}
+            preview={(value) => <MarkdownText value={value} />}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
