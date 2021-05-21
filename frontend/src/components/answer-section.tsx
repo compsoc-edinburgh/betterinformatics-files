@@ -170,6 +170,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const [inViewport, ref] = useLoad<HTMLDivElement>();
     const visible = inViewport || false;
     useEffect(() => {
+      if (data?.has_answers !== has_answers && !has_answers && data) {
+        setData({ ...data, answers: [], allow_new_answer: true, allow_new_legacy_answer: true });
+      }
       if (
         (data === undefined || data.cutVersion !== cutVersion) &&
         (visible || !hidden)
@@ -194,9 +197,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const hideAnswers = (async () => {
       await onHasAnswersChange();
       setDeleteAnswersWarning(false);
-      if (data) {
-        setData({ ...data, answers: [], allow_new_answer: true, allow_new_legacy_answer: true });
-      }
     });
     const hideAnswersWithWarning = (() => {
       if(data) {
