@@ -28,7 +28,7 @@ interface Props {
   onUpdateCut: (
     section: string | [number, number],
     update: Partial<CutUpdate>,
-  ) => void;
+  ) => Promise<void>;
   onAddCut: (filename: string, page: number, height: number) => void;
   onMoveCut: (cut: string, update: Partial<CutUpdate>) => void;
   visibleChangeListener: (section: PdfSection, v: boolean) => void;

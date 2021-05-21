@@ -115,7 +115,7 @@ interface Props {
   hidden: boolean;
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
-  onHasAnswersChange: () => void;
+  onHasAnswersChange: () => Promise<void>;
   has_answers: boolean;
 
   cutName: string;
@@ -191,8 +191,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const isCatAdmin = user.isCategoryAdmin;
 
     const [deleteAnswersWarning, setDeleteAnswersWarning] = useState(false);
-    const hideAnswers = (() => {
-      onHasAnswersChange();
+    const hideAnswers = (async () => {
+      await onHasAnswersChange();
       setDeleteAnswersWarning(false);
       if (data) {
         setData({ ...data, answers: [], allow_new_answer: true, allow_new_legacy_answer: true });
