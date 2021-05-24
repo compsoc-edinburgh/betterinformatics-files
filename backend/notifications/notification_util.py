@@ -1,7 +1,7 @@
 from notifications.models import Notification, NotificationType, NotificationSetting
 from answers.models import Answer
 from documents.models import Document
-from document.models import Comment as d_Comment
+from documents.models import Comment as d_Comment
 
 
 def is_notification_enabled(receiver, notification_type):
