@@ -1,8 +1,6 @@
 from notifications.models import Notification, NotificationType, NotificationSetting
 from answers.models import Answer
-from documents.models import Document
-from documents.models import Comment as d_Comment
-
+from documents.models import Document, Comment as DocumentComment
 
 def is_notification_enabled(receiver, notification_type):
     return NotificationSetting.objects.filter(user=receiver, type=notification_type.value, enabled=True).exists()
@@ -91,7 +89,7 @@ def new_answer_to_answer(new_answer):
             _new_answer_to_answer(other_answer, new_answer)
 
 
-def new_comment_to_document(document:Document, new_comment:d_Comment):
+def new_comment_to_document(document:Document, new_comment:DocumentComment):
     send_doc_notification(
         new_comment.author,
         document.author,

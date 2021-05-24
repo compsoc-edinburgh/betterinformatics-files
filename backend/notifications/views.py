@@ -43,7 +43,7 @@ def get_notifications(request, unread):
             'senderDisplayName': get_my_user(notification.sender).displayname(),
             'title': notification.title,
             'message': notification.text,
-            'link': f'/exams/{notification.answer.answer_section.exam.filename}#{notification.answer.long_id}' if notification.answer else (f'/user/{notification.receiver.username}/document/{notification.document.slug}' if notification.document else ''),
+            'link': _get_notification_link(notification), 
             'read': notification.read,
         } for notification in sorted(
             notifications,
@@ -51,6 +51,13 @@ def get_notifications(request, unread):
         )
     ]
     return response.success(value=res)
+
+def _get_notification_link(notification):
+    if notification.answer:
+        return f'/exams/{notification.answer.answer_section.exam.filename}#{notification.answer.long_id}'
+    elif notification.document:
+        return f'/user/{notification.receiver.username}/document/{notification.document.slug}'
+    return ''
 
 
 @response.request_get()
