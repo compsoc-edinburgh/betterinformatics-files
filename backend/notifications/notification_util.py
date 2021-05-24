@@ -1,5 +1,7 @@
 from notifications.models import Notification, NotificationType, NotificationSetting
 from answers.models import Answer
+from documents.models import Document
+from document.models import Comment as d_Comment
 
 
 def is_notification_enabled(receiver, notification_type):
@@ -71,3 +73,14 @@ def new_answer_to_answer(new_answer):
     for other_answer in Answer.objects.filter(answer_section=new_answer.answer_section, is_legacy_answer=False):
         if other_answer != new_answer:
             _new_answer_to_answer(other_answer, new_answer)
+
+
+def new_comment_to_document(document:Document, new_comment:d_Comment):
+    send_notification(
+        new_comment.author,
+        document.author,
+        NotificationType.NEW_COMMENT_TO_DOCUMENT,
+        'New comment',
+        'A new comment to your document was added.\n\n{}'.format(new_comment.text),
+        new_comment.document
+    )
