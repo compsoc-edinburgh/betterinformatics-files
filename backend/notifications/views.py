@@ -43,7 +43,7 @@ def get_notifications(request, unread):
             'senderDisplayName': get_my_user(notification.sender).displayname(),
             'title': notification.title,
             'message': notification.text,
-            'link': f'/exams/{notification.answer.answer_section.exam.filename}#{notification.answer.long_id}' if notification.answer else (f'/user/{notification.receiver.username}/document/{notification.document.display_name}' if notification.document else ''),
+            'link': f'/exams/{notification.answer.answer_section.exam.filename}#{notification.answer.long_id}' if notification.answer else (f'/user/{notification.receiver.username}/document/{notification.document.slug}' if notification.document else ''),
             'read': notification.read,
         } for notification in sorted(
             notifications,
