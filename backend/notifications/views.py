@@ -30,7 +30,7 @@ def setenabled(request):
 @response.request_get()
 @auth_check.require_login
 def get_notifications(request, unread):
-    notifications = Notification.objects.filter(receiver=request.user).select_related('receiver', 'sender', 'answer', 'answer__answer_section', 'answer__answer_section__exam')
+    notifications = Notification.objects.filter(receiver=request.user).select_related('receiver', 'sender', 'answer', 'document','answer__answer_section', 'answer__answer_section__exam')
     if unread:
         notifications = notifications.filter(read=False)
     res = [
@@ -43,7 +43,7 @@ def get_notifications(request, unread):
             'senderDisplayName': get_my_user(notification.sender).displayname(),
             'title': notification.title,
             'message': notification.text,
-            'link': '/exams/{}#{}'.format(notification.answer.answer_section.exam.filename, notification.answer.long_id) if notification.answer else '',
+            'link': f'/exams/{notification.answer.answer_section.exam.filename}#{notification.answer.long_id}' if notification.answer else (f'/user/{notification.receiver.username}/document/{notification.document.display_name}' if notification.document else ''),
             'read': notification.read,
         } for notification in sorted(
             notifications,

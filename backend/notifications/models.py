@@ -18,6 +18,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=256)
     text = models.TextField()
     answer = models.ForeignKey('answers.Answer', null=True, on_delete=models.SET_NULL)
+    document = models.ForeignKey('documents.Document', null=True, on_delete=models.SET_NULL)
     read = models.BooleanField(default=False)
 
 
