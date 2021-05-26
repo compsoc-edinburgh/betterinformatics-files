@@ -2,11 +2,10 @@ import {
   Card,
   CardBody,
   CardTitle,
-  Icon,
-  ICONS,
   LikeFilledIcon,
   LikeIcon,
   Modal,
+  PlusIcon,
 } from "@vseth/components";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -24,16 +23,16 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
   const [error, loading, documents] = useDocuments(slug);
   return (
     <>
-      <Modal isOpen={isOpen} toggle={() => setIsOpen(r => !r)}>
+      <Modal isOpen={isOpen} toggle={() => setIsOpen((r) => !r)}>
         <CreateDocumentForm
           categorySlug={slug}
-          toggle={() => setIsOpen(r => !r)}
+          toggle={() => setIsOpen((r) => !r)}
         />
       </Modal>
 
       <Grid>
         {documents &&
-          documents.map(document => (
+          documents.map((document) => (
             <Card key={document.slug}>
               <CardBody>
                 <Link to={`/user/${document.author}/document/${document.slug}`}>
@@ -62,7 +61,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
             onClick={() => setIsOpen(true)}
             className="position-cover w-100"
           >
-            <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
+            <PlusIcon size={40} className="m-auto" />
           </TooltipButton>
         </Card>
       </Grid>

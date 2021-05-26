@@ -7,13 +7,12 @@ import {
   Col,
   Container,
   FormGroup,
-  Icon,
-  ICONS,
   InputField,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
+  PlusIcon,
   Row,
   Spinner,
 } from "@vseth/components";
@@ -130,7 +129,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           onClick={() => setIsOpen(true)}
           className="position-cover w-100"
         >
-          <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
+          <PlusIcon size={40} className="m-auto" />
         </TooltipButton>
       </Card>
     </>

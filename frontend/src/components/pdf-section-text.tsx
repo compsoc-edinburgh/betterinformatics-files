@@ -1,4 +1,4 @@
-import { TextContent } from "pdfjs-dist/types/display/api";
+import type { TextContent } from "pdfjs-dist/types/display/api";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PDF from "../pdf/pdf-renderer";
@@ -29,7 +29,7 @@ const useTextLayer = (
   const filteredItems = useMemo(
     () =>
       textContent &&
-      textContent.items.filter(item => {
+      textContent.items.filter((item) => {
         const [, , , offsetY, , y] = item.transform;
         const [, , , yMax] = view;
         const top = yMax - (y + offsetY);

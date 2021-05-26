@@ -1,11 +1,12 @@
 import {
   ButtonGroup,
-  Icon,
-  ICONS,
-  ListGroupItem,
-  Spinner,
-  Row,
+  CloseIcon,
   Col,
+  DeleteIcon,
+  EditIcon,
+  ListGroupItem,
+  Row,
+  SaveIcon,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useState } from "react";
@@ -39,14 +40,20 @@ const CommentComponent: React.FC<Props> = ({
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
-  const [addNewLoading, runAddNewComment] = useMutation(addNewComment, res => {
-    if (onDelete) onDelete();
-    onSectionChanged(res);
-  });
-  const [updateLoading, runUpdateComment] = useMutation(updateComment, res => {
-    setEditing(false);
-    onSectionChanged(res);
-  });
+  const [addNewLoading, runAddNewComment] = useMutation(
+    addNewComment,
+    (res) => {
+      if (onDelete) onDelete();
+      onSectionChanged(res);
+    },
+  );
+  const [updateLoading, runUpdateComment] = useMutation(
+    updateComment,
+    (res) => {
+      setEditing(false);
+      onSectionChanged(res);
+    },
+  );
   const [removeLoading, runRemoveComment] = useMutation(
     removeComment,
     onSectionChanged,
@@ -88,7 +95,7 @@ const CommentComponent: React.FC<Props> = ({
               color="white"
               onClick={startEditing}
             >
-              <Icon icon={ICONS.EDIT} size={18} />
+              <EditIcon size={18} />
             </SmallButton>
           )}
           {comment && (comment.canEdit || isAdmin) && (
@@ -98,7 +105,7 @@ const CommentComponent: React.FC<Props> = ({
               color="white"
               onClick={remove}
             >
-              <Icon icon={ICONS.DELETE} size={18} />
+              <DeleteIcon size={18} />
             </SmallButton>
           )}
         </ButtonGroup>
@@ -136,7 +143,7 @@ const CommentComponent: React.FC<Props> = ({
             value={draftText}
             onChange={setDraftText}
             imageHandler={imageHandler}
-            preview={value => <MarkdownText value={value} />}
+            preview={(value) => <MarkdownText value={value} />}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
@@ -149,7 +156,7 @@ const CommentComponent: React.FC<Props> = ({
                 loading={loading}
                 disabled={draftText.trim().length === 0}
                 onClick={onSave}
-                icon="SAVE"
+                icon={SaveIcon}
               >
                 Save
               </IconButton>
@@ -159,7 +166,7 @@ const CommentComponent: React.FC<Props> = ({
                 className="m-1"
                 size="sm"
                 onClick={onCancel}
-                icon="CLOSE"
+                icon={CloseIcon}
               >
                 {comment === undefined ? "Delete Draft" : "Cancel"}
               </IconButton>

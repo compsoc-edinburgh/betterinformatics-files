@@ -1,5 +1,12 @@
 import { useRequest } from "@umijs/hooks";
-import { Alert, FormGroup, Spinner, Col, Row } from "@vseth/components";
+import {
+  Alert,
+  FormGroup,
+  Spinner,
+  Col,
+  Row,
+  DownloadIcon,
+} from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
@@ -17,18 +24,22 @@ interface ExamListProps {
   metaData: CategoryMetaData;
 }
 const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
-  const { data, loading, error, run: reload } = useRequest(
-    () => loadList(metaData.slug),
-    { cacheKey: `exam-list-${metaData.slug}` },
-  );
+  const {
+    data,
+    loading,
+    error,
+    run: reload,
+  } = useRequest(() => loadList(metaData.slug), {
+    cacheKey: `exam-list-${metaData.slug}`,
+  });
   const [filter, setFilter] = useState("");
   const { isCategoryAdmin } = useUser()!;
   const viewableExams = useMemo(
     () =>
       data &&
       data
-        .filter(exam => exam.public || isCategoryAdmin)
-        .filter(exam => filterMatches(filter, exam.displayname)),
+        .filter((exam) => exam.public || isCategoryAdmin)
+        .filter((exam) => filterMatches(filter, exam.displayname)),
     [data, isCategoryAdmin, filter],
   );
   const examTypeMap = useMemo(
@@ -48,7 +59,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(selected)}
               block
-              icon="DOWNLOAD"
+              icon={DownloadIcon}
             >
               Download selected exams
             </IconButton>
@@ -62,7 +73,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
                 className="search-input"
                 placeholder="Filter..."
                 value={filter}
-                onChange={e => setFilter(e.currentTarget.value)}
+                onChange={(e) => setFilter(e.currentTarget.value)}
                 autoFocus
               />
               <div className="search-icon-wrapper">

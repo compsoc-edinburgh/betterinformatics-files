@@ -1,7 +1,7 @@
 import {
   Card,
-  Icon,
-  ICONS,
+  DeleteIcon,
+  EditIcon,
   Modal,
   ModalBody,
   ModalFooter,
@@ -131,7 +131,7 @@ const DocumentCommentComponent = ({
                 color="white"
                 onClick={deleteComment}
               >
-                <Icon icon={ICONS.DELETE} size={18} />
+                <DeleteIcon size={18} />
               </SmallButton>
             )}
 
@@ -149,7 +149,7 @@ const DocumentCommentComponent = ({
                   });
                 }}
               >
-                <Icon icon={ICONS.EDIT} size={18} />
+                <EditIcon size={18} />
               </SmallButton>
             )}
           </div>

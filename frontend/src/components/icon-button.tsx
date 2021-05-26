@@ -1,4 +1,4 @@
-import { Button, Icon, ICONS, Spinner, ButtonProps } from "@vseth/components";
+import { Button, Spinner, ButtonProps } from "@vseth/components";
 import { css } from "@emotion/css";
 import React from "react";
 import TooltipButton from "./TooltipButton";
@@ -13,7 +13,7 @@ const spacerStyle = css`
   width: 0;
 `;
 interface IconButtonProps extends ButtonProps {
-  icon: keyof typeof ICONS;
+  icon: React.FC<{ className?: string; size?: string | number }>;
   loading?: boolean;
   tooltip?: React.ReactNode;
   iconClassName?: string;
@@ -29,6 +29,7 @@ const IconButton: React.FC<IconButtonProps> = ({
   tooltip,
   ...props
 }) => {
+  const Icon = icon;
   return tooltip ? (
     <TooltipButton
       tooltip={tooltip}
@@ -42,7 +43,7 @@ const IconButton: React.FC<IconButtonProps> = ({
         {loading ? (
           <Spinner size="sm" />
         ) : (
-          <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
+          <Icon className={iconClassName} size="1em" />
         )}
       </>
       {children && <span className={childStyle}>{children}</span>}
@@ -59,7 +60,7 @@ const IconButton: React.FC<IconButtonProps> = ({
         {loading ? (
           <Spinner size="sm" s />
         ) : (
-          <Icon className={iconClassName} icon={ICONS[icon]} size="1em" />
+          <Icon className={iconClassName} size="1em" />
         )}
       </>
       {children && <span className={childStyle}>{children}</span>}
