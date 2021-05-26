@@ -80,6 +80,18 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           Other answer to same question
         </Label>
       </FormGroup>
+      <FormGroup check>
+        <Input
+          type="checkbox"
+          id="commentToMyDocument"
+          checked={enabled ? enabled.has(4) : false}
+          disabled={checkboxLoading}
+          onChange={e => setEnabled(4, e.currentTarget.checked)}
+        />
+        <Label for="commentToMyDocument" check>
+          Comment to my document
+        </Label>
+      </FormGroup>
       {notificationsLoading && <Spinner />}
       {notifications &&
         notifications.map(notification => (
