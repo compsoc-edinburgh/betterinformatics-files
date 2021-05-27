@@ -1,4 +1,4 @@
-import { TextContent } from "pdfjs-dist/types/display/api";
+import type { TextContent } from "pdfjs-dist/types/display/api";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PDF from "../pdf/pdf-renderer";

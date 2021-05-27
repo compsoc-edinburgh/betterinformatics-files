@@ -2,10 +2,13 @@ import {
   Card,
   CardBody,
   CardFooter,
+  CloseIcon,
   Col,
   Container,
   Input,
+  PlusIcon,
   Row,
+  SaveIcon,
 } from "@vseth/components";
 import { css } from "@emotion/css";
 import * as React from "react";
@@ -97,14 +100,18 @@ export const FAQPage: React.FC = () => {
                 <IconButton
                   color="primary"
                   size="sm"
-                  icon="SAVE"
+                  icon={SaveIcon}
                   onClick={handleNew}
                 >
                   Save
                 </IconButton>
               </Col>
               <Col xs="auto">
-                <IconButton size="sm" icon="CLOSE" onClick={handleDeleteDraft}>
+                <IconButton
+                  size="sm"
+                  icon={CloseIcon}
+                  onClick={handleDeleteDraft}
+                >
                   Delete Draft
                 </IconButton>
               </Col>
@@ -119,7 +126,7 @@ export const FAQPage: React.FC = () => {
               className="position-cover"
               block
               size="lg"
-              icon="PLUS"
+              icon={PlusIcon}
               onClick={() => setHasDraft(true)}
             />
           </Card>

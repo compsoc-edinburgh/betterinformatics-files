@@ -1,3 +1,4 @@
+import { css } from "@emotion/css";
 import {
   Button,
   ButtonDropdown,
@@ -5,22 +6,24 @@ import {
   Card,
   CardFooter,
   CardHeader,
+  CardProps,
+  Col,
   Container,
+  DotsHIcon,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Icon,
-  ICONS,
+  EditIcon,
   Input,
   InputGroup,
   InputGroupButtonDropdown,
+  Row,
+  SaveIcon,
   Spinner,
   UncontrolledDropdown,
-  Col,
-  Row,
-  CardProps,
+  ViewIcon,
+  ViewOffIcon,
 } from "@vseth/components";
-import { css } from "@emotion/css";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
@@ -202,49 +205,49 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     return (
       <>
         {((cutName && cutName.length > 0) ||
-            (isCatAdmin && displayEmptyCutLabels)) && (
-            <NameCard id={id}>
-              <CardFooter>
-                {isEditingName ? (
-                  <InputGroup size="sm">
-                    <Input
-                      type="text"
-                      value={draftName}
-                      placeholder="Name"
-                      onChange={(e) => setDraftName(e.target.value)}
+          (isCatAdmin && displayEmptyCutLabels)) && (
+          <NameCard id={id}>
+            <CardFooter>
+              {isEditingName ? (
+                <InputGroup size="sm">
+                  <Input
+                    type="text"
+                    value={draftName}
+                    placeholder="Name"
+                    onChange={(e) => setDraftName(e.target.value)}
+                  />
+                  <InputGroupButtonDropdown addonType="append">
+                    <IconButton
+                      tooltip="Save PDF section name"
+                      icon={SaveIcon}
+                      block
+                      onClick={() => {
+                        setIsEditingName(false);
+                        onCutNameChange(draftName);
+                      }}
                     />
-                    <InputGroupButtonDropdown addonType="append">
+                  </InputGroupButtonDropdown>
+                </InputGroup>
+              ) : (
+                <Row>
+                  <Col className="d-flex flex-center flex-column">
+                    <h6 className="m-0">{cutName}</h6>
+                  </Col>
+                  <Col xs="auto">
+                    {isCatAdmin && (
                       <IconButton
-                        tooltip="Save PDF section name"
-                        icon="SAVE"
-                        block
-                        onClick={() => {
-                          setIsEditingName(false);
-                          onCutNameChange(draftName);
-                        }}
+                        tooltip="Edit PDF section name"
+                        size="sm"
+                        icon={EditIcon}
+                        onClick={() => setIsEditingName(true)}
                       />
-                    </InputGroupButtonDropdown>
-                  </InputGroup>
-                ) : (
-                  <Row>
-                    <Col className="d-flex flex-center flex-column">
-                      <h6 className="m-0">{cutName}</h6>
-                    </Col>
-                    <Col xs="auto">
-                      {isCatAdmin && (
-                        <IconButton
-                          tooltip="Edit PDF section name"
-                          size="sm"
-                          icon="EDIT"
-                          onClick={() => setIsEditingName(true)}
-                        />
-                      )}
-                    </Col>
-                  </Row>
-                )}
-              </CardFooter>
-            </NameCard>
-          )}
+                    )}
+                  </Col>
+                </Row>
+              )}
+            </CardFooter>
+          </NameCard>
+        )}
         <Container
           fluid
           style={{ filter: !has_answers ? "contrast(0.5)" : undefined }}
@@ -294,7 +297,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             <IconButton
                               className="mr-1"
                               size="sm"
-                              icon={has_answers ? "VIEW_OFF" : "VIEW"}
+                              icon={has_answers ? ViewOffIcon : ViewIcon}
                               tooltip="Toggle visibility"
                               onClick={onHasAnswersChange}
                             />
@@ -345,7 +348,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         isCatAdmin && (
                           <UncontrolledDropdown disabled={!has_answers}>
                             <DropdownToggle caret size="sm">
-                              <Icon icon={ICONS.DOTS_H} size={18} />
+                              <DotsHIcon size={18} />
                             </DropdownToggle>
                             <DropdownMenu>
                               <DropdownItem onClick={runRemoveSplit}>

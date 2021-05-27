@@ -10,6 +10,7 @@ import {
   ModalFooter,
   ModalHeader,
   PlusIcon,
+  RepeatIcon,
   SaveIcon,
   Select,
   Spinner,
@@ -42,9 +43,8 @@ interface Props {
 
 const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const history = useHistory();
-  const { loading: categoriesLoading, data: categories } = useRequest(
-    loadCategories,
-  );
+  const { loading: categoriesLoading, data: categories } =
+    useRequest(loadCategories);
   const categoryOptions =
     categories &&
     createOptions(
@@ -67,11 +67,10 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
       }
     },
   );
-  const [
-    regenerateLoading,
-    regenerate,
-  ] = useRegenerateDocumentAPIKey(data.author, slug, (result) =>
-    mutate((s) => ({ ...s, ...result })),
+  const [regenerateLoading, regenerate] = useRegenerateDocumentAPIKey(
+    data.author,
+    slug,
+    (result) => mutate((s) => ({ ...s, ...result })),
   );
   const [deleteLoading, deleteDocument] = useDeleteDocument(
     data.author,
@@ -82,9 +81,8 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
-  const [descriptionDraftText, setDescriptionDraftText] = useState<
-    string | undefined
-  >(undefined);
+  const [descriptionDraftText, setDescriptionDraftText] =
+    useState<string | undefined>(undefined);
   const [descriptionUndoStack, setDescriptionUndoStack] = useState<UndoStack>({
     prev: [],
     next: [],
@@ -164,7 +162,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             loading={regenerateLoading}
             onClick={regenerate}
             size="sm"
-            icon="REPEAT"
+            icon={RepeatIcon}
             tooltip="Regenerating the API token will invalidate the old one and generate a new one"
           />
         </div>

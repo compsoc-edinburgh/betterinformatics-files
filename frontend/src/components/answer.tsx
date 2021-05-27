@@ -8,13 +8,18 @@ import {
   CardBody,
   CardHeader,
   CardProps,
+  CloseIcon,
   Col,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Icon,
-  ICONS,
+  FlagIcon,
+  LinkIcon,
+  MinusIcon,
+  PlusIcon,
   Row,
+  SaveIcon,
+  StarFilledIcon,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -76,12 +81,10 @@ const AnswerComponent: React.FC<Props> = ({
 }) => {
   const [viewSource, toggleViewSource] = useToggle(false);
   const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
-  const [resetFlaggedLoading, resetFlagged] = useResetFlaggedVote(
-    onSectionChanged,
-  );
-  const [setExpertVoteLoading, setExpertVote] = useSetExpertVote(
-    onSectionChanged,
-  );
+  const [resetFlaggedLoading, resetFlagged] =
+    useResetFlaggedVote(onSectionChanged);
+  const [setExpertVoteLoading, setExpertVote] =
+    useSetExpertVote(onSectionChanged);
   const removeAnswer = useRemoveAnswer(onSectionChanged);
   const [updating, update] = useUpdateAnswer((res) => {
     setEditing(false);
@@ -131,7 +134,7 @@ const AnswerComponent: React.FC<Props> = ({
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
                 >
-                  <Icon icon={ICONS.LINK} size="1em" />
+                  <LinkIcon size="1em" />
                 </Link>
               )}
               {isLegacyAnswer ? (
@@ -175,7 +178,7 @@ const AnswerComponent: React.FC<Props> = ({
                         color="primary"
                         size="sm"
                         tooltip="This answer is endorsed by an expert"
-                        icon="STAR_FILLED"
+                        icon={StarFilledIcon}
                         active
                       />
                       <SmallButton color="primary" size="sm" active>
@@ -191,7 +194,7 @@ const AnswerComponent: React.FC<Props> = ({
                               ? "Remove expert vote"
                               : "Add expert vote"
                           }
-                          icon={answer.isExpertVoted ? "MINUS" : "PLUS"}
+                          icon={answer.isExpertVoted ? MinusIcon : PlusIcon}
                           onClick={() =>
                             setExpertVote(answer.oid, !answer.isExpertVoted)
                           }
@@ -207,7 +210,7 @@ const AnswerComponent: React.FC<Props> = ({
                       <IconButton
                         tooltip="This answer was flagged as inappropriate by a user. A moderator will decide whether the answer should be removed."
                         color="danger"
-                        icon="FLAG"
+                        icon={FlagIcon}
                         title="Flagged as Inappropriate"
                         active
                       >
@@ -229,7 +232,7 @@ const AnswerComponent: React.FC<Props> = ({
                         }
                         size="sm"
                         loading={flaggedLoading}
-                        icon={answer.isFlagged ? "MINUS" : "PLUS"}
+                        icon={answer.isFlagged ? MinusIcon : PlusIcon}
                         onClick={() =>
                           setFlagged(answer.oid, !answer.isFlagged)
                         }
@@ -287,7 +290,7 @@ const AnswerComponent: React.FC<Props> = ({
                   onClick={save}
                   loading={updating}
                   disabled={draftText.trim().length === 0}
-                  icon="SAVE"
+                  icon={SaveIcon}
                 >
                   Save
                 </IconButton>
@@ -298,7 +301,7 @@ const AnswerComponent: React.FC<Props> = ({
                 <>
                   <ButtonGroup className="m-1">
                     {(answer === undefined || editing) && (
-                      <IconButton size="sm" onClick={onCancel} icon="CLOSE">
+                      <IconButton size="sm" onClick={onCancel} icon={CloseIcon}>
                         {editing ? "Cancel" : "Delete Draft"}
                       </IconButton>
                     )}
@@ -306,7 +309,7 @@ const AnswerComponent: React.FC<Props> = ({
                       <IconButton
                         size="sm"
                         onClick={() => setHasCommentDraft(true)}
-                        icon="PLUS"
+                        icon={PlusIcon}
                         disabled={hasCommentDraft}
                       >
                         Add Comment

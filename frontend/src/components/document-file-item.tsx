@@ -14,6 +14,9 @@ import {
   ModalFooter,
   Spinner,
   SaveIcon,
+  KeyIcon,
+  EditIcon,
+  DeleteIcon,
 } from "@vseth/components";
 import React, { useState } from "react";
 import {
@@ -155,21 +158,21 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         <Row form>
           <Col xs="auto">
             <IconButton
-              icon="KEY"
+              icon={KeyIcon}
               onClick={toggleKeyIsOpen}
               tooltip="View access token"
             />
           </Col>
           <Col xs="auto">
             <IconButton
-              icon="EDIT"
+              icon={EditIcon}
               onClick={toggleEditIsOpen}
               tooltip="Edit file"
             />
           </Col>
           <Col xs="auto">
             <IconButton
-              icon="DELETE"
+              icon={DeleteIcon}
               color="danger"
               onClick={deleteFile}
               loading={deleteLoading}

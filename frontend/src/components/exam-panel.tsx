@@ -1,16 +1,21 @@
 import { useDebounceFn } from "@umijs/hooks";
 import {
+  ArrowUpIcon,
   ButtonGroup,
+  CloseIcon,
   Col,
+  DownloadIcon,
   FormGroup,
   Input,
   Label,
+  MessageIcon,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Pagination,
   PaginationItem,
   PaginationLink,
+  PlusIcon,
   Row,
 } from "@vseth/components";
 import { css } from "@emotion/css";
@@ -160,17 +165,17 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <ButtonGroup>
           <IconButton
             tooltip="Download this exam as a PDF file"
-            icon="DOWNLOAD"
+            icon={DownloadIcon}
             onClick={download}
           />
           <IconButton
             tooltip="Report problem"
-            icon="MESSAGE"
+            icon={MessageIcon}
             onClick={reportProblem}
           />
           <IconButton
             tooltip="Back to the top"
-            icon="ARROW_UP"
+            icon={ArrowUpIcon}
             onClick={scrollToTop}
           />
         </ButtonGroup>
@@ -185,7 +190,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                     size="sm"
                     tooltip="Disable editing"
                     onClick={() => setEditState({ mode: EditMode.None })}
-                    icon="CLOSE"
+                    icon={CloseIcon}
                   >
                     Stop Editing
                   </IconButton>
@@ -202,7 +207,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                         snap,
                       })
                     }
-                    icon="PLUS"
+                    icon={PlusIcon}
                   >
                     Add Cuts
                   </IconButton>
