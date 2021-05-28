@@ -1,10 +1,12 @@
 import {
   ButtonGroup,
+  CloseIcon,
   Col,
-  Icon,
-  ICONS,
+  DeleteIcon,
+  EditIcon,
   ListGroupItem,
   Row,
+  SaveIcon,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useState } from "react";
@@ -93,7 +95,7 @@ const CommentComponent: React.FC<Props> = ({
               color="white"
               onClick={startEditing}
             >
-              <Icon icon={ICONS.EDIT} size={18} />
+              <EditIcon size={18} />
             </SmallButton>
           )}
           {comment && (comment.canEdit || isAdmin) && (
@@ -103,7 +105,7 @@ const CommentComponent: React.FC<Props> = ({
               color="white"
               onClick={remove}
             >
-              <Icon icon={ICONS.DELETE} size={18} />
+              <DeleteIcon size={18} />
             </SmallButton>
           )}
         </ButtonGroup>
@@ -154,7 +156,7 @@ const CommentComponent: React.FC<Props> = ({
                 loading={loading}
                 disabled={draftText.trim().length === 0}
                 onClick={onSave}
-                icon="SAVE"
+                icon={SaveIcon}
               >
                 Save
               </IconButton>
@@ -164,7 +166,7 @@ const CommentComponent: React.FC<Props> = ({
                 className="m-1"
                 size="sm"
                 onClick={onCancel}
-                icon="CLOSE"
+                icon={CloseIcon}
               >
                 {comment === undefined ? "Delete Draft" : "Cancel"}
               </IconButton>

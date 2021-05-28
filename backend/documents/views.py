@@ -16,6 +16,7 @@ from myauth.models import MyUser, get_my_user
 from util import s3_util, response
 
 from documents.models import Comment, Document, DocumentFile, generate_api_key
+from notifications import notification_util
 
 logger = logging.getLogger(__name__)
 
@@ -254,6 +255,7 @@ class DocumentCommentRootView(View):
             document=document, text=request.POST["text"], author=request.user
         )
         comment.save()
+        notification_util.new_comment_to_document(document,comment)
         return response.success(value=get_comment_obj(comment, request))
 
 

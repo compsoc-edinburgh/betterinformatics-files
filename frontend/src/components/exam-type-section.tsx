@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Card, Col, Row } from "@vseth/components";
+import { Badge, Card, Col, DeleteIcon, Row } from "@vseth/components";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -182,7 +182,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     size="sm"
                     color="dark"
                     tooltip="Delete exam"
-                    icon="DELETE"
+                    icon={DeleteIcon}
                     outline
                     className="ml-2 m-1"
                     onClick={(e) => handleRemoveClick(e, exam)}

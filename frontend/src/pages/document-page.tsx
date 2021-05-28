@@ -111,7 +111,7 @@ const DocumentPage: React.FC<Props> = () => {
             <h1>{data.display_name ?? slug}</h1>
             <div>
               <IconButton
-                icon="DOWNLOAD"
+                icon={DownloadIcon}
                 onClick={startDownload}
                 color="white"
                 loading={loadingDownload}

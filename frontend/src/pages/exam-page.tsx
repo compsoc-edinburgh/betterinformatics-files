@@ -6,8 +6,10 @@ import {
   Button,
   Card,
   CardBody,
+  CheckIcon,
   Col,
   Container,
+  EditIcon,
   Row,
   Spinner,
 } from "@vseth/components";
@@ -202,7 +204,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 !metaData.oral_transcript_checked && (
                   <IconButton
                     size="sm"
-                    icon="CHECK"
+                    icon={CheckIcon}
                     onClick={() => runMarkChecked(metaData.filename)}
                   >
                     Mark as Checked
@@ -212,7 +214,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               <IconButton
                 size="sm"
                 className="m-1"
-                icon="EDIT"
+                icon={EditIcon}
                 onClick={() => toggleEditing()}
               >
                 Edit
@@ -342,7 +344,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         )}
       </Container>
 
-      <ContentContainer>
+      <ContentContainer className="my-3">
         <div ref={sizeRef} style={{ maxWidth }} className="mx-auto my-3">
           {width && sections && renderer && (
             <Exam
@@ -404,9 +406,11 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
   });
-  const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
-    loadSplitRenderer(filename),
-  );
+  const {
+    error: pdfError,
+    loading: pdfLoading,
+    data,
+  } = useRequest(() => loadSplitRenderer(filename));
   const [pdf, renderer] = data ? data : [];
   const sections = useMemo(
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),

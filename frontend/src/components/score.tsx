@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { ButtonGroup, Icon, ICONS, Spinner } from "@vseth/components";
+import { ButtonGroup, MinusIcon, PlusIcon, Spinner } from "@vseth/components";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
@@ -38,7 +38,7 @@ const Score: React.FC<Props> = ({
         outline={userVote === -1}
         onClick={() => setLike(oid, -1)}
       >
-        <Icon icon={ICONS.MINUS} size={18} />
+        <MinusIcon size={18} />
       </SmallButton>
       <SmallButton
         tooltip="Reset vote"
@@ -58,7 +58,7 @@ const Score: React.FC<Props> = ({
         outline={userVote === 1}
         onClick={() => setLike(oid, 1)}
       >
-        <Icon icon={ICONS.PLUS} size={18} />
+        <PlusIcon size={18} />
       </SmallButton>
     </ButtonGroup>
   );

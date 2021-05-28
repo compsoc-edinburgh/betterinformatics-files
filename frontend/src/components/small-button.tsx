@@ -5,8 +5,11 @@ const small = css`
   min-width: 0;
 `;
 
-const SmallButton = (props: TooltipButtonProps) => (
-  <TooltipButton className={small} {...props} />
+const SmallButton = ({ className, ...props }: TooltipButtonProps) => (
+  <TooltipButton
+    className={className ? `${className} ${small}` : small}
+    {...props}
+  />
 );
 
 export default SmallButton;
