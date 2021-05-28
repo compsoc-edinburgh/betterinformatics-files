@@ -5,7 +5,7 @@ interface ModalProps {
   toggle: () => void;
   setHidden: () => void;
 }
-const HideAnswersModal: React.FC<ModalProps> = ({
+const HideAnswerSectionModal: React.FC<ModalProps> = ({
   isOpen,
   toggle,
   setHidden,
@@ -28,4 +28,4 @@ const HideAnswersModal: React.FC<ModalProps> = ({
     </Modal>
   );
 };
-export default HideAnswersModal;
+export default HideAnswerSectionModal;
