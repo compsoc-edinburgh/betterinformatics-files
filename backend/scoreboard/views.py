@@ -38,6 +38,8 @@ def get_scoreboard_top(scoretype, limit):
         )
     elif scoretype == "score_comments":
         users = MyUser.objects.annotate(score=Count("comment"))
+    elif scoretype == "score_documents":
+        users = MyUser.objects.annotate(score=Count("document"))
     elif scoretype == "score_cuts":
         users = MyUser.objects.annotate(score=Count("answersection"))
     elif scoretype == "score_legacy":

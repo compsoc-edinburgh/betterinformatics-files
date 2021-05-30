@@ -16,6 +16,7 @@ const modes = [
   "score_comments",
   "score_cuts",
   "score_legacy",
+  "score_documents",
 ] as const;
 type Mode = typeof modes[number];
 const loadScoreboard = async (scoretype: Mode) => {
@@ -73,6 +74,15 @@ const Scoreboard: React.FC<{}> = () => {
               <th>
                 <Button
                   color="white"
+                  onClick={() => setMode("score_documents")}
+                  active={mode === "score_documents"}
+                >
+                  Documents
+                </Button>
+              </th>
+              <th>
+                <Button
+                  color="white"
                   onClick={() => setMode("score_cuts")}
                   active={mode === "score_cuts"}
                 >
@@ -103,6 +113,7 @@ const Scoreboard: React.FC<{}> = () => {
                   <td>{board.score}</td>
                   <td>{board.score_answers}</td>
                   <td>{board.score_comments}</td>
+                  <td>{board.score_documents}</td>
                   <td>{board.score_cuts}</td>
                   <td>{board.score_legacy}</td>
                 </tr>
