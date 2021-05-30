@@ -25,7 +25,7 @@ def set_answer(request, oid):
     section = get_object_or_404(
         AnswerSection.objects.select_related("exam").prefetch_related(
             "answer_set",
-            "answer_set__comment_set",
+            "answer_set__comments",
             "answer_set__upvotes",
             "answer_set__downvotes",
             "answer_set__expertvotes",
