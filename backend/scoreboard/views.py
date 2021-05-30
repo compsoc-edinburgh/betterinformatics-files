@@ -1,15 +1,21 @@
 from util import response, func_cache
 from myauth import auth_check
 from myauth.models import MyUser, get_my_user
+from documents.models import Document
 from answers.models import Answer
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Count, F, Q, Subquery, OuterRef
 
 
 def get_user_scores(user, res):
+    document_likes = (
+        Document.objects.filter(author=user)
+        .annotate(num_likes=Count("likes"))
+        .aggregate(Sum("num_likes"))["num_likes__sum"]
+    ) or 0
     res.update(
         {
-            "score": user.scores.upvotes - user.scores.downvotes,
+            "score": document_likes + user.scores.upvotes - user.scores.downvotes,
             "score_answers": user.answer_set.filter(is_legacy_answer=False).count(),
             "score_comments": user.answers_comments.count(),
             "score_cuts": user.answersection_set.count(),
