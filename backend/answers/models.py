@@ -160,6 +160,6 @@ class Answer(ExportModelOperationsMixin('answer'), models.Model):
         indexes = [GinIndex(fields=["search_vector"])]
 
 class Comment(ExportModelOperationsMixin('comment'), CommentMixin):
-    answer = models.ForeignKey('Answer', on_delete=models.CASCADE)
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name="comments")
     long_id = models.CharField(
         max_length=256, default=generate_long_id, unique=True)
