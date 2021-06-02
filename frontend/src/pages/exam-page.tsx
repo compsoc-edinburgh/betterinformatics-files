@@ -123,9 +123,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     },
   });
   const onSectionChange = useCallback(
-    async (section: string | [number, number], update: Partial<CutUpdate>) => {
+    (section: string | [number, number], update: Partial<CutUpdate>) => {
       if (Array.isArray(section)) {
-        await runAddCut(
+        runAddCut(
           metaData.filename,
           section[0],
           section[1],
@@ -133,7 +133,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           false,
         );
       } else {
-        await runUpdate(section, update);
+        runUpdate(section, update);
       }
     },
     [runAddCut, metaData, runUpdate],
@@ -406,11 +406,9 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
   });
-  const {
-    error: pdfError,
-    loading: pdfLoading,
-    data,
-  } = useRequest(() => loadSplitRenderer(filename));
+  const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
+    loadSplitRenderer(filename),
+  );
   const [pdf, renderer] = data ? data : [];
   const sections = useMemo(
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
