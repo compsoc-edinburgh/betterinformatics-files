@@ -28,6 +28,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
+import HideAnswerSectionModal from "../components/hide-answer-section-overlay";
 import useLoad from "../hooks/useLoad";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
@@ -117,7 +118,7 @@ interface Props {
   hidden: boolean;
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
-  onHasAnswersChange: () => void;
+  onHasAnswersChange: () => Promise<void>;
   has_answers: boolean;
 
   cutName: string;
@@ -172,13 +173,21 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const [inViewport, ref] = useLoad<HTMLDivElement>();
     const visible = inViewport || false;
     useEffect(() => {
+      if (data?.has_answers !== has_answers && !has_answers && data) {
+        setData({
+          ...data,
+          answers: [],
+          allow_new_answer: true,
+          allow_new_legacy_answer: true,
+        });
+      }
       if (
         (data === undefined || data.cutVersion !== cutVersion) &&
         (visible || !hidden)
       ) {
         run();
       }
-    }, [data, visible, run, cutVersion, hidden]);
+    }, [data, visible, run, cutVersion, hidden, has_answers]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = useCallback(() => {
@@ -192,6 +201,21 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
+    const [deleteAnswersWarning, setDeleteAnswersWarning] = useState(false);
+    const hideAnswerSection = async () => {
+      await onHasAnswersChange();
+      setDeleteAnswersWarning(false);
+    };
+    const hideAnswerSectionWithWarning = () => {
+      if (data) {
+        if (data.answers.length === 0 || !has_answers) {
+          hideAnswerSection();
+        } else {
+          setDeleteAnswersWarning(true);
+        }
+      }
+    };
+
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
       data && cutName.length === 0 && isCatAdmin,
@@ -204,6 +228,11 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     return (
       <>
+        <HideAnswerSectionModal
+          isOpen={deleteAnswersWarning}
+          toggle={() => setDeleteAnswersWarning(false)}
+          setHidden={hideAnswerSection}
+        />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
           <NameCard id={id}>
@@ -248,10 +277,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </CardFooter>
           </NameCard>
         )}
-        <Container
-          fluid
-          style={{ filter: !has_answers ? "contrast(0.5)" : undefined }}
-        >
+        <Container fluid>
           {!hidden && data && (
             <>
               {data.answers.map((answer) => (
@@ -282,7 +308,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </>
           )}
           <AnswerSectionButtonWrapper
-            color={isBeingMoved ? "primary" : undefined}
+            color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <CardHeader>
               <div className="d-flex" ref={ref}>
@@ -299,7 +325,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               size="sm"
                               icon={has_answers ? ViewOffIcon : ViewIcon}
                               tooltip="Toggle visibility"
-                              onClick={onHasAnswersChange}
+                              onClick={hideAnswerSectionWithWarning}
                             />
                           ) : null}
 
@@ -309,17 +335,14 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             </Button>
                           ) : (
                             (data.answers.length === 0 || !hidden) &&
+                            has_answers &&
                             data &&
                             (data.allow_new_answer ||
                               (data.allow_new_legacy_answer && isCatAdmin)) && (
                               <AddButton
-                                allowAnswer={
-                                  data.allow_new_answer && has_answers
-                                }
+                                allowAnswer={data.allow_new_answer}
                                 allowLegacyAnswer={
-                                  data.allow_new_legacy_answer &&
-                                  isCatAdmin &&
-                                  has_answers
+                                  data.allow_new_legacy_answer && isCatAdmin
                                 }
                                 hasAnswerDraft={hasDraft}
                                 hasLegacyAnswerDraft={hasLegacyDraft}
@@ -338,7 +361,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             size="sm"
                             onClick={onToggleHidden}
                             className="d-inline-block"
-                            disabled={!has_answers}
                           >
                             {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
@@ -346,7 +368,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       }
                       right={
                         isCatAdmin && (
-                          <UncontrolledDropdown disabled={!has_answers}>
+                          <UncontrolledDropdown>
                             <DropdownToggle caret size="sm">
                               <DotsHIcon size={18} />
                             </DropdownToggle>

@@ -33,6 +33,10 @@ def set_answer(request, oid):
         ),
         pk=oid,
     )
+
+    if not section.has_answers:
+        return response.not_allowed()
+
     legacy_answer = request.POST["legacy_answer"] != "false"
     text = request.POST["text"]
 
