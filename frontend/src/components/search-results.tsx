@@ -103,7 +103,8 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       <Pagination>
                         <PaginationItem active>
                           <PaginationLink
-                            href={`/exams/${result.filename}/#page-${page}`}
+                            as={Link}
+                            to={`/exams/${result.filename}/#page-${page}`}
                             className="border stretched-link position-static"
                           >
                             {page}
