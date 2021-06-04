@@ -30,7 +30,9 @@ def get_user_scores(user, res):
 def get_scoreboard_top(scoretype, limit):
     if scoretype == "score":
         users = MyUser.objects.annotate(
-            score=F("scores__upvotes") - F("scores__downvotes")
+            score=F("score__document_likes")
+            + F("scores__upvotes")
+            - F("scores__downvotes")
         )
     elif scoretype == "score_answers":
         users = MyUser.objects.annotate(
