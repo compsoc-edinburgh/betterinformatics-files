@@ -1,10 +1,13 @@
+from typing_extensions import Concatenate
+
+from django.db.models.expressions import Case, When
 from util import response, func_cache
 from myauth import auth_check
 from myauth.models import MyUser, get_my_user
 from documents.models import Document
 from answers.models import Answer
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Count, F, Q, Subquery, OuterRef
+from django.db.models import Sum, Count, F, Q, Value as V
 
 
 def get_user_scores(user, res):
@@ -28,44 +31,49 @@ def get_user_scores(user, res):
 
 @func_cache.cache(600)
 def get_scoreboard_top(scoretype, limit):
+    users = MyUser.objects.annotate(
+        displayName=Case(
+            When(
+                Q(first_name__isnull=True),
+                "last_name",
+            ),
+            default=Concatenate("first_name", V(" "), "last_name"),
+        ),
+        score=F("scores__document_likes")
+        + F("scores__upvotes")
+        - F("scores__downvotes"),
+        score_answers=Count("answer", filter=Q(answer__is_legacy_answer=False)),
+        score_comments=Count("comment"),
+        score_documents=Count("document"),
+        score_cuts=MyUser.objects.annotate(score=Count("answersection")),
+        score_legacy=Count("answer", filter=Q(answer__is_legacy_answer=True)),
+    )
+
     if scoretype == "score":
-        users = MyUser.objects.annotate(
-            score=F("scores__document_likes")
-            + F("scores__upvotes")
-            - F("scores__downvotes")
-        )
+        users = users.order_by("-score")
     elif scoretype == "score_answers":
-        users = MyUser.objects.annotate(
-            score=Count("answer", filter=Q(answer__is_legacy_answer=False))
-        )
+        users = users.order_by("-score_answers")
     elif scoretype == "score_comments":
-        users = MyUser.objects.annotate(score=Count("comment"))
+        users = users.order_by("-score_comments")
     elif scoretype == "score_documents":
-        users = MyUser.objects.annotate(score=Count("document"))
+        users = users.order_by("-score_documents")
     elif scoretype == "score_cuts":
-        users = MyUser.objects.annotate(score=Count("answersection"))
+        users = users.order_by("-score_cuts")
     elif scoretype == "score_legacy":
-        users = MyUser.objects.annotate(
-            score=Count("answer", filter=Q(answer__is_legacy_answer=True))
-        )
+        users = users.order_by("-score_legacy")
     else:
         return response.not_found()
 
-    users = users.select_related("scores").prefetch_related(
-        "answer_set", "answers_comments", "answersection_set"
+    return users[:limit].values(
+        "username",
+        "displayName",
+        "score",
+        "score_answers",
+        "score_comments",
+        "score_cuts",
+        "score_legacy",
+        "score_documents",
     )
-
-    res = [
-        get_user_scores(
-            user,
-            {
-                "username": user.username,
-                "displayName": get_my_user(user).displayname(),
-            },
-        )
-        for user in users.order_by("-score", "first_name", "last_name")[:limit]
-    ]
-    return res
 
 
 @response.request_get()
