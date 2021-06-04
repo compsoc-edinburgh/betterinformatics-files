@@ -202,23 +202,29 @@ class DocumentElementView(View):
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, slug: str):
         document = get_object_or_404(Document, author__username=username, slug=slug)
-        if not document.current_user_can_edit(request):
-            return response.not_allowed()
-        if "description" in request.DATA:
-            document.description = request.DATA["description"]
-        if "display_name" in request.DATA:
-            document.display_name = request.DATA["display_name"]
-            document.slug = create_document_slug(
-                document.display_name, request.user, document
-            )
-        if "category" in request.DATA:
-            category = get_object_or_404(Category, slug=request.DATA["category"])
-            document.category = category
         if "liked" in request.DATA:
             if request.DATA["liked"] == "true":
                 document.likes.add(request.user)
             else:
                 document.likes.remove(request.user)
+
+        can_edit = document.current_user_can_edit(request)
+        if "description" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            document.description = request.DATA["description"]
+        if "display_name" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            document.display_name = request.DATA["display_name"]
+            document.slug = create_document_slug(
+                document.display_name, request.user, document
+            )
+        if "category" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            category = get_object_or_404(Category, slug=request.DATA["category"])
+            document.category = category
         document.save()
         return response.success(value=get_document_obj(document, request))
 
