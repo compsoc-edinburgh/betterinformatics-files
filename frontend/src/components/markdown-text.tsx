@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
+import RemarkGfm from "remark-gfm";
 
 const wrapperStyle = css`
   overflow-x: auto;
@@ -38,7 +39,7 @@ const transformImageUri = (uri: string) => {
   }
 };
 
-const markdownPlugins = [RemarkMathPlugin];
+const markdownPlugins = [RemarkMathPlugin, RemarkGfm];
 
 const createRenderers = (
   regex: RegExp | undefined,
