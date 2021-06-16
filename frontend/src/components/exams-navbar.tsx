@@ -28,11 +28,15 @@ const ExamsNavbar: React.FC<{}> = () => {
   const adminItems: Item[] = [
     {
       title: "Upload Exam",
-      href: "/uploadpdf",
+      linkProps: {
+        href: "/uploadpdf",
+      },
     },
     {
       title: "Mod Queue",
-      href: "/modqueue",
+      linkProps: {
+        href: "/modqueue",
+      },
     },
   ];
 
@@ -74,16 +78,22 @@ const ExamsNavbar: React.FC<{}> = () => {
             {
               title: "FAQ",
               active: location.pathname === "/faq",
-              href: "/faq",
+              linkProps: {
+                href: "/faq",
+              },
             },
             {
               title: "Feedback",
               active: location.pathname === "/feedback",
-              href: "/feedback",
+              linkProps: {
+                href: "/feedback",
+              },
             },
             {
               title: "Submit Transcript",
-              href: "/submittranscript",
+              linkProps: {
+                href: "/submittranscript",
+              },
             },
             ...(typeof user === "object" && user.isCategoryAdmin
               ? adminItems
