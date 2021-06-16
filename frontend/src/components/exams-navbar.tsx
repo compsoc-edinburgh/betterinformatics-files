@@ -30,19 +30,22 @@ const ExamsNavbar: React.FC<{}> = () => {
       title: "Upload Exam",
       linkProps: {
         href: "/uploadpdf",
+        // This is a temporary fix that makes dropdown items look normal
+        ...{ className: "dropdown-item" },
       },
     },
     {
       title: "Mod Queue",
       linkProps: {
         href: "/modqueue",
+        ...{ className: "dropdown-item" },
       },
     },
   ];
 
-  const navlink: React.FC<NavLinkProps> = ({ href, children }) => {
+  const navlink: React.FC<NavLinkProps> = ({ href, children, className }) => {
     return (
-      <NavLink to={href || ""} className="nav-link">
+      <NavLink to={href || ""} className={className ?? "nav-link"}>
         {children}
       </NavLink>
     );
@@ -80,6 +83,7 @@ const ExamsNavbar: React.FC<{}> = () => {
               active: location.pathname === "/faq",
               linkProps: {
                 href: "/faq",
+                ...{ className: "dropdown-item" },
               },
             },
             {
@@ -87,12 +91,14 @@ const ExamsNavbar: React.FC<{}> = () => {
               active: location.pathname === "/feedback",
               linkProps: {
                 href: "/feedback",
+                ...{ className: "dropdown-item" },
               },
             },
             {
               title: "Submit Transcript",
               linkProps: {
                 href: "/submittranscript",
+                ...{ className: "dropdown-item" },
               },
             },
             ...(typeof user === "object" && user.isCategoryAdmin
