@@ -28,17 +28,24 @@ const ExamsNavbar: React.FC<{}> = () => {
   const adminItems: Item[] = [
     {
       title: "Upload Exam",
-      href: "/uploadpdf",
+      linkProps: {
+        href: "/uploadpdf",
+        // This is a temporary fix that makes dropdown items look normal
+        ...{ className: "dropdown-item" },
+      },
     },
     {
       title: "Mod Queue",
-      href: "/modqueue",
+      linkProps: {
+        href: "/modqueue",
+        ...{ className: "dropdown-item" },
+      },
     },
   ];
 
-  const navlink: React.FC<NavLinkProps> = ({ href, children }) => {
+  const navlink: React.FC<NavLinkProps> = ({ href, children, className }) => {
     return (
-      <NavLink to={href || ""} className="nav-link">
+      <NavLink to={href || ""} className={className ?? "nav-link"}>
         {children}
       </NavLink>
     );
@@ -74,16 +81,25 @@ const ExamsNavbar: React.FC<{}> = () => {
             {
               title: "FAQ",
               active: location.pathname === "/faq",
-              href: "/faq",
+              linkProps: {
+                href: "/faq",
+                ...{ className: "dropdown-item" },
+              },
             },
             {
               title: "Feedback",
               active: location.pathname === "/feedback",
-              href: "/feedback",
+              linkProps: {
+                href: "/feedback",
+                ...{ className: "dropdown-item" },
+              },
             },
             {
               title: "Submit Transcript",
-              href: "/submittranscript",
+              linkProps: {
+                href: "/submittranscript",
+                ...{ className: "dropdown-item" },
+              },
             },
             ...(typeof user === "object" && user.isCategoryAdmin
               ? adminItems
