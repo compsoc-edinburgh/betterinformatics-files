@@ -40,8 +40,8 @@ COPY ./frontend/.env.production .
 COPY ./frontend/.prettierrc.json ./.prettierrc.json
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
-ENV REACT_APP_GIT_BRANCH=${git_branch}
-ENV REACT_APP_GIT_COMMIT=${git_commit}
+ENV REACT_APP_GIT_BRANCH=master
+ENV REACT_APP_GIT_COMMIT=42
 RUN yarn run build
 
 FROM backend AS combined

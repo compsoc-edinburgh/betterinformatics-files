@@ -43,7 +43,7 @@ state_delimeter = ":"
 
 # We encode our state params as b64(nonce):rd_url
 def encode_state(nonce: bytes, redirect_url: str):
-    return b64encode(nonce) + state_delimeter + redirect_url
+    return str(b64encode(nonce), "utf-8") + state_delimeter + redirect_url
 
 
 # Decode callback state into nonce and rd_url
@@ -51,7 +51,7 @@ def decode_state(state: str):
     parts = state.split(state_delimeter)
     if len(parts) != 2:
         raise ValueError("invalid state format")
-    nonce = b64decode(parts[0])
+    nonce = b64decode(bytes(parts[0], "utf-8"))
     redirect_url = parts[1]
     return nonce, redirect_url
 
@@ -84,7 +84,7 @@ def login(request: HttpRequest):
     # We only need to store the nonce in the cookie, we can trust the AP to correctly
     # give us the redirect_url once we verified the nonce
     nonce_enc = nonce_fernet.encrypt(nonce)
-    nonce_cookie = b64encode(nonce_enc)
+    nonce_cookie = str(b64encode(nonce_enc), "utf-8")
 
     # The base URL of our redirect
     url = settings.OAUTH2_AUTH_URL
