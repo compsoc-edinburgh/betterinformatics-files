@@ -39,6 +39,24 @@ def me_view(request):
         )
 
 
+# https://gist.github.com/cameronmaske/f520903ade824e4c30ab
+def base64url_encode(data: bytes):
+    """
+    Removes any `=` used as padding from the encoded string.
+    """
+    encoded = str(urlsafe_b64encode(data), "utf-8")
+    return encoded.rstrip("=")
+
+
+def base64url_decode(string: str):
+    """
+    Adds back in the required padding before decoding.
+    """
+    padding = 4 - (len(string) % 4)
+    string = string + ("=" * padding)
+    return urlsafe_b64decode(string)
+
+
 state_delimeter = ":"
 
 # We encode our state params as b64(nonce):rd_url
@@ -84,7 +102,9 @@ def login(request: HttpRequest):
     # We only need to store the nonce in the cookie, we can trust the AP to correctly
     # give us the redirect_url once we verified the nonce
     nonce_enc = nonce_fernet.encrypt(nonce)
-    nonce_cookie = str(urlsafe_b64encode(nonce_enc), "utf-8")
+    # We need urlsafe b64 encoding here because otherwise django surrounds our cookie value
+    # with quotes, but doesn't remove them later
+    nonce_cookie = base64url_encode(nonce_enc)
 
     # The base URL of our redirect
     url = settings.OAUTH2_AUTH_URL
@@ -93,6 +113,8 @@ def login(request: HttpRequest):
     response.status_code = 302
     # We need the nonce in a request which comes back from the AP - thus we have to
     # use sameSite=Lax to have the cookie included in that request
+    # httponly doesn't really matter - this is only used by us (RP) to verify that the callback
+    # comes from our chosen OP
     response.set_cookie("nonce", nonce_cookie, httponly=True, samesite="Lax")
     response.headers["Location"] = url + "?" + urlencode(query_params)
 
@@ -147,7 +169,7 @@ def callback(request: HttpRequest):
 
     # Reverse encoding, check validity of nonce
     query_nonce, redirect_url = decode_state(state)
-    nonce_enc = urlsafe_b64decode(nonce_cookie)
+    nonce_enc = base64url_decode(nonce_cookie)
     nonce_dec = nonce_fernet.decrypt(nonce_enc)
     if nonce_dec != query_nonce:
         return HttpResponseBadRequest("nonce didn't match")
