@@ -1,5 +1,5 @@
 import datetime
-from base64 import b64decode, b64encode
+from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
 from secrets import token_bytes
 from urllib.parse import urlencode
 
@@ -84,7 +84,7 @@ def login(request: HttpRequest):
     # We only need to store the nonce in the cookie, we can trust the AP to correctly
     # give us the redirect_url once we verified the nonce
     nonce_enc = nonce_fernet.encrypt(nonce)
-    nonce_cookie = str(b64encode(nonce_enc), "utf-8")
+    nonce_cookie = str(urlsafe_b64encode(nonce_enc), "utf-8")
 
     # The base URL of our redirect
     url = settings.OAUTH2_AUTH_URL
@@ -147,7 +147,7 @@ def callback(request: HttpRequest):
 
     # Reverse encoding, check validity of nonce
     query_nonce, redirect_url = decode_state(state)
-    nonce_enc = b64decode(nonce_cookie)
+    nonce_enc = urlsafe_b64decode(nonce_cookie)
     nonce_dec = nonce_fernet.decrypt(nonce_enc)
     if nonce_dec != query_nonce:
         return HttpResponseBadRequest("nonce didn't match")
