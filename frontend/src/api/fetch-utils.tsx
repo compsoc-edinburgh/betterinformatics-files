@@ -51,7 +51,7 @@ async function refreshToken() {
     await refreshRequest;
     return;
   }
-  refreshRequest = fetch("/api/auth/refresh/", {
+  refreshRequest = fetch("/api/auth/refresh", {
     headers: getHeaders(),
   }).then(() => undefined);
 }
