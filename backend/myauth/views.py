@@ -1,5 +1,4 @@
 import datetime
-import logging
 from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
 from secrets import token_bytes
 from urllib.parse import urlencode
@@ -12,14 +11,10 @@ from django.http.response import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseNotAllowed,
-    HttpResponseServerError,
 )
-from django.views import View
 from util import response
 
 from myauth import auth_check
-
-logger = logging.getLogger(__name__)
 
 
 @response.request_get()
