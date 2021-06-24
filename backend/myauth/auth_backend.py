@@ -61,9 +61,9 @@ def add_auth(request: HttpRequest):
     request.user = None
     headers = request.headers
     request.simulate_nonadmin = "SimulateNonAdmin" in headers
-   
+
     encoded: Union[str, None] = None
-   
+
     if "Authorization" in headers:
         auth = headers["Authorization"]
         if not auth.startswith("Bearer "):
@@ -167,22 +167,19 @@ def AuthenticationMiddleware(get_response):
         try:
             add_auth(request)
         except InvalidJWSSignature:
-            raise PermissionDenied("jws signature invalid")
+            logger.warning("invalid jws signature detected")
 
         except InvalidJWSObject:
-            raise PermissionDenied("invalid jws object")
+            logger.warning("invalid jws object detected")
 
         except InvalidJWSOperation:
-            raise PermissionDenied("invalid jws operation")
+            logger.warning("invalid jws operation detected")
 
         except JWTMissingKey:
-            raise PermissionDenied("jwt missing key")
-
-        except ValueError:
-            raise PermissionDenied
+            logger.warning("jwt missing key detected")
 
         except InvalidHomeOrganizationException:
-            raise PermissionDenied("invalid home organisatoin")
+            logger.warning("invalid home organization detected")
 
         except NoUsernameException as err:
             logger.warning(
@@ -192,6 +189,8 @@ def AuthenticationMiddleware(get_response):
                 err.sub,
             )
             raise PermissionDenied("no username set")
+        except Exception:
+            pass
 
         response = get_response(request)
 
