@@ -1,4 +1,5 @@
 import datetime
+import logging
 from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
 from secrets import token_bytes
 from urllib.parse import urlencode
@@ -17,6 +18,8 @@ from django.views import View
 from util import response
 
 from myauth import auth_check
+
+logger = logging.getLogger(__name__)
 
 
 @response.request_get()
@@ -124,19 +127,20 @@ def login(request: HttpRequest):
 # set_token_cookies extracts the tokens from token_response and saves them
 # in cookies
 def set_token_cookies(response: HttpResponse, token_response):
-    token_type = token_response["token_type"]
-    expires_in = token_response["expires_in"]
+    token_type: str = token_response["token_type"]
 
-    if token_type != "Bearer":
-        raise HttpResponseServerError("AP return unexpected token_type")
+    if token_type.lower() != "bearer":
+        return ValueError("OP returned unexpected token_type")
 
     # Extract expiration time without decoding the token - this is only used by the
     # client and thus isn't relevant for security
-    now = datetime.datetime.now()
-    expires = now + datetime.timedelta(seconds=expires_in)
-    response.set_cookie(
-        "token_expires", expires.timestamp(), httponly=False, samesite="Lax"
-    )
+    if "expires_in" in token_response:
+        expires_in: str = token_response["expires_in"]
+        now = datetime.datetime.now()
+        expires = now + datetime.timedelta(seconds=expires_in)
+        response.set_cookie(
+            "token_expires", expires.timestamp(), httponly=False, samesite="Lax"
+        )
 
     access_token = token_response["access_token"]
     response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
@@ -144,7 +148,7 @@ def set_token_cookies(response: HttpResponse, token_response):
     # Per OAuth2 spec a refresh response doesn't necessarily include a new refresh_token
     # If that is not the case we assume the refresh_token is still valid.
     if "refresh_token" in token_response:
-        refresh_token = token_response["refresh_token"]
+        refresh_token: str = token_response["refresh_token"]
         response.set_cookie(
             "refresh_token", refresh_token, httponly=True, samesite="Lax"
         )
@@ -152,7 +156,7 @@ def set_token_cookies(response: HttpResponse, token_response):
     # id_tokens aren't necessarily refreshed, thus we check that here and leave it as is
     # if it already exists
     if "id_token" in token_response:
-        id_token = token_response["id_token"]
+        id_token: str = token_response["id_token"]
         response.set_cookie("id_token", id_token, httponly=True, samesite="Lax")
 
 
@@ -184,7 +188,9 @@ def callback(request: HttpRequest):
             "redirect_uri": settings.OAUTH2_REDIRECT_URL,
             "client_secret": settings.OAUTH2_CLIENT_SECRET,
         },
+        headers={"Accept": "application/json"},
     )
+
     res = r.json()
 
     response = HttpResponse()

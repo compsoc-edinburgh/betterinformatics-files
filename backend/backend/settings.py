@@ -107,7 +107,8 @@ OAUTH2_COOKIE_SECRET = os.environ.get("OAUTH2_COOKIE_SECRET") or Fernet.generate
 OAUTH2_CLIENT_ID = os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
 OAUTH2_CLIENT_SECRET = os.environ.get("SIP_AUTH_OIDC_CLIENT_SECRET", "")
 OAUTH2_REDIRECT_URL = ("http://" if DEBUG else "https://") + (
-    os.environ.get("SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN", "") + "/api/auth/callback"
+    os.environ.get("SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN", "")
+    + "/api/auth/callback/"
 )
 OAUTH2_TOKEN_URL = os.environ.get("SIP_AUTH_OIDC_TOKEN_ENDPOINT", "")
 OAUTH2_AUTH_URL = os.environ.get("SIP_AUTH_OIDC_AUTH_ENDPOINT", "")
