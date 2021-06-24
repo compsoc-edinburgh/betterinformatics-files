@@ -230,3 +230,23 @@ def refresh(request: HttpRequest):
     response.status_code = 302
     set_token_cookies(response, res)
     return response
+
+
+def logout(request: HttpRequest):
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET"])
+
+    redirect_url = request.GET.get("rd", "/")
+
+    response = HttpResponse()
+    response.status_code = 302
+
+    response.delete_cookie("id_token")
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    response.delete_cookie("token_expires")
+
+    # redirect back to the location that was used in login
+    response.headers["Location"] = redirect_url
+
+    return response

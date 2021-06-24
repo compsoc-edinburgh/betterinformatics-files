@@ -1,5 +1,4 @@
 import { css } from "@emotion/css";
-import { useKeycloak } from "@react-keycloak/web";
 import {
   Button,
   Col,
@@ -39,7 +38,6 @@ const minHeight = css`
   min-height: 100vh;
 `;
 const App: React.FC<{}> = () => {
-  const { initialized } = useKeycloak();
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
     // `yarn start` as only certain pages will set the csrf cookie.
@@ -51,7 +49,6 @@ const App: React.FC<{}> = () => {
   }, []);
   const [user, setUser] = useState<User | undefined>(undefined);
   useEffect(() => {
-    if (!initialized) return;
     let cancelled = false;
     if (user === undefined) {
       fetchGet("/api/auth/me/").then(
@@ -73,7 +70,7 @@ const App: React.FC<{}> = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, initialized]);
+  }, [user]);
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (
