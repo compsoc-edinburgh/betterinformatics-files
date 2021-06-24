@@ -106,12 +106,12 @@ pub_key_set_url = "data:text/plain;base64," + b64encode(
 # enough for most use cases
 def generate_cookie_secret(source: str):
     from hashlib import sha256
-    from base64 import base64encode
+    from base64 import b64encode
 
     # sha256 gives us the 32 bytes which Fernet requires
     m = sha256()
     m.update(bytes(source, "utf-8"))
-    secret = str(base64encode(m.digest()), "utf-8")
+    secret = str(b64encode(m.digest()), "utf-8")
     return secret
 
 
