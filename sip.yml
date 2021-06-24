@@ -11,7 +11,7 @@ s3:
   - name: files
 auth:
   - name: oidc
-    accessType: public
+    accessType: confidential
     clientProtocol: openid-connect
     validRedirectURIs:
       - https://exams.com.staging-sip.ethz.ch/*
