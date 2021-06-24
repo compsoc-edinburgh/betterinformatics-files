@@ -11,7 +11,14 @@ import {
 } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
-import { fetchGet, getCookie } from "./api/fetch-utils";
+import {
+  authenticationStatus,
+  fetchGet,
+  getCookie,
+  isTokenExpired,
+  minValidity,
+  refreshToken,
+} from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
@@ -38,6 +45,32 @@ const minHeight = css`
   min-height: 100vh;
 `;
 const App: React.FC<{}> = () => {
+  useEffect(() => {
+    let handle: ReturnType<typeof setTimeout> | undefined = undefined;
+    const startTimer = () => {
+      // Check whether we have a token and when it will expire;
+      const exp = authenticationStatus();
+      if (isTokenExpired(exp)) {
+        refreshToken();
+      }
+      // When we are authenticated (`exp !== undefined`) we want to refresh the token
+      // `minValidity` seconds before it expires. If there's no token we recheck this
+      // condition every 10 seconds.
+      // `Math.max` ensures that we don't call startTimer too often.
+      const delay =
+        exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 10_000;
+      handle = setTimeout(() => {
+        startTimer();
+      }, delay);
+    };
+    startTimer();
+
+    return () => {
+      if (handle === undefined) return;
+      clearTimeout(handle);
+    };
+  }, []);
+
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
     // `yarn start` as only certain pages will set the csrf cookie.

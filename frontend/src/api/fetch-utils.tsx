@@ -7,7 +7,7 @@ export const minValidity = 10;
 
 let refreshRequest: Promise<void> | undefined = undefined;
 
-function authenticationStatus() {
+export function authenticationStatus() {
   const expires = getCookie("token_expires");
   if (expires === null) {
     return undefined;
@@ -21,7 +21,7 @@ function authenticationStatus() {
  * Checks whether it would make sense to call `refreshToken()`
  * @returns Returns `true` iff. there is a token and it is expired.
  */
-function isTokenExpired(expires = authenticationStatus()) {
+export function isTokenExpired(expires = authenticationStatus()) {
   if (expires === undefined) return false;
   return expires < minValidity * 1000;
 }
@@ -46,7 +46,7 @@ export function logout(redirectUrl = window.location.pathname) {
   )}`;
 }
 
-async function refreshToken() {
+export async function refreshToken() {
   if (refreshRequest !== undefined) {
     await refreshRequest;
     return;
