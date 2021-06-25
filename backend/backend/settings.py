@@ -24,6 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
+SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
 STAGING = True

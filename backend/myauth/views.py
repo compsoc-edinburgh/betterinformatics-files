@@ -133,21 +133,33 @@ def set_token_cookies(response: HttpResponse, token_response):
         )
 
     access_token = token_response["access_token"]
-    response.set_cookie("access_token", access_token, httponly=True, samesite="Lax")
+    response.set_cookie(
+        "access_token",
+        access_token,
+        httponly=True,
+        samesite="Strict",
+        secure=settings.SECURE,
+    )
 
     # Per OAuth2 spec a refresh response doesn't necessarily include a new refresh_token
     # If that is not the case we assume the refresh_token is still valid.
     if "refresh_token" in token_response:
         refresh_token: str = token_response["refresh_token"]
         response.set_cookie(
-            "refresh_token", refresh_token, httponly=True, samesite="Lax"
+            "refresh_token",
+            refresh_token,
+            httponly=True,
+            samesite="Strict",
+            secure=settings.SECURE,
         )
 
     # id_tokens aren't necessarily refreshed, thus we check that here and leave it as is
     # if it already exists
     if "id_token" in token_response:
         id_token: str = token_response["id_token"]
-        response.set_cookie("id_token", id_token, httponly=True, samesite="Lax")
+        response.set_cookie(
+            "id_token", id_token, httponly=True, samesite="Lax", secure=settings.SECURE
+        )
 
 
 def callback(request: HttpRequest):
