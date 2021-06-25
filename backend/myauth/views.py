@@ -69,7 +69,7 @@ def decode_state(state: str):
 
 def compute_hash(value: bytes):
     m = sha256()
-    m.update(bytes(value, "utf-8"))
+    m.update(value)
     return base64url_encode(m.digest())
 
 
@@ -212,6 +212,7 @@ def refresh(request: HttpRequest):
             "grant_type": "refresh_token",
             "scope": scope,
         },
+        headers={"Accept": "application/json"},
     )
     res = r.json()
 
