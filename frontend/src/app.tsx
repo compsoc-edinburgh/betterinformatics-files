@@ -6,6 +6,9 @@ import {
   GitlabIcon,
   LikeFilledIcon,
   Logo,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Row,
   VSETHContext,
 } from "@vseth/components";
@@ -16,6 +19,7 @@ import {
   fetchGet,
   getCookie,
   isTokenExpired,
+  login,
   minValidity,
   refreshToken,
 } from "./api/fetch-utils";
@@ -45,13 +49,24 @@ const minHeight = css`
   min-height: 100vh;
 `;
 const App: React.FC<{}> = () => {
+  const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
+    let cancel = false;
     let handle: ReturnType<typeof setTimeout> | undefined = undefined;
     const startTimer = () => {
       // Check whether we have a token and when it will expire;
       const exp = authenticationStatus();
       if (isTokenExpired(exp)) {
-        refreshToken();
+        refreshToken().then((r) => {
+          if (cancel) return;
+          // If the refresh was successful we are happy
+          if (r.status >= 200 || r.status < 400) {
+            setLoggedOut(false);
+            return;
+          }
+          // Otherwise it probably failed
+          setLoggedOut(true);
+        });
       }
       // When we are authenticated (`exp !== undefined`) we want to refresh the token
       // `minValidity` seconds before it expires. If there's no token we recheck this
@@ -66,6 +81,7 @@ const App: React.FC<{}> = () => {
     startTimer();
 
     return () => {
+      cancel = true;
       if (handle === undefined) return;
       clearTimeout(handle);
     };
@@ -108,6 +124,18 @@ const App: React.FC<{}> = () => {
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (
     <VSETHContext>
+      <Modal isOpen={loggedOut}>
+        <ModalHeader>You've been logged out due to inactivity</ModalHeader>
+        <ModalBody>
+          Your session has expired due to inactivity, you have to log in again
+          to continue.
+          <div className="text-center py-3">
+            <Button size="lg" color="white" outline onClick={() => login()}>
+              Sign in with AAI
+            </Button>
+          </div>
+        </ModalBody>
+      </Modal>
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>

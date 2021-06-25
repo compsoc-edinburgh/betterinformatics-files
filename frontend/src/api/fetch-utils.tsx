@@ -5,7 +5,7 @@ import { ImageHandle } from "../components/Editor/utils/types";
  */
 export const minValidity = 10;
 
-let refreshRequest: Promise<void> | undefined = undefined;
+let refreshRequest: Promise<Response> | undefined = undefined;
 
 export function authenticationStatus() {
   const expires = getCookie("token_expires");
@@ -46,14 +46,17 @@ export function logout(redirectUrl = window.location.pathname) {
   )}`;
 }
 
-export async function refreshToken() {
+export function refreshToken() {
   if (refreshRequest !== undefined) {
-    await refreshRequest;
-    return;
+    return refreshRequest;
   }
   refreshRequest = fetch("/api/auth/refresh", {
     headers: getHeaders(),
-  }).then(() => undefined);
+  }).then((req) => {
+    refreshRequest = undefined;
+    return req;
+  });
+  return refreshRequest;
 }
 
 export function getHeaders() {
