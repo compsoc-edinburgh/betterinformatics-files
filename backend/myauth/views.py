@@ -37,6 +37,10 @@ def me_view(request):
         )
 
 
+def redirect_url_from_host(host: str):
+    return ("http://" if settings.DEBUG else "https://") + host + "/api/auth/callback"
+
+
 # https://gist.github.com/cameronmaske/f520903ade824e4c30ab
 def base64url_encode(data: bytes):
     """
@@ -84,7 +88,7 @@ def login(request: HttpRequest):
     scope = request.GET.get("scope", "")
 
     # We generate a random nonce and store it encrypted as a httpOnly cookie
-    # In the callback endpoint we then check whether it matches the state we get
+    # In the callback endpoint. we then check whether it matches the state we get
     # from the server to prevent CSRF attacks
     nonce = token_bytes(32)
 
@@ -92,7 +96,7 @@ def login(request: HttpRequest):
     query_params = {
         "response_type": "code",
         "client_id": settings.OAUTH2_CLIENT_ID,
-        "redirect_uri": settings.OAUTH2_REDIRECT_URL,
+        "redirect_uri": redirect_url_from_host(request.get_host()),
         "scope": scope,
         "state": state,
     }
@@ -180,7 +184,7 @@ def callback(request: HttpRequest):
             "client_id": settings.OAUTH2_CLIENT_ID,
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": settings.OAUTH2_REDIRECT_URL,
+            "redirect_uri": redirect_url_from_host(request.get_host()),
             "client_secret": settings.OAUTH2_CLIENT_SECRET,
         },
         headers={"Accept": "application/json"},
