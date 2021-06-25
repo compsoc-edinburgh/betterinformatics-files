@@ -102,23 +102,6 @@ pub_key_set_url = "data:text/plain;base64," + b64encode(
     key_data.encode("utf-8")
 ).decode("utf-8")
 
-# Generate a cookie encryption key based on `source` as an entropy source - this might actually be good
-# enough for most use cases
-def generate_cookie_secret(source: str):
-    from hashlib import sha256
-    from base64 import b64encode
-
-    # sha256 gives us the 32 bytes which Fernet requires
-    m = sha256()
-    m.update(bytes(source, "utf-8"))
-    secret = str(b64encode(m.digest()), "utf-8")
-    return secret
-
-
-# 32 url-safe base64-encoded bytes
-OAUTH2_COOKIE_SECRET = os.environ.get("OAUTH2_COOKIE_SECRET") or generate_cookie_secret(
-    SECRET_KEY
-)
 OAUTH2_CLIENT_ID = os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
 OAUTH2_CLIENT_SECRET = os.environ.get("SIP_AUTH_OIDC_CLIENT_SECRET", "")
 OAUTH2_TOKEN_URL = os.environ.get("SIP_AUTH_OIDC_TOKEN_ENDPOINT", "")

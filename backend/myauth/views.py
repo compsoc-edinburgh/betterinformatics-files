@@ -2,9 +2,9 @@ import datetime
 from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
 from secrets import token_bytes
 from urllib.parse import urlencode
+from hashlib import sha256
 
 import requests
-from cryptography.fernet import Fernet
 from django.conf import settings
 from django.http import HttpRequest
 from django.http.response import (
@@ -50,15 +50,6 @@ def base64url_encode(data: bytes):
     return encoded.rstrip("=")
 
 
-def base64url_decode(string: str):
-    """
-    Adds back in the required padding before decoding.
-    """
-    padding = 4 - (len(string) % 4)
-    string = string + ("=" * padding)
-    return urlsafe_b64decode(string)
-
-
 state_delimeter = ":"
 
 # We encode our state params as b64(nonce):rd_url
@@ -76,7 +67,10 @@ def decode_state(state: str):
     return nonce, redirect_url
 
 
-nonce_fernet = Fernet(settings.OAUTH2_COOKIE_SECRET)
+def compute_hash(value: bytes):
+    m = sha256()
+    m.update(bytes(value, "utf-8"))
+    return base64url_encode(m.digest())
 
 
 def login(request: HttpRequest):
@@ -103,10 +97,7 @@ def login(request: HttpRequest):
 
     # We only need to store the nonce in the cookie, we can trust the AP to correctly
     # give us the redirect_url once we verified the nonce
-    nonce_enc = nonce_fernet.encrypt(nonce)
-    # We need urlsafe b64 encoding here because otherwise django surrounds our cookie value
-    # with quotes, but doesn't remove them later
-    nonce_cookie = base64url_encode(nonce_enc)
+    nonce_cookie = compute_hash(nonce)
 
     # The base URL of our redirect
     url = settings.OAUTH2_AUTH_URL
@@ -172,9 +163,8 @@ def callback(request: HttpRequest):
 
     # Reverse encoding, check validity of nonce
     query_nonce, redirect_url = decode_state(state)
-    nonce_enc = base64url_decode(nonce_cookie)
-    nonce_dec = nonce_fernet.decrypt(nonce_enc)
-    if nonce_dec != query_nonce:
+    query_nonce_hash = compute_hash(query_nonce)
+    if nonce_cookie != query_nonce_hash:
         return HttpResponseBadRequest("nonce didn't match")
 
     # Use the code + client_secret to get our tokens
