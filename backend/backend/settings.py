@@ -13,8 +13,6 @@ import os
 from base64 import b64encode
 import sys
 from jwcrypto.jwk import JWKSet, JWK
-from cryptography.fernet import Fernet
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
