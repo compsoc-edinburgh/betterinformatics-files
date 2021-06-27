@@ -130,7 +130,7 @@ const App: React.FC<{}> = () => {
           Your session has expired due to inactivity, you have to log in again
           to continue.
           <div className="text-center py-3">
-            <Button size="lg" color="white" outline onClick={() => login()}>
+            <Button size="lg" color="primary" outline onClick={() => login()}>
               Sign in with AAI
             </Button>
           </div>
