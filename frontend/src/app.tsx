@@ -1,5 +1,4 @@
 import { css } from "@emotion/css";
-import { useKeycloak } from "@react-keycloak/web";
 import {
   Button,
   Col,
@@ -7,12 +6,23 @@ import {
   GitlabIcon,
   LikeFilledIcon,
   Logo,
+  Modal,
+  ModalBody,
+  ModalHeader,
   Row,
   VSETHContext,
 } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
-import { fetchGet, getCookie } from "./api/fetch-utils";
+import {
+  authenticationStatus,
+  fetchGet,
+  getCookie,
+  isTokenExpired,
+  login,
+  minValidity,
+  refreshToken,
+} from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
@@ -39,7 +49,44 @@ const minHeight = css`
   min-height: 100vh;
 `;
 const App: React.FC<{}> = () => {
-  const { initialized } = useKeycloak();
+  const [loggedOut, setLoggedOut] = useState(false);
+  useEffect(() => {
+    let cancel = false;
+    let handle: ReturnType<typeof setTimeout> | undefined = undefined;
+    const startTimer = () => {
+      // Check whether we have a token and when it will expire;
+      const exp = authenticationStatus();
+      if (isTokenExpired(exp)) {
+        refreshToken().then((r) => {
+          if (cancel) return;
+          // If the refresh was successful we are happy
+          if (r.status >= 200 || r.status < 400) {
+            setLoggedOut(false);
+            return;
+          }
+          // Otherwise it probably failed
+          setLoggedOut(true);
+        });
+      }
+      // When we are authenticated (`exp !== undefined`) we want to refresh the token
+      // `minValidity` seconds before it expires. If there's no token we recheck this
+      // condition every 10 seconds.
+      // `Math.max` ensures that we don't call startTimer too often.
+      const delay =
+        exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 10_000;
+      handle = setTimeout(() => {
+        startTimer();
+      }, delay);
+    };
+    startTimer();
+
+    return () => {
+      cancel = true;
+      if (handle === undefined) return;
+      clearTimeout(handle);
+    };
+  }, []);
+
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
     // `yarn start` as only certain pages will set the csrf cookie.
@@ -51,7 +98,6 @@ const App: React.FC<{}> = () => {
   }, []);
   const [user, setUser] = useState<User | undefined>(undefined);
   useEffect(() => {
-    if (!initialized) return;
     let cancelled = false;
     if (user === undefined) {
       fetchGet("/api/auth/me/").then(
@@ -73,11 +119,23 @@ const App: React.FC<{}> = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, initialized]);
+  }, [user]);
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (
     <VSETHContext>
+      <Modal isOpen={loggedOut}>
+        <ModalHeader>You've been logged out due to inactivity</ModalHeader>
+        <ModalBody>
+          Your session has expired due to inactivity, you have to log in again
+          to continue.
+          <div className="text-center py-3">
+            <Button size="lg" color="primary" outline onClick={() => login()}>
+              Sign in with AAI
+            </Button>
+          </div>
+        </ModalBody>
+      </Modal>
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>

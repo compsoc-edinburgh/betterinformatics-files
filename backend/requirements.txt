@@ -7,3 +7,4 @@ beautifulsoup4==4.9.3
 django-prometheus==2.1.0
 django-probes==1.6.0
 boto3==1.17.85
+requests==2.25.1

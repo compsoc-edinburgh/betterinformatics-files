@@ -1,9 +1,11 @@
 import logging
+from typing import Union
 import urllib.request
 import json
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.http.request import HttpRequest
 from jwcrypto.jwk import JWKSet
 from jwcrypto.jwt import JWT, JWTMissingKey
 from notifications.models import NotificationSetting, NotificationType
@@ -55,10 +57,13 @@ def generate_unique_username(preferred_username):
     return preferred_username + str(suffix)
 
 
-def add_auth(request):
+def add_auth(request: HttpRequest):
     request.user = None
     headers = request.headers
     request.simulate_nonadmin = "SimulateNonAdmin" in headers
+
+    encoded: Union[str, None] = None
+
     if "Authorization" in headers:
         auth = headers["Authorization"]
         if not auth.startswith("Bearer "):
@@ -66,6 +71,12 @@ def add_auth(request):
         # auth.split(" ") is guaranteed to have at least two elements because
         # auth starts with "Bearer "
         encoded = auth.split(" ")[1]
+
+    # Auth header takes preference over cookie
+    if encoded is None and "access_token" in request.COOKIES:
+        encoded = request.COOKIES["access_token"]
+
+    if encoded is not None:
 
         token = JWT()
         key_set = get_key_set()
@@ -156,22 +167,19 @@ def AuthenticationMiddleware(get_response):
         try:
             add_auth(request)
         except InvalidJWSSignature:
-            raise PermissionDenied("jws signature invalid")
+            logger.warning("invalid jws signature detected")
 
         except InvalidJWSObject:
-            raise PermissionDenied("invalid jws object")
+            logger.warning("invalid jws object detected")
 
         except InvalidJWSOperation:
-            raise PermissionDenied("invalid jws operation")
+            logger.warning("invalid jws operation detected")
 
         except JWTMissingKey:
-            raise PermissionDenied("jwt missing key")
-
-        except ValueError:
-            raise PermissionDenied
+            logger.warning("jwt missing key detected")
 
         except InvalidHomeOrganizationException:
-            raise PermissionDenied("invalid home organisatoin")
+            logger.warning("invalid home organization detected")
 
         except NoUsernameException as err:
             logger.warning(
@@ -181,6 +189,8 @@ def AuthenticationMiddleware(get_response):
                 err.sub,
             )
             raise PermissionDenied("no username set")
+        except Exception:
+            pass
 
         response = get_response(request)
 

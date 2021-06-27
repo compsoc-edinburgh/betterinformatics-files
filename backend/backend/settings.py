@@ -13,8 +13,6 @@ import os
 from base64 import b64encode
 import sys
 from jwcrypto.jwk import JWKSet, JWK
-from jwcrypto.jwt import JWT
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
+SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
 STAGING = True
@@ -101,6 +100,11 @@ key_data = JWKSet(keys=test_key).export(private_keys=False)
 pub_key_set_url = "data:text/plain;base64," + b64encode(
     key_data.encode("utf-8")
 ).decode("utf-8")
+
+OAUTH2_CLIENT_ID = os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
+OAUTH2_CLIENT_SECRET = os.environ.get("SIP_AUTH_OIDC_CLIENT_SECRET", "")
+OAUTH2_TOKEN_URL = os.environ.get("SIP_AUTH_OIDC_TOKEN_ENDPOINT", "")
+OAUTH2_AUTH_URL = os.environ.get("SIP_AUTH_OIDC_AUTH_ENDPOINT", "")
 
 OIDC_JWKS_URL = (
     pub_key_set_url
