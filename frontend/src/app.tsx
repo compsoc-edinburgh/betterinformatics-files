@@ -60,12 +60,13 @@ const App: React.FC<{}> = () => {
         refreshToken().then((r) => {
           if (cancel) return;
           // If the refresh was successful we are happy
-          if (r.status >= 200 || r.status < 400) {
+          if (r.status >= 200 && r.status < 400) {
             setLoggedOut(false);
             return;
           }
           // Otherwise it probably failed
           setLoggedOut(true);
+          return;
         });
       }
       // When we are authenticated (`exp !== undefined`) we want to refresh the token
