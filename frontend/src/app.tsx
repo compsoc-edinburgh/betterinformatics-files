@@ -52,6 +52,8 @@ const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
     let cancel = false;
+    // How often refreshing failed
+    let counter = 0;
     let handle: ReturnType<typeof setTimeout> | undefined = undefined;
     const startTimer = () => {
       // Check whether we have a token and when it will expire;
@@ -62,10 +64,16 @@ const App: React.FC<{}> = () => {
           // If the refresh was successful we are happy
           if (r.status >= 200 && r.status < 400) {
             setLoggedOut(false);
+            counter = 0;
             return;
           }
+
           // Otherwise it probably failed
           setLoggedOut(true);
+          // We failed refreshing too often, let's stop polling
+          if (handle !== undefined && counter > 5) clearTimeout(handle);
+
+          counter++;
           return;
         });
       }
