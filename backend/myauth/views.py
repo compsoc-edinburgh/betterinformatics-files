@@ -226,6 +226,12 @@ def refresh(request: HttpRequest):
         },
         headers={"Accept": "application/json"},
     )
+    # A non 200 status code implies that the request was not successful
+    if r.status_code != 200:
+        response = HttpResponse("refresh failed")
+        response.status_code = 403
+        return response
+
     res = r.json()
 
     response = HttpResponse()
