@@ -235,7 +235,6 @@ def refresh(request: HttpRequest):
     res = r.json()
 
     response = HttpResponse()
-    response.status_code = 302
     set_token_cookies(response, res)
     return response
 
