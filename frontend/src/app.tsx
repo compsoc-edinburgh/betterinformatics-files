@@ -52,20 +52,33 @@ const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
     let cancel = false;
+    // How often refreshing failed
+    let counter = 0;
+    let counterExp = getCookie("token_expires");
+
     let handle: ReturnType<typeof setTimeout> | undefined = undefined;
     const startTimer = () => {
       // Check whether we have a token and when it will expire;
       const exp = authenticationStatus();
-      if (isTokenExpired(exp)) {
+      if (
+        isTokenExpired(exp) &&
+        !(counterExp === getCookie("token_expires") && counter > 5)
+      ) {
         refreshToken().then((r) => {
           if (cancel) return;
           // If the refresh was successful we are happy
           if (r.status >= 200 && r.status < 400) {
             setLoggedOut(false);
+            counter = 0;
             return;
           }
+
           // Otherwise it probably failed
           setLoggedOut(true);
+          if (counter === 0) {
+            counterExp = getCookie("token_expires");
+          }
+          counter++;
           return;
         });
       }
@@ -74,7 +87,7 @@ const App: React.FC<{}> = () => {
       // condition every 10 seconds.
       // `Math.max` ensures that we don't call startTimer too often.
       const delay =
-        exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 10_000;
+        exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 60_000;
       handle = setTimeout(() => {
         startTimer();
       }, delay);
