@@ -66,7 +66,7 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
-COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
+COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "") or "vseth-0000-vseth"
 
 # The following config settings configure the config with which a keycloak js client instance is
 # constructed in the React frontend.
