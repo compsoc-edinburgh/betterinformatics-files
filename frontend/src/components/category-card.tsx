@@ -1,6 +1,6 @@
 import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
@@ -11,9 +11,11 @@ interface Props {
   category: SearchResult<CategoryMetaData>;
 }
 const CategoryCard: React.FC<Props> = ({ category }) => {
+  const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.keyCode === 13) {
       if (!authenticated()) login(`/category/${category.slug}`);
+      else history.push(`/category/${category.slug}`);
     }
   };
   return (
