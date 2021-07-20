@@ -218,7 +218,6 @@ export const loadSplitRenderer = async (filename: string) => {
     getDocument({
       url: signedUrl,
       disableStream: true,
-      disableAutoFetch: true,
     }).promise.then(resolve, reject),
   );
   const renderer = new PDF(pdf);
