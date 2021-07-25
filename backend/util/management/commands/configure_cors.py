@@ -20,8 +20,9 @@ class Command(BaseCommand):
                                 "https://" + domain
                                 for domain in settings.DEPLOYMENT_DOMAINS
                             ],
-                            "AllowedHeaders": [],
+                            "AllowedHeaders": ["Range"],
                             "AllowedMethods": ["GET"],
+                            "ExposeHeaders": ["Accept-Ranges"],
                             "MaxAgeSeconds": 3000,
                         }
                     ]
@@ -29,6 +30,8 @@ class Command(BaseCommand):
             )
         except ClientError as e:
             if e.response["Error"]["Code"] == "NotImplemented":
-                logger.warning("The S3 server doesn't support put-bucket-cors - this is fine if you are using minio")
+                logger.warning(
+                    "The S3 server doesn't support put-bucket-cors - this is fine if you are using minio"
+                )
             else:
                 logger.error("put-bucket-cors failed: %s", e.response["Error"]["Code"])

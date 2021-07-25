@@ -217,6 +217,7 @@ export const loadSplitRenderer = async (filename: string) => {
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
     getDocument({
       url: signedUrl,
+      disableStream: true,
     }).promise.then(resolve, reject),
   );
   const renderer = new PDF(pdf);
@@ -306,28 +307,28 @@ const setExpertVote = async (oid: string, vote: boolean) => {
 export const useSetFlagged = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const {
-    loading: setFlaggedLoading,
-    run: runSetFlagged,
-  } = useRequest(setFlagged, { manual: true, onSuccess: onSectionChanged });
+  const { loading: setFlaggedLoading, run: runSetFlagged } = useRequest(
+    setFlagged,
+    { manual: true, onSuccess: onSectionChanged },
+  );
   return [setFlaggedLoading, runSetFlagged] as const;
 };
 export const useSetExpertVote = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const {
-    loading: setExpertVoteLoading,
-    run: runSetExpertVote,
-  } = useRequest(setExpertVote, { manual: true, onSuccess: onSectionChanged });
+  const { loading: setExpertVoteLoading, run: runSetExpertVote } = useRequest(
+    setExpertVote,
+    { manual: true, onSuccess: onSectionChanged },
+  );
   return [setExpertVoteLoading, runSetExpertVote] as const;
 };
 export const useResetFlaggedVote = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const {
-    loading: resetFlaggedLoading,
-    run: runResetFlagged,
-  } = useRequest(resetFlagged, { manual: true, onSuccess: onSectionChanged });
+  const { loading: resetFlaggedLoading, run: runResetFlagged } = useRequest(
+    resetFlagged,
+    { manual: true, onSuccess: onSectionChanged },
+  );
   return [resetFlaggedLoading, runResetFlagged] as const;
 };
 export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
