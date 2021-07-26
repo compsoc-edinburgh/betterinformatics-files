@@ -173,7 +173,6 @@ export function download(url: string, name?: string) {
   document.body.appendChild(a);
   a.href = url;
   a.target = "_blank";
-  a.download = name ?? "file";
   a.click();
   setTimeout(() => {
     document.body.removeChild(a);
