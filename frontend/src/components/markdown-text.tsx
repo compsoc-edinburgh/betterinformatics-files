@@ -7,6 +7,7 @@ import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
 import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
 import RemarkGfm from "remark-gfm";
+import "katex/contrib/mhchem/mhchem";
 
 const wrapperStyle = css`
   overflow-x: auto;
