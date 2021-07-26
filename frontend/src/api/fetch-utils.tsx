@@ -172,7 +172,8 @@ export function download(url: string, name?: string) {
   const a = document.createElement("a");
   document.body.appendChild(a);
   a.href = url;
-  a.setAttribute("download", name ?? "file");
+  a.target = "_blank";
+  a.download = name ?? "file";
   a.click();
   setTimeout(() => {
     document.body.removeChild(a);
