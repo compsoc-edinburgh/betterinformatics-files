@@ -44,6 +44,9 @@ const markdownPlugins = [RemarkMathPlugin, RemarkGfm];
 const createRenderers = (
   regex: RegExp | undefined,
 ): ReactMarkdownProps["renderers"] => ({
+  table: ({ children }) => {
+    return <table className="table">{children}</table>;
+  },
   text: ({ value }: { value: string }) => {
     if (regex === undefined) return <span>{value}</span>;
     const arr: React.ReactChild[] = [];
