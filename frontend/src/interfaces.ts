@@ -195,6 +195,10 @@ export interface ExamMetaData {
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];
+
+  exam_file?: string;
+  solution_file?: string;
+  printonly_file?: string;
 }
 
 export interface NotificationInfo {
