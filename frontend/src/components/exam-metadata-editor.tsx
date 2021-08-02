@@ -148,7 +148,7 @@ const applyChanges = async (
   }
   if (!oldMetaData.has_solution && masterSolution instanceof File) {
     const newUrl = await fetchGet(`/api/exam/pdf/solution/${filename}/`);
-    metaDataDiff.printonly_file = newUrl.value;
+    metaDataDiff.solution_file = newUrl.value;
   }
 
   return {
