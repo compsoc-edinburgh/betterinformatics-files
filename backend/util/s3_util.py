@@ -79,10 +79,18 @@ def save_file(directory: str, filename: str, destination: str):
         return False
 
 
-def presigned_get_object(directory: str, filename: str):
+def presigned_get_object(directory: str, filename: str, inline: bool = True):
+    if inline:
+        content_disposition = "inline; filename=" + filename
+    else:
+        content_disposition = "attachment; filename=" + filename
     return s3_client.generate_presigned_url(
         ClientMethod="get_object",
-        Params={"Bucket": s3_bucket_name, "Key": directory + filename},
+        Params={
+            "Bucket": s3_bucket_name,
+            "Key": directory + filename,
+            "ResponseContentDisposition": content_disposition,
+        },
         HttpMethod="GET",
     )
 
