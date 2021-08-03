@@ -19,15 +19,14 @@ class Migration(migrations.Migration):
     # COUNT(sub.answer_section_id) will only count those that have an answer.
     sql = """
     CREATE OR REPLACE VIEW categories_examcounts (id, exam_id, count_cuts, count_answered) AS
-        SELECT CAST(ae.id AS bigint), ae.id, COUNT(aas.id), COUNT(sub.answer_section_id)
+        SELECT CAST(ae.id AS bigint), ae.id, COUNT(aas.id) FILTER (WHERE aas.has_answers), COUNT(sub.answer_section_id)
         FROM answers_exam ae
-        INNER JOIN answers_answersection aas ON aas.exam_id = ae.id
+        LEFT JOIN answers_answersection aas ON aas.exam_id = ae.id
         LEFT JOIN (
           SELECT answer_section_id
           FROM answers_answer aa
           GROUP BY aa.answer_section_id 
         ) sub ON sub.answer_section_id = aas.id
-        WHERE aas.has_answers
         GROUP BY ae.id
     ;
     """
