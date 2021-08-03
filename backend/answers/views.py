@@ -1,6 +1,7 @@
-from util import response
+from util import response, s3_util
 from myauth import auth_check
-from answers.models import Exam, ExamType, AnswerSection, Answer
+from django.conf import settings
+from answers.models import Exam, ExamType
 from categories.models import Category
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -11,6 +12,8 @@ from datetime import timedelta
 @auth_check.require_login
 def exam_metadata(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
+    admin_rights = auth_check.has_admin_rights_for_exam(request, exam)
+    can_view = exam.current_user_can_view(request)
     res = {
         'filename': exam.filename,
         'displayname': exam.displayname,
@@ -30,19 +33,33 @@ def exam_metadata(request, filename):
         'solution_printonly': exam.solution_printonly,
         'is_oral_transcript': exam.is_oral_transcript,
         'oral_transcript_checked': exam.oral_transcript_checked,
-        # 'count_cuts': exam.answersection_set.count(),
-        # 'count_answered': exam.count_answered(),
         'attachments': [
             {
                 'displayname': att.displayname,
                 'filename': att.filename,
             } for att in exam.attachment_set.order_by('displayname').all()
         ],
-        'canEdit': auth_check.has_admin_rights_for_exam(request, exam),
+        'canEdit': admin_rights,
         'isExpert': auth_check.is_expert_for_exam(request, exam),
-        'canView': exam.current_user_can_view(request),
+        'canView': can_view,
         'hasPayed': request.user.has_payed(),
     }
+
+    if can_view:
+        res["exam_file"] = s3_util.presigned_get_object(
+            settings.COMSOL_EXAM_DIR, filename, content_type="application/pdf"
+        )
+
+    if can_view and exam.has_solution:
+        res["solution_file"] = s3_util.presigned_get_object(
+            settings.COMSOL_SOLUTION_DIR, filename, content_type="application/pdf"
+        )
+
+    if can_view and admin_rights and exam.is_printonly:
+        res["printonly_file"] = s3_util.presigned_get_object(
+            settings.COMSOL_PRINTONLY_DIR, filename, content_type="application/pdf"
+        )
+
     return response.success(value=res)
 
 

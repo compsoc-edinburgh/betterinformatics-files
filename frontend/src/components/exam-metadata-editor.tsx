@@ -15,7 +15,7 @@ import {
   SaveIcon,
 } from "@vseth/components";
 import React from "react";
-import { downloadIndirect, fetchPost } from "../api/fetch-utils";
+import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadCategories } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
@@ -126,6 +126,7 @@ const applyChanges = async (
       await removeAttachment(attachment.filename);
     }
   }
+
   if (printonly === undefined && oldMetaData.is_printonly) {
     await removePrintOnly(filename);
     metaDataDiff.is_printonly = false;
@@ -133,6 +134,11 @@ const applyChanges = async (
     await setPrintOnly(filename, printonly);
     metaDataDiff.is_printonly = true;
   }
+  if (!oldMetaData.is_printonly && printonly instanceof File) {
+    const newUrl = await fetchGet(`/api/exam/pdf/printonly/${filename}/`);
+    metaDataDiff.printonly_file = newUrl.value;
+  }
+
   if (masterSolution === undefined && oldMetaData.has_solution) {
     await removeSolution(filename);
     metaDataDiff.has_solution = false;
@@ -140,6 +146,11 @@ const applyChanges = async (
     await setSolution(filename, masterSolution);
     metaDataDiff.has_solution = true;
   }
+  if (!oldMetaData.has_solution && masterSolution instanceof File) {
+    const newUrl = await fetchGet(`/api/exam/pdf/solution/${filename}/`);
+    metaDataDiff.solution_file = newUrl.value;
+  }
+
   return {
     ...oldMetaData,
     ...metaDataDiff,

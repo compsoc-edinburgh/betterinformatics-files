@@ -16,7 +16,7 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
-import { downloadIndirect, fetchPost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import {
   loadCuts,
   loadExamMetaData,
@@ -35,6 +35,7 @@ import useSet from "../hooks/useSet";
 import useTitle from "../hooks/useTitle";
 import useToggle from "../hooks/useToggle";
 import {
+  CutUpdate,
   EditMode,
   EditState,
   ExamMetaData,
@@ -42,7 +43,6 @@ import {
   Section,
   SectionKind,
   ServerCutResponse,
-  CutUpdate,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 
@@ -305,18 +305,15 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
 
           {metaData.has_solution && !metaData.solution_printonly && (
             <Col md={6} lg={4}>
-              <Card className="m-1">
-                <Button
-                  className="w-100 h-100 p-3"
-                  onClick={() =>
-                    downloadIndirect(
-                      `/api/exam/pdf/solution/${metaData.filename}/`,
-                    )
-                  }
-                >
-                  Official Solution
-                </Button>
-              </Card>
+              <a
+                href={metaData.solution_file}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Card className="m-1">
+                  <Button className="w-100 h-100 p-3">Official Solution</Button>
+                </Card>
+              </a>
             </Col>
           )}
           {metaData.attachments.map((attachment) => (
@@ -406,8 +403,18 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
   });
-  const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
-    loadSplitRenderer(filename),
+  const {
+    error: pdfError,
+    loading: pdfLoading,
+    data,
+  } = useRequest(
+    () => {
+      if (metaData === undefined) return Promise.resolve(undefined);
+      const examFile = metaData.exam_file;
+      if (examFile === undefined) return Promise.resolve(undefined);
+      return loadSplitRenderer(examFile);
+    },
+    { refreshDeps: [metaData === undefined, metaData?.exam_file] },
   );
   const [pdf, renderer] = data ? data : [];
   const sections = useMemo(

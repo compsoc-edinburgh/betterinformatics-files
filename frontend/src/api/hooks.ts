@@ -211,12 +211,9 @@ export const loadExamMetaData = async (filename: string) => {
     .value as ExamMetaData;
 };
 export const loadSplitRenderer = async (filename: string) => {
-  const { value: signedUrl } = await fetchGet(
-    `/api/exam/pdf/exam/${filename}/`,
-  );
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
     getDocument({
-      url: signedUrl,
+      url: filename,
       disableStream: true,
     }).promise.then(resolve, reject),
   );
