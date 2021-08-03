@@ -37,7 +37,9 @@ def upload_exam_pdf(request):
         resolve_alias=file.name,
     )
     exam.save()
-    s3_util.save_uploaded_file_to_s3(settings.COMSOL_EXAM_DIR, filename, file)
+    s3_util.save_uploaded_file_to_s3(
+        settings.COMSOL_EXAM_DIR, filename, file, "application/pdf"
+    )
     pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     return response.success(filename=filename)
 
@@ -64,7 +66,9 @@ def upload_transcript(request):
         oral_transcript_uploader=request.user,
     )
     exam.save()
-    s3_util.save_uploaded_file_to_s3(settings.COMSOL_EXAM_DIR, filename, file)
+    s3_util.save_uploaded_file_to_s3(
+        settings.COMSOL_EXAM_DIR, filename, file, "application/pdf"
+    )
     pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     return response.success(filename=filename)
 
@@ -88,7 +92,7 @@ def upload_printonly(request):
     exam.is_printonly = True
     exam.save()
     s3_util.save_uploaded_file_to_s3(
-        settings.COMSOL_PRINTONLY_DIR, request.POST["filename"], file
+        settings.COMSOL_PRINTONLY_DIR, request.POST["filename"], file, "application/pdf"
     )
     return response.success()
 
@@ -102,7 +106,7 @@ def upload_solution(request):
     exam.has_solution = True
     exam.save()
     s3_util.save_uploaded_file_to_s3(
-        settings.COMSOL_SOLUTION_DIR, request.POST["filename"], file
+        settings.COMSOL_SOLUTION_DIR, request.POST["filename"], file, "application/pdf"
     )
     return response.success()
 
@@ -140,7 +144,9 @@ def get_exam_pdf(request, filename):
     if not exam.current_user_can_view(request):
         return response.not_allowed()
     return response.success(
-        value=s3_util.presigned_get_object(settings.COMSOL_EXAM_DIR, filename)
+        value=s3_util.presigned_get_object(
+            settings.COMSOL_EXAM_DIR, filename, content_type="application/pdf"
+        )
     )
 
 
@@ -153,7 +159,9 @@ def get_solution_pdf(request, filename):
     if not exam.has_solution:
         return response.not_found()
     return response.success(
-        value=s3_util.presigned_get_object(settings.COMSOL_SOLUTION_DIR, filename)
+        value=s3_util.presigned_get_object(
+            settings.COMSOL_SOLUTION_DIR, filename, content_type="application/pdf"
+        )
     )
 
 
@@ -168,7 +176,9 @@ def get_printonly_pdf(request, filename):
     if not exam.is_printonly:
         return response.not_found()
     return response.success(
-        value=s3_util.presigned_get_object(settings.COMSOL_PRINTONLY_DIR, filename)
+        value=s3_util.presigned_get_object(
+            settings.COMSOL_PRINTONLY_DIR, filename, content_type="application/pdf"
+        )
     )
 
 

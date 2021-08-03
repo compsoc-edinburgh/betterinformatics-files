@@ -46,13 +46,19 @@ def exam_metadata(request, filename):
     }
 
     if can_view:
-        res['exam_file'] = s3_util.presigned_get_object(settings.COMSOL_EXAM_DIR, filename)
+        res["exam_file"] = s3_util.presigned_get_object(
+            settings.COMSOL_EXAM_DIR, filename, content_type="application/pdf"
+        )
 
     if can_view and exam.has_solution:
-        res['solution_file'] = s3_util.presigned_get_object(settings.COMSOL_SOLUTION_DIR, filename)
+        res["solution_file"] = s3_util.presigned_get_object(
+            settings.COMSOL_SOLUTION_DIR, filename, content_type="application/pdf"
+        )
 
     if can_view and admin_rights and exam.is_printonly:
-        res['printonly_file'] = s3_util.presigned_get_object(settings.COMSOL_PRINTONLY_DIR, filename)
+        res["printonly_file"] = s3_util.presigned_get_object(
+            settings.COMSOL_PRINTONLY_DIR, filename, content_type="application/pdf"
+        )
 
     return response.success(value=res)
 

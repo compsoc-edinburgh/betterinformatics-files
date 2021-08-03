@@ -41,10 +41,12 @@ def save_uploaded_file_to_s3(
     directory: str,
     filename: str,
     uploaded_file: UploadedFile,
-    content_type: str = "application/octet-stream",
+    content_type: Optional[str],
 ):
     temp_file_path = os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename)
     save_uploaded_file_to_disk(temp_file_path, uploaded_file)
+    if content_type is None:
+        content_type = uploaded_file.content_type
     with open(temp_file_path, "rb") as temp_file:
         s3_bucket.put_object(
             Body=temp_file, Key=directory + filename, ContentType=content_type
@@ -79,7 +81,7 @@ def save_file(directory: str, filename: str, destination: str):
         return False
 
 
-def presigned_get_object(directory: str, filename: str, inline: bool = True):
+def presigned_get_object(directory: str, filename: str, inline: bool = True, content_type: Optional[str] = None):
     if inline:
         content_disposition = "inline; filename=" + filename
     else:
@@ -90,6 +92,7 @@ def presigned_get_object(directory: str, filename: str, inline: bool = True):
             "Bucket": s3_bucket_name,
             "Key": directory + filename,
             "ResponseContentDisposition": content_disposition,
+            "ResponseContentType": content_type,
         },
         HttpMethod="GET",
     )
