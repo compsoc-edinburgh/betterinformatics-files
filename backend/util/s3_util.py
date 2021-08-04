@@ -41,7 +41,7 @@ def save_uploaded_file_to_s3(
     directory: str,
     filename: str,
     uploaded_file: UploadedFile,
-    content_type: Optional[str],
+    content_type: Optional[str] = None,
 ):
     temp_file_path = os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename)
     save_uploaded_file_to_disk(temp_file_path, uploaded_file)
@@ -81,11 +81,20 @@ def save_file(directory: str, filename: str, destination: str):
         return False
 
 
-def presigned_get_object(directory: str, filename: str, inline: bool = True, content_type: Optional[str] = None):
+def presigned_get_object(
+    directory: str,
+    filename: str,
+    inline: bool = True,
+    content_type: Optional[str] = None,
+    display_name: Optional[str] = None,
+):
+    if display_name is None:
+        display_name = filename
+
     if inline:
-        content_disposition = "inline; filename=" + filename
+        content_disposition = "inline; filename=" + display_name
     else:
-        content_disposition = "attachment; filename=" + filename
+        content_disposition = "attachment; filename=" + display_name
     return s3_client.generate_presigned_url(
         ClientMethod="get_object",
         Params={
