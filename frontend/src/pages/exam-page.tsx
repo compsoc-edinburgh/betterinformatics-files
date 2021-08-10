@@ -9,6 +9,7 @@ import {
   CheckIcon,
   Col,
   Container,
+  DownloadIcon,
   EditIcon,
   Row,
   Spinner,
@@ -193,34 +194,46 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   return (
     <>
       <Container>
+        <div className="d-flex justify-content-between align-items-center">
+          <h1>{metaData.displayname}</h1>
+          <div>
+            <IconButton
+              color="white"
+              as="a"
+              icon={DownloadIcon}
+              target="_blank"
+              rel="noopener noreferrer"
+              href={metaData.exam_file}
+            />
+            {user.isCategoryAdmin && (
+              <Col md="auto" className="d-flex align-items-center">
+                {user.isAdmin &&
+                  metaData.is_oral_transcript &&
+                  !metaData.oral_transcript_checked && (
+                    <IconButton
+                      color="white"
+                      className="ml-1"
+                      tooltip="Mark as Check"
+                      icon={CheckIcon}
+                      onClick={() => runMarkChecked(metaData.filename)}
+                    />
+                  )}
+
+                <IconButton
+                  color="white"
+                  className="ml-1"
+                  icon={EditIcon}
+                  tooltip="Edit"
+                  onClick={() => toggleEditing()}
+                />
+              </Col>
+            )}
+          </div>
+        </div>
         <Row>
           <Col>
             <h1 className="mb-3">{metaData.displayname}</h1>
           </Col>
-          {user.isCategoryAdmin && (
-            <Col md="auto" className="d-flex align-items-center">
-              {user.isAdmin &&
-                metaData.is_oral_transcript &&
-                !metaData.oral_transcript_checked && (
-                  <IconButton
-                    size="sm"
-                    icon={CheckIcon}
-                    onClick={() => runMarkChecked(metaData.filename)}
-                  >
-                    Mark as Checked
-                  </IconButton>
-                )}
-
-              <IconButton
-                size="sm"
-                className="m-1"
-                icon={EditIcon}
-                onClick={() => toggleEditing()}
-              >
-                Edit
-              </IconButton>
-            </Col>
-          )}
         </Row>
 
         <Row form>
