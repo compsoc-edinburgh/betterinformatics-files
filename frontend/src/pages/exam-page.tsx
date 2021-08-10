@@ -206,13 +206,13 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               href={metaData.exam_file}
             />
             {user.isCategoryAdmin && (
-              <Col md="auto" className="d-flex align-items-center">
+              <>
                 {user.isAdmin &&
                   metaData.is_oral_transcript &&
                   !metaData.oral_transcript_checked && (
                     <IconButton
                       color="white"
-                      className="ml-1"
+                      className="ml-2"
                       tooltip="Mark as Check"
                       icon={CheckIcon}
                       onClick={() => runMarkChecked(metaData.filename)}
@@ -221,12 +221,12 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
 
                 <IconButton
                   color="white"
-                  className="ml-1"
+                  className="ml-2"
                   icon={EditIcon}
                   tooltip="Edit"
                   onClick={() => toggleEditing()}
                 />
-              </Col>
+              </>
             )}
           </div>
         </div>
