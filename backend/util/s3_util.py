@@ -73,7 +73,7 @@ def delete_file(directory, filename):
     return True
 
 
-def delete_files(directory: str, filenames: list[str]):
+def delete_files(directory: str, filenames):
     try:
         objects_to_delete = [{"Key": directory + filename} for filename in filenames]
         s3_client.delete_objects(
