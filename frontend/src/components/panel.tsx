@@ -4,6 +4,7 @@ import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import GlobalConsts from "../globalconsts";
 const panelStyle = css`
+  pointer-events: none;
   position: fixed;
   bottom: 0;
   right: 0;
@@ -24,6 +25,7 @@ const iconContainerStyle = css`
 const closeButtonStyle = css`
   display: inline-block;
   font-size: 0.5em;
+  pointer-events: all;
   &.btn {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
