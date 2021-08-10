@@ -230,7 +230,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             )}
           </div>
         </div>
-        <Row form>
+        <Row>
           {!metaData.canView && (
             <Col md={6} lg={4}>
               <Card className="m-1">
@@ -272,12 +272,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.legacy_solution}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    Legacy Solution in VISki
-                  </Button>
-                </Card>
+                Legacy Solution in VISki
               </a>
             </Col>
           )}
@@ -287,10 +284,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={`/legacy/transformwiki/${wikitransform}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">Transform Wiki</Button>
-                </Card>
+                Transform Wiki
               </a>
             </Col>
           )}
@@ -300,12 +296,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.master_solution}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    Official Solution (external)
-                  </Button>
-                </Card>
+                Official Solution (external)
               </a>
             </Col>
           )}
@@ -316,10 +309,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.solution_file}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">Official Solution</Button>
-                </Card>
+                Official Solution
               </a>
             </Col>
           )}
@@ -329,12 +321,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    {attachment.displayname}
-                  </Button>
-                </Card>
+                {attachment.displayname}
               </a>
             </Col>
           ))}
