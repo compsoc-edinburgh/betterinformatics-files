@@ -213,7 +213,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                     <IconButton
                       color="white"
                       className="ml-2"
-                      tooltip="Mark as Check"
+                      tooltip="Mark as checked"
                       icon={CheckIcon}
                       onClick={() => runMarkChecked(metaData.filename)}
                     />
