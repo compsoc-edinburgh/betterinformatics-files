@@ -5,7 +5,6 @@ import {
   ButtonGroup,
   CloseIcon,
   Col,
-  DownloadIcon,
   FormGroup,
   Input,
   Label,
@@ -159,14 +158,6 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         />
         <h6 className="my-3 mx-2">Actions</h6>
         <ButtonGroup>
-          <IconButton
-            tag="a"
-            target="_blank"
-            rel="noopener noreferrer"
-            href={metaData.exam_file}
-            tooltip="Download this exam as a PDF file"
-            icon={DownloadIcon}
-          />
           <IconButton
             tooltip="Report problem"
             icon={MessageIcon}
