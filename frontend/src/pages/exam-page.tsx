@@ -196,7 +196,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       <Container>
         <div className="d-flex justify-content-between align-items-center">
           <h1>{metaData.displayname}</h1>
-          <div>
+          <div className="d-flex">
             <IconButton
               color="white"
               as="a"
@@ -230,12 +230,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             )}
           </div>
         </div>
-        <Row>
-          <Col>
-            <h1 className="mb-3">{metaData.displayname}</h1>
-          </Col>
-        </Row>
-
         <Row form>
           {!metaData.canView && (
             <Col md={6} lg={4}>
