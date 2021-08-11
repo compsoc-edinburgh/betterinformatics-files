@@ -73,6 +73,17 @@ def delete_file(directory, filename):
     return True
 
 
+def delete_files(directory: str, filenames):
+    try:
+        objects_to_delete = [{"Key": directory + filename} for filename in filenames]
+        s3_client.delete_objects(
+            Bucket=s3_bucket_name, Delete={"Objects": objects_to_delete}
+        )
+    except ClientError:
+        return False
+    return True
+
+
 def save_file(directory: str, filename: str, destination: str):
     try:
         s3_bucket.download_file(directory + filename, destination)
