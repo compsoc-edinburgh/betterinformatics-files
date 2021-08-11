@@ -103,6 +103,7 @@ def presigned_get_object(
             "ResponseContentDisposition": content_disposition,
             "ResponseContentType": content_type,
         },
+        ExpiresIn=60 * 60 * 24,
         HttpMethod="GET",
     )
 
