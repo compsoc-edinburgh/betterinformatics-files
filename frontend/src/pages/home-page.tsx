@@ -59,9 +59,7 @@ const mapToCategories = (
   meta1: MetaCategory[],
 ) => {
   const categoryMap = new Map<string, CategoryMetaData>();
-  const unassigned = new Set<CategoryMetaData>();
   for (const category of categories) categoryMap.set(category.slug, category);
-  for (const category of categories) unassigned.add(category);
   const meta1Map: Map<string, Array<[string, CategoryMetaData[]]>> = new Map();
   for (const { displayname: meta1display, meta2 } of meta1) {
     const meta2Map: Map<string, CategoryMetaData[]> = new Map();
@@ -72,9 +70,6 @@ const mapToCategories = (
       const categories = categoryNames
         .map((name) => categoryMap.get(name)!)
         .filter((a) => a !== undefined);
-      for (const category of categories) {
-        unassigned.delete(category);
-      }
       if (categories.length === 0) continue;
       meta2Map.set(meta2display, categories);
     }
@@ -87,7 +82,7 @@ const mapToCategories = (
   const metaList = [...meta1Map.entries()].sort(([a], [b]) =>
     a.localeCompare(b),
   );
-  const unassignedList = [...unassigned];
+  const unassignedList = categories.filter(c => !categoryMap.has(c.slug));
   return [metaList, unassignedList] as const;
 };
 
