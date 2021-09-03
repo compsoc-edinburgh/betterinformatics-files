@@ -34,8 +34,12 @@ export function authenticated(expires = authenticationStatus()) {
   return expires !== undefined;
 }
 
+const encodeScopes = (...scopes: string[]) => scopes.join("+");
+
+const scopes = encodeScopes("profile", "openid");
+
 export function login(redirectUrl = window.location.pathname) {
-  window.location.href = `/api/auth/login?scope=profile&rd=${encodeURIComponent(
+  window.location.href = `/api/auth/login?scope=${scopes}&rd=${encodeURIComponent(
     redirectUrl,
   )}`;
 }
