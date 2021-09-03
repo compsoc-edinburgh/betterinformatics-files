@@ -19,6 +19,9 @@ from myauth import auth_check
 
 logger = logging.getLogger(__name__)
 
+# Whether the id_token should be stored as a cookie
+user_id_token = False
+
 
 @response.request_get()
 def me_view(request):
@@ -158,7 +161,7 @@ def set_token_cookies(response: HttpResponse, token_response):
 
     # id_tokens aren't necessarily refreshed, thus we check that here and leave it as is
     # if it already exists
-    if "id_token" in token_response:
+    if user_id_token and "id_token" in token_response:
         id_token: str = token_response["id_token"]
         response.set_cookie(
             "id_token", id_token, httponly=True, samesite="Lax", secure=settings.SECURE
