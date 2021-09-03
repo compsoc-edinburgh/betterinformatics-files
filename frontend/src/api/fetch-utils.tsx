@@ -35,7 +35,7 @@ export function authenticated(expires = authenticationStatus()) {
 }
 
 export function login(redirectUrl = window.location.pathname) {
-  window.location.href = `/api/auth/login?rd=${encodeURIComponent(
+  window.location.href = `/api/auth/login?scope=profile&rd=${encodeURIComponent(
     redirectUrl,
   )}`;
 }
