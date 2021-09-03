@@ -3,6 +3,7 @@ from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
 from secrets import token_bytes
 from urllib.parse import urlencode
 from hashlib import sha256
+import logging
 
 import requests
 from django.conf import settings
@@ -15,6 +16,8 @@ from django.http.response import (
 from util import response
 
 from myauth import auth_check
+
+logger = logging.getLogger(__name__)
 
 
 @response.request_get()
@@ -194,6 +197,13 @@ def callback(request: HttpRequest):
 
     res = r.json()
 
+    if "error" in res:
+        logger.error("Unable to request token: %s", res["error"])
+        response = HttpResponse()
+        response.status_code = 500
+        response.content = res["error"]
+        return
+
     response = HttpResponse()
     response.status_code = 302
     set_token_cookies(response, res)
@@ -233,6 +243,13 @@ def refresh(request: HttpRequest):
         return response
 
     res = r.json()
+
+    if "error" in res:
+        logger.error("Unable to request token: %s", res["error"])
+        response = HttpResponse()
+        response.status_code = 500
+        response.content = res["error"]
+        return
 
     response = HttpResponse()
     set_token_cookies(response, res)
