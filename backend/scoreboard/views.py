@@ -8,6 +8,7 @@ from documents.models import Document
 from answers.models import Answer
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Count, F, Q, Value as V
+from django.db.models.functions import Concat
 
 
 def get_user_scores(user, res):
@@ -37,15 +38,15 @@ def get_scoreboard_top(scoretype, limit):
                 Q(first_name__isnull=True),
                 "last_name",
             ),
-            default=Concatenate("first_name", V(" "), "last_name"),
+            default=Concat("first_name", V(" "), "last_name"),
         ),
         score=F("scores__document_likes")
         + F("scores__upvotes")
         - F("scores__downvotes"),
         score_answers=Count("answer", filter=Q(answer__is_legacy_answer=False)),
-        score_comments=Count("comment"),
+        score_comments=Count("answers_comments"),
         score_documents=Count("document"),
-        score_cuts=MyUser.objects.annotate(score=Count("answersection")),
+        score_cuts=Count("answersection"),
         score_legacy=Count("answer", filter=Q(answer__is_legacy_answer=True)),
     )
 
@@ -64,16 +65,18 @@ def get_scoreboard_top(scoretype, limit):
     else:
         return response.not_found()
 
-    return users[:limit].values(
-        "username",
-        "displayName",
-        "score",
-        "score_answers",
-        "score_comments",
-        "score_cuts",
-        "score_legacy",
-        "score_documents",
-    )
+    return list(
+        users.values(
+            "username",
+            "displayName",
+            "score",
+            "score_answers",
+            "score_comments",
+            "score_cuts",
+            "score_legacy",
+            "score_documents",
+        )
+    )[:limit]
 
 
 @response.request_get()
