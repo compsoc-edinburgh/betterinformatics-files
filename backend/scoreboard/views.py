@@ -66,7 +66,7 @@ def get_scoreboard_top(scoretype, limit):
         return response.not_found()
 
     return list(
-        users.values(
+        users[:limit].values(
             "username",
             "displayName",
             "score",
@@ -76,7 +76,7 @@ def get_scoreboard_top(scoretype, limit):
             "score_legacy",
             "score_documents",
         )
-    )[:limit]
+    )
 
 
 @response.request_get()
