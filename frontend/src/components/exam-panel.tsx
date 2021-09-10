@@ -1,10 +1,10 @@
+import { css } from "@emotion/css";
 import { useDebounceFn } from "@umijs/hooks";
 import {
   ArrowUpIcon,
   ButtonGroup,
   CloseIcon,
   Col,
-  DownloadIcon,
   FormGroup,
   Input,
   Label,
@@ -18,10 +18,8 @@ import {
   PlusIcon,
   Row,
 } from "@vseth/components";
-import { css } from "@emotion/css";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { downloadIndirect } from "../api/fetch-utils";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
@@ -99,9 +97,6 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     changeWidth(val);
     setWidthValue(val);
   };
-  const download = useCallback(() => {
-    downloadIndirect(`/api/exam/pdf/exam/${metaData.filename}/`);
-  }, [metaData.filename]);
   const reportProblem = useCallback(() => {
     const subject = encodeURIComponent("Community Solutions: Feedback");
     const body = encodeURIComponent(
@@ -163,11 +158,6 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         />
         <h6 className="my-3 mx-2">Actions</h6>
         <ButtonGroup>
-          <IconButton
-            tooltip="Download this exam as a PDF file"
-            icon={DownloadIcon}
-            onClick={download}
-          />
           <IconButton
             tooltip="Report problem"
             icon={MessageIcon}

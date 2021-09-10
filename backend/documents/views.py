@@ -234,8 +234,11 @@ class DocumentElementView(View):
         document = get_object_or_404(objects, author__username=username, slug=slug)
         if not document.current_user_can_delete(request):
             return response.not_allowed()
+
+        filenames = [document_file.filename for document_file in document.files.all()]
+        success = s3_util.delete_files(settings.COMSOL_DOCUMENT_DIR, filenames)
         document.delete()
-        return response.success()
+        return response.success(value=success)
 
 
 class DocumentCommentRootView(View):
@@ -261,7 +264,7 @@ class DocumentCommentRootView(View):
             document=document, text=request.POST["text"], author=request.user
         )
         comment.save()
-        notification_util.new_comment_to_document(document,comment)
+        notification_util.new_comment_to_document(document, comment)
         return response.success(value=get_comment_obj(comment, request))
 
 
@@ -494,7 +497,7 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
 
     if changed:
         document_file.save()
-        
+
     s3_util.save_uploaded_file_to_s3(
         settings.COMSOL_DOCUMENT_DIR,
         document_file.filename,

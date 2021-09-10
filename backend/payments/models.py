@@ -13,7 +13,7 @@ class Payment(models.Model):
     def valid(self):
         now = timezone.now()
         then = self.payment_time
-        resetdates = [datetime(year, month, 1, tzinfo=now.tzinfo) for year in [now.year-1, now.year] for month in [3, 9]]
+        resetdates = [datetime(year, month, 1, tzinfo=now.tzinfo) for year in [now.year-1, now.year] for month in [3, 10]]
         for reset in resetdates:
             if now > reset > then:
                 return False
@@ -21,7 +21,7 @@ class Payment(models.Model):
 
     def valid_until(self):
         then = self.payment_time
-        resetdates = [datetime(year, month, 1, tzinfo=then.tzinfo) for year in [then.year, then.year+1] for month in [3, 9]]
+        resetdates = [datetime(year, month, 1, tzinfo=then.tzinfo) for year in [then.year, then.year+1] for month in [3, 10]]
         for reset in resetdates:
             if reset > then:
                 return reset

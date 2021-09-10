@@ -9,6 +9,7 @@ import {
   CheckIcon,
   Col,
   Container,
+  DownloadIcon,
   EditIcon,
   Row,
   Spinner,
@@ -16,7 +17,7 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
-import { downloadIndirect, fetchPost } from "../api/fetch-utils";
+import { fetchPost } from "../api/fetch-utils";
 import {
   loadCuts,
   loadExamMetaData,
@@ -35,6 +36,7 @@ import useSet from "../hooks/useSet";
 import useTitle from "../hooks/useTitle";
 import useToggle from "../hooks/useToggle";
 import {
+  CutUpdate,
   EditMode,
   EditState,
   ExamMetaData,
@@ -42,7 +44,6 @@ import {
   Section,
   SectionKind,
   ServerCutResponse,
-  CutUpdate,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 
@@ -193,37 +194,43 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   return (
     <>
       <Container>
+        <div className="d-flex justify-content-between align-items-center">
+          <h1>{metaData.displayname}</h1>
+          <div className="d-flex">
+            <IconButton
+              color="white"
+              as="a"
+              icon={DownloadIcon}
+              target="_blank"
+              rel="noopener noreferrer"
+              href={metaData.exam_file}
+            />
+            {user.isCategoryAdmin && (
+              <>
+                {user.isAdmin &&
+                  metaData.is_oral_transcript &&
+                  !metaData.oral_transcript_checked && (
+                    <IconButton
+                      color="white"
+                      className="ml-2"
+                      tooltip="Mark as checked"
+                      icon={CheckIcon}
+                      onClick={() => runMarkChecked(metaData.filename)}
+                    />
+                  )}
+
+                <IconButton
+                  color="white"
+                  className="ml-2"
+                  icon={EditIcon}
+                  tooltip="Edit"
+                  onClick={() => toggleEditing()}
+                />
+              </>
+            )}
+          </div>
+        </div>
         <Row>
-          <Col>
-            <h1 className="mb-3">{metaData.displayname}</h1>
-          </Col>
-          {user.isCategoryAdmin && (
-            <Col md="auto" className="d-flex align-items-center">
-              {user.isAdmin &&
-                metaData.is_oral_transcript &&
-                !metaData.oral_transcript_checked && (
-                  <IconButton
-                    size="sm"
-                    icon={CheckIcon}
-                    onClick={() => runMarkChecked(metaData.filename)}
-                  >
-                    Mark as Checked
-                  </IconButton>
-                )}
-
-              <IconButton
-                size="sm"
-                className="m-1"
-                icon={EditIcon}
-                onClick={() => toggleEditing()}
-              >
-                Edit
-              </IconButton>
-            </Col>
-          )}
-        </Row>
-
-        <Row form>
           {!metaData.canView && (
             <Col md={6} lg={4}>
               <Card className="m-1">
@@ -265,12 +272,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.legacy_solution}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    Legacy Solution in VISki
-                  </Button>
-                </Card>
+                Legacy Solution in VISki
               </a>
             </Col>
           )}
@@ -280,10 +284,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={`/legacy/transformwiki/${wikitransform}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">Transform Wiki</Button>
-                </Card>
+                Transform Wiki
               </a>
             </Col>
           )}
@@ -293,30 +296,23 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.master_solution}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    Official Solution (external)
-                  </Button>
-                </Card>
+                Official Solution (external)
               </a>
             </Col>
           )}
 
           {metaData.has_solution && !metaData.solution_printonly && (
             <Col md={6} lg={4}>
-              <Card className="m-1">
-                <Button
-                  className="w-100 h-100 p-3"
-                  onClick={() =>
-                    downloadIndirect(
-                      `/api/exam/pdf/solution/${metaData.filename}/`,
-                    )
-                  }
-                >
-                  Official Solution
-                </Button>
-              </Card>
+              <a
+                href={metaData.solution_file}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
+              >
+                Official Solution
+              </a>
             </Col>
           )}
           {metaData.attachments.map((attachment) => (
@@ -325,12 +321,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    {attachment.displayname}
-                  </Button>
-                </Card>
+                {attachment.displayname}
               </a>
             </Col>
           ))}
@@ -406,8 +399,18 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
   });
-  const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
-    loadSplitRenderer(filename),
+  const {
+    error: pdfError,
+    loading: pdfLoading,
+    data,
+  } = useRequest(
+    () => {
+      if (metaData === undefined) return Promise.resolve(undefined);
+      const examFile = metaData.exam_file;
+      if (examFile === undefined) return Promise.resolve(undefined);
+      return loadSplitRenderer(examFile);
+    },
+    { refreshDeps: [metaData === undefined, metaData?.exam_file] },
   );
   const [pdf, renderer] = data ? data : [];
   const sections = useMemo(

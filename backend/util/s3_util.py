@@ -41,10 +41,12 @@ def save_uploaded_file_to_s3(
     directory: str,
     filename: str,
     uploaded_file: UploadedFile,
-    content_type: str = "application/octet-stream",
+    content_type: Optional[str] = None,
 ):
     temp_file_path = os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename)
     save_uploaded_file_to_disk(temp_file_path, uploaded_file)
+    if content_type is None:
+        content_type = uploaded_file.content_type
     with open(temp_file_path, "rb") as temp_file:
         s3_bucket.put_object(
             Body=temp_file, Key=directory + filename, ContentType=content_type
@@ -71,6 +73,17 @@ def delete_file(directory, filename):
     return True
 
 
+def delete_files(directory: str, filenames):
+    try:
+        objects_to_delete = [{"Key": directory + filename} for filename in filenames]
+        s3_client.delete_objects(
+            Bucket=s3_bucket_name, Delete={"Objects": objects_to_delete}
+        )
+    except ClientError:
+        return False
+    return True
+
+
 def save_file(directory: str, filename: str, destination: str):
     try:
         s3_bucket.download_file(directory + filename, destination)
@@ -79,10 +92,29 @@ def save_file(directory: str, filename: str, destination: str):
         return False
 
 
-def presigned_get_object(directory: str, filename: str):
+def presigned_get_object(
+    directory: str,
+    filename: str,
+    inline: bool = True,
+    content_type: Optional[str] = None,
+    display_name: Optional[str] = None,
+):
+    if display_name is None:
+        display_name = filename
+
+    if inline:
+        content_disposition = "inline; filename=" + display_name
+    else:
+        content_disposition = "attachment; filename=" + display_name
     return s3_client.generate_presigned_url(
         ClientMethod="get_object",
-        Params={"Bucket": s3_bucket_name, "Key": directory + filename},
+        Params={
+            "Bucket": s3_bucket_name,
+            "Key": directory + filename,
+            "ResponseContentDisposition": content_disposition,
+            "ResponseContentType": content_type,
+        },
+        ExpiresIn=60 * 60 * 24,
         HttpMethod="GET",
     )
 

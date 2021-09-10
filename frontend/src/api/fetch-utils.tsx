@@ -34,8 +34,12 @@ export function authenticated(expires = authenticationStatus()) {
   return expires !== undefined;
 }
 
+const encodeScopes = (...scopes: string[]) => scopes.join("+");
+
+const scopes = encodeScopes("profile", "openid");
+
 export function login(redirectUrl = window.location.pathname) {
-  window.location.href = `/api/auth/login?rd=${encodeURIComponent(
+  window.location.href = `/api/auth/login?scope=${scopes}&rd=${encodeURIComponent(
     redirectUrl,
   )}`;
 }
@@ -172,7 +176,8 @@ export function download(url: string, name?: string) {
   const a = document.createElement("a");
   document.body.appendChild(a);
   a.href = url;
-  a.setAttribute("download", name ?? "file");
+  a.target = "_blank";
+  a.download = name ?? "file";
   a.click();
   setTimeout(() => {
     document.body.removeChild(a);

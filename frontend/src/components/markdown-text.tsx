@@ -8,6 +8,11 @@ import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
 import RemarkGfm from "remark-gfm";
 
+// Import mchem plugin to register macros for chemical equations in katex.
+// The plugin registers macros when it is imported. We do this after we import "@matejmazur/react-katex"
+// which transitively imports katex such that the global variables which katex uses are set up.
+import "katex/contrib/mhchem/mhchem";
+
 const wrapperStyle = css`
   overflow-x: auto;
   overflow-y: hidden;
@@ -44,6 +49,9 @@ const markdownPlugins = [RemarkMathPlugin, RemarkGfm];
 const createRenderers = (
   regex: RegExp | undefined,
 ): ReactMarkdownProps["renderers"] => ({
+  table: ({ children }) => {
+    return <table className="table">{children}</table>;
+  },
   text: ({ value }: { value: string }) => {
     if (regex === undefined) return <span>{value}</span>;
     const arr: React.ReactChild[] = [];
