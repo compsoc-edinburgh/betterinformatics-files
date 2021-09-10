@@ -1,6 +1,6 @@
 from util import response
 from myauth import auth_check
-from answers.models import Exam, AnswerSection
+from answers.models import Exam, Answer, AnswerSection
 from django.shortcuts import get_object_or_404
 from answers import section_util
 
@@ -60,9 +60,14 @@ def edit_cut(request, oid):
         section.hidden = request.POST['hidden'] == 'true'
     if 'has_answers' in request.POST:
         section.has_answers = request.POST['has_answers'] == 'true'
+        if not section.has_answers:
+            answers = Answer.objects.filter(answer_section=oid)
+            answers.delete()
+
     section.cut_version += 1
     section.save()
     return response.success()
+    
 
 
 @response.request_post()
@@ -90,6 +95,6 @@ def get_cut_versions(request, filename):
 def get_answersection(request, oid):
     section = get_object_or_404(
         AnswerSection.objects.select_related('exam').prefetch_related(
-            'answer_set', 'answer_set__comment_set', 'answer_set__upvotes', 'answer_set__downvotes', 'answer_set__expertvotes', 'answer_set__flagged'),
+            'answer_set', 'answer_set__comments', 'answer_set__upvotes', 'answer_set__downvotes', 'answer_set__expertvotes', 'answer_set__flagged'),
         pk=oid)
     return response.success(value=section_util.get_answersection_response(request, section))

@@ -7,13 +7,12 @@ import {
   Col,
   Container,
   FormGroup,
-  Icon,
-  ICONS,
   InputField,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
+  PlusIcon,
   Row,
   Spinner,
 } from "@vseth/components";
@@ -56,17 +55,15 @@ const addCategory = async (category: string) => {
 };
 
 const mapToCategories = (
-  categories: SearchResult<CategoryMetaData>[],
+  categories: CategoryMetaData[],
   meta1: MetaCategory[],
 ) => {
-  const categoryMap = new Map<string, SearchResult<CategoryMetaData>>();
+  const categoryMap = new Map<string, CategoryMetaData>();
+  const assignedCategories = new WeakSet<CategoryMetaData>();
   for (const category of categories) categoryMap.set(category.slug, category);
-  const meta1Map: Map<
-    string,
-    Array<[string, SearchResult<CategoryMetaData>[]]>
-  > = new Map();
+  const meta1Map: Map<string, Array<[string, CategoryMetaData[]]>> = new Map();
   for (const { displayname: meta1display, meta2 } of meta1) {
-    const meta2Map: Map<string, SearchResult<CategoryMetaData>[]> = new Map();
+    const meta2Map: Map<string, CategoryMetaData[]> = new Map();
     for (const {
       displayname: meta2display,
       categories: categoryNames,
@@ -74,6 +71,7 @@ const mapToCategories = (
       const categories = categoryNames
         .map((name) => categoryMap.get(name)!)
         .filter((a) => a !== undefined);
+      for (const category of categories) assignedCategories.add(category);
       if (categories.length === 0) continue;
       meta2Map.set(meta2display, categories);
     }
@@ -83,7 +81,11 @@ const mapToCategories = (
       [...meta2Map.entries()].sort(([a], [b]) => a.localeCompare(b)),
     );
   }
-  return [...meta1Map.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const metaList = [...meta1Map.entries()].sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
+  const unassignedList = categories.filter((c) => !assignedCategories.has(c));
+  return [metaList, unassignedList] as const;
 };
 
 const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
@@ -130,7 +132,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           onClick={() => setIsOpen(true)}
           className="position-cover w-100"
         >
-          <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
+          <PlusIcon size={40} className="m-auto" />
         </TooltipButton>
       </Card>
     </>
@@ -172,12 +174,12 @@ export const CategoryList: React.FC<{}> = () => {
     Math.min(filter.length * 2, 12),
     displayNameGetter,
   );
-  const filteredMetaCategories = useMemo(
+  const [metaList, unassignedList] = useMemo(
     () =>
-      metaCategories
-        ? mapToCategories(searchResult, metaCategories)
-        : undefined,
-    [searchResult, metaCategories],
+      metaCategories && categories
+        ? mapToCategories(categories, metaCategories)
+        : [undefined, undefined],
+    [categories, metaCategories],
   );
 
   const onAddCategory = useCallback(() => {
@@ -230,7 +232,7 @@ export const CategoryList: React.FC<{}> = () => {
         <Container>
           {error ? (
             <Alert color="danger">{error.toString()}</Alert>
-          ) : mode === Mode.Alphabetical ? (
+          ) : mode === Mode.Alphabetical || filter.length > 0 ? (
             <>
               <Grid>
                 {searchResult.map((category) => (
@@ -241,8 +243,8 @@ export const CategoryList: React.FC<{}> = () => {
             </>
           ) : (
             <>
-              {filteredMetaCategories &&
-                filteredMetaCategories.map(([meta1display, meta2]) => (
+              {metaList &&
+                metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display}>
                     <h4 className="my-4">{meta1display}</h4>
                     {meta2.map(([meta2display, categories]) => (
@@ -260,9 +262,19 @@ export const CategoryList: React.FC<{}> = () => {
                     ))}
                   </div>
                 ))}
+              {unassignedList && (
+                <>
+                  <h4 className="my-4">Unassigned Categories</h4>
+                  <Grid>
+                    {unassignedList.map((category) => (
+                      <CategoryCard category={category} key={category.slug} />
+                    ))}
+                  </Grid>
+                </>
+              )}
               {isAdmin && (
                 <>
-                  <h4 className="my-3">New Category</h4>
+                  <h4 className="my-4">New Category</h4>
                   <Grid>
                     <AddCategory onAddCategory={onAddCategory} />
                   </Grid>

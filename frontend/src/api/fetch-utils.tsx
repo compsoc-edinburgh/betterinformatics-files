@@ -1,17 +1,72 @@
 import { ImageHandle } from "../components/Editor/utils/types";
-import keycloak from "../keycloak";
+
 /**
- * Minimum validity of the keycloak token in seconds when a request to the API starts
+ * Minimum validity of the access token in seconds when a request to the API starts
  */
 export const minValidity = 10;
+
+let refreshRequest: Promise<Response> | undefined = undefined;
+
+export function authenticationStatus() {
+  const expires = getCookie("token_expires");
+  if (expires === null) {
+    return undefined;
+  }
+  const now = new Date().getTime();
+  const time = new Date(parseFloat(expires) * 1000).getTime();
+  return time - now;
+}
+
+/**
+ * Checks whether it would make sense to call `refreshToken()`
+ * @returns Returns `true` iff. there is a token and it is expired.
+ */
+export function isTokenExpired(expires = authenticationStatus()) {
+  if (expires === undefined) return false;
+  return expires < minValidity * 1000;
+}
+
+/**
+ * Checks whether it makes sense to
+ * @returns
+ */
+export function authenticated(expires = authenticationStatus()) {
+  return expires !== undefined;
+}
+
+const encodeScopes = (...scopes: string[]) => scopes.join("+");
+
+const scopes = encodeScopes("profile", "openid");
+
+export function login(redirectUrl = window.location.pathname) {
+  window.location.href = `/api/auth/login?scope=${scopes}&rd=${encodeURIComponent(
+    redirectUrl,
+  )}`;
+}
+
+export function logout(redirectUrl = window.location.pathname) {
+  window.location.href = `/api/auth/logout?rd=${encodeURIComponent(
+    redirectUrl,
+  )}`;
+}
+
+export function refreshToken() {
+  if (refreshRequest !== undefined) {
+    return refreshRequest;
+  }
+  refreshRequest = fetch("/api/auth/refresh", {
+    headers: getHeaders(),
+  }).then((req) => {
+    refreshRequest = undefined;
+    return req;
+  });
+  return refreshRequest;
+}
 
 export function getHeaders() {
   const headers: Record<string, string> = {
     "X-CSRFToken": getCookie("csrftoken") || "",
   };
-  if (keycloak.token) {
-    headers["Authorization"] = `Bearer ${keycloak.token}`;
-  }
   if (localStorage.getItem("simulate_nonadmin")) {
     headers["SimulateNonAdmin"] = "true";
   }
@@ -30,8 +85,7 @@ async function performDataRequest<T>(
   url: string,
   data: { [key: string]: any },
 ) {
-  if (keycloak.token && keycloak.isTokenExpired(minValidity))
-    await keycloak.updateToken(minValidity);
+  if (isTokenExpired()) await refreshToken();
 
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
@@ -63,14 +117,14 @@ async function performDataRequest<T>(
       return Promise.reject(body.err);
     }
     return body as T;
-  } catch (e) {
+  } catch (e: any) {
     return Promise.reject(e.toString());
   }
 }
 
 async function performRequest<T>(method: string, url: string) {
-  if (keycloak.token && keycloak.isTokenExpired(minValidity))
-    await keycloak.updateToken(minValidity);
+  if (isTokenExpired()) await refreshToken();
+
   const response = await fetch(url, {
     credentials: "include",
     headers: getHeaders(),
@@ -82,7 +136,7 @@ async function performRequest<T>(method: string, url: string) {
       return Promise.reject(body.err);
     }
     return body as T;
-  } catch (e) {
+  } catch (e: any) {
     return Promise.reject(e.toString());
   }
 }
@@ -122,7 +176,8 @@ export function download(url: string, name?: string) {
   const a = document.createElement("a");
   document.body.appendChild(a);
   a.href = url;
-  a.setAttribute("download", name ?? "file");
+  a.target = "_blank";
+  a.download = name ?? "file";
   a.click();
   setTimeout(() => {
     document.body.removeChild(a);

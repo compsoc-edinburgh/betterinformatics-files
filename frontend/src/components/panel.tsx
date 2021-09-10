@@ -1,9 +1,10 @@
-import { Button, Icon, ICONS } from "@vseth/components";
 import { css, cx, keyframes } from "@emotion/css";
+import { ArrowLeftIcon, Button, CloseIcon } from "@vseth/components";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import GlobalConsts from "../globalconsts";
 const panelStyle = css`
+  pointer-events: none;
   position: fixed;
   bottom: 0;
   right: 0;
@@ -24,6 +25,7 @@ const iconContainerStyle = css`
 const closeButtonStyle = css`
   display: inline-block;
   font-size: 0.5em;
+  pointer-events: all;
   &.btn {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
@@ -63,7 +65,7 @@ const enteringAnimation = keyframes`
   }
 `;
 const exitingAnimation = keyframes`
-0% {
+  0% {
   transform: translate(0);
   }
   100% {
@@ -99,7 +101,7 @@ const Panel: React.FC<PanelProps> = ({
             className={closeButtonStyle}
             onClick={toggle}
           >
-            <Icon icon={ICONS["ARROW_LEFT"]} size={24} />
+            <ArrowLeftIcon size={24} />
             {buttonText && (
               <div>
                 <small>{buttonText}</small>
@@ -126,7 +128,7 @@ const Panel: React.FC<PanelProps> = ({
                 className={closeButtonStyle}
                 onClick={toggle}
               >
-                <Icon icon={ICONS["CLOSE"]} size={24} />
+                <CloseIcon size={24} />
                 {buttonText && (
                   <div>
                     <small>{buttonText}</small>

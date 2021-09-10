@@ -1,22 +1,25 @@
+import { css } from "@emotion/css";
 import { useDebounceFn } from "@umijs/hooks";
 import {
+  ArrowUpIcon,
   ButtonGroup,
+  CloseIcon,
   Col,
   FormGroup,
   Input,
   Label,
+  MessageIcon,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Pagination,
   PaginationItem,
   PaginationLink,
+  PlusIcon,
   Row,
 } from "@vseth/components";
-import { css } from "@emotion/css";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { downloadIndirect } from "../api/fetch-utils";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
@@ -94,9 +97,6 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     changeWidth(val);
     setWidthValue(val);
   };
-  const download = useCallback(() => {
-    downloadIndirect(`/api/exam/pdf/exam/${metaData.filename}/`);
-  }, [metaData.filename]);
   const reportProblem = useCallback(() => {
     const subject = encodeURIComponent("Community Solutions: Feedback");
     const body = encodeURIComponent(
@@ -159,18 +159,13 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <h6 className="my-3 mx-2">Actions</h6>
         <ButtonGroup>
           <IconButton
-            tooltip="Download this exam as a PDF file"
-            icon="DOWNLOAD"
-            onClick={download}
-          />
-          <IconButton
             tooltip="Report problem"
-            icon="MESSAGE"
+            icon={MessageIcon}
             onClick={reportProblem}
           />
           <IconButton
             tooltip="Back to the top"
-            icon="ARROW_UP"
+            icon={ArrowUpIcon}
             onClick={scrollToTop}
           />
         </ButtonGroup>
@@ -185,7 +180,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                     size="sm"
                     tooltip="Disable editing"
                     onClick={() => setEditState({ mode: EditMode.None })}
-                    icon="CLOSE"
+                    icon={CloseIcon}
                   >
                     Stop Editing
                   </IconButton>
@@ -202,7 +197,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                         snap,
                       })
                     }
-                    icon="PLUS"
+                    icon={PlusIcon}
                   >
                     Add Cuts
                   </IconButton>

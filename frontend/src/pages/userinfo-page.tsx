@@ -28,7 +28,7 @@ const UserPage: React.FC<{}> = () => {
         {error && <Alert color="danger">{error.toString()}</Alert>}
         {loading && <Spinner />}
       </Container>
-      <ContentContainer>
+      <ContentContainer className="my-3">
         <Container>
           <Row>
             {(isMyself || user.isAdmin) && (

@@ -1,4 +1,16 @@
-import { ButtonGroup, Card, CardBody, Input, Col } from "@vseth/components";
+import {
+  ButtonGroup,
+  Card,
+  CardBody,
+  Input,
+  Col,
+  EditIcon,
+  SaveIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  DeleteIcon,
+  CloseIcon,
+} from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
 import { useUser } from "../auth";
@@ -51,7 +63,7 @@ const FAQEntryComponent: React.FC<Props> = ({
             <IconButton
               tooltip="Edit FAQ entry"
               close
-              icon="EDIT"
+              icon={EditIcon}
               onClick={() => startEditing()}
             />
           )}
@@ -60,7 +72,7 @@ const FAQEntryComponent: React.FC<Props> = ({
               type="text"
               placeholder="Question"
               value={question}
-              onChange={e => setQuestion(e.target.value)}
+              onChange={(e) => setQuestion(e.target.value)}
             />
           ) : (
             entry.question
@@ -73,7 +85,7 @@ const FAQEntryComponent: React.FC<Props> = ({
             onChange={setAnswer}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
-            preview={value => <MarkdownText value={value} />}
+            preview={(value) => <MarkdownText value={value} />}
           />
         ) : (
           <MarkdownText value={entry.answer} />
@@ -85,7 +97,7 @@ const FAQEntryComponent: React.FC<Props> = ({
                 <IconButton
                   color="primary"
                   size="sm"
-                  icon="SAVE"
+                  icon={SaveIcon}
                   onClick={save}
                 >
                   Save
@@ -96,19 +108,19 @@ const FAQEntryComponent: React.FC<Props> = ({
               <ButtonGroup size="sm">
                 <IconButton
                   tooltip="Move up"
-                  icon="ARROW_UP"
+                  icon={ArrowUpIcon}
                   disabled={prevEntry === undefined}
                   onClick={() => prevEntry && onSwap(entry, prevEntry)}
                 />
                 <IconButton
                   tooltip="Move down"
-                  icon="ARROW_DOWN"
+                  icon={ArrowDownIcon}
                   disabled={nextEntry === undefined}
                   onClick={() => nextEntry && onSwap(entry, nextEntry)}
                 />
                 <IconButton
                   tooltip="Delete FAQ entry"
-                  icon="DELETE"
+                  icon={DeleteIcon}
                   onClick={() =>
                     confirm(
                       "Are you sure that you want to remove this?",
@@ -117,7 +129,7 @@ const FAQEntryComponent: React.FC<Props> = ({
                   }
                 />
                 {editing && (
-                  <IconButton icon="CLOSE" onClick={cancel}>
+                  <IconButton icon={CloseIcon} onClick={cancel}>
                     Cancel
                   </IconButton>
                 )}

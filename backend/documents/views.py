@@ -16,6 +16,7 @@ from myauth.models import MyUser, get_my_user
 from util import s3_util, response
 
 from documents.models import Comment, Document, DocumentFile, generate_api_key
+from notifications import notification_util
 
 logger = logging.getLogger(__name__)
 
@@ -201,23 +202,29 @@ class DocumentElementView(View):
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, slug: str):
         document = get_object_or_404(Document, author__username=username, slug=slug)
-        if not document.current_user_can_edit(request):
-            return response.not_allowed()
-        if "description" in request.DATA:
-            document.description = request.DATA["description"]
-        if "display_name" in request.DATA:
-            document.display_name = request.DATA["display_name"]
-            document.slug = create_document_slug(
-                document.display_name, request.user, document
-            )
-        if "category" in request.DATA:
-            category = get_object_or_404(Category, slug=request.DATA["category"])
-            document.category = category
         if "liked" in request.DATA:
             if request.DATA["liked"] == "true":
                 document.likes.add(request.user)
             else:
                 document.likes.remove(request.user)
+
+        can_edit = document.current_user_can_edit(request)
+        if "description" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            document.description = request.DATA["description"]
+        if "display_name" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            document.display_name = request.DATA["display_name"]
+            document.slug = create_document_slug(
+                document.display_name, request.user, document
+            )
+        if "category" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            category = get_object_or_404(Category, slug=request.DATA["category"])
+            document.category = category
         document.save()
         return response.success(value=get_document_obj(document, request))
 
@@ -227,8 +234,11 @@ class DocumentElementView(View):
         document = get_object_or_404(objects, author__username=username, slug=slug)
         if not document.current_user_can_delete(request):
             return response.not_allowed()
+
+        filenames = [document_file.filename for document_file in document.files.all()]
+        success = s3_util.delete_files(settings.COMSOL_DOCUMENT_DIR, filenames)
         document.delete()
-        return response.success()
+        return response.success(value=success)
 
 
 class DocumentCommentRootView(View):
@@ -254,6 +264,7 @@ class DocumentCommentRootView(View):
             document=document, text=request.POST["text"], author=request.user
         )
         comment.save()
+        notification_util.new_comment_to_document(document, comment)
         return response.success(value=get_comment_obj(comment, request))
 
 
@@ -486,7 +497,7 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
 
     if changed:
         document_file.save()
-        
+
     s3_util.save_uploaded_file_to_s3(
         settings.COMSOL_DOCUMENT_DIR,
         document_file.filename,

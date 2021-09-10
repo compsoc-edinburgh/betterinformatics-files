@@ -5,6 +5,8 @@ import {
   Breadcrumb,
   Col,
   Container,
+  DeleteIcon,
+  EditIcon,
   ListGroup,
   Row,
   Spinner,
@@ -100,7 +102,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <IconButton
                   size="sm"
                   className="m-1"
-                  icon="EDIT"
+                  icon={EditIcon}
                   onClick={() => setEditing(true)}
                 >
                   Edit
@@ -110,7 +112,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   size="sm"
                   className="m-1"
                   loading={removeLoading}
-                  icon="DELETE"
+                  icon={DeleteIcon}
                   onClick={onRemove}
                 >
                   Delete

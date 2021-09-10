@@ -17,7 +17,7 @@ def get_answer_response(request, answer, ignore_exam_admin=False):
             'canEdit': comment.author == request.user,
             'time': comment.time,
             'edittime': comment.edittime,
-        } for comment in answer.comment_set.order_by('time', 'id').all()
+        } for comment in answer.comments.order_by('time', 'id').all()
     ]
     return {
         'oid': answer.id,
@@ -75,8 +75,8 @@ def get_answer_fields_to_prefetch():
         'downvotes',
         'expertvotes',
         'flagged',
-        'comment_set',
-        'comment_set__author',
+        'comments',
+        'comments__author',
     ]
 
 

@@ -1,5 +1,5 @@
 import { useInViewport } from "@umijs/hooks";
-import { Card } from "@vseth/components";
+import { Card, ViewIcon, ViewOffIcon } from "@vseth/components";
 import { css, cx } from "@emotion/css";
 import * as React from "react";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -19,6 +19,7 @@ const lastSection = css`
 const canvasWrapperStyle = css`
   font-size: 0;
   user-select: none;
+  pointer-events: none;
 `;
 
 const usePdf = (
@@ -35,9 +36,8 @@ const usePdf = (
   number,
   boolean,
 ] => {
-  const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(
-    null,
-  );
+  const [canvasElement, setCanvasElement] =
+    useState<HTMLCanvasElement | null>(null);
   const [view, setView] = useState<number[]>();
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -127,9 +127,8 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
     const [containerHeight, setContainerHeight] = useState(0);
     const [translateY, setTranslateY] = useState(0);
-    const [currentScale, setCurrentScale] = useState<number | undefined>(
-      undefined,
-    );
+    const [currentScale, setCurrentScale] =
+      useState<number | undefined>(undefined);
     const toggleVisibility = useCallback(
       () => onSectionHiddenChange(oid ? oid : [page, end], { hidden: !hidden }),
       [oid, page, end, hidden, onSectionHiddenChange],
@@ -236,7 +235,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
               <div className="position-absolute position-top-left m-2 p1">
                 <IconButton
                   size="sm"
-                  icon={hidden ? "VIEW" : "VIEW_OFF"}
+                  icon={hidden ? ViewIcon : ViewOffIcon}
                   tooltip="Toggle visibility"
                   onClick={toggleVisibility}
                 />

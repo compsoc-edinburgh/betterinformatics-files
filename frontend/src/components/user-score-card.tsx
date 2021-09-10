@@ -6,10 +6,10 @@ import {
   Container,
   Row,
 } from "@vseth/components";
-import React, { useCallback } from "react";
-import { notLoggedIn, useSetUser, useUser } from "../auth";
+import React from "react";
+import { logout } from "../api/fetch-utils";
+import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
-import keycloak from "../keycloak";
 import LoadingOverlay from "./loading-overlay";
 
 interface UserScoreCardProps {
@@ -24,10 +24,6 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
 }) => {
   const setUser = useSetUser();
   const user = useUser()!;
-  const logout = useCallback(() => {
-    setUser(notLoggedIn);
-    keycloak.logout();
-  }, [setUser]);
   return (
     <>
       <Row form>
@@ -57,7 +53,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
               </Col>
             )}
             <Col xs="auto">
-              <Button onClick={logout} className="m-2">
+              <Button onClick={() => logout("/")} className="m-2">
                 Logout
               </Button>
             </Col>

@@ -1,9 +1,8 @@
-import { useUserAnswers } from "../api/hooks";
-import React, { createContext, useContext } from "react";
-import { Alert, Spinner, CardColumns } from "@vseth/components";
-import AnswerComponent from "./answer";
 import { css } from "@emotion/css";
-import { KeycloakInstance } from "keycloak-js";
+import { Alert, CardColumns, Spinner } from "@vseth/components";
+import React from "react";
+import { useUserAnswers } from "../api/hooks";
+import AnswerComponent from "./answer";
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
 // with multiple columns. This is a quick-fix as pointed out on the
