@@ -89,7 +89,7 @@ def login(request: HttpRequest):
     if not url_has_allowed_host_and_scheme(
         redirect_url, settings.REAL_ALLOWED_HOSTS, settings.SECURE
     ):
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("invalid redirect url")
     scope = request.GET.get("scope", "")
 
     # We generate a random nonce and store it encrypted as a httpOnly cookie
@@ -269,6 +269,11 @@ def logout(request: HttpRequest):
         return HttpResponseNotAllowed(["GET"])
 
     redirect_url = request.GET.get("rd", "/")
+    # Check whether the redirect url is allowed: Only allow redirects to the same application
+    if not url_has_allowed_host_and_scheme(
+        redirect_url, settings.REAL_ALLOWED_HOSTS, settings.SECURE
+    ):
+        return HttpResponseBadRequest("invalid redirect url")
 
     response = HttpResponse()
     response.status_code = 302
