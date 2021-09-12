@@ -1,5 +1,5 @@
 import datetime
-from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
+from base64 import b64decode, b64encode, urlsafe_b64encode
 from secrets import token_bytes
 from urllib.parse import urlencode
 from hashlib import sha256
@@ -14,8 +14,8 @@ from django.http.response import (
     HttpResponseNotAllowed,
 )
 from util import response
-
 from myauth import auth_check
+from django.utils.http import url_has_allowed_host_and_scheme
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +85,11 @@ def login(request: HttpRequest):
 
     # The url we redirect to after successful authentication
     redirect_url = request.GET.get("rd", "/")
+    # Check whether the redirect url is allowed: Only allow redirects to the same application
+    if not url_has_allowed_host_and_scheme(
+        redirect_url, settings.REAL_ALLOWED_HOSTS, settings.SECURE
+    ):
+        return HttpResponseBadRequest()
     scope = request.GET.get("scope", "")
 
     # We generate a random nonce and store it encrypted as a httpOnly cookie
