@@ -1,4 +1,4 @@
-import type { TextContent } from "pdfjs-dist/types/src/display/api";
+import type { TextContent, TextItem } from "pdfjs-dist/types/src/display/api";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PDF from "../pdf/pdf-renderer";
@@ -31,7 +31,8 @@ const useTextLayer = (
   const filteredItems = useMemo(() => {
     if (textContent === null) return;
     if (textContent.items.length > MAX_ITEMS) return;
-    return textContent.items.filter((item) => {
+    return textContent.items.filter((genericItem) => {
+      const item = genericItem as TextItem;
       const [, , , offsetY, , y] = item.transform;
       const [, , , yMax] = view;
       const top = yMax - (y + offsetY);
