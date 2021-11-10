@@ -30,6 +30,7 @@ export class CanvasFactory {
     if (index !== undefined) {
       const obj = this.canvasArray[index];
       this.free.delete(index);
+      obj.context.setTransform(1, 0, 0, 1, 0, 0);
       // We only need to clear when the size doesn't change otherwise
       // the content is cleared automatically
       if (
@@ -65,6 +66,7 @@ export class CanvasFactory {
     if (!obj.canvas) {
       throw new Error("Canvas is not specified");
     }
+    obj.context.setTransform(1, 0, 0, 1, 0, 0);
     if (width <= 0 || height <= 0) {
       throw new Error("Invalid canvas size");
     }
