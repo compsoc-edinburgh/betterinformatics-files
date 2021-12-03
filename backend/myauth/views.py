@@ -79,7 +79,7 @@ def login(request: HttpRequest):
 
     # The url we redirect to after successful authentication
     redirect_url = request.GET.get("rd", "/")
-    scope = request.GET.get("scope", "")
+    scope = request.GET.get("scope", "profile")
 
     # We generate a random nonce and store it encrypted as a httpOnly cookie
     # In the callback endpoint. we then check whether it matches the state we get
