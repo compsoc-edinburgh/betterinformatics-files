@@ -1,8 +1,9 @@
 import datetime
-from base64 import b64decode, b64encode, urlsafe_b64decode, urlsafe_b64encode
+from base64 import b64decode, b64encode, urlsafe_b64encode
 from secrets import token_bytes
 from urllib.parse import urlencode
 from hashlib import sha256
+import logging
 
 import requests
 from django.conf import settings
@@ -13,8 +14,13 @@ from django.http.response import (
     HttpResponseNotAllowed,
 )
 from util import response
-
 from myauth import auth_check
+from django.utils.http import url_has_allowed_host_and_scheme
+
+logger = logging.getLogger(__name__)
+
+# Whether the id_token should be stored as a cookie
+user_id_token = False
 
 
 @response.request_get()
@@ -80,6 +86,12 @@ def login(request: HttpRequest):
     # The url we redirect to after successful authentication
     redirect_url = request.GET.get("rd", "/")
     scope = request.GET.get("scope", "profile")
+    # Check whether the redirect url is allowed: Only allow redirects to the same application
+    if not url_has_allowed_host_and_scheme(
+        redirect_url, settings.REAL_ALLOWED_HOSTS, settings.SECURE
+    ):
+        return HttpResponseBadRequest("invalid redirect url")
+    scope = request.GET.get("scope", "")
 
     # We generate a random nonce and store it encrypted as a httpOnly cookie
     # In the callback endpoint. we then check whether it matches the state we get
@@ -155,7 +167,7 @@ def set_token_cookies(response: HttpResponse, token_response):
 
     # id_tokens aren't necessarily refreshed, thus we check that here and leave it as is
     # if it already exists
-    if "id_token" in token_response:
+    if user_id_token and "id_token" in token_response:
         id_token: str = token_response["id_token"]
         response.set_cookie(
             "id_token", id_token, httponly=True, samesite="Lax", secure=settings.SECURE
@@ -193,6 +205,13 @@ def callback(request: HttpRequest):
     )
 
     res = r.json()
+
+    if "error" in res:
+        logger.error("Unable to request token: %s", res["error"])
+        response = HttpResponse()
+        response.status_code = 500
+        response.content = res["error"]
+        return
 
     response = HttpResponse()
     response.status_code = 302
@@ -234,6 +253,13 @@ def refresh(request: HttpRequest):
 
     res = r.json()
 
+    if "error" in res:
+        logger.error("Unable to request token: %s", res["error"])
+        response = HttpResponse()
+        response.status_code = 500
+        response.content = res["error"]
+        return
+
     response = HttpResponse()
     set_token_cookies(response, res)
     return response
@@ -244,6 +270,11 @@ def logout(request: HttpRequest):
         return HttpResponseNotAllowed(["GET"])
 
     redirect_url = request.GET.get("rd", "/")
+    # Check whether the redirect url is allowed: Only allow redirects to the same application
+    if not url_has_allowed_host_and_scheme(
+        redirect_url, settings.REAL_ALLOWED_HOSTS, settings.SECURE
+    ):
+        return HttpResponseBadRequest("invalid redirect url")
 
     response = HttpResponse()
     response.status_code = 302

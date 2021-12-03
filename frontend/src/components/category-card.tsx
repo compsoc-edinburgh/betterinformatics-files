@@ -8,7 +8,7 @@ import { highlight } from "../utils/search-utils";
 import { focusOutline } from "../utils/style";
 
 interface Props {
-  category: SearchResult<CategoryMetaData>;
+  category: SearchResult<CategoryMetaData> | CategoryMetaData;
 }
 const CategoryCard: React.FC<Props> = ({ category }) => {
   const history = useHistory();
@@ -31,7 +31,11 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
           }}
           className="stretched-link"
         >
-          <h5>{highlight(category.displayname, category.match)}</h5>
+          <h5>
+            {"match" in category
+              ? highlight(category.displayname, category.match)
+              : category.displayname}
+          </h5>
         </Link>
         <div>
           Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}

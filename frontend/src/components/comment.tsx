@@ -112,7 +112,9 @@ const CommentComponent: React.FC<Props> = ({
       </div>
       <div>
         <Link to={`/user/${comment?.authorId ?? username}`}>
-          {comment?.authorDisplayName ?? "(Draft)"}
+          <span className="text-dark font-weight-bold">
+            {comment?.authorDisplayName ?? "(Draft)"}
+          </span>
           <span className="text-muted ml-1">
             @{comment?.authorId ?? username}
           </span>

@@ -129,7 +129,7 @@ const AnswerComponent: React.FC<Props> = ({
             <div>
               {!hasId && (
                 <Link
-                  className="mr-2"
+                  className="mr-2 text-muted"
                   to={
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
@@ -141,7 +141,9 @@ const AnswerComponent: React.FC<Props> = ({
                 answer?.authorDisplayName ?? "(Legacy Draft)"
               ) : (
                 <Link to={`/user/${answer?.authorId ?? username}`}>
-                  {answer?.authorDisplayName ?? "(Draft)"}
+                  <span className="text-dark font-weight-bold">
+                    {answer?.authorDisplayName ?? "(Draft)"}
+                  </span>
                   <span className="text-muted ml-1">
                     @{answer?.authorId ?? username}
                   </span>
