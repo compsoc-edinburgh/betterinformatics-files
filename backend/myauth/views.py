@@ -85,6 +85,7 @@ def login(request: HttpRequest):
 
     # The url we redirect to after successful authentication
     redirect_url = request.GET.get("rd", "/")
+    scope = request.GET.get("scope", "profile")
     # Check whether the redirect url is allowed: Only allow redirects to the same application
     if not url_has_allowed_host_and_scheme(
         redirect_url, settings.REAL_ALLOWED_HOSTS, settings.SECURE
