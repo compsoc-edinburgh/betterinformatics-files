@@ -112,7 +112,7 @@ export const dlSelectedExams = async (selectedExams: ExamSelectedForDownload[]) 
   const fileNames = new Map<string, number>();
 
   await Promise.all(
-    Array.from(selectedExams).map(async exam => {
+    selectedExams.map(async exam => {
       const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam.filename}/`);
       const responseFile = await fetch(responseUrl.value).then(r =>
         r.arrayBuffer(),
