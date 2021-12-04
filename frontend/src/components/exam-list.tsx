@@ -10,7 +10,7 @@ import {
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
-import { CategoryMetaData } from "../interfaces";
+import { CategoryExam, CategoryMetaData, ExamSelectedForDownload } from "../interfaces";
 import {
   dlSelectedExams,
   filterMatches,
@@ -48,6 +48,21 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   );
   const [selected, onSelect, onDeselect] = useSet<string>();
 
+  const getSelectedExams = (selected: Set<string>) => {
+    const selectedExams: ExamSelectedForDownload[] = [];
+    if (data === undefined)
+      return selectedExams;
+
+    for (const exam of data) {
+      if (selected.has(exam.filename))
+        selectedExams.push({
+          filename: exam.filename,
+          displayname: exam.displayname,
+        });
+    }
+    return selectedExams;
+  }
+
   return (
     <>
       {error && <Alert color="danger">{error}</Alert>}
@@ -57,7 +72,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <FormGroup className="mb-2 d-md-inline-block">
             <IconButton
               disabled={selected.size === 0}
-              onClick={() => dlSelectedExams(selected)}
+              onClick={() => dlSelectedExams(getSelectedExams(selected))}
               block
               icon={DownloadIcon}
             >

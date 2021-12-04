@@ -201,6 +201,11 @@ export interface ExamMetaData {
   printonly_file?: string;
 }
 
+export interface ExamSelectedForDownload {
+  filename: string,
+  displayname: string,
+}
+
 export interface NotificationInfo {
   oid: string;
   receiver: string;
