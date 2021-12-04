@@ -4,6 +4,7 @@ import {
   CategoryMetaDataOverview,
   MetaCategory,
   MetaCategoryWithCategories,
+  ExamSelectedForDownload,
 } from "../interfaces";
 import { fetchGet } from "../api/fetch-utils";
 
@@ -103,17 +104,19 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
       .entries(),
   ].sort(([a], [b]) => a.localeCompare(b));
 };
-export const dlSelectedExams = async (selectedExams: Set<string>) => {
+export const dlSelectedExams = async (selectedExams: ExamSelectedForDownload[]) => {
   const JSZip = await import("jszip").then(e => e.default);
   const zip = new JSZip();
 
   await Promise.all(
     Array.from(selectedExams).map(async exam => {
-      const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam}/`);
+      const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam.filename}/`);
       const responseFile = await fetch(responseUrl.value).then(r =>
         r.arrayBuffer(),
       );
-      zip.file(exam, responseFile);
+      // @gkhromov: There could be collisions if several files have the same display name
+      const ext = exam.filename.substr(exam.filename.lastIndexOf("."));
+      zip.file(exam.displayname + ext, responseFile);
     }),
   );
 
