@@ -8,9 +8,10 @@ services:
       - MINIO_SECRET_KEY=minio123
     ports:
       - "9000:9000"
+      - "9001:9001"
     volumes:
       - ./data/minio:/export
-    command: server /export
+    command: server /export --console-address ":9001"
   postgres:
     image: postgres
     container_name: postgres
