@@ -108,15 +108,26 @@ export const dlSelectedExams = async (selectedExams: ExamSelectedForDownload[]) 
   const JSZip = await import("jszip").then(e => e.default);
   const zip = new JSZip();
 
+  // this is here to check for duplicate filenames and count them
+  const fileNames = new Map<string, number>();
+
   await Promise.all(
     Array.from(selectedExams).map(async exam => {
       const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam.filename}/`);
       const responseFile = await fetch(responseUrl.value).then(r =>
         r.arrayBuffer(),
       );
-      // @gkhromov: There could be collisions if several files have the same display name
+      // @gkhromov: There could be collisions if several files have the same display name.
+      // Add "(n)" to duplicates.
       const ext = exam.filename.substr(exam.filename.lastIndexOf("."));
-      zip.file(exam.displayname + ext, responseFile);
+      const repNum = fileNames.get(exam.displayname);
+      if (repNum) {
+        fileNames.set(exam.displayname, repNum + 1);
+        zip.file(`${exam.displayname} (${repNum})${ext}`, responseFile);
+      } else {
+        fileNames.set(exam.displayname, 1);
+        zip.file(exam.displayname + ext, responseFile);
+      }
     }),
   );
 
