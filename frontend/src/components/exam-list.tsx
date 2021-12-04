@@ -48,19 +48,18 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   );
   const [selected, onSelect, onDeselect] = useSet<string>();
 
-  const getSelectedExams = (selected: Set<string>, examTypeMap: [string, CategoryExam[]][] | undefined) => {
+  const getSelectedExams = (selected: Set<string>) => {
     const selectedExams: ExamSelectedForDownload[] = [];
-    if (!examTypeMap)
+    if (data === undefined)
       return selectedExams;
 
-    for (const [_, exams] of examTypeMap.values())
-      for (const exam of exams.values()) {
-        if (selected.has(exam.filename))
-          selectedExams.push({
-            filename: exam.filename,
-            displayname: exam.displayname,
-          });
-      }
+    for (const exam of data) {
+      if (selected.has(exam.filename))
+        selectedExams.push({
+          filename: exam.filename,
+          displayname: exam.displayname,
+        });
+    }
     return selectedExams;
   }
 
@@ -73,7 +72,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <FormGroup className="mb-2 d-md-inline-block">
             <IconButton
               disabled={selected.size === 0}
-              onClick={() => dlSelectedExams(getSelectedExams(selected, examTypeMap))}
+              onClick={() => dlSelectedExams(getSelectedExams(selected))}
               block
               icon={DownloadIcon}
             >

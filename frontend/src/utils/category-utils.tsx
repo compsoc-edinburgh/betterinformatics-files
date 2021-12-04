@@ -121,7 +121,7 @@ export const dlSelectedExams = async (selectedExams: ExamSelectedForDownload[]) 
       // Add "(n)" to duplicates.
       const ext = exam.filename.substr(exam.filename.lastIndexOf("."));
       const repNum = fileNames.get(exam.displayname);
-      if (repNum) {
+      if (repNum !== undefined) {
         fileNames.set(exam.displayname, repNum + 1);
         zip.file(`${exam.displayname} (${repNum})${ext}`, responseFile);
       } else {
