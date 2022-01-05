@@ -76,8 +76,10 @@ const createRenderers = (
   },
   math: (props: { value: string }) => <TeX math={props.value} block />,
   inlineMath: (props: { value: string }) => <TeX math={props.value} />,
-  code: (props: { value: string; language: string }) => (
-    <CodeBlock language={props.language} value={props.value} />
+  code: (props: { value: string; language: string | null }) => (
+    // In TypeScript I prefer to represent optional properties as `undefined`, whereas
+    // react-markdown uses `null` here if no language is provided for the code block.
+    <CodeBlock language={props.language ?? undefined} value={props.value} />
   ),
 });
 
