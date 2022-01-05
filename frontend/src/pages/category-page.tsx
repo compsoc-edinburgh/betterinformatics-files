@@ -230,6 +230,16 @@ const CategoryPage: React.FC<{}> = () => {
     () => loadCategoryMetaData(slug),
     { cacheKey: `category-${slug}` },
   );
+  const history = useHistory();
+  const onMetaDataChange = useCallback(
+    (newMetaData: CategoryMetaData) => {
+      mutate(newMetaData);
+      if (slug !== newMetaData.slug) {
+        history.push(`/category/${newMetaData.slug}`);
+      }
+    },
+    [mutate, history, slug],
+  );
   useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
@@ -247,7 +257,10 @@ const CategoryPage: React.FC<{}> = () => {
               : undefined
           }
         >
-          <CategoryPageContent metaData={data} onMetaDataChange={mutate} />
+          <CategoryPageContent
+            metaData={data}
+            onMetaDataChange={onMetaDataChange}
+          />
         </UserContext.Provider>
       )}
     </Container>

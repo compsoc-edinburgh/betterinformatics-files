@@ -29,9 +29,12 @@ import UserSetEditor from "./user-set-editor";
 const setMetaData = async (
   slug: string,
   changes: Partial<CategoryMetaData>,
-) => {
+): Promise<CategoryMetaData | undefined> => {
   if (Object.keys(changes).length === 0) return;
-  await fetchPost(`/api/category/setmetadata/${slug}/`, changes);
+  return await fetchPost<CategoryMetaData>(
+    `/api/category/setmetadata/${slug}/`,
+    changes,
+  );
 };
 const addUserToSet = async (slug: string, key: string, user: string) => {
   await fetchPost(`/api/category/addusertoset/${slug}/`, {
@@ -93,6 +96,8 @@ const applyChanges = async (
   newOfferedIn: Array<readonly [string, string]>,
 ) => {
   const metaDataDiff: Partial<CategoryMetaData> = {};
+  if (oldMetaData.displayname !== newMetaData.displayname)
+    metaDataDiff.displayname = newMetaData.displayname;
   if (oldMetaData.semester !== newMetaData.semester)
     metaDataDiff.semester = newMetaData.semester;
   if (oldMetaData.form !== newMetaData.form)
@@ -105,7 +110,7 @@ const applyChanges = async (
     metaDataDiff.more_exams_link = newMetaData.more_exams_link;
   if (oldMetaData.permission !== newMetaData.permission)
     metaDataDiff.permission = newMetaData.permission;
-  await setMetaData(slug, metaDataDiff);
+  const fetchedMetaData = await setMetaData(slug, metaDataDiff);
   const newAttachments: Attachment[] = [];
   for (const attachment of newMetaData.attachments) {
     if (attachment.filename instanceof File) {
@@ -173,6 +178,7 @@ const applyChanges = async (
     attachments: newAttachments,
     admins: newMetaData.admins,
     experts: newMetaData.experts,
+    slug: fetchedMetaData?.slug ?? oldMetaData.slug,
   };
 };
 
@@ -242,6 +248,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <h2>Edit Category</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6 className="mb-3 mt-4">Metadata</h6>
+      <InputField type="url" label="Name" {...registerInput("displayname")} />
       <Row form>
         <Col md={6}>
           <FormGroup>
