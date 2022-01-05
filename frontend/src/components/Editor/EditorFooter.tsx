@@ -72,8 +72,9 @@ const EditorFooter: React.FC<Props> = ({
       <Modal isOpen={isHelpOpen} toggle={toggleHelp}>
         <ModalHeader>Help</ModalHeader>
         <ModalBody>
-          You can use Markdown. Use ``` code ``` for code. Use $ math $ or $$ \n
-          math \n $$ for latex math.
+          You can use Markdown. Use <code>```lang \n code \n ```</code> for code
+          blocks and <code>`code`</code> for inline code. Use{" "}
+          <code>$ math $</code> or <code>$$ \n math \n $$</code> for latex math.
         </ModalBody>
       </Modal>
     </div>
