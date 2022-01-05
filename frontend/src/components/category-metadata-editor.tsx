@@ -31,10 +31,7 @@ const setMetaData = async (
   changes: Partial<CategoryMetaData>,
 ): Promise<CategoryMetaData | undefined> => {
   if (Object.keys(changes).length === 0) return;
-  return await fetchPost<CategoryMetaData>(
-    `/api/category/setmetadata/${slug}/`,
-    changes,
-  );
+  return (await fetchPost(`/api/category/setmetadata/${slug}/`, changes)).value;
 };
 const addUserToSet = async (slug: string, key: string, user: string) => {
   await fetchPost(`/api/category/addusertoset/${slug}/`, {
