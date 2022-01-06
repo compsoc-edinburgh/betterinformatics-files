@@ -1,16 +1,17 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
-  FormGroup,
-  Spinner,
   Col,
-  Row,
   DownloadIcon,
+  FormGroup,
+  Row,
+  Spinner,
 } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
-import { CategoryExam, CategoryMetaData, ExamSelectedForDownload } from "../interfaces";
+import useSet from "../hooks/useSet";
+import { CategoryMetaData, ExamSelectedForDownload } from "../interfaces";
 import {
   dlSelectedExams,
   filterMatches,
@@ -18,7 +19,6 @@ import {
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
 import IconButton from "./icon-button";
-import useSet from "../hooks/useSet";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -30,6 +30,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     error,
     run: reload,
   } = useRequest(() => loadList(metaData.slug), {
+    refreshDeps: [metaData.slug],
     cacheKey: `exam-list-${metaData.slug}`,
   });
   const [filter, setFilter] = useState("");
@@ -50,8 +51,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   const getSelectedExams = (selected: Set<string>) => {
     const selectedExams: ExamSelectedForDownload[] = [];
-    if (data === undefined)
-      return selectedExams;
+    if (data === undefined) return selectedExams;
 
     for (const exam of data) {
       if (selected.has(exam.filename))
@@ -61,7 +61,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         });
     }
     return selectedExams;
-  }
+  };
 
   return (
     <>
