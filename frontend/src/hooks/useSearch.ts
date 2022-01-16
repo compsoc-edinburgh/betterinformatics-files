@@ -22,10 +22,10 @@ import { useMemo } from "react";
  *
  * @param cost The cost array that should be used
  * @param pred The pred array that should be used
- * @param lm The lastMatch array that should be used
+ * @param lm The `lastMatch` array that should be used
  * @param a The string that is not the search term
  * @param b The search term
- * @param bStart The index where dp computation should be started, pass 0 if cost, pred, lm are empty
+ * @param bStart The index where dp computation should be started, pass `0` if `cost`, `pred`, `lm` are empty
  * @param maxCost The max cost that the items in the output should have (cost is bad)
  * @returns The cost and the match array, `undefined` if the cost is too high
  */
@@ -89,7 +89,7 @@ function minCost(
       // Our DP recursion has three possibilities: ignore a char in a, ignore a char in b and replace /
       // match
 
-      // Ignore char in a isn't costly, but also isn't free because sCost won't result in a "free" match
+      // Ignore char in a isn't costly, but also isn't free because `replaceCost` won't result in a "free" match
       const sa = cost[rowIndex + (i - 1)];
       // Ignoring a char in our search term isn't what we want, but if the search term is long we might be
       // ok with it
@@ -179,7 +179,7 @@ function prefixLength(a: string, b: string) {
 /**
  * How much memory should be reserved for append operations?
  */
-const CACHE_APPEND_SPACE = 5;
+const CACHE_APPEND_SPACE = 6;
 
 /**
  * Uses the provided cache to avoid allocating dp tables and speed up the computation by not
@@ -206,7 +206,7 @@ export function cachedMinCost(
   // Let's see if we encountered that string before
   const cacheEntry = cache.get(a);
 
-  // We need `b.length + 1` because the minCost uses the first row to optimize its
+  // We need `b.length + 1` because the `minCost` uses the first row to optimize its
   // base cases
   if (cacheEntry !== undefined && cacheEntry.rows >= b.length + 1) {
     const rows = cacheEntry.rows;
@@ -235,7 +235,7 @@ export function cachedMinCost(
  */
 export type SearchResult<T> = {
   /**
-   * A positive integer from 0-255, 0 is a perfect match, 255 is a really bad match
+   * A positive integer from `0-255`, `0` is a perfect match, `255` is a really bad match
    */
   cost: number;
   /**
@@ -246,8 +246,8 @@ export type SearchResult<T> = {
 
 /**
  * Helper function to use in filters
- * @param value The value which is potentially undefined
- * @returns Whether the value is undefined
+ * @param value The value which is potentially `undefined`
+ * @returns Whether the value is `undefined`
  */
 function notUndefined<T>(value: T | undefined): value is T {
   return value !== undefined;
@@ -267,7 +267,7 @@ const useSearch = <T>(
   getter: (t: T) => string,
 ): SearchResult<T>[] => {
   // We remove spacing from the beginning and also reduce multiple consecutive whitespace
-  // to a single space character, converting all types of whitespace to " " in the process.
+  // to a single space character, converting all types of whitespace to `" "` in the process.
   const sanitizedPattern = pattern
     .trimStart()
     .replace(/\s+/g, " ")
@@ -295,11 +295,11 @@ const useSearch = <T>(
               const [cost, match] = res;
               return { cost, match, value, ...w };
             })
-            // Filter out undefined results - it is guaranteed, that cachedMinCost will return
-            // undefined if the cost would be higher than the maxCost, thus we don't have to
-            // filter out the results additionally
+            // Filter out `undefined` results - it is guaranteed, that `cachedMinCost` will return
+            // `undefined` if the cost would be higher than the `maxCost`, thus we don't have to
+            // care about `maxCost` here
             .filter(notUndefined)
-            // Sort remaining results, using a mutating sort is okay here because
+            // Sort remaining results, using a mutating `.sort` is okay here because
             // we are only modifying an intermediate array created by the `.map()` call
             .sort(
               (
