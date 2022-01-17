@@ -29,7 +29,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
               login(`/category/${category.slug}`);
             }
           }}
-          className="stretched-link"
+          className="stretched-link text-dark"
         >
           <h5>
             {"match" in category
