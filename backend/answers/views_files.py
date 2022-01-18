@@ -137,16 +137,33 @@ def remove_solution(request, filename, exam):
     return response.success()
 
 
+def get_presigned_url_exam(exam: Exam):
+    return s3_util.presigned_get_object(
+        settings.COMSOL_EXAM_DIR,
+        exam.filename,
+        content_type="application/pdf",
+        display_name=exam.category.displayname + " " + exam.displayname + ".pdf",
+    )
+
+
 @response.request_get()
 @auth_check.require_login
 def get_exam_pdf(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
     if not exam.current_user_can_view(request):
         return response.not_allowed()
-    return response.success(
-        value=s3_util.presigned_get_object(
-            settings.COMSOL_EXAM_DIR, filename, content_type="application/pdf"
-        )
+    return response.success(value=get_presigned_url_exam(exam))
+
+
+def get_presigned_url_solution(exam: Exam):
+    return s3_util.presigned_get_object(
+        settings.COMSOL_SOLUTION_DIR,
+        exam.filename,
+        content_type="application/pdf",
+        display_name=exam.category.displayname
+        + " "
+        + exam.displayname
+        + " (Solution).pdf",
     )
 
 
@@ -158,12 +175,16 @@ def get_solution_pdf(request, filename):
         return response.not_allowed()
     if not exam.has_solution:
         return response.not_found()
-    return response.success(
-        value=s3_util.presigned_get_object(
-            settings.COMSOL_SOLUTION_DIR, filename, content_type="application/pdf"
-        )
-    )
+    return response.success(value=get_presigned_url_solution(exam))
 
+
+def get_presigned_url_printonly(exam: Exam):
+    return s3_util.presigned_get_object(
+        settings.COMSOL_PRINTONLY_DIR,
+        exam.filename,
+        content_type="application/pdf",
+        display_name=exam.category.displayname + " " + exam.displayname + ".pdf",
+    )
 
 @response.request_get()
 @auth_check.require_login
@@ -175,11 +196,7 @@ def get_printonly_pdf(request, filename):
         return response.not_allowed()
     if not exam.is_printonly:
         return response.not_found()
-    return response.success(
-        value=s3_util.presigned_get_object(
-            settings.COMSOL_PRINTONLY_DIR, filename, content_type="application/pdf"
-        )
-    )
+    return response.success(value=get_presigned_url_printonly(exam))
 
 
 def print_pdf(exam, request, filename, s3_dir):
