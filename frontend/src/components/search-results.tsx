@@ -146,7 +146,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                         </Link>
                       </BreadcrumbItem>
                       <BreadcrumbItem>
-                        <Link to={`/exam/${result.filename}`}>
+                        <Link to={`/exams/${result.filename}`}>
                           {result.exam_displayname}
                         </Link>
                       </BreadcrumbItem>
@@ -187,7 +187,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                         </Link>
                       </BreadcrumbItem>
                       <BreadcrumbItem>
-                        <Link to={`/exam/${result.filename}`}>
+                        <Link to={`/exams/${result.filename}`}>
                           {result.exam_displayname}
                         </Link>
                       </BreadcrumbItem>
