@@ -1,5 +1,5 @@
 import * as React from "react";
-import SyntaxHighlighter from "react-syntax-highlighter";
+import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import atomOneLight from "react-syntax-highlighter/dist/esm/styles/hljs/atom-one-light";
 
 interface Props {
