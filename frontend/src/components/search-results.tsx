@@ -11,7 +11,7 @@ import {
   Row,
 } from "@vseth/components";
 import { css } from "@emotion/css";
-import { escapeRegExp } from "lodash";
+import { escapeRegExp } from "lodash-es";
 import React from "react";
 import { Link } from "react-router-dom";
 import MarkdownText from "../components/markdown-text";

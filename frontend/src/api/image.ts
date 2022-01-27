@@ -1,6 +1,6 @@
 import { fetchGet, fetchPost } from "./fetch-utils";
 import { useRequest } from "@umijs/hooks";
-import { remove } from "lodash";
+import { remove } from "lodash-es";
 
 export const loadImage = async () => {
   return (await fetchGet("/api/image/list/")).value as string[];
