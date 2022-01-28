@@ -34,6 +34,12 @@ const wrapperStyle = css`
   & .katex {
     font-size: 1rem;
   }
+  & blockquote {
+    padding: 0.3rem 0 0.3rem 0.5rem;
+    border-left: 4px solid var(--gray);
+    color: var(--gray-dark);
+    fill: var(--gray-dark);
+  }
 `;
 
 const transformImageUri = (uri: string) => {
