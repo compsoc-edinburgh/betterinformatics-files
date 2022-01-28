@@ -47,7 +47,8 @@ def get_notifications(request, unread):
             'read': notification.read,
         } for notification in sorted(
             notifications,
-            key=lambda x: x.time
+            key=lambda x: x.time,
+            reverse=True
         )
     ]
     return response.success(value=res)
