@@ -1,4 +1,3 @@
-import "katex/dist/katex.min.css";
 import * as ReactDOM from "react-dom";
 import { BrowserRouter, Route } from "react-router-dom";
 import { QueryParamProvider } from "use-query-params";
