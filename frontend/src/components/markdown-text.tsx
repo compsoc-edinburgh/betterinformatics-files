@@ -1,17 +1,16 @@
-import TeX from "@matejmazur/react-katex";
 import { css } from "@emotion/css";
-import "katex/dist/katex.min.css";
-import * as React from "react";
-import { useMemo } from "react";
-import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
-import * as RemarkMathPlugin from "remark-math";
-import CodeBlock from "./code-block";
-import RemarkGfm from "remark-gfm";
-
+import TeX from "@matejmazur/react-katex";
 // Import mchem plugin to register macros for chemical equations in katex.
 // The plugin registers macros when it is imported. We do this after we import "@matejmazur/react-katex"
 // which transitively imports katex such that the global variables which katex uses are set up.
 import "katex/contrib/mhchem/mhchem";
+import "katex/dist/katex.min.css";
+import * as React from "react";
+import { useMemo } from "react";
+import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
+import RemarkGfm from "remark-gfm";
+import * as RemarkMathPlugin from "remark-math";
+import CodeBlock from "./code-block";
 
 const wrapperStyle = css`
   overflow-x: auto;
@@ -39,6 +38,10 @@ const wrapperStyle = css`
     border-left: 4px solid var(--gray);
     color: var(--gray-dark);
     fill: var(--gray-dark);
+  }
+  // Undo effect of .overlay class defined in the theme css
+  & .overlay {
+    padding: unset;
   }
 `;
 
