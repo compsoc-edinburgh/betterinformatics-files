@@ -35,7 +35,7 @@ def get_notifications(request, unread):
     notifications = Notification.objects.filter(receiver=request.user).select_related('receiver', 'sender', 'answer', 'document','answer__answer_section', 'answer__answer_section__exam')
     if unread:
         notifications = notifications.filter(read=False)
-    notificatiions = notifications.order_by('-time')
+    notifications = notifications.order_by('-time')
     res = [
         {
             'oid': notification.id,
