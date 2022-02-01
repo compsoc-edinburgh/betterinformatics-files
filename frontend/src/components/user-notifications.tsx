@@ -92,6 +92,11 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           Comment to my document
         </Label>
       </FormGroup>
+      <div className="my-3">
+        <Button onClick={() => setShowRead(prev => !prev)}>
+          {showRead ? "Hide Read Notifications" : "Show Read Notifications"}
+        </Button>
+      </div>
       {notificationsLoading && <Spinner />}
       {notifications &&
         notifications.map(notification => (
@@ -100,11 +105,6 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
             key={notification.oid}
           />
         ))}
-      <div className="my-3">
-        <Button onClick={() => setShowRead(prev => !prev)}>
-          {showRead ? "Hide Read Notifications" : "Show Read Notifications"}
-        </Button>
-      </div>
     </>
   );
 };
