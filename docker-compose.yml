@@ -12,6 +12,18 @@ services:
     volumes:
       - ./data/minio:/export
     command: server /export --console-address ":9001"
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc config host add myminio http://minio:9000 minio minio123;
+      /usr/bin/mc rm -r --force myminio/community-solutions;
+      /usr/bin/mc mb myminio/community-solutions;
+      /usr/bin/mc policy download myminio/community-solutions;
+      exit 0;
+      "
   postgres:
     image: postgres
     container_name: postgres

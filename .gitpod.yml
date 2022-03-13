@@ -23,7 +23,5 @@ tasks:
       yarn start
 
 ports:
-  - port: 3000
-    onOpen: open-browser
-  - port: 9001
-    onOpen: open-browser
+  - port: 3000-8999
+    onOpen: ignore
