@@ -1,0 +1,27 @@
+image: eu.gcr.io/vseth-public/base:delta
+
+tasks:
+  - name: Environment Setup (Dependency Installation, Backend Compile)
+    before: |
+      curl -L https://git.io/n-install | bash
+      npm install --global yarn
+    init: |
+      cd frontend
+      yarn
+      cd ..
+      docker-compose build
+    command: gp sync-done setup
+
+  - name: Start Backend
+    init: gp sync-await setup
+    command: docker-compose up
+
+  - name: Start frontend
+    init: gp sync-await setup
+    command: |
+      cd frontend
+      yarn start
+
+ports:
+  - port: 3000
+    onOpen: open-preview
