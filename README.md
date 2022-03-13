@@ -1,5 +1,11 @@
 # Community Solutions
 
+## Quickstart with Gitpod
+
+If you have gitpod configured for eth Gitlab (https://gitpod.io/integrations)
+you can just click this:<br><br>
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/-/tree/try-gitpod)
+
 ## Assumptions and Note
 
 This guide is based on Ubuntu 20.04 LTS, but should work on anything similar. 
