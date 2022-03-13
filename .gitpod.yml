@@ -1,4 +1,4 @@
-image: eu.gcr.io/vseth-public/base:delta
+# image: eu.gcr.io/vseth-public/base:delta
 
 tasks:
   - name: Environment Setup (Dependency Installation, Backend Compile)
