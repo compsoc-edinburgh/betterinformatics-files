@@ -17,9 +17,9 @@ tasks:
     init: |
       gp sync-await setup
       cd frontend
-      yarn install && yarn run build
+      yarn
     command: |
-      yarn run start
+      yarn start
 
 ports:
   - port: 3000
