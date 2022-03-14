@@ -14,12 +14,9 @@ tasks:
     command: docker-compose up
 
   - name: Start frontend
-    init: |
-      gp sync-await setup
-      cd frontend
-      yarn
     command: |
       cd frontend
+      yarn
       yarn start
 
 ports:
