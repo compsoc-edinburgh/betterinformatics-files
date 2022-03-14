@@ -19,6 +19,7 @@ tasks:
       cd frontend
       yarn
     command: |
+      cd frontend
       yarn start
 
 ports:
