@@ -14,10 +14,10 @@ tasks:
     command: docker-compose up
 
   - name: Start frontend
-    command: |
-      cd frontend
-      yarn
-      yarn start
+    init: >
+      cd frontend && yarn
+    command: >
+      cd frontend && yarn start
 
 ports:
   - port: 3000
