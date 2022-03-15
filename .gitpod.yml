@@ -16,7 +16,7 @@ tasks:
   - name: Start frontend
     init: >
       cd frontend && yarn
-    command: yarn start
+    command: yarn --cwd /workspace/community-solutions/frontend/ start
 
 ports:
   - port: 3000
