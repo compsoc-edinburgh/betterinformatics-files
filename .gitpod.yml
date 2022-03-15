@@ -16,8 +16,7 @@ tasks:
   - name: Start frontend
     init: >
       cd frontend && yarn
-    command: >
-      cd frontend && yarn start
+    command: yarn start
 
 ports:
   - port: 3000
