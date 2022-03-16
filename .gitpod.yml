@@ -1,5 +1,3 @@
-# image: eu.gcr.io/vseth-public/base:delta
-
 tasks:
   - name: Environment Setup (Dependency Installation, Backend Compile)
     init: |
@@ -16,7 +14,7 @@ tasks:
   - name: Start frontend
     init: >
       cd frontend && yarn
-    command: yarn --cwd /workspace/community-solutions/frontend/ start
+    command: yarn start
 
 ports:
   - port: 3000
