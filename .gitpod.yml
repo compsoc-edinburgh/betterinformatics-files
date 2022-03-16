@@ -14,7 +14,8 @@ tasks:
   - name: Start frontend
     init: >
       cd frontend && yarn
-    command: echo $PWD && yarn start
+    command: >
+      echo $PWD && yarn start
 
 ports:
   - port: 3000
