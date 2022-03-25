@@ -64,3 +64,28 @@ env:
     value: https://auth.vseth.ethz.ch/auth
   - name: "RUNTIME_FRONTEND_KEYCLOAK_REALM"
     value: VSETH
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 3
+startupProbe:
+  httpGet:
+    path: /health
+    port: 80
+  failureThreshold: 30
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 10
+  periodSeconds: 3
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 500m
+  requests:
+    memory: 256Mi
+    cpu: 250m
