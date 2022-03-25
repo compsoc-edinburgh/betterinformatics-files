@@ -1,6 +1,6 @@
 import { useRequest, useSize } from "@umijs/hooks";
 import { Container } from "@vseth/components";
-import type { PDFDocumentProxy } from "pdfjs-dist/types/display/api";
+import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import React from "react";
 import { getHeaders } from "../api/fetch-utils";
 import PDF from "../pdf/pdf-renderer";

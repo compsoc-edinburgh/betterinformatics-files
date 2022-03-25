@@ -9,7 +9,7 @@ import {
   PDFDocumentProxy,
   PDFPageProxy,
   TextContent,
-} from "pdfjs-dist/types/display/api";
+} from "pdfjs-dist/types/src/display/api";
 
 interface MainCanvasPageLoadedData {
   width: number;

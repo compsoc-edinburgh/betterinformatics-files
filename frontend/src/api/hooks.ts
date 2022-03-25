@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { PDFDocumentProxy } from "pdfjs-dist/types/display/api";
+import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import {
   Answer,
   AnswerSection,
