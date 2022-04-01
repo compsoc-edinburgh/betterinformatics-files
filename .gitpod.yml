@@ -13,7 +13,9 @@ tasks:
 
   - name: Start frontend
     init: >
-      cd frontend && yarn
+      gp sync-await setup &&
+      cd frontend &&
+      yarn
     command: yarn start
 
 ports:
