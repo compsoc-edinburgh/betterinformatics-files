@@ -9,7 +9,9 @@ tasks:
     init: | 
       gp sync-await setup
       docker-compose build
-    command: docker-compose up
+    command: >
+      sudo echo "127.0.0.1       minio" >> /etc/hosts &&
+      docker-compose up
 
   - name: Start frontend
     init: >
