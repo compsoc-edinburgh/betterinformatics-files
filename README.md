@@ -3,7 +3,7 @@
 ## Quickstart with Gitpod
 
 If you have Gitpod configured for ETH GitLab (https://gitpod.io/integrations)
-you can just click this:<br><br>
+you can just click here: 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/-/tree/try-gitpod)
 
 ## Assumptions and Note
