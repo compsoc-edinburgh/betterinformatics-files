@@ -11,12 +11,29 @@ class Migration(migrations.Migration):
 
     sql = """
     CREATE OR REPLACE VIEW scoreboard_userscore (id, user_id, upvotes, downvotes, document_likes) AS
-        SELECT row_number() OVER () as id,
-            au.id AS user_id,
-            (SELECT COUNT(*) FROM answers_answer_upvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id AND aa.is_legacy_answer = false),
-            (SELECT COUNT(*) FROM answers_answer_downvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id AND aa.is_legacy_answer = false),
-            (SELECT COUNT(*) FROM documents_document_likes ddl INNER JOIN documents_document dd ON(ddl.document_id = dd.id) WHERE dd.author_id = au.id)
+        SELECT au.id as id,
+        au.id AS user_id,
+        COALESCE(auv.count, 0) AS auv_count,
+        COALESCE(adv.count, 0) AS adv_count,
+        COALESCE(dv.count, 0) AS dv_count
         FROM auth_user au
+        LEFT JOIN (SELECT aa.author_id as id, COUNT(*) as count
+            FROM answers_answer_upvotes aav
+            INNER JOIN answers_answer aa ON (aa.id = aav.answer_id)
+            WHERE aa.is_legacy_answer = false
+            GROUP by aa.author_id
+        ) auv ON (auv.id = au.id)
+        LEFT JOIN (SELECT aa.author_id as id, COUNT(*) as count
+            FROM answers_answer_downvotes aav
+            INNER JOIN answers_answer aa ON (aa.id = aav.answer_id)
+            WHERE aa.is_legacy_answer = false
+            GROUP by aa.author_id
+        ) adv ON (adv.id = au.id)
+        LEFT JOIN (SELECT dd.author_id as id, COUNT(*) as count
+            FROM documents_document_likes ddl
+            INNER JOIN documents_document dd ON(ddl.document_id = dd.id
+            GROUP BY dd.author_id
+    ) dv ON (dv.id = au.id) ORDER BY auv_count desc;
     ;
     """
 
