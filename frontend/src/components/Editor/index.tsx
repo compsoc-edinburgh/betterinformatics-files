@@ -230,6 +230,7 @@ const Editor: React.FC<Props> = ({
       onDragEnter={onDragEnter}
     >
       <EditorHeader
+        onFiles={onFiles}
         activeMode={mode}
         onActiveModeChange={setMode}
         onMathClick={onMathClick}
@@ -253,7 +254,6 @@ const Editor: React.FC<Props> = ({
         )}
       </div>
       <EditorFooter
-        onFiles={onFiles}
         attachments={attachments}
         onDelete={onDeleteAttachment}
         onOpenOverlay={onOpenOverlay}

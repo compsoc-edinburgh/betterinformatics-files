@@ -4,6 +4,7 @@ import {
   CategoryMetaDataOverview,
   MetaCategory,
   MetaCategoryWithCategories,
+  ExamSelectedForDownload,
 } from "../interfaces";
 import { fetchGet } from "../api/fetch-utils";
 
@@ -103,17 +104,30 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
       .entries(),
   ].sort(([a], [b]) => a.localeCompare(b));
 };
-export const dlSelectedExams = async (selectedExams: Set<string>) => {
+export const dlSelectedExams = async (selectedExams: ExamSelectedForDownload[]) => {
   const JSZip = await import("jszip").then(e => e.default);
   const zip = new JSZip();
 
+  // this is here to check for duplicate filenames and count them
+  const fileNames = new Map<string, number>();
+
   await Promise.all(
-    Array.from(selectedExams).map(async exam => {
-      const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam}/`);
+    selectedExams.map(async exam => {
+      const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam.filename}/`);
       const responseFile = await fetch(responseUrl.value).then(r =>
         r.arrayBuffer(),
       );
-      zip.file(exam, responseFile);
+      // @gkhromov: There could be collisions if several files have the same display name.
+      // Add "(n)" to duplicates.
+      const ext = exam.filename.substr(exam.filename.lastIndexOf("."));
+      const repNum = fileNames.get(exam.displayname);
+      if (repNum !== undefined) {
+        fileNames.set(exam.displayname, repNum + 1);
+        zip.file(`${exam.displayname} (${repNum})${ext}`, responseFile);
+      } else {
+        fileNames.set(exam.displayname, 1);
+        zip.file(exam.displayname + ext, responseFile);
+      }
     }),
   );
 

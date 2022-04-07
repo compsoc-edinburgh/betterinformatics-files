@@ -1,8 +1,10 @@
-from util import response
+from django.shortcuts import get_object_or_404
 from myauth import auth_check
 from myauth.models import get_my_user
-from notifications.models import NotificationSetting, Notification, NotificationType
-from django.shortcuts import get_object_or_404
+from util import response
+
+from notifications.models import (Notification, NotificationSetting,
+                                  NotificationType)
 
 
 @response.request_get()
@@ -33,6 +35,7 @@ def get_notifications(request, unread):
     notifications = Notification.objects.filter(receiver=request.user).select_related('receiver', 'sender', 'answer', 'document','answer__answer_section', 'answer__answer_section__exam')
     if unread:
         notifications = notifications.filter(read=False)
+    notifications = notifications.order_by('-time')
     res = [
         {
             'oid': notification.id,
@@ -45,10 +48,7 @@ def get_notifications(request, unread):
             'message': notification.text,
             'link': _get_notification_link(notification), 
             'read': notification.read,
-        } for notification in sorted(
-            notifications,
-            key=lambda x: x.time
-        )
+        } for notification in notifications
     ]
     return response.success(value=res)
 

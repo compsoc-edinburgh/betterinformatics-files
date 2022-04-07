@@ -29,9 +29,9 @@ import UserSetEditor from "./user-set-editor";
 const setMetaData = async (
   slug: string,
   changes: Partial<CategoryMetaData>,
-) => {
+): Promise<CategoryMetaData | undefined> => {
   if (Object.keys(changes).length === 0) return;
-  await fetchPost(`/api/category/setmetadata/${slug}/`, changes);
+  return (await fetchPost(`/api/category/setmetadata/${slug}/`, changes)).value;
 };
 const addUserToSet = async (slug: string, key: string, user: string) => {
   await fetchPost(`/api/category/addusertoset/${slug}/`, {
@@ -93,6 +93,8 @@ const applyChanges = async (
   newOfferedIn: Array<readonly [string, string]>,
 ) => {
   const metaDataDiff: Partial<CategoryMetaData> = {};
+  if (oldMetaData.displayname !== newMetaData.displayname)
+    metaDataDiff.displayname = newMetaData.displayname;
   if (oldMetaData.semester !== newMetaData.semester)
     metaDataDiff.semester = newMetaData.semester;
   if (oldMetaData.form !== newMetaData.form)
@@ -105,12 +107,13 @@ const applyChanges = async (
     metaDataDiff.more_exams_link = newMetaData.more_exams_link;
   if (oldMetaData.permission !== newMetaData.permission)
     metaDataDiff.permission = newMetaData.permission;
-  await setMetaData(slug, metaDataDiff);
+  const fetchedMetaData = await setMetaData(slug, metaDataDiff);
+  const newSlug = fetchedMetaData?.slug ?? slug;
   const newAttachments: Attachment[] = [];
   for (const attachment of newMetaData.attachments) {
     if (attachment.filename instanceof File) {
       const filename = await addAttachment(
-        slug,
+        newSlug,
         attachment.displayname,
         attachment.filename,
       );
@@ -134,7 +137,7 @@ const applyChanges = async (
         ([meta1, meta2]) => meta1 === newMeta1 && meta2 === newMeta2,
       ) === undefined
     ) {
-      await addMetaCategory(slug, newMeta1, newMeta2);
+      await addMetaCategory(newSlug, newMeta1, newMeta2);
     }
   }
   for (const [oldMeta1, oldMeta2] of oldOfferedIn) {
@@ -143,28 +146,28 @@ const applyChanges = async (
         ([meta1, meta2]) => meta1 === oldMeta1 && meta2 === oldMeta2,
       ) === undefined
     ) {
-      await removeMetaCategory(slug, oldMeta1, oldMeta2);
+      await removeMetaCategory(newSlug, oldMeta1, oldMeta2);
     }
   }
   for (const admin of newMetaData.admins) {
     if (oldMetaData.admins.indexOf(admin) === -1) {
-      await addUserToSet(slug, "admins", admin);
+      await addUserToSet(newSlug, "admins", admin);
     }
   }
   for (const admin of oldMetaData.admins) {
     if (newMetaData.admins.indexOf(admin) === -1) {
-      await removeUserFromSet(slug, "admins", admin);
+      await removeUserFromSet(newSlug, "admins", admin);
     }
   }
 
   for (const expert of newMetaData.experts) {
     if (oldMetaData.experts.indexOf(expert) === -1) {
-      await addUserToSet(slug, "experts", expert);
+      await addUserToSet(newSlug, "experts", expert);
     }
   }
   for (const expert of oldMetaData.experts) {
     if (newMetaData.experts.indexOf(expert) === -1) {
-      await removeUserFromSet(slug, "experts", expert);
+      await removeUserFromSet(newSlug, "experts", expert);
     }
   }
   return {
@@ -173,6 +176,7 @@ const applyChanges = async (
     attachments: newAttachments,
     admins: newMetaData.admins,
     experts: newMetaData.experts,
+    slug: newSlug,
   };
 };
 
@@ -242,6 +246,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <h2>Edit Category</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6 className="mb-3 mt-4">Metadata</h6>
+      <InputField type="url" label="Name" {...registerInput("displayname")} />
       <Row form>
         <Col md={6}>
           <FormGroup>

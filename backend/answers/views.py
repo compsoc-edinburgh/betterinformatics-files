@@ -1,11 +1,11 @@
-from util import response, s3_util
+from util import response
 from myauth import auth_check
-from django.conf import settings
 from answers.models import Exam, ExamType
 from categories.models import Category
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from datetime import timedelta
+import answers.views_files as files 
 
 
 @response.request_get()
@@ -46,19 +46,13 @@ def exam_metadata(request, filename):
     }
 
     if can_view:
-        res["exam_file"] = s3_util.presigned_get_object(
-            settings.COMSOL_EXAM_DIR, filename, content_type="application/pdf"
-        )
+        res["exam_file"] = files.get_presigned_url_exam(exam)
 
     if can_view and exam.has_solution:
-        res["solution_file"] = s3_util.presigned_get_object(
-            settings.COMSOL_SOLUTION_DIR, filename, content_type="application/pdf"
-        )
+        res["solution_file"] = files.get_presigned_url_solution(exam)
 
     if can_view and admin_rights and exam.is_printonly:
-        res["printonly_file"] = s3_util.presigned_get_object(
-            settings.COMSOL_PRINTONLY_DIR, filename, content_type="application/pdf"
-        )
+        res["printonly_file"] = files.get_presigned_url_printonly(exam)
 
     return response.success(value=res)
 
