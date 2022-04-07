@@ -12,14 +12,9 @@ from django.db.models.functions import Concat
 
 
 def get_user_scores(user, res):
-    document_likes = (
-        Document.objects.filter(author=user)
-        .annotate(num_likes=Count("likes"))
-        .aggregate(Sum("num_likes"))["num_likes__sum"]
-    ) or 0
     res.update(
         {
-            "score": document_likes + user.scores.upvotes - user.scores.downvotes,
+            "score": user.scores.document_likes + user.scores.upvotes - user.scores.downvotes,
             "score_answers": user.answer_set.filter(is_legacy_answer=False).count(),
             "score_comments": user.answers_comments.count(),
             "score_cuts": user.answersection_set.count(),
