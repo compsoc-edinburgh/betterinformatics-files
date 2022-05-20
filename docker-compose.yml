@@ -78,6 +78,8 @@ services:
 
       - SIP_AUTH_OIDC_AUTH_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/auth
       - SIP_AUTH_OIDC_TOKEN_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/token
+
+      - PDEP_IS_PREVIEW=TRUE
     depends_on:
       - postgres
       - minio
