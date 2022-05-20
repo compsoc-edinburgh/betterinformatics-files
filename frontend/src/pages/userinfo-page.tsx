@@ -14,9 +14,12 @@ import { css } from "@emotion/css";
 
 const navStyle = css`
   width: 100%;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
   justify-content: space-between;
+  .nav-item {
+    margin: 0;
+  }
   .nav-item .nav-link p {
     font-size: x-large;
   }
