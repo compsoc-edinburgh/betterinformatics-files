@@ -4,7 +4,7 @@ from django.contrib.postgres.search import (
     SearchVector,
     TrigramSimilarity,
 )
-from django.db.models import Q
+from django.db.models import Q, F, Count
 
 from answers import section_util
 from answers.models import Answer, Comment, Exam, ExamPage, ExamType
@@ -101,18 +101,27 @@ def list_flagged(request):
 
 @response.request_get()
 @auth_check.require_login
-def get_by_user(request, username):
+def get_by_user(request, username, page=-1):
+    sorted_answers = Answer.objects \
+        .filter(
+            author__username=username,
+            is_legacy_answer=False) \
+        .select_related(*section_util.get_answer_fields_to_preselect()) \
+        .prefetch_related(*section_util.get_answer_fields_to_prefetch()) \
+        .annotate(
+            expert_count=Count("expertvotes"),
+            downvotes_count=Count("downvotes"),
+            upvotes_count=Count("upvotes"),
+            delta_votes=F("downvotes_count")-F("upvotes_count")) \
+        .order_by("-expert_count", "delta_votes", "time")
+
+    if page >= 0:
+        PAGE_SIZE = 20
+        sorted_answers = sorted_answers[page*PAGE_SIZE: (page+1)*PAGE_SIZE]
+
     res = [
-        section_util.get_answer_response(request, answer, ignore_exam_admin=True)
-        for answer in sorted(
-            Answer.objects.filter(author__username=username, is_legacy_answer=False)
-            .select_related(*section_util.get_answer_fields_to_preselect())
-            .prefetch_related(*section_util.get_answer_fields_to_prefetch()),
-            key=lambda x: (
-                -x.expertvotes.count(),
-                x.downvotes.count() - x.upvotes.count(),
-                x.time,
-            ),
-        )
+        section_util.get_answer_response(
+            request, answer, ignore_exam_admin=True)
+        for answer in sorted_answers
     ]
     return response.success(value=res)

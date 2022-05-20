@@ -139,9 +139,21 @@ class DocumentRootView(View):
             liked=user_liked(request),
         ).prefetch_related("category", "author")
 
-        category = request.GET.get("category", "author")
-        if category is not None:
+        liked_by = request.GET.get("liked_by")
+        username = request.GET.get("username")
+        category = request.GET.get("category")
+        if liked_by is not None:
+            if liked_by == request.user.username:
+                # to ensure one can only view their own liked documents
+                objects = objects.filter(likes__username=request.user.username)
+            else:
+                return response.not_allowed()
+        elif username is not None:
+            objects = objects.filter(author__username=username)
+        elif category is not None:
             objects = objects.filter(category__slug=category)
+        else:  # if nothing is given, we return an empty result instead of giving back everything
+            return response.success(value=[])
 
         include_comments = "include_comments" in request.GET
         if include_comments:
@@ -152,7 +164,8 @@ class DocumentRootView(View):
             objects = objects.prefetch_related("files")
 
         res = [
-            get_document_obj(document, request, include_comments, include_files)
+            get_document_obj(document, request,
+                             include_comments, include_files)
             for document in objects.all()
         ]
         return response.success(value=res)
@@ -185,7 +198,6 @@ class DocumentElementView(View):
             like_count=like_count,
             liked=user_liked(request),
         )
-
         include_comments = "include_comments" in request.GET
         if include_comments:
             objects = objects.prefetch_related("comments", "comments__author")
@@ -194,14 +206,17 @@ class DocumentElementView(View):
         if include_files:
             objects = objects.prefetch_related("files")
 
-        document = get_object_or_404(objects, author__username=username, slug=slug)
+        document = get_object_or_404(
+            objects, author__username=username, slug=slug)
         return response.success(
-            value=get_document_obj(document, request, include_comments, include_files)
+            value=get_document_obj(
+                document, request, include_comments, include_files)
         )
 
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, slug: str):
-        document = get_object_or_404(Document, author__username=username, slug=slug)
+        document = get_object_or_404(
+            Document, author__username=username, slug=slug)
         if "liked" in request.DATA:
             if request.DATA["liked"] == "true":
                 document.likes.add(request.user)
@@ -223,7 +238,8 @@ class DocumentElementView(View):
         if "category" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
-            category = get_object_or_404(Category, slug=request.DATA["category"])
+            category = get_object_or_404(
+                Category, slug=request.DATA["category"])
             document.category = category
         document.save()
         return response.success(value=get_document_obj(document, request))
@@ -231,11 +247,13 @@ class DocumentElementView(View):
     @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, slug: str):
         objects = Document.objects.prefetch_related("author")
-        document = get_object_or_404(objects, author__username=username, slug=slug)
+        document = get_object_or_404(
+            objects, author__username=username, slug=slug)
         if not document.current_user_can_delete(request):
             return response.not_allowed()
 
-        filenames = [document_file.filename for document_file in document.files.all()]
+        filenames = [
+            document_file.filename for document_file in document.files.all()]
         success = s3_util.delete_files(settings.COMSOL_DOCUMENT_DIR, filenames)
         document.delete()
         return response.success(value=success)
@@ -339,7 +357,8 @@ class DocumentFileRootView(View):
         if err is not None:
             return err
 
-        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
+        filename = s3_util.generate_filename(
+            16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
             display_name=request.POST["display_name"],
             document=document,
@@ -490,8 +509,10 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
         changed = True
 
     if not document_file.filename.endswith(ext):
-        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR, document_file.filename)
-        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
+        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR,
+                            document_file.filename)
+        filename = s3_util.generate_filename(
+            16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file.filename = filename
         changed = True
 

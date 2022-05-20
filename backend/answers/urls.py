@@ -19,6 +19,8 @@ urlpatterns = [
     path('listflagged/', views_listings.list_flagged, name='listflagged'),
     path('listbyuser/<str:username>/',
          views_listings.get_by_user, name='listbyuser'),
+    path('listbyuser/<str:username>/<int:page>/',
+         views_listings.get_by_user, name='listbyuser'),
     path('cuts/<str:filename>/', views_cuts.get_cuts, name='cuts'),
     path('addcut/<str:filename>/', views_cuts.add_cut, name='addcut'),
     path('editcut/<int:oid>/', views_cuts.edit_cut, name='editcut'),
