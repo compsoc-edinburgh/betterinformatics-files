@@ -41,10 +41,10 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
   return (
     <>
       {error && <Alert color="danger">{error.toString()}</Alert>}
+      <h3>Paid Oral Exams</h3>
       {loading && <Spinner />}
       {payments && (payments.length > 0 || isAdmin) && (
         <>
-          <h2>Paid Oral Exams</h2>
           {payments
             .filter((payment) => payment.active)
             .map((payment) => (

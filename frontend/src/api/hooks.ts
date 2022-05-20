@@ -154,16 +154,17 @@ export const useMarkAllAsRead = () => {
   });
   return [error, loading, run] as const;
 };
-const loadUserAnswers = async (username: string) => {
-  return (await fetchGet(`/api/exam/listbyuser/${username}/`))
+const loadUserAnswers = async (username: string, page: number = -1) => {
+  const pageStr = page === -1 ? "" : `${page}/`
+  return (await fetchGet(`/api/exam/listbyuser/${username}/${pageStr}`))
     .value as Answer[];
 };
-export const useUserAnswers = (username: string) => {
+export const useUserAnswers = (username: string, page: number = -1) => {
   const { error, loading, data, run } = useRequest(
-    () => loadUserAnswers(username),
+    () => loadUserAnswers(username, page),
     {
-      refreshDeps: [username],
-      cacheKey: `user-answers-${username}`,
+      refreshDeps: [username, page],
+      cacheKey: `page-${page}-user-answers-${username}`,
     },
   );
   return [error, loading, data, run] as const;
@@ -387,6 +388,36 @@ export const useDocuments = (categorySlug: string) => {
   const { error, loading, data } = useRequest(
     () => loadDocuments(categorySlug),
     { cacheKey: `documents-${categorySlug}` },
+  );
+  return [error, loading, data] as const;
+};
+
+export const loadDocumentsUsername = async (username: string) => {
+  return (await fetchGet(`/api/document/?username=${encodeURIComponent(username)}`))
+    .value as Document[];
+};
+export const useDocumentsUsername = (username: string) => {
+  const { error, loading, data } = useRequest(
+    () => loadDocumentsUsername(username), {
+    refreshDeps: [username],
+    cacheKey: `documents-${username}`,
+  },
+  );
+  return [error, loading, data] as const;
+};
+
+export const loadDocumentsLikedBy = async (likedBy: string, isMyself: boolean) => {
+  if (isMyself) {
+    return (await fetchGet(`/api/document/?liked_by=${encodeURIComponent(likedBy)}`))
+      .value as Document[];
+  } else {
+    return undefined;
+  }
+};
+export const useDocumentsLikedBy = (likedBy: string, isMyself: boolean) => {
+  const { error, loading, data } = useRequest(
+    () => loadDocumentsLikedBy(likedBy, isMyself),
+    { cacheKey: `documents-${likedBy}` },
   );
   return [error, loading, data] as const;
 };
