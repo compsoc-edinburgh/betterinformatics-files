@@ -21,7 +21,6 @@ services:
       /bin/sh -c "
       /usr/bin/mc config host add myminio http://localhost:9000 minio minio123;
       /usr/bin/mc mb myminio/community-solutions;
-      exit 0;
       "
     network_mode: host
   postgres:
