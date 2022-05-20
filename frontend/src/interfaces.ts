@@ -227,6 +227,7 @@ export interface UserInfo {
   score_comments: number;
   score_cuts: number;
   score_legacy: number;
+  score_documents: number;
 }
 
 export interface PaymentInfo {

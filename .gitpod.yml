@@ -1,0 +1,23 @@
+tasks:
+  - name: Environment Setup (Dependency Installation, Backend Compile)
+    init: |
+      curl -L https://git.io/n-install | bash
+      npm install --global yarn
+    command: gp sync-done setup
+
+  - name: Start Backend
+    init: | 
+      gp sync-await setup
+      docker-compose build
+    command: docker-compose up
+
+  - name: Start frontend
+    init: >
+      gp sync-await setup &&
+      cd frontend &&
+      yarn
+    command: yarn start
+
+ports:
+  - port: 3000-8999
+    onOpen: ignore

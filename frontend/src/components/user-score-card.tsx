@@ -94,6 +94,17 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
               </CardFooter>
             </Card>
           </Col>
+          <Col md={6} lg={4}>
+            <Card className="m-1">
+              <LoadingOverlay loading={!userInfo} />
+              <h3 className="p-4 m-0">
+                {userInfo ? userInfo.score_documents : "-"}
+              </h3>
+              <CardFooter tag="h6" className="m-0">
+                Documents
+              </CardFooter>
+            </Card>
+          </Col>
           {userInfo && userInfo.score_cuts > 0 && (
             <Col md={6} lg={4}>
               <Card className="m-1">
