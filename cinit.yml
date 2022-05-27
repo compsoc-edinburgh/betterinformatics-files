@@ -56,7 +56,7 @@ programs:
     args:
       - "backend.wsgi"
       - "-b"
-      - "0.0.0.0:8081"
+      - "0.0.0.0:80"
       - "-w"
       - "4"
       - "--worker-tmp-dir"
