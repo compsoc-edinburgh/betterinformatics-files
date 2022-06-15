@@ -4,7 +4,7 @@ import useTitle from "../hooks/useTitle";
 import { ReactComponent as Bjoern } from "../assets/bjoern.svg";
 
 const NotFoundPage: React.FC<{}> = () => {
-  useTitle("404 - VIS Community Solutions");
+  useTitle("404");
   return (
     <Container className="my-3">
       <Row>

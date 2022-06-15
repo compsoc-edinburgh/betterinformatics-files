@@ -1,18 +1,19 @@
-import { Modal } from "@vseth/components";
 import React from "react";
 import { Route, RouteProps } from "react-router-dom";
 import { useUser } from ".";
-import LoginCard from "../components/login-card";
 import LoadingOverlay from "../components/loading-overlay";
+import LoginOverlay from "../pages/login-page";
 
-const UserRouteContent = <T extends RouteProps>({ props }: { props: T }) => {
+const UserRouteContent = <T extends RouteProps>({
+  props,
+  loginProps,
+}: {
+  props: T;
+  loginProps: Parameters<typeof LoginOverlay>[0];
+}) => {
   const user = useUser();
   if (user !== undefined && !user.loggedin) {
-    return (
-      <Modal isOpen={true}>
-        <LoginCard />
-      </Modal>
-    );
+    return <LoginOverlay {...loginProps} />;
   } else {
     return (
       <>
@@ -27,7 +28,12 @@ const UserRoute = <T extends RouteProps>(props: T) => {
     <Route
       exact={props.exact}
       path={props.path}
-      render={() => <UserRouteContent props={props} />}
+      render={() => (
+        <UserRouteContent
+          props={props}
+          loginProps={{ isHome: props.path === "/" }}
+        />
+      )}
     />
   );
 };

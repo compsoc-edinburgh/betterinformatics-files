@@ -13,6 +13,8 @@ import { useLocation, NavLink } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import { useRequest } from "@umijs/hooks";
+import { Link } from "react-router-dom";
+
 const loadUnreadCount = async () => {
   return (await fetchGet("/api/notification/unreadcount/")).value as number;
 };
@@ -26,17 +28,24 @@ const ExamsNavbar: React.FC<{}> = () => {
   const adminItems: Item[] = [
     {
       title: "Upload Exam",
-      href: "/uploadpdf",
+      linkProps: {
+        href: "/uploadpdf",
+        // This is a temporary fix that makes dropdown items look normal
+        ...{ className: "dropdown-item" },
+      },
     },
     {
       title: "Mod Queue",
-      href: "/modqueue",
+      linkProps: {
+        href: "/modqueue",
+        ...{ className: "dropdown-item" },
+      },
     },
   ];
 
-  const navlink: React.FC<NavLinkProps> = ({ href, children }) => {
+  const navlink: React.FC<NavLinkProps> = ({ href, children, className }) => {
     return (
-      <NavLink to={href || ""} className="nav-link">
+      <NavLink to={href || ""} className={className ?? "nav-link"}>
         {children}
       </NavLink>
     );
@@ -46,7 +55,11 @@ const ExamsNavbar: React.FC<{}> = () => {
     <Navbar
       NavLink={navlink}
       lang={"en"}
-      secondaryLogo={<NavbarBrand href="/">Community Solutions</NavbarBrand>}
+      secondaryLogo={
+        <NavbarBrand to="/" tag={Link}>
+          Community Solutions
+        </NavbarBrand>
+      }
       primaryActionItems={[]}
       secondaryNavItems={[
         {
@@ -68,16 +81,25 @@ const ExamsNavbar: React.FC<{}> = () => {
             {
               title: "FAQ",
               active: location.pathname === "/faq",
-              href: "/faq",
+              linkProps: {
+                href: "/faq",
+                ...{ className: "dropdown-item" },
+              },
             },
             {
               title: "Feedback",
               active: location.pathname === "/feedback",
-              href: "/feedback",
+              linkProps: {
+                href: "/feedback",
+                ...{ className: "dropdown-item" },
+              },
             },
             {
               title: "Submit Transcript",
-              href: "/submittranscript",
+              linkProps: {
+                href: "/submittranscript",
+                ...{ className: "dropdown-item" },
+              },
             },
             ...(typeof user === "object" && user.isCategoryAdmin
               ? adminItems
@@ -91,7 +113,7 @@ const ExamsNavbar: React.FC<{}> = () => {
           href: "/search",
         },
         {
-          title: ((
+          title: (
             <span>
               Account
               {unreadCount !== undefined && unreadCount > 0 && (
@@ -101,7 +123,7 @@ const ExamsNavbar: React.FC<{}> = () => {
                 </>
               )}
             </span>
-          ) as unknown) as string,
+          ),
           icon: UserIcon,
           active: location.pathname === `/user/${username}`,
           href: `/user/${username}`,

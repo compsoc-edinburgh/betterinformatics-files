@@ -6,12 +6,12 @@ class TestComment(ComsolTestExamData):
 
     def test_add_comment(self):
         answer = self.answers[0]
-        self.assertEqual(answer.comment_set.count(), 3)
+        self.assertEqual(answer.comments.count(), 3)
         self.post('/api/exam/addcomment/{}/'.format(answer.id), {
             'text': 'New Test Comment'
         })
         answer.refresh_from_db()
-        self.assertEqual(answer.comment_set.count(), 4)
+        self.assertEqual(answer.comments.count(), 4)
 
     def test_set_comment(self):
         comment = self.comments[0]

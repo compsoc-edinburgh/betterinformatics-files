@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import { css } from "@emotion/css";
 import {
   Button,
   ButtonDropdown,
@@ -6,39 +6,51 @@ import {
   Card,
   CardFooter,
   CardHeader,
+  CardProps,
+  Col,
   Container,
+  DotsHIcon,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Icon,
-  ICONS,
+  EditIcon,
   Input,
   InputGroup,
   InputGroupButtonDropdown,
+  Row,
+  SaveIcon,
   Spinner,
   UncontrolledDropdown,
-  Col,
-  Row,
+  ViewIcon,
+  ViewOffIcon,
 } from "@vseth/components";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
+import HideAnswerSectionModal from "../components/hide-answer-section-overlay";
 import useLoad from "../hooks/useLoad";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-columns";
 
-const NameCard = styled(Card)`
+const nameCardStyle = css`
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 `;
 
-const AnswerSectionButtonWrapper = styled(Card)`
+const NameCard = (props: CardProps) => (
+  <Card className={nameCardStyle} {...props} />
+);
+
+const answerSectionButtonWrapperStyle = css`
   margin-top: 1em;
   margin-bottom: 1em;
 `;
+const AnswerSectionButtonWrapper = (props: CardProps) => (
+  <Card className={answerSectionButtonWrapperStyle} {...props} />
+);
 
 interface AddButtonProps {
   allowAnswer: boolean;
@@ -57,7 +69,7 @@ const AddButton: React.FC<AddButtonProps> = ({
   onLegacyAnswer,
 }) => {
   const [isOpen, setOpen] = useState(false);
-  const toggle = useCallback(() => setOpen(old => !old), []);
+  const toggle = useCallback(() => setOpen((old) => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
     return (
       <ButtonDropdown isOpen={isOpen} toggle={toggle} className="text-left">
@@ -106,6 +118,8 @@ interface Props {
   hidden: boolean;
   cutVersion: number;
   setCutVersion: (newVersion: number) => void;
+  onHasAnswersChange: () => Promise<void>;
+  has_answers: boolean;
 
   cutName: string;
   onCutNameChange: (newName: string) => void;
@@ -115,6 +129,7 @@ interface Props {
   isBeingMoved: boolean;
 
   displayEmptyCutLabels: boolean;
+  displayHideShowButtons: boolean;
 }
 
 const AnswerSectionComponent: React.FC<Props> = React.memo(
@@ -134,9 +149,13 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     isBeingMoved,
 
     displayEmptyCutLabels,
+    displayHideShowButtons,
+
+    onHasAnswersChange,
+    has_answers,
   }) => {
     const [data, setData] = useState<AnswerSection | undefined>();
-    const run = useAnswers(oid, data => {
+    const run = useAnswers(oid, (data) => {
       setData(data);
       setCutVersion(data.cutVersion);
     });
@@ -154,13 +173,21 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const [inViewport, ref] = useLoad<HTMLDivElement>();
     const visible = inViewport || false;
     useEffect(() => {
+      if (data?.has_answers !== has_answers && !has_answers && data) {
+        setData({
+          ...data,
+          answers: [],
+          allow_new_answer: true,
+          allow_new_legacy_answer: true,
+        });
+      }
       if (
         (data === undefined || data.cutVersion !== cutVersion) &&
         (visible || !hidden)
       ) {
         run();
       }
-    }, [data, visible, run, cutVersion, hidden]);
+    }, [data, visible, run, cutVersion, hidden, has_answers]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = useCallback(() => {
@@ -174,6 +201,21 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
+    const [deleteAnswersWarning, setDeleteAnswersWarning] = useState(false);
+    const hideAnswerSection = async () => {
+      await onHasAnswersChange();
+      setDeleteAnswersWarning(false);
+    };
+    const hideAnswerSectionWithWarning = () => {
+      if (data) {
+        if (data.answers.length === 0 || !has_answers) {
+          hideAnswerSection();
+        } else {
+          setDeleteAnswersWarning(true);
+        }
+      }
+    };
+
     const [draftName, setDraftName] = useInitialState(cutName);
     const [isEditingName, setIsEditingName] = useState(
       data && cutName.length === 0 && isCatAdmin,
@@ -186,55 +228,59 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     return (
       <>
-        {data &&
-          ((cutName && cutName.length > 0) ||
-            (isCatAdmin && displayEmptyCutLabels)) && (
-            <NameCard id={id}>
-              <CardFooter>
-                {isEditingName ? (
-                  <InputGroup size="sm">
-                    <Input
-                      type="text"
-                      value={draftName}
-                      placeholder="Name"
-                      onChange={e => setDraftName(e.target.value)}
+        <HideAnswerSectionModal
+          isOpen={deleteAnswersWarning}
+          toggle={() => setDeleteAnswersWarning(false)}
+          setHidden={hideAnswerSection}
+        />
+        {((cutName && cutName.length > 0) ||
+          (isCatAdmin && displayEmptyCutLabels)) && (
+          <NameCard id={id}>
+            <CardFooter>
+              {isEditingName ? (
+                <InputGroup size="sm">
+                  <Input
+                    type="text"
+                    value={draftName}
+                    placeholder="Name"
+                    onChange={(e) => setDraftName(e.target.value)}
+                  />
+                  <InputGroupButtonDropdown addonType="append">
+                    <IconButton
+                      tooltip="Save PDF section name"
+                      icon={SaveIcon}
+                      block
+                      onClick={() => {
+                        setIsEditingName(false);
+                        onCutNameChange(draftName);
+                      }}
                     />
-                    <InputGroupButtonDropdown addonType="append">
+                  </InputGroupButtonDropdown>
+                </InputGroup>
+              ) : (
+                <Row>
+                  <Col className="d-flex flex-center flex-column">
+                    <h6 className="m-0">{cutName}</h6>
+                  </Col>
+                  <Col xs="auto">
+                    {isCatAdmin && (
                       <IconButton
-                        tooltip="Save PDF section name"
-                        icon="SAVE"
-                        block
-                        onClick={() => {
-                          setIsEditingName(false);
-                          onCutNameChange(draftName);
-                        }}
+                        tooltip="Edit PDF section name"
+                        size="sm"
+                        icon={EditIcon}
+                        onClick={() => setIsEditingName(true)}
                       />
-                    </InputGroupButtonDropdown>
-                  </InputGroup>
-                ) : (
-                  <Row>
-                    <Col className="d-flex flex-center flex-column">
-                      <h6 className="m-0">{cutName}</h6>
-                    </Col>
-                    <Col xs="auto">
-                      {isCatAdmin && (
-                        <IconButton
-                          tooltip="Edit PDF section name"
-                          size="sm"
-                          icon="EDIT"
-                          onClick={() => setIsEditingName(true)}
-                        />
-                      )}
-                    </Col>
-                  </Row>
-                )}
-              </CardFooter>
-            </NameCard>
-          )}
+                    )}
+                  </Col>
+                </Row>
+              )}
+            </CardFooter>
+          </NameCard>
+        )}
         <Container fluid>
           {!hidden && data && (
             <>
-              {data.answers.map(answer => (
+              {data.answers.map((answer) => (
                 <AnswerComponent
                   key={answer.oid}
                   section={data}
@@ -262,7 +308,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </>
           )}
           <AnswerSectionButtonWrapper
-            color={isBeingMoved ? "primary" : undefined}
+            color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <CardHeader>
               <div className="d-flex" ref={ref}>
@@ -272,27 +318,40 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   <>
                     <ThreeButtons
                       left={
-                        isBeingMoved ? (
-                          <Button size="sm" onClick={onCancelMove}>
-                            Cancel
-                          </Button>
-                        ) : (
-                          (data.answers.length === 0 || !hidden) &&
-                          data &&
-                          (data.allow_new_answer ||
-                            (data.allow_new_legacy_answer && isCatAdmin)) && (
-                            <AddButton
-                              allowAnswer={data.allow_new_answer}
-                              allowLegacyAnswer={
-                                data.allow_new_legacy_answer && isCatAdmin
-                              }
-                              hasAnswerDraft={hasDraft}
-                              hasLegacyAnswerDraft={hasLegacyDraft}
-                              onAnswer={onAddAnswer}
-                              onLegacyAnswer={onAddLegacyAnswer}
+                        <>
+                          {displayHideShowButtons ? (
+                            <IconButton
+                              className="mr-1"
+                              size="sm"
+                              icon={has_answers ? ViewOffIcon : ViewIcon}
+                              tooltip="Toggle visibility"
+                              onClick={hideAnswerSectionWithWarning}
                             />
-                          )
-                        )
+                          ) : null}
+
+                          {isBeingMoved ? (
+                            <Button size="sm" onClick={onCancelMove}>
+                              Cancel
+                            </Button>
+                          ) : (
+                            (data.answers.length === 0 || !hidden) &&
+                            has_answers &&
+                            data &&
+                            (data.allow_new_answer ||
+                              (data.allow_new_legacy_answer && isCatAdmin)) && (
+                              <AddButton
+                                allowAnswer={data.allow_new_answer}
+                                allowLegacyAnswer={
+                                  data.allow_new_legacy_answer && isCatAdmin
+                                }
+                                hasAnswerDraft={hasDraft}
+                                hasLegacyAnswerDraft={hasLegacyDraft}
+                                onAnswer={onAddAnswer}
+                                onLegacyAnswer={onAddLegacyAnswer}
+                              />
+                            )
+                          )}
+                        </>
                       }
                       center={
                         !isBeingMoved &&
@@ -311,7 +370,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         isCatAdmin && (
                           <UncontrolledDropdown>
                             <DropdownToggle caret size="sm">
-                              <Icon icon={ICONS.DOTS_H} size={18} />
+                              <DotsHIcon size={18} />
                             </DropdownToggle>
                             <DropdownMenu>
                               <DropdownItem onClick={runRemoveSplit}>

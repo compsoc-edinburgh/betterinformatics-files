@@ -1,15 +1,15 @@
-import pdfjs, {
-  PDFDocumentProxy,
-  PDFPageProxy,
-  PDFPromise,
-  TextContent,
-} from "./pdfjs";
+import pdfjs from "./pdfjs";
 import { globalFactory } from "./canvas-factory";
 import {
   PdfCanvasReference,
   PdfCanvasReferenceManager,
 } from "./reference-counting";
 import { CanvasObject } from "./utils";
+import {
+  PDFDocumentProxy,
+  PDFPageProxy,
+  TextContent,
+} from "pdfjs-dist/types/src/display/api";
 
 interface MainCanvasPageLoadedData {
   width: number;
@@ -37,15 +37,15 @@ interface MainCanvas {
  */
 export default class PDF {
   document: PDFDocumentProxy;
-  private pageMap: Map<number, PDFPromise<PDFPageProxy>> = new Map();
+  private pageMap: Map<number, Promise<PDFPageProxy>> = new Map();
   // SVGs aren't mentioned in pdf-js types :(
   // tslint:disable-next-line: no-any
-  private operatorListMap: Map<number, PDFPromise<any[]>> = new Map();
+  private operatorListMap: Map<number, Promise<any[]>> = new Map();
   // tslint:disable-next-line: no-any
   private gfxMap: Map<number, any> = new Map();
   private svgMap: Map<number, SVGElement> = new Map();
   private embedFontsSvgMap: Map<number, SVGElement> = new Map();
-  private textMap: Map<number, PDFPromise<TextContent>> = new Map();
+  private textMap: Map<number, Promise<TextContent>> = new Map();
   /**
    * Each `Set` once set shouldn't change anymore as it saves us from having to lookup
    * again. You therefore need to clear each set if you want to remove all references.

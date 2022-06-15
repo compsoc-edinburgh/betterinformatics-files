@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useRef, useCallback, useEffect } from "react";
-import { css, cx } from "emotion";
+import { css, cx } from "@emotion/css";
 import { Range } from "./utils/types";
 
 const wrapperStyle = css`
@@ -75,7 +75,7 @@ const BasicEditor: React.FC<Props> = ({
   };
 
   const onTextareaChange = useCallback(
-    e => {
+    (e) => {
       const newContent = e.currentTarget.value;
       onChange(newContent);
     },

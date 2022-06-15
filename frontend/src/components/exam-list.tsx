@@ -1,9 +1,17 @@
 import { useRequest } from "@umijs/hooks";
-import { Alert, FormGroup, Spinner, Col, Row } from "@vseth/components";
+import {
+  Alert,
+  Col,
+  DownloadIcon,
+  FormGroup,
+  Row,
+  Spinner,
+} from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
-import { CategoryMetaData } from "../interfaces";
+import useSet from "../hooks/useSet";
+import { CategoryMetaData, ExamSelectedForDownload } from "../interfaces";
 import {
   dlSelectedExams,
   filterMatches,
@@ -11,24 +19,28 @@ import {
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
 import IconButton from "./icon-button";
-import useSet from "../hooks/useSet";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
 }
 const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
-  const { data, loading, error, run: reload } = useRequest(
-    () => loadList(metaData.slug),
-    { cacheKey: `exam-list-${metaData.slug}` },
-  );
+  const {
+    data,
+    loading,
+    error,
+    run: reload,
+  } = useRequest(() => loadList(metaData.slug), {
+    refreshDeps: [metaData.slug],
+    cacheKey: `exam-list-${metaData.slug}`,
+  });
   const [filter, setFilter] = useState("");
   const { isCategoryAdmin } = useUser()!;
   const viewableExams = useMemo(
     () =>
       data &&
       data
-        .filter(exam => exam.public || isCategoryAdmin)
-        .filter(exam => filterMatches(filter, exam.displayname)),
+        .filter((exam) => exam.public || isCategoryAdmin)
+        .filter((exam) => filterMatches(filter, exam.displayname)),
     [data, isCategoryAdmin, filter],
   );
   const examTypeMap = useMemo(
@@ -36,6 +48,20 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     [viewableExams],
   );
   const [selected, onSelect, onDeselect] = useSet<string>();
+
+  const getSelectedExams = (selected: Set<string>) => {
+    const selectedExams: ExamSelectedForDownload[] = [];
+    if (data === undefined) return selectedExams;
+
+    for (const exam of data) {
+      if (selected.has(exam.filename))
+        selectedExams.push({
+          filename: exam.filename,
+          displayname: exam.displayname,
+        });
+    }
+    return selectedExams;
+  };
 
   return (
     <>
@@ -46,9 +72,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <FormGroup className="mb-2 d-md-inline-block">
             <IconButton
               disabled={selected.size === 0}
-              onClick={() => dlSelectedExams(selected)}
+              onClick={() => dlSelectedExams(getSelectedExams(selected))}
               block
-              icon="DOWNLOAD"
+              icon={DownloadIcon}
             >
               Download selected exams
             </IconButton>
@@ -62,7 +88,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
                 className="search-input"
                 placeholder="Filter..."
                 value={filter}
-                onChange={e => setFilter(e.currentTarget.value)}
+                onChange={(e) => setFilter(e.currentTarget.value)}
                 autoFocus
               />
               <div className="search-icon-wrapper">

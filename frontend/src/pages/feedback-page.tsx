@@ -17,6 +17,7 @@ import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
 import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
+import serverData from "../utils/server-data";
 
 enum AdminMode {
   Read,
@@ -45,13 +46,13 @@ const FeedbackForm: React.FC<{}> = () => {
 
   return (
     <>
-      {success && <Alert>Feedback was submited successfully.</Alert>}
-      <p>Please tell us what you think about the new Community Solutions!</p>
+      {success && <Alert>Feedback was submitted successfully.</Alert>}
+      <p>Please tell us what you think about Community Solutions!</p>
       <p>What do you like? What could we improve? Ideas for new features?</p>
       <p>
         Use the form below or write to{" "}
-        <a href="mailto:communitysolutions@vis.ethz.ch">
-          communitysolutions@vis.ethz.ch
+        <a href={`mailto:${serverData.email_address}`}>
+          {serverData.email_address}
         </a>
         .
       </p>
@@ -140,7 +141,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
   );
 };
 const FeedbackPage: React.FC<{}> = () => {
-  useTitle("Feedback - VIS Community Solutions");
+  useTitle("Feedback");
   const { isAdmin } = useUser() as User;
   return isAdmin ? (
     <FeedbackAdminView />

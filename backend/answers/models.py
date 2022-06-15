@@ -4,7 +4,7 @@ from myauth import auth_check
 from django.db.models import Exists, OuterRef
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
-
+from util.models import CommentMixin
 from django_prometheus.models import ExportModelOperationsMixin
 
 import random
@@ -53,6 +53,11 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
             return False
         if self.needs_payment and not request.user.has_payed():
             return False
+        if (
+            self.oral_transcript_uploader is not None
+            and self.oral_transcript_uploader.pk == request.user.pk
+        ):
+            return True
         return True
 
     def attachment_name(self):
@@ -117,6 +122,7 @@ class AnswerSection(models.Model):
     cut_version = models.IntegerField(default=1)
     name = models.CharField(max_length=256, default="")
     hidden = models.BooleanField(default=False)
+    has_answers = models.BooleanField(default=True)
 
 
 def generate_long_id():
@@ -153,17 +159,7 @@ class Answer(ExportModelOperationsMixin('answer'), models.Model):
     class Meta:
         indexes = [GinIndex(fields=["search_vector"])]
 
-
-class Comment(ExportModelOperationsMixin('comment'), models.Model):
-    answer = models.ForeignKey('Answer', on_delete=models.CASCADE)
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    text = models.TextField()
-    time = models.DateTimeField(default=timezone.now)
-    edittime = models.DateTimeField(default=timezone.now)
+class Comment(ExportModelOperationsMixin('comment'), CommentMixin):
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name="comments")
     long_id = models.CharField(
         max_length=256, default=generate_long_id, unique=True)
-
-    search_vector = SearchVectorField()
-
-    class Meta:
-        indexes = [GinIndex(fields=["search_vector"])]

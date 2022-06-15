@@ -1,15 +1,15 @@
 import { CardProps, Card, CardHeader } from "@vseth/components";
-import styled from "@emotion/styled";
+import { css } from "@emotion/css";
 import React from "react";
-const Wrapper = styled(Card)`
+const wrapperStyle = css`
   margin-top: 1em;
   margin-bottom: 1em;
 `;
 const ButtonWrapperCard: React.FC<CardProps> = ({ children, ...props }) => {
   return (
-    <Wrapper {...props}>
+    <Card className={wrapperStyle} {...props}>
       <CardHeader>{children}</CardHeader>
-    </Wrapper>
+    </Card>
   );
 };
 

@@ -9,27 +9,38 @@ import json
 
 @ensure_csrf_cookie
 def index(request):
-    context = { 'GLOB_ID': settings.COMSOL_FRONTEND_GLOB_ID }
-    return render(request, 'index.html', context)
+    context = {
+        "GLOB_ID": settings.COMSOL_FRONTEND_GLOB_ID,
+        "KEYCLOAK_URL": settings.COMSOL_FRONTEND_KEYCLOAK_URL,
+        "KEYCLOAK_REALM": settings.COMSOL_FRONTEND_KEYCLOAK_REALM,
+        "KEYCLOAK_CLIENT_ID": settings.COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID,
+        "FAVICON_URL": settings.FAVICON_URL,
+        "SERVER_DATA": json.dumps(settings.FRONTEND_SERVER_DATA)
+    }
+    return render(request, "index.html", context)
 
 
 def favicon(request):
-    return response.send_file('favicon.ico')
+    return response.send_file("favicon.ico")
 
 
 def manifest(request):
-    return response.send_file('manifest.json')
+    return response.send_file("manifest.json")
 
 
 def resolve(request, filename):
     exams = Exam.objects.filter(resolve_alias=filename)
     if not exams.exists():
         return Http404()
-    return redirect('/exams/' + exams.first().filename + '/')
+    return redirect("/exams/" + exams.first().filename + "/")
 
 
 def legacy_wiki_transform(request, examname):
-    return HttpResponse(legacy_importer.transform_wiki(examname), content_type='text/plain', charset='utf-8')
+    return HttpResponse(
+        legacy_importer.transform_wiki(examname),
+        content_type="text/plain",
+        charset="utf-8",
+    )
 
 
 @ensure_csrf_cookie

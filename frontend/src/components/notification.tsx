@@ -14,9 +14,9 @@ interface Props {
 const NotificationComponent: React.FC<Props> = ({ notification }) => {
   const [error, , markAllAsRead] = useMarkAllAsRead();
   useEffect(() => {
-    markAllAsRead(notification.oid);
+    if (!notification.read) markAllAsRead(notification.oid);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notification.oid]);
+  }, [notification.oid, notification.read]);
 
   return (
     <div>

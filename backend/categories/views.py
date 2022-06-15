@@ -10,13 +10,11 @@ from django.shortcuts import get_object_or_404
 
 
 @response.request_get()
-@auth_check.require_login
 def list_categories(request):
     return response.success(value=list(Category.objects.order_by('displayname').values_list('displayname', flat=True)))
 
 
 @response.request_get()
-@auth_check.require_login
 def list_categories_with_meta(request):
     categories = Category.objects.select_related('meta').order_by('displayname').all()
     res = [
@@ -71,7 +69,7 @@ def add_category(request):
     return response.success(slug=slug)
 
 
-def create_category_slug(category):
+def create_category_slug(category, ignored_pk=None):
     """
     Create a valid and unique slug for the category name
     :param category: category name
@@ -79,7 +77,10 @@ def create_category_slug(category):
     oslug = ''.join(filter(lambda x: x in settings.COMSOL_CATEGORY_SLUG_CHARS, category))
 
     def exists(aslug):
-        return Category.objects.filter(slug=aslug).exists()
+        categories = Category.objects.filter(slug=aslug)
+        if ignored_pk is not None:
+            categories = categories.exclude(pk=ignored_pk)
+        return categories.exists()
 
     slug = oslug
     cnt = 0
@@ -131,11 +132,7 @@ def list_exams(request, slug):
         del ex['sort-key']
     return response.success(value=res)
 
-
-@response.request_get()
-@auth_check.require_login
-def get_metadata(request, slug):
-    cat = get_object_or_404(Category, slug=slug)
+def get_category_data(request, cat):
     res = {
         'displayname': cat.displayname,
         'slug': cat.slug,
@@ -162,20 +159,31 @@ def get_metadata(request, slug):
     if auth_check.has_admin_rights_for_category(request, cat):
         res['admins'] = list(cat.admins.all().values_list('username', flat=True))
         res['experts'] = list(cat.experts.all().values_list('username', flat=True))
+    return res
+
+@response.request_get()
+@auth_check.require_login
+def get_metadata(request, slug):
+    cat = get_object_or_404(Category, slug=slug)
+    res = get_category_data(request, cat)
     return response.success(value=res)
 
 
-@response.request_post('semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link', optional=True)
+@response.request_post('displayname', 'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link', optional=True)
 @auth_check.require_admin
 def set_metadata(request, slug):
     cat = get_object_or_404(Category, slug=slug)
+    if 'displayname' in request.POST:
+        cat.displayname = request.POST['displayname']
+        cat.slug = create_category_slug(cat.displayname, cat.pk)
     for key in ['semester', 'form', 'permission', 'remark', 'more_exams_link']:
         if key in request.POST:
             setattr(cat, key, request.POST[key])
     if 'has_payments' in request.POST:
         cat.has_payments = request.POST['has_payments'] != 'false'
     cat.save()
-    return response.success()
+    res = get_category_data(request, cat)
+    return response.success(value=res)
 
 
 @response.request_post('key', 'user')
@@ -215,7 +223,6 @@ def remove_user_from_set(request, slug):
 
 
 @response.request_get()
-@auth_check.require_login
 def list_metacategories(request):
     categories = MetaCategory.objects.select_related('parent').prefetch_related('metacategory_set', 'category_set').all()
     tree = {}

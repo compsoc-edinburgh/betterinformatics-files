@@ -10,8 +10,8 @@ import {
   PaginationLink,
   Row,
 } from "@vseth/components";
-import { css } from "emotion";
-import { escapeRegExp } from "lodash";
+import { css } from "@emotion/css";
+import { escapeRegExp } from "lodash-es";
 import React from "react";
 import { Link } from "react-router-dom";
 import MarkdownText from "../components/markdown-text";
@@ -68,7 +68,7 @@ interface Props {
 const SearchResults: React.FC<Props> = React.memo(({ data }) => {
   return (
     <CardColumns className={columnStyle}>
-      {data.map(result => {
+      {data.map((result) => {
         if (result.type === "exam") {
           return (
             <div className="px-2" key={`exam-${result.filename}`}>
@@ -103,7 +103,8 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       <Pagination>
                         <PaginationItem active>
                           <PaginationLink
-                            href={`/exams/${result.filename}/#page-${page}`}
+                            tag={Link}
+                            to={`/exams/${result.filename}/#page-${page}`}
                             className="border stretched-link position-static"
                           >
                             {page}
@@ -145,7 +146,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                         </Link>
                       </BreadcrumbItem>
                       <BreadcrumbItem>
-                        <Link to={`/exam/${result.filename}`}>
+                        <Link to={`/exams/${result.filename}`}>
                           {result.exam_displayname}
                         </Link>
                       </BreadcrumbItem>
@@ -186,7 +187,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                         </Link>
                       </BreadcrumbItem>
                       <BreadcrumbItem>
-                        <Link to={`/exam/${result.filename}`}>
+                        <Link to={`/exams/${result.filename}`}>
                           {result.exam_displayname}
                         </Link>
                       </BreadcrumbItem>

@@ -7,6 +7,7 @@ import {
   EditState,
   CutVersions,
   PdfSection,
+  CutUpdate,
 } from "../interfaces";
 import AnswerSectionComponent from "./answer-section";
 import PdfSectionCanvas from "../pdf/pdf-section-canvas";
@@ -24,18 +25,12 @@ interface Props {
   setEditState: (newEditState: EditState) => void;
   reloadCuts: () => void;
   renderer: PDF;
-  onCutNameChange: (oid: string, name: string) => void;
-  onSectionHiddenChange: (
+  onUpdateCut: (
     section: string | [number, number],
-    newState: boolean,
-  ) => void;
+    update: Partial<CutUpdate>,
+  ) => Promise<void>;
   onAddCut: (filename: string, page: number, height: number) => void;
-  onMoveCut: (
-    filename: string,
-    cut: string,
-    page: number,
-    height: number,
-  ) => void;
+  onMoveCut: (cut: string, update: Partial<CutUpdate>) => void;
   visibleChangeListener: (section: PdfSection, v: boolean) => void;
   displayHiddenPdfSections?: boolean;
   displayHiddenAnswerSections?: boolean;
@@ -72,9 +67,8 @@ const Exam: React.FC<Props> = React.memo(
     setEditState,
     reloadCuts,
     renderer,
-    onCutNameChange,
     onAddCut,
-    onSectionHiddenChange,
+    onUpdateCut,
     onMoveCut,
     visibleChangeListener,
     displayHiddenPdfSections = false,
@@ -88,12 +82,11 @@ const Exam: React.FC<Props> = React.memo(
           if (editState.mode === EditMode.Add) {
             onAddCut(metaData.filename, section.start.page, height);
           } else if (editState.mode === EditMode.Move) {
-            onMoveCut(
-              metaData.filename,
-              editState.cut,
-              section.start.page,
-              height,
-            );
+            onMoveCut(editState.cut, {
+              filename: metaData.filename,
+              pageNum: section.start.page,
+              relHeight: height,
+            });
           }
         };
       },
@@ -123,13 +116,16 @@ const Exam: React.FC<Props> = React.memo(
     useEffect(() => {
       let cancelled = false;
       if (hash.length > 0) {
-        fetchGet(`/api/exam/answer/${hash}`)
+        fetchGet(`/api/exam/answer/${hash}/`)
           .then(res => {
             if (cancelled) return;
             const sectionId = res.value.sectionId;
             show(sectionId);
           })
           .catch(() => {});
+
+        // This line below is bad code, should be properly fixed by making hash-location-handler better
+        window.location.hash = hash;
       }
       return () => {
         cancelled = true;
@@ -164,10 +160,11 @@ const Exam: React.FC<Props> = React.memo(
       <>
         {sections.map(section => {
           if (section.kind === SectionKind.Answer) {
-            if (displayHiddenAnswerSections || !section.cutHidden) {
+            if (displayHiddenAnswerSections || section.has_answers) {
               return (
                 <AnswerSectionComponent
                   displayEmptyCutLabels={displayEmptyCutLabels}
+                  displayHideShowButtons={displayHideShowButtons}
                   key={section.oid}
                   oid={section.oid}
                   onSectionChange={reloadCuts}
@@ -177,10 +174,16 @@ const Exam: React.FC<Props> = React.memo(
                       : show(section.oid)
                   }
                   cutName={section.name}
-                  onCutNameChange={(newName: string) =>
-                    onCutNameChange(section.oid, newName)
+                  onCutNameChange={(name: string) =>
+                    onUpdateCut(section.oid, { name })
+                  }
+                  onHasAnswersChange={() =>
+                    onUpdateCut(section.oid, {
+                      has_answers: !section.has_answers,
+                    })
                   }
                   hidden={!visible.has(section.oid)}
+                  has_answers={section.has_answers}
                   cutVersion={cutVersions[section.oid] || section.cutVersion}
                   setCutVersion={newVersion =>
                     setCutVersions(oldVersions => ({
@@ -221,7 +224,7 @@ const Exam: React.FC<Props> = React.memo(
                       end={section.end.position}
                       hidden={section.hidden}
                       /* Handler */
-                      onSectionHiddenChange={onSectionHiddenChange}
+                      onSectionHiddenChange={onUpdateCut}
                       displayHideShowButtons={displayHideShowButtons}
                       renderer={renderer}
                       targetWidth={width}

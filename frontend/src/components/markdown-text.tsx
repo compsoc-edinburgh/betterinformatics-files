@@ -1,9 +1,14 @@
+import { css } from "@emotion/css";
 import TeX from "@matejmazur/react-katex";
-import { css } from "emotion";
+// Import mchem plugin to register macros for chemical equations in katex.
+// The plugin registers macros when it is imported. We do this after we import "@matejmazur/react-katex"
+// which transitively imports katex such that the global variables which katex uses are set up.
+import "katex/contrib/mhchem/mhchem";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
 import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
+import RemarkGfm from "remark-gfm";
 import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
 
@@ -28,6 +33,16 @@ const wrapperStyle = css`
   & .katex {
     font-size: 1rem;
   }
+  & blockquote {
+    padding: 0.3rem 0 0.3rem 0.5rem;
+    border-left: 4px solid var(--gray);
+    color: var(--gray-dark);
+    fill: var(--gray-dark);
+  }
+  // Undo effect of .overlay class defined in the theme css
+  & .overlay {
+    padding: unset;
+  }
 `;
 
 const transformImageUri = (uri: string) => {
@@ -38,11 +53,14 @@ const transformImageUri = (uri: string) => {
   }
 };
 
-const markdownPlugins = [RemarkMathPlugin];
+const markdownPlugins = [RemarkMathPlugin, RemarkGfm];
 
 const createRenderers = (
   regex: RegExp | undefined,
 ): ReactMarkdownProps["renderers"] => ({
+  table: ({ children }) => {
+    return <table className="table">{children}</table>;
+  },
   text: ({ value }: { value: string }) => {
     if (regex === undefined) return <span>{value}</span>;
     const arr: React.ReactChild[] = [];
@@ -67,8 +85,10 @@ const createRenderers = (
   },
   math: (props: { value: string }) => <TeX math={props.value} block />,
   inlineMath: (props: { value: string }) => <TeX math={props.value} />,
-  code: (props: { value: string; language: string }) => (
-    <CodeBlock language={props.language} value={props.value} />
+  code: (props: { value: string; language: string | null }) => (
+    // In TypeScript I prefer to represent optional properties as `undefined`, whereas
+    // react-markdown uses `null` here if no language is provided for the code block.
+    <CodeBlock language={props.language ?? undefined} value={props.value} />
   ),
 });
 

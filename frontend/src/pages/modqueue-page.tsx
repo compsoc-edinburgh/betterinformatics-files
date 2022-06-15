@@ -37,7 +37,7 @@ const loadFlagged = async () => {
 };
 
 const ModQueue: React.FC = () => {
-  useTitle("Import Queue - VIS Community Solutions");
+  useTitle("Import Queue");
   const [includeHidden, setIncludeHidden] = useState(false);
   const {
     error: examsError,
@@ -63,9 +63,9 @@ const ModQueue: React.FC = () => {
           <h2>Flagged Answers</h2>
           {flaggedAnswers.map(answer => (
             <div>
-              <a href={answer} target="_blank" rel="noopener noreferrer">
+              <Link to={answer} target="_blank" rel="noopener noreferrer">
                 {answer}
-              </a>
+              </Link>
             </div>
           ))}
         </div>

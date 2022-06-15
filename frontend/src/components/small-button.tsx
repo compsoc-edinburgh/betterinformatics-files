@@ -1,8 +1,15 @@
-import styled from "@emotion/styled";
-import TooltipButton from "./TooltipButton";
+import { css } from "@emotion/css";
+import TooltipButton, { TooltipButtonProps } from "./TooltipButton";
 
-const SmallButton = styled(TooltipButton)`
+const small = css`
   min-width: 0;
 `;
+
+const SmallButton = ({ className, ...props }: TooltipButtonProps) => (
+  <TooltipButton
+    className={className ? `${className} ${small}` : small}
+    {...props}
+  />
+);
 
 export default SmallButton;

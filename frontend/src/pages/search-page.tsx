@@ -14,7 +14,7 @@ const loadSearch = async (term: string) => {
 };
 
 const SearchPage: React.FC<{}> = () => {
-  useTitle("VIS Community Solutions");
+  useTitle("Search");
   const [query, setQuery] = useQueryParam("q", StringParam);
   const [optionalTerm, setTerm] = useState(query);
   const term = optionalTerm || "";
