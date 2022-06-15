@@ -1,4 +1,20 @@
 programs:
+  - name: wait-for-db
+    path: /usr/bin/python3
+    args:
+      - "manage.py"
+      - "wait_for_database"
+    workdir: /app
+    user: app-user
+    group: app-user
+    before:
+      - migrate
+    env:
+      - SIP_POSTGRES_DB_SERVER:
+      - SIP_POSTGRES_DB_PORT:
+      - SIP_POSTGRES_DB_NAME:
+      - SIP_POSTGRES_DB_USER:
+      - SIP_POSTGRES_DB_PW:
   - name: migrate
     path: /usr/bin/python3
     args:
@@ -10,23 +26,31 @@ programs:
     before:
       - gunicorn
     env:
-      - DEPLOYMENT_DOMAIN:
-      - RUNTIME_SERVIS_PEOPLE_API_SERVER:
-      - RUNTIME_SERVIS_PEOPLE_API_PORT:
-      - RUNTIME_SERVIS_PEOPLE_API_KEY:
-      - RUNTIME_MINIO_URL:
-      - RUNTIME_MINIO_HOST:
-      - RUNTIME_MINIO_SERVER:
-      - RUNTIME_MINIO_ACCESS_KEY:
-      - RUNTIME_MINIO_SECRET_KEY:
-      - RUNTIME_MINIO_BUCKET_NAME:
-      - RUNTIME_POSTGRES_DB_SERVER:
-      - RUNTIME_POSTGRES_DB_PORT:
-      - RUNTIME_POSTGRES_DB_NAME:
-      - RUNTIME_POSTGRES_DB_USER:
-      - RUNTIME_POSTGRES_DB_PW:
-      - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET:
-      - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY:
+      - SIP_POSTGRES_DB_SERVER:
+      - SIP_POSTGRES_DB_PORT:
+      - SIP_POSTGRES_DB_NAME:
+      - SIP_POSTGRES_DB_USER:
+      - SIP_POSTGRES_DB_PW:
+  - name: configure-cors
+    path: /usr/bin/python3
+    args:
+      - "manage.py"
+      - "configure_cors"
+    workdir: /app
+    user: app-user
+    group: app-user
+    before:
+      - gunicorn
+    env:
+      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN:
+      - SIP_INGRESS_HTTP_DEFAULT_CNAMES:
+
+      - SIP_S3_FILES_HOST:
+      - SIP_S3_FILES_PORT:
+      - SIP_S3_FILES_ACCESS_KEY:
+      - SIP_S3_FILES_SECRET_KEY:
+      - SIP_S3_FILES_BUCKET:
+      - SIP_S3_FILES_USE_SSL:
   - name: gunicorn
     path: /usr/local/bin/gunicorn
     args:
@@ -45,21 +69,48 @@ programs:
     capabilities:
       - CAP_NET_BIND_SERVICE
     env:
-      - DEPLOYMENT_DOMAIN:
-      - RUNTIME_SERVIS_PEOPLE_API_SERVER:
-      - RUNTIME_SERVIS_PEOPLE_API_PORT:
-      - RUNTIME_SERVIS_PEOPLE_API_KEY:
-      - RUNTIME_MINIO_URL:
-      - RUNTIME_MINIO_HOST:
-      - RUNTIME_MINIO_SERVER:
-      - RUNTIME_MINIO_ACCESS_KEY:
-      - RUNTIME_MINIO_SECRET_KEY:
-      - RUNTIME_MINIO_BUCKET_NAME:
-      - RUNTIME_POSTGRES_DB_SERVER:
-      - RUNTIME_POSTGRES_DB_PORT:
-      - RUNTIME_POSTGRES_DB_NAME:
-      - RUNTIME_POSTGRES_DB_USER:
-      - RUNTIME_POSTGRES_DB_PW:
+      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN:
+      - SIP_INGRESS_HTTP_DEFAULT_CNAMES:
+
+      - SIP_S3_FILES_HOST:
+      - SIP_S3_FILES_PORT:
+      - SIP_S3_FILES_ACCESS_KEY:
+      - SIP_S3_FILES_SECRET_KEY:
+      - SIP_S3_FILES_BUCKET:
+      - SIP_S3_FILES_USE_SSL:
+
+      - SIP_POSTGRES_DB_SERVER:
+      - SIP_POSTGRES_DB_PORT:
+      - SIP_POSTGRES_DB_NAME:
+      - SIP_POSTGRES_DB_USER:
+      - SIP_POSTGRES_DB_PW:
+
+      - SIP_AUTH_OIDC_CLIENT_ID:
+      - SIP_AUTH_OIDC_JWKS_URL:
+      - SIP_AUTH_OIDC_TOKEN_ENDPOINT:
+      - SIP_AUTH_OIDC_AUTH_ENDPOINT:
+      - SIP_AUTH_OIDC_CLIENT_SECRET:
+      # 32 url-safe base64-encoded bytes
+      - OAUTH2_COOKIE_SECRET:
+
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET:
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY:
+
+      - FRONTEND_GLOB_ID:
+      - FRONTEND_KEYCLOAK_URL:
+      - FRONTEND_KEYCLOAK_REALM:
+
+      - RUNTIME_JWT_PUBLIC_KEY:
       - prometheus_multiproc_dir: /dev/shm
+
+      # Only for debug purposes
+      - RUNTIME_JWT_VERIFY_SIGNATURE:
+
+      - FRONTEND_TITLE_PREFIX:
+      - FRONTEND_TITLE_SUFFIX:
+      - FRONTEND_FAVICON_URL:
+      - FRONTEND_EMAIL_ADDRESS:
+      - FRONTEND_IMPRINT:
+      - FRONTEND_PRIVACY_POLICY:
+
+      - PDEP_IS_PREVIEW:

@@ -44,7 +44,13 @@ export function loadSections(
     let lastpos = 0;
     if (i in cuts) {
       for (const cut of cuts[i]) {
-        const { relHeight: position, oid, cutVersion, hidden } = cut;
+        const {
+          relHeight: position,
+          oid,
+          cutVersion,
+          hidden,
+          has_answers,
+        } = cut;
         if (position !== lastpos) {
           const key = `${akey}-${lastpos}-${position}`;
           sections.push(
@@ -60,6 +66,7 @@ export function loadSections(
           allow_new_answer: true,
           allow_new_legacy_answer: false,
           hidden: true,
+          has_answers,
           cutHidden: hidden,
           cutVersion,
           name: cut.name,

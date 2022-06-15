@@ -1,4 +1,4 @@
-import { css, cx } from "emotion";
+import { css, cx } from "@emotion/css";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import ImageOverlay from "../image-overlay";
@@ -186,7 +186,7 @@ const Editor: React.FC<Props> = ({
   const onFile = useCallback(
     async (file: File) => {
       const handle = await imageHandler(file);
-      setAttachments(a => [...a, handle]);
+      setAttachments((a) => [...a, handle]);
       insertImage(handle);
     },
     [imageHandler, insertImage],
@@ -203,7 +203,7 @@ const Editor: React.FC<Props> = ({
 
   const onDeleteAttachment = useCallback(async (handle: ImageHandle) => {
     await handle.remove();
-    setAttachments(a => a.filter(h => h !== handle));
+    setAttachments((a) => a.filter((h) => h !== handle));
   }, []);
 
   const onImageDialogClose = useCallback(
@@ -230,6 +230,7 @@ const Editor: React.FC<Props> = ({
       onDragEnter={onDragEnter}
     >
       <EditorHeader
+        onFiles={onFiles}
         activeMode={mode}
         onActiveModeChange={setMode}
         onMathClick={onMathClick}
@@ -243,7 +244,7 @@ const Editor: React.FC<Props> = ({
           <BasicEditor
             textareaElRef={textareaElRef}
             value={value}
-            onChange={newValue => setCurrent(newValue)}
+            onChange={(newValue) => setCurrent(newValue)}
             setSelectionRangeRef={setSelectionRangeRef}
             getSelectionRangeRef={getSelectionRangeRef}
             onMetaKey={onMetaKey}
@@ -253,7 +254,6 @@ const Editor: React.FC<Props> = ({
         )}
       </div>
       <EditorFooter
-        onFiles={onFiles}
         attachments={attachments}
         onDelete={onDeleteAttachment}
         onOpenOverlay={onOpenOverlay}

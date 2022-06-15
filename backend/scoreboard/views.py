@@ -1,63 +1,77 @@
+from typing_extensions import Concatenate
+
+from django.db.models.expressions import Case, When
 from util import response, func_cache
 from myauth import auth_check
 from myauth.models import MyUser, get_my_user
+from documents.models import Document
 from answers.models import Answer
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Count, F, Q, Subquery, OuterRef
+from django.db.models import Sum, Count, F, Q, Value as V
+from django.db.models.functions import Concat
 
 
 def get_user_scores(user, res):
-    def count_answers(legacy):
-        res = 0
-        for answer in user.answer_set.all():
-            if answer.is_legacy_answer == legacy:
-                res += 1
-        return res
-
-    res.update({
-        'score': user.scores.upvotes - user.scores.downvotes,
-        'score_answers': count_answers(False),
-        'score_comments': user.comment_set.count(),
-        'score_cuts': user.answersection_set.count(),
-        'score_legacy': count_answers(True),
-    })
+    res.update(
+        {
+            "score": user.scores.document_likes + user.scores.upvotes - user.scores.downvotes,
+            "score_answers": user.answer_set.filter(is_legacy_answer=False).count(),
+            "score_comments": user.answers_comments.count(),
+            "score_cuts": user.answersection_set.count(),
+            "score_legacy": user.answer_set.filter(is_legacy_answer=True).count(),
+            "score_documents": user.document_set.count(),
+        }
+    )
     return res
 
 
 @func_cache.cache(600)
 def get_scoreboard_top(scoretype, limit):
-    if scoretype == 'score':
-        users = MyUser.objects.annotate(
-            score=F('scores__upvotes') - F('scores__downvotes')
-        )
-    elif scoretype == 'score_answers':
-        users = MyUser.objects.annotate(
-            score=Count('answer', filter=Q(answer__is_legacy_answer=False))
-        )
-    elif scoretype == 'score_comments':
-        users = MyUser.objects.annotate(
-            score=Count('comment')
-        )
-    elif scoretype == 'score_cuts':
-        users = MyUser.objects.annotate(
-            score=Count('answersection')
-        )
-    elif scoretype == 'score_legacy':
-        users = MyUser.objects.annotate(
-            score=Count('answer', filter=Q(answer__is_legacy_answer=True))
-        )
+    users = MyUser.objects.annotate(
+        displayName=Case(
+            When(
+                Q(first_name__isnull=True),
+                "last_name",
+            ),
+            default=Concat("first_name", V(" "), "last_name"),
+        ),
+        score=F("scores__document_likes")
+        + F("scores__upvotes")
+        - F("scores__downvotes"),
+        score_answers=Count("answer", filter=Q(answer__is_legacy_answer=False)),
+        score_comments=Count("answers_comments"),
+        score_documents=Count("document"),
+        score_cuts=Count("answersection"),
+        score_legacy=Count("answer", filter=Q(answer__is_legacy_answer=True)),
+    )
+
+    if scoretype == "score":
+        users = users.order_by("-score")
+    elif scoretype == "score_answers":
+        users = users.order_by("-score_answers")
+    elif scoretype == "score_comments":
+        users = users.order_by("-score_comments")
+    elif scoretype == "score_documents":
+        users = users.order_by("-score_documents")
+    elif scoretype == "score_cuts":
+        users = users.order_by("-score_cuts")
+    elif scoretype == "score_legacy":
+        users = users.order_by("-score_legacy")
     else:
         return response.not_found()
 
-    users = users.select_related('scores').prefetch_related('answer_set', 'comment_set', 'answersection_set')
-
-    res = [
-        get_user_scores(user, {
-            'username': user.username,
-            'displayName': get_my_user(user).displayname(),
-        }) for user in users.order_by('-score', 'first_name', 'last_name')[:limit]
-    ]
-    return res
+    return list(
+        users[:limit].values(
+            "username",
+            "displayName",
+            "score",
+            "score_answers",
+            "score_comments",
+            "score_cuts",
+            "score_legacy",
+            "score_documents",
+        )
+    )
 
 
 @response.request_get()
@@ -65,8 +79,8 @@ def get_scoreboard_top(scoretype, limit):
 def userinfo(request, username):
     user = get_object_or_404(MyUser, username=username)
     res = {
-        'username': username,
-        'displayName': user.displayname(),
+        "username": username,
+        "displayName": user.displayname(),
     }
     get_user_scores(user, res)
     return response.success(value=res)
@@ -75,5 +89,5 @@ def userinfo(request, username):
 @response.request_get()
 @auth_check.require_login
 def scoreboard_top(request, scoretype):
-    limit = int(request.GET.get('limit', "10"))
+    limit = int(request.GET.get("limit", "10"))
     return response.success(value=get_scoreboard_top(scoretype, limit))

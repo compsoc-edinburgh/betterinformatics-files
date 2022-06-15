@@ -1,7 +1,9 @@
-import { TextContent, TextContentItem } from "pdfjs-dist";
+import type { TextContent, TextItem } from "pdfjs-dist/types/src/display/api";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PDF from "../pdf/pdf-renderer";
+
+const MAX_ITEMS = 1_000;
 
 const useTextLayer = (
   shouldRender: boolean,
@@ -26,18 +28,18 @@ const useTextLayer = (
       runningRef.current = false;
     };
   }, [shouldRender, pageNumber, renderer]);
-  const filteredItems = useMemo(
-    () =>
-      textContent &&
-      textContent.items.filter(item => {
-        const [, , , offsetY, , y] = item.transform;
-        const [, , , yMax] = view;
-        const top = yMax - (y + offsetY);
-        const bottom = top + item.height;
-        return !(top / yMax > end || bottom / yMax < start);
-      }),
-    [textContent, start, end, view],
-  );
+  const filteredItems = useMemo(() => {
+    if (textContent === null) return;
+    if (textContent.items.length > MAX_ITEMS) return;
+    return textContent.items.filter((genericItem) => {
+      const item = genericItem as TextItem;
+      const [, , , offsetY, , y] = item.transform;
+      const [, , , yMax] = view;
+      const top = yMax - (y + offsetY);
+      const bottom = top + item.height;
+      return !(top / yMax > end || bottom / yMax < start);
+    });
+  }, [textContent, start, end, view]);
   const result = useMemo(
     () =>
       filteredItems && textContent
@@ -49,7 +51,8 @@ const useTextLayer = (
 };
 
 interface TextElementProps {
-  item: TextContentItem;
+  // tslint:disable-next-line: no-any
+  item: any;
   // Style currently isn't used. Setting the font family breaks alignment
   // tslint:disable-next-line: no-any
   styles: any;

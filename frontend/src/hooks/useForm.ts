@@ -126,7 +126,6 @@ const useForm = <
   );
 
   const reset = useCallback(() => {
-    console.log(resetFnMap);
     ref.current = { ...initialData };
     for (const key in resetFnMap.current) {
       if (Object.prototype.hasOwnProperty.call(resetFnMap.current, key)) {

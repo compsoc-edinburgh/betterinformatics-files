@@ -1,4 +1,5 @@
 import { useRequest } from "@umijs/hooks";
+import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import {
   Answer,
   AnswerSection,
@@ -12,11 +13,22 @@ import {
   NotificationInfo,
   PaymentInfo,
   ServerCutResponse,
+  Document,
+  DocumentComment,
+  DocumentFile,
   UserInfo,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
-import { getDocument, PDFDocumentProxy } from "../pdf/pdfjs";
-import { fetchGet, fetchPost } from "./fetch-utils";
+import { getDocument } from "../pdf/pdfjs";
+import {
+  fetchDelete,
+  fetchGet,
+  fetchPost,
+  fetchPut,
+  NamedBlob,
+} from "./fetch-utils";
+
+export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;
 
 const loadUserInfo = async (username: string) => {
   return (await fetchGet(`/api/scoreboard/userinfo/${username}/`))
@@ -129,7 +141,7 @@ export const useNotifications = (mode: "all" | "unread") => {
 };
 const markAllRead = async (...ids: string[]) => {
   return Promise.all(
-    ids.map(oid =>
+    ids.map((oid) =>
       fetchPost(`/api/notification/setread/${oid}/`, {
         read: true,
       }),
@@ -142,29 +154,20 @@ export const useMarkAllAsRead = () => {
   });
   return [error, loading, run] as const;
 };
-const loadUserAnswers = async (username: string) => {
-  return (await fetchGet(`/api/exam/listbyuser/${username}/`))
+const loadUserAnswers = async (username: string, page: number = -1) => {
+  const pageStr = page === -1 ? "" : `${page}/`
+  return (await fetchGet(`/api/exam/listbyuser/${username}/${pageStr}`))
     .value as Answer[];
 };
-export const useUserAnswers = (username: string) => {
+export const useUserAnswers = (username: string, page: number = -1) => {
   const { error, loading, data, run } = useRequest(
-    () => loadUserAnswers(username),
+    () => loadUserAnswers(username, page),
     {
-      refreshDeps: [username],
-      cacheKey: `user-answers-${username}`,
+      refreshDeps: [username, page],
+      cacheKey: `page-${page}-user-answers-${username}`,
     },
   );
   return [error, loading, data, run] as const;
-};
-const logout = async () => {
-  await fetchPost("/api/auth/logout/", {});
-};
-export const useLogout = (cb: () => void = () => {}) => {
-  const { error, loading, run } = useRequest(logout, {
-    manual: true,
-    onSuccess: cb,
-  });
-  return [error, loading, run] as const;
 };
 export const loadCategories = async () => {
   return (await fetchGet("/api/category/listonlyadmin/"))
@@ -184,11 +187,11 @@ export const uploadTranscript = async (file: Blob, category: string) => {
     .filename as string;
 };
 export const loadCategoryMetaData = async (slug: string) => {
-  return (await fetchGet(`/api/category/metadata/${slug}`))
+  return (await fetchGet(`/api/category/metadata/${slug}/`))
     .value as CategoryMetaData;
 };
 export const loadMetaCategories = async () => {
-  return (await fetchGet("/api/category/listmetacategories"))
+  return (await fetchGet("/api/category/listmetacategories/"))
     .value as MetaCategory[];
 };
 export const useMetaCategories = () => {
@@ -196,7 +199,7 @@ export const useMetaCategories = () => {
   return [error, loading, data] as const;
 };
 export const loadList = async (slug: string) => {
-  return (await fetchGet(`/api/category/listexams/${slug}`))
+  return (await fetchGet(`/api/category/listexams/${slug}/`))
     .value as CategoryExam[];
 };
 export const claimExam = async (filename: string, claim: boolean) => {
@@ -210,7 +213,11 @@ export const loadExamMetaData = async (filename: string) => {
 };
 export const loadSplitRenderer = async (filename: string) => {
   const pdf = await new Promise<PDFDocumentProxy>((resolve, reject) =>
-    getDocument(`/api/exam/pdf/exam/${filename}`).promise.then(resolve, reject),
+    getDocument({
+      url: filename,
+      disableStream: true,
+      disableAutoFetch: true,
+    }).promise.then(resolve, reject),
   );
   const renderer = new PDF(pdf);
   return [pdf, renderer] as const;
@@ -224,7 +231,7 @@ export const loadCuts = async (filename: string) => {
     .value as ServerCutResponse;
 };
 export const submitFeedback = async (text: string) => {
-  return await fetchPost("api/feedback/submit/", { text });
+  return await fetchPost("/api/feedback/submit/", { text });
 };
 export const loadFeedback = async () => {
   const fb = (await fetchGet("/api/feedback/list/")).value as FeedbackEntry[];
@@ -299,28 +306,28 @@ const setExpertVote = async (oid: string, vote: boolean) => {
 export const useSetFlagged = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const {
-    loading: setFlaggedLoading,
-    run: runSetFlagged,
-  } = useRequest(setFlagged, { manual: true, onSuccess: onSectionChanged });
+  const { loading: setFlaggedLoading, run: runSetFlagged } = useRequest(
+    setFlagged,
+    { manual: true, onSuccess: onSectionChanged },
+  );
   return [setFlaggedLoading, runSetFlagged] as const;
 };
 export const useSetExpertVote = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const {
-    loading: setExpertVoteLoading,
-    run: runSetExpertVote,
-  } = useRequest(setExpertVote, { manual: true, onSuccess: onSectionChanged });
+  const { loading: setExpertVoteLoading, run: runSetExpertVote } = useRequest(
+    setExpertVote,
+    { manual: true, onSuccess: onSectionChanged },
+  );
   return [setExpertVoteLoading, runSetExpertVote] as const;
 };
 export const useResetFlaggedVote = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const {
-    loading: resetFlaggedLoading,
-    run: runResetFlagged,
-  } = useRequest(resetFlagged, { manual: true, onSuccess: onSectionChanged });
+  const { loading: resetFlaggedLoading, run: runResetFlagged } = useRequest(
+    resetFlagged,
+    { manual: true, onSuccess: onSectionChanged },
+  );
   return [resetFlaggedLoading, runResetFlagged] as const;
 };
 export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
@@ -342,7 +349,7 @@ export const useRemoveAnswer = (
 
 export const useMutation = <B, T extends any[]>(
   service: (...args: T) => Promise<B>,
-  onSuccess?: (res: B) => void,
+  onSuccess?: (res: B, params: T) => void,
 ) => {
   const { loading, run } = useRequest(service, { manual: true, onSuccess });
   return [loading, run] as const;
@@ -358,3 +365,274 @@ export const markAsChecked = async (filename: string) => {
   return (await fetchPost(`/api/payment/markexamchecked/${filename}/`, {}))
     .value;
 };
+
+export const createDocument = async (
+  displayName: string,
+  categorySlug: string,
+) => {
+  return (
+    await fetchPost(`/api/document/`, {
+      display_name: displayName,
+      category: categorySlug,
+    })
+  ).value as Document;
+};
+export const useCreateDocument = (onSuccess?: (document: Document) => void) =>
+  useMutation(createDocument, onSuccess);
+
+export const loadDocuments = async (categorySlug: string) => {
+  return (await fetchGet(`/api/document/?category=${categorySlug}`))
+    .value as Document[];
+};
+export const useDocuments = (categorySlug: string) => {
+  const { error, loading, data } = useRequest(
+    () => loadDocuments(categorySlug),
+    { cacheKey: `documents-${categorySlug}` },
+  );
+  return [error, loading, data] as const;
+};
+
+export const loadDocumentsUsername = async (username: string) => {
+  return (await fetchGet(`/api/document/?username=${encodeURIComponent(username)}`))
+    .value as Document[];
+};
+export const useDocumentsUsername = (username: string) => {
+  const { error, loading, data } = useRequest(
+    () => loadDocumentsUsername(username), {
+    refreshDeps: [username],
+    cacheKey: `documents-${username}`,
+  },
+  );
+  return [error, loading, data] as const;
+};
+
+export const loadDocumentsLikedBy = async (likedBy: string, isMyself: boolean) => {
+  if (isMyself) {
+    return (await fetchGet(`/api/document/?liked_by=${encodeURIComponent(likedBy)}`))
+      .value as Document[];
+  } else {
+    return undefined;
+  }
+};
+export const useDocumentsLikedBy = (likedBy: string, isMyself: boolean) => {
+  const { error, loading, data } = useRequest(
+    () => loadDocumentsLikedBy(likedBy, isMyself),
+    { cacheKey: `documents-${likedBy}` },
+  );
+  return [error, loading, data] as const;
+};
+
+export const loadDocument = async (author: string, documentSlug: string) => {
+  return (
+    await fetchGet(
+      `/api/document/${author}/${documentSlug}/?include_comments&include_files`,
+    )
+  ).value as Document;
+};
+export const useDocument = (
+  author: string,
+  documentSlug: string,
+  onSuccess?: (document: Document) => void,
+) => {
+  const { error, loading, data, mutate } = useRequest(
+    () => loadDocument(author, documentSlug),
+    {
+      cacheKey: `document-${documentSlug}`,
+      onSuccess,
+    },
+  );
+  return [error, loading, data, mutate] as const;
+};
+
+export const deleteDocument = async (author: string, documentSlug: string) => {
+  await fetchDelete(`/api/document/${author}/${documentSlug}/`);
+};
+
+export const useDeleteDocument = (
+  author: string,
+  documentSlug: string,
+  cb: () => void,
+) => useMutation(() => deleteDocument(author, documentSlug), cb);
+
+export interface DocumentUpdate {
+  display_name?: string;
+  category?: string;
+  liked?: boolean;
+  description?: string;
+}
+export const updateDocument = async (
+  author: string,
+  documentSlug: string,
+  data: DocumentUpdate,
+) => {
+  return (await fetchPut(`/api/document/${author}/${documentSlug}/`, data))
+    .value as Document;
+};
+export const useUpdateDocument = (
+  author: string,
+  documentSlug: string,
+  cb: (document: Document) => void,
+) =>
+  useMutation(
+    (data: DocumentUpdate) => updateDocument(author, documentSlug, data),
+    cb,
+  );
+
+export const createDocumentComment = async (
+  author: string,
+  documentSlug: string,
+  text: string,
+) => {
+  return (
+    await fetchPost(`/api/document/${author}/${documentSlug}/comments/`, {
+      text,
+    })
+  ).value as DocumentComment;
+};
+export const useCreateDocumentComment = (
+  author: string,
+  documentSlug: string,
+  onSuccess?: (res: DocumentComment) => void,
+) =>
+  useMutation(
+    (text: string) => createDocumentComment(author, documentSlug, text),
+    onSuccess,
+  );
+
+export const deleteDocumentComment = async (
+  author: string,
+  documentSlug: string,
+  commentId: number,
+) => {
+  await fetchDelete(
+    `/api/document/${author}/${documentSlug}/comments/${commentId}/`,
+  );
+};
+
+export const useDeleteDocumentComment = (
+  author: string,
+  documentSlug: string,
+  commentId: number,
+  onSuccess?: () => void,
+) =>
+  useMutation(
+    () => deleteDocumentComment(author, documentSlug, commentId),
+    onSuccess,
+  );
+
+export const updateDocumentComment = async (
+  author: string,
+  documentSlug: string,
+  commentId: number,
+  text: string,
+) => {
+  return (
+    await fetchPut(
+      `/api/document/${author}/${documentSlug}/comments/${commentId}/`,
+      { text },
+    )
+  ).value as DocumentComment;
+};
+
+export const useUpdateDocumentComment = (
+  author: string,
+  documentSlug: string,
+  commentId: number,
+  onSuccess?: (res: DocumentComment) => void,
+) =>
+  useMutation(
+    (text: string) =>
+      updateDocumentComment(author, documentSlug, commentId, text),
+    onSuccess,
+  );
+
+export const createDocumentFile = async (
+  author: string,
+  documentSlug: string,
+  display_name: string,
+  file: NamedBlob | File,
+) => {
+  return (
+    await fetchPost(`/api/document/${author}/${documentSlug}/files/`, {
+      file,
+      display_name,
+    })
+  ).value as DocumentFile;
+};
+export const useCreateDocumentFile = (
+  author: string,
+  documentSlug: string,
+  onSuccess?: (res: DocumentFile) => void,
+) =>
+  useMutation(
+    (display_name: string, file: NamedBlob | File) =>
+      createDocumentFile(author, documentSlug, display_name, file),
+    onSuccess,
+  );
+export const deleteDocumentFile = async (
+  author: string,
+  documentSlug: string,
+  fileId: number,
+) => {
+  await fetchDelete(`/api/document/${author}/${documentSlug}/files/${fileId}/`);
+};
+
+export const useDeleteDocumentFile = (
+  author: string,
+  documentSlug: string,
+  fileId: number,
+  onSuccess?: () => void,
+) =>
+  useMutation(
+    () => deleteDocumentFile(author, documentSlug, fileId),
+    onSuccess,
+  );
+
+interface DocumentFileUpdate {
+  display_name?: string;
+  file?: NamedBlob | File;
+}
+export const updateDocumentFile = async (
+  author: string,
+  documentSlug: string,
+  fileId: number,
+  update: DocumentFileUpdate,
+) => {
+  return (
+    await fetchPut(
+      `/api/document/${author}/${documentSlug}/files/${fileId}/`,
+      update,
+    )
+  ).value as DocumentFile;
+};
+
+export const useUpdateDocumentFile = (
+  author: string,
+  documentSlug: string,
+  fileId: number,
+  onSuccess?: (res: DocumentFile) => void,
+) =>
+  useMutation(
+    (update: DocumentFileUpdate) =>
+      updateDocumentFile(author, documentSlug, fileId, update),
+    onSuccess,
+  );
+
+export const regenerateDocumentAPIKey = async (
+  author: string,
+  documentSlug: string,
+) => {
+  return (
+    await fetchPost(
+      `/api/document/${author}/${documentSlug}/regenerate_api_key/`,
+      {},
+    )
+  ).value as Document;
+};
+
+export const useRegenerateDocumentAPIKey = (
+  author: string,
+  documentSlug: string,
+  onSuccess?: (res: Document) => void,
+) =>
+  useMutation(() => regenerateDocumentAPIKey(author, documentSlug), onSuccess);

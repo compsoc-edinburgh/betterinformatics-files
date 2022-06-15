@@ -1,5 +1,4 @@
 import {
-  Alert,
   Button,
   Card,
   CardFooter,
@@ -8,15 +7,10 @@ import {
   Row,
 } from "@vseth/components";
 import React from "react";
-import { notLoggedIn, useSetUser, useUser } from "../auth";
-import { useLogout } from "../api/hooks";
+import { logout } from "../api/fetch-utils";
+import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
 import LoadingOverlay from "./loading-overlay";
-import { useRequest } from "@umijs/hooks";
-import { fetchPost } from "../api/fetch-utils";
-
-const setNonAdmin = (simulate_nonadmin: boolean) =>
-  fetchPost("/api/auth/simulate_nonadmin/", { simulate_nonadmin });
 
 interface UserScoreCardProps {
   username?: string;
@@ -30,16 +24,8 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
 }) => {
   const setUser = useSetUser();
   const user = useUser()!;
-  const [logoutError, logoutLoading, logout] = useLogout(() =>
-    setUser(notLoggedIn),
-  );
-  const { run: runSetNonAdmin } = useRequest(setNonAdmin, {
-    manual: true,
-    onSuccess: () => setUser(undefined),
-  });
   return (
     <>
-      {logoutError && <Alert color="danger">{logoutError.message}</Alert>}
       <Row form>
         <Col>
           <h1>{userInfo?.displayName || username}</h1>
@@ -47,11 +33,17 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
 
         {isMyself && (
           <>
-            {(user.isAdmin || user.simulateNonadmin) && (
+            {(user.isAdmin || localStorage.getItem("simulate_nonadmin")) && (
               <Col xs="auto">
                 <Button
-                  disabled={logoutLoading}
-                  onClick={() => runSetNonAdmin(!user.simulateNonadmin)}
+                  onClick={() => {
+                    if (user.isAdmin) {
+                      localStorage.setItem("simulate_nonadmin", "true");
+                    } else {
+                      localStorage.removeItem("simulate_nonadmin");
+                    }
+                    setUser(undefined);
+                  }}
                   className="m-2"
                 >
                   {user.isAdmin
@@ -61,7 +53,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
               </Col>
             )}
             <Col xs="auto">
-              <Button disabled={logoutLoading} onClick={logout} className="m-2">
+              <Button onClick={() => logout("/")} className="m-2">
                 Logout
               </Button>
             </Col>
@@ -99,6 +91,17 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
               </h3>
               <CardFooter tag="h6" className="m-0">
                 Comments
+              </CardFooter>
+            </Card>
+          </Col>
+          <Col md={6} lg={4}>
+            <Card className="m-1">
+              <LoadingOverlay loading={!userInfo} />
+              <h3 className="p-4 m-0">
+                {userInfo ? userInfo.score_documents : "-"}
+              </h3>
+              <CardFooter tag="h6" className="m-0">
+                Documents
               </CardFooter>
             </Card>
           </Col>

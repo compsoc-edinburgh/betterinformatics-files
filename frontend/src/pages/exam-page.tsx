@@ -6,8 +6,11 @@ import {
   Button,
   Card,
   CardBody,
+  CheckIcon,
   Col,
   Container,
+  DownloadIcon,
+  EditIcon,
   Row,
   Spinner,
 } from "@vseth/components";
@@ -27,49 +30,41 @@ import ExamMetadataEditor from "../components/exam-metadata-editor";
 import ExamPanel from "../components/exam-panel";
 import IconButton from "../components/icon-button";
 import PrintExam from "../components/print-exam";
+import ContentContainer from "../components/secondary-container";
+import { TOC, TOCNode } from "../components/table-of-contents";
 import useSet from "../hooks/useSet";
+import useTitle from "../hooks/useTitle";
 import useToggle from "../hooks/useToggle";
 import {
+  CutUpdate,
   EditMode,
   EditState,
   ExamMetaData,
   PdfSection,
   Section,
-  ServerCutResponse,
   SectionKind,
+  ServerCutResponse,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
-import ContentContainer from "../components/secondary-container";
-import useTitle from "../hooks/useTitle";
-import { TOCNode, TOC } from "../components/table-of-contents";
 
 const addCut = async (
   filename: string,
   pageNum: number,
   relHeight: number,
   hidden = false,
+  has_answers = true,
 ) => {
   await fetchPost(`/api/exam/addcut/${filename}/`, {
     pageNum,
     relHeight,
     name: "",
     hidden,
+    has_answers,
   });
 };
-const moveCut = async (
-  filename: string,
-  cut: string,
-  pageNum: number,
-  relHeight: number,
-) => {
-  await fetchPost(`/api/exam/editcut/${cut}/`, { pageNum, relHeight });
-};
-const updateCutName = async (cut: string, name: string) => {
-  await fetchPost(`/api/exam/editcut/${cut}/`, { name });
-};
-const updateCutHidden = async (cut: string, hidden: boolean) => {
-  console.log("updateCutHidden", cut, hidden);
-  await fetchPost(`/api/exam/editcut/${cut}/`, { hidden });
+
+const updateCut = async (cut: string, update: Partial<CutUpdate>) => {
+  await fetchPost(`/api/exam/editcut/${cut}/`, update);
 };
 
 interface ExamPageContentProps {
@@ -95,7 +90,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const { run: runMarkChecked } = useRequest(markAsChecked, {
     manual: true,
     onSuccess() {
-      mutateMetaData(metaData => ({
+      mutateMetaData((metaData) => ({
         ...metaData,
         oral_transcript_checked: true,
       }));
@@ -106,21 +101,21 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     manual: true,
     onSuccess: reloadCuts,
   });
-  const { run: runMoveCut } = useRequest(moveCut, {
+  const { run: runMoveCut } = useRequest(updateCut, {
     manual: true,
     onSuccess: () => {
       reloadCuts();
       setEditState({ mode: EditMode.None });
     },
   });
-  const { run: runUpdateCutName } = useRequest(updateCutName, {
+  const { run: runUpdate } = useRequest(updateCut, {
     manual: true,
-    onSuccess: (_data, [oid, newName]) => {
-      mutateCuts(oldCuts =>
+    onSuccess: (_data, [oid, update]) => {
+      mutateCuts((oldCuts) =>
         Object.keys(oldCuts).reduce((result, key) => {
-          result[key] = oldCuts[key].map(cutPosition =>
+          result[key] = oldCuts[key].map((cutPosition) =>
             cutPosition.oid === oid
-              ? { ...cutPosition, name: newName }
+              ? { ...cutPosition, ...update }
               : cutPosition,
           );
           return result;
@@ -128,30 +123,21 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       );
     },
   });
-  const { run: runUpdateCutHidden } = useRequest(updateCutHidden, {
-    manual: true,
-    onSuccess: (_data, [oid, newHidden]) => {
-      mutateCuts(oldCuts =>
-        Object.keys(oldCuts).reduce((result, key) => {
-          result[key] = oldCuts[key].map(cutPosition =>
-            cutPosition.oid === oid
-              ? { ...cutPosition, hidden: newHidden }
-              : cutPosition,
-          );
-          return result;
-        }, {} as ServerCutResponse),
-      );
-    },
-  });
-  const onSectionHiddenChange = useCallback(
-    (section: string | [number, number], newState: boolean) => {
+  const onSectionChange = useCallback(
+    async (section: string | [number, number], update: Partial<CutUpdate>) => {
       if (Array.isArray(section)) {
-        runAddCut(metaData.filename, section[0], section[1], newState);
+        await runAddCut(
+          metaData.filename,
+          section[0],
+          section[1],
+          update.hidden,
+          false,
+        );
       } else {
-        runUpdateCutHidden(section, newState);
+        await runUpdate(section, update);
       }
     },
-    [runAddCut, metaData, runUpdateCutHidden],
+    [runAddCut, metaData, runUpdate],
   );
 
   const [size, sizeRef] = useSize<HTMLDivElement>();
@@ -208,46 +194,52 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   return (
     <>
       <Container>
+        <div className="d-flex justify-content-between align-items-center">
+          <h1>{metaData.displayname}</h1>
+          <div className="d-flex">
+            <IconButton
+              color="white"
+              as="a"
+              icon={DownloadIcon}
+              target="_blank"
+              rel="noopener noreferrer"
+              href={metaData.exam_file}
+            />
+            {user.isCategoryAdmin && (
+              <>
+                {user.isAdmin &&
+                  metaData.is_oral_transcript &&
+                  !metaData.oral_transcript_checked && (
+                    <IconButton
+                      color="white"
+                      className="ml-2"
+                      tooltip="Mark as checked"
+                      icon={CheckIcon}
+                      onClick={() => runMarkChecked(metaData.filename)}
+                    />
+                  )}
+
+                <IconButton
+                  color="white"
+                  className="ml-2"
+                  icon={EditIcon}
+                  tooltip="Edit"
+                  onClick={() => toggleEditing()}
+                />
+              </>
+            )}
+          </div>
+        </div>
         <Row>
-          <Col>
-            <h1 className="mb-3">{metaData.displayname}</h1>
-          </Col>
-          {user.isCategoryAdmin && (
-            <Col md="auto" className="d-flex align-items-center">
-              {user.isAdmin &&
-                metaData.is_oral_transcript &&
-                !metaData.oral_transcript_checked && (
-                  <IconButton
-                    size="sm"
-                    icon="CHECK"
-                    onClick={() => runMarkChecked(metaData.filename)}
-                  >
-                    Mark as Checked
-                  </IconButton>
-                )}
-
-              <IconButton
-                size="sm"
-                className="m-1"
-                icon="EDIT"
-                onClick={() => toggleEditing()}
-              >
-                Edit
-              </IconButton>
-            </Col>
-          )}
-        </Row>
-
-        <Row form>
           {!metaData.canView && (
             <Col md={6} lg={4}>
               <Card className="m-1">
                 <CardBody>
                   {metaData.needs_payment && !metaData.hasPayed ? (
                     <>
-                      You have to pay a deposit of 20 CHF in the VIS bureau in
-                      order to see oral exams. After submitting a report of your
-                      own oral exam you can get your deposit back.
+                      You have to pay a deposit in order to see oral exams.
+                      After submitting a report of your own oral exam you can
+                      get your deposit back.
                     </>
                   ) : (
                     <>You can not view this exam at this time.</>
@@ -280,12 +272,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.legacy_solution}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    Legacy Solution in VISki
-                  </Button>
-                </Card>
+                Legacy Solution in VISki
               </a>
             </Col>
           )}
@@ -295,10 +284,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={`/legacy/transformwiki/${wikitransform}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">Transform Wiki</Button>
-                </Card>
+                Transform Wiki
               </a>
             </Col>
           )}
@@ -308,12 +296,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.master_solution}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    Official Solution (external)
-                  </Button>
-                </Card>
+                Official Solution (external)
               </a>
             </Col>
           )}
@@ -321,28 +306,24 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           {metaData.has_solution && !metaData.solution_printonly && (
             <Col md={6} lg={4}>
               <a
-                href={`/api/exam/pdf/solution/${metaData.filename}/`}
+                href={metaData.solution_file}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">Official Solution</Button>
-                </Card>
+                Official Solution
               </a>
             </Col>
           )}
-          {metaData.attachments.map(attachment => (
+          {metaData.attachments.map((attachment) => (
             <Col md={6} lg={4} key={attachment.filename}>
               <a
                 href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="btn p-3 btn-block btn-secondary text-left"
               >
-                <Card className="m-1">
-                  <Button className="w-100 h-100 p-3">
-                    {attachment.displayname}
-                  </Button>
-                </Card>
+                {attachment.displayname}
               </a>
             </Col>
           ))}
@@ -356,7 +337,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         )}
       </Container>
 
-      <ContentContainer>
+      <ContentContainer className="my-3">
         <div ref={sizeRef} style={{ maxWidth }} className="mx-auto my-3">
           {width && sections && renderer && (
             <Exam
@@ -367,8 +348,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               setEditState={setEditState}
               reloadCuts={reloadCuts}
               renderer={renderer}
-              onCutNameChange={runUpdateCutName}
-              onSectionHiddenChange={onSectionHiddenChange}
+              onUpdateCut={onSectionChange}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
               visibleChangeListener={visibleChangeListener}
@@ -409,7 +389,7 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadExamMetaData(filename), {
     cacheKey: `exam-metaData-${filename}`,
   });
-  useTitle(`${metaData?.displayname ?? filename} - VIS Community Solutions`);
+  useTitle(metaData?.displayname ?? filename);
   const {
     error: cutsError,
     loading: cutsLoading,
@@ -419,8 +399,18 @@ const ExamPage: React.FC<{}> = () => {
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
   });
-  const { error: pdfError, loading: pdfLoading, data } = useRequest(() =>
-    loadSplitRenderer(filename),
+  const {
+    error: pdfError,
+    loading: pdfLoading,
+    data,
+  } = useRequest(
+    () => {
+      if (metaData === undefined) return Promise.resolve(undefined);
+      const examFile = metaData.exam_file;
+      if (examFile === undefined) return Promise.resolve(undefined);
+      return loadSplitRenderer(examFile);
+    },
+    { refreshDeps: [metaData === undefined, metaData?.exam_file] },
   );
   const [pdf, renderer] = data ? data : [];
   const sections = useMemo(

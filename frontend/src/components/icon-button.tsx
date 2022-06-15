@@ -1,5 +1,5 @@
-import { Button, Icon, ICONS, Spinner, ButtonProps } from "@vseth/components";
-import { css } from "emotion";
+import { Button, Spinner, ButtonProps } from "@vseth/components";
+import { css } from "@emotion/css";
 import React from "react";
 import TooltipButton from "./TooltipButton";
 const childStyle = css`
@@ -13,20 +13,23 @@ const spacerStyle = css`
   width: 0;
 `;
 interface IconButtonProps extends ButtonProps {
-  icon: keyof typeof ICONS;
+  icon: React.FC<{ className?: string; size?: string | number }>;
   loading?: boolean;
   tooltip?: React.ReactNode;
+  iconClassName?: string;
 }
 const IconButton: React.FC<IconButtonProps> = ({
   size,
   loading,
   icon,
   className,
+  iconClassName,
   disabled,
   children,
   tooltip,
   ...props
 }) => {
+  const Icon = icon;
   return tooltip ? (
     <TooltipButton
       tooltip={tooltip}
@@ -35,14 +38,14 @@ const IconButton: React.FC<IconButtonProps> = ({
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
-      {loading ? (
-        <Spinner size={size} />
-      ) : (
-        <>
-          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-          <Icon icon={ICONS[icon]} size="1em" />
-        </>
-      )}
+      <>
+        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+        {loading ? (
+          <Spinner size="sm" />
+        ) : (
+          <Icon className={iconClassName} size="1em" />
+        )}
+      </>
       {children && <span className={childStyle}>{children}</span>}
     </TooltipButton>
   ) : (
@@ -52,14 +55,14 @@ const IconButton: React.FC<IconButtonProps> = ({
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
     >
-      {loading ? (
-        <Spinner size={size} />
-      ) : (
-        <>
-          <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-          <Icon icon={ICONS[icon]} size="1em" />
-        </>
-      )}
+      <>
+        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
+        {loading ? (
+          <Spinner size="sm" s />
+        ) : (
+          <Icon className={iconClassName} size="1em" />
+        )}
+      </>
       {children && <span className={childStyle}>{children}</span>}
     </Button>
   );

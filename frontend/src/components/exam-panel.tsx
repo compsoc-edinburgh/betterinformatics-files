@@ -1,23 +1,28 @@
+import { css } from "@emotion/css";
 import { useDebounceFn } from "@umijs/hooks";
 import {
+  ArrowUpIcon,
   ButtonGroup,
+  CloseIcon,
   Col,
   FormGroup,
   Input,
   Label,
+  MessageIcon,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Pagination,
   PaginationItem,
   PaginationLink,
+  PlusIcon,
   Row,
 } from "@vseth/components";
-import { css } from "emotion";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
+import serverData from "../utils/server-data";
 import IconButton from "./icon-button";
 import Panel from "./panel";
 
@@ -92,15 +97,12 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     changeWidth(val);
     setWidthValue(val);
   };
-  const download = useCallback(() => {
-    window.open(`/api/exam/pdf/exam/${metaData.filename}/?download`, "_blank");
-  }, [metaData.filename]);
   const reportProblem = useCallback(() => {
-    const subject = encodeURIComponent("[VIS] Community Solutions: Feedback");
+    const subject = encodeURIComponent("Community Solutions: Feedback");
     const body = encodeURIComponent(
       `Concerning the exam '${metaData.displayname}' of the course '${metaData.category_displayname}' ...`,
     );
-    window.location.href = `mailto:communitysolutions@vis.ethz.ch?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${serverData.email_address}?subject=${subject}&body=${body}`;
   }, [metaData]);
   const setOption = <T extends keyof DisplayOptions>(
     name: T,
@@ -131,7 +133,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <h6 className="my-3 mx-2">Pages</h6>
         <Pagination className={paginationStyle}>
           {renderer &&
-            intMap(1, renderer.document.numPages, pageNum => (
+            intMap(1, renderer.document.numPages, (pageNum) => (
               <PaginationItem active key={pageNum}>
                 {visiblePages.has(pageNum) ? (
                   <PaginationLink href={`#page-${pageNum}`} className="border">
@@ -157,18 +159,13 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <h6 className="my-3 mx-2">Actions</h6>
         <ButtonGroup>
           <IconButton
-            tooltip="Download this exam as a PDF file"
-            icon="DOWNLOAD"
-            onClick={download}
-          />
-          <IconButton
             tooltip="Report problem"
-            icon="MESSAGE"
+            icon={MessageIcon}
             onClick={reportProblem}
           />
           <IconButton
             tooltip="Back to the top"
-            icon="ARROW_UP"
+            icon={ArrowUpIcon}
             onClick={scrollToTop}
           />
         </ButtonGroup>
@@ -183,7 +180,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                     size="sm"
                     tooltip="Disable editing"
                     onClick={() => setEditState({ mode: EditMode.None })}
-                    icon="CLOSE"
+                    icon={CloseIcon}
                   >
                     Stop Editing
                   </IconButton>
@@ -200,7 +197,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                         snap,
                       })
                     }
-                    icon="PLUS"
+                    icon={PlusIcon}
                   >
                     Add Cuts
                   </IconButton>
@@ -215,7 +212,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                     name="check"
                     id="snap"
                     checked={editState.snap}
-                    onChange={e =>
+                    onChange={(e) =>
                       setEditState({ ...editState, snap: e.target.checked })
                     }
                   />
@@ -232,7 +229,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayHiddenPdfSections"
                 checked={displayOptions.displayHiddenPdfSections}
-                onChange={e =>
+                onChange={(e) =>
                   setOption("displayHiddenPdfSections", e.target.checked)
                 }
               />
@@ -246,7 +243,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayHiddenAnswerSections"
                 checked={displayOptions.displayHiddenAnswerSections}
-                onChange={e =>
+                onChange={(e) =>
                   setOption("displayHiddenAnswerSections", e.target.checked)
                 }
               />
@@ -260,7 +257,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayHideShowButtons"
                 checked={displayOptions.displayHideShowButtons}
-                onChange={e =>
+                onChange={(e) =>
                   setOption("displayHideShowButtons", e.target.checked)
                 }
               />
@@ -274,7 +271,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayEmptyCutLabels"
                 checked={displayOptions.displayEmptyCutLabels}
-                onChange={e =>
+                onChange={(e) =>
                   setOption("displayEmptyCutLabels", e.target.checked)
                 }
               />

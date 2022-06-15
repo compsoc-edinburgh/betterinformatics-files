@@ -12,6 +12,7 @@ export interface AnswerSection {
   allow_new_answer: boolean; // whether the current user can add an answer
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
   cutHidden: boolean;
+  has_answers: boolean;
   hidden: boolean; // whether the element is currently hidden
   cutVersion: number; // version of the answer section, should reload if changed
   name: string;
@@ -60,6 +61,15 @@ export interface PdfSection {
   hidden: boolean;
 }
 
+export interface CutUpdate {
+  filename: string;
+  pageNum: number;
+  relHeight: number;
+  name: string;
+  hidden: boolean;
+  has_answers: boolean;
+}
+
 export interface CutPosition {
   page: number; // the first page is 1
   position: number;
@@ -71,6 +81,7 @@ export interface ServerCutPosition {
   cutVersion: number;
   name: string;
   hidden: boolean;
+  has_answers: boolean;
 }
 
 export interface Attachment {
@@ -184,6 +195,15 @@ export interface ExamMetaData {
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];
+
+  exam_file?: string;
+  solution_file?: string;
+  printonly_file?: string;
+}
+
+export interface ExamSelectedForDownload {
+  filename: string,
+  displayname: string,
 }
 
 export interface NotificationInfo {
@@ -207,6 +227,7 @@ export interface UserInfo {
   score_comments: number;
   score_cuts: number;
   score_legacy: number;
+  score_documents: number;
 }
 
 export interface PaymentInfo {
@@ -309,3 +330,32 @@ export type SearchResult =
   | AnswerSearchResult
   | CommentSearchResult;
 export type SearchResponse = SearchResult[];
+
+export interface Document {
+  slug: string;
+  display_name: string;
+  description: string;
+  category: string;
+  category_display_name: string;
+  author: string;
+  comments: DocumentComment[];
+  files: DocumentFile[];
+  liked: boolean;
+  like_count: number;
+
+  can_edit: boolean;
+  can_delete: boolean;
+  api_key?: string;
+}
+
+export interface DocumentFile {
+  oid: number;
+  display_name: string;
+  filename: string;
+  mime_type: string;
+}
+
+export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
+  oid: number;
+  documentId: number;
+}

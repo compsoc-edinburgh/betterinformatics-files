@@ -5,14 +5,16 @@ import {
   Breadcrumb,
   Col,
   Container,
+  DeleteIcon,
+  EditIcon,
   ListGroup,
   Row,
   Spinner,
-  ListGroupItem,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
+import { css } from "@emotion/css";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useParams, useHistory } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -23,11 +25,11 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
+import DocumentList from "../components/document-list";
+import useConfirm from "../hooks/useConfirm";
+import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
-import useTitle from "../hooks/useTitle";
-import useConfirm from "../hooks/useConfirm";
-import { css } from "emotion";
 
 const metadataColStyle = css``;
 
@@ -59,7 +61,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     [data, metaData],
   );
   const [editing, setEditing] = useState(false);
-  const toggle = useCallback(() => setEditing(a => !a), []);
+  const toggle = useCallback(() => setEditing((a) => !a), []);
   const user = useUser()!;
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
@@ -84,8 +86,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             isOpen={editing}
             toggle={toggle}
             currentMetaData={metaData}
-            offeredIn={offeredIn.flatMap(b =>
-              b.meta2.map(d => [b.displayname, d.displayname] as const),
+            offeredIn={offeredIn.flatMap((b) =>
+              b.meta2.map((d) => [b.displayname, d.displayname] as const),
             )}
           />
         )
@@ -100,7 +102,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <IconButton
                   size="sm"
                   className="m-1"
-                  icon="EDIT"
+                  icon={EditIcon}
                   onClick={() => setEditing(true)}
                 >
                   Edit
@@ -110,7 +112,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   size="sm"
                   className="m-1"
                   loading={removeLoading}
-                  icon="DELETE"
+                  icon={DeleteIcon}
                   onClick={onRemove}
                 >
                   Delete
@@ -155,8 +157,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   <Spinner />
                 ) : (
                   <ul>
-                    {offeredIn?.map(meta1 =>
-                      meta1.meta2.map(meta2 => (
+                    {offeredIn?.map((meta1) =>
+                      meta1.meta2.map((meta2) => (
                         <li key={meta1.displayname + meta2.displayname}>
                           {meta2.displayname} in {meta1.displayname}
                         </li>
@@ -179,8 +181,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             {metaData.has_payments && (
               <Col>
                 <Alert>
-                  You have to pay a deposit of 20 CHF in the VIS bureau in order
-                  to see oral exams.
+                  You have to pay a deposit in order to see oral exams.
                   <br />
                   After submitting a report of your own oral exam you can get
                   your deposit back.
@@ -195,27 +196,28 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </Col>
             )}
           </Row>
-
           <ExamList metaData={metaData} />
-          <Col lg={12}>
-            {metaData.attachments.length > 0 && (
-              <>
-                <h2>Attachments</h2>
-                <ListGroup flush>
-                  {metaData.attachments.map(att => (
-                    <a
-                      href={`/api/filestore/get/${att.filename}/`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      key={att.filename}
-                    >
-                      <div>{att.displayname}</div>
-                    </a>
-                  ))}
-                </ListGroup>
-              </>
-            )}
-          </Col>
+
+          <h2 className="mb-3 mt-5">Documents</h2>
+          <DocumentList slug={metaData.slug} />
+
+          {metaData.attachments.length > 0 && (
+            <>
+              <h2 className="mb-3 mt-5">Attachments</h2>
+              <ListGroup flush>
+                {metaData.attachments.map((att) => (
+                  <a
+                    href={`/api/filestore/get/${att.filename}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    key={att.filename}
+                  >
+                    <div>{att.displayname}</div>
+                  </a>
+                ))}
+              </ListGroup>
+            </>
+          )}
         </>
       )}
     </>
@@ -228,7 +230,17 @@ const CategoryPage: React.FC<{}> = () => {
     () => loadCategoryMetaData(slug),
     { cacheKey: `category-${slug}` },
   );
-  useTitle(`${data?.displayname ?? slug} - VIS Community Solutions`);
+  const history = useHistory();
+  const onMetaDataChange = useCallback(
+    (newMetaData: CategoryMetaData) => {
+      mutate(newMetaData);
+      if (slug !== newMetaData.slug) {
+        history.push(`/category/${newMetaData.slug}`);
+      }
+    },
+    [mutate, history, slug],
+  );
+  useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
     <Container>
@@ -245,7 +257,10 @@ const CategoryPage: React.FC<{}> = () => {
               : undefined
           }
         >
-          <CategoryPageContent metaData={data} onMetaDataChange={mutate} />
+          <CategoryPageContent
+            metaData={data}
+            onMetaDataChange={onMetaDataChange}
+          />
         </UserContext.Provider>
       )}
     </Container>

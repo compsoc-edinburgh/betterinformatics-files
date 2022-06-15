@@ -2,12 +2,15 @@ import {
   Card,
   CardBody,
   CardFooter,
+  CloseIcon,
   Col,
   Container,
   Input,
+  PlusIcon,
   Row,
+  SaveIcon,
 } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import * as React from "react";
 import { useState } from "react";
 import { useFAQ } from "../api/faq";
@@ -19,11 +22,12 @@ import FAQEntryComponent from "../components/faq-entry";
 import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
+import serverData from "../utils/server-data";
 const newButtonStyle = css`
   min-height: 3em;
 `;
 export const FAQPage: React.FC = () => {
-  useTitle("FAQ - VIS Community Solutions");
+  useTitle("FAQ");
   const { isAdmin } = useUser()!;
   const { faqs, add, update, swap, remove } = useFAQ();
   const [hasDraft, setHasDraft] = useState(false);
@@ -52,8 +56,8 @@ export const FAQPage: React.FC = () => {
         <p>
           If you have any question not yet answered below, feel free to contact
           us at{" "}
-          <a href="mailto:communitysolutions@vis.ethz.ch">
-            communitysolutions@vis.ethz.ch
+          <a href={`mailto:${serverData.email_address}`}>
+            {serverData.email_address}
           </a>
           .
         </p>
@@ -65,7 +69,7 @@ export const FAQPage: React.FC = () => {
             entry={faq}
             prevEntry={idx > 0 ? faqs[idx - 1] : undefined}
             nextEntry={idx + 1 < faqs.length ? faqs[idx + 1] : undefined}
-            onUpdate={changes => update(faq.oid, changes)}
+            onUpdate={(changes) => update(faq.oid, changes)}
             onSwap={swap}
             onRemove={() => remove(faq.oid)}
           />
@@ -78,7 +82,7 @@ export const FAQPage: React.FC = () => {
                 type="text"
                 placeholder="Question"
                 value={question}
-                onChange={e => setQuestion(e.target.value)}
+                onChange={(e) => setQuestion(e.target.value)}
               />
             </h4>
             <Editor
@@ -87,7 +91,7 @@ export const FAQPage: React.FC = () => {
               onChange={setAnswer}
               undoStack={undoStack}
               setUndoStack={setUndoStack}
-              preview={value => <MarkdownText value={value} />}
+              preview={(value) => <MarkdownText value={value} />}
             />
           </CardBody>
           <CardFooter>
@@ -96,14 +100,18 @@ export const FAQPage: React.FC = () => {
                 <IconButton
                   color="primary"
                   size="sm"
-                  icon="SAVE"
+                  icon={SaveIcon}
                   onClick={handleNew}
                 >
                   Save
                 </IconButton>
               </Col>
               <Col xs="auto">
-                <IconButton size="sm" icon="CLOSE" onClick={handleDeleteDraft}>
+                <IconButton
+                  size="sm"
+                  icon={CloseIcon}
+                  onClick={handleDeleteDraft}
+                >
                   Delete Draft
                 </IconButton>
               </Col>
@@ -118,7 +126,7 @@ export const FAQPage: React.FC = () => {
               className="position-cover"
               block
               size="lg"
-              icon="PLUS"
+              icon={PlusIcon}
               onClick={() => setHasDraft(true)}
             />
           </Card>

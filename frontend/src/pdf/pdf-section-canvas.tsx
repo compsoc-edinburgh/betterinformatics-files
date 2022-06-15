@@ -1,6 +1,6 @@
 import { useInViewport } from "@umijs/hooks";
-import { Card } from "@vseth/components";
-import { css, cx } from "emotion";
+import { Card, ViewIcon, ViewOffIcon } from "@vseth/components";
+import { css, cx } from "@emotion/css";
 import * as React from "react";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { DebugContext } from "../components/Debug";
@@ -11,6 +11,7 @@ import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import useDpr from "../hooks/useDpr";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
+import { CutUpdate } from "../interfaces";
 
 const lastSection = css`
   margin-bottom: 2rem;
@@ -18,6 +19,7 @@ const lastSection = css`
 const canvasWrapperStyle = css`
   font-size: 0;
   user-select: none;
+  pointer-events: none;
 `;
 
 const usePdf = (
@@ -34,9 +36,8 @@ const usePdf = (
   number,
   boolean,
 ] => {
-  const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(
-    null,
-  );
+  const [canvasElement, setCanvasElement] =
+    useState<HTMLCanvasElement | null>(null);
   const [view, setView] = useState<number[]>();
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -86,7 +87,7 @@ const usePdf = (
 };
 
 interface Props {
-  oid: string | undefined;
+  oid?: string;
   page: number;
   start: number;
   end: number;
@@ -100,7 +101,7 @@ interface Props {
   displayHideShowButtons?: boolean;
   onSectionHiddenChange?: (
     section: string | [number, number],
-    newState: boolean,
+    update: Partial<CutUpdate>,
   ) => void;
 }
 const PdfSectionCanvas: React.FC<Props> = React.memo(
@@ -126,11 +127,10 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
     const [containerHeight, setContainerHeight] = useState(0);
     const [translateY, setTranslateY] = useState(0);
-    const [currentScale, setCurrentScale] = useState<number | undefined>(
-      undefined,
-    );
+    const [currentScale, setCurrentScale] =
+      useState<number | undefined>(undefined);
     const toggleVisibility = useCallback(
-      () => onSectionHiddenChange(oid ? oid : [page, end], !hidden),
+      () => onSectionHiddenChange(oid ? oid : [page, end], { hidden: !hidden }),
       [oid, page, end, hidden, onSectionHiddenChange],
     );
     const dpr = useDpr();
@@ -155,7 +155,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     }, [v]);
 
     const canvasMountingPoint = useCallback<(element: HTMLDivElement) => void>(
-      element => {
+      (element) => {
         if (element === null) return;
         if (canvas === null) return;
         if (isMainCanvas) {
@@ -211,8 +211,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
             className="cover-container"
             style={{
               width: `${targetWidth}px`,
-              height: `${containerHeight ||
-                targetWidth * relativeHeight * 1.414}px`,
+              height: `${
+                containerHeight || targetWidth * relativeHeight * 1.414
+              }px`,
               filter: hidden ? "contrast(0.5)" : undefined,
             }}
             ref={containerElement}
@@ -234,7 +235,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
               <div className="position-absolute position-top-left m-2 p1">
                 <IconButton
                   size="sm"
-                  icon={hidden ? "VIEW" : "VIEW_OFF"}
+                  icon={hidden ? ViewIcon : ViewOffIcon}
                   tooltip="Toggle visibility"
                   onClick={toggleVisibility}
                 />

@@ -1,9 +1,10 @@
 import { Nav, NavItem, NavLink, Row, Col } from "@vseth/components";
-import { css } from "emotion";
+import { css } from "@emotion/css";
 import * as React from "react";
-import { Bold, Code, DollarSign, Italic, Link } from "react-feather";
+import { Bold, Code, DollarSign, Image, Italic, Link } from "react-feather";
 import TooltipButton from "../TooltipButton";
 import { EditorMode } from "./utils/types";
+import { useCallback, useRef } from "react";
 
 const iconButtonStyle = css`
   margin: 0;
@@ -34,11 +35,16 @@ const tabContainer = css`
   display: flex;
   flex-grow: 1;
 `;
+const fileInputStyle = css`
+  visibility: hidden;
+  display: none;
+`;
 
 interface Props {
   activeMode: EditorMode;
   onActiveModeChange: (newMode: EditorMode) => void;
 
+  onFiles: (files: File[]) => void;
   onMathClick: () => void;
   onCodeClick: () => void;
   onLinkClick: () => void;
@@ -48,11 +54,38 @@ interface Props {
 const EditorHeader: React.FC<Props> = ({
   activeMode,
   onActiveModeChange,
+  onFiles,
   ...handlers
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onChangeHandler = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const fileInput = fileInputRef.current;
+      if (fileInput === null) return;
+      const fileList = fileInput.files;
+      if (fileList === null) return;
+      const files: File[] = [];
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList.item(i);
+        if (file === null) continue;
+        files.push(file);
+      }
+      onFiles(files);
+      fileInput.value = "";
+    },
+    [onFiles],
+  );
+
   const iconSize = 15;
   return (
     <div className={headerStyle}>
+      <input
+        type="file"
+        className={fileInputStyle}
+        ref={fileInputRef}
+        onChange={onChangeHandler}
+      />
       <Nav tabs className={navStyle}>
         <div className={tabContainer}>
           <NavItem>
@@ -76,6 +109,17 @@ const EditorHeader: React.FC<Props> = ({
         </div>
         {activeMode === "write" && (
           <Row className="m-0 d-flex justify-content-center">
+            <Col className="px-0">
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={() => fileInputRef.current?.click()}
+                type="button"
+                size="sm"
+                tooltip="Insert Image"
+              >
+                <Image size={iconSize} />
+              </TooltipButton>
+            </Col>
             <Col className="px-0">
               <TooltipButton
                 className={iconButtonStyle}

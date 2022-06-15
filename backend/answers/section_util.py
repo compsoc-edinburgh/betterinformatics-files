@@ -17,7 +17,7 @@ def get_answer_response(request, answer, ignore_exam_admin=False):
             'canEdit': comment.author == request.user,
             'time': comment.time,
             'edittime': comment.edittime,
-        } for comment in answer.comment_set.order_by('time', 'id').all()
+        } for comment in answer.comments.order_by('time', 'id').all()
     ]
     return {
         'oid': answer.id,
@@ -56,6 +56,7 @@ def get_answersection_response(request, section):
         'allow_new_answer': not section.answer_set.filter(author=request.user, is_legacy_answer=False).exists(),
         'allow_new_legacy_answer': not section.answer_set.filter(is_legacy_answer=True).exists(),
         'cutVersion': section.cut_version,
+        'has_answers': section.has_answers,
     }
 
 
@@ -74,8 +75,8 @@ def get_answer_fields_to_prefetch():
         'downvotes',
         'expertvotes',
         'flagged',
-        'comment_set',
-        'comment_set__author',
+        'comments',
+        'comments__author',
     ]
 
 

@@ -18,8 +18,7 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
       {value ? (
         <>
           <Button close onClick={() => onChange(undefined)} />
-          {value.name}
-          <Badge>{value.type}</Badge> <Badge>{value.size}</Badge>
+          {value.name} <Badge>{value.type}</Badge> <Badge>{value.size}</Badge>
         </>
       ) : (
         <>

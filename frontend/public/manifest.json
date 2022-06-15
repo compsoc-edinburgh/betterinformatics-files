@@ -1,14 +1,14 @@
 {
-  "short_name": "React App",
-  "name": "VIS Community Solutions",
+  "short_name": "Exams",
+  "name": "Community Solutions",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "https://static.vseth.ethz.ch/assets/vseth-1116-vis/signet-mono.png",
       "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "type": "image/png"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"
