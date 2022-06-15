@@ -5,12 +5,13 @@ import { Link } from "react-router-dom";
 import Grid from "../components/grid";
 import { useUser } from "../auth";
 import ContentContainer from "./secondary-container";
-import { Document } from "../interfaces";
+import { Document, UserInfo } from "../interfaces";
 
 interface UserDocumentsProps {
     username: string;
+    userinfo?: UserInfo;
 }
-const UserDocuments: React.FC<UserDocumentsProps> = ({ username }) => {
+const UserDocuments: React.FC<UserDocumentsProps> = ({ username, userinfo }) => {
     const user = useUser()!;
     const isMyself = user.username === username;
     const [documentsError, loading, documents] = useDocumentsUsername(username);
@@ -40,7 +41,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({ username }) => {
     };
     return (
         <>
-            <h3>{(isMyself) ? "Your" : `${user.displayname ?? `@${username}`}'s`} Documents</h3>
+            <h3>{(isMyself) ? "Your" : `${userinfo?.displayName ?? `@${username}`}'s`} Documents</h3>
             {documentsError && <Alert color="danger">{documentsError.toString()}</Alert>}
             {documents && displayDocuments(documents)}
             {(!documents || documents.length === 0) && <Alert color="secondary">No documents</Alert>}
