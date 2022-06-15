@@ -9,9 +9,9 @@ import { Document, UserInfo } from "../interfaces";
 
 interface UserDocumentsProps {
     username: string;
-    userinfo?: UserInfo;
+    userInfo?: UserInfo;
 }
-const UserDocuments: React.FC<UserDocumentsProps> = ({ username, userinfo }) => {
+const UserDocuments: React.FC<UserDocumentsProps> = ({ username, userInfo }) => {
     const user = useUser()!;
     const isMyself = user.username === username;
     const [documentsError, loading, documents] = useDocumentsUsername(username);
@@ -41,7 +41,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({ username, userinfo }) => 
     };
     return (
         <>
-            <h3>{(isMyself) ? "Your" : `${userinfo?.displayName ?? `@${username}`}'s`} Documents</h3>
+            <h3>{(isMyself) ? "Your" : `${userInfo?.displayName || `@${username}`}'s`} Documents</h3>
             {documentsError && <Alert color="danger">{documentsError.toString()}</Alert>}
             {documents && displayDocuments(documents)}
             {(!documents || documents.length === 0) && <Alert color="secondary">No documents</Alert>}
