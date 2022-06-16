@@ -101,7 +101,7 @@ const UserPage: React.FC<{}> = () => {
             <UserAnswers username={username} />
           </TabPane>
           <TabPane tabId="documents">
-            <UserDocuments username={username} />
+            <UserDocuments username={username} userInfo={userInfo} />
           </TabPane>
           <TabPane tabId="settings">
             <Row md={1}>
