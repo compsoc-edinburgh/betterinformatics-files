@@ -8,6 +8,11 @@ class UserScore(models.Model):
     upvotes = models.IntegerField()
     downvotes = models.IntegerField()
     document_likes = models.IntegerField()
+    answers = models.IntegerField()
+    comments = models.IntegerField()
+    documents = models.IntegerField()
+    cuts = models.IntegerField()
+    legacy = models.IntegerField()
 
     class Meta:
         managed = False
