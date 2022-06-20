@@ -1,13 +1,9 @@
-from typing_extensions import Concatenate
-
 from django.db.models.expressions import Case, When
 from util import response, func_cache
 from myauth import auth_check
-from myauth.models import MyUser, get_my_user
-from documents.models import Document
-from answers.models import Answer
+from myauth.models import MyUser
 from django.shortcuts import get_object_or_404
-from django.db.models import Sum, Count, F, Q, Value as V
+from django.db.models import Count, F, Q, Value as V
 from django.db.models.functions import Concat
 
 
@@ -38,11 +34,11 @@ def get_scoreboard_top(scoretype, limit):
         score=F("scores__document_likes")
         + F("scores__upvotes")
         - F("scores__downvotes"),
-        score_answers=Count("answer", filter=Q(answer__is_legacy_answer=False)),
-        score_comments=Count("answers_comments"),
-        score_documents=Count("document"),
-        score_cuts=Count("answersection"),
-        score_legacy=Count("answer", filter=Q(answer__is_legacy_answer=True)),
+        score_answers=F("scores__answers"),
+        score_comments=F("scores__comments"),
+        score_documents=F("scores__documents"),
+        score_cuts=F("scores__cuts"),
+        score_legacy=F("scores__legacy"),
     )
 
     if scoretype == "score":
