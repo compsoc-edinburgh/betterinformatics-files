@@ -16,8 +16,8 @@ def send_notification(sender, receiver, type_, title, message, answer):
         return
     # In the case a user has a comment on their own answer, this prevents them from getting
     # 2 notifications if they have both notification options on.
-    # "new comment to comment" will be shown instead of "new comment to answer"
-    if type_ == NotificationType.NEW_COMMENT_TO_ANSWER and is_notification_enabled(receiver, NotificationType.NEW_COMMENT_TO_COMMENT):
+    # "new comment to answer" will be shown instead of "new comment to comment"
+    if type_ == NotificationType.NEW_COMMENT_TO_COMMENT and is_notification_enabled(receiver, NotificationType.NEW_COMMENT_TO_ANSWER):
         return
     notification = Notification(
         sender=sender,
@@ -55,8 +55,7 @@ def new_comment_to_answer(answer, new_comment):
         answer.author,
         NotificationType.NEW_COMMENT_TO_ANSWER,
         "New comment",
-        "A new comment to your answer was added.\n\n{}".format(
-            new_comment.text),
+        "A new comment to your answer was added.\n\n{}".format(new_comment.text),
         answer,
     )
 
@@ -109,7 +108,6 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
         document.author,
         NotificationType.NEW_COMMENT_TO_DOCUMENT,
         "New comment",
-        "A new comment was added to your document.\n\n{}".format(
-            new_comment.text),
+        "A new comment was added to your document.\n\n{}".format(new_comment.text),
         document=document,
     )
