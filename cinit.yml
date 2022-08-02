@@ -99,6 +99,7 @@ programs:
       - FRONTEND_GLOB_ID:
       - FRONTEND_KEYCLOAK_URL:
       - FRONTEND_KEYCLOAK_REALM:
+      - UNLOCK_DEPOSIT_NOTICE:
 
       - RUNTIME_JWT_PUBLIC_KEY:
       - prometheus_multiproc_dir: /dev/shm

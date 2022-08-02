@@ -181,7 +181,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             {metaData.has_payments && (
               <Col>
                 <Alert>
-                  You have to pay a deposit in order to see oral exams.
+                  You have to pay a deposit in order to see oral exams. 
+                  { process.env.REACT_APP_UNLOCK_DEPOSIT_NOTICE }
                   <br />
                   After submitting a report of your own oral exam you can get
                   your deposit back.
