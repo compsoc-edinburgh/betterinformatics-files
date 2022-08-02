@@ -183,7 +183,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <Col>
                 <Alert>
                   You have to pay a deposit in order to see oral exams. 
-                  { serverData.unlock_deposit_notice }
+                  { " " + serverData.unlock_deposit_notice }
                   <br />
                   After submitting a report of your own oral exam you can get
                   your deposit back.
