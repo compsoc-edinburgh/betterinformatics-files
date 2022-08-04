@@ -64,6 +64,10 @@ env:
     value: https://auth.vseth.ethz.ch/auth
   - name: "RUNTIME_FRONTEND_KEYCLOAK_REALM"
     value: VSETH
+  - name: "FRONTEND_UNLOCK_DEPOSIT_NOTICE"
+    secret:
+      key: frontend-unlock-deposit-notice
+      create: provided
 livenessProbe:
   httpGet:
     path: /health

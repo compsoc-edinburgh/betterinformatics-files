@@ -82,6 +82,7 @@ FRONTEND_SERVER_DATA = {
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
     "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", ""),
     "imprint": os.environ.get("FRONTEND_IMPRINT", ""),
+    "unlock_deposit_notice": os.environ.get("FRONTEND_UNLOCK_DEPOSIT_NOTICE", ""),
     "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", "")
     or "https://account.vseth.ethz.ch/privacy",
 }

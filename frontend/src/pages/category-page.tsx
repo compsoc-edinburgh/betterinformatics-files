@@ -30,6 +30,7 @@ import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
+import serverData from "../utils/server-data";
 
 const metadataColStyle = css``;
 
@@ -181,7 +182,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             {metaData.has_payments && (
               <Col>
                 <Alert>
-                  You have to pay a deposit in order to see oral exams.
+                  You have to pay a deposit in order to see oral exams. 
+                  { ` ${serverData.unlock_deposit_notice}` }
                   <br />
                   After submitting a report of your own oral exam you can get
                   your deposit back.
