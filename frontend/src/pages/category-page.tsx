@@ -182,8 +182,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             {metaData.has_payments && (
               <Col>
                 <Alert>
-                  You have to pay a deposit in order to see oral exams. 
-                  { ` ${serverData.unlock_deposit_notice}` }
+                  You have to pay a deposit in order to see oral exams.
+                  {serverData.unlock_deposit_notice ?
+                    <>
+                      <br />
+                      {serverData.unlock_deposit_notice}
+                    </> : null}
                   <br />
                   After submitting a report of your own oral exam you can get
                   your deposit back.
@@ -253,9 +257,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                  ...user,
-                  isCategoryAdmin: user.isAdmin || data.catadmin,
-                }
+                ...user,
+                isCategoryAdmin: user.isAdmin || data.catadmin,
+              }
               : undefined
           }
         >
