@@ -5,10 +5,10 @@
  * We could also overwrite the webpack config...
  */
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import PdfjsWorker from "worker-loader?publicPath=/static/!pdfjs-dist/build/pdf.worker.js";
-import { GlobalWorkerOptions } from "pdfjs-dist";
+import PdfjsWorker from "worker-loader?publicPath=/static/!pdfjs-dist/legacy/build/pdf.worker.js";
+import { GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.js";
 
 if (typeof window !== "undefined" && "Worker" in window) {
   GlobalWorkerOptions.workerPort = new PdfjsWorker();
 }
-export * from "pdfjs-dist";
+export * from "pdfjs-dist/legacy/build/pdf.js";
