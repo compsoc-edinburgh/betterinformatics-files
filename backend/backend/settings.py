@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
-from base64 import b64encode, b64decode
+from base64 import b64encode
 import sys
 from jwcrypto.jwk import JWKSet, JWK
 
@@ -129,8 +129,7 @@ PRIMARY_DEPLOYMENT_DOMAIN = os.environ.get(
 DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
     [] if CNAMES == "" else CNAMES.split(" ")
 )
-
-BANNED_USERS = b64decode(os.environ.get("BANNED_USERS", "")).decode("utf-8").split(",")
+BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
