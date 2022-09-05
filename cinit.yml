@@ -101,6 +101,8 @@ programs:
       - FRONTEND_KEYCLOAK_REALM:
       - FRONTEND_UNLOCK_DEPOSIT_NOTICE:
 
+      - BANNED_USERS:
+
       - RUNTIME_JWT_PUBLIC_KEY:
       - prometheus_multiproc_dir: /dev/shm
 

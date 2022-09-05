@@ -105,6 +105,8 @@ def add_auth(request: HttpRequest):
         ):
             raise NoUsernameException(claims["given_name"], claims["family_name"], sub)
         preferred_username = claims["preferred_username"]
+        if preferred_username in settings.BANNED_USERS:
+            raise PermissionDenied("User is banned")
         home_organization = claims["home_organization"]
         if home_organization != "ethz.ch":
             raise InvalidHomeOrganizationException()
@@ -189,6 +191,9 @@ def AuthenticationMiddleware(get_response):
                 err.sub,
             )
             raise PermissionDenied("no username set")
+        except PermissionDenied as err:
+            logger.warning("permission denied: %s", err)
+            raise err
         except Exception:
             pass
 

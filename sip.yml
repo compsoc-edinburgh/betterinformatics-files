@@ -68,6 +68,10 @@ env:
     secret:
       key: frontend-unlock-deposit-notice
       create: provided
+  - name: "BANNED_USERS"
+    secret:
+      key: banned-users
+      create: provided
 livenessProbe:
   httpGet:
     path: /health
