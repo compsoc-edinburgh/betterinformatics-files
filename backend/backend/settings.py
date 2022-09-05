@@ -130,7 +130,7 @@ DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
     [] if CNAMES == "" else CNAMES.split(" ")
 )
 
-BANNED_USERS = b64decode(os.environ.get("BANNED_USERS", "")).encode("utf-8").split(",")
+BANNED_USERS = b64decode(os.environ.get("BANNED_USERS", "")).decode("utf-8").split(",")
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
