@@ -130,6 +130,8 @@ DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
     [] if CNAMES == "" else CNAMES.split(" ")
 )
 
+BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
