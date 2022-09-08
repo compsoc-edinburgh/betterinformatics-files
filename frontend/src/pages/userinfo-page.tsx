@@ -1,12 +1,24 @@
-import { Alert, Col, Container, Row, Spinner, TabPane, TabContent, Nav, NavItem, NavLink } from "@vseth/components";
+import {
+  Alert,
+  Col,
+  Container,
+  Row,
+  Spinner,
+  TabPane,
+  TabContent,
+  Nav,
+  NavItem,
+  NavLink,
+} from "@vseth/components";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
 import { useUser } from "../auth";
 import UserAnswers from "../components/user-answers";
+import UserComments from "../components/user-comments";
 import UserNotifications from "../components/user-notifications";
 import UserNotificationsSettings from "../components/user-notification-settings";
-import UserDocuments from '../components/user-documents';
+import UserDocuments from "../components/user-documents";
 import UserPayments from "../components/user-payments";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
@@ -64,6 +76,15 @@ const UserPage: React.FC<{}> = () => {
           </NavItem>
           <NavItem>
             <NavLink
+              active={activeTab === "comments"}
+              onClick={() => setActiveTab("comments")}
+              to="#"
+            >
+              <p>Comments</p>
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
               active={activeTab === "documents"}
               onClick={() => setActiveTab("documents")}
               to="#"
@@ -71,20 +92,24 @@ const UserPage: React.FC<{}> = () => {
               <p>Documents</p>
             </NavLink>
           </NavItem>
-          {isMyself && (<NavItem>
-            <NavLink
-              active={activeTab === "settings"}
-              onClick={() => setActiveTab("settings")}
-              to="#"
-            >
-              <p>Settings</p>
-            </NavLink>
-          </NavItem>)}
+          {isMyself && (
+            <NavItem>
+              <NavLink
+                active={activeTab === "settings"}
+                onClick={() => setActiveTab("settings")}
+                to="#"
+              >
+                <p>Settings</p>
+              </NavLink>
+            </NavItem>
+          )}
         </Nav>
         <TabContent activeTab={activeTab}>
           <TabPane tabId="overview">
             <Row md={1}>
-              {(!isMyself && !user.isAdmin) && <Alert color="secondary">There's nothing here</Alert>}
+              {!isMyself && !user.isAdmin && (
+                <Alert color="secondary">There's nothing here</Alert>
+              )}
               {isMyself && (
                 <Col md={6}>
                   <UserNotifications username={username} />
@@ -99,6 +124,9 @@ const UserPage: React.FC<{}> = () => {
           </TabPane>
           <TabPane tabId="answers">
             <UserAnswers username={username} />
+          </TabPane>
+          <TabPane tabId="comments">
+            <UserComments username={username} />
           </TabPane>
           <TabPane tabId="documents">
             <UserDocuments username={username} userInfo={userInfo} />

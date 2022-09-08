@@ -16,6 +16,7 @@ import {
   Document,
   DocumentComment,
   DocumentFile,
+  SingleComment,
   UserInfo,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
@@ -155,7 +156,7 @@ export const useMarkAllAsRead = () => {
   return [error, loading, run] as const;
 };
 const loadUserAnswers = async (username: string, page: number = -1) => {
-  const pageStr = page === -1 ? "" : `${page}/`
+  const pageStr = page === -1 ? "" : `${page}/`;
   return (await fetchGet(`/api/exam/listbyuser/${username}/${pageStr}`))
     .value as Answer[];
 };
@@ -165,6 +166,21 @@ export const useUserAnswers = (username: string, page: number = -1) => {
     {
       refreshDeps: [username, page],
       cacheKey: `page-${page}-user-answers-${username}`,
+    },
+  );
+  return [error, loading, data, run] as const;
+};
+const loadUserComments = async (username: string, page: number = -1) => {
+  const pageStr = page === -1 ? "" : `${page}/`;
+  return (await fetchGet(`/api/exam/listcommentsbyuser/${username}/${pageStr}`))
+    .value as SingleComment[];
+};
+export const useUserComments = (username: string, page: number = -1) => {
+  const { error, loading, data, run } = useRequest(
+    () => loadUserComments(username, page),
+    {
+      refreshDeps: [username, page],
+      cacheKey: `page-${page}-user-comments-${username}`,
     },
   );
   return [error, loading, data, run] as const;
@@ -393,23 +409,29 @@ export const useDocuments = (categorySlug: string) => {
 };
 
 export const loadDocumentsUsername = async (username: string) => {
-  return (await fetchGet(`/api/document/?username=${encodeURIComponent(username)}`))
-    .value as Document[];
+  return (
+    await fetchGet(`/api/document/?username=${encodeURIComponent(username)}`)
+  ).value as Document[];
 };
 export const useDocumentsUsername = (username: string) => {
   const { error, loading, data } = useRequest(
-    () => loadDocumentsUsername(username), {
-    refreshDeps: [username],
-    cacheKey: `documents-${username}`,
-  },
+    () => loadDocumentsUsername(username),
+    {
+      refreshDeps: [username],
+      cacheKey: `documents-${username}`,
+    },
   );
   return [error, loading, data] as const;
 };
 
-export const loadDocumentsLikedBy = async (likedBy: string, isMyself: boolean) => {
+export const loadDocumentsLikedBy = async (
+  likedBy: string,
+  isMyself: boolean,
+) => {
   if (isMyself) {
-    return (await fetchGet(`/api/document/?liked_by=${encodeURIComponent(likedBy)}`))
-      .value as Document[];
+    return (
+      await fetchGet(`/api/document/?liked_by=${encodeURIComponent(likedBy)}`)
+    ).value as Document[];
   } else {
     return undefined;
   }
