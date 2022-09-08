@@ -98,6 +98,20 @@ def get_answer_fields_to_prefetch():
     ]
 
 
+def get_comment_fields_to_preselect():
+    return [
+        "answer",
+        "author",
+        "answer__answer_section",
+        "answer__answer_section__exam",
+        "answer__answer_section__exam__category"
+    ]
+
+
+def get_comment_fields_to_prefetch():
+    return []
+
+
 def increase_section_version(section):
     section.cut_version += 1
     section.save()
