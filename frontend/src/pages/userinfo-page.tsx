@@ -1,3 +1,4 @@
+import {css, keyframes} from "@emotion/css";
 import {
   Alert,
   Col,
@@ -22,7 +23,6 @@ import UserDocuments from "../components/user-documents";
 import UserPayments from "../components/user-payments";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
-import { css } from "@emotion/css";
 
 const navStyle = css`
   width: 100%;
@@ -36,6 +36,34 @@ const navStyle = css`
     font-size: x-large;
   }
 `;
+
+const fadeIn = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
+
+export const masonryStyle = css`
+  display: flex;
+  margin: auto;
+  width: 80vw;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+
+  .contribution-component {
+    // makes the answer and comment components half the size of the masonry div
+    // resulting in 2 columns
+    width: 40vw;
+    animation: ${fadeIn} 800ms;
+  }
+  @media only screen and (max-width: 1000px) {
+    .contribution-component {
+      width: 80vw;
+    }
+  }
+  // fix to counter the odd move to the right that is happening at around 580px width
+  @media only screen and (min-width: 580px) {
+    left: -10%;
+  }
+`;
+
 const UserPage: React.FC<{}> = () => {
   const { username } = useParams() as { username: string };
   useTitle(username);

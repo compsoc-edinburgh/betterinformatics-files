@@ -1,10 +1,10 @@
-import { keyframes, css } from "@emotion/css";
 import { Alert, Spinner } from "@vseth/components";
 import React, { useEffect, useRef, useState } from "react";
 import Masonry from "react-masonry-component";
+import {masonryStyle} from "../pages/userinfo-page";
 import { useUserComments } from "../api/hooks";
 import { SingleComment } from "../interfaces";
-import SingleCommentComponent from "./comment-isolated";
+import SingleCommentComponent from "./comment-single";
 
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
@@ -20,33 +20,6 @@ import SingleCommentComponent from "./comment-isolated";
 interface UserCommentsProps {
   username: string;
 }
-
-const fadeIn = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
-
-const masonryStyle = css`
-  display: flex;
-  margin: auto;
-  width: 80vw;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-
-  .comment-component {
-    // makes the comment components half the size of the masonry div
-    // resulting in 2 columns
-    width: 40vw;
-    animation: ${fadeIn} 800ms;
-  }
-  @media only screen and (max-width: 1000px) {
-    .comment-component {
-      width: 80vw;
-    }
-  }
-  // fix to counter the odd move to the right that is happening at around 580px width
-  @media only screen and (min-width: 580px) {
-    left: -10%;
-  }
-`;
 
 const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
@@ -104,7 +77,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
         >
           {comments &&
             comments.map((comment) => (
-              <div className="px-2 comment-component" key={comment.oid}>
+              <div className="px-2 contribution-component" key={comment.oid}>
                 <SingleCommentComponent comment={comment} />
               </div>
             ))}

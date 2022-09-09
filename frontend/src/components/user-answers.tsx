@@ -1,7 +1,7 @@
-import { keyframes, css } from "@emotion/css";
 import { Alert, Spinner } from "@vseth/components";
 import React, { useEffect, useRef, useState } from "react";
 import Masonry from "react-masonry-component";
+import {masonryStyle} from "../pages/userinfo-page";
 import { useUserAnswers } from "../api/hooks";
 import { Answer } from "../interfaces";
 import AnswerComponent from "./answer";
@@ -19,33 +19,6 @@ import AnswerComponent from "./answer";
 interface UserAnswersProps {
   username: string;
 }
-
-const fadeIn = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
-
-const masonryStyle = css`
-  display: flex;
-  margin: auto;
-  width: 80vw;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-
-  .answer-component {
-    // makes the answer components half the size of the masonry div
-    // resulting in 2 columns
-    width: 40vw;
-    animation: ${fadeIn} 800ms;    
-  }
-  @media only screen and (max-width: 1000px) {
-    .answer-component {
-      width: 80vw;
-    }
-  }
-  // fix to counter the odd move to the right that is happening at around 580px width
-  @media only screen and (min-width: 580px) {
-    left: -10%;
-  }
-`;
 
 
 const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
@@ -96,7 +69,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
         >
           {answers &&
             answers.map((answer) => (
-              <div className="px-2 answer-component" key={answer.oid}>
+              <div className="px-2 contribution-component" key={answer.oid}>
                 <AnswerComponent
                   hasId={false}
                   answer={answer}
