@@ -1,4 +1,4 @@
-from util import response, legacy_importer
+from util import response
 from answers.models import Exam
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
@@ -33,15 +33,6 @@ def resolve(request, filename):
     if not exams.exists():
         return Http404()
     return redirect("/exams/" + exams.first().filename + "/")
-
-
-def legacy_wiki_transform(request, examname):
-    return HttpResponse(
-        legacy_importer.transform_wiki(examname),
-        content_type="text/plain",
-        charset="utf-8",
-    )
-
 
 @ensure_csrf_cookie
 def can_i_haz_csrf_cookie(request):

@@ -163,9 +163,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   }, [visibleSplits]);
 
   const width = size.width;
-  const wikitransform = metaData.legacy_solution
-    ? metaData.legacy_solution.split("/").pop()
-    : "";
   const [displayOptions, setDisplayOptions] = useState({
     displayHiddenPdfSections: false,
     displayHiddenAnswerSections: false,
@@ -275,18 +272,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 className="btn p-3 btn-block btn-secondary text-left"
               >
                 Legacy Solution in VISki
-              </a>
-            </Col>
-          )}
-          {metaData.legacy_solution && metaData.canEdit && (
-            <Col md={6} lg={4}>
-              <a
-                href={`/legacy/transformwiki/${wikitransform}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
-              >
-                Transform Wiki
               </a>
             </Col>
           )}
