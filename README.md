@@ -22,6 +22,7 @@ the version manager n simply do:
 curl -L https://git.io/n-install | bash
 ```
 n should install npm as well.
+It is recommended to use Node.js 16, since the Dockerfile also uses v16. Newer versions of Node.js have been reported to not work correctly.
 
 ## Install Yarn
 
@@ -77,6 +78,11 @@ The backend can be started with the command:
 ```bash
 sudo docker-compose up --build
 ```
+Depending on how you installed Docker Compose, you might need to use a different syntax:
+```bash
+sudo docker compose up --build
+```
+
 ## Post-Setup for backend
 
 - Edit your host file at ```/etc/hosts``` to include the line ```127.0.0.1      minio```
