@@ -1,5 +1,6 @@
 from myauth.models import get_my_user
 from myauth import auth_check
+from answers.models import Comment
 
 
 def get_answer_response(request, answer, ignore_exam_admin=False):
@@ -42,6 +43,23 @@ def get_answer_response(request, answer, ignore_exam_admin=False):
     }
 
 
+def get_comment_response(request, comment: Comment):
+    return {
+        'oid': comment.id,
+        'longId': comment.long_id,
+        'answerId': comment.answer.long_id,
+        'text': comment.text,
+        'authorId': comment.author.username,
+        'authorDisplayName': get_my_user(comment.author).displayname(),
+        'time': comment.time,
+        'edittime': comment.edittime,
+        'exam_displayname': comment.answer.answer_section.exam.displayname,
+        'filename': comment.answer.answer_section.exam.filename,
+        'category_displayname': comment.answer.answer_section.exam.category.displayname,
+        'category_slug': comment.answer.answer_section.exam.category.slug
+    }
+
+
 def get_answersection_response(request, section):
     answers = [
         get_answer_response(request, answer)
@@ -78,6 +96,20 @@ def get_answer_fields_to_prefetch():
         'comments',
         'comments__author',
     ]
+
+
+def get_comment_fields_to_preselect():
+    return [
+        "answer",
+        "author",
+        "answer__answer_section",
+        "answer__answer_section__exam",
+        "answer__answer_section__exam__category"
+    ]
+
+
+def get_comment_fields_to_prefetch():
+    return []
 
 
 def increase_section_version(section):

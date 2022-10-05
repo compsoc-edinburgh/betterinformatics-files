@@ -52,6 +52,23 @@ export interface Comment {
   edittime: string; // ISO 8601, last edit time
 }
 
+export interface SingleComment {
+  oid: string; // unique id within comments
+  longId: string; // long unique id
+  text: string;
+  authorId: string; // username
+  answerId: string;
+  authorDisplayName: string; // display name of author
+  time: string; // ISO 8601, creation time
+  edittime: string; // ISO 8601, last edit time
+
+  exam_displayname: string;
+  filename: string;
+
+  category_displayname: string;
+  category_slug: string;
+}
+
 export interface PdfSection {
   key: React.Key;
   cutOid?: string;

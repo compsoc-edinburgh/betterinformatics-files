@@ -125,3 +125,21 @@ def get_by_user(request, username, page=-1):
         for answer in sorted_answers
     ]
     return response.success(value=res)
+
+
+@response.request_get()
+@auth_check.require_login
+def get_comments_by_user(request, username, page=-1):
+    sorted_comments = Comment.objects \
+        .filter(author__username=username) \
+        .select_related(*section_util.get_comment_fields_to_preselect()) \
+        .prefetch_related(*section_util.get_comment_fields_to_prefetch()) \
+        .order_by("time", "id")
+
+    if page >= 0:
+        PAGE_SIZE = 20
+        sorted_comments = sorted_comments[page*PAGE_SIZE: (page+1)*PAGE_SIZE]
+
+    res = [section_util.get_comment_response(request, comment)
+           for comment in sorted_comments]
+    return response.success(value=res)
