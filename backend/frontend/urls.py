@@ -20,11 +20,6 @@ urlpatterns = [
     path("manifest.json", views.manifest, name="manifest"),
     path("resolve/<str:filename>/", views.resolve, name="resolve"),
     path(
-        "legacy/transformwiki/<str:examname>/",
-        views.legacy_wiki_transform,
-        name="transformwiki",
-    ),
-    path(
         "api/can_i_haz_csrf_cookie/",
         views.can_i_haz_csrf_cookie,
         name="can_i_haz_csrf_cookie",
