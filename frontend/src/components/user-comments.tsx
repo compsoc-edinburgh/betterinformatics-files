@@ -1,7 +1,7 @@
 import { Alert, Spinner } from "@vseth/components";
 import React, { useEffect, useRef, useState } from "react";
 import Masonry from "react-masonry-component";
-import {masonryStyle} from "../pages/userinfo-page";
+import { masonryStyle } from "../pages/userinfo-page";
 import { useUserComments } from "../api/hooks";
 import { SingleComment } from "../interfaces";
 import SingleCommentComponent from "./comment-single";
@@ -23,23 +23,10 @@ interface UserCommentsProps {
 
 const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
-  const [error, loading, pageComments, reload] = useUserComments(
-    username,
-    page,
-  );
-  const [comments, setComments] = useState<SingleComment[]>([]);
+  const [error, loading, comments] = useUserComments(username, -1);
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
-  const [allElementsLoaded, setAllElementsLoaded] = useState(false);
-  useEffect(() => {
-    // ignore if pageAnswers isn't set yet
-    if (!pageComments) return;
-    // disables the spinner once all pages have been loaded
-    if (pageComments.length === 0) {
-      setAllElementsLoaded(true);
-      return;
-    }
-    setComments((old) => [...old, ...pageComments]);
-  }, [pageComments]);
+
+  const PAGE_SIZE = 20;  // loads 20 new elements at a time when scrolling down
 
   // sets the observer to the last element once it is rendered
   useEffect(() => {
@@ -76,7 +63,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
           enableResizableChildren={true}
         >
           {comments &&
-            comments.map((comment) => (
+            comments.slice(0, (page + 1) * PAGE_SIZE).map((comment) => (
               <div className="px-2 contribution-component" key={comment.oid}>
                 <SingleCommentComponent comment={comment} />
               </div>
@@ -84,7 +71,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
           <div ref={(elem) => setLastElement(elem)} />
         </Masonry>
       </div>
-      {!allElementsLoaded && loading && (
+      {loading && (
         <Spinner style={{ display: "flex", margin: "auto" }} />
       )}
     </>

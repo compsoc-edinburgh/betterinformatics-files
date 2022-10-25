@@ -1,7 +1,7 @@
 import { Alert, Spinner } from "@vseth/components";
 import React, { useEffect, useRef, useState } from "react";
 import Masonry from "react-masonry-component";
-import {masonryStyle} from "../pages/userinfo-page";
+import { masonryStyle } from "../pages/userinfo-page";
 import { useUserAnswers } from "../api/hooks";
 import { Answer } from "../interfaces";
 import AnswerComponent from "./answer";
@@ -23,20 +23,10 @@ interface UserAnswersProps {
 
 const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
-  const [error, loading, pageAnswers, reload] = useUserAnswers(username, page);
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [error, loading, answers, reload] = useUserAnswers(username, -1);
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
-  const [allElementsLoaded, setAllElementsLoaded] = useState(false);
-  useEffect(() => {
-    // ignore if pageAnswers isn't set yet
-    if (!pageAnswers) return;
-    // disables the spinner once all pages have been loaded
-    if (pageAnswers.length === 0) {
-      setAllElementsLoaded(true);
-      return;
-    }
-    setAnswers(old => [...old, ...pageAnswers]);
-  }, [pageAnswers]);
+
+  const PAGE_SIZE = 20; // loads 20 new elements at a time when scrolling down
 
   // sets the observer to the last element once it is rendered
   useEffect(() => {
@@ -68,7 +58,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
           enableResizableChildren={true}
         >
           {answers &&
-            answers.map((answer) => (
+            answers.slice(0, (page + 1) * PAGE_SIZE).map((answer) => (
               <div className="px-2 contribution-component" key={answer.oid}>
                 <AnswerComponent
                   hasId={false}
@@ -81,7 +71,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
           <div ref={elem => setLastElement(elem)} />
         </Masonry>
       </div>
-      {!allElementsLoaded && loading && <Spinner style={{ "display": "flex", "margin": "auto" }} />}
+      {loading && <Spinner style={{ "display": "flex", "margin": "auto" }} />}
     </>
   );
 };
