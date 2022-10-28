@@ -1,4 +1,5 @@
 version: "3.4"
+
 services:
   minio:
     image: minio/minio
@@ -12,17 +13,12 @@ services:
     volumes:
       - ./data/minio:/export
     command: server /export --console-address ":9001"
-    network_mode: host
   createbuckets:
     image: minio/mc
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config host add myminio http://localhost:9000 minio minio123;
-      /usr/bin/mc mb myminio/community-solutions;
-      "
-    network_mode: host
+      /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 minio minio123; /usr/bin/mc mb myminio/community-solutions; "
   postgres:
     image: postgres
     container_name: postgres
@@ -31,9 +27,8 @@ services:
       - POSTGRES_USER=docker
     volumes:
       - ./data/sql:/var/lib/postgresql/data
-    network_mode: host
     ports:
-    - "5432:5432"
+      - "5432:5432"
   community-solutions:
     build:
       context: .
@@ -43,18 +38,18 @@ services:
       target: backend
     container_name: community-solutions
     ports:
-      - "8081:8081"
+      - "8081:80"
     environment:
       - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN=localhost
       - SIP_INGRESS_HTTP_DEFAULT_CNAMES=
 
-      - SIP_POSTGRES_DB_SERVER=localhost
+      - SIP_POSTGRES_DB_SERVER=postgres
       - SIP_POSTGRES_DB_PORT=5432
       - SIP_POSTGRES_DB_NAME=postgres
       - SIP_POSTGRES_DB_USER=docker
       - SIP_POSTGRES_DB_PW=docker
 
-      - SIP_S3_FILES_HOST=localhost
+      - SIP_S3_FILES_HOST=minio
       - SIP_S3_FILES_PORT=9000
       - SIP_S3_FILES_ACCESS_KEY=minio
       - SIP_S3_FILES_SECRET_KEY=minio123
@@ -82,5 +77,8 @@ services:
     depends_on:
       - postgres
       - minio
-    network_mode: host
 
+# required so that the frontend docker can access the backend
+networks:
+  default:
+    name: community-solutions

@@ -155,20 +155,23 @@ class Command(BaseCommand):
     def create_answer_sections(self):
         self.stdout.write("Create answer sections")
         users = MyUser.objects.all()
+        objs = []
         for exam in Exam.objects.all():
             for page in range(3):
                 for i in range(4):
-                    AnswerSection(
+                    objs.append(AnswerSection(
                         exam=exam,
                         author=users[(exam.id + page + i) % len(users)],
                         page_num=page,
                         rel_height=0.2 + 0.15 * i,
                         name="Aufgabe " + str(i),
-                    ).save()
+                    ))
+        AnswerSection.objects.bulk_create(objs)
 
     def create_answers(self):
         self.stdout.write("Create answers")
         users = MyUser.objects.all()
+        objs = []
         for section in AnswerSection.objects.all():
             for i in range(section.id % 7):
                 author = users[(section.id + i) % len(users)]
@@ -185,21 +188,24 @@ class Command(BaseCommand):
                 )
                 if i == 6:
                     answer.is_legacy_answer = True
-                answer.save()
-
-                for user in users:
-                    if user == author:
-                        continue
-                    if (i + user.id) % 4 == 0:
-                        answer.upvotes.add(user)
-                    elif (i + user.id) % 7 == 1:
-                        answer.downvotes.add(user)
-                    elif (i + user.id) % 9 == 0:
-                        answer.flagged.add(user)
+                objs.append(answer)
+        Answer.objects.bulk_create(objs)
+        
+        for answer in Answer.objects.all():
+            for user in users:
+                if user == answer.author:
+                    continue
+                if (i + user.id) % 4 == 0:
+                    answer.upvotes.add(user)
+                elif (i + user.id) % 7 == 1:
+                    answer.downvotes.add(user)
+                elif (i + user.id) % 9 == 0:
+                    answer.flagged.add(user)
 
     def create_comments(self):
         self.stdout.write("Create comments")
         users = MyUser.objects.all()
+        objs = []
         for answer in Answer.objects.all():
             for i in range(answer.id % 17):
                 author = users[(answer.id + i) % len(users)]
@@ -213,18 +219,20 @@ class Command(BaseCommand):
                         ),
                     ][(answer.id + i) % 2],
                 )
-                comment.save()
+                objs.append(comment)
+        Comment.objects.bulk_create(objs)
 
     def create_feedback(self):
         self.stdout.write("Create feedback")
         users = MyUser.objects.all()
-        for i in range(122):
-            Feedback(
+        objs = [Feedback(
                 text="Feedback " + str(i + 1),
                 author=users[i % len(users)],
                 read=i % 7 == 0,
                 done=i % 17 == 0,
-            ).save()
+            )
+         for i in range(122)]
+        Feedback.objects.bulk_create(objs)
 
     def create_attachments(self):
         self.stdout.write("Create attachments")
