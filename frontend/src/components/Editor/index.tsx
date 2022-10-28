@@ -1,4 +1,5 @@
 import { css, cx } from "@emotion/css";
+import { files } from "jszip";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import ImageOverlay from "../image-overlay";
@@ -68,10 +69,35 @@ const Editor: React.FC<Props> = ({
         start: selection.start + 2,
         end: selection.start + content.length + 2,
       };
-      setCurrent(before + newContent + after, newSelection);
+      value = before + newContent + after
+      setCurrent(value, newSelection);
     },
     [setCurrent, value],
   );
+
+  const insertImages = useCallback(
+    (handles: ImageHandle[]) => {
+      const selection = getSelectionRangeRef.current();
+      if (selection === undefined) return;
+      const before = value.substring(0, selection.start);
+      const content = value.substring(selection.start, selection.end);
+      const after = value.substring(selection.end);
+      let newContent = ``;
+      for(let i=0; i< handles.length; i++){
+        const newContentPart = i === 0 ? `![${content}](${handles[i].src})` : `![](${handles[i].src})` ;
+        newContent = newContent.concat(newContentPart);
+      }
+      const newSelection = {
+        start: selection.start + 2,
+        end: selection.start + content.length + 2,
+      };
+      value = before + newContent + after
+      setCurrent(value, newSelection);
+    },
+    [setCurrent, value],
+  );
+
+
 
   const insertLink = useCallback(() => {
     const selection = getSelectionRangeRef.current();
@@ -192,6 +218,14 @@ const Editor: React.FC<Props> = ({
     [imageHandler, insertImage],
   );
 
+  const getHandle = useCallback(
+    async (file: File) => {
+    const handle = await imageHandler(file);
+    setAttachments((a) => [...a, handle]);
+    return handle;
+    },[imageHandler, insertImage],
+  );
+
   const onFiles = useCallback(
     (files: File[]) => {
       for (const file of files) {
@@ -248,6 +282,24 @@ const Editor: React.FC<Props> = ({
             setSelectionRangeRef={setSelectionRangeRef}
             getSelectionRangeRef={getSelectionRangeRef}
             onMetaKey={onMetaKey}
+            onPaste={async e =>{
+              const fileList = e.clipboardData.files;
+              const filesArray: File[] = [];
+              const size = fileList.length;
+              if(size!=0){
+                e.preventDefault();
+              }
+              for(let i =0; i<size; i++){
+               const tmp = fileList.item(i);
+               if(tmp === null){
+                 continue
+               }
+                filesArray.push(tmp);
+              }
+
+              const wstuff = await Promise.all(filesArray.map(getHandle));
+              insertImages(wstuff);
+            }}
           />
         ) : (
           preview(value)

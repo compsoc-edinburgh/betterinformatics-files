@@ -43,6 +43,7 @@ interface Props {
   textareaElRef: React.MutableRefObject<HTMLTextAreaElement>;
 
   onMetaKey: (str: string, shift: boolean) => boolean;
+  onPaste: React.ClipboardEventHandler<HTMLTextAreaElement>
 }
 const BasicEditor: React.FC<Props> = ({
   value,
@@ -51,6 +52,7 @@ const BasicEditor: React.FC<Props> = ({
   setSelectionRangeRef,
   textareaElRef,
   onMetaKey,
+  onPaste,
 }) => {
   const preElRef = useRef<HTMLPreElement>(null);
 
@@ -114,6 +116,7 @@ const BasicEditor: React.FC<Props> = ({
         value={value}
         onChange={onTextareaChange}
         onKeyDown={onTextareaKeyDown}
+        onPaste={onPaste}
         ref={textareaElRef}
         className={cx(commonStyle, textareaStyle)}
       />
