@@ -192,6 +192,7 @@ class Command(BaseCommand):
         Answer.objects.bulk_create(objs)
         
         for answer in Answer.objects.all():
+            i = answer.answer_section.id
             for user in users:
                 if user == answer.author:
                     continue
