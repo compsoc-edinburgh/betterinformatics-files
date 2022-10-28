@@ -1,27 +1,34 @@
 import {
   ButtonGroup,
+  ButtonDropdown,
   CloseIcon,
   Col,
   DeleteIcon,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   EditIcon,
   ListGroupItem,
   Row,
   SaveIcon,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
 import { imageHandler } from "../api/fetch-utils";
 import { useMutation } from "../api/hooks";
+import useToggle from "../hooks/useToggle";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection, Comment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
+import CodeBlock from "./code-block";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
+import { DotsHIcon } from "@vseth/components/dist/components/Icon/Icon";
 
 interface Props {
   answer: Answer;
@@ -35,6 +42,9 @@ const CommentComponent: React.FC<Props> = ({
   onSectionChanged,
   onDelete,
 }) => {
+  const [viewSource, toggleViewSource] = useToggle(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const toggle = useCallback(() => setIsOpen((old) => !old), []);
   const { isAdmin, username } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);
@@ -108,6 +118,16 @@ const CommentComponent: React.FC<Props> = ({
               <DeleteIcon size={18} />
             </SmallButton>
           )}
+          <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+            <DropdownToggle size="sm" color="white" tooltip="More" caret>
+              <DotsHIcon size={18} />
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem onClick={toggleViewSource}>
+                Toggle Source Code Mode
+              </DropdownItem>
+            </DropdownMenu>
+          </ButtonDropdown>
         </ButtonGroup>
       </div>
       <div>
@@ -176,7 +196,13 @@ const CommentComponent: React.FC<Props> = ({
           </Row>
         </>
       ) : (
-        <MarkdownText value={comment.text} />
+        <div>
+          {viewSource ? (
+            <CodeBlock value={comment.text} language="markdown" />
+          ) : (
+            <MarkdownText value={comment.text} />
+          )}
+        </div>
       )}
     </ListGroupItem>
   );
