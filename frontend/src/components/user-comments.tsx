@@ -23,10 +23,22 @@ interface UserCommentsProps {
 
 const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
-  const [error, loading, comments] = useUserComments(username, -1);
+  const [error, loading, data] = useUserComments(username, -1);
+  const [comments, setComments] = useState(data);
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
 
-  const PAGE_SIZE = 20;  // loads 20 new elements at a time when scrolling down
+  const PAGE_SIZE = 10; // loads a limited amount of new elements at a time when scrolling down
+
+  useEffect(() => {
+    if (data)
+      setComments([...data]);
+  }, [data]);
+
+  // resets the cards if we're on a new users page
+  useEffect(() => {
+    setPage(0);
+    setComments(undefined);
+  }, [username]);
 
   // sets the observer to the last element once it is rendered
   useEffect(() => {
@@ -54,7 +66,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   return (
     <>
       {error && <Alert color="danger">{error.message}</Alert>}
-      {(!comments || comments.length === 0) && (
+      {(!comments || comments.length === 0) && !loading && (
         <Alert color="secondary">No comments</Alert>
       )}
       <div className={masonryStyle}>

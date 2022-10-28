@@ -23,10 +23,22 @@ interface UserAnswersProps {
 
 const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
-  const [error, loading, answers, reload] = useUserAnswers(username, -1);
+  const [error, loading, data, reload] = useUserAnswers(username, -1);
+  const [answers, setAnswers] = useState(data);
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
 
-  const PAGE_SIZE = 20; // loads 20 new elements at a time when scrolling down
+  const PAGE_SIZE = 10; // loads a limited amount of new elements at a time when scrolling down
+
+  useEffect(() => {
+    if (data)
+      setAnswers([...data]);
+  }, [data]);
+
+  // resets the cards if we're on a new users page
+  useEffect(() => {
+    setPage(0);
+    setAnswers(undefined);
+  }, [username]);
 
   // sets the observer to the last element once it is rendered
   useEffect(() => {
@@ -51,7 +63,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
   return (
     <>
       {error && <Alert color="danger">{error.message}</Alert>}
-      {(!answers || answers.length === 0) && <Alert color="secondary">No answers</Alert>}
+      {(!answers || answers.length === 0) && !loading && <Alert color="secondary">No answers</Alert>}
       <div className={masonryStyle}>
         <Masonry
           options={{ fitWidth: true, transitionDuration: 0 }}
