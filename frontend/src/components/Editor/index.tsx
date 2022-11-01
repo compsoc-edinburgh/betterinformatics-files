@@ -83,16 +83,14 @@ const Editor: React.FC<Props> = ({
       const content = value.substring(selection.start, selection.end);
       const after = value.substring(selection.end);
       let newContent = ``;
-      for(let i=0; i< handles.length; i++){
-        const newContentPart = i === 0 ? `![${content}](${handles[i].src})` : `![](${handles[i].src})` ;
-        newContent = newContent.concat(newContentPart);
+      for (let i = 0; i < handles.length; i++) {
+        newContent += i === 0 ? `![${content}](${handles[i].src})` : `![](${handles[i].src})`;
       }
       const newSelection = {
         start: selection.start + 2,
         end: selection.start + content.length + 2,
       };
-      value = before + newContent + after
-      setCurrent(value, newSelection);
+      setCurrent(before + newContent + after, newSelection);
     },
     [setCurrent, value],
   );
@@ -220,10 +218,10 @@ const Editor: React.FC<Props> = ({
 
   const getHandle = useCallback(
     async (file: File) => {
-    const handle = await imageHandler(file);
-    setAttachments((a) => [...a, handle]);
-    return handle;
-    },[imageHandler, insertImage],
+      const handle = await imageHandler(file);
+      setAttachments((a) => [...a, handle]);
+      return handle;
+    }, [imageHandler],
   );
 
   const onFiles = useCallback(
@@ -282,23 +280,25 @@ const Editor: React.FC<Props> = ({
             setSelectionRangeRef={setSelectionRangeRef}
             getSelectionRangeRef={getSelectionRangeRef}
             onMetaKey={onMetaKey}
-            onPaste={async e =>{
+            onPaste={async e => {
               const fileList = e.clipboardData.files;
               const filesArray: File[] = [];
               const size = fileList.length;
-              if(size!=0){
+              console.log("pasting", size)
+              if (size !== 0) {
                 e.preventDefault();
               }
-              for(let i =0; i<size; i++){
-               const tmp = fileList.item(i);
-               if(tmp === null){
-                 continue
-               }
-                filesArray.push(tmp);
+              for (let i = 0; i < size; i++) {
+                const file = fileList.item(i);
+                console.log(file?.name)
+                if (file === null) {
+                  continue
+                }
+                filesArray.push(file);
               }
 
-              const wstuff = await Promise.all(filesArray.map(getHandle));
-              insertImages(wstuff);
+              const imageHandles = await Promise.all(filesArray.map(getHandle));
+              insertImages(imageHandles);
             }}
           />
         ) : (
