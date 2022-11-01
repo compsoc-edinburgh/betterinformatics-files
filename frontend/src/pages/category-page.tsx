@@ -32,7 +32,17 @@ import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
 
-const metadataColStyle = css``;
+const metadataColStyle = css`
+  & a{
+    text-decoration: underline;
+    color: black;
+    transition: color .2s; 
+  }
+  & a:hover{
+    transition: color .2s; 
+    color: grey;
+  }
+`;
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
