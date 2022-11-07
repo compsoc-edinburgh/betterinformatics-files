@@ -51,7 +51,7 @@ class Command(BaseCommand):
                     16, settings.COMSOL_IMAGE_DIR, ".svg"
                 )
                 s3_util.save_file_to_s3(
-                    settings.COMSOL_IMAGE_DIR, filename, "static/expert_active.svg"
+                    settings.COMSOL_IMAGE_DIR, filename, "static/test_image.svg"
                 )
                 Image(filename=filename, owner=user).save()
 
@@ -215,7 +215,7 @@ class Command(BaseCommand):
                     author=author,
                     text=[
                         "This is a comment ({}).".format(i + 1),
-                        "This is a test image: [Testimage]({})".format(
+                        "This is a test image: ![Testimage]({})".format(
                             Image.objects.filter(owner=author).first().filename
                         ),
                     ][(answer.id + i) % 2],

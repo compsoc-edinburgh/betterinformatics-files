@@ -6,7 +6,7 @@ class TestUploadRemove(ComsolTest):
     def test_upload_and_remove(self):
         images = self.get('/api/image/list/')['value']
         self.assertEqual(len(images), 0)
-        with open('static/expert.svg', 'rb') as f:
+        with open('static/test_uploadrm.svg', 'rb') as f:
             res = self.post('/api/image/upload/', {
                 'file': f,
             })

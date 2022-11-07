@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="180"
+   height="180"
+   viewBox="0 0 180 180"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="TriangleStart"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       markerWidth="5.3244081"
+       markerHeight="6.155385"
+       viewBox="0 0 5.3244081 6.1553851"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
+    </marker>
+  </defs>
+  <g
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:23.114px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.57785"
+       x="9.9681902"
+       y="81.939949"
+       id="text478"><tspan
+         id="tspan476"
+         x="9.9681902"
+         y="81.939949"
+         style="stroke-width:0.57785">Upload/Delete</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none"
+       x="25.317307"
+       y="38.211746"
+       id="text1920"><tspan
+         id="tspan1918"
+         x="25.317307"
+         y="38.211746">Testing</tspan></text>
+    <circle
+       style="fill:none;fill-rule:evenodd;stroke:#00a700;stroke-width:3.77953"
+       id="path2155"
+       cx="45.715714"
+       cy="134.97778"
+       r="25.299276" />
+    <circle
+       style="fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:3.77953"
+       id="path2211"
+       cx="134.6438"
+       cy="133.617"
+       r="25.917038" />
+    <path
+       id="path2475"
+       style="fill:#b3b3b3;fill-rule:evenodd;stroke:#b3b3b3;stroke-width:1.63377"
+       d="m 45.795372,115.91142 a 5.1829444,3.7504413 0 0 0 -5.183498,3.75044 5.1829444,3.7504413 0 0 0 0.0849,0.63964 2.6195696,1.5084749 0 0 0 -0.343403,-0.0135 2.6195696,1.5084749 0 0 0 -2.619413,1.50868 2.6195696,1.5084749 0 0 0 0.13927,0.476 6.0333534,4.779121 0 0 0 -0.293801,0.3101 4.250817,2.9555421 0 0 0 -3.20606,-1.01475 4.250817,2.9555421 0 0 0 -4.250584,2.95534 4.250817,2.9555421 0 0 0 4.250584,2.95611 4.250817,2.9555421 0 0 0 2.430537,-0.53877 6.0333534,4.779121 0 0 0 0.318603,0.58884 4.4942602,2.3757159 0 0 0 -2.632765,2.15803 4.4942602,2.3757159 0 0 0 4.493826,2.3755 4.4942602,2.3757159 0 0 0 1.835306,-0.21072 5.5090804,2.9843548 0 0 0 5.242639,2.08481 5.5090804,2.9843548 0 0 0 4.94884,-1.68728 5.5433678,2.263096 0 0 0 1.111293,0.0509 5.5433678,2.263096 0 0 0 4.930712,-1.23893 4.8045994,2.5098947 0 0 0 3.57522,0.84065 4.8045994,2.5098947 0 0 0 4.8048,-2.51001 4.8045994,2.5098947 0 0 0 -4.8048,-2.50924 4.8045994,2.5098947 0 0 0 -0.708748,0.0292 6.0239131,3.9189195 0 0 0 0.15072,-0.82645 6.0239131,3.9189195 0 0 0 -6.023887,-3.9193 6.0239131,3.9189195 0 0 0 -0.388237,0.0179 2.8737791,1.6904448 0 0 0 1.216221,-1.37716 2.8737791,1.6904448 0 0 0 -2.873147,-1.69029 2.8737791,1.6904448 0 0 0 -1.056921,0.12032 5.1829444,3.7504413 0 0 0 -5.148205,-3.32599 z m 4.092235,6.03775 a 2.8737791,1.6904448 0 0 0 1.800013,0.53653 6.0239131,3.9189195 0 0 0 -3.238497,2.17671 6.0333534,4.779121 0 0 0 -0.641022,-1.55053 5.1829444,3.7504413 0 0 0 2.079506,-1.16271 z m -1.716068,4.95573 a 6.0239131,3.9189195 0 0 0 0.789831,1.27928 5.5433678,2.263096 0 0 0 -0.376791,0.11657 5.5090804,2.9843548 0 0 0 -1.150405,-0.23688 6.0333534,4.779121 0 0 0 0.737365,-1.15897 z m -18.427457,0.13002 a 4.3486497,2.4269905 0 0 0 -4.348835,2.42706 4.3486497,2.4269905 0 0 0 4.348835,2.42706 4.3486497,2.4269905 0 0 0 4.348834,-2.42706 4.3486497,2.4269905 0 0 0 -4.348834,-2.42706 z" />
+    <path
+       style="fill:none;stroke:#008000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 37.665942,147.22751 5.77617,6.38868 12.915464,-16.96863"
+       id="path2662" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:23.5049px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.587624"
+       x="115.25447"
+       y="141.54086"
+       id="text2728"><tspan
+         id="tspan2726"
+         x="115.25447"
+         y="141.54086"
+         style="stroke-width:0.587624">404</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#TriangleStart)"
+       d="m 62.917737,154.65886 c 18.639459,20.01861 39.272523,8.96555 50.767913,-0.65314"
+       id="path2844" />
+  </g>
+</svg>
