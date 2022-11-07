@@ -53,7 +53,7 @@ const ImageModal: React.FC<ModalProps> = ({
           </Col>
           <Col xs="auto">
             <Button
-              onClick={() => file && add(file) && setFile(undefined)}
+              onClick={() => { if (file) { add(file); setFile(undefined); } }}
               disabled={file === undefined}
             >
               Upload
