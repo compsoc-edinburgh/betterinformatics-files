@@ -24,7 +24,7 @@ const DropZone: React.FC<Props> = ({ onDragLeave, onDrop }) => {
       if (items === undefined) return;
       const files: File[] = [];
       for (let i = 0; i < items.length; i++) {
-        const item = items.item ? items.item(i) : items[i];
+        const item = items[i];
         if (item.kind !== "file") continue;
         const file = item.getAsFile();
         if (file === null) continue;
