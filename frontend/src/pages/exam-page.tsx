@@ -170,6 +170,37 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     displayEmptyCutLabels: false,
   });
 
+  const [expandedSections, expandSections, collapseSections] = useSet<string>();
+  const allSectionsExpanded = useMemo(() => {
+    if (sections === undefined) {
+      return false;
+    }
+    return sections.every(
+      (section) =>
+        section.kind !== SectionKind.Answer ||
+        section.hidden ||
+        expandedSections.has(section.oid),
+    );
+  }, [sections, expandedSections]);
+  const answerSections = useMemo(() => {
+    if (sections === undefined) return;
+    const answerSections: string[] = [];
+    for (const section of sections) {
+      if (section.kind === SectionKind.Answer && !section.hidden) {
+        answerSections.push(section.oid);
+      }
+    }
+    return answerSections;
+  }, [sections]);
+  const collapseAllSections = useCallback(() => {
+    if (answerSections === undefined) return;
+    collapseSections(...answerSections);
+  }, [sections, collapseSections]);
+  const expandAllSections = useCallback(() => {
+    if (answerSections === undefined) return;
+    expandSections(...answerSections);
+  }, [sections, expandSections]);
+
   const toc = useMemo(() => {
     if (sections === undefined) {
       return undefined;
@@ -343,6 +374,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               }
               displayEmptyCutLabels={displayOptions.displayEmptyCutLabels}
               displayHideShowButtons={displayOptions.displayHideShowButtons}
+              expandedSections={expandedSections}
+              onCollapseSections={collapseSections}
+              onExpandSections={expandSections}
             />
           )}
         </div>
@@ -353,6 +387,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         metaData={metaData}
         renderer={renderer}
         visiblePages={visiblePages}
+        allSectionsExpanded={allSectionsExpanded}
+        onCollapseAllSections={collapseAllSections}
+        onExpandAllSections={expandAllSections}
         maxWidth={maxWidth}
         setMaxWidth={setMaxWidth}
         editState={editState}

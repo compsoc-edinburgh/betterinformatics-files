@@ -1,6 +1,8 @@
 import { css } from "@emotion/css";
 import { useDebounceFn } from "@umijs/hooks";
 import {
+  AdjustUpDownAltIcon,
+  AdjustUpDownIcon,
   ArrowUpIcon,
   ButtonGroup,
   CloseIcon,
@@ -56,6 +58,10 @@ interface ExamPanelProps {
   renderer?: PDF;
   visiblePages: Set<number>;
 
+  allSectionsExpanded: boolean;
+  onExpandAllSections: () => void;
+  onCollapseAllSections: () => void;
+
   maxWidth: number;
   setMaxWidth: (newWidth: number) => void;
 
@@ -72,6 +78,10 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
   metaData,
   renderer,
   visiblePages,
+
+  allSectionsExpanded,
+  onExpandAllSections,
+  onCollapseAllSections,
 
   maxWidth,
   setMaxWidth,
@@ -168,6 +178,19 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             icon={ArrowUpIcon}
             onClick={scrollToTop}
           />
+          {allSectionsExpanded ? (
+            <IconButton
+              tooltip="Collapse all answers"
+              icon={AdjustUpDownAltIcon}
+              onClick={onCollapseAllSections}
+            />
+          ) : (
+            <IconButton
+              tooltip="Expand all answers"
+              icon={AdjustUpDownIcon}
+              onClick={onExpandAllSections}
+            />
+          )}
         </ButtonGroup>
 
         {canEdit && (
