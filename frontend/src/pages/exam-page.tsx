@@ -3,7 +3,6 @@ import {
   Alert,
   Breadcrumb,
   BreadcrumbItem,
-  Button,
   Card,
   CardBody,
   CheckIcon,
@@ -171,35 +170,32 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   });
 
   const [expandedSections, expandSections, collapseSections] = useSet<string>();
-  const allSectionsExpanded = useMemo(() => {
-    if (sections === undefined) {
-      return false;
-    }
-    return sections.every(
-      (section) =>
-        section.kind !== SectionKind.Answer ||
-        section.hidden ||
-        expandedSections.has(section.oid),
-    );
-  }, [sections, expandedSections]);
   const answerSections = useMemo(() => {
     if (sections === undefined) return;
     const answerSections: string[] = [];
     for (const section of sections) {
-      if (section.kind === SectionKind.Answer && !section.hidden) {
+      if (section.kind === SectionKind.Answer) {
         answerSections.push(section.oid);
       }
     }
     return answerSections;
   }, [sections]);
+  const allSectionsExpanded = useMemo(() => {
+    if (answerSections === undefined) return true;
+    return answerSections.every((section) => expandedSections.has(section));
+  }, [answerSections, expandedSections]);
+  const allSectionsCollapsed = useMemo(() => {
+    if (answerSections === undefined) return true;
+    return !answerSections.some((section) => expandedSections.has(section));
+  }, [answerSections, expandedSections]);
   const collapseAllSections = useCallback(() => {
     if (answerSections === undefined) return;
     collapseSections(...answerSections);
-  }, [sections, collapseSections]);
+  }, [collapseSections, answerSections]);
   const expandAllSections = useCallback(() => {
     if (answerSections === undefined) return;
     expandSections(...answerSections);
-  }, [sections, expandSections]);
+  }, [expandSections, answerSections]);
 
   const toc = useMemo(() => {
     if (sections === undefined) {
@@ -388,6 +384,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         renderer={renderer}
         visiblePages={visiblePages}
         allSectionsExpanded={allSectionsExpanded}
+        allSectionsCollapsed={allSectionsCollapsed}
         onCollapseAllSections={collapseAllSections}
         onExpandAllSections={expandAllSections}
         maxWidth={maxWidth}

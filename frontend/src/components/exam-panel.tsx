@@ -59,6 +59,7 @@ interface ExamPanelProps {
   visiblePages: Set<number>;
 
   allSectionsExpanded: boolean;
+  allSectionsCollapsed: boolean;
   onExpandAllSections: () => void;
   onCollapseAllSections: () => void;
 
@@ -80,6 +81,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
   visiblePages,
 
   allSectionsExpanded,
+  allSectionsCollapsed,
   onExpandAllSections,
   onCollapseAllSections,
 
@@ -178,17 +180,18 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             icon={ArrowUpIcon}
             onClick={scrollToTop}
           />
-          {allSectionsExpanded ? (
-            <IconButton
-              tooltip="Collapse all answers"
-              icon={AdjustUpDownAltIcon}
-              onClick={onCollapseAllSections}
-            />
-          ) : (
+          {!allSectionsExpanded && (
             <IconButton
               tooltip="Expand all answers"
               icon={AdjustUpDownIcon}
               onClick={onExpandAllSections}
+            />
+          )}
+          {!allSectionsCollapsed && (
+            <IconButton
+              tooltip="Collapse all answers"
+              icon={AdjustUpDownAltIcon}
+              onClick={onCollapseAllSections}
             />
           )}
         </ButtonGroup>
