@@ -16,6 +16,7 @@ import { loadCutVersions } from "../api/hooks";
 import useSet from "../hooks/useSet";
 import PDF from "../pdf/pdf-renderer";
 import { fetchGet } from "../api/fetch-utils";
+import { getAnswerSectionId } from "../utils/exam-utils";
 
 interface Props {
   metaData: ExamMetaData;
@@ -212,7 +213,13 @@ const Exam: React.FC<Props> = React.memo(
                 />
               );
             } else {
-              return null;
+              // Return empty div so that jumping to hidden section from contents is still possible
+              const id = getAnswerSectionId(section.oid, section.name);
+              return (
+                <>
+                  <div id={id} style={{ visibility: "hidden" }} />
+                </>
+              );
             }
           } else {
             if (displayHiddenPdfSections || !section.hidden) {

@@ -34,6 +34,7 @@ import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-columns";
+import { getAnswerSectionId } from "../utils/exam-utils";
 
 const nameCardStyle = css`
   border-top-left-radius: 0;
@@ -223,8 +224,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     useEffect(() => {
       if (data && cutName.length === 0 && isCatAdmin) setIsEditingName(true);
     }, [data, isCatAdmin, cutName]);
-    const nameParts = cutName.split(" > ");
-    const id = `${oid}-${nameParts.join("-")}`;
+    const id = getAnswerSectionId(oid, cutName);
 
     return (
       <>
