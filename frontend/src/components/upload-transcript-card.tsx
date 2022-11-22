@@ -11,11 +11,14 @@ import {
   Row,
   Select,
   Spinner,
+  DownloadIcon,
 } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
 import FileInput from "./file-input";
+import IconButton from "./icon-button";
+
 
 const UploadTranscriptCard: React.FC<{}> = () => {
   const history = useHistory();
@@ -63,9 +66,14 @@ const UploadTranscriptCard: React.FC<{}> = () => {
       <CardHeader>Submit Transcript for Oral Exam</CardHeader>
       <CardBody>
         <p>
-          Please use the following{" "}
-          <a href="/static/transcript_template.tex">template</a>.
+          Please use the following template:
         </p>
+        <IconButton
+          icon={DownloadIcon}
+          onClick={() => window.open('/static/transcript_template.tex')}
+          style={{marginBottom: '1.5em'}}>
+          Download template
+        </IconButton>
         <Form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
           <FormGroup>
