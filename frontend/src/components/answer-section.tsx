@@ -168,27 +168,14 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       (newData: AnswerSection) => {
         setCutVersion(newData.cutVersion);
         setData(newData);
+        run();  // refreshes the data if there's a new answer
       },
-      [setCutVersion],
+      [setCutVersion, run],
     );
-    const [inViewport, ref] = useLoad<HTMLDivElement>();
-    const visible = inViewport || false;
+    // initial run to get the answers in a section
     useEffect(() => {
-      if (data?.has_answers !== has_answers && !has_answers && data) {
-        setData({
-          ...data,
-          answers: [],
-          allow_new_answer: true,
-          allow_new_legacy_answer: true,
-        });
-      }
-      if (
-        (data === undefined || data.cutVersion !== cutVersion) &&
-        (visible || !hidden)
-      ) {
-        run();
-      }
-    }, [data, visible, run, cutVersion, hidden, has_answers]);
+      run();
+    }, [run]);
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = useCallback(() => {
@@ -206,6 +193,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const hideAnswerSection = async () => {
       await onHasAnswersChange();
       setDeleteAnswersWarning(false);
+      run(); // updates data when setting visibility to hidden 
     };
     const hideAnswerSectionWithWarning = () => {
       if (data) {
@@ -311,7 +299,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <CardHeader>
-              <div className="d-flex" ref={ref}>
+              <div className="d-flex">
                 {data === undefined ? (
                   <ThreeButtons center={<Spinner />} />
                 ) : (
