@@ -45,6 +45,7 @@ import {
   ServerCutResponse,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
+import { getAnswerSectionId } from "../utils/exam-utils";
 
 const addCut = async (
   filename: string,
@@ -207,7 +208,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         if (section.cutHidden) continue;
         const parts = section.name.split(" > ");
         if (parts.length === 1 && parts[0].length === 0) continue;
-        const jumpTarget = `${section.oid}-${parts.join("-")}`;
+        const jumpTarget = getAnswerSectionId(section.oid, section.name);
         rootNode.add(parts, jumpTarget);
       }
     }

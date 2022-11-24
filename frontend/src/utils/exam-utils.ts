@@ -15,3 +15,8 @@ export const hasValidClaim = (exam: CategoryExam) => {
   }
   return false;
 };
+
+export const getAnswerSectionId = (sectionId: string, cutName: string) => {
+  const nameParts = cutName.split(" > ");
+  return `${sectionId}-${nameParts.join("-")}`;
+};
