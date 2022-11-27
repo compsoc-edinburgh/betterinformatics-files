@@ -199,6 +199,11 @@ const App: React.FC<{}> = () => {
                       path="/user/:username"
                       component={UserPage}
                     />
+                    <UserRoute
+                      exact
+                      path="/user/"
+                      component={UserPage}
+                    />
                     <UserRoute exact path="/search/" component={SearchPage} />
                     <UserRoute
                       exact
