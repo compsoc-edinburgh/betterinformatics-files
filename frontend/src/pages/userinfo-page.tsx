@@ -65,9 +65,9 @@ export const masonryStyle = css`
 `;
 
 const UserPage: React.FC<{}> = () => {
-  const { username } = useParams() as { username: string };
-  useTitle(username);
   const user = useUser()!;
+  const { username = user.username } = (useParams() as { username: string });
+  useTitle(username);
   const isMyself = user.username === username;
   const [userInfoError, userInfoLoading, userInfo] = useUserInfo(username);
   const error = userInfoError;
