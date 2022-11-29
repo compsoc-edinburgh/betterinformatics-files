@@ -125,7 +125,10 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     if (c > 0) {
       window.requestAnimationFrame(scrollToTop);
       window.scrollTo(0, c - c / 10 - 1);
+    }else{
+      toggle()
     }
+    
   }, []);
 
   return (
@@ -179,6 +182,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             tooltip="Back to the top"
             icon={ArrowUpIcon}
             onClick={scrollToTop}
+
           />
           {!allSectionsExpanded && (
             <IconButton
