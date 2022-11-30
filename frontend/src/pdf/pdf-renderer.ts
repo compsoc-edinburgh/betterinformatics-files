@@ -1,4 +1,4 @@
-import pdfjs from "./pdfjs";
+import * as pdfjs from "./pdfjs";
 import { globalFactory } from "./canvas-factory";
 import {
   PdfCanvasReference,
