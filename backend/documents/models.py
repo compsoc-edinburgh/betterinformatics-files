@@ -25,8 +25,7 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
         return is_admin or is_owner
 
     def current_user_can_edit(self, request):
-        is_owner = self.author.pk == request.user.pk
-        return is_owner
+        return self.current_user_can_delete(request)
 
 
 class Comment(ExportModelOperationsMixin("document_comment"), CommentMixin):
