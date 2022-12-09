@@ -57,6 +57,7 @@ const markdownPlugins = [RemarkMathPlugin, RemarkGfm];
 
 const createRenderers = (
   regex: RegExp | undefined,
+  macros: object,
 ): ReactMarkdownProps["renderers"] => ({
   table: ({ children }) => {
     return <table className="table">{children}</table>;
@@ -83,8 +84,8 @@ const createRenderers = (
     }
     return <>{arr}</>;
   },
-  math: (props: { value: string }) => <TeX math={props.value} block />,
-  inlineMath: (props: { value: string }) => <TeX math={props.value} />,
+  math: (props: { value: string }) => <TeX settings={{ macros }} math={props.value} block />,
+  inlineMath: (props: { value: string }) => <TeX settings={{ macros}} math={props.value} />,
   code: (props: { value: string; language: string | null }) => (
     // In TypeScript I prefer to represent optional properties as `undefined`, whereas
     // react-markdown uses `null` here if no language is provided for the code block.
@@ -104,7 +105,8 @@ interface Props {
   regex?: RegExp;
 }
 const MarkdownText: React.FC<Props> = ({ value, regex }) => {
-  const renderers = useMemo(() => createRenderers(regex), [regex]);
+  const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
+  const renderers = useMemo(() => createRenderers(regex, macros), [regex]);
   if (value.length === 0) {
     return <div />;
   }
