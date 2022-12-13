@@ -104,7 +104,9 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
       .entries(),
   ].sort(([a], [b]) => a.localeCompare(b));
 };
-export const dlSelectedExams = async (selectedExams: ExamSelectedForDownload[]) => {
+export const dlSelectedExams = async (
+  selectedExams: ExamSelectedForDownload[],
+) => {
   const JSZip = await import("jszip").then(e => e.default);
   const zip = new JSZip();
 
@@ -113,7 +115,9 @@ export const dlSelectedExams = async (selectedExams: ExamSelectedForDownload[]) 
 
   await Promise.all(
     selectedExams.map(async exam => {
-      const responseUrl = await fetchGet(`/api/exam/pdf/exam/${exam.filename}/`);
+      const responseUrl = await fetchGet(
+        `/api/exam/pdf/exam/${exam.filename}/`,
+      );
       const responseFile = await fetch(responseUrl.value).then(r =>
         r.arrayBuffer(),
       );

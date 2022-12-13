@@ -39,8 +39,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     () =>
       data &&
       data
-        .filter((exam) => exam.public || isCategoryAdmin)
-        .filter((exam) => filterMatches(filter, exam.displayname)),
+        .filter(exam => exam.public || isCategoryAdmin)
+        .filter(exam => filterMatches(filter, exam.displayname)),
     [data, isCategoryAdmin, filter],
   );
   const examTypeMap = useMemo(
@@ -88,7 +88,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
                 className="search-input"
                 placeholder="Filter..."
                 value={filter}
-                onChange={(e) => setFilter(e.currentTarget.value)}
+                onChange={e => setFilter(e.currentTarget.value)}
                 autoFocus
               />
               <div className="search-icon-wrapper">

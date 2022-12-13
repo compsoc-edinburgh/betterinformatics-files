@@ -13,7 +13,6 @@ import AnswerSectionComponent from "./answer-section";
 import PdfSectionCanvas from "../pdf/pdf-section-canvas";
 import { useRequest } from "@umijs/hooks";
 import { loadCutVersions } from "../api/hooks";
-import useSet from "../hooks/useSet";
 import PDF from "../pdf/pdf-renderer";
 import { fetchGet } from "../api/fetch-utils";
 import { getAnswerSectionId } from "../utils/exam-utils";
@@ -104,8 +103,8 @@ const Exam: React.FC<Props> = React.memo(
     const [cutVersions, setCutVersions] = useState<CutVersions>({});
     useRequest(() => loadCutVersions(metaData.filename), {
       pollingInterval: 60_000,
-      onSuccess: (response) => {
-        setCutVersions((oldVersions) => ({ ...oldVersions, ...response }));
+      onSuccess: response => {
+        setCutVersions(oldVersions => ({ ...oldVersions, ...response }));
       },
     });
     const snap =
@@ -124,7 +123,7 @@ const Exam: React.FC<Props> = React.memo(
       let cancelled = false;
       if (hash.length > 0) {
         fetchGet(`/api/exam/answer/${hash}/`)
-          .then((res) => {
+          .then(res => {
             if (cancelled) return;
             const sectionId = res.value.sectionId;
             onExpandSections(sectionId);
@@ -140,7 +139,7 @@ const Exam: React.FC<Props> = React.memo(
     }, [hash, expandedSections, sections, onExpandSections]);
     const onChangeListeners = useObjectFromMap(
       sections,
-      (section) => {
+      section => {
         if (section.kind === SectionKind.Pdf) {
           return [
             section.key,
@@ -154,7 +153,7 @@ const Exam: React.FC<Props> = React.memo(
     );
     const addCutHandlers = useObjectFromMap(
       sections,
-      (section) => {
+      section => {
         if (section.kind === SectionKind.Pdf) {
           return [section.key, getAddCutHandler(section)];
         } else {
@@ -165,7 +164,7 @@ const Exam: React.FC<Props> = React.memo(
     );
     return (
       <>
-        {sections.map((section) => {
+        {sections.map(section => {
           if (section.kind === SectionKind.Answer) {
             if (displayHiddenAnswerSections || section.has_answers) {
               return (
@@ -192,8 +191,8 @@ const Exam: React.FC<Props> = React.memo(
                   hidden={!expandedSections.has(section.oid)}
                   has_answers={section.has_answers}
                   cutVersion={cutVersions[section.oid] || section.cutVersion}
-                  setCutVersion={(newVersion) =>
-                    setCutVersions((oldVersions) => ({
+                  setCutVersion={newVersion =>
+                    setCutVersions(oldVersions => ({
                       ...oldVersions,
                       [section.oid]: newVersion,
                     }))

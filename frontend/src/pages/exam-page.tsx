@@ -90,7 +90,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const { run: runMarkChecked } = useRequest(markAsChecked, {
     manual: true,
     onSuccess() {
-      mutateMetaData((metaData) => ({
+      mutateMetaData(metaData => ({
         ...metaData,
         oral_transcript_checked: true,
       }));
@@ -111,9 +111,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const { run: runUpdate } = useRequest(updateCut, {
     manual: true,
     onSuccess: (_data, [oid, update]) => {
-      mutateCuts((oldCuts) =>
+      mutateCuts(oldCuts =>
         Object.keys(oldCuts).reduce((result, key) => {
-          result[key] = oldCuts[key].map((cutPosition) =>
+          result[key] = oldCuts[key].map(cutPosition =>
             cutPosition.oid === oid
               ? { ...cutPosition, ...update }
               : cutPosition,
@@ -183,11 +183,11 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   }, [sections]);
   const allSectionsExpanded = useMemo(() => {
     if (answerSections === undefined) return true;
-    return answerSections.every((section) => expandedSections.has(section));
+    return answerSections.every(section => expandedSections.has(section));
   }, [answerSections, expandedSections]);
   const allSectionsCollapsed = useMemo(() => {
     if (answerSections === undefined) return true;
-    return !answerSections.some((section) => expandedSections.has(section));
+    return !answerSections.some(section => expandedSections.has(section));
   }, [answerSections, expandedSections]);
   const collapseAllSections = useCallback(() => {
     if (answerSections === undefined) return;
@@ -328,7 +328,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               </a>
             </Col>
           )}
-          {metaData.attachments.map((attachment) => (
+          {metaData.attachments.map(attachment => (
             <Col md={6} lg={4} key={attachment.filename}>
               <a
                 href={`/api/filestore/get/${attachment.filename}/`}

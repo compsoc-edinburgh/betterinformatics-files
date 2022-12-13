@@ -47,7 +47,7 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
         <div ref={sizeRef} className="mx-auto my-3">
           {renderer && (
             <div className="d-flex flex-column">
-              {getPages(renderer).map((pageNumber) => (
+              {getPages(renderer).map(pageNumber => (
                 <PdfSectionCanvas
                   key={pageNumber}
                   oid={undefined}

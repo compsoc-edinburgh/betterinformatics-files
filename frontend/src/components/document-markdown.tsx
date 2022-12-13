@@ -8,7 +8,7 @@ interface DocumentMarkdownProps {
 }
 const DocumentMarkdown: React.FC<DocumentMarkdownProps> = ({ url }) => {
   const { error: mdError, data } = useRequest(
-    () => fetch(url).then((r) => r.text()),
+    () => fetch(url).then(r => r.text()),
     {
       refreshDeps: [url],
     },

@@ -15,12 +15,12 @@ export const fromEntries = <T extends Array<[string, unknown]>>(o: T) =>
   }, {});
 
 export const createOptions = <T extends Options>(o: T) =>
-  (fromEntries(
+  fromEntries(
     Object.entries(o).map(([key, value]) => [
       key,
       { value: key, label: value },
     ]) as Array<[string, unknown]>,
-  ) as unknown) as OptionsResult<T>;
+  ) as unknown as OptionsResult<T>;
 export type SelectOption<T> = { value: keyof T; label: string };
 export const options = <T>(map: OptionsResult<T>) =>
   Object.values(map) as Array<{ value: keyof T; label: string }>;

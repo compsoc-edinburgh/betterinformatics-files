@@ -1,4 +1,4 @@
-import { Button, Modal, ModalBody, ModalHeader, Row } from "@vseth/components";
+import { Button, Modal, ModalBody, ModalHeader } from "@vseth/components";
 import React from "react";
 interface ModalProps {
   isOpen: boolean;

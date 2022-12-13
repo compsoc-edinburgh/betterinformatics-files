@@ -50,7 +50,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
     createOptions(
       Object.fromEntries(
         categories.map(
-          (category) => [category.slug, category.displayname] as const,
+          category => [category.slug, category.displayname] as const,
         ),
       ) as { [key: string]: string },
     );
@@ -58,8 +58,8 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const [loading, updateDocument] = useUpdateDocument(
     data.author,
     slug,
-    (result) => {
-      mutate((s) => ({ ...s, ...result }));
+    result => {
+      mutate(s => ({ ...s, ...result }));
       setDisplayName(undefined);
       setCategory(undefined);
       if (result.slug !== data.slug) {
@@ -70,9 +70,9 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const [regenerateLoading, regenerate] = useRegenerateDocumentAPIKey(
     data.author,
     slug,
-    (result) => mutate((s) => ({ ...s, ...result })),
+    result => mutate(s => ({ ...s, ...result })),
   );
-  const [deleteLoading, deleteDocument] = useDeleteDocument(
+  const [_, deleteDocument] = useDeleteDocument(
     data.author,
     slug,
     () => data && history.push(`/category/${data.category}`),
@@ -81,8 +81,9 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
-  const [descriptionDraftText, setDescriptionDraftText] =
-    useState<string | undefined>(undefined);
+  const [descriptionDraftText, setDescriptionDraftText] = useState<
+    string | undefined
+  >(undefined);
   const [descriptionUndoStack, setDescriptionUndoStack] = useState<UndoStack>({
     prev: [],
     next: [],
@@ -103,7 +104,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           <InputField
             label="Display Name"
             value={displayName ?? data.display_name}
-            onChange={(e) => setDisplayName(e.currentTarget.value)}
+            onChange={e => setDisplayName(e.currentTarget.value)}
           />
           <FormGroup>
             <label className="form-input-label">Category</label>
@@ -128,7 +129,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               value={descriptionDraftText ?? data.description}
               onChange={setDescriptionDraftText}
               imageHandler={imageHandler}
-              preview={(value) => <MarkdownText value={value} />}
+              preview={value => <MarkdownText value={value} />}
               undoStack={descriptionUndoStack}
               setUndoStack={setDescriptionUndoStack}
             />
@@ -168,7 +169,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
         </div>
       )}
       <ListGroup className="mb-2">
-        {data.files.map((file) => (
+        {data.files.map(file => (
           <DocumentFileItem
             key={file.oid}
             document={data}

@@ -43,7 +43,7 @@ interface Props {
   textareaElRef: React.MutableRefObject<HTMLTextAreaElement>;
 
   onMetaKey: (str: string, shift: boolean) => boolean;
-  onPaste: React.ClipboardEventHandler<HTMLTextAreaElement>
+  onPaste: React.ClipboardEventHandler<HTMLTextAreaElement>;
 }
 const BasicEditor: React.FC<Props> = ({
   value,
@@ -77,7 +77,7 @@ const BasicEditor: React.FC<Props> = ({
   };
 
   const onTextareaChange = useCallback(
-    (e) => {
+    e => {
       const newContent = e.currentTarget.value;
       onChange(newContent);
     },

@@ -66,6 +66,7 @@ function useLoad<T extends HTMLElement = HTMLElement>(): [
   InViewport,
   MutableRefObject<T>,
 ];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function useLoad<T extends HTMLElement = HTMLElement>(arg: Arg): [InViewport];
 function useLoad<T extends HTMLElement = HTMLElement>(
   ...args: [Arg] | []

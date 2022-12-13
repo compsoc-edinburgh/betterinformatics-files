@@ -19,7 +19,6 @@ import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 
-
 const UploadTranscriptCard: React.FC<{}> = () => {
   const history = useHistory();
   const {
@@ -65,13 +64,12 @@ const UploadTranscriptCard: React.FC<{}> = () => {
     <Card>
       <CardHeader>Submit Transcript for Oral Exam</CardHeader>
       <CardBody>
-        <p>
-          Please use the following template:
-        </p>
+        <p>Please use the following template:</p>
         <IconButton
           icon={DownloadIcon}
-          onClick={() => window.open('/static/transcript_template.tex')}
-          style={{marginBottom: '1.5em'}}>
+          onClick={() => window.open("/static/transcript_template.tex")}
+          style={{ marginBottom: "1.5em" }}
+        >
           Download template
         </IconButton>
         <Form onSubmit={onSubmit}>

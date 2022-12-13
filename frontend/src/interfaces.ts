@@ -219,8 +219,8 @@ export interface ExamMetaData {
 }
 
 export interface ExamSelectedForDownload {
-  filename: string,
-  displayname: string,
+  filename: string;
+  displayname: string;
 }
 
 export interface NotificationInfo {

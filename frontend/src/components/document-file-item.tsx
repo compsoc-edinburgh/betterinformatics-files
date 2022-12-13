@@ -44,9 +44,9 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
     document.slug,
     file.oid,
     () => {
-      mutate((s) => ({
+      mutate(s => ({
         ...s,
-        files: s.files.filter((f) => f.oid !== file.oid),
+        files: s.files.filter(f => f.oid !== file.oid),
       }));
     },
   );
@@ -54,12 +54,12 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
     document.author,
     document.slug,
     file.oid,
-    (file) => {
+    file => {
       setDisplayName(undefined);
       setFile(undefined);
-      mutate((s) => ({
+      mutate(s => ({
         ...s,
-        files: s.files.map((f) => (f.oid !== file.oid ? f : file)),
+        files: s.files.map(f => (f.oid !== file.oid ? f : file)),
       }));
       toggleEditIsOpen(false);
     },
@@ -77,7 +77,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             label="Display Name"
             type="text"
             value={displayName ?? file.display_name}
-            onChange={(e) => setDisplayName(e.currentTarget.value)}
+            onChange={e => setDisplayName(e.currentTarget.value)}
           />
           <FormGroup>
             <label className="form-input-label">Replace File</label>

@@ -142,7 +142,7 @@ export const useNotifications = (mode: "all" | "unread") => {
 };
 const markAllRead = async (...ids: string[]) => {
   return Promise.all(
-    ids.map((oid) =>
+    ids.map(oid =>
       fetchPost(`/api/notification/setread/${oid}/`, {
         read: true,
       }),
@@ -405,11 +405,10 @@ export const loadDocuments = async (categorySlug: string) => {
     .value as Document[];
 };
 export const useDocuments = (categorySlug: string) => {
-  const { error, loading, data } = useRequest(
-    () => loadDocuments(categorySlug),
-    { cacheKey: `documents-${categorySlug}` },
-  );
-  return [error, loading, data] as const;
+  const { data } = useRequest(() => loadDocuments(categorySlug), {
+    cacheKey: `documents-${categorySlug}`,
+  });
+  return [data] as const;
 };
 
 export const loadDocumentsUsername = async (username: string) => {

@@ -152,11 +152,11 @@ export default class PDF {
       canvasObject.canvas.style.height = "100%";
       // we need the `as unknown as any` because the types don't specify the
       // `canvasFactory` and typescript would complain.
-      await page.render(({
+      await page.render({
         canvasContext: canvasObject.context,
         viewport,
         canvasFactory: globalFactory,
-      } as unknown) as any).promise;
+      } as unknown as any).promise;
       renderingReference.release();
     })();
 
@@ -271,7 +271,8 @@ export default class PDF {
       // Did we find a main canvas that isn't used?
       if (mainCanvas && mainCanvas.currentMainRef === undefined) {
         isMainUser = true;
-        mainCanvas.currentMainRef = mainCanvas?.referenceManager.createRetainedRef();
+        mainCanvas.currentMainRef =
+          mainCanvas?.referenceManager.createRetainedRef();
       }
     }
     // It looks like we have to render from scratch

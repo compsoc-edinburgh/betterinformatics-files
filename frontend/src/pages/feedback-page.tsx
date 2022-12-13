@@ -89,9 +89,12 @@ const FeedbackForm: React.FC<{}> = () => {
 };
 
 const FeedbackReader: React.FC<{}> = () => {
-  const { error, loading, data: feedback, run: reload } = useRequest(
-    loadFeedback,
-  );
+  const {
+    error,
+    loading,
+    data: feedback,
+    run: reload,
+  } = useRequest(loadFeedback);
 
   return (
     <>

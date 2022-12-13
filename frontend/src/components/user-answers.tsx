@@ -1,9 +1,8 @@
 import { Alert, Spinner } from "@vseth/components";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Masonry from "react-masonry-component";
 import { masonryStyle } from "../pages/userinfo-page";
 import { useUserAnswers } from "../api/hooks";
-import { Answer } from "../interfaces";
 import AnswerComponent from "./answer";
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
@@ -20,7 +19,6 @@ interface UserAnswersProps {
   username: string;
 }
 
-
 const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
   const [error, loading, data, reload] = useUserAnswers(username, -1);
@@ -30,8 +28,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
   const PAGE_SIZE = 10; // loads a limited amount of new elements at a time when scrolling down
 
   useEffect(() => {
-    if (data)
-      setAnswers([...data]);
+    if (data) setAnswers([...data]);
   }, [data]);
 
   // resets the cards if we're on a new users page
@@ -43,7 +40,10 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
   // sets the observer to the last element once it is rendered
   useEffect(() => {
     // called if the last answer is seen, resulting in a new set of answers being loaded
-    const handleObserver = (entities: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+    const handleObserver = (
+      entities: IntersectionObserverEntry[],
+      observer: IntersectionObserver,
+    ) => {
       const first = entities[0];
       if (first.isIntersecting) {
         setPage(no => no + 1);
@@ -57,20 +57,22 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       if (lastElement) {
         observer.unobserve(lastElement);
       }
-    }
+    };
   }, [lastElement]);
 
   return (
     <>
       {error && <Alert color="danger">{error.message}</Alert>}
-      {(!answers || answers.length === 0) && !loading && <Alert color="secondary">No answers</Alert>}
+      {(!answers || answers.length === 0) && !loading && (
+        <Alert color="secondary">No answers</Alert>
+      )}
       <div className={masonryStyle}>
         <Masonry
           options={{ fitWidth: true, transitionDuration: 0 }}
           enableResizableChildren={true}
         >
           {answers &&
-            answers.slice(0, (page + 1) * PAGE_SIZE).map((answer) => (
+            answers.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
               <div className="px-2 contribution-component" key={answer.oid}>
                 <AnswerComponent
                   hasId={false}
@@ -83,7 +85,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
           <div ref={elem => setLastElement(elem)} />
         </Masonry>
       </div>
-      {loading && <Spinner style={{ "display": "flex", "margin": "auto" }} />}
+      {loading && <Spinner style={{ display: "flex", margin: "auto" }} />}
     </>
   );
 };

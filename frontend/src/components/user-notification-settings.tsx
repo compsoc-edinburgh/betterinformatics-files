@@ -1,9 +1,4 @@
-import {
-  Alert,
-  FormGroup,
-  Label,
-  Input,
-} from "@vseth/components";
+import { Alert, FormGroup, Label, Input } from "@vseth/components";
 import React from "react";
 import {
   useEnabledNotifications,
@@ -13,18 +8,13 @@ import {
 interface UserNotificationsProps {
   username: string;
 }
-const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({ username }) => {
-  const [
-    enabledError,
-    enabledLoading,
-    enabled,
-    reloadEnabled,
-  ] = useEnabledNotifications(true);
-  const [
-    setEnabledError,
-    setEnabledLoading,
-    setEnabled,
-  ] = useSetEnabledNotifications(reloadEnabled);
+const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
+  username,
+}) => {
+  const [enabledError, enabledLoading, enabled, reloadEnabled] =
+    useEnabledNotifications(true);
+  const [setEnabledError, setEnabledLoading, setEnabled] =
+    useSetEnabledNotifications(reloadEnabled);
   const error = enabledError || setEnabledError;
   const checkboxLoading = enabledLoading || setEnabledLoading;
   return (
