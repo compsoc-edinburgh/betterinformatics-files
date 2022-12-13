@@ -29,7 +29,7 @@ const CommentSectionComponent: React.FC<Props> = ({
     <>
       <ListGroup className={listGroupStyle}>
         {(expanded ? answer.comments : answer.comments.slice(0, 3)).map(
-          (comment) => (
+          comment => (
             <CommentComponent
               answer={answer}
               onSectionChanged={onSectionChanged}

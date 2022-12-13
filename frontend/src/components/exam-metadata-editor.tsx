@@ -118,7 +118,7 @@ const applyChanges = async (
   for (const attachment of oldMetaData.attachments) {
     if (
       newMetaData.attachments.find(
-        (otherAttachment) => otherAttachment.filename === attachment.filename,
+        otherAttachment => otherAttachment.filename === attachment.filename,
       )
     ) {
       newAttachments.push(attachment);
@@ -176,7 +176,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
     createOptions(
       Object.fromEntries(
         categories.map(
-          (category) => [category.slug, category.displayname] as const,
+          category => [category.slug, category.displayname] as const,
         ),
       ) as { [key: string]: string },
     );
@@ -186,7 +186,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
     run: runApplyChanges,
   } = useRequest(applyChanges, {
     manual: true,
-    onSuccess: (newMetaData) => {
+    onSuccess: newMetaData => {
       toggle();
       onMetaDataChange(newMetaData);
     },
@@ -202,7 +202,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
   const { registerInput, registerCheckbox, formState, setFormValue, onSubmit } =
     useForm(
       currentMetaData as ExamMetaDataDraft,
-      (values) =>
+      values =>
         runApplyChanges(
           currentMetaData.filename,
           currentMetaData,
@@ -366,7 +366,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
             ) : (
               <FileInput
                 value={printonlyFile}
-                onChange={(e) => setPrintonlyFile(e)}
+                onChange={e => setPrintonlyFile(e)}
               />
             )}
           </FormGroup>
@@ -390,10 +390,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
                 <Button close onClick={() => setMasterFile(undefined)} />
               </div>
             ) : (
-              <FileInput
-                value={masterFile}
-                onChange={(e) => setMasterFile(e)}
-              />
+              <FileInput value={masterFile} onChange={e => setMasterFile(e)} />
             )}
           </FormGroup>
         </Col>
@@ -402,7 +399,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
       <h6>Attachments</h6>
       <AttachmentsEditor
         attachments={formState.attachments}
-        setAttachments={(a) => setFormValue("attachments", a)}
+        setAttachments={a => setFormValue("attachments", a)}
       />
       <ButtonWrapperCard>
         <Row className="flex-between">

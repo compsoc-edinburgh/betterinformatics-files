@@ -23,7 +23,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       <CardBody>
         <Link
           to={`/category/${category.slug}`}
-          onClick={(e) => {
+          onClick={e => {
             if (!authenticated()) {
               e.preventDefault();
               login(`/category/${category.slug}`);

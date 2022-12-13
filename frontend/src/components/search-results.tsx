@@ -68,7 +68,7 @@ interface Props {
 const SearchResults: React.FC<Props> = React.memo(({ data }) => {
   return (
     <CardColumns className={columnStyle}>
-      {data.map((result) => {
+      {data.map(result => {
         if (result.type === "exam") {
           return (
             <div className="px-2" key={`exam-${result.filename}`}>

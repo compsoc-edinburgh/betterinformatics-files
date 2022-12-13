@@ -31,7 +31,7 @@ const useTextLayer = (
   const filteredItems = useMemo(() => {
     if (textContent === null) return;
     if (textContent.items.length > MAX_ITEMS) return;
-    return textContent.items.filter((genericItem) => {
+    return textContent.items.filter(genericItem => {
       const item = genericItem as TextItem;
       const [, , , offsetY, , y] = item.transform;
       const [, , , yMax] = view;

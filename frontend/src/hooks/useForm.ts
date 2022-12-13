@@ -45,7 +45,7 @@ type ResetFnMap<T extends FormData> = {
 const useForm = <
   S extends keyof T,
   T extends FormData,
-  K extends (data: T, reset: () => void) => any
+  K extends (data: T, reset: () => void) => any,
 >(
   initialData: T,
   formSubmit?: K,

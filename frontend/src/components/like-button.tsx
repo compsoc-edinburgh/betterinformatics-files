@@ -1,7 +1,6 @@
 import { Button } from "@vseth/components";
 import { keyframes, css } from "@emotion/css";
 import React from "react";
-import { useState } from "react";
 import { Mutate, useUpdateDocument } from "../api/hooks";
 import { Document } from "../interfaces";
 const rubberBandAnimation = keyframes`
@@ -160,7 +159,7 @@ interface Props {
 }
 
 const LikeButton: React.FC<Props> = ({ document, mutate }) => {
-  const [loading, updateDocument] = useUpdateDocument(
+  const [_, updateDocument] = useUpdateDocument(
     document.author,
     document.slug,
     () => void 0,
@@ -173,9 +172,9 @@ const LikeButton: React.FC<Props> = ({ document, mutate }) => {
       onClick={() => {
         updateDocument({ liked: !document.liked });
         if (!document.liked) {
-          mutate((s) => ({ ...s, liked: true, like_count: likeCount }));
+          mutate(s => ({ ...s, liked: true, like_count: likeCount }));
         } else {
-          mutate((s) => ({ ...s, liked: false, like_count: nonLikeCount }));
+          mutate(s => ({ ...s, liked: false, like_count: nonLikeCount }));
         }
       }}
     >

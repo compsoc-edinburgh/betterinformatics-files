@@ -72,7 +72,7 @@ const FAQEntryComponent: React.FC<Props> = ({
               type="text"
               placeholder="Question"
               value={question}
-              onChange={(e) => setQuestion(e.target.value)}
+              onChange={e => setQuestion(e.target.value)}
             />
           ) : (
             entry.question
@@ -85,7 +85,7 @@ const FAQEntryComponent: React.FC<Props> = ({
             onChange={setAnswer}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
-            preview={(value) => <MarkdownText value={value} />}
+            preview={value => <MarkdownText value={value} />}
           />
         ) : (
           <MarkdownText value={entry.answer} />

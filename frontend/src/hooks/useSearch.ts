@@ -275,7 +275,7 @@ const useSearch = <T>(
 
   const cache = useMemo(() => new Map() as SearchCache, []);
   const allResults = useMemo(
-    () => data.map((w) => ({ cost: 0, match: [], ...w })),
+    () => data.map(w => ({ cost: 0, match: [], ...w })),
     [data],
   );
   const res = useMemo(
@@ -283,7 +283,7 @@ const useSearch = <T>(
       sanitizedPattern.length === 0
         ? allResults
         : data
-            .map((w) => {
+            .map(w => {
               const value = getter(w);
               const res = cachedMinCost(
                 cache,

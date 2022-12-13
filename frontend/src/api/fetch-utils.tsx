@@ -56,7 +56,7 @@ export function refreshToken() {
   }
   refreshRequest = fetch("/api/auth/refresh", {
     headers: getHeaders(),
-  }).then((req) => {
+  }).then(req => {
     refreshRequest = undefined;
     return req;
   });
@@ -194,7 +194,7 @@ export function imageHandler(file: File): Promise<ImageHandle> {
     fetchPost("/api/image/upload/", {
       file,
     })
-      .then((res) => {
+      .then(res => {
         resolve({
           name: file.name,
           src: res.filename,
@@ -203,6 +203,6 @@ export function imageHandler(file: File): Promise<ImageHandle> {
           },
         });
       })
-      .catch((e) => reject(e));
+      .catch(e => reject(e));
   });
 }

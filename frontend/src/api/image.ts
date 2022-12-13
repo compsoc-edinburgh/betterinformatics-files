@@ -14,7 +14,11 @@ export const uploadImage = async (file: File) => {
 };
 
 export const useImages = () => {
-  const { data: images, mutate, run: reload } = useRequest(loadImage, {
+  const {
+    data: images,
+    mutate,
+    run: reload,
+  } = useRequest(loadImage, {
     cacheKey: "images",
   });
 

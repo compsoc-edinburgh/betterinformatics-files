@@ -99,7 +99,7 @@ const Panel: React.FC<PanelProps> = ({
             size="lg"
             color="primary"
             className={closeButtonStyle}
-            onClick={toggle}  
+            onClick={toggle}
           >
             <ArrowLeftIcon size={24} />
             {buttonText && (
@@ -111,7 +111,7 @@ const Panel: React.FC<PanelProps> = ({
         </div>
       </div>
       <Transition in={isOpen} timeout={duration} unmountOnExit>
-        {(state) => (
+        {state => (
           <div
             className={panelStyle}
             style={{

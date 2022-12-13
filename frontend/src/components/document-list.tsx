@@ -20,19 +20,19 @@ interface Props {
 
 const DocumentList: React.FC<Props> = ({ slug }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [error, loading, documents] = useDocuments(slug);
+  const [documents] = useDocuments(slug);
   return (
     <>
-      <Modal isOpen={isOpen} toggle={() => setIsOpen((r) => !r)}>
+      <Modal isOpen={isOpen} toggle={() => setIsOpen(r => !r)}>
         <CreateDocumentForm
           categorySlug={slug}
-          toggle={() => setIsOpen((r) => !r)}
+          toggle={() => setIsOpen(r => !r)}
         />
       </Modal>
 
       <Grid>
         {documents &&
-          documents.map((document) => (
+          documents.map(document => (
             <Card key={document.slug}>
               <CardBody>
                 <Link to={`/user/${document.author}/document/${document.slug}`}>

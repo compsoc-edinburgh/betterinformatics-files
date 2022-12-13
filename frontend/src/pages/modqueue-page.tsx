@@ -8,19 +8,6 @@ import LoadingOverlay from "../components/loading-overlay";
 import { CategoryExam, CategoryPaymentExam } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 
-interface Props {
-  username: string;
-  isAdmin: boolean;
-}
-
-interface State {
-  exams: CategoryExam[];
-  paymentExams: CategoryPaymentExam[];
-  flaggedAnswers: string[];
-  includeHidden: boolean;
-  error?: string;
-}
-
 const loadExams = async (includeHidden: boolean) => {
   return (
     await fetchGet(

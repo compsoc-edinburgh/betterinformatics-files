@@ -22,13 +22,15 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   setOfferedIn,
 }) => {
   const [newMeta1, setNewMeta1] = useState("");
-  const meta1Value = useMemo(() => ({ value: newMeta1, label: newMeta1 }), [
-    newMeta1,
-  ]);
+  const meta1Value = useMemo(
+    () => ({ value: newMeta1, label: newMeta1 }),
+    [newMeta1],
+  );
   const [newMeta2, setNewMeta2] = useState("");
-  const meta2Value = useMemo(() => ({ value: newMeta2, label: newMeta2 }), [
-    newMeta2,
-  ]);
+  const meta2Value = useMemo(
+    () => ({ value: newMeta2, label: newMeta2 }),
+    [newMeta2],
+  );
   const [error, loading, data] = useMetaCategories();
   const meta1Options = useMemo(
     () =>

@@ -123,7 +123,7 @@ const applyChanges = async (
   for (const attachment of oldMetaData.attachments) {
     if (
       newMetaData.attachments.find(
-        (otherAttachment) => otherAttachment.filename === attachment.filename,
+        otherAttachment => otherAttachment.filename === attachment.filename,
       )
     ) {
       newAttachments.push(attachment);
@@ -217,7 +217,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
     run: runApplyChanges,
   } = useRequest(applyChanges, {
     manual: true,
-    onSuccess: (newMetaData) => {
+    onSuccess: newMetaData => {
       toggle();
       onMetaDataChange(newMetaData);
     },
@@ -231,7 +231,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
     formState,
     setFormValue,
     onSubmit,
-  } = useForm(currentMetaData as CategoryMetaDataDraft, (data) => {
+  } = useForm(currentMetaData as CategoryMetaDataDraft, data => {
     runApplyChanges(
       currentMetaData.slug,
       currentMetaData,
@@ -326,19 +326,19 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <h6 className="mb-3 mt-4">Attachments</h6>
       <AttachmentsEditor
         attachments={formState.attachments}
-        setAttachments={(a) => setFormValue("attachments", a)}
+        setAttachments={a => setFormValue("attachments", a)}
       />
       <h6 className="mb-3 mt-4">Offered In</h6>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
       <h6 className="mb-3 mt-4">Admins</h6>
       <UserSetEditor
         users={formState.admins}
-        setUsers={(u) => setFormValue("admins", u)}
+        setUsers={u => setFormValue("admins", u)}
       />
       <h6 className="mb-3 mt-4">Experts</h6>
       <UserSetEditor
         users={formState.experts}
-        setUsers={(e) => setFormValue("experts", e)}
+        setUsers={e => setFormValue("experts", e)}
       />
       <ButtonWrapperCard>
         <Row className="flex-between">

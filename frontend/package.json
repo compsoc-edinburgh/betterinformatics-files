@@ -55,9 +55,6 @@
     "check-format": "prettier --list-different src/**/*.{js,jsx,ts,tsx,json,css}",
     "lint": "yarn run eslint \"src/**/*.{js,jsx,ts,tsx}\""
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "browserslist": {
     "production": [
       ">0.2%",

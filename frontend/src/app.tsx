@@ -64,7 +64,7 @@ const App: React.FC<{}> = () => {
         isTokenExpired(exp) &&
         !(counterExp === getCookie("token_expires") && counter > 5)
       ) {
-        refreshToken().then((r) => {
+        refreshToken().then(r => {
           if (cancel) return;
           // If the refresh was successful we are happy
           if (r.status >= 200 && r.status < 400) {
@@ -115,7 +115,7 @@ const App: React.FC<{}> = () => {
     let cancelled = false;
     if (user === undefined) {
       fetchGet("/api/auth/me/").then(
-        (res) => {
+        res => {
           if (cancelled) return;
           setUser({
             loggedin: res.loggedin,
@@ -199,11 +199,7 @@ const App: React.FC<{}> = () => {
                       path="/user/:username"
                       component={UserPage}
                     />
-                    <UserRoute
-                      exact
-                      path="/user/"
-                      component={UserPage}
-                    />
+                    <UserRoute exact path="/user/" component={UserPage} />
                     <UserRoute exact path="/search/" component={SearchPage} />
                     <UserRoute
                       exact

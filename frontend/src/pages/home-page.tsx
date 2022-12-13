@@ -25,7 +25,7 @@ import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import TooltipButton from "../components/TooltipButton";
-import useSearch, { SearchResult } from "../hooks/useSearch";
+import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 
@@ -69,8 +69,8 @@ const mapToCategories = (
       categories: categoryNames,
     } of meta2) {
       const categories = categoryNames
-        .map((name) => categoryMap.get(name)!)
-        .filter((a) => a !== undefined);
+        .map(name => categoryMap.get(name)!)
+        .filter(a => a !== undefined);
       for (const category of categories) assignedCategories.add(category);
       if (categories.length === 0) continue;
       meta2Map.set(meta2display, categories);
@@ -84,7 +84,7 @@ const mapToCategories = (
   const metaList = [...meta1Map.entries()].sort(([a], [b]) =>
     a.localeCompare(b),
   );
-  const unassignedList = categories.filter((c) => !assignedCategories.has(c));
+  const unassignedList = categories.filter(c => !assignedCategories.has(c));
   return [metaList, unassignedList] as const;
 };
 
@@ -114,7 +114,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
             label="Category Name"
             type="text"
             value={categoryName}
-            onChange={(e) => setCategoryName(e.currentTarget.value)}
+            onChange={e => setCategoryName(e.currentTarget.value)}
           />
         </ModalBody>
         <ModalFooter>
@@ -216,7 +216,7 @@ export const CategoryList: React.FC<{}> = () => {
                   className="search-input"
                   placeholder="Filter..."
                   value={filter}
-                  onChange={(e) => setFilter(e.currentTarget.value)}
+                  onChange={e => setFilter(e.currentTarget.value)}
                   autoFocus
                 />
                 <div className="search-icon-wrapper">
@@ -235,7 +235,7 @@ export const CategoryList: React.FC<{}> = () => {
           ) : mode === Mode.Alphabetical || filter.length > 0 ? (
             <>
               <Grid>
-                {searchResult.map((category) => (
+                {searchResult.map(category => (
                   <CategoryCard category={category} key={category.slug} />
                 ))}
                 {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
@@ -251,7 +251,7 @@ export const CategoryList: React.FC<{}> = () => {
                       <div key={meta2display}>
                         <h5 className="my-3">{meta2display}</h5>
                         <Grid>
-                          {categories.map((category) => (
+                          {categories.map(category => (
                             <CategoryCard
                               category={category}
                               key={category.slug}
@@ -266,7 +266,7 @@ export const CategoryList: React.FC<{}> = () => {
                 <>
                   <h4 className="my-4">Unassigned Categories</h4>
                   <Grid>
-                    {unassignedList.map((category) => (
+                    {unassignedList.map(category => (
                       <CategoryCard category={category} key={category.slug} />
                     ))}
                   </Grid>

@@ -44,26 +44,20 @@ const CommentComponent: React.FC<Props> = ({
 }) => {
   const [viewSource, toggleViewSource] = useToggle(false);
   const [isOpen, setIsOpen] = useState(false);
-  const toggle = useCallback(() => setIsOpen((old) => !old), []);
+  const toggle = useCallback(() => setIsOpen(old => !old), []);
   const { isAdmin, username } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
-  const [addNewLoading, runAddNewComment] = useMutation(
-    addNewComment,
-    (res) => {
-      if (onDelete) onDelete();
-      onSectionChanged(res);
-    },
-  );
-  const [updateLoading, runUpdateComment] = useMutation(
-    updateComment,
-    (res) => {
-      setEditing(false);
-      onSectionChanged(res);
-    },
-  );
+  const [addNewLoading, runAddNewComment] = useMutation(addNewComment, res => {
+    if (onDelete) onDelete();
+    onSectionChanged(res);
+  });
+  const [updateLoading, runUpdateComment] = useMutation(updateComment, res => {
+    setEditing(false);
+    onSectionChanged(res);
+  });
   const [removeLoading, runRemoveComment] = useMutation(
     removeComment,
     onSectionChanged,
@@ -165,7 +159,7 @@ const CommentComponent: React.FC<Props> = ({
             value={draftText}
             onChange={setDraftText}
             imageHandler={imageHandler}
-            preview={(value) => <MarkdownText value={value} />}
+            preview={value => <MarkdownText value={value} />}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />

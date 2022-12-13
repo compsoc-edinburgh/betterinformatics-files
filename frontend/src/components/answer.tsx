@@ -86,7 +86,7 @@ const AnswerComponent: React.FC<Props> = ({
   const [setExpertVoteLoading, setExpertVote] =
     useSetExpertVote(onSectionChanged);
   const removeAnswer = useRemoveAnswer(onSectionChanged);
-  const [updating, update] = useUpdateAnswer((res) => {
+  const [updating, update] = useUpdateAnswer(res => {
     setEditing(false);
     if (onSectionChanged) onSectionChanged(res);
     if (answer === undefined && onDelete) onDelete();
@@ -94,7 +94,7 @@ const AnswerComponent: React.FC<Props> = ({
   const { isAdmin, isExpert } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [isOpen, setIsOpen] = useState(false);
-  const toggle = useCallback(() => setIsOpen((old) => !old), []);
+  const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
 
   const [draftText, setDraftText] = useState("");
@@ -263,7 +263,7 @@ const AnswerComponent: React.FC<Props> = ({
                 value={draftText}
                 onChange={setDraftText}
                 imageHandler={imageHandler}
-                preview={(value) => <MarkdownText value={value} />}
+                preview={value => <MarkdownText value={value} />}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />

@@ -1,9 +1,8 @@
 import { Alert, Spinner } from "@vseth/components";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Masonry from "react-masonry-component";
 import { masonryStyle } from "../pages/userinfo-page";
 import { useUserComments } from "../api/hooks";
-import { SingleComment } from "../interfaces";
 import SingleCommentComponent from "./comment-single";
 
 // `transform: translateX(0)` fixes an issue on webkit browsers
@@ -30,8 +29,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   const PAGE_SIZE = 10; // loads a limited amount of new elements at a time when scrolling down
 
   useEffect(() => {
-    if (data)
-      setComments([...data]);
+    if (data) setComments([...data]);
   }, [data]);
 
   // resets the cards if we're on a new users page
@@ -49,7 +47,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
     ) => {
       const first = entities[0];
       if (first.isIntersecting) {
-        setPage((no) => no + 1);
+        setPage(no => no + 1);
       }
     };
     const observer = new IntersectionObserver(handleObserver);
@@ -75,17 +73,15 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
           enableResizableChildren={true}
         >
           {comments &&
-            comments.slice(0, (page + 1) * PAGE_SIZE).map((comment) => (
+            comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
               <div className="px-2 contribution-component" key={comment.oid}>
                 <SingleCommentComponent comment={comment} />
               </div>
             ))}
-          <div ref={(elem) => setLastElement(elem)} />
+          <div ref={elem => setLastElement(elem)} />
         </Masonry>
       </div>
-      {loading && (
-        <Spinner style={{ display: "flex", margin: "auto" }} />
-      )}
+      {loading && <Spinner style={{ display: "flex", margin: "auto" }} />}
     </>
   );
 };

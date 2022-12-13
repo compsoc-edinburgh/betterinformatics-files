@@ -25,7 +25,7 @@ const EditorFooter: React.FC<Props> = ({
   onOpenOverlay,
 }) => {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const toggleHelp = useCallback(() => setIsHelpOpen((prev) => !prev), []);
+  const toggleHelp = useCallback(() => setIsHelpOpen(prev => !prev), []);
   return (
     <div>
       <div className={rowStyle}>

@@ -33,13 +33,13 @@ import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
 
 const metadataColStyle = css`
-  & a{
+  & a {
     text-decoration: underline;
     color: black;
-    transition: color .2s; 
+    transition: color 0.2s;
   }
-  & a:hover{
-    transition: color .2s; 
+  & a:hover {
+    transition: color 0.2s;
     color: grey;
   }
 `;
@@ -72,7 +72,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     [data, metaData],
   );
   const [editing, setEditing] = useState(false);
-  const toggle = useCallback(() => setEditing((a) => !a), []);
+  const toggle = useCallback(() => setEditing(a => !a), []);
   const user = useUser()!;
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
@@ -97,8 +97,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             isOpen={editing}
             toggle={toggle}
             currentMetaData={metaData}
-            offeredIn={offeredIn.flatMap((b) =>
-              b.meta2.map((d) => [b.displayname, d.displayname] as const),
+            offeredIn={offeredIn.flatMap(b =>
+              b.meta2.map(d => [b.displayname, d.displayname] as const),
             )}
           />
         )
@@ -168,8 +168,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   <Spinner />
                 ) : (
                   <ul>
-                    {offeredIn?.map((meta1) =>
-                      meta1.meta2.map((meta2) => (
+                    {offeredIn?.map(meta1 =>
+                      meta1.meta2.map(meta2 => (
                         <li key={meta1.displayname + meta2.displayname}>
                           {meta2.displayname} in {meta1.displayname}
                         </li>
@@ -193,11 +193,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <Col>
                 <Alert>
                   You have to pay a deposit in order to see oral exams.
-                  {serverData.unlock_deposit_notice ?
+                  {serverData.unlock_deposit_notice ? (
                     <>
                       <br />
                       {serverData.unlock_deposit_notice}
-                    </> : null}
+                    </>
+                  ) : null}
                   <br />
                   After submitting a report of your own oral exam you can get
                   your deposit back.
@@ -221,7 +222,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             <>
               <h2 className="mb-3 mt-5">Attachments</h2>
               <ListGroup flush>
-                {metaData.attachments.map((att) => (
+                {metaData.attachments.map(att => (
                   <a
                     href={`/api/filestore/get/${att.filename}/`}
                     target="_blank"
@@ -267,9 +268,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                ...user,
-                isCategoryAdmin: user.isAdmin || data.catadmin,
-              }
+                  ...user,
+                  isCategoryAdmin: user.isAdmin || data.catadmin,
+                }
               : undefined
           }
         >

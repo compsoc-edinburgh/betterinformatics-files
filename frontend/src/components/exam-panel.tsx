@@ -125,11 +125,10 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     if (c > 0) {
       window.requestAnimationFrame(scrollToTop);
       window.scrollTo(0, c - c / 10 - 1);
-    }else{
-      toggle()
+    } else {
+      toggle();
     }
-    
-  }, []);
+  }, [toggle]);
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
@@ -148,7 +147,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <h6 className="my-3 mx-2">Pages</h6>
         <Pagination className={paginationStyle}>
           {renderer &&
-            intMap(1, renderer.document.numPages, (pageNum) => (
+            intMap(1, renderer.document.numPages, pageNum => (
               <PaginationItem active key={pageNum}>
                 {visiblePages.has(pageNum) ? (
                   <PaginationLink href={`#page-${pageNum}`} className="border">
@@ -182,7 +181,6 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             tooltip="Back to the top"
             icon={ArrowUpIcon}
             onClick={scrollToTop}
-
           />
           {!allSectionsExpanded && (
             <IconButton
@@ -242,7 +240,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                     name="check"
                     id="snap"
                     checked={editState.snap}
-                    onChange={(e) =>
+                    onChange={e =>
                       setEditState({ ...editState, snap: e.target.checked })
                     }
                   />
@@ -259,7 +257,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayHiddenPdfSections"
                 checked={displayOptions.displayHiddenPdfSections}
-                onChange={(e) =>
+                onChange={e =>
                   setOption("displayHiddenPdfSections", e.target.checked)
                 }
               />
@@ -273,7 +271,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayHiddenAnswerSections"
                 checked={displayOptions.displayHiddenAnswerSections}
-                onChange={(e) =>
+                onChange={e =>
                   setOption("displayHiddenAnswerSections", e.target.checked)
                 }
               />
@@ -287,7 +285,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayHideShowButtons"
                 checked={displayOptions.displayHideShowButtons}
-                onChange={(e) =>
+                onChange={e =>
                   setOption("displayHideShowButtons", e.target.checked)
                 }
               />
@@ -301,7 +299,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 name="check"
                 id="displayEmptyCutLabels"
                 checked={displayOptions.displayEmptyCutLabels}
-                onChange={(e) =>
+                onChange={e =>
                   setOption("displayEmptyCutLabels", e.target.checked)
                 }
               />

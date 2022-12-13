@@ -1,5 +1,4 @@
 import { css, cx } from "@emotion/css";
-import { files } from "jszip";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import ImageOverlay from "../image-overlay";
@@ -69,8 +68,7 @@ const Editor: React.FC<Props> = ({
         start: selection.start + 2,
         end: selection.start + content.length + 2,
       };
-      value = before + newContent + after
-      setCurrent(value, newSelection);
+      setCurrent(before + newContent + after, newSelection);
     },
     [setCurrent, value],
   );
@@ -84,7 +82,10 @@ const Editor: React.FC<Props> = ({
       const after = value.substring(selection.end);
       let newContent = ``;
       for (let i = 0; i < handles.length; i++) {
-        newContent += i === 0 ? `![${content}](${handles[i].src})` : `![](${handles[i].src})`;
+        newContent +=
+          i === 0
+            ? `![${content}](${handles[i].src})`
+            : `![](${handles[i].src})`;
       }
       const newSelection = {
         start: selection.start + 2,
@@ -94,8 +95,6 @@ const Editor: React.FC<Props> = ({
     },
     [setCurrent, value],
   );
-
-
 
   const insertLink = useCallback(() => {
     const selection = getSelectionRangeRef.current();
@@ -210,7 +209,7 @@ const Editor: React.FC<Props> = ({
   const onFile = useCallback(
     async (file: File) => {
       const handle = await imageHandler(file);
-      setAttachments((a) => [...a, handle]);
+      setAttachments(a => [...a, handle]);
       insertImage(handle);
     },
     [imageHandler, insertImage],
@@ -219,9 +218,10 @@ const Editor: React.FC<Props> = ({
   const getHandle = useCallback(
     async (file: File) => {
       const handle = await imageHandler(file);
-      setAttachments((a) => [...a, handle]);
+      setAttachments(a => [...a, handle]);
       return handle;
-    }, [imageHandler],
+    },
+    [imageHandler],
   );
 
   const onFiles = useCallback(
@@ -235,7 +235,7 @@ const Editor: React.FC<Props> = ({
 
   const onDeleteAttachment = useCallback(async (handle: ImageHandle) => {
     await handle.remove();
-    setAttachments((a) => a.filter((h) => h !== handle));
+    setAttachments(a => a.filter(h => h !== handle));
   }, []);
 
   const onImageDialogClose = useCallback(
@@ -276,7 +276,7 @@ const Editor: React.FC<Props> = ({
           <BasicEditor
             textareaElRef={textareaElRef}
             value={value}
-            onChange={(newValue) => setCurrent(newValue)}
+            onChange={newValue => setCurrent(newValue)}
             setSelectionRangeRef={setSelectionRangeRef}
             getSelectionRangeRef={getSelectionRangeRef}
             onMetaKey={onMetaKey}
@@ -284,15 +284,15 @@ const Editor: React.FC<Props> = ({
               const fileList = e.clipboardData.files;
               const filesArray: File[] = [];
               const size = fileList.length;
-              console.log("pasting", size)
+              console.log("pasting", size);
               if (size !== 0) {
                 e.preventDefault();
               }
               for (let i = 0; i < size; i++) {
                 const file = fileList.item(i);
-                console.log(file?.name)
+                console.log(file?.name);
                 if (file === null) {
-                  continue
+                  continue;
                 }
                 filesArray.push(file);
               }

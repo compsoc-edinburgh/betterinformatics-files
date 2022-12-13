@@ -1,12 +1,6 @@
-import {
-  Alert,
-  Button,
-  Spinner,
-} from "@vseth/components";
+import { Alert, Button, Spinner } from "@vseth/components";
 import React, { useState } from "react";
-import {
-  useNotifications,
-} from "../api/hooks";
+import { useNotifications } from "../api/hooks";
 import NotificationComponent from "./notification";
 
 interface UserNotificationsProps {
@@ -14,11 +8,8 @@ interface UserNotificationsProps {
 }
 const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
   const [showRead, setShowRead] = useState(false);
-  const [
-    notificationsError,
-    notificationsLoading,
-    notifications,
-  ] = useNotifications(showRead ? "all" : "unread");
+  const [notificationsError, notificationsLoading, notifications] =
+    useNotifications(showRead ? "all" : "unread");
   const error = notificationsError;
   return (
     <>
@@ -29,7 +20,9 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
           {showRead ? "Show unread" : "Show all"}
         </Button>
       </div>
-      {(!notifications || notifications.length === 0) && <Alert color="secondary">No notifications</Alert>}
+      {(!notifications || notifications.length === 0) && (
+        <Alert color="secondary">No notifications</Alert>
+      )}
       {notificationsLoading && <Spinner />}
       {notifications &&
         notifications.map(notification => (

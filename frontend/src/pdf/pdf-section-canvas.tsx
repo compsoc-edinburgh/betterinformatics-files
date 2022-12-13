@@ -36,8 +36,9 @@ const usePdf = (
   number,
   boolean,
 ] => {
-  const [canvasElement, setCanvasElement] =
-    useState<HTMLCanvasElement | null>(null);
+  const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(
+    null,
+  );
   const [view, setView] = useState<number[]>();
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -127,8 +128,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
     const [containerHeight, setContainerHeight] = useState(0);
     const [translateY, setTranslateY] = useState(0);
-    const [currentScale, setCurrentScale] =
-      useState<number | undefined>(undefined);
+    const [currentScale, setCurrentScale] = useState<number | undefined>(
+      undefined,
+    );
     const toggleVisibility = useCallback(
       () => onSectionHiddenChange(oid ? oid : [page, end], { hidden: !hidden }),
       [oid, page, end, hidden, onSectionHiddenChange],
@@ -155,7 +157,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     }, [v]);
 
     const canvasMountingPoint = useCallback<(element: HTMLDivElement) => void>(
-      (element) => {
+      element => {
         if (element === null) return;
         if (canvas === null) return;
         if (isMainCanvas) {

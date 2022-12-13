@@ -66,6 +66,7 @@ function useAlmostInViewport<T extends HTMLElement = HTMLElement>(): [
   InViewport,
   MutableRefObject<T>,
 ];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function useAlmostInViewport<T extends HTMLElement = HTMLElement>(
   arg: Arg,
 ): [InViewport];

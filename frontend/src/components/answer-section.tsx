@@ -29,7 +29,6 @@ import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
 import HideAnswerSectionModal from "../components/hide-answer-section-overlay";
-import useLoad from "../hooks/useLoad";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
@@ -70,7 +69,7 @@ const AddButton: React.FC<AddButtonProps> = ({
   onLegacyAnswer,
 }) => {
   const [isOpen, setOpen] = useState(false);
-  const toggle = useCallback(() => setOpen((old) => !old), []);
+  const toggle = useCallback(() => setOpen(old => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
     return (
       <ButtonDropdown isOpen={isOpen} toggle={toggle} className="text-left">
@@ -156,7 +155,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     has_answers,
   }) => {
     const [data, setData] = useState<AnswerSection | undefined>();
-    const run = useAnswers(oid, (data) => {
+    const run = useAnswers(oid, data => {
       setData(data);
       setCutVersion(data.cutVersion);
     });
@@ -168,7 +167,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       (newData: AnswerSection) => {
         setCutVersion(newData.cutVersion);
         setData(newData);
-        run();  // refreshes the data if there's a new answer
+        run(); // refreshes the data if there's a new answer
       },
       [setCutVersion, run],
     );
@@ -193,7 +192,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const hideAnswerSection = async () => {
       await onHasAnswersChange();
       setDeleteAnswersWarning(false);
-      run(); // updates data when setting visibility to hidden 
+      run(); // updates data when setting visibility to hidden
     };
     const hideAnswerSectionWithWarning = () => {
       if (data) {
@@ -231,7 +230,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                     type="text"
                     value={draftName}
                     placeholder="Name"
-                    onChange={(e) => setDraftName(e.target.value)}
+                    onChange={e => setDraftName(e.target.value)}
                   />
                   <InputGroupButtonDropdown addonType="append">
                     <IconButton
@@ -268,7 +267,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         <Container fluid>
           {!hidden && data && (
             <>
-              {data.answers.map((answer) => (
+              {data.answers.map(answer => (
                 <AnswerComponent
                   key={answer.oid}
                   section={data}

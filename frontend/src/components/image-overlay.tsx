@@ -13,7 +13,6 @@ import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
-import IconButton from "./icon-button";
 import { css } from "@emotion/css";
 const columnStyle = css`
   column-gap: 0;
@@ -53,7 +52,12 @@ const ImageModal: React.FC<ModalProps> = ({
           </Col>
           <Col xs="auto">
             <Button
-              onClick={() => { if (file) { add(file); setFile(undefined); } }}
+              onClick={() => {
+                if (file) {
+                  add(file);
+                  setFile(undefined);
+                }
+              }}
               disabled={file === undefined}
             >
               Upload
@@ -77,12 +81,12 @@ const ImageModal: React.FC<ModalProps> = ({
 
         <CardColumns className={columnStyle}>
           {images &&
-            images.map((image) => (
+            images.map(image => (
               <div key={image} className={cardWrapperStyle}>
                 <Card
                   className="p-2"
                   color={selected.has(image) ? "primary" : undefined}
-                  onClick={(e) =>
+                  onClick={e =>
                     e.metaKey
                       ? selected.has(image)
                         ? unselect(image)
