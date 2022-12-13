@@ -189,6 +189,10 @@ export const loadCategories = async () => {
   return (await fetchGet("/api/category/listonlyadmin/"))
     .value as CategoryMetaDataMinimal[];
 };
+export const loadExamTypes = async () => {
+  return (await fetchGet("/api/exam/listexamtypes/"))
+    .value as string[];
+};
 export const uploadPdf = async (
   file: Blob,
   displayname: string,

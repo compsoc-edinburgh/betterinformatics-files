@@ -16,7 +16,7 @@ import {
 } from "@vseth/components";
 import React from "react";
 import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
-import { loadCategories } from "../api/hooks";
+import { loadCategories, loadExamTypes } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../utils/ts-utils";
@@ -74,11 +74,6 @@ const removeSolution = async (filename: string) => {
   await fetchPost(`/api/exam/remove/solution/${filename}/`, {});
 };
 
-const examTypeOptions = createOptions({
-  Exams: "Exams",
-  "Old Exams": "Old Exams",
-  Transcripts: "Transcripts",
-});
 export interface ExamMetaDataDraft extends Omit<ExamMetaData, "attachments"> {
   attachments: EditorAttachment[];
 }
@@ -171,6 +166,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
 }) => {
   const { loading: categoriesLoading, data: categories } =
     useRequest(loadCategories);
+  const { loading: examTypesLoading, data: examTypes } = useRequest(loadExamTypes);
   const categoryOptions =
     categories &&
     createOptions(
@@ -178,6 +174,13 @@ const ExamMetadataEditor: React.FC<Props> = ({
         categories.map(
           (category) => [category.slug, category.displayname] as const,
         ),
+      ) as { [key: string]: string },
+    );
+  const examTypeOptions = 
+    examTypes && 
+    createOptions(
+      Object.fromEntries(
+        examTypes.map((examType) => [examType, examType] as const),
       ) as { [key: string]: string },
     );
   const {
@@ -255,12 +258,9 @@ const ExamMetadataEditor: React.FC<Props> = ({
           <FormGroup>
             <label className="form-input-label">Exam type</label>
             <Creatable
-              options={options(examTypeOptions)}
-              value={
-                examTypeOptions[
-                  formState.examtype as keyof typeof examTypeOptions
-                ] || { value: formState.examtype, label: formState.examtype }
-              }
+              options={examTypeOptions ? options(examTypeOptions) : []}
+              value={{ value: formState.examtype, label: formState.examtype }}
+              isLoading={examTypesLoading}
               onChange={(option: any) =>
                 setFormValue(
                   "examtype",
