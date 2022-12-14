@@ -36,7 +36,7 @@ const EditorFooter: React.FC<Props> = ({
       <div className={rowStyle}>
         <ButtonGroup>
           <Button size="sm" onClick={toggleHelp}>
-            Help
+            Supported Functions
           </Button>
           <Button size="sm" onClick={onOpenOverlay}>
             Browse Images
