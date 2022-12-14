@@ -280,25 +280,17 @@ const Editor: React.FC<Props> = ({
             setSelectionRangeRef={setSelectionRangeRef}
             getSelectionRangeRef={getSelectionRangeRef}
             onMetaKey={onMetaKey}
-            onPaste={async e => {
+            onPaste={(e) => {
               const fileList = e.clipboardData.files;
               const filesArray: File[] = [];
-              const size = fileList.length;
-              console.log("pasting", size);
-              if (size !== 0) {
-                e.preventDefault();
-              }
-              for (let i = 0; i < size; i++) {
+              if (fileList.length === 0) return;
+              for (let i = 0; i < fileList.length; i++) {
                 const file = fileList.item(i);
-                console.log(file?.name);
-                if (file === null) {
-                  continue;
+                if (file) {
+                  filesArray.push(file);
                 }
-                filesArray.push(file);
               }
-
-              const imageHandles = await Promise.all(filesArray.map(getHandle));
-              insertImages(imageHandles);
+              Promise.all(filesArray.map(getHandle)).then(insertImages);
             }}
           />
         ) : (
