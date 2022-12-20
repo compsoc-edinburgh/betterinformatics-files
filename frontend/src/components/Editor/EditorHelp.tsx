@@ -11,7 +11,7 @@ In the editor, there are buttons that will help you getting started with basic f
 You can also preview your rendered contribution at any point.
 
 Note that this message is also written in the supported format.
-If you want to see how some of the formatting is generated, you can "toggle source code mode" and see the actual "code" behind it.
+If you want to see how some of the formatting is generated, you can "toggle source code mode" with the button below and see the actual "code" behind it.
 This can be done for every answer and comment too, so if you want to format your contribution in the same way someone else did, simply use this to see how they did it.
 
 In the following the specific aspects about **Markdown Basics, Math and Code Blocks** are listed.
@@ -26,14 +26,17 @@ Here is a quick overview of the most useful markdown features.
 | Italic Text                     | \`*This text is in italics*\`                      | *This text is in italics*                    |
 | Bold Text                       | \`**This text is bold**\`                          | **This text is bold**                        |
 | Bold Italic Text                | \`***This text is both***\`                        | ***This text is both***                      |
-| Headers                         | \`# This is a header\`                             | Headers are not rendered in tables           |
-| Smaller Headers (1 to 6 \`#\`s)   | \`### This is a smaller header (level 3)\`         | Headers are not rendered in tables           |
-| Bullet List                     | \`* This is a bullet point\`                       | *   This is a bullet point                   |
-| Numbered List                   | \`1. This is a numbered List\`                     | 1.  This is a numbered list                  |
-| Link                            | \`[Link Text](URL)\`                               | [Link Text](URL)                             |
-| Images                          | \`![Example](/static/editor_help_example.png)\`    | ![Example](/static/editor_help_example.png)  | 
+| Headers                         | \`# This is a header\`                             | Not rendered in tables                       |
+| Smaller Headers (1 to 6 \`#\`s)   | \`### This is a smaller header (level 3)\`         | Not rendered in tables                       |
+| Bullet List                     | \`* This is a bullet point\`                       | * Not rendered properly in tables            |
+| Numbered List                   | \`1. This is a numbered List\`                     | 1. Not rendered properly in tables           |
+| Link                            | \`[Link Text](URL)\`                               | [Link Text](#)                               |
+| Images                          | \`![Example](/static/editor_help_example.png)\`    | ![Example](/static/editor_help_example.png)  |
 
-Note that you can either upload images by copy-pasting or using the upload tool.
+Some Remarks:
+* Note the space after bullets or numbered list items.
+* You can either upload images by copy-pasting or using the upload tool.
+* This is also an example of a bullet list.
 
 #### Math and Latex
 
@@ -51,7 +54,10 @@ $$
 ##### Persistent Macros
 $\\gdef\\comment#1{}$
 $\\gdef\\cent{\\char"00A2}$
+$\\gdef\\diff{\\mathop{}\\!\\mathrm{d}}$
 $\\comment{PERSISTENT MACRO DEFINITION IS JUST ABOVE HERE! :)}$
+
+
 **Macros are persistent throughout a post** using \`$\\gdef...$\`.
 Declare any commands you may need at the top of your answer and use them in other Math Blocks throughout your answer.
 
@@ -59,7 +65,8 @@ This is often useful in case you need a symbol that isn't predefined in Katex. J
 * The "diff" symbol in integrals, that can be defined like this: \`$\\gdef\\diff{\\mathop{}\\!\\mathrm{d}}$\`. You can then use it in integrals: $\\int_a^b \\sin x \\diff x$. Probably the most widely used example!
 * The "cent" symbol: \`\\gdef\\cent{\\char"00A2}\`. Now use \`$\\cent$\` in the post to get $\\cent$.
 
-Use source mode to see what is hidden in this answer and for one more example to define a \`\\comment\` command!
+Use source mode to see what is hidden in this answer and for one more example to define a \`\\comment\` command! 
+This is occasionally useful to hide e.g. Matlab code to check correctness of a solution.
 $\\comment{Comment is a persistent macro and is available as command throughout the post!}$
 
 #### Code
