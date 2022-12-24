@@ -4,9 +4,7 @@ import useToggle from "../../hooks/useToggle";
 import CodeBlock from "../code-block";
 import MarkdownText from "../markdown-text";
 
-
-const EditorMdString = 
-`
+const EditorMdString = `
 In the editor, there are buttons that will help you getting started with basic formatting.
 You can also preview your rendered contribution at any point.
 
@@ -34,13 +32,17 @@ Here is a quick overview of the most useful markdown features.
 | Images                          | \`![Example](/static/editor_help_example.png)\`    | ![Example](/static/editor_help_example.png)  |
 
 Some Remarks:
-* Note the space after bullets or numbered list items.
+* You need *2 new lines to start a new paragraph*. If you only write a single new line, Markdown will just continue in the same paragraph.
 * You can either upload images by copy-pasting or using the upload tool.
-* This is also an example of a bullet list.
+* Note the space after bullets or numbered list items.
+  * This is an example of a nested bullet list.
 
 #### Math and Latex
 
-Math is rendered using the \`react-katex\` package, so it fully supports the [Katex](https://github.com/KaTeX/KaTeX) specification. See the **list of [supported functions](https://katex.org/docs/supported.html)** to get all the details. Here are the most important points.
+Math is rendered using the \`react-katex\` package, so it fully supports the [Katex](https://github.com/KaTeX/KaTeX) specification. 
+See the **[list of supported functions](https://katex.org/docs/supported.html)** to get all the details. 
+Here are the most important points.
+
 * Most standard operations should be supported.
 * You can do inline math, and block math with \`$...$\` and \`$$...$$\` respectively. Note that block math requires a new lines: \`$$\\n <your-math> \\n$$\`.
 * Even align blocks are fully supported!
@@ -103,11 +105,10 @@ const EditorHelp = () => {
         <MarkdownText value={EditorMdString} />
       )}
 
-      <hr className={divider}/>
+      <hr className={divider} />
       <Button onClick={toggleViewSource}>Toggle Source Code Mode</Button>
     </div>
   );
 };
-
 
 export default EditorHelp;

@@ -44,9 +44,11 @@ const EditorFooter: React.FC<Props> = ({
         </ButtonGroup>
       </div>
       <Modal isOpen={isHelpOpen} toggle={toggleHelp} className={wideModal}>
-        <ModalHeader><h1>Help with Editor</h1></ModalHeader>
+        <ModalHeader>
+          <h1>Help with Editor</h1>
+        </ModalHeader>
         <ModalBody>
-          <EditorHelp/>
+          <EditorHelp />
         </ModalBody>
       </Modal>
     </div>

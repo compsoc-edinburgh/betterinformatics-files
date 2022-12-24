@@ -280,7 +280,7 @@ const Editor: React.FC<Props> = ({
             setSelectionRangeRef={setSelectionRangeRef}
             getSelectionRangeRef={getSelectionRangeRef}
             onMetaKey={onMetaKey}
-            onPaste={(e) => {
+            onPaste={e => {
               const fileList = e.clipboardData.files;
               const filesArray: File[] = [];
               if (fileList.length === 0) return;
