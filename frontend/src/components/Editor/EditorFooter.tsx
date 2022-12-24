@@ -9,7 +9,12 @@ import {
 import * as React from "react";
 import { useCallback, useState } from "react";
 import { ImageHandle } from "./utils/types";
+import EditorHelp from "./EditorHelp";
 
+const wideModal = css`
+  width: 90vw;
+  max-width: 1500px;
+`;
 const rowStyle = css`
   text-align: right;
   margin-left: -0.5rem;
@@ -31,19 +36,19 @@ const EditorFooter: React.FC<Props> = ({
       <div className={rowStyle}>
         <ButtonGroup>
           <Button size="sm" onClick={toggleHelp}>
-            Help
+            Supported Functions
           </Button>
           <Button size="sm" onClick={onOpenOverlay}>
             Browse Images
           </Button>
         </ButtonGroup>
       </div>
-      <Modal isOpen={isHelpOpen} toggle={toggleHelp}>
-        <ModalHeader>Help</ModalHeader>
+      <Modal isOpen={isHelpOpen} toggle={toggleHelp} className={wideModal}>
+        <ModalHeader>
+          <h1>Help with Editor</h1>
+        </ModalHeader>
         <ModalBody>
-          You can use Markdown. Use <code>```lang \n code \n ```</code> for code
-          blocks and <code>`code`</code> for inline code. Use{" "}
-          <code>$ math $</code> or <code>$$ \n math \n $$</code> for latex math.
+          <EditorHelp />
         </ModalBody>
       </Modal>
     </div>

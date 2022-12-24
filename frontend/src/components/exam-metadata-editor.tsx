@@ -166,7 +166,8 @@ const ExamMetadataEditor: React.FC<Props> = ({
 }) => {
   const { loading: categoriesLoading, data: categories } =
     useRequest(loadCategories);
-  const { loading: examTypesLoading, data: examTypes } = useRequest(loadExamTypes);
+  const { loading: examTypesLoading, data: examTypes } =
+    useRequest(loadExamTypes);
   const categoryOptions =
     categories &&
     createOptions(
@@ -176,11 +177,11 @@ const ExamMetadataEditor: React.FC<Props> = ({
         ),
       ) as { [key: string]: string },
     );
-  const examTypeOptions = 
-    examTypes && 
+  const examTypeOptions =
+    examTypes &&
     createOptions(
       Object.fromEntries(
-        examTypes.map((examType) => [examType, examType] as const),
+        examTypes.map(examType => [examType, examType] as const),
       ) as { [key: string]: string },
     );
   const {

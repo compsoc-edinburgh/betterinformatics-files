@@ -190,8 +190,7 @@ export const loadCategories = async () => {
     .value as CategoryMetaDataMinimal[];
 };
 export const loadExamTypes = async () => {
-  return (await fetchGet("/api/exam/listexamtypes/"))
-    .value as string[];
+  return (await fetchGet("/api/exam/listexamtypes/")).value as string[];
 };
 export const uploadPdf = async (
   file: Blob,
