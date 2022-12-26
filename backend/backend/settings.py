@@ -25,7 +25,6 @@ DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
 SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
-STAGING = True
 
 SECRET_KEY = (
     "VERY SAFE SECRET KEY"
@@ -210,7 +209,7 @@ MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
-if (STAGING or DEBUG) and not TESTING:
+if DEBUG and not TESTING:
     MIDDLEWARE.append("backend.debugging.db_profiling_middleware")
 
 ROOT_URLCONF = "backend.urls"
@@ -233,7 +232,7 @@ TEMPLATES = [
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": not (DEBUG or STAGING),
+    "disable_existing_loggers": not DEBUG,
     "formatters": {
         "simple": {
             "format": "[{levelname}] {message}",
@@ -245,7 +244,7 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO" if (DEBUG or STAGING) else "WARNING",
+        "level": "INFO" if DEBUG else "WARNING",
     },
 }
 
