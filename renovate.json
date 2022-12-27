@@ -2,20 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base",
-    "group:all"
-  ],
-  "packageRules": [
-    {
-      "matchUpdateTypes" : ["patch"],
-      "automerge": true
-    },
-    {
-      "matchPackageNames": ["react-markdown"],
-      "allowedVersions": "<6.0.0"
-    },
-    {
-      "matchPackageNames": ["boto3"],
-      "extends": ["schedule:monthly"]
-    }
+    ":automergePatch"
   ]
 }
