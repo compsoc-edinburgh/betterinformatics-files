@@ -445,10 +445,15 @@ const ExamPage: React.FC<{}> = () => {
       <Container>
         <Breadcrumb>
           <BreadcrumbItem>
-            <Link to="/">Home</Link>
+            <Link className="text-primary" to="/">
+              Home
+            </Link>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <Link to={`/category/${metaData ? metaData.category : ""}`}>
+            <Link
+              className="text-primary"
+              to={`/category/${metaData ? metaData.category : ""}`}
+            >
               {metaData && metaData.category_displayname}
             </Link>
           </BreadcrumbItem>

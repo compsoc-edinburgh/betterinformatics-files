@@ -35,17 +35,26 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
           <Col xs="auto">
             <Breadcrumb className={noMarginBreadcrumb}>
               <BreadcrumbItem>
-                <Link to={`/category/${comment.category_slug}`}>
+                <Link
+                  to={`/category/${comment.category_slug}`}
+                  className="text-primary"
+                >
                   {comment.category_displayname}
                 </Link>
               </BreadcrumbItem>
               <BreadcrumbItem>
-                <Link to={`/exams/${comment.filename}`}>
+                <Link
+                  to={`/exams/${comment.filename}`}
+                  className="text-primary"
+                >
                   {comment.exam_displayname}
                 </Link>
               </BreadcrumbItem>
               <BreadcrumbItem>
-                <Link to={`/exams/${comment.filename}#${comment.answerId}`}>
+                <Link
+                  to={`/exams/${comment.filename}#${comment.answerId}`}
+                  className="text-primary"
+                >
                   Comment
                 </Link>
               </BreadcrumbItem>

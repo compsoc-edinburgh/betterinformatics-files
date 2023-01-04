@@ -32,18 +32,6 @@ import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
 
-const metadataColStyle = css`
-  & a {
-    text-decoration: underline;
-    color: black;
-    transition: color 0.2s;
-  }
-  & a:hover {
-    transition: color 0.2s;
-    color: grey;
-  }
-`;
-
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
   metaData: CategoryMetaData;
@@ -86,7 +74,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       {modals}
       <Breadcrumb>
         <BreadcrumbItem>
-          <Link to="/">Home</Link>
+          <Link className="text-primary" to="/">
+            Home
+          </Link>
         </BreadcrumbItem>
         <BreadcrumbItem>{metaData.displayname}</BreadcrumbItem>
       </Breadcrumb>
@@ -134,17 +124,17 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
           <Row className="my-2">
             {metaData.semester && (
-              <Col className={metadataColStyle} md="auto">
+              <Col md="auto">
                 Semester: <Badge>{metaData.semester}</Badge>
               </Col>
             )}
             {metaData.form && (
-              <Col className={metadataColStyle} md="auto">
+              <Col md="auto">
                 Form: <Badge>{metaData.form}</Badge>
               </Col>
             )}
             {metaData.more_exams_link && (
-              <Col className={metadataColStyle} md="auto">
+              <Col md="auto">
                 <a
                   href={metaData.more_exams_link}
                   target="_blank"
@@ -154,11 +144,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </a>
               </Col>
             )}
-            {metaData.remark && (
-              <Col className={metadataColStyle} md="auto">
-                Remark: {metaData.remark}
-              </Col>
-            )}
+            {metaData.remark && <Col md="auto">Remark: {metaData.remark}</Col>}
           </Row>
           {(offeredIn === undefined || offeredIn.length > 0) && (
             <div>

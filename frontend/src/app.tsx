@@ -227,20 +227,31 @@ const App: React.FC<{}> = () => {
                       <a
                         href="http://vis.ethz.ch/"
                         title="Verein der Informatik Studierenden an der ETH Zürich"
+                        className="text-primary"
                       >
                         VIS
                       </a>
                     </Col>
                     <Col xs="auto" form>
-                      <a href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions">
-                        <GitlabIcon /> Repository
+                      <a
+                        href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
+                        className="text-primary"
+                      >
+                        <GitlabIcon color="primary" /> Repository
                       </a>
                     </Col>
                     <Col xs="auto" form>
-                      <a href={serverData.imprint}>Imprint</a>
+                      <a href={serverData.imprint} className="text-primary">
+                        Imprint
+                      </a>
                     </Col>
                     <Col xs="auto" form>
-                      <a href={serverData.privacy_policy}>Privacy Policy</a>
+                      <a
+                        href={serverData.privacy_policy}
+                        className="text-primary"
+                      >
+                        Privacy Policy
+                      </a>
                     </Col>
                   </Row>
                 </Container>

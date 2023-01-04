@@ -35,7 +35,10 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
           documents.map(document => (
             <Card key={document.slug}>
               <CardBody>
-                <Link to={`/user/${document.author}/document/${document.slug}`}>
+                <Link
+                  to={`/user/${document.author}/document/${document.slug}`}
+                  className="text-primary"
+                >
                   <CardTitle tag="h6">{document.display_name}</CardTitle>
                 </Link>
                 <div>
