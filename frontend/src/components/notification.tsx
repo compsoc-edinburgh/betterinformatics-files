@@ -24,10 +24,12 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
       <Card className="my-2">
         <CardHeader>
           <h6>
-            <Link to={notification.link}>{notification.title}</Link>
+            <Link to={notification.link} className="text-primary">
+              {notification.title}
+            </Link>
             <div>
               <small>
-                <Link to={notification.sender}>
+                <Link to={notification.sender} className="text-primary">
                   {notification.senderDisplayName}
                 </Link>{" "}
                 •{" "}

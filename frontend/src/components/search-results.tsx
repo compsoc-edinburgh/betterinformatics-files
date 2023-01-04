@@ -83,7 +83,10 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   <Col xs="auto">
                     <Breadcrumb className={noMarginBreadcrumb}>
                       <BreadcrumbItem>
-                        <Link to={`/category/${result.category_slug}`}>
+                        <Link
+                          to={`/category/${result.category_slug}`}
+                          className="text-primary"
+                        >
                           {result.category_displayname}
                         </Link>
                       </BreadcrumbItem>
@@ -91,7 +94,10 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   </Col>
                 </Row>
                 <h6>
-                  <Link to={`/exams/${result.filename}/`}>
+                  <Link
+                    to={`/exams/${result.filename}/`}
+                    className="text-primary"
+                  >
                     {result.headline.map((part, i) => (
                       <HighlightedContent content={part} key={i} />
                     ))}
@@ -141,12 +147,18 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   <Col xs="auto">
                     <Breadcrumb className={noMarginBreadcrumb}>
                       <BreadcrumbItem>
-                        <Link to={`/category/${result.category_slug}`}>
+                        <Link
+                          to={`/category/${result.category_slug}`}
+                          className="text-primary"
+                        >
                           {result.category_displayname}
                         </Link>
                       </BreadcrumbItem>
                       <BreadcrumbItem>
-                        <Link to={`/exams/${result.filename}`}>
+                        <Link
+                          to={`/exams/${result.filename}`}
+                          className="text-primary"
+                        >
                           {result.exam_displayname}
                         </Link>
                       </BreadcrumbItem>
@@ -155,7 +167,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                 </Row>
                 <div className="position-relative">
                   <Link
-                    className="text-link stretched-link"
+                    className="text-primary stretched-link"
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
                     <h6>{result.author_displayname}</h6>
@@ -182,12 +194,18 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   <Col xs="auto">
                     <Breadcrumb className={noMarginBreadcrumb}>
                       <BreadcrumbItem>
-                        <Link to={`/category/${result.category_slug}`}>
+                        <Link
+                          className="text-primary"
+                          to={`/category/${result.category_slug}`}
+                        >
                           {result.category_displayname}
                         </Link>
                       </BreadcrumbItem>
                       <BreadcrumbItem>
-                        <Link to={`/exams/${result.filename}`}>
+                        <Link
+                          className="text-primary"
+                          to={`/exams/${result.filename}`}
+                        >
                           {result.exam_displayname}
                         </Link>
                       </BreadcrumbItem>
@@ -196,7 +214,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                 </Row>
                 <div className="position-relative">
                   <Link
-                    className="text-link stretched-link"
+                    className="text-primary stretched-link"
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
                     <h6>{result.author_displayname}</h6>

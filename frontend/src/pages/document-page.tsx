@@ -93,10 +93,15 @@ const DocumentPage: React.FC<Props> = () => {
       <Container>
         <Breadcrumb>
           <BreadcrumbItem>
-            <Link to="/">Home</Link>
+            <Link className="text-primary" to="/">
+              Home
+            </Link>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <Link to={`/category/${data ? data.category : ""}`}>
+            <Link
+              className="text-primary"
+              to={`/category/${data ? data.category : ""}`}
+            >
               {data && data.category_display_name}
             </Link>
           </BreadcrumbItem>
@@ -119,7 +124,11 @@ const DocumentPage: React.FC<Props> = () => {
         )}
         <div>
           Author:{" "}
-          {data && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
+          {data && (
+            <Link className="text-primary" to={`/user/${data.author}`}>
+              @{data.author}
+            </Link>
+          )}
         </div>
         {error && <Alert color="danger">{error.toString()}</Alert>}
         {data && data.description && (

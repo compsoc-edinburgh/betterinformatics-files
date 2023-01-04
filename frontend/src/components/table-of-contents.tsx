@@ -44,7 +44,9 @@ interface NodeCompoennt {
 const TOCNodeComponent: React.FC<NodeCompoennt> = ({ node }) => {
   return (
     <li>
-      <Link to={`#${node.jumpTarget}`}>{node.name}</Link>
+      <Link to={`#${node.jumpTarget}`} className="text-muted">
+        {node.name}
+      </Link>
       {node.children.length > 0 && (
         <ul>
           {node.children.map((child, i) => (
