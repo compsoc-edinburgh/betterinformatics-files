@@ -1,7 +1,7 @@
 ARG git_branch="<none>"
 ARG git_commit="<none>"
 
-FROM eu.gcr.io/vseth-public/base:delta AS backend
+FROM eu.gcr.io/vseth-public/base:echo AS backend
 LABEL maintainer='lmoeller@vis.ethz.ch'
 
 WORKDIR /app
