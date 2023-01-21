@@ -62,7 +62,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
           </Col>
         </Row>
         <div>
-          <Link to={`/user/${comment.authorId}`}>
+          <Link className="text-dark" to={`/user/${comment.authorId}`}>
             <span className="text-dark font-weight-bold">
               {comment.authorDisplayName}
             </span>
