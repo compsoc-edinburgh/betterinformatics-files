@@ -30,6 +30,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
             }
           }}
           className="stretched-link text-dark"
+	  tabIndex={-1}
         >
           <h5>
             {"match" in category
