@@ -1,4 +1,4 @@
-import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
+import { Card, Group, Space, Stack, Progress } from "@mantine/core";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
@@ -19,8 +19,8 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     }
   };
   return (
-    <Card className={focusOutline} tabIndex={0} onKeyDown={handleKeyDown}>
-      <CardBody>
+    <Card withBorder shadow="md" className={focusOutline} tabIndex={0} onKeyDown={handleKeyDown}>
+      <Stack mb="sm" spacing="sm">
         <Link
           to={`/category/${category.slug}`}
           onClick={e => {
@@ -42,10 +42,10 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
           Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
         </div>
         <div>Answers: {((category.answerprogress * 100) | 0).toString()} %</div>
-      </CardBody>
-      <CardFooter>
-        <Progress value={category.answerprogress} max={1} />
-      </CardFooter>
+      </Stack>
+      <Card.Section>
+        <Progress radius={0} value={category.answerprogress * 100} />
+      </Card.Section>
     </Card>
   );
 };

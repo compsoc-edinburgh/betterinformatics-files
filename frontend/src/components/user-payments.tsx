@@ -1,10 +1,12 @@
 import {
-  Alert,
-  Button,
   ListGroup,
   ListGroupItem,
   Spinner,
 } from "@vseth/components";
+import {
+  Alert,
+  Button,
+} from "@mantine/core";
 import moment from "moment";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";

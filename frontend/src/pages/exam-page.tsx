@@ -1,20 +1,19 @@
 import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
 import {
-  Alert,
-  Breadcrumb,
-  BreadcrumbItem,
-  Card,
-  CardBody,
-  CheckIcon,
   Col,
-  Container,
-  DownloadIcon,
-  EditIcon,
   Row,
-  Spinner,
 } from "@vseth/components";
+import {
+  ActionIcon,
+  Card,
+  Breadcrumbs,
+  Anchor,
+  Loader,
+  Alert,
+  Container,
+} from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
 import {
@@ -46,6 +45,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 const addCut = async (
   filename: string,
@@ -218,39 +218,50 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
 
   return (
     <>
-      <Container>
+      <Container size="xl">
         <div className="d-flex justify-content-between align-items-center">
           <h1>{metaData.displayname}</h1>
           <div className="d-flex">
-            <IconButton
-              color="white"
-              as="a"
-              icon={DownloadIcon}
+            <ActionIcon
+              component="a"
               target="_blank"
               rel="noopener noreferrer"
-              href={metaData.exam_file}
-            />
+              href={metaData.exam_file}>
+              <Icon icon={ICONS.DOWNLOAD} />
+            </ActionIcon>
             {user.isCategoryAdmin && (
               <>
                 {user.isAdmin &&
                   metaData.is_oral_transcript &&
                   !metaData.oral_transcript_checked && (
-                    <IconButton
-                      color="white"
+                    <ActionIcon
                       className="ml-2"
-                      tooltip="Mark as checked"
-                      icon={CheckIcon}
+                      title="Mark as checked"
                       onClick={() => runMarkChecked(metaData.filename)}
-                    />
+                    >
+                      <Icon icon={ICONS.CHECK} />
+                    </ActionIcon>
+                    // <IconButton
+                    //   color="white"
+                    //   className="ml-2"
+                    //   tooltip="Mark as checked"
+                    //   icon={CheckIcon}
+                    //   onClick={() => runMarkChecked(metaData.filename)}
+                    // />
                   )}
 
-                <IconButton
-                  color="white"
+                <ActionIcon
                   className="ml-2"
+                  title="Edit"
+                  onClick={() => toggleEditing()}>
+                  <Icon icon={ICONS.EDIT} />
+                </ActionIcon>
+                {/* <IconButton
+                  color="white"
                   icon={EditIcon}
                   tooltip="Edit"
                   onClick={() => toggleEditing()}
-                />
+                /> */}
               </>
             )}
           </div>
@@ -259,17 +270,15 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           {!metaData.canView && (
             <Col md={6} lg={4}>
               <Card className="m-1">
-                <CardBody>
-                  {metaData.needs_payment && !metaData.hasPayed ? (
-                    <>
-                      You have to pay a deposit in order to see oral exams.
-                      After submitting a report of your own oral exam you can
-                      get your deposit back.
-                    </>
-                  ) : (
-                    <>You can not view this exam at this time.</>
-                  )}
-                </CardBody>
+                {metaData.needs_payment && !metaData.hasPayed ? (
+                  <>
+                    You have to pay a deposit in order to see oral exams.
+                    After submitting a report of your own oral exam you can
+                    get your deposit back.
+                  </>
+                ) : (
+                  <>You can not view this exam at this time.</>
+                )}
               </Card>
             </Col>
           )}
@@ -443,22 +452,21 @@ const ExamPage: React.FC<{}> = () => {
   return (
     <div>
       <Container>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <Link className="text-primary" to="/">
-              Home
-            </Link>
-          </BreadcrumbItem>
-          <BreadcrumbItem>
-            <Link
-              className="text-primary"
-              to={`/category/${metaData ? metaData.category : ""}`}
-            >
-              {metaData && metaData.category_displayname}
-            </Link>
-          </BreadcrumbItem>
-          <BreadcrumbItem>{metaData && metaData.displayname}</BreadcrumbItem>
-        </Breadcrumb>
+        <Breadcrumbs separator=">">
+          <Anchor
+            className="text-primary"
+            href="/"
+          >
+            Home
+          </Anchor>
+          <Anchor
+            href={`/category/${metaData ? metaData.category : ""}`}
+            className="text-primary"
+          >
+            {metaData && metaData.category_displayname}
+          </Anchor>
+          <Anchor>{metaData && metaData.displayname}</Anchor>
+        </Breadcrumbs>
       </Container>
       <div>
         {error && (
@@ -468,7 +476,7 @@ const ExamPage: React.FC<{}> = () => {
         )}
         {metaDataLoading && (
           <Container className="position-absolute">
-            <Spinner />
+            <Loader />
           </Container>
         )}
         {metaData &&
@@ -501,7 +509,7 @@ const ExamPage: React.FC<{}> = () => {
           ))}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>
-            <Spinner />
+            <Loader />
           </Container>
         )}
       </div>

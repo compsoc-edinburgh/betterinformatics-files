@@ -1,13 +1,10 @@
 import React from "react";
 import {
-  Card,
-  LikeFilledIcon,
-  CardBody,
-  CardTitle,
-  LikeIcon,
-  Spinner,
   Alert,
-} from "@vseth/components";
+  Loader,
+  Card,
+} from "@mantine/core";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { useDocumentsLikedBy, useDocumentsUsername } from "../api/hooks";
 import { Link } from "react-router-dom";
 import Grid from "../components/grid";
@@ -35,26 +32,24 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       <Grid>
         {documents &&
           documents.map(document => (
-            <Card key={document.slug}>
-              <CardBody>
-                <Link className="text-primary" to={`/user/${document.author}/document/${document.slug}`}>
-                  <CardTitle tag="h6">{document.display_name}</CardTitle>
+            <Card withBorder shadow="xs" key={document.slug}>
+              <Link to={`/user/${document.author}/document/${document.slug}`}>
+                <h6>{document.display_name}</h6>
+              </Link>
+              <div>
+                <Link to={`/user/${document.author}`} className="text-muted">
+                  @{document.author}
                 </Link>
-                <div>
-                  <Link to={`/user/${document.author}`} className="text-muted">
-                    @{document.author}
-                  </Link>
-                  {document.liked ? (
-                    <span className="text-danger ml-2">
-                      <LikeFilledIcon className="mr-1" /> {document.like_count}
-                    </span>
-                  ) : (
-                    <span className="text-muted ml-2">
-                      <LikeIcon className="mr-1" /> {document.like_count}
-                    </span>
-                  )}
-                </div>
-              </CardBody>
+                {document.liked ? (
+                  <span className="text-danger ml-2">
+                    <Icon icon={ICONS.LIKE_FILLED} className="mr-1" /> {document.like_count}
+                  </span>
+                ) : (
+                  <span className="text-muted ml-2">
+                    <Icon icon={ICONS.LIKE} className="mr-1" /> {document.like_count}
+                  </span>
+                )}
+              </div>
             </Card>
           ))}
       </Grid>
@@ -73,7 +68,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       {(!documents || documents.length === 0) && (
         <Alert color="secondary">No documents</Alert>
       )}
-      {loading && <Spinner />}
+      {loading && <Loader />}
 
       {isMyself && (
         <ContentContainer className="my-3">
@@ -83,7 +78,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
           {(!likedDocuments || likedDocuments.length === 0) && (
             <Alert color="secondary">No liked documents</Alert>
           )}
-          {likedLoading && <Spinner />}
+          {likedLoading && <Loader />}
         </ContentContainer>
       )}
     </>

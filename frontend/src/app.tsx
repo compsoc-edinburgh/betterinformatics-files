@@ -10,10 +10,15 @@ import {
   ModalBody,
   ModalHeader,
   Row,
-  VSETHContext,
 } from "@vseth/components";
+import {
+  makeVsethTheme,
+  useConfig,
+  VSETHExternalApp,
+  VSETHThemeProvider,
+} from "vseth-canine-ui";
 import React, { useEffect, useState } from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, useLocation } from "react-router-dom";
 import {
   authenticationStatus,
   fetchGet,
@@ -27,7 +32,6 @@ import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
-import ExamsNavbar from "./components/exams-navbar";
 import HashLocationHandler from "./components/hash-location-handler";
 import useToggle from "./hooks/useToggle";
 import CategoryPage from "./pages/category-page";
@@ -136,146 +140,174 @@ const App: React.FC<{}> = () => {
   }, [user]);
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
+  //load config data from your vseth org
+  const { data, error, loading } = useConfig("https://static.vseth.ethz.ch/assets/vseth-0000-vseth/config.json");
+
+  //create the mantine theme-object with your org's primary color
+  const theme = makeVsethTheme();
+  theme.colorScheme = 'dark';
+
+  // define the structure of your nav (will be displayed in the bottom half of the header)
+  const customDemoNav = [
+    { title: "Home", href: "/" },
+    { title: "Scoreboard ", href: "/scoreboard" },
+    {
+      title: "More", childItems: [
+        { title: "FAQ", href: "/faq" },
+        { title: "Feedback", href: "/feedback" },
+        { title: "Submit Transcript", href: "/submittranscript" }],
+    },
+    { title: "Search", href: "/search" },
+    { title: "Account", href: `/user/${user?.username}` },
+  ];
+
+  const [selectedLanguage, setSelectedLanguage] = React.useState("en");
+
   return (
-    <VSETHContext>
-      <Modal isOpen={loggedOut}>
-        <ModalHeader>You've been logged out due to inactivity</ModalHeader>
-        <ModalBody>
-          Your session has expired due to inactivity, you have to log in again
-          to continue.
-          <div className="text-center py-3">
-            <Button size="lg" color="primary" outline onClick={() => login()}>
-              Sign in with AAI
-            </Button>
-          </div>
-        </ModalBody>
-      </Modal>
-      <Route component={HashLocationHandler} />
-      <DebugContext.Provider value={debugOptions}>
-        <UserContext.Provider value={user}>
-          <SetUserContext.Provider value={setUser}>
-            <div
-              className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
-            >
-              <div>
-                <ExamsNavbar />
-                <main className="main__container pb-5">
-                  <Switch>
-                    <UserRoute exact path="/" component={HomePage} />
-                    <Route exact path="/login" component={LoginPage} />
-                    <UserRoute
-                      exact
-                      path="/uploadpdf"
-                      component={UploadPdfPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/submittranscript"
-                      component={UploadTranscriptPage}
-                    />
-                    <UserRoute exact path="/faq" component={FAQ} />
-                    <UserRoute
-                      exact
-                      path="/feedback"
-                      component={FeedbackPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/category/:slug"
-                      component={CategoryPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/user/:author/document/:slug"
-                      component={DocumentPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/exams/:filename"
-                      component={ExamPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/user/:username"
-                      component={UserPage}
-                    />
-                    <UserRoute exact path="/user/" component={UserPage} />
-                    <UserRoute exact path="/search/" component={SearchPage} />
-                    <UserRoute
-                      exact
-                      path="/scoreboard"
-                      component={Scoreboard}
-                    />
-                    <UserRoute exact path="/modqueue" component={ModQueue} />
-                    <Route component={NotFoundPage} />
-                  </Switch>
-                </main>
-              </div>
-              <div className="py-3">
-                <Container>
-                  <Logo variant="logo-mono" />
-                  <div className="bg-primary my-3" style={{ height: 2 }} />
-                  <Row>
-                    <Col xs="auto" form className="font-weight-bold">
-                      Made with{" "}
-                      <LikeFilledIcon
-                        color="currenColor"
-                        className="mx-1 text-danger"
-                        aria-label="love"
-                      />{" "}
-                      by volunteers at{" "}
-                      <a
-                        href="http://vis.ethz.ch/"
-                        title="Verein der Informatik Studierenden an der ETH Zürich"
-                        className="text-primary"
-                      >
-                        VIS
-                      </a>
-                    </Col>
-                    <Col xs="auto" form>
-                      <a
-                        href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
-                        className="text-primary"
-                      >
-                        <GitlabIcon color="primary" /> Repository
-                      </a>
-                    </Col>
-                    <Col xs="auto" form>
-                      <a href={serverData.imprint} className="text-primary">
-                        Imprint
-                      </a>
-                    </Col>
-                    <Col xs="auto" form>
-                      <a
-                        href={serverData.privacy_policy}
-                        className="text-primary"
-                      >
-                        Privacy Policy
-                      </a>
-                    </Col>
-                  </Row>
-                </Container>
-              </div>
+    <VSETHThemeProvider theme={theme}>
+      <VSETHExternalApp
+        title="Community Solutions"
+        appNav={customDemoNav}
+        activeHref={useLocation().pathname}>
+        <Modal isOpen={loggedOut}>
+          <ModalHeader>You've been logged out due to inactivity</ModalHeader>
+          <ModalBody>
+            Your session has expired due to inactivity, you have to log in again
+            to continue.
+            <div className="text-center py-3">
+              <Button size="lg" color="primary" outline onClick={() => login()}>
+                Sign in with AAI
+              </Button>
             </div>
-          </SetUserContext.Provider>
-        </UserContext.Provider>
-      </DebugContext.Provider>
-      {process.env.NODE_ENV === "development" && (
-        <>
-          <div className="position-fixed" style={{ bottom: 0, left: 0 }}>
-            <Button color="white" onClick={toggleDebugPanel}>
-              DEBUG
-            </Button>
-          </div>
-          <DebugModal
-            isOpen={debugPanel}
-            toggle={toggleDebugPanel}
-            debugOptions={debugOptions}
-            setDebugOptions={setDebugOptions}
-          />
-        </>
-      )}
-    </VSETHContext>
+          </ModalBody>
+        </Modal>
+        <Route component={HashLocationHandler} />
+        <DebugContext.Provider value={debugOptions}>
+          <UserContext.Provider value={user}>
+            <SetUserContext.Provider value={setUser}>
+              <div
+                className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
+              >
+                <div>
+                  {/* <ExamsNavbar /> */}
+                  <main className="main__container pb-5">
+                    <Switch>
+                      <UserRoute exact path="/" component={HomePage} />
+                      <Route exact path="/login" component={LoginPage} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        component={UploadPdfPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/submittranscript"
+                        component={UploadTranscriptPage}
+                      />
+                      <UserRoute exact path="/faq" component={FAQ} />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        component={FeedbackPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/category/:slug"
+                        component={CategoryPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:author/document/:slug"
+                        component={DocumentPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/exams/:filename"
+                        component={ExamPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        component={UserPage}
+                      />
+                      <UserRoute exact path="/user/" component={UserPage} />
+                      <UserRoute exact path="/search/" component={SearchPage} />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        component={Scoreboard}
+                      />
+                      <UserRoute exact path="/modqueue" component={ModQueue} />
+                      <Route component={NotFoundPage} />
+                    </Switch>
+                  </main>
+                </div>
+                <div className="py-3">
+                  <Container>
+                    <Logo variant="logo-mono" />
+                    <div className="bg-primary my-3" style={{ height: 2 }} />
+                    <Row>
+                      <Col xs="auto" form className="font-weight-bold">
+                        Made with{" "}
+                        <LikeFilledIcon
+                          color="currenColor"
+                          className="mx-1 text-danger"
+                          aria-label="love"
+                        />{" "}
+                        by volunteers at{" "}
+                        <a
+                          href="http://vis.ethz.ch/"
+                          title="Verein der Informatik Studierenden an der ETH Zürich"
+                          className="text-primary"
+                        >
+                          VIS
+                        </a>
+                      </Col>
+                      <Col xs="auto" form>
+                        <a
+                          href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
+                          className="text-primary"
+                        >
+                          <GitlabIcon color="primary" /> Repository
+                        </a>
+                      </Col>
+                      <Col xs="auto" form>
+                        <a href={serverData.imprint} className="text-primary">
+                          Imprint
+                        </a>
+                      </Col>
+                      <Col xs="auto" form>
+                        <a
+                          href={serverData.privacy_policy}
+                          className="text-primary"
+                        >
+                          Privacy Policy
+                        </a>
+                      </Col>
+                    </Row>
+                  </Container>
+                </div>
+              </div>
+            </SetUserContext.Provider>
+          </UserContext.Provider>
+        </DebugContext.Provider>
+        {process.env.NODE_ENV === "development" && (
+          <>
+            <div className="position-fixed" style={{ bottom: 0, left: 0 }}>
+              <Button color="white" onClick={toggleDebugPanel}>
+                DEBUG
+              </Button>
+            </div>
+            <DebugModal
+              isOpen={debugPanel}
+              toggle={toggleDebugPanel}
+              debugOptions={debugOptions}
+              setDebugOptions={setDebugOptions}
+            />
+          </>
+        )}
+      </VSETHExternalApp>
+    </VSETHThemeProvider>
   );
 };
 export default App;

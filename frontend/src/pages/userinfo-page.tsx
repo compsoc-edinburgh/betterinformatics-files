@@ -1,16 +1,14 @@
 import { css, keyframes } from "@emotion/css";
 import {
-  Alert,
   Col,
-  Container,
   Row,
-  Spinner,
-  TabPane,
-  TabContent,
-  Nav,
-  NavItem,
-  NavLink,
 } from "@vseth/components";
+import {
+  Container,
+  Alert,
+  Loader,
+  Tabs,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -70,68 +68,28 @@ const UserPage: React.FC<{}> = () => {
   const [userInfoError, userInfoLoading, userInfo] = useUserInfo(username);
   const error = userInfoError;
   const loading = userInfoLoading;
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<string | null>("overview");
   return (
     <>
-      <Container className="my-3">
+      <Container size="xl" className="my-3">
         <UserScoreCard
           username={username}
           isMyself={isMyself}
           userInfo={userInfo}
         />
         {error && <Alert color="danger">{error.toString()}</Alert>}
-        {loading && <Spinner />}
-        <Nav tabs className={navStyle}>
-          <NavItem>
-            <NavLink
-              active={activeTab === "overview"}
-              onClick={() => setActiveTab("overview")}
-              to="#"
-            >
-              <p>Overview</p>
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              active={activeTab === "answers"}
-              onClick={() => setActiveTab("answers")}
-              to="#"
-            >
-              <p>Answers</p>
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              active={activeTab === "comments"}
-              onClick={() => setActiveTab("comments")}
-              to="#"
-            >
-              <p>Comments</p>
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              active={activeTab === "documents"}
-              onClick={() => setActiveTab("documents")}
-              to="#"
-            >
-              <p>Documents</p>
-            </NavLink>
-          </NavItem>
-          {isMyself && (
-            <NavItem>
-              <NavLink
-                active={activeTab === "settings"}
-                onClick={() => setActiveTab("settings")}
-                to="#"
-              >
-                <p>Settings</p>
-              </NavLink>
-            </NavItem>
-          )}
-        </Nav>
-        <TabContent activeTab={activeTab}>
-          <TabPane tabId="overview">
+        {loading && <Loader />}
+        <Tabs value={activeTab} onTabChange={setActiveTab} className={navStyle}>
+          <Tabs.List>
+            <Tabs.Tab value="overview">Overview</Tabs.Tab>
+            <Tabs.Tab value="answers">Answers</Tabs.Tab>
+            <Tabs.Tab value="comments">Comments</Tabs.Tab>
+            <Tabs.Tab value="documents">Documents</Tabs.Tab>
+            {isMyself && (
+              <Tabs.Tab value="settings">Settings</Tabs.Tab>
+            )}
+          </Tabs.List>
+          <Tabs.Panel value="overview">
             <Row md={1}>
               {!isMyself && !user.isAdmin && (
                 <Alert color="secondary">There's nothing here</Alert>
@@ -147,26 +105,22 @@ const UserPage: React.FC<{}> = () => {
                 </Col>
               )}
             </Row>
-          </TabPane>
-          <TabPane tabId="answers">
+          </Tabs.Panel>
+          <Tabs.Panel value="answers">
             <UserAnswers username={username} />
-          </TabPane>
-          <TabPane tabId="comments">
+          </Tabs.Panel>
+          <Tabs.Panel value="comments">
             <UserComments username={username} />
-          </TabPane>
-          <TabPane tabId="documents">
+          </Tabs.Panel>
+          <Tabs.Panel value="documents">
             <UserDocuments username={username} userInfo={userInfo} />
-          </TabPane>
-          <TabPane tabId="settings">
-            <Row md={1}>
-              {isMyself && (
-                <Col md={6}>
-                  <UserNotificationsSettings username={username} />
-                </Col>
-              )}
-            </Row>
-          </TabPane>
-        </TabContent>
+          </Tabs.Panel>
+          <Tabs.Panel value="settings">
+            {isMyself && (
+              <UserNotificationsSettings username={username} />
+            )}
+          </Tabs.Panel>
+        </Tabs>
       </Container>
     </>
   );

@@ -1,4 +1,4 @@
-import { Alert, Button, Spinner } from "@vseth/components";
+import { Button, Alert, Loader } from "@mantine/core";
 import React, { useState } from "react";
 import { useNotifications } from "../api/hooks";
 import NotificationComponent from "./notification";
@@ -23,7 +23,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
       {(!notifications || notifications.length === 0) && (
         <Alert color="secondary">No notifications</Alert>
       )}
-      {notificationsLoading && <Spinner />}
+      {notificationsLoading && <Loader />}
       {notifications &&
         notifications.map(notification => (
           <NotificationComponent
