@@ -48,7 +48,7 @@ const ModQueue: React.FC = () => {
       {flaggedAnswers && flaggedAnswers.length > 0 && (
         <div>
           <h2>Flagged Answers</h2>
-          {flaggedAnswers.map((answer) => (
+          {flaggedAnswers.map(answer => (
             <div>
               <Link to={answer} target="_blank" rel="noopener noreferrer">
                 {answer}
@@ -71,7 +71,7 @@ const ModQueue: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {paymentExams.map((exam) => (
+                {paymentExams.map(exam => (
                   <tr key={exam.filename}>
                     <td>{exam.category_displayname}</td>
                     <td>

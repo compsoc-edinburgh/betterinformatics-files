@@ -1,27 +1,22 @@
 import { css } from "@emotion/css";
 import { useDebounceFn } from "@umijs/hooks";
 import {
-  AdjustUpDownAltIcon,
-  AdjustUpDownIcon,
-  ArrowUpIcon,
   ButtonGroup,
-  CloseIcon,
   Col,
   FormGroup,
   Input,
   Label,
-  MessageIcon,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Pagination,
   PaginationItem,
   PaginationLink,
-  PlusIcon,
   Row,
 } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { ICONS } from "vseth-canine-ui";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
@@ -174,25 +169,25 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <ButtonGroup>
           <IconButton
             tooltip="Report problem"
-            icon={MessageIcon}
+            iconName={ICONS.MESSAGE}
             onClick={reportProblem}
           />
           <IconButton
             tooltip="Back to the top"
-            icon={ArrowUpIcon}
+            iconName={ICONS.ARROW_UP}
             onClick={scrollToTop}
           />
           {!allSectionsExpanded && (
             <IconButton
               tooltip="Expand all answers"
-              icon={AdjustUpDownIcon}
+              iconName={ICONS.ADJUST_UP_DOWN}
               onClick={onExpandAllSections}
             />
           )}
           {!allSectionsCollapsed && (
             <IconButton
               tooltip="Collapse all answers"
-              icon={AdjustUpDownAltIcon}
+              iconName={ICONS.ADJUST_UP_DOWN_ALT}
               onClick={onCollapseAllSections}
             />
           )}
@@ -208,7 +203,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                     size="sm"
                     tooltip="Disable editing"
                     onClick={() => setEditState({ mode: EditMode.None })}
-                    icon={CloseIcon}
+                    iconName={ICONS.CLOSE}
                   >
                     Stop Editing
                   </IconButton>
@@ -225,7 +220,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                         snap,
                       })
                     }
-                    icon={PlusIcon}
+                    iconName={ICONS.PLUS}
                   >
                     Add Cuts
                   </IconButton>

@@ -1,14 +1,7 @@
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  LikeFilledIcon,
-  LikeIcon,
-  Modal,
-  PlusIcon,
-} from "@vseth/components";
+import { Card, CardBody, CardTitle, Modal } from "@vseth/components";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
@@ -47,11 +40,13 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
                   </Link>
                   {document.liked ? (
                     <span className="text-danger ml-2">
-                      <LikeFilledIcon className="mr-1" /> {document.like_count}
+                      <Icon icon={ICONS.LIKE_FILLED} className="mr-1" />{" "}
+                      {document.like_count}
                     </span>
                   ) : (
                     <span className="text-muted ml-2">
-                      <LikeIcon className="mr-1" /> {document.like_count}
+                      <Icon icon={ICONS.LIKE} className="mr-1" />{" "}
+                      {document.like_count}
                     </span>
                   )}
                 </div>
@@ -64,7 +59,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
             onClick={() => setIsOpen(true)}
             className="position-cover w-100"
           >
-            <PlusIcon size={40} className="m-auto" />
+            <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
           </TooltipButton>
         </Card>
       </Grid>

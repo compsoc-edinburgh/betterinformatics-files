@@ -1,14 +1,6 @@
 import { css, keyframes } from "@emotion/css";
-import {
-  Col,
-  Row,
-} from "@vseth/components";
-import {
-  Container,
-  Alert,
-  Loader,
-  Tabs,
-} from "@mantine/core";
+import { Col, Row } from "@vseth/components";
+import { Container, Alert, Loader, Tabs } from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -85,9 +77,7 @@ const UserPage: React.FC<{}> = () => {
             <Tabs.Tab value="answers">Answers</Tabs.Tab>
             <Tabs.Tab value="comments">Comments</Tabs.Tab>
             <Tabs.Tab value="documents">Documents</Tabs.Tab>
-            {isMyself && (
-              <Tabs.Tab value="settings">Settings</Tabs.Tab>
-            )}
+            {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
           <Tabs.Panel value="overview">
             <Row md={1}>
@@ -116,9 +106,7 @@ const UserPage: React.FC<{}> = () => {
             <UserDocuments username={username} userInfo={userInfo} />
           </Tabs.Panel>
           <Tabs.Panel value="settings">
-            {isMyself && (
-              <UserNotificationsSettings username={username} />
-            )}
+            {isMyself && <UserNotificationsSettings username={username} />}
           </Tabs.Panel>
         </Tabs>
       </Container>

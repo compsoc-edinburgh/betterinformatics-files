@@ -1,5 +1,5 @@
 import { useInViewport } from "@umijs/hooks";
-import { Card, ViewIcon, ViewOffIcon } from "@vseth/components";
+import { Card } from "@vseth/components";
 import { css, cx } from "@emotion/css";
 import * as React from "react";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import useDpr from "../hooks/useDpr";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
 import { CutUpdate } from "../interfaces";
+import { ICONS } from "vseth-canine-ui";
 
 const lastSection = css`
   margin-bottom: 2rem;
@@ -243,7 +244,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
                 <IconButton 
                   className={addCutButtonStyle}
                   size="sm"
-                  icon={hidden ? ViewIcon : ViewOffIcon}
+                  iconName={hidden ? ICONS.VIEW : ICONS.VIEW_OFF}
                   tooltip="Toggle visibility"
                   onClick={toggleVisibility}
                 />

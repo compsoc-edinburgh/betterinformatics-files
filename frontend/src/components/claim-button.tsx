@@ -1,7 +1,7 @@
 import { CategoryExam } from "../interfaces";
 import { useUser } from "../auth";
 import { hasValidClaim } from "../utils/exam-utils";
-import { Button } from "@vseth/components";
+import { Button } from "@mantine/core";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import { useRequest } from "@umijs/hooks";
@@ -29,7 +29,7 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
         <Button
           size="sm"
           color="dark"
-          outline
+          variant="outline"
           onClick={e => {
             e.stopPropagation();
             runSetClaim(exam.filename, false);
@@ -52,7 +52,7 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
       <Button
         size="sm"
         color="dark"
-        outline
+        variant="outline"
         onClick={e => {
           e.stopPropagation();
           runSetClaim(exam.filename, true);

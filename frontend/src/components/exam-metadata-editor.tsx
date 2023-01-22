@@ -11,8 +11,6 @@ import {
   TextareaField,
   InputField,
   Creatable,
-  CloseIcon,
-  SaveIcon,
 } from "@vseth/components";
 import React from "react";
 import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
@@ -25,6 +23,7 @@ import ButtonWrapperCard from "./button-wrapper-card";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 import useForm from "../hooks/useForm";
+import { ICONS } from "vseth-canine-ui";
 const stringKeys = [
   "displayname",
   "category",
@@ -405,13 +404,13 @@ const ExamMetadataEditor: React.FC<Props> = ({
       <ButtonWrapperCard>
         <Row className="flex-between">
           <Col xs="auto">
-            <IconButton icon={CloseIcon} onClick={toggle}>
+            <IconButton iconName={ICONS.CLOSE} onClick={toggle}>
               Cancel
             </IconButton>
           </Col>
           <Col xs="auto">
             <IconButton
-              icon={SaveIcon}
+              iconName={ICONS.SAVE}
               color="primary"
               loading={loading}
               onClick={onSubmit}

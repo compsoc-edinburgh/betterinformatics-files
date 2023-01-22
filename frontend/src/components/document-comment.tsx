@@ -1,17 +1,15 @@
+import { Loader } from "@mantine/core";
 import {
   Card,
-  DeleteIcon,
-  EditIcon,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
-  SaveIcon,
-  Spinner,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   Mutate,
@@ -90,9 +88,9 @@ const DocumentCommentComponent = ({
           >
             Save{" "}
             {editLoading ? (
-              <Spinner className="ml-2" size="sm" />
+              <Loader className="ml-2" size="sm" />
             ) : (
-              <SaveIcon className="ml-2" />
+              <Icon icon={ICONS.SAVE} className="ml-2" />
             )}
           </TooltipButton>
         </ModalFooter>
@@ -131,7 +129,7 @@ const DocumentCommentComponent = ({
                 color="white"
                 onClick={deleteComment}
               >
-                <DeleteIcon size={18} />
+                <Icon icon={ICONS.DELETE} size={18} />
               </SmallButton>
             )}
 
@@ -149,7 +147,7 @@ const DocumentCommentComponent = ({
                   });
                 }}
               >
-                <EditIcon size={18} />
+                <Icon icon={ICONS.EDIT} size={18} />
               </SmallButton>
             )}
           </div>

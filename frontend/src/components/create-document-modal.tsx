@@ -1,14 +1,14 @@
+import { Loader } from "@mantine/core";
 import {
   Button,
   InputField,
   ModalBody,
   ModalFooter,
   ModalHeader,
-  PlusIcon,
-  Spinner,
 } from "@vseth/components";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { useCreateDocument } from "../api/hooks";
 import { useUser } from "../auth";
 
@@ -48,9 +48,9 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
         >
           Add{" "}
           {loading ? (
-            <Spinner className="ml-2" size="sm" />
+            <Loader className="ml-2" size="sm" />
           ) : (
-            <PlusIcon className="ml-2" />
+            <Icon icon={ICONS.PLUS} className="ml-2" />
           )}
         </Button>
       </ModalFooter>

@@ -1,16 +1,12 @@
 import {
   ButtonGroup,
   ButtonDropdown,
-  CloseIcon,
   Col,
-  DeleteIcon,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  EditIcon,
   ListGroupItem,
   Row,
-  SaveIcon,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useState, useCallback } from "react";
@@ -28,7 +24,7 @@ import CodeBlock from "./code-block";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
-import { DotsHIcon } from "@vseth/components/dist/components/Icon/Icon";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface Props {
   answer: Answer;
@@ -100,7 +96,7 @@ const CommentComponent: React.FC<Props> = ({
                 color="white"
                 onClick={startEditing}
               >
-                <EditIcon size={18} />
+                <Icon icon={ICONS.EDIT} size={18} />
               </SmallButton>
             )}
             {(comment.canEdit || isAdmin) && (
@@ -110,18 +106,18 @@ const CommentComponent: React.FC<Props> = ({
                 color="white"
                 onClick={remove}
               >
-                <DeleteIcon size={18} />
+                <Icon icon={ICONS.DELETE} size={18} />
               </SmallButton>
             )}
             <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-             <DropdownToggle size="sm" color="white" tooltip="More" caret>
-               <DotsHIcon size={18} />
-             </DropdownToggle>
-             <DropdownMenu>
-               <DropdownItem onClick={toggleViewSource}>
-                 Toggle Source Code Mode
-               </DropdownItem>
-             </DropdownMenu>
+              <DropdownToggle size="sm" color="white" tooltip="More" caret>
+                <Icon icon={ICONS.DOTS_H} size={18} />
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem onClick={toggleViewSource}>
+                  Toggle Source Code Mode
+                </DropdownItem>
+              </DropdownMenu>
             </ButtonDropdown>
           </ButtonGroup>
         )}
@@ -174,7 +170,7 @@ const CommentComponent: React.FC<Props> = ({
                 loading={loading}
                 disabled={draftText.trim().length === 0}
                 onClick={onSave}
-                icon={SaveIcon}
+                iconName={ICONS.SAVE}
               >
                 Save
               </IconButton>
@@ -184,7 +180,7 @@ const CommentComponent: React.FC<Props> = ({
                 className="m-1"
                 size="sm"
                 onClick={onCancel}
-                icon={CloseIcon}
+                iconName={ICONS.CLOSE}
               >
                 {comment === undefined ? "Delete Draft" : "Cancel"}
               </IconButton>

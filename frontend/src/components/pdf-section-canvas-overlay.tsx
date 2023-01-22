@@ -1,4 +1,4 @@
-import { Badge } from "@vseth/components";
+import { Badge } from "@mantine/core";
 import React, {
   useCallback,
   useMemo,

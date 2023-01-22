@@ -1,9 +1,10 @@
-import { Alert, Spinner } from "@vseth/components";
+import { Alert } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import Masonry from "react-masonry-component";
 import { masonryStyle } from "../pages/userinfo-page";
 import { useUserComments } from "../api/hooks";
 import SingleCommentComponent from "./comment-single";
+import { Loader } from "@mantine/core";
 
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
@@ -81,7 +82,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
           <div ref={elem => setLastElement(elem)} />
         </Masonry>
       </div>
-      {loading && <Spinner style={{ display: "flex", margin: "auto" }} />}
+      {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>
   );
 };

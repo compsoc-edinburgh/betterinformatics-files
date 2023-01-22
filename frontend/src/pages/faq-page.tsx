@@ -2,13 +2,10 @@ import {
   Card,
   CardBody,
   CardFooter,
-  CloseIcon,
   Col,
   Container,
   Input,
-  PlusIcon,
   Row,
-  SaveIcon,
 } from "@vseth/components";
 import { css } from "@emotion/css";
 import * as React from "react";
@@ -23,6 +20,7 @@ import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
+import { ICONS } from "vseth-canine-ui";
 const newButtonStyle = css`
   min-height: 3em;
 `;
@@ -100,7 +98,7 @@ export const FAQPage: React.FC = () => {
                 <IconButton
                   color="primary"
                   size="sm"
-                  icon={SaveIcon}
+                  iconName={ICONS.SAVE}
                   onClick={handleNew}
                 >
                   Save
@@ -109,7 +107,7 @@ export const FAQPage: React.FC = () => {
               <Col xs="auto">
                 <IconButton
                   size="sm"
-                  icon={CloseIcon}
+                  iconName={ICONS.CLOSE}
                   onClick={handleDeleteDraft}
                 >
                   Delete Draft
@@ -126,7 +124,7 @@ export const FAQPage: React.FC = () => {
               className="position-cover"
               block
               size="lg"
-              icon={PlusIcon}
+              iconName={ICONS.PLUS}
               onClick={() => setHasDraft(true)}
             />
           </Card>

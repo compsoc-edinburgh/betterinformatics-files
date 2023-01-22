@@ -1,5 +1,6 @@
-import { SendIcon, Spinner } from "@vseth/components";
+import { Loader } from "@mantine/core";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentComment } from "../api/hooks";
 import { Document } from "../interfaces";
@@ -54,9 +55,9 @@ const DocumentCommentForm: React.FC<Props> = ({
         >
           Submit{" "}
           {loading ? (
-            <Spinner className="ml-2" size="sm" />
+            <Loader className="ml-2" size="sm" />
           ) : (
-            <SendIcon className="ml-2" />
+            <Icon icon={ICONS.SEND} className="ml-2" />
           )}
         </TooltipButton>
       </div>

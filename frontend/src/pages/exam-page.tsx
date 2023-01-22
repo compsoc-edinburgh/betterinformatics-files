@@ -1,10 +1,6 @@
 import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
+import { Col, Row } from "@vseth/components";
 import {
-  Col,
-  Row,
-} from "@vseth/components";
-import {
-  ActionIcon,
   Card,
   Breadcrumbs,
   Anchor,
@@ -45,7 +41,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { ICONS } from "vseth-canine-ui";
 
 const addCut = async (
   filename: string,
@@ -222,46 +218,33 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         <div className="d-flex justify-content-between align-items-center">
           <h1>{metaData.displayname}</h1>
           <div className="d-flex">
-            <ActionIcon
-              component="a"
+            <IconButton
+              color="white"
+              as="a"
+              iconName={ICONS.DOWNLOAD}
               target="_blank"
               rel="noopener noreferrer"
-              href={metaData.exam_file}>
-              <Icon icon={ICONS.DOWNLOAD} />
-            </ActionIcon>
+              href={metaData.exam_file}
+            />
             {user.isCategoryAdmin && (
               <>
                 {user.isAdmin &&
                   metaData.is_oral_transcript &&
                   !metaData.oral_transcript_checked && (
-                    <ActionIcon
+                    <IconButton
+                      color="white"
                       className="ml-2"
-                      title="Mark as checked"
+                      tooltip="Mark as checked"
+                      iconName={ICONS.CHECK}
                       onClick={() => runMarkChecked(metaData.filename)}
-                    >
-                      <Icon icon={ICONS.CHECK} />
-                    </ActionIcon>
-                    // <IconButton
-                    //   color="white"
-                    //   className="ml-2"
-                    //   tooltip="Mark as checked"
-                    //   icon={CheckIcon}
-                    //   onClick={() => runMarkChecked(metaData.filename)}
-                    // />
+                    />
                   )}
-
-                <ActionIcon
-                  className="ml-2"
-                  title="Edit"
-                  onClick={() => toggleEditing()}>
-                  <Icon icon={ICONS.EDIT} />
-                </ActionIcon>
-                {/* <IconButton
+                <IconButton
                   color="white"
-                  icon={EditIcon}
+                  iconName={ICONS.EDIT}
                   tooltip="Edit"
                   onClick={() => toggleEditing()}
-                /> */}
+                />
               </>
             )}
           </div>
@@ -272,9 +255,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               <Card className="m-1">
                 {metaData.needs_payment && !metaData.hasPayed ? (
                   <>
-                    You have to pay a deposit in order to see oral exams.
-                    After submitting a report of your own oral exam you can
-                    get your deposit back.
+                    You have to pay a deposit in order to see oral exams. After
+                    submitting a report of your own oral exam you can get your
+                    deposit back.
                   </>
                 ) : (
                   <>You can not view this exam at this time.</>
@@ -453,10 +436,7 @@ const ExamPage: React.FC<{}> = () => {
     <div>
       <Container>
         <Breadcrumbs separator=">">
-          <Anchor
-            className="text-primary"
-            href="/"
-          >
+          <Anchor className="text-primary" href="/">
             Home
           </Anchor>
           <Anchor

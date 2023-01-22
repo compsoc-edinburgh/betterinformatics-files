@@ -1,13 +1,8 @@
+import { Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import {
-  Alert,
-  Col,
-  DownloadIcon,
-  FormGroup,
-  Row,
-  Spinner,
-} from "@vseth/components";
+import { Alert, Col, FormGroup, Row } from "@vseth/components";
 import React, { useMemo, useState } from "react";
+import { ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
 import useSet from "../hooks/useSet";
@@ -66,7 +61,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   return (
     <>
       {error && <Alert color="danger">{error}</Alert>}
-      {loading && <Spinner />}
+      {loading && <Loader />}
       <Row className="d-flex flex-between">
         <Col md={6} xs={12} className="text-center text-md-left">
           <FormGroup className="mb-2 d-md-inline-block">
@@ -74,7 +69,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(getSelectedExams(selected))}
               block
-              icon={DownloadIcon}
+              iconName={ICONS.DOWNLOAD}
             >
               Download selected exams
             </IconButton>

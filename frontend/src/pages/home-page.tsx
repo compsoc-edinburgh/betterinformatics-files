@@ -1,22 +1,18 @@
+import { Alert, Button, Container, Loader } from "@mantine/core";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
-  Alert,
-  Button,
-  ButtonGroup,
   Card,
   Col,
-  Container,
   FormGroup,
   InputField,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
-  PlusIcon,
   Row,
-  Spinner,
 } from "@vseth/components";
 import React, { useCallback, useMemo, useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
@@ -122,7 +118,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
             onClick={onSubmit}
             disabled={categoryName.length === 0 || loading}
           >
-            {loading ? <Spinner /> : "Add Category"}
+            {loading ? <Loader /> : "Add Category"}
           </Button>
         </ModalFooter>
       </Modal>
@@ -132,7 +128,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           onClick={() => setIsOpen(true)}
           className="position-cover w-100"
         >
-          <PlusIcon size={40} className="m-auto" />
+          <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
         </TooltipButton>
       </Card>
     </>
@@ -143,7 +139,7 @@ const HomePage: React.FC<{}> = () => {
   useTitle("Home");
   return (
     <>
-      <Container>
+      <Container size="xl">
         <h1 className="mb-3">Community Solutions</h1>
       </Container>
       <CategoryList />
@@ -188,24 +184,24 @@ export const CategoryList: React.FC<{}> = () => {
 
   return (
     <>
-      <Container>
+      <Container size="xl">
         <Row className="d-flex flex-row flex-between px-2">
           <Col md="auto">
             <FormGroup className="m-1">
-              <ButtonGroup>
+              <Button.Group>
                 <Button
                   onClick={() => setMode(Mode.Alphabetical)}
-                  active={mode === Mode.Alphabetical}
+                  // active={mode === Mode.Alphabetical}
                 >
                   Alphabetical
                 </Button>
                 <Button
                   onClick={() => setMode(Mode.BySemester)}
-                  active={mode === Mode.BySemester}
+                  // active={mode === Mode.BySemester}
                 >
                   By Semester
                 </Button>
-              </ButtonGroup>
+              </Button.Group>
             </FormGroup>
           </Col>
           <Col md="auto">
@@ -229,7 +225,7 @@ export const CategoryList: React.FC<{}> = () => {
       </Container>
       <ContentContainer className="position-relative my-3">
         <LoadingOverlay loading={loading} />
-        <Container>
+        <Container size="xl">
           {error ? (
             <Alert color="danger">{error.toString()}</Alert>
           ) : mode === Mode.Alphabetical || filter.length > 0 ? (

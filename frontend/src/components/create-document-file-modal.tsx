@@ -5,11 +5,11 @@ import {
   FormGroup,
   ModalFooter,
   Button,
-  Spinner,
-  PlusIcon,
 } from "@vseth/components";
+import { Loader } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { NamedBlob } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentFile } from "../api/hooks";
 import { Toggle } from "../hooks/useToggle";
@@ -81,9 +81,9 @@ const CreateDocumentFileModal: React.FC<Props> = ({
         >
           Add{" "}
           {loading ? (
-            <Spinner className="ml-2" size="sm" />
+            <Loader className="ml-2" size="sm" />
           ) : (
-            <PlusIcon className="ml-2" />
+            <Icon icon={ICONS.PLUS} className="ml-2" />
           )}
         </Button>
       </ModalFooter>

@@ -1,5 +1,14 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
-import { Alert, Button, Container, Table } from "@vseth/components";
+import {
+  Alert,
+  Center,
+  Container,
+  Group,
+  Table,
+  UnstyledButton,
+  Text,
+  createStyles,
+} from "@mantine/core";
 import React from "react";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
@@ -7,6 +16,7 @@ import { fetchGet } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 import { css } from "@emotion/css";
+import { Icon, ICONS } from "vseth-canine-ui";
 const overflowScroll = css`
   overflow: auto;
 `;
@@ -23,6 +33,56 @@ const loadScoreboard = async (scoretype: Mode) => {
   return (await fetchGet(`/api/scoreboard/top/${scoretype}/`))
     .value as UserInfo[];
 };
+
+const useStyles = createStyles(theme => ({
+  th: {
+    padding: "0 !important",
+  },
+
+  control: {
+    width: "100%",
+    padding: `${theme.spacing.xs}px ${theme.spacing.md}px`,
+
+    "&:hover": {
+      backgroundColor:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[6]
+          : theme.colors.gray[0],
+    },
+  },
+
+  icon: {
+    width: 21,
+    height: 21,
+    borderRadius: 21,
+  },
+}));
+
+interface ThProps {
+  children: React.ReactNode;
+  sorted: boolean;
+  onSort(): void;
+}
+
+function Th({ children, sorted, onSort }: ThProps) {
+  const { classes } = useStyles();
+  const iconName = sorted ? ICONS.DOWN : ICONS.ARROW_UP_DOWN;
+  return (
+    <th className={classes.th}>
+      <UnstyledButton onClick={onSort} className={classes.control}>
+        <Group position="apart">
+          <Text weight={700} size="sm">
+            {children}
+          </Text>
+          <Center className={classes.icon}>
+            <Icon icon={iconName} size={14} />
+          </Center>
+        </Group>
+      </UnstyledButton>
+    </th>
+  );
+}
+
 const Scoreboard: React.FC<{}> = () => {
   useTitle("Scoreboard");
   const [mode, setMode] = useLocalStorageState<Mode>(
@@ -34,70 +94,49 @@ const Scoreboard: React.FC<{}> = () => {
     cacheKey: `scoreboard-${mode}`,
   });
   return (
-    <Container>
+    <Container size="xl">
       <h1>Scoreboard</h1>
       {error && <Alert color="danger">{error.message}</Alert>}
       <LoadingOverlay loading={loading} />
       <div className={overflowScroll}>
-        <Table>
+        <Table striped highlightOnHover>
           <thead>
             <tr>
               <th>Rank</th>
               <th>User</th>
-              <th>
-                <Button
-                  color="white"
-                  onClick={() => setMode("score")}
-                  active={mode === "score"}
-                >
-                  Score
-                </Button>
-              </th>
-              <th>
-                <Button
-                  color="white"
-                  onClick={() => setMode("score_answers")}
-                  active={mode === "score_answers"}
-                >
-                  Answers
-                </Button>
-              </th>
-              <th>
-                <Button
-                  color="white"
-                  onClick={() => setMode("score_comments")}
-                  active={mode === "score_comments"}
-                >
-                  Comments
-                </Button>
-              </th>
-              <th>
-                <Button
-                  color="white"
-                  onClick={() => setMode("score_documents")}
-                  active={mode === "score_documents"}
-                >
-                  Documents
-                </Button>
-              </th>
-              <th>
-                <Button
-                  color="white"
-                  onClick={() => setMode("score_cuts")}
-                  active={mode === "score_cuts"}
-                >
-                  Import Exams
-                </Button>
-              </th>
-              <th>
-                <Button
-                  color="white"
-                  onClick={() => setMode("score_legacy")}
-                  active={mode === "score_legacy"}
-                >
-                  Import Wiki
-                </Button>
-              </th>
+              <Th onSort={() => setMode("score")} sorted={mode === "score"}>
+                Score
+              </Th>
+              <Th
+                onSort={() => setMode("score_answers")}
+                sorted={mode === "score_answers"}
+              >
+                Answers
+              </Th>
+              <Th
+                onSort={() => setMode("score_comments")}
+                sorted={mode === "score_comments"}
+              >
+                Comments
+              </Th>
+              <Th
+                onSort={() => setMode("score_documents")}
+                sorted={mode === "score_documents"}
+              >
+                Documents
+              </Th>
+              <Th
+                onSort={() => setMode("score_cuts")}
+                sorted={mode === "score_cuts"}
+              >
+                Import Exams
+              </Th>
+              <Th
+                onSort={() => setMode("score_legacy")}
+                sorted={mode === "score_legacy"}
+              >
+                Import Wiki
+              </Th>
             </tr>
           </thead>
           <tbody>

@@ -12,9 +12,12 @@ import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
 import LoadingOverlay from "./loading-overlay";
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(theme => ({
   footer: {
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+    backgroundColor:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[5]
+        : theme.colors.gray[1],
     padding: `${theme.spacing.xs}px ${theme.spacing.lg}px`,
     borderTop: `1.5px solid rgba(51,51,51,.125)`,
   },
@@ -67,12 +70,12 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
       </Group>
 
       <Container fluid>
-        <SimpleGrid cols={3} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+        <SimpleGrid cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
           <div>
             <Card withBorder className="m-1">
               <LoadingOverlay loading={!userInfo} />
               <h3 className="p-4 m-0">{userInfo ? userInfo.score : "-"}</h3>
-              <Card.Section >
+              <Card.Section>
                 <Container className={classes.footer}>
                   <h6>Score</h6>
                 </Container>

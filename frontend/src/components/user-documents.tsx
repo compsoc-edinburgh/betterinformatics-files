@@ -1,15 +1,10 @@
 import React from "react";
-import {
-  Alert,
-  Loader,
-  Card,
-} from "@mantine/core";
+import { Alert, Loader, Card } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { useDocumentsLikedBy, useDocumentsUsername } from "../api/hooks";
 import { Link } from "react-router-dom";
 import Grid from "../components/grid";
 import { useUser } from "../auth";
-import ContentContainer from "./secondary-container";
 import { Document, UserInfo } from "../interfaces";
 
 interface UserDocumentsProps {
@@ -42,11 +37,13 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
                 </Link>
                 {document.liked ? (
                   <span className="text-danger ml-2">
-                    <Icon icon={ICONS.LIKE_FILLED} className="mr-1" /> {document.like_count}
+                    <Icon icon={ICONS.LIKE_FILLED} className="mr-1" />{" "}
+                    {document.like_count}
                   </span>
                 ) : (
                   <span className="text-muted ml-2">
-                    <Icon icon={ICONS.LIKE} className="mr-1" /> {document.like_count}
+                    <Icon icon={ICONS.LIKE} className="mr-1" />{" "}
+                    {document.like_count}
                   </span>
                 )}
               </div>
@@ -71,7 +68,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       {loading && <Loader />}
 
       {isMyself && (
-        <ContentContainer className="my-3">
+        <>
           <h3>Liked Documents</h3>
           {likedError && <Alert color="danger">{likedError.toString()}</Alert>}
           {likedDocuments && displayDocuments(likedDocuments)}
@@ -79,7 +76,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
             <Alert color="secondary">No liked documents</Alert>
           )}
           {likedLoading && <Loader />}
-        </ContentContainer>
+        </>
       )}
     </>
   );

@@ -1,12 +1,4 @@
-import {
-  Col,
-  CardHeader,
-  CardBody,
-  Row,
-  Card,
-  Breadcrumb,
-  BreadcrumbItem,
-} from "@vseth/components";
+import { Anchor, Breadcrumbs, Card } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -29,38 +21,25 @@ const marginCommentText = css`
 
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
-    <Card className={marginCommentText}>
-      <CardHeader>
-        <Row>
-          <Col xs="auto">
-            <Breadcrumb className={noMarginBreadcrumb}>
-              <BreadcrumbItem>
-                <Link
-                  to={`/category/${comment.category_slug}`}
-                  className="text-primary"
-                >
-                  {comment.category_displayname}
-                </Link>
-              </BreadcrumbItem>
-              <BreadcrumbItem>
-                <Link
-                  to={`/exams/${comment.filename}`}
-                  className="text-primary"
-                >
-                  {comment.exam_displayname}
-                </Link>
-              </BreadcrumbItem>
-              <BreadcrumbItem>
-                <Link
-                  to={`/exams/${comment.filename}#${comment.answerId}`}
-                  className="text-primary"
-                >
-                  Comment
-                </Link>
-              </BreadcrumbItem>
-            </Breadcrumb>
-          </Col>
-        </Row>
+    <Card withBorder className={marginCommentText}>
+      <Card.Section>
+        <Breadcrumbs className={noMarginBreadcrumb}>
+          <Anchor
+            href={`/category/${comment.category_slug}`}
+            className="text-primary"
+          >
+            {comment.category_displayname}
+          </Anchor>
+          <Anchor href={`/exams/${comment.filename}`} className="text-primary">
+            {comment.exam_displayname}
+          </Anchor>
+          <Anchor
+            href={`/exams/${comment.filename}#${comment.answerId}`}
+            className="text-primary"
+          >
+            Comment
+          </Anchor>
+        </Breadcrumbs>
         <div>
           <Link className="text-dark" to={`/user/${comment.authorId}`}>
             <span className="text-dark font-weight-bold">
@@ -87,10 +66,8 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
               </>
             )}
         </div>
-      </CardHeader>
-      <CardBody>
-        <MarkdownText value={comment.text} />
-      </CardBody>
+      </Card.Section>
+      <MarkdownText value={comment.text} />
     </Card>
   );
 };

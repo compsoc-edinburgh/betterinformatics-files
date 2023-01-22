@@ -1,12 +1,5 @@
-import {
-  ListGroup,
-  ListGroupItem,
-  Spinner,
-} from "@vseth/components";
-import {
-  Alert,
-  Button,
-} from "@mantine/core";
+import { ListGroup, ListGroupItem } from "@vseth/components";
+import { Alert, Button, Loader } from "@mantine/core";
 import moment from "moment";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -40,7 +33,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
     <>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h3>Paid Oral Exams</h3>
-      {loading && <Spinner />}
+      {loading && <Loader />}
       {payments && (payments.length > 0 || isAdmin) && (
         <>
           {payments

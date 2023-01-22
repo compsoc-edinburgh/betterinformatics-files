@@ -1,17 +1,17 @@
 import { css } from "@emotion/css";
 import {
-  Button,
   Col,
   Container,
-  GitlabIcon,
-  LikeFilledIcon,
   Logo,
   Modal,
   ModalBody,
   ModalHeader,
   Row,
 } from "@vseth/components";
+import { Button } from "@mantine/core";
 import {
+  Icon,
+  ICONS,
   makeVsethTheme,
   useConfig,
   VSETHExternalApp,
@@ -140,42 +140,65 @@ const App: React.FC<{}> = () => {
   }, [user]);
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
-  //load config data from your vseth org
-  const { data, error, loading } = useConfig("https://static.vseth.ethz.ch/assets/vseth-0000-vseth/config.json");
+
+  const { data } = useConfig(
+    "https://static.vseth.ethz.ch/assets/vseth-1116-vis/config.json",
+  );
 
   //create the mantine theme-object with your org's primary color
-  const theme = makeVsethTheme();
-  theme.colorScheme = 'dark';
+  const theme = makeVsethTheme([
+    "#E5F9FF",
+    "#D1F3FF",
+    "#9EE5FF",
+    "#6BD8FF",
+    "#3DC8FF",
+    "#1ABEFF",
+    "#00B2FF",
+    data.primaryColor,
+    "#0A8BC7",
+    "#0E78AA",
+  ]);
+  // theme.colorScheme = 'dark';
 
-  // define the structure of your nav (will be displayed in the bottom half of the header)
-  const customDemoNav = [
+  const bottomHeaderNav = [
     { title: "Home", href: "/" },
     { title: "Scoreboard ", href: "/scoreboard" },
     {
-      title: "More", childItems: [
+      title: "More",
+      childItems: [
         { title: "FAQ", href: "/faq" },
         { title: "Feedback", href: "/feedback" },
-        { title: "Submit Transcript", href: "/submittranscript" }],
+        { title: "Submit Transcript", href: "/submittranscript" },
+      ],
     },
     { title: "Search", href: "/search" },
     { title: "Account", href: `/user/${user?.username}` },
   ];
 
-  const [selectedLanguage, setSelectedLanguage] = React.useState("en");
-
   return (
     <VSETHThemeProvider theme={theme}>
       <VSETHExternalApp
         title="Community Solutions"
-        appNav={customDemoNav}
-        activeHref={useLocation().pathname}>
+        appNav={bottomHeaderNav}
+        activeHref={useLocation().pathname}
+        organizationNav={data?.externalNav}
+        socialMedia={data?.socialMedia}
+        logo={data?.logo}
+        privacyPolicy={data?.privacy}
+        disclaimer={data?.copyright}
+      >
         <Modal isOpen={loggedOut}>
           <ModalHeader>You've been logged out due to inactivity</ModalHeader>
           <ModalBody>
             Your session has expired due to inactivity, you have to log in again
             to continue.
             <div className="text-center py-3">
-              <Button size="lg" color="primary" outline onClick={() => login()}>
+              <Button
+                size="lg"
+                color="primary"
+                variant="outline"
+                onClick={() => login()}
+              >
                 Sign in with AAI
               </Button>
             </div>
@@ -249,7 +272,8 @@ const App: React.FC<{}> = () => {
                     <Row>
                       <Col xs="auto" form className="font-weight-bold">
                         Made with{" "}
-                        <LikeFilledIcon
+                        <Icon
+                          icon={ICONS.LIKE_FILLED}
                           color="currenColor"
                           className="mx-1 text-danger"
                           aria-label="love"
@@ -268,7 +292,8 @@ const App: React.FC<{}> = () => {
                           href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
                           className="text-primary"
                         >
-                          <GitlabIcon color="primary" /> Repository
+                          <Icon icon={ICONS.GITLAB} color="primary" />{" "}
+                          Repository
                         </a>
                       </Col>
                       <Col xs="auto" form>

@@ -1,6 +1,8 @@
+import { Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { Button, SaveIcon, Spinner } from "@vseth/components";
+import { Button } from "@vseth/components";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";
 import { useUpdateDocumentFile } from "../api/hooks";
 import { Document, DocumentFile } from "../interfaces";
@@ -48,9 +50,9 @@ const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
           }
         >
           {loading ? (
-            <Spinner size="sm" className="mr-2" />
+            <Loader size="sm" className="mr-2" />
           ) : (
-            <SaveIcon className="mr-2" />
+            <Icon icon={ICONS.SAVE} className="mr-2" />
           )}
           Save
         </Button>

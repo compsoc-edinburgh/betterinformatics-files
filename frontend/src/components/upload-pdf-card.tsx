@@ -1,3 +1,4 @@
+import { Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
@@ -11,7 +12,6 @@ import {
   InputField,
   Row,
   Select,
-  Spinner,
 } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
@@ -92,7 +92,7 @@ const UploadPdfCard: React.FC<{}> = () => {
             <Col md={4}>
               <FormGroup>
                 <Button color="primary" type="submit" disabled={loading}>
-                  {uploadLoading ? <Spinner /> : "Submit"}
+                  {uploadLoading ? <Loader /> : "Submit"}
                 </Button>
               </FormGroup>
             </Col>

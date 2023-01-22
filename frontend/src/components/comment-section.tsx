@@ -1,4 +1,4 @@
-import { ListGroup } from "@vseth/components";
+import { Stack } from "@mantine/core";
 import { css } from "@emotion/css";
 import React, { useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
@@ -27,7 +27,7 @@ const CommentSectionComponent: React.FC<Props> = ({
   const [expanded, setExpanded] = useState(false);
   return (
     <>
-      <ListGroup className={listGroupStyle}>
+      <Stack spacing={0} className={listGroupStyle}>
         {(expanded ? answer.comments : answer.comments.slice(0, 3)).map(
           comment => (
             <CommentComponent
@@ -46,7 +46,7 @@ const CommentSectionComponent: React.FC<Props> = ({
             onDelete={onDraftDelete}
           />
         )}
-      </ListGroup>
+      </Stack>
       {answer.comments.length > 3 && !expanded && (
         <p onClick={() => setExpanded(true)} className={showMoreStyle}>
           {answer.comments.length === 4 ? (

@@ -1,7 +1,7 @@
+import { Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
   Button,
-  DeleteIcon,
   FormGroup,
   InputField,
   ListGroup,
@@ -9,14 +9,11 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  PlusIcon,
-  RepeatIcon,
-  SaveIcon,
   Select,
-  Spinner,
 } from "@vseth/components";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   loadCategories,
@@ -146,9 +143,9 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             >
               Save
               {loading ? (
-                <Spinner className="ml-2" size="sm" />
+                <Loader className="ml-2" size="sm" />
               ) : (
-                <SaveIcon className="ml-2" />
+                <Icon icon={ICONS.SAVE} className="ml-2" />
               )}
             </Button>
           </div>
@@ -163,7 +160,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             loading={regenerateLoading}
             onClick={regenerate}
             size="sm"
-            icon={RepeatIcon}
+            iconName={ICONS.REPEAT}
             tooltip="Regenerating the API token will invalidate the old one and generate a new one"
           />
         </div>
@@ -181,7 +178,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
       <div className="form-group d-flex justify-content-end">
         <Button onClick={toggleAddModalIsOpen}>
           Add
-          <PlusIcon className="ml-2" />
+          <Icon icon={ICONS.PLUS} className="ml-2" />
         </Button>
       </div>
       {data.can_delete && (
@@ -197,7 +194,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             </div>
 
             <Button color="danger" onClick={toggleDeleteModalIsOpen}>
-              Delete <DeleteIcon className="ml-2" />
+              Delete <Icon icon={ICONS.DELETE} className="ml-2" />
             </Button>
           </div>
         </>

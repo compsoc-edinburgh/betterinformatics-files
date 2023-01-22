@@ -1,4 +1,4 @@
-import { Card, Group, Space, Stack, Progress } from "@mantine/core";
+import { Card, Stack, Progress } from "@mantine/core";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
@@ -19,7 +19,13 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     }
   };
   return (
-    <Card withBorder shadow="md" className={focusOutline} tabIndex={0} onKeyDown={handleKeyDown}>
+    <Card
+      withBorder
+      shadow="md"
+      className={focusOutline}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+    >
       <Stack mb="sm" spacing="sm">
         <Link
           to={`/category/${category.slug}`}

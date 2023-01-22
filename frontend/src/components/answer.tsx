@@ -8,22 +8,16 @@ import {
   CardBody,
   CardHeader,
   CardProps,
-  CloseIcon,
   Col,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  FlagIcon,
-  LinkIcon,
-  MinusIcon,
-  PlusIcon,
   Row,
-  SaveIcon,
-  StarFilledIcon,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
@@ -134,7 +128,7 @@ const AnswerComponent: React.FC<Props> = ({
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
                 >
-                  <LinkIcon size="1em" />
+                  <Icon icon={ICONS.LINK} size="1em" />
                 </Link>
               )}
               {isLegacyAnswer ? (
@@ -180,7 +174,7 @@ const AnswerComponent: React.FC<Props> = ({
                         color="primary"
                         size="sm"
                         tooltip="This answer is endorsed by an expert"
-                        icon={StarFilledIcon}
+                        iconName={ICONS.STAR_FILLED}
                         active
                       />
                       <SmallButton color="primary" size="sm" active>
@@ -196,7 +190,9 @@ const AnswerComponent: React.FC<Props> = ({
                               ? "Remove expert vote"
                               : "Add expert vote"
                           }
-                          icon={answer.isExpertVoted ? MinusIcon : PlusIcon}
+                          iconName={
+                            answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS
+                          }
                           onClick={() =>
                             setExpertVote(answer.oid, !answer.isExpertVoted)
                           }
@@ -212,7 +208,7 @@ const AnswerComponent: React.FC<Props> = ({
                       <IconButton
                         tooltip="This answer was flagged as inappropriate by a user. A moderator will decide whether the answer should be removed."
                         color="danger"
-                        icon={FlagIcon}
+                        iconName={ICONS.FLAG}
                         title="Flagged as Inappropriate"
                         active
                       >
@@ -234,7 +230,7 @@ const AnswerComponent: React.FC<Props> = ({
                         }
                         size="sm"
                         loading={flaggedLoading}
-                        icon={answer.isFlagged ? MinusIcon : PlusIcon}
+                        iconName={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS}
                         onClick={() =>
                           setFlagged(answer.oid, !answer.isFlagged)
                         }
@@ -292,7 +288,7 @@ const AnswerComponent: React.FC<Props> = ({
                   onClick={save}
                   loading={updating}
                   disabled={draftText.trim().length === 0}
-                  icon={SaveIcon}
+                  iconName={ICONS.SAVE}
                 >
                   Save
                 </IconButton>
@@ -303,7 +299,11 @@ const AnswerComponent: React.FC<Props> = ({
                 <>
                   <ButtonGroup className="m-1">
                     {(answer === undefined || editing) && (
-                      <IconButton size="sm" onClick={onCancel} icon={CloseIcon}>
+                      <IconButton
+                        size="sm"
+                        onClick={onCancel}
+                        iconName={ICONS.CLOSE}
+                      >
                         {editing ? "Cancel" : "Delete Draft"}
                       </IconButton>
                     )}
@@ -311,7 +311,7 @@ const AnswerComponent: React.FC<Props> = ({
                       <IconButton
                         size="sm"
                         onClick={() => setHasCommentDraft(true)}
-                        icon={PlusIcon}
+                        iconName={ICONS.PLUS}
                         disabled={hasCommentDraft}
                       >
                         Add Comment

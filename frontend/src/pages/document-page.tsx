@@ -6,9 +6,6 @@ import {
   Card,
   Col,
   Container,
-  DownloadIcon,
-  EditIcon,
-  FileIcon,
   Nav,
   NavItem,
   NavLink,
@@ -32,6 +29,7 @@ import { useDocumentDownload } from "../hooks/useDocumentDownload";
 import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -46,11 +44,11 @@ const getComponents = (
   file: DocumentFile | undefined,
 ):
   | {
-    Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
-    Editor:
-    | React.FC<{ document: Document; file: DocumentFile; url: string }>
-    | undefined;
-  }
+      Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
+      Editor:
+        | React.FC<{ document: Document; file: DocumentFile; url: string }>
+        | undefined;
+    }
   | undefined => {
   if (file === undefined) return undefined;
 
@@ -76,7 +74,7 @@ enum DocumentTab {
 const getFile = (document: Document | undefined, oid: number) =>
   document ? document.files.find(x => x.oid === oid) : undefined;
 
-interface Props { }
+interface Props {}
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
   const [error, _, data, mutate] = useDocument(author, slug, document => {
@@ -112,7 +110,7 @@ const DocumentPage: React.FC<Props> = () => {
             <h1>{data.display_name ?? slug}</h1>
             <div>
               <IconButton
-                icon={DownloadIcon}
+                iconName={ICONS.DOWNLOAD}
                 onClick={startDownload}
                 color="white"
                 loading={loadingDownload}
@@ -149,7 +147,7 @@ const DocumentPage: React.FC<Props> = () => {
                       active={tab === file.oid}
                     >
                       <span className="text-small">
-                        <FileIcon className="mr-2 text-small" />
+                        <Icon icon={ICONS.FILE} className="mr-2 text-small" />
                       </span>
                       {file.display_name}
                     </NavLink>
@@ -191,7 +189,7 @@ const DocumentPage: React.FC<Props> = () => {
               <Container className="py-3">
                 <div className="form-group d-flex justify-content-end">
                   <Button onClick={toggleEditing}>
-                    <EditIcon className="mr-2" /> Toggle Edit Mode
+                    <Icon icon={ICONS.EDIT} className="mr-2" /> Toggle Edit Mode
                   </Button>
                 </div>
               </Container>
@@ -231,7 +229,7 @@ const DocumentPage: React.FC<Props> = () => {
                   download(`/api/document/file/${activeFile?.filename}`)
                 }
               >
-                <DownloadIcon className="mr-2" />
+                <Icon icon={ICONS.DOWNLOAD} className="mr-2" />
                 Download
               </Button>
             </div>

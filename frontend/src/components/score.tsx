@@ -1,6 +1,8 @@
+import { Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { ButtonGroup, MinusIcon, PlusIcon, Spinner } from "@vseth/components";
+import { ButtonGroup } from "@vseth/components";
 import React from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
 import SmallButton from "./small-button";
@@ -38,7 +40,7 @@ const Score: React.FC<Props> = ({
         outline={userVote === -1}
         onClick={() => setLike(oid, -1)}
       >
-        <MinusIcon size={18} />
+        <Icon icon={ICONS.MINUS} size={18} />
       </SmallButton>
       <SmallButton
         tooltip="Reset vote"
@@ -48,7 +50,7 @@ const Score: React.FC<Props> = ({
         outline
         onClick={() => setLike(oid, 0)}
       >
-        {loading ? <Spinner size="sm" /> : upvotes}
+        {loading ? <Loader size="sm" /> : upvotes}
       </SmallButton>
       <SmallButton
         tooltip="Upvote"
@@ -58,7 +60,7 @@ const Score: React.FC<Props> = ({
         outline={userVote === 1}
         onClick={() => setLike(oid, 1)}
       >
-        <PlusIcon size={18} />
+        <Icon icon={ICONS.PLUS} size={18} />
       </SmallButton>
     </ButtonGroup>
   );

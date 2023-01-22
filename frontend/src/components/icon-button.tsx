@@ -1,7 +1,9 @@
-import { Button, Spinner, ButtonProps } from "@vseth/components";
+import { Button, ButtonProps } from "@vseth/components";
 import { css } from "@emotion/css";
 import React from "react";
 import TooltipButton from "./TooltipButton";
+import { Loader } from "@mantine/core";
+import { Icon } from "vseth-canine-ui";
 const childStyle = css`
   padding-left: 0.8em;
 `;
@@ -13,7 +15,7 @@ const spacerStyle = css`
   width: 0;
 `;
 interface IconButtonProps extends ButtonProps {
-  icon: React.FC<{ className?: string; size?: string | number }>;
+  iconName: string;
   loading?: boolean;
   tooltip?: React.ReactNode;
   iconClassName?: string;
@@ -21,7 +23,7 @@ interface IconButtonProps extends ButtonProps {
 const IconButton: React.FC<IconButtonProps> = ({
   size,
   loading,
-  icon,
+  iconName,
   className,
   iconClassName,
   disabled,
@@ -29,7 +31,6 @@ const IconButton: React.FC<IconButtonProps> = ({
   tooltip,
   ...props
 }) => {
-  const Icon = icon;
   return tooltip ? (
     <TooltipButton
       tooltip={tooltip}
@@ -41,9 +42,9 @@ const IconButton: React.FC<IconButtonProps> = ({
       <>
         <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
         {loading ? (
-          <Spinner size="sm" />
+          <Loader size="sm" />
         ) : (
-          <Icon className={iconClassName} size="1em" />
+          <Icon icon={iconName} className={iconClassName} size="1em" />
         )}
       </>
       {children && <span className={childStyle}>{children}</span>}
@@ -58,9 +59,9 @@ const IconButton: React.FC<IconButtonProps> = ({
       <>
         <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
         {loading ? (
-          <Spinner size="sm" s />
+          <Loader size="sm" />
         ) : (
-          <Icon className={iconClassName} size="1em" />
+          <Icon icon={iconName} className={iconClassName} size="1em" />
         )}
       </>
       {children && <span className={childStyle}>{children}</span>}

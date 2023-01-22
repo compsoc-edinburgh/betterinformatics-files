@@ -10,10 +10,9 @@ import {
   TextareaField,
   Input,
   Label,
-  CloseIcon,
-  SaveIcon,
 } from "@vseth/components";
 import React from "react";
+import { ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
@@ -344,7 +343,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         <Row className="flex-between">
           <Col xs="auto">
             <IconButton
-              icon={CloseIcon}
+              iconName={ICONS.CLOSE}
               onClick={() => {
                 reset();
                 toggle();
@@ -355,7 +354,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           </Col>
           <Col xs="auto">
             <IconButton
-              icon={SaveIcon}
+              iconName={ICONS.SAVE}
               color="primary"
               loading={loading}
               onClick={onSubmit}

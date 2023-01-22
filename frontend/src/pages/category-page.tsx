@@ -5,14 +5,10 @@ import {
   Breadcrumb,
   Col,
   Container,
-  DeleteIcon,
-  EditIcon,
   ListGroup,
   Row,
-  Spinner,
 } from "@vseth/components";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
-import { css } from "@emotion/css";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import {
@@ -31,6 +27,8 @@ import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
+import { Loader } from "@mantine/core";
+import { ICONS } from "vseth-canine-ui";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -103,7 +101,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <IconButton
                   size="sm"
                   className="m-1"
-                  icon={EditIcon}
+                  iconName={ICONS.EDIT}
                   onClick={() => setEditing(true)}
                 >
                   Edit
@@ -113,7 +111,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   size="sm"
                   className="m-1"
                   loading={removeLoading}
-                  icon={DeleteIcon}
+                  iconName={ICONS.DELETE}
                   onClick={onRemove}
                 >
                   Delete
@@ -151,7 +149,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               Offered in:
               <div>
                 {loading ? (
-                  <Spinner />
+                  <Loader />
                 ) : (
                   <ul>
                     {offeredIn?.map(meta1 =>

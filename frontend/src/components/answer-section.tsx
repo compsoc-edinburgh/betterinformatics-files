@@ -1,6 +1,5 @@
 import { css } from "@emotion/css";
 import {
-  Button,
   ButtonDropdown,
   ButtonGroup,
   Card,
@@ -8,22 +7,16 @@ import {
   CardHeader,
   CardProps,
   Col,
-  Container,
-  DotsHIcon,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  EditIcon,
   Input,
   InputGroup,
   InputGroupButtonDropdown,
   Row,
-  SaveIcon,
-  Spinner,
   UncontrolledDropdown,
-  ViewIcon,
-  ViewOffIcon,
 } from "@vseth/components";
+import { Loader, Button, Container } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
@@ -34,6 +27,7 @@ import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-columns";
 import { getAnswerSectionId } from "../utils/exam-utils";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 const nameCardStyle = css`
   border-top-left-radius: 0;
@@ -235,7 +229,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   <InputGroupButtonDropdown addonType="append">
                     <IconButton
                       tooltip="Save PDF section name"
-                      icon={SaveIcon}
+                      iconName={ICONS.SAVE}
                       block
                       onClick={() => {
                         setIsEditingName(false);
@@ -254,7 +248,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       <IconButton
                         tooltip="Edit PDF section name"
                         size="sm"
-                        icon={EditIcon}
+                        iconName={ICONS.EDIT}
                         onClick={() => setIsEditingName(true)}
                       />
                     )}
@@ -300,7 +294,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             <CardHeader>
               <div className="d-flex">
                 {data === undefined ? (
-                  <ThreeButtons center={<Spinner />} />
+                  <ThreeButtons center={<Loader />} />
                 ) : (
                   <>
                     <ThreeButtons
@@ -310,7 +304,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             <IconButton
                               className="mr-1"
                               size="sm"
-                              icon={has_answers ? ViewOffIcon : ViewIcon}
+                              iconName={
+                                has_answers ? ICONS.VIEW_OFF : ICONS.VIEW
+                              }
                               tooltip="Toggle visibility"
                               onClick={hideAnswerSectionWithWarning}
                             />
@@ -357,7 +353,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         isCatAdmin && (
                           <UncontrolledDropdown>
                             <DropdownToggle caret size="sm">
-                              <DotsHIcon size={18} />
+                              <Icon icon={ICONS.DOTS_H} size={18} />
                             </DropdownToggle>
                             <DropdownMenu>
                               <DropdownItem onClick={runRemoveSplit}>

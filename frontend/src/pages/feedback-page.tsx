@@ -10,7 +10,6 @@ import {
   NavItem,
   NavLink,
   Row,
-  Spinner,
 } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
@@ -18,6 +17,7 @@ import FeedbackEntryComponent from "../components/feedback-entry";
 import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
+import { Loader } from "@mantine/core";
 
 enum AdminMode {
   Read,
@@ -81,7 +81,7 @@ const FeedbackForm: React.FC<{}> = () => {
           disabled={text.length === 0 || loading}
           onClick={() => run(text)}
         >
-          {loading ? <Spinner /> : "Submit"}
+          {loading ? <Loader /> : "Submit"}
         </Button>
       </FormGroup>
     </>
@@ -108,7 +108,7 @@ const FeedbackReader: React.FC<{}> = () => {
           ))}
         </Row>
       )}
-      {loading && <Spinner />}
+      {loading && <Loader />}
     </>
   );
 };

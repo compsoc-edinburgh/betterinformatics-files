@@ -1,3 +1,4 @@
+import { Loader } from "@mantine/core";
 import {
   ListGroupItem,
   ListGroupItemHeading,
@@ -12,13 +13,9 @@ import {
   InputField,
   Button,
   ModalFooter,
-  Spinner,
-  SaveIcon,
-  KeyIcon,
-  EditIcon,
-  DeleteIcon,
 } from "@vseth/components";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import {
   Mutate,
   useDeleteDocumentFile,
@@ -98,9 +95,9 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           >
             Save{" "}
             {updateLoading ? (
-              <Spinner className="ml-2" size="sm" />
+              <Loader className="ml-2" size="sm" />
             ) : (
-              <SaveIcon className="ml-2" />
+              <Icon icon={ICONS.SAVE} className="ml-2" />
             )}
           </Button>
         </ModalFooter>
@@ -158,21 +155,21 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         <Row form>
           <Col xs="auto">
             <IconButton
-              icon={KeyIcon}
+              iconName={ICONS.KEY}
               onClick={toggleKeyIsOpen}
               tooltip="View access token"
             />
           </Col>
           <Col xs="auto">
             <IconButton
-              icon={EditIcon}
+              iconName={ICONS.EDIT}
               onClick={toggleEditIsOpen}
               tooltip="Edit file"
             />
           </Col>
           <Col xs="auto">
             <IconButton
-              icon={DeleteIcon}
+              iconName={ICONS.DELETE}
               color="danger"
               onClick={deleteFile}
               loading={deleteLoading}
