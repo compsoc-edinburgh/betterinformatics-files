@@ -46,6 +46,8 @@ export const masonryStyle = css`
   justify-content: center;
   align-items: center;
   position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 
   .contribution-component {
     // makes the answer and comment components half the size of the masonry div
@@ -57,10 +59,6 @@ export const masonryStyle = css`
     .contribution-component {
       width: 80vw;
     }
-  }
-  // fix to counter the odd move to the right that is happening at around 580px width
-  @media only screen and (min-width: 580px) {
-    left: -10%;
   }
 `;
 
