@@ -1,14 +1,10 @@
 import { css } from "@emotion/css";
 import {
-  Col,
+  Button,
   Container,
-  Logo,
   Modal,
-  ModalBody,
-  ModalHeader,
-  Row,
-} from "@vseth/components";
-import { Button } from "@mantine/core";
+  Group,
+} from "@mantine/core";
 import {
   Icon,
   ICONS,
@@ -187,22 +183,19 @@ const App: React.FC<{}> = () => {
         privacyPolicy={data?.privacy}
         disclaimer={data?.copyright}
       >
-        <Modal isOpen={loggedOut}>
-          <ModalHeader>You've been logged out due to inactivity</ModalHeader>
-          <ModalBody>
-            Your session has expired due to inactivity, you have to log in again
-            to continue.
-            <div className="text-center py-3">
-              <Button
-                size="lg"
-                color="primary"
-                variant="outline"
-                onClick={() => login()}
-              >
-                Sign in with AAI
-              </Button>
-            </div>
-          </ModalBody>
+        <Modal opened={loggedOut} onClose={() => login()} title="You've been logged out due to inactivity">
+          Your session has expired due to inactivity, you have to log in again
+          to continue.
+          <div className="text-center py-3">
+            <Button
+              size="lg"
+              color="primary"
+              variant="outline"
+              onClick={() => login()}
+            >
+              Sign in with AAI
+            </Button>
+          </div>
         </Modal>
         <Route component={HashLocationHandler} />
         <DebugContext.Provider value={debugOptions}>
@@ -267,10 +260,10 @@ const App: React.FC<{}> = () => {
                 </div>
                 <div className="py-3">
                   <Container>
-                    <Logo variant="logo-mono" />
+                    <img src="https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg" height={32} alt="VSETH Logo" />
                     <div className="bg-primary my-3" style={{ height: 2 }} />
-                    <Row>
-                      <Col xs="auto" form className="font-weight-bold">
+                    <Group>
+                      <div className="font-weight-bold">
                         Made with{" "}
                         <Icon
                           icon={ICONS.LIKE_FILLED}
@@ -286,8 +279,8 @@ const App: React.FC<{}> = () => {
                         >
                           VIS
                         </a>
-                      </Col>
-                      <Col xs="auto" form>
+                      </div>
+                      <div>
                         <a
                           href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
                           className="text-primary"
@@ -295,21 +288,21 @@ const App: React.FC<{}> = () => {
                           <Icon icon={ICONS.GITLAB} color="primary" />{" "}
                           Repository
                         </a>
-                      </Col>
-                      <Col xs="auto" form>
+                      </div>
+                      <div>
                         <a href={serverData.imprint} className="text-primary">
                           Imprint
                         </a>
-                      </Col>
-                      <Col xs="auto" form>
+                      </div>
+                      <div>
                         <a
                           href={serverData.privacy_policy}
                           className="text-primary"
                         >
                           Privacy Policy
                         </a>
-                      </Col>
-                    </Row>
+                      </div>
+                    </Group>
                   </Container>
                 </div>
               </div>

@@ -1,16 +1,16 @@
-import { Alert, Button, Container, Loader } from "@mantine/core";
-import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
+  Alert,
+  Button,
   Card,
-  Col,
-  FormGroup,
-  InputField,
+  Container,
+  Flex,
+  Loader,
   Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  Row,
-} from "@vseth/components";
+  SegmentedControl,
+  Stack,
+  TextInput,
+} from "@mantine/core";
+import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import React, { useCallback, useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
@@ -26,11 +26,6 @@ import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
-
-enum Mode {
-  Alphabetical,
-  BySemester,
-}
 
 const loadCategories = async () => {
   return (await fetchGet("/api/category/listwithmeta/"))
@@ -103,30 +98,27 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} toggle={() => setIsOpen(false)}>
-        <ModalHeader>Add Category</ModalHeader>
-        <ModalBody>
-          <InputField
+      <Modal opened={isOpen} onClose={() => setIsOpen(false)} title="Add Category">
+        <Stack>
+          <TextInput
             label="Category Name"
             type="text"
             value={categoryName}
             onChange={e => setCategoryName(e.currentTarget.value)}
           />
-        </ModalBody>
-        <ModalFooter>
           <Button
             onClick={onSubmit}
             disabled={categoryName.length === 0 || loading}
           >
             {loading ? <Loader /> : "Add Category"}
           </Button>
-        </ModalFooter>
+        </Stack>
       </Modal>
       <Card style={{ minHeight: "10em" }}>
         <TooltipButton
           tooltip="Add a new category"
           onClick={() => setIsOpen(true)}
-          className="position-cover w-100"
+          className="position-cover w-100 h-100"
         >
           <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
         </TooltipButton>
@@ -148,7 +140,7 @@ const HomePage: React.FC<{}> = () => {
 };
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
-  const [mode, setMode] = useLocalStorageState("mode", Mode.Alphabetical);
+  const [mode, setMode] = useLocalStorageState("mode", "alphabetical");
   const [filter, setFilter] = useState("");
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
@@ -159,8 +151,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-            ({ slug }) => slug !== "default" || isAdmin,
-          )
+          ({ slug }) => slug !== "default" || isAdmin,
+        )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -185,50 +177,30 @@ export const CategoryList: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl">
-        <Row className="d-flex flex-row flex-between px-2">
-          <Col md="auto">
-            <FormGroup className="m-1">
-              <Button.Group>
-                <Button
-                  onClick={() => setMode(Mode.Alphabetical)}
-                  // active={mode === Mode.Alphabetical}
-                >
-                  Alphabetical
-                </Button>
-                <Button
-                  onClick={() => setMode(Mode.BySemester)}
-                  // active={mode === Mode.BySemester}
-                >
-                  By Semester
-                </Button>
-              </Button.Group>
-            </FormGroup>
-          </Col>
-          <Col md="auto">
-            <FormGroup className="m-1">
-              <div className="search m-0">
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Filter..."
-                  value={filter}
-                  onChange={e => setFilter(e.currentTarget.value)}
-                  autoFocus
-                />
-                <div className="search-icon-wrapper">
-                  <div className="search-icon" />
-                </div>
-              </div>
-            </FormGroup>
-          </Col>
-        </Row>
+        <Flex direction="row" justify="space-between" className="px-2">
+          <SegmentedControl
+            value={mode}
+            onChange={setMode}
+            data={[
+              { label: 'Alphabetical', value: 'alphabetical' },
+              { label: 'By Semester', value: 'bySemester' },
+            ]}
+          />
+          <TextInput
+            placeholder="Filter..."
+            value={filter}
+            autoFocus
+            onChange={e => setFilter(e.currentTarget.value)}
+            icon={<Icon icon={ICONS.SEARCH} size={14} />}
+          />
+        </Flex>
       </Container>
       <ContentContainer className="position-relative my-3">
         <LoadingOverlay loading={loading} />
         <Container size="xl">
           {error ? (
             <Alert color="danger">{error.toString()}</Alert>
-          ) : mode === Mode.Alphabetical || filter.length > 0 ? (
+          ) : mode === "alphabetical" || filter.length > 0 ? (
             <>
               <Grid>
                 {searchResult.map(category => (

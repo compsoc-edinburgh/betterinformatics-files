@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Button, Container, Table } from "@vseth/components";
+import { Badge, Button, Container, Table } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
@@ -44,7 +44,7 @@ const ModQueue: React.FC = () => {
   const error = examsError || flaggedError || payError;
 
   return (
-    <Container>
+    <Container size="xl">
       {flaggedAnswers && flaggedAnswers.length > 0 && (
         <div>
           <h2>Flagged Answers</h2>
@@ -62,7 +62,7 @@ const ModQueue: React.FC = () => {
           <h2>Transcripts</h2>
           <div className="position-relative">
             <LoadingOverlay loading={payLoading} />
-            <Table>
+            <Table striped>
               <thead>
                 <tr>
                   <th>Category</th>
@@ -95,7 +95,7 @@ const ModQueue: React.FC = () => {
       {error && <div>{error}</div>}
       <div className="position-relative">
         <LoadingOverlay loading={examsLoading} />
-        <Table>
+        <Table striped>
           <thead>
             <tr>
               <th>Category</th>

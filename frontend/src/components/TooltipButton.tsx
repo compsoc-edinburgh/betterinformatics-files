@@ -1,5 +1,6 @@
 import { useClickAway } from "@umijs/hooks";
-import { Button, ButtonProps, Tooltip } from "@vseth/components";
+import { ButtonProps } from "@vseth/components";
+import { Button, Tooltip } from "@mantine/core";
 import React, { useCallback, useState, useContext, useEffect } from "react";
 import useLongPress from "../hooks/useLongPress";
 import { DebugContext } from "./Debug";
@@ -24,7 +25,6 @@ const isMobile = detectMobile();
 export interface TooltipButtonProps extends ButtonProps {
   tooltip?: React.ReactNode;
 }
-let id = 0;
 const TooltipButton: React.FC<TooltipButtonProps> = ({
   tooltip,
   onClick,
@@ -34,34 +34,35 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
   const { displayAllTooltips } = useContext(DebugContext);
   const [open, setState] = useState(false);
   const toggle = useCallback(() => setState(a => !a), []);
-  const [buttonId] = useState(() => id++);
   const longPress = useLongPress(
     () => isMobile && setState(true),
-    onClick ?? (() => {}),
+    onClick ?? (() => { }),
   );
   const ref = useClickAway(() => setState(false));
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   return (
     <>
-      <Button
-        {...longPress}
-        id={`btn-${buttonId}`}
-        {...buttonProps}
-        onClick={e => e.stopPropagation()}
-      >
-        <span ref={ref} /> {children}
-        {mounted && tooltip && (
-          <Tooltip
-            isOpen={open || displayAllTooltips}
-            target={`btn-${buttonId}`}
-            toggle={() => !isMobile && toggle()}
-            delay={{ show: 800, hide: 100 }}
+      {mounted && tooltip && (
+        <Tooltip
+          label={tooltip}
+          withArrow
+          openDelay={400}
+          closeDelay={100}
+          withinPortal
+        // isOpen={open || displayAllTooltips}
+        // toggle={() => !isMobile && toggle()}
+        >
+          <Button
+            variant="outline"
+            {...longPress}
+            {...buttonProps}
+            onClick={e => e.stopPropagation()}
           >
-            {tooltip}
-          </Tooltip>
-        )}
-      </Button>
+            <span ref={ref} /> {children}
+          </Button>
+        </Tooltip>
+      )}
     </>
   );
 };

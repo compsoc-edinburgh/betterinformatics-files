@@ -1,13 +1,15 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
-  Badge,
   Breadcrumb,
   Col,
   Container,
   ListGroup,
   Row,
 } from "@vseth/components";
+import {
+  Badge,
+} from "@mantine/core";
 import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -252,9 +254,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                  ...user,
-                  isCategoryAdmin: user.isAdmin || data.catadmin,
-                }
+                ...user,
+                isCategoryAdmin: user.isAdmin || data.catadmin,
+              }
               : undefined
           }
         >

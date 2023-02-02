@@ -3,7 +3,6 @@ import {
   ListGroupItem,
   ListGroupItemHeading,
   ListGroupItemText,
-  Badge,
   Row,
   Col,
   ModalHeader,
@@ -14,6 +13,9 @@ import {
   Button,
   ModalFooter,
 } from "@vseth/components";
+import {
+  Badge,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import {

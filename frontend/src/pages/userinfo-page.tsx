@@ -1,6 +1,5 @@
 import { css, keyframes } from "@emotion/css";
-import { Col, Row } from "@vseth/components";
-import { Container, Alert, Loader, Tabs } from "@mantine/core";
+import { Container, Alert, Loader, Tabs, SimpleGrid } from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -80,21 +79,17 @@ const UserPage: React.FC<{}> = () => {
             {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
           <Tabs.Panel value="overview">
-            <Row md={1}>
+            <SimpleGrid cols={2}>
               {!isMyself && !user.isAdmin && (
                 <Alert color="secondary">There's nothing here</Alert>
               )}
               {isMyself && (
-                <Col md={6}>
-                  <UserNotifications username={username} />
-                </Col>
+                <UserNotifications username={username} />
               )}
               {(isMyself || user.isAdmin) && (
-                <Col md={6}>
-                  <UserPayments username={username} />
-                </Col>
+                <UserPayments username={username} />
               )}
-            </Row>
+            </SimpleGrid>
           </Tabs.Panel>
           <Tabs.Panel value="answers">
             <UserAnswers username={username} />

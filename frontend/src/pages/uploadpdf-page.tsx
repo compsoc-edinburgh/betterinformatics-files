@@ -1,4 +1,4 @@
-import { Col, Container, Row } from "@vseth/components";
+import { Container, Grid } from "@mantine/core";
 import React from "react";
 import UploadPdfCard from "../components/upload-pdf-card";
 import useTitle from "../hooks/useTitle";
@@ -6,15 +6,15 @@ import useTitle from "../hooks/useTitle";
 const UploadPdfPage: React.FC<{}> = () => {
   useTitle("Upload PDF");
   return (
-    <Container>
-      <Row>
-        <Col />
-        <Col lg="6">
+    <Container size="xl">
+      <Grid>
+        <Grid.Col span="auto" />
+        <Grid.Col lg={6}>
           <UploadPdfCard />
-        </Col>
-        <Col />
-      </Row>
-    </Container>
+        </Grid.Col>
+        <Grid.Col span="auto" />
+      </Grid>
+    </Container >
   );
 };
 export default UploadPdfPage;

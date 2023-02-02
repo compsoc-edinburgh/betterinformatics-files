@@ -12,7 +12,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
     useNotifications(showRead ? "all" : "unread");
   const error = notificationsError;
   return (
-    <>
+    <div>
       <h3>Notifications</h3>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <div className="my-3">
@@ -31,7 +31,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
             key={notification.oid}
           />
         ))}
-    </>
+    </div>
   );
 };
 export default UserNotifications;

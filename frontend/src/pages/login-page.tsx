@@ -1,4 +1,4 @@
-import { Col, Container, Row } from "@vseth/components";
+import { Container, Grid } from "@mantine/core";
 import React from "react";
 import LoginOverlay from "../components/login-overlay";
 import useTitle from "../hooks/useTitle";
@@ -8,17 +8,17 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
   useTitle("Login");
   return (
     <>
-      <Container>
-        <Row>
-          <Col md={5} className="d-flex flex-column justify-content-center">
+      <Container size="xl">
+        <Grid>
+          <Grid.Col md={5} className="d-flex flex-column justify-content-center">
             <h1 className="mb-5 display-3">Community Solutions</h1>
             <h6>
               Community Solutions is a platform for students that allows them to
               share answers of previous exams, comment on answers and upload
               summaries.
             </h6>
-          </Col>
-          <Col
+          </Grid.Col>
+          <Grid.Col
             xs={11}
             md={7}
             lg={6}
@@ -36,8 +36,8 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
               />
             </svg>
             <LoginOverlay />
-          </Col>
-        </Row>
+          </Grid.Col>
+        </Grid>
       </Container>
       {isHome && <CategoryList />}
     </>

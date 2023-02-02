@@ -1,5 +1,8 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Card, Col, Row } from "@vseth/components";
+import { Card, Col, Row } from "@vseth/components";
+import {
+  Badge,
+} from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";

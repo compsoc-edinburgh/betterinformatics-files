@@ -1,6 +1,6 @@
 import React from "react";
 import { DebugOptions } from ".";
-import { Modal, ModalHeader, ModalBody, InputField } from "@vseth/components";
+import { Checkbox, Modal } from "@mantine/core";
 interface Props {
   isOpen: boolean;
   toggle: () => void;
@@ -14,43 +14,37 @@ const DebugModal: React.FC<Props> = ({
   setDebugOptions,
 }) => {
   return (
-    <Modal isOpen={isOpen} toggle={toggle}>
-      <ModalHeader>Debug</ModalHeader>
-      <ModalBody>
-        <InputField
-          type="checkbox"
-          label="Display all tooltips"
-          checked={debugOptions.displayAllTooltips}
-          onChange={e =>
-            setDebugOptions({
-              ...debugOptions,
-              displayAllTooltips: e.currentTarget.checked,
-            })
-          }
-        />
-        <InputField
-          type="checkbox"
-          label="Display canvas debugging indicators"
-          checked={debugOptions.displayCanvasType}
-          onChange={e =>
-            setDebugOptions({
-              ...debugOptions,
-              displayCanvasType: e.currentTarget.checked,
-            })
-          }
-        />
-        <InputField
-          type="checkbox"
-          label="Display snap regions"
-          checked={debugOptions.viewOptimalCutAreas}
-          onChange={e =>
-            setDebugOptions({
-              ...debugOptions,
-              viewOptimalCutAreas: e.currentTarget.checked,
-            })
-          }
-        />
-      </ModalBody>
+    <Modal opened={isOpen} title="Debug" onClose={toggle}>
+      <Checkbox
+        label="Display all tooltips"
+        checked={debugOptions.displayAllTooltips}
+        onChange={e =>
+          setDebugOptions({
+            ...debugOptions,
+            displayAllTooltips: e.currentTarget.checked,
+          })
+        }
+      />
+      <Checkbox
+        label="Display canvas debugging indicators"
+        checked={debugOptions.displayCanvasType}
+        onChange={e =>
+          setDebugOptions({
+            ...debugOptions,
+            displayCanvasType: e.currentTarget.checked,
+          })
+        }
+      />
+      <Checkbox
+        label="Display snap regions"
+        checked={debugOptions.viewOptimalCutAreas}
+        onChange={e =>
+          setDebugOptions({
+            ...debugOptions,
+            viewOptimalCutAreas: e.currentTarget.checked,
+          })
+        }
+      />
     </Modal>
   );
 };

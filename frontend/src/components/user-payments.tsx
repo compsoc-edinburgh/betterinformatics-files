@@ -30,7 +30,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
     paymentsLoading || refundLoading || removeLoading || addLoading;
   const [openPayment, setOpenPayment] = useState("");
   return (
-    <>
+    <div>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h3>Paid Oral Exams</h3>
       {loading && <Loader />}
@@ -123,7 +123,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
             Add Payment
           </Button>
         )}
-    </>
+    </div>
   );
 };
 export default UserPayments;

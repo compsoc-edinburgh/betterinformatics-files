@@ -1,5 +1,5 @@
 import { useDebounce, useRequest } from "@umijs/hooks";
-import { Container, FormGroup } from "@vseth/components";
+import { Container, TextInput } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { StringParam, useQueryParam } from "use-query-params";
 import { fetchPost } from "../api/fetch-utils";
@@ -7,6 +7,7 @@ import LoadingOverlay from "../components/loading-overlay";
 import SearchResults from "../components/search-results";
 import useTitle from "../hooks/useTitle";
 import { SearchResponse } from "../interfaces";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 const loadSearch = async (term: string) => {
   return (await fetchPost("/api/exam/search/", { term }))
@@ -30,22 +31,14 @@ const SearchPage: React.FC<{}> = () => {
   );
   return (
     <>
-      <Container>
-        <FormGroup className="m-1">
-          <div className="search m-0">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search"
-              value={term}
-              onChange={e => setTerm(e.currentTarget.value)}
-              autoFocus
-            />
-            <div className="search-icon-wrapper">
-              <div className="search-icon" />
-            </div>
-          </div>
-        </FormGroup>
+      <Container size="md" className="my-1">
+        <TextInput
+          placeholder="Search"
+          type="text"
+          icon={<Icon icon={ICONS.SEARCH} />}
+          value={term}
+          onChange={e => setTerm(e.currentTarget.value)}
+        />
       </Container>
       <div className="position-relative">
         <LoadingOverlay loading={loading} />
