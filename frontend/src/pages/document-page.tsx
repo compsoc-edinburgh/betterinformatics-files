@@ -1,16 +1,11 @@
 import {
   Alert,
-  Breadcrumb,
-  BreadcrumbItem,
+  Anchor,
+  Breadcrumbs,
   Button,
   Card,
-  Col,
   Container,
-  Nav,
-  NavItem,
-  NavLink,
-  Row,
-} from "@vseth/components";
+} from "@mantine/core";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { download } from "../api/fetch-utils";
@@ -30,6 +25,7 @@ import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
 import { Icon, ICONS } from "vseth-canine-ui";
+import { Tabs } from "@mantine/core";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -44,11 +40,11 @@ const getComponents = (
   file: DocumentFile | undefined,
 ):
   | {
-      Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
-      Editor:
-        | React.FC<{ document: Document; file: DocumentFile; url: string }>
-        | undefined;
-    }
+    Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
+    Editor:
+    | React.FC<{ document: Document; file: DocumentFile; url: string }>
+    | undefined;
+  }
   | undefined => {
   if (file === undefined) return undefined;
 
@@ -65,46 +61,36 @@ const getComponents = (
   return undefined;
 };
 
-enum DocumentTab {
-  NONE = "NONE",
-  COMMENTS = "COMMENTS",
-  SETTINGS = "SETTINGS",
-}
-
 const getFile = (document: Document | undefined, oid: number) =>
   document ? document.files.find(x => x.oid === oid) : undefined;
 
-interface Props {}
+interface Props { }
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
   const [error, _, data, mutate] = useDocument(author, slug, document => {
-    if (document.files.length > 0) setTab(document.files[0].oid);
+    if (document.files.length > 0) setTab(document.files[0].oid.toString());
   });
 
-  const [tab, setTab] = useState<DocumentTab | number>(DocumentTab.NONE);
-  const activeFile = typeof tab === "number" ? getFile(data, tab) : undefined;
+  const [tab, setTab] = useState<string | null>("none");
+  const activeFile = !Number.isNaN(Number(tab)) ? getFile(data, Number(tab)) : undefined;
   const Components = getComponents(activeFile);
   const [editing, toggleEditing] = useToggle();
   const [loadingDownload, startDownload] = useDocumentDownload(data);
   return (
     <>
       <Container>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <Link className="text-primary" to="/">
-              Home
-            </Link>
-          </BreadcrumbItem>
-          <BreadcrumbItem>
-            <Link
-              className="text-primary"
-              to={`/category/${data ? data.category : ""}`}
-            >
-              {data && data.category_display_name}
-            </Link>
-          </BreadcrumbItem>
-          <BreadcrumbItem>{data && data.display_name}</BreadcrumbItem>
-        </Breadcrumb>
+        <Breadcrumbs>
+          <Anchor className="text-primary" href="/">
+            Home
+          </Anchor>
+          <Anchor
+            className="text-primary"
+            href={`/category/${data ? data.category : ""}`}
+          >
+            {data && data.category_display_name}
+          </Anchor>
+          <Anchor>{data && data.display_name}</Anchor>
+        </Breadcrumbs>
         {data && (
           <div className="d-flex justify-content-between align-items-center">
             <h1>{data.display_name ?? slug}</h1>
@@ -135,53 +121,35 @@ const DocumentPage: React.FC<Props> = () => {
           </div>
         )}
       </Container>
-      <Nav tabs className="mt-4">
-        <Container>
-          <Row className="d-flex flex-wrap">
+      <Container>
+        <Tabs value={tab} onTabChange={setTab} className="mt-4">
+          <Tabs.List>
             {data &&
               data.files.map(file => (
-                <Col key={file.oid} xs="auto">
-                  <NavItem className="m-0">
-                    <NavLink
-                      onClick={() => setTab(file.oid)}
-                      active={tab === file.oid}
-                    >
-                      <span className="text-small">
-                        <Icon icon={ICONS.FILE} className="mr-2 text-small" />
-                      </span>
-                      {file.display_name}
-                    </NavLink>
-                  </NavItem>
-                </Col>
+                <Tabs.Tab value={file.oid.toString()} icon={<Icon icon={ICONS.FILE} />}>{file.display_name}</Tabs.Tab>
+                // <Col key={file.oid} xs="auto">
+                //   <NavItem className="m-0">
+                //     <NavLink
+                //       onClick={() => setTab(file.oid)}
+                //       active={tab === file.oid}
+                //     >
+                //       <span className="text-small">
+                //         <Icon icon={ICONS.FILE} className="mr-2 text-small" />
+                //       </span>
+                //       {file.display_name}
+                //     </NavLink>
+                //   </NavItem>
+                // </Col>
               ))}
-            <Col xs="auto">
-              <NavItem className="m-0">
-                <NavLink
-                  onClick={() => setTab(DocumentTab.COMMENTS)}
-                  active={tab === DocumentTab.COMMENTS}
-                >
-                  Comments
-                </NavLink>
-              </NavItem>
-            </Col>
-
+            <Tabs.Tab value="comments" icon={<Icon icon={ICONS.MESSAGE_THREE_POINTS} />}>Comments</Tabs.Tab>
             {data && (data.can_delete || data.can_edit) && (
-              <Col xs="auto">
-                <NavItem className="m-0">
-                  <NavLink
-                    onClick={() => setTab(DocumentTab.SETTINGS)}
-                    active={tab === DocumentTab.SETTINGS}
-                  >
-                    Settings
-                  </NavLink>
-                </NavItem>
-              </Col>
+              <Tabs.Tab value="settings" icon={<Icon icon={ICONS.SETTINGS} />}>Settings</Tabs.Tab>
             )}
-          </Row>
-        </Container>
-      </Nav>
+          </Tabs.List>
+        </Tabs>
+      </Container>
 
-      {typeof tab === "number" &&
+      {!Number.isNaN(Number(tab)) &&
         data &&
         (Components?.Viewer ? (
           data.can_edit && Components.Editor !== undefined ? (
@@ -235,7 +203,7 @@ const DocumentPage: React.FC<Props> = () => {
             </div>
           </Container>
         ))}
-      {tab === DocumentTab.COMMENTS && data && (
+      {tab === "comments" && data && (
         <ContentContainer>
           <Container>
             {data.comments.length === 0 && (
@@ -261,7 +229,7 @@ const DocumentPage: React.FC<Props> = () => {
         </ContentContainer>
       )}
 
-      {tab === DocumentTab.SETTINGS && data && (
+      {tab === "settings" && data && (
         <ContentContainer>
           <Container>
             <DocumentSettings data={data} slug={slug} mutate={mutate} />

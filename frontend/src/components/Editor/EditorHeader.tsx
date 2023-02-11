@@ -1,10 +1,11 @@
-import { Nav, NavItem, NavLink, Row, Col } from "@vseth/components";
+import { Row, Col } from "@vseth/components";
 import { css } from "@emotion/css";
 import * as React from "react";
 import { Bold, Code, DollarSign, Image, Italic, Link } from "react-feather";
 import TooltipButton from "../TooltipButton";
 import { EditorMode } from "./utils/types";
 import { useCallback, useRef } from "react";
+import { Tabs } from "@mantine/core";
 
 const iconButtonStyle = css`
   margin: 0;
@@ -27,13 +28,6 @@ const navStyle = css`
 `;
 const headerStyle = css`
   position: relative;
-`;
-const linkStyle = css`
-  font-size: 0.8rem !important;
-`;
-const tabContainer = css`
-  display: flex;
-  flex-grow: 1;
 `;
 const fileInputStyle = css`
   visibility: hidden;
@@ -86,27 +80,11 @@ const EditorHeader: React.FC<Props> = ({
         ref={fileInputRef}
         onChange={onChangeHandler}
       />
-      <Nav tabs className={navStyle}>
-        <div className={tabContainer}>
-          <NavItem>
-            <NavLink
-              active={activeMode === "write"}
-              onClick={() => onActiveModeChange("write")}
-              className={linkStyle}
-            >
-              Write
-            </NavLink>
-          </NavItem>
-          <NavItem>
-            <NavLink
-              active={activeMode === "preview"}
-              onClick={() => onActiveModeChange("preview")}
-              className={linkStyle}
-            >
-              Preview
-            </NavLink>
-          </NavItem>
-        </div>
+      <Tabs value={activeMode} onTabChange={onActiveModeChange} className={navStyle}>
+        <Tabs.List>
+          <Tabs.Tab value="write">Write</Tabs.Tab>
+          <Tabs.Tab value="preview">Preview</Tabs.Tab>
+        </Tabs.List>
         {activeMode === "write" && (
           <Row className="m-0 d-flex justify-content-center">
             <Col className="px-0">
@@ -185,7 +163,7 @@ const EditorHeader: React.FC<Props> = ({
             </Col>
           </Row>
         )}
-      </Nav>
+      </Tabs>
     </div>
   );
 };

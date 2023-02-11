@@ -1,5 +1,4 @@
 import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
-import { Col, Row } from "@vseth/components";
 import {
   Card,
   Breadcrumbs,
@@ -7,6 +6,7 @@ import {
   Loader,
   Alert,
   Container,
+  Grid,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -249,9 +249,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             )}
           </div>
         </div>
-        <Row>
+        <Grid>
           {!metaData.canView && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <Card className="m-1">
                 {metaData.needs_payment && !metaData.hasPayed ? (
                   <>
@@ -263,28 +263,28 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                   <>You can not view this exam at this time.</>
                 )}
               </Card>
-            </Col>
+            </Grid.Col>
           )}
           {metaData.is_printonly && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <PrintExam
                 title="exam"
                 examtype="exam"
                 filename={metaData.filename}
               />
-            </Col>
+            </Grid.Col>
           )}
           {metaData.has_solution && metaData.solution_printonly && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <PrintExam
                 title="solution"
                 examtype="solution"
                 filename={metaData.filename}
               />
-            </Col>
+            </Grid.Col>
           )}
           {metaData.legacy_solution && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <a
                 href={metaData.legacy_solution}
                 target="_blank"
@@ -293,10 +293,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               >
                 Legacy Solution in VISki
               </a>
-            </Col>
+            </Grid.Col>
           )}
           {metaData.master_solution && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <a
                 href={metaData.master_solution}
                 target="_blank"
@@ -305,11 +305,11 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               >
                 Official Solution (external)
               </a>
-            </Col>
+            </Grid.Col>
           )}
 
           {metaData.has_solution && !metaData.solution_printonly && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <a
                 href={metaData.solution_file}
                 target="_blank"
@@ -318,10 +318,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               >
                 Official Solution
               </a>
-            </Col>
+            </Grid.Col>
           )}
           {metaData.attachments.map(attachment => (
-            <Col md={6} lg={4} key={attachment.filename}>
+            <Grid.Col md={6} lg={4} key={attachment.filename}>
               <a
                 href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
@@ -330,15 +330,15 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               >
                 {attachment.displayname}
               </a>
-            </Col>
+            </Grid.Col>
           ))}
-        </Row>
+        </Grid>
         {toc && (
-          <Row form>
-            <Col lg={12}>
+          <Grid>
+            <Grid.Col lg={12}>
               <TOC toc={toc} />
-            </Col>
-          </Row>
+            </Grid.Col>
+          </Grid>
         )}
       </Container>
 

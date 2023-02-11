@@ -2,15 +2,11 @@ import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  Col,
   Container,
-  FormGroup,
-  Input,
-  Nav,
-  NavItem,
-  NavLink,
-  Row,
-} from "@vseth/components";
+  Grid,
+  Tabs,
+  Textarea,
+} from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
@@ -18,11 +14,6 @@ import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
-
-enum AdminMode {
-  Read,
-  Write,
-}
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -68,22 +59,17 @@ const FeedbackForm: React.FC<{}> = () => {
         </a>
         .
       </p>
-      <FormGroup>
-        <Input
-          type="textarea"
-          value={text}
-          onChange={e => setText(e.currentTarget.value)}
-          rows={12}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Button
-          disabled={text.length === 0 || loading}
-          onClick={() => run(text)}
-        >
-          {loading ? <Loader /> : "Submit"}
-        </Button>
-      </FormGroup>
+      <Textarea
+        value={text}
+        onChange={e => setText(e.currentTarget.value)}
+        minRows={12}
+      />
+      <Button
+        disabled={text.length === 0 || loading}
+        onClick={() => run(text)}
+      >
+        {loading ? <Loader /> : "Submit"}
+      </Button>
     </>
   );
 };
@@ -100,13 +86,13 @@ const FeedbackReader: React.FC<{}> = () => {
     <>
       {error && <Alert color="danger">{error.message}</Alert>}
       {feedback && (
-        <Row>
+        <Grid>
           {feedback.map(fb => (
-            <Col lg={6} key={fb.oid}>
+            <Grid.Col lg={6} key={fb.oid}>
               <FeedbackEntryComponent entry={fb} entryChanged={reload} />
-            </Col>
+            </Grid.Col>
           ))}
-        </Row>
+        </Grid>
       )}
       {loading && <Loader />}
     </>
@@ -114,32 +100,20 @@ const FeedbackReader: React.FC<{}> = () => {
 };
 
 const FeedbackAdminView: React.FC<{}> = () => {
-  const [mode, setMode] = useLocalStorageState<AdminMode>(
+  const [mode, setMode] = useLocalStorageState<string | null>(
     "feedback-admin-mode",
-    AdminMode.Read,
+    "read",
   );
   return (
-    <Container>
+    <Container size="xl">
       <h2>Feedback</h2>
-      <Nav tabs className="my-3">
-        <NavItem>
-          <NavLink
-            className={mode === AdminMode.Read ? "active" : ""}
-            onClick={() => setMode(AdminMode.Read)}
-          >
-            Read
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className={mode === AdminMode.Write ? "active" : ""}
-            onClick={() => setMode(AdminMode.Write)}
-          >
-            Write
-          </NavLink>
-        </NavItem>
-      </Nav>
-      {mode === AdminMode.Read ? <FeedbackReader /> : <FeedbackForm />}
+      <Tabs value={mode} onTabChange={setMode} className="my-3">
+        <Tabs.List defaultValue="read">
+          <Tabs.Tab value="read">Read</Tabs.Tab>
+          <Tabs.Tab value="write">Write</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      {mode === "read" ? <FeedbackReader /> : <FeedbackForm />}
     </Container>
   );
 };
