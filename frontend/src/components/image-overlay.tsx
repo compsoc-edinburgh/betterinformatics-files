@@ -92,8 +92,8 @@ const ImageModal: React.FC<ModalProps> = ({
                         ? unselect(image)
                         : select(image)
                       : selected.has(image)
-                      ? setSelected()
-                      : setSelected(image)
+                        ? setSelected()
+                        : setSelected(image)
                   }
                 >
                   <CardImg

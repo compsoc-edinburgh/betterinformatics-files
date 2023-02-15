@@ -1,11 +1,10 @@
-import { Row, Col } from "@vseth/components";
 import { css } from "@emotion/css";
 import * as React from "react";
 import { Bold, Code, DollarSign, Image, Italic, Link } from "react-feather";
 import TooltipButton from "../TooltipButton";
 import { EditorMode } from "./utils/types";
 import { useCallback, useRef } from "react";
-import { Tabs } from "@mantine/core";
+import { Flex, Tabs } from "@mantine/core";
 
 const iconButtonStyle = css`
   margin: 0;
@@ -86,82 +85,70 @@ const EditorHeader: React.FC<Props> = ({
           <Tabs.Tab value="preview">Preview</Tabs.Tab>
         </Tabs.List>
         {activeMode === "write" && (
-          <Row className="m-0 d-flex justify-content-center">
-            <Col className="px-0">
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={() => fileInputRef.current?.click()}
-                type="button"
-                size="sm"
-                tooltip="Insert Image"
-              >
-                <Image size={iconSize} />
-              </TooltipButton>
-            </Col>
-            <Col className="px-0">
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onMathClick}
-                type="button"
-                size="sm"
-                tooltip="Inline Math"
-              >
-                <DollarSign size={iconSize} />
-              </TooltipButton>
-            </Col>
-            <Col className="px-0">
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onCodeClick}
-                type="button"
-                size="sm"
-                tooltip="Code Block"
-              >
-                <Code size={iconSize} />
-              </TooltipButton>
-            </Col>
-            <Col className="px-0">
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onLinkClick}
-                type="button"
-                size="sm"
-                tooltip="Hyperlink"
-              >
-                <Link size={iconSize} />
-              </TooltipButton>
-            </Col>
-            <Col className="px-0">
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onItalicClick}
-                type="button"
-                size="sm"
-                tooltip={
-                  <>
-                    Italic<kbd>Ctrl + I</kbd>{" "}
-                  </>
-                }
-              >
-                <Italic size={iconSize} />
-              </TooltipButton>
-            </Col>
-            <Col className="px-0">
-              <TooltipButton
-                className={iconButtonStyle}
-                onClick={handlers.onBoldClick}
-                type="button"
-                size="sm"
-                tooltip={
-                  <>
-                    Bold<kbd>Ctrl + B</kbd>{" "}
-                  </>
-                }
-              >
-                <Bold size={iconSize} />
-              </TooltipButton>
-            </Col>
-          </Row>
+          <Flex>
+            <TooltipButton
+              className={iconButtonStyle}
+              onClick={() => fileInputRef.current?.click()}
+              type="button"
+              size="sm"
+              tooltip="Insert Image"
+            >
+              <Image size={iconSize} />
+            </TooltipButton>
+            <TooltipButton
+              className={iconButtonStyle}
+              onClick={handlers.onMathClick}
+              type="button"
+              size="sm"
+              tooltip="Inline Math"
+            >
+              <DollarSign size={iconSize} />
+            </TooltipButton>
+            <TooltipButton
+              className={iconButtonStyle}
+              onClick={handlers.onCodeClick}
+              type="button"
+              size="sm"
+              tooltip="Code Block"
+            >
+              <Code size={iconSize} />
+            </TooltipButton>
+            <TooltipButton
+              className={iconButtonStyle}
+              onClick={handlers.onLinkClick}
+              type="button"
+              size="sm"
+              tooltip="Hyperlink"
+            >
+              <Link size={iconSize} />
+            </TooltipButton>
+            <TooltipButton
+              className={iconButtonStyle}
+              onClick={handlers.onItalicClick}
+              type="button"
+              size="sm"
+              tooltip={
+                <>
+                  Italic<kbd>Ctrl + I</kbd>{" "}
+                </>
+              }
+            >
+              <Italic size={iconSize} />
+            </TooltipButton>
+            <TooltipButton
+              className={iconButtonStyle}
+              onClick={handlers.onBoldClick}
+              type="button"
+              size="sm"
+              tooltip={
+                <>
+                  Bold<kbd>Ctrl + B</kbd>{" "}
+                </>
+              }
+            >
+              <Bold size={iconSize} />
+            </TooltipButton>
+          </Flex>
         )}
       </Tabs>
     </div>

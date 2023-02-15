@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from "react";
-import { Modal, ModalBody, ModalFooter, Button } from "@vseth/components";
+import { Modal, ModalBody, ModalFooter } from "@vseth/components";
+import { Button } from "@mantine/core";
 type CB = () => void;
 const useConfirm = () => {
   const [stack, setStack] = useState<Array<[string, CB, CB]>>([]);
   const push = useCallback((message: string, yes: CB, no?: CB) => {
-    setStack(prevStack => [...prevStack, [message, yes, no || (() => {})]]);
+    setStack(prevStack => [...prevStack, [message, yes, no || (() => { })]]);
   }, []);
   const pop = useCallback(() => {
     setStack(prevStack => prevStack.slice(0, prevStack.length - 1));

@@ -1,7 +1,9 @@
 import { useRequest } from "@umijs/hooks";
-import { Card, Col, Row } from "@vseth/components";
 import {
   Badge,
+  Card,
+  Checkbox,
+  Grid,
 } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
@@ -84,6 +86,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       <ExamGrid>
         {exams.map(exam => (
           <Card
+            shadow="sm"
             className={`${focusOutline} p-3`}
             onKeyDown={e => {
               if (e.keyCode === 13 && exam.canView) {
@@ -93,10 +96,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
             tabIndex={0}
             key={exam.filename}
           >
-            <Row>
-              <Col xs="auto">
-                <input
-                  type="checkbox"
+            <Grid>
+              <Grid.Col span="content">
+                <Checkbox
                   checked={selected.has(exam.filename)}
                   onClick={e => e.stopPropagation()}
                   onChange={e => {
@@ -106,8 +108,8 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   }}
                   disabled={!exam.canView}
                 />
-              </Col>
-              <Col>
+              </Grid.Col>
+              <Grid.Col span="auto">
                 <h6 className="mb-1">
                   {exam.canView ? (
                     <Link
@@ -178,8 +180,8 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     </Badge>
                   )}
                 </div>
-              </Col>
-              <Col xs="auto">
+              </Grid.Col>
+              <Grid.Col span="content">
                 {catAdmin && <ClaimButton exam={exam} reloadExams={reload} />}
                 {user.isAdmin && (
                   <IconButton
@@ -192,8 +194,8 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     onClick={e => handleRemoveClick(e, exam)}
                   />
                 )}
-              </Col>
-            </Row>
+              </Grid.Col>
+            </Grid>
           </Card>
         ))}
       </ExamGrid>

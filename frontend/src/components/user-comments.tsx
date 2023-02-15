@@ -1,10 +1,9 @@
-import { Alert } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import Masonry from "react-masonry-component";
 import { masonryStyle } from "../pages/userinfo-page";
 import { useUserComments } from "../api/hooks";
 import SingleCommentComponent from "./comment-single";
-import { Loader } from "@mantine/core";
+import { Alert, Loader } from "@mantine/core";
 
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers

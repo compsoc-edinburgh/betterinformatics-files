@@ -1,6 +1,5 @@
-import { Loader } from "@mantine/core";
+import { Loader, Button } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { ButtonGroup } from "@vseth/components";
 import React from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
@@ -31,7 +30,7 @@ const Score: React.FC<Props> = ({
     onSuccess: onSectionChanged,
   });
   return (
-    <ButtonGroup className="m-1">
+    <Button.Group className="m-1">
       <SmallButton
         tooltip="Downvote"
         size="sm"
@@ -62,7 +61,7 @@ const Score: React.FC<Props> = ({
       >
         <Icon icon={ICONS.PLUS} size={18} />
       </SmallButton>
-    </ButtonGroup>
+    </Button.Group>
   );
 };
 export default Score;

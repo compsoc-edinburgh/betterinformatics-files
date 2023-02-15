@@ -1,18 +1,17 @@
 import { useRequest } from "@umijs/hooks";
 import {
+  Breadcrumbs,
   Alert,
-  Breadcrumb,
-  Col,
-  Container,
-  ListGroup,
-  Row,
-} from "@vseth/components";
-import {
   Badge,
+  Container,
+  Anchor,
+  Flex,
+  Group,
+  Grid,
+  List,
 } from "@mantine/core";
-import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -72,14 +71,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   return (
     <>
       {modals}
-      <Breadcrumb>
-        <BreadcrumbItem>
-          <Link className="text-primary" to="/">
-            Home
-          </Link>
-        </BreadcrumbItem>
-        <BreadcrumbItem>{metaData.displayname}</BreadcrumbItem>
-      </Breadcrumb>
+      <Breadcrumbs>
+        <Anchor className="text-primary" href="/">
+          Home
+        </Anchor>
+        <Anchor>{metaData.displayname}</Anchor>
+      </Breadcrumbs>
       {editing ? (
         offeredIn && (
           <CategoryMetaDataEditor
@@ -94,12 +91,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         )
       ) : (
         <>
-          <Row>
-            <Col>
-              <h1 className="mb-3">{metaData.displayname}</h1>
-            </Col>
+          <Flex direction="row" justify="space-between">
+            <h1>{metaData.displayname}</h1>
             {user.isCategoryAdmin && (
-              <Col md="auto" className="d-flex align-items-center">
+              <Group>
                 <IconButton
                   size="sm"
                   className="m-1"
@@ -118,23 +113,23 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 >
                   Delete
                 </IconButton>
-              </Col>
+              </Group>
             )}
-          </Row>
+          </Flex>
 
-          <Row className="my-2">
+          <Grid className="my-2">
             {metaData.semester && (
-              <Col md="auto">
+              <Grid.Col span="content">
                 Semester: <Badge>{metaData.semester}</Badge>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.form && (
-              <Col md="auto">
+              <Grid.Col span="content">
                 Form: <Badge>{metaData.form}</Badge>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.more_exams_link && (
-              <Col md="auto">
+              <Grid.Col span="content">
                 <a
                   href={metaData.more_exams_link}
                   target="_blank"
@@ -142,10 +137,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 >
                   Additional Exams
                 </a>
-              </Col>
+              </Grid.Col>
             )}
-            {metaData.remark && <Col md="auto">Remark: {metaData.remark}</Col>}
-          </Row>
+            {metaData.remark && <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>}
+          </Grid>
           {(offeredIn === undefined || offeredIn.length > 0) && (
             <div>
               Offered in:
@@ -166,17 +161,17 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </div>
             </div>
           )}
-          <Row className="my-2">
+          <Grid className="my-2">
             {metaData.experts.includes(user.username) && (
-              <Col>
+              <Grid.Col span="auto">
                 <Alert>
                   You are an expert for this category. You can endorse correct
                   answers.
                 </Alert>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.has_payments && (
-              <Col>
+              <Grid.Col span="auto">
                 <Alert>
                   You have to pay a deposit in order to see oral exams.
                   {serverData.unlock_deposit_notice ? (
@@ -189,16 +184,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   After submitting a report of your own oral exam you can get
                   your deposit back.
                 </Alert>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.catadmin && (
-              <Col>
+              <Grid.Col span="auto">
                 <Alert color="info">
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
-              </Col>
+              </Grid.Col>
             )}
-          </Row>
+          </Grid>
           <ExamList metaData={metaData} />
 
           <h2 className="mb-3 mt-5">Documents</h2>
@@ -207,18 +202,20 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           {metaData.attachments.length > 0 && (
             <>
               <h2 className="mb-3 mt-5">Attachments</h2>
-              <ListGroup flush>
+              <List>
                 {metaData.attachments.map(att => (
-                  <a
-                    href={`/api/filestore/get/${att.filename}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    key={att.filename}
-                  >
-                    <div>{att.displayname}</div>
-                  </a>
+                  <List.Item>
+                    <a
+                      href={`/api/filestore/get/${att.filename}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      key={att.filename}
+                    >
+                      <div>{att.displayname}</div>
+                    </a>
+                  </List.Item>
                 ))}
-              </ListGroup>
+              </List>
             </>
           )}
         </>
@@ -246,7 +243,7 @@ const CategoryPage: React.FC<{}> = () => {
   useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
-    <Container>
+    <Container size="xl">
       {error && <Alert color="danger">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay loading={loading} />}
       {data && (

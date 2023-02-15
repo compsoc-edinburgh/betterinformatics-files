@@ -1,4 +1,4 @@
-import { Badge, Button } from "@vseth/components";
+import { Badge, Button } from "@mantine/core";
 import React, { useRef } from "react";
 interface FileInputProps
   extends Omit<
@@ -17,7 +17,7 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
     <div className="form-control position-relative">
       {value ? (
         <>
-          <Button close onClick={() => onChange(undefined)} />
+          <Button onClick={() => onChange(undefined)} />
           {value.name} <Badge>{value.type}</Badge> <Badge>{value.size}</Badge>
         </>
       ) : (

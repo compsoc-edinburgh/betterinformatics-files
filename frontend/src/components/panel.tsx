@@ -1,5 +1,5 @@
 import { css, cx, keyframes } from "@emotion/css";
-import { Button } from "@vseth/components";
+import { Button } from "@mantine/core";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import { Icon, ICONS } from "vseth-canine-ui";
