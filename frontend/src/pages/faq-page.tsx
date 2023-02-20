@@ -20,7 +20,8 @@ import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
+import { Button } from "@mantine/core";
 const newButtonStyle = css`
   min-height: 3em;
 `;
@@ -95,23 +96,23 @@ export const FAQPage: React.FC = () => {
           <CardFooter>
             <Row className="flex-between">
               <Col xs="auto">
-                <IconButton
+                <Button
                   color="primary"
                   size="sm"
-                  iconName={ICONS.SAVE}
+                  leftIcon={<Icon icon={ICONS.SAVE} />}
                   onClick={handleNew}
                 >
                   Save
-                </IconButton>
+                </Button>
               </Col>
               <Col xs="auto">
-                <IconButton
+                <Button
                   size="sm"
-                  iconName={ICONS.CLOSE}
+                  leftIcon={<Icon icon={ICONS.CLOSE} />}
                   onClick={handleDeleteDraft}
                 >
                   Delete Draft
-                </IconButton>
+                </Button>
               </Col>
             </Row>
           </CardFooter>
@@ -122,7 +123,6 @@ export const FAQPage: React.FC = () => {
             <IconButton
               tooltip="Add new FAQ entry"
               className="position-cover"
-              block
               size="lg"
               iconName={ICONS.PLUS}
               onClick={() => setHasDraft(true)}

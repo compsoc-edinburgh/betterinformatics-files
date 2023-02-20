@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Container } from "@vseth/components";
+import { Container } from "@mantine/core";
 import React from "react";
 import CodeBlock from "./code-block";
 
@@ -10,7 +10,7 @@ const DocumentCode: React.FC<DocumentCodeProps> = ({ url }) => {
   const { data } = useRequest(() => fetch(url).then(r => r.text()));
 
   return (
-    <Container className="py-5">
+    <Container size="xl" className="py-5">
       {data !== undefined &&
         (data.length > 0 ? (
           <CodeBlock value={data} language="tex" />

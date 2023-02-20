@@ -1,4 +1,5 @@
 import { css } from "@emotion/css";
+import { Button } from "@mantine/core";
 import { useDebounceFn } from "@umijs/hooks";
 import {
   ButtonGroup,
@@ -16,7 +17,7 @@ import {
 } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
@@ -199,31 +200,29 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             <Row form>
               {editState.mode !== EditMode.None && (
                 <Col xs="auto">
-                  <IconButton
+                  <Button
                     size="sm"
-                    tooltip="Disable editing"
                     onClick={() => setEditState({ mode: EditMode.None })}
-                    iconName={ICONS.CLOSE}
+                    leftIcon={<Icon icon={ICONS.CLOSE} />}
                   >
                     Stop Editing
-                  </IconButton>
+                  </Button>
                 </Col>
               )}
               {editState.mode !== EditMode.Add && (
                 <Col xs="auto">
-                  <IconButton
+                  <Button
                     size="sm"
-                    tooltip="Add new cuts"
                     onClick={() =>
                       setEditState({
                         mode: EditMode.Add,
                         snap,
                       })
                     }
-                    iconName={ICONS.PLUS}
+                    leftIcon={<Icon icon={ICONS.PLUS} />}
                   >
                     Add Cuts
-                  </IconButton>
+                  </Button>
                 </Col>
               )}
             </Row>

@@ -1,8 +1,8 @@
-import { Loader } from "@mantine/core";
+import { Button, Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import { Alert, Col, FormGroup, Row } from "@vseth/components";
 import React, { useMemo, useState } from "react";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
 import useSet from "../hooks/useSet";
@@ -13,7 +13,6 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
-import IconButton from "./icon-button";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -65,14 +64,13 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
       <Row className="d-flex flex-between">
         <Col md={6} xs={12} className="text-center text-md-left">
           <FormGroup className="mb-2 d-md-inline-block">
-            <IconButton
+            <Button
               disabled={selected.size === 0}
               onClick={() => dlSelectedExams(getSelectedExams(selected))}
-              block
-              iconName={ICONS.DOWNLOAD}
+              leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
             >
               Download selected exams
-            </IconButton>
+            </Button>
           </FormGroup>
         </Col>
         <Col md={6} xs={12} className="text-center text-md-right">

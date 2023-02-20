@@ -9,6 +9,7 @@ import {
   Group,
   Grid,
   List,
+  Button,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
@@ -20,7 +21,6 @@ import {
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
-import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
 import useConfirm from "../hooks/useConfirm";
@@ -29,7 +29,7 @@ import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -95,24 +95,24 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             <h1>{metaData.displayname}</h1>
             {user.isCategoryAdmin && (
               <Group>
-                <IconButton
+                <Button
                   size="sm"
                   className="m-1"
-                  iconName={ICONS.EDIT}
+                  leftIcon={<Icon icon={ICONS.EDIT} />}
                   onClick={() => setEditing(true)}
                 >
                   Edit
-                </IconButton>
-                <IconButton
+                </Button>
+                <Button
                   color="danger"
                   size="sm"
                   className="m-1"
                   loading={removeLoading}
-                  iconName={ICONS.DELETE}
+                  leftIcon={<Icon icon={ICONS.DELETE} />}
                   onClick={onRemove}
                 >
                   Delete
-                </IconButton>
+                </Button>
               </Group>
             )}
           </Flex>

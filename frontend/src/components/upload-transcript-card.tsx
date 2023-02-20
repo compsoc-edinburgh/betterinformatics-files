@@ -2,7 +2,6 @@ import { Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
-  Button,
   Card,
   CardBody,
   CardHeader,
@@ -12,12 +11,14 @@ import {
   Row,
   Select,
 } from "@vseth/components";
+import {
+  Button,
+} from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
 import FileInput from "./file-input";
-import IconButton from "./icon-button";
 
 const UploadTranscriptCard: React.FC<{}> = () => {
   const history = useHistory();
@@ -65,13 +66,13 @@ const UploadTranscriptCard: React.FC<{}> = () => {
       <CardHeader>Submit Transcript for Oral Exam</CardHeader>
       <CardBody>
         <p>Please use the following template:</p>
-        <IconButton
-          iconName={ICONS.DOWNLOAD}
+        <Button
+          leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
           onClick={() => window.open("/static/transcript_template.tex")}
           style={{ marginBottom: "1.5em" }}
         >
           Download template
-        </IconButton>
+        </Button>
         <Form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
           <FormGroup>

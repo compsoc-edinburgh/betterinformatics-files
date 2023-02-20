@@ -1,7 +1,5 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  Alert,
-  Button,
   Col,
   FormGroup,
   InputField,
@@ -11,8 +9,13 @@ import {
   Input,
   Label,
 } from "@vseth/components";
+import {
+  Alert,
+  Button,
+  CloseButton,
+} from "@mantine/core"
 import React from "react";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
@@ -20,7 +23,6 @@ import { Attachment, CategoryMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import ButtonWrapperCard from "./button-wrapper-card";
-import IconButton from "./icon-button";
 import OfferedInEditor from "./offered-in-editor";
 import UserSetEditor from "./user-set-editor";
 
@@ -241,7 +243,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   });
   return (
     <>
-      <Button close onClick={toggle} />
+      <CloseButton onClick={toggle} />
       <h2>Edit Category</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6 className="mb-3 mt-4">Metadata</h6>
@@ -254,7 +256,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               options={options(semesterOptions)}
               value={
                 semesterOptions[
-                  formState.semester as keyof typeof semesterOptions
+                formState.semester as keyof typeof semesterOptions
                 ]
               }
               onChange={(option: any) =>
@@ -291,7 +293,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               options={options(permissionOptions)}
               value={
                 permissionOptions[
-                  formState.permission as keyof typeof permissionOptions
+                formState.permission as keyof typeof permissionOptions
                 ]
               }
               onChange={(option: any) =>
@@ -342,25 +344,27 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <ButtonWrapperCard>
         <Row className="flex-between">
           <Col xs="auto">
-            <IconButton
-              iconName={ICONS.CLOSE}
+            <Button
+              leftIcon={<Icon icon={ICONS.CLOSE} />}
+              variant="light"
               onClick={() => {
                 reset();
                 toggle();
               }}
             >
               Cancel
-            </IconButton>
+            </Button>
           </Col>
           <Col xs="auto">
-            <IconButton
-              iconName={ICONS.SAVE}
+            <Button
+              leftIcon={<Icon icon={ICONS.SAVE} />}
               color="primary"
+              variant="light"
               loading={loading}
               onClick={onSubmit}
             >
               Save
-            </IconButton>
+            </Button>
           </Col>
         </Row>
       </ButtonWrapperCard>

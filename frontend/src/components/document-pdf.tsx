@@ -1,5 +1,5 @@
 import { useRequest, useSize } from "@umijs/hooks";
-import { Container } from "@vseth/components";
+import { Container } from "@mantine/core";
 import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import React from "react";
 import { getHeaders } from "../api/fetch-utils";
@@ -41,7 +41,7 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
   const renderer = data ? data[1] : undefined;
   return (
     <ContentContainer>
-      <Container>
+      <Container size="xl">
         {pdfError && "Error loading PDF"}
 
         <div ref={sizeRef} className="mx-auto my-3">

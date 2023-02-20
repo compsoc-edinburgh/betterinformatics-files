@@ -21,9 +21,8 @@ import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import ButtonWrapperCard from "./button-wrapper-card";
 import FileInput from "./file-input";
-import IconButton from "./icon-button";
 import useForm from "../hooks/useForm";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 const stringKeys = [
   "displayname",
   "category",
@@ -404,19 +403,19 @@ const ExamMetadataEditor: React.FC<Props> = ({
       <ButtonWrapperCard>
         <Row className="flex-between">
           <Col xs="auto">
-            <IconButton iconName={ICONS.CLOSE} onClick={toggle}>
+            <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={toggle}>
               Cancel
-            </IconButton>
+            </Button>
           </Col>
           <Col xs="auto">
-            <IconButton
-              iconName={ICONS.SAVE}
+            <Button
+              leftIcon={<Icon icon={ICONS.SAVE} />}
               color="primary"
               loading={loading}
               onClick={onSubmit}
             >
               Save
-            </IconButton>
+            </Button>
           </Col>
         </Row>
       </ButtonWrapperCard>

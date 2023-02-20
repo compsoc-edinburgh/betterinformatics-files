@@ -1,4 +1,4 @@
-import { Button } from "@vseth/components";
+import { Button } from "@mantine/core";
 import { keyframes, css } from "@emotion/css";
 import React from "react";
 import { Mutate, useUpdateDocument } from "../api/hooks";

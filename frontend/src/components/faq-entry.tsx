@@ -1,6 +1,7 @@
+import { Button } from "@mantine/core";
 import { ButtonGroup, Card, CardBody, Input, Col } from "@vseth/components";
 import React, { useCallback, useState } from "react";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
@@ -83,14 +84,14 @@ const FAQEntryComponent: React.FC<Props> = ({
           <div className="my-2 d-flex flex-between">
             <Col xs="auto">
               {editing && (
-                <IconButton
+                <Button
                   color="primary"
                   size="sm"
-                  iconName={ICONS.SAVE}
+                  leftIcon={<Icon icon={ICONS.SAVE} />}
                   onClick={save}
                 >
                   Save
-                </IconButton>
+                </Button>
               )}
             </Col>
             <Col xs="auto">
@@ -118,9 +119,9 @@ const FAQEntryComponent: React.FC<Props> = ({
                   }
                 />
                 {editing && (
-                  <IconButton iconName={ICONS.CLOSE} onClick={cancel}>
+                  <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={cancel}>
                     Cancel
-                  </IconButton>
+                  </Button>
                 )}
               </ButtonGroup>
             </Col>

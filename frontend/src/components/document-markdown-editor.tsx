@@ -1,6 +1,5 @@
-import { Loader } from "@mantine/core";
+import { Button, Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { Button } from "@vseth/components";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";

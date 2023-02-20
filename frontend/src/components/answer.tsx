@@ -1,4 +1,5 @@
 import { css } from "@emotion/css";
+import { Button } from "@mantine/core";
 import {
   ButtonDropdown,
   ButtonGroup,
@@ -205,15 +206,13 @@ const AnswerComponent: React.FC<Props> = ({
                     (answer.flagged > 0 && isAdmin) ||
                     flaggedLoading) && (
                     <ButtonGroup className="m-1" size="sm">
-                      <IconButton
-                        tooltip="This answer was flagged as inappropriate by a user. A moderator will decide whether the answer should be removed."
+                      <Button
                         color="danger"
-                        iconName={ICONS.FLAG}
+                        leftIcon={<Icon icon={ICONS.FLAG} />}
                         title="Flagged as Inappropriate"
-                        active
                       >
                         Inappropriate
-                      </IconButton>
+                      </Button>
                       <SmallButton
                         color="danger"
                         tooltip={`${answer.flagged} users consider this answer inappropriate.`}
@@ -281,17 +280,17 @@ const AnswerComponent: React.FC<Props> = ({
           <Row className="flex-between" form>
             <Col xs="auto">
               {(answer === undefined || editing) && (
-                <IconButton
+                <Button
                   className="m-1"
                   color="primary"
                   size="sm"
                   onClick={save}
                   loading={updating}
                   disabled={draftText.trim().length === 0}
-                  iconName={ICONS.SAVE}
+                  leftIcon={<Icon icon={ICONS.SAVE} />}
                 >
                   Save
-                </IconButton>
+                </Button>
               )}
             </Col>
             <Col xs="auto">
@@ -308,14 +307,14 @@ const AnswerComponent: React.FC<Props> = ({
                       </IconButton>
                     )}
                     {answer !== undefined && (
-                      <IconButton
+                      <Button
                         size="sm"
                         onClick={() => setHasCommentDraft(true)}
-                        iconName={ICONS.PLUS}
+                        leftIcon={<Icon icon={ICONS.PLUS} />}
                         disabled={hasCommentDraft}
                       >
                         Add Comment
-                      </IconButton>
+                      </Button>
                     )}
                     {answer !== undefined && (
                       <ButtonDropdown isOpen={isOpen} toggle={toggle}>

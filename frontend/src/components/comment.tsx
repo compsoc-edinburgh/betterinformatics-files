@@ -21,10 +21,10 @@ import { Answer, AnswerSection, Comment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
-import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import { Icon, ICONS } from "vseth-canine-ui";
+import { Button } from "@mantine/core";
 
 interface Props {
   answer: Answer;
@@ -163,27 +163,27 @@ const CommentComponent: React.FC<Props> = ({
           />
           <Row className="flex-between" form>
             <Col xs="auto">
-              <IconButton
+              <Button
                 className="m-1"
                 size="sm"
                 color="primary"
                 loading={loading}
                 disabled={draftText.trim().length === 0}
                 onClick={onSave}
-                iconName={ICONS.SAVE}
+                leftIcon={<Icon icon={ICONS.SAVE} />}
               >
                 Save
-              </IconButton>
+              </Button>
             </Col>
             <Col xs="auto">
-              <IconButton
+              <Button
                 className="m-1"
                 size="sm"
                 onClick={onCancel}
-                iconName={ICONS.CLOSE}
+                leftIcon={<Icon icon={ICONS.CLOSE} />}
               >
                 {comment === undefined ? "Delete Draft" : "Cancel"}
-              </IconButton>
+              </Button>
             </Col>
           </Row>
         </>

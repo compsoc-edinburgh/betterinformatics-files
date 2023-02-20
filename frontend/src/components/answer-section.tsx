@@ -216,48 +216,47 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
-          <NameCard id={id}>
-            <CardFooter>
-              {isEditingName ? (
-                <InputGroup size="sm">
-                  <Input
-                    type="text"
-                    value={draftName}
-                    placeholder="Name"
-                    onChange={e => setDraftName(e.target.value)}
-                  />
-                  <InputGroupButtonDropdown addonType="append">
-                    <IconButton
-                      tooltip="Save PDF section name"
-                      iconName={ICONS.SAVE}
-                      block
-                      onClick={() => {
-                        setIsEditingName(false);
-                        onCutNameChange(draftName);
-                      }}
+            <NameCard id={id}>
+              <CardFooter>
+                {isEditingName ? (
+                  <InputGroup size="sm">
+                    <Input
+                      type="text"
+                      value={draftName}
+                      placeholder="Name"
+                      onChange={e => setDraftName(e.target.value)}
                     />
-                  </InputGroupButtonDropdown>
-                </InputGroup>
-              ) : (
-                <Row>
-                  <Col className="d-flex flex-center flex-column">
-                    <h6 className="m-0">{cutName}</h6>
-                  </Col>
-                  <Col xs="auto">
-                    {isCatAdmin && (
+                    <InputGroupButtonDropdown addonType="append">
                       <IconButton
-                        tooltip="Edit PDF section name"
-                        size="sm"
-                        iconName={ICONS.EDIT}
-                        onClick={() => setIsEditingName(true)}
+                        tooltip="Save PDF section name"
+                        iconName={ICONS.SAVE}
+                        onClick={() => {
+                          setIsEditingName(false);
+                          onCutNameChange(draftName);
+                        }}
                       />
-                    )}
-                  </Col>
-                </Row>
-              )}
-            </CardFooter>
-          </NameCard>
-        )}
+                    </InputGroupButtonDropdown>
+                  </InputGroup>
+                ) : (
+                  <Row>
+                    <Col className="d-flex flex-center flex-column">
+                      <h6 className="m-0">{cutName}</h6>
+                    </Col>
+                    <Col xs="auto">
+                      {isCatAdmin && (
+                        <IconButton
+                          tooltip="Edit PDF section name"
+                          size="sm"
+                          iconName={ICONS.EDIT}
+                          onClick={() => setIsEditingName(true)}
+                        />
+                      )}
+                    </Col>
+                  </Row>
+                )}
+              </CardFooter>
+            </NameCard>
+          )}
         <Container fluid>
           {!hidden && data && (
             <>
