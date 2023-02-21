@@ -45,7 +45,7 @@ See the **[list of supported functions](https://katex.org/docs/supported.html)**
 Here are the most important points.
 
 * Most standard operations should be supported. For example, align blocks are fully supported!
-* You can do inline math, and block math with \`$...$\` and \`$$...$$\` respectively. Note that block math requires a new lines: \`$$\\n <your-math> \\n$$\` where \`\\n\` should be replaced with an actual new line.
+* You can do inline math, and block math with \`$...$\` and \`$$...$$\` respectively. Note that block math requires new lines: \`$$\\n <your-math> \\n$$\` where each \`\\n\` should be replaced with an actual new line.
 * Persistent macros can be used throughout one post. See below for more info!
 
 As an example, \`$\\int_a^b \\sin x \\, dx$\` generates the following math expression: $\\int_a^b \\sin x \\,dx$, and as block math:
