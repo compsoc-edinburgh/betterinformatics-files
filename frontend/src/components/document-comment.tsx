@@ -100,7 +100,7 @@ const DocumentCommentComponent = ({
       <Card className="my-3 pt-3" body>
         <div className="d-flex justify-content-between align-items-center mb-1">
           <div>
-            <Link to={`/user/${comment.authorId}`}>
+            <Link className="text-muted" to={`/user/${comment.authorId}`}>
               {comment.authorDisplayName}
               <span className="text-muted ml-2">@{comment.authorId}</span>
             </Link>

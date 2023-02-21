@@ -91,41 +91,43 @@ const CommentComponent: React.FC<Props> = ({
     <ListGroupItem>
       {modals}
       <div className="float-right">
-        <ButtonGroup>
-          {!editing && comment?.canEdit && (
-            <SmallButton
-              tooltip="Edit comment"
-              size="sm"
-              color="white"
-              onClick={startEditing}
-            >
-              <EditIcon size={18} />
-            </SmallButton>
-          )}
-          {comment && (comment.canEdit || isAdmin) && (
-            <SmallButton
-              tooltip="Delete comment"
-              size="sm"
-              color="white"
-              onClick={remove}
-            >
-              <DeleteIcon size={18} />
-            </SmallButton>
-          )}
-          <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-            <DropdownToggle size="sm" color="white" tooltip="More" caret>
-              <DotsHIcon size={18} />
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem onClick={toggleViewSource}>
-                Toggle Source Code Mode
-              </DropdownItem>
-            </DropdownMenu>
-          </ButtonDropdown>
-        </ButtonGroup>
+        {comment && !editing && ( // Only show button toolbar if not a draft and not editing
+          <ButtonGroup>
+            {comment.canEdit && (
+              <SmallButton
+                tooltip="Edit comment"
+                size="sm"
+                color="white"
+                onClick={startEditing}
+              >
+                <EditIcon size={18} />
+              </SmallButton>
+            )}
+            {(comment.canEdit || isAdmin) && (
+              <SmallButton
+                tooltip="Delete comment"
+                size="sm"
+                color="white"
+                onClick={remove}
+              >
+                <DeleteIcon size={18} />
+              </SmallButton>
+            )}
+            <ButtonDropdown isOpen={isOpen} toggle={toggle}>
+             <DropdownToggle size="sm" color="white" tooltip="More" caret>
+               <DotsHIcon size={18} />
+             </DropdownToggle>
+             <DropdownMenu>
+               <DropdownItem onClick={toggleViewSource}>
+                 Toggle Source Code Mode
+               </DropdownItem>
+             </DropdownMenu>
+            </ButtonDropdown>
+          </ButtonGroup>
+        )}
       </div>
       <div>
-        <Link to={`/user/${comment?.authorId ?? username}`}>
+        <Link className="text-dark" to={`/user/${comment?.authorId ?? username}`}>
           <span className="text-dark font-weight-bold">
             {comment?.authorDisplayName ?? "(Draft)"}
           </span>

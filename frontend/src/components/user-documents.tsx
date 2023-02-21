@@ -37,7 +37,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
           documents.map(document => (
             <Card key={document.slug}>
               <CardBody>
-                <Link to={`/user/${document.author}/document/${document.slug}`}>
+                <Link className="text-primary" to={`/user/${document.author}/document/${document.slug}`}>
                   <CardTitle tag="h6">{document.display_name}</CardTitle>
                 </Link>
                 <div>

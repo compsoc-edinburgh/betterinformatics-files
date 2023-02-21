@@ -29,19 +29,19 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for username in [
-            "fletchz",
-            "meyee",
-            "schneij",
-            "kellerju",
-            "baumanso",
-            "brunh",
-            "morica",
-            "mosep",
-            "widmjo",
-            "steinewe",
+        for (first_name, last_name, username) in [
+            ("Zoe", "Fletcher", "fletchz"),
+            ("Ernst", "Meyer", "meyee"),
+            ("Jonas", "Schneider", "schneij"),
+            ("Julia", "Keller", "kellerju"),
+            ("Sophie", "Baumann", "baumanso"),
+            ("Hans", "Brunner", "brunh"),
+            ("Carla", "Morin", "morica"),
+            ("Paul", "Moser", "mosep"),
+            ("Josef", "Widmer", "widmjo"),
+            ("Werner", "Steiner", "steinewe"),
         ]:
-            MyUser(username=username).save()
+            MyUser(first_name=first_name, last_name=last_name, username=username).save()
 
     def create_images(self):
         self.stdout.write("Create images")

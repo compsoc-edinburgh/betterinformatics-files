@@ -32,6 +32,7 @@ Here is a quick overview of the most useful markdown features.
 | Images                          | \`![Example](/static/editor_help_example.png)\`    | ![Example](/static/editor_help_example.png)  |
 
 Some Remarks:
+* This table itself is done purely with markdown. Toggle source code mode to see how it works!
 * You need *2 new lines to start a new paragraph*. If you only write a single new line, Markdown will just continue in the same paragraph.
 * You can either upload images by copy-pasting or using the upload tool.
 * Note the space after bullets or numbered list items.
@@ -43,15 +44,15 @@ Math is rendered using the \`react-katex\` package, so it fully supports the [Ka
 See the **[list of supported functions](https://katex.org/docs/supported.html)** to get all the details. 
 Here are the most important points.
 
-* Most standard operations should be supported.
-* You can do inline math, and block math with \`$...$\` and \`$$...$$\` respectively. Note that block math requires a new lines: \`$$\\n <your-math> \\n$$\`.
-* Even align blocks are fully supported!
+* Most standard operations should be supported. For example, align blocks are fully supported!
+* You can do inline math, and block math with \`$...$\` and \`$$...$$\` respectively. Note that block math requires new lines: \`$$\\n <your-math> \\n$$\` where each \`\\n\` should be replaced with an actual new line.
 * Persistent macros can be used throughout one post. See below for more info!
 
 As an example, \`$\\int_a^b \\sin x \\, dx$\` generates the following math expression: $\\int_a^b \\sin x \\,dx$, and as block math:
 $$
 \\int_a^b \\sin x \\, dx
 $$
+Once again, if you cannot get block math to work, you can toggle source code mode and see for yourself how it's done.
 
 ##### Persistent Macros
 $\\gdef\\comment#1{}$
