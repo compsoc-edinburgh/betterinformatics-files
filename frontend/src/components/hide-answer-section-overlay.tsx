@@ -1,4 +1,7 @@
-import { Button, Modal, ModalBody, ModalHeader } from "@vseth/components";
+import { Modal, ModalBody, ModalHeader } from "@vseth/components";
+import {
+  Button,
+} from "@mantine/core";
 import React from "react";
 interface ModalProps {
   isOpen: boolean;

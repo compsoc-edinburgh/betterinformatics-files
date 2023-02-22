@@ -1,4 +1,8 @@
-import { Button, Card, CardBody, InputField } from "@vseth/components";
+import {
+  Button,
+  Card,
+  PasswordInput,
+} from "@mantine/core";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
 
@@ -49,42 +53,39 @@ export default class PrintExam extends React.Component<Props, State> {
   render() {
     return (
       <Card className="m-1">
-        <CardBody>
-          <p>
-            Unfortunately we can not provide you this {this.props.title} as a
-            PDF. The corresponding professor did not allow this.
-          </p>
-          <p>
-            Warning: The ETH Print Service may generate cost after a certain
-            number of free pages.
-            <br />
-            More Information:{" "}
-            <a href="https://printing.sp.ethz.ch/ethps4s">
-              https://printing.sp.ethz.ch/ethps4s
-            </a>
-          </p>
-          {this.state.error && <p>{this.state.error}</p>}
-          {(!this.state.printed && (
-            <>
-              <div>
-                <InputField
-                  label="Password"
-                  name="password"
-                  type="password"
-                  onChange={ev =>
-                    this.setState({ currentPassword: ev.target.value })
-                  }
-                  value={this.state.currentPassword}
-                />
-              </div>
-              <div>
-                <Button onClick={this.printExam}>
-                  Print {this.props.title}
-                </Button>
-              </div>
-            </>
-          )) || <p>Exam successfully printed</p>}
-        </CardBody>
+        <p>
+          Unfortunately we can not provide you this {this.props.title} as a
+          PDF. The corresponding professor did not allow this.
+        </p>
+        <p>
+          Warning: The ETH Print Service may generate cost after a certain
+          number of free pages.
+          <br />
+          More Information:{" "}
+          <a href="https://printing.sp.ethz.ch/ethps4s">
+            https://printing.sp.ethz.ch/ethps4s
+          </a>
+        </p>
+        {this.state.error && <p>{this.state.error}</p>}
+        {(!this.state.printed && (
+          <>
+            <div>
+              <PasswordInput
+                label="Password"
+                name="password"
+                onChange={ev =>
+                  this.setState({ currentPassword: ev.target.value })
+                }
+                value={this.state.currentPassword}
+              />
+            </div>
+            <div>
+              <Button onClick={this.printExam}>
+                Print {this.props.title}
+              </Button>
+            </div>
+          </>
+        )) || <p>Exam successfully printed</p>}
       </Card>
     );
   }

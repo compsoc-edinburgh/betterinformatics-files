@@ -1,6 +1,8 @@
-import { Loader } from "@mantine/core";
 import {
   Button,
+  Loader,
+} from "@mantine/core";
+import {
   InputField,
   ModalBody,
   ModalFooter,

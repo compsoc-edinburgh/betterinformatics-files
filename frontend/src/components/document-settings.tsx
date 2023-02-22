@@ -1,10 +1,12 @@
-import { Loader } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
 import {
   Button,
+  List,
+  Loader,
+} from "@mantine/core";
+import { useRequest } from "@umijs/hooks";
+import {
   FormGroup,
   InputField,
-  ListGroup,
   Modal,
   ModalBody,
   ModalFooter,
@@ -165,7 +167,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           />
         </div>
       )}
-      <ListGroup className="mb-2">
+      <List className="mb-2">
         {data.files.map(file => (
           <DocumentFileItem
             key={file.oid}
@@ -174,7 +176,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             mutate={mutate}
           />
         ))}
-      </ListGroup>
+      </List>
       <div className="form-group d-flex justify-content-end">
         <Button onClick={toggleAddModalIsOpen}>
           Add
@@ -212,7 +214,6 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           <Button
             onClick={deleteDocument}
             color="danger"
-            loading={deleteDocument}
           >
             Delete this document
           </Button>

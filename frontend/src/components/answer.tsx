@@ -2,7 +2,6 @@ import { css } from "@emotion/css";
 import { Button } from "@mantine/core";
 import {
   ButtonDropdown,
-  ButtonGroup,
   ButtonToolbar,
   ButtonToolbarProps,
   Card,
@@ -170,7 +169,7 @@ const AnswerComponent: React.FC<Props> = ({
                   (answer.expertvotes > 0 ||
                     setExpertVoteLoading ||
                     isExpert) && (
-                    <ButtonGroup className="m-1" size="sm">
+                    <Button.Group className="m-1">
                       <IconButton
                         color="primary"
                         size="sm"
@@ -199,13 +198,13 @@ const AnswerComponent: React.FC<Props> = ({
                           }
                         />
                       )}
-                    </ButtonGroup>
+                    </Button.Group>
                   )}
                 {answer &&
                   (answer.isFlagged ||
                     (answer.flagged > 0 && isAdmin) ||
                     flaggedLoading) && (
-                    <ButtonGroup className="m-1" size="sm">
+                    <Button.Group className="m-1">
                       <Button
                         color="danger"
                         leftIcon={<Icon icon={ICONS.FLAG} />}
@@ -234,7 +233,7 @@ const AnswerComponent: React.FC<Props> = ({
                           setFlagged(answer.oid, !answer.isFlagged)
                         }
                       />
-                    </ButtonGroup>
+                    </Button.Group>
                   )}
                 {answer && onSectionChanged && (
                   <Score
@@ -296,7 +295,7 @@ const AnswerComponent: React.FC<Props> = ({
             <Col xs="auto">
               {onSectionChanged && (
                 <>
-                  <ButtonGroup className="m-1">
+                  <Button.Group className="m-1">
                     {(answer === undefined || editing) && (
                       <IconButton
                         size="sm"
@@ -359,7 +358,7 @@ const AnswerComponent: React.FC<Props> = ({
                         </DropdownMenu>
                       </ButtonDropdown>
                     )}
-                  </ButtonGroup>
+                  </Button.Group>
                 </>
               )}
             </Col>

@@ -1,5 +1,4 @@
 import {
-  ButtonGroup,
   ButtonDropdown,
   Col,
   DropdownItem,
@@ -88,7 +87,7 @@ const CommentComponent: React.FC<Props> = ({
       {modals}
       <div className="float-right">
         {comment && !editing && ( // Only show button toolbar if not a draft and not editing
-          <ButtonGroup>
+          <Button.Group>
             {comment.canEdit && (
               <SmallButton
                 tooltip="Edit comment"
@@ -119,7 +118,7 @@ const CommentComponent: React.FC<Props> = ({
                 </DropdownItem>
               </DropdownMenu>
             </ButtonDropdown>
-          </ButtonGroup>
+          </Button.Group>
         )}
       </div>
       <div>

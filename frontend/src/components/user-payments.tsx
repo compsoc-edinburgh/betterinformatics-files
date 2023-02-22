@@ -1,5 +1,4 @@
-import { ListGroup, ListGroupItem } from "@vseth/components";
-import { Alert, Button, Loader } from "@mantine/core";
+import { Alert, Button, List, Loader } from "@mantine/core";
 import moment from "moment";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -51,39 +50,39 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
           <Grid>
             {payments.map(payment =>
               openPayment === payment.oid ? (
-                <ListGroup key={payment.oid} onClick={() => setOpenPayment("")}>
-                  <ListGroupItem>
+                <List key={payment.oid} onClick={() => setOpenPayment("")}>
+                  <div>
                     Payment Time:{" "}
                     {moment(
                       payment.payment_time,
                       GlobalConsts.momentParseString,
                     ).format(GlobalConsts.momentFormatString)}
-                  </ListGroupItem>
-                  <ListGroupItem>
+                  </div>
+                  <div>
                     Valid Until:{" "}
                     {moment(
                       payment.valid_until,
                       GlobalConsts.momentParseString,
                     ).format(GlobalConsts.momentFormatStringDate)}
-                  </ListGroupItem>
+                  </div>
                   {payment.refund_time && (
-                    <ListGroupItem>
+                    <div>
                       Refund Time:{" "}
                       {moment(
                         payment.refund_time,
                         GlobalConsts.momentParseString,
                       ).format(GlobalConsts.momentFormatString)}
-                    </ListGroupItem>
+                    </div>
                   )}
                   {payment.uploaded_filename && (
-                    <ListGroupItem>
-                      <Link className="text-dark" to={`/exams/${payment.uploaded_filename}`}>
+                    <div>
+                      <Link color="dark" to={`/exams/${payment.uploaded_filename}`}>
                         Uploaded Transcript
                       </Link>
-                    </ListGroupItem>
+                    </div>
                   )}
                   {isAdmin && (
-                    <ListGroupItem>
+                    <div>
                       {!payment.refund_time && (
                         <Button
                           onClick={() => refund(payment.oid)}
@@ -95,22 +94,22 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                       <Button onClick={() => remove(payment.oid)}>
                         Remove Payment
                       </Button>
-                    </ListGroupItem>
+                    </div>
                   )}
-                </ListGroup>
+                </List>
               ) : (
-                <ListGroup
+                <List
                   key={payment.oid}
                   onClick={() => setOpenPayment(payment.oid)}
                 >
-                  <ListGroupItem>
+                  <div>
                     Payment Time:{" "}
                     {moment(
                       payment.payment_time,
                       GlobalConsts.momentParseString,
                     ).format(GlobalConsts.momentFormatString)}
-                  </ListGroupItem>
-                </ListGroup>
+                  </div>
+                </List>
               ),
             )}
           </Grid>

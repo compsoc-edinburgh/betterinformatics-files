@@ -1,7 +1,8 @@
 import { css } from "@emotion/css";
 import {
   Button,
-  ButtonGroup,
+} from "@mantine/core";
+import {
   Modal,
   ModalBody,
   ModalHeader,
@@ -34,14 +35,14 @@ const EditorFooter: React.FC<Props> = ({
   return (
     <div>
       <div className={rowStyle}>
-        <ButtonGroup>
-          <Button size="sm" onClick={toggleHelp}>
+        <Button.Group>
+          <Button variant="default" size="sm" onClick={toggleHelp}>
             Supported Functions
           </Button>
-          <Button size="sm" onClick={onOpenOverlay}>
+          <Button variant="default" size="sm" onClick={onOpenOverlay}>
             Browse Images
           </Button>
-        </ButtonGroup>
+        </Button.Group>
       </div>
       <Modal isOpen={isHelpOpen} toggle={toggleHelp} className={wideModal}>
         <ModalHeader>

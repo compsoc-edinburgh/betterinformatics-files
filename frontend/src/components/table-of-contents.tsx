@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
 import {
+  Button,
+} from "@mantine/core";
+import {
   Card,
   CardHeader,
   CardBody,
-  Button,
   Row,
   Col,
 } from "@vseth/components";

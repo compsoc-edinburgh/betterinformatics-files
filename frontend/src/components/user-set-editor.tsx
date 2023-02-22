@@ -1,14 +1,16 @@
 import {
-  Button,
   Col,
   Form,
   FormGroup,
   InputField,
   Label,
-  ListGroup,
-  ListGroupItem,
   Row,
 } from "@vseth/components";
+import {
+  Button,
+  CloseButton,
+  List,
+} from "@mantine/core";
 import React, { useState } from "react";
 
 interface UserSetEditorProps {
@@ -27,14 +29,14 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
   };
   return (
     <>
-      <ListGroup>
+      <List>
         {users.map(user => (
-          <ListGroupItem key={user}>
-            <Button close onClick={() => remove(user)} />
+          <div key={user}>
+            <CloseButton onClick={() => remove(user)} />
             {user}
-          </ListGroupItem>
+          </div>
         ))}
-      </ListGroup>
+      </List>
       <Form
         onSubmit={e => {
           e.preventDefault();
@@ -55,7 +57,7 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
               <Label for="Meta 2" className="form-input-label">
                 &nbsp;
               </Label>
-              <Button block type="submit">
+              <Button fullWidth type="submit">
                 Add
               </Button>
             </FormGroup>

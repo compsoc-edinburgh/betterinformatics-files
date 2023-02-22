@@ -1,7 +1,6 @@
 import { css } from "@emotion/css";
 import {
   ButtonDropdown,
-  ButtonGroup,
   Card,
   CardFooter,
   CardHeader,
@@ -85,7 +84,7 @@ const AddButton: React.FC<AddButtonProps> = ({
     );
   } else {
     return (
-      <ButtonGroup className="text-left">
+      <Button.Group className="text-left">
         {allowAnswer && (
           <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
@@ -100,7 +99,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             Add Legacy Answer
           </Button>
         )}
-      </ButtonGroup>
+      </Button.Group>
     );
   }
 };

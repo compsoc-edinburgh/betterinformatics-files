@@ -4,9 +4,11 @@ import {
   InputField,
   FormGroup,
   ModalFooter,
-  Button,
 } from "@vseth/components";
-import { Loader } from "@mantine/core";
+import {
+  Button,
+  Loader,
+} from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -72,10 +74,10 @@ const CreateDocumentFileModal: React.FC<Props> = ({
             createDocumentFile(
               displayName,
               file ??
-                new NamedBlob(
-                  new Blob([], { type: "application/octet-stream" }),
-                  "document.md",
-                ),
+              new NamedBlob(
+                new Blob([], { type: "application/octet-stream" }),
+                "document.md",
+              ),
             )
           }
         >

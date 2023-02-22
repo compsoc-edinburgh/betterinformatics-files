@@ -1,7 +1,10 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  Alert,
   Button,
+  CloseButton,
+} from "@mantine/core";
+import {
+  Alert,
   Col,
   FormGroup,
   Input,
@@ -217,7 +220,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
 
   return (
     <>
-      <Button close onClick={toggle} />
+      <CloseButton onClick={toggle} />
       <h2>Edit Exam</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6>Metadata</h6>
@@ -360,7 +363,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
                 >
                   Current File
                 </Button>
-                <Button close onClick={() => setPrintonlyFile(undefined)} />
+                <CloseButton onClick={() => setPrintonlyFile(undefined)} />
               </div>
             ) : (
               <FileInput
@@ -386,7 +389,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
                 >
                   Current File
                 </Button>
-                <Button close onClick={() => setMasterFile(undefined)} />
+                <CloseButton onClick={() => setMasterFile(undefined)} />
               </div>
             ) : (
               <FileInput value={masterFile} onChange={e => setMasterFile(e)} />

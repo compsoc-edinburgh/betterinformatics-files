@@ -1,4 +1,7 @@
-import { Loader } from "@mantine/core";
+import {
+  Button,
+  Loader,
+} from "@mantine/core";
 import {
   ListGroupItem,
   ListGroupItemHeading,
@@ -10,7 +13,6 @@ import {
   ModalBody,
   FormGroup,
   InputField,
-  Button,
   ModalFooter,
 } from "@vseth/components";
 import {

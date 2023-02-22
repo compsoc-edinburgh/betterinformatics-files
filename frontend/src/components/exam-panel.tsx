@@ -2,7 +2,6 @@ import { css } from "@emotion/css";
 import { Button } from "@mantine/core";
 import { useDebounceFn } from "@umijs/hooks";
 import {
-  ButtonGroup,
   Col,
   FormGroup,
   Input,
@@ -167,7 +166,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           onChange={handler}
         />
         <h6 className="my-3 mx-2">Actions</h6>
-        <ButtonGroup>
+        <Button.Group>
           <IconButton
             tooltip="Report problem"
             iconName={ICONS.MESSAGE}
@@ -192,7 +191,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
               onClick={onCollapseAllSections}
             />
           )}
-        </ButtonGroup>
+        </Button.Group>
 
         {canEdit && (
           <>

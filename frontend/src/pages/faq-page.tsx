@@ -3,7 +3,6 @@ import {
   CardBody,
   CardFooter,
   Col,
-  Container,
   Input,
   Row,
 } from "@vseth/components";
@@ -21,7 +20,10 @@ import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
 import { Icon, ICONS } from "vseth-canine-ui";
-import { Button } from "@mantine/core";
+import {
+  Button,
+  Container,
+} from "@mantine/core";
 const newButtonStyle = css`
   min-height: 3em;
 `;
@@ -49,7 +51,7 @@ export const FAQPage: React.FC = () => {
   };
 
   return (
-    <Container>
+    <Container size="xl">
       <div>
         <h1>FAQs</h1>
         <p>

@@ -1,13 +1,15 @@
 import {
   Alert,
   Button,
+  CloseButton,
+  List,
+} from "@mantine/core";
+import {
   Col,
   Creatable,
   Form,
   FormGroup,
   Label,
-  ListGroup,
-  ListGroupItem,
   Row,
 } from "@vseth/components";
 import React, { useMemo, useState } from "react";
@@ -41,8 +43,8 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
     () =>
       data && newMeta1.length > 0
         ? data
-            .find(m => m.displayname === newMeta1)
-            ?.meta2.map(m => ({ value: m.displayname, label: m.displayname }))
+          .find(m => m.displayname === newMeta1)
+          ?.meta2.map(m => ({ value: m.displayname, label: m.displayname }))
         : undefined,
     [data, newMeta1],
   );
@@ -61,14 +63,14 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   return (
     <>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <ListGroup>
+      <List>
         {offeredIn.map(([meta1, meta2]) => (
-          <ListGroupItem key={`${meta1}-${meta2}`}>
-            <Button close onClick={() => onRemove(meta1, meta2)} />
+          <p key={`${meta1}-${meta2}`}>
+            <CloseButton onClick={() => onRemove(meta1, meta2)} />
             {meta1} {meta2}
-          </ListGroupItem>
+          </p>
         ))}
-      </ListGroup>
+      </List>
       <Form
         onSubmit={e => {
           e.preventDefault();
@@ -118,7 +120,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
               <Label for="Meta 2" className="form-input-label">
                 &nbsp;
               </Label>
-              <Button block type="submit">
+              <Button fullWidth type="submit">
                 Add
               </Button>
             </FormGroup>

@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import { ButtonGroup, Card, CardBody, Input, Col } from "@vseth/components";
+import { Card, CardBody, Input, Col } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
@@ -95,7 +95,7 @@ const FAQEntryComponent: React.FC<Props> = ({
               )}
             </Col>
             <Col xs="auto">
-              <ButtonGroup size="sm">
+              <Button.Group>
                 <IconButton
                   tooltip="Move up"
                   iconName={ICONS.ARROW_UP}
@@ -123,7 +123,7 @@ const FAQEntryComponent: React.FC<Props> = ({
                     Cancel
                   </Button>
                 )}
-              </ButtonGroup>
+              </Button.Group>
             </Col>
           </div>
         )}

@@ -1,7 +1,8 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Button,
-  ButtonGroup,
+} from "@mantine/core";
+import {
   Card,
   CardBody,
   CardHeader,
@@ -40,7 +41,7 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
             GlobalConsts.momentFormatString,
           )}
         </h6>
-        <ButtonGroup>
+        <Button.Group>
           <Button
             color={entry.done ? "secondary" : "primary"}
             onClick={() => runSetFlag("done", !entry.done)}
@@ -53,7 +54,7 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
           >
             {entry.read ? "Set Unread" : "Set Read"}
           </Button>
-        </ButtonGroup>
+        </Button.Group>
       </CardHeader>
       <CardBody>{wrapText(entry.text)}</CardBody>
     </Card>

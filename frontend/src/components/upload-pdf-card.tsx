@@ -1,8 +1,10 @@
 import { Loader } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
-  Alert,
   Button,
+} from "@mantine/core";
+import {
+  Alert,
   Card,
   CardBody,
   CardHeader,
