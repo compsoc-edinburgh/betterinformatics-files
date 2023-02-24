@@ -9,13 +9,12 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Input,
   InputGroup,
   InputGroupButtonDropdown,
   Row,
   UncontrolledDropdown,
 } from "@vseth/components";
-import { Loader, Button, Container } from "@mantine/core";
+import { Loader, Button, Container, TextInput } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
@@ -219,8 +218,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
               <CardFooter>
                 {isEditingName ? (
                   <InputGroup size="sm">
-                    <Input
-                      type="text"
+                    <TextInput
                       value={draftName}
                       placeholder="Name"
                       onChange={e => setDraftName(e.target.value)}

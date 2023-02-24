@@ -1,14 +1,15 @@
-import { Loader } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
 import {
   Alert,
+  Grid,
+  Loader,
+} from "@mantine/core";
+import { useRequest } from "@umijs/hooks";
+import {
   Card,
   CardBody,
   CardHeader,
-  Col,
   Form,
   FormGroup,
-  Row,
   Select,
 } from "@vseth/components";
 import {
@@ -92,15 +93,15 @@ const UploadTranscriptCard: React.FC<{}> = () => {
               required
             />
           </FormGroup>
-          <Row form>
-            <Col md={4}>
+          <Grid>
+            <Grid.Col md={4}>
               <FormGroup>
                 <Button color="primary" type="submit" disabled={loading}>
                   {uploadLoading ? <Loader /> : "Submit"}
                 </Button>
               </FormGroup>
-            </Col>
-          </Row>
+            </Grid.Col>
+          </Grid>
         </Form>
       </CardBody>
     </Card>

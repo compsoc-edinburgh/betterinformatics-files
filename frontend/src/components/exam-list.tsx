@@ -1,6 +1,10 @@
-import { Button, Loader } from "@mantine/core";
+import {
+  Alert,
+  Button,
+  Loader,
+} from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { Alert, Col, FormGroup, Row } from "@vseth/components";
+import { Col, FormGroup, Row } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";

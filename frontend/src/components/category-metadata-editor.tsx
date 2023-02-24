@@ -5,14 +5,15 @@ import {
   InputField,
   Row,
   Select,
-  TextareaField,
-  Input,
-  Label,
 } from "@vseth/components";
 import {
   Alert,
   Button,
+  Checkbox,
   CloseButton,
+  Grid,
+  Textarea,
+  TextInput,
 } from "@mantine/core"
 import React from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -247,28 +248,26 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <h2>Edit Category</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6 className="mb-3 mt-4">Metadata</h6>
-      <InputField type="url" label="Name" {...registerInput("displayname")} />
-      <Row form>
-        <Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Semester</label>
-            <Select
-              options={options(semesterOptions)}
-              value={
-                semesterOptions[
-                formState.semester as keyof typeof semesterOptions
-                ]
-              }
-              onChange={(option: any) =>
-                setFormValue(
-                  "semester",
-                  (option as SelectOption<typeof semesterOptions>).value,
-                )
-              }
-            />
-          </FormGroup>
-        </Col>
-        <Col md={6}>
+      <TextInput label="Name" {...registerInput("displayname")} />
+      <Grid>
+        <Grid.Col md={6}>
+          <label className="form-input-label">Semester</label>
+          <Select
+            options={options(semesterOptions)}
+            value={
+              semesterOptions[
+              formState.semester as keyof typeof semesterOptions
+              ]
+            }
+            onChange={(option: any) =>
+              setFormValue(
+                "semester",
+                (option as SelectOption<typeof semesterOptions>).value,
+              )
+            }
+          />
+        </Grid.Col>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">Form</label>
             <Select
@@ -282,11 +281,11 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               }
             />
           </FormGroup>
-        </Col>
-      </Row>
-      <TextareaField label="Remark" textareaProps={registerInput("remark")} />
-      <Row form>
-        <Col md={6}>
+        </Grid.Col>
+      </Grid>
+      <Textarea label="Remark" />
+      <Grid>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">Permission</label>
             <Select
@@ -304,26 +303,20 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               }
             />
           </FormGroup>
-        </Col>
-        <Col md={6}>
+        </Grid.Col>
+        <Grid.Col md={6}>
           <InputField
             type="url"
             label="More Exams Link"
             {...registerInput("more_exams_link")}
           />
-        </Col>
-      </Row>
-      <FormGroup check>
-        <Input
-          type="checkbox"
-          name="check"
-          id="Has Payments"
-          {...registerCheckbox("has_payments")}
-        />
-        <Label for="Has Payments" check>
-          Has Payments
-        </Label>
-      </FormGroup>
+        </Grid.Col>
+      </Grid>
+      <Checkbox
+        name="check"
+        label="Has Payments"
+        {...registerCheckbox("has_payments")}
+      />
       <h6 className="mb-3 mt-4">Attachments</h6>
       <AttachmentsEditor
         attachments={formState.attachments}

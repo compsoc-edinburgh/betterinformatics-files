@@ -25,16 +25,22 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
       <Card.Section>
         <Breadcrumbs className={noMarginBreadcrumb}>
           <Anchor
-            href={`/category/${comment.category_slug}`}
+            component={Link}
+            to={`/category/${comment.category_slug}`}
             className="text-primary"
           >
             {comment.category_displayname}
           </Anchor>
-          <Anchor href={`/exams/${comment.filename}`} className="text-primary">
+          <Anchor
+            component={Link}
+            to={`/exams/${comment.filename}`}
+            className="text-primary"
+          >
             {comment.exam_displayname}
           </Anchor>
           <Anchor
-            href={`/exams/${comment.filename}#${comment.answerId}`}
+            component={Link}
+            to={`/exams/${comment.filename}#${comment.answerId}`}
             className="text-primary"
           >
             Comment

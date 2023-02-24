@@ -1,15 +1,14 @@
 import {
-  Col,
   Form,
   FormGroup,
-  InputField,
   Label,
-  Row,
 } from "@vseth/components";
 import {
   Button,
   CloseButton,
+  Grid,
   List,
+  TextInput,
 } from "@mantine/core";
 import React, { useState } from "react";
 
@@ -43,16 +42,15 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
           onAdd();
         }}
       >
-        <Row form className="mt-2">
-          <Col>
-            <InputField
-              type="text"
+        <Grid className="mt-2">
+          <Grid.Col>
+            <TextInput
               label="Name"
               value={username}
               onChange={e => setUsername(e.currentTarget.value)}
             />
-          </Col>
-          <Col md={2}>
+          </Grid.Col>
+          <Grid.Col md={2}>
             <FormGroup>
               <Label for="Meta 2" className="form-input-label">
                 &nbsp;
@@ -61,8 +59,8 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
                 Add
               </Button>
             </FormGroup>
-          </Col>
-        </Row>
+          </Grid.Col>
+        </Grid>
       </Form>
     </>
   );

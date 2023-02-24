@@ -1,9 +1,9 @@
 import {
   Button,
   Loader,
+  TextInput,
 } from "@mantine/core";
 import {
-  InputField,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -30,9 +30,8 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
     <>
       <ModalHeader toggle={toggle}>Add Document</ModalHeader>
       <ModalBody>
-        <InputField
+        <TextInput
           label="Display Name"
-          type="text"
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />

@@ -1,5 +1,6 @@
 import {
   Button,
+  Grid,
 } from "@mantine/core";
 import {
   Card,
@@ -8,8 +9,6 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
-  Row,
-  Col,
 } from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
@@ -48,11 +47,11 @@ const ImageModal: React.FC<ModalProps> = ({
     <Modal size="lg" isOpen={isOpen} toggle={toggle}>
       <ModalHeader toggle={toggle}>Images</ModalHeader>
       <ModalBody>
-        <Row>
-          <Col>
+        <Grid>
+          <Grid.Col>
             <FileInput value={file} onChange={setFile} accept="image/*" />
-          </Col>
-          <Col xs="auto">
+          </Grid.Col>
+          <Grid.Col xs="auto">
             <Button
               onClick={() => {
                 if (file) {
@@ -64,8 +63,8 @@ const ImageModal: React.FC<ModalProps> = ({
             >
               Upload
             </Button>
-          </Col>
-        </Row>
+          </Grid.Col>
+        </Grid>
 
         <div className="text-right">
           <Button className="mt-1 mr-1" onClick={reload}>

@@ -1,5 +1,7 @@
 import {
   Badge,
+} from "@mantine/core";
+import {
   NavbarBrand,
   VSETHNavbar as Navbar,
   NavLinkProps,

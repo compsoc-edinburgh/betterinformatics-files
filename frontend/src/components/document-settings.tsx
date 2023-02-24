@@ -2,11 +2,11 @@ import {
   Button,
   List,
   Loader,
+  TextInput,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
   FormGroup,
-  InputField,
   Modal,
   ModalBody,
   ModalFooter,
@@ -100,7 +100,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
       </Modal>
       {data.can_edit && (
         <>
-          <InputField
+          <TextInput
             label="Display Name"
             value={displayName ?? data.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}

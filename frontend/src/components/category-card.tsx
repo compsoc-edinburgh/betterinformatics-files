@@ -1,4 +1,4 @@
-import { Card, Stack, Progress } from "@mantine/core";
+import { Card, Text, Progress, Anchor } from "@mantine/core";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
@@ -26,33 +26,32 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
-      <Stack mb="sm" spacing="sm">
-        <Link
-          to={`/category/${category.slug}`}
-          onClick={e => {
-            if (!authenticated()) {
-              e.preventDefault();
-              login(`/category/${category.slug}`);
-            }
-          }}
-          className="stretched-link text-dark"
-	  tabIndex={-1}
-        >
-          <h5>
-            {"match" in category
-              ? highlight(category.displayname, category.match)
-              : category.displayname}
-          </h5>
-        </Link>
-        <div>
-          Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
-        </div>
-        <div>Answers: {((category.answerprogress * 100) | 0).toString()} %</div>
-      </Stack>
-      <Card.Section>
-        <Progress radius={0} value={category.answerprogress * 100} />
-      </Card.Section>
-    </Card>
+      <Anchor
+        component={Link}
+        to={`/category/${category.slug}`}
+        onClick={e => {
+          if (!authenticated()) {
+            e.preventDefault();
+            login(`/category/${category.slug}`);
+          }
+        }}
+        weight={700}
+        size="xl"
+        className="stretched-link"
+        tabIndex={-1}
+      >
+        {"match" in category
+          ? highlight(category.displayname, category.match)
+          : category.displayname}
+      </Anchor>
+      <Text mt="sm">
+        Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
+      </Text>
+      <Text>
+        Answers: {((category.answerprogress * 100) | 0).toString()} %
+      </Text>
+      <Progress radius={0} value={category.answerprogress * 100} mt="sm" />
+    </Card >
   );
 };
 export default CategoryCard;

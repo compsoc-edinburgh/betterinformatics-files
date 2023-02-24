@@ -2,15 +2,14 @@ import {
   Alert,
   Button,
   CloseButton,
+  Grid,
   List,
 } from "@mantine/core";
 import {
-  Col,
   Creatable,
   Form,
   FormGroup,
   Label,
-  Row,
 } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { useMetaCategories } from "../api/hooks";
@@ -77,8 +76,8 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
           onAdd();
         }}
       >
-        <Row form className="mt-2">
-          <Col>
+        <Grid className="mt-2">
+          <Grid.Col>
             {data && (
               <FormGroup>
                 <Label for="Meta 1" className="form-input-label">
@@ -96,8 +95,8 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
                 />
               </FormGroup>
             )}
-          </Col>
-          <Col>
+          </Grid.Col>
+          <Grid.Col>
             {data && (
               <FormGroup>
                 <Label for="Meta 2" className="form-input-label">
@@ -114,8 +113,8 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
                 />
               </FormGroup>
             )}
-          </Col>
-          <Col md={2}>
+          </Grid.Col>
+          <Grid.Col md={2}>
             <FormGroup>
               <Label for="Meta 2" className="form-input-label">
                 &nbsp;
@@ -124,8 +123,8 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
                 Add
               </Button>
             </FormGroup>
-          </Col>
-        </Row>
+          </Grid.Col>
+        </Grid>
       </Form>
     </>
   );

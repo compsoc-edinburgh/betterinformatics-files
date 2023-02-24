@@ -206,7 +206,7 @@ const App: React.FC<{}> = () => {
               >
                 <div>
                   {/* <ExamsNavbar /> */}
-                  <main className="main__container pb-5">
+                  <main className="main__container py-5">
                     <Switch>
                       <UserRoute exact path="/" component={HomePage} />
                       <Route exact path="/login" component={LoginPage} />
@@ -258,7 +258,7 @@ const App: React.FC<{}> = () => {
                     </Switch>
                   </main>
                 </div>
-                <div className="py-3">
+                {/* <div className="py-3">
                   <Container>
                     <img src="https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg" height={32} alt="VSETH Logo" />
                     <div className="bg-primary my-3" style={{ height: 2 }} />
@@ -304,7 +304,7 @@ const App: React.FC<{}> = () => {
                       </div>
                     </Group>
                   </Container>
-                </div>
+                </div> */}
               </div>
             </SetUserContext.Provider>
           </UserContext.Provider>

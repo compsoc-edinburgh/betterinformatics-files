@@ -1,18 +1,15 @@
-import { Loader } from "@mantine/core";
+import { Grid, Loader, TextInput } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
+  Alert,
   Button,
 } from "@mantine/core";
 import {
-  Alert,
   Card,
   CardBody,
   CardHeader,
-  Col,
   Form,
   FormGroup,
-  InputField,
-  Row,
   Select,
 } from "@vseth/components";
 import React, { useMemo, useState } from "react";
@@ -73,9 +70,8 @@ const UploadPdfCard: React.FC<{}> = () => {
               accept="application/pdf"
             />
           </FormGroup>
-          <InputField
+          <TextInput
             label="Name"
-            type="text"
             placeholder="Name"
             value={displayname}
             onChange={e => setDisplayname(e.currentTarget.value)}
@@ -90,15 +86,15 @@ const UploadPdfCard: React.FC<{}> = () => {
               required
             />
           </FormGroup>
-          <Row form>
-            <Col md={4}>
+          <Grid>
+            <Grid.Col md={4}>
               <FormGroup>
                 <Button color="primary" type="submit" disabled={loading}>
                   {uploadLoading ? <Loader /> : "Submit"}
                 </Button>
               </FormGroup>
-            </Col>
-          </Row>
+            </Grid.Col>
+          </Grid>
         </Form>
       </CardBody>
     </Card>

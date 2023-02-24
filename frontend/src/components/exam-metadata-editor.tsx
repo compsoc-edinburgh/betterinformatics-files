@@ -1,18 +1,19 @@
 import { useRequest } from "@umijs/hooks";
 import {
+  Alert,
   Button,
+  Checkbox,
   CloseButton,
+  Grid,
+  TextInput,
 } from "@mantine/core";
 import {
-  Alert,
   Col,
   FormGroup,
   Input,
-  Label,
   Row,
   Select,
   TextareaField,
-  InputField,
   Creatable,
 } from "@vseth/components";
 import React from "react";
@@ -224,24 +225,22 @@ const ExamMetadataEditor: React.FC<Props> = ({
       <h2>Edit Exam</h2>
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <h6>Metadata</h6>
-      <Row form>
-        <Col md={6}>
-          <InputField
-            type="text"
+      <Grid>
+        <Grid.Col md={6}>
+          <TextInput
             label="Display name"
             {...registerInput("displayname")}
           />
-        </Col>
-        <Col md={6}>
-          <InputField
-            type="text"
+        </Grid.Col>
+        <Grid.Col md={6}>
+          <TextInput
             label="Resolve Alias"
             {...registerInput("resolve_alias")}
           />
-        </Col>
-      </Row>
-      <Row form>
-        <Col md={6}>
+        </Grid.Col>
+      </Grid>
+      <Grid>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">Category</label>
             <Select
@@ -255,8 +254,8 @@ const ExamMetadataEditor: React.FC<Props> = ({
               required
             />
           </FormGroup>
-        </Col>
-        <Col md={6}>
+        </Grid.Col>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">Exam type</label>
             <Creatable
@@ -271,83 +270,59 @@ const ExamMetadataEditor: React.FC<Props> = ({
               }
             />
           </FormGroup>
-        </Col>
-      </Row>
-      <Row form>
-        <Col md={6}>
-          <FormGroup check>
-            <Input
-              type="checkbox"
-              name="check"
-              id="isPublic"
-              {...registerCheckbox("public")}
-            />
-            <Label for="isPublic" check>
-              Public
-            </Label>
-          </FormGroup>
-        </Col>
-        <Col md={6}>
-          <FormGroup check>
-            <Input
-              type="checkbox"
-              name="check"
-              id="needsPayment"
-              {...registerCheckbox("needs_payment")}
-            />
-            <Label for="needsPayment" check>
-              Needs Payment
-            </Label>
-          </FormGroup>
-        </Col>
-      </Row>
-      <Row form>
-        <Col md={6}>
-          <FormGroup check>
-            <Input
-              type="checkbox"
-              name="check"
-              id="cuts"
-              {...registerCheckbox("finished_cuts")}
-            />
-            <Label for="cuts" check>
-              Finished Cuts
-            </Label>
-          </FormGroup>
-        </Col>
-        <Col md={6}>
-          <FormGroup check>
-            <Input
-              type="checkbox"
-              label="Finished Wiki Transfer"
-              name="check"
-              id="wiki"
-              {...registerCheckbox("finished_wiki_transfer")}
-            />
-            <Label for="wiki" check>
-              Finished Wiki Transfer
-            </Label>
-          </FormGroup>
-        </Col>
-      </Row>
-      <Row form>
-        <Col md={6}>
+        </Grid.Col>
+      </Grid>
+      <Grid>
+        <Grid.Col md={6}>
+          <Checkbox
+            name="check"
+            label="Public"
+            {...registerCheckbox("public")}
+          />
+        </Grid.Col>
+        <Grid.Col md={6}>
+          <Checkbox
+            name="check"
+            id="needsPayment"
+            label="Needs Payment"
+            {...registerCheckbox("needs_payment")}
+          />
+        </Grid.Col>
+      </Grid>
+      <Grid>
+        <Grid.Col md={6}>
+          <Checkbox
+            name="check"
+            label="Finished Cuts"
+            {...registerCheckbox("finished_cuts")}
+          />
+        </Grid.Col>
+        <Grid.Col md={6}>
+          <Checkbox
+            label="Finished Wiki Transfer"
+            name="check"
+            {...registerCheckbox("finished_wiki_transfer")}
+          />
+        </Grid.Col>
+      </Grid>
+      <Grid>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">Legacy Solution</label>
             <Input type="url" {...registerInput("legacy_solution")} />
           </FormGroup>
-        </Col>
-        <Col md={6}>
+        </Grid.Col>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">
               Master Solution <i>(extern)</i>
             </label>
             <Input type="url" {...registerInput("master_solution")} />
           </FormGroup>
-        </Col>
-      </Row>
-      <Row form>
-        <Col md={6}>
+        </Grid.Col>
+      </Grid>
+      <Grid>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">Print Only File</label>
             {printonlyFile === true ? (
@@ -372,8 +347,8 @@ const ExamMetadataEditor: React.FC<Props> = ({
               />
             )}
           </FormGroup>
-        </Col>
-        <Col md={6}>
+        </Grid.Col>
+        <Grid.Col md={6}>
           <FormGroup>
             <label className="form-input-label">Master Solution</label>
             {masterFile === true ? (
@@ -395,8 +370,8 @@ const ExamMetadataEditor: React.FC<Props> = ({
               <FileInput value={masterFile} onChange={e => setMasterFile(e)} />
             )}
           </FormGroup>
-        </Col>
-      </Row>
+        </Grid.Col>
+      </Grid>
       <TextareaField label="Remark" textareaProps={registerInput("remark")} />
       <h6>Attachments</h6>
       <AttachmentsEditor

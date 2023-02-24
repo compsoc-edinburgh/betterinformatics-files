@@ -80,12 +80,13 @@ const DocumentPage: React.FC<Props> = () => {
     <>
       <Container>
         <Breadcrumbs>
-          <Anchor className="text-primary" href="/">
+          <Anchor component={Link} className="text-primary" to="/">
             Home
           </Anchor>
           <Anchor
+            component={Link}
             className="text-primary"
-            href={`/category/${data ? data.category : ""}`}
+            to={`/category/${data ? data.category : ""}`}
           >
             {data && data.category_display_name}
           </Anchor>

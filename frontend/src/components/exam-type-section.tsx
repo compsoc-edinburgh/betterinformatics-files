@@ -1,5 +1,6 @@
 import { useRequest } from "@umijs/hooks";
 import {
+  Anchor,
   Badge,
   Card,
   Checkbox,
@@ -110,18 +111,20 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 />
               </Grid.Col>
               <Grid.Col span="auto">
-                <h6 className="mb-1">
-                  {exam.canView ? (
-                    <Link
-                      to={`/exams/${exam.filename}`}
-                      className="text-dark stretched-link"
-                    >
-                      {exam.displayname}
-                    </Link>
-                  ) : (
-                    exam.displayname
-                  )}
-                </h6>
+                {exam.canView ? (
+                  <Anchor
+                    component={Link}
+                    to={`/exams/${exam.filename}`}
+                    className="text-dark stretched-link"
+                    size="lg"
+                    weight={600}
+                    mb="sm"
+                  >
+                    {exam.displayname}
+                  </Anchor>
+                ) : (
+                  exam.displayname
+                )}
                 <div>
                   {exam.remark && (
                     <div className="text-meta">{exam.remark}</div>

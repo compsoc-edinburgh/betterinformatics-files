@@ -3,7 +3,6 @@ import {
   CardBody,
   CardFooter,
   Col,
-  Input,
   Row,
 } from "@vseth/components";
 import { css } from "@emotion/css";
@@ -23,6 +22,7 @@ import { Icon, ICONS } from "vseth-canine-ui";
 import {
   Button,
   Container,
+  TextInput,
 } from "@mantine/core";
 const newButtonStyle = css`
   min-height: 3em;
@@ -79,8 +79,7 @@ export const FAQPage: React.FC = () => {
         <Card className="my-2">
           <CardBody>
             <h4>
-              <Input
-                type="text"
+              <TextInput
                 placeholder="Question"
                 value={question}
                 onChange={e => setQuestion(e.target.value)}

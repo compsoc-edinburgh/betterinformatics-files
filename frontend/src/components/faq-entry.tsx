@@ -1,5 +1,5 @@
-import { Button } from "@mantine/core";
-import { Card, CardBody, Input, Col } from "@vseth/components";
+import { Button, TextInput } from "@mantine/core";
+import { Card, CardBody, Col } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
@@ -58,8 +58,7 @@ const FAQEntryComponent: React.FC<Props> = ({
             />
           )}
           {editing ? (
-            <Input
-              type="text"
+            <TextInput
               placeholder="Question"
               value={question}
               onChange={e => setQuestion(e.target.value)}

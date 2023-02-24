@@ -1,18 +1,14 @@
 import { css } from "@emotion/css";
-import { Button } from "@mantine/core";
+import { Button, Checkbox, Grid } from "@mantine/core";
 import { useDebounceFn } from "@umijs/hooks";
 import {
-  Col,
-  FormGroup,
   Input,
-  Label,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Pagination,
   PaginationItem,
   PaginationLink,
-  Row,
 } from "@vseth/components";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
@@ -196,9 +192,9 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         {canEdit && (
           <>
             <h6 className="my-3 mx-2">Edit Mode</h6>
-            <Row form>
+            <Grid>
               {editState.mode !== EditMode.None && (
-                <Col xs="auto">
+                <Grid.Col xs="auto">
                   <Button
                     size="sm"
                     onClick={() => setEditState({ mode: EditMode.None })}
@@ -206,10 +202,10 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                   >
                     Stop Editing
                   </Button>
-                </Col>
+                </Grid.Col>
               )}
               {editState.mode !== EditMode.Add && (
-                <Col xs="auto">
+                <Grid.Col xs="auto">
                   <Button
                     size="sm"
                     onClick={() =>
@@ -222,84 +218,54 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                   >
                     Add Cuts
                   </Button>
-                </Col>
+                </Grid.Col>
               )}
-            </Row>
+            </Grid>
             <div className="my-1">
               {editState.mode !== EditMode.None && (
-                <FormGroup check>
-                  <Input
-                    type="checkbox"
-                    name="check"
-                    id="snap"
-                    checked={editState.snap}
-                    onChange={e =>
-                      setEditState({ ...editState, snap: e.target.checked })
-                    }
-                  />
-                  <Label for="snap" check>
-                    Snap
-                  </Label>
-                </FormGroup>
+                <Checkbox
+                  name="check"
+                  label="Snap"
+                  checked={editState.snap}
+                  onChange={e =>
+                    setEditState({ ...editState, snap: e.target.checked })
+                  }
+                />
               )}
             </div>
             <h6 className="my-3 mx-2">Display Options</h6>
-            <FormGroup check>
-              <Input
-                type="checkbox"
-                name="check"
-                id="displayHiddenPdfSections"
-                checked={displayOptions.displayHiddenPdfSections}
-                onChange={e =>
-                  setOption("displayHiddenPdfSections", e.target.checked)
-                }
-              />
-              <Label for="displayHiddenPdfSections" check>
-                Display hidden PDF sections
-              </Label>
-            </FormGroup>
-            <FormGroup check>
-              <Input
-                type="checkbox"
-                name="check"
-                id="displayHiddenAnswerSections"
-                checked={displayOptions.displayHiddenAnswerSections}
-                onChange={e =>
-                  setOption("displayHiddenAnswerSections", e.target.checked)
-                }
-              />
-              <Label for="displayHiddenAnswerSections" check>
-                Display hidden answer sections
-              </Label>
-            </FormGroup>
-            <FormGroup check>
-              <Input
-                type="checkbox"
-                name="check"
-                id="displayHideShowButtons"
-                checked={displayOptions.displayHideShowButtons}
-                onChange={e =>
-                  setOption("displayHideShowButtons", e.target.checked)
-                }
-              />
-              <Label for="displayHideShowButtons" check>
-                Display Hide / Show buttons
-              </Label>
-            </FormGroup>
-            <FormGroup check>
-              <Input
-                type="checkbox"
-                name="check"
-                id="displayEmptyCutLabels"
-                checked={displayOptions.displayEmptyCutLabels}
-                onChange={e =>
-                  setOption("displayEmptyCutLabels", e.target.checked)
-                }
-              />
-              <Label for="displayEmptyCutLabels" check>
-                Display empty cut labels
-              </Label>
-            </FormGroup>
+            <Checkbox
+              name="check"
+              label="Display hidden PDF sections"
+              checked={displayOptions.displayHiddenPdfSections}
+              onChange={e =>
+                setOption("displayHiddenPdfSections", e.target.checked)
+              }
+            />
+            <Checkbox
+              name="check"
+              label="Display hidden answer sections"
+              checked={displayOptions.displayHiddenAnswerSections}
+              onChange={e =>
+                setOption("displayHiddenAnswerSections", e.target.checked)
+              }
+            />
+            <Checkbox
+              name="check"
+              label="Display Hide / Show buttons"
+              checked={displayOptions.displayHideShowButtons}
+              onChange={e =>
+                setOption("displayHideShowButtons", e.target.checked)
+              }
+            />
+            <Checkbox
+              name="check"
+              label="Display empty cut labels"
+              checked={displayOptions.displayEmptyCutLabels}
+              onChange={e =>
+                setOption("displayEmptyCutLabels", e.target.checked)
+              }
+            />
           </>
         )}
       </ModalBody>

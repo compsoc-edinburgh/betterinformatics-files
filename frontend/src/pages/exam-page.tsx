@@ -9,7 +9,7 @@ import {
   Grid,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
 import {
@@ -436,11 +436,12 @@ const ExamPage: React.FC<{}> = () => {
     <div>
       <Container>
         <Breadcrumbs separator=">">
-          <Anchor className="text-primary" href="/">
+          <Anchor component={Link} className="text-primary" to="/">
             Home
           </Anchor>
           <Anchor
-            href={`/category/${metaData ? metaData.category : ""}`}
+            component={Link}
+            to={`/category/${metaData ? metaData.category : ""}`}
             className="text-primary"
           >
             {metaData && metaData.category_displayname}
@@ -493,7 +494,7 @@ const ExamPage: React.FC<{}> = () => {
           </Container>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 export default ExamPage;

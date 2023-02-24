@@ -1,18 +1,17 @@
 import {
   Button,
+  Grid,
   Loader,
+  TextInput,
 } from "@mantine/core";
 import {
   ListGroupItem,
   ListGroupItemHeading,
   ListGroupItemText,
-  Row,
-  Col,
   ModalHeader,
   Modal,
   ModalBody,
   FormGroup,
-  InputField,
   ModalFooter,
 } from "@vseth/components";
 import {
@@ -74,9 +73,8 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           Edit "{file.display_name}"
         </ModalHeader>
         <ModalBody>
-          <InputField
+          <TextInput
             label="Display Name"
-            type="text"
             value={displayName ?? file.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
@@ -156,22 +154,22 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             <Badge>{file.mime_type}</Badge>
           </ListGroupItemText>
         </div>
-        <Row form>
-          <Col xs="auto">
+        <Grid>
+          <Grid.Col xs="auto">
             <IconButton
               iconName={ICONS.KEY}
               onClick={toggleKeyIsOpen}
               tooltip="View access token"
             />
-          </Col>
-          <Col xs="auto">
+          </Grid.Col>
+          <Grid.Col xs="auto">
             <IconButton
               iconName={ICONS.EDIT}
               onClick={toggleEditIsOpen}
               tooltip="Edit file"
             />
-          </Col>
-          <Col xs="auto">
+          </Grid.Col>
+          <Grid.Col xs="auto">
             <IconButton
               iconName={ICONS.DELETE}
               color="danger"
@@ -179,8 +177,8 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               loading={deleteLoading}
               tooltip="Delete file"
             />
-          </Col>
-        </Row>
+          </Grid.Col>
+        </Grid>
       </ListGroupItem>
     </>
   );

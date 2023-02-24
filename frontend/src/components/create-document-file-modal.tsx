@@ -1,13 +1,13 @@
 import {
   ModalHeader,
   ModalBody,
-  InputField,
   FormGroup,
   ModalFooter,
 } from "@vseth/components";
 import {
   Button,
   Loader,
+  TextInput,
 } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
@@ -47,9 +47,8 @@ const CreateDocumentFileModal: React.FC<Props> = ({
     <>
       <ModalHeader toggle={loading ? undefined : toggle}>Add File</ModalHeader>
       <ModalBody>
-        <InputField
+        <TextInput
           label="Display Name"
-          type="text"
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
