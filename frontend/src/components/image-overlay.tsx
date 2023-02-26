@@ -1,11 +1,11 @@
 import {
   Button,
+  Card,
   Grid,
+  Image,
+  SimpleGrid,
 } from "@mantine/core";
 import {
-  Card,
-  CardColumns,
-  CardImg,
   Modal,
   ModalBody,
   ModalHeader,
@@ -15,12 +15,6 @@ import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
 import { css } from "@emotion/css";
-const columnStyle = css`
-  column-gap: 0;
-  grid-column-gap: 0;
-  margin: 0 -0.75em;
-  padding-top: 1em;
-`;
 const cardWrapperStyle = css`
   padding: 0 0.75em;
 `;
@@ -80,7 +74,7 @@ const ImageModal: React.FC<ModalProps> = ({
           </Button>
         </div>
 
-        <CardColumns className={columnStyle}>
+        <SimpleGrid cols={3}>
           {images &&
             images.map(image => (
               <div key={image} className={cardWrapperStyle}>
@@ -97,11 +91,12 @@ const ImageModal: React.FC<ModalProps> = ({
                         : setSelected(image)
                   }
                 >
-                  <CardImg
-                    width="100%"
-                    src={`/api/image/get/${image}/`}
-                    alt={image}
-                  />
+                  <Card.Section
+                  >
+                    <Image
+                      src={`/api/image/get/${image}/`}
+                      alt={image} />
+                  </Card.Section>
                   {selected.has(image) && selected.size === 1 && (
                     <div className="position-absolute position-bottom-right">
                       <Button
@@ -115,7 +110,7 @@ const ImageModal: React.FC<ModalProps> = ({
                 </Card>
               </div>
             ))}
-        </CardColumns>
+        </SimpleGrid>
       </ModalBody>
     </Modal>
   );

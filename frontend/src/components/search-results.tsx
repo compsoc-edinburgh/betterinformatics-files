@@ -1,9 +1,9 @@
 import {
   Badge,
+  Breadcrumbs,
+  Group,
 } from "@mantine/core";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
   Card,
   CardColumns,
   Col,
@@ -75,26 +75,17 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           return (
             <div className="px-2" key={`exam-${result.filename}`}>
               <Card className="mb-3 px-3 pb-3 pt-2 position-static">
-                <Row>
-                  <Col
-                    xs="auto"
-                    className="d-flex flex-column justify-content-center"
-                  >
-                    <Badge>Exam</Badge>
-                  </Col>
-                  <Col xs="auto">
-                    <Breadcrumb className={noMarginBreadcrumb}>
-                      <BreadcrumbItem>
-                        <Link
-                          to={`/category/${result.category_slug}`}
-                          className="text-primary"
-                        >
-                          {result.category_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                    </Breadcrumb>
-                  </Col>
-                </Row>
+                <Group>
+                  <Badge>Exam</Badge>
+                  <Breadcrumbs className={noMarginBreadcrumb}>
+                    <Link
+                      to={`/category/${result.category_slug}`}
+                      className="text-primary"
+                    >
+                      {result.category_displayname}
+                    </Link>
+                  </Breadcrumbs>
+                </Group>
                 <h6>
                   <Link
                     to={`/exams/${result.filename}/`}
@@ -139,34 +130,23 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           return (
             <div className="px-2" key={`answer-${result.long_id}`}>
               <Card className="mb-3 px-3 pb-3 pt-2 position-static">
-                <Row>
-                  <Col
-                    xs="auto"
-                    className="d-flex flex-column justify-content-center"
-                  >
-                    <Badge>Answer</Badge>
-                  </Col>
-                  <Col xs="auto">
-                    <Breadcrumb className={noMarginBreadcrumb}>
-                      <BreadcrumbItem>
-                        <Link
-                          to={`/category/${result.category_slug}`}
-                          className="text-primary"
-                        >
-                          {result.category_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                      <BreadcrumbItem>
-                        <Link
-                          to={`/exams/${result.filename}`}
-                          className="text-primary"
-                        >
-                          {result.exam_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                    </Breadcrumb>
-                  </Col>
-                </Row>
+                <Group>
+                  <Badge>Answer</Badge>
+                  <Breadcrumbs className={noMarginBreadcrumb}>
+                    <Link
+                      to={`/category/${result.category_slug}`}
+                      className="text-primary"
+                    >
+                      {result.category_displayname}
+                    </Link>
+                    <Link
+                      to={`/exams/${result.filename}`}
+                      className="text-primary"
+                    >
+                      {result.exam_displayname}
+                    </Link>
+                  </Breadcrumbs>
+                </Group>
                 <div className="position-relative">
                   <Link
                     className="text-primary stretched-link"
@@ -186,34 +166,23 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           return (
             <div className="px-2" key={`comment-${result.long_id}`}>
               <Card className="mb-3 px-3 pb-3 pt-2 position-static">
-                <Row>
-                  <Col
-                    xs="auto"
-                    className="d-flex flex-column justify-content-center"
-                  >
-                    <Badge>Comment</Badge>
-                  </Col>
-                  <Col xs="auto">
-                    <Breadcrumb className={noMarginBreadcrumb}>
-                      <BreadcrumbItem>
-                        <Link
-                          className="text-primary"
-                          to={`/category/${result.category_slug}`}
-                        >
-                          {result.category_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                      <BreadcrumbItem>
-                        <Link
-                          className="text-primary"
-                          to={`/exams/${result.filename}`}
-                        >
-                          {result.exam_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                    </Breadcrumb>
-                  </Col>
-                </Row>
+                <Group>
+                  <Badge>Comment</Badge>
+                  <Breadcrumbs className={noMarginBreadcrumb}>
+                    <Link
+                      className="text-primary"
+                      to={`/category/${result.category_slug}`}
+                    >
+                      {result.category_displayname}
+                    </Link>
+                    <Link
+                      className="text-primary"
+                      to={`/exams/${result.filename}`}
+                    >
+                      {result.exam_displayname}
+                    </Link>
+                  </Breadcrumbs>
+                </Group>
                 <div className="position-relative">
                   <Link
                     className="text-primary stretched-link"

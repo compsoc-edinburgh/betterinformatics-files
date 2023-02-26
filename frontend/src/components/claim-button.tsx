@@ -42,7 +42,6 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
         <TooltipButton
           size="sm"
           color="white"
-          active
           tooltip={`Claimed by ${exam.import_claim_displayname}`}
         >
           Claimed

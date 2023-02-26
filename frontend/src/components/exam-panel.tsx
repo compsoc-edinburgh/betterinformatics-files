@@ -1,8 +1,7 @@
 import { css } from "@emotion/css";
-import { Button, Checkbox, Grid } from "@mantine/core";
+import { Button, Checkbox, Grid, Slider } from "@mantine/core";
 import { useDebounceFn } from "@umijs/hooks";
 import {
-  Input,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -95,8 +94,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     (val: number) => setMaxWidth(val),
     500,
   );
-  const handler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.currentTarget.value);
+  const handler = (val: number) => {
     changeWidth(val);
     setWidthValue(val);
   };
@@ -154,10 +152,9 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         </Pagination>
 
         <h6 className="my-3 mx-2">Size</h6>
-        <Input
-          type="range"
-          min="500"
-          max="2000"
+        <Slider
+          min={500}
+          max={2000}
           value={widthValue}
           onChange={handler}
         />

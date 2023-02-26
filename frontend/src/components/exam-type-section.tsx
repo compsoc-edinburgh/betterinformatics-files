@@ -192,9 +192,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     color="dark"
                     tooltip="Delete exam"
                     iconName={ICONS.DELETE}
-                    outline
+                    variant="outline"
                     className="ml-2 m-1"
-                    onClick={e => handleRemoveClick(e, exam)}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => handleRemoveClick(e, exam)}
                   />
                 )}
               </Grid.Col>

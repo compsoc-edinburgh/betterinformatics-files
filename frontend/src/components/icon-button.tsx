@@ -1,5 +1,4 @@
-import { ButtonProps } from "@vseth/components";
-import { ActionIcon, Tooltip } from "@mantine/core";
+import { ActionIconProps, ActionIcon, Tooltip } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Loader } from "@mantine/core";
@@ -8,11 +7,12 @@ const buttonStyle = css`
   min-width: 0;
   align-content: center;
 `;
-interface IconButtonProps extends ButtonProps {
+interface IconButtonProps extends ActionIconProps {
   iconName: string;
   loading?: boolean;
   tooltip?: React.ReactNode;
   iconClassName?: string;
+  onClick?: any;
 }
 const IconButton: React.FC<IconButtonProps> = ({
   size,

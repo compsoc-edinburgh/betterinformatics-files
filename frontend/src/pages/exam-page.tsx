@@ -7,6 +7,7 @@ import {
   Alert,
   Container,
   Grid,
+  Button,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -41,7 +42,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
-import { ICONS } from "vseth-canine-ui";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 const addCut = async (
   filename: string,
@@ -218,14 +219,16 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         <div className="d-flex justify-content-between align-items-center">
           <h1>{metaData.displayname}</h1>
           <div className="d-flex">
-            <IconButton
+            <Button
               color="white"
-              as="a"
-              iconName={ICONS.DOWNLOAD}
+              component="a"
+              leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
               target="_blank"
               rel="noopener noreferrer"
               href={metaData.exam_file}
-            />
+            >
+              Download
+            </Button>
             {user.isCategoryAdmin && (
               <>
                 {user.isAdmin &&

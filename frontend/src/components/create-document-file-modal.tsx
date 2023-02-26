@@ -1,7 +1,6 @@
 import {
   ModalHeader,
   ModalBody,
-  FormGroup,
   ModalFooter,
 } from "@vseth/components";
 import {
@@ -52,18 +51,16 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-        <FormGroup>
-          <label className="form-input-label">File</label>
-          <FileInput
-            value={file}
-            onChange={setFile}
-            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
-          />
-          <div className="form-text text-muted">
-            If you don't select any file we will create an empty markdown file
-            for you that you can edit afterwards.
-          </div>
-        </FormGroup>
+        <label className="form-input-label">File</label>
+        <FileInput
+          value={file}
+          onChange={setFile}
+          accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
+        />
+        <div className="form-text text-muted">
+          If you don't select any file we will create an empty markdown file
+          for you that you can edit afterwards.
+        </div>
       </ModalBody>
       <ModalFooter>
         <Button

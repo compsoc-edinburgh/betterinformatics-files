@@ -11,7 +11,6 @@ import {
   ModalHeader,
   Modal,
   ModalBody,
-  FormGroup,
   ModalFooter,
 } from "@vseth/components";
 import {
@@ -78,14 +77,12 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             value={displayName ?? file.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <FormGroup>
-            <label className="form-input-label">Replace File</label>
-            <FileInput
-              value={replaceFile}
-              onChange={setFile}
-              accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
-            />
-          </FormGroup>
+          <label className="form-input-label">Replace File</label>
+          <FileInput
+            value={replaceFile}
+            onChange={setFile}
+            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
+          />
         </ModalBody>
         <ModalFooter>
           <Button

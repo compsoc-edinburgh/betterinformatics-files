@@ -1,9 +1,5 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  Col,
-  FormGroup,
-  InputField,
-  Row,
   Select,
 } from "@vseth/components";
 import {
@@ -12,6 +8,7 @@ import {
   Checkbox,
   CloseButton,
   Grid,
+  Group,
   Textarea,
   TextInput,
 } from "@mantine/core"
@@ -23,7 +20,6 @@ import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
-import ButtonWrapperCard from "./button-wrapper-card";
 import OfferedInEditor from "./offered-in-editor";
 import UserSetEditor from "./user-set-editor";
 
@@ -244,10 +240,12 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   });
   return (
     <>
-      <CloseButton onClick={toggle} />
-      <h2>Edit Category</h2>
+      <Group position="apart">
+        <h2>Edit Category</h2>
+        <CloseButton onClick={toggle} />
+      </Group>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <h6 className="mb-3 mt-4">Metadata</h6>
+      <h6 className="mb-3 mt-2">Metadata</h6>
       <TextInput label="Name" {...registerInput("displayname")} />
       <Grid>
         <Grid.Col md={6}>
@@ -268,44 +266,40 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           />
         </Grid.Col>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Form</label>
-            <Select
-              options={options(formOptions)}
-              value={formOptions[formState.form as keyof typeof formOptions]}
-              onChange={(option: any) =>
-                setFormValue(
-                  "form",
-                  (option as SelectOption<typeof formOptions>).value,
-                )
-              }
-            />
-          </FormGroup>
+          <label className="form-input-label">Form</label>
+          <Select
+            options={options(formOptions)}
+            value={formOptions[formState.form as keyof typeof formOptions]}
+            onChange={(option: any) =>
+              setFormValue(
+                "form",
+                (option as SelectOption<typeof formOptions>).value,
+              )
+            }
+          />
         </Grid.Col>
       </Grid>
       <Textarea label="Remark" />
       <Grid>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Permission</label>
-            <Select
-              options={options(permissionOptions)}
-              value={
-                permissionOptions[
-                formState.permission as keyof typeof permissionOptions
-                ]
-              }
-              onChange={(option: any) =>
-                setFormValue(
-                  "permission",
-                  (option as SelectOption<typeof permissionOptions>).value,
-                )
-              }
-            />
-          </FormGroup>
+          <label className="form-input-label">Permission</label>
+          <Select
+            options={options(permissionOptions)}
+            value={
+              permissionOptions[
+              formState.permission as keyof typeof permissionOptions
+              ]
+            }
+            onChange={(option: any) =>
+              setFormValue(
+                "permission",
+                (option as SelectOption<typeof permissionOptions>).value,
+              )
+            }
+          />
         </Grid.Col>
         <Grid.Col md={6}>
-          <InputField
+          <TextInput
             type="url"
             label="More Exams Link"
             {...registerInput("more_exams_link")}
@@ -334,33 +328,27 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}
       />
-      <ButtonWrapperCard>
-        <Row className="flex-between">
-          <Col xs="auto">
-            <Button
-              leftIcon={<Icon icon={ICONS.CLOSE} />}
-              variant="light"
-              onClick={() => {
-                reset();
-                toggle();
-              }}
-            >
-              Cancel
-            </Button>
-          </Col>
-          <Col xs="auto">
-            <Button
-              leftIcon={<Icon icon={ICONS.SAVE} />}
-              color="primary"
-              variant="light"
-              loading={loading}
-              onClick={onSubmit}
-            >
-              Save
-            </Button>
-          </Col>
-        </Row>
-      </ButtonWrapperCard>
+      <Group mt="lg" position="right">
+        <Button
+          leftIcon={<Icon icon={ICONS.CLOSE} />}
+          variant="light"
+          onClick={() => {
+            reset();
+            toggle();
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          leftIcon={<Icon icon={ICONS.SAVE} />}
+          color="primary"
+          variant="light"
+          loading={loading}
+          onClick={onSubmit}
+        >
+          Save
+        </Button>
+      </Group>
     </>
   );
 };

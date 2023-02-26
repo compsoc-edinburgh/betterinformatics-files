@@ -1,16 +1,11 @@
 import {
-  Form,
-  FormGroup,
-  Label,
-} from "@vseth/components";
-import {
   Button,
-  CloseButton,
   Grid,
-  List,
+  Group,
   TextInput,
 } from "@mantine/core";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface UserSetEditorProps {
   users: string[];
@@ -28,22 +23,23 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
   };
   return (
     <>
-      <List>
+      <Group>
         {users.map(user => (
           <div key={user}>
-            <CloseButton onClick={() => remove(user)} />
-            {user}
+            <Button variant="default" leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={() => remove(user)}>
+              {user}
+            </Button>
           </div>
         ))}
-      </List>
-      <Form
+      </Group>
+      <form
         onSubmit={e => {
           e.preventDefault();
           onAdd();
         }}
       >
-        <Grid className="mt-2">
-          <Grid.Col>
+        <Grid align="flex-end" className="mt-2">
+          <Grid.Col span="auto">
             <TextInput
               label="Name"
               value={username}
@@ -51,17 +47,12 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
             />
           </Grid.Col>
           <Grid.Col md={2}>
-            <FormGroup>
-              <Label for="Meta 2" className="form-input-label">
-                &nbsp;
-              </Label>
-              <Button fullWidth type="submit">
-                Add
-              </Button>
-            </FormGroup>
+            <Button fullWidth type="submit">
+              Add
+            </Button>
           </Grid.Col>
         </Grid>
-      </Form>
+      </form>
     </>
   );
 };

@@ -6,7 +6,6 @@ import {
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
-  FormGroup,
   Modal,
   ModalBody,
   ModalFooter,
@@ -105,34 +104,30 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             value={displayName ?? data.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <FormGroup>
-            <label className="form-input-label">Category</label>
-            <Select
-              options={categoryOptions ? (options(categoryOptions) as any) : []}
-              value={
-                categoryOptions &&
-                (category
-                  ? categoryOptions[category]
-                  : categoryOptions[data.category])
-              }
-              onChange={(e: any) => {
-                setCategory(e.value as string);
-              }}
-              isLoading={categoriesLoading}
-              required
-            />
-          </FormGroup>
-          <FormGroup>
-            <label className="form-input-label">Description</label>
-            <Editor
-              value={descriptionDraftText ?? data.description}
-              onChange={setDescriptionDraftText}
-              imageHandler={imageHandler}
-              preview={value => <MarkdownText value={value} />}
-              undoStack={descriptionUndoStack}
-              setUndoStack={setDescriptionUndoStack}
-            />
-          </FormGroup>
+          <label className="form-input-label">Category</label>
+          <Select
+            options={categoryOptions ? (options(categoryOptions) as any) : []}
+            value={
+              categoryOptions &&
+              (category
+                ? categoryOptions[category]
+                : categoryOptions[data.category])
+            }
+            onChange={(e: any) => {
+              setCategory(e.value as string);
+            }}
+            isLoading={categoriesLoading}
+            required
+          />
+          <label className="form-input-label">Description</label>
+          <Editor
+            value={descriptionDraftText ?? data.description}
+            onChange={setDescriptionDraftText}
+            imageHandler={imageHandler}
+            preview={value => <MarkdownText value={value} />}
+            undoStack={descriptionUndoStack}
+            setUndoStack={setDescriptionUndoStack}
+          />
           <div className="form-group d-flex justify-content-end">
             <Button
               onClick={() =>

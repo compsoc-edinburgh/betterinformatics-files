@@ -1,4 +1,5 @@
-import { Card, CardBody, CardTitle, Modal } from "@vseth/components";
+import { Modal } from "@vseth/components";
+import { Card } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -27,30 +28,28 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         {documents &&
           documents.map(document => (
             <Card key={document.slug}>
-              <CardBody>
-                <Link
-                  to={`/user/${document.author}/document/${document.slug}`}
-                  className="text-primary"
-                >
-                  <CardTitle tag="h6">{document.display_name}</CardTitle>
+              <Link
+                to={`/user/${document.author}/document/${document.slug}`}
+                className="text-primary"
+              >
+                <h6>{document.display_name}</h6>
+              </Link>
+              <div>
+                <Link to={`/user/${document.author}`} className="text-muted">
+                  @{document.author}
                 </Link>
-                <div>
-                  <Link to={`/user/${document.author}`} className="text-muted">
-                    @{document.author}
-                  </Link>
-                  {document.liked ? (
-                    <span className="text-danger ml-2">
-                      <Icon icon={ICONS.LIKE_FILLED} className="mr-1" />{" "}
-                      {document.like_count}
-                    </span>
-                  ) : (
-                    <span className="text-muted ml-2">
-                      <Icon icon={ICONS.LIKE} className="mr-1" />{" "}
-                      {document.like_count}
-                    </span>
-                  )}
-                </div>
-              </CardBody>
+                {document.liked ? (
+                  <span className="text-danger ml-2">
+                    <Icon icon={ICONS.LIKE_FILLED} className="mr-1" />{" "}
+                    {document.like_count}
+                  </span>
+                ) : (
+                  <span className="text-muted ml-2">
+                    <Icon icon={ICONS.LIKE} className="mr-1" />{" "}
+                    {document.like_count}
+                  </span>
+                )}
+              </div>
             </Card>
           ))}
         <Card style={{ minHeight: "4em" }}>

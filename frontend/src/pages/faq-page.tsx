@@ -1,10 +1,3 @@
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Col,
-  Row,
-} from "@vseth/components";
 import { css } from "@emotion/css";
 import * as React from "react";
 import { useState } from "react";
@@ -21,7 +14,9 @@ import serverData from "../utils/server-data";
 import { Icon, ICONS } from "vseth-canine-ui";
 import {
   Button,
+  Card,
   Container,
+  Flex,
   TextInput,
 } from "@mantine/core";
 const newButtonStyle = css`
@@ -77,46 +72,38 @@ export const FAQPage: React.FC = () => {
         ))}
       {hasDraft ? (
         <Card className="my-2">
-          <CardBody>
-            <h4>
-              <TextInput
-                placeholder="Question"
-                value={question}
-                onChange={e => setQuestion(e.target.value)}
-              />
-            </h4>
-            <Editor
-              imageHandler={imageHandler}
-              value={answer}
-              onChange={setAnswer}
-              undoStack={undoStack}
-              setUndoStack={setUndoStack}
-              preview={value => <MarkdownText value={value} />}
+          <h4>
+            <TextInput
+              placeholder="Question"
+              value={question}
+              onChange={e => setQuestion(e.target.value)}
             />
-          </CardBody>
-          <CardFooter>
-            <Row className="flex-between">
-              <Col xs="auto">
-                <Button
-                  color="primary"
-                  size="sm"
-                  leftIcon={<Icon icon={ICONS.SAVE} />}
-                  onClick={handleNew}
-                >
-                  Save
-                </Button>
-              </Col>
-              <Col xs="auto">
-                <Button
-                  size="sm"
-                  leftIcon={<Icon icon={ICONS.CLOSE} />}
-                  onClick={handleDeleteDraft}
-                >
-                  Delete Draft
-                </Button>
-              </Col>
-            </Row>
-          </CardFooter>
+          </h4>
+          <Editor
+            imageHandler={imageHandler}
+            value={answer}
+            onChange={setAnswer}
+            undoStack={undoStack}
+            setUndoStack={setUndoStack}
+            preview={value => <MarkdownText value={value} />}
+          />
+          <Flex justify="space-between">
+            <Button
+              color="primary"
+              size="sm"
+              leftIcon={<Icon icon={ICONS.SAVE} />}
+              onClick={handleNew}
+            >
+              Save
+            </Button>
+            <Button
+              size="sm"
+              leftIcon={<Icon icon={ICONS.CLOSE} />}
+              onClick={handleDeleteDraft}
+            >
+              Delete Draft
+            </Button>
+          </Flex>
         </Card>
       ) : (
         isAdmin && (

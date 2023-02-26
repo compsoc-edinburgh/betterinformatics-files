@@ -1,14 +1,5 @@
-import {
-  ButtonDropdown,
-  Col,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  ListGroupItem,
-  Row,
-} from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
 import { imageHandler } from "../api/fetch-utils";
@@ -23,7 +14,7 @@ import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import { Icon, ICONS } from "vseth-canine-ui";
-import { Button } from "@mantine/core";
+import { Button, Flex, Menu, Paper } from "@mantine/core";
 
 interface Props {
   answer: Answer;
@@ -38,8 +29,6 @@ const CommentComponent: React.FC<Props> = ({
   onDelete,
 }) => {
   const [viewSource, toggleViewSource] = useToggle(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = useCallback(() => setIsOpen(old => !old), []);
   const { isAdmin, username } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);
@@ -83,12 +72,12 @@ const CommentComponent: React.FC<Props> = ({
       confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
   return (
-    <ListGroupItem>
+    <Paper withBorder>
       {modals}
       <div className="float-right">
         {comment && !editing && ( // Only show button toolbar if not a draft and not editing
           <Button.Group>
-            {comment.canEdit && (
+            {comment?.canEdit && (
               <SmallButton
                 tooltip="Edit comment"
                 size="sm"
@@ -108,16 +97,18 @@ const CommentComponent: React.FC<Props> = ({
                 <Icon icon={ICONS.DELETE} size={18} />
               </SmallButton>
             )}
-            <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-              <DropdownToggle size="sm" color="white" tooltip="More" caret>
-                <Icon icon={ICONS.DOTS_H} size={18} />
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem onClick={toggleViewSource}>
+            <Menu>
+              <Menu.Target>
+                <Button variant="outline">
+                  <Icon icon={ICONS.DOTS_H} size={18} />
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item onClick={toggleViewSource}>
                   Toggle Source Code Mode
-                </DropdownItem>
-              </DropdownMenu>
-            </ButtonDropdown>
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Button.Group>
         )}
       </div>
@@ -160,31 +151,27 @@ const CommentComponent: React.FC<Props> = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-          <Row className="flex-between" form>
-            <Col xs="auto">
-              <Button
-                className="m-1"
-                size="sm"
-                color="primary"
-                loading={loading}
-                disabled={draftText.trim().length === 0}
-                onClick={onSave}
-                leftIcon={<Icon icon={ICONS.SAVE} />}
-              >
-                Save
-              </Button>
-            </Col>
-            <Col xs="auto">
-              <Button
-                className="m-1"
-                size="sm"
-                onClick={onCancel}
-                leftIcon={<Icon icon={ICONS.CLOSE} />}
-              >
-                {comment === undefined ? "Delete Draft" : "Cancel"}
-              </Button>
-            </Col>
-          </Row>
+          <Flex justify="space-between">
+            <Button
+              className="m-1"
+              size="sm"
+              color="primary"
+              loading={loading}
+              disabled={draftText.trim().length === 0}
+              onClick={onSave}
+              leftIcon={<Icon icon={ICONS.SAVE} />}
+            >
+              Save
+            </Button>
+            <Button
+              className="m-1"
+              size="sm"
+              onClick={onCancel}
+              leftIcon={<Icon icon={ICONS.CLOSE} />}
+            >
+              {comment === undefined ? "Delete Draft" : "Cancel"}
+            </Button>
+          </Flex>
         </>
       ) : (
         <div>
@@ -195,7 +182,7 @@ const CommentComponent: React.FC<Props> = ({
           )}
         </div>
       )}
-    </ListGroupItem>
+    </Paper>
   );
 };
 

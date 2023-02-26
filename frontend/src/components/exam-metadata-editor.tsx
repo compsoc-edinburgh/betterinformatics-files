@@ -5,13 +5,10 @@ import {
   Checkbox,
   CloseButton,
   Grid,
+  Group,
   TextInput,
 } from "@mantine/core";
 import {
-  Col,
-  FormGroup,
-  Input,
-  Row,
   Select,
   TextareaField,
   Creatable,
@@ -23,7 +20,6 @@ import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
 import { createOptions, options, SelectOption } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
-import ButtonWrapperCard from "./button-wrapper-card";
 import FileInput from "./file-input";
 import useForm from "../hooks/useForm";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -241,35 +237,31 @@ const ExamMetadataEditor: React.FC<Props> = ({
       </Grid>
       <Grid>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Category</label>
-            <Select
-              options={categoryOptions ? (options(categoryOptions) as any) : []}
-              value={categoryOptions && categoryOptions[formState.category]}
-              onChange={(e: any) => {
-                setFormValue("category", e.value as string);
-                setFormValue("category_displayname", e.label as string);
-              }}
-              isLoading={categoriesLoading}
-              required
-            />
-          </FormGroup>
+          <label className="form-input-label">Category</label>
+          <Select
+            options={categoryOptions ? (options(categoryOptions) as any) : []}
+            value={categoryOptions && categoryOptions[formState.category]}
+            onChange={(e: any) => {
+              setFormValue("category", e.value as string);
+              setFormValue("category_displayname", e.label as string);
+            }}
+            isLoading={categoriesLoading}
+            required
+          />
         </Grid.Col>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Exam type</label>
-            <Creatable
-              options={examTypeOptions ? options(examTypeOptions) : []}
-              value={{ value: formState.examtype, label: formState.examtype }}
-              isLoading={examTypesLoading}
-              onChange={(option: any) =>
-                setFormValue(
-                  "examtype",
-                  (option as SelectOption<typeof examTypeOptions>).value,
-                )
-              }
-            />
-          </FormGroup>
+          <label className="form-input-label">Exam type</label>
+          <Creatable
+            options={examTypeOptions ? options(examTypeOptions) : []}
+            value={{ value: formState.examtype, label: formState.examtype }}
+            isLoading={examTypesLoading}
+            onChange={(option: any) =>
+              setFormValue(
+                "examtype",
+                (option as SelectOption<typeof examTypeOptions>).value,
+              )
+            }
+          />
         </Grid.Col>
       </Grid>
       <Grid>
@@ -307,69 +299,61 @@ const ExamMetadataEditor: React.FC<Props> = ({
       </Grid>
       <Grid>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Legacy Solution</label>
-            <Input type="url" {...registerInput("legacy_solution")} />
-          </FormGroup>
+          <label className="form-input-label">Legacy Solution</label>
+          <TextInput type="url" {...registerInput("legacy_solution")} />
         </Grid.Col>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">
-              Master Solution <i>(extern)</i>
-            </label>
-            <Input type="url" {...registerInput("master_solution")} />
-          </FormGroup>
+          <label className="form-input-label">
+            Master Solution <i>(extern)</i>
+          </label>
+          <TextInput type="url" {...registerInput("master_solution")} />
         </Grid.Col>
       </Grid>
       <Grid>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Print Only File</label>
-            {printonlyFile === true ? (
-              <div className="form-control">
-                <Button
-                  size="sm"
-                  className="py-0"
-                  onClick={() =>
-                    downloadIndirect(
-                      `/api/exam/pdf/printonly/${currentMetaData.filename}/`,
-                    )
-                  }
-                >
-                  Current File
-                </Button>
-                <CloseButton onClick={() => setPrintonlyFile(undefined)} />
-              </div>
-            ) : (
-              <FileInput
-                value={printonlyFile}
-                onChange={e => setPrintonlyFile(e)}
-              />
-            )}
-          </FormGroup>
+          <label className="form-input-label">Print Only File</label>
+          {printonlyFile === true ? (
+            <div className="form-control">
+              <Button
+                size="sm"
+                className="py-0"
+                onClick={() =>
+                  downloadIndirect(
+                    `/api/exam/pdf/printonly/${currentMetaData.filename}/`,
+                  )
+                }
+              >
+                Current File
+              </Button>
+              <CloseButton onClick={() => setPrintonlyFile(undefined)} />
+            </div>
+          ) : (
+            <FileInput
+              value={printonlyFile}
+              onChange={e => setPrintonlyFile(e)}
+            />
+          )}
         </Grid.Col>
         <Grid.Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Master Solution</label>
-            {masterFile === true ? (
-              <div className="form-control">
-                <Button
-                  size="sm"
-                  className="py-0"
-                  onClick={() =>
-                    downloadIndirect(
-                      `/api/exam/pdf/solution/${currentMetaData.filename}/`,
-                    )
-                  }
-                >
-                  Current File
-                </Button>
-                <CloseButton onClick={() => setMasterFile(undefined)} />
-              </div>
-            ) : (
-              <FileInput value={masterFile} onChange={e => setMasterFile(e)} />
-            )}
-          </FormGroup>
+          <label className="form-input-label">Master Solution</label>
+          {masterFile === true ? (
+            <div className="form-control">
+              <Button
+                size="sm"
+                className="py-0"
+                onClick={() =>
+                  downloadIndirect(
+                    `/api/exam/pdf/solution/${currentMetaData.filename}/`,
+                  )
+                }
+              >
+                Current File
+              </Button>
+              <CloseButton onClick={() => setMasterFile(undefined)} />
+            </div>
+          ) : (
+            <FileInput value={masterFile} onChange={e => setMasterFile(e)} />
+          )}
         </Grid.Col>
       </Grid>
       <TextareaField label="Remark" textareaProps={registerInput("remark")} />
@@ -378,25 +362,19 @@ const ExamMetadataEditor: React.FC<Props> = ({
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <ButtonWrapperCard>
-        <Row className="flex-between">
-          <Col xs="auto">
-            <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={toggle}>
-              Cancel
-            </Button>
-          </Col>
-          <Col xs="auto">
-            <Button
-              leftIcon={<Icon icon={ICONS.SAVE} />}
-              color="primary"
-              loading={loading}
-              onClick={onSubmit}
-            >
-              Save
-            </Button>
-          </Col>
-        </Row>
-      </ButtonWrapperCard>
+      <Group position="right" >
+        <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={toggle}>
+          Cancel
+        </Button>
+        <Button
+          leftIcon={<Icon icon={ICONS.SAVE} />}
+          color="primary"
+          loading={loading}
+          onClick={onSubmit}
+        >
+          Save
+        </Button>
+      </Group>
     </>
   );
 };

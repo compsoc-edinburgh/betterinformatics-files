@@ -1,17 +1,12 @@
 import {
   Alert,
   Button,
-  CloseButton,
   Grid,
-  List,
+  Group,
+  NativeSelect,
 } from "@mantine/core";
-import {
-  Creatable,
-  Form,
-  FormGroup,
-  Label,
-} from "@vseth/components";
 import React, { useMemo, useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { useMetaCategories } from "../api/hooks";
 
 interface OfferedInEditorProps {
@@ -24,27 +19,27 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
 }) => {
   const [newMeta1, setNewMeta1] = useState("");
   const meta1Value = useMemo(
-    () => ({ value: newMeta1, label: newMeta1 }),
+    () => (newMeta1),
     [newMeta1],
   );
   const [newMeta2, setNewMeta2] = useState("");
   const meta2Value = useMemo(
-    () => ({ value: newMeta2, label: newMeta2 }),
+    () => (newMeta2),
     [newMeta2],
   );
   const [error, loading, data] = useMetaCategories();
-  const meta1Options = useMemo(
+  const meta1Options: string[] = useMemo(
     () =>
-      data && data.map(d => ({ value: d.displayname, label: d.displayname })),
+      (data && data.map(d => (d.displayname))) ?? [],
     [data],
   );
-  const meta2Options = useMemo(
+  const meta2Options: string[] = useMemo(
     () =>
       data && newMeta1.length > 0
         ? data
           .find(m => m.displayname === newMeta1)
-          ?.meta2.map(m => ({ value: m.displayname, label: m.displayname }))
-        : undefined,
+          ?.meta2.map(m => (m.displayname)) ?? []
+        : [],
     [data, newMeta1],
   );
   const onAdd = () => {
@@ -62,15 +57,16 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   return (
     <>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <List>
+      <Group>
         {offeredIn.map(([meta1, meta2]) => (
           <p key={`${meta1}-${meta2}`}>
-            <CloseButton onClick={() => onRemove(meta1, meta2)} />
-            {meta1} {meta2}
+            <Button leftIcon={<Icon icon={ICONS.CLOSE} />} variant="default" onClick={() => onRemove(meta1, meta2)}>
+              {meta1} {meta2}
+            </Button>
           </p>
         ))}
-      </List>
-      <Form
+      </Group>
+      <form
         onSubmit={e => {
           e.preventDefault();
           onAdd();
@@ -79,53 +75,34 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
         <Grid className="mt-2">
           <Grid.Col>
             {data && (
-              <FormGroup>
-                <Label for="Meta 1" className="form-input-label">
-                  Meta 1
-                </Label>
-                <Creatable
-                  inputId="Meta 1"
-                  options={meta1Options}
-                  isLoading={loading}
-                  value={meta1Value}
-                  onChange={({ value }: any) => {
-                    setNewMeta1(value);
-                    setNewMeta2("");
-                  }}
-                />
-              </FormGroup>
+              <NativeSelect
+                label="Meta 1"
+                data={meta1Options}
+                value={meta1Value}
+                onChange={(event) => {
+                  setNewMeta1(event.currentTarget.value);
+                  setNewMeta2("");
+                }}
+              />
             )}
           </Grid.Col>
           <Grid.Col>
             {data && (
-              <FormGroup>
-                <Label for="Meta 2" className="form-input-label">
-                  Meta 2
-                </Label>
-                <Creatable
-                  inputId="Meta 2"
-                  options={meta2Options}
-                  isLoading={loading}
-                  isDisabled={meta1Value === undefined}
-                  value={meta2Value}
-                  placeholder="Meta 2"
-                  onChange={({ value }: any) => setNewMeta2(value)}
-                />
-              </FormGroup>
+              <NativeSelect
+                label="Meta 2"
+                data={meta2Options}
+                value={meta2Value}
+                onChange={(event) => setNewMeta2(event.currentTarget.value)}
+              />
             )}
           </Grid.Col>
           <Grid.Col md={2}>
-            <FormGroup>
-              <Label for="Meta 2" className="form-input-label">
-                &nbsp;
-              </Label>
-              <Button fullWidth type="submit">
-                Add
-              </Button>
-            </FormGroup>
+            <Button fullWidth type="submit">
+              Add
+            </Button>
           </Grid.Col>
         </Grid>
-      </Form>
+      </form>
     </>
   );
 };

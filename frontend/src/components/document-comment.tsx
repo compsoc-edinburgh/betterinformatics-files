@@ -1,6 +1,8 @@
-import { Loader } from "@mantine/core";
 import {
   Card,
+  Loader,
+} from "@mantine/core";
+import {
   Modal,
   ModalBody,
   ModalFooter,
@@ -95,7 +97,7 @@ const DocumentCommentComponent = ({
           </TooltipButton>
         </ModalFooter>
       </Modal>
-      <Card className="my-3 pt-3" body>
+      <Card className="my-3 pt-3">
         <div className="d-flex justify-content-between align-items-center mb-1">
           <div>
             <Link className="text-muted" to={`/user/${comment.authorId}`}>

@@ -1,15 +1,11 @@
 import {
   Alert,
+  Card,
   Grid,
   Loader,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
-  Card,
-  CardBody,
-  CardHeader,
-  Form,
-  FormGroup,
   Select,
 } from "@vseth/components";
 import {
@@ -64,8 +60,8 @@ const UploadTranscriptCard: React.FC<{}> = () => {
 
   return (
     <Card>
-      <CardHeader>Submit Transcript for Oral Exam</CardHeader>
-      <CardBody>
+      <div>Submit Transcript for Oral Exam</div>
+      <div>
         <p>Please use the following template:</p>
         <Button
           leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
@@ -74,36 +70,30 @@ const UploadTranscriptCard: React.FC<{}> = () => {
         >
           Download template
         </Button>
-        <Form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
-          <FormGroup>
-            <label className="form-input-label">File</label>
-            <FileInput
-              value={file}
-              onChange={setFile}
-              accept="application/pdf"
-            />
-          </FormGroup>
-          <FormGroup>
-            <label className="form-input-label">Category</label>
-            <Select
-              options={options}
-              onChange={(e: any) => setCategory(e.value as string)}
-              isLoading={categoriesLoading}
-              required
-            />
-          </FormGroup>
+          <label className="form-input-label">File</label>
+          <FileInput
+            value={file}
+            onChange={setFile}
+            accept="application/pdf"
+          />
+          <label className="form-input-label">Category</label>
+          <Select
+            options={options}
+            onChange={(e: any) => setCategory(e.value as string)}
+            isLoading={categoriesLoading}
+            required
+          />
           <Grid>
             <Grid.Col md={4}>
-              <FormGroup>
-                <Button color="primary" type="submit" disabled={loading}>
-                  {uploadLoading ? <Loader /> : "Submit"}
-                </Button>
-              </FormGroup>
+              <Button color="primary" type="submit" disabled={loading}>
+                {uploadLoading ? <Loader /> : "Submit"}
+              </Button>
             </Grid.Col>
           </Grid>
-        </Form>
-      </CardBody>
+        </form>
+      </div>
     </Card>
   );
 };

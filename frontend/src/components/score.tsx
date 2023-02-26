@@ -36,7 +36,7 @@ const Score: React.FC<Props> = ({
         size="sm"
         className="px-1"
         disabled={userVote === -1}
-        outline={userVote === -1}
+        variant={userVote === -1 ? "outline" : "default"}
         onClick={() => setLike(oid, -1)}
       >
         <Icon icon={ICONS.MINUS} size={18} />
@@ -46,7 +46,7 @@ const Score: React.FC<Props> = ({
         size="sm"
         className="text-dark"
         disabled={userVote === 0}
-        outline
+        variant="outline"
         onClick={() => setLike(oid, 0)}
       >
         {loading ? <Loader size="sm" /> : upvotes}
@@ -56,7 +56,7 @@ const Score: React.FC<Props> = ({
         size="sm"
         className="px-1"
         disabled={userVote === 1}
-        outline={userVote === 1}
+        variant={userVote === 1 ? "outline" : "default"}
         onClick={() => setLike(oid, 1)}
       >
         <Icon icon={ICONS.PLUS} size={18} />

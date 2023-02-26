@@ -1,7 +1,6 @@
 import { css } from "@emotion/css";
-import { Button } from "@mantine/core";
+import { Button, Menu } from "@mantine/core";
 import {
-  ButtonDropdown,
   ButtonToolbar,
   ButtonToolbarProps,
   Card,
@@ -9,9 +8,6 @@ import {
   CardHeader,
   CardProps,
   Col,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
   Row,
 } from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
@@ -87,8 +83,6 @@ const AnswerComponent: React.FC<Props> = ({
   });
   const { isAdmin, isExpert } = useUser()!;
   const [confirm, modals] = useConfirm();
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
 
   const [draftText, setDraftText] = useState("");
@@ -175,9 +169,8 @@ const AnswerComponent: React.FC<Props> = ({
                         size="sm"
                         tooltip="This answer is endorsed by an expert"
                         iconName={ICONS.STAR_FILLED}
-                        active
                       />
-                      <SmallButton color="primary" size="sm" active>
+                      <SmallButton color="primary" size="sm">
                         {answer.expertvotes}
                       </SmallButton>
                       {isExpert && (
@@ -215,7 +208,6 @@ const AnswerComponent: React.FC<Props> = ({
                       <SmallButton
                         color="danger"
                         tooltip={`${answer.flagged} users consider this answer inappropriate.`}
-                        active
                       >
                         {answer.flagged}
                       </SmallButton>
@@ -316,19 +308,19 @@ const AnswerComponent: React.FC<Props> = ({
                       </Button>
                     )}
                     {answer !== undefined && (
-                      <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-                        <DropdownToggle size="sm" caret>
+                      <Menu>
+                        <Menu.Target>
                           More
-                        </DropdownToggle>
-                        <DropdownMenu>
+                        </Menu.Target>
+                        <Menu.Dropdown>
                           {answer.flagged === 0 && (
-                            <DropdownItem
+                            <Menu.Item
                               onClick={() => setFlagged(answer.oid, true)}
                             >
                               Flag as Inappropriate
-                            </DropdownItem>
+                            </Menu.Item>
                           )}
-                          <DropdownItem
+                          <Menu.Item
                             onClick={() =>
                               copy(
                                 `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
@@ -336,27 +328,27 @@ const AnswerComponent: React.FC<Props> = ({
                             }
                           >
                             Copy Permalink
-                          </DropdownItem>
+                          </Menu.Item>
                           {isAdmin && answer.flagged > 0 && (
-                            <DropdownItem
+                            <Menu.Item
                               onClick={() => resetFlagged(answer.oid)}
                             >
                               Remove all inappropriate flags
-                            </DropdownItem>
+                            </Menu.Item>
                           )}
                           {!editing && canEdit && (
-                            <DropdownItem onClick={startEdit}>
+                            <Menu.Item onClick={startEdit}>
                               Edit
-                            </DropdownItem>
+                            </Menu.Item>
                           )}
                           {answer && canRemove && (
-                            <DropdownItem onClick={remove}>Delete</DropdownItem>
+                            <Menu.Item onClick={remove}>Delete</Menu.Item>
                           )}
-                          <DropdownItem onClick={toggleViewSource}>
+                          <Menu.Item onClick={toggleViewSource}>
                             Toggle Source Code Mode
-                          </DropdownItem>
-                        </DropdownMenu>
-                      </ButtonDropdown>
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
                     )}
                   </Button.Group>
                 </>

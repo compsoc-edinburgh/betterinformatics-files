@@ -1,6 +1,5 @@
 import { useClickAway } from "@umijs/hooks";
-import { ButtonProps } from "@vseth/components";
-import { Button, Tooltip } from "@mantine/core";
+import { ButtonProps, Button, Tooltip } from "@mantine/core";
 import React, { useCallback, useState, useContext, useEffect } from "react";
 import useLongPress from "../hooks/useLongPress";
 import { DebugContext } from "./Debug";
@@ -24,6 +23,7 @@ const isMobile = detectMobile();
 
 export interface TooltipButtonProps extends ButtonProps {
   tooltip?: React.ReactNode;
+  onClick?: any;
 }
 const TooltipButton: React.FC<TooltipButtonProps> = ({
   tooltip,
@@ -57,7 +57,7 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
             variant="outline"
             {...longPress}
             {...buttonProps}
-            onClick={e => e.stopPropagation()}
+          // onClick={e => e.stopPropagation()}
           >
             <span ref={ref} /> {children}
           </Button>

@@ -1,10 +1,10 @@
 import {
   Alert,
   Button,
+  Flex,
   Loader,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { Col, FormGroup, Row } from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
@@ -65,36 +65,32 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     <>
       {error && <Alert color="danger">{error}</Alert>}
       {loading && <Loader />}
-      <Row className="d-flex flex-between">
-        <Col md={6} xs={12} className="text-center text-md-left">
-          <FormGroup className="mb-2 d-md-inline-block">
-            <Button
-              disabled={selected.size === 0}
-              onClick={() => dlSelectedExams(getSelectedExams(selected))}
-              leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
-            >
-              Download selected exams
-            </Button>
-          </FormGroup>
-        </Col>
-        <Col md={6} xs={12} className="text-center text-md-right">
-          <FormGroup className="d-md-inline-block">
-            <div className="search mb-0">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Filter..."
-                value={filter}
-                onChange={e => setFilter(e.currentTarget.value)}
-                autoFocus
-              />
-              <div className="search-icon-wrapper">
-                <div className="search-icon" />
-              </div>
+      <Flex justify="space-between">
+        <div className="mb-2 d-md-inline-block">
+          <Button
+            disabled={selected.size === 0}
+            onClick={() => dlSelectedExams(getSelectedExams(selected))}
+            leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+          >
+            Download selected exams
+          </Button>
+        </div>
+        <div className="d-md-inline-block">
+          <div className="search mb-0">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Filter..."
+              value={filter}
+              onChange={e => setFilter(e.currentTarget.value)}
+              autoFocus
+            />
+            <div className="search-icon-wrapper">
+              <div className="search-icon" />
             </div>
-          </FormGroup>
-        </Col>
-      </Row>
+          </div>
+        </div>
+      </Flex>
 
       {examTypeMap &&
         examTypeMap.map(

@@ -1,5 +1,4 @@
-import { Button, TextInput } from "@mantine/core";
-import { Card, CardBody, Col } from "@vseth/components";
+import { Button, Card, Group, TextInput } from "@mantine/core";
 import React, { useCallback, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
@@ -47,87 +46,80 @@ const FAQEntryComponent: React.FC<Props> = ({
   return (
     <Card className="my-1">
       {modals}
-      <CardBody>
-        <h4>
-          {!editing && isAdmin && (
-            <IconButton
-              tooltip="Edit FAQ entry"
-              close
-              iconName={ICONS.EDIT}
-              onClick={() => startEditing()}
-            />
-          )}
-          {editing ? (
-            <TextInput
-              placeholder="Question"
-              value={question}
-              onChange={e => setQuestion(e.target.value)}
-            />
-          ) : (
-            entry.question
-          )}
-        </h4>
+      <h4>
+        {!editing && isAdmin && (
+          <IconButton
+            tooltip="Edit FAQ entry"
+            iconName={ICONS.EDIT}
+            onClick={() => startEditing()}
+          />
+        )}
         {editing ? (
-          <Editor
-            imageHandler={imageHandler}
-            value={answer}
-            onChange={setAnswer}
-            undoStack={undoStack}
-            setUndoStack={setUndoStack}
-            preview={value => <MarkdownText value={value} />}
+          <TextInput
+            placeholder="Question"
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
           />
         ) : (
-          <MarkdownText value={entry.answer} />
+          entry.question
         )}
-        {isAdmin && (
-          <div className="my-2 d-flex flex-between">
-            <Col xs="auto">
-              {editing && (
-                <Button
-                  color="primary"
-                  size="sm"
-                  leftIcon={<Icon icon={ICONS.SAVE} />}
-                  onClick={save}
-                >
-                  Save
-                </Button>
-              )}
-            </Col>
-            <Col xs="auto">
-              <Button.Group>
-                <IconButton
-                  tooltip="Move up"
-                  iconName={ICONS.ARROW_UP}
-                  disabled={prevEntry === undefined}
-                  onClick={() => prevEntry && onSwap(entry, prevEntry)}
-                />
-                <IconButton
-                  tooltip="Move down"
-                  iconName={ICONS.ARROW_DOWN}
-                  disabled={nextEntry === undefined}
-                  onClick={() => nextEntry && onSwap(entry, nextEntry)}
-                />
-                <IconButton
-                  tooltip="Delete FAQ entry"
-                  iconName={ICONS.DELETE}
-                  onClick={() =>
-                    confirm(
-                      "Are you sure that you want to remove this?",
-                      onRemove,
-                    )
-                  }
-                />
-                {editing && (
-                  <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={cancel}>
-                    Cancel
-                  </Button>
-                )}
-              </Button.Group>
-            </Col>
-          </div>
-        )}
-      </CardBody>
-    </Card>
+      </h4>
+      {editing ? (
+        <Editor
+          imageHandler={imageHandler}
+          value={answer}
+          onChange={setAnswer}
+          undoStack={undoStack}
+          setUndoStack={setUndoStack}
+          preview={value => <MarkdownText value={value} />}
+        />
+      ) : (
+        <MarkdownText value={entry.answer} />
+      )}
+      {isAdmin && (
+        <Group position="right">
+          {editing && (
+            <Button
+              color="primary"
+              size="sm"
+              leftIcon={<Icon icon={ICONS.SAVE} />}
+              onClick={save}
+            >
+              Save
+            </Button>
+          )}
+          <Button.Group>
+            <IconButton
+              tooltip="Move up"
+              iconName={ICONS.ARROW_UP}
+              disabled={prevEntry === undefined}
+              onClick={() => prevEntry && onSwap(entry, prevEntry)}
+            />
+            <IconButton
+              tooltip="Move down"
+              iconName={ICONS.ARROW_DOWN}
+              disabled={nextEntry === undefined}
+              onClick={() => nextEntry && onSwap(entry, nextEntry)}
+            />
+            <IconButton
+              tooltip="Delete FAQ entry"
+              iconName={ICONS.DELETE}
+              onClick={() =>
+                confirm(
+                  "Are you sure that you want to remove this?",
+                  onRemove,
+                )
+              }
+            />
+            {editing && (
+              <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={cancel}>
+                Cancel
+              </Button>
+            )}
+          </Button.Group>
+        </Group >
+      )}
+    </Card >
   );
 };
 export default FAQEntryComponent;

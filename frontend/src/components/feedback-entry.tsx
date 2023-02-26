@@ -1,12 +1,8 @@
 import { useRequest } from "@umijs/hooks";
 import {
   Button,
-} from "@mantine/core";
-import {
   Card,
-  CardBody,
-  CardHeader,
-} from "@vseth/components";
+} from "@mantine/core";
 import moment from "moment";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -34,29 +30,27 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
   );
   return (
     <Card className="my-1">
-      <CardHeader>
-        <h6>
-          {entry.authorDisplayName} •{" "}
-          {moment(entry.time, GlobalConsts.momentParseString).format(
-            GlobalConsts.momentFormatString,
-          )}
-        </h6>
-        <Button.Group>
-          <Button
-            color={entry.done ? "secondary" : "primary"}
-            onClick={() => runSetFlag("done", !entry.done)}
-          >
-            {entry.done ? "Set Undone" : "Set Done"}
-          </Button>
-          <Button
-            color={entry.read ? "secondary" : "primary"}
-            onClick={() => runSetFlag("read", !entry.read)}
-          >
-            {entry.read ? "Set Unread" : "Set Read"}
-          </Button>
-        </Button.Group>
-      </CardHeader>
-      <CardBody>{wrapText(entry.text)}</CardBody>
+      <h6>
+        {entry.authorDisplayName} •{" "}
+        {moment(entry.time, GlobalConsts.momentParseString).format(
+          GlobalConsts.momentFormatString,
+        )}
+      </h6>
+      <Button.Group>
+        <Button
+          color={entry.done ? "secondary" : "primary"}
+          onClick={() => runSetFlag("done", !entry.done)}
+        >
+          {entry.done ? "Set Undone" : "Set Done"}
+        </Button>
+        <Button
+          color={entry.read ? "secondary" : "primary"}
+          onClick={() => runSetFlag("read", !entry.read)}
+        >
+          {entry.read ? "Set Unread" : "Set Read"}
+        </Button>
+      </Button.Group>
+      {wrapText(entry.text)}
     </Card>
   );
 };
