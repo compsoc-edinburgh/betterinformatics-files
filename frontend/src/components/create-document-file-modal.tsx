@@ -1,11 +1,7 @@
 import {
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@vseth/components";
-import {
   Button,
   Loader,
+  Modal,
   TextInput,
 } from "@mantine/core";
 import * as React from "react";
@@ -44,8 +40,8 @@ const CreateDocumentFileModal: React.FC<Props> = ({
 
   return (
     <>
-      <ModalHeader toggle={loading ? undefined : toggle}>Add File</ModalHeader>
-      <ModalBody>
+      <Modal.Header>Add File</Modal.Header>
+      <Modal.Body>
         <TextInput
           label="Display Name"
           value={displayName}
@@ -61,8 +57,6 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           If you don't select any file we will create an empty markdown file
           for you that you can edit afterwards.
         </div>
-      </ModalBody>
-      <ModalFooter>
         <Button
           color="primary"
           disabled={loading || displayName === ""}
@@ -84,7 +78,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
             <Icon icon={ICONS.PLUS} className="ml-2" />
           )}
         </Button>
-      </ModalFooter>
+      </Modal.Body>
     </>
   );
 };

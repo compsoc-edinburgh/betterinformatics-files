@@ -1,21 +1,13 @@
 import { css } from "@emotion/css";
 import {
   Button,
-} from "@mantine/core";
-import {
   Modal,
-  ModalBody,
-  ModalHeader,
-} from "@vseth/components";
+} from "@mantine/core";
 import * as React from "react";
 import { useCallback, useState } from "react";
 import { ImageHandle } from "./utils/types";
 import EditorHelp from "./EditorHelp";
 
-const wideModal = css`
-  width: 90vw;
-  max-width: 1500px;
-`;
 const rowStyle = css`
   text-align: right;
   margin-left: -0.5rem;
@@ -44,13 +36,10 @@ const EditorFooter: React.FC<Props> = ({
           </Button>
         </Button.Group>
       </div>
-      <Modal isOpen={isHelpOpen} toggle={toggleHelp} className={wideModal}>
-        <ModalHeader>
-          <h1>Help with Editor</h1>
-        </ModalHeader>
-        <ModalBody>
+      <Modal title="Help with Editor" opened={isHelpOpen} onClose={toggleHelp} size="min(90vw, 1500px)">
+        <Modal.Body>
           <EditorHelp />
-        </ModalBody>
+        </Modal.Body>
       </Modal>
     </div>
   );

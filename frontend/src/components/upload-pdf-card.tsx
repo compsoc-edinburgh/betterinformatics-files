@@ -1,13 +1,10 @@
-import { Grid, Loader, TextInput } from "@mantine/core";
+import { Grid, Loader, NativeSelect, TextInput } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
   Card,
 } from "@mantine/core";
-import {
-  Select,
-} from "@vseth/components";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
@@ -36,7 +33,7 @@ const UploadPdfCard: React.FC<{}> = () => {
       categories?.map(category => ({
         value: category.slug,
         label: category.displayname,
-      })),
+      })) ?? [],
     [categories],
   );
   const [file, setFile] = useState<File | undefined>();
@@ -72,10 +69,9 @@ const UploadPdfCard: React.FC<{}> = () => {
             required
           />
           <label className="form-input-label">Category</label>
-          <Select
-            options={options}
-            onChange={(e: any) => setCategory(e.value as string)}
-            isLoading={categoriesLoading}
+          <NativeSelect
+            data={options}
+            onChange={(event: any) => setCategory(event.currentTarget.value as string)}
             required
           />
           <Grid>

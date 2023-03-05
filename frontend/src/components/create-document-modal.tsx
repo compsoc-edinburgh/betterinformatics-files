@@ -2,12 +2,8 @@ import {
   Button,
   Loader,
   TextInput,
+  Modal,
 } from "@mantine/core";
-import {
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from "@vseth/components";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -16,10 +12,11 @@ import { useUser } from "../auth";
 
 interface Props {
   categorySlug: string;
+  isOpen: boolean;
   toggle: () => void;
 }
 
-const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
+const CreateDocumentForm: React.FC<Props> = ({ categorySlug, isOpen, toggle }) => {
   const { username } = useUser()!;
   const [displayName, setDisplayName] = useState("");
   const history = useHistory();
@@ -27,9 +24,8 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
     history.push(`/user/${username}/document/${slug}/`);
   });
   return (
-    <>
-      <ModalHeader toggle={toggle}>Add Document</ModalHeader>
-      <ModalBody>
+    <Modal opened={isOpen} title="Add Document" onClose={toggle}>
+      <Modal.Body>
         <TextInput
           label="Display Name"
           value={displayName}
@@ -40,8 +36,6 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
           An empty new document will be created. One or more files can be added
           to the document in the settings tab.
         </div>
-      </ModalBody>
-      <ModalFooter>
         <Button
           color="primary"
           disabled={loading || displayName === ""}
@@ -54,8 +48,8 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
             <Icon icon={ICONS.PLUS} className="ml-2" />
           )}
         </Button>
-      </ModalFooter>
-    </>
+      </Modal.Body>
+    </Modal>
   );
 };
 

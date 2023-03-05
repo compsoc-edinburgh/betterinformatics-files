@@ -4,6 +4,7 @@ import {
   Container,
   Modal,
   Group,
+  Badge,
 } from "@mantine/core";
 import {
   Icon,
@@ -45,6 +46,7 @@ import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import serverData from "./utils/server-data";
+import { useRequest } from "@umijs/hooks";
 const minHeight = css`
   min-height: 100vh;
 `;
@@ -137,11 +139,17 @@ const App: React.FC<{}> = () => {
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
 
+  const loadUnreadCount = async () => {
+    return (await fetchGet("/api/notification/unreadcount/")).value as number;
+  };
+  const { data: unreadCount } = useRequest(loadUnreadCount, {
+    pollingInterval: 300_000,
+  });
+
   const { data } = useConfig(
     "https://static.vseth.ethz.ch/assets/vseth-1116-vis/config.json",
   );
 
-  //create the mantine theme-object with your org's primary color
   const theme = makeVsethTheme([
     "#E5F9FF",
     "#D1F3FF",
@@ -168,7 +176,19 @@ const App: React.FC<{}> = () => {
       ],
     },
     { title: "Search", href: "/search" },
-    { title: "Account", href: `/user/${user?.username}` },
+    {
+      title:
+        <span>
+          Account
+          {unreadCount !== undefined && unreadCount > 0 && (
+            <>
+              {" "}
+              <Badge className="small">{unreadCount}</Badge>
+            </>
+          )}
+        </span>
+      , href: `/user/${user?.username}`,
+    },
   ];
 
   return (
@@ -205,7 +225,6 @@ const App: React.FC<{}> = () => {
                 className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
               >
                 <div>
-                  {/* <ExamsNavbar /> */}
                   <main className="main__container py-5">
                     <Switch>
                       <UserRoute exact path="/" component={HomePage} />

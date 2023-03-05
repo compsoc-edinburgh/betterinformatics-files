@@ -1,14 +1,11 @@
-import { css } from "@emotion/css";
-import { Button, Checkbox, Grid, Slider } from "@mantine/core";
-import { useDebounceFn } from "@umijs/hooks";
 import {
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
+  Button,
+  Checkbox,
+  Grid,
+  Slider,
   Pagination,
-  PaginationItem,
-  PaginationLink,
-} from "@vseth/components";
+} from "@mantine/core";
+import { useDebounceFn } from "@umijs/hooks";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -17,22 +14,6 @@ import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
 import IconButton from "./icon-button";
 import Panel from "./panel";
-
-const intMap = <T,>(from: number, to: number, cb: (num: number) => T) => {
-  const acc: T[] = [];
-  for (let i = from; i <= to; i++) {
-    acc.push(cb(i));
-  }
-  return acc;
-};
-const paginationStyle = css`
-  & .pagination {
-    display: inline-block;
-  }
-  & .pagination .page-item {
-    display: inline-block;
-  }
-`;
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
@@ -121,72 +102,60 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
-      <ModalHeader>
-        <Link
-          className="link-text"
-          to={`/category/${metaData ? metaData.category : ""}`}
-        >
-          {metaData && metaData.category_displayname}
-        </Link>
-        <p>
-          <small>{metaData && metaData.displayname}</small>
-        </p>
-      </ModalHeader>
-      <ModalBody>
-        <h6 className="my-3 mx-2">Pages</h6>
-        <Pagination className={paginationStyle}>
-          {renderer &&
-            intMap(1, renderer.document.numPages, pageNum => (
-              <PaginationItem active key={pageNum}>
-                {visiblePages.has(pageNum) ? (
-                  <PaginationLink href={`#page-${pageNum}`} className="border">
-                    {pageNum}
-                  </PaginationLink>
-                ) : (
-                  <PaginationLink href={`#page-${pageNum}`}>
-                    {pageNum}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            ))}
-        </Pagination>
-
-        <h6 className="my-3 mx-2">Size</h6>
-        <Slider
-          min={500}
-          max={2000}
-          value={widthValue}
-          onChange={handler}
+      <Link
+        className="link-text"
+        to={`/category/${metaData ? metaData.category : ""}`}
+      >
+        {metaData && metaData.category_displayname}
+      </Link>
+      <p>
+        <small>{metaData && metaData.displayname}</small>
+      </p>
+      <h6 className="my-3 mx-2">Pages</h6>
+      {!!renderer && (
+        <Pagination total={renderer.document.numPages} getItemProps={(page) => ({
+          component: 'a',
+          href: `#page-${page}`,
+        })} withControls={false} />
+      )
+      }
+      <h6 className="my-3 mx-2">Size</h6>
+      <Slider
+        min={500}
+        max={2000}
+        value={widthValue}
+        onChange={handler}
+      />
+      <h6 className="my-3 mx-2">Actions</h6>
+      <Button.Group>
+        <IconButton
+          tooltip="Report problem"
+          iconName={ICONS.MESSAGE}
+          onClick={reportProblem}
         />
-        <h6 className="my-3 mx-2">Actions</h6>
-        <Button.Group>
+        <IconButton
+          tooltip="Back to the top"
+          iconName={ICONS.ARROW_UP}
+          onClick={scrollToTop}
+        />
+        {!allSectionsExpanded && (
           <IconButton
-            tooltip="Report problem"
-            iconName={ICONS.MESSAGE}
-            onClick={reportProblem}
+            tooltip="Expand all answers"
+            iconName={ICONS.ADJUST_UP_DOWN}
+            onClick={onExpandAllSections}
           />
+        )}
+        {!allSectionsCollapsed && (
           <IconButton
-            tooltip="Back to the top"
-            iconName={ICONS.ARROW_UP}
-            onClick={scrollToTop}
+            tooltip="Collapse all answers"
+            iconName={ICONS.ADJUST_UP_DOWN_ALT}
+            onClick={onCollapseAllSections}
           />
-          {!allSectionsExpanded && (
-            <IconButton
-              tooltip="Expand all answers"
-              iconName={ICONS.ADJUST_UP_DOWN}
-              onClick={onExpandAllSections}
-            />
-          )}
-          {!allSectionsCollapsed && (
-            <IconButton
-              tooltip="Collapse all answers"
-              iconName={ICONS.ADJUST_UP_DOWN_ALT}
-              onClick={onCollapseAllSections}
-            />
-          )}
-        </Button.Group>
+        )}
+      </Button.Group>
 
-        {canEdit && (
+      {
+        canEdit && (
           <>
             <h6 className="my-3 mx-2">Edit Mode</h6>
             <Grid>
@@ -264,16 +233,14 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
               }
             />
           </>
-        )}
-      </ModalBody>
-      <ModalFooter>
-        All answers are licensed as &nbsp;
-        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-          CC BY-NC-SA 4.0
-        </a>
-        .
-      </ModalFooter>
-    </Panel>
+        )
+      }
+      All answers are licensed as & nbsp;
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+        CC BY-NC-SA 4.0
+      </a>
+      .
+    </Panel >
   );
 };
 export default ExamPanel;

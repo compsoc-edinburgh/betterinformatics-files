@@ -3,15 +3,10 @@ import {
   List,
   Loader,
   TextInput,
+  Modal,
+  NativeSelect,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import {
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  Select,
-} from "@vseth/components";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -41,7 +36,7 @@ interface Props {
 
 const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const history = useHistory();
-  const { loading: categoriesLoading, data: categories } =
+  const { data: categories } =
     useRequest(loadCategories);
   const categoryOptions =
     categories &&
@@ -90,7 +85,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
     <>
-      <Modal isOpen={addModalIsOpen} toggle={toggleAddModalIsOpen}>
+      <Modal opened={addModalIsOpen} onClose={toggleAddModalIsOpen}>
         <CreateDocumentFileModal
           toggle={toggleAddModalIsOpen}
           document={data}
@@ -105,18 +100,17 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
           <label className="form-input-label">Category</label>
-          <Select
-            options={categoryOptions ? (options(categoryOptions) as any) : []}
+          <NativeSelect
+            data={categoryOptions ? (options(categoryOptions) as any) : []}
             value={
               categoryOptions &&
               (category
-                ? categoryOptions[category]
-                : categoryOptions[data.category])
+                ? categoryOptions[category].value
+                : categoryOptions[data.category].value)
             }
-            onChange={(e: any) => {
-              setCategory(e.value as string);
+            onChange={(event: any) => {
+              setCategory(event.currentTarget.value as string);
             }}
-            isLoading={categoriesLoading}
             required
           />
           <label className="form-input-label">Description</label>
@@ -196,15 +190,10 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           </div>
         </>
       )}
-      <Modal isOpen={deleteModalIsOpen} toggle={toggleDeleteModalIsOpen}>
-        <ModalHeader toggle={toggleDeleteModalIsOpen}>
-          Are you absolutely sure?
-        </ModalHeader>
-        <ModalBody>
+      <Modal opened={deleteModalIsOpen} title="Are you absolutely sure?" onClose={toggleDeleteModalIsOpen}>
+        <Modal.Body>
           Deleting the document will delete all associated files and all
           comments. <b>This cannot be undone.</b>
-        </ModalBody>
-        <ModalFooter>
           <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
           <Button
             onClick={deleteDocument}
@@ -212,7 +201,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           >
             Delete this document
           </Button>
-        </ModalFooter>
+        </Modal.Body>
       </Modal>
     </>
   );

@@ -7,7 +7,7 @@ const ThreeColumns: React.FC<{
   right?: React.ReactNode;
 }> = ({ left, center, right }) => {
   return (
-    <Container fluid className="px-0 align-items-center">
+    <Container fluid className="px-0">
       <Grid>
         <Grid.Col
           sm={4}

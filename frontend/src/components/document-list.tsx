@@ -1,4 +1,3 @@
-import { Modal } from "@vseth/components";
 import { Card } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -17,12 +16,11 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
   const [documents] = useDocuments(slug);
   return (
     <>
-      <Modal isOpen={isOpen} toggle={() => setIsOpen(r => !r)}>
-        <CreateDocumentForm
-          categorySlug={slug}
-          toggle={() => setIsOpen(r => !r)}
-        />
-      </Modal>
+      <CreateDocumentForm
+        isOpen={isOpen}
+        categorySlug={slug}
+        toggle={() => setIsOpen(r => !r)}
+      />
 
       <Grid>
         {documents &&

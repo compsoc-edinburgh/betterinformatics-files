@@ -3,11 +3,9 @@ import {
   Card,
   Grid,
   Loader,
+  NativeSelect,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import {
-  Select,
-} from "@vseth/components";
 import {
   Button,
 } from "@mantine/core";
@@ -41,7 +39,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
       categories?.map(category => ({
         value: category.slug,
         label: category.displayname,
-      })),
+      })) ?? [],
     [categories],
   );
 
@@ -79,10 +77,9 @@ const UploadTranscriptCard: React.FC<{}> = () => {
             accept="application/pdf"
           />
           <label className="form-input-label">Category</label>
-          <Select
-            options={options}
-            onChange={(e: any) => setCategory(e.value as string)}
-            isLoading={categoriesLoading}
+          <NativeSelect
+            data={options}
+            onChange={(event: any) => setCategory(event.currentTarget.value as string)}
             required
           />
           <Grid>

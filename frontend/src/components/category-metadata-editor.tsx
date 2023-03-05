@@ -1,14 +1,12 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  Select,
-} from "@vseth/components";
-import {
   Alert,
   Button,
   Checkbox,
   CloseButton,
   Grid,
   Group,
+  NativeSelect,
   Textarea,
   TextInput,
 } from "@mantine/core"
@@ -18,7 +16,7 @@ import { fetchPost } from "../api/fetch-utils";
 import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
-import { createOptions, options, SelectOption } from "../utils/ts-utils";
+import { createOptions, options } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import OfferedInEditor from "./offered-in-editor";
 import UserSetEditor from "./user-set-editor";
@@ -249,31 +247,31 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <TextInput label="Name" {...registerInput("displayname")} />
       <Grid>
         <Grid.Col md={6}>
-          <label className="form-input-label">Semester</label>
-          <Select
-            options={options(semesterOptions)}
+          <NativeSelect
+            label="Semester"
+            data={options(semesterOptions)}
             value={
               semesterOptions[
-              formState.semester as keyof typeof semesterOptions
-              ]
+                formState.semester as keyof typeof semesterOptions
+              ].value
             }
-            onChange={(option: any) =>
+            onChange={(event: any) =>
               setFormValue(
                 "semester",
-                (option as SelectOption<typeof semesterOptions>).value,
+                event.currentTarget.value,
               )
             }
           />
         </Grid.Col>
         <Grid.Col md={6}>
-          <label className="form-input-label">Form</label>
-          <Select
-            options={options(formOptions)}
-            value={formOptions[formState.form as keyof typeof formOptions]}
-            onChange={(option: any) =>
+          <NativeSelect
+            label="Form"
+            data={options(formOptions)}
+            value={formOptions[formState.form as keyof typeof formOptions].value}
+            onChange={(event: any) =>
               setFormValue(
                 "form",
-                (option as SelectOption<typeof formOptions>).value,
+                event.currentTarget.value,
               )
             }
           />
@@ -283,17 +281,17 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <Grid>
         <Grid.Col md={6}>
           <label className="form-input-label">Permission</label>
-          <Select
-            options={options(permissionOptions)}
+          <NativeSelect
+            data={options(permissionOptions)}
             value={
               permissionOptions[
-              formState.permission as keyof typeof permissionOptions
-              ]
+                formState.permission as keyof typeof permissionOptions
+              ].value
             }
-            onChange={(option: any) =>
+            onChange={(event: any) =>
               setFormValue(
                 "permission",
-                (option as SelectOption<typeof permissionOptions>).value,
+                event.currentTarget.value,
               )
             }
           />

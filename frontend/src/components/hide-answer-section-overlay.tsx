@@ -1,6 +1,6 @@
-import { Modal, ModalBody, ModalHeader } from "@vseth/components";
 import {
   Button,
+  Modal,
 } from "@mantine/core";
 import React from "react";
 interface ModalProps {
@@ -14,9 +14,8 @@ const HideAnswerSectionModal: React.FC<ModalProps> = ({
   setHidden,
 }) => {
   return (
-    <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Hide Section?</ModalHeader>
-      <ModalBody>
+    <Modal size="lg" opened={isOpen} title="Hide section?" onClose={toggle}>
+      <Modal.Body>
         <p>All corresponding answers will be deleted, this cannot be undone!</p>
 
         <div className="text-right">
@@ -27,7 +26,7 @@ const HideAnswerSectionModal: React.FC<ModalProps> = ({
             Delete Answers
           </Button>
         </div>
-      </ModalBody>
+      </Modal.Body>
     </Modal>
   );
 };

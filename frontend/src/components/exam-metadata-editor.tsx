@@ -6,19 +6,16 @@ import {
   CloseButton,
   Grid,
   Group,
+  NativeSelect,
+  Textarea,
   TextInput,
 } from "@mantine/core";
-import {
-  Select,
-  TextareaField,
-  Creatable,
-} from "@vseth/components";
 import React from "react";
 import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadCategories, loadExamTypes } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
-import { createOptions, options, SelectOption } from "../utils/ts-utils";
+import { createOptions, options } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import FileInput from "./file-input";
 import useForm from "../hooks/useForm";
@@ -162,9 +159,9 @@ const ExamMetadataEditor: React.FC<Props> = ({
   toggle,
   onMetaDataChange,
 }) => {
-  const { loading: categoriesLoading, data: categories } =
+  const { data: categories } =
     useRequest(loadCategories);
-  const { loading: examTypesLoading, data: examTypes } =
+  const { data: examTypes } =
     useRequest(loadExamTypes);
   const categoryOptions =
     categories &&
@@ -238,27 +235,25 @@ const ExamMetadataEditor: React.FC<Props> = ({
       <Grid>
         <Grid.Col md={6}>
           <label className="form-input-label">Category</label>
-          <Select
-            options={categoryOptions ? (options(categoryOptions) as any) : []}
-            value={categoryOptions && categoryOptions[formState.category]}
+          <NativeSelect
+            data={categoryOptions ? (options(categoryOptions) as any) : []}
+            value={categoryOptions && categoryOptions[formState.category].value}
             onChange={(e: any) => {
               setFormValue("category", e.value as string);
               setFormValue("category_displayname", e.label as string);
             }}
-            isLoading={categoriesLoading}
             required
           />
         </Grid.Col>
         <Grid.Col md={6}>
           <label className="form-input-label">Exam type</label>
-          <Creatable
-            options={examTypeOptions ? options(examTypeOptions) : []}
-            value={{ value: formState.examtype, label: formState.examtype }}
-            isLoading={examTypesLoading}
-            onChange={(option: any) =>
+          <NativeSelect
+            data={examTypeOptions ? (options(examTypeOptions) as any) : []}
+            value={formState.examtype}
+            onChange={(event: any) =>
               setFormValue(
                 "examtype",
-                (option as SelectOption<typeof examTypeOptions>).value,
+                event.currentTarget.value,
               )
             }
           />
@@ -356,7 +351,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
           )}
         </Grid.Col>
       </Grid>
-      <TextareaField label="Remark" textareaProps={registerInput("remark")} />
+      <Textarea label="Remark" {...registerInput("remark")} />
       <h6>Attachments</h6>
       <AttachmentsEditor
         attachments={formState.attachments}

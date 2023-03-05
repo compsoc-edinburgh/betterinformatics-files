@@ -1,20 +1,15 @@
 import { css } from "@emotion/css";
 import {
-  ButtonDropdown,
   Card,
-  CardFooter,
-  CardHeader,
   CardProps,
-  Col,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  InputGroup,
-  InputGroupButtonDropdown,
-  Row,
-  UncontrolledDropdown,
-} from "@vseth/components";
-import { Loader, Button, Container, TextInput } from "@mantine/core";
+  Button,
+  Container,
+  TextInput,
+  Loader,
+  Menu,
+  Group,
+  Flex,
+} from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
@@ -64,22 +59,24 @@ const AddButton: React.FC<AddButtonProps> = ({
   const toggle = useCallback(() => setOpen(old => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
     return (
-      <ButtonDropdown isOpen={isOpen} toggle={toggle} className="text-left">
-        <DropdownToggle size="sm" caret>
-          Add Answer
-        </DropdownToggle>
-        <DropdownMenu>
-          <DropdownItem onClick={onAnswer} disabled={hasAnswerDraft}>
+      <Menu opened={isOpen} onChange={toggle}>
+        <Menu.Target>
+          <Button rightIcon={<Icon icon={ICONS.DOWN} />}>
             Add Answer
-          </DropdownItem>
-          <DropdownItem
+          </Button>
+        </Menu.Target>
+        <Menu.Dropdown>
+          <Menu.Item onClick={onAnswer} disabled={hasAnswerDraft}>
+            Add Answer
+          </Menu.Item>
+          <Menu.Item
             onClick={onLegacyAnswer}
             disabled={hasLegacyAnswerDraft}
           >
             Add Legacy Answer
-          </DropdownItem>
-        </DropdownMenu>
-      </ButtonDropdown>
+          </Menu.Item>
+        </Menu.Dropdown>
+      </Menu>
     );
   } else {
     return (
@@ -203,7 +200,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     useEffect(() => {
       if (data && cutName.length === 0 && isCatAdmin) setIsEditingName(true);
     }, [data, isCatAdmin, cutName]);
-    const id = getAnswerSectionId(oid, cutName);
+    // const id = getAnswerSectionId(oid, cutName);
 
     return (
       <>
@@ -214,44 +211,36 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
-            <NameCard id={id}>
-              <CardFooter>
-                {isEditingName ? (
-                  <InputGroup size="sm">
-                    <TextInput
-                      value={draftName}
-                      placeholder="Name"
-                      onChange={e => setDraftName(e.target.value)}
+            <NameCard>
+              {isEditingName ? (
+                <Group>
+                  <TextInput
+                    value={draftName}
+                    placeholder="Name"
+                    onChange={e => setDraftName(e.target.value)}
+                  />
+                  <IconButton
+                    tooltip="Save PDF section name"
+                    iconName={ICONS.SAVE}
+                    onClick={() => {
+                      setIsEditingName(false);
+                      onCutNameChange(draftName);
+                    }}
+                  />
+                </Group>
+              ) : (
+                <Flex justify="space-between">
+                  <h6 className="m-0">{cutName}</h6>
+                  {isCatAdmin && (
+                    <IconButton
+                      tooltip="Edit PDF section name"
+                      size="sm"
+                      iconName={ICONS.EDIT}
+                      onClick={() => setIsEditingName(true)}
                     />
-                    <InputGroupButtonDropdown addonType="append">
-                      <IconButton
-                        tooltip="Save PDF section name"
-                        iconName={ICONS.SAVE}
-                        onClick={() => {
-                          setIsEditingName(false);
-                          onCutNameChange(draftName);
-                        }}
-                      />
-                    </InputGroupButtonDropdown>
-                  </InputGroup>
-                ) : (
-                  <Row>
-                    <Col className="d-flex flex-center flex-column">
-                      <h6 className="m-0">{cutName}</h6>
-                    </Col>
-                    <Col xs="auto">
-                      {isCatAdmin && (
-                        <IconButton
-                          tooltip="Edit PDF section name"
-                          size="sm"
-                          iconName={ICONS.EDIT}
-                          onClick={() => setIsEditingName(true)}
-                        />
-                      )}
-                    </Col>
-                  </Row>
-                )}
-              </CardFooter>
+                  )}
+                </Flex>
+              )}
             </NameCard>
           )}
         <Container fluid>
@@ -285,86 +274,86 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </>
           )}
           <AnswerSectionButtonWrapper
-            color={isBeingMoved || !has_answers ? "primary" : undefined}
+          // color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
-            <CardHeader>
-              <div className="d-flex">
-                {data === undefined ? (
-                  <ThreeButtons center={<Loader />} />
-                ) : (
-                  <>
-                    <ThreeButtons
-                      left={
-                        <>
-                          {displayHideShowButtons ? (
-                            <IconButton
-                              className="mr-1"
-                              size="sm"
-                              iconName={
-                                has_answers ? ICONS.VIEW_OFF : ICONS.VIEW
-                              }
-                              tooltip="Toggle visibility"
-                              onClick={hideAnswerSectionWithWarning}
-                            />
-                          ) : null}
-
-                          {isBeingMoved ? (
-                            <Button size="sm" onClick={onCancelMove}>
-                              Cancel
-                            </Button>
-                          ) : (
-                            (data.answers.length === 0 || !hidden) &&
-                            has_answers &&
-                            data &&
-                            (data.allow_new_answer ||
-                              (data.allow_new_legacy_answer && isCatAdmin)) && (
-                              <AddButton
-                                allowAnswer={data.allow_new_answer}
-                                allowLegacyAnswer={
-                                  data.allow_new_legacy_answer && isCatAdmin
-                                }
-                                hasAnswerDraft={hasDraft}
-                                hasLegacyAnswerDraft={hasLegacyDraft}
-                                onAnswer={onAddAnswer}
-                                onLegacyAnswer={onAddLegacyAnswer}
-                              />
-                            )
-                          )}
-                        </>
-                      }
-                      center={
-                        !isBeingMoved &&
-                        data.answers.length > 0 && (
-                          <Button
-                            color="primary"
+            <div>
+              {data === undefined ? (
+                <ThreeButtons center={<Loader />} />
+              ) : (
+                <>
+                  <ThreeButtons
+                    left={
+                      <>
+                        {displayHideShowButtons ? (
+                          <IconButton
+                            className="mr-1"
                             size="sm"
-                            onClick={onToggleHidden}
-                            className="d-inline-block"
-                          >
-                            {hidden ? "Show Answers" : "Hide Answers"}
+                            iconName={
+                              has_answers ? ICONS.VIEW_OFF : ICONS.VIEW
+                            }
+                            tooltip="Toggle visibility"
+                            onClick={hideAnswerSectionWithWarning}
+                          />
+                        ) : null}
+
+                        {isBeingMoved ? (
+                          <Button size="sm" onClick={onCancelMove}>
+                            Cancel
                           </Button>
-                        )
-                      }
-                      right={
-                        isCatAdmin && (
-                          <UncontrolledDropdown>
-                            <DropdownToggle caret size="sm">
+                        ) : (
+                          (data.answers.length === 0 || !hidden) &&
+                          has_answers &&
+                          data &&
+                          (data.allow_new_answer ||
+                            (data.allow_new_legacy_answer && isCatAdmin)) && (
+                            <AddButton
+                              allowAnswer={data.allow_new_answer}
+                              allowLegacyAnswer={
+                                data.allow_new_legacy_answer && isCatAdmin
+                              }
+                              hasAnswerDraft={hasDraft}
+                              hasLegacyAnswerDraft={hasLegacyDraft}
+                              onAnswer={onAddAnswer}
+                              onLegacyAnswer={onAddLegacyAnswer}
+                            />
+                          )
+                        )}
+                      </>
+                    }
+                    center={
+                      !isBeingMoved &&
+                      data.answers.length > 0 && (
+                        <Button
+                          color="primary"
+                          size="sm"
+                          onClick={onToggleHidden}
+                          className="d-inline-block"
+                        >
+                          {hidden ? "Show Answers" : "Hide Answers"}
+                        </Button>
+                      )
+                    }
+                    right={
+                      isCatAdmin && (
+                        <Menu>
+                          <Menu.Target>
+                            <Button rightIcon={<Icon icon={ICONS.DOWN} />}>
                               <Icon icon={ICONS.DOTS_H} size={18} />
-                            </DropdownToggle>
-                            <DropdownMenu>
-                              <DropdownItem onClick={runRemoveSplit}>
-                                Delete
-                              </DropdownItem>
-                              <DropdownItem onClick={onMove}>Move</DropdownItem>
-                            </DropdownMenu>
-                          </UncontrolledDropdown>
-                        )
-                      }
-                    />
-                  </>
-                )}
-              </div>
-            </CardHeader>
+                            </Button>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Item onClick={runRemoveSplit}>
+                              Delete
+                            </Menu.Item>
+                            <Menu.Item onClick={onMove}>Move</Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
+                      )
+                    }
+                  />
+                </>
+              )}
+            </div>
           </AnswerSectionButtonWrapper>
         </Container>
       </>

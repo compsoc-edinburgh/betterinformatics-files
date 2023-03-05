@@ -1,13 +1,8 @@
 import {
   Card,
   Loader,
-} from "@mantine/core";
-import {
   Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from "@vseth/components";
+} from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -70,9 +65,8 @@ const DocumentCommentComponent = ({
   const toggle = () => setHasDraft(e => !e);
   return (
     <>
-      <Modal toggle={toggle} isOpen={hasDraft} size="lg">
-        <ModalHeader toggle={toggle}>Edit Comment</ModalHeader>
-        <ModalBody>
+      <Modal title="Edit comment" onClose={toggle} opened={hasDraft} size="lg">
+        <Modal.Body>
           <Editor
             value={draftText}
             onChange={setDraftText}
@@ -81,8 +75,6 @@ const DocumentCommentComponent = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-        </ModalBody>
-        <ModalFooter className="d-flex justify-content-end mt-2">
           <TooltipButton
             color="primary"
             disabled={editLoading || draftText.length === 0}
@@ -95,7 +87,7 @@ const DocumentCommentComponent = ({
               <Icon icon={ICONS.SAVE} className="ml-2" />
             )}
           </TooltipButton>
-        </ModalFooter>
+        </Modal.Body>
       </Modal>
       <Card className="my-3 pt-3">
         <div className="d-flex justify-content-between align-items-center mb-1">

@@ -1,17 +1,10 @@
 import {
   Badge,
+  Box,
   Breadcrumbs,
+  Card,
   Group,
 } from "@mantine/core";
-import {
-  Card,
-  CardColumns,
-  Col,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-  Row,
-} from "@vseth/components";
 import { css } from "@emotion/css";
 import { escapeRegExp } from "lodash-es";
 import React from "react";
@@ -69,7 +62,7 @@ interface Props {
 }
 const SearchResults: React.FC<Props> = React.memo(({ data }) => {
   return (
-    <CardColumns className={columnStyle}>
+    <div className={columnStyle}>
       {data.map(result => {
         if (result.type === "exam") {
           return (
@@ -97,31 +90,24 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   </Link>
                 </h6>
                 {result.pages.map(([page, _, matches]) => (
-                  <Row key={page} className="position-relative">
-                    <Col xs="auto" className="position-static">
-                      <Pagination>
-                        <PaginationItem active>
-                          <PaginationLink
-                            tag={Link}
-                            to={`/exams/${result.filename}/#page-${page}`}
-                            className="border stretched-link position-static"
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </Pagination>
-                    </Col>
-                    <Col>
-                      {matches.map((part, i) => (
-                        <React.Fragment key={i}>
-                          <span className="text-muted">...</span>
-                          <HighlightedContent content={part} key={i} />
-                          <span className="text-muted">...</span>
-                          {i !== matches.length - 1 && " "}
-                        </React.Fragment>
-                      ))}
-                    </Col>
-                  </Row>
+                  <Group key={page}>
+                    <Box>
+                      <Link
+                        to={`/exams/${result.filename}/#page-${page}`}
+                        className="border stretched-link position-static"
+                      >
+                        {page}
+                      </Link>
+                    </Box>
+                    {matches.map((part, i) => (
+                      <React.Fragment key={i}>
+                        <span className="text-muted">...</span>
+                        <HighlightedContent content={part} key={i} />
+                        <span className="text-muted">...</span>
+                        {i !== matches.length - 1 && " "}
+                      </React.Fragment>
+                    ))}
+                  </Group>
                 ))}
               </Card>
             </div>
@@ -200,7 +186,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           );
         }
       })}
-    </CardColumns>
+    </div>
   );
 });
 export default SearchResults;

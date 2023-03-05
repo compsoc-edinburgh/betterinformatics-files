@@ -1,20 +1,13 @@
 import {
-  Button,
-  Grid,
-  Loader,
-  TextInput,
-} from "@mantine/core";
-import {
-  ListGroupItem,
-  ListGroupItemHeading,
-  ListGroupItemText,
-  ModalHeader,
-  Modal,
-  ModalBody,
-  ModalFooter,
-} from "@vseth/components";
-import {
   Badge,
+  Button,
+  Card,
+  Grid,
+  Group,
+  Loader,
+  Modal,
+  Text,
+  TextInput,
 } from "@mantine/core";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -67,11 +60,8 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [keyIsOpen, toggleKeyIsOpen] = useToggle();
   return (
     <>
-      <Modal toggle={toggleEditIsOpen} isOpen={editIsOpen}>
-        <ModalHeader toggle={toggleEditIsOpen}>
-          Edit "{file.display_name}"
-        </ModalHeader>
-        <ModalBody>
+      <Modal title="Edit {file.display_name}" onClose={toggleEditIsOpen} opened={editIsOpen}>
+        <Modal.Body>
           <TextInput
             label="Display Name"
             value={displayName ?? file.display_name}
@@ -83,8 +73,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             onChange={setFile}
             accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
           />
-        </ModalBody>
-        <ModalFooter>
           <Button
             color="primary"
             disabled={displayName === ""}
@@ -99,11 +87,10 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               <Icon icon={ICONS.SAVE} className="ml-2" />
             )}
           </Button>
-        </ModalFooter>
+        </Modal.Body>
       </Modal>
-      <Modal toggle={toggleKeyIsOpen} isOpen={keyIsOpen} size="lg">
-        <ModalHeader toggle={toggleKeyIsOpen}>Access Token</ModalHeader>
-        <ModalBody>
+      <Modal title="Access Token" onClose={toggleKeyIsOpen} opened={keyIsOpen} size="lg">
+        <Modal.Body>
           <p>
             Token: <code>{document.api_key}</code>
           </p>
@@ -139,17 +126,17 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               {`curl ${window.location.origin}/api/document/${document.author}/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
-        </ModalBody>
+        </Modal.Body>
       </Modal>
-      <ListGroupItem className="d-md-flex justify-content-between align-items-center">
+      <Card withBorder className="d-md-flex justify-content-between align-items-center">
         <div className="d-flex flex-column">
-          <ListGroupItemHeading>
+          <Text fz="xl" fw={600}>
             {file.display_name || <i>Unnamed</i>}
-          </ListGroupItemHeading>
-          <ListGroupItemText>
+          </Text>
+          <Group>
             <Badge color="primary">{file.filename}</Badge>{" "}
             <Badge>{file.mime_type}</Badge>
-          </ListGroupItemText>
+          </Group>
         </div>
         <Grid>
           <Grid.Col xs="auto">
@@ -176,7 +163,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             />
           </Grid.Col>
         </Grid>
-      </ListGroupItem>
+      </Card>
     </>
   );
 };

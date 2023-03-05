@@ -3,13 +3,9 @@ import {
   Card,
   Grid,
   Image,
+  Modal,
   SimpleGrid,
 } from "@mantine/core";
-import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "@vseth/components";
 import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
@@ -38,9 +34,8 @@ const ImageModal: React.FC<ModalProps> = ({
     }
   };
   return (
-    <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Images</ModalHeader>
-      <ModalBody>
+    <Modal title="Images" size="lg" opened={isOpen} onClose={toggle}>
+      <Modal.Body>
         <Grid>
           <Grid.Col>
             <FileInput value={file} onChange={setFile} accept="image/*" />
@@ -111,7 +106,7 @@ const ImageModal: React.FC<ModalProps> = ({
               </div>
             ))}
         </SimpleGrid>
-      </ModalBody>
+      </Modal.Body>
     </Modal>
   );
 };
