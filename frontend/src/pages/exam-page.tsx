@@ -8,6 +8,7 @@ import {
   Container,
   Grid,
   Button,
+  Flex,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -216,7 +217,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   return (
     <>
       <Container size="xl">
-        <div className="d-flex justify-content-between align-items-center">
+        <Flex justify="space-between" align="center">
           <h1>{metaData.displayname}</h1>
           <div className="d-flex">
             <Button
@@ -251,7 +252,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               </>
             )}
           </div>
-        </div>
+        </Flex>
         <Grid>
           {!metaData.canView && (
             <Grid.Col md={6} lg={4}>
@@ -346,7 +347,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       </Container>
 
       <ContentContainer className="my-3">
-        <div ref={sizeRef} style={{ maxWidth }} className="mx-auto my-3">
+        <Container ref={sizeRef} style={{ maxWidth }} my="sm">
           {width && sections && renderer && (
             <Exam
               metaData={metaData}
@@ -371,7 +372,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               onExpandSections={expandSections}
             />
           )}
-        </div>
+        </Container>
       </ContentContainer>
       <ExamPanel
         isOpen={panelIsOpen}

@@ -213,7 +213,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     }
 
     return (
-      <Card className={end === 1 ? lastSection : undefined}>
+      <Card shadow="sm" className={end === 1 ? lastSection : undefined}>
         <div ref={inViewportRef}>
           <div
             className="cover-container"

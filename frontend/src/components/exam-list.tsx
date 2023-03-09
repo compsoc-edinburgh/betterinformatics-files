@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Loader,
+  TextInput,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
@@ -65,7 +66,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     <>
       {error && <Alert color="danger">{error}</Alert>}
       {loading && <Loader />}
-      <Flex justify="space-between">
+      <Flex my="sm" justify="space-between">
         <div className="mb-2 d-md-inline-block">
           <Button
             disabled={selected.size === 0}
@@ -75,21 +76,13 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             Download selected exams
           </Button>
         </div>
-        <div className="d-md-inline-block">
-          <div className="search mb-0">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Filter..."
-              value={filter}
-              onChange={e => setFilter(e.currentTarget.value)}
-              autoFocus
-            />
-            <div className="search-icon-wrapper">
-              <div className="search-icon" />
-            </div>
-          </div>
-        </div>
+        <TextInput
+          placeholder="Filter..."
+          value={filter}
+          autoFocus
+          onChange={e => setFilter(e.currentTarget.value)}
+          icon={<Icon icon={ICONS.SEARCH} size={14} />}
+        />
       </Flex>
 
       {examTypeMap &&

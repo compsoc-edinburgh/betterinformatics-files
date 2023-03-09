@@ -20,21 +20,24 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
   };
   return (
     <Card
+      component={Link}
+      to={`/category/${category.slug}`}
+      onClick={e => {
+        if (!authenticated()) {
+          e.preventDefault();
+          login(`/category/${category.slug}`);
+        }
+      }}
       withBorder
       shadow="md"
+      padding="lg"
       className={focusOutline}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
       <Anchor
-        component={Link}
-        to={`/category/${category.slug}`}
-        onClick={e => {
-          if (!authenticated()) {
-            e.preventDefault();
-            login(`/category/${category.slug}`);
-          }
-        }}
+        // component="p"
+        // color="gray.9"
         weight={700}
         size="xl"
         className="stretched-link"
@@ -44,7 +47,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
           ? highlight(category.displayname, category.match)
           : category.displayname}
       </Anchor>
-      <Text mt="sm">
+      <Text mt="xs">
         Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
       </Text>
       <Text>

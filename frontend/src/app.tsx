@@ -5,6 +5,8 @@ import {
   Modal,
   Group,
   Badge,
+  MantineProvider,
+  useMantineTheme,
 } from "@mantine/core";
 import {
   Icon,
@@ -150,7 +152,7 @@ const App: React.FC<{}> = () => {
     "https://static.vseth.ethz.ch/assets/vseth-1116-vis/config.json",
   );
 
-  const theme = makeVsethTheme([
+  const vsethTheme = makeVsethTheme([
     "#E5F9FF",
     "#D1F3FF",
     "#9EE5FF",
@@ -162,7 +164,9 @@ const App: React.FC<{}> = () => {
     "#0A8BC7",
     "#0E78AA",
   ]);
-  // theme.colorScheme = 'dark';
+  vsethTheme.colorScheme = 'light';
+
+  const theme = useMantineTheme();
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
@@ -192,7 +196,7 @@ const App: React.FC<{}> = () => {
   ];
 
   return (
-    <VSETHThemeProvider theme={theme}>
+    <VSETHThemeProvider theme={vsethTheme}>
       <VSETHExternalApp
         title="Community Solutions"
         appNav={bottomHeaderNav}
@@ -203,81 +207,82 @@ const App: React.FC<{}> = () => {
         privacyPolicy={data?.privacy}
         disclaimer={data?.copyright}
       >
-        <Modal opened={loggedOut} onClose={() => login()} title="You've been logged out due to inactivity">
-          Your session has expired due to inactivity, you have to log in again
-          to continue.
-          <div className="text-center py-3">
-            <Button
-              size="lg"
-              color="primary"
-              variant="outline"
-              onClick={() => login()}
-            >
-              Sign in with AAI
-            </Button>
-          </div>
-        </Modal>
-        <Route component={HashLocationHandler} />
-        <DebugContext.Provider value={debugOptions}>
-          <UserContext.Provider value={user}>
-            <SetUserContext.Provider value={setUser}>
-              <div
-                className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
+        <MantineProvider theme={{ colorScheme: 'light', primaryColor: 'gray' }} withGlobalStyles withNormalizeCSS>
+          <Modal opened={loggedOut} onClose={() => login()} title="You've been logged out due to inactivity">
+            Your session has expired due to inactivity, you have to log in again
+            to continue.
+            <div className="text-center py-3">
+              <Button
+                size="lg"
+                color="primary"
+                variant="outline"
+                onClick={() => login()}
               >
-                <div>
-                  <main className="main__container py-5">
-                    <Switch>
-                      <UserRoute exact path="/" component={HomePage} />
-                      <Route exact path="/login" component={LoginPage} />
-                      <UserRoute
-                        exact
-                        path="/uploadpdf"
-                        component={UploadPdfPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/submittranscript"
-                        component={UploadTranscriptPage}
-                      />
-                      <UserRoute exact path="/faq" component={FAQ} />
-                      <UserRoute
-                        exact
-                        path="/feedback"
-                        component={FeedbackPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/category/:slug"
-                        component={CategoryPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:author/document/:slug"
-                        component={DocumentPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/exams/:filename"
-                        component={ExamPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:username"
-                        component={UserPage}
-                      />
-                      <UserRoute exact path="/user/" component={UserPage} />
-                      <UserRoute exact path="/search/" component={SearchPage} />
-                      <UserRoute
-                        exact
-                        path="/scoreboard"
-                        component={Scoreboard}
-                      />
-                      <UserRoute exact path="/modqueue" component={ModQueue} />
-                      <Route component={NotFoundPage} />
-                    </Switch>
-                  </main>
-                </div>
-                {/* <div className="py-3">
+                Sign in with AAI
+              </Button>
+            </div>
+          </Modal>
+          <Route component={HashLocationHandler} />
+          <DebugContext.Provider value={debugOptions}>
+            <UserContext.Provider value={user}>
+              <SetUserContext.Provider value={setUser}>
+                <div
+                  className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
+                >
+                  <div>
+                    <main className="main__container py-5">
+                      <Switch>
+                        <UserRoute exact path="/" component={HomePage} />
+                        <Route exact path="/login" component={LoginPage} />
+                        <UserRoute
+                          exact
+                          path="/uploadpdf"
+                          component={UploadPdfPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/submittranscript"
+                          component={UploadTranscriptPage}
+                        />
+                        <UserRoute exact path="/faq" component={FAQ} />
+                        <UserRoute
+                          exact
+                          path="/feedback"
+                          component={FeedbackPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/category/:slug"
+                          component={CategoryPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/user/:author/document/:slug"
+                          component={DocumentPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/exams/:filename"
+                          component={ExamPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/user/:username"
+                          component={UserPage}
+                        />
+                        <UserRoute exact path="/user/" component={UserPage} />
+                        <UserRoute exact path="/search/" component={SearchPage} />
+                        <UserRoute
+                          exact
+                          path="/scoreboard"
+                          component={Scoreboard}
+                        />
+                        <UserRoute exact path="/modqueue" component={ModQueue} />
+                        <Route component={NotFoundPage} />
+                      </Switch>
+                    </main>
+                  </div>
+                  {/* <div className="py-3">
                   <Container>
                     <img src="https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg" height={32} alt="VSETH Logo" />
                     <div className="bg-primary my-3" style={{ height: 2 }} />
@@ -324,25 +329,26 @@ const App: React.FC<{}> = () => {
                     </Group>
                   </Container>
                 </div> */}
+                </div>
+              </SetUserContext.Provider>
+            </UserContext.Provider>
+          </DebugContext.Provider>
+          {process.env.NODE_ENV === "development" && (
+            <>
+              <div style={{ position: "fixed", bottom: 10, left: 10 }}>
+                <Button color="white" onClick={toggleDebugPanel}>
+                  DEBUG
+                </Button>
               </div>
-            </SetUserContext.Provider>
-          </UserContext.Provider>
-        </DebugContext.Provider>
-        {process.env.NODE_ENV === "development" && (
-          <>
-            <div className="position-fixed" style={{ bottom: 0, left: 0 }}>
-              <Button color="white" onClick={toggleDebugPanel}>
-                DEBUG
-              </Button>
-            </div>
-            <DebugModal
-              isOpen={debugPanel}
-              toggle={toggleDebugPanel}
-              debugOptions={debugOptions}
-              setDebugOptions={setDebugOptions}
-            />
-          </>
-        )}
+              <DebugModal
+                isOpen={debugPanel}
+                toggle={toggleDebugPanel}
+                debugOptions={debugOptions}
+                setDebugOptions={setDebugOptions}
+              />
+            </>
+          )}
+        </MantineProvider>
       </VSETHExternalApp>
     </VSETHThemeProvider>
   );

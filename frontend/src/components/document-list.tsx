@@ -1,4 +1,4 @@
-import { Card } from "@mantine/core";
+import { Anchor, Group, Paper } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -25,17 +25,18 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       <Grid>
         {documents &&
           documents.map(document => (
-            <Card key={document.slug}>
-              <Link
+            <Paper withBorder p="md" key={document.slug}>
+              <Anchor
+                weight={600}
+                component={Link}
                 to={`/user/${document.author}/document/${document.slug}`}
-                className="text-primary"
               >
-                <h6>{document.display_name}</h6>
-              </Link>
-              <div>
-                <Link to={`/user/${document.author}`} className="text-muted">
+                {document.display_name}
+              </Anchor>
+              <Group position="apart" mt="sm">
+                <Anchor component={Link} to={`/user/${document.author}`} color="dimmed">
                   @{document.author}
-                </Link>
+                </Anchor>
                 {document.liked ? (
                   <span className="text-danger ml-2">
                     <Icon icon={ICONS.LIKE_FILLED} className="mr-1" />{" "}
@@ -47,18 +48,17 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
                     {document.like_count}
                   </span>
                 )}
-              </div>
-            </Card>
+              </Group>
+            </Paper>
           ))}
-        <Card style={{ minHeight: "4em" }}>
+        <Paper withBorder style={{ minHeight: "4em" }}>
           <TooltipButton
             tooltip="Add a new document"
             onClick={() => setIsOpen(true)}
-            className="position-cover w-100"
           >
-            <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
+            <Icon icon={ICONS.PLUS} size={40} />
           </TooltipButton>
-        </Card>
+        </Paper>
       </Grid>
     </>
   );

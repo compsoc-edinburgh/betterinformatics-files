@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { Modal, Button } from "@mantine/core";
+import { Modal, Button, Group } from "@mantine/core";
 type CB = () => void;
 const useConfirm = () => {
   const [stack, setStack] = useState<Array<[string, CB, CB]>>([]);
@@ -12,24 +12,27 @@ const useConfirm = () => {
   const modals = stack.map(([message, yes, no], i) => (
     <Modal opened={true} onClose={() => { }} key={i + message}>
       <Modal.Body>{message}</Modal.Body>
-      <Button
-        color="secondary"
-        onClick={() => {
-          pop();
-          no();
-        }}
-      >
-        Cancel
-      </Button>
-      <Button
-        color="primary"
-        onClick={() => {
-          pop();
-          yes();
-        }}
-      >
-        Okay
-      </Button>
+
+      <Group position="right">
+        <Button
+          color="secondary"
+          onClick={() => {
+            pop();
+            no();
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          color="primary"
+          onClick={() => {
+            pop();
+            yes();
+          }}
+        >
+          Okay
+        </Button>
+      </Group>
     </Modal>
   ));
   return [push, modals] as const;

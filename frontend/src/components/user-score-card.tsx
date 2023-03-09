@@ -3,25 +3,16 @@ import {
   Card,
   Container,
   SimpleGrid,
+  Text,
   Group,
-  createStyles,
+  Paper,
 } from "@mantine/core";
 import React from "react";
 import { logout } from "../api/fetch-utils";
 import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
 import LoadingOverlay from "./loading-overlay";
-
-const useStyles = createStyles(theme => ({
-  footer: {
-    backgroundColor:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[5]
-        : theme.colors.gray[1],
-    padding: `${theme.spacing.xs}px ${theme.spacing.lg}px`,
-    borderTop: `1.5px solid rgba(51,51,51,.125)`,
-  },
-}));
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface UserScoreCardProps {
   username?: string;
@@ -33,7 +24,6 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   userInfo,
   isMyself,
 }) => {
-  const { classes } = useStyles();
   const setUser = useSetUser();
   const user = useUser()!;
   return (
@@ -69,81 +59,69 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
         )}
       </Group>
 
-      <Container fluid>
+      <Container fluid p={0}>
         <SimpleGrid cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <div>
-            <Card withBorder className="m-1">
-              <LoadingOverlay loading={!userInfo} />
-              <h3 className="p-4 m-0">{userInfo ? userInfo.score : "-"}</h3>
-              <Card.Section>
-                <Container className={classes.footer}>
-                  <h6>Score</h6>
-                </Container>
-              </Card.Section>
-            </Card>
-          </div>
-          <div>
-            <Card withBorder className="m-1">
-              <LoadingOverlay loading={!userInfo} />
-              <h3 className="p-4 m-0">
-                {userInfo ? userInfo.score_answers : "-"}
-              </h3>
-              <Card.Section>
-                <Group className={classes.footer}>
-                  <h6>Answers</h6>
-                </Group>
-              </Card.Section>
-            </Card>
-          </div>
-          <div>
-            <Card withBorder className="m-1">
-              <LoadingOverlay loading={!userInfo} />
-              <h3 className="p-4 m-0">
-                {userInfo ? userInfo.score_comments : "-"}
-              </h3>
-              <Card.Section>
-                <Group className={classes.footer}>
-                  <h6>Comments</h6>
-                </Group>
-              </Card.Section>
-            </Card>
-          </div>
-          <div>
-            <Card withBorder className="m-1">
-              <LoadingOverlay loading={!userInfo} />
-              <h3 className="p-4 m-0">
-                {userInfo ? userInfo.score_documents : "-"}
-              </h3>
-              <Card.Section>
-                <Group className={classes.footer}>
-                  <h6>Documents</h6>
-                </Group>
-              </Card.Section>
-            </Card>
-          </div>
+          <Paper shadow="md" withBorder p="md">
+            <LoadingOverlay loading={!userInfo} />
+            <Group position="apart">
+              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Score</Text>
+              <Icon size="0.75em" icon={ICONS.UP} color="dimmed"/>
+            </Group>
+            <Text fz="xl" fw={600}>{userInfo ? userInfo.score : "-"}</Text>
+          </Paper>
+          <Paper shadow="md" withBorder p="md">
+            <LoadingOverlay loading={!userInfo} />
+            <Group position="apart">
+              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Answers</Text>
+              <Icon size="0.75em" icon={ICONS.PEN} color="dimmed"/>
+            </Group>
+            <Text fz="xl" fw={600}>
+              {userInfo ? userInfo.score_answers : "-"}
+            </Text>
+          </Paper>
+          <Paper shadow="md" withBorder p="md">
+            <LoadingOverlay loading={!userInfo} />
+            <Group position="apart">
+              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Comments</Text>
+              <Icon size="0.75em" icon={ICONS.MESSAGE_THREE_POINTS} color="dimmed"/>
+            </Group>
+            <Text fz="xl" fw={600}>
+              {userInfo ? userInfo.score_comments : "-"}
+            </Text>
+          </Paper>
+          <Paper shadow="md" withBorder p="md">
+            <LoadingOverlay loading={!userInfo} />
+            <Group position="apart">
+              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Documents</Text>
+              <Icon size="0.75em" icon={ICONS.FILE} color="dimmed"/>
+            </Group>
+            <Text fz="xl" fw={600}>
+              {userInfo ? userInfo.score_documents : "-"}
+            </Text>
+          </Paper>
           {userInfo && userInfo.score_cuts > 0 && (
-            <div>
-              <Card className="m-1">
-                <h3 className="p-4 m-0">{userInfo.score_cuts}</h3>
-                <Card.Section>
-                  <Group className={classes.footer}>
-                    <h6>Exam Import</h6>
-                  </Group>
-                </Card.Section>
-              </Card>
-            </div>
+            <Paper shadow="md" withBorder p="md">
+              <LoadingOverlay loading={!userInfo} />
+              <Group position="apart">
+                <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Exam Import</Text>
+                <Icon size="0.75em" icon={ICONS.FILE} color="dimmed"/>
+              </Group>
+              <Text fz="xl" fw={600}>
+                {userInfo.score_cuts}
+              </Text>
+            </Paper>
           )}
           {userInfo && userInfo.score_legacy > 0 && (
-            <div>
-              <Card className="m-1">
-                <h3 className="p-4 m-0">{userInfo.score_legacy}</h3>
-                <Card.Section>
-                  <Group className={classes.footer}>
-                    <h6>Wiki Import</h6>
-                  </Group>
-                </Card.Section>
-              </Card>
-            </div>
+            <Paper shadow="md" withBorder p="md">
+              <LoadingOverlay loading={!userInfo} />
+              <Group position="apart">
+                <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Wiki Import</Text>
+                <Icon size="0.75em" icon={ICONS.FILE} color="dimmed"/>
+              </Group>
+              <Text fz="xl" fw={600}>
+                {userInfo.score_legacy}
+              </Text>
+            </Paper>
           )}
         </SimpleGrid>
       </Container>

@@ -47,17 +47,15 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
         <Tooltip
           label={tooltip}
           withArrow
-          openDelay={400}
-          closeDelay={100}
           withinPortal
-        // isOpen={open || displayAllTooltips}
+        // opened={open || displayAllTooltips}
         // toggle={() => !isMobile && toggle()}
         >
           <Button
             variant="outline"
             {...longPress}
             {...buttonProps}
-          // onClick={e => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <span ref={ref} /> {children}
           </Button>

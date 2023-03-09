@@ -8,6 +8,7 @@ import {
   Modal,
   SegmentedControl,
   Stack,
+  Text,
   TextInput,
 } from "@mantine/core";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
@@ -191,13 +192,13 @@ export const CategoryList: React.FC<{}> = () => {
             value={filter}
             autoFocus
             onChange={e => setFilter(e.currentTarget.value)}
-            icon={<Icon icon={ICONS.SEARCH} size={14} />}
+            icon={<Icon icon={ICONS.SEARCH} size={12} />}
           />
         </Flex>
       </Container>
       <ContentContainer className="position-relative my-3">
         <LoadingOverlay loading={loading} />
-        <Container size="xl">
+        <Container size="xl" mt="lg" pt="3em" pb="md">
           {error ? (
             <Alert color="danger">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (
@@ -214,10 +215,10 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display}>
-                    <h4 className="my-4">{meta1display}</h4>
+                    <Text size="xl" weight={600} className="my-4">{meta1display}</Text>
                     {meta2.map(([meta2display, categories]) => (
                       <div key={meta2display}>
-                        <h5 className="my-3">{meta2display}</h5>
+                        <Text size="lg" weight={600} className="my-3">{meta2display}</Text>
                         <Grid>
                           {categories.map(category => (
                             <CategoryCard

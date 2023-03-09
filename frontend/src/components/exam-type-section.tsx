@@ -74,16 +74,12 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <h3 className="mt-4 mb-3 pl-2 d-flex align-items-center">
-        <input
-          className="mr-3"
-          type="checkbox"
-          checked={checked}
-          ref={el => el && (el.indeterminate = indeterminate)}
-          onChange={e => setChecked(e.currentTarget.checked)}
-        />
-        {examtype}
-      </h3>
+      <Checkbox
+        label={examtype}
+        checked={checked}
+        onChange={e => setChecked(e.currentTarget.checked)}
+        m="sm"
+      />
       <ExamGrid>
         {exams.map(exam => (
           <Card
@@ -119,6 +115,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     size="lg"
                     weight={600}
                     mb="sm"
+                  // color="gray.9"
                   >
                     {exam.displayname}
                   </Anchor>
@@ -188,12 +185,11 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 {catAdmin && <ClaimButton exam={exam} reloadExams={reload} />}
                 {user.isAdmin && (
                   <IconButton
-                    size="sm"
-                    color="dark"
+                    size="lg"
+                    color="gray.5"
                     tooltip="Delete exam"
                     iconName={ICONS.DELETE}
                     variant="outline"
-                    className="ml-2 m-1"
                     onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => handleRemoveClick(e, exam)}
                   />
                 )}

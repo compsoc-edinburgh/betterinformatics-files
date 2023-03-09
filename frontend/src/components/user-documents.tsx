@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, Loader, Card } from "@mantine/core";
+import { Alert, Anchor, Flex, Loader, Paper, Group, Text } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { useDocumentsLikedBy, useDocumentsUsername } from "../api/hooks";
 import { Link } from "react-router-dom";
@@ -27,27 +27,27 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       <Grid>
         {documents &&
           documents.map(document => (
-            <Card withBorder shadow="xs" key={document.slug}>
-              <Link to={`/user/${document.author}/document/${document.slug}`}>
-                <h6>{document.display_name}</h6>
-              </Link>
-              <div>
-                <Link to={`/user/${document.author}`} className="text-muted">
-                  @{document.author}
-                </Link>
+            <Paper p="md" withBorder shadow="xs" key={document.slug}>
+              <Anchor color="gray.9" size="lg" weight={600} component={Link} to={`/user/${document.author}/document/${document.slug}`}>
+                <Text size="lg">{document.display_name}</Text>
+              </Anchor>
+              <Group mt="sm" position="apart">
+                <Anchor component={Link} to={`/user/${document.author}`}>
+                  <Text color="dimmed">@{document.author}</Text>
+                </Anchor>
                 {document.liked ? (
-                  <span className="text-danger ml-2">
-                    <Icon icon={ICONS.LIKE_FILLED} className="mr-1" />{" "}
+                  <Flex align="center" color="red">
+                    <Icon icon={ICONS.LIKE_FILLED} color="red" />{" "}
                     {document.like_count}
-                  </span>
+                  </Flex>
                 ) : (
-                  <span className="text-muted ml-2">
-                    <Icon icon={ICONS.LIKE} className="mr-1" />{" "}
+                  <Flex color="gray.9" align="center">
+                    <Icon icon={ICONS.LIKE} color="gray.9" />{" "}
                     {document.like_count}
-                  </span>
+                  </Flex>
                 )}
-              </div>
-            </Card>
+              </Group>
+            </Paper>
           ))}
       </Grid>
     );
