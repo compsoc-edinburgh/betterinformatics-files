@@ -7,8 +7,8 @@ import {
   Alert,
   Container,
   Grid,
-  Button,
   Flex,
+  Group,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -43,7 +43,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { ICONS } from "vseth-canine-ui";
 
 const addCut = async (
   filename: string,
@@ -219,17 +219,13 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       <Container size="xl">
         <Flex justify="space-between" align="center">
           <h1>{metaData.displayname}</h1>
-          <div className="d-flex">
-            <Button
+          <Group>
+            <IconButton
               color="white"
-              component="a"
-              leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
-              target="_blank"
-              rel="noopener noreferrer"
-              href={metaData.exam_file}
-            >
-              Download
-            </Button>
+              iconName={ICONS.DOWNLOAD}
+              tooltip="Download"
+              onClick={() => window.open(metaData.exam_file, '_blank')}
+            />
             {user.isCategoryAdmin && (
               <>
                 {user.isAdmin &&
@@ -251,7 +247,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 />
               </>
             )}
-          </div>
+          </Group>
         </Flex>
         <Grid>
           {!metaData.canView && (
@@ -439,18 +435,19 @@ const ExamPage: React.FC<{}> = () => {
   return (
     <div>
       <Container>
-        <Breadcrumbs separator=">">
-          <Anchor component={Link} className="text-primary" to="/">
+        <Breadcrumbs separator="›">
+          <Anchor component={Link} tt="uppercase" size="xs" to="/">
             Home
           </Anchor>
           <Anchor
+            tt="uppercase" size="xs"
             component={Link}
             to={`/category/${metaData ? metaData.category : ""}`}
             className="text-primary"
           >
             {metaData && metaData.category_displayname}
           </Anchor>
-          <Anchor>{metaData && metaData.displayname}</Anchor>
+          <Anchor tt="uppercase" size="xs">{metaData && metaData.displayname}</Anchor>
         </Breadcrumbs>
       </Container>
       <div>

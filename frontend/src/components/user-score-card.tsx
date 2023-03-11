@@ -1,6 +1,5 @@
 import {
   Button,
-  Card,
   Container,
   SimpleGrid,
   Text,
@@ -19,6 +18,22 @@ interface UserScoreCardProps {
   userInfo?: UserInfo;
   isMyself: boolean;
 }
+
+function scoreCard(userInfo: UserInfo | undefined, title: string, key: keyof UserInfo, iconName: string) {
+  return (
+    <Paper shadow="md" withBorder px="md" py="xs">
+      <LoadingOverlay loading={!userInfo} />
+      <Group position="apart">
+        <Text inline size="xs" tt="uppercase" component="p" color="dimmed">{title}</Text>
+        <Text color="dimmed">
+          <Icon size="0.75em" icon={iconName} />
+        </Text>
+      </Group>
+      <Text fz="xl" fw={600}>{userInfo ? userInfo[key] : "-"}</Text>
+    </Paper>
+  );
+}
+
 const UserScoreCard: React.FC<UserScoreCardProps> = ({
   username,
   userInfo,
@@ -45,7 +60,6 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
                   }
                   setUser(undefined);
                 }}
-                className="m-2"
               >
                 {user.isAdmin
                   ? "View without admin privileges"
@@ -61,68 +75,12 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
 
       <Container fluid p={0}>
         <SimpleGrid cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          <Paper shadow="md" withBorder p="md">
-            <LoadingOverlay loading={!userInfo} />
-            <Group position="apart">
-              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Score</Text>
-              <Icon size="0.75em" icon={ICONS.UP} color="dimmed"/>
-            </Group>
-            <Text fz="xl" fw={600}>{userInfo ? userInfo.score : "-"}</Text>
-          </Paper>
-          <Paper shadow="md" withBorder p="md">
-            <LoadingOverlay loading={!userInfo} />
-            <Group position="apart">
-              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Answers</Text>
-              <Icon size="0.75em" icon={ICONS.PEN} color="dimmed"/>
-            </Group>
-            <Text fz="xl" fw={600}>
-              {userInfo ? userInfo.score_answers : "-"}
-            </Text>
-          </Paper>
-          <Paper shadow="md" withBorder p="md">
-            <LoadingOverlay loading={!userInfo} />
-            <Group position="apart">
-              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Comments</Text>
-              <Icon size="0.75em" icon={ICONS.MESSAGE_THREE_POINTS} color="dimmed"/>
-            </Group>
-            <Text fz="xl" fw={600}>
-              {userInfo ? userInfo.score_comments : "-"}
-            </Text>
-          </Paper>
-          <Paper shadow="md" withBorder p="md">
-            <LoadingOverlay loading={!userInfo} />
-            <Group position="apart">
-              <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Documents</Text>
-              <Icon size="0.75em" icon={ICONS.FILE} color="dimmed"/>
-            </Group>
-            <Text fz="xl" fw={600}>
-              {userInfo ? userInfo.score_documents : "-"}
-            </Text>
-          </Paper>
-          {userInfo && userInfo.score_cuts > 0 && (
-            <Paper shadow="md" withBorder p="md">
-              <LoadingOverlay loading={!userInfo} />
-              <Group position="apart">
-                <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Exam Import</Text>
-                <Icon size="0.75em" icon={ICONS.FILE} color="dimmed"/>
-              </Group>
-              <Text fz="xl" fw={600}>
-                {userInfo.score_cuts}
-              </Text>
-            </Paper>
-          )}
-          {userInfo && userInfo.score_legacy > 0 && (
-            <Paper shadow="md" withBorder p="md">
-              <LoadingOverlay loading={!userInfo} />
-              <Group position="apart">
-                <Text inline size="xs" tt="uppercase" component="p" color="dimmed">Wiki Import</Text>
-                <Icon size="0.75em" icon={ICONS.FILE} color="dimmed"/>
-              </Group>
-              <Text fz="xl" fw={600}>
-                {userInfo.score_legacy}
-              </Text>
-            </Paper>
-          )}
+          {scoreCard(userInfo, "Score", 'score', ICONS.UP)}
+          {scoreCard(userInfo, "Answers", 'score_answers', ICONS.PEN)}
+          {scoreCard(userInfo, "Comments", 'score_comments', ICONS.MESSAGE_THREE_POINTS)}
+          {scoreCard(userInfo, "Documents", 'score_documents', ICONS.FILE)}
+          {userInfo && userInfo.score_cuts > 0 && scoreCard(userInfo, "Exam Import", 'score_cuts', ICONS.FILE_UP)}
+          {userInfo && userInfo.score_legacy > 0 && scoreCard(userInfo, "Wiki Import", 'score_legacy', ICONS.FILE_MISSING_PLUS)}
         </SimpleGrid>
       </Container>
     </>

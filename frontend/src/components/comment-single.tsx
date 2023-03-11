@@ -1,4 +1,4 @@
-import { Anchor, Breadcrumbs, Card } from "@mantine/core";
+import { Anchor, Box, Breadcrumbs, Card, Divider, Text } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -15,63 +15,67 @@ const noMarginBreadcrumb = css`
     margin: 0;
   }
 `;
-const marginCommentText = css`
-  margin: 1em;
-`;
 
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
-    <Card withBorder className={marginCommentText}>
-      <Card.Section>
-        <Breadcrumbs className={noMarginBreadcrumb}>
-          <Anchor
-            component={Link}
-            to={`/category/${comment.category_slug}`}
-            className="text-primary"
-          >
-            {comment.category_displayname}
-          </Anchor>
-          <Anchor
-            component={Link}
-            to={`/exams/${comment.filename}`}
-            className="text-primary"
-          >
-            {comment.exam_displayname}
-          </Anchor>
-          <Anchor
-            component={Link}
-            to={`/exams/${comment.filename}#${comment.answerId}`}
-            className="text-primary"
-          >
-            Comment
-          </Anchor>
-        </Breadcrumbs>
-        <div>
-          <Link className="text-dark" to={`/user/${comment.authorId}`}>
-            <span className="text-dark font-weight-bold">
-              {comment.authorDisplayName}
-            </span>
-            <span className="text-muted ml-1">@{comment.authorId}</span>
-          </Link>
-          <span className="text-muted mx-1">·</span>
-          {comment && (
-            <span className="text-muted" title={comment.time}>
-              {formatDistanceToNow(new Date(comment.time))} ago
-            </span>
+    <Card withBorder m="md">
+      <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+        <Anchor
+          component={Link}
+          to={`/category/${comment.category_slug}`}
+          className="text-primary"
+          tt="uppercase"
+          size="xs"
+        >
+          {comment.category_displayname}
+        </Anchor>
+        <Anchor
+          component={Link}
+          to={`/exams/${comment.filename}`}
+          className="text-primary"
+          tt="uppercase"
+          size="xs"
+        >
+          {comment.exam_displayname}
+        </Anchor>
+        <Anchor
+          component={Link}
+          to={`/exams/${comment.filename}#${comment.answerId}`}
+          className="text-primary"
+          tt="uppercase"
+          size="xs"
+        >
+          Comment
+        </Anchor>
+      </Breadcrumbs>
+      <Box my="xs">
+        <Anchor component={Link} to={`/user/${comment.authorId}`}>
+          <Text weight={700} component="span">
+            {comment.authorDisplayName}
+          </Text>
+          <Text ml="0.3em" color="dimmed" component="span">@{comment.authorId}</Text>
+        </Anchor>
+        <Text color="dimmed" mx="xs" component="span">·</Text>
+        {comment && (
+          <Text color="dimmed" component="span" title={comment.time}>
+            {formatDistanceToNow(new Date(comment.time))} ago
+          </Text>
+        )}
+        {comment &&
+          differenceInSeconds(
+            new Date(comment.edittime),
+            new Date(comment.time),
+          ) > 1 && (
+            <>
+              <span className="text-muted mx-1">·</span>
+              <span className="text-muted" title={comment.edittime}>
+                edited {formatDistanceToNow(new Date(comment.edittime))} ago
+              </span>
+            </>
           )}
-          {comment &&
-            differenceInSeconds(
-              new Date(comment.edittime),
-              new Date(comment.time),
-            ) > 1 && (
-              <>
-                <span className="text-muted mx-1">·</span>
-                <span className="text-muted" title={comment.edittime}>
-                  edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                </span>
-              </>
-            )}
-        </div>
+      </Box>
+      <Card.Section>
+        <Divider mb="md" />
       </Card.Section>
       <MarkdownText value={comment.text} />
     </Card>

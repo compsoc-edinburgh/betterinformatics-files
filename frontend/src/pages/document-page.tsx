@@ -79,18 +79,19 @@ const DocumentPage: React.FC<Props> = () => {
   return (
     <>
       <Container>
-        <Breadcrumbs>
-          <Anchor component={Link} className="text-primary" to="/">
+        <Breadcrumbs separator="〉">
+          <Anchor tt="uppercase" size="xs" component={Link} to="/">
             Home
           </Anchor>
           <Anchor
+            size="xs"
+            tt="uppercase"
             component={Link}
-            className="text-primary"
             to={`/category/${data ? data.category : ""}`}
           >
             {data && data.category_display_name}
           </Anchor>
-          <Anchor>{data && data.display_name}</Anchor>
+          <Anchor size="xs" tt="uppercase">{data && data.display_name}</Anchor>
         </Breadcrumbs>
         {data && (
           <div className="d-flex justify-content-between align-items-center">

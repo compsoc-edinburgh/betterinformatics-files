@@ -71,11 +71,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   return (
     <>
       {modals}
-      <Breadcrumbs>
-        <Anchor component={Link} className="text-primary" to="/">
+      <Breadcrumbs separator="›">
+        <Anchor tt="uppercase" size="xs" component={Link} className="text-primary" to="/">
           Home
         </Anchor>
-        <Anchor>{metaData.displayname}</Anchor>
+        <Anchor tt="uppercase" size="xs">{metaData.displayname}</Anchor>
       </Breadcrumbs>
       {
         editing ? (
@@ -97,19 +97,15 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               {user.isCategoryAdmin && (
                 <Group>
                   <Button
-                    size="sm"
-                    className="m-1"
-                    leftIcon={<Icon icon={ICONS.EDIT} />}
+                    leftIcon={<Icon color="currentColor" icon={ICONS.EDIT} />}
                     onClick={() => setEditing(true)}
                   >
                     Edit
                   </Button>
                   <Button
-                    color="danger"
-                    size="sm"
-                    className="m-1"
+                    color="red"
                     loading={removeLoading}
-                    leftIcon={<Icon icon={ICONS.DELETE} />}
+                    leftIcon={<Icon color="currentColor" icon={ICONS.DELETE} />}
                     onClick={onRemove}
                   >
                     Delete

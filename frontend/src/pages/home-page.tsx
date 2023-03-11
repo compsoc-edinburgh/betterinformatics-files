@@ -178,7 +178,7 @@ export const CategoryList: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl">
-        <Flex direction="row" justify="space-between" className="px-2">
+        <Flex direction={{ base: 'column', sm: 'row' }} justify="space-between" className="px-2">
           <SegmentedControl
             value={mode}
             onChange={setMode}
@@ -200,7 +200,7 @@ export const CategoryList: React.FC<{}> = () => {
         <LoadingOverlay loading={loading} />
         <Container size="xl" mt="lg" pt="3em" pb="md">
           {error ? (
-            <Alert color="danger">{error.toString()}</Alert>
+            <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (
             <>
               <Grid>
@@ -215,10 +215,10 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display}>
-                    <Text size="xl" weight={600} className="my-4">{meta1display}</Text>
+                    <Text size="xl" weight={600} my="sm">{meta1display}</Text>
                     {meta2.map(([meta2display, categories]) => (
                       <div key={meta2display}>
-                        <Text size="lg" weight={600} className="my-3">{meta2display}</Text>
+                        <Text size="lg" weight={600} my="md">{meta2display}</Text>
                         <Grid>
                           {categories.map(category => (
                             <CategoryCard

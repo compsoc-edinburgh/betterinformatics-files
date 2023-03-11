@@ -34,7 +34,6 @@ const Score: React.FC<Props> = ({
       <SmallButton
         tooltip="Downvote"
         size="sm"
-        className="px-1"
         disabled={userVote === -1}
         variant={userVote === -1 ? "outline" : "default"}
         onClick={() => setLike(oid, -1)}
@@ -54,7 +53,6 @@ const Score: React.FC<Props> = ({
       <SmallButton
         tooltip="Upvote"
         size="sm"
-        className="px-1"
         disabled={userVote === 1}
         variant={userVote === 1 ? "outline" : "default"}
         onClick={() => setLike(oid, 1)}

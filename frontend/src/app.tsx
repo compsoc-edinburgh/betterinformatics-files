@@ -7,6 +7,7 @@ import {
   Badge,
   MantineProvider,
   useMantineTheme,
+  Box,
 } from "@mantine/core";
 import {
   Icon,
@@ -164,7 +165,7 @@ const App: React.FC<{}> = () => {
     "#0A8BC7",
     "#0E78AA",
   ]);
-  vsethTheme.colorScheme = 'light';
+  vsethTheme.colorScheme = 'dark';
 
   const theme = useMantineTheme();
 
@@ -207,7 +208,7 @@ const App: React.FC<{}> = () => {
         privacyPolicy={data?.privacy}
         disclaimer={data?.copyright}
       >
-        <MantineProvider theme={{ colorScheme: 'light', primaryColor: 'gray' }} withGlobalStyles withNormalizeCSS>
+        <MantineProvider theme={{ colorScheme: 'dark', primaryColor: 'gray', primaryShade: 8 }} withGlobalStyles withNormalizeCSS>
           <Modal opened={loggedOut} onClose={() => login()} title="You've been logged out due to inactivity">
             Your session has expired due to inactivity, you have to log in again
             to continue.
@@ -230,7 +231,7 @@ const App: React.FC<{}> = () => {
                   className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
                 >
                   <div>
-                    <main className="main__container py-5">
+                    <Box component="main" mt="2em">
                       <Switch>
                         <UserRoute exact path="/" component={HomePage} />
                         <Route exact path="/login" component={LoginPage} />
@@ -280,7 +281,7 @@ const App: React.FC<{}> = () => {
                         <UserRoute exact path="/modqueue" component={ModQueue} />
                         <Route component={NotFoundPage} />
                       </Switch>
-                    </main>
+                    </Box>
                   </div>
                   {/* <div className="py-3">
                   <Container>

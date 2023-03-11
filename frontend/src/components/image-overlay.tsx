@@ -61,7 +61,7 @@ const ImageModal: React.FC<ModalProps> = ({
           </Button>
           <Button
             className="mt-1"
-            color="danger"
+            color="red"
             disabled={selected.size === 0}
             onClick={removeSelected}
           >

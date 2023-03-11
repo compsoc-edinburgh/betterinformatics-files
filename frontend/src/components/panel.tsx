@@ -39,6 +39,20 @@ const modalWrapper = css`
   align-items: flex-end;
 `;
 const modalStyle = css`
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: .3rem;
+  outline: 0;
   max-height: 100%;
   overflow: auto;
   &.modal-content {

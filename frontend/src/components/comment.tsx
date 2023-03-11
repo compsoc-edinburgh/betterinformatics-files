@@ -14,7 +14,7 @@ import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import { Icon, ICONS } from "vseth-canine-ui";
-import { Button, Flex, Menu, Paper } from "@mantine/core";
+import { Anchor, Button, Flex, Menu, Paper, Text } from "@mantine/core";
 
 interface Props {
   answer: Answer;
@@ -72,12 +72,40 @@ const CommentComponent: React.FC<Props> = ({
       confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
   return (
-    <Paper withBorder>
+    <Paper withBorder p="sm">
       {modals}
-      <div className="float-right">
-        {comment && !editing && ( // Only show button toolbar if not a draft and not editing
+      <Flex justify="space-between">
+        <div>
+          <Anchor component={Link} to={`/user/${comment?.authorId ?? username}`}>
+            <Text weight={700} component="span">
+              {comment?.authorDisplayName ?? "(Draft)"}
+            </Text>
+            <Text ml="0.25em" color="dimmed" component="span">
+              @{comment?.authorId ?? username}
+            </Text>
+          </Anchor>
+          <Text component="span" mx="xs" color="dimmed">·</Text>
+          {comment && (
+            <Text component="span" color="dimmed" title={comment.time}>
+              {formatDistanceToNow(new Date(comment.time))} ago
+            </Text>
+          )}
+          {comment &&
+            differenceInSeconds(
+              new Date(comment.edittime),
+              new Date(comment.time),
+            ) > 1 && (
+              <>
+                <span className="text-muted mx-1">·</span>
+                <span className="text-muted" title={comment.edittime}>
+                  edited {formatDistanceToNow(new Date(comment.edittime))} ago
+                </span>
+              </>
+            )}
+        </div>
+        {comment && !editing && (
           <Button.Group>
-            {comment?.canEdit && (
+            {comment.canEdit && (
               <SmallButton
                 tooltip="Edit comment"
                 size="sm"
@@ -111,35 +139,7 @@ const CommentComponent: React.FC<Props> = ({
             </Menu>
           </Button.Group>
         )}
-      </div>
-      <div>
-        <Link className="text-dark" to={`/user/${comment?.authorId ?? username}`}>
-          <span className="text-dark font-weight-bold">
-            {comment?.authorDisplayName ?? "(Draft)"}
-          </span>
-          <span className="text-muted ml-1">
-            @{comment?.authorId ?? username}
-          </span>
-        </Link>
-        <span className="text-muted mx-1">·</span>
-        {comment && (
-          <span className="text-muted" title={comment.time}>
-            {formatDistanceToNow(new Date(comment.time))} ago
-          </span>
-        )}
-        {comment &&
-          differenceInSeconds(
-            new Date(comment.edittime),
-            new Date(comment.time),
-          ) > 1 && (
-            <>
-              <span className="text-muted mx-1">·</span>
-              <span className="text-muted" title={comment.edittime}>
-                edited {formatDistanceToNow(new Date(comment.edittime))} ago
-              </span>
-            </>
-          )}
-      </div>
+      </Flex>
 
       {comment === undefined || editing ? (
         <>

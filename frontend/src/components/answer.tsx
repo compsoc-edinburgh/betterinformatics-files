@@ -6,7 +6,9 @@ import {
   Flex,
   Group,
   GroupProps,
+  Text,
   Menu,
+  Anchor,
 } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -110,35 +112,36 @@ const AnswerComponent: React.FC<Props> = ({
     <>
       {modals}
       <AnswerWrapper>
-        <div className="d-flex flex-between align-items-center">
+        <Flex justify="space-between" align="center">
           <div>
             {!hasId && (
               <Link
-                className="mr-2 text-muted"
                 to={
                   answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                 }
               >
-                <Icon icon={ICONS.LINK} size="1em" />
+                <Text color="dimmed" component="span">
+                  <Icon icon={ICONS.LINK} size="1em" />
+                </Text>
               </Link>
             )}
             {isLegacyAnswer ? (
               answer?.authorDisplayName ?? "(Legacy Draft)"
             ) : (
-              <Link to={`/user/${answer?.authorId ?? username}`}>
-                <span className="text-dark font-weight-bold">
+              <Anchor ml="xs" component={Link} to={`/user/${answer?.authorId ?? username}`}>
+                <Text weight={700} component="span">
                   {answer?.authorDisplayName ?? "(Draft)"}
-                </span>
-                <span className="text-muted ml-1">
+                </Text>
+                <Text ml="0.3em" color="dimmed" component="span">
                   @{answer?.authorId ?? username}
-                </span>
-              </Link>
+                </Text>
+              </Anchor>
             )}
-            <span className="text-muted mx-1">·</span>
+            <Text color="dimmed" mx="xs" component="span">·</Text>
             {answer && (
-              <span className="text-muted" title={answer.time}>
+              <Text color="dimmed" component="span" title={answer.time}>
                 {formatDistanceToNow(new Date(answer.time))} ago
-              </span>
+              </Text>
             )}
             {answer &&
               differenceInSeconds(
@@ -146,11 +149,11 @@ const AnswerComponent: React.FC<Props> = ({
                 new Date(answer.time),
               ) > 1 && (
                 <>
-                  <span className="text-muted mx-1">·</span>
-                  <span className="text-muted" title={answer.edittime}>
+                  <Text color="dimmed" mx="xs" component="span">·</Text>
+                  <Text color="dimmed" component="span" title={answer.edittime}>
                     edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
                     ago
-                  </span>
+                  </Text>
                 </>
               )}
           </div>
@@ -163,7 +166,7 @@ const AnswerComponent: React.FC<Props> = ({
                   <Button.Group className="m-1">
                     <IconButton
                       color="primary"
-                      size="sm"
+                      size="xs"
                       tooltip="This answer is endorsed by an expert"
                       iconName={ICONS.STAR_FILLED}
                     />
@@ -237,7 +240,7 @@ const AnswerComponent: React.FC<Props> = ({
               )}
             </AnswerToolbar>
           </div>
-        </div>
+        </Flex>
         {editing || answer === undefined ? (
           <div className="pt-3">
             <Editor
@@ -255,7 +258,7 @@ const AnswerComponent: React.FC<Props> = ({
             .
           </div>
         ) : (
-          <div className="py-3">
+          <div>
             {viewSource ? (
               <CodeBlock value={answer?.text ?? ""} language="markdown" />
             ) : (
@@ -266,7 +269,7 @@ const AnswerComponent: React.FC<Props> = ({
         <Flex justify="space-between">
           {(answer === undefined || editing) && (
             <Button
-              className="m-1"
+              my="sm"
               color="primary"
               size="sm"
               onClick={save}
@@ -279,7 +282,7 @@ const AnswerComponent: React.FC<Props> = ({
           )}
           {onSectionChanged && (
             <>
-              <Button.Group className="m-1">
+              <Button.Group mt="sm">
                 {(answer === undefined || editing) && (
                   <IconButton
                     size="sm"

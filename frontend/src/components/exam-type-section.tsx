@@ -128,32 +128,32 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   )}
                   {catAdmin &&
                     (exam.public ? (
-                      <Badge className={badgeStyle} color="primary">
+                      <Badge className={badgeStyle}>
                         public
                       </Badge>
                     ) : (
-                      <Badge className={badgeStyle} color="primary">
+                      <Badge className={badgeStyle}>
                         hidden
                       </Badge>
                     ))}
                   {exam.needs_payment && (
-                    <Badge className={badgeStyle} color="info">
+                    <Badge className={badgeStyle} color="blue">
                       oral
                     </Badge>
                   )}
                   {catAdmin &&
                     (exam.finished_cuts ? (
                       exam.finished_wiki_transfer ? (
-                        <Badge className={badgeStyle} color="success">
+                        <Badge className={badgeStyle} color="green">
                           All done
                         </Badge>
                       ) : (
-                        <Badge className={badgeStyle} color="info">
+                        <Badge className={badgeStyle} color="blue">
                           Needs Wiki Import
                         </Badge>
                       )
                     ) : (
-                      <Badge className={badgeStyle} color="warning">
+                      <Badge className={badgeStyle} color="orange">
                         Needs Cuts
                       </Badge>
                     ))}

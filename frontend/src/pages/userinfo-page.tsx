@@ -70,8 +70,8 @@ const UserPage: React.FC<{}> = () => {
         />
         {error && <Alert color="danger">{error.toString()}</Alert>}
         {loading && <Loader />}
-        <Tabs value={activeTab} onTabChange={setActiveTab} className={navStyle}>
-          <Tabs.List>
+        <Tabs color="blue" value={activeTab} onTabChange={setActiveTab} className={navStyle}>
+          <Tabs.List grow>
             <Tabs.Tab value="overview">Overview</Tabs.Tab>
             <Tabs.Tab value="answers">Answers</Tabs.Tab>
             <Tabs.Tab value="comments">Comments</Tabs.Tab>
