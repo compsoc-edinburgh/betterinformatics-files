@@ -5,6 +5,7 @@ import {
   Card,
   Checkbox,
   Grid,
+  Text,
 } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
@@ -77,8 +78,11 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       <Checkbox
         label={examtype}
         checked={checked}
+        indeterminate={indeterminate}
         onChange={e => setChecked(e.currentTarget.checked)}
-        m="sm"
+        ml="md"
+        mt="xl"
+        mb="md"
       />
       <ExamGrid>
         {exams.map(exam => (
@@ -104,6 +108,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       : onDeselect(exam.filename);
                   }}
                   disabled={!exam.canView}
+                  mt="0.2em"
                 />
               </Grid.Col>
               <Grid.Col span="auto">
@@ -124,7 +129,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 )}
                 <div>
                   {exam.remark && (
-                    <div className="text-meta">{exam.remark}</div>
+                    <Text color="dimmed" size="xs" mb="0.1em">{exam.remark}</Text>
                   )}
                   {catAdmin &&
                     (exam.public ? (

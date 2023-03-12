@@ -1,24 +1,20 @@
 import { css } from "@emotion/css";
 import {
   Button,
-  Container,
   Modal,
-  Group,
   Badge,
   MantineProvider,
   useMantineTheme,
   Box,
 } from "@mantine/core";
 import {
-  Icon,
-  ICONS,
   makeVsethTheme,
   useConfig,
   VSETHExternalApp,
   VSETHThemeProvider,
 } from "vseth-canine-ui";
-import React, { useEffect, useState } from "react";
-import { Route, Switch, useLocation } from "react-router-dom";
+import React, { ReactNode, useEffect, useState } from "react";
+import { Link, Route, Switch, useLocation } from "react-router-dom";
 import {
   authenticationStatus,
   fetchGet,
@@ -165,7 +161,7 @@ const App: React.FC<{}> = () => {
     "#0A8BC7",
     "#0E78AA",
   ]);
-  vsethTheme.colorScheme = 'dark';
+  vsethTheme.colorScheme = 'light';
 
   const theme = useMantineTheme();
 
@@ -207,21 +203,28 @@ const App: React.FC<{}> = () => {
         logo={data?.logo}
         privacyPolicy={data?.privacy}
         disclaimer={data?.copyright}
+        makeWrapper={(url: string | undefined, child: ReactNode) => (
+          <Link to={url!} style={{ textDecoration: "none", color: "inherit" }}>
+            {child}
+          </Link>
+        )}
       >
-        <MantineProvider theme={{ colorScheme: 'dark', primaryColor: 'gray', primaryShade: 8 }} withGlobalStyles withNormalizeCSS>
+        <MantineProvider
+          theme={{ colorScheme: 'light', primaryColor: 'gray', primaryShade: 8, fontFamily: '"Source Sans Pro", "Roboto", sans-serif' }}
+          withGlobalStyles
+          withNormalizeCSS
+        >
           <Modal opened={loggedOut} onClose={() => login()} title="You've been logged out due to inactivity">
             Your session has expired due to inactivity, you have to log in again
             to continue.
-            <div className="text-center py-3">
-              <Button
-                size="lg"
-                color="primary"
-                variant="outline"
-                onClick={() => login()}
-              >
-                Sign in with AAI
-              </Button>
-            </div>
+            <Button
+              size="lg"
+              color="primary"
+              variant="outline"
+              onClick={() => login()}
+            >
+              Sign in with AAI
+            </Button>
           </Modal>
           <Route component={HashLocationHandler} />
           <DebugContext.Provider value={debugOptions}>
@@ -283,53 +286,6 @@ const App: React.FC<{}> = () => {
                       </Switch>
                     </Box>
                   </div>
-                  {/* <div className="py-3">
-                  <Container>
-                    <img src="https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg" height={32} alt="VSETH Logo" />
-                    <div className="bg-primary my-3" style={{ height: 2 }} />
-                    <Group>
-                      <div className="font-weight-bold">
-                        Made with{" "}
-                        <Icon
-                          icon={ICONS.LIKE_FILLED}
-                          color="currenColor"
-                          className="mx-1 text-danger"
-                          aria-label="love"
-                        />{" "}
-                        by volunteers at{" "}
-                        <a
-                          href="http://vis.ethz.ch/"
-                          title="Verein der Informatik Studierenden an der ETH Zürich"
-                          className="text-primary"
-                        >
-                          VIS
-                        </a>
-                      </div>
-                      <div>
-                        <a
-                          href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
-                          className="text-primary"
-                        >
-                          <Icon icon={ICONS.GITLAB} color="primary" />{" "}
-                          Repository
-                        </a>
-                      </div>
-                      <div>
-                        <a href={serverData.imprint} className="text-primary">
-                          Imprint
-                        </a>
-                      </div>
-                      <div>
-                        <a
-                          href={serverData.privacy_policy}
-                          className="text-primary"
-                        >
-                          Privacy Policy
-                        </a>
-                      </div>
-                    </Group>
-                  </Container>
-                </div> */}
                 </div>
               </SetUserContext.Provider>
             </UserContext.Provider>

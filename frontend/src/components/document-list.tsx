@@ -1,11 +1,10 @@
-import { Anchor, Group, Paper } from "@mantine/core";
+import { Anchor, Button, Group, Paper, Tooltip } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
-import TooltipButton from "./TooltipButton";
 
 interface Props {
   slug: string;
@@ -52,12 +51,16 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
             </Paper>
           ))}
         <Paper withBorder style={{ minHeight: "4em" }}>
-          <TooltipButton
-            tooltip="Add a new document"
-            onClick={() => setIsOpen(true)}
+          <Tooltip
+            label="Add a new document"
           >
-            <Icon icon={ICONS.PLUS} size={40} />
-          </TooltipButton>
+            <Button
+              style={{ width: '100%', height: '100%' }}
+              onClick={() => setIsOpen(true)}
+            >
+              <Icon icon={ICONS.PLUS} size={40} />
+            </Button>
+          </Tooltip>
         </Paper>
       </Grid>
     </>

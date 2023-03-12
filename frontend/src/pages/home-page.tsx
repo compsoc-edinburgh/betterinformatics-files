@@ -10,6 +10,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import React, { useCallback, useMemo, useState } from "react";
@@ -21,7 +22,6 @@ import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
-import TooltipButton from "../components/TooltipButton";
 import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
@@ -116,13 +116,17 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
         </Stack>
       </Modal>
       <Card style={{ minHeight: "10em" }}>
-        <TooltipButton
-          tooltip="Add a new category"
-          onClick={() => setIsOpen(true)}
-          className="position-cover w-100 h-100"
+        <Tooltip
+          label="Add a new category"
+          withinPortal
         >
-          <Icon icon={ICONS.PLUS} size={40} className="m-auto" />
-        </TooltipButton>
+          <Button
+            style={{ width: '100%', height: '100%' }}
+            onClick={() => setIsOpen(true)}
+          >
+            <Icon icon={ICONS.PLUS} size={40} />
+          </Button>
+        </Tooltip>
       </Card>
     </>
   );
