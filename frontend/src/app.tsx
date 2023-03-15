@@ -6,6 +6,7 @@ import {
   MantineProvider,
   useMantineTheme,
   Box,
+  Text,
 } from "@mantine/core";
 import {
   makeVsethTheme,
@@ -215,8 +216,10 @@ const App: React.FC<{}> = () => {
           withNormalizeCSS
         >
           <Modal opened={loggedOut} onClose={() => login()} title="You've been logged out due to inactivity">
-            Your session has expired due to inactivity, you have to log in again
-            to continue.
+            <Text>
+              Your session has expired due to inactivity, you have to log in again
+              to continue.
+            </Text>
             <Button
               size="lg"
               color="primary"

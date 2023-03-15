@@ -1,6 +1,7 @@
 import { css } from "@emotion/css";
 import {
   Button,
+  Group,
   Modal,
 } from "@mantine/core";
 import * as React from "react";
@@ -26,7 +27,7 @@ const EditorFooter: React.FC<Props> = ({
   const toggleHelp = useCallback(() => setIsHelpOpen(prev => !prev), []);
   return (
     <div>
-      <div className={rowStyle}>
+      <Group position="right" className={rowStyle}>
         <Button.Group>
           <Button variant="default" size="sm" onClick={toggleHelp}>
             Supported Functions
@@ -35,7 +36,7 @@ const EditorFooter: React.FC<Props> = ({
             Browse Images
           </Button>
         </Button.Group>
-      </div>
+      </Group>
       <Modal title="Help with Editor" opened={isHelpOpen} onClose={toggleHelp} size="min(90vw, 1500px)">
         <Modal.Body>
           <EditorHelp />

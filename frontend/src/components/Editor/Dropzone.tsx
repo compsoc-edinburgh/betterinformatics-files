@@ -45,7 +45,7 @@ const DropZone: React.FC<Props> = ({ onDragLeave, onDrop }) => {
   );
   return (
     <div
-      className="position-cover"
+      style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
       onDragLeave={onDragLeaveHandler}
       onDrop={onDropHandler}
       onDragOver={onDragOverHandler}

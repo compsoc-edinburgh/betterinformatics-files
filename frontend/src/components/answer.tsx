@@ -41,7 +41,7 @@ const answerWrapperStyle = css`
   margin-bottom: 1em;
 `;
 const AnswerWrapper = (props: CardProps) => (
-  <Card withBorder className={answerWrapperStyle} {...props} />
+  <Card withBorder shadow="sm" className={answerWrapperStyle} {...props} />
 );
 
 const answerToolbarStyle = css`

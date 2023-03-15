@@ -9,6 +9,7 @@ import {
   Menu,
   Group,
   Flex,
+  Text,
 } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
@@ -230,7 +231,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                 </Group>
               ) : (
                 <Flex justify="space-between">
-                  <h6 className="m-0">{cutName}</h6>
+                  <Text component="h6" m={0}>{cutName}</Text>
                   {isCatAdmin && (
                     <IconButton
                       tooltip="Edit PDF section name"
