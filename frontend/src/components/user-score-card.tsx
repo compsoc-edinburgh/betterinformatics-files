@@ -19,17 +19,26 @@ interface UserScoreCardProps {
   isMyself: boolean;
 }
 
-function scoreCard(userInfo: UserInfo | undefined, title: string, key: keyof UserInfo, iconName: string) {
+function scoreCard(
+  userInfo: UserInfo | undefined,
+  title: string,
+  key: keyof UserInfo,
+  iconName: string,
+) {
   return (
     <Paper shadow="md" withBorder px="md" py="xs">
       <LoadingOverlay loading={!userInfo} />
       <Group position="apart">
-        <Text inline size="xs" tt="uppercase" component="p" color="dimmed">{title}</Text>
+        <Text inline size="xs" tt="uppercase" component="p" color="dimmed">
+          {title}
+        </Text>
         <Text color="dimmed">
           <Icon size="0.75em" icon={iconName} />
         </Text>
       </Group>
-      <Text fz="xl" fw={600}>{userInfo ? userInfo[key] : "-"}</Text>
+      <Text fz="xl" fw={600}>
+        {userInfo ? userInfo[key] : "-"}
+      </Text>
     </Paper>
   );
 }
@@ -75,12 +84,26 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
 
       <Container fluid p={0}>
         <SimpleGrid cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
-          {scoreCard(userInfo, "Score", 'score', ICONS.UP)}
-          {scoreCard(userInfo, "Answers", 'score_answers', ICONS.PEN)}
-          {scoreCard(userInfo, "Comments", 'score_comments', ICONS.MESSAGE_THREE_POINTS)}
-          {scoreCard(userInfo, "Documents", 'score_documents', ICONS.FILE)}
-          {userInfo && userInfo.score_cuts > 0 && scoreCard(userInfo, "Exam Import", 'score_cuts', ICONS.FILE_UP)}
-          {userInfo && userInfo.score_legacy > 0 && scoreCard(userInfo, "Wiki Import", 'score_legacy', ICONS.FILE_MISSING_PLUS)}
+          {scoreCard(userInfo, "Score", "score", ICONS.UP)}
+          {scoreCard(userInfo, "Answers", "score_answers", ICONS.PEN)}
+          {scoreCard(
+            userInfo,
+            "Comments",
+            "score_comments",
+            ICONS.MESSAGE_THREE_POINTS,
+          )}
+          {scoreCard(userInfo, "Documents", "score_documents", ICONS.FILE)}
+          {userInfo &&
+            userInfo.score_cuts > 0 &&
+            scoreCard(userInfo, "Exam Import", "score_cuts", ICONS.FILE_UP)}
+          {userInfo &&
+            userInfo.score_legacy > 0 &&
+            scoreCard(
+              userInfo,
+              "Wiki Import",
+              "score_legacy",
+              ICONS.FILE_MISSING_PLUS,
+            )}
         </SimpleGrid>
       </Container>
     </>

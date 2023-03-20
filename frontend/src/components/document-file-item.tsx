@@ -60,7 +60,11 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [keyIsOpen, toggleKeyIsOpen] = useToggle();
   return (
     <>
-      <Modal title="Edit {file.display_name}" onClose={toggleEditIsOpen} opened={editIsOpen}>
+      <Modal
+        title="Edit {file.display_name}"
+        onClose={toggleEditIsOpen}
+        opened={editIsOpen}
+      >
         <Modal.Body>
           <TextInput
             label="Display Name"
@@ -89,7 +93,12 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </Button>
         </Modal.Body>
       </Modal>
-      <Modal title="Access Token" onClose={toggleKeyIsOpen} opened={keyIsOpen} size="lg">
+      <Modal
+        title="Access Token"
+        onClose={toggleKeyIsOpen}
+        opened={keyIsOpen}
+        size="lg"
+      >
         <Modal.Body>
           <p>
             Token: <code>{document.api_key}</code>
@@ -128,7 +137,10 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </pre>
         </Modal.Body>
       </Modal>
-      <Card withBorder className="d-md-flex justify-content-between align-items-center">
+      <Card
+        withBorder
+        className="d-md-flex justify-content-between align-items-center"
+      >
         <div className="d-flex flex-column">
           <Text fz="xl" fw={600}>
             {file.display_name || <i>Unnamed</i>}

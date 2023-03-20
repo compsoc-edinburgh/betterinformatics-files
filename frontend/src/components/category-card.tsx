@@ -50,11 +50,9 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       <Text mt="xs">
         Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
       </Text>
-      <Text>
-        Answers: {((category.answerprogress * 100) | 0).toString()} %
-      </Text>
+      <Text>Answers: {((category.answerprogress * 100) | 0).toString()} %</Text>
       <Progress radius={0} value={category.answerprogress * 100} mt="sm" />
-    </Card >
+    </Card>
   );
 };
 export default CategoryCard;

@@ -36,8 +36,7 @@ interface Props {
 
 const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const history = useHistory();
-  const { data: categories } =
-    useRequest(loadCategories);
+  const { data: categories } = useRequest(loadCategories);
   const categoryOptions =
     categories &&
     createOptions(
@@ -190,15 +189,16 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           </div>
         </>
       )}
-      <Modal opened={deleteModalIsOpen} title="Are you absolutely sure?" onClose={toggleDeleteModalIsOpen}>
+      <Modal
+        opened={deleteModalIsOpen}
+        title="Are you absolutely sure?"
+        onClose={toggleDeleteModalIsOpen}
+      >
         <Modal.Body>
           Deleting the document will delete all associated files and all
           comments. <b>This cannot be undone.</b>
           <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
-          <Button
-            onClick={deleteDocument}
-            color="danger"
-          >
+          <Button onClick={deleteDocument} color="danger">
             Delete this document
           </Button>
         </Modal.Body>

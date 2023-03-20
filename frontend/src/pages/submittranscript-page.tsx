@@ -14,7 +14,7 @@ const UploadTranscriptPage: React.FC<{}> = () => {
         </Grid.Col>
         <Grid.Col span="auto" />
       </Grid>
-    </Container >
+    </Container>
   );
 };
 export default UploadTranscriptPage;

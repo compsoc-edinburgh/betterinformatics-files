@@ -40,11 +40,11 @@ const getComponents = (
   file: DocumentFile | undefined,
 ):
   | {
-    Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
-    Editor:
-    | React.FC<{ document: Document; file: DocumentFile; url: string }>
-    | undefined;
-  }
+      Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
+      Editor:
+        | React.FC<{ document: Document; file: DocumentFile; url: string }>
+        | undefined;
+    }
   | undefined => {
   if (file === undefined) return undefined;
 
@@ -64,7 +64,7 @@ const getComponents = (
 const getFile = (document: Document | undefined, oid: number) =>
   document ? document.files.find(x => x.oid === oid) : undefined;
 
-interface Props { }
+interface Props {}
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
   const [error, _, data, mutate] = useDocument(author, slug, document => {
@@ -72,7 +72,9 @@ const DocumentPage: React.FC<Props> = () => {
   });
 
   const [tab, setTab] = useState<string | null>("none");
-  const activeFile = !Number.isNaN(Number(tab)) ? getFile(data, Number(tab)) : undefined;
+  const activeFile = !Number.isNaN(Number(tab))
+    ? getFile(data, Number(tab))
+    : undefined;
   const Components = getComponents(activeFile);
   const [editing, toggleEditing] = useToggle();
   const [loadingDownload, startDownload] = useDocumentDownload(data);
@@ -91,7 +93,9 @@ const DocumentPage: React.FC<Props> = () => {
           >
             {data && data.category_display_name}
           </Anchor>
-          <Anchor size="xs" tt="uppercase">{data && data.display_name}</Anchor>
+          <Anchor size="xs" tt="uppercase">
+            {data && data.display_name}
+          </Anchor>
         </Breadcrumbs>
         {data && (
           <div className="d-flex justify-content-between align-items-center">
@@ -128,7 +132,12 @@ const DocumentPage: React.FC<Props> = () => {
           <Tabs.List>
             {data &&
               data.files.map(file => (
-                <Tabs.Tab value={file.oid.toString()} icon={<Icon icon={ICONS.FILE} />}>{file.display_name}</Tabs.Tab>
+                <Tabs.Tab
+                  value={file.oid.toString()}
+                  icon={<Icon icon={ICONS.FILE} />}
+                >
+                  {file.display_name}
+                </Tabs.Tab>
                 // <Col key={file.oid} xs="auto">
                 //   <NavItem className="m-0">
                 //     <NavLink
@@ -143,9 +152,16 @@ const DocumentPage: React.FC<Props> = () => {
                 //   </NavItem>
                 // </Col>
               ))}
-            <Tabs.Tab value="comments" icon={<Icon icon={ICONS.MESSAGE_THREE_POINTS} />}>Comments</Tabs.Tab>
+            <Tabs.Tab
+              value="comments"
+              icon={<Icon icon={ICONS.MESSAGE_THREE_POINTS} />}
+            >
+              Comments
+            </Tabs.Tab>
             {data && (data.can_delete || data.can_edit) && (
-              <Tabs.Tab value="settings" icon={<Icon icon={ICONS.SETTINGS} />}>Settings</Tabs.Tab>
+              <Tabs.Tab value="settings" icon={<Icon icon={ICONS.SETTINGS} />}>
+                Settings
+              </Tabs.Tab>
             )}
           </Tabs.List>
         </Tabs>

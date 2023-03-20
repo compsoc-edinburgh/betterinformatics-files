@@ -9,15 +9,9 @@ const ThreeColumns: React.FC<{
   return (
     <Container fluid px={0}>
       <SimpleGrid cols={3}>
-        <Group position="left">
-          {left}
-        </Group>
-        <Group position="center">
-          {center}
-        </Group>
-        <Group position="right">
-          {right}
-        </Group>
+        <Group position="left">{left}</Group>
+        <Group position="center">{center}</Group>
+        <Group position="right">{right}</Group>
       </SimpleGrid>
     </Container>
   );

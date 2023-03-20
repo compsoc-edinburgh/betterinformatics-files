@@ -1,10 +1,4 @@
-import {
-  Alert,
-  Button,
-  Flex,
-  Loader,
-  TextInput,
-} from "@mantine/core";
+import { Alert, Button, Flex, Loader, TextInput } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";

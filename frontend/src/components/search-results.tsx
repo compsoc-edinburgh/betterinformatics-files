@@ -1,10 +1,4 @@
-import {
-  Badge,
-  Box,
-  Breadcrumbs,
-  Card,
-  Group,
-} from "@mantine/core";
+import { Badge, Box, Breadcrumbs, Card, Group } from "@mantine/core";
 import { css } from "@emotion/css";
 import { escapeRegExp } from "lodash-es";
 import React from "react";

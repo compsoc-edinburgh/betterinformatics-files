@@ -14,9 +14,9 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             <Flex direction="column" justify="center">
               <h1 className="mb-5 display-3">Community Solutions</h1>
               <Text size="lg" weight={500}>
-                Community Solutions is a platform for students that allows them to
-                share answers of previous exams, comment on answers and upload
-                summaries.
+                Community Solutions is a platform for students that allows them
+                to share answers of previous exams, comment on answers and
+                upload summaries.
               </Text>
             </Flex>
           </Grid.Col>
@@ -27,7 +27,7 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             xl={4}
             mx="auto"
             py="sm"
-            style={{ position: 'relative' }}
+            style={{ position: "relative" }}
           >
             <Flex align="center">
               <svg

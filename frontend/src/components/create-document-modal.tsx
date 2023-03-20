@@ -1,9 +1,4 @@
-import {
-  Button,
-  TextInput,
-  Modal,
-  Group,
-} from "@mantine/core";
+import { Button, TextInput, Modal, Group } from "@mantine/core";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -16,7 +11,11 @@ interface Props {
   toggle: () => void;
 }
 
-const CreateDocumentForm: React.FC<Props> = ({ categorySlug, isOpen, toggle }) => {
+const CreateDocumentForm: React.FC<Props> = ({
+  categorySlug,
+  isOpen,
+  toggle,
+}) => {
   const { username } = useUser()!;
   const [displayName, setDisplayName] = useState("");
   const history = useHistory();
@@ -34,8 +33,8 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, isOpen, toggle }) =
           />
 
           <div>
-            An empty new document will be created. One or more files can be added
-            to the document in the settings tab.
+            An empty new document will be created. One or more files can be
+            added to the document in the settings tab.
           </div>
           <Button
             color="primary"

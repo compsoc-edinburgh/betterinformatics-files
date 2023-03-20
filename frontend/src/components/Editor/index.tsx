@@ -9,14 +9,17 @@ import EditorHeader from "./EditorHeader";
 import { EditorMode, ImageHandle, Range } from "./utils/types";
 import { push, redo, undo, UndoStack } from "./utils/undo-stack";
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(theme => ({
   editorWrapperStyle: {
-    padding: '1.2em',
+    padding: "1.2em",
   },
   hoverBorder: {
-    borderWidth: '0.1em',
-    borderColor: theme.colorScheme === 'dark' ? theme.colors.gray[1] : theme.colors.gray[9],
-    borderStyle: 'solid',
+    borderWidth: "0.1em",
+    borderColor:
+      theme.colorScheme === "dark"
+        ? theme.colors.gray[1]
+        : theme.colors.gray[9],
+    borderStyle: "solid",
   },
 }));
 interface Props {

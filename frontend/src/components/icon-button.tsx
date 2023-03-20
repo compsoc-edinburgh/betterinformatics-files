@@ -32,10 +32,7 @@ const IconButton: React.FC<IconButtonProps> = ({
       disabled={disabled || loading}
       className={buttonStyle + (className ? ` ${className}` : "")}
     >
-      <ActionIcon
-        size={size}
-        {...props}
-      >
+      <ActionIcon size={size} {...props}>
         {loading ? (
           <Loader size="sm" />
         ) : (

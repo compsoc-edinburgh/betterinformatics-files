@@ -99,7 +99,11 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
   return (
     <>
-      <Modal opened={isOpen} onClose={() => setIsOpen(false)} title="Add Category">
+      <Modal
+        opened={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Add Category"
+      >
         <Stack>
           <TextInput
             label="Category Name"
@@ -116,12 +120,9 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
         </Stack>
       </Modal>
       <Card style={{ minHeight: "10em" }}>
-        <Tooltip
-          label="Add a new category"
-          withinPortal
-        >
+        <Tooltip label="Add a new category" withinPortal>
           <Button
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: "100%", height: "100%" }}
             onClick={() => setIsOpen(true)}
           >
             <Icon icon={ICONS.PLUS} size={40} />
@@ -156,8 +157,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-          ({ slug }) => slug !== "default" || isAdmin,
-        )
+            ({ slug }) => slug !== "default" || isAdmin,
+          )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -182,13 +183,17 @@ export const CategoryList: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl">
-        <Flex direction={{ base: 'column', sm: 'row' }} justify="space-between" className="px-2">
+        <Flex
+          direction={{ base: "column", sm: "row" }}
+          justify="space-between"
+          className="px-2"
+        >
           <SegmentedControl
             value={mode}
             onChange={setMode}
             data={[
-              { label: 'Alphabetical', value: 'alphabetical' },
-              { label: 'By Semester', value: 'bySemester' },
+              { label: "Alphabetical", value: "alphabetical" },
+              { label: "By Semester", value: "bySemester" },
             ]}
           />
           <TextInput
@@ -219,10 +224,14 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display}>
-                    <Text size="xl" weight={600} my="sm">{meta1display}</Text>
+                    <Text size="xl" weight={600} my="sm">
+                      {meta1display}
+                    </Text>
                     {meta2.map(([meta2display, categories]) => (
                       <div key={meta2display}>
-                        <Text size="lg" weight={600} my="md">{meta2display}</Text>
+                        <Text size="lg" weight={600} my="md">
+                          {meta2display}
+                        </Text>
                         <Grid>
                           {categories.map(category => (
                             <CategoryCard

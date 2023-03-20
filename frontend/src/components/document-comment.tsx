@@ -1,8 +1,4 @@
-import {
-  Card,
-  Loader,
-  Modal,
-} from "@mantine/core";
+import { Card, Loader, Modal } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";

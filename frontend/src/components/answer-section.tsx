@@ -62,32 +62,18 @@ const AddButton: React.FC<AddButtonProps> = ({
   if (allowAnswer && allowLegacyAnswer) {
     return (
       <Menu opened={isOpen} withinPortal onChange={toggle}>
-        <MediaQuery smallerThan="sm" styles={{ display: 'none' }} >
-          <Menu.Target>
-            <Button rightIcon={<Icon icon={ICONS.DOWN} />}>
-              Add Answer
-            </Button>
-          </Menu.Target>
-        </MediaQuery>
-        <MediaQuery largerThan="sm" styles={{ display: 'none' }} >
-          <Menu.Target>
-            <Button size="xs" rightIcon={<Icon icon={ICONS.DOWN} />}>
-              Add Answer
-            </Button>
-          </Menu.Target>
-        </MediaQuery>
+        <Menu.Target>
+          <Button rightIcon={<Icon icon={ICONS.DOWN} />}>Add Answer</Button>
+        </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
           </Menu.Item>
-          <Menu.Item
-            onClick={onLegacyAnswer}
-            disabled={hasLegacyAnswerDraft}
-          >
+          <Menu.Item onClick={onLegacyAnswer} disabled={hasLegacyAnswerDraft}>
             Add Legacy Answer
           </Menu.Item>
         </Menu.Dropdown>
-      </Menu >
+      </Menu>
     );
   } else {
     return (
@@ -222,38 +208,40 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
-            <NameCard>
-              {isEditingName ? (
-                <Group>
-                  <TextInput
-                    value={draftName}
-                    placeholder="Name"
-                    onChange={e => setDraftName(e.target.value)}
-                  />
+          <NameCard>
+            {isEditingName ? (
+              <Group>
+                <TextInput
+                  value={draftName}
+                  placeholder="Name"
+                  onChange={e => setDraftName(e.target.value)}
+                />
+                <IconButton
+                  tooltip="Save PDF section name"
+                  iconName={ICONS.SAVE}
+                  onClick={() => {
+                    setIsEditingName(false);
+                    onCutNameChange(draftName);
+                  }}
+                />
+              </Group>
+            ) : (
+              <Flex justify="space-between">
+                <Text component="h6" m={0}>
+                  {cutName}
+                </Text>
+                {isCatAdmin && (
                   <IconButton
-                    tooltip="Save PDF section name"
-                    iconName={ICONS.SAVE}
-                    onClick={() => {
-                      setIsEditingName(false);
-                      onCutNameChange(draftName);
-                    }}
+                    tooltip="Edit PDF section name"
+                    size="sm"
+                    iconName={ICONS.EDIT}
+                    onClick={() => setIsEditingName(true)}
                   />
-                </Group>
-              ) : (
-                <Flex justify="space-between">
-                  <Text component="h6" m={0}>{cutName}</Text>
-                  {isCatAdmin && (
-                    <IconButton
-                      tooltip="Edit PDF section name"
-                      size="sm"
-                      iconName={ICONS.EDIT}
-                      onClick={() => setIsEditingName(true)}
-                    />
-                  )}
-                </Flex>
-              )}
-            </NameCard>
-          )}
+                )}
+              </Flex>
+            )}
+          </NameCard>
+        )}
         <Container fluid px={0}>
           {!hidden && data && (
             <>
@@ -299,9 +287,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                           <IconButton
                             className="mr-1"
                             size="sm"
-                            iconName={
-                              has_answers ? ICONS.VIEW_OFF : ICONS.VIEW
-                            }
+                            iconName={has_answers ? ICONS.VIEW_OFF : ICONS.VIEW}
                             tooltip="Toggle visibility"
                             onClick={hideAnswerSectionWithWarning}
                           />
@@ -335,7 +321,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <>
-                          <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+                          <MediaQuery
+                            smallerThan="sm"
+                            styles={{ display: "none" }}
+                          >
                             <Button
                               color="primary"
                               onClick={onToggleHidden}
@@ -344,7 +333,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               {hidden ? "Show Answers" : "Hide Answers"}
                             </Button>
                           </MediaQuery>
-                          <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                          <MediaQuery
+                            largerThan="sm"
+                            styles={{ display: "none" }}
+                          >
                             <Button
                               color="primary"
                               size="xs"
@@ -361,7 +353,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
-                            <Button size="xs" rightIcon={<Icon icon={ICONS.DOWN} />}>
+                            <Button
+                              size="xs"
+                              rightIcon={<Icon icon={ICONS.DOWN} />}
+                            >
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </Button>
                           </Menu.Target>

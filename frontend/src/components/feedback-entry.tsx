@@ -1,8 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import {
-  Button,
-  Card,
-} from "@mantine/core";
+import { Button, Card } from "@mantine/core";
 import moment from "moment";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";

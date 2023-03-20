@@ -79,7 +79,11 @@ const EditorHeader: React.FC<Props> = ({
         ref={fileInputRef}
         onChange={onChangeHandler}
       />
-      <Tabs value={activeMode} onTabChange={onActiveModeChange} className={navStyle}>
+      <Tabs
+        value={activeMode}
+        onTabChange={onActiveModeChange}
+        className={navStyle}
+      >
         <Tabs.List>
           <Tabs.Tab value="write">Write</Tabs.Tab>
           <Tabs.Tab value="preview">Preview</Tabs.Tab>

@@ -112,135 +112,149 @@ const AnswerComponent: React.FC<Props> = ({
     <>
       {modals}
       <AnswerWrapper>
-        <Flex justify="space-between" align="center">
-          <div>
-            {!hasId && (
-              <Link
-                to={
-                  answer ? `/exams/${answer.filename}#${answer.longId}` : ""
-                }
-              >
-                <Text color="dimmed" component="span">
-                  <Icon icon={ICONS.LINK} size="1em" />
-                </Text>
-              </Link>
-            )}
-            {isLegacyAnswer ? (
-              answer?.authorDisplayName ?? "(Legacy Draft)"
-            ) : (
-              <Anchor ml="xs" component={Link} to={`/user/${answer?.authorId ?? username}`}>
-                <Text weight={700} component="span">
-                  {answer?.authorDisplayName ?? "(Draft)"}
-                </Text>
-                <Text ml="0.3em" color="dimmed" component="span">
-                  @{answer?.authorId ?? username}
-                </Text>
-              </Anchor>
-            )}
-            <Text color="dimmed" mx="xs" component="span">·</Text>
-            {answer && (
-              <Text color="dimmed" component="span" title={answer.time}>
-                {formatDistanceToNow(new Date(answer.time))} ago
-              </Text>
-            )}
-            {answer &&
-              differenceInSeconds(
-                new Date(answer.edittime),
-                new Date(answer.time),
-              ) > 1 && (
-                <>
-                  <Text color="dimmed" mx="xs" component="span">·</Text>
-                  <Text color="dimmed" component="span" title={answer.edittime}>
-                    edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
-                    ago
+        <Card.Section withBorder p="md">
+          <Flex justify="space-between" align="center">
+            <div>
+              {!hasId && (
+                <Link
+                  to={
+                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                  }
+                >
+                  <Text color="dimmed" component="span">
+                    <Icon icon={ICONS.LINK} size="1em" />
                   </Text>
-                </>
+                </Link>
               )}
-          </div>
-          <div className="d-flex">
-            <AnswerToolbar>
+              {isLegacyAnswer ? (
+                answer?.authorDisplayName ?? "(Legacy Draft)"
+              ) : (
+                <Anchor
+                  ml="xs"
+                  component={Link}
+                  to={`/user/${answer?.authorId ?? username}`}
+                >
+                  <Text weight={700} component="span">
+                    {answer?.authorDisplayName ?? "(Draft)"}
+                  </Text>
+                  <Text ml="0.3em" color="dimmed" component="span">
+                    @{answer?.authorId ?? username}
+                  </Text>
+                </Anchor>
+              )}
+              <Text color="dimmed" mx="xs" component="span">
+                ·
+              </Text>
+              {answer && (
+                <Text color="dimmed" component="span" title={answer.time}>
+                  {formatDistanceToNow(new Date(answer.time))} ago
+                </Text>
+              )}
               {answer &&
-                (answer.expertvotes > 0 ||
-                  setExpertVoteLoading ||
-                  isExpert) && (
-                  <Button.Group className="m-1">
-                    <IconButton
-                      color="primary"
-                      size="xs"
-                      tooltip="This answer is endorsed by an expert"
-                      iconName={ICONS.STAR_FILLED}
-                    />
-                    <SmallButton color="primary" size="sm">
-                      {answer.expertvotes}
-                    </SmallButton>
-                    {isExpert && (
+                differenceInSeconds(
+                  new Date(answer.edittime),
+                  new Date(answer.time),
+                ) > 1 && (
+                  <>
+                    <Text color="dimmed" mx="xs" component="span">
+                      ·
+                    </Text>
+                    <Text
+                      color="dimmed"
+                      component="span"
+                      title={answer.edittime}
+                    >
+                      edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
+                      ago
+                    </Text>
+                  </>
+                )}
+            </div>
+            <div className="d-flex">
+              <AnswerToolbar>
+                {answer &&
+                  (answer.expertvotes > 0 ||
+                    setExpertVoteLoading ||
+                    isExpert) && (
+                    <Button.Group className="m-1">
                       <IconButton
                         color="primary"
-                        size="sm"
-                        loading={setExpertVoteLoading}
+                        size="xs"
+                        tooltip="This answer is endorsed by an expert"
+                        iconName={ICONS.STAR_FILLED}
+                      />
+                      <SmallButton color="primary" size="sm">
+                        {answer.expertvotes}
+                      </SmallButton>
+                      {isExpert && (
+                        <IconButton
+                          color="primary"
+                          size="sm"
+                          loading={setExpertVoteLoading}
+                          tooltip={
+                            answer.isExpertVoted
+                              ? "Remove expert vote"
+                              : "Add expert vote"
+                          }
+                          iconName={
+                            answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS
+                          }
+                          onClick={() =>
+                            setExpertVote(answer.oid, !answer.isExpertVoted)
+                          }
+                        />
+                      )}
+                    </Button.Group>
+                  )}
+                {answer &&
+                  (answer.isFlagged ||
+                    (answer.flagged > 0 && isAdmin) ||
+                    flaggedLoading) && (
+                    <Button.Group className="m-1">
+                      <Button
+                        color="danger"
+                        leftIcon={<Icon icon={ICONS.FLAG} />}
+                        title="Flagged as Inappropriate"
+                      >
+                        Inappropriate
+                      </Button>
+                      <SmallButton
+                        color="danger"
+                        tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                      >
+                        {answer.flagged}
+                      </SmallButton>
+                      <IconButton
+                        color="danger"
                         tooltip={
-                          answer.isExpertVoted
-                            ? "Remove expert vote"
-                            : "Add expert vote"
+                          answer.isFlagged
+                            ? "Remove inappropriate flag"
+                            : "Add inappropriate flag"
                         }
-                        iconName={
-                          answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS
-                        }
+                        size="sm"
+                        loading={flaggedLoading}
+                        iconName={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS}
                         onClick={() =>
-                          setExpertVote(answer.oid, !answer.isExpertVoted)
+                          setFlagged(answer.oid, !answer.isFlagged)
                         }
                       />
-                    )}
-                  </Button.Group>
+                    </Button.Group>
+                  )}
+                {answer && onSectionChanged && (
+                  <Score
+                    oid={answer.oid}
+                    upvotes={answer.upvotes}
+                    expertUpvotes={answer.expertvotes}
+                    userVote={
+                      answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
+                    }
+                    onSectionChanged={onSectionChanged}
+                  />
                 )}
-              {answer &&
-                (answer.isFlagged ||
-                  (answer.flagged > 0 && isAdmin) ||
-                  flaggedLoading) && (
-                  <Button.Group className="m-1">
-                    <Button
-                      color="danger"
-                      leftIcon={<Icon icon={ICONS.FLAG} />}
-                      title="Flagged as Inappropriate"
-                    >
-                      Inappropriate
-                    </Button>
-                    <SmallButton
-                      color="danger"
-                      tooltip={`${answer.flagged} users consider this answer inappropriate.`}
-                    >
-                      {answer.flagged}
-                    </SmallButton>
-                    <IconButton
-                      color="danger"
-                      tooltip={
-                        answer.isFlagged
-                          ? "Remove inappropriate flag"
-                          : "Add inappropriate flag"
-                      }
-                      size="sm"
-                      loading={flaggedLoading}
-                      iconName={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS}
-                      onClick={() =>
-                        setFlagged(answer.oid, !answer.isFlagged)
-                      }
-                    />
-                  </Button.Group>
-                )}
-              {answer && onSectionChanged && (
-                <Score
-                  oid={answer.oid}
-                  upvotes={answer.upvotes}
-                  expertUpvotes={answer.expertvotes}
-                  userVote={
-                    answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
-                  }
-                  onSectionChanged={onSectionChanged}
-                />
-              )}
-            </AnswerToolbar>
-          </div>
-        </Flex>
+              </AnswerToolbar>
+            </div>
+          </Flex>
+        </Card.Section>
         {editing || answer === undefined ? (
           <div className="pt-3">
             <Editor
@@ -281,7 +295,7 @@ const AnswerComponent: React.FC<Props> = ({
             </Button>
           )}
           {onSectionChanged && (
-            <>
+            <Group>
               <Button.Group mt="sm">
                 {(answer === undefined || editing) && (
                   <IconButton
@@ -309,9 +323,7 @@ const AnswerComponent: React.FC<Props> = ({
                     </Menu.Target>
                     <Menu.Dropdown>
                       {answer.flagged === 0 && (
-                        <Menu.Item
-                          onClick={() => setFlagged(answer.oid, true)}
-                        >
+                        <Menu.Item onClick={() => setFlagged(answer.oid, true)}>
                           Flag as Inappropriate
                         </Menu.Item>
                       )}
@@ -325,16 +337,12 @@ const AnswerComponent: React.FC<Props> = ({
                         Copy Permalink
                       </Menu.Item>
                       {isAdmin && answer.flagged > 0 && (
-                        <Menu.Item
-                          onClick={() => resetFlagged(answer.oid)}
-                        >
+                        <Menu.Item onClick={() => resetFlagged(answer.oid)}>
                           Remove all inappropriate flags
                         </Menu.Item>
                       )}
                       {!editing && canEdit && (
-                        <Menu.Item onClick={startEdit}>
-                          Edit
-                        </Menu.Item>
+                        <Menu.Item onClick={startEdit}>Edit</Menu.Item>
                       )}
                       {answer && canRemove && (
                         <Menu.Item onClick={remove}>Delete</Menu.Item>
@@ -346,7 +354,7 @@ const AnswerComponent: React.FC<Props> = ({
                   </Menu>
                 )}
               </Button.Group>
-            </>
+            </Group>
           )}
         </Flex>
 

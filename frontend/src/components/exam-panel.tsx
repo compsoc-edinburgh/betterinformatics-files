@@ -4,6 +4,9 @@ import {
   Grid,
   Slider,
   Pagination,
+  Stack,
+  Text,
+  Title,
 } from "@mantine/core";
 import { useDebounceFn } from "@umijs/hooks";
 import React, { useCallback, useState } from "react";
@@ -102,62 +105,60 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
-      <Link
-        className="link-text"
-        to={`/category/${metaData ? metaData.category : ""}`}
-      >
-        {metaData && metaData.category_displayname}
-      </Link>
-      <p>
-        <small>{metaData && metaData.displayname}</small>
-      </p>
-      <h6 className="my-3 mx-2">Pages</h6>
-      {!!renderer && (
-        <Pagination total={renderer.document.numPages} getItemProps={(page) => ({
-          component: 'a',
-          href: `#page-${page}`,
-        })} withControls={false} />
-      )
-      }
-      <h6 className="my-3 mx-2">Size</h6>
-      <Slider
-        min={500}
-        max={2000}
-        value={widthValue}
-        onChange={handler}
-      />
-      <h6 className="my-3 mx-2">Actions</h6>
-      <Button.Group>
-        <IconButton
-          tooltip="Report problem"
-          iconName={ICONS.MESSAGE}
-          onClick={reportProblem}
-        />
-        <IconButton
-          tooltip="Back to the top"
-          iconName={ICONS.ARROW_UP}
-          onClick={scrollToTop}
-        />
-        {!allSectionsExpanded && (
-          <IconButton
-            tooltip="Expand all answers"
-            iconName={ICONS.ADJUST_UP_DOWN}
-            onClick={onExpandAllSections}
+      <Stack spacing="xs">
+        <Text
+          component={Link}
+          weight={700}
+          size="xl"
+          to={`/category/${metaData ? metaData.category : ""}`}
+        >
+          {metaData && metaData.category_displayname}
+        </Text>
+        <Text size="sm">{metaData && metaData.displayname}</Text>
+        <Title order={6}>Pages</Title>
+        {!!renderer && (
+          <Pagination
+            total={renderer.document.numPages}
+            getItemProps={page => ({
+              component: "a",
+              href: `#page-${page}`,
+            })}
+            withControls={false}
           />
         )}
-        {!allSectionsCollapsed && (
+        <Title order={6}>Size</Title>
+        <Slider min={500} max={2000} value={widthValue} onChange={handler} />
+        <Title order={6}>Actions</Title>
+        <Button.Group>
           <IconButton
-            tooltip="Collapse all answers"
-            iconName={ICONS.ADJUST_UP_DOWN_ALT}
-            onClick={onCollapseAllSections}
+            tooltip="Report problem"
+            iconName={ICONS.MESSAGE}
+            onClick={reportProblem}
           />
-        )}
-      </Button.Group>
+          <IconButton
+            tooltip="Back to the top"
+            iconName={ICONS.ARROW_UP}
+            onClick={scrollToTop}
+          />
+          {!allSectionsExpanded && (
+            <IconButton
+              tooltip="Expand all answers"
+              iconName={ICONS.ADJUST_UP_DOWN}
+              onClick={onExpandAllSections}
+            />
+          )}
+          {!allSectionsCollapsed && (
+            <IconButton
+              tooltip="Collapse all answers"
+              iconName={ICONS.ADJUST_UP_DOWN_ALT}
+              onClick={onCollapseAllSections}
+            />
+          )}
+        </Button.Group>
 
-      {
-        canEdit && (
+        {canEdit && (
           <>
-            <h6 className="my-3 mx-2">Edit Mode</h6>
+            <Title order={6}>Edit Mode</Title>
             <Grid>
               {editState.mode !== EditMode.None && (
                 <Grid.Col xs="auto">
@@ -199,48 +200,52 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 />
               )}
             </div>
-            <h6 className="my-3 mx-2">Display Options</h6>
-            <Checkbox
-              name="check"
-              label="Display hidden PDF sections"
-              checked={displayOptions.displayHiddenPdfSections}
-              onChange={e =>
-                setOption("displayHiddenPdfSections", e.target.checked)
-              }
-            />
-            <Checkbox
-              name="check"
-              label="Display hidden answer sections"
-              checked={displayOptions.displayHiddenAnswerSections}
-              onChange={e =>
-                setOption("displayHiddenAnswerSections", e.target.checked)
-              }
-            />
-            <Checkbox
-              name="check"
-              label="Display Hide / Show buttons"
-              checked={displayOptions.displayHideShowButtons}
-              onChange={e =>
-                setOption("displayHideShowButtons", e.target.checked)
-              }
-            />
-            <Checkbox
-              name="check"
-              label="Display empty cut labels"
-              checked={displayOptions.displayEmptyCutLabels}
-              onChange={e =>
-                setOption("displayEmptyCutLabels", e.target.checked)
-              }
-            />
+            <Title order={6}>Display Options</Title>
+            <Stack spacing="xs">
+              <Checkbox
+                name="check"
+                label="Display hidden PDF sections"
+                checked={displayOptions.displayHiddenPdfSections}
+                onChange={e =>
+                  setOption("displayHiddenPdfSections", e.target.checked)
+                }
+              />
+              <Checkbox
+                name="check"
+                label="Display hidden answer sections"
+                checked={displayOptions.displayHiddenAnswerSections}
+                onChange={e =>
+                  setOption("displayHiddenAnswerSections", e.target.checked)
+                }
+              />
+              <Checkbox
+                name="check"
+                label="Display Hide / Show buttons"
+                checked={displayOptions.displayHideShowButtons}
+                onChange={e =>
+                  setOption("displayHideShowButtons", e.target.checked)
+                }
+              />
+              <Checkbox
+                name="check"
+                label="Display empty cut labels"
+                checked={displayOptions.displayEmptyCutLabels}
+                onChange={e =>
+                  setOption("displayEmptyCutLabels", e.target.checked)
+                }
+              />
+            </Stack>
           </>
-        )
-      }
-      All answers are licensed as & nbsp;
-      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-        CC BY-NC-SA 4.0
-      </a>
-      .
-    </Panel >
+        )}
+        <Text size="sm">
+          All answers are licensed as&nbsp;
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0
+          </a>
+          .
+        </Text>
+      </Stack>
+    </Panel>
   );
 };
 export default ExamPanel;

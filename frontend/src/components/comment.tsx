@@ -76,7 +76,10 @@ const CommentComponent: React.FC<Props> = ({
       {modals}
       <Flex justify="space-between">
         <div>
-          <Anchor component={Link} to={`/user/${comment?.authorId ?? username}`}>
+          <Anchor
+            component={Link}
+            to={`/user/${comment?.authorId ?? username}`}
+          >
             <Text weight={700} component="span">
               {comment?.authorDisplayName ?? "(Draft)"}
             </Text>
@@ -84,7 +87,9 @@ const CommentComponent: React.FC<Props> = ({
               @{comment?.authorId ?? username}
             </Text>
           </Anchor>
-          <Text component="span" mx="xs" color="dimmed">·</Text>
+          <Text component="span" mx="xs" color="dimmed">
+            ·
+          </Text>
           {comment && (
             <Text component="span" color="dimmed" title={comment.time}>
               {formatDistanceToNow(new Date(comment.time))} ago

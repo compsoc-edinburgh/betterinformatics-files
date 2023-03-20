@@ -21,8 +21,9 @@ const ContentContainer: React.FC<Props> = ({ children, className }) => {
       <Box
         py="md"
         px={0}
-        className={`${classes.contentContainer
-          } ${className ? ` ${className}` : ""}`}
+        className={`${classes.contentContainer} ${
+          className ? ` ${className}` : ""
+        }`}
       >
         {children}
       </Box>

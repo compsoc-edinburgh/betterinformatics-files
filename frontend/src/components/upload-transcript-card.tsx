@@ -1,14 +1,6 @@
-import {
-  Alert,
-  Card,
-  Grid,
-  Loader,
-  NativeSelect,
-} from "@mantine/core";
+import { Alert, Card, Grid, Loader, NativeSelect } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import {
-  Button,
-} from "@mantine/core";
+import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -71,15 +63,13 @@ const UploadTranscriptCard: React.FC<{}> = () => {
         <form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
           <label className="form-input-label">File</label>
-          <FileInput
-            value={file}
-            onChange={setFile}
-            accept="application/pdf"
-          />
+          <FileInput value={file} onChange={setFile} accept="application/pdf" />
           <label className="form-input-label">Category</label>
           <NativeSelect
             data={options}
-            onChange={(event: any) => setCategory(event.currentTarget.value as string)}
+            onChange={(event: any) =>
+              setCategory(event.currentTarget.value as string)
+            }
             required
           />
           <Grid>

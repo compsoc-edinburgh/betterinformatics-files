@@ -11,7 +11,7 @@ import {
   Textarea,
   TextInput,
   Title,
-} from "@mantine/core"
+} from "@mantine/core";
 import React from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
@@ -259,10 +259,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
                 ].value
               }
               onChange={(event: any) =>
-                setFormValue(
-                  "semester",
-                  event.currentTarget.value,
-                )
+                setFormValue("semester", event.currentTarget.value)
               }
             />
           </Grid.Col>
@@ -270,12 +267,11 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             <NativeSelect
               label="Form"
               data={options(formOptions)}
-              value={formOptions[formState.form as keyof typeof formOptions].value}
+              value={
+                formOptions[formState.form as keyof typeof formOptions].value
+              }
               onChange={(event: any) =>
-                setFormValue(
-                  "form",
-                  event.currentTarget.value,
-                )
+                setFormValue("form", event.currentTarget.value)
               }
             />
           </Grid.Col>
@@ -292,10 +288,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
                 ].value
               }
               onChange={(event: any) =>
-                setFormValue(
-                  "permission",
-                  event.currentTarget.value,
-                )
+                setFormValue("permission", event.currentTarget.value)
               }
             />
           </Grid.Col>
@@ -313,19 +306,27 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           {...registerCheckbox("has_payments")}
         />
       </Stack>
-      <Title order={4} mt="md" mb="sm">Attachments</Title>
+      <Title order={4} mt="md" mb="sm">
+        Attachments
+      </Title>
       <AttachmentsEditor
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <Title order={4} mt="md" mb="sm">Offered In</Title>
+      <Title order={4} mt="md" mb="sm">
+        Offered In
+      </Title>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-      <Title order={4} mt="md" mb="sm">Admins</Title>
+      <Title order={4} mt="md" mb="sm">
+        Admins
+      </Title>
       <UserSetEditor
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
       />
-      <Title order={4} mt="md" mb="sm">Experts</Title>
+      <Title order={4} mt="md" mb="sm">
+        Experts
+      </Title>
       <UserSetEditor
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}

@@ -1,7 +1,4 @@
-import {
-  Button,
-  Modal,
-} from "@mantine/core";
+import { Button, Modal } from "@mantine/core";
 import React from "react";
 interface ModalProps {
   isOpen: boolean;

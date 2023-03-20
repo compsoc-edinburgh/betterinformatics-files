@@ -28,7 +28,12 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
         {documents &&
           documents.map(document => (
             <Paper p="md" withBorder shadow="xs" key={document.slug}>
-              <Anchor size="lg" weight={600} component={Link} to={`/user/${document.author}/document/${document.slug}`}>
+              <Anchor
+                size="lg"
+                weight={600}
+                component={Link}
+                to={`/user/${document.author}/document/${document.slug}`}
+              >
                 <Text size="lg">{document.display_name}</Text>
               </Anchor>
               <Group mt="sm" position="apart">
@@ -38,7 +43,9 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
                 {document.liked ? (
                   <Flex align="center" color="red">
                     <Icon icon={ICONS.LIKE_FILLED} color="red" />
-                    <Text color="red" ml="0.3em">{document.like_count}</Text>
+                    <Text color="red" ml="0.3em">
+                      {document.like_count}
+                    </Text>
                   </Flex>
                 ) : (
                   <Flex align="center">

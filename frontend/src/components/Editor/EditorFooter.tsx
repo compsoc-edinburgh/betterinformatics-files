@@ -1,9 +1,5 @@
 import { css } from "@emotion/css";
-import {
-  Button,
-  Group,
-  Modal,
-} from "@mantine/core";
+import { Button, Group, Modal } from "@mantine/core";
 import * as React from "react";
 import { useCallback, useState } from "react";
 import { ImageHandle } from "./utils/types";
@@ -37,7 +33,12 @@ const EditorFooter: React.FC<Props> = ({
           </Button>
         </Button.Group>
       </Group>
-      <Modal title="Help with Editor" opened={isHelpOpen} onClose={toggleHelp} size="min(90vw, 1500px)">
+      <Modal
+        title="Help with Editor"
+        opened={isHelpOpen}
+        onClose={toggleHelp}
+        size="min(90vw, 1500px)"
+      >
         <Modal.Body>
           <EditorHelp />
         </Modal.Body>

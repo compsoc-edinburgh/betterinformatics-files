@@ -70,7 +70,12 @@ const UserPage: React.FC<{}> = () => {
         />
         {error && <Alert color="danger">{error.toString()}</Alert>}
         {loading && <Loader />}
-        <Tabs color="blue" value={activeTab} onTabChange={setActiveTab} className={navStyle}>
+        <Tabs
+          color="blue"
+          value={activeTab}
+          onTabChange={setActiveTab}
+          className={navStyle}
+        >
           <Tabs.List grow>
             <Tabs.Tab value="overview">Overview</Tabs.Tab>
             <Tabs.Tab value="answers">Answers</Tabs.Tab>
@@ -83,9 +88,7 @@ const UserPage: React.FC<{}> = () => {
               {!isMyself && !user.isAdmin && (
                 <Alert color="secondary">There's nothing here</Alert>
               )}
-              {isMyself && (
-                <UserNotifications username={username} />
-              )}
+              {isMyself && <UserNotifications username={username} />}
               {(isMyself || user.isAdmin) && (
                 <UserPayments username={username} />
               )}

@@ -224,7 +224,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               color="white"
               iconName={ICONS.DOWNLOAD}
               tooltip="Download"
-              onClick={() => window.open(metaData.exam_file, '_blank')}
+              onClick={() => window.open(metaData.exam_file, "_blank")}
             />
             {user.isCategoryAdmin && (
               <>
@@ -440,14 +440,17 @@ const ExamPage: React.FC<{}> = () => {
             Home
           </Anchor>
           <Anchor
-            tt="uppercase" size="xs"
+            tt="uppercase"
+            size="xs"
             component={Link}
             to={`/category/${metaData ? metaData.category : ""}`}
             className="text-primary"
           >
             {metaData && metaData.category_displayname}
           </Anchor>
-          <Anchor tt="uppercase" size="xs">{metaData && metaData.displayname}</Anchor>
+          <Anchor tt="uppercase" size="xs">
+            {metaData && metaData.displayname}
+          </Anchor>
         </Breadcrumbs>
       </Container>
       <div>
@@ -495,7 +498,7 @@ const ExamPage: React.FC<{}> = () => {
           </Container>
         )}
       </div>
-    </div >
+    </div>
   );
 };
 export default ExamPage;

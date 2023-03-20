@@ -1,12 +1,7 @@
 import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
-import {
-  Button,
-  Card,
-  Flex,
-  Title,
-} from "@mantine/core";
+import { Button, Card, Flex, Title } from "@mantine/core";
 
 export class TOCNode {
   name: string;

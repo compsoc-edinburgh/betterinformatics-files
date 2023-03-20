@@ -1,10 +1,6 @@
 import { Grid, Loader, NativeSelect, TextInput } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import {
-  Alert,
-  Button,
-  Card,
-} from "@mantine/core";
+import { Alert, Button, Card } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
@@ -56,11 +52,7 @@ const UploadPdfCard: React.FC<{}> = () => {
         <form onSubmit={onSubmit}>
           {error && <Alert color="danger">{error.toString()}</Alert>}
           <label className="form-input-label">File</label>
-          <FileInput
-            value={file}
-            onChange={setFile}
-            accept="application/pdf"
-          />
+          <FileInput value={file} onChange={setFile} accept="application/pdf" />
           <TextInput
             label="Name"
             placeholder="Name"
@@ -71,7 +63,9 @@ const UploadPdfCard: React.FC<{}> = () => {
           <label className="form-input-label">Category</label>
           <NativeSelect
             data={options}
-            onChange={(event: any) => setCategory(event.currentTarget.value as string)}
+            onChange={(event: any) =>
+              setCategory(event.currentTarget.value as string)
+            }
             required
           />
           <Grid>

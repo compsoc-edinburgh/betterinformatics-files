@@ -162,7 +162,7 @@ const App: React.FC<{}> = () => {
     "#0A8BC7",
     "#0E78AA",
   ]);
-  vsethTheme.colorScheme = 'light';
+  vsethTheme.colorScheme = "light";
 
   const theme = useMantineTheme();
 
@@ -179,7 +179,7 @@ const App: React.FC<{}> = () => {
     },
     { title: "Search", href: "/search" },
     {
-      title:
+      title: (
         <span>
           Account
           {unreadCount !== undefined && unreadCount > 0 && (
@@ -189,7 +189,8 @@ const App: React.FC<{}> = () => {
             </>
           )}
         </span>
-      , href: `/user/${user?.username}`,
+      ),
+      href: `/user/${user?.username}`,
     },
   ];
 
@@ -211,14 +212,23 @@ const App: React.FC<{}> = () => {
         )}
       >
         <MantineProvider
-          theme={{ colorScheme: 'light', primaryColor: 'gray', primaryShade: 8, fontFamily: '"Source Sans Pro", "Roboto", sans-serif' }}
+          theme={{
+            colorScheme: "light",
+            primaryColor: "gray",
+            primaryShade: 8,
+            fontFamily: '"Source Sans Pro", "Roboto", sans-serif',
+          }}
           withGlobalStyles
           withNormalizeCSS
         >
-          <Modal opened={loggedOut} onClose={() => login()} title="You've been logged out due to inactivity">
+          <Modal
+            opened={loggedOut}
+            onClose={() => login()}
+            title="You've been logged out due to inactivity"
+          >
             <Text>
-              Your session has expired due to inactivity, you have to log in again
-              to continue.
+              Your session has expired due to inactivity, you have to log in
+              again to continue.
             </Text>
             <Button
               size="lg"
@@ -278,13 +288,21 @@ const App: React.FC<{}> = () => {
                           component={UserPage}
                         />
                         <UserRoute exact path="/user/" component={UserPage} />
-                        <UserRoute exact path="/search/" component={SearchPage} />
+                        <UserRoute
+                          exact
+                          path="/search/"
+                          component={SearchPage}
+                        />
                         <UserRoute
                           exact
                           path="/scoreboard"
                           component={Scoreboard}
                         />
-                        <UserRoute exact path="/modqueue" component={ModQueue} />
+                        <UserRoute
+                          exact
+                          path="/modqueue"
+                          component={ModQueue}
+                        />
                         <Route component={NotFoundPage} />
                       </Switch>
                     </Box>

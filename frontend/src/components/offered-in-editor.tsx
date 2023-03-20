@@ -1,10 +1,4 @@
-import {
-  Alert,
-  Button,
-  Grid,
-  Group,
-  NativeSelect,
-} from "@mantine/core";
+import { Alert, Button, Grid, Group, NativeSelect } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { useMetaCategories } from "../api/hooks";
@@ -18,27 +12,20 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   setOfferedIn,
 }) => {
   const [newMeta1, setNewMeta1] = useState("");
-  const meta1Value = useMemo(
-    () => (newMeta1),
-    [newMeta1],
-  );
+  const meta1Value = useMemo(() => newMeta1, [newMeta1]);
   const [newMeta2, setNewMeta2] = useState("");
-  const meta2Value = useMemo(
-    () => (newMeta2),
-    [newMeta2],
-  );
+  const meta2Value = useMemo(() => newMeta2, [newMeta2]);
   const [error, loading, data] = useMetaCategories();
   const meta1Options: string[] = useMemo(
-    () =>
-      (data && data.map(d => (d.displayname))) ?? [],
+    () => (data && data.map(d => d.displayname)) ?? [],
     [data],
   );
   const meta2Options: string[] = useMemo(
     () =>
       data && newMeta1.length > 0
         ? data
-          .find(m => m.displayname === newMeta1)
-          ?.meta2.map(m => (m.displayname)) ?? []
+            .find(m => m.displayname === newMeta1)
+            ?.meta2.map(m => m.displayname) ?? []
         : [],
     [data, newMeta1],
   );
@@ -59,7 +46,12 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <Group>
         {offeredIn.map(([meta1, meta2]) => (
-          <Button key={`${meta1}-${meta2}`} leftIcon={<Icon icon={ICONS.CLOSE} />} variant="default" onClick={() => onRemove(meta1, meta2)}>
+          <Button
+            key={`${meta1}-${meta2}`}
+            leftIcon={<Icon icon={ICONS.CLOSE} />}
+            variant="default"
+            onClick={() => onRemove(meta1, meta2)}
+          >
             {meta1} {meta2}
           </Button>
         ))}
@@ -77,7 +69,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
                 label="Meta 1"
                 data={meta1Options}
                 value={meta1Value}
-                onChange={(event) => {
+                onChange={event => {
                   setNewMeta1(event.currentTarget.value);
                   setNewMeta2("");
                 }}
@@ -90,7 +82,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
                 label="Meta 2"
                 data={meta2Options}
                 value={meta2Value}
-                onChange={(event) => setNewMeta2(event.currentTarget.value)}
+                onChange={event => setNewMeta2(event.currentTarget.value)}
               />
             )}
           </Grid.Col>

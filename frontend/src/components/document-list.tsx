@@ -33,7 +33,11 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
                 {document.display_name}
               </Anchor>
               <Group position="apart" mt="sm">
-                <Anchor component={Link} to={`/user/${document.author}`} color="dimmed">
+                <Anchor
+                  component={Link}
+                  to={`/user/${document.author}`}
+                  color="dimmed"
+                >
                   @{document.author}
                 </Anchor>
                 {document.liked ? (
@@ -51,11 +55,9 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
             </Paper>
           ))}
         <Paper withBorder style={{ minHeight: "4em" }}>
-          <Tooltip
-            label="Add a new document"
-          >
+          <Tooltip label="Add a new document">
             <Button
-              style={{ width: '100%', height: '100%' }}
+              style={{ width: "100%", height: "100%" }}
               onClick={() => setIsOpen(true)}
             >
               <Icon icon={ICONS.PLUS} size={40} />

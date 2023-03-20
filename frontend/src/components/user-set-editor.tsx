@@ -1,9 +1,4 @@
-import {
-  Button,
-  Grid,
-  Group,
-  TextInput,
-} from "@mantine/core";
+import { Button, Grid, Group, TextInput } from "@mantine/core";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 
@@ -25,7 +20,12 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
     <>
       <Group>
         {users.map(user => (
-          <Button key={user} variant="default" leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={() => remove(user)}>
+          <Button
+            key={user}
+            variant="default"
+            leftIcon={<Icon icon={ICONS.CLOSE} />}
+            onClick={() => remove(user)}
+          >
             {user}
           </Button>
         ))}

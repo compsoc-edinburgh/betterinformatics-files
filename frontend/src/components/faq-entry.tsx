@@ -105,10 +105,7 @@ const FAQEntryComponent: React.FC<Props> = ({
               tooltip="Delete FAQ entry"
               iconName={ICONS.DELETE}
               onClick={() =>
-                confirm(
-                  "Are you sure that you want to remove this?",
-                  onRemove,
-                )
+                confirm("Are you sure that you want to remove this?", onRemove)
               }
             />
             {editing && (
@@ -119,7 +116,7 @@ const FAQEntryComponent: React.FC<Props> = ({
           </Button.Group>
         </Group>
       )}
-    </Card >
+    </Card>
   );
 };
 export default FAQEntryComponent;

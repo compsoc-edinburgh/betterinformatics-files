@@ -1,8 +1,4 @@
-import {
-  Button,
-  Card,
-  PasswordInput,
-} from "@mantine/core";
+import { Button, Card, PasswordInput } from "@mantine/core";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
 
@@ -54,8 +50,8 @@ export default class PrintExam extends React.Component<Props, State> {
     return (
       <Card className="m-1">
         <p>
-          Unfortunately we can not provide you this {this.props.title} as a
-          PDF. The corresponding professor did not allow this.
+          Unfortunately we can not provide you this {this.props.title} as a PDF.
+          The corresponding professor did not allow this.
         </p>
         <p>
           Warning: The ETH Print Service may generate cost after a certain
@@ -80,9 +76,7 @@ export default class PrintExam extends React.Component<Props, State> {
               />
             </div>
             <div>
-              <Button onClick={this.printExam}>
-                Print {this.props.title}
-              </Button>
+              <Button onClick={this.printExam}>Print {this.props.title}</Button>
             </div>
           </>
         )) || <p>Exam successfully printed</p>}

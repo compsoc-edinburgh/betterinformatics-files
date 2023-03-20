@@ -32,10 +32,9 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
                 {notification.senderDisplayName}
               </Link>{" "}
               •{" "}
-              {moment(
-                notification.time,
-                GlobalConsts.momentParseString,
-              ).format(GlobalConsts.momentFormatString)}
+              {moment(notification.time, GlobalConsts.momentParseString).format(
+                GlobalConsts.momentFormatString,
+              )}
             </small>
           </div>
         </h6>

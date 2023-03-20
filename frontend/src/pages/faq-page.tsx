@@ -12,13 +12,7 @@ import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
 import { Icon, ICONS } from "vseth-canine-ui";
-import {
-  Button,
-  Card,
-  Container,
-  Flex,
-  TextInput,
-} from "@mantine/core";
+import { Button, Card, Container, Flex, TextInput } from "@mantine/core";
 const newButtonStyle = css`
   min-height: 3em;
 `;

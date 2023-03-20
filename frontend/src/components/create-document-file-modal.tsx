@@ -1,9 +1,4 @@
-import {
-  Button,
-  Loader,
-  Modal,
-  TextInput,
-} from "@mantine/core";
+import { Button, Loader, Modal, TextInput } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -54,8 +49,8 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
         />
         <div className="form-text text-muted">
-          If you don't select any file we will create an empty markdown file
-          for you that you can edit afterwards.
+          If you don't select any file we will create an empty markdown file for
+          you that you can edit afterwards.
         </div>
         <Button
           color="primary"
@@ -64,10 +59,10 @@ const CreateDocumentFileModal: React.FC<Props> = ({
             createDocumentFile(
               displayName,
               file ??
-              new NamedBlob(
-                new Blob([], { type: "application/octet-stream" }),
-                "document.md",
-              ),
+                new NamedBlob(
+                  new Blob([], { type: "application/octet-stream" }),
+                  "document.md",
+                ),
             )
           }
         >

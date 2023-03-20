@@ -36,12 +36,12 @@ const usePdf = (
   end: number,
   scale: number | undefined,
 ): [
-    HTMLCanvasElement | null,
-    number[] | undefined,
-    number,
-    number,
-    boolean,
-  ] => {
+  HTMLCanvasElement | null,
+  number[] | undefined,
+  number,
+  number,
+  boolean,
+] => {
   const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(
     null,
   );
@@ -126,7 +126,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     addCutText,
     snap = true,
     displayHideShowButtons = false,
-    onSectionHiddenChange = () => { },
+    onSectionHiddenChange = () => {},
   }) => {
     const relativeHeight = end - start;
 
@@ -219,8 +219,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
             className="cover-container"
             style={{
               width: `${targetWidth}px`,
-              height: `${containerHeight || targetWidth * relativeHeight * 1.414
-                }px`,
+              height: `${
+                containerHeight || targetWidth * relativeHeight * 1.414
+              }px`,
               filter: hidden ? "contrast(0.5)" : undefined,
             }}
             ref={containerElement}

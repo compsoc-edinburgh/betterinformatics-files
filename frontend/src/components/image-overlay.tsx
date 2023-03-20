@@ -1,11 +1,4 @@
-import {
-  Button,
-  Card,
-  Grid,
-  Image,
-  Modal,
-  SimpleGrid,
-} from "@mantine/core";
+import { Button, Card, Grid, Image, Modal, SimpleGrid } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
@@ -82,15 +75,12 @@ const ImageModal: React.FC<ModalProps> = ({
                         ? unselect(image)
                         : select(image)
                       : selected.has(image)
-                        ? setSelected()
-                        : setSelected(image)
+                      ? setSelected()
+                      : setSelected(image)
                   }
                 >
-                  <Card.Section
-                  >
-                    <Image
-                      src={`/api/image/get/${image}/`}
-                      alt={image} />
+                  <Card.Section>
+                    <Image src={`/api/image/get/${image}/`} alt={image} />
                   </Card.Section>
                   {selected.has(image) && selected.size === 1 && (
                     <div className="position-absolute position-bottom-right">

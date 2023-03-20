@@ -7,8 +7,10 @@ import {
   Grid,
   Group,
   NativeSelect,
+  Stack,
   Textarea,
   TextInput,
+  Title,
 } from "@mantine/core";
 import React from "react";
 import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
@@ -159,10 +161,8 @@ const ExamMetadataEditor: React.FC<Props> = ({
   toggle,
   onMetaDataChange,
 }) => {
-  const { data: categories } =
-    useRequest(loadCategories);
-  const { data: examTypes } =
-    useRequest(loadExamTypes);
+  const { data: categories } = useRequest(loadCategories);
+  const { data: examTypes } = useRequest(loadExamTypes);
   const categoryOptions =
     categories &&
     createOptions(
@@ -213,17 +213,16 @@ const ExamMetadataEditor: React.FC<Props> = ({
     );
 
   return (
-    <>
-      <CloseButton onClick={toggle} />
-      <h2>Edit Exam</h2>
+    <Stack>
+      <Group position="apart" pt="sm">
+        <Title order={2}>Edit Exam</Title>
+        <CloseButton onClick={toggle} />
+      </Group>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <h6>Metadata</h6>
+      <Title order={6}>Metadata</Title>
       <Grid>
         <Grid.Col md={6}>
-          <TextInput
-            label="Display name"
-            {...registerInput("displayname")}
-          />
+          <TextInput label="Display name" {...registerInput("displayname")} />
         </Grid.Col>
         <Grid.Col md={6}>
           <TextInput
@@ -234,27 +233,23 @@ const ExamMetadataEditor: React.FC<Props> = ({
       </Grid>
       <Grid>
         <Grid.Col md={6}>
-          <label className="form-input-label">Category</label>
           <NativeSelect
+            label="Category"
             data={categoryOptions ? (options(categoryOptions) as any) : []}
             value={categoryOptions && categoryOptions[formState.category].value}
             onChange={(e: any) => {
               setFormValue("category", e.value as string);
               setFormValue("category_displayname", e.label as string);
             }}
-            required
           />
         </Grid.Col>
         <Grid.Col md={6}>
-          <label className="form-input-label">Exam type</label>
           <NativeSelect
+            label="Exam type"
             data={examTypeOptions ? (options(examTypeOptions) as any) : []}
             value={formState.examtype}
             onChange={(event: any) =>
-              setFormValue(
-                "examtype",
-                event.currentTarget.value,
-              )
+              setFormValue("examtype", event.currentTarget.value)
             }
           />
         </Grid.Col>
@@ -294,14 +289,18 @@ const ExamMetadataEditor: React.FC<Props> = ({
       </Grid>
       <Grid>
         <Grid.Col md={6}>
-          <label className="form-input-label">Legacy Solution</label>
-          <TextInput type="url" {...registerInput("legacy_solution")} />
+          <TextInput
+            type="url"
+            {...registerInput("legacy_solution")}
+            label="Legacy Solution"
+          />
         </Grid.Col>
         <Grid.Col md={6}>
-          <label className="form-input-label">
-            Master Solution <i>(extern)</i>
-          </label>
-          <TextInput type="url" {...registerInput("master_solution")} />
+          <TextInput
+            type="url"
+            {...registerInput("master_solution")}
+            label="Master Solution (extern)"
+          />
         </Grid.Col>
       </Grid>
       <Grid>
@@ -352,12 +351,12 @@ const ExamMetadataEditor: React.FC<Props> = ({
         </Grid.Col>
       </Grid>
       <Textarea label="Remark" {...registerInput("remark")} />
-      <h6>Attachments</h6>
+      <Title order={6}>Attachments</Title>
       <AttachmentsEditor
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <Group position="right" >
+      <Group position="right">
         <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={toggle}>
           Cancel
         </Button>
@@ -370,7 +369,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
           Save
         </Button>
       </Group>
-    </>
+    </Stack>
   );
 };
 export default ExamMetadataEditor;

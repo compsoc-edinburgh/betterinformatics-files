@@ -1,12 +1,5 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
-import {
-  Alert,
-  Button,
-  Container,
-  Grid,
-  Tabs,
-  Textarea,
-} from "@mantine/core";
+import { Alert, Button, Container, Grid, Tabs, Textarea } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
@@ -64,10 +57,7 @@ const FeedbackForm: React.FC<{}> = () => {
         onChange={e => setText(e.currentTarget.value)}
         minRows={12}
       />
-      <Button
-        disabled={text.length === 0 || loading}
-        onClick={() => run(text)}
-      >
+      <Button disabled={text.length === 0 || loading} onClick={() => run(text)}>
         {loading ? <Loader /> : "Submit"}
       </Button>
     </>

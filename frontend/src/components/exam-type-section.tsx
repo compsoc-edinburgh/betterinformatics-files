@@ -1,12 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import {
-  Anchor,
-  Badge,
-  Card,
-  Checkbox,
-  Grid,
-  Text,
-} from "@mantine/core";
+import { Anchor, Badge, Card, Checkbox, Grid, Text } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -120,7 +113,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     size="lg"
                     weight={600}
                     mb="sm"
-                  // color="gray.9"
+                    // color="gray.9"
                   >
                     {exam.displayname}
                   </Anchor>
@@ -129,17 +122,15 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 )}
                 <div>
                   {exam.remark && (
-                    <Text color="dimmed" size="xs" mb="0.1em">{exam.remark}</Text>
+                    <Text color="dimmed" size="xs" mb="0.1em">
+                      {exam.remark}
+                    </Text>
                   )}
                   {catAdmin &&
                     (exam.public ? (
-                      <Badge className={badgeStyle}>
-                        public
-                      </Badge>
+                      <Badge className={badgeStyle}>public</Badge>
                     ) : (
-                      <Badge className={badgeStyle}>
-                        hidden
-                      </Badge>
+                      <Badge className={badgeStyle}>hidden</Badge>
                     ))}
                   {exam.needs_payment && (
                     <Badge className={badgeStyle} color="blue">
@@ -195,7 +186,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     tooltip="Delete exam"
                     iconName={ICONS.DELETE}
                     variant="outline"
-                    onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => handleRemoveClick(e, exam)}
+                    onClick={(
+                      e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                    ) => handleRemoveClick(e, exam)}
                   />
                 )}
               </Grid.Col>

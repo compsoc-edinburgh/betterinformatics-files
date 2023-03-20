@@ -72,152 +72,160 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     <>
       {modals}
       <Breadcrumbs separator="›">
-        <Anchor tt="uppercase" size="xs" component={Link} className="text-primary" to="/">
+        <Anchor
+          tt="uppercase"
+          size="xs"
+          component={Link}
+          className="text-primary"
+          to="/"
+        >
           Home
         </Anchor>
-        <Anchor tt="uppercase" size="xs">{metaData.displayname}</Anchor>
+        <Anchor tt="uppercase" size="xs">
+          {metaData.displayname}
+        </Anchor>
       </Breadcrumbs>
-      {
-        editing ? (
-          offeredIn && (
-            <CategoryMetaDataEditor
-              onMetaDataChange={editorOnMetaDataChange}
-              isOpen={editing}
-              toggle={toggle}
-              currentMetaData={metaData}
-              offeredIn={offeredIn.flatMap(b =>
-                b.meta2.map(d => [b.displayname, d.displayname] as const),
-              )}
-            />
-          )
-        ) : (
-          <>
-            <Flex direction="row" justify="space-between">
-              <h1>{metaData.displayname}</h1>
-              {user.isCategoryAdmin && (
-                <Group>
-                  <Button
-                    leftIcon={<Icon color="currentColor" icon={ICONS.EDIT} />}
-                    onClick={() => setEditing(true)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    color="red"
-                    loading={removeLoading}
-                    leftIcon={<Icon color="currentColor" icon={ICONS.DELETE} />}
-                    onClick={onRemove}
-                  >
-                    Delete
-                  </Button>
-                </Group>
-              )}
-            </Flex>
-
-            <Grid className="my-2">
-              {metaData.semester && (
-                <Grid.Col span="content">
-                  Semester: <Badge>{metaData.semester}</Badge>
-                </Grid.Col>
-              )}
-              {metaData.form && (
-                <Grid.Col span="content">
-                  Form: <Badge>{metaData.form}</Badge>
-                </Grid.Col>
-              )}
-              {metaData.more_exams_link && (
-                <Grid.Col span="content">
-                  <a
-                    href={metaData.more_exams_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Additional Exams
-                  </a>
-                </Grid.Col>
-              )}
-              {metaData.remark && <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>}
-            </Grid>
-            {(offeredIn === undefined || offeredIn.length > 0) && (
-              <div>
-                Offered in:
-                <div>
-                  {loading ? (
-                    <Loader />
-                  ) : (
-                    <ul>
-                      {offeredIn?.map(meta1 =>
-                        meta1.meta2.map(meta2 => (
-                          <li key={meta1.displayname + meta2.displayname}>
-                            {meta2.displayname} in {meta1.displayname}
-                          </li>
-                        )),
-                      )}
-                    </ul>
-                  )}
-                </div>
-              </div>
+      {editing ? (
+        offeredIn && (
+          <CategoryMetaDataEditor
+            onMetaDataChange={editorOnMetaDataChange}
+            isOpen={editing}
+            toggle={toggle}
+            currentMetaData={metaData}
+            offeredIn={offeredIn.flatMap(b =>
+              b.meta2.map(d => [b.displayname, d.displayname] as const),
             )}
-            <Grid className="my-2">
-              {metaData.experts.includes(user.username) && (
-                <Grid.Col span="auto">
-                  <Alert>
-                    You are an expert for this category. You can endorse correct
-                    answers.
-                  </Alert>
-                </Grid.Col>
-              )}
-              {metaData.has_payments && (
-                <Grid.Col span="auto">
-                  <Alert>
-                    You have to pay a deposit in order to see oral exams.
-                    {serverData.unlock_deposit_notice ? (
-                      <>
-                        <br />
-                        {serverData.unlock_deposit_notice}
-                      </>
-                    ) : null}
-                    <br />
-                    After submitting a report of your own oral exam you can get
-                    your deposit back.
-                  </Alert>
-                </Grid.Col>
-              )}
-              {metaData.catadmin && (
-                <Grid.Col span="auto">
-                  <Alert color="info">
-                    You can edit exams in this category. Please do so responsibly.
-                  </Alert>
-                </Grid.Col>
-              )}
-            </Grid>
-            <ExamList metaData={metaData} />
-
-            <h2 className="mb-3 mt-5">Documents</h2>
-            <DocumentList slug={metaData.slug} />
-
-            {metaData.attachments.length > 0 && (
-              <>
-                <h2 className="mb-3 mt-5">Attachments</h2>
-                <List>
-                  {metaData.attachments.map(att => (
-                    <List.Item>
-                      <a
-                        href={`/api/filestore/get/${att.filename}/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        key={att.filename}
-                      >
-                        <div>{att.displayname}</div>
-                      </a>
-                    </List.Item>
-                  ))}
-                </List>
-              </>
-            )}
-          </>
+          />
         )
-      }
+      ) : (
+        <>
+          <Flex direction="row" justify="space-between">
+            <h1>{metaData.displayname}</h1>
+            {user.isCategoryAdmin && (
+              <Group>
+                <Button
+                  leftIcon={<Icon color="currentColor" icon={ICONS.EDIT} />}
+                  onClick={() => setEditing(true)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  color="red"
+                  loading={removeLoading}
+                  leftIcon={<Icon color="currentColor" icon={ICONS.DELETE} />}
+                  onClick={onRemove}
+                >
+                  Delete
+                </Button>
+              </Group>
+            )}
+          </Flex>
+
+          <Grid className="my-2">
+            {metaData.semester && (
+              <Grid.Col span="content">
+                Semester: <Badge>{metaData.semester}</Badge>
+              </Grid.Col>
+            )}
+            {metaData.form && (
+              <Grid.Col span="content">
+                Form: <Badge>{metaData.form}</Badge>
+              </Grid.Col>
+            )}
+            {metaData.more_exams_link && (
+              <Grid.Col span="content">
+                <a
+                  href={metaData.more_exams_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Additional Exams
+                </a>
+              </Grid.Col>
+            )}
+            {metaData.remark && (
+              <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>
+            )}
+          </Grid>
+          {(offeredIn === undefined || offeredIn.length > 0) && (
+            <div>
+              Offered in:
+              <div>
+                {loading ? (
+                  <Loader />
+                ) : (
+                  <ul>
+                    {offeredIn?.map(meta1 =>
+                      meta1.meta2.map(meta2 => (
+                        <li key={meta1.displayname + meta2.displayname}>
+                          {meta2.displayname} in {meta1.displayname}
+                        </li>
+                      )),
+                    )}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )}
+          <Grid className="my-2">
+            {metaData.experts.includes(user.username) && (
+              <Grid.Col span="auto">
+                <Alert>
+                  You are an expert for this category. You can endorse correct
+                  answers.
+                </Alert>
+              </Grid.Col>
+            )}
+            {metaData.has_payments && (
+              <Grid.Col span="auto">
+                <Alert>
+                  You have to pay a deposit in order to see oral exams.
+                  {serverData.unlock_deposit_notice ? (
+                    <>
+                      <br />
+                      {serverData.unlock_deposit_notice}
+                    </>
+                  ) : null}
+                  <br />
+                  After submitting a report of your own oral exam you can get
+                  your deposit back.
+                </Alert>
+              </Grid.Col>
+            )}
+            {metaData.catadmin && (
+              <Grid.Col span="auto">
+                <Alert color="info">
+                  You can edit exams in this category. Please do so responsibly.
+                </Alert>
+              </Grid.Col>
+            )}
+          </Grid>
+          <ExamList metaData={metaData} />
+
+          <h2 className="mb-3 mt-5">Documents</h2>
+          <DocumentList slug={metaData.slug} />
+
+          {metaData.attachments.length > 0 && (
+            <>
+              <h2 className="mb-3 mt-5">Attachments</h2>
+              <List>
+                {metaData.attachments.map(att => (
+                  <List.Item>
+                    <a
+                      href={`/api/filestore/get/${att.filename}/`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      key={att.filename}
+                    >
+                      <div>{att.displayname}</div>
+                    </a>
+                  </List.Item>
+                ))}
+              </List>
+            </>
+          )}
+        </>
+      )}
     </>
   );
 };
@@ -249,9 +257,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                ...user,
-                isCategoryAdmin: user.isAdmin || data.catadmin,
-              }
+                  ...user,
+                  isCategoryAdmin: user.isAdmin || data.catadmin,
+                }
               : undefined
           }
         >

@@ -53,9 +53,13 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
           <Text weight={700} component="span">
             {comment.authorDisplayName}
           </Text>
-          <Text ml="0.3em" color="dimmed" component="span">@{comment.authorId}</Text>
+          <Text ml="0.3em" color="dimmed" component="span">
+            @{comment.authorId}
+          </Text>
         </Anchor>
-        <Text color="dimmed" mx="xs" component="span">·</Text>
+        <Text color="dimmed" mx="xs" component="span">
+          ·
+        </Text>
         {comment && (
           <Text color="dimmed" component="span" title={comment.time}>
             {formatDistanceToNow(new Date(comment.time))} ago

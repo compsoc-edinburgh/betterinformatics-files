@@ -61,9 +61,7 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-        <Button onClick={onAdd}>
-          Add
-        </Button>
+        <Button onClick={onAdd}>Add</Button>
       </Flex>
     </div>
   );
