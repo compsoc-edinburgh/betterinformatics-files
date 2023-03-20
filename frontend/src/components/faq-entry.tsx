@@ -1,4 +1,4 @@
-import { Button, Card, Group, TextInput } from "@mantine/core";
+import { Button, Card, Group, TextInput, Title } from "@mantine/core";
 import React, { useCallback, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
@@ -44,16 +44,9 @@ const FAQEntryComponent: React.FC<Props> = ({
   };
   const { isAdmin } = useUser()!;
   return (
-    <Card className="my-1">
+    <Card withBorder my="xs">
       {modals}
-      <h4>
-        {!editing && isAdmin && (
-          <IconButton
-            tooltip="Edit FAQ entry"
-            iconName={ICONS.EDIT}
-            onClick={() => startEditing()}
-          />
-        )}
+      <Group position="apart" mb="xs">
         {editing ? (
           <TextInput
             placeholder="Question"
@@ -61,9 +54,16 @@ const FAQEntryComponent: React.FC<Props> = ({
             onChange={e => setQuestion(e.target.value)}
           />
         ) : (
-          entry.question
+          <Title order={3}>{entry.question}</Title>
         )}
-      </h4>
+        {!editing && isAdmin && (
+          <IconButton
+            tooltip="Edit FAQ entry"
+            iconName={ICONS.EDIT}
+            onClick={() => startEditing()}
+          />
+        )}
+      </Group>
       {editing ? (
         <Editor
           imageHandler={imageHandler}
@@ -117,7 +117,7 @@ const FAQEntryComponent: React.FC<Props> = ({
               </Button>
             )}
           </Button.Group>
-        </Group >
+        </Group>
       )}
     </Card >
   );

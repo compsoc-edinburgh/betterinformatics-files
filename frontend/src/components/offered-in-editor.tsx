@@ -59,11 +59,9 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
       {error && <Alert color="danger">{error.toString()}</Alert>}
       <Group>
         {offeredIn.map(([meta1, meta2]) => (
-          <p key={`${meta1}-${meta2}`}>
-            <Button leftIcon={<Icon icon={ICONS.CLOSE} />} variant="default" onClick={() => onRemove(meta1, meta2)}>
-              {meta1} {meta2}
-            </Button>
-          </p>
+          <Button key={`${meta1}-${meta2}`} leftIcon={<Icon icon={ICONS.CLOSE} />} variant="default" onClick={() => onRemove(meta1, meta2)}>
+            {meta1} {meta2}
+          </Button>
         ))}
       </Group>
       <form
@@ -72,8 +70,8 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
           onAdd();
         }}
       >
-        <Grid className="mt-2">
-          <Grid.Col>
+        <Grid my="xs" align="end">
+          <Grid.Col md={5}>
             {data && (
               <NativeSelect
                 label="Meta 1"
@@ -86,7 +84,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
               />
             )}
           </Grid.Col>
-          <Grid.Col>
+          <Grid.Col md={5}>
             {data && (
               <NativeSelect
                 label="Meta 2"

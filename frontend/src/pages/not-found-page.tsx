@@ -1,7 +1,7 @@
 import { Container, Grid } from "@mantine/core";
 import React from "react";
 import useTitle from "../hooks/useTitle";
-import { ReactComponent as Bjoern } from "../assets/bjoern.svg";
+// import { ReactComponent as Bjoern } from "../assets/bjoern.svg";
 
 const NotFoundPage: React.FC<{}> = () => {
   useTitle("404");
@@ -16,7 +16,7 @@ const NotFoundPage: React.FC<{}> = () => {
           </h5>
         </Grid.Col>
         <Grid.Col sm={9} md={8} lg={6} className="m-auto">
-          <Bjoern className="my-2" />
+          {/* <Bjoern className="my-2" /> */}
         </Grid.Col>
       </Grid>
     </Container>

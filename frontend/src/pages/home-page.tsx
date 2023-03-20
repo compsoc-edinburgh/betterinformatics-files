@@ -202,7 +202,7 @@ export const CategoryList: React.FC<{}> = () => {
       </Container>
       <ContentContainer className="position-relative my-3">
         <LoadingOverlay loading={loading} />
-        <Container size="xl" mt="lg" pt="3em" pb="md">
+        <Container size="xl" pt="3em" pb="md">
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (

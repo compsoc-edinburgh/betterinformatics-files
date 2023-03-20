@@ -25,11 +25,9 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
     <>
       <Group>
         {users.map(user => (
-          <div key={user}>
-            <Button variant="default" leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={() => remove(user)}>
-              {user}
-            </Button>
-          </div>
+          <Button key={user} variant="default" leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={() => remove(user)}>
+            {user}
+          </Button>
         ))}
       </Group>
       <form
@@ -38,7 +36,7 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
           onAdd();
         }}
       >
-        <Grid align="flex-end" className="mt-2">
+        <Grid align="flex-end" my="xs">
           <Grid.Col span="auto">
             <TextInput
               label="Name"

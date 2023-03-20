@@ -10,6 +10,7 @@ import {
   Group,
   Flex,
   Text,
+  MediaQuery,
 } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
@@ -29,7 +30,7 @@ const nameCardStyle = css`
 `;
 
 const NameCard = (props: CardProps) => (
-  <Card className={nameCardStyle} {...props} />
+  <Card className={nameCardStyle} {...props} shadow="sm" />
 );
 
 const answerSectionButtonWrapperStyle = css`
@@ -60,12 +61,21 @@ const AddButton: React.FC<AddButtonProps> = ({
   const toggle = useCallback(() => setOpen(old => !old), []);
   if (allowAnswer && allowLegacyAnswer) {
     return (
-      <Menu opened={isOpen} onChange={toggle}>
-        <Menu.Target>
-          <Button rightIcon={<Icon icon={ICONS.DOWN} />}>
-            Add Answer
-          </Button>
-        </Menu.Target>
+      <Menu opened={isOpen} withinPortal onChange={toggle}>
+        <MediaQuery smallerThan="sm" styles={{ display: 'none' }} >
+          <Menu.Target>
+            <Button rightIcon={<Icon icon={ICONS.DOWN} />}>
+              Add Answer
+            </Button>
+          </Menu.Target>
+        </MediaQuery>
+        <MediaQuery largerThan="sm" styles={{ display: 'none' }} >
+          <Menu.Target>
+            <Button size="xs" rightIcon={<Icon icon={ICONS.DOWN} />}>
+              Add Answer
+            </Button>
+          </Menu.Target>
+        </MediaQuery>
         <Menu.Dropdown>
           <Menu.Item onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
@@ -77,7 +87,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             Add Legacy Answer
           </Menu.Item>
         </Menu.Dropdown>
-      </Menu>
+      </Menu >
     );
   } else {
     return (
@@ -244,7 +254,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
               )}
             </NameCard>
           )}
-        <Container fluid>
+        <Container fluid px={0}>
           {!hidden && data && (
             <>
               {data.answers.map(answer => (
@@ -324,21 +334,34 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                     center={
                       !isBeingMoved &&
                       data.answers.length > 0 && (
-                        <Button
-                          color="primary"
-                          size="sm"
-                          onClick={onToggleHidden}
-                          className="d-inline-block"
-                        >
-                          {hidden ? "Show Answers" : "Hide Answers"}
-                        </Button>
+                        <>
+                          <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+                            <Button
+                              color="primary"
+                              onClick={onToggleHidden}
+                              className="d-inline-block"
+                            >
+                              {hidden ? "Show Answers" : "Hide Answers"}
+                            </Button>
+                          </MediaQuery>
+                          <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                            <Button
+                              color="primary"
+                              size="xs"
+                              onClick={onToggleHidden}
+                              className="d-inline-block"
+                            >
+                              {hidden ? "Show Answers" : "Hide Answers"}
+                            </Button>
+                          </MediaQuery>
+                        </>
                       )
                     }
                     right={
                       isCatAdmin && (
-                        <Menu>
+                        <Menu withinPortal>
                           <Menu.Target>
-                            <Button rightIcon={<Icon icon={ICONS.DOWN} />}>
+                            <Button size="xs" rightIcon={<Icon icon={ICONS.DOWN} />}>
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </Button>
                           </Menu.Target>

@@ -5,7 +5,7 @@ import {
   Button,
   Card,
   Flex,
-  Text,
+  Title,
 } from "@mantine/core";
 
 export class TOCNode {
@@ -62,9 +62,9 @@ interface Props {
 export const TOC: React.FC<Props> = ({ toc }) => {
   const [visible, setVisible] = useState(false);
   return visible ? (
-    <Card className="m-1" withBorder>
-      <Flex justify="space-between">
-        <Text component="h6" m="0">Contents</Text>
+    <Card my="xs" withBorder shadow="sm">
+      <Flex justify="space-between" align="center">
+        <Title order={4}>Contents</Title>
         <Button onClick={() => setVisible(false)}>Hide</Button>
       </Flex>
       <ul>
@@ -74,9 +74,9 @@ export const TOC: React.FC<Props> = ({ toc }) => {
       </ul>
     </Card>
   ) : (
-    <Card className="m-1" withBorder>
-      <Flex justify="space-between">
-        <Text component="h6" m="0">Contents</Text>
+    <Card my="xs" withBorder shadow="sm">
+      <Flex justify="space-between" align="center">
+        <Title order={4}>Contents</Title>
         <Button onClick={() => setVisible(true)}>Show</Button>
       </Flex>
     </Card>

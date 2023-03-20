@@ -7,8 +7,10 @@ import {
   Grid,
   Group,
   NativeSelect,
+  Stack,
   Textarea,
   TextInput,
+  Title,
 } from "@mantine/core"
 import React from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -243,85 +245,87 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         <CloseButton onClick={toggle} />
       </Group>
       {error && <Alert color="danger">{error.toString()}</Alert>}
-      <h6 className="mb-3 mt-2">Metadata</h6>
-      <TextInput label="Name" {...registerInput("displayname")} />
-      <Grid>
-        <Grid.Col md={6}>
-          <NativeSelect
-            label="Semester"
-            data={options(semesterOptions)}
-            value={
-              semesterOptions[
-                formState.semester as keyof typeof semesterOptions
-              ].value
-            }
-            onChange={(event: any) =>
-              setFormValue(
-                "semester",
-                event.currentTarget.value,
-              )
-            }
-          />
-        </Grid.Col>
-        <Grid.Col md={6}>
-          <NativeSelect
-            label="Form"
-            data={options(formOptions)}
-            value={formOptions[formState.form as keyof typeof formOptions].value}
-            onChange={(event: any) =>
-              setFormValue(
-                "form",
-                event.currentTarget.value,
-              )
-            }
-          />
-        </Grid.Col>
-      </Grid>
-      <Textarea label="Remark" />
-      <Grid>
-        <Grid.Col md={6}>
-          <label className="form-input-label">Permission</label>
-          <NativeSelect
-            data={options(permissionOptions)}
-            value={
-              permissionOptions[
-                formState.permission as keyof typeof permissionOptions
-              ].value
-            }
-            onChange={(event: any) =>
-              setFormValue(
-                "permission",
-                event.currentTarget.value,
-              )
-            }
-          />
-        </Grid.Col>
-        <Grid.Col md={6}>
-          <TextInput
-            type="url"
-            label="More Exams Link"
-            {...registerInput("more_exams_link")}
-          />
-        </Grid.Col>
-      </Grid>
-      <Checkbox
-        name="check"
-        label="Has Payments"
-        {...registerCheckbox("has_payments")}
-      />
-      <h6 className="mb-3 mt-4">Attachments</h6>
+      <Title order={4}>Metadata</Title>
+      <Stack>
+        <TextInput label="Name" {...registerInput("displayname")} />
+        <Grid>
+          <Grid.Col md={6}>
+            <NativeSelect
+              label="Semester"
+              data={options(semesterOptions)}
+              value={
+                semesterOptions[
+                  formState.semester as keyof typeof semesterOptions
+                ].value
+              }
+              onChange={(event: any) =>
+                setFormValue(
+                  "semester",
+                  event.currentTarget.value,
+                )
+              }
+            />
+          </Grid.Col>
+          <Grid.Col md={6}>
+            <NativeSelect
+              label="Form"
+              data={options(formOptions)}
+              value={formOptions[formState.form as keyof typeof formOptions].value}
+              onChange={(event: any) =>
+                setFormValue(
+                  "form",
+                  event.currentTarget.value,
+                )
+              }
+            />
+          </Grid.Col>
+        </Grid>
+        <Textarea label="Remark" />
+        <Grid>
+          <Grid.Col md={6}>
+            <label className="form-input-label">Permission</label>
+            <NativeSelect
+              data={options(permissionOptions)}
+              value={
+                permissionOptions[
+                  formState.permission as keyof typeof permissionOptions
+                ].value
+              }
+              onChange={(event: any) =>
+                setFormValue(
+                  "permission",
+                  event.currentTarget.value,
+                )
+              }
+            />
+          </Grid.Col>
+          <Grid.Col md={6}>
+            <TextInput
+              type="url"
+              label="More Exams Link"
+              {...registerInput("more_exams_link")}
+            />
+          </Grid.Col>
+        </Grid>
+        <Checkbox
+          name="check"
+          label="Has Payments"
+          {...registerCheckbox("has_payments")}
+        />
+      </Stack>
+      <Title order={4} mt="md" mb="sm">Attachments</Title>
       <AttachmentsEditor
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <h6 className="mb-3 mt-4">Offered In</h6>
+      <Title order={4} mt="md" mb="sm">Offered In</Title>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-      <h6 className="mb-3 mt-4">Admins</h6>
+      <Title order={4} mt="md" mb="sm">Admins</Title>
       <UserSetEditor
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
       />
-      <h6 className="mb-3 mt-4">Experts</h6>
+      <Title order={4} mt="md" mb="sm">Experts</Title>
       <UserSetEditor
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}

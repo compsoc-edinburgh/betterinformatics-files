@@ -107,15 +107,12 @@ export const FAQPage: React.FC = () => {
         </Card>
       ) : (
         isAdmin && (
-          <Card className={`my-2 ${newButtonStyle}`}>
-            <IconButton
-              tooltip="Add new FAQ entry"
-              className="position-cover"
-              size="lg"
-              iconName={ICONS.PLUS}
-              onClick={() => setHasDraft(true)}
-            />
-          </Card>
+          <Button
+            leftIcon={<Icon icon={ICONS.PLUS} />}
+            onClick={() => setHasDraft(true)}
+          >
+            Add new FAQ entry
+          </Button>
         )
       )}
     </Container>

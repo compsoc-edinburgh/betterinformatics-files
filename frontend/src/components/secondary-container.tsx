@@ -1,5 +1,5 @@
 import React from "react";
-import { createStyles } from "@mantine/core";
+import { Box, createStyles, Divider } from "@mantine/core";
 interface Props {
   className?: string;
 }
@@ -16,13 +16,18 @@ const useStyles = createStyles(theme => ({
 const ContentContainer: React.FC<Props> = ({ children, className }) => {
   const { classes } = useStyles();
   return (
-    <div
-      className={`border-gray-300 border-top border-bottom py-5 px-0 ${
-        classes.contentContainer
-      } ${className ? ` ${className}` : ""}`}
-    >
-      {children}
-    </div>
+    <>
+      <Divider mt="lg" />
+      <Box
+        py="md"
+        px={0}
+        className={`${classes.contentContainer
+          } ${className ? ` ${className}` : ""}`}
+      >
+        {children}
+      </Box>
+      <Divider />
+    </>
   );
 };
 export default ContentContainer;

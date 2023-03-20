@@ -27,6 +27,7 @@ const IconButton: React.FC<IconButtonProps> = ({
 }) => {
   return tooltip ? (
     <Tooltip
+      withinPortal
       label={tooltip}
       disabled={disabled || loading}
       className={buttonStyle + (className ? ` ${className}` : "")}

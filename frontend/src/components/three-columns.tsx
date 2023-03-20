@@ -1,4 +1,4 @@
-import { Container, Grid } from "@mantine/core";
+import { Container, Group, SimpleGrid } from "@mantine/core";
 import React from "react";
 
 const ThreeColumns: React.FC<{
@@ -7,32 +7,18 @@ const ThreeColumns: React.FC<{
   right?: React.ReactNode;
 }> = ({ left, center, right }) => {
   return (
-    <Container fluid className="px-0">
-      <Grid>
-        <Grid.Col
-          sm={4}
-          xs={6}
-          className={`px-0 text-left ${!left ? "d-none d-sm-block" : ""}`}
-        >
+    <Container fluid px={0}>
+      <SimpleGrid cols={3}>
+        <Group position="left">
           {left}
-        </Grid.Col>
-        <Grid.Col
-          sm={4}
-          xs={left || right ? 6 : 12}
-          className={`px-0 text-sm-center ${left ? "text-right" : right ? "text-left" : "text-center"
-            } ${!center ? " d-none d-sm-block" : ""}`}
-        >
+        </Group>
+        <Group position="center">
           {center}
-        </Grid.Col>
-        <Grid.Col
-          sm={4}
-          xs={(left && center) || (!left && !center) ? 12 : 6}
-          className={`px-0 text-right ${left && center ? "mt-1 mt-sm-0" : ""} ${!right ? " d-none d-sm-block" : ""
-            }`}
-        >
+        </Group>
+        <Group position="right">
           {right}
-        </Grid.Col>
-      </Grid>
+        </Group>
+      </SimpleGrid>
     </Container>
   );
 };
