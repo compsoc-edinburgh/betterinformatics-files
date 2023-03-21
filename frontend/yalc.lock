@@ -1,9 +1,0 @@
-{
-  "version": "v1",
-  "packages": {
-    "vseth-canine-ui": {
-      "signature": "e0fa96f6a2239cc2958a0528626f2de3",
-      "file": true
-    }
-  }
-}
