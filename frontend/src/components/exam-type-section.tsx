@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Card, Checkbox, Grid, Text } from "@mantine/core";
+import { Anchor, Badge, Box, Card, Checkbox, Grid, Text } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -113,7 +113,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     size="lg"
                     weight={600}
                     mb="sm"
-                    // color="gray.9"
+                  // color="gray.9"
                   >
                     {exam.displayname}
                   </Anchor>
@@ -176,9 +176,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     </Badge>
                   )}
                 </div>
+                {catAdmin && <ClaimButton exam={exam} reloadExams={reload} />}
               </Grid.Col>
               <Grid.Col span="content">
-                {catAdmin && <ClaimButton exam={exam} reloadExams={reload} />}
                 {user.isAdmin && (
                   <IconButton
                     size="lg"

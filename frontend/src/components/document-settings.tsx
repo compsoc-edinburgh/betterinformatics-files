@@ -5,6 +5,8 @@ import {
   TextInput,
   Modal,
   NativeSelect,
+  Flex,
+  Title,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useState } from "react";
@@ -84,7 +86,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
     <>
-      <Modal opened={addModalIsOpen} onClose={toggleAddModalIsOpen}>
+      <Modal title="Add File" opened={addModalIsOpen} onClose={toggleAddModalIsOpen}>
         <CreateDocumentFileModal
           toggle={toggleAddModalIsOpen}
           document={data}
@@ -98,8 +100,8 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             value={displayName ?? data.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <label className="form-input-label">Category</label>
           <NativeSelect
+            label="Category"
             data={categoryOptions ? (options(categoryOptions) as any) : []}
             value={
               categoryOptions &&
@@ -110,7 +112,6 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             onChange={(event: any) => {
               setCategory(event.currentTarget.value as string);
             }}
-            required
           />
           <label className="form-input-label">Description</label>
           <Editor
@@ -121,8 +122,10 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             undoStack={descriptionUndoStack}
             setUndoStack={setDescriptionUndoStack}
           />
-          <div className="form-group d-flex justify-content-end">
+          <Flex justify="end">
             <Button
+              loading={loading}
+              leftIcon={<Icon icon={ICONS.SAVE} />}
               onClick={() =>
                 updateDocument({
                   display_name: displayName,
@@ -132,18 +135,13 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               }
             >
               Save
-              {loading ? (
-                <Loader className="ml-2" size="sm" />
-              ) : (
-                <Icon icon={ICONS.SAVE} className="ml-2" />
-              )}
             </Button>
-          </div>
+          </Flex>
         </>
       )}
-      <h3 className="mt-5 mb-4">Files</h3>
+      <Title order={3}>Files</Title>
       {data.api_key && (
-        <div className="flex align-items-center my-2">
+        <Flex align="center" my="sm" gap="sm">
           API Key:
           <pre className="mx-2 my-auto">{data.api_key}</pre>
           <IconButton
@@ -153,7 +151,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
             iconName={ICONS.REPEAT}
             tooltip="Regenerating the API token will invalidate the old one and generate a new one"
           />
-        </div>
+        </Flex>
       )}
       <List className="mb-2">
         {data.files.map(file => (
@@ -165,28 +163,27 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           />
         ))}
       </List>
-      <div className="form-group d-flex justify-content-end">
-        <Button onClick={toggleAddModalIsOpen}>
+      <Flex justify="end">
+        <Button leftIcon={<Icon icon={ICONS.PLUS} />} onClick={toggleAddModalIsOpen}>
           Add
-          <Icon icon={ICONS.PLUS} className="ml-2" />
         </Button>
-      </div>
+      </Flex>
       {data.can_delete && (
         <>
-          <h3 className="mt-5 mb-4">Danger Zone</h3>
-          <div className="d-flex flex-wrap justify-content-between align-items-center">
-            <div className="d-flex flex-column">
-              <h6>Delete this document</h6>
+          <Title order={3}>Danger Zone</Title>
+          <Flex wrap="wrap" justify="space-between" align="center">
+            <Flex direction="column">
+              <Title order={4}>Delete this document</Title>
               <div>
                 Deleting the document will delete all associated files and all
                 comments. <b>This cannot be undone.</b>
               </div>
-            </div>
+            </Flex>
 
-            <Button color="danger" onClick={toggleDeleteModalIsOpen}>
-              Delete <Icon icon={ICONS.DELETE} className="ml-2" />
+            <Button leftIcon={<Icon icon={ICONS.DELETE} />} color="red" onClick={toggleDeleteModalIsOpen}>
+              Delete
             </Button>
-          </div>
+          </Flex>
         </>
       )}
       <Modal

@@ -1,4 +1,4 @@
-import { Button, Loader, Modal, TextInput } from "@mantine/core";
+import { Button, FileInput, Loader, Modal, Stack, TextInput } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -6,7 +6,6 @@ import { NamedBlob } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentFile } from "../api/hooks";
 import { Toggle } from "../hooks/useToggle";
 import { Document } from "../interfaces";
-import FileInput from "./file-input";
 
 interface Props {
   document: Document;
@@ -20,7 +19,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   mutate,
 }) => {
   const [displayName, setDisplayName] = useState("");
-  const [file, setFile] = useState<File | undefined>(undefined);
+  const [file, setFile] = useState<File | null>(null);
 
   const [loading, createDocumentFile] = useCreateDocumentFile(
     document.author,
@@ -29,21 +28,22 @@ const CreateDocumentFileModal: React.FC<Props> = ({
       toggle(false);
       mutate(s => ({ ...s, files: [...s.files, f] }));
       setDisplayName("");
-      setFile(undefined);
+      setFile(null);
     },
   );
 
   return (
     <>
-      <Modal.Header>Add File</Modal.Header>
-      <Modal.Body>
+      <Stack>
         <TextInput
           label="Display Name"
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-        <label className="form-input-label">File</label>
         <FileInput
+          label="File"
+          placeholder="Click here to pick file..."
+          icon={<Icon icon={ICONS.CLOUD_UP} />}
           value={file}
           onChange={setFile}
           accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
@@ -54,26 +54,23 @@ const CreateDocumentFileModal: React.FC<Props> = ({
         </div>
         <Button
           color="primary"
+          loading={loading}
+          leftIcon={<Icon icon={ICONS.PLUS} />}
           disabled={loading || displayName === ""}
           onClick={() =>
             createDocumentFile(
               displayName,
               file ??
-                new NamedBlob(
-                  new Blob([], { type: "application/octet-stream" }),
-                  "document.md",
-                ),
+              new NamedBlob(
+                new Blob([], { type: "application/octet-stream" }),
+                "document.md",
+              ),
             )
           }
         >
-          Add{" "}
-          {loading ? (
-            <Loader className="ml-2" size="sm" />
-          ) : (
-            <Icon icon={ICONS.PLUS} className="ml-2" />
-          )}
+          Add
         </Button>
-      </Modal.Body>
+      </Stack>
     </>
   );
 };

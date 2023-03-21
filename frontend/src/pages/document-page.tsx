@@ -5,6 +5,9 @@ import {
   Button,
   Card,
   Container,
+  Flex,
+  Group,
+  Title,
 } from "@mantine/core";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -40,11 +43,11 @@ const getComponents = (
   file: DocumentFile | undefined,
 ):
   | {
-      Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
-      Editor:
-        | React.FC<{ document: Document; file: DocumentFile; url: string }>
-        | undefined;
-    }
+    Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
+    Editor:
+    | React.FC<{ document: Document; file: DocumentFile; url: string }>
+    | undefined;
+  }
   | undefined => {
   if (file === undefined) return undefined;
 
@@ -64,7 +67,7 @@ const getComponents = (
 const getFile = (document: Document | undefined, oid: number) =>
   document ? document.files.find(x => x.oid === oid) : undefined;
 
-interface Props {}
+interface Props { }
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
   const [error, _, data, mutate] = useDocument(author, slug, document => {
@@ -81,7 +84,7 @@ const DocumentPage: React.FC<Props> = () => {
   return (
     <>
       <Container>
-        <Breadcrumbs separator="〉">
+        <Breadcrumbs separator="›">
           <Anchor tt="uppercase" size="xs" component={Link} to="/">
             Home
           </Anchor>
@@ -98,9 +101,9 @@ const DocumentPage: React.FC<Props> = () => {
           </Anchor>
         </Breadcrumbs>
         {data && (
-          <div className="d-flex justify-content-between align-items-center">
-            <h1>{data.display_name ?? slug}</h1>
-            <div>
+          <Flex justify="space-between" align="center">
+            <Title mb="sm">{data.display_name ?? slug}</Title>
+            <Group>
               <IconButton
                 iconName={ICONS.DOWNLOAD}
                 onClick={startDownload}
@@ -109,8 +112,8 @@ const DocumentPage: React.FC<Props> = () => {
               />
 
               <LikeButton document={data} mutate={mutate} />
-            </div>
-          </div>
+            </Group>
+          </Flex>
         )}
         <div>
           Author:{" "}

@@ -27,6 +27,7 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
     hasValidClaim(exam) ? (
       exam.import_claim === username ? (
         <Button
+          mt="xs"
           size="sm"
           color="dark"
           variant="outline"
@@ -49,6 +50,7 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
       )
     ) : (
       <Button
+        mt="xs"
         size="sm"
         color="dark"
         variant="outline"

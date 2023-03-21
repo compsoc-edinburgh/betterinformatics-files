@@ -1,11 +1,10 @@
-import { Alert, Card, Grid, Loader, NativeSelect } from "@mantine/core";
+import { Alert, Card, Loader, NativeSelect, FileInput, Stack, Text, Title } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
-import FileInput from "./file-input";
 
 const UploadTranscriptCard: React.FC<{}> = () => {
   const history = useHistory();
@@ -35,7 +34,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
     [categories],
   );
 
-  const [file, setFile] = useState<File | undefined>();
+  const [file, setFile] = useState<File | null>();
   const [category, setCategory] = useState<string | undefined>();
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,39 +48,43 @@ const UploadTranscriptCard: React.FC<{}> = () => {
   };
 
   return (
-    <Card>
-      <div>Submit Transcript for Oral Exam</div>
-      <div>
-        <p>Please use the following template:</p>
+    <Card withBorder>
+      <Card.Section withBorder p="md">
+        <Title order={4}>Submit Transcript for Oral Exam</Title>
+      </Card.Section>
+      <Stack mt="sm">
+        <Text>Please use the following template:</Text>
         <Button
           leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
           onClick={() => window.open("/static/transcript_template.tex")}
-          style={{ marginBottom: "1.5em" }}
         >
           Download template
         </Button>
         <form onSubmit={onSubmit}>
-          {error && <Alert color="danger">{error.toString()}</Alert>}
-          <label className="form-input-label">File</label>
-          <FileInput value={file} onChange={setFile} accept="application/pdf" />
-          <label className="form-input-label">Category</label>
-          <NativeSelect
-            data={options}
-            onChange={(event: any) =>
-              setCategory(event.currentTarget.value as string)
-            }
-            required
-          />
-          <Grid>
-            <Grid.Col md={4}>
-              <Button color="primary" type="submit" disabled={loading}>
-                {uploadLoading ? <Loader /> : "Submit"}
-              </Button>
-            </Grid.Col>
-          </Grid>
+          <Stack>
+            {error && <Alert color="red">{error.toString()}</Alert>}
+            <FileInput
+              label="File"
+              placeholder="Click to choose file..."
+              icon={<Icon icon={ICONS.CLOUD_UP} />}
+              value={file}
+              onChange={setFile}
+              accept="application/pdf"
+            />
+            <NativeSelect
+              label="Category"
+              data={options}
+              onChange={(event: any) =>
+                setCategory(event.currentTarget.value as string)
+              }
+            />
+            <Button color="primary" type="submit" loading={loading}>
+              Submit
+            </Button>
+          </Stack>
         </form>
-      </div>
-    </Card>
+      </Stack>
+    </Card >
   );
 };
 export default UploadTranscriptCard;
