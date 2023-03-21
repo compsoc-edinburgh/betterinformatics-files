@@ -4,7 +4,6 @@ import {
   Modal,
   Badge,
   MantineProvider,
-  useMantineTheme,
   Box,
   Text,
 } from "@mantine/core";
@@ -147,7 +146,7 @@ const App: React.FC<{}> = () => {
   });
 
   const { data } = useConfig(
-    "https://static.vseth.ethz.ch/assets/vseth-1116-vis/config.json",
+    `https://static.vseth.ethz.ch/assets/${process.env.REACT_APP_GLOB_ID}/config.json`,
   );
 
   const vsethTheme = makeVsethTheme([
@@ -163,8 +162,6 @@ const App: React.FC<{}> = () => {
     "#0E78AA",
   ]);
   vsethTheme.colorScheme = "light";
-
-  const theme = useMantineTheme();
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
