@@ -1,5 +1,5 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
-import { Alert, Button, Container, Grid, Tabs, Textarea } from "@mantine/core";
+import { Alert, Button, Container, Grid, Stack, Tabs, Text, Textarea } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
@@ -29,18 +29,15 @@ const FeedbackForm: React.FC<{}> = () => {
   });
 
   return (
-    <>
+    <Stack>
       {success && <Alert>Feedback was submitted successfully.</Alert>}
-      <p>Please tell us what you think about Community Solutions!</p>
-      <p>What do you like? What could we improve? Ideas for new features?</p>
-      <p>
-        Use the form below or write to{" "}
+      <Text>Please tell us what you think about Community Solutions! What do you like? What could we improve? Ideas for new features? Use the form below or write to{" "}
         <a href={`mailto:${serverData.email_address}`}>
           {serverData.email_address}
         </a>
         .
-      </p>
-      <p>
+      </Text>
+      <Text>
         To report issues with the platform you can open an issue in our{" "}
         <a
           href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
@@ -51,16 +48,17 @@ const FeedbackForm: React.FC<{}> = () => {
           issue tracker
         </a>
         .
-      </p>
+      </Text>
       <Textarea
+        placeholder="Tell us your feedback..."
         value={text}
         onChange={e => setText(e.currentTarget.value)}
         minRows={12}
       />
-      <Button disabled={text.length === 0 || loading} onClick={() => run(text)}>
-        {loading ? <Loader /> : "Submit"}
+      <Button loading={loading} disabled={text.length === 0 || loading} onClick={() => run(text)}>
+        Submit
       </Button>
-    </>
+    </Stack>
   );
 };
 
@@ -74,7 +72,7 @@ const FeedbackReader: React.FC<{}> = () => {
 
   return (
     <>
-      {error && <Alert color="danger">{error.message}</Alert>}
+      {error && <Alert color="red">{error.message}</Alert>}
       {feedback && (
         <Grid>
           {feedback.map(fb => (
@@ -97,7 +95,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
   return (
     <Container size="xl">
       <h2>Feedback</h2>
-      <Tabs value={mode} onTabChange={setMode} className="my-3">
+      <Tabs value={mode} onTabChange={setMode} my="sm">
         <Tabs.List defaultValue="read">
           <Tabs.Tab value="read">Read</Tabs.Tab>
           <Tabs.Tab value="write">Write</Tabs.Tab>
