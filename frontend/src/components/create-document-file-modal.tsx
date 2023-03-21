@@ -1,4 +1,4 @@
-import { Button, FileInput, Loader, Modal, Stack, TextInput } from "@mantine/core";
+import { Button, FileInput, Stack, TextInput } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";

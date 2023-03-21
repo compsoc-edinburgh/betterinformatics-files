@@ -31,7 +31,7 @@ const SearchPage: React.FC<{}> = () => {
   );
   return (
     <>
-      <Container size="md" className="my-1">
+      <Container size="md" my="xs">
         <TextInput
           placeholder="Search"
           type="text"

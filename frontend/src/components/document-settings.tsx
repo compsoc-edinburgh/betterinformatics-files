@@ -1,7 +1,6 @@
 import {
   Button,
   List,
-  Loader,
   TextInput,
   Modal,
   NativeSelect,

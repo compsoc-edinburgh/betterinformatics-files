@@ -24,8 +24,8 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
     () =>
       data && newMeta1.length > 0
         ? data
-            .find(m => m.displayname === newMeta1)
-            ?.meta2.map(m => m.displayname) ?? []
+          .find(m => m.displayname === newMeta1)
+          ?.meta2.map(m => m.displayname) ?? []
         : [],
     [data, newMeta1],
   );
@@ -50,6 +50,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
             key={`${meta1}-${meta2}`}
             leftIcon={<Icon icon={ICONS.CLOSE} />}
             variant="default"
+            loading={loading}
             onClick={() => onRemove(meta1, meta2)}
           >
             {meta1} {meta2}

@@ -1,4 +1,4 @@
-import { Alert, Card, Loader, NativeSelect, FileInput, Stack, Text, Title } from "@mantine/core";
+import { Alert, Card, NativeSelect, FileInput, Stack, Text, Title } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";

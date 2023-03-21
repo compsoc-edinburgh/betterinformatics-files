@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import * as React from "react";
 import { useState } from "react";
 import { useFAQ } from "../api/faq";
@@ -7,15 +6,12 @@ import { useUser } from "../auth";
 import Editor from "../components/Editor";
 import { UndoStack } from "../components/Editor/utils/undo-stack";
 import FAQEntryComponent from "../components/faq-entry";
-import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { Button, Card, Container, Flex, TextInput } from "@mantine/core";
-const newButtonStyle = css`
-  min-height: 3em;
-`;
+
 export const FAQPage: React.FC = () => {
   useTitle("FAQ");
   const { isAdmin } = useUser()!;

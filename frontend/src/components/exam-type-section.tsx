@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Box, Card, Checkbox, Grid, Text } from "@mantine/core";
+import { Anchor, Badge, Card, Checkbox, Grid, Text } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";

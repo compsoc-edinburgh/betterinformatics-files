@@ -61,7 +61,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         if (result.type === "exam") {
           return (
             <div className="px-2" key={`exam-${result.filename}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
+              <Card withBorder className="mb-3 px-3 pb-3 pt-2 position-static">
                 <Group>
                   <Badge>Exam</Badge>
                   <Breadcrumbs className={noMarginBreadcrumb}>
