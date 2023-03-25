@@ -56,6 +56,7 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".txt", "text/plain"),
     (".zip", "application/zip"),
     (".apkg", "application/octet-stream"), # anki
+    (".colpkg", "application/octet-stream"), # anki collection
 }
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
