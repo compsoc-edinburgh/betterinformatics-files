@@ -81,7 +81,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         >
           Home
         </Anchor>
-        <Anchor tt="uppercase" size="xs">
+        <Anchor
+          tt="uppercase"
+          size="xs"
+        >
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
@@ -178,7 +181,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
             {metaData.has_payments && (
               <Grid.Col span="auto">
-                <Alert>
+                <Alert bg="gray.2">
                   You have to pay a deposit in order to see oral exams.
                   {serverData.unlock_deposit_notice ? (
                     <>
@@ -194,7 +197,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
             {metaData.catadmin && (
               <Grid.Col span="auto">
-                <Alert color="info">
+                <Alert bg="gray.2">
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
               </Grid.Col>
@@ -257,9 +260,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                  ...user,
-                  isCategoryAdmin: user.isAdmin || data.catadmin,
-                }
+                ...user,
+                isCategoryAdmin: user.isAdmin || data.catadmin,
+              }
               : undefined
           }
         >

@@ -6,6 +6,7 @@ import {
   Flex,
   Loader,
   Modal,
+  Paper,
   SegmentedControl,
   Stack,
   Text,
@@ -119,7 +120,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           </Button>
         </Stack>
       </Modal>
-      <Card style={{ minHeight: "10em" }}>
+      <Paper withBorder shadow="md" style={{ minHeight: "10em" }}>
         <Tooltip label="Add a new category" withinPortal>
           <Button
             style={{ width: "100%", height: "100%" }}
@@ -128,7 +129,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
             <Icon icon={ICONS.PLUS} size={40} />
           </Button>
         </Tooltip>
-      </Card>
+      </Paper>
     </>
   );
 };

@@ -36,7 +36,6 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       onKeyDown={handleKeyDown}
     >
       <Anchor
-        // component="p"
         // color="gray.9"
         weight={700}
         size="xl"

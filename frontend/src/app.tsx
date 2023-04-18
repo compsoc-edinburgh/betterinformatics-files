@@ -161,6 +161,7 @@ const App: React.FC<{}> = () => {
     "#0E78AA",
   ]);
   vsethTheme.colorScheme = "light";
+  vsethTheme.primaryColor = "green";
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
@@ -209,10 +210,8 @@ const App: React.FC<{}> = () => {
       >
         <MantineProvider
           theme={{
-            colorScheme: "light",
-            primaryColor: "gray",
-            primaryShade: 8,
             fontFamily: '"Source Sans Pro", "Roboto", sans-serif',
+            primaryColor: 'dark',
           }}
           withGlobalStyles
           withNormalizeCSS

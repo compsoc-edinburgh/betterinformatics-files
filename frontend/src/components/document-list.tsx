@@ -54,7 +54,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
               </Group>
             </Paper>
           ))}
-        <Paper withBorder style={{ minHeight: "4em" }}>
+        <Paper withBorder shadow="md" style={{ minHeight: "4em" }}>
           <Tooltip label="Add a new document">
             <Button
               style={{ width: "100%", height: "100%" }}
