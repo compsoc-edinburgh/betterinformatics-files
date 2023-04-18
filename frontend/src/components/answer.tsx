@@ -40,9 +40,6 @@ const answerWrapperStyle = css`
   margin-top: 1em;
   margin-bottom: 1em;
 `;
-const AnswerWrapper = (props: CardProps) => (
-  <Card withBorder shadow="sm" className={answerWrapperStyle} {...props} />
-);
 
 const answerToolbarStyle = css`
   justify-content: flex-end;
@@ -111,7 +108,7 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <AnswerWrapper>
+      <Card withBorder shadow="sm" className={answerWrapperStyle}>
         <Card.Section withBorder p="md">
           <Flex justify="space-between" align="center">
             <div>
@@ -368,7 +365,7 @@ const AnswerComponent: React.FC<Props> = ({
               onDraftDelete={() => setHasCommentDraft(false)}
             />
           )}
-      </AnswerWrapper>
+      </Card>
     </>
   );
 };

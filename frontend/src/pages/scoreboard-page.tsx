@@ -1,5 +1,6 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
+  Anchor,
   Alert,
   Center,
   Container,
@@ -145,12 +146,12 @@ const Scoreboard: React.FC<{}> = () => {
                 <tr key={board.username}>
                   <td>{idx + 1}</td>
                   <td>
-                    <Link
-                      className="text-primary"
+                    <Anchor
+                      component={Link}
                       to={`/user/${board.username}`}
                     >
                       {board.displayName}
-                    </Link>
+                    </Anchor>
                   </td>
                   <td>{board.score}</td>
                   <td>{board.score_answers}</td>

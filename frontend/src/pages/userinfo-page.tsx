@@ -31,7 +31,6 @@ const fadeIn = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
 export const masonryStyle = css`
   display: flex;
   margin: auto;
-  width: 80vw;
   justify-content: center;
   align-items: center;
   position: relative;
@@ -41,12 +40,12 @@ export const masonryStyle = css`
   .contribution-component {
     // makes the answer and comment components half the size of the masonry div
     // resulting in 2 columns
-    width: 40vw;
+    width: 35vw;
     animation: ${fadeIn} 800ms;
   }
   @media only screen and (max-width: 1000px) {
     .contribution-component {
-      width: 80vw;
+      width: 90vw;
     }
   }
 `;
@@ -83,7 +82,7 @@ const UserPage: React.FC<{}> = () => {
             <Tabs.Tab value="documents">Documents</Tabs.Tab>
             {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
-          <Tabs.Panel value="overview">
+          <Tabs.Panel value="overview" pt="sm">
             <SimpleGrid cols={2}>
               {!isMyself && !user.isAdmin && (
                 <Alert color="secondary">There's nothing here</Alert>
@@ -94,16 +93,16 @@ const UserPage: React.FC<{}> = () => {
               )}
             </SimpleGrid>
           </Tabs.Panel>
-          <Tabs.Panel value="answers">
+          <Tabs.Panel value="answers" pt="sm">
             <UserAnswers username={username} />
           </Tabs.Panel>
-          <Tabs.Panel value="comments">
+          <Tabs.Panel value="comments" pt="sm">
             <UserComments username={username} />
           </Tabs.Panel>
-          <Tabs.Panel value="documents">
+          <Tabs.Panel value="documents" pt="sm">
             <UserDocuments username={username} userInfo={userInfo} />
           </Tabs.Panel>
-          <Tabs.Panel value="settings">
+          <Tabs.Panel value="settings" pt="sm">
             {isMyself && <UserNotificationsSettings username={username} />}
           </Tabs.Panel>
         </Tabs>

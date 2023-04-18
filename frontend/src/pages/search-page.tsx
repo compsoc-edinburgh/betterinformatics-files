@@ -42,7 +42,7 @@ const SearchPage: React.FC<{}> = () => {
       </Container>
       <div className="position-relative">
         <LoadingOverlay loading={loading} />
-        <Container>
+        <Container size="xl">
           <div>
             {data && data.length === 0 && debouncedTerm !== "" && (
               <div className="text-center p-4">

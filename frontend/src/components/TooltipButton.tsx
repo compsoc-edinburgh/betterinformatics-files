@@ -36,7 +36,7 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
   const toggle = useCallback(() => setState(a => !a), []);
   const longPress = useLongPress(
     () => isMobile && setState(true),
-    onClick ?? (() => {}),
+    onClick ?? (() => { }),
   );
   const ref = useClickAway(() => setState(false));
   const [mounted, setMounted] = useState(false);
@@ -48,8 +48,8 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
           label={tooltip}
           withArrow
           withinPortal
-          // opened={open || displayAllTooltips}
-          // toggle={() => !isMobile && toggle()}
+        // opened={open || displayAllTooltips}
+        // toggle={() => !isMobile && toggle()}
         >
           <Button
             variant="outline"

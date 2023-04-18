@@ -1,4 +1,4 @@
-import { Badge, Box, Breadcrumbs, Card, Group } from "@mantine/core";
+import { Anchor, Badge, Box, Breadcrumbs, Card, Group, Paper, Stack, Text, Title } from "@mantine/core";
 import { css } from "@emotion/css";
 import { escapeRegExp } from "lodash-es";
 import React from "react";
@@ -7,8 +7,8 @@ import MarkdownText from "../components/markdown-text";
 import { HighlightedMatch, SearchResponse } from "../interfaces";
 
 const columnStyle = css`
-  column-gap: 0;
-  grid-column-gap: 0;
+  column-gap: 0.75em;
+  grid-column-gap: 0.75em;
   margin: 0 -0.75em;
   padding-top: 1em;
   padding-bottom: 1em;
@@ -61,46 +61,60 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         if (result.type === "exam") {
           return (
             <div className="px-2" key={`exam-${result.filename}`}>
-              <Card withBorder className="mb-3 px-3 pb-3 pt-2 position-static">
+              <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
                 <Group>
                   <Badge>Exam</Badge>
-                  <Breadcrumbs className={noMarginBreadcrumb}>
-                    <Link
+                  <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
                       to={`/category/${result.category_slug}`}
                       className="text-primary"
                     >
                       {result.category_displayname}
-                    </Link>
+                    </Anchor>
                   </Breadcrumbs>
                 </Group>
-                <h6>
-                  <Link
+                <Title py="xs" order={4}>
+                  <Anchor
+                    component={Link}
                     to={`/exams/${result.filename}/`}
                     className="text-primary"
                   >
                     {result.headline.map((part, i) => (
                       <HighlightedContent content={part} key={i} />
                     ))}
-                  </Link>
-                </h6>
+                  </Anchor>
+                </Title>
                 {result.pages.map(([page, _, matches]) => (
                   <Group key={page}>
-                    <Box>
-                      <Link
-                        to={`/exams/${result.filename}/#page-${page}`}
-                        className="border stretched-link position-static"
+                    <Link
+                      to={`/exams/${result.filename}/#page-${page}`}
+                      className="border stretched-link position-static"
+                      style={{ textDecoration: "none" }}
+                    >
+                      <Paper
+                        withBorder
+                        py="xs"
+                        px="md"
+                        style={{ position: "static", flex: "0 0 auto" }}
                       >
-                        {page}
-                      </Link>
-                    </Box>
-                    {matches.map((part, i) => (
-                      <React.Fragment key={i}>
-                        <span className="text-muted">...</span>
-                        <HighlightedContent content={part} key={i} />
-                        <span className="text-muted">...</span>
-                        {i !== matches.length - 1 && " "}
-                      </React.Fragment>
-                    ))}
+                        <Text>
+                          {page}
+                        </Text>
+                      </Paper>
+                    </Link>
+                    <Stack style={{ flexGrow: "1", flexBasis: "0" }}>
+                      {matches.map((part, i) => (
+                        <Box key={i} >
+                          <Text component="span" color="dimmed">... </Text>
+                          <HighlightedContent content={part} key={i} />
+                          <Text component="span" color="dimmed"> ...</Text>
+                          {i !== matches.length - 1 && " "}
+                        </Box>
+                      ))}
+                    </Stack>
                   </Group>
                 ))}
               </Card>
@@ -109,31 +123,37 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else if (result.type === "answer") {
           return (
             <div className="px-2" key={`answer-${result.long_id}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
+              <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
                 <Group>
                   <Badge>Answer</Badge>
-                  <Breadcrumbs className={noMarginBreadcrumb}>
-                    <Link
+                  <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
                       to={`/category/${result.category_slug}`}
                       className="text-primary"
                     >
                       {result.category_displayname}
-                    </Link>
-                    <Link
+                    </Anchor>
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
                       to={`/exams/${result.filename}`}
                       className="text-primary"
                     >
                       {result.exam_displayname}
-                    </Link>
+                    </Anchor>
                   </Breadcrumbs>
                 </Group>
                 <div className="position-relative">
-                  <Link
-                    className="text-primary stretched-link"
+                  <Anchor
+                    component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
-                    <h6>{result.author_displayname}</h6>
-                  </Link>
+                    <Title py="xs" order={4}>{result.author_displayname}</Title>
+                  </Anchor>
                   <HighlightedMarkdown
                     content={result.text}
                     matches={result.highlighted_words}
@@ -145,31 +165,37 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else {
           return (
             <div className="px-2" key={`comment-${result.long_id}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
+              <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
                 <Group>
                   <Badge>Comment</Badge>
-                  <Breadcrumbs className={noMarginBreadcrumb}>
-                    <Link
+                  <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
                       className="text-primary"
                       to={`/category/${result.category_slug}`}
                     >
                       {result.category_displayname}
-                    </Link>
-                    <Link
+                    </Anchor>
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
                       className="text-primary"
                       to={`/exams/${result.filename}`}
                     >
                       {result.exam_displayname}
-                    </Link>
+                    </Anchor>
                   </Breadcrumbs>
                 </Group>
                 <div className="position-relative">
-                  <Link
-                    className="text-primary stretched-link"
+                  <Anchor
+                    component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
-                    <h6>{result.author_displayname}</h6>
-                  </Link>
+                    <Title py="xs" order={4}>{result.author_displayname}</Title>
+                  </Anchor>
                   <HighlightedMarkdown
                     content={result.text}
                     matches={result.highlighted_words}

@@ -157,8 +157,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-            ({ slug }) => slug !== "default" || isAdmin,
-          )
+          ({ slug }) => slug !== "default" || isAdmin,
+        )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -186,7 +186,6 @@ export const CategoryList: React.FC<{}> = () => {
         <Flex
           direction={{ base: "column", sm: "row" }}
           justify="space-between"
-          className="px-2"
         >
           <SegmentedControl
             value={mode}

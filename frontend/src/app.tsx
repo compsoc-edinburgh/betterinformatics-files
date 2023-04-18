@@ -44,7 +44,6 @@ import SearchPage from "./pages/search-page";
 import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-import serverData from "./utils/server-data";
 import { useRequest } from "@umijs/hooks";
 const minHeight = css`
   min-height: 100vh;

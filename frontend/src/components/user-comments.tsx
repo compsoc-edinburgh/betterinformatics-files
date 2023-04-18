@@ -67,20 +67,17 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
       {(!comments || comments.length === 0) && !loading && (
         <Alert color="secondary">No comments</Alert>
       )}
-      <div className={masonryStyle}>
-        <Masonry
-          options={{ fitWidth: true, transitionDuration: 0 }}
-          enableResizableChildren={true}
-        >
-          {comments &&
-            comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
-              <div className="px-2 contribution-component" key={comment.oid}>
-                <SingleCommentComponent comment={comment} />
-              </div>
-            ))}
-          <div ref={elem => setLastElement(elem)} />
-        </Masonry>
-      </div>
+      <Masonry
+        options={{ fitWidth: true, transitionDuration: 0 }}
+      >
+        {comments &&
+          comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
+            <div className="contribution-component" key={comment.oid}>
+              <SingleCommentComponent comment={comment} />
+            </div>
+          ))}
+        <div ref={elem => setLastElement(elem)} />
+      </Masonry>
       {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>
   );
