@@ -34,7 +34,8 @@ SECRET_KEY = (
     )
 )
 API_KEY = (
-    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
+    "API_KEY" if DEBUG else os.environ.get(
+        "RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 )
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -55,10 +56,15 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".md", "text/x-markdown"),
     (".txt", "text/plain"),
     (".zip", "application/zip"),
-    (".apkg", "application/octet-stream"), # anki
-    (".colpkg", "application/octet-stream"), # anki collection
+    (".zip", "application/octet-stream"),
+    (".zip", "multipart/x-zip"),
+    (".zip", "application/zip-compressed"),
+    (".zip", "application/x-zip-compressed"),
+    (".apkg", "application/octet-stream"),  # anki
+    (".colpkg", "application/octet-stream"),  # anki collection
 }
-COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
+COMSOL_IMAGE_ALLOWED_EXTENSIONS = {
+    "jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -67,14 +73,16 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
-COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
+COMSOL_FRONTEND_GLOB_ID = os.environ.get(
+    "FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
 
 # The following config settings configure the config with which a keycloak js client instance is
 # constructed in the React frontend.
 COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
     "FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
 )
-COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get("FRONTEND_KEYCLOAK_REALM", "VSETH")
+COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
+    "FRONTEND_KEYCLOAK_REALM", "VSETH")
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
@@ -117,7 +125,8 @@ OIDC_JWKS_URL = (
     )
 )
 JWT_VERIFY_SIGNATURE = (
-    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
+    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE",
+                   "TRUE") != "FALSE" or not DEBUG
 )
 JWT_RESOURCE_GROUP = (
     "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
@@ -148,9 +157,11 @@ else:
 CSP_DEFAULT_SRC = "'self'"
 allowed = []
 if DEBUG:
-    allowed = ["http://{}:8080/static/".format(host) for host in REAL_ALLOWED_HOSTS]
+    allowed = ["http://{}:8080/static/".format(host)
+               for host in REAL_ALLOWED_HOSTS]
 else:
-    allowed = ["https://{}/static/".format(host) for host in REAL_ALLOWED_HOSTS]
+    allowed = ["https://{}/static/".format(host)
+               for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
 CSP_STYLE_SRC = (
     "'self'",
