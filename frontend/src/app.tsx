@@ -10,7 +10,6 @@ import {
 import {
   ConfigOptions,
   makeVsethTheme,
-  useConfig,
   VSETHExternalApp,
   VSETHThemeProvider,
 } from "vseth-canine-ui";

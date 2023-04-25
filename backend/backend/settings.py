@@ -162,7 +162,11 @@ if DEBUG:
 else:
     allowed = ["https://{}/static/".format(host)
                for host in REAL_ALLOWED_HOSTS]
-CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
+CSP_SCRIPT_SRC = (
+    "'unsafe-eval'",
+    "https://static.vseth.ethz.ch",
+    *allowed
+)
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",
