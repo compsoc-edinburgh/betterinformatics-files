@@ -8,6 +8,7 @@ import {
   Text,
 } from "@mantine/core";
 import {
+  ConfigOptions,
   makeVsethTheme,
   useConfig,
   VSETHExternalApp,
@@ -144,9 +145,7 @@ const App: React.FC<{}> = () => {
     pollingInterval: 300_000,
   });
 
-  const { data } = useConfig(
-    `https://static.vseth.ethz.ch/assets/${process.env.REACT_APP_GLOB_ID}/config.json`,
-  );
+  const data = (window as any).configOptions as ConfigOptions;
 
   const vsethTheme = makeVsethTheme([
     "#E5F9FF",
