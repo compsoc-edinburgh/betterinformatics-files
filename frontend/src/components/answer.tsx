@@ -37,7 +37,6 @@ import Score from "./score";
 import SmallButton from "./small-button";
 
 const answerWrapperStyle = css`
-  margin-top: 1em;
   margin-bottom: 1em;
 `;
 

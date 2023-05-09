@@ -41,6 +41,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         size="xl"
         className="stretched-link"
         tabIndex={-1}
+        mb={0}
       >
         {"match" in category
           ? highlight(category.displayname, category.match)

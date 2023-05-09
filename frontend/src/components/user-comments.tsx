@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Masonry from "react-masonry-component";
-import { masonryStyle } from "../pages/userinfo-page";
 import { useUserComments } from "../api/hooks";
 import SingleCommentComponent from "./comment-single";
 import { Alert, Loader } from "@mantine/core";
+import { css } from "@emotion/css";
 
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
@@ -15,6 +14,17 @@ import { Alert, Loader } from "@mantine/core";
 // It seems like there is a fix live in Safari Technology Preview
 // This fix should be left in here until the fix is published for
 // Safari iOS + macOS
+
+const columnStyle = css`
+  column-gap: 0.75em;
+  margin: 0;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  column-count: 1;
+  @media (min-width: 900px) {
+    column-count: 2;
+  }
+`;
 
 interface UserCommentsProps {
   username: string;
@@ -67,8 +77,9 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
       {(!comments || comments.length === 0) && !loading && (
         <Alert color="secondary">No comments</Alert>
       )}
-      <Masonry
-        options={{ fitWidth: true, transitionDuration: 0 }}
+      <div
+        className={columnStyle}
+      // options={{ fitWidth: true, transitionDuration: 0 }}
       >
         {comments &&
           comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
@@ -77,7 +88,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
             </div>
           ))}
         <div ref={elem => setLastElement(elem)} />
-      </Masonry>
+      </div>
       {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>
   );

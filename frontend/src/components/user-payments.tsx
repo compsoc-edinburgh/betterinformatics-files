@@ -38,7 +38,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
           {payments
             .filter(payment => payment.active)
             .map(payment => (
-              <Alert key={payment.oid}>
+              <Alert mb="xs" key={payment.oid}>
                 You have paid for all oral exams until{" "}
                 {moment(
                   payment.valid_until,

@@ -52,7 +52,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   const user = useUser()!;
   return (
     <>
-      <Group position="apart">
+      <Group position="apart" mb="sm">
         <div>
           <h1>{userInfo?.displayName || username}</h1>
         </div>

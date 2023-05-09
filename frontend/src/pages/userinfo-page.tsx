@@ -26,30 +26,6 @@ const navStyle = css`
   }
 `;
 
-const fadeIn = keyframes({ from: { opacity: 0 }, to: { opacity: 1 } });
-
-export const masonryStyle = css`
-  display: flex;
-  margin: auto;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-
-  .contribution-component {
-    // makes the answer and comment components half the size of the masonry div
-    // resulting in 2 columns
-    width: 35vw;
-    animation: ${fadeIn} 800ms;
-  }
-  @media only screen and (max-width: 1000px) {
-    .contribution-component {
-      width: 90vw;
-    }
-  }
-`;
-
 const UserPage: React.FC<{}> = () => {
   const user = useUser()!;
   const { username = user.username } = useParams() as { username: string };
@@ -83,7 +59,7 @@ const UserPage: React.FC<{}> = () => {
             {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
           <Tabs.Panel value="overview" pt="sm">
-            <SimpleGrid cols={2}>
+            <SimpleGrid breakpoints={[{ maxWidth: '48rem', cols: 1 }]} cols={2}>
               {!isMyself && !user.isAdmin && (
                 <Alert color="secondary">There's nothing here</Alert>
               )}

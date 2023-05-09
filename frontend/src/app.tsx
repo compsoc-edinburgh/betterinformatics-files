@@ -219,7 +219,7 @@ const App: React.FC<{}> = () => {
             onClose={() => login()}
             title="You've been logged out due to inactivity"
           >
-            <Text>
+            <Text mb="md">
               Your session has expired due to inactivity, you have to log in
               again to continue.
             </Text>
