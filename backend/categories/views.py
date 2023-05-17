@@ -74,7 +74,14 @@ def create_category_slug(category, ignored_pk=None):
     Create a valid and unique slug for the category name
     :param category: category name
     """
-    oslug = ''.join(filter(lambda x: x in settings.COMSOL_CATEGORY_SLUG_CHARS, category))
+    oslug = "".join(
+        filter(
+            lambda x: x in settings.COMSOL_CATEGORY_SLUG_CHARS,
+            category.lower().replace(" ", "-")
+        )
+    )
+    if oslug == "":
+        oslug = "invalid_name"
 
     def exists(aslug):
         categories = Category.objects.filter(slug=aslug)
@@ -85,8 +92,8 @@ def create_category_slug(category, ignored_pk=None):
     slug = oslug
     cnt = 0
     while exists(slug):
-        cnt += 1
         slug = oslug + "_" + str(cnt)
+        cnt += 1
 
     return slug
 
@@ -174,6 +181,9 @@ def get_metadata(request, slug):
 def set_metadata(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     if 'displayname' in request.POST:
+        # prevent whitespaced or empty displaynames
+        if request.POST['displayname'].strip() == '':
+            return response.not_possible("Invalid displayname")
         cat.displayname = request.POST['displayname']
         cat.slug = create_category_slug(cat.displayname, cat.pk)
     for key in ['semester', 'form', 'permission', 'remark', 'more_exams_link']:

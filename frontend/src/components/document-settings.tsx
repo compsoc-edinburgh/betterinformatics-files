@@ -143,6 +143,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
                   description: descriptionDraftText,
                 })
               }
+              disabled={displayName?.trim() === ""}
             >
               Save
               {loading ? (
