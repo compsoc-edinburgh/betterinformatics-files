@@ -1,19 +1,11 @@
 import React from "react";
-import {
-  Card,
-  LikeFilledIcon,
-  CardBody,
-  CardTitle,
-  LikeIcon,
-  Spinner,
-  Alert,
-} from "@vseth/components";
+import { Spinner, Alert } from "@vseth/components";
 import { useDocumentsLikedBy, useDocumentsUsername } from "../api/hooks";
-import { Link } from "react-router-dom";
 import Grid from "../components/grid";
 import { useUser } from "../auth";
 import ContentContainer from "./secondary-container";
 import { Document, UserInfo } from "../interfaces";
+import DocumentCard from "./document-card";
 
 interface UserDocumentsProps {
   username: string;
@@ -35,27 +27,11 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       <Grid>
         {documents &&
           documents.map(document => (
-            <Card key={document.slug}>
-              <CardBody>
-                <Link className="text-primary" to={`/user/${document.author}/document/${document.slug}`}>
-                  <CardTitle tag="h6">{document.display_name}</CardTitle>
-                </Link>
-                <div>
-                  <Link to={`/user/${document.author}`} className="text-muted">
-                    @{document.author}
-                  </Link>
-                  {document.liked ? (
-                    <span className="text-danger ml-2">
-                      <LikeFilledIcon className="mr-1" /> {document.like_count}
-                    </span>
-                  ) : (
-                    <span className="text-muted ml-2">
-                      <LikeIcon className="mr-1" /> {document.like_count}
-                    </span>
-                  )}
-                </div>
-              </CardBody>
-            </Card>
+            <DocumentCard
+              key={document.slug}
+              document={document}
+              showCategory
+            />
           ))}
       </Grid>
     );
