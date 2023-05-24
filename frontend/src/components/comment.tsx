@@ -14,7 +14,7 @@ import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import { Icon, ICONS } from "vseth-canine-ui";
-import { Anchor, Button, Flex, Menu, Paper, Text } from "@mantine/core";
+import { Anchor, Button, Flex, Paper, Text } from "@mantine/core";
 
 interface Props {
   answer: Answer;
@@ -108,19 +108,17 @@ const CommentComponent: React.FC<Props> = ({
               </>
             )}
         </div>
-        {comment && !editing && (
+        {comment && !editing && comment.canEdit && (
           <Button.Group>
-            {comment.canEdit && (
-              <SmallButton
-                tooltip="Edit comment"
-                size="sm"
-                color="white"
-                onClick={startEditing}
-              >
-                <Icon icon={ICONS.EDIT} size={18} />
-              </SmallButton>
-            )}
-            {(comment.canEdit || isAdmin) && (
+            <SmallButton
+              tooltip="Edit comment"
+              size="sm"
+              color="white"
+              onClick={startEditing}
+            >
+              <Icon icon={ICONS.EDIT} size={18} />
+            </SmallButton>
+            {isAdmin && (
               <SmallButton
                 tooltip="Delete comment"
                 size="sm"
@@ -130,19 +128,25 @@ const CommentComponent: React.FC<Props> = ({
                 <Icon icon={ICONS.DELETE} size={18} />
               </SmallButton>
             )}
-            <Menu>
-              <Menu.Target>
-                <Button variant="outline">
-                  <Icon icon={ICONS.DOTS_H} size={18} />
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item onClick={toggleViewSource}>
-                  Toggle Source Code Mode
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+            <SmallButton
+              tooltip="Toggle Source Code Mode"
+              size="sm"
+              color="white"
+              onClick={toggleViewSource}
+            >
+              <Icon icon={ICONS.CODE} size={18} />
+            </SmallButton>
           </Button.Group>
+        )}
+        {comment && !editing && !comment.canEdit && (
+          <SmallButton
+            tooltip="Toggle Source Code Mode"
+            size="sm"
+            color="white"
+            onClick={toggleViewSource}
+          >
+            <Icon icon={ICONS.CODE} size={18} />
+          </SmallButton>
         )}
       </Flex>
 
