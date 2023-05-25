@@ -1,18 +1,10 @@
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  LikeFilledIcon,
-  LikeIcon,
-  Modal,
-  PlusIcon,
-} from "@vseth/components";
+import { Card, Modal, PlusIcon } from "@vseth/components";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
 import TooltipButton from "./TooltipButton";
+import DocumentCard from "./document-card";
 
 interface Props {
   slug: string;
@@ -33,30 +25,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       <Grid>
         {documents &&
           documents.map(document => (
-            <Card key={document.slug}>
-              <CardBody>
-                <Link
-                  to={`/user/${document.author}/document/${document.slug}`}
-                  className="text-primary"
-                >
-                  <CardTitle tag="h6">{document.display_name}</CardTitle>
-                </Link>
-                <div>
-                  <Link to={`/user/${document.author}`} className="text-muted">
-                    @{document.author}
-                  </Link>
-                  {document.liked ? (
-                    <span className="text-danger ml-2">
-                      <LikeFilledIcon className="mr-1" /> {document.like_count}
-                    </span>
-                  ) : (
-                    <span className="text-muted ml-2">
-                      <LikeIcon className="mr-1" /> {document.like_count}
-                    </span>
-                  )}
-                </div>
-              </CardBody>
-            </Card>
+            <DocumentCard key={document.slug} document={document} />
           ))}
         <Card style={{ minHeight: "4em" }}>
           <TooltipButton
