@@ -9,7 +9,7 @@ import useConfirm from "../hooks/useConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
-import { focusOutline } from "../utils/style";
+import { useStyles } from "../utils/style";
 import ExamGrid from "./exam-grid";
 import { ICONS } from "vseth-canine-ui";
 
@@ -38,6 +38,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   onDeselect,
   reload,
 }) => {
+  const { classes } = useStyles();
   const user = useUser()!;
   const catAdmin = user.isCategoryAdmin;
   const history = useHistory();
@@ -81,9 +82,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
         {exams.map(exam => (
           <Card
             shadow="sm"
-            className={`${focusOutline} p-3`}
+            className={`${classes.focusOutline} p-3`}
             onKeyDown={e => {
-              if (e.keyCode === 13 && exam.canView) {
+              if (e.code === "Enter" && exam.canView) {
                 history.push(`/exams/${exam.filename}`);
               }
             }}

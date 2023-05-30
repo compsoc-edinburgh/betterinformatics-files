@@ -9,7 +9,7 @@ const useStyles = createStyles(theme => ({
     backgroundColor:
       theme.colorScheme === "dark"
         ? theme.colors.dark[5]
-        : theme.colors.gray[1],
+        : theme.colors.gray[0],
   },
 }));
 
@@ -21,9 +21,8 @@ const ContentContainer: React.FC<Props> = ({ children, className }) => {
       <Box
         py="md"
         px={0}
-        className={`${classes.contentContainer} ${
-          className ? ` ${className}` : ""
-        }`}
+        className={`${classes.contentContainer} ${className ? ` ${className}` : ""
+          }`}
       >
         {children}
       </Box>

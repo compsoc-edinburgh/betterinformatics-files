@@ -1,8 +1,12 @@
-import { css } from "@emotion/css";
+import { createStyles } from '@mantine/core';
 
-export const focusOutline = css`
-  &:focus {
-    outline: 1.5px solid var(--gray-dark);
-    outline-offset: 2px;
-  }
-`;
+export const useStyles = createStyles((theme) => ({
+  focusOutline: {
+    '&:focus': {
+      outlineWidth: 1.5,
+      outlineStyle: "solid",
+      outlineColor: theme.colors.gray[9],
+      outlineOffset: 2,
+    },
+  },
+}));

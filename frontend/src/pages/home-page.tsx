@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  Card,
   Container,
   Flex,
   Loader,
@@ -9,8 +8,8 @@ import {
   Paper,
   SegmentedControl,
   Stack,
-  Text,
   TextInput,
+  Title,
   Tooltip,
 } from "@mantine/core";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
@@ -205,7 +204,7 @@ export const CategoryList: React.FC<{}> = () => {
           />
         </Flex>
       </Container>
-      <ContentContainer className="position-relative my-3">
+      <ContentContainer>
         <LoadingOverlay loading={loading} />
         <Container size="xl" pt="3em" pb="md">
           {error ? (
@@ -224,14 +223,14 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display}>
-                    <Text size="xl" weight={600} my="sm">
+                    <Title order={2} my="sm">
                       {meta1display}
-                    </Text>
+                    </Title>
                     {meta2.map(([meta2display, categories]) => (
                       <div key={meta2display}>
-                        <Text size="lg" weight={600} my="md">
+                        <Title order={3} my="md">
                           {meta2display}
-                        </Text>
+                        </Title>
                         <Grid>
                           {categories.map(category => (
                             <CategoryCard
@@ -246,7 +245,7 @@ export const CategoryList: React.FC<{}> = () => {
                 ))}
               {unassignedList && (
                 <>
-                  <h4 className="my-4">Unassigned Categories</h4>
+                  <Title order={3} my="md">Unassigned Categories</Title>
                   <Grid>
                     {unassignedList.map(category => (
                       <CategoryCard category={category} key={category.slug} />
@@ -256,7 +255,7 @@ export const CategoryList: React.FC<{}> = () => {
               )}
               {isAdmin && (
                 <>
-                  <h4 className="my-4">New Category</h4>
+                  <Title order={3} my="md">New Category</Title>
                   <Grid>
                     <AddCategory onAddCategory={onAddCategory} />
                   </Grid>
