@@ -38,10 +38,9 @@ import MarkdownText from "./markdown-text";
 interface Props {
   data: Document;
   mutate: Mutate<Document>;
-  slug: string;
 }
 
-const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
+const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
   const history = useHistory();
   const { loading: categoriesLoading, data: categories } =
     useRequest(loadCategories);
@@ -57,7 +56,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
 
   const [loading, updateDocument] = useUpdateDocument(
     data.author,
-    slug,
+    data.slug,
     result => {
       mutate(s => ({ ...s, ...result }));
       setDisplayName(undefined);
@@ -69,12 +68,12 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   );
   const [regenerateLoading, regenerate] = useRegenerateDocumentAPIKey(
     data.author,
-    slug,
+    data.slug,
     result => mutate(s => ({ ...s, ...result })),
   );
   const [_, deleteDocument] = useDeleteDocument(
     data.author,
-    slug,
+    data.slug,
     () => data && history.push(`/category/${data.category}`),
   );
   const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();

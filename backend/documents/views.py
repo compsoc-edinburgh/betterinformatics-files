@@ -76,38 +76,6 @@ def get_document_obj(
     return obj
 
 
-def create_document_slug(
-    document_name: str, author: MyUser, existing: Union[Document, None] = None
-):
-    """
-    Create a valid and unique slug for the document display name
-    :param document: display name
-    :param author_name: author_name
-    """
-    oslug = "".join(
-        filter(
-            lambda x: x in settings.COMSOL_DOCUMENT_SLUG_CHARS,
-            document_name.lower().replace(" ", "-"),
-        )
-    )
-    if oslug == "":
-        oslug = "invalid_name"
-
-    def exists(aslug):
-        objects = Document.objects.filter(slug=aslug, author=author)
-        if existing is not None:
-            objects = objects.exclude(pk=existing.pk)
-        return objects.exists()
-
-    slug = oslug
-    cnt = 0
-    while exists(slug):
-        slug = oslug + "_" + str(cnt)
-        cnt += 1
-
-    return slug
-
-
 def is_allowed(ext: str, mime_type: str):
     return (ext, mime_type) in settings.COMSOL_DOCUMENT_ALLOWED_EXTENSIONS
 
@@ -180,7 +148,6 @@ class DocumentRootView(View):
         # description is optional
         description = request.POST.get("description", "")
         document = Document(
-            slug=create_document_slug(display_name, request.user),
             display_name=display_name,
             description=description,
             category=category,
@@ -237,9 +204,6 @@ class DocumentElementView(View):
             if request.DATA["display_name"].strip() == "":
                 return response.not_possible("Invalid displayname")
             document.display_name = request.DATA["display_name"]
-            document.slug = create_document_slug(
-                document.display_name, request.user, document
-            )
         if "category" in request.DATA:
             if not can_edit:
                 return response.not_allowed()

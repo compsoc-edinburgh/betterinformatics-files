@@ -8,7 +8,14 @@ def rename_categories(apps, schema_editor):
     Document = apps.get_model("documents", "Document")
     Document.objects.filter(display_name="").update(
         display_name="<empty label>")
-    Document.objects.filter(slug__startswith="🧠").update(slug="invalid_name")
+    cnt = 0
+    for document in Document.objects.filter(slug__startswith="🧠"):
+        slug = "invalid_name"
+        while Document.objects.filter(slug=slug).exists():
+            slug = f"invalid_name_{cnt}"
+            cnt += 1
+        document.slug = slug
+        document.save()
 
 
 def remove_duplicates(apps, schema_editor):
@@ -17,10 +24,13 @@ def remove_duplicates(apps, schema_editor):
         dcount=models.Count("slug")).filter(dcount__gt=1)  # dcount > 1
     for oslug in slug_set:
         similar_set = Document.objects.filter(slug=oslug)
-        for cnt, document in enumerate(similar_set):
-            if cnt == 0:
-                continue
-            document.slug = f"{oslug}_{cnt-1}"
+        cnt = 0
+        for document in similar_set:
+            slug = oslug
+            while Document.objects.filter(slug=slug).exists():
+                slug = f"{oslug}_{cnt}"
+                cnt += 1
+            document.slug = slug
             document.save()
 
 
