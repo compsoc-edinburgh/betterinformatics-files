@@ -42,18 +42,4 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(rename_categories),
         migrations.RunPython(remove_duplicates),
-        migrations.RemoveIndex(
-            model_name='comment',
-            name='documents_c_search__02d77d_gin',
-        ),
-        migrations.AlterField(
-            model_name='document',
-            name='slug',
-            field=models.CharField(max_length=256, unique=True),
-        ),
-        migrations.AddIndex(
-            model_name='comment',
-            index=django.contrib.postgres.indexes.GinIndex(
-                fields=['search_vector'], name='documents_c_search__fb153e_gin'),
-        ),
     ]
