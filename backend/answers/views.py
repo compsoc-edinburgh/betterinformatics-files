@@ -4,7 +4,6 @@ from answers.models import Exam, ExamType
 from categories.models import Category
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.core.exceptions import BadRequest
 from datetime import timedelta
 import answers.views_files as files 
 

@@ -77,7 +77,7 @@ def create_category_slug(category, ignored_pk=None):
     oslug = "".join(
         filter(
             lambda x: x in settings.COMSOL_CATEGORY_SLUG_CHARS,
-            category.lower().replace(" ", "-")
+            category.lower().replace(" ", "_")
         )
     )
     if oslug == "":

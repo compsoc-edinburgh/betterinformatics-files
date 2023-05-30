@@ -11,7 +11,7 @@ def generate_api_key():
 
 
 class Document(ExportModelOperationsMixin("document"), models.Model):
-    slug = models.CharField(max_length=256, db_index=True)
+    slug = models.CharField(max_length=256, unique=True)
     display_name = models.CharField(max_length=256)
     description = models.CharField(max_length=4096)
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
