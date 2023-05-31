@@ -67,10 +67,10 @@ const CreateDocumentFileModal: React.FC<Props> = ({
       <ModalFooter>
         <Button
           color="primary"
-          disabled={loading || displayName === ""}
+          disabled={loading || displayName.trim() === ""}
           onClick={() =>
             createDocumentFile(
-              displayName,
+              displayName.trim(),
               file ??
                 new NamedBlob(
                   new Blob([], { type: "application/octet-stream" }),

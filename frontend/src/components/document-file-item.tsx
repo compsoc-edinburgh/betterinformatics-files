@@ -91,9 +91,9 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         <ModalFooter>
           <Button
             color="primary"
-            disabled={displayName === ""}
+            disabled={displayName?.trim() === ""}
             onClick={() =>
-              updateFile({ display_name: displayName, file: replaceFile })
+              updateFile({ display_name: displayName?.trim(), file: replaceFile })
             }
           >
             Save{" "}
