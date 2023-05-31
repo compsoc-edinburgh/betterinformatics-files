@@ -76,6 +76,9 @@ def exam_metadata(request, filename):
 def exam_set_metadata(request, filename, exam):
     for key in ['displayname', 'legacy_solution', 'master_solution', 'resolve_alias', 'remark']:
         if key in request.POST:
+            # prevent whitespaced or empty displaynames
+            if key == "displayname" and request.POST['displayname'].strip() == '':
+                return response.not_possible("Invalid displayname")
             setattr(exam, key, request.POST[key])
     for key in ['public', 'finished_cuts', 'finished_wiki_transfer', 'needs_payment', 'solution_printonly']:
         if key in request.POST:
