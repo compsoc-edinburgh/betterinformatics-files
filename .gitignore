@@ -7,5 +7,3 @@ venv
 __pycache__
 temp-gen
 data
-.envrc
-shell.nix

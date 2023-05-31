@@ -43,8 +43,8 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
       <ModalFooter>
         <Button
           color="primary"
-          disabled={loading || displayName.trim() === ""}
-          onClick={() => run(displayName.trim(), categorySlug)}
+          disabled={loading || displayName === ""}
+          onClick={() => run(displayName, categorySlug)}
         >
           Add{" "}
           {loading ? (
