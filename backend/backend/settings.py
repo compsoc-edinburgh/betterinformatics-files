@@ -155,14 +155,14 @@ else:
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
 CSP_DEFAULT_SRC = "'self'"
-allowed = []
+allowed_script_sources = []
 if DEBUG:
-    allowed = ["http://{}:8080/static/".format(host)
+    allowed_script_sources = [f"http://{host}:8080/static/"
                for host in REAL_ALLOWED_HOSTS]
 else:
-    allowed = ["https://{}/static/".format(host)
+    allowed_script_sources = [f"https://{host}/static/"
                for host in REAL_ALLOWED_HOSTS]
-CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed)
+CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed_script_sources)
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",
