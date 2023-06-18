@@ -84,7 +84,7 @@ const DocumentPage: React.FC<Props> = () => {
   return (
     <>
       <Container>
-        <Breadcrumbs separator="›">
+        <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">
             Home
           </Anchor>

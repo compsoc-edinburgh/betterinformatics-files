@@ -71,7 +71,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   return (
     <>
       {modals}
-      <Breadcrumbs separator="›">
+      <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
         <Anchor
           tt="uppercase"
           size="xs"

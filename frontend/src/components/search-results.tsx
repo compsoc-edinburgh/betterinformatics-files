@@ -5,6 +5,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import MarkdownText from "../components/markdown-text";
 import { HighlightedMatch, SearchResponse } from "../interfaces";
+import { ICONS, Icon } from "vseth-canine-ui";
 
 const columnStyle = css`
   column-gap: 0.75em;
@@ -64,7 +65,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
               <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
                 <Group>
                   <Badge>Exam</Badge>
-                  <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+                  <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
                     <Anchor
                       tt="uppercase"
                       size="xs"
@@ -126,7 +127,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
               <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
                 <Group>
                   <Badge>Answer</Badge>
-                  <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+                  <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
                     <Anchor
                       tt="uppercase"
                       size="xs"
@@ -168,7 +169,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
               <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
                 <Group>
                   <Badge>Comment</Badge>
-                  <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+                  <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
                     <Anchor
                       tt="uppercase"
                       size="xs"

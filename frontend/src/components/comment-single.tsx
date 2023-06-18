@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { SingleComment } from "../interfaces";
 import MarkdownText from "./markdown-text";
 import { css } from "@emotion/css";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface Props {
   comment: SingleComment;
@@ -19,7 +20,7 @@ const noMarginBreadcrumb = css`
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
     <Card withBorder shadow="sm" mb="md">
-      <Breadcrumbs separator="›" className={noMarginBreadcrumb}>
+      <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
         <Anchor
           component={Link}
           to={`/category/${comment.category_slug}`}

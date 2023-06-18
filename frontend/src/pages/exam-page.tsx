@@ -43,7 +43,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
-import { ICONS } from "vseth-canine-ui";
+import { ICONS, Icon } from "vseth-canine-ui";
 
 const addCut = async (
   filename: string,
@@ -435,7 +435,7 @@ const ExamPage: React.FC<{}> = () => {
   return (
     <div>
       <Container>
-        <Breadcrumbs separator="›">
+        <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
           <Anchor component={Link} tt="uppercase" size="xs" to="/">
             Home
           </Anchor>
