@@ -169,7 +169,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
       </Flex>
       {data.can_delete && (
         <>
-          <Title order={3}>Danger Zone</Title>
+          <Title order={3}>red Zone</Title>
           <Flex wrap="wrap" justify="space-between" align="center">
             <Flex direction="column">
               <Title order={4}>Delete this document</Title>
@@ -194,7 +194,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           Deleting the document will delete all associated files and all
           comments. <b>This cannot be undone.</b>
           <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
-          <Button onClick={deleteDocument} color="danger">
+          <Button onClick={deleteDocument} color="red">
             Delete this document
           </Button>
         </Modal.Body>

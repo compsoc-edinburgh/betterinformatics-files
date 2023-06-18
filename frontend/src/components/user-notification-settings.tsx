@@ -20,7 +20,7 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
   return (
     <>
       <h3>Notifications</h3>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
+      {error && <Alert color="red">{error.toString()}</Alert>}
       <Stack spacing="sm">
         <Checkbox
           label="Comment to my answer"

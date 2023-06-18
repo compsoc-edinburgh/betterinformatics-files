@@ -30,7 +30,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
   const [openPayment, setOpenPayment] = useState("");
   return (
     <div>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
+      {error && <Alert color="red">{error.toString()}</Alert>}
       <h3>Paid Oral Exams</h3>
       {loading && <Loader />}
       {payments && (payments.length > 0 || isAdmin) && (

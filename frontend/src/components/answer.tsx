@@ -2,13 +2,13 @@ import { css } from "@emotion/css";
 import {
   Button,
   Card,
-  CardProps,
   Flex,
   Group,
   GroupProps,
   Text,
   Menu,
   Anchor,
+  Box,
 } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -108,7 +108,7 @@ const AnswerComponent: React.FC<Props> = ({
     <>
       {modals}
       <Card withBorder shadow="sm" className={answerWrapperStyle}>
-        <Card.Section withBorder p="md">
+        <Card.Section withBorder p="md" bg="gray.0">
           <Flex justify="space-between" align="center">
             <div>
               {!hasId && (
@@ -206,22 +206,22 @@ const AnswerComponent: React.FC<Props> = ({
                   (answer.isFlagged ||
                     (answer.flagged > 0 && isAdmin) ||
                     flaggedLoading) && (
-                    <Button.Group className="m-1">
+                    <Button.Group>
                       <Button
-                        color="danger"
+                        color="red"
                         leftIcon={<Icon icon={ICONS.FLAG} />}
                         title="Flagged as Inappropriate"
                       >
                         Inappropriate
                       </Button>
                       <SmallButton
-                        color="danger"
+                        color="red"
                         tooltip={`${answer.flagged} users consider this answer inappropriate.`}
                       >
                         {answer.flagged}
                       </SmallButton>
                       <IconButton
-                        color="danger"
+                        color="red"
                         tooltip={
                           answer.isFlagged
                             ? "Remove inappropriate flag"
@@ -252,7 +252,7 @@ const AnswerComponent: React.FC<Props> = ({
           </Flex>
         </Card.Section>
         {editing || answer === undefined ? (
-          <div className="pt-3">
+          <Box pt="sm">
             <Editor
               value={draftText}
               onChange={setDraftText}
@@ -266,15 +266,15 @@ const AnswerComponent: React.FC<Props> = ({
               CC BY-NC-SA 4.0
             </a>
             .
-          </div>
+          </Box>
         ) : (
-          <div>
+          <Box pt="sm">
             {viewSource ? (
               <CodeBlock value={answer?.text ?? ""} language="markdown" />
             ) : (
               <MarkdownText value={answer?.text ?? ""} />
             )}
-          </div>
+          </Box>
         )}
         <Flex justify="space-between">
           {(answer === undefined || editing) && (

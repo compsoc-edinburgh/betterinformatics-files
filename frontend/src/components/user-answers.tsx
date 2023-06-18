@@ -72,7 +72,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
 
   return (
     <>
-      {error && <Alert color="danger">{error.message}</Alert>}
+      {error && <Alert color="red">{error.message}</Alert>}
       {(!answers || answers.length === 0) && !loading && (
         <Alert color="secondary">No answers</Alert>
       )}

@@ -123,7 +123,7 @@ const DocumentPage: React.FC<Props> = () => {
             </Link>
           )}
         </div>
-        {error && <Alert color="danger">{error.toString()}</Alert>}
+        {error && <Alert color="red">{error.toString()}</Alert>}
         {data && data.description && (
           <div>
             <MarkdownText value={data.description} />

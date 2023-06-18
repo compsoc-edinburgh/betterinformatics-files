@@ -27,14 +27,14 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       <Grid>
         {documents &&
           documents.map(document => (
-            <Paper p="md" withBorder shadow="xs" key={document.slug}>
+            <Paper p="md" withBorder shadow="md" key={document.slug}>
               <Anchor
                 size="lg"
                 weight={600}
                 component={Link}
                 to={`/user/${document.author}/document/${document.slug}`}
               >
-                <Text size="lg">{document.display_name}</Text>
+                <Text>{document.display_name}</Text>
               </Anchor>
               <Group mt="sm" position="apart">
                 <Anchor component={Link} to={`/user/${document.author}`}>
@@ -43,14 +43,12 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
                 {document.liked ? (
                   <Flex align="center" color="red">
                     <Icon icon={ICONS.LIKE_FILLED} color="red" />
-                    <Text color="red" ml="0.3em">
-                      {document.like_count}
-                    </Text>
+                    <Text fw={700} color="red" ml="0.3em">{document.like_count}</Text>
                   </Flex>
                 ) : (
                   <Flex align="center">
                     <Icon icon={ICONS.LIKE} />
-                    <Text ml="0.3em">{document.like_count}</Text>
+                    <Text fw={700} ml="0.3em">{document.like_count}</Text>
                   </Flex>
                 )}
               </Group>
@@ -66,7 +64,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
         Documents
       </h3>
       {documentsError && (
-        <Alert color="danger">{documentsError.toString()}</Alert>
+        <Alert color="red">{documentsError.toString()}</Alert>
       )}
       {documents && displayDocuments(documents)}
       {(!documents || documents.length === 0) && (
@@ -77,7 +75,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       {isMyself && (
         <>
           <h3>Liked Documents</h3>
-          {likedError && <Alert color="danger">{likedError.toString()}</Alert>}
+          {likedError && <Alert color="red">{likedError.toString()}</Alert>}
           {likedDocuments && displayDocuments(likedDocuments)}
           {(!likedDocuments || likedDocuments.length === 0) && (
             <Alert color="secondary">No liked documents</Alert>

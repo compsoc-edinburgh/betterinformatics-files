@@ -1,4 +1,4 @@
-import { Button, TextInput, Modal, Group } from "@mantine/core";
+import { Button, TextInput, Modal, Stack } from "@mantine/core";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -25,9 +25,10 @@ const CreateDocumentForm: React.FC<Props> = ({
   return (
     <Modal opened={isOpen} title="Add Document" onClose={toggle}>
       <Modal.Body>
-        <Group>
+        <Stack>
           <TextInput
             label="Display Name"
+            placeholder="My wonderful summary"
             value={displayName}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
@@ -40,12 +41,12 @@ const CreateDocumentForm: React.FC<Props> = ({
             color="primary"
             disabled={loading || displayName === ""}
             onClick={() => run(displayName, categorySlug)}
-            leftIcon={<Icon icon={ICONS.PLUS} className="ml-2" />}
+            leftIcon={<Icon icon={ICONS.PLUS} />}
             loading={loading}
           >
             Add
           </Button>
-        </Group>
+        </Stack>
       </Modal.Body>
     </Modal>
   );

@@ -168,7 +168,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           <Grid.Col xs="auto">
             <IconButton
               iconName={ICONS.DELETE}
-              color="danger"
+              color="red"
               onClick={deleteFile}
               loading={deleteLoading}
               tooltip="Delete file"

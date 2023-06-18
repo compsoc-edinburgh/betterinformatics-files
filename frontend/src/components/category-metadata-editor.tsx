@@ -244,8 +244,8 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         <h2>Edit Category</h2>
         <CloseButton onClick={toggle} />
       </Group>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
-      <Title order={4}>Metadata</Title>
+      {error && <Alert color="red">{error.toString()}</Alert>}
+      <Title order={4} mb="xs">Metadata</Title>
       <Stack>
         <TextInput label="Name" {...registerInput("displayname")} />
         <Grid>
@@ -279,8 +279,8 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         <Textarea label="Remark" />
         <Grid>
           <Grid.Col md={6}>
-            <label className="form-input-label">Permission</label>
             <NativeSelect
+              label="Permission"
               data={options(permissionOptions)}
               value={
                 permissionOptions[
@@ -306,25 +306,25 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           {...registerCheckbox("has_payments")}
         />
       </Stack>
-      <Title order={4} mt="md" mb="sm">
+      <Title order={4} mt="xl" mb="sm">
         Attachments
       </Title>
       <AttachmentsEditor
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <Title order={4} mt="md" mb="sm">
+      <Title order={4} mt="xl" mb="sm">
         Offered In
       </Title>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-      <Title order={4} mt="md" mb="sm">
+      <Title order={4} mt="xl" mb="sm">
         Admins
       </Title>
       <UserSetEditor
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
       />
-      <Title order={4} mt="md" mb="sm">
+      <Title order={4} mt="xl" mb="sm">
         Experts
       </Title>
       <UserSetEditor
@@ -344,7 +344,6 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         </Button>
         <Button
           leftIcon={<Icon icon={ICONS.SAVE} />}
-          color="primary"
           variant="light"
           loading={loading}
           onClick={onSubmit}

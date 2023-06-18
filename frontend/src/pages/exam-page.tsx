@@ -456,7 +456,7 @@ const ExamPage: React.FC<{}> = () => {
       <div>
         {error && (
           <Container>
-            <Alert color="danger">{error.toString()}</Alert>
+            <Alert color="red">{error.toString()}</Alert>
           </Container>
         )}
         {metaDataLoading && (

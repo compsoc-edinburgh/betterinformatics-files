@@ -19,7 +19,7 @@ const HideAnswerSectionModal: React.FC<ModalProps> = ({
           <Button className="mt-1 mr-1" onClick={toggle}>
             Cancel
           </Button>
-          <Button className="mt-1" color="danger" onClick={setHidden}>
+          <Button className="mt-1" color="red" onClick={setHidden}>
             Delete Answers
           </Button>
         </div>

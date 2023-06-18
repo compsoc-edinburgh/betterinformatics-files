@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Card, Checkbox, Grid, Text } from "@mantine/core";
+import { Anchor, Badge, Card, Checkbox, Grid, Group, Text, Title } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -69,20 +69,24 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <Checkbox
-        label={examtype}
-        checked={checked}
-        indeterminate={indeterminate}
-        onChange={e => setChecked(e.currentTarget.checked)}
+      <Group align="center"
         ml="md"
         mt="xl"
         mb="md"
-      />
+      >
+        <Checkbox
+          checked={checked}
+          indeterminate={indeterminate}
+          onChange={e => setChecked(e.currentTarget.checked)}
+        />
+        <Title order={2}>{examtype}</Title>
+      </Group>
       <ExamGrid>
         {exams.map(exam => (
           <Card
-            shadow="sm"
-            className={`${classes.focusOutline} p-3`}
+            shadow="md"
+            withBorder
+            className={classes.focusOutline}
             onKeyDown={e => {
               if (e.code === "Enter" && exam.canView) {
                 history.push(`/exams/${exam.filename}`);
@@ -102,7 +106,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       : onDeselect(exam.filename);
                   }}
                   disabled={!exam.canView}
-                  mt="0.2em"
+                  mt="0.25em"
                 />
               </Grid.Col>
               <Grid.Col span="auto">
@@ -110,20 +114,19 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   <Anchor
                     component={Link}
                     to={`/exams/${exam.filename}`}
-                    className="text-dark stretched-link"
+                    className="stretched-link"
                     size="lg"
                     weight={600}
                     mb="sm"
-                  // color="gray.9"
                   >
-                    {exam.displayname}
+                    <Text>{exam.displayname}</Text>
                   </Anchor>
                 ) : (
                   exam.displayname
                 )}
                 <div>
                   {exam.remark && (
-                    <Text color="dimmed" size="xs" mb="0.1em">
+                    <Text color="dimmed" size="sm" mb="0.15em">
                       {exam.remark}
                     </Text>
                   )}
@@ -157,11 +160,11 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
 
                   {exam.is_printonly && (
                     <Badge
-                      color="danger"
+                      color="red"
                       className={badgeStyle}
                       title="This exam can only be printed. We can not provide this exam online."
                     >
-                      (Print Only)
+                      Print Only
                     </Badge>
                   )}
                   <Badge
@@ -172,7 +175,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     {exam.count_answered} / {exam.count_cuts}
                   </Badge>
                   {exam.has_solution && (
-                    <Badge title="Has an official solution." color="success">
+                    <Badge title="Has an official solution." color="green">
                       Solution
                     </Badge>
                   )}
@@ -183,7 +186,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 {user.isAdmin && (
                   <IconButton
                     size="lg"
-                    color="gray.5"
+                    color="gray.6"
                     tooltip="Delete exam"
                     iconName={ICONS.DELETE}
                     variant="outline"

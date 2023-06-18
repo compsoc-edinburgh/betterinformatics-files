@@ -218,7 +218,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <Title order={2}>Edit Exam</Title>
         <CloseButton onClick={toggle} />
       </Group>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
+      {error && <Alert color="red">{error.toString()}</Alert>}
       <Title order={6}>Metadata</Title>
       <Grid>
         <Grid.Col md={6}>

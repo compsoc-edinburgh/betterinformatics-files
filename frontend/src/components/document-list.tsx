@@ -1,4 +1,4 @@
-import { Anchor, Button, Group, Paper, Tooltip } from "@mantine/core";
+import { Anchor, Button, Flex, Group, Paper, Text, Tooltip } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -24,37 +24,39 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       <Grid>
         {documents &&
           documents.map(document => (
-            <Paper withBorder p="md" key={document.slug}>
+            <Paper withBorder shadow="md" p="md" key={document.slug}>
               <Anchor
-                weight={600}
                 component={Link}
                 to={`/user/${document.author}/document/${document.slug}`}
+                size="lg"
+                weight={600}
               >
-                {document.display_name}
+                <Text>{document.display_name}</Text>
               </Anchor>
               <Group position="apart" mt="sm">
                 <Anchor
                   component={Link}
                   to={`/user/${document.author}`}
-                  color="dimmed"
                 >
-                  @{document.author}
+                  <Text color="dimmed">
+                    @{document.author}
+                  </Text>
                 </Anchor>
                 {document.liked ? (
-                  <span className="text-danger ml-2">
-                    <Icon icon={ICONS.LIKE_FILLED} className="mr-1" />{" "}
-                    {document.like_count}
-                  </span>
+                  <Flex align="center" color="red">
+                    <Icon icon={ICONS.LIKE_FILLED} color="red" />
+                    <Text fw={700} color="red" ml="0.3em">{document.like_count}</Text>
+                  </Flex>
                 ) : (
-                  <span className="text-muted ml-2">
-                    <Icon icon={ICONS.LIKE} className="mr-1" />{" "}
-                    {document.like_count}
-                  </span>
+                  <Flex align="center">
+                    <Icon icon={ICONS.LIKE} />
+                    <Text fw={700} ml="0.3em">{document.like_count}</Text>
+                  </Flex>
                 )}
               </Group>
             </Paper>
           ))}
-        <Paper withBorder shadow="md" style={{ minHeight: "4em" }}>
+        <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
           <Tooltip label="Add a new document">
             <Button
               style={{ width: "100%", height: "100%" }}

@@ -73,7 +73,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
 
   return (
     <>
-      {error && <Alert color="danger">{error.message}</Alert>}
+      {error && <Alert color="red">{error.message}</Alert>}
       {(!comments || comments.length === 0) && !loading && (
         <Alert color="secondary">No comments</Alert>
       )}

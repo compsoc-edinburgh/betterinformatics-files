@@ -3,8 +3,10 @@ import {
   Button,
   CloseButton,
   Flex,
+  Group,
   Paper,
   Stack,
+  Text,
   TextInput,
 } from "@mantine/core";
 import React, { useState } from "react";
@@ -39,13 +41,16 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
     setAttachments(attachments.filter((_item, i) => i !== index));
   };
   return (
-    <div className="mb-5">
-      <Stack>
+    <div>
+      <Stack spacing="xs" mb="xs">
         {attachments.map(({ displayname, filename }, index) => (
           <Paper withBorder p="xs" key={toKey(filename)}>
-            <CloseButton onClick={() => onRemove(index)} />
-            {displayname} <Badge>{toKey(filename)}</Badge>
-            {filename instanceof File && <Badge color="success">New</Badge>}
+            <Group>
+              <CloseButton onClick={() => onRemove(index)} />
+              <Text>{displayname}</Text>
+              <Badge>{toKey(filename)}</Badge>
+              {filename instanceof File && <Badge color="green">New</Badge>}
+            </Group>
           </Paper>
         ))}
       </Stack>
@@ -57,6 +62,7 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
         />
 
         <TextInput
+          mx="sm"
           placeholder="Display name"
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}

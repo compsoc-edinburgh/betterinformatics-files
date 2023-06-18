@@ -43,7 +43,7 @@ const UserPage: React.FC<{}> = () => {
           isMyself={isMyself}
           userInfo={userInfo}
         />
-        {error && <Alert color="danger">{error.toString()}</Alert>}
+        {error && <Alert color="red">{error.toString()}</Alert>}
         {loading && <Loader />}
         <Tabs
           color="blue"

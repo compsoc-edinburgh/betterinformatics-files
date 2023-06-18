@@ -10,6 +10,8 @@ import {
   Grid,
   List,
   Button,
+  Box,
+  Title,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -124,7 +126,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
           </Flex>
 
-          <Grid className="my-2">
+          <Grid mb="xs">
             {metaData.semester && (
               <Grid.Col span="content">
                 Semester: <Badge>{metaData.semester}</Badge>
@@ -137,13 +139,14 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
             {metaData.more_exams_link && (
               <Grid.Col span="content">
-                <a
+                <Anchor
                   href={metaData.more_exams_link}
                   target="_blank"
                   rel="noopener noreferrer"
+                  color="blue"
                 >
                   Additional Exams
-                </a>
+                </Anchor>
               </Grid.Col>
             )}
             {metaData.remark && (
@@ -151,31 +154,29 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
           </Grid>
           {(offeredIn === undefined || offeredIn.length > 0) && (
-            <div>
+            <Box mb="sm">
               Offered in:
-              <div>
-                {loading ? (
-                  <Loader />
-                ) : (
-                  <ul>
-                    {offeredIn?.map(meta1 =>
-                      meta1.meta2.map(meta2 => (
-                        <li key={meta1.displayname + meta2.displayname}>
-                          {meta2.displayname} in {meta1.displayname}
-                        </li>
-                      )),
-                    )}
-                  </ul>
-                )}
-              </div>
-            </div>
+              {loading ? (
+                <Loader />
+              ) : (
+                <List>
+                  {offeredIn?.map(meta1 =>
+                    meta1.meta2.map(meta2 => (
+                      <List.Item key={meta1.displayname + meta2.displayname}>
+                        {meta2.displayname} in {meta1.displayname}
+                      </List.Item>
+                    )),
+                  )}
+                </List>
+              )}
+            </Box>
           )}
-          <Grid className="my-2">
+          <Grid my="sm">
             {metaData.experts.includes(user.username) && (
               <Grid.Col span="auto">
-                <Alert>
+                <Alert color="yellow" title="Category expert">
                   You are an expert for this category. You can endorse correct
-                  answers.
+                  answers, which will be visible to other users.
                 </Alert>
               </Grid.Col>
             )}
@@ -197,7 +198,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
             {metaData.catadmin && (
               <Grid.Col span="auto">
-                <Alert bg="gray.2">
+                <Alert bg="gray.2" title="Category admin">
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
               </Grid.Col>
@@ -205,23 +206,24 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Grid>
           <ExamList metaData={metaData} />
 
-          <h2 className="mb-3 mt-5">Documents</h2>
+          <Title order={2} mt="xl" mb="lg">Documents</Title>
           <DocumentList slug={metaData.slug} />
 
           {metaData.attachments.length > 0 && (
             <>
-              <h2 className="mb-3 mt-5">Attachments</h2>
+              <Title order={2} mt="xl" mb="lg">Attachments</Title>
               <List>
                 {metaData.attachments.map(att => (
                   <List.Item>
-                    <a
+                    <Anchor
                       href={`/api/filestore/get/${att.filename}/`}
+                      color="blue"
                       target="_blank"
                       rel="noopener noreferrer"
                       key={att.filename}
                     >
-                      <div>{att.displayname}</div>
-                    </a>
+                      {att.displayname}
+                    </Anchor>
                   </List.Item>
                 ))}
               </List>
@@ -253,7 +255,7 @@ const CategoryPage: React.FC<{}> = () => {
   const user = useUser();
   return (
     <Container size="xl">
-      {error && <Alert color="danger">{error.message}</Alert>}
+      {error && <Alert color="red">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay loading={loading} />}
       {data && (
         <UserContext.Provider

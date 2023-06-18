@@ -138,7 +138,7 @@ const HomePage: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl">
-        <h1 className="mb-3">Community Solutions</h1>
+        <Title className="mb-3">Community Solutions</Title>
       </Container>
       <CategoryList />
     </>

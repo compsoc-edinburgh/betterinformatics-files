@@ -14,7 +14,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
   return (
     <div>
       <h3>Notifications</h3>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
+      {error && <Alert color="red">{error.toString()}</Alert>}
       <Button mb="sm" onClick={() => setShowRead(prev => !prev)}>
         {showRead ? "Show unread" : "Show all"}
       </Button>

@@ -1,6 +1,6 @@
 import React from "react";
 import { DebugOptions } from ".";
-import { Checkbox, Group, Modal } from "@mantine/core";
+import { Checkbox, Modal, Stack } from "@mantine/core";
 interface Props {
   isOpen: boolean;
   toggle: () => void;
@@ -15,7 +15,7 @@ const DebugModal: React.FC<Props> = ({
 }) => {
   return (
     <Modal opened={isOpen} title="Debug" onClose={toggle}>
-      <Group spacing="sm">
+      <Stack spacing="sm">
         <Checkbox
           label="Display all tooltips"
           checked={debugOptions.displayAllTooltips}
@@ -46,7 +46,7 @@ const DebugModal: React.FC<Props> = ({
             })
           }
         />
-      </Group>
+      </Stack>
     </Modal>
   );
 };

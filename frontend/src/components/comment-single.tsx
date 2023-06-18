@@ -19,7 +19,7 @@ const noMarginBreadcrumb = css`
 
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
-    <Card withBorder shadow="sm" mb="md">
+    <Card withBorder shadow="md" mb="md">
       <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
         <Anchor
           component={Link}

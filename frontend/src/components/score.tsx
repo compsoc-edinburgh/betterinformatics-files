@@ -43,9 +43,9 @@ const Score: React.FC<Props> = ({
       <SmallButton
         tooltip="Reset vote"
         size="sm"
-        className="text-dark"
+        px="sm"
         disabled={userVote === 0}
-        variant="outline"
+        variant="subtle"
         onClick={() => setLike(oid, 0)}
       >
         {loading ? <Loader size="sm" /> : upvotes}

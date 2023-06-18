@@ -58,9 +58,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
-      {error && <Alert color="danger">{error}</Alert>}
+      {error && <Alert color="red">{error}</Alert>}
       {loading && <Loader />}
-      <Flex my="sm" justify="space-between">
+      <Flex mt="sm" mb="lg" justify="space-between">
         <div className="mb-2 d-md-inline-block">
           <Button
             disabled={selected.size === 0}
