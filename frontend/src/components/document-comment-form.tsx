@@ -1,4 +1,4 @@
-import { Loader } from "@mantine/core";
+import { Flex, Loader } from "@mantine/core";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
@@ -47,7 +47,7 @@ const DocumentCommentForm: React.FC<Props> = ({
         undoStack={undoStack}
         setUndoStack={setUndoStack}
       />
-      <div className="d-flex justify-content-end mt-2">
+      <Flex justify="end" mt="xs">
         <TooltipButton
           color="primary"
           disabled={loading || draftText.length === 0}
@@ -60,7 +60,7 @@ const DocumentCommentForm: React.FC<Props> = ({
             <Icon icon={ICONS.SEND} className="ml-2" />
           )}
         </TooltipButton>
-      </div>
+      </Flex>
     </div>
   );
 };

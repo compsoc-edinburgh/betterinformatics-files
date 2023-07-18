@@ -81,33 +81,33 @@ const fillAnimation = keyframes`
 	}
 
 	0% {
-		fill: var(--red);
+		fill: red;
     fill-opacity: 0;
     stroke: var(--dark);
 	}
 
 	20% {
-		fill: var(--red);
+		fill: red;
     fill-opacity: 1;
-		stroke: var(--red);
+		stroke: red;
 	}
 `;
 
 const redFilled = css`
   animation-name: ${fillAnimation};
   animation-duration: 1.1s;
-  fill: var(--red);
-  stroke: var(--red);
+  fill: red;
+  stroke: red;
 `;
 
 const outlinedAnimation = keyframes`
   0% {
-    fill: var(--red);
-		stroke: var(--red);
+    fill: red;
+		stroke: red;
   }
   30% {
-    fill: var(--red);
-		stroke: var(--red);
+    fill: red;
+		stroke: red;
   }
 	35% {
 		fill: transparent;
@@ -122,7 +122,7 @@ const outlined = css`
 
 const likedNumberActive = css`
   transform-origin: top left;
-  color: var(--red);
+  color: red;
   transition: 0.5s all;
 `;
 
@@ -130,7 +130,7 @@ const likedNumberInactive = css`
   transform-origin: top left;
   transform: translateY(-100%);
   opacity: 0;
-  color: var(--red);
+  color: red;
   transition: 0.5s all;
   transition-delay: 0.3s;
 `;

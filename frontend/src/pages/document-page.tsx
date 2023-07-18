@@ -102,7 +102,7 @@ const DocumentPage: React.FC<Props> = () => {
         </Breadcrumbs>
         {data && (
           <Flex justify="space-between" align="center">
-            <Title mb="sm">{data.display_name ?? slug}</Title>
+            <Title my="sm">{data.display_name ?? slug}</Title>
             <Group>
               <IconButton
                 iconName={ICONS.DOWNLOAD}
@@ -130,7 +130,7 @@ const DocumentPage: React.FC<Props> = () => {
           </div>
         )}
       </Container>
-      <Container>
+      <Container mt="sm">
         <Tabs value={tab} onTabChange={setTab} className="mt-4">
           <Tabs.List>
             {data &&
@@ -141,19 +141,6 @@ const DocumentPage: React.FC<Props> = () => {
                 >
                   {file.display_name}
                 </Tabs.Tab>
-                // <Col key={file.oid} xs="auto">
-                //   <NavItem className="m-0">
-                //     <NavLink
-                //       onClick={() => setTab(file.oid)}
-                //       active={tab === file.oid}
-                //     >
-                //       <span className="text-small">
-                //         <Icon icon={ICONS.FILE} className="mr-2 text-small" />
-                //       </span>
-                //       {file.display_name}
-                //     </NavLink>
-                //   </NavItem>
-                // </Col>
               ))}
             <Tabs.Tab
               value="comments"
@@ -175,12 +162,12 @@ const DocumentPage: React.FC<Props> = () => {
         (Components?.Viewer ? (
           data.can_edit && Components.Editor !== undefined ? (
             <>
-              <Container className="py-3">
-                <div className="form-group d-flex justify-content-end">
-                  <Button onClick={toggleEditing}>
-                    <Icon icon={ICONS.EDIT} className="mr-2" /> Toggle Edit Mode
+              <Container>
+                <Flex py="sm" justify="center">
+                  <Button leftIcon={<Icon icon={ICONS.EDIT} />} onClick={toggleEditing}>
+                    Toggle Edit Mode
                   </Button>
-                </div>
+                </Flex>
               </Container>
               {!editing && (
                 <Components.Viewer
@@ -208,27 +195,24 @@ const DocumentPage: React.FC<Props> = () => {
           )
         ) : (
           <Container>
-            <div className="w-100 py-4 px-1 d-flex justify-content-center align-items-center flex-wrap">
-              <Alert color="info" className="m-2">
-                This file can only be downloaded.
-              </Alert>
-              <Button
-                className="m-2"
-                onClick={() =>
-                  download(`/api/document/file/${activeFile?.filename}`)
-                }
-              >
-                <Icon icon={ICONS.DOWNLOAD} className="mr-2" />
-                Download
-              </Button>
-            </div>
+            <Alert color="blue" my="sm">
+              This file can only be downloaded.
+            </Alert>
+            <Button
+              leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+              onClick={() =>
+                download(`/api/document/file/${activeFile?.filename}`)
+              }
+            >
+              Download
+            </Button>
           </Container>
         ))}
       {tab === "comments" && data && (
-        <ContentContainer>
+        <ContentContainer mt="-2px">
           <Container>
             {data.comments.length === 0 && (
-              <div className="py-4 text-center">There are no comments yet.</div>
+              <Alert mb="sm">There are no comments yet.</Alert>
             )}
             {data.comments.map(comment => (
               <DocumentCommentComponent
@@ -239,7 +223,7 @@ const DocumentPage: React.FC<Props> = () => {
                 mutate={mutate}
               />
             ))}
-            <Card className="p-2">
+            <Card shadow="md" withBorder>
               <DocumentCommentForm
                 documentAuthor={author}
                 documentSlug={slug}
@@ -251,7 +235,7 @@ const DocumentPage: React.FC<Props> = () => {
       )}
 
       {tab === "settings" && data && (
-        <ContentContainer>
+        <ContentContainer mt="-2px">
           <Container>
             <DocumentSettings data={data} slug={slug} mutate={mutate} />
           </Container>

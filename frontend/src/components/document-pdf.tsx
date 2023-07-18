@@ -40,7 +40,7 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const renderer = data ? data[1] : undefined;
   return (
-    <ContentContainer>
+    <ContentContainer mt="-2px">
       <Container size="xl">
         {pdfError && "Error loading PDF"}
 
