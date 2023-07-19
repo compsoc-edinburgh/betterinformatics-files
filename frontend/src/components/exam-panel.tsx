@@ -106,15 +106,14 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
       <Stack spacing="xs">
-        <Text
-          component={Link}
-          weight={700}
-          size="xl"
-          to={`/category/${metaData ? metaData.category : ""}`}
-        >
-          {metaData && metaData.category_displayname}
-        </Text>
-        <Text size="sm">{metaData && metaData.displayname}</Text>
+        <div>
+          <Title order={2} >
+            {metaData && metaData.displayname}
+          </Title>
+          <Text size="sm" fs="italic">
+            {metaData && metaData.category_displayname}
+          </Text>
+        </div>
         <Title order={6}>Pages</Title>
         {!!renderer && (
           <Pagination
@@ -127,7 +126,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           />
         )}
         <Title order={6}>Size</Title>
-        <Slider min={500} max={2000} value={widthValue} onChange={handler} />
+        <Slider label={null} min={500} max={2000} value={widthValue} onChange={handler} />
         <Title order={6}>Actions</Title>
         <Button.Group>
           <IconButton
@@ -237,11 +236,11 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             </Stack>
           </>
         )}
-        <Text size="sm">
+        <Text size="sm" color="dimmed">
           All answers are licensed as&nbsp;
-          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+          <Link to="https://creativecommons.org/licenses/by-nc-sa/4.0/">
             CC BY-NC-SA 4.0
-          </a>
+          </Link>
           .
         </Text>
       </Stack>

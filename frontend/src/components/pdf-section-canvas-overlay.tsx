@@ -60,14 +60,14 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
     const [relSnapPos, bad] =
       relPos !== undefined && ref.current
         ? optimalCutAreas
-            .flatMap(area => area.snapPoints)
-            .reduce(
-              ([prev, prevBad], snap) =>
-                Math.abs(snap - relPos) < Math.abs(prev - relPos)
-                  ? [snap, Math.abs(snap - relPos)]
-                  : [prev, prevBad],
-              [0, Infinity],
-            )
+          .flatMap(area => area.snapPoints)
+          .reduce(
+            ([prev, prevBad], snap) =>
+              Math.abs(snap - relPos) < Math.abs(prev - relPos)
+                ? [snap, Math.abs(snap - relPos)]
+                : [prev, prevBad],
+            [0, Infinity],
+          )
         : [0, Infinity];
     const snapPos = height ? relSnapPos * height : undefined;
     const snapBad = !snap || bad * (end - start) > 0.03;
@@ -103,7 +103,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
                   className="position-absolute w-100 m-0"
                   style={{
                     height: "1px",
-                    backgroundColor: "var(--info)",
+                    backgroundColor: "blue",
                     top: `${position * 100}%`,
                   }}
                 />
@@ -115,7 +115,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
             style={{
               transform: `translateY(${displayPos}px) translateY(-50%)`,
               backgroundColor:
-                snap && snapBad ? "var(--warning)" : "var(--primary)",
+                snap && snapBad ? "red" : "black",
               height: "3px",
               position: "absolute",
               width: "100%",
@@ -124,7 +124,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
             id="add-cut"
           >
             <Badge
-              color={snap && snapBad ? "warning" : "primary"}
+              color={snap && snapBad ? "red" : "black"}
               size="lg"
               className={badgeStyle}
             >

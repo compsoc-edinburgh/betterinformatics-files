@@ -7,7 +7,6 @@ import {
   Group,
   Loader,
   Modal,
-  Text,
   TextInput,
   Title,
 } from "@mantine/core";

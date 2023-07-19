@@ -38,7 +38,7 @@ const answerSectionButtonWrapperStyle = css`
   margin-bottom: 1em;
 `;
 const AnswerSectionButtonWrapper = (props: CardProps) => (
-  <Card className={answerSectionButtonWrapperStyle} {...props} />
+  <Card shadow="md" withBorder className={answerSectionButtonWrapperStyle} {...props} />
 );
 
 interface AddButtonProps {
@@ -77,7 +77,7 @@ const AddButton: React.FC<AddButtonProps> = ({
     );
   } else {
     return (
-      <Button.Group className="text-left">
+      <Button.Group>
         {allowAnswer && (
           <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
@@ -208,43 +208,43 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
-          <NameCard>
-            {isEditingName ? (
-              <Group>
-                <TextInput
-                  value={draftName}
-                  placeholder="Name"
-                  onChange={e => setDraftName(e.target.value)}
-                />
-                <IconButton
-                  tooltip="Save PDF section name"
-                  iconName={ICONS.SAVE}
-                  onClick={() => {
-                    setIsEditingName(false);
-                    onCutNameChange(draftName);
-                  }}
-                />
-              </Group>
-            ) : (
-              <Flex justify="space-between">
-                <Text component="h6" m={0}>
-                  {cutName}
-                </Text>
-                {isCatAdmin && (
-                  <IconButton
-                    tooltip="Edit PDF section name"
-                    size="sm"
-                    iconName={ICONS.EDIT}
-                    onClick={() => setIsEditingName(true)}
+            <NameCard>
+              {isEditingName ? (
+                <Group>
+                  <TextInput
+                    value={draftName}
+                    placeholder="Name"
+                    onChange={e => setDraftName(e.target.value)}
                   />
-                )}
-              </Flex>
-            )}
-          </NameCard>
-        )}
+                  <IconButton
+                    tooltip="Save PDF section name"
+                    iconName={ICONS.SAVE}
+                    onClick={() => {
+                      setIsEditingName(false);
+                      onCutNameChange(draftName);
+                    }}
+                  />
+                </Group>
+              ) : (
+                <Flex justify="space-between">
+                  <Text component="h6" m={0}>
+                    {cutName}
+                  </Text>
+                  {isCatAdmin && (
+                    <IconButton
+                      tooltip="Edit PDF section name"
+                      size="sm"
+                      iconName={ICONS.EDIT}
+                      onClick={() => setIsEditingName(true)}
+                    />
+                  )}
+                </Flex>
+              )}
+            </NameCard>
+          )}
         <Container fluid px={0}>
           {!hidden && data && (
-            <>
+            <Card>
               {data.answers.map(answer => (
                 <AnswerComponent
                   key={answer.oid}
@@ -270,7 +270,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   isLegacyAnswer={true}
                 />
               )}
-            </>
+            </Card>
           )}
           <AnswerSectionButtonWrapper
           // color={isBeingMoved || !has_answers ? "primary" : undefined}
@@ -285,7 +285,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       <>
                         {displayHideShowButtons ? (
                           <IconButton
-                            className="mr-1"
                             size="sm"
                             iconName={has_answers ? ICONS.VIEW_OFF : ICONS.VIEW}
                             tooltip="Toggle visibility"

@@ -9,6 +9,7 @@ import {
   Grid,
   Flex,
   Group,
+  Button,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -233,7 +234,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                   !metaData.oral_transcript_checked && (
                     <IconButton
                       color="white"
-                      className="ml-2"
                       tooltip="Mark as checked"
                       iconName={ICONS.CHECK}
                       onClick={() => runMarkChecked(metaData.filename)}
@@ -252,7 +252,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         <Grid>
           {!metaData.canView && (
             <Grid.Col md={6} lg={4}>
-              <Card className="m-1">
+              <Card m="xs">
                 {metaData.needs_payment && !metaData.hasPayed ? (
                   <>
                     You have to pay a deposit in order to see oral exams. After
@@ -284,52 +284,64 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             </Grid.Col>
           )}
           {metaData.legacy_solution && (
-            <Grid.Col md={6} lg={4}>
-              <a
+            <Grid.Col md={4} lg={3}>
+              <Button
+                fullWidth
+                component="a"
+                variant="light"
                 href={metaData.legacy_solution}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.LINK} />}
               >
                 Legacy Solution in VISki
-              </a>
+              </Button>
             </Grid.Col>
           )}
           {metaData.master_solution && (
-            <Grid.Col md={6} lg={4}>
-              <a
+            <Grid.Col md={4} lg={3}>
+              <Button
+                fullWidth
+                component="a"
+                variant="light"
                 href={metaData.master_solution}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.LINK} />}
               >
                 Official Solution (external)
-              </a>
+              </Button>
             </Grid.Col>
           )}
 
           {metaData.has_solution && !metaData.solution_printonly && (
-            <Grid.Col md={6} lg={4}>
-              <a
+            <Grid.Col md={4} lg={3}>
+              <Button
+                fullWidth
+                component="a"
                 href={metaData.solution_file}
+                variant="light"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
               >
                 Official Solution
-              </a>
+              </Button>
             </Grid.Col>
           )}
           {metaData.attachments.map(attachment => (
-            <Grid.Col md={6} lg={4} key={attachment.filename}>
-              <a
+            <Grid.Col md={4} lg={3} key={attachment.filename}>
+              <Button
+                fullWidth
+                component="a"
+                variant="light"
                 href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
               >
                 {attachment.displayname}
-              </a>
+              </Button>
             </Grid.Col>
           ))}
         </Grid>
@@ -434,7 +446,7 @@ const ExamPage: React.FC<{}> = () => {
   const user = useUser()!;
   return (
     <div>
-      <Container>
+      <Container size="xl">
         <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
           <Anchor component={Link} tt="uppercase" size="xs" to="/">
             Home
@@ -460,13 +472,13 @@ const ExamPage: React.FC<{}> = () => {
           </Container>
         )}
         {metaDataLoading && (
-          <Container className="position-absolute">
+          <Container>
             <Loader />
           </Container>
         )}
         {metaData &&
           (editing ? (
-            <Container>
+            <Container size="xl">
               <ExamMetadataEditor
                 currentMetaData={metaData}
                 toggle={toggleEditing}

@@ -4,10 +4,12 @@ import {
   Button,
   Checkbox,
   CloseButton,
+  Flex,
   Grid,
   Group,
   NativeSelect,
   Stack,
+  Text,
   Textarea,
   TextInput,
   Title,
@@ -219,7 +221,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <CloseButton onClick={toggle} />
       </Group>
       {error && <Alert color="red">{error.toString()}</Alert>}
-      <Title order={6}>Metadata</Title>
+      <Title order={5}>Metadata</Title>
       <Grid>
         <Grid.Col md={6}>
           <TextInput label="Display name" {...registerInput("displayname")} />
@@ -305,9 +307,9 @@ const ExamMetadataEditor: React.FC<Props> = ({
       </Grid>
       <Grid>
         <Grid.Col md={6}>
-          <label className="form-input-label">Print Only File</label>
+          <Text size="sm">Print Only File</Text>
           {printonlyFile === true ? (
-            <div className="form-control">
+            <Flex align="center" gap="sm">
               <Button
                 size="sm"
                 className="py-0"
@@ -317,10 +319,10 @@ const ExamMetadataEditor: React.FC<Props> = ({
                   )
                 }
               >
-                Current File
+                Download Current File
               </Button>
               <CloseButton onClick={() => setPrintonlyFile(undefined)} />
-            </div>
+            </Flex>
           ) : (
             <FileInput
               value={printonlyFile}
@@ -329,29 +331,28 @@ const ExamMetadataEditor: React.FC<Props> = ({
           )}
         </Grid.Col>
         <Grid.Col md={6}>
-          <label className="form-input-label">Master Solution</label>
+          <Text size="sm">Master Solution</Text>
           {masterFile === true ? (
-            <div className="form-control">
+            <Flex align="center" gap="sm">
               <Button
                 size="sm"
-                className="py-0"
                 onClick={() =>
                   downloadIndirect(
                     `/api/exam/pdf/solution/${currentMetaData.filename}/`,
                   )
                 }
               >
-                Current File
+                Download Current File
               </Button>
               <CloseButton onClick={() => setMasterFile(undefined)} />
-            </div>
+            </Flex>
           ) : (
             <FileInput value={masterFile} onChange={e => setMasterFile(e)} />
           )}
         </Grid.Col>
       </Grid>
       <Textarea label="Remark" {...registerInput("remark")} />
-      <Title order={6}>Attachments</Title>
+      <Title order={5}>Attachments</Title>
       <AttachmentsEditor
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
