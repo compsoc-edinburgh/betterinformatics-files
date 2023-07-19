@@ -1,6 +1,5 @@
-import { Flex, Loader } from "@mantine/core";
+import { Flex } from "@mantine/core";
 import React, { useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentComment } from "../api/hooks";
 import { Document } from "../interfaces";
@@ -49,16 +48,13 @@ const DocumentCommentForm: React.FC<Props> = ({
       />
       <Flex justify="end" mt="xs">
         <TooltipButton
+          size="md"
+          tooltip="Submit comment"
           color="primary"
           disabled={loading || draftText.length === 0}
           onClick={() => createDocumentComment(draftText)}
         >
-          Submit{" "}
-          {loading ? (
-            <Loader className="ml-2" size="sm" />
-          ) : (
-            <Icon icon={ICONS.SEND} className="ml-2" />
-          )}
+          Submit
         </TooltipButton>
       </Flex>
     </div>

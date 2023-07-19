@@ -83,7 +83,7 @@ const DocumentPage: React.FC<Props> = () => {
   const [loadingDownload, startDownload] = useDocumentDownload(data);
   return (
     <>
-      <Container>
+      <Container size="xl">
         <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">
             Home
@@ -130,7 +130,7 @@ const DocumentPage: React.FC<Props> = () => {
           </div>
         )}
       </Container>
-      <Container mt="sm">
+      <Container size="xl" mt="sm">
         <Tabs value={tab} onTabChange={setTab} className="mt-4">
           <Tabs.List>
             {data &&
@@ -161,7 +161,7 @@ const DocumentPage: React.FC<Props> = () => {
         data &&
         (Components?.Viewer ? (
           data.can_edit && Components.Editor !== undefined ? (
-            <>
+            <ContentContainer mt="-2px">
               <Container>
                 <Flex py="sm" justify="center">
                   <Button leftIcon={<Icon icon={ICONS.EDIT} />} onClick={toggleEditing}>
@@ -177,7 +177,7 @@ const DocumentPage: React.FC<Props> = () => {
                 />
               )}
               {editing && (
-                <Container>
+                <Container size="xl">
                   <Components.Editor
                     file={activeFile!}
                     document={data}
@@ -185,7 +185,7 @@ const DocumentPage: React.FC<Props> = () => {
                   />
                 </Container>
               )}
-            </>
+            </ContentContainer>
           ) : (
             <Components.Viewer
               file={activeFile!}
@@ -194,23 +194,25 @@ const DocumentPage: React.FC<Props> = () => {
             />
           )
         ) : (
-          <Container>
-            <Alert color="blue" my="sm">
-              This file can only be downloaded.
-            </Alert>
-            <Button
-              leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
-              onClick={() =>
-                download(`/api/document/file/${activeFile?.filename}`)
-              }
-            >
-              Download
-            </Button>
-          </Container>
+          <ContentContainer mt="-2px">
+            <Container size="xl">
+              <Alert color="blue" my="sm">
+                This file can only be downloaded.
+              </Alert>
+              <Button
+                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+                onClick={() =>
+                  download(`/api/document/file/${activeFile?.filename}`)
+                }
+              >
+                Download
+              </Button>
+            </Container>
+          </ContentContainer>
         ))}
       {tab === "comments" && data && (
         <ContentContainer mt="-2px">
-          <Container>
+          <Container size="xl">
             {data.comments.length === 0 && (
               <Alert mb="sm">There are no comments yet.</Alert>
             )}
@@ -236,7 +238,7 @@ const DocumentPage: React.FC<Props> = () => {
 
       {tab === "settings" && data && (
         <ContentContainer mt="-2px">
-          <Container>
+          <Container size="xl">
             <DocumentSettings data={data} slug={slug} mutate={mutate} />
           </Container>
         </ContentContainer>

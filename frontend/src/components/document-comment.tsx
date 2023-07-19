@@ -1,4 +1,4 @@
-import { Card, Loader, Modal } from "@mantine/core";
+import { Anchor, Button, Card, Divider, Flex, Modal, Text } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -73,77 +73,80 @@ const DocumentCommentComponent = ({
           />
           <TooltipButton
             color="primary"
+            tooltip="Save comment"
             disabled={editLoading || draftText.length === 0}
             onClick={() => updateComment(draftText)}
           >
-            Save{" "}
-            {editLoading ? (
-              <Loader className="ml-2" size="sm" />
-            ) : (
-              <Icon icon={ICONS.SAVE} className="ml-2" />
-            )}
+            Save
           </TooltipButton>
         </Modal.Body>
       </Modal>
-      <Card className="my-3 pt-3">
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <div>
-            <Link className="text-muted" to={`/user/${comment.authorId}`}>
-              {comment.authorDisplayName}
-              <span className="text-muted ml-2">@{comment.authorId}</span>
-            </Link>
-            <span className="text-muted mx-1">·</span>
-            {comment && (
-              <span className="text-muted" title={comment.time}>
-                {formatDistanceToNow(new Date(comment.time))} ago
-              </span>
-            )}
-            {comment &&
-              differenceInSeconds(
-                new Date(comment.edittime),
-                new Date(comment.time),
-              ) > 1 && (
-                <>
-                  <span className="text-muted mx-1">·</span>
-                  <span className="text-muted" title={comment.edittime}>
-                    edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                  </span>
-                </>
+      <Card withBorder shadow="md" my="sm">
+        <Card.Section bg="gray.0" mb="sm">
+          <Flex py="sm" px="md" justify="space-between" align="center">
+            <Flex align="center">
+              <Anchor
+                component={Link}
+                to={`/user/${comment.authorId}`}
+              >
+                <Text weight={700} component="span">
+                  {comment.authorDisplayName}
+                </Text>
+                <Text ml="0.25em" color="dimmed" component="span">
+                  @{comment.authorId}
+                </Text>
+              </Anchor>
+              <Text component="span" mx="xs" color="dimmed">·</Text>
+              {comment && (
+                <Text component="span" color="dimmed" title={comment.time}>
+                  {formatDistanceToNow(new Date(comment.time))} ago
+                </Text>
               )}
-          </div>
-          <div>
+              {comment &&
+                differenceInSeconds(
+                  new Date(comment.edittime),
+                  new Date(comment.time),
+                ) > 1 && (
+                  <>
+                    <Text component="span" color="dimmed" mx="xs">·</Text>
+                    <Text component="span" color="dimmed" title={comment.edittime}>
+                      edited {formatDistanceToNow(new Date(comment.edittime))} ago
+                    </Text>
+                  </>
+                )}
+            </Flex>
             {(comment.canEdit || isAdmin) && (
-              <SmallButton
-                tooltip="Delete comment"
-                size="sm"
-                color="white"
-                onClick={deleteComment}
-              >
-                <Icon icon={ICONS.DELETE} size={18} />
-              </SmallButton>
+              <Button.Group>
+                <SmallButton
+                  tooltip="Delete comment"
+                  size="xs"
+                  color="white"
+                  onClick={deleteComment}
+                >
+                  <Icon icon={ICONS.DELETE} size={18} />
+                </SmallButton>
+                <SmallButton
+                  tooltip="Edit comment"
+                  size="xs"
+                  color="white"
+                  onClick={() => {
+                    toggle();
+                    setDraftText(comment.text);
+                    setUndoStack({
+                      prev: [],
+                      next: [],
+                    });
+                  }}
+                >
+                  <Icon icon={ICONS.EDIT} size={18} />
+                </SmallButton>
+              </Button.Group>
             )}
-
-            {comment.canEdit && (
-              <SmallButton
-                tooltip="Edit comment"
-                size="sm"
-                color="white"
-                onClick={() => {
-                  toggle();
-                  setDraftText(comment.text);
-                  setUndoStack({
-                    prev: [],
-                    next: [],
-                  });
-                }}
-              >
-                <Icon icon={ICONS.EDIT} size={18} />
-              </SmallButton>
-            )}
-          </div>
-        </div>
+          </Flex>
+          <Divider color="gray.3" />
+        </Card.Section>
         <MarkdownText value={comment.text} />
-      </Card>
+      </Card >
     </>
   );
 };

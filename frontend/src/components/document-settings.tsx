@@ -6,6 +6,9 @@ import {
   NativeSelect,
   Flex,
   Title,
+  Text,
+  Stack,
+  Group,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useState } from "react";
@@ -93,7 +96,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
         />
       </Modal>
       {data.can_edit && (
-        <>
+        <Stack>
           <TextInput
             label="Display Name"
             value={displayName ?? data.display_name}
@@ -112,15 +115,17 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               setCategory(event.currentTarget.value as string);
             }}
           />
-          <label className="form-input-label">Description</label>
-          <Editor
-            value={descriptionDraftText ?? data.description}
-            onChange={setDescriptionDraftText}
-            imageHandler={imageHandler}
-            preview={value => <MarkdownText value={value} />}
-            undoStack={descriptionUndoStack}
-            setUndoStack={setDescriptionUndoStack}
-          />
+          <div>
+            <Text size="sm">Description</Text>
+            <Editor
+              value={descriptionDraftText ?? data.description}
+              onChange={setDescriptionDraftText}
+              imageHandler={imageHandler}
+              preview={value => <MarkdownText value={value} />}
+              undoStack={descriptionUndoStack}
+              setUndoStack={setDescriptionUndoStack}
+            />
+          </div>
           <Flex justify="end">
             <Button
               loading={loading}
@@ -136,13 +141,13 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               Save
             </Button>
           </Flex>
-        </>
+        </Stack>
       )}
       <Title order={3}>Files</Title>
       {data.api_key && (
         <Flex align="center" my="sm" gap="sm">
           API Key:
-          <pre className="mx-2 my-auto">{data.api_key}</pre>
+          <pre>{data.api_key}</pre>
           <IconButton
             loading={regenerateLoading}
             onClick={regenerate}
@@ -152,7 +157,7 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
           />
         </Flex>
       )}
-      <List className="mb-2">
+      <List mb="md">
         {data.files.map(file => (
           <DocumentFileItem
             key={file.oid}
@@ -169,8 +174,8 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
       </Flex>
       {data.can_delete && (
         <>
-          <Title order={3}>red Zone</Title>
-          <Flex wrap="wrap" justify="space-between" align="center">
+          <Title order={3}>Red Zone</Title>
+          <Flex wrap="wrap" justify="space-between" align="center" my="md">
             <Flex direction="column">
               <Title order={4}>Delete this document</Title>
               <div>
@@ -193,10 +198,12 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
         <Modal.Body>
           Deleting the document will delete all associated files and all
           comments. <b>This cannot be undone.</b>
-          <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
-          <Button onClick={deleteDocument} color="red">
-            Delete this document
-          </Button>
+          <Group position="right" mt="md">
+            <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+            <Button onClick={deleteDocument} color="red">
+              Delete this document
+            </Button>
+          </Group>
         </Modal.Body>
       </Modal>
     </>

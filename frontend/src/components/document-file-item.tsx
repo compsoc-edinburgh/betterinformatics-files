@@ -2,12 +2,14 @@ import {
   Badge,
   Button,
   Card,
+  Flex,
   Grid,
   Group,
   Loader,
   Modal,
   Text,
   TextInput,
+  Title,
 } from "@mantine/core";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -139,42 +141,44 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
       </Modal>
       <Card
         withBorder
-        className="d-md-flex justify-content-between align-items-center"
+        my="xs"
       >
-        <div className="d-flex flex-column">
-          <Text fz="xl" fw={600}>
-            {file.display_name || <i>Unnamed</i>}
-          </Text>
-          <Group>
-            <Badge color="primary">{file.filename}</Badge>{" "}
-            <Badge>{file.mime_type}</Badge>
-          </Group>
-        </div>
-        <Grid>
-          <Grid.Col xs="auto">
-            <IconButton
-              iconName={ICONS.KEY}
-              onClick={toggleKeyIsOpen}
-              tooltip="View access token"
-            />
-          </Grid.Col>
-          <Grid.Col xs="auto">
-            <IconButton
-              iconName={ICONS.EDIT}
-              onClick={toggleEditIsOpen}
-              tooltip="Edit file"
-            />
-          </Grid.Col>
-          <Grid.Col xs="auto">
-            <IconButton
-              iconName={ICONS.DELETE}
-              color="red"
-              onClick={deleteFile}
-              loading={deleteLoading}
-              tooltip="Delete file"
-            />
-          </Grid.Col>
-        </Grid>
+        <Flex justify="space-between" align="center">
+          <Flex direction="column" gap="xs">
+            <Title order={3} inline>
+              {file.display_name || <i>Unnamed</i>}
+            </Title>
+            <Group>
+              <Badge>{file.filename}</Badge>{" "}
+              <Badge color="gray">{file.mime_type}</Badge>
+            </Group>
+          </Flex>
+          <Grid>
+            <Grid.Col xs="auto">
+              <IconButton
+                iconName={ICONS.KEY}
+                onClick={toggleKeyIsOpen}
+                tooltip="View access token"
+              />
+            </Grid.Col>
+            <Grid.Col xs="auto">
+              <IconButton
+                iconName={ICONS.EDIT}
+                onClick={toggleEditIsOpen}
+                tooltip="Edit file"
+              />
+            </Grid.Col>
+            <Grid.Col xs="auto">
+              <IconButton
+                iconName={ICONS.DELETE}
+                color="red"
+                onClick={deleteFile}
+                loading={deleteLoading}
+                tooltip="Delete file"
+              />
+            </Grid.Col>
+          </Grid>
+        </Flex>
       </Card>
     </>
   );

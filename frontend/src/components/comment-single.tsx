@@ -20,66 +20,66 @@ const noMarginBreadcrumb = css`
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
     <Card withBorder shadow="md" mb="md">
-      <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
-        <Anchor
-          component={Link}
-          to={`/category/${comment.category_slug}`}
-          className="text-primary"
-          tt="uppercase"
-          size="xs"
-        >
-          {comment.category_displayname}
-        </Anchor>
-        <Anchor
-          component={Link}
-          to={`/exams/${comment.filename}`}
-          className="text-primary"
-          tt="uppercase"
-          size="xs"
-        >
-          {comment.exam_displayname}
-        </Anchor>
-        <Anchor
-          component={Link}
-          to={`/exams/${comment.filename}#${comment.answerId}`}
-          className="text-primary"
-          tt="uppercase"
-          size="xs"
-        >
-          Comment
-        </Anchor>
-      </Breadcrumbs>
-      <Box my="xs">
-        <Anchor component={Link} to={`/user/${comment.authorId}`}>
-          <Text weight={700} component="span">
-            {comment.authorDisplayName}
+      <Card.Section bg="gray.0">
+        <Breadcrumbs px="md" pt="md" separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
+          <Anchor
+            component={Link}
+            to={`/category/${comment.category_slug}`}
+            className="text-primary"
+            tt="uppercase"
+            size="xs"
+          >
+            {comment.category_displayname}
+          </Anchor>
+          <Anchor
+            component={Link}
+            to={`/exams/${comment.filename}`}
+            className="text-primary"
+            tt="uppercase"
+            size="xs"
+          >
+            {comment.exam_displayname}
+          </Anchor>
+          <Anchor
+            component={Link}
+            to={`/exams/${comment.filename}#${comment.answerId}`}
+            className="text-primary"
+            tt="uppercase"
+            size="xs"
+          >
+            Comment
+          </Anchor>
+        </Breadcrumbs>
+        <Box my="xs" px="md">
+          <Anchor component={Link} to={`/user/${comment.authorId}`}>
+            <Text weight={700} component="span">
+              {comment.authorDisplayName}
+            </Text>
+            <Text ml="0.3em" color="dimmed" component="span">
+              @{comment.authorId}
+            </Text>
+          </Anchor>
+          <Text color="dimmed" mx="xs" component="span">
+            ·
           </Text>
-          <Text ml="0.3em" color="dimmed" component="span">
-            @{comment.authorId}
-          </Text>
-        </Anchor>
-        <Text color="dimmed" mx="xs" component="span">
-          ·
-        </Text>
-        {comment && (
-          <Text color="dimmed" component="span" title={comment.time}>
-            {formatDistanceToNow(new Date(comment.time))} ago
-          </Text>
-        )}
-        {comment &&
-          differenceInSeconds(
-            new Date(comment.edittime),
-            new Date(comment.time),
-          ) > 1 && (
-            <>
-              <span className="text-muted mx-1">·</span>
-              <span className="text-muted" title={comment.edittime}>
-                edited {formatDistanceToNow(new Date(comment.edittime))} ago
-              </span>
-            </>
+          {comment && (
+            <Text color="dimmed" component="span" title={comment.time}>
+              {formatDistanceToNow(new Date(comment.time))} ago
+            </Text>
           )}
-      </Box>
-      <Card.Section>
+          {comment &&
+            differenceInSeconds(
+              new Date(comment.edittime),
+              new Date(comment.time),
+            ) > 1 && (
+              <>
+                <span className="text-muted mx-1">·</span>
+                <span className="text-muted" title={comment.edittime}>
+                  edited {formatDistanceToNow(new Date(comment.edittime))} ago
+                </span>
+              </>
+            )}
+        </Box>
         <Divider mb="md" />
       </Card.Section>
       <MarkdownText value={comment.text} />

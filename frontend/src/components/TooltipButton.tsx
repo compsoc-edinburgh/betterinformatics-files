@@ -52,7 +52,7 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
         // toggle={() => !isMobile && toggle()}
         >
           <Button
-            variant="outline"
+            variant="default"
             {...longPress}
             {...buttonProps}
             onClick={e => e.stopPropagation()}
