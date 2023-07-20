@@ -1,4 +1,4 @@
-import { Stack } from "@mantine/core";
+import { Stack, Text } from "@mantine/core";
 import { css } from "@emotion/css";
 import React, { useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
@@ -27,7 +27,7 @@ const CommentSectionComponent: React.FC<Props> = ({
   const [expanded, setExpanded] = useState(false);
   return (
     <>
-      <Stack spacing={0} className={listGroupStyle}>
+      <Stack spacing="0" className={listGroupStyle}>
         {(expanded ? answer.comments : answer.comments.slice(0, 3)).map(
           comment => (
             <CommentComponent
@@ -48,13 +48,13 @@ const CommentSectionComponent: React.FC<Props> = ({
         )}
       </Stack>
       {answer.comments.length > 3 && !expanded && (
-        <p onClick={() => setExpanded(true)} className={showMoreStyle}>
+        <Text pt="xs" onClick={() => setExpanded(true)} className={showMoreStyle}>
           {answer.comments.length === 4 ? (
             "Show 1 more comment..."
           ) : (
             <>Show {answer.comments.length - 3} more comments...</>
           )}
-        </p>
+        </Text>
       )}
     </>
   );

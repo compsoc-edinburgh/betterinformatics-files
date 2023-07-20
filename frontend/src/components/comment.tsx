@@ -72,7 +72,7 @@ const CommentComponent: React.FC<Props> = ({
       confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
   return (
-    <Paper withBorder p="sm">
+    <Paper radius={0} withBorder p="sm">
       {modals}
       <Flex justify="space-between">
         <div>

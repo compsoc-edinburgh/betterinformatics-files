@@ -107,9 +107,9 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <Card withBorder shadow="sm" className={answerWrapperStyle}>
-        <Card.Section withBorder p="md" bg="gray.0">
-          <Flex justify="space-between" align="center">
+      <Card my="md" withBorder shadow="sm" className={answerWrapperStyle}>
+        <Card.Section withBorder bg="gray.0">
+          <Flex px="md" py="md" justify="space-between" align="center">
             <div>
               {!hasId && (
                 <Link
@@ -126,7 +126,6 @@ const AnswerComponent: React.FC<Props> = ({
                 answer?.authorDisplayName ?? "(Legacy Draft)"
               ) : (
                 <Anchor
-                  ml="xs"
                   component={Link}
                   to={`/user/${answer?.authorId ?? username}`}
                 >
@@ -166,22 +165,22 @@ const AnswerComponent: React.FC<Props> = ({
                   </>
                 )}
             </div>
-            <div className="d-flex">
+            <Flex>
               <AnswerToolbar>
                 {answer &&
                   (answer.expertvotes > 0 ||
                     setExpertVoteLoading ||
                     isExpert) && (
-                    <Button.Group className="m-1">
+                    <Button.Group>
                       <IconButton
                         color="primary"
-                        size="xs"
+                        size="sm"
                         tooltip="This answer is endorsed by an expert"
                         iconName={ICONS.STAR_FILLED}
                       />
-                      <SmallButton color="primary" size="sm">
+                      <Text ml="0.25em" mr="xs">
                         {answer.expertvotes}
-                      </SmallButton>
+                      </Text>
                       {isExpert && (
                         <IconButton
                           color="primary"
@@ -248,38 +247,43 @@ const AnswerComponent: React.FC<Props> = ({
                   />
                 )}
               </AnswerToolbar>
-            </div>
+            </Flex>
           </Flex>
         </Card.Section>
         {editing || answer === undefined ? (
-          <Box pt="sm">
-            <Editor
-              value={draftText}
-              onChange={setDraftText}
-              imageHandler={imageHandler}
-              preview={value => <MarkdownText value={value} />}
-              undoStack={undoStack}
-              setUndoStack={setUndoStack}
-            />
-            Your answer will be licensed as{" "}
-            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-              CC BY-NC-SA 4.0
-            </a>
-            .
-          </Box>
+          <Card.Section>
+            <Box p="md">
+              <Editor
+                value={draftText}
+                onChange={setDraftText}
+                imageHandler={imageHandler}
+                preview={value => <MarkdownText value={value} />}
+                undoStack={undoStack}
+                setUndoStack={setUndoStack}
+              />
+              <Text mt="xs" color="dimmed">
+                Your answer will be licensed as{" "}
+                <Link to="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  CC BY-NC-SA 4.0
+                </Link>
+                .
+              </Text>
+            </Box>
+          </Card.Section>
         ) : (
-          <Box pt="sm">
-            {viewSource ? (
-              <CodeBlock value={answer?.text ?? ""} language="markdown" />
-            ) : (
-              <MarkdownText value={answer?.text ?? ""} />
-            )}
-          </Box>
+          <Card.Section>
+            <Box p="md">
+              {viewSource ? (
+                <CodeBlock value={answer?.text ?? ""} language="markdown" />
+              ) : (
+                <MarkdownText value={answer?.text ?? ""} />
+              )}
+            </Box>
+          </Card.Section>
         )}
-        <Flex justify="space-between">
+        <Group position="right">
           {(answer === undefined || editing) && (
             <Button
-              my="sm"
               color="primary"
               size="sm"
               onClick={save}
@@ -291,17 +295,17 @@ const AnswerComponent: React.FC<Props> = ({
             </Button>
           )}
           {onSectionChanged && (
-            <Group>
-              <Button.Group mt="sm">
-                {(answer === undefined || editing) && (
-                  <IconButton
-                    size="sm"
-                    onClick={onCancel}
-                    iconName={ICONS.CLOSE}
-                  >
-                    {editing ? "Cancel" : "Delete Draft"}
-                  </IconButton>
-                )}
+            <Flex align="center">
+              {(answer === undefined || editing) && (
+                <IconButton
+                  size="sm"
+                  onClick={onCancel}
+                  iconName={ICONS.CLOSE}
+                >
+                  {editing ? "Cancel" : "Delete Draft"}
+                </IconButton>
+              )}
+              <Button.Group ml="md">
                 {answer !== undefined && (
                   <Button
                     size="sm"
@@ -350,9 +354,9 @@ const AnswerComponent: React.FC<Props> = ({
                   </Menu>
                 )}
               </Button.Group>
-            </Group>
+            </Flex>
           )}
-        </Flex>
+        </Group>
 
         {answer &&
           onSectionChanged &&

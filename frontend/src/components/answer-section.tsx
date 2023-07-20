@@ -38,7 +38,7 @@ const answerSectionButtonWrapperStyle = css`
   margin-bottom: 1em;
 `;
 const AnswerSectionButtonWrapper = (props: CardProps) => (
-  <Card shadow="md" withBorder className={answerSectionButtonWrapperStyle} {...props} />
+  <Card p="sm" shadow="md" withBorder className={answerSectionButtonWrapperStyle} {...props} />
 );
 
 interface AddButtonProps {
@@ -77,7 +77,7 @@ const AddButton: React.FC<AddButtonProps> = ({
     );
   } else {
     return (
-      <Button.Group>
+      <div>
         {allowAnswer && (
           <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
@@ -92,7 +92,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             Add Legacy Answer
           </Button>
         )}
-      </Button.Group>
+      </div>
     );
   }
 };
@@ -244,7 +244,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           )}
         <Container fluid px={0}>
           {!hidden && data && (
-            <Card>
+            <div>
               {data.answers.map(answer => (
                 <AnswerComponent
                   key={answer.oid}
@@ -270,7 +270,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   isLegacyAnswer={true}
                 />
               )}
-            </Card>
+            </div>
           )}
           <AnswerSectionButtonWrapper
           // color={isBeingMoved || !has_answers ? "primary" : undefined}
@@ -352,10 +352,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
-                            <Button
-                              size="xs"
-                              rightIcon={<Icon icon={ICONS.DOWN} />}
-                            >
+                            <Button rightIcon={<Icon icon={ICONS.DOWN} />} >
                               <Icon icon={ICONS.DOTS_H} size={18} />
                             </Button>
                           </Menu.Target>
