@@ -1,4 +1,4 @@
-import { Button, Card, Group, TextInput, Title } from "@mantine/core";
+import { Button, Card, Flex, Group, TextInput, Title } from "@mantine/core";
 import React, { useCallback, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
@@ -44,74 +44,80 @@ const FAQEntryComponent: React.FC<Props> = ({
   };
   const { isAdmin } = useUser()!;
   return (
-    <Card withBorder my="xs">
+    <Card shadow="md" withBorder my="xs">
       {modals}
-      <Group position="apart" mb="xs">
-        {editing ? (
+      {!editing && (
+        <Group position="apart" mb="xs">
+          <Title order={3}>{entry.question}</Title>
+          {isAdmin && (
+            <IconButton
+              tooltip="Edit FAQ entry"
+              iconName={ICONS.EDIT}
+              onClick={() => startEditing()}
+            />
+          )}
+        </Group>
+      )}
+      {editing ? (
+        <>
           <TextInput
             placeholder="Question"
+            mb="sm"
             value={question}
             onChange={e => setQuestion(e.target.value)}
           />
-        ) : (
-          <Title order={3}>{entry.question}</Title>
-        )}
-        {!editing && isAdmin && (
-          <IconButton
-            tooltip="Edit FAQ entry"
-            iconName={ICONS.EDIT}
-            onClick={() => startEditing()}
+          <Editor
+            imageHandler={imageHandler}
+            value={answer}
+            onChange={setAnswer}
+            undoStack={undoStack}
+            setUndoStack={setUndoStack}
+            preview={value => <MarkdownText value={value} />}
           />
-        )}
-      </Group>
-      {editing ? (
-        <Editor
-          imageHandler={imageHandler}
-          value={answer}
-          onChange={setAnswer}
-          undoStack={undoStack}
-          setUndoStack={setUndoStack}
-          preview={value => <MarkdownText value={value} />}
-        />
+        </>
       ) : (
         <MarkdownText value={entry.answer} />
       )}
-      {isAdmin && (
+      {isAdmin && editing && (
+        <Flex mt="sm" justify="space-between">
+          <Button
+            color="primary"
+            size="sm"
+            leftIcon={<Icon icon={ICONS.SAVE} />}
+            onClick={save}
+          >
+            Save
+          </Button>
+          <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={cancel}>
+            Cancel
+          </Button>
+        </Flex>
+      )}
+      {isAdmin && !editing && (
         <Group position="right">
-          {editing && (
-            <Button
-              color="primary"
-              size="sm"
-              leftIcon={<Icon icon={ICONS.SAVE} />}
-              onClick={save}
-            >
-              Save
-            </Button>
-          )}
           <Button.Group>
-            <IconButton
-              tooltip="Move up"
-              iconName={ICONS.ARROW_UP}
-              disabled={prevEntry === undefined}
-              onClick={() => prevEntry && onSwap(entry, prevEntry)}
-            />
-            <IconButton
-              tooltip="Move down"
-              iconName={ICONS.ARROW_DOWN}
-              disabled={nextEntry === undefined}
-              onClick={() => nextEntry && onSwap(entry, nextEntry)}
-            />
-            <IconButton
-              tooltip="Delete FAQ entry"
-              iconName={ICONS.DELETE}
-              onClick={() =>
-                confirm("Are you sure that you want to remove this?", onRemove)
-              }
-            />
-            {editing && (
-              <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={cancel}>
-                Cancel
-              </Button>
+            {!editing && (
+              <>
+                <IconButton
+                  tooltip="Move up"
+                  iconName={ICONS.ARROW_UP}
+                  disabled={prevEntry === undefined}
+                  onClick={() => prevEntry && onSwap(entry, prevEntry)}
+                />
+                <IconButton
+                  tooltip="Move down"
+                  iconName={ICONS.ARROW_DOWN}
+                  disabled={nextEntry === undefined}
+                  onClick={() => nextEntry && onSwap(entry, nextEntry)}
+                />
+                <IconButton
+                  tooltip="Delete FAQ entry"
+                  iconName={ICONS.DELETE}
+                  onClick={() =>
+                    confirm("Are you sure that you want to remove this?", onRemove)
+                  }
+                />
+              </>
             )}
           </Button.Group>
         </Group>

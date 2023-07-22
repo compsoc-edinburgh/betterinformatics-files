@@ -61,14 +61,13 @@ export const FAQPage: React.FC = () => {
           />
         ))}
       {hasDraft ? (
-        <Card className="my-2">
-          <h4>
-            <TextInput
-              placeholder="Question"
-              value={question}
-              onChange={e => setQuestion(e.target.value)}
-            />
-          </h4>
+        <Card withBorder shadow="md" my="xs">
+          <TextInput
+            placeholder="Question"
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+            mb="sm"
+          />
           <Editor
             imageHandler={imageHandler}
             value={answer}
@@ -77,7 +76,7 @@ export const FAQPage: React.FC = () => {
             setUndoStack={setUndoStack}
             preview={value => <MarkdownText value={value} />}
           />
-          <Flex justify="space-between">
+          <Flex mt="sm" justify="space-between">
             <Button
               color="primary"
               size="sm"
@@ -98,6 +97,7 @@ export const FAQPage: React.FC = () => {
       ) : (
         isAdmin && (
           <Button
+            my="md"
             leftIcon={<Icon icon={ICONS.PLUS} />}
             onClick={() => setHasDraft(true)}
           >
