@@ -26,10 +26,10 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
     { manual: true, onSuccess: entryChanged },
   );
   return (
-    <Card my="xs" withBorder>
-      <Card.Section bg="gray.2" withBorder inheritPadding>
+    <Card my="xs" withBorder shadow="md">
+      <Card.Section bg="gray.0" withBorder inheritPadding>
         <Group py="md" position="apart">
-          <Title order={5}>
+          <Title order={4}>
             {entry.authorDisplayName} •{" "}
             {moment(entry.time, GlobalConsts.momentParseString).format(
               GlobalConsts.momentFormatString,
@@ -37,13 +37,11 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
           </Title>
           <Button.Group>
             <Button
-              color={entry.done ? "secondary" : "primary"}
               onClick={() => runSetFlag("done", !entry.done)}
             >
               {entry.done ? "Set Undone" : "Set Done"}
             </Button>
             <Button
-              color={entry.read ? "secondary" : "primary"}
               onClick={() => runSetFlag("read", !entry.read)}
             >
               {entry.read ? "Set Unread" : "Set Read"}

@@ -1,5 +1,5 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
-import { Alert, Button, Container, Grid, Stack, Tabs, Text, Textarea } from "@mantine/core";
+import { Alert, Anchor, Button, Container, Grid, Stack, Tabs, Text, Textarea, Title } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
@@ -32,21 +32,26 @@ const FeedbackForm: React.FC<{}> = () => {
     <Stack>
       {success && <Alert>Feedback was submitted successfully.</Alert>}
       <Text>Please tell us what you think about Community Solutions! What do you like? What could we improve? Ideas for new features? Use the form below or write to{" "}
-        <a href={`mailto:${serverData.email_address}`}>
+        <Anchor
+          component="a"
+          href={`mailto:${serverData.email_address}`}
+          color="blue"
+        >
           {serverData.email_address}
-        </a>
+        </Anchor>
         .
       </Text>
       <Text>
         To report issues with the platform you can open an issue in our{" "}
-        <a
+        <Anchor
+          component="a"
+          color="blue"
           href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
           target="_blank"
           rel="noopener noreferrer"
         >
-          {" "}
           issue tracker
-        </a>
+        </Anchor>
         .
       </Text>
       <Textarea
@@ -94,7 +99,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
   );
   return (
     <Container size="xl">
-      <h2>Feedback</h2>
+      <Title order={2}>Feedback</Title>
       <Tabs value={mode} onTabChange={setMode} my="sm">
         <Tabs.List defaultValue="read">
           <Tabs.Tab value="read">Read</Tabs.Tab>
@@ -111,8 +116,8 @@ const FeedbackPage: React.FC<{}> = () => {
   return isAdmin ? (
     <FeedbackAdminView />
   ) : (
-    <Container>
-      <h2>Feedback</h2>
+    <Container size="xl">
+      <Title order={2} mb="sm">Feedback</Title>
       <FeedbackForm />
     </Container>
   );
