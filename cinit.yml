@@ -59,6 +59,8 @@ programs:
       - "0.0.0.0:80"
       - "-w"
       - "4"
+      - "--worker-class"
+      - "gevent"
       - "--worker-tmp-dir"
       - "/dev/shm"
       - "--log-level"
