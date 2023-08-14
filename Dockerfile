@@ -12,9 +12,9 @@ COPY ./backend/requirements.txt ./requirements.txt
 RUN apt-get install -y --no-install-recommends \
 	python3 python3-pip \
 	python3-setuptools python3-cryptography \
-	smbclient poppler-utils && \
-	pip3 install -r requirements.txt && \
-	rm -rf /var/lib/apt/lists/*
+	smbclient poppler-utils
+RUN	pip3 install -r requirements.txt
+RUN	rm -rf /var/lib/apt/lists/*
 
 COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
