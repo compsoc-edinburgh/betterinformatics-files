@@ -21,7 +21,7 @@ default_pool_size=%s
     os.environ["SIP_POSTGRES_DB_USER"],
     os.environ["SIP_POSTGRES_DB_PW"],
     os.environ["SIP_POSTGRES_DB_NAME"],
-    os.environ["PGBOUNCER_POOL_SIZE"],
+    os.environ.get("PGBOUNCER_POOL_SIZE", 4),
 )
 ini = ini.strip()
 
