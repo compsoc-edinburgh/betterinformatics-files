@@ -64,6 +64,7 @@ programs:
       - SIP_POSTGRES_DB_PW:
       - SIP_POSTGRES_DB_SERVER:
       - SIP_POSTGRES_DB_PORT:
+      - PGBOUNCER_POOL_SIZE:
     before:
       - pgbouncer
   - name: pgbouncer

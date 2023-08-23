@@ -13,7 +13,7 @@ auth_file=/app/pgbouncer/userlist.txt
 log_connections=0
 log_disconnections=0
 
-default_pool_size=16
+default_pool_size=%s
 """ % (
     os.environ["SIP_POSTGRES_DB_NAME"],
     os.environ["SIP_POSTGRES_DB_SERVER"],
@@ -21,6 +21,7 @@ default_pool_size=16
     os.environ["SIP_POSTGRES_DB_USER"],
     os.environ["SIP_POSTGRES_DB_PW"],
     os.environ["SIP_POSTGRES_DB_NAME"],
+    os.environ["PGBOUNCER_POOL_SIZE"],
 )
 ini = ini.strip()
 

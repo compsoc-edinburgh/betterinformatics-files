@@ -21,8 +21,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-import logging
-logging.info("RUNNING IN DEBUG?" + os.environ.get("IS_DEBUG", "false"))
 DEBUG = os.environ.get("IS_DEBUG", "false").lower() == "true"
 SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ

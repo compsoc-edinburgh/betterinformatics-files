@@ -74,6 +74,7 @@ services:
       - SIP_AUTH_OIDC_TOKEN_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/token
 
       - PDEP_IS_PREVIEW=TRUE
+      - PGBOUNCER_POOL_SIZE=16
     depends_on:
       - postgres
       - minio
