@@ -26,11 +26,11 @@ programs:
     before:
       - gunicorn
     env:
-      - SIP_POSTGRES_DB_SERVER:
-      - SIP_POSTGRES_DB_PORT:
+      - SIP_POSTGRES_DB_SERVER: "/dev/shm/"
+      - SIP_POSTGRES_DB_PORT: 6432
       - SIP_POSTGRES_DB_NAME:
-      - SIP_POSTGRES_DB_USER:
-      - SIP_POSTGRES_DB_PW:
+      - SIP_POSTGRES_DB_USER: pgbouncer-community-solutions
+      - SIP_POSTGRES_DB_PW: ""
   - name: configure-cors
     path: /usr/bin/python3
     args:

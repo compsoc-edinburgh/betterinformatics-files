@@ -276,8 +276,7 @@ if "SIP_POSTGRES_DB_NAME" in os.environ:
             "PASSWORD": os.environ["SIP_POSTGRES_DB_PW"],
             "HOST": os.environ["SIP_POSTGRES_DB_SERVER"],
             "PORT": os.environ["SIP_POSTGRES_DB_PORT"],
-            "OPTIONS": {"sslmode": "disable"},
-            "CONN_MAX_AGE": 60,
+            "CONN_MAX_AGE": 0,
         }
     }
 else:
