@@ -1,4 +1,14 @@
-import { Button, Card, Grid, Image, Modal, SimpleGrid } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Center,
+  Flex,
+  Grid,
+  Group,
+  Image,
+  Modal,
+  SimpleGrid,
+} from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
@@ -29,46 +39,39 @@ const ImageModal: React.FC<ModalProps> = ({
   return (
     <Modal title="Images" size="lg" opened={isOpen} onClose={toggle}>
       <Modal.Body>
-        <Grid>
-          <Grid.Col>
-            <FileInput value={file} onChange={setFile} accept="image/*" />
-          </Grid.Col>
-          <Grid.Col xs="auto">
-            <Button
-              onClick={() => {
-                if (file) {
-                  add(file);
-                  setFile(undefined);
-                }
-              }}
-              disabled={file === undefined}
-            >
-              Upload
-            </Button>
-          </Grid.Col>
-        </Grid>
-
-        <div className="text-right">
-          <Button className="mt-1 mr-1" onClick={reload}>
-            Reload
-          </Button>
+        <FileInput value={file} onChange={setFile} accept="image/*" />
+        <Group mt="sm">
           <Button
-            className="mt-1"
+            onClick={() => {
+              if (file) {
+                add(file);
+                setFile(undefined);
+              }
+            }}
+            disabled={file === undefined}
+          >
+            Upload
+          </Button>
+          <Button onClick={reload}>Reload</Button>
+          <Button
             color="red"
             disabled={selected.size === 0}
             onClick={removeSelected}
           >
             Delete selected
           </Button>
-        </div>
+        </Group>
 
-        <SimpleGrid cols={3}>
+        <SimpleGrid cols={3} mt="sm">
           {images &&
             images.map(image => (
               <div key={image} className={cardWrapperStyle}>
                 <Card
                   className="p-2"
                   color={selected.has(image) ? "primary" : undefined}
+                  style={{
+                    border: selected.has(image) ? "5px solid black" : "",
+                  }}
                   onClick={e =>
                     e.metaKey
                       ? selected.has(image)
@@ -82,17 +85,18 @@ const ImageModal: React.FC<ModalProps> = ({
                   <Card.Section>
                     <Image src={`/api/image/get/${image}/`} alt={image} />
                   </Card.Section>
-                  {selected.has(image) && selected.size === 1 && (
-                    <div className="position-absolute position-bottom-right">
-                      <Button
-                        color="primary"
-                        onClick={() => closeWithImage(image)}
-                      >
-                        Insert
-                      </Button>
-                    </div>
-                  )}
                 </Card>
+                <Center>
+                  {selected.has(image) && selected.size === 1 && (
+                    <Button
+                      pos="absolute"
+                      color="primary"
+                      onClick={() => closeWithImage(image)}
+                    >
+                      Insert
+                    </Button>
+                  )}
+                </Center>
               </div>
             ))}
         </SimpleGrid>
