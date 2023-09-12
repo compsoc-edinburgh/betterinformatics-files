@@ -58,7 +58,7 @@ urlpatterns = [
 ]
 
 if DEBUG:
-    urlpatterns += [path("debug/", include('testing.urls'))]
+    urlpatterns += [path("api/debug/", include('testing.urls'))]
 
 handler400 = views.handler400
 handler403 = views.handler403
