@@ -54,7 +54,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
       {metaList &&
-        metaList.slice(0, 2).map(([meta1display, meta2]) => (
+        metaList.map(([meta1display, meta2]) => (
           <div key={meta1display}>
             <h5 className="my-3" onClick={() => scrollToDiv(slugify(meta1display))}>
               {meta1display}
