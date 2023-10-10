@@ -36,12 +36,12 @@ const usePdf = (
   end: number,
   scale: number | undefined,
 ): [
-  HTMLCanvasElement | null,
-  number[] | undefined,
-  number,
-  number,
-  boolean,
-] => {
+    HTMLCanvasElement | null,
+    number[] | undefined,
+    number,
+    number,
+    boolean,
+  ] => {
   const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(
     null,
   );
@@ -126,7 +126,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     addCutText,
     snap = true,
     displayHideShowButtons = false,
-    onSectionHiddenChange = () => {},
+    onSectionHiddenChange = () => { },
   }) => {
     const relativeHeight = end - start;
 
@@ -213,15 +213,14 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     }
 
     return (
-      <Card shadow="sm" className={end === 1 ? lastSection : undefined}>
+      <Card shadow="md" withBorder className={end === 1 ? lastSection : undefined}>
         <div ref={inViewportRef}>
           <div
             className="cover-container"
             style={{
               width: `${targetWidth}px`,
-              height: `${
-                containerHeight || targetWidth * relativeHeight * 1.414
-              }px`,
+              height: `${containerHeight || targetWidth * relativeHeight * 1.414
+                }px`,
               filter: hidden ? "contrast(0.5)" : undefined,
             }}
             ref={containerElement}
@@ -241,7 +240,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
             )}
             {displayHideShowButtons && (
               <div className="position-absolute position-top-left m-2 p1">
-                <IconButton 
+                <IconButton
                   className={addCutButtonStyle}
                   size="sm"
                   iconName={hidden ? ICONS.VIEW : ICONS.VIEW_OFF}

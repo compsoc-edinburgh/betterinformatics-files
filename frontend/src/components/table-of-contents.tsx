@@ -57,7 +57,7 @@ interface Props {
 export const TOC: React.FC<Props> = ({ toc }) => {
   const [visible, setVisible] = useState(false);
   return visible ? (
-    <Card my="xs" withBorder shadow="sm">
+    <Card my="xs" withBorder shadow="md">
       <Flex justify="space-between" align="center">
         <Title order={4}>Contents</Title>
         <Button onClick={() => setVisible(false)}>Hide</Button>

@@ -35,6 +35,7 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
+import TooltipButton from "./TooltipButton";
 
 const answerWrapperStyle = css`
   margin-bottom: 1em;
@@ -107,7 +108,7 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <Card mb="md" withBorder shadow="sm" className={answerWrapperStyle}>
+      <Card mb="md" withBorder shadow="md" className={answerWrapperStyle}>
         <Card.Section px="md" py="md" withBorder bg="gray.0">
           <Flex justify="space-between" align="center">
             <div>
@@ -173,32 +174,35 @@ const AnswerComponent: React.FC<Props> = ({
                     setExpertVoteLoading ||
                     isExpert) && (
                     <Button.Group>
-                      <IconButton
-                        color="primary"
+                      <TooltipButton
+                        px={8}
                         size="sm"
                         tooltip="This answer is endorsed by an expert"
-                        iconName={ICONS.STAR_FILLED}
-                      />
-                      <Text ml="0.25em" mr="xs">
+                        variant="filled"
+                        color="yellow"
+                      >
+                        <Icon icon={ICONS.STAR_FILLED} size={18} />
+                      </TooltipButton>
+                      <SmallButton tooltip={`${answer.expertvotes} experts endorse this answer.`}>
                         {answer.expertvotes}
-                      </Text>
+                      </SmallButton>
                       {isExpert && (
-                        <IconButton
+                        <TooltipButton
                           color="primary"
                           size="sm"
+                          px={8}
                           loading={setExpertVoteLoading}
                           tooltip={
                             answer.isExpertVoted
                               ? "Remove expert vote"
                               : "Add expert vote"
                           }
-                          iconName={
-                            answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS
-                          }
                           onClick={() =>
                             setExpertVote(answer.oid, !answer.isExpertVoted)
                           }
-                        />
+                        >
+                          <Icon icon={answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS} />
+                        </TooltipButton>
                       )}
                     </Button.Group>
                   )}
@@ -220,8 +224,8 @@ const AnswerComponent: React.FC<Props> = ({
                       >
                         {answer.flagged}
                       </SmallButton>
-                      <IconButton
-                        color="red"
+                      <TooltipButton
+                        px={4}
                         tooltip={
                           answer.isFlagged
                             ? "Remove inappropriate flag"
@@ -229,11 +233,12 @@ const AnswerComponent: React.FC<Props> = ({
                         }
                         size="sm"
                         loading={flaggedLoading}
-                        iconName={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS}
                         onClick={() =>
                           setFlagged(answer.oid, !answer.isFlagged)
                         }
-                      />
+                      >
+                        <Icon icon={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS} size={18} />
+                      </TooltipButton>
                     </Button.Group>
                   )}
                 {answer && onSectionChanged && (

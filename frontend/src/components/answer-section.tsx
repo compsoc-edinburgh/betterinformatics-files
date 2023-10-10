@@ -30,7 +30,7 @@ const nameCardStyle = css`
 `;
 
 const NameCard = (props: CardProps) => (
-  <Card className={nameCardStyle} {...props} shadow="sm" />
+  <Card bg="gray.1" className={nameCardStyle} {...props} shadow="md" />
 );
 
 const answerSectionButtonWrapperStyle = css`
@@ -242,7 +242,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
               )}
             </NameCard>
           )}
-        <Container fluid px={0}>
+        <Container fluid py="md" px="md">
           {!hidden && data && (
             <div>
               {data.answers.map(answer => (
