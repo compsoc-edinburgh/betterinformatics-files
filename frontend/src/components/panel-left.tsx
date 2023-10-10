@@ -1,0 +1,151 @@
+import { css, cx, keyframes } from "@emotion/css";
+import { ArrowRightIcon, Button, CloseIcon } from "@vseth/components";
+import React, { CSSProperties } from "react";
+import Transition from "react-transition-group/Transition";
+import GlobalConsts from "../globalconsts";
+const panelStyle = css`
+  pointer-events: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: row;
+  padding: 3.5em 0 3.5em 0;
+  z-index: ${GlobalConsts.zIndex.panel};
+  max-width: 500px;
+  height: 100%;
+  box-sizing: border-box;
+  transition: transform 0.5s;
+`;
+const iconContainerStyle = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+`;
+const closeButtonStyle = css`
+  display: inline-block;
+  font-size: 0.5em;
+  pointer-events: all;
+  &.btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+`;
+const modalWrapper = css`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+`;
+const modalStyle = css`
+  max-height: 100%;
+  overflow: auto;
+  &.modal-content {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  & .modal-header {
+    display: block;
+  }
+`;
+interface PanelProps {
+  isOpen: boolean;
+  toggle: () => void;
+  iconPadding?: CSSProperties["padding"];
+  buttonText?: string;
+}
+
+const duration = 200;
+const enteringAnimation = keyframes`
+  0% {
+    transform: translate(-100%);
+  }
+  100% {
+    transform: translate(0);
+  }
+`;
+const exitingAnimation = keyframes`
+  0% {
+  transform: translate(0);
+  }
+  100% {
+    transform: translate(-100%);
+  }
+`;
+
+const transitionStyles = {
+  entering: {
+    animation: `${enteringAnimation} ${duration}ms cubic-bezier(0.45, 0, 0.55, 1)`,
+  },
+  entered: { transform: "" },
+  exiting: {
+    animation: `${exitingAnimation} ${duration}ms cubic-bezier(0.45, 0, 0.55, 1)`,
+  },
+  exited: { transform: "translate(100%)" },
+};
+
+const Panel: React.FC<PanelProps> = ({
+  children,
+  isOpen,
+  toggle,
+  iconPadding = "1em 0",
+  buttonText,
+}) => {
+  return (
+    <>
+      <div className={panelStyle}>
+        <div className={iconContainerStyle} style={{ padding: iconPadding }}>
+          <Button
+            size="lg"
+            color="primary"
+            className={closeButtonStyle}
+            onClick={toggle}
+          >
+            <ArrowRightIcon size={24} />
+            {buttonText && (
+              <div>
+                <small>{buttonText}</small>
+              </div>
+            )}
+          </Button>
+        </div>
+      </div>
+      <Transition in={isOpen} timeout={duration} unmountOnExit>
+        {state => (
+          <div
+            className={`${panelStyle} pt-0`}
+            style={{
+              ...transitionStyles[state as keyof typeof transitionStyles],
+            }}
+          >
+            <div className={modalWrapper}>
+              <div className={`${cx("modal-content", modalStyle)} p-4`}>
+                <h3>Categories</h3>
+                {children}
+              </div>
+            </div>
+            <div
+              className={iconContainerStyle}
+              style={{ padding: iconPadding }}
+            >
+              <Button
+                size="lg"
+                color="primary"
+                className={closeButtonStyle}
+                onClick={toggle}
+              >
+                <CloseIcon size={24} />
+                {buttonText && (
+                  <div>
+                    <small>{buttonText}</small>
+                  </div>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Transition>
+    </>
+  );
+};
+export default Panel;
