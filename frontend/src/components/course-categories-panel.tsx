@@ -1,32 +1,6 @@
-import { css } from "@emotion/css";
 import React, { useCallback } from "react";
 import Panel from "./panel-left";
 import { CategoryMetaData } from "../interfaces";
-
-const categoriesHeaderStyle = css`
-  & .categories-header-link {
-    cursor: pointer;
-    color: #000000;
-    transition: color 0.3s;
-    margin-top: 1.2rem;
-    margin-bottom: 1.2rem;
-  }
-  & .categories-header-link:hover {
-    color: #080808;
-  }
-`;
-
-const categoriesInnerStyle = css`
-  & .categories-inner-link {
-    cursor: pointer;
-    color: #000000;
-    transition: color 0.3s;
-    margin-bottom: 0.6rem;
-  }
-  & .categories-inner-link:hover {
-    color: #080808;
-  }
-`;
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
