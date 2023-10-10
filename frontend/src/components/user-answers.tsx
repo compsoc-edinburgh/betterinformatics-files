@@ -79,7 +79,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       <div className={columnStyle} >
         {answers &&
           answers.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
-            <div className="contribution-component" key={answer.oid}>
+            <div key={answer.oid}>
               <AnswerComponent
                 hasId={false}
                 answer={answer}

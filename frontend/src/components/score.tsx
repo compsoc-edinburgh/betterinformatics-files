@@ -5,6 +5,7 @@ import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
 import SmallButton from "./small-button";
+import TooltipButton from "./TooltipButton";
 
 const setLikeReq = async (oid: string, like: -1 | 0 | 1) => {
   return (await fetchPost(`/api/exam/setlike/${oid}/`, { like }))
@@ -30,8 +31,9 @@ const Score: React.FC<Props> = ({
     onSuccess: onSectionChanged,
   });
   return (
-    <Button.Group className="m-1">
-      <SmallButton
+    <Button.Group>
+      <TooltipButton
+        px={4}
         tooltip="Downvote"
         size="sm"
         disabled={userVote === -1}
@@ -39,18 +41,19 @@ const Score: React.FC<Props> = ({
         onClick={() => setLike(oid, -1)}
       >
         <Icon icon={ICONS.MINUS} size={18} />
-      </SmallButton>
-      <SmallButton
+      </TooltipButton>
+      <TooltipButton
         tooltip="Reset vote"
         size="sm"
         px="sm"
         disabled={userVote === 0}
-        variant="subtle"
+        // variant="subtle"
         onClick={() => setLike(oid, 0)}
       >
         {loading ? <Loader size="sm" /> : upvotes}
-      </SmallButton>
-      <SmallButton
+      </TooltipButton>
+      <TooltipButton
+        px={4}
         tooltip="Upvote"
         size="sm"
         disabled={userVote === 1}
@@ -58,7 +61,7 @@ const Score: React.FC<Props> = ({
         onClick={() => setLike(oid, 1)}
       >
         <Icon icon={ICONS.PLUS} size={18} />
-      </SmallButton>
+      </TooltipButton>
     </Button.Group>
   );
 };

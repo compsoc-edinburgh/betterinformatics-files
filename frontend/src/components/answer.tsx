@@ -107,9 +107,9 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <Card my="md" withBorder shadow="sm" className={answerWrapperStyle}>
-        <Card.Section withBorder bg="gray.0">
-          <Flex px="md" py="md" justify="space-between" align="center">
+      <Card mb="md" withBorder shadow="sm" className={answerWrapperStyle}>
+        <Card.Section px="md" py="md" withBorder bg="gray.0">
+          <Flex justify="space-between" align="center">
             <div>
               {!hasId && (
                 <Link
@@ -117,7 +117,7 @@ const AnswerComponent: React.FC<Props> = ({
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
                 >
-                  <Text color="dimmed" component="span">
+                  <Text color="dimmed" component="span" >
                     <Icon icon={ICONS.LINK} size="1em" />
                   </Text>
                 </Link>
@@ -126,6 +126,7 @@ const AnswerComponent: React.FC<Props> = ({
                 answer?.authorDisplayName ?? "(Legacy Draft)"
               ) : (
                 <Anchor
+                  ml="xs"
                   component={Link}
                   to={`/user/${answer?.authorId ?? username}`}
                 >
@@ -319,7 +320,7 @@ const AnswerComponent: React.FC<Props> = ({
                 {answer !== undefined && (
                   <Menu>
                     <Menu.Target>
-                      <Button>More</Button>
+                      <Button leftIcon={<Icon icon={ICONS.DOTS_H} />}>More</Button>
                     </Menu.Target>
                     <Menu.Dropdown>
                       {answer.flagged === 0 && (

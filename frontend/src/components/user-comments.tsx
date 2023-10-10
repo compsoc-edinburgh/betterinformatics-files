@@ -83,7 +83,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
       >
         {comments &&
           comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
-            <div className="contribution-component" key={comment.oid}>
+            <div key={comment.oid}>
               <SingleCommentComponent comment={comment} />
             </div>
           ))}
