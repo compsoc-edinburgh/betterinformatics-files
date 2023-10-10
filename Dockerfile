@@ -12,10 +12,9 @@ COPY ./backend/requirements.txt ./requirements.txt
 RUN apt-get install -y --no-install-recommends \
 	python3 python3-pip \
 	python3-setuptools python3-cryptography \
-	smbclient poppler-utils \
-  pgbouncer
-RUN	pip3 install -r requirements.txt
-RUN	rm -rf /var/lib/apt/lists/*
+	smbclient poppler-utils && \
+	pip3 install -r requirements.txt && \
+	rm -rf /var/lib/apt/lists/*
 
 COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
@@ -26,7 +25,6 @@ COPY ./frontend/public/exam10.pdf ./exam10.pdf
 COPY ./frontend/public/static ./static
 
 COPY ./backend/ ./
-COPY ./pgbouncer ./pgbouncer
 
 FROM node:16-alpine AS frontend-build
 ARG git_branch
