@@ -18,7 +18,6 @@ from django.views.static import serve
 from functools import wraps
 from util import response
 from django_prometheus import exports
-from backend.settings import DEBUG
 
 from . import views
 
@@ -56,9 +55,6 @@ urlpatterns = [
     ),
     path("metrics/", restrict_proxied(exports.ExportToDjangoView)),
 ]
-
-if DEBUG:
-    urlpatterns += [path("api/debug/", include('testing.urls'))]
 
 handler400 = views.handler400
 handler403 = views.handler403
