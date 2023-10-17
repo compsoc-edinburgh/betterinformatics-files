@@ -205,6 +205,7 @@ const App: React.FC<{}> = () => {
             {child}
           </Link>
         )}
+        size="xl"
       >
         <MantineProvider
           theme={{
