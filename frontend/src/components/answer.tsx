@@ -108,7 +108,7 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <Card mb="md" withBorder shadow="md" className={answerWrapperStyle}>
+      <Card mb="md" withBorder shadow="md" id={hasId ? answer?.longId : undefined} className={answerWrapperStyle}>
         <Card.Section px="md" py="md" withBorder bg="gray.0">
           <Flex justify="space-between" align="center">
             <div>

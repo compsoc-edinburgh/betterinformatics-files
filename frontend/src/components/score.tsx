@@ -4,7 +4,6 @@ import React from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
-import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
 
 const setLikeReq = async (oid: string, like: -1 | 0 | 1) => {

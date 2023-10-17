@@ -4,7 +4,7 @@ import {
   FileInput as FileInputCore,
   Flex,
 } from "@mantine/core";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { CloseIcon, FileUploadIcon } from "vseth-canine-ui";
 interface FileInputProps
   extends Omit<
@@ -51,34 +51,6 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
         )
       }
     />
-    // <div className="form-control position-relative">
-    //   {value ? (
-    //     <>
-    //       <Button onClick={() => onChange(undefined)} />
-    //       {value.name} <Badge>{value.type}</Badge> <Badge>{value.size}</Badge>
-    //     </>
-    //   ) : (
-    //     <>
-    //       &nbsp;
-    //       <Button
-    //         className="position-absolute position-left"
-    //         onClick={() => fileInputRef.current && fileInputRef.current.click()}
-    //       >
-    //         Choose File
-    //       </Button>
-    //       <input
-    //         accept={props.accept}
-    //         hidden
-    //         type="file"
-    //         onChange={e => {
-    //           onChange((e.currentTarget.files || [])[0]);
-    //           e.currentTarget.value = "";
-    //         }}
-    //         ref={fileInputRef}
-    //       />
-    //     </>
-    //   )}
-    // </div>
   );
 };
 export default FileInput;

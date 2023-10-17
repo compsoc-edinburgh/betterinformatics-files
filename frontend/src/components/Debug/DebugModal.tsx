@@ -17,16 +17,6 @@ const DebugModal: React.FC<Props> = ({
     <Modal opened={isOpen} title="Debug" onClose={toggle}>
       <Stack spacing="sm">
         <Checkbox
-          label="Display all tooltips"
-          checked={debugOptions.displayAllTooltips}
-          onChange={e =>
-            setDebugOptions({
-              ...debugOptions,
-              displayAllTooltips: e.currentTarget.checked,
-            })
-          }
-        />
-        <Checkbox
           label="Display canvas debugging indicators"
           checked={debugOptions.displayCanvasType}
           onChange={e =>

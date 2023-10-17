@@ -29,8 +29,13 @@ const nameCardStyle = css`
   border-top-right-radius: 0;
 `;
 
-const NameCard = (props: CardProps) => (
-  <Card bg="gray.1" className={nameCardStyle} {...props} shadow="md" />
+interface NameCardProps {
+  id: string;
+  children: React.ReactNode;
+}
+
+const NameCard = (props: NameCardProps) => (
+  <Card bg="gray.1" className={nameCardStyle} {...props} shadow="md" id={props.id} />
 );
 
 const answerSectionButtonWrapperStyle = css`
@@ -197,7 +202,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     useEffect(() => {
       if (data && cutName.length === 0 && isCatAdmin) setIsEditingName(true);
     }, [data, isCatAdmin, cutName]);
-    // const id = getAnswerSectionId(oid, cutName);
+    const id = getAnswerSectionId(oid, cutName);
 
     return (
       <>
@@ -208,7 +213,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
-            <NameCard>
+            <NameCard id={id}>
               {isEditingName ? (
                 <Group>
                   <TextInput

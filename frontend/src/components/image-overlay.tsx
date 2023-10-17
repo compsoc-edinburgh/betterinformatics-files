@@ -2,8 +2,6 @@ import {
   Button,
   Card,
   Center,
-  Flex,
-  Grid,
   Group,
   Image,
   Modal,
@@ -78,8 +76,8 @@ const ImageModal: React.FC<ModalProps> = ({
                         ? unselect(image)
                         : select(image)
                       : selected.has(image)
-                      ? setSelected()
-                      : setSelected(image)
+                        ? setSelected()
+                        : setSelected(image)
                   }
                 >
                   <Card.Section>
