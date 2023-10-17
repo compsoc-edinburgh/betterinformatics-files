@@ -45,9 +45,7 @@ import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { useRequest } from "@umijs/hooks";
-const minHeight = css`
-  min-height: 100vh;
-`;
+
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
@@ -237,9 +235,7 @@ const App: React.FC<{}> = () => {
           <DebugContext.Provider value={debugOptions}>
             <UserContext.Provider value={user}>
               <SetUserContext.Provider value={setUser}>
-                <div
-                  className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
-                >
+                <div>
                   <div>
                     <Box component="main" mt="2em">
                       <Switch>
