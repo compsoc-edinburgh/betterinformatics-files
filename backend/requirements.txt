@@ -1,6 +1,6 @@
 gunicorn==20.1.0
 gevent==23.7.0
-Django==3.2.18
+Django==3.2.22
 psycopg2-binary==2.8.6
 psycogreen==1.0.2
 django-csp==3.7
