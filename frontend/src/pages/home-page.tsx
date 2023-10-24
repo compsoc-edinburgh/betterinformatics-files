@@ -298,9 +298,9 @@ export const CategoryList: React.FC<{}> = () => {
       {
         !loading?
         <CourseCategoriesPanel
-        isOpen={panelIsOpen}
-        toggle={togglePanel}
-        metaList={metaList}/>
+          isOpen={panelIsOpen}
+          toggle={togglePanel}
+          metaList={metaList}/>
         : null
       }
     </>

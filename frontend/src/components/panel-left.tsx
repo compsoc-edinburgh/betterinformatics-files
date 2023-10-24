@@ -16,6 +16,13 @@ const panelStyle = css`
   height: 100%;
   box-sizing: border-box;
   transition: transform 0.5s;
+  @media (max-width: 1199.98px) {
+    padding-top: 0px;
+  }
+  @media (min-width: 1200px) {
+    padding-top: 7rem;
+    padding-bottom: 0px;
+  }
 `;
 const iconContainerStyle = css`
   display: flex;
@@ -113,7 +120,7 @@ const Panel: React.FC<PanelProps> = ({
       <Transition in={isOpen} timeout={duration} unmountOnExit>
         {state => (
           <div
-            className={`${panelStyle} pt-0`}
+            className={`${panelStyle}`}
             style={{
               ...transitionStyles[state as keyof typeof transitionStyles],
             }}
