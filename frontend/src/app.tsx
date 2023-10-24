@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import {
   Button,
   Modal,
@@ -237,7 +236,7 @@ const App: React.FC<{}> = () => {
               <SetUserContext.Provider value={setUser}>
                 <div>
                   <div>
-                    <Box component="main" mt="2em">
+                    <Box component="main" my="2em">
                       <Switch>
                         <UserRoute exact path="/" component={HomePage} />
                         <Route exact path="/login" component={LoginPage} />

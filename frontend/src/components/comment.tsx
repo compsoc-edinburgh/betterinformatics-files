@@ -118,7 +118,7 @@ const CommentComponent: React.FC<Props> = ({
             >
               <Icon icon={ICONS.EDIT} size={18} />
             </SmallButton>
-            {isAdmin && (
+            {(comment.canEdit || isAdmin) && (
               <SmallButton
                 tooltip="Delete comment"
                 size="sm"

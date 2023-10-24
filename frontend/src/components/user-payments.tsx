@@ -86,7 +86,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                       {!payment.refund_time && (
                         <Button
                           onClick={() => refund(payment.oid)}
-                          className="mr-1"
+                          mr="xs"
                         >
                           Mark Refunded
                         </Button>
@@ -118,7 +118,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
       {isAdmin &&
         payments &&
         payments.filter(payment => payment.active).length === 0 && (
-          <Button className="my-3" onClick={() => add(username)}>
+          <Button my="sm" onClick={() => add(username)}>
             Add Payment
           </Button>
         )}

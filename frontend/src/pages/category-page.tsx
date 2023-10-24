@@ -198,7 +198,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
             {metaData.catadmin && (
               <Grid.Col span="auto">
-                <Alert bg="gray.2" title="Category admin">
+                <Alert variant="light" color="blue" title="Category admin" icon={<Icon icon={ICONS.USER} />}>
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
               </Grid.Col>

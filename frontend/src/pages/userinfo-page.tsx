@@ -37,7 +37,7 @@ const UserPage: React.FC<{}> = () => {
   const [activeTab, setActiveTab] = useState<string | null>("overview");
   return (
     <>
-      <Container size="xl" className="my-3">
+      <Container size="xl">
         <UserScoreCard
           username={username}
           isMyself={isMyself}
