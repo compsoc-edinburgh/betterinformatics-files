@@ -298,6 +298,7 @@ export const CategoryList: React.FC<{}> = () => {
       {
         !loading?
         <CourseCategoriesPanel
+          mode={mode}
           isOpen={panelIsOpen}
           toggle={togglePanel}
           metaList={metaList}/>

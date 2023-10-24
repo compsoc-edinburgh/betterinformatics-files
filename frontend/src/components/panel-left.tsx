@@ -46,6 +46,7 @@ const modalWrapper = css`
 `;
 const modalStyle = css`
   max-height: 100%;
+  height: 100%;
   overflow: auto;
   &.modal-content {
     border-top-left-radius: 0;
@@ -56,6 +57,7 @@ const modalStyle = css`
   }
 `;
 interface PanelProps {
+  header: string;
   isOpen: boolean;
   toggle: () => void;
   iconPadding?: CSSProperties["padding"];
@@ -92,6 +94,7 @@ const transitionStyles = {
 };
 
 const Panel: React.FC<PanelProps> = ({
+  header,
   children,
   isOpen,
   toggle,
@@ -127,7 +130,7 @@ const Panel: React.FC<PanelProps> = ({
           >
             <div className={modalWrapper}>
               <div className={`${cx("modal-content", modalStyle)} p-4`}>
-                <h3>Categories</h3>
+                <h3>{header}</h3>
                 {children}
               </div>
             </div>
