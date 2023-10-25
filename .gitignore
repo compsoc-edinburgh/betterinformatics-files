@@ -9,3 +9,4 @@ temp-gen
 data
 .envrc
 shell.nix
+.direnv

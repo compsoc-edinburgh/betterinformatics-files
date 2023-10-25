@@ -1,8 +1,9 @@
-import { css, cx, keyframes } from "@emotion/css";
+import { css, cx } from "@emotion/css";
 import { ArrowLeftIcon, Button, CloseIcon } from "@vseth/components";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import GlobalConsts from "../globalconsts";
+
 const panelStyle = css`
   pointer-events: none;
   position: fixed;
@@ -56,32 +57,13 @@ interface PanelProps {
 }
 
 const duration = 200;
-const enteringAnimation = keyframes`
-  0% {
-    transform: translate(100%);
-  }
-  100% {
-    transform: translate(0);
-  }
-`;
-const exitingAnimation = keyframes`
-  0% {
-  transform: translate(0);
-  }
-  100% {
-    transform: translate(100%);
-  }
-`;
 
 const transitionStyles = {
-  entering: {
-    animation: `${enteringAnimation} ${duration}ms cubic-bezier(0.45, 0, 0.55, 1)`,
-  },
-  entered: { transform: "" },
-  exiting: {
-    animation: `${exitingAnimation} ${duration}ms cubic-bezier(0.45, 0, 0.55, 1)`,
-  },
+  entering: { transform: "translate(0)" },
+  entered: { transform: "translate(0)" },
+  exiting: { transform: "translate(100%)" },
   exited: { transform: "translate(100%)" },
+  unmounted: { transform: "translate(100%)" },
 };
 
 const Panel: React.FC<PanelProps> = ({
