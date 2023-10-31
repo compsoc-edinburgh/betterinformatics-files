@@ -1,21 +1,20 @@
 import { ButtonProps, Button, Tooltip } from "@mantine/core";
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 export interface TooltipButtonProps extends ButtonProps {
   tooltip?: React.ReactNode;
   onClick?: any;
 }
+
 const TooltipButton: React.FC<TooltipButtonProps> = ({
   tooltip,
   onClick,
   children,
   ...buttonProps
 }) => {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
   return (
     <>
-      {mounted && tooltip && (
+      {tooltip && (
         <Tooltip
           label={tooltip}
           withArrow
@@ -24,7 +23,7 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
           <Button
             variant="default"
             {...buttonProps}
-            onClick={e => e.stopPropagation()}
+            onClick={onClick}
           >
             {children}
           </Button>
