@@ -506,6 +506,7 @@ const ExamPage: React.FC<{}> = () => {
         )}
       </div>
     </div>
+    
   );
 };
 export default ExamPage;
