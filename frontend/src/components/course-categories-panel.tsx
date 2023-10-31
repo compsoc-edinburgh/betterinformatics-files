@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Panel from "./panel-left";
 import { CategoryMetaData } from "../interfaces";
+import { Mode } from '../pages/home-page';
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
@@ -72,9 +73,9 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
   }, [metaList]);
 
   return (
-    <Panel header={mode == 0? "Alphabet" : "Semester"} isOpen={isOpen} toggle={toggle}>
+    <Panel header={mode === Mode.Alphabetical ? "Alphabet" : "Semester"} isOpen={isOpen} toggle={toggle}>
       { 
-        mode == 0 ? (
+          mode === Mode.Alphabetical ? (
           availableLetters.map((letter) => (
             <div key={letter}>
               <h5 className='my-3'

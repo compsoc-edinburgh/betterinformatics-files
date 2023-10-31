@@ -33,7 +33,7 @@ import useToggle from "../hooks/useToggle";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
-enum Mode {
+export enum Mode {
   Alphabetical,
   BySemester,
 }
