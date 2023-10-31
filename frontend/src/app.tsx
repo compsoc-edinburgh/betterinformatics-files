@@ -302,7 +302,7 @@ const App: React.FC<{}> = () => {
           </DebugContext.Provider>
           {process.env.NODE_ENV === "development" && (
             <>
-              <div style={{ position: "fixed", bottom: 10, left: 10 }}>
+              <div style={{ position: "fixed", bottom: 10, left: 10, zIndex: 1000 }}>
                 <Button color="white" onClick={toggleDebugPanel}>
                   DEBUG
                 </Button>
@@ -317,7 +317,7 @@ const App: React.FC<{}> = () => {
           )}
         </MantineProvider>
       </VSETHExternalApp>
-    </VSETHThemeProvider>
+    </VSETHThemeProvider >
   );
 };
 export default App;
