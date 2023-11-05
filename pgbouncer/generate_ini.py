@@ -12,6 +12,7 @@ max_client_conn=64
 auth_file=/app/pgbouncer/userlist.txt
 log_connections=0
 log_disconnections=0
+log_stats=0
 
 default_pool_size=%s
 """ % (
