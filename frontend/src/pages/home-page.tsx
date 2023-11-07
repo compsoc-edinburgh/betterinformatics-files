@@ -138,7 +138,7 @@ const HomePage: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl">
-        <Title className="mb-3">Community Solutions</Title>
+        <Title mb="sm">Community Solutions</Title>
       </Container>
       <CategoryList />
     </>
@@ -206,7 +206,7 @@ export const CategoryList: React.FC<{}> = () => {
       </Container>
       <ContentContainer>
         <LoadingOverlay loading={loading} />
-        <Container size="xl" pt="3em" pb="md">
+        <Container size="xl" py="md">
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (
