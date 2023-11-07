@@ -208,6 +208,18 @@ const App: React.FC<{}> = () => {
           theme={{
             fontFamily: '"Source Sans Pro", "Roboto", sans-serif',
             primaryColor: 'dark',
+            components: {
+              AppShell: {
+                styles: {
+                  main: { flexGrow: 1 },
+                },
+              },
+              Footer: {
+                styles: {
+                  main: { flexGrow: 0, flexShrink: 0 },
+                },
+              },
+            },
           }}
           withGlobalStyles
           withNormalizeCSS

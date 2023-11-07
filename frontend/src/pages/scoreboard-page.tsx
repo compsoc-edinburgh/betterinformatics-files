@@ -72,11 +72,11 @@ function Th({ children, sorted, onSort }: ThProps) {
     <th className={classes.th}>
       <UnstyledButton onClick={onSort} className={classes.control}>
         <Group position="apart">
-          <Text weight={700} size="sm">
+          <Text weight={700} size="md">
             {children}
           </Text>
-          <Center className={classes.icon}>
-            <Icon icon={iconName} size={14} />
+          <Center className={classes.icon} mr={4}>
+            <Icon icon={iconName} size={12} color="gray" />
           </Center>
         </Group>
       </UnstyledButton>
@@ -103,8 +103,8 @@ const Scoreboard: React.FC<{}> = () => {
         <Table striped highlightOnHover verticalSpacing="md">
           <thead>
             <tr>
-              <th>Rank</th>
-              <th>User</th>
+              <th><Text weight={700} size="md" color="black">Rank</Text></th>
+              <th><Text weight={700} size="md" color="black">User</Text></th>
               <Th onSort={() => setMode("score")} sorted={mode === "score"}>
                 Score
               </Th>

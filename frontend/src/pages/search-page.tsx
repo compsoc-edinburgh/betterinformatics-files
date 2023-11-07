@@ -38,6 +38,7 @@ const SearchPage: React.FC<{}> = () => {
           icon={<Icon icon={ICONS.SEARCH} />}
           value={term}
           onChange={e => setTerm(e.currentTarget.value)}
+          autoFocus
         />
       </Container>
       <div className="position-relative">

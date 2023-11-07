@@ -36,7 +36,7 @@ function scoreCard(
           <Icon size="0.75em" icon={iconName} />
         </Text>
       </Group>
-      <Text fz="xl" fw={600}>
+      <Text pb="xs" lh={1} fz="xl" fw={600}>
         {userInfo ? userInfo[key] : "-"}
       </Text>
     </Paper>
@@ -75,8 +75,8 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
                   : "View with admin privileges"}
               </Button>
             )}
-            <Button onClick={() => logout("/")} className="m-2">
-              Logout
+            <Button leftIcon={<Icon icon={ICONS.LEAVE} />} onClick={() => logout("/")} className="m-2">
+              Log out
             </Button>
           </Group>
         )}
