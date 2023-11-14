@@ -39,8 +39,8 @@ const CreateDocumentForm: React.FC<Props> = ({
           </div>
           <Button
             color="primary"
-            disabled={loading || displayName === ""}
-            onClick={() => run(displayName, categorySlug)}
+            disabled={loading || displayName.trim() === ""}
+            onClick={() => run(displayName.trim(), categorySlug)}
             leftIcon={<Icon icon={ICONS.PLUS} />}
             loading={loading}
           >

@@ -26,11 +26,11 @@ programs:
     before:
       - gunicorn
     env:
-      - SIP_POSTGRES_DB_SERVER:
-      - SIP_POSTGRES_DB_PORT:
+      - SIP_POSTGRES_DB_SERVER: "/dev/shm/"
+      - SIP_POSTGRES_DB_PORT: 6432
       - SIP_POSTGRES_DB_NAME:
-      - SIP_POSTGRES_DB_USER:
-      - SIP_POSTGRES_DB_PW:
+      - SIP_POSTGRES_DB_USER: pgbouncer-community-solutions
+      - SIP_POSTGRES_DB_PW: ""
   - name: configure-cors
     path: /usr/bin/python3
     args:
@@ -51,6 +51,30 @@ programs:
       - SIP_S3_FILES_SECRET_KEY:
       - SIP_S3_FILES_BUCKET:
       - SIP_S3_FILES_USE_SSL:
+  - name: pgbouncer-generate-ini
+    path: /usr/bin/python3
+    args:
+      - "generate_ini.py"
+    workdir: /app/pgbouncer
+    user: app-user
+    group: app-user
+    env:
+      - SIP_POSTGRES_DB_NAME:
+      - SIP_POSTGRES_DB_USER:
+      - SIP_POSTGRES_DB_PW:
+      - SIP_POSTGRES_DB_SERVER:
+      - SIP_POSTGRES_DB_PORT:
+      - PGBOUNCER_POOL_SIZE:
+    before:
+      - pgbouncer
+  - name: pgbouncer
+    path: /usr/sbin/pgbouncer
+    args:
+      - "/dev/shm/pgbouncer.ini"
+    user: app-user
+    group: app-user
+    capabilities:
+      - CAP_NET_BIND_SERVICE
   - name: gunicorn
     path: /usr/local/bin/gunicorn
     args:
@@ -59,6 +83,8 @@ programs:
       - "0.0.0.0:80"
       - "-w"
       - "4"
+      - "--worker-class"
+      - "gevent"
       - "--worker-tmp-dir"
       - "/dev/shm"
       - "--log-level"
@@ -79,11 +105,11 @@ programs:
       - SIP_S3_FILES_BUCKET:
       - SIP_S3_FILES_USE_SSL:
 
-      - SIP_POSTGRES_DB_SERVER:
-      - SIP_POSTGRES_DB_PORT:
+      - SIP_POSTGRES_DB_SERVER: "/dev/shm"
+      - SIP_POSTGRES_DB_PORT: 6432
       - SIP_POSTGRES_DB_NAME:
-      - SIP_POSTGRES_DB_USER:
-      - SIP_POSTGRES_DB_PW:
+      - SIP_POSTGRES_DB_USER: pgbouncer-community-solutions
+      - SIP_POSTGRES_DB_PW: ""
 
       - SIP_AUTH_OIDC_CLIENT_ID:
       - SIP_AUTH_OIDC_JWKS_URL:
@@ -117,3 +143,4 @@ programs:
       - FRONTEND_PRIVACY_POLICY:
 
       - PDEP_IS_PREVIEW:
+      - IS_DEBUG: "{{ get_env(name='SIP_POSTGRES_DB_USER', default='prod') == 'docker' }}"

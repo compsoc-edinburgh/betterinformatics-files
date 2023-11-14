@@ -1,11 +1,10 @@
 import React from "react";
-import { Alert, Anchor, Flex, Loader, Paper, Group, Text } from "@mantine/core";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { Alert, Loader } from "@mantine/core";
 import { useDocumentsLikedBy, useDocumentsUsername } from "../api/hooks";
-import { Link } from "react-router-dom";
 import Grid from "../components/grid";
 import { useUser } from "../auth";
 import { Document, UserInfo } from "../interfaces";
+import DocumentCard from "./document-card";
 
 interface UserDocumentsProps {
   username: string;
@@ -27,36 +26,11 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       <Grid>
         {documents &&
           documents.map(document => (
-            <Paper p="md" withBorder shadow="md" key={document.slug}>
-              <Anchor
-                size="lg"
-                weight={600}
-                component={Link}
-                to={`/user/${document.author}/document/${document.slug}`}
-              >
-                <Text>{document.display_name}</Text>
-              </Anchor>
-              <Group mt="sm" position="apart">
-                <Anchor component={Link} to={`/user/${document.author}`}>
-                  <Text color="dimmed">@{document.author}</Text>
-                </Anchor>
-                {document.liked ? (
-                  <Flex align="center" color="red">
-                    <Icon icon={ICONS.LIKE_FILLED} color="red" />
-                    <Text fw={700} color="red" ml="0.3em">
-                      {document.like_count}
-                    </Text>
-                  </Flex>
-                ) : (
-                  <Flex align="center">
-                    <Icon icon={ICONS.LIKE} />
-                    <Text fw={700} ml="0.3em">
-                      {document.like_count}
-                    </Text>
-                  </Flex>
-                )}
-              </Group>
-            </Paper>
+            <DocumentCard
+              key={document.slug}
+              document={document}
+              showCategory
+            />
           ))}
       </Grid>
     );

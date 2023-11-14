@@ -1,6 +1,6 @@
 import secrets
-from django.utils import timezone
 from django.db import models
+from django.utils.text import slugify
 from django_prometheus.models import ExportModelOperationsMixin
 from myauth import auth_check
 from util.models import CommentMixin
@@ -11,7 +11,7 @@ def generate_api_key():
 
 
 class Document(ExportModelOperationsMixin("document"), models.Model):
-    slug = models.CharField(max_length=256, db_index=True)
+    slug = models.CharField(max_length=256, unique=True)
     display_name = models.CharField(max_length=256)
     description = models.CharField(max_length=4096)
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
@@ -27,6 +27,28 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
     def current_user_can_edit(self, request):
         return self.current_user_can_delete(request)
 
+    def save(self, *args, **kwargs):
+        # makes sure slugs are always unique and get incremented
+        oslug = slugify(self.display_name)
+
+        if len(oslug.strip()) == 0:
+            oslug = "invalid_name"
+
+        def exists(aslug):
+            objects = Document.objects.filter(slug=aslug)
+            if self.pk is not None:
+                objects = objects.exclude(pk=self.pk)
+            return objects.exists()
+
+        slug = oslug
+        cnt = 0
+        while exists(slug):
+            slug = oslug + "_" + str(cnt)
+            cnt += 1
+
+        self.slug = slug
+
+        super(Document, self).save(*args, **kwargs)
 
 class Comment(ExportModelOperationsMixin("document_comment"), CommentMixin):
     document = models.ForeignKey(

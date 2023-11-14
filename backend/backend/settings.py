@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
+DEBUG = os.environ.get("IS_DEBUG", "false").lower() == "true"
 SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
@@ -155,17 +155,17 @@ else:
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
 CSP_DEFAULT_SRC = "'self'"
-allowed = []
+allowed_script_sources = []
 if DEBUG:
-    allowed = ["http://{}:8080/static/".format(host)
+    allowed_script_sources = [f"http://{host}:8080/static/"
                for host in REAL_ALLOWED_HOSTS]
 else:
-    allowed = ["https://{}/static/".format(host)
+    allowed_script_sources = [f"https://{host}/static/"
                for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
     "https://static.vseth.ethz.ch",
-    *allowed
+    *allowed_script_sources
 )
 CSP_STYLE_SRC = (
     "'self'",
@@ -280,8 +280,7 @@ if "SIP_POSTGRES_DB_NAME" in os.environ:
             "PASSWORD": os.environ["SIP_POSTGRES_DB_PW"],
             "HOST": os.environ["SIP_POSTGRES_DB_SERVER"],
             "PORT": os.environ["SIP_POSTGRES_DB_PORT"],
-            "OPTIONS": {"sslmode": "disable"},
-            "CONN_MAX_AGE": 60,
+            "CONN_MAX_AGE": 0,
         }
     }
 else:
