@@ -30,6 +30,15 @@ const iconContainerStyle = css`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  @keyframes biggerAndBack {
+    0%, 100% {
+      // transform: scaleX(0.8);
+    }
+    50% {
+      // transform: scaleX(1.2); /* You can change 100px to whatever distance you want */
+    }
+  }
+  animation: biggerAndBack 2s ease-in-out infinite;
 `;
 const closeButtonStyle = css`
   display: inline-block;
@@ -74,6 +83,17 @@ interface PanelProps {
   iconPadding?: CSSProperties["padding"];
   buttonText?: string;
 }
+const movingRightAnimation = css`
+  @keyframes moveRightAndBack {
+    0%, 100% {
+      width: 34px;
+    }
+    50% {
+      width: 44px;
+    }
+  }
+  animation: moveRightAndBack 2s ease-in-out infinite;
+`
 
 const duration = 200;
 
@@ -104,6 +124,7 @@ const Panel: React.FC<PanelProps> = ({
             onClick={toggle}
             leftIcon={<Icon icon={ICONS.ARROW_RIGHT} size={24} />}
           >
+            <ArrowRightIcon className={movingRightAnimation} size={24} />
             {buttonText && (
               <div>
                 <small>{buttonText}</small>
