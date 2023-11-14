@@ -1,4 +1,4 @@
-import { Alert, Card, NativeSelect, FileInput, Stack, Text, Title } from "@mantine/core";
+import { Alert, Card, FileInput, Stack, Text, Title, Select } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
@@ -48,8 +48,8 @@ const UploadTranscriptCard: React.FC<{}> = () => {
   };
 
   return (
-    <Card withBorder>
-      <Card.Section withBorder p="md">
+    <Card withBorder shadow="md">
+      <Card.Section withBorder p="md" bg="gray.0">
         <Title order={4}>Submit Transcript for Oral Exam</Title>
       </Card.Section>
       <Stack mt="sm">
@@ -71,9 +71,12 @@ const UploadTranscriptCard: React.FC<{}> = () => {
               onChange={setFile}
               accept="application/pdf"
             />
-            <NativeSelect
+            <Select
               label="Category"
+              placeholder="Choose category..."
               data={options}
+              searchable
+              nothingFound="No category found"
               onChange={(event: any) =>
                 setCategory(event.currentTarget.value as string)
               }
