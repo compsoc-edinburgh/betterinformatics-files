@@ -82,7 +82,10 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             color="primary"
             disabled={displayName?.trim() === ""}
             onClick={() =>
-              updateFile({ display_name: displayName?.trim(), file: replaceFile })
+              updateFile({
+                display_name: displayName?.trim(),
+                file: replaceFile,
+              })
             }
           >
             Save{" "}

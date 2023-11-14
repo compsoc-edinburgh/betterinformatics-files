@@ -25,6 +25,8 @@ import ContentContainer from "../components/secondary-container";
 import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
+import CourseCategoriesPanel from "../components/course-categories-panel";
+import useToggle from "../hooks/useToggle";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -179,6 +181,15 @@ export const CategoryList: React.FC<{}> = () => {
   const onAddCategory = useCallback(() => {
     run();
   }, [run]);
+  const [panelIsOpen, togglePanel] = useToggle();
+
+  const slugify = (str: string): string =>
+    str
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
   return (
     <>
@@ -221,12 +232,12 @@ export const CategoryList: React.FC<{}> = () => {
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display}>
                     <Title order={2} my="sm">
-                      {meta1display}
+                      {slugify(meta1display)}
                     </Title>
                     {meta2.map(([meta2display, categories]) => (
                       <div key={meta2display}>
                         <Title order={3} my="md">
-                          {meta2display}
+                          {slugify(meta1display) + slugify(meta2display)}
                         </Title>
                         <Grid>
                           {categories.map(category => (
@@ -266,6 +277,14 @@ export const CategoryList: React.FC<{}> = () => {
           )}
         </Container>
       </ContentContainer>
+      {!loading ? (
+        <CourseCategoriesPanel
+          mode={mode}
+          isOpen={panelIsOpen}
+          toggle={togglePanel}
+          metaList={metaList}
+        />
+      ) : null}
     </>
   );
 };

@@ -44,7 +44,10 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
         )}
         {showCategory && (
           <Badge ml="xs">
-            <Link className="align-middle d-inline-block text-truncate mw-100" to={`/category/${document.category}`} >
+            <Link
+              className="align-middle d-inline-block text-truncate mw-100"
+              to={`/category/${document.category}`}
+            >
               {document.category_display_name}
             </Link>
           </Badge>

@@ -1,8 +1,4 @@
-import {
-  Button,
-  Paper,
-  Tooltip,
-} from "@mantine/core";
+import { Button, Paper, Tooltip } from "@mantine/core";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { useDocuments } from "../api/hooks";

@@ -1,15 +1,15 @@
 import { css, cx } from "@emotion/css";
 import { Button } from "@mantine/core";
+import { Icon, ICONS } from "vseth-canine-ui";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
-import { Icon, ICONS } from "vseth-canine-ui";
 import GlobalConsts from "../globalconsts";
 
 const panelStyle = css`
   pointer-events: none;
   position: fixed;
   bottom: 0;
-  right: 0;
+  left: 0;
   display: flex;
   flex-direction: row;
   padding: 3.5em 0 3.5em 0;
@@ -18,6 +18,13 @@ const panelStyle = css`
   height: 100%;
   box-sizing: border-box;
   transition: transform 0.5s;
+  @media (max-width: 1199.98px) {
+    padding-top: 0px;
+  }
+  @media (min-width: 1200px) {
+    padding-top: 7rem;
+    padding-bottom: 0px;
+  }
 `;
 const iconContainerStyle = css`
   display: flex;
@@ -29,8 +36,8 @@ const closeButtonStyle = css`
   font-size: 0.5em;
   pointer-events: all;
   &.btn {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 `;
 const modalWrapper = css`
@@ -40,33 +47,19 @@ const modalWrapper = css`
   align-items: flex-end;
 `;
 const modalStyle = css`
-  position: relative;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  width: 100%;
-  pointer-events: auto;
-  background-clip: padding-box;
-  background: #fff;
-  padding: 1em;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.3rem;
-  outline: 0;
   max-height: 100%;
+  height: 100%;
   overflow: auto;
   &.modal-content {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
   & .modal-header {
     display: block;
   }
 `;
 interface PanelProps {
+  header: string;
   isOpen: boolean;
   toggle: () => void;
   iconPadding?: CSSProperties["padding"];
@@ -78,12 +71,13 @@ const duration = 200;
 const transitionStyles = {
   entering: { transform: "translate(0)" },
   entered: { transform: "translate(0)" },
-  exiting: { transform: "translate(100%)" },
-  exited: { transform: "translate(100%)" },
-  unmounted: { transform: "translate(100%)" },
+  exiting: { transform: "translate(-100%)" },
+  exited: { transform: "translate(-100%)" },
+  unmounted: { transform: "translate(-100%)" },
 };
 
 const Panel: React.FC<PanelProps> = ({
+  header,
   children,
   isOpen,
   toggle,
@@ -99,8 +93,8 @@ const Panel: React.FC<PanelProps> = ({
             color="primary"
             className={closeButtonStyle}
             onClick={toggle}
+            leftIcon={<Icon icon={ICONS.ARROW_RIGHT} size={24} />}
           >
-            <Icon icon={ICONS.ARROW_LEFT} size={24} />
             {buttonText && (
               <div>
                 <small>{buttonText}</small>
@@ -112,11 +106,17 @@ const Panel: React.FC<PanelProps> = ({
       <Transition in={isOpen} timeout={duration} unmountOnExit>
         {state => (
           <div
-            className={panelStyle}
+            className={`${panelStyle}`}
             style={{
-              ...transitionStyles[state as keyof typeof transitionStyles],
+              ...transitionStyles[state],
             }}
           >
+            <div className={modalWrapper}>
+              <div className={`${cx("modal-content", modalStyle)} p-4`}>
+                <h3>{header}</h3>
+                {children}
+              </div>
+            </div>
             <div
               className={iconContainerStyle}
               style={{ padding: iconPadding }}
@@ -126,17 +126,14 @@ const Panel: React.FC<PanelProps> = ({
                 color="primary"
                 className={closeButtonStyle}
                 onClick={toggle}
+                leftIcon={<Icon icon={ICONS.CLOSE} size={24} />}
               >
-                <Icon icon={ICONS.CLOSE} size={24} />
                 {buttonText && (
                   <div>
                     <small>{buttonText}</small>
                   </div>
                 )}
               </Button>
-            </div>
-            <div className={modalWrapper}>
-              <div className={cx("modal-content", modalStyle)}>{children}</div>
             </div>
           </div>
         )}
