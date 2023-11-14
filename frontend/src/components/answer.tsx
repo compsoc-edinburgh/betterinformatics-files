@@ -108,7 +108,13 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <Card mb="md" withBorder shadow="md" id={hasId ? answer?.longId : undefined} className={answerWrapperStyle}>
+      <Card
+        mb="md"
+        withBorder
+        shadow="md"
+        id={hasId ? answer?.longId : undefined}
+        className={answerWrapperStyle}
+      >
         <Card.Section px="md" py="md" withBorder bg="gray.0">
           <Flex justify="space-between" align="center">
             <div>
@@ -118,7 +124,7 @@ const AnswerComponent: React.FC<Props> = ({
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
                 >
-                  <Text color="dimmed" component="span" >
+                  <Text color="dimmed" component="span">
                     <Icon icon={ICONS.LINK} size="1em" />
                   </Text>
                 </Link>
@@ -183,7 +189,9 @@ const AnswerComponent: React.FC<Props> = ({
                       >
                         <Icon icon={ICONS.STAR_FILLED} size={18} />
                       </TooltipButton>
-                      <SmallButton tooltip={`${answer.expertvotes} experts endorse this answer.`}>
+                      <SmallButton
+                        tooltip={`${answer.expertvotes} experts endorse this answer.`}
+                      >
                         {answer.expertvotes}
                       </SmallButton>
                       {isExpert && (
@@ -201,7 +209,11 @@ const AnswerComponent: React.FC<Props> = ({
                             setExpertVote(answer.oid, !answer.isExpertVoted)
                           }
                         >
-                          <Icon icon={answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS} />
+                          <Icon
+                            icon={
+                              answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS
+                            }
+                          />
                         </TooltipButton>
                       )}
                     </Button.Group>
@@ -237,7 +249,10 @@ const AnswerComponent: React.FC<Props> = ({
                           setFlagged(answer.oid, !answer.isFlagged)
                         }
                       >
-                        <Icon icon={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS} size={18} />
+                        <Icon
+                          icon={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS}
+                          size={18}
+                        />
                       </TooltipButton>
                     </Button.Group>
                   )}
@@ -303,11 +318,7 @@ const AnswerComponent: React.FC<Props> = ({
           {onSectionChanged && (
             <Flex align="center">
               {(answer === undefined || editing) && (
-                <IconButton
-                  size="sm"
-                  onClick={onCancel}
-                  iconName={ICONS.CLOSE}
-                >
+                <IconButton size="sm" onClick={onCancel} iconName={ICONS.CLOSE}>
                   {editing ? "Cancel" : "Delete Draft"}
                 </IconButton>
               )}
@@ -325,7 +336,9 @@ const AnswerComponent: React.FC<Props> = ({
                 {answer !== undefined && (
                   <Menu>
                     <Menu.Target>
-                      <Button leftIcon={<Icon icon={ICONS.DOTS_H} />}>More</Button>
+                      <Button leftIcon={<Icon icon={ICONS.DOTS_H} />}>
+                        More
+                      </Button>
                     </Menu.Target>
                     <Menu.Dropdown>
                       {answer.flagged === 0 && (

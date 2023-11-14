@@ -39,20 +39,18 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     >
       <Stack h="100%" justify="space-between">
         <div>
-          <Anchor
-            weight={700}
-            size="xl"
-            tabIndex={-1}
-            mb={0}
-          >
+          <Anchor weight={700} size="xl" tabIndex={-1} mb={0}>
             {"match" in category
               ? highlight(category.displayname, category.match)
               : category.displayname}
           </Anchor>
           <Text mt="xs">
-            Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
+            Exams:{" "}
+            {`${category.examcountanswered} / ${category.examcountpublic}`}
           </Text>
-          <Text>Answers: {((category.answerprogress * 100) | 0).toString()} %</Text>
+          <Text>
+            Answers: {((category.answerprogress * 100) | 0).toString()} %
+          </Text>
         </div>
         <Progress radius={0} value={category.answerprogress * 100} />
       </Stack>

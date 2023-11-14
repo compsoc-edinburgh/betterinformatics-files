@@ -4,13 +4,18 @@ type CB = () => void;
 const useConfirm = () => {
   const [stack, setStack] = useState<Array<[string, CB, CB]>>([]);
   const push = useCallback((message: string, yes: CB, no?: CB) => {
-    setStack(prevStack => [...prevStack, [message, yes, no || (() => { })]]);
+    setStack(prevStack => [...prevStack, [message, yes, no || (() => {})]]);
   }, []);
   const pop = useCallback(() => {
     setStack(prevStack => prevStack.slice(0, prevStack.length - 1));
   }, []);
   const modals = stack.map(([message, yes, no], i) => (
-    <Modal opened={true} withCloseButton={false} onClose={() => { }} key={i + message}>
+    <Modal
+      opened={true}
+      withCloseButton={false}
+      onClose={() => {}}
+      key={i + message}
+    >
       <Modal.Body mt="sm">{message}</Modal.Body>
 
       <Group position="right">

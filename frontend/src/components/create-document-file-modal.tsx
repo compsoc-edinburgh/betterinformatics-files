@@ -61,10 +61,10 @@ const CreateDocumentFileModal: React.FC<Props> = ({
             createDocumentFile(
               displayName,
               file ??
-              new NamedBlob(
-                new Blob([], { type: "application/octet-stream" }),
-                "document.md",
-              ),
+                new NamedBlob(
+                  new Blob([], { type: "application/octet-stream" }),
+                  "document.md",
+                ),
             )
           }
         >

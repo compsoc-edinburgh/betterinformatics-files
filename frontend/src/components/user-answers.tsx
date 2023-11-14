@@ -76,7 +76,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       {(!answers || answers.length === 0) && !loading && (
         <Alert color="secondary">No answers</Alert>
       )}
-      <div className={columnStyle} >
+      <div className={columnStyle}>
         {answers &&
           answers.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
             <div key={answer.oid}>

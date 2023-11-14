@@ -107,9 +107,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     <Panel isOpen={isOpen} toggle={toggle}>
       <Stack spacing="xs">
         <div>
-          <Title order={2} >
-            {metaData && metaData.displayname}
-          </Title>
+          <Title order={2}>{metaData && metaData.displayname}</Title>
           <Text size="sm" fs="italic">
             {metaData && metaData.category_displayname}
           </Text>
@@ -126,7 +124,13 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           />
         )}
         <Title order={6}>Size</Title>
-        <Slider label={null} min={500} max={2000} value={widthValue} onChange={handler} />
+        <Slider
+          label={null}
+          min={500}
+          max={2000}
+          value={widthValue}
+          onChange={handler}
+        />
         <Title order={6}>Actions</Title>
         <Button.Group>
           <IconButton

@@ -1,4 +1,15 @@
-import { Anchor, Badge, Box, Breadcrumbs, Card, Group, Paper, Stack, Text, Title } from "@mantine/core";
+import {
+  Anchor,
+  Badge,
+  Box,
+  Breadcrumbs,
+  Card,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { css } from "@emotion/css";
 import { escapeRegExp } from "lodash-es";
 import React from "react";
@@ -62,10 +73,19 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         if (result.type === "exam") {
           return (
             <div className="px-2" key={`exam-${result.filename}`}>
-              <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
+              <Card
+                withBorder
+                shadow="sm"
+                mb="sm"
+                p="md"
+                className="position-static"
+              >
                 <Group>
                   <Badge>Exam</Badge>
-                  <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
+                  <Breadcrumbs
+                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
+                    className={noMarginBreadcrumb}
+                  >
                     <Anchor
                       tt="uppercase"
                       size="xs"
@@ -101,17 +121,20 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                         px="md"
                         style={{ position: "static", flex: "0 0 auto" }}
                       >
-                        <Text>
-                          {page}
-                        </Text>
+                        <Text>{page}</Text>
                       </Paper>
                     </Link>
                     <Stack style={{ flexGrow: "1", flexBasis: "0" }}>
                       {matches.map((part, i) => (
-                        <Box key={i} >
-                          <Text component="span" color="dimmed">... </Text>
+                        <Box key={i}>
+                          <Text component="span" color="dimmed">
+                            ...{" "}
+                          </Text>
                           <HighlightedContent content={part} key={i} />
-                          <Text component="span" color="dimmed"> ...</Text>
+                          <Text component="span" color="dimmed">
+                            {" "}
+                            ...
+                          </Text>
                           {i !== matches.length - 1 && " "}
                         </Box>
                       ))}
@@ -124,10 +147,19 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else if (result.type === "answer") {
           return (
             <div className="px-2" key={`answer-${result.long_id}`}>
-              <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
+              <Card
+                withBorder
+                shadow="sm"
+                mb="sm"
+                p="md"
+                className="position-static"
+              >
                 <Group>
                   <Badge>Answer</Badge>
-                  <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
+                  <Breadcrumbs
+                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
+                    className={noMarginBreadcrumb}
+                  >
                     <Anchor
                       tt="uppercase"
                       size="xs"
@@ -153,7 +185,9 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                     component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
-                    <Title py="xs" order={4}>{result.author_displayname}</Title>
+                    <Title py="xs" order={4}>
+                      {result.author_displayname}
+                    </Title>
                   </Anchor>
                   <HighlightedMarkdown
                     content={result.text}
@@ -166,10 +200,19 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else {
           return (
             <div className="px-2" key={`comment-${result.long_id}`}>
-              <Card withBorder shadow="sm" mb="sm" p="md" className="position-static">
+              <Card
+                withBorder
+                shadow="sm"
+                mb="sm"
+                p="md"
+                className="position-static"
+              >
                 <Group>
                   <Badge>Comment</Badge>
-                  <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
+                  <Breadcrumbs
+                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
+                    className={noMarginBreadcrumb}
+                  >
                     <Anchor
                       tt="uppercase"
                       size="xs"
@@ -195,7 +238,9 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                     component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
-                    <Title py="xs" order={4}>{result.author_displayname}</Title>
+                    <Title py="xs" order={4}>
+                      {result.author_displayname}
+                    </Title>
                   </Anchor>
                   <HighlightedMarkdown
                     content={result.text}

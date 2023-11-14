@@ -43,12 +43,16 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
                 {document.liked ? (
                   <Flex align="center" color="red">
                     <Icon icon={ICONS.LIKE_FILLED} color="red" />
-                    <Text fw={700} color="red" ml="0.3em">{document.like_count}</Text>
+                    <Text fw={700} color="red" ml="0.3em">
+                      {document.like_count}
+                    </Text>
                   </Flex>
                 ) : (
                   <Flex align="center">
                     <Icon icon={ICONS.LIKE} />
-                    <Text fw={700} ml="0.3em">{document.like_count}</Text>
+                    <Text fw={700} ml="0.3em">
+                      {document.like_count}
+                    </Text>
                   </Flex>
                 )}
               </Group>
@@ -63,9 +67,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
         {isMyself ? "Your" : `${userInfo?.displayName || `@${username}`}'s`}{" "}
         Documents
       </h3>
-      {documentsError && (
-        <Alert color="red">{documentsError.toString()}</Alert>
-      )}
+      {documentsError && <Alert color="red">{documentsError.toString()}</Alert>}
       {documents && displayDocuments(documents)}
       {(!documents || documents.length === 0) && (
         <Alert color="secondary">No documents</Alert>

@@ -59,7 +59,7 @@ const UserPage: React.FC<{}> = () => {
             {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
           <Tabs.Panel value="overview" pt="sm">
-            <SimpleGrid breakpoints={[{ maxWidth: '48rem', cols: 1 }]} cols={2}>
+            <SimpleGrid breakpoints={[{ maxWidth: "48rem", cols: 1 }]} cols={2}>
               {!isMyself && !user.isAdmin && (
                 <Alert color="secondary">There's nothing here</Alert>
               )}

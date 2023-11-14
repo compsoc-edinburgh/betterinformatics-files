@@ -245,7 +245,9 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         <CloseButton onClick={toggle} />
       </Group>
       {error && <Alert color="red">{error.toString()}</Alert>}
-      <Title order={4} mb="xs">Metadata</Title>
+      <Title order={4} mb="xs">
+        Metadata
+      </Title>
       <Stack>
         <TextInput label="Name" {...registerInput("displayname")} />
         <Grid>

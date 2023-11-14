@@ -207,7 +207,7 @@ const App: React.FC<{}> = () => {
         <MantineProvider
           theme={{
             fontFamily: '"Source Sans Pro", "Roboto", sans-serif',
-            primaryColor: 'dark',
+            primaryColor: "dark",
             components: {
               AppShell: {
                 styles: {
@@ -314,7 +314,14 @@ const App: React.FC<{}> = () => {
           </DebugContext.Provider>
           {process.env.NODE_ENV === "development" && (
             <>
-              <div style={{ position: "fixed", bottom: 10, left: 10, zIndex: 1000 }}>
+              <div
+                style={{
+                  position: "fixed",
+                  bottom: 10,
+                  left: 10,
+                  zIndex: 1000,
+                }}
+              >
                 <Button color="white" onClick={toggleDebugPanel}>
                   DEBUG
                 </Button>
@@ -329,7 +336,7 @@ const App: React.FC<{}> = () => {
           )}
         </MantineProvider>
       </VSETHExternalApp>
-    </VSETHThemeProvider >
+    </VSETHThemeProvider>
   );
 };
 export default App;

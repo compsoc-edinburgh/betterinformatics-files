@@ -75,7 +75,11 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
                   : "View with admin privileges"}
               </Button>
             )}
-            <Button leftIcon={<Icon icon={ICONS.LEAVE} />} onClick={() => logout("/")} className="m-2">
+            <Button
+              leftIcon={<Icon icon={ICONS.LEAVE} />}
+              onClick={() => logout("/")}
+              className="m-2"
+            >
               Log out
             </Button>
           </Group>

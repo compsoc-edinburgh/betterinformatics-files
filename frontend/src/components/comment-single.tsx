@@ -21,7 +21,12 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
     <Card withBorder shadow="md" mb="md">
       <Card.Section bg="gray.0">
-        <Breadcrumbs px="md" pt="md" separator={<Icon icon={ICONS.RIGHT} size={10} />} className={noMarginBreadcrumb}>
+        <Breadcrumbs
+          px="md"
+          pt="md"
+          separator={<Icon icon={ICONS.RIGHT} size={10} />}
+          className={noMarginBreadcrumb}
+        >
           <Anchor
             component={Link}
             to={`/category/${comment.category_slug}`}

@@ -1,5 +1,14 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Card, Checkbox, Grid, Group, Text, Title } from "@mantine/core";
+import {
+  Anchor,
+  Badge,
+  Card,
+  Checkbox,
+  Grid,
+  Group,
+  Text,
+  Title,
+} from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -69,11 +78,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <Group align="center"
-        ml="md"
-        mt="xl"
-        mb="md"
-      >
+      <Group align="center" ml="md" mt="xl" mb="md">
         <Checkbox
           checked={checked}
           indeterminate={indeterminate}

@@ -138,10 +138,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </pre>
         </Modal.Body>
       </Modal>
-      <Card
-        withBorder
-        my="xs"
-      >
+      <Card withBorder my="xs">
         <Flex justify="space-between" align="center">
           <Flex direction="column" gap="xs">
             <Title order={3} inline>

@@ -15,16 +15,8 @@ const TooltipButton: React.FC<TooltipButtonProps> = ({
   return (
     <>
       {tooltip && (
-        <Tooltip
-          label={tooltip}
-          withArrow
-          withinPortal
-        >
-          <Button
-            variant="default"
-            {...buttonProps}
-            onClick={onClick}
-          >
+        <Tooltip label={tooltip} withArrow withinPortal>
+          <Button variant="default" {...buttonProps} onClick={onClick}>
             {children}
           </Button>
         </Tooltip>

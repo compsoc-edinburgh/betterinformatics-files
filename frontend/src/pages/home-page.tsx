@@ -157,8 +157,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-          ({ slug }) => slug !== "default" || isAdmin,
-        )
+            ({ slug }) => slug !== "default" || isAdmin,
+          )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -183,10 +183,7 @@ export const CategoryList: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl">
-        <Flex
-          direction={{ base: "column", sm: "row" }}
-          justify="space-between"
-        >
+        <Flex direction={{ base: "column", sm: "row" }} justify="space-between">
           <SegmentedControl
             value={mode}
             onChange={setMode}
@@ -245,7 +242,9 @@ export const CategoryList: React.FC<{}> = () => {
                 ))}
               {unassignedList && (
                 <>
-                  <Title order={3} my="md">Unassigned Categories</Title>
+                  <Title order={3} my="md">
+                    Unassigned Categories
+                  </Title>
                   <Grid>
                     {unassignedList.map(category => (
                       <CategoryCard category={category} key={category.slug} />
@@ -255,7 +254,9 @@ export const CategoryList: React.FC<{}> = () => {
               )}
               {isAdmin && (
                 <>
-                  <Title order={3} my="md">New Category</Title>
+                  <Title order={3} my="md">
+                    New Category
+                  </Title>
                   <Grid>
                     <AddCategory onAddCategory={onAddCategory} />
                   </Grid>

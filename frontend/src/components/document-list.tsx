@@ -1,4 +1,12 @@
-import { Anchor, Button, Flex, Group, Paper, Text, Tooltip } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  Flex,
+  Group,
+  Paper,
+  Text,
+  Tooltip,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -34,23 +42,22 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
                 <Text>{document.display_name}</Text>
               </Anchor>
               <Group position="apart" mt="sm">
-                <Anchor
-                  component={Link}
-                  to={`/user/${document.author}`}
-                >
-                  <Text color="dimmed">
-                    @{document.author}
-                  </Text>
+                <Anchor component={Link} to={`/user/${document.author}`}>
+                  <Text color="dimmed">@{document.author}</Text>
                 </Anchor>
                 {document.liked ? (
                   <Flex align="center" color="red">
                     <Icon icon={ICONS.LIKE_FILLED} color="red" />
-                    <Text fw={700} color="red" ml="0.3em">{document.like_count}</Text>
+                    <Text fw={700} color="red" ml="0.3em">
+                      {document.like_count}
+                    </Text>
                   </Flex>
                 ) : (
                   <Flex align="center">
                     <Icon icon={ICONS.LIKE} />
-                    <Text fw={700} ml="0.3em">{document.like_count}</Text>
+                    <Text fw={700} ml="0.3em">
+                      {document.like_count}
+                    </Text>
                   </Flex>
                 )}
               </Group>

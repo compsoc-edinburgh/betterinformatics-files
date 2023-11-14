@@ -1,4 +1,12 @@
-import { Anchor, Button, Card, Divider, Flex, Modal, Text } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  Card,
+  Divider,
+  Flex,
+  Modal,
+  Text,
+} from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -85,10 +93,7 @@ const DocumentCommentComponent = ({
         <Card.Section bg="gray.0" mb="sm">
           <Flex py="sm" px="md" justify="space-between" align="center">
             <Flex align="center">
-              <Anchor
-                component={Link}
-                to={`/user/${comment.authorId}`}
-              >
+              <Anchor component={Link} to={`/user/${comment.authorId}`}>
                 <Text weight={700} component="span">
                   {comment.authorDisplayName}
                 </Text>
@@ -96,7 +101,9 @@ const DocumentCommentComponent = ({
                   @{comment.authorId}
                 </Text>
               </Anchor>
-              <Text component="span" mx="xs" color="dimmed">·</Text>
+              <Text component="span" mx="xs" color="dimmed">
+                ·
+              </Text>
               {comment && (
                 <Text component="span" color="dimmed" title={comment.time}>
                   {formatDistanceToNow(new Date(comment.time))} ago
@@ -108,9 +115,16 @@ const DocumentCommentComponent = ({
                   new Date(comment.time),
                 ) > 1 && (
                   <>
-                    <Text component="span" color="dimmed" mx="xs">·</Text>
-                    <Text component="span" color="dimmed" title={comment.edittime}>
-                      edited {formatDistanceToNow(new Date(comment.edittime))} ago
+                    <Text component="span" color="dimmed" mx="xs">
+                      ·
+                    </Text>
+                    <Text
+                      component="span"
+                      color="dimmed"
+                      title={comment.edittime}
+                    >
+                      edited {formatDistanceToNow(new Date(comment.edittime))}{" "}
+                      ago
                     </Text>
                   </>
                 )}
@@ -146,7 +160,7 @@ const DocumentCommentComponent = ({
           <Divider color="gray.3" />
         </Card.Section>
         <MarkdownText value={comment.text} />
-      </Card >
+      </Card>
     </>
   );
 };

@@ -13,7 +13,11 @@ interface ContentContainerProps extends DefaultProps {
   className?: string;
 }
 
-const ContentContainer: React.FC<ContentContainerProps> = ({ children, className, ...others }) => {
+const ContentContainer: React.FC<ContentContainerProps> = ({
+  children,
+  className,
+  ...others
+}) => {
   const { classes } = useStyles();
   return (
     <>
@@ -21,8 +25,9 @@ const ContentContainer: React.FC<ContentContainerProps> = ({ children, className
       <Box
         py="md"
         px={0}
-        className={`${classes.contentContainer} ${className ? ` ${className}` : ""
-          }`}
+        className={`${classes.contentContainer} ${
+          className ? ` ${className}` : ""
+        }`}
       >
         {children}
       </Box>

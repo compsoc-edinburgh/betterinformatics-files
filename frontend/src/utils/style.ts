@@ -1,8 +1,8 @@
-import { createStyles } from '@mantine/core';
+import { createStyles } from "@mantine/core";
 
-export const useStyles = createStyles((theme) => ({
+export const useStyles = createStyles(theme => ({
   focusOutline: {
-    '&:focus': {
+    "&:focus": {
       outlineWidth: 1.5,
       outlineStyle: "solid",
       outlineColor: theme.colors.gray[9],

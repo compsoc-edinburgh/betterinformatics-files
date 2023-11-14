@@ -79,7 +79,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
       )}
       <div
         className={columnStyle}
-      // options={{ fitWidth: true, transitionDuration: 0 }}
+        // options={{ fitWidth: true, transitionDuration: 0 }}
       >
         {comments &&
           comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (

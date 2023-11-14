@@ -88,7 +88,11 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
   const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
     <>
-      <Modal title="Add File" opened={addModalIsOpen} onClose={toggleAddModalIsOpen}>
+      <Modal
+        title="Add File"
+        opened={addModalIsOpen}
+        onClose={toggleAddModalIsOpen}
+      >
         <CreateDocumentFileModal
           toggle={toggleAddModalIsOpen}
           document={data}
@@ -168,7 +172,10 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
         ))}
       </List>
       <Flex justify="end">
-        <Button leftIcon={<Icon icon={ICONS.PLUS} />} onClick={toggleAddModalIsOpen}>
+        <Button
+          leftIcon={<Icon icon={ICONS.PLUS} />}
+          onClick={toggleAddModalIsOpen}
+        >
           Add
         </Button>
       </Flex>
@@ -184,7 +191,11 @@ const DocumentSettings: React.FC<Props> = ({ slug, data, mutate }) => {
               </div>
             </Flex>
 
-            <Button leftIcon={<Icon icon={ICONS.DELETE} />} color="red" onClick={toggleDeleteModalIsOpen}>
+            <Button
+              leftIcon={<Icon icon={ICONS.DELETE} />}
+              color="red"
+              onClick={toggleDeleteModalIsOpen}
+            >
               Delete
             </Button>
           </Flex>

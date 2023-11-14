@@ -29,7 +29,7 @@ const modes = [
   "score_legacy",
   "score_documents",
 ] as const;
-type Mode = typeof modes[number];
+type Mode = (typeof modes)[number];
 const loadScoreboard = async (scoretype: Mode) => {
   return (await fetchGet(`/api/scoreboard/top/${scoretype}/`))
     .value as UserInfo[];
@@ -103,8 +103,16 @@ const Scoreboard: React.FC<{}> = () => {
         <Table striped highlightOnHover verticalSpacing="md" fontSize="md">
           <thead>
             <tr>
-              <th><Text weight={700} size="md" color="black">Rank</Text></th>
-              <th><Text weight={700} size="md" color="black">User</Text></th>
+              <th>
+                <Text weight={700} size="md" color="black">
+                  Rank
+                </Text>
+              </th>
+              <th>
+                <Text weight={700} size="md" color="black">
+                  User
+                </Text>
+              </th>
               <Th onSort={() => setMode("score")} sorted={mode === "score"}>
                 Score
               </Th>
@@ -146,10 +154,7 @@ const Scoreboard: React.FC<{}> = () => {
                 <tr key={board.username}>
                   <td>{idx + 1}</td>
                   <td>
-                    <Anchor
-                      component={Link}
-                      to={`/user/${board.username}`}
-                    >
+                    <Anchor component={Link} to={`/user/${board.username}`}>
                       {board.displayName}
                     </Anchor>
                   </td>

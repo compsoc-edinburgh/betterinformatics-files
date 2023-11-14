@@ -76,7 +76,10 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                   )}
                   {payment.uploaded_filename && (
                     <div>
-                      <Link color="dark" to={`/exams/${payment.uploaded_filename}`}>
+                      <Link
+                        color="dark"
+                        to={`/exams/${payment.uploaded_filename}`}
+                      >
                         Uploaded Transcript
                       </Link>
                     </div>
@@ -84,10 +87,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                   {isAdmin && (
                     <div>
                       {!payment.refund_time && (
-                        <Button
-                          onClick={() => refund(payment.oid)}
-                          mr="xs"
-                        >
+                        <Button onClick={() => refund(payment.oid)} mr="xs">
                           Mark Refunded
                         </Button>
                       )}

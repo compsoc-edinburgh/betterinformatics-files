@@ -13,7 +13,11 @@ const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
 };
 const wrapText = (text: string) => {
   const textSplit = text.split("\n");
-  return textSplit.map(t => <Text pt="xs" key={t}>{t}</Text>);
+  return textSplit.map(t => (
+    <Text pt="xs" key={t}>
+      {t}
+    </Text>
+  ));
 };
 
 interface Props {
@@ -36,21 +40,17 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
             )}
           </Title>
           <Button.Group>
-            <Button
-              onClick={() => runSetFlag("done", !entry.done)}
-            >
+            <Button onClick={() => runSetFlag("done", !entry.done)}>
               {entry.done ? "Set Undone" : "Set Done"}
             </Button>
-            <Button
-              onClick={() => runSetFlag("read", !entry.read)}
-            >
+            <Button onClick={() => runSetFlag("read", !entry.read)}>
               {entry.read ? "Set Unread" : "Set Read"}
             </Button>
           </Button.Group>
         </Group>
       </Card.Section>
       {wrapText(entry.text)}
-    </Card >
+    </Card>
   );
 };
 export default FeedbackEntryComponent;

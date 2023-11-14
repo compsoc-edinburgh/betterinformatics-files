@@ -83,10 +83,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         >
           Home
         </Anchor>
-        <Anchor
-          tt="uppercase"
-          size="xs"
-        >
+        <Anchor tt="uppercase" size="xs">
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
@@ -198,7 +195,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
             {metaData.catadmin && (
               <Grid.Col span="auto">
-                <Alert variant="light" color="blue" title="Category admin" icon={<Icon icon={ICONS.USER} />}>
+                <Alert
+                  variant="light"
+                  color="blue"
+                  title="Category admin"
+                  icon={<Icon icon={ICONS.USER} />}
+                >
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
               </Grid.Col>
@@ -206,12 +208,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Grid>
           <ExamList metaData={metaData} />
 
-          <Title order={2} mt="xl" mb="lg">Documents</Title>
+          <Title order={2} mt="xl" mb="lg">
+            Documents
+          </Title>
           <DocumentList slug={metaData.slug} />
 
           {metaData.attachments.length > 0 && (
             <>
-              <Title order={2} mt="xl" mb="lg">Attachments</Title>
+              <Title order={2} mt="xl" mb="lg">
+                Attachments
+              </Title>
               <List>
                 {metaData.attachments.map(att => (
                   <List.Item>
@@ -262,9 +268,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                ...user,
-                isCategoryAdmin: user.isAdmin || data.catadmin,
-              }
+                  ...user,
+                  isCategoryAdmin: user.isAdmin || data.catadmin,
+                }
               : undefined
           }
         >

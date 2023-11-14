@@ -48,7 +48,11 @@ const CommentSectionComponent: React.FC<Props> = ({
         )}
       </Stack>
       {answer.comments.length > 3 && !expanded && (
-        <Text pt="xs" onClick={() => setExpanded(true)} className={showMoreStyle}>
+        <Text
+          pt="xs"
+          onClick={() => setExpanded(true)}
+          className={showMoreStyle}
+        >
           {answer.comments.length === 4 ? (
             "Show 1 more comment..."
           ) : (

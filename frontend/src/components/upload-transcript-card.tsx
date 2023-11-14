@@ -1,4 +1,12 @@
-import { Alert, Card, FileInput, Stack, Text, Title, Select } from "@mantine/core";
+import {
+  Alert,
+  Card,
+  FileInput,
+  Stack,
+  Text,
+  Title,
+  Select,
+} from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
@@ -87,7 +95,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
           </Stack>
         </form>
       </Stack>
-    </Card >
+    </Card>
   );
 };
 export default UploadTranscriptCard;

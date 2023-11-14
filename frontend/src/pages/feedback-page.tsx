@@ -1,5 +1,16 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
-import { Alert, Anchor, Button, Container, Grid, Stack, Tabs, Text, Textarea, Title } from "@mantine/core";
+import {
+  Alert,
+  Anchor,
+  Button,
+  Container,
+  Grid,
+  Stack,
+  Tabs,
+  Text,
+  Textarea,
+  Title,
+} from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
@@ -31,7 +42,10 @@ const FeedbackForm: React.FC<{}> = () => {
   return (
     <Stack>
       {success && <Alert>Feedback was submitted successfully.</Alert>}
-      <Text>Please tell us what you think about Community Solutions! What do you like? What could we improve? Ideas for new features? Use the form below or write to{" "}
+      <Text>
+        Please tell us what you think about Community Solutions! What do you
+        like? What could we improve? Ideas for new features? Use the form below
+        or write to{" "}
         <Anchor
           component="a"
           href={`mailto:${serverData.email_address}`}
@@ -60,7 +74,11 @@ const FeedbackForm: React.FC<{}> = () => {
         onChange={e => setText(e.currentTarget.value)}
         minRows={12}
       />
-      <Button loading={loading} disabled={text.length === 0 || loading} onClick={() => run(text)}>
+      <Button
+        loading={loading}
+        disabled={text.length === 0 || loading}
+        onClick={() => run(text)}
+      >
         Submit
       </Button>
     </Stack>
@@ -117,7 +135,9 @@ const FeedbackPage: React.FC<{}> = () => {
     <FeedbackAdminView />
   ) : (
     <Container size="xl">
-      <Title order={2} mb="sm">Feedback</Title>
+      <Title order={2} mb="sm">
+        Feedback
+      </Title>
       <FeedbackForm />
     </Container>
   );

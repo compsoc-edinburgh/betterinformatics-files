@@ -43,11 +43,11 @@ const getComponents = (
   file: DocumentFile | undefined,
 ):
   | {
-    Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
-    Editor:
-    | React.FC<{ document: Document; file: DocumentFile; url: string }>
-    | undefined;
-  }
+      Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
+      Editor:
+        | React.FC<{ document: Document; file: DocumentFile; url: string }>
+        | undefined;
+    }
   | undefined => {
   if (file === undefined) return undefined;
 
@@ -67,7 +67,7 @@ const getComponents = (
 const getFile = (document: Document | undefined, oid: number) =>
   document ? document.files.find(x => x.oid === oid) : undefined;
 
-interface Props { }
+interface Props {}
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
   const [error, _, data, mutate] = useDocument(author, slug, document => {
@@ -164,7 +164,10 @@ const DocumentPage: React.FC<Props> = () => {
             <ContentContainer mt="-2px">
               <Container>
                 <Flex py="sm" justify="center">
-                  <Button leftIcon={<Icon icon={ICONS.EDIT} />} onClick={toggleEditing}>
+                  <Button
+                    leftIcon={<Icon icon={ICONS.EDIT} />}
+                    onClick={toggleEditing}
+                  >
                     Toggle Edit Mode
                   </Button>
                 </Flex>
