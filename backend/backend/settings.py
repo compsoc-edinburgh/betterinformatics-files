@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-DEBUG = os.environ.get("IS_DEBUG", "false").lower() == "true"
+DEBUG = True #os.environ.get("IS_DEBUG", "false").lower() == "true"
 SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
@@ -155,7 +155,7 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
-CSRF_TRUSTED_ORIGINS = ["https://*.ethz.ch"]
+SRF_TRUSTED_ORIGINS = ["https://*.ethz.ch"]
 
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
