@@ -177,10 +177,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     // initial run to get the answers in a section
     useEffect(() => {
-      if (visible && !data) {
+      if ((visible || !hidden) && !data) {
         run();
       }
-    }, [run, visible, data]);
+    }, [run, visible, hidden, data]);
 
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
