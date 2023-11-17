@@ -50,7 +50,6 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
       )
     ) : (
       <Button
-        mt="xs"
         size="sm"
         color="dark"
         variant="outline"
