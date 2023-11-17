@@ -158,6 +158,11 @@ const App: React.FC<{}> = () => {
   vsethTheme.colorScheme = "light";
   vsethTheme.primaryColor = "green";
 
+  const adminItems = [
+    { title: "Upload Exam", href: "/uploadpdf" },
+    { title: "Mod Queue", href: "/modqueue" },
+  ]
+
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
     { title: "Scoreboard ", href: "/scoreboard" },
@@ -167,6 +172,10 @@ const App: React.FC<{}> = () => {
         { title: "FAQ", href: "/faq" },
         { title: "Feedback", href: "/feedback" },
         { title: "Submit Transcript", href: "/submittranscript" },
+        ...(typeof user === "object" && user.isCategoryAdmin
+              ? adminItems
+              : []),
+
       ],
     },
     { title: "Search", href: "/search" },
