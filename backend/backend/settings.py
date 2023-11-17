@@ -184,7 +184,12 @@ CSP_CONNECT_SRC = (
     "https://" + s3_host + ":" + s3_port,
     "http://" + s3_host + ":" + s3_port,
 )
-CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
+CSP_IMG_SRC = (
+    "'self'", 
+    "data:", 
+    "https://static.vseth.ethz.ch", 
+    "https://fe.vseth.ethz.ch",
+)
 
 
 # Application definition
