@@ -155,9 +155,9 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
-CSRF_TRUSTED_ORIGINS = ["https://*.ethz.ch"]
+CSRF_TRUSTED_ORIGINS = ["https://*.ethz.ch", "container_name"]
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
