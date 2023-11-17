@@ -60,7 +60,7 @@ const createRenderers = (
   macros: object,
 ): ReactMarkdownProps["renderers"] => ({
   table: ({ children }) => {
-    return <table className="table">{children}</table>;
+    return <table>{children}</table>;
   },
   text: ({ value }: { value: string }) => {
     if (regex === undefined) return <span>{value}</span>;

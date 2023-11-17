@@ -223,13 +223,13 @@ const AnswerComponent: React.FC<Props> = ({
                     (answer.flagged > 0 && isAdmin) ||
                     flaggedLoading) && (
                     <Button.Group>
-                      <Button
+                      <TooltipButton
+                        tooltip="Flagged as Inappropriate"
                         color="red"
-                        leftIcon={<Icon icon={ICONS.FLAG} />}
-                        title="Flagged as Inappropriate"
+                        variant="filled"
                       >
-                        Inappropriate
-                      </Button>
+                        <Icon icon={ICONS.FLAG} />
+                      </TooltipButton>
                       <SmallButton
                         color="red"
                         tooltip={`${answer.flagged} users consider this answer inappropriate.`}

@@ -78,7 +78,6 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
             <Button
               leftIcon={<Icon icon={ICONS.LEAVE} />}
               onClick={() => logout("/")}
-              className="m-2"
             >
               Log out
             </Button>

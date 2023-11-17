@@ -220,7 +220,6 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       >
         <div ref={inViewportRef}>
           <div
-            className="cover-container"
             style={{
               width: `${targetWidth}px`,
               height: `${
@@ -234,17 +233,12 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
             {displayCanvasType && (
               <div
                 className={cx(
-                  "position-absolute",
-                  "position-top-right",
-                  "m-3",
-                  "p-1",
-                  "rounded-circle",
                   isMainCanvas ? "bg-success" : "bg-info",
                 )}
               />
             )}
             {displayHideShowButtons && (
-              <div className="position-absolute position-top-left m-2 p1">
+              <div>
                 <IconButton
                   className={addCutButtonStyle}
                   size="sm"

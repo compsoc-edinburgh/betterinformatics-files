@@ -80,6 +80,7 @@ const DocumentCommentComponent = ({
             setUndoStack={setUndoStack}
           />
           <TooltipButton
+            mt="sm"
             color="primary"
             tooltip="Save comment"
             disabled={editLoading || draftText.length === 0}

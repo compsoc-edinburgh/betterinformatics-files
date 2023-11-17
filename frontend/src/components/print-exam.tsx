@@ -48,7 +48,7 @@ export default class PrintExam extends React.Component<Props, State> {
 
   render() {
     return (
-      <Card className="m-1">
+      <Card>
         <p>
           Unfortunately we can not provide you this {this.props.title} as a PDF.
           The corresponding professor did not allow this.

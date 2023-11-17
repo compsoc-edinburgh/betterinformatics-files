@@ -78,7 +78,6 @@ const PdfTextElement: React.FC<TextElementProps> = ({ item, view, scale }) => {
   );
   return (
     <div
-      className="position-absolute"
       style={{
         position: "absolute",
         top: `${top * scale}px`,
@@ -94,7 +93,6 @@ const PdfTextElement: React.FC<TextElementProps> = ({ item, view, scale }) => {
           transformOrigin: "left bottom",
           whiteSpace: "pre",
         }}
-        className="d-inline-block"
         ref={divRef}
       >
         {item.str}
@@ -125,7 +123,6 @@ const PdfSectionText: React.FC<Props> = React.memo(
     );
     return (
       <div
-        className="position-absolute position-top-left"
         style={{
           transform: `translateY(-${translateY}px) scale(${scale})`,
           transformOrigin: "top left",

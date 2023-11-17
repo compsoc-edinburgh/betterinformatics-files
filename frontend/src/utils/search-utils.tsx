@@ -12,7 +12,7 @@ export const highlight = (text: string, indexArray: number[]) => {
     prevMatchingIndex = i + 1;
     res.push(
       // m = matching
-      <mark className="p-0" key={`m${i}`}>
+      <mark key={`m${i}`}>
         {text[i]}
       </mark>,
     );

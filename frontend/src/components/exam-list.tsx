@@ -61,7 +61,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
       {error && <Alert color="red">{error}</Alert>}
       {loading && <Loader />}
       <Flex mt="sm" mb="lg" justify="space-between">
-        <div className="mb-2 d-md-inline-block">
+        <div>
           <Button
             disabled={selected.size === 0}
             onClick={() => dlSelectedExams(getSelectedExams(selected))}

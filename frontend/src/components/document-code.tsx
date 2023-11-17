@@ -10,7 +10,7 @@ const DocumentCode: React.FC<DocumentCodeProps> = ({ url }) => {
   const { data } = useRequest(() => fetch(url).then(r => r.text()));
 
   return (
-    <Container size="xl" className="py-5">
+    <Container size="xl" py="sm">
       {data !== undefined &&
         (data.length > 0 ? (
           <CodeBlock value={data} language="tex" />

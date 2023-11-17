@@ -30,7 +30,7 @@ const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
   });
   return (
     <div>
-      <div className="form-group">
+      <div>
         <Editor
           value={draftText}
           onChange={setDraftText}
@@ -40,19 +40,16 @@ const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
           setUndoStack={setUndoStack}
         />
       </div>
-      <div className="form-group d-flex justify-content-end">
+      <div>
         <Button
           onClick={() =>
             updateDocument({
               file: new NamedBlob(new Blob([draftText]), "file.md"),
             })
           }
+          loading={loading}
+          leftIcon={<Icon icon={ICONS.SAVE} />}
         >
-          {loading ? (
-            <Loader size="sm" className="mr-2" />
-          ) : (
-            <Icon icon={ICONS.SAVE} className="mr-2" />
-          )}
           Save
         </Button>
       </div>

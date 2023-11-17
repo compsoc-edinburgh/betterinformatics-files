@@ -30,7 +30,6 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
           <Anchor
             component={Link}
             to={`/category/${comment.category_slug}`}
-            className="text-primary"
             tt="uppercase"
             size="xs"
           >
@@ -39,7 +38,6 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
           <Anchor
             component={Link}
             to={`/exams/${comment.filename}`}
-            className="text-primary"
             tt="uppercase"
             size="xs"
           >
@@ -48,7 +46,6 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
           <Anchor
             component={Link}
             to={`/exams/${comment.filename}#${comment.answerId}`}
-            className="text-primary"
             tt="uppercase"
             size="xs"
           >
@@ -78,8 +75,8 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
               new Date(comment.time),
             ) > 1 && (
               <>
-                <span className="text-muted mx-1">·</span>
-                <span className="text-muted" title={comment.edittime}>
+                <span>·</span>
+                <span title={comment.edittime}>
                   edited {formatDistanceToNow(new Date(comment.edittime))} ago
                 </span>
               </>

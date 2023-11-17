@@ -118,7 +118,7 @@ const DocumentPage: React.FC<Props> = () => {
         <div>
           Author:{" "}
           {data && (
-            <Link className="text-primary" to={`/user/${data.author}`}>
+            <Link to={`/user/${data.author}`}>
               @{data.author}
             </Link>
           )}
@@ -131,7 +131,7 @@ const DocumentPage: React.FC<Props> = () => {
         )}
       </Container>
       <Container size="xl" mt="sm">
-        <Tabs value={tab} onTabChange={setTab} className="mt-4">
+        <Tabs value={tab} onTabChange={setTab}>
           <Tabs.List>
             {data &&
               data.files.map(file => (
@@ -240,8 +240,8 @@ const DocumentPage: React.FC<Props> = () => {
       )}
 
       {tab === "settings" && data && (
-        <ContentContainer>
-          <Container>
+        <ContentContainer mt="-2px">
+          <Container size="xl">
             <DocumentSettings data={data} mutate={mutate} />
           </Container>
         </ContentContainer>

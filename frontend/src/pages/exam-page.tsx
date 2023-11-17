@@ -456,7 +456,6 @@ const ExamPage: React.FC<{}> = () => {
             size="xs"
             component={Link}
             to={`/category/${metaData ? metaData.category : ""}`}
-            className="text-primary"
           >
             {metaData && metaData.category_displayname}
           </Anchor>

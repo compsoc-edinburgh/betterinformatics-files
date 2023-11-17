@@ -156,7 +156,6 @@ const App: React.FC<{}> = () => {
     "#0E78AA",
   ]);
   vsethTheme.colorScheme = "light";
-  vsethTheme.primaryColor = "green";
 
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
@@ -186,7 +185,7 @@ const App: React.FC<{}> = () => {
           {unreadCount !== undefined && unreadCount > 0 && (
             <>
               {" "}
-              <Badge className="small">{unreadCount}</Badge>
+              <Badge>{unreadCount}</Badge>
             </>
           )}
         </span>
@@ -204,6 +203,7 @@ const App: React.FC<{}> = () => {
         organizationNav={data?.externalNav}
         socialMedia={data?.socialMedia}
         logo={data?.logo}
+        signet={data?.signet}
         privacyPolicy={data?.privacy}
         disclaimer={data?.copyright}
         makeWrapper={(url: string | undefined, child: ReactNode) => (
@@ -217,18 +217,6 @@ const App: React.FC<{}> = () => {
           theme={{
             fontFamily: '"Source Sans Pro", "Roboto", sans-serif',
             primaryColor: "dark",
-            components: {
-              AppShell: {
-                styles: {
-                  main: { flexGrow: 1 },
-                },
-              },
-              Footer: {
-                styles: {
-                  main: { flexGrow: 0, flexShrink: 0 },
-                },
-              },
-            },
           }}
           withGlobalStyles
           withNormalizeCSS
@@ -257,7 +245,7 @@ const App: React.FC<{}> = () => {
               <SetUserContext.Provider value={setUser}>
                 <div>
                   <div>
-                    <Box component="main" my="2em">
+                    <Box component="main" mt="2em">
                       <Switch>
                         <UserRoute exact path="/" component={HomePage} />
                         <Route exact path="/login" component={LoginPage} />

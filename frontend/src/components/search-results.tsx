@@ -72,13 +72,12 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
       {data.map(result => {
         if (result.type === "exam") {
           return (
-            <div className="px-2" key={`exam-${result.filename}`}>
+            <div key={`exam-${result.filename}`}>
               <Card
                 withBorder
                 shadow="sm"
                 mb="sm"
                 p="md"
-                className="position-static"
               >
                 <Group>
                   <Badge>Exam</Badge>
@@ -91,7 +90,6 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/category/${result.category_slug}`}
-                      className="text-primary"
                     >
                       {result.category_displayname}
                     </Anchor>
@@ -101,7 +99,6 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   <Anchor
                     component={Link}
                     to={`/exams/${result.filename}/`}
-                    className="text-primary"
                   >
                     {result.headline.map((part, i) => (
                       <HighlightedContent content={part} key={i} />
@@ -146,13 +143,12 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           );
         } else if (result.type === "answer") {
           return (
-            <div className="px-2" key={`answer-${result.long_id}`}>
+            <div key={`answer-${result.long_id}`}>
               <Card
                 withBorder
                 shadow="sm"
                 mb="sm"
                 p="md"
-                className="position-static"
               >
                 <Group>
                   <Badge>Answer</Badge>
@@ -165,7 +161,6 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/category/${result.category_slug}`}
-                      className="text-primary"
                     >
                       {result.category_displayname}
                     </Anchor>
@@ -174,13 +169,12 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/exams/${result.filename}`}
-                      className="text-primary"
                     >
                       {result.exam_displayname}
                     </Anchor>
                   </Breadcrumbs>
                 </Group>
-                <div className="position-relative">
+                <div>
                   <Anchor
                     component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
@@ -199,13 +193,12 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           );
         } else {
           return (
-            <div className="px-2" key={`comment-${result.long_id}`}>
+            <div key={`comment-${result.long_id}`}>
               <Card
                 withBorder
                 shadow="sm"
                 mb="sm"
                 p="md"
-                className="position-static"
               >
                 <Group>
                   <Badge>Comment</Badge>
@@ -217,7 +210,6 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       tt="uppercase"
                       size="xs"
                       component={Link}
-                      className="text-primary"
                       to={`/category/${result.category_slug}`}
                     >
                       {result.category_displayname}
@@ -226,14 +218,13 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       tt="uppercase"
                       size="xs"
                       component={Link}
-                      className="text-primary"
                       to={`/exams/${result.filename}`}
                     >
                       {result.exam_displayname}
                     </Anchor>
                   </Breadcrumbs>
                 </Group>
-                <div className="position-relative">
+                <div>
                   <Anchor
                     component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}

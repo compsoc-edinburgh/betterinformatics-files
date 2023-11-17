@@ -41,12 +41,12 @@ const SearchPage: React.FC<{}> = () => {
           autoFocus
         />
       </Container>
-      <div className="position-relative">
+      <div>
         <LoadingOverlay loading={loading} />
         <Container size="xl">
           <div>
             {data && data.length === 0 && debouncedTerm !== "" && (
-              <div className="text-center p-4">
+              <div>
                 <h4>No Result</h4>
                 <p>We couldn't find anything matching your search term.</p>
               </div>

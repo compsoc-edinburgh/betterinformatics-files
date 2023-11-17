@@ -44,9 +44,9 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
       <Container size="xl">
         {pdfError && "Error loading PDF"}
 
-        <div ref={sizeRef} className="mx-auto my-3">
+        <div ref={sizeRef}>
           {renderer && (
-            <div className="d-flex flex-column">
+            <div>
               {getPages(renderer).map(pageNumber => (
                 <PdfSectionCanvas
                   key={pageNumber}

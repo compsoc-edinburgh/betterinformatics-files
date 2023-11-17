@@ -65,7 +65,6 @@ const ImageModal: React.FC<ModalProps> = ({
             images.map(image => (
               <div key={image} className={cardWrapperStyle}>
                 <Card
-                  className="p-2"
                   color={selected.has(image) ? "primary" : undefined}
                   style={{
                     border: selected.has(image) ? "5px solid black" : "",

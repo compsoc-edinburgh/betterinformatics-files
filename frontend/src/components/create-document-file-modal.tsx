@@ -48,7 +48,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           onChange={setFile}
           accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
         />
-        <div className="form-text text-muted">
+        <div>
           If you don't select any file we will create an empty markdown file for
           you that you can edit afterwards.
         </div>

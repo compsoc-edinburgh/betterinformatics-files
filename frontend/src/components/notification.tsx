@@ -23,12 +23,12 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
       {error && <Alert color="red">{error.message}</Alert>}
       <Card my="sm">
         <h6>
-          <Link to={notification.link} className="text-primary">
+          <Link to={notification.link}>
             {notification.title}
           </Link>
           <div>
             <small>
-              <Link to={notification.sender} className="text-primary">
+              <Link to={notification.sender}>
                 {notification.senderDisplayName}
               </Link>{" "}
               •{" "}

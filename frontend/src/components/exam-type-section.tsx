@@ -119,7 +119,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   <Anchor
                     component={Link}
                     to={`/exams/${exam.filename}`}
-                    className="stretched-link"
                     size="lg"
                     weight={600}
                     mb="sm"

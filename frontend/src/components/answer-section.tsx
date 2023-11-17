@@ -344,7 +344,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             <Button
                               color="primary"
                               onClick={onToggleHidden}
-                              className="d-inline-block"
                             >
                               {hidden ? "Show Answers" : "Hide Answers"}
                             </Button>
@@ -357,7 +356,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                               color="primary"
                               size="xs"
                               onClick={onToggleHidden}
-                              className="d-inline-block"
                             >
                               {hidden ? "Show Answers" : "Hide Answers"}
                             </Button>

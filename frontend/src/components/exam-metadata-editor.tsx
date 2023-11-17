@@ -312,7 +312,6 @@ const ExamMetadataEditor: React.FC<Props> = ({
             <Flex align="center" gap="sm">
               <Button
                 size="sm"
-                className="py-0"
                 onClick={() =>
                   downloadIndirect(
                     `/api/exam/pdf/printonly/${currentMetaData.filename}/`,

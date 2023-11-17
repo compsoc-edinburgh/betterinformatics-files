@@ -72,7 +72,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             value={displayName ?? file.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <label className="form-input-label">Replace File</label>
+          <label>Replace File</label>
           <FileInput
             value={replaceFile}
             onChange={setFile}
@@ -87,13 +87,10 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
                 file: replaceFile,
               })
             }
+            leftIcon={<Icon icon={ICONS.SAVE} />}
+            loading={updateLoading}
           >
-            Save{" "}
-            {updateLoading ? (
-              <Loader className="ml-2" size="sm" />
-            ) : (
-              <Icon icon={ICONS.SAVE} className="ml-2" />
-            )}
+            Save
           </Button>
         </Modal.Body>
       </Modal>

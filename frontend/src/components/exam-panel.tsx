@@ -191,7 +191,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 </Grid.Col>
               )}
             </Grid>
-            <div className="my-1">
+            <div>
               {editState.mode !== EditMode.None && (
                 <Checkbox
                   name="check"

@@ -101,8 +101,8 @@ const CommentComponent: React.FC<Props> = ({
               new Date(comment.time),
             ) > 1 && (
               <>
-                <span className="text-muted mx-1">·</span>
-                <span className="text-muted" title={comment.edittime}>
+                <span>·</span>
+                <span title={comment.edittime}>
                   edited {formatDistanceToNow(new Date(comment.edittime))} ago
                 </span>
               </>
@@ -162,7 +162,6 @@ const CommentComponent: React.FC<Props> = ({
           />
           <Flex justify="space-between">
             <Button
-              className="m-1"
               size="sm"
               color="primary"
               loading={loading}
@@ -173,7 +172,6 @@ const CommentComponent: React.FC<Props> = ({
               Save
             </Button>
             <Button
-              className="m-1"
               size="sm"
               onClick={onCancel}
               leftIcon={<Icon icon={ICONS.CLOSE} />}

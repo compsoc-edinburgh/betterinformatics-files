@@ -78,7 +78,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           tt="uppercase"
           size="xs"
           component={Link}
-          className="text-primary"
           to="/"
         >
           Home
@@ -260,7 +259,7 @@ const CategoryPage: React.FC<{}> = () => {
   useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
-    <Container size="xl">
+    <Container size="xl" mb="xl">
       {error && <Alert color="red">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay loading={loading} />}
       {data && (

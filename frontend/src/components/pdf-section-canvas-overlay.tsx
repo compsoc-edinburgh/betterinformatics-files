@@ -90,7 +90,6 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
           optimalCutAreas.map(({ start, end, snapPoints }) => (
             <React.Fragment key={`${start}-${end}`}>
               <div
-                className="position-absolute w-100"
                 style={{
                   top: `${start * 100}%`,
                   height: `${(end - start) * 100}%`,
@@ -100,7 +99,6 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
               {snapPoints.map(position => (
                 <div
                   key={position}
-                  className="position-absolute w-100 m-0"
                   style={{
                     height: "1px",
                     backgroundColor: "blue",
