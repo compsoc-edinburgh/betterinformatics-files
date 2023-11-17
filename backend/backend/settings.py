@@ -154,6 +154,8 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
+CSRF_TRUSTED_ORIGINS = DEPLOYMENT_DOMAINS
+
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
