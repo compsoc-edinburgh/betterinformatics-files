@@ -1,11 +1,9 @@
 import {
-  AnswerSection,
   PdfSection,
   Section,
   SectionKind,
   ServerCutPosition,
 } from "../interfaces";
-import { fetchGet } from "./fetch-utils";
 
 function createPdfSection(
   key: string,
@@ -80,16 +78,4 @@ export function loadSections(
     }
   }
   return sections;
-}
-
-export async function loadAnswerSection(oid: string): Promise<AnswerSection> {
-  try {
-    const section = await fetchGet(`/api/exam/answersection/${oid}/`);
-    const answersection = section.value;
-    answersection.key = oid;
-    answersection.kind = SectionKind.Answer;
-    return answersection;
-  } catch (e) {
-    return Promise.reject(e);
-  }
 }
