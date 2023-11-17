@@ -99,8 +99,8 @@ const Panel: React.FC<PanelProps> = ({
             color="primary"
             className={closeButtonStyle}
             onClick={toggle}
+            leftIcon={<Icon icon={ICONS.ARROW_LEFT} size={24} />}
           >
-            <Icon icon={ICONS.ARROW_LEFT} size={24} />
             {buttonText && (
               <div>
                 <small>{buttonText}</small>

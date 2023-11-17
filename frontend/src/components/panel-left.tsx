@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import { Button } from "@mantine/core";
+import { Button, Title } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
@@ -14,8 +14,8 @@ const panelStyle = css`
   flex-direction: row;
   padding: 3.5em 0 3.5em 0;
   z-index: ${GlobalConsts.zIndex.panel};
-  max-width: 500px;
   height: 100%;
+  min-width: 400px;
   box-sizing: border-box;
   transition: transform 0.5s;
   @media (max-width: 1199.98px) {
@@ -47,8 +47,23 @@ const modalWrapper = css`
   align-items: flex-end;
 `;
 const modalStyle = css`
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-clip: padding-box;
+  background: #fff;
+  padding: 1.8em;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.3rem;
+  outline: 0;
   max-height: 100%;
-  height: 100%;
   overflow: auto;
   &.modal-content {
     border-top-left-radius: 0;
@@ -112,8 +127,8 @@ const Panel: React.FC<PanelProps> = ({
             }}
           >
             <div className={modalWrapper}>
-              <div className={`${cx("modal-content", modalStyle)} p-4`}>
-                <h3>{header}</h3>
+              <div className={`${cx("modal-content", modalStyle)}`}>
+                <Title>{header}</Title>
                 {children}
               </div>
             </div>

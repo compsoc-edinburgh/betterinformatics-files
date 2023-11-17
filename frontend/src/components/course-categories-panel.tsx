@@ -130,7 +130,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
           metaList.map(([meta1display, meta2]) => (
             <div key={meta1display}>
               <Title
-                order={5}
+                order={4}
                 my="sm"
                 style={{
                   cursor: "pointer",

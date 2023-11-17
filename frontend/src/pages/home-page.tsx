@@ -230,14 +230,14 @@ export const CategoryList: React.FC<{}> = () => {
             <>
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
-                  <div key={meta1display}>
+                  <div key={meta1display} id={slugify(meta1display)}>
                     <Title order={2} my="sm">
-                      {slugify(meta1display)}
+                      {meta1display}
                     </Title>
                     {meta2.map(([meta2display, categories]) => (
-                      <div key={meta2display}>
+                      <div key={meta2display} id={slugify(meta1display) + slugify(meta2display)}>
                         <Title order={3} my="md">
-                          {slugify(meta1display) + slugify(meta2display)}
+                          {meta2display}
                         </Title>
                         <Grid>
                           {categories.map(category => (
