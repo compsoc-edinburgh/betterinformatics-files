@@ -6,12 +6,10 @@ import App from "./app";
 import React from "react";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <QueryParamProvider ReactRouterRoute={Route}>
-        <App />
-      </QueryParamProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
+  <BrowserRouter>
+    <QueryParamProvider ReactRouterRoute={Route}>
+      <App />
+    </QueryParamProvider>
+  </BrowserRouter>,
   document.getElementById("root") as HTMLElement,
 );

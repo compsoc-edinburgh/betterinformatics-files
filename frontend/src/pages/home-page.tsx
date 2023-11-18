@@ -194,7 +194,11 @@ export const CategoryList: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl">
-        <Flex gap="md" direction={{ base: "column", sm: "row" }} justify="space-between">
+        <Flex
+          gap="md"
+          direction={{ base: "column", sm: "row" }}
+          justify="space-between"
+        >
           <SegmentedControl
             value={mode}
             onChange={setMode}

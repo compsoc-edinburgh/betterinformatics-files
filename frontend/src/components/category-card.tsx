@@ -1,5 +1,5 @@
 import { Card, Text, Progress, Anchor, Stack } from "@mantine/core";
-import React from "react";
+import React, { useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
@@ -38,7 +38,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       onKeyDown={handleKeyDown}
     >
       <Stack h="100%" justify="space-between">
-        <div>
+        <div className="category-card">
           <Anchor component="span" weight={700} size="xl" tabIndex={-1} mb={0}>
             {"match" in category
               ? highlight(category.displayname, category.match)

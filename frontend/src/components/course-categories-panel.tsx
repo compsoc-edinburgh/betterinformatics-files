@@ -45,7 +45,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
     element?.scrollIntoView({ behavior: "smooth" });
   };
   const scrollToDivLetter = (letter: string): void => {
-    const els = document.getElementsByClassName("stretched-link text-dark");
+    const els = document.getElementsByClassName("category-card");
     for (let i = 0; i < els.length; i++) {
       if (
         els[i].firstElementChild?.firstElementChild?.innerHTML
@@ -89,7 +89,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
   const [availableLetters, setAvailableLetters] = useState<string[]>(alphabet);
   useEffect(() => {
     const avails = [];
-    const elss = document.getElementsByClassName("stretched-link text-dark");
+    const elss = document.getElementsByClassName("category-card");
     for (let i = 0; i < alphabet.length; i++) {
       for (let j = 0; j < elss.length; j++) {
         if (
