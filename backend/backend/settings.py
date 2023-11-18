@@ -156,7 +156,7 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
-CSRF_TRUSTED_ORIGINS = ["https://*.ethz.ch", "container_name"]
+CSRF_TRUSTED_ORIGINS = ["https://*.ethz.ch"]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
