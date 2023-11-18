@@ -1,5 +1,5 @@
 import { Card, Text, Progress, Anchor, Stack } from "@mantine/core";
-import React, { useRef } from "react";
+import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
