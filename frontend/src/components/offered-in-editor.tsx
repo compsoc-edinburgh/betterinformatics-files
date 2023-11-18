@@ -1,4 +1,4 @@
-import { Alert, Button, Grid, Group, NativeSelect } from "@mantine/core";
+import { Alert, Button, Grid, Group, Select } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { useMetaCategories } from "../api/hooks";
@@ -15,7 +15,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   const meta1Value = useMemo(() => newMeta1, [newMeta1]);
   const [newMeta2, setNewMeta2] = useState("");
   const meta2Value = useMemo(() => newMeta2, [newMeta2]);
-  const [error, loading, data] = useMetaCategories();
+  const [error, loading, data, mutate] = useMetaCategories();
   const meta1Options: string[] = useMemo(
     () => (data && data.map(d => d.displayname)) ?? [],
     [data],
@@ -29,6 +29,26 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
         : [],
     [data, newMeta1],
   );
+  const onMeta1Change = (value: string) => {
+    setNewMeta1(value);
+    setNewMeta2("");
+    if (data && !data.some(d => d.displayname === value)) {
+      mutate([{ displayname: value, meta2: [] }]);
+    }
+  };
+  const onMeta2Change = (value: string) => {
+    setNewMeta2(value);
+    if (data && !data.some(d => d.displayname === value)) {
+      mutate([
+        {
+          displayname: newMeta1,
+          meta2: data
+            .find(d => d.displayname === newMeta1)!
+            .meta2.concat({ displayname: value, categories: [] }),
+        },
+      ]);
+    }
+  };
   const onAdd = () => {
     setNewMeta1("");
     setNewMeta2("");
@@ -66,24 +86,27 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
         <Grid my="xs" align="end">
           <Grid.Col md={5}>
             {data && (
-              <NativeSelect
+              <Select
                 label="Meta 1"
+                creatable
+                searchable
+                getCreateLabel={query => `+ Create new Meta 1 "${query}"`}
                 data={meta1Options}
                 value={meta1Value}
-                onChange={event => {
-                  setNewMeta1(event.currentTarget.value);
-                  setNewMeta2("");
-                }}
+                onChange={onMeta1Change}
               />
             )}
           </Grid.Col>
           <Grid.Col md={5}>
             {data && (
-              <NativeSelect
+              <Select
                 label="Meta 2"
+                creatable
+                searchable
+                getCreateLabel={query => `+ Create new Meta 2 "${query}"`}
                 data={meta2Options}
                 value={meta2Value}
-                onChange={event => setNewMeta2(event.currentTarget.value)}
+                onChange={onMeta2Change}
               />
             )}
           </Grid.Col>

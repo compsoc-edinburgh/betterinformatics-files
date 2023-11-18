@@ -171,7 +171,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           <Grid my="sm">
             {metaData.experts.includes(user.username) && (
               <Grid.Col span="auto">
-                <Alert color="yellow" title="Category expert">
+                <Alert
+                  color="yellow"
+                  title="Category expert"
+                  icon={<Icon icon={ICONS.STAR} />}
+                >
                   You are an expert for this category. You can endorse correct
                   answers, which will be visible to other users.
                 </Alert>

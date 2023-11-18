@@ -8,6 +8,7 @@ import {
   Grid,
   Group,
   NativeSelect,
+  Select,
   Stack,
   Text,
   Textarea,
@@ -246,13 +247,14 @@ const ExamMetadataEditor: React.FC<Props> = ({
           />
         </Grid.Col>
         <Grid.Col md={6}>
-          <NativeSelect
+          <Select
             label="Exam type"
+            creatable
+            searchable
+            getCreateLabel={query => `+ Create new exam type "${query}"`}
             data={examTypeOptions ? (options(examTypeOptions) as any) : []}
             value={formState.examtype}
-            onChange={(event: any) =>
-              setFormValue("examtype", event.currentTarget.value)
-            }
+            onChange={(value: string) => setFormValue("examtype", value)}
           />
         </Grid.Col>
       </Grid>
