@@ -146,8 +146,8 @@ BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
-    ALLOWED_HOSTS.append("*")
-    REAL_ALLOWED_HOSTS.append("*")
+    ALLOWED_HOSTS.append("localhost")
+    REAL_ALLOWED_HOSTS.append("localhost")
 else:
     # ALLOWED_HOSTS.append(os.environ['SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN'])
     # USE_X_FORWARDED_HOST = True
@@ -156,7 +156,7 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
-CSRF_TRUSTED_ORIGINS = ["https://*.ethz.ch"]
+#CSRF_TRUSTED_ORIGINS = ["https://*.ethz.ch"]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -244,7 +244,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-		"django.template.context_processors.csrf",
             ],
         },
     },
