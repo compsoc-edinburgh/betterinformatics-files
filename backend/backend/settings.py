@@ -146,8 +146,8 @@ BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
-    ALLOWED_HOSTS.append("localhost")
-    REAL_ALLOWED_HOSTS.append("localhost")
+    ALLOWED_HOSTS.append("*")
+    REAL_ALLOWED_HOSTS.append("*")
 else:
     # ALLOWED_HOSTS.append(os.environ['SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN'])
     # USE_X_FORWARDED_HOST = True
