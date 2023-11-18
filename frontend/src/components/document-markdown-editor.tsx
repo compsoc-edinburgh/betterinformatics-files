@@ -1,4 +1,4 @@
-import { Button, Loader } from "@mantine/core";
+import { Button } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";

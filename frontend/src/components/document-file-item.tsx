@@ -5,7 +5,6 @@ import {
   Flex,
   Grid,
   Group,
-  Loader,
   Modal,
   TextInput,
   Title,
