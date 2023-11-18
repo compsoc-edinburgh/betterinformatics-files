@@ -16,9 +16,7 @@ const HideAnswerSectionModal: React.FC<ModalProps> = ({
         <p>All corresponding answers will be deleted, this cannot be undone!</p>
 
         <div>
-          <Button onClick={toggle}>
-            Cancel
-          </Button>
+          <Button onClick={toggle}>Cancel</Button>
           <Button color="red" onClick={setHidden}>
             Delete Answers
           </Button>

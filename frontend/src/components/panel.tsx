@@ -28,10 +28,8 @@ const closeButtonStyle = css`
   display: inline-block;
   font-size: 0.5em;
   pointer-events: all;
-  &.btn {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 `;
 const modalWrapper = css`
   width: 100%;
@@ -54,14 +52,10 @@ const modalStyle = css`
   background: #fff;
   padding: 1em;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0.3rem;
+  border-top-left-radius: 0.3rem;
   outline: 0;
   max-height: 100%;
   overflow: auto;
-  &.modal-content {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
   & .modal-header {
     display: block;
   }

@@ -85,9 +85,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
               data={options}
               searchable
               nothingFound="No category found"
-              onChange={(event: any) =>
-                setCategory(event.currentTarget.value as string)
-              }
+              onChange={(value: string) => setCategory(value)}
             />
             <Button color="primary" type="submit" loading={loading}>
               Submit

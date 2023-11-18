@@ -117,11 +117,7 @@ const DocumentPage: React.FC<Props> = () => {
         )}
         <div>
           Author:{" "}
-          {data && (
-            <Link to={`/user/${data.author}`}>
-              @{data.author}
-            </Link>
-          )}
+          {data && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
         </div>
         {error && <Alert color="red">{error.toString()}</Alert>}
         {data && data.description && (

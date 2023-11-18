@@ -73,12 +73,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         if (result.type === "exam") {
           return (
             <div key={`exam-${result.filename}`}>
-              <Card
-                withBorder
-                shadow="sm"
-                mb="sm"
-                p="md"
-              >
+              <Card withBorder shadow="md" mb="sm" p="md">
                 <Group>
                   <Badge>Exam</Badge>
                   <Breadcrumbs
@@ -96,10 +91,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   </Breadcrumbs>
                 </Group>
                 <Title py="xs" order={4}>
-                  <Anchor
-                    component={Link}
-                    to={`/exams/${result.filename}/`}
-                  >
+                  <Anchor component={Link} to={`/exams/${result.filename}/`}>
                     {result.headline.map((part, i) => (
                       <HighlightedContent content={part} key={i} />
                     ))}
@@ -144,12 +136,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else if (result.type === "answer") {
           return (
             <div key={`answer-${result.long_id}`}>
-              <Card
-                withBorder
-                shadow="sm"
-                mb="sm"
-                p="md"
-              >
+              <Card withBorder shadow="md" mb="sm" p="md">
                 <Group>
                   <Badge>Answer</Badge>
                   <Breadcrumbs
@@ -194,12 +181,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
         } else {
           return (
             <div key={`comment-${result.long_id}`}>
-              <Card
-                withBorder
-                shadow="sm"
-                mb="sm"
-                p="md"
-              >
+              <Card withBorder shadow="md" mb="sm" p="md">
                 <Group>
                   <Badge>Comment</Badge>
                   <Breadcrumbs

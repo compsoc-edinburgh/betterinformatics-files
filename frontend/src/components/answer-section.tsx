@@ -341,10 +341,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             smallerThan="sm"
                             styles={{ display: "none" }}
                           >
-                            <Button
-                              color="primary"
-                              onClick={onToggleHidden}
-                            >
+                            <Button color="primary" onClick={onToggleHidden}>
                               {hidden ? "Show Answers" : "Hide Answers"}
                             </Button>
                           </MediaQuery>

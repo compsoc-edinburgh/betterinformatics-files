@@ -47,7 +47,9 @@ const ModQueue: React.FC = () => {
     <Container size="xl">
       {flaggedAnswers && flaggedAnswers.length > 0 && (
         <div>
-          <Title order={2} mb="md">Flagged Answers</Title>
+          <Title order={2} mb="md">
+            Flagged Answers
+          </Title>
           {flaggedAnswers.map(answer => (
             <div>
               <Link to={answer} target="_blank" rel="noopener noreferrer">
@@ -59,7 +61,9 @@ const ModQueue: React.FC = () => {
       )}
       {paymentExams && paymentExams.length > 0 && (
         <div>
-          <Title my="sm" order={2}>Transcripts</Title>
+          <Title my="sm" order={2}>
+            Transcripts
+          </Title>
           <div>
             <LoadingOverlay loading={payLoading} />
             <Table striped>
@@ -91,7 +95,9 @@ const ModQueue: React.FC = () => {
           </div>
         </div>
       )}
-      <Title my="sm" order={2}>Import Queue</Title>
+      <Title my="sm" order={2}>
+        Import Queue
+      </Title>
       {error && <div>{error}</div>}
       <div>
         <LoadingOverlay loading={examsLoading} />
@@ -110,7 +116,12 @@ const ModQueue: React.FC = () => {
                 <tr key={exam.filename}>
                   <td>{exam.category_displayname}</td>
                   <td>
-                    <Anchor color="blue" component={Link} to={`/exams/${exam.filename}`} target="_blank">
+                    <Anchor
+                      color="blue"
+                      component={Link}
+                      to={`/exams/${exam.filename}`}
+                      target="_blank"
+                    >
                       {exam.displayname}
                     </Anchor>
                     <div>

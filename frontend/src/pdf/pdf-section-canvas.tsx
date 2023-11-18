@@ -215,6 +215,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     return (
       <Card
         shadow="md"
+        p={0}
         withBorder
         className={end === 1 ? lastSection : undefined}
       >
@@ -231,11 +232,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
           >
             {content}
             {displayCanvasType && (
-              <div
-                className={cx(
-                  isMainCanvas ? "bg-success" : "bg-info",
-                )}
-              />
+              <div className={cx(isMainCanvas ? "bg-success" : "bg-info")} />
             )}
             {displayHideShowButtons && (
               <div>

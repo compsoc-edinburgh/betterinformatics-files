@@ -162,7 +162,7 @@ const App: React.FC<{}> = () => {
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
-  ]
+  ];
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
@@ -173,10 +173,7 @@ const App: React.FC<{}> = () => {
         { title: "FAQ", href: "/faq" },
         { title: "Feedback", href: "/feedback" },
         { title: "Submit Transcript", href: "/submittranscript" },
-        ...(typeof user === "object" && user.isCategoryAdmin
-              ? adminItems
-              : []),
-
+        ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
     { title: "Search", href: "/search" },
@@ -313,9 +310,7 @@ const App: React.FC<{}> = () => {
           </DebugContext.Provider>
           {process.env.NODE_ENV === "development" && (
             <>
-              <Affix
-                position={{ bottom: rem(10), left: rem(10) }}
-              >
+              <Affix position={{ bottom: rem(10), left: rem(10) }}>
                 <Button color="white" onClick={toggleDebugPanel}>
                   DEBUG
                 </Button>

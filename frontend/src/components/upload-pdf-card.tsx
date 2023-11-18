@@ -54,13 +54,13 @@ const UploadPdfCard: React.FC<{}> = () => {
         <form onSubmit={onSubmit}>
           <Stack mt="sm">
             {error && <Alert color="red">{error.toString()}</Alert>}
-            <FileInput 
-              label="File" 
-              placeholder="Click to choose file..." 
+            <FileInput
+              label="File"
+              placeholder="Click to choose file..."
               icon={<Icon icon={ICONS.CLOUD_UP} />}
-              value={file} 
-              onChange={setFile} 
-              accept="application/pdf" 
+              value={file}
+              onChange={setFile}
+              accept="application/pdf"
             />
             <TextInput
               label="Name"
@@ -75,9 +75,7 @@ const UploadPdfCard: React.FC<{}> = () => {
               searchable
               nothingFound="No category found"
               data={options}
-              onChange={(event: any) =>
-                setCategory(event.currentTarget.value as string)
-              }
+              onChange={(value: string) => setCategory(value)}
               required
             />
             <Button color="primary" type="submit" loading={loading}>
