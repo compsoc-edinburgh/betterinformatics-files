@@ -124,8 +124,8 @@ const AnswerComponent: React.FC<Props> = ({
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
                 >
-                  <Text color="dimmed" component="span">
-                    <Icon icon={ICONS.LINK} size="1em" />
+                  <Text mr={8} color="dimmed" component="span">
+                    <Icon icon={ICONS.LINK} size={12} />
                   </Text>
                 </Link>
               )}
