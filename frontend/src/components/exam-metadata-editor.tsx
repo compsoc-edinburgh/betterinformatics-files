@@ -215,7 +215,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
     );
 
   return (
-    <Stack>
+    <Stack mb="xl">
       <Group position="apart" pt="sm">
         <Title order={2}>Edit Exam</Title>
         <CloseButton onClick={toggle} />

@@ -95,8 +95,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         )
       ) : (
         <>
-          <Flex direction="row" justify="space-between">
-            <h1>{metaData.displayname}</h1>
+          <Flex direction={{ base: "column", sm: "row" }} justify="space-between" mb="sm">
+            <Title order={1} my="md">{metaData.displayname}</Title>
             {user.isCategoryAdmin && (
               <Group>
                 <Button

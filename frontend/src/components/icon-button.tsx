@@ -1,12 +1,13 @@
 import { ActionIconProps, ActionIcon, Tooltip } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
-import { Loader } from "@mantine/core";
 import { Icon } from "vseth-canine-ui";
+
 const buttonStyle = css`
   min-width: 0;
   align-content: center;
 `;
+
 interface IconButtonProps extends ActionIconProps {
   iconName: string;
   loading?: boolean;
@@ -14,6 +15,7 @@ interface IconButtonProps extends ActionIconProps {
   iconClassName?: string;
   onClick?: any;
 }
+
 const IconButton: React.FC<IconButtonProps> = ({
   size,
   loading,
@@ -32,12 +34,8 @@ const IconButton: React.FC<IconButtonProps> = ({
       disabled={disabled || loading}
       className={buttonStyle + (className ? ` ${className}` : "")}
     >
-      <ActionIcon size={size} {...props}>
-        {loading ? (
-          <Loader size="sm" />
-        ) : (
-          <Icon icon={iconName} className={iconClassName} size="1em" />
-        )}
+      <ActionIcon loading={loading} size={size} {...props}>
+        <Icon icon={iconName} className={iconClassName} size="1em" />
       </ActionIcon>
     </Tooltip>
   ) : (
@@ -46,12 +44,9 @@ const IconButton: React.FC<IconButtonProps> = ({
       disabled={disabled || loading}
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
+      loading={loading}
     >
-      {loading ? (
-        <Loader size="sm" />
-      ) : (
-        <Icon icon={iconName} className={iconClassName} size="1em" />
-      )}
+      <Icon icon={iconName} className={iconClassName} size="1em" />
     </ActionIcon>
   );
 };

@@ -4,6 +4,7 @@ import {
   Badge,
   Card,
   Checkbox,
+  Flex,
   Grid,
   Group,
   Text,
@@ -27,7 +28,6 @@ const removeExam = async (filename: string) => {
 };
 
 const badgeStyle = css`
-  margin: 0.15rem;
   font-size: 0.75rem !important;
 `;
 interface ExamTypeCardProps {
@@ -134,6 +134,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       {exam.remark}
                     </Text>
                   )}
+                  <Flex mt="0.2em" gap={4}>
                   {catAdmin &&
                     (exam.public ? (
                       <Badge className={badgeStyle}>public</Badge>
@@ -183,8 +184,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       Solution
                     </Badge>
                   )}
+                  </Flex>
                 </div>
-                {catAdmin && <ClaimButton exam={exam} reloadExams={reload} />}
+                {catAdmin && <ClaimButton exam={exam} reloadExams={reload} mt="sm" />}
               </Grid.Col>
               <Grid.Col span="content">
                 {user.isAdmin && (
