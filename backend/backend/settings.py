@@ -123,6 +123,7 @@ OIDC_JWKS_URL = (
         "SIP_AUTH_OIDC_JWKS_URL",
         "https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/certs",
     )
+)
 
 JWT_VERIFY_SIGNATURE = (
     os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE",
