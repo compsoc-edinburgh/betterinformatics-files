@@ -145,19 +145,28 @@ const App: React.FC<{}> = () => {
 
   const data = (window as any).configOptions as ConfigOptions;
 
-  const vsethTheme = makeVsethTheme([
-    "#E5F9FF",
-    "#D1F3FF",
-    "#9EE5FF",
-    "#6BD8FF",
-    "#3DC8FF",
-    "#1ABEFF",
-    "#00B2FF",
-    data.primaryColor,
-    "#0A8BC7",
-    "#0E78AA",
-  ]);
+  const vsethTheme = makeVsethTheme("#333");
   vsethTheme.colorScheme = "light";
+
+  const fvTheme = makeVsethTheme("#FFE210");
+  fvTheme.colorScheme = "light";
+  fvTheme.components = {
+    Anchor: {
+      defaultProps: {
+        color: "dark",
+      },
+    },
+    Progress: {
+      defaultProps: {
+        color: "dark",
+      },
+    },
+    Badge: {
+      defaultProps: {
+        color: "gray",
+      },
+    },
+  };
 
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
@@ -212,14 +221,7 @@ const App: React.FC<{}> = () => {
         )}
         size="xl"
       >
-        <MantineProvider
-          theme={{
-            fontFamily: '"Source Sans Pro", "Roboto", sans-serif',
-            primaryColor: "dark",
-          }}
-          withGlobalStyles
-          withNormalizeCSS
-        >
+        <MantineProvider theme={fvTheme} withGlobalStyles withNormalizeCSS>
           <Modal
             opened={loggedOut}
             onClose={() => login()}

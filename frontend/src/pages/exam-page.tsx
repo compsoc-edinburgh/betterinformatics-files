@@ -222,7 +222,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           <h1>{metaData.displayname}</h1>
           <Group>
             <IconButton
-              color="white"
+              color="gray"
               iconName={ICONS.DOWNLOAD}
               tooltip="Download"
               onClick={() => window.open(metaData.exam_file, "_blank")}
@@ -233,14 +233,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                   metaData.is_oral_transcript &&
                   !metaData.oral_transcript_checked && (
                     <IconButton
-                      color="white"
+                      color="gray"
                       tooltip="Mark as checked"
                       iconName={ICONS.CHECK}
                       onClick={() => runMarkChecked(metaData.filename)}
                     />
                   )}
                 <IconButton
-                  color="white"
+                  color="gray"
                   iconName={ICONS.EDIT}
                   tooltip="Edit"
                   onClick={() => toggleEditing()}
@@ -302,6 +302,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             <Grid.Col md={4} lg={3}>
               <Button
                 fullWidth
+                color="gray"
                 component="a"
                 variant="light"
                 href={metaData.master_solution}
@@ -318,6 +319,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             <Grid.Col md={4} lg={3}>
               <Button
                 fullWidth
+                color="gray"
                 component="a"
                 href={metaData.solution_file}
                 variant="light"
