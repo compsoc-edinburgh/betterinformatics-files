@@ -100,7 +100,7 @@ const Scoreboard: React.FC<{}> = () => {
       {error && <Alert color="red">{error.message}</Alert>}
       <LoadingOverlay loading={loading} />
       <div className={overflowScroll}>
-        <Table striped highlightOnHover verticalSpacing="md" fontSize="md">
+        <Table striped highlightOnHover verticalSpacing="md" fontSize="md" mb="xl">
           <thead>
             <tr>
               <th>

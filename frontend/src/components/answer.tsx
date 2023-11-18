@@ -133,7 +133,6 @@ const AnswerComponent: React.FC<Props> = ({
                 answer?.authorDisplayName ?? "(Legacy Draft)"
               ) : (
                 <Anchor
-                  ml="xs"
                   component={Link}
                   to={`/user/${answer?.authorId ?? username}`}
                 >
@@ -361,12 +360,12 @@ const AnswerComponent: React.FC<Props> = ({
                         </Menu.Item>
                       )}
                       {!editing && canEdit && (
-                        <Menu.Item onClick={startEdit}>Edit</Menu.Item>
+                        <Menu.Item icon={<Icon icon={ICONS.EDIT} />} onClick={startEdit}>Edit</Menu.Item>
                       )}
                       {answer && canRemove && (
-                        <Menu.Item onClick={remove}>Delete</Menu.Item>
+                        <Menu.Item icon={<Icon icon={ICONS.DELETE} />} onClick={remove}>Delete</Menu.Item>
                       )}
-                      <Menu.Item onClick={toggleViewSource}>
+                      <Menu.Item icon={<Icon icon={ICONS.CODE} />} onClick={toggleViewSource}>
                         Toggle Source Code Mode
                       </Menu.Item>
                     </Menu.Dropdown>

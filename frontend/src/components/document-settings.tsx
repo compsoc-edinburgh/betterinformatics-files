@@ -3,12 +3,12 @@ import {
   List,
   TextInput,
   Modal,
-  NativeSelect,
   Flex,
   Title,
   Text,
   Stack,
   Group,
+  Select,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useState } from "react";
@@ -105,17 +105,17 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
             value={displayName ?? data.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <NativeSelect
+          <Select
             label="Category"
             data={categoryOptions ? (options(categoryOptions) as any) : []}
             value={
               categoryOptions &&
               (category
                 ? categoryOptions[category].value
-                : categoryOptions[data.category].value)
+                : undefined)
             }
-            onChange={(event: any) => {
-              setCategory(event.currentTarget.value as string);
+            onChange={(value: string) => {
+              setCategory(value);
             }}
           />
           <div>
