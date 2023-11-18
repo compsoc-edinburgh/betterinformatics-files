@@ -95,8 +95,14 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         )
       ) : (
         <>
-          <Flex direction={{ base: "column", sm: "row" }} justify="space-between" mb="sm">
-            <Title order={1} my="md">{metaData.displayname}</Title>
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            justify="space-between"
+            mb="sm"
+          >
+            <Title order={1} my="md">
+              {metaData.displayname}
+            </Title>
             {user.isCategoryAdmin && (
               <Group>
                 <Button
@@ -214,13 +220,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </Title>
               <List>
                 {metaData.attachments.map(att => (
-                  <List.Item>
+                  <List.Item key={att.filename}>
                     <Anchor
                       href={`/api/filestore/get/${att.filename}/`}
                       color="blue"
                       target="_blank"
                       rel="noopener noreferrer"
-                      key={att.filename}
                     >
                       {att.displayname}
                     </Anchor>

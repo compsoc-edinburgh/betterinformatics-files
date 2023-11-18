@@ -132,6 +132,7 @@ const DocumentPage: React.FC<Props> = () => {
             {data &&
               data.files.map(file => (
                 <Tabs.Tab
+                  key={file.oid}
                   value={file.oid.toString()}
                   icon={<Icon icon={ICONS.FILE} />}
                 >
