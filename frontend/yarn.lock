@@ -13492,10 +13492,10 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-vseth-canine-ui@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/vseth-canine-ui/-/vseth-canine-ui-1.1.0.tgz#ea7c0920eeb7b611b7a99657795752b363d67c8c"
-  integrity sha512-xRozkrrj0mBRtbvL9NeY5GVHkkj6BFn9NkqD4FKIizhhlxaAl4mHvkqJ0DgtDEcbwUqbEtlu9bQMyDPOgmXSrA==
+vseth-canine-ui@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/vseth-canine-ui/-/vseth-canine-ui-1.1.1.tgz#18b7a17b56aab7fd237d080f7f7daa0566826a6c"
+  integrity sha512-JVEDawqiwGlAmjvED/NMXxEED6HZR9aXRlOpOk0c5rq7FbFC5wmaIkUO07LvRyl3n2pPAOqbDA44wZBnZXeMsg==
   dependencies:
     "@emotion/react" "^11.11.0"
     "@mantine/core" "^6.0.10"
