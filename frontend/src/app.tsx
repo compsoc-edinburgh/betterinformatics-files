@@ -5,6 +5,8 @@ import {
   MantineProvider,
   Box,
   Text,
+  Affix,
+  rem,
 } from "@mantine/core";
 import {
   ConfigOptions,
@@ -311,18 +313,13 @@ const App: React.FC<{}> = () => {
           </DebugContext.Provider>
           {process.env.NODE_ENV === "development" && (
             <>
-              <div
-                style={{
-                  position: "fixed",
-                  bottom: 10,
-                  left: 10,
-                  zIndex: 1000,
-                }}
+              <Affix
+                position={{ bottom: rem(10), left: rem(10) }}
               >
                 <Button color="white" onClick={toggleDebugPanel}>
                   DEBUG
                 </Button>
-              </div>
+              </Affix>
               <DebugModal
                 isOpen={debugPanel}
                 toggle={toggleDebugPanel}
