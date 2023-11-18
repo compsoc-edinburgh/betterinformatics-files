@@ -39,7 +39,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     >
       <Stack h="100%" justify="space-between">
         <div>
-          <Anchor weight={700} size="xl" tabIndex={-1} mb={0}>
+          <Anchor component="span" weight={700} size="xl" tabIndex={-1} mb={0}>
             {"match" in category
               ? highlight(category.displayname, category.match)
               : category.displayname}
