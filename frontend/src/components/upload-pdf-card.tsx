@@ -1,22 +1,10 @@
+import { FileInput, Select, Stack, TextInput, Title } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import {
-  Alert,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Col,
-  Form,
-  FormGroup,
-  InputField,
-  Row,
-  Select,
-  Spinner,
-} from "@vseth/components";
+import { Alert, Button, Card } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
-import FileInput from "./file-input";
+import { ICONS, Icon } from "vseth-canine-ui";
 
 const UploadPdfCard: React.FC<{}> = () => {
   const history = useHistory();
@@ -41,10 +29,10 @@ const UploadPdfCard: React.FC<{}> = () => {
       categories?.map(category => ({
         value: category.slug,
         label: category.displayname,
-      })),
+      })) ?? [],
     [categories],
   );
-  const [file, setFile] = useState<File | undefined>();
+  const [file, setFile] = useState<File | null>();
   const [displayname, setDisplayname] = useState("");
   const [category, setCategory] = useState<string | undefined>();
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,47 +46,44 @@ const UploadPdfCard: React.FC<{}> = () => {
     }
   };
   return (
-    <Card>
-      <CardHeader>Upload PDF</CardHeader>
-      <CardBody>
-        <Form onSubmit={onSubmit}>
-          {error && <Alert color="danger">{error.toString()}</Alert>}
-          <FormGroup>
-            <label className="form-input-label">File</label>
+    <Card withBorder shadow="md">
+      <Card.Section withBorder p="md" bg="gray.0">
+        <Title order={4}>Upload PDF</Title>
+      </Card.Section>
+      <div>
+        <form onSubmit={onSubmit}>
+          <Stack mt="sm">
+            {error && <Alert color="red">{error.toString()}</Alert>}
             <FileInput
+              label="File"
+              placeholder="Click to choose file..."
+              icon={<Icon icon={ICONS.CLOUD_UP} />}
               value={file}
               onChange={setFile}
               accept="application/pdf"
             />
-          </FormGroup>
-          <InputField
-            label="Name"
-            type="text"
-            placeholder="Name"
-            value={displayname}
-            onChange={e => setDisplayname(e.currentTarget.value)}
-            required
-          />
-          <FormGroup>
-            <label className="form-input-label">Category</label>
-            <Select
-              options={options}
-              onChange={(e: any) => setCategory(e.value as string)}
-              isLoading={categoriesLoading}
+            <TextInput
+              label="Name"
+              placeholder="Name"
+              value={displayname}
+              onChange={e => setDisplayname(e.currentTarget.value)}
               required
             />
-          </FormGroup>
-          <Row form>
-            <Col md={4}>
-              <FormGroup>
-                <Button color="primary" type="submit" disabled={loading}>
-                  {uploadLoading ? <Spinner /> : "Submit"}
-                </Button>
-              </FormGroup>
-            </Col>
-          </Row>
-        </Form>
-      </CardBody>
+            <Select
+              label="Category"
+              placeholder="Choose category..."
+              searchable
+              nothingFound="No category found"
+              data={options}
+              onChange={(value: string) => setCategory(value)}
+              required
+            />
+            <Button variant="brand" type="submit" loading={loading}>
+              Submit
+            </Button>
+          </Stack>
+        </form>
+      </div>
     </Card>
   );
 };

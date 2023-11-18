@@ -1,4 +1,4 @@
-import { css, cx } from "@emotion/css";
+import { createStyles, Paper } from "@mantine/core";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import ImageOverlay from "../image-overlay";
@@ -9,9 +9,19 @@ import EditorHeader from "./EditorHeader";
 import { EditorMode, ImageHandle, Range } from "./utils/types";
 import { push, redo, undo, UndoStack } from "./utils/undo-stack";
 
-const editorWrapperStyle = css`
-  padding: 1.2em;
-`;
+const useStyles = createStyles(theme => ({
+  editorWrapperStyle: {
+    padding: "1.2em",
+  },
+  hoverBorder: {
+    borderWidth: "0.1em",
+    borderColor:
+      theme.colorScheme === "dark"
+        ? theme.colors.gray[1]
+        : theme.colors.gray[9],
+    borderStyle: "solid",
+  },
+}));
 interface Props {
   value: string;
   onChange: (newValue: string) => void;
@@ -255,9 +265,14 @@ const Editor: React.FC<Props> = ({
     setOverlayOpen(true);
   }, []);
 
+  const { classes, cx } = useStyles();
+
   return (
-    <div
-      className={cx("form-control", isDragHovered && "border-primary")}
+    <Paper
+      withBorder={!isDragHovered}
+      p="sm"
+      my="sm"
+      className={cx(isDragHovered && classes.hoverBorder)}
       onClick={() => textareaElRef.current && textareaElRef.current.focus()}
       onDragEnter={onDragEnter}
     >
@@ -271,7 +286,7 @@ const Editor: React.FC<Props> = ({
         onItalicClick={onItalicClick}
         onBoldClick={onBoldClick}
       />
-      <div className={editorWrapperStyle}>
+      <div className={classes.editorWrapperStyle}>
         {mode === "write" ? (
           <BasicEditor
             textareaElRef={textareaElRef}
@@ -308,7 +323,7 @@ const Editor: React.FC<Props> = ({
         toggle={() => onImageDialogClose("")}
         closeWithImage={onImageDialogClose}
       />
-    </div>
+    </Paper>
   );
 };
 export default Editor;

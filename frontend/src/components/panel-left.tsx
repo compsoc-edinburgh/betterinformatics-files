@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css";
-import { ArrowRightIcon, Button, CloseIcon } from "@vseth/components";
+import { Button, Title } from "@mantine/core";
+import { Icon, ICONS } from "vseth-canine-ui";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import GlobalConsts from "../globalconsts";
@@ -13,8 +14,8 @@ const panelStyle = css`
   flex-direction: row;
   padding: 3.5em 0 3.5em 0;
   z-index: ${GlobalConsts.zIndex.panel};
-  max-width: 500px;
   height: 100%;
+  min-width: 400px;
   box-sizing: border-box;
   transition: transform 0.5s;
   @media (max-width: 1199.98px) {
@@ -34,10 +35,8 @@ const closeButtonStyle = css`
   display: inline-block;
   font-size: 0.5em;
   pointer-events: all;
-  &.btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 `;
 const modalWrapper = css`
   width: 100%;
@@ -46,13 +45,24 @@ const modalWrapper = css`
   align-items: flex-end;
 `;
 const modalStyle = css`
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-clip: padding-box;
+  background: #fff;
+  padding: 1.8em;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-top-right-radius: 0.3rem;
+  outline: 0;
   max-height: 100%;
-  height: 100%;
   overflow: auto;
-  &.modal-content {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
   & .modal-header {
     display: block;
   }
@@ -89,11 +99,11 @@ const Panel: React.FC<PanelProps> = ({
         <div className={iconContainerStyle} style={{ padding: iconPadding }}>
           <Button
             size="lg"
-            color="primary"
+            variant="brand"
             className={closeButtonStyle}
             onClick={toggle}
+            leftIcon={<Icon icon={ICONS.ARROW_RIGHT} size={24} />}
           >
-            <ArrowRightIcon size={24} />
             {buttonText && (
               <div>
                 <small>{buttonText}</small>
@@ -111,8 +121,8 @@ const Panel: React.FC<PanelProps> = ({
             }}
           >
             <div className={modalWrapper}>
-              <div className={`${cx("modal-content", modalStyle)} p-4`}>
-                <h3>{header}</h3>
+              <div className={`${cx("modal-content", modalStyle)}`}>
+                <Title>{header}</Title>
                 {children}
               </div>
             </div>
@@ -122,11 +132,11 @@ const Panel: React.FC<PanelProps> = ({
             >
               <Button
                 size="lg"
-                color="primary"
+                variant="brand"
                 className={closeButtonStyle}
                 onClick={toggle}
+                leftIcon={<Icon icon={ICONS.CLOSE} size={24} />}
               >
-                <CloseIcon size={24} />
                 {buttonText && (
                   <div>
                     <small>{buttonText}</small>

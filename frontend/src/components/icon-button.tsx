@@ -1,27 +1,25 @@
-import { Button, Spinner, ButtonProps } from "@vseth/components";
+import { ActionIconProps, ActionIcon, Tooltip } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
-import TooltipButton from "./TooltipButton";
-const childStyle = css`
-  padding-left: 0.8em;
-`;
+import { Icon } from "vseth-canine-ui";
+
 const buttonStyle = css`
   min-width: 0;
   align-content: center;
 `;
-const spacerStyle = css`
-  width: 0;
-`;
-interface IconButtonProps extends ButtonProps {
-  icon: React.FC<{ className?: string; size?: string | number }>;
+
+interface IconButtonProps extends ActionIconProps {
+  iconName: string;
   loading?: boolean;
   tooltip?: React.ReactNode;
   iconClassName?: string;
+  onClick?: any;
 }
+
 const IconButton: React.FC<IconButtonProps> = ({
   size,
   loading,
-  icon,
+  iconName,
   className,
   iconClassName,
   disabled,
@@ -29,42 +27,27 @@ const IconButton: React.FC<IconButtonProps> = ({
   tooltip,
   ...props
 }) => {
-  const Icon = icon;
   return tooltip ? (
-    <TooltipButton
-      tooltip={tooltip}
-      {...props}
+    <Tooltip
+      withinPortal
+      label={tooltip}
       disabled={disabled || loading}
       className={buttonStyle + (className ? ` ${className}` : "")}
-      size={size}
     >
-      <>
-        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-        {loading ? (
-          <Spinner size="sm" />
-        ) : (
-          <Icon className={iconClassName} size="1em" />
-        )}
-      </>
-      {children && <span className={childStyle}>{children}</span>}
-    </TooltipButton>
+      <ActionIcon loading={loading} size={size} {...props}>
+        <Icon icon={iconName} className={iconClassName} size="1em" />
+      </ActionIcon>
+    </Tooltip>
   ) : (
-    <Button
+    <ActionIcon
       {...props}
       disabled={disabled || loading}
       className={buttonStyle + (className ? ` ${className}` : "")}
       size={size}
+      loading={loading}
     >
-      <>
-        <div className={`d-inline-block ${spacerStyle}`}>&nbsp;</div>
-        {loading ? (
-          <Spinner size="sm" s />
-        ) : (
-          <Icon className={iconClassName} size="1em" />
-        )}
-      </>
-      {children && <span className={childStyle}>{children}</span>}
-    </Button>
+      <Icon icon={iconName} className={iconClassName} size="1em" />
+    </ActionIcon>
   );
 };
 export default IconButton;

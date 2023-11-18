@@ -1,48 +1,22 @@
-import { css } from "@emotion/css";
-import { useDebounceFn } from "@umijs/hooks";
 import {
-  AdjustUpDownAltIcon,
-  AdjustUpDownIcon,
-  ArrowUpIcon,
-  ButtonGroup,
-  CloseIcon,
-  Col,
-  FormGroup,
-  Input,
-  Label,
-  MessageIcon,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
+  Button,
+  Checkbox,
+  Grid,
+  Slider,
   Pagination,
-  PaginationItem,
-  PaginationLink,
-  PlusIcon,
-  Row,
-} from "@vseth/components";
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import { useDebounceFn } from "@umijs/hooks";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
 import IconButton from "./icon-button";
 import Panel from "./panel";
-
-const intMap = <T,>(from: number, to: number, cb: (num: number) => T) => {
-  const acc: T[] = [];
-  for (let i = from; i <= to; i++) {
-    acc.push(cb(i));
-  }
-  return acc;
-};
-const paginationStyle = css`
-  & .pagination {
-    display: inline-block;
-  }
-  & .pagination .page-item {
-    display: inline-block;
-  }
-`;
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
@@ -104,8 +78,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     (val: number) => setMaxWidth(val),
     500,
   );
-  const handler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.currentTarget.value);
+  const handler = (val: number) => {
     changeWidth(val);
     setWidthValue(val);
   };
@@ -132,191 +105,149 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
-      <ModalHeader>
-        <Link
-          className="link-text"
-          to={`/category/${metaData ? metaData.category : ""}`}
-        >
-          {metaData && metaData.category_displayname}
-        </Link>
-        <p>
-          <small>{metaData && metaData.displayname}</small>
-        </p>
-      </ModalHeader>
-      <ModalBody>
-        <h6 className="my-3 mx-2">Pages</h6>
-        <Pagination className={paginationStyle}>
-          {renderer &&
-            intMap(1, renderer.document.numPages, pageNum => (
-              <PaginationItem active key={pageNum}>
-                {visiblePages.has(pageNum) ? (
-                  <PaginationLink href={`#page-${pageNum}`} className="border">
-                    {pageNum}
-                  </PaginationLink>
-                ) : (
-                  <PaginationLink href={`#page-${pageNum}`}>
-                    {pageNum}
-                  </PaginationLink>
-                )}
-              </PaginationItem>
-            ))}
-        </Pagination>
-
-        <h6 className="my-3 mx-2">Size</h6>
-        <Input
-          type="range"
-          min="500"
-          max="2000"
+      <Stack spacing="xs">
+        <div>
+          <Title order={2}>{metaData && metaData.displayname}</Title>
+          <Text size="sm" fs="italic">
+            {metaData && metaData.category_displayname}
+          </Text>
+        </div>
+        <Title order={6}>Pages</Title>
+        {!!renderer && (
+          <Pagination
+            total={renderer.document.numPages}
+            getItemProps={page => ({
+              component: "a",
+              href: `#page-${page}`,
+            })}
+            withControls={false}
+          />
+        )}
+        <Title order={6}>Size</Title>
+        <Slider
+          label={null}
+          min={500}
+          max={2000}
           value={widthValue}
           onChange={handler}
         />
-        <h6 className="my-3 mx-2">Actions</h6>
-        <ButtonGroup>
+        <Title order={6}>Actions</Title>
+        <Button.Group>
           <IconButton
             tooltip="Report problem"
-            icon={MessageIcon}
+            iconName={ICONS.MESSAGE}
             onClick={reportProblem}
           />
           <IconButton
             tooltip="Back to the top"
-            icon={ArrowUpIcon}
+            iconName={ICONS.ARROW_UP}
             onClick={scrollToTop}
           />
           {!allSectionsExpanded && (
             <IconButton
               tooltip="Expand all answers"
-              icon={AdjustUpDownIcon}
+              iconName={ICONS.ADJUST_UP_DOWN}
               onClick={onExpandAllSections}
             />
           )}
           {!allSectionsCollapsed && (
             <IconButton
               tooltip="Collapse all answers"
-              icon={AdjustUpDownAltIcon}
+              iconName={ICONS.ADJUST_UP_DOWN_ALT}
               onClick={onCollapseAllSections}
             />
           )}
-        </ButtonGroup>
+        </Button.Group>
 
         {canEdit && (
           <>
-            <h6 className="my-3 mx-2">Edit Mode</h6>
-            <Row form>
+            <Title order={6}>Edit Mode</Title>
+            <Grid>
               {editState.mode !== EditMode.None && (
-                <Col xs="auto">
-                  <IconButton
+                <Grid.Col xs="auto">
+                  <Button
                     size="sm"
-                    tooltip="Disable editing"
                     onClick={() => setEditState({ mode: EditMode.None })}
-                    icon={CloseIcon}
+                    leftIcon={<Icon icon={ICONS.CLOSE} />}
                   >
                     Stop Editing
-                  </IconButton>
-                </Col>
+                  </Button>
+                </Grid.Col>
               )}
               {editState.mode !== EditMode.Add && (
-                <Col xs="auto">
-                  <IconButton
+                <Grid.Col xs="auto">
+                  <Button
                     size="sm"
-                    tooltip="Add new cuts"
                     onClick={() =>
                       setEditState({
                         mode: EditMode.Add,
                         snap,
                       })
                     }
-                    icon={PlusIcon}
+                    leftIcon={<Icon icon={ICONS.PLUS} />}
                   >
                     Add Cuts
-                  </IconButton>
-                </Col>
+                  </Button>
+                </Grid.Col>
               )}
-            </Row>
-            <div className="my-1">
+            </Grid>
+            <div>
               {editState.mode !== EditMode.None && (
-                <FormGroup check>
-                  <Input
-                    type="checkbox"
-                    name="check"
-                    id="snap"
-                    checked={editState.snap}
-                    onChange={e =>
-                      setEditState({ ...editState, snap: e.target.checked })
-                    }
-                  />
-                  <Label for="snap" check>
-                    Snap
-                  </Label>
-                </FormGroup>
+                <Checkbox
+                  name="check"
+                  label="Snap"
+                  checked={editState.snap}
+                  onChange={e =>
+                    setEditState({ ...editState, snap: e.target.checked })
+                  }
+                />
               )}
             </div>
-            <h6 className="my-3 mx-2">Display Options</h6>
-            <FormGroup check>
-              <Input
-                type="checkbox"
+            <Title order={6}>Display Options</Title>
+            <Stack spacing="xs">
+              <Checkbox
                 name="check"
-                id="displayHiddenPdfSections"
+                label="Display hidden PDF sections"
                 checked={displayOptions.displayHiddenPdfSections}
                 onChange={e =>
                   setOption("displayHiddenPdfSections", e.target.checked)
                 }
               />
-              <Label for="displayHiddenPdfSections" check>
-                Display hidden PDF sections
-              </Label>
-            </FormGroup>
-            <FormGroup check>
-              <Input
-                type="checkbox"
+              <Checkbox
                 name="check"
-                id="displayHiddenAnswerSections"
+                label="Display hidden answer sections"
                 checked={displayOptions.displayHiddenAnswerSections}
                 onChange={e =>
                   setOption("displayHiddenAnswerSections", e.target.checked)
                 }
               />
-              <Label for="displayHiddenAnswerSections" check>
-                Display hidden answer sections
-              </Label>
-            </FormGroup>
-            <FormGroup check>
-              <Input
-                type="checkbox"
+              <Checkbox
                 name="check"
-                id="displayHideShowButtons"
+                label="Display Hide / Show buttons"
                 checked={displayOptions.displayHideShowButtons}
                 onChange={e =>
                   setOption("displayHideShowButtons", e.target.checked)
                 }
               />
-              <Label for="displayHideShowButtons" check>
-                Display Hide / Show buttons
-              </Label>
-            </FormGroup>
-            <FormGroup check>
-              <Input
-                type="checkbox"
+              <Checkbox
                 name="check"
-                id="displayEmptyCutLabels"
+                label="Display empty cut labels"
                 checked={displayOptions.displayEmptyCutLabels}
                 onChange={e =>
                   setOption("displayEmptyCutLabels", e.target.checked)
                 }
               />
-              <Label for="displayEmptyCutLabels" check>
-                Display empty cut labels
-              </Label>
-            </FormGroup>
+            </Stack>
           </>
         )}
-      </ModalBody>
-      <ModalFooter>
-        All answers are licensed as &nbsp;
-        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-          CC BY-NC-SA 4.0
-        </a>
-        .
-      </ModalFooter>
+        <Text size="sm" color="dimmed">
+          All answers are licensed as&nbsp;
+          <Link to="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA 4.0
+          </Link>
+          .
+        </Text>
+      </Stack>
     </Panel>
   );
 };

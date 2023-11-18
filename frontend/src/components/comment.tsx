@@ -1,19 +1,5 @@
-import {
-  ButtonGroup,
-  ButtonDropdown,
-  CloseIcon,
-  Col,
-  DeleteIcon,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  EditIcon,
-  ListGroupItem,
-  Row,
-  SaveIcon,
-} from "@vseth/components";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
 import { imageHandler } from "../api/fetch-utils";
@@ -25,10 +11,10 @@ import { Answer, AnswerSection, Comment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
-import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
-import { DotsHIcon } from "@vseth/components/dist/components/Icon/Icon";
+import { Icon, ICONS } from "vseth-canine-ui";
+import { Anchor, Button, Flex, Paper, Text } from "@mantine/core";
 
 interface Props {
   answer: Answer;
@@ -43,8 +29,6 @@ const CommentComponent: React.FC<Props> = ({
   onDelete,
 }) => {
   const [viewSource, toggleViewSource] = useToggle(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = useCallback(() => setIsOpen(old => !old), []);
   const { isAdmin, username } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);
@@ -88,21 +72,52 @@ const CommentComponent: React.FC<Props> = ({
       confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
   return (
-    <ListGroupItem>
+    <Paper radius={0} withBorder p="sm">
       {modals}
-      <div className="float-right">
-        {comment && !editing && ( // Only show button toolbar if not a draft and not editing
-          <ButtonGroup>
-            {comment.canEdit && (
-              <SmallButton
-                tooltip="Edit comment"
-                size="sm"
-                color="white"
-                onClick={startEditing}
-              >
-                <EditIcon size={18} />
-              </SmallButton>
+      <Flex justify="space-between">
+        <div>
+          <Anchor
+            component={Link}
+            to={`/user/${comment?.authorId ?? username}`}
+          >
+            <Text weight={700} component="span">
+              {comment?.authorDisplayName ?? "(Draft)"}
+            </Text>
+            <Text ml="0.25em" color="dimmed" component="span">
+              @{comment?.authorId ?? username}
+            </Text>
+          </Anchor>
+          <Text component="span" mx="xs" color="dimmed">
+            ·
+          </Text>
+          {comment && (
+            <Text component="span" color="dimmed" title={comment.time}>
+              {formatDistanceToNow(new Date(comment.time))} ago
+            </Text>
+          )}
+          {comment &&
+            differenceInSeconds(
+              new Date(comment.edittime),
+              new Date(comment.time),
+            ) > 1 && (
+              <>
+                <span>·</span>
+                <span title={comment.edittime}>
+                  edited {formatDistanceToNow(new Date(comment.edittime))} ago
+                </span>
+              </>
             )}
+        </div>
+        {comment && !editing && comment.canEdit && (
+          <Button.Group>
+            <SmallButton
+              tooltip="Edit comment"
+              size="sm"
+              color="white"
+              onClick={startEditing}
+            >
+              <Icon icon={ICONS.EDIT} size={18} />
+            </SmallButton>
             {(comment.canEdit || isAdmin) && (
               <SmallButton
                 tooltip="Delete comment"
@@ -110,50 +125,30 @@ const CommentComponent: React.FC<Props> = ({
                 color="white"
                 onClick={remove}
               >
-                <DeleteIcon size={18} />
+                <Icon icon={ICONS.DELETE} size={18} />
               </SmallButton>
             )}
-            <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-             <DropdownToggle size="sm" color="white" tooltip="More" caret>
-               <DotsHIcon size={18} />
-             </DropdownToggle>
-             <DropdownMenu>
-               <DropdownItem onClick={toggleViewSource}>
-                 Toggle Source Code Mode
-               </DropdownItem>
-             </DropdownMenu>
-            </ButtonDropdown>
-          </ButtonGroup>
+            <SmallButton
+              tooltip="Toggle Source Code Mode"
+              size="sm"
+              color="white"
+              onClick={toggleViewSource}
+            >
+              <Icon icon={ICONS.CODE} size={18} />
+            </SmallButton>
+          </Button.Group>
         )}
-      </div>
-      <div>
-        <Link className="text-dark" to={`/user/${comment?.authorId ?? username}`}>
-          <span className="text-dark font-weight-bold">
-            {comment?.authorDisplayName ?? "(Draft)"}
-          </span>
-          <span className="text-muted ml-1">
-            @{comment?.authorId ?? username}
-          </span>
-        </Link>
-        <span className="text-muted mx-1">·</span>
-        {comment && (
-          <span className="text-muted" title={comment.time}>
-            {formatDistanceToNow(new Date(comment.time))} ago
-          </span>
+        {comment && !editing && !comment.canEdit && (
+          <SmallButton
+            tooltip="Toggle Source Code Mode"
+            size="sm"
+            color="white"
+            onClick={toggleViewSource}
+          >
+            <Icon icon={ICONS.CODE} size={18} />
+          </SmallButton>
         )}
-        {comment &&
-          differenceInSeconds(
-            new Date(comment.edittime),
-            new Date(comment.time),
-          ) > 1 && (
-            <>
-              <span className="text-muted mx-1">·</span>
-              <span className="text-muted" title={comment.edittime}>
-                edited {formatDistanceToNow(new Date(comment.edittime))} ago
-              </span>
-            </>
-          )}
-      </div>
+      </Flex>
 
       {comment === undefined || editing ? (
         <>
@@ -165,31 +160,25 @@ const CommentComponent: React.FC<Props> = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-          <Row className="flex-between" form>
-            <Col xs="auto">
-              <IconButton
-                className="m-1"
-                size="sm"
-                color="primary"
-                loading={loading}
-                disabled={draftText.trim().length === 0}
-                onClick={onSave}
-                icon={SaveIcon}
-              >
-                Save
-              </IconButton>
-            </Col>
-            <Col xs="auto">
-              <IconButton
-                className="m-1"
-                size="sm"
-                onClick={onCancel}
-                icon={CloseIcon}
-              >
-                {comment === undefined ? "Delete Draft" : "Cancel"}
-              </IconButton>
-            </Col>
-          </Row>
+          <Flex justify="space-between" mt="sm">
+            <Button
+              size="sm"
+              variant="brand"
+              loading={loading}
+              disabled={draftText.trim().length === 0}
+              onClick={onSave}
+              leftIcon={<Icon icon={ICONS.SAVE} />}
+            >
+              Save
+            </Button>
+            <Button
+              size="sm"
+              onClick={onCancel}
+              leftIcon={<Icon icon={ICONS.CLOSE} />}
+            >
+              {comment === undefined ? "Delete Draft" : "Cancel"}
+            </Button>
+          </Flex>
         </>
       ) : (
         <div>
@@ -200,7 +189,7 @@ const CommentComponent: React.FC<Props> = ({
           )}
         </div>
       )}
-    </ListGroupItem>
+    </Paper>
   );
 };
 

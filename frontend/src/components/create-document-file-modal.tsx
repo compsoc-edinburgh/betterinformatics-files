@@ -1,20 +1,11 @@
-import {
-  ModalHeader,
-  ModalBody,
-  InputField,
-  FormGroup,
-  ModalFooter,
-  Button,
-  Spinner,
-  PlusIcon,
-} from "@vseth/components";
+import { Button, FileInput, Stack, TextInput } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { NamedBlob } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentFile } from "../api/hooks";
 import { Toggle } from "../hooks/useToggle";
 import { Document } from "../interfaces";
-import FileInput from "./file-input";
 
 interface Props {
   document: Document;
@@ -28,7 +19,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   mutate,
 }) => {
   const [displayName, setDisplayName] = useState("");
-  const [file, setFile] = useState<File | undefined>(undefined);
+  const [file, setFile] = useState<File | null>(null);
 
   const [loading, createDocumentFile] = useCreateDocumentFile(
     document.author,
@@ -37,36 +28,34 @@ const CreateDocumentFileModal: React.FC<Props> = ({
       toggle(false);
       mutate(s => ({ ...s, files: [...s.files, f] }));
       setDisplayName("");
-      setFile(undefined);
+      setFile(null);
     },
   );
 
   return (
     <>
-      <ModalHeader toggle={loading ? undefined : toggle}>Add File</ModalHeader>
-      <ModalBody>
-        <InputField
+      <Stack>
+        <TextInput
           label="Display Name"
-          type="text"
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-        <FormGroup>
-          <label className="form-input-label">File</label>
-          <FileInput
-            value={file}
-            onChange={setFile}
-            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
-          />
-          <div className="form-text text-muted">
-            If you don't select any file we will create an empty markdown file
-            for you that you can edit afterwards.
-          </div>
-        </FormGroup>
-      </ModalBody>
-      <ModalFooter>
+        <FileInput
+          label="File"
+          placeholder="Click here to pick file..."
+          icon={<Icon icon={ICONS.CLOUD_UP} />}
+          value={file}
+          onChange={setFile}
+          accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
+        />
+        <div>
+          If you don't select any file we will create an empty markdown file for
+          you that you can edit afterwards.
+        </div>
         <Button
-          color="primary"
+          variant="brand"
+          loading={loading}
+          leftIcon={<Icon icon={ICONS.PLUS} />}
           disabled={loading || displayName.trim() === ""}
           onClick={() =>
             createDocumentFile(
@@ -79,14 +68,9 @@ const CreateDocumentFileModal: React.FC<Props> = ({
             )
           }
         >
-          Add{" "}
-          {loading ? (
-            <Spinner className="ml-2" size="sm" />
-          ) : (
-            <PlusIcon className="ml-2" />
-          )}
+          Add
         </Button>
-      </ModalFooter>
+      </Stack>
     </>
   );
 };

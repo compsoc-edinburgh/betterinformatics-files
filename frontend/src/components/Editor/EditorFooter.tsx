@@ -1,20 +1,10 @@
 import { css } from "@emotion/css";
-import {
-  Button,
-  ButtonGroup,
-  Modal,
-  ModalBody,
-  ModalHeader,
-} from "@vseth/components";
+import { Button, Group, Modal } from "@mantine/core";
 import * as React from "react";
 import { useCallback, useState } from "react";
 import { ImageHandle } from "./utils/types";
 import EditorHelp from "./EditorHelp";
 
-const wideModal = css`
-  width: 90vw;
-  max-width: 1500px;
-`;
 const rowStyle = css`
   text-align: right;
   margin-left: -0.5rem;
@@ -33,23 +23,25 @@ const EditorFooter: React.FC<Props> = ({
   const toggleHelp = useCallback(() => setIsHelpOpen(prev => !prev), []);
   return (
     <div>
-      <div className={rowStyle}>
-        <ButtonGroup>
-          <Button size="sm" onClick={toggleHelp}>
+      <Group position="right" className={rowStyle}>
+        <Button.Group>
+          <Button variant="default" size="sm" onClick={toggleHelp}>
             Supported Functions
           </Button>
-          <Button size="sm" onClick={onOpenOverlay}>
+          <Button variant="default" size="sm" onClick={onOpenOverlay}>
             Browse Images
           </Button>
-        </ButtonGroup>
-      </div>
-      <Modal isOpen={isHelpOpen} toggle={toggleHelp} className={wideModal}>
-        <ModalHeader>
-          <h1>Help with Editor</h1>
-        </ModalHeader>
-        <ModalBody>
+        </Button.Group>
+      </Group>
+      <Modal
+        title="Help with Editor"
+        opened={isHelpOpen}
+        onClose={toggleHelp}
+        size="min(90vw, 1500px)"
+      >
+        <Modal.Body>
           <EditorHelp />
-        </ModalBody>
+        </Modal.Body>
       </Modal>
     </div>
   );

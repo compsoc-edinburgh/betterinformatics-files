@@ -1,6 +1,7 @@
+import { Button } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { Button, SaveIcon, Spinner } from "@vseth/components";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";
 import { useUpdateDocumentFile } from "../api/hooks";
 import { Document, DocumentFile } from "../interfaces";
@@ -29,7 +30,7 @@ const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
   });
   return (
     <div>
-      <div className="form-group">
+      <div>
         <Editor
           value={draftText}
           onChange={setDraftText}
@@ -39,19 +40,16 @@ const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
           setUndoStack={setUndoStack}
         />
       </div>
-      <div className="form-group d-flex justify-content-end">
+      <div>
         <Button
           onClick={() =>
             updateDocument({
               file: new NamedBlob(new Blob([draftText]), "file.md"),
             })
           }
+          loading={loading}
+          leftIcon={<Icon icon={ICONS.SAVE} />}
         >
-          {loading ? (
-            <Spinner size="sm" className="mr-2" />
-          ) : (
-            <SaveIcon className="mr-2" />
-          )}
           Save
         </Button>
       </div>

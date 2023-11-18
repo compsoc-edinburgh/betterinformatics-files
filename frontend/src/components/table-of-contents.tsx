@@ -1,14 +1,7 @@
 import { Link } from "react-router-dom";
 import * as React from "react";
 import { useState } from "react";
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Button,
-  Row,
-  Col,
-} from "@vseth/components";
+import { Button, Card, Flex, Title } from "@mantine/core";
 
 export class TOCNode {
   name: string;
@@ -64,37 +57,23 @@ interface Props {
 export const TOC: React.FC<Props> = ({ toc }) => {
   const [visible, setVisible] = useState(false);
   return visible ? (
-    <Card className="m-1">
-      <CardHeader>
-        <Row className="flex-between">
-          <Col xs="auto" className="d-flex flex-center flex-column">
-            <h6 className="m-0">Contents</h6>
-          </Col>
-          <Col xs="auto">
-            <Button onClick={() => setVisible(false)}>Hide</Button>
-          </Col>
-        </Row>
-      </CardHeader>
-      <CardBody>
-        <ul>
-          {toc.children.map((child, i) => (
-            <TOCNodeComponent node={child} key={child.name + i} />
-          ))}
-        </ul>
-      </CardBody>
+    <Card my="xs" withBorder shadow="md">
+      <Flex justify="space-between" align="center">
+        <Title order={4}>Contents</Title>
+        <Button onClick={() => setVisible(false)}>Hide</Button>
+      </Flex>
+      <ul>
+        {toc.children.map((child, i) => (
+          <TOCNodeComponent node={child} key={child.name + i} />
+        ))}
+      </ul>
     </Card>
   ) : (
-    <Card className="m-1">
-      <CardHeader>
-        <Row className="flex-between">
-          <Col xs="auto" className="d-flex flex-center flex-column">
-            <h6 className="m-0">Contents</h6>
-          </Col>
-          <Col xs="auto">
-            <Button onClick={() => setVisible(true)}>Show</Button>
-          </Col>
-        </Row>
-      </CardHeader>
+    <Card my="xs" withBorder shadow="sm">
+      <Flex justify="space-between" align="center">
+        <Title order={4}>Contents</Title>
+        <Button onClick={() => setVisible(true)}>Show</Button>
+      </Flex>
     </Card>
   );
 };

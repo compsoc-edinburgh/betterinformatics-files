@@ -1,15 +1,6 @@
-import {
-  Button,
-  Col,
-  Form,
-  FormGroup,
-  InputField,
-  Label,
-  ListGroup,
-  ListGroupItem,
-  Row,
-} from "@vseth/components";
+import { Button, Grid, Group, TextInput } from "@mantine/core";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface UserSetEditorProps {
   users: string[];
@@ -27,41 +18,39 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
   };
   return (
     <>
-      <ListGroup>
+      <Group>
         {users.map(user => (
-          <ListGroupItem key={user}>
-            <Button close onClick={() => remove(user)} />
+          <Button
+            key={user}
+            variant="default"
+            leftIcon={<Icon icon={ICONS.CLOSE} />}
+            onClick={() => remove(user)}
+          >
             {user}
-          </ListGroupItem>
+          </Button>
         ))}
-      </ListGroup>
-      <Form
+      </Group>
+      <form
         onSubmit={e => {
           e.preventDefault();
           onAdd();
         }}
       >
-        <Row form className="mt-2">
-          <Col>
-            <InputField
-              type="text"
+        <Grid align="flex-end" my="xs">
+          <Grid.Col span="auto">
+            <TextInput
               label="Name"
               value={username}
               onChange={e => setUsername(e.currentTarget.value)}
             />
-          </Col>
-          <Col md={2}>
-            <FormGroup>
-              <Label for="Meta 2" className="form-input-label">
-                &nbsp;
-              </Label>
-              <Button block type="submit">
-                Add
-              </Button>
-            </FormGroup>
-          </Col>
-        </Row>
-      </Form>
+          </Grid.Col>
+          <Grid.Col md={2}>
+            <Button fullWidth type="submit">
+              Add
+            </Button>
+          </Grid.Col>
+        </Grid>
+      </form>
     </>
   );
 };

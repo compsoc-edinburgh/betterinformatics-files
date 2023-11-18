@@ -1,9 +1,10 @@
+import { Loader, Button } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import { ButtonGroup, MinusIcon, PlusIcon, Spinner } from "@vseth/components";
 import React from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
-import SmallButton from "./small-button";
+import TooltipButton from "./TooltipButton";
 
 const setLikeReq = async (oid: string, like: -1 | 0 | 1) => {
   return (await fetchPost(`/api/exam/setlike/${oid}/`, { like }))
@@ -29,38 +30,38 @@ const Score: React.FC<Props> = ({
     onSuccess: onSectionChanged,
   });
   return (
-    <ButtonGroup className="m-1">
-      <SmallButton
+    <Button.Group>
+      <TooltipButton
+        px={4}
         tooltip="Downvote"
         size="sm"
-        className="px-1"
         disabled={userVote === -1}
-        outline={userVote === -1}
+        variant={userVote === -1 ? "outline" : "default"}
         onClick={() => setLike(oid, -1)}
       >
-        <MinusIcon size={18} />
-      </SmallButton>
-      <SmallButton
+        <Icon icon={ICONS.MINUS} size={18} />
+      </TooltipButton>
+      <TooltipButton
         tooltip="Reset vote"
         size="sm"
-        className="text-dark"
+        px="sm"
         disabled={userVote === 0}
-        outline
+        // variant="subtle"
         onClick={() => setLike(oid, 0)}
       >
-        {loading ? <Spinner size="sm" /> : upvotes}
-      </SmallButton>
-      <SmallButton
+        {loading ? <Loader size="sm" /> : upvotes}
+      </TooltipButton>
+      <TooltipButton
+        px={4}
         tooltip="Upvote"
         size="sm"
-        className="px-1"
         disabled={userVote === 1}
-        outline={userVote === 1}
+        variant={userVote === 1 ? "outline" : "default"}
         onClick={() => setLike(oid, 1)}
       >
-        <PlusIcon size={18} />
-      </SmallButton>
-    </ButtonGroup>
+        <Icon icon={ICONS.PLUS} size={18} />
+      </TooltipButton>
+    </Button.Group>
   );
 };
 export default Score;

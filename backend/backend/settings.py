@@ -167,7 +167,11 @@ if DEBUG:
 else:
     allowed_script_sources = [f"https://{host}/static/"
                for host in REAL_ALLOWED_HOSTS]
-CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed_script_sources)
+CSP_SCRIPT_SRC = (
+    "'unsafe-eval'",
+    "https://static.vseth.ethz.ch",
+    *allowed_script_sources
+)
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",
@@ -185,7 +189,12 @@ CSP_CONNECT_SRC = (
     "https://" + s3_host + ":" + s3_port,
     "http://" + s3_host + ":" + s3_port,
 )
-CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
+CSP_IMG_SRC = (
+    "'self'", 
+    "data:", 
+    "https://static.vseth.ethz.ch", 
+    "https://fe.vseth.ethz.ch",
+)
 
 
 # Application definition

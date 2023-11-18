@@ -1,6 +1,6 @@
 enum ZIndex {
   imageOverlay = 42,
-  panel = 100,
+  panel = 101,
 }
 export default class GlobalConsts {
   static readonly momentParseString = "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ";

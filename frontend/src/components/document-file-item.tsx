@@ -1,24 +1,16 @@
 import {
-  ListGroupItem,
-  ListGroupItemHeading,
-  ListGroupItemText,
   Badge,
-  Row,
-  Col,
-  ModalHeader,
-  Modal,
-  ModalBody,
-  FormGroup,
-  InputField,
   Button,
-  ModalFooter,
-  Spinner,
-  SaveIcon,
-  KeyIcon,
-  EditIcon,
-  DeleteIcon,
-} from "@vseth/components";
+  Card,
+  Flex,
+  Grid,
+  Group,
+  Modal,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import {
   Mutate,
   useDeleteDocumentFile,
@@ -68,46 +60,46 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [keyIsOpen, toggleKeyIsOpen] = useToggle();
   return (
     <>
-      <Modal toggle={toggleEditIsOpen} isOpen={editIsOpen}>
-        <ModalHeader toggle={toggleEditIsOpen}>
-          Edit "{file.display_name}"
-        </ModalHeader>
-        <ModalBody>
-          <InputField
+      <Modal
+        title="Edit {file.display_name}"
+        onClose={toggleEditIsOpen}
+        opened={editIsOpen}
+      >
+        <Modal.Body>
+          <TextInput
             label="Display Name"
-            type="text"
             value={displayName ?? file.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <FormGroup>
-            <label className="form-input-label">Replace File</label>
-            <FileInput
-              value={replaceFile}
-              onChange={setFile}
-              accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
-            />
-          </FormGroup>
-        </ModalBody>
-        <ModalFooter>
+          <label>Replace File</label>
+          <FileInput
+            value={replaceFile}
+            onChange={setFile}
+            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
+          />
           <Button
-            color="primary"
+            variant="brand"
             disabled={displayName?.trim() === ""}
             onClick={() =>
-              updateFile({ display_name: displayName?.trim(), file: replaceFile })
+              updateFile({
+                display_name: displayName?.trim(),
+                file: replaceFile,
+              })
             }
+            leftIcon={<Icon icon={ICONS.SAVE} />}
+            loading={updateLoading}
           >
-            Save{" "}
-            {updateLoading ? (
-              <Spinner className="ml-2" size="sm" />
-            ) : (
-              <SaveIcon className="ml-2" />
-            )}
+            Save
           </Button>
-        </ModalFooter>
+        </Modal.Body>
       </Modal>
-      <Modal toggle={toggleKeyIsOpen} isOpen={keyIsOpen} size="lg">
-        <ModalHeader toggle={toggleKeyIsOpen}>Access Token</ModalHeader>
-        <ModalBody>
+      <Modal
+        title="Access Token"
+        onClose={toggleKeyIsOpen}
+        opened={keyIsOpen}
+        size="lg"
+      >
+        <Modal.Body>
           <p>
             Token: <code>{document.api_key}</code>
           </p>
@@ -143,44 +135,46 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               {`curl ${window.location.origin}/api/document/${document.author}/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
-        </ModalBody>
+        </Modal.Body>
       </Modal>
-      <ListGroupItem className="d-md-flex justify-content-between align-items-center">
-        <div className="d-flex flex-column">
-          <ListGroupItemHeading>
-            {file.display_name || <i>Unnamed</i>}
-          </ListGroupItemHeading>
-          <ListGroupItemText>
-            <Badge color="primary">{file.filename}</Badge>{" "}
-            <Badge>{file.mime_type}</Badge>
-          </ListGroupItemText>
-        </div>
-        <Row form>
-          <Col xs="auto">
-            <IconButton
-              icon={KeyIcon}
-              onClick={toggleKeyIsOpen}
-              tooltip="View access token"
-            />
-          </Col>
-          <Col xs="auto">
-            <IconButton
-              icon={EditIcon}
-              onClick={toggleEditIsOpen}
-              tooltip="Edit file"
-            />
-          </Col>
-          <Col xs="auto">
-            <IconButton
-              icon={DeleteIcon}
-              color="danger"
-              onClick={deleteFile}
-              loading={deleteLoading}
-              tooltip="Delete file"
-            />
-          </Col>
-        </Row>
-      </ListGroupItem>
+      <Card withBorder my="xs">
+        <Flex justify="space-between" align="center">
+          <Flex direction="column" gap="xs">
+            <Title order={3} inline>
+              {file.display_name || <i>Unnamed</i>}
+            </Title>
+            <Group>
+              <Badge>{file.filename}</Badge>{" "}
+              <Badge color="gray">{file.mime_type}</Badge>
+            </Group>
+          </Flex>
+          <Grid>
+            <Grid.Col xs="auto">
+              <IconButton
+                iconName={ICONS.KEY}
+                onClick={toggleKeyIsOpen}
+                tooltip="View access token"
+              />
+            </Grid.Col>
+            <Grid.Col xs="auto">
+              <IconButton
+                iconName={ICONS.EDIT}
+                onClick={toggleEditIsOpen}
+                tooltip="Edit file"
+              />
+            </Grid.Col>
+            <Grid.Col xs="auto">
+              <IconButton
+                iconName={ICONS.DELETE}
+                color="red"
+                onClick={deleteFile}
+                loading={deleteLoading}
+                tooltip="Delete file"
+              />
+            </Grid.Col>
+          </Grid>
+        </Flex>
+      </Card>
     </>
   );
 };

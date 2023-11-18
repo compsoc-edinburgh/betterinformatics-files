@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Button, Container, Table } from "@vseth/components";
+import { Anchor, Badge, Button, Container, Table, Title } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
@@ -44,12 +44,14 @@ const ModQueue: React.FC = () => {
   const error = examsError || flaggedError || payError;
 
   return (
-    <Container>
+    <Container size="xl">
       {flaggedAnswers && flaggedAnswers.length > 0 && (
         <div>
-          <h2>Flagged Answers</h2>
-          {flaggedAnswers.map((answer) => (
-            <div>
+          <Title order={2} mb="md">
+            Flagged Answers
+          </Title>
+          {flaggedAnswers.map(answer => (
+            <div key={answer}>
               <Link to={answer} target="_blank" rel="noopener noreferrer">
                 {answer}
               </Link>
@@ -59,10 +61,12 @@ const ModQueue: React.FC = () => {
       )}
       {paymentExams && paymentExams.length > 0 && (
         <div>
-          <h2>Transcripts</h2>
-          <div className="position-relative">
+          <Title my="sm" order={2}>
+            Transcripts
+          </Title>
+          <div>
             <LoadingOverlay loading={payLoading} />
-            <Table>
+            <Table striped>
               <thead>
                 <tr>
                   <th>Category</th>
@@ -71,7 +75,7 @@ const ModQueue: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {paymentExams.map((exam) => (
+                {paymentExams.map(exam => (
                   <tr key={exam.filename}>
                     <td>{exam.category_displayname}</td>
                     <td>
@@ -91,11 +95,13 @@ const ModQueue: React.FC = () => {
           </div>
         </div>
       )}
-      <h2>Import Queue</h2>
+      <Title my="sm" order={2}>
+        Import Queue
+      </Title>
       {error && <div>{error}</div>}
-      <div className="position-relative">
+      <div>
         <LoadingOverlay loading={examsLoading} />
-        <Table>
+        <Table striped fontSize="md">
           <thead>
             <tr>
               <th>Category</th>
@@ -110,13 +116,17 @@ const ModQueue: React.FC = () => {
                 <tr key={exam.filename}>
                   <td>{exam.category_displayname}</td>
                   <td>
-                    <Link to={`/exams/${exam.filename}`} target="_blank">
+                    <Anchor
+                      color="blue"
+                      component={Link}
+                      to={`/exams/${exam.filename}`}
+                      target="_blank"
+                    >
                       {exam.displayname}
-                    </Link>
+                    </Anchor>
                     <div>
-                      <Badge color="primary">
-                        {exam.public ? "public" : "hidden"}
-                      </Badge>
+                      {exam.public && <Badge color="green">public</Badge>}
+                      {!exam.public && <Badge color="orange">hidden</Badge>}
                     </div>
                     <p>{exam.remark}</p>
                   </td>
@@ -135,11 +145,9 @@ const ModQueue: React.FC = () => {
           </tbody>
         </Table>
       </div>
-      <div>
-        <Button onClick={() => setIncludeHidden(!includeHidden)}>
-          {includeHidden ? "Hide" : "Show"} Complete Hidden Exams
-        </Button>
-      </div>
+      <Button mt="sm" mb="xl" onClick={() => setIncludeHidden(!includeHidden)}>
+        {includeHidden ? "Hide" : "Show"} Complete Hidden Exams
+      </Button>
     </Container>
   );
 };

@@ -1,23 +1,21 @@
-import {
-  Button,
-  InputField,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  PlusIcon,
-  Spinner,
-} from "@vseth/components";
+import { Button, TextInput, Modal, Stack } from "@mantine/core";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { useCreateDocument } from "../api/hooks";
 import { useUser } from "../auth";
 
 interface Props {
   categorySlug: string;
+  isOpen: boolean;
   toggle: () => void;
 }
 
-const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
+const CreateDocumentForm: React.FC<Props> = ({
+  categorySlug,
+  isOpen,
+  toggle,
+}) => {
   const { username } = useUser()!;
   const [displayName, setDisplayName] = useState("");
   const history = useHistory();
@@ -25,36 +23,32 @@ const CreateDocumentForm: React.FC<Props> = ({ categorySlug, toggle }) => {
     history.push(`/user/${username}/document/${slug}/`);
   });
   return (
-    <>
-      <ModalHeader toggle={toggle}>Add Document</ModalHeader>
-      <ModalBody>
-        <InputField
-          label="Display Name"
-          type="text"
-          value={displayName}
-          onChange={e => setDisplayName(e.currentTarget.value)}
-        />
+    <Modal opened={isOpen} title="Add Document" onClose={toggle}>
+      <Modal.Body>
+        <Stack>
+          <TextInput
+            label="Display Name"
+            placeholder="My wonderful summary"
+            value={displayName}
+            onChange={e => setDisplayName(e.currentTarget.value)}
+          />
 
-        <div className="form-text text-muted">
-          An empty new document will be created. One or more files can be added
-          to the document in the settings tab.
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <Button
-          color="primary"
-          disabled={loading || displayName.trim() === ""}
-          onClick={() => run(displayName.trim(), categorySlug)}
-        >
-          Add{" "}
-          {loading ? (
-            <Spinner className="ml-2" size="sm" />
-          ) : (
-            <PlusIcon className="ml-2" />
-          )}
-        </Button>
-      </ModalFooter>
-    </>
+          <div>
+            An empty new document will be created. One or more files can be
+            added to the document in the settings tab.
+          </div>
+          <Button
+            variant="brand"
+            disabled={loading || displayName.trim() === ""}
+            onClick={() => run(displayName.trim(), categorySlug)}
+            leftIcon={<Icon icon={ICONS.PLUS} />}
+            loading={loading}
+          >
+            Add
+          </Button>
+        </Stack>
+      </Modal.Body>
+    </Modal>
   );
 };
 

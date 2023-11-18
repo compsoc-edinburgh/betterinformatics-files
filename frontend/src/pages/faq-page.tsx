@@ -1,16 +1,3 @@
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CloseIcon,
-  Col,
-  Container,
-  Input,
-  PlusIcon,
-  Row,
-  SaveIcon,
-} from "@vseth/components";
-import { css } from "@emotion/css";
 import * as React from "react";
 import { useState } from "react";
 import { useFAQ } from "../api/faq";
@@ -19,13 +6,12 @@ import { useUser } from "../auth";
 import Editor from "../components/Editor";
 import { UndoStack } from "../components/Editor/utils/undo-stack";
 import FAQEntryComponent from "../components/faq-entry";
-import IconButton from "../components/icon-button";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
-const newButtonStyle = css`
-  min-height: 3em;
-`;
+import { Icon, ICONS } from "vseth-canine-ui";
+import { Button, Card, Container, Flex, TextInput } from "@mantine/core";
+
 export const FAQPage: React.FC = () => {
   useTitle("FAQ");
   const { isAdmin } = useUser()!;
@@ -50,7 +36,7 @@ export const FAQPage: React.FC = () => {
   };
 
   return (
-    <Container>
+    <Container size="xl">
       <div>
         <h1>FAQs</h1>
         <p>
@@ -75,61 +61,48 @@ export const FAQPage: React.FC = () => {
           />
         ))}
       {hasDraft ? (
-        <Card className="my-2">
-          <CardBody>
-            <h4>
-              <Input
-                type="text"
-                placeholder="Question"
-                value={question}
-                onChange={e => setQuestion(e.target.value)}
-              />
-            </h4>
-            <Editor
-              imageHandler={imageHandler}
-              value={answer}
-              onChange={setAnswer}
-              undoStack={undoStack}
-              setUndoStack={setUndoStack}
-              preview={value => <MarkdownText value={value} />}
-            />
-          </CardBody>
-          <CardFooter>
-            <Row className="flex-between">
-              <Col xs="auto">
-                <IconButton
-                  color="primary"
-                  size="sm"
-                  icon={SaveIcon}
-                  onClick={handleNew}
-                >
-                  Save
-                </IconButton>
-              </Col>
-              <Col xs="auto">
-                <IconButton
-                  size="sm"
-                  icon={CloseIcon}
-                  onClick={handleDeleteDraft}
-                >
-                  Delete Draft
-                </IconButton>
-              </Col>
-            </Row>
-          </CardFooter>
+        <Card withBorder shadow="md" my="xs">
+          <TextInput
+            placeholder="Question"
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+            mb="sm"
+          />
+          <Editor
+            imageHandler={imageHandler}
+            value={answer}
+            onChange={setAnswer}
+            undoStack={undoStack}
+            setUndoStack={setUndoStack}
+            preview={value => <MarkdownText value={value} />}
+          />
+          <Flex mt="sm" justify="space-between">
+            <Button
+              variant="brand"
+              size="sm"
+              leftIcon={<Icon icon={ICONS.SAVE} />}
+              onClick={handleNew}
+            >
+              Save
+            </Button>
+            <Button
+              size="sm"
+              leftIcon={<Icon icon={ICONS.CLOSE} />}
+              onClick={handleDeleteDraft}
+            >
+              Delete Draft
+            </Button>
+          </Flex>
         </Card>
       ) : (
         isAdmin && (
-          <Card className={`my-2 ${newButtonStyle}`}>
-            <IconButton
-              tooltip="Add new FAQ entry"
-              className="position-cover"
-              block
-              size="lg"
-              icon={PlusIcon}
-              onClick={() => setHasDraft(true)}
-            />
-          </Card>
+          <Button
+            my="md"
+            leftIcon={<Icon icon={ICONS.PLUS} />}
+            onClick={() => setHasDraft(true)}
+          >
+            Add new FAQ entry
+          </Button>
         )
       )}
     </Container>

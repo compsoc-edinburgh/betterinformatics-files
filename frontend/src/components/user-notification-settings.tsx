@@ -1,4 +1,4 @@
-import { Alert, FormGroup, Label, Input } from "@vseth/components";
+import { Alert, Checkbox, Stack } from "@mantine/core";
 import React from "react";
 import {
   useEnabledNotifications,
@@ -20,55 +20,33 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
   return (
     <>
       <h3>Notifications</h3>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
-      <FormGroup check>
-        <Input
-          type="checkbox"
-          id="commentToMyAnswer"
+      {error && <Alert color="red">{error.toString()}</Alert>}
+      <Stack spacing="sm">
+        <Checkbox
+          label="Comment to my answer"
           checked={enabled ? enabled.has(1) : false}
           disabled={checkboxLoading}
           onChange={e => setEnabled(1, e.currentTarget.checked)}
         />
-        <Label for="commentToMyAnswer" check>
-          Comment to my answer
-        </Label>
-      </FormGroup>
-      <FormGroup check>
-        <Input
-          type="checkbox"
-          id="commentToMyComment"
+        <Checkbox
+          label="Comment to my comment"
           checked={enabled ? enabled.has(2) : false}
           disabled={checkboxLoading}
           onChange={e => setEnabled(2, e.currentTarget.checked)}
         />
-        <Label for="commentToMyComment" check>
-          Comment to my comment
-        </Label>
-      </FormGroup>
-      <FormGroup check>
-        <Input
-          type="checkbox"
-          id="otherAnswerToSameQuestion"
+        <Checkbox
+          label="Other answer to same question"
           checked={enabled ? enabled.has(3) : false}
           disabled={checkboxLoading}
           onChange={e => setEnabled(3, e.currentTarget.checked)}
         />
-        <Label for="otherAnswerToSameQuestion" check>
-          Other answer to same question
-        </Label>
-      </FormGroup>
-      <FormGroup check>
-        <Input
-          type="checkbox"
-          id="commentToMyDocument"
+        <Checkbox
+          label="Comment to my document"
           checked={enabled ? enabled.has(4) : false}
           disabled={checkboxLoading}
           onChange={e => setEnabled(4, e.currentTarget.checked)}
         />
-        <Label for="commentToMyDocument" check>
-          Comment to my document
-        </Label>
-      </FormGroup>
+      </Stack>
     </>
   );
 };

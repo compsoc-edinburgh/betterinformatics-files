@@ -1,4 +1,4 @@
-import { Alert, Card, CardBody, CardHeader } from "@vseth/components";
+import { Alert, Card, Divider } from "@mantine/core";
 import moment from "moment";
 import * as React from "react";
 import { useEffect } from "react";
@@ -20,30 +20,24 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
 
   return (
     <div>
-      {error && <Alert color="danger">{error.message}</Alert>}
-      <Card className="my-2">
-        <CardHeader>
-          <h6>
-            <Link to={notification.link} className="text-primary">
-              {notification.title}
-            </Link>
-            <div>
-              <small>
-                <Link to={notification.sender} className="text-primary">
-                  {notification.senderDisplayName}
-                </Link>{" "}
-                •{" "}
-                {moment(
-                  notification.time,
-                  GlobalConsts.momentParseString,
-                ).format(GlobalConsts.momentFormatString)}
-              </small>
-            </div>
-          </h6>
-        </CardHeader>
-        <CardBody>
-          <MarkdownText value={notification.message} />
-        </CardBody>
+      {error && <Alert color="red">{error.message}</Alert>}
+      <Card my="sm">
+        <h6>
+          <Link to={notification.link}>{notification.title}</Link>
+          <div>
+            <small>
+              <Link to={notification.sender}>
+                {notification.senderDisplayName}
+              </Link>{" "}
+              •{" "}
+              {moment(notification.time, GlobalConsts.momentParseString).format(
+                GlobalConsts.momentFormatString,
+              )}
+            </small>
+          </div>
+        </h6>
+        <Divider />
+        <MarkdownText value={notification.message} />
       </Card>
     </div>
   );

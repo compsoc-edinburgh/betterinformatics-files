@@ -1,28 +1,23 @@
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
   Alert,
+  Anchor,
   Button,
-  Col,
   Container,
-  FormGroup,
-  Input,
-  Nav,
-  NavItem,
-  NavLink,
-  Row,
-  Spinner,
-} from "@vseth/components";
+  Grid,
+  Stack,
+  Tabs,
+  Text,
+  Textarea,
+  Title,
+} from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
 import FeedbackEntryComponent from "../components/feedback-entry";
 import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
-
-enum AdminMode {
-  Read,
-  Write,
-}
+import { Loader } from "@mantine/core";
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -45,46 +40,48 @@ const FeedbackForm: React.FC<{}> = () => {
   });
 
   return (
-    <>
+    <Stack>
       {success && <Alert>Feedback was submitted successfully.</Alert>}
-      <p>Please tell us what you think about Community Solutions!</p>
-      <p>What do you like? What could we improve? Ideas for new features?</p>
-      <p>
-        Use the form below or write to{" "}
-        <a href={`mailto:${serverData.email_address}`}>
+      <Text>
+        Please tell us what you think about Community Solutions! What do you
+        like? What could we improve? Ideas for new features? Use the form below
+        or write to{" "}
+        <Anchor
+          component="a"
+          href={`mailto:${serverData.email_address}`}
+          color="blue"
+        >
           {serverData.email_address}
-        </a>
+        </Anchor>
         .
-      </p>
-      <p>
+      </Text>
+      <Text>
         To report issues with the platform you can open an issue in our{" "}
-        <a
+        <Anchor
+          component="a"
+          color="blue"
           href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
           target="_blank"
           rel="noopener noreferrer"
         >
-          {" "}
           issue tracker
-        </a>
+        </Anchor>
         .
-      </p>
-      <FormGroup>
-        <Input
-          type="textarea"
-          value={text}
-          onChange={e => setText(e.currentTarget.value)}
-          rows={12}
-        />
-      </FormGroup>
-      <FormGroup>
-        <Button
-          disabled={text.length === 0 || loading}
-          onClick={() => run(text)}
-        >
-          {loading ? <Spinner /> : "Submit"}
-        </Button>
-      </FormGroup>
-    </>
+      </Text>
+      <Textarea
+        placeholder="Tell us your feedback..."
+        value={text}
+        onChange={e => setText(e.currentTarget.value)}
+        minRows={12}
+      />
+      <Button
+        loading={loading}
+        disabled={text.length === 0 || loading}
+        onClick={() => run(text)}
+      >
+        Submit
+      </Button>
+    </Stack>
   );
 };
 
@@ -98,48 +95,36 @@ const FeedbackReader: React.FC<{}> = () => {
 
   return (
     <>
-      {error && <Alert color="danger">{error.message}</Alert>}
+      {error && <Alert color="red">{error.message}</Alert>}
       {feedback && (
-        <Row>
+        <Grid>
           {feedback.map(fb => (
-            <Col lg={6} key={fb.oid}>
+            <Grid.Col lg={6} key={fb.oid}>
               <FeedbackEntryComponent entry={fb} entryChanged={reload} />
-            </Col>
+            </Grid.Col>
           ))}
-        </Row>
+        </Grid>
       )}
-      {loading && <Spinner />}
+      {loading && <Loader />}
     </>
   );
 };
 
 const FeedbackAdminView: React.FC<{}> = () => {
-  const [mode, setMode] = useLocalStorageState<AdminMode>(
+  const [mode, setMode] = useLocalStorageState<string | null>(
     "feedback-admin-mode",
-    AdminMode.Read,
+    "read",
   );
   return (
-    <Container>
-      <h2>Feedback</h2>
-      <Nav tabs className="my-3">
-        <NavItem>
-          <NavLink
-            className={mode === AdminMode.Read ? "active" : ""}
-            onClick={() => setMode(AdminMode.Read)}
-          >
-            Read
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className={mode === AdminMode.Write ? "active" : ""}
-            onClick={() => setMode(AdminMode.Write)}
-          >
-            Write
-          </NavLink>
-        </NavItem>
-      </Nav>
-      {mode === AdminMode.Read ? <FeedbackReader /> : <FeedbackForm />}
+    <Container size="xl">
+      <Title order={2}>Feedback</Title>
+      <Tabs value={mode} onTabChange={setMode} my="sm">
+        <Tabs.List defaultValue="read">
+          <Tabs.Tab value="read">Read</Tabs.Tab>
+          <Tabs.Tab value="write">Write</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      {mode === "read" ? <FeedbackReader /> : <FeedbackForm />}
     </Container>
   );
 };
@@ -149,8 +134,10 @@ const FeedbackPage: React.FC<{}> = () => {
   return isAdmin ? (
     <FeedbackAdminView />
   ) : (
-    <Container>
-      <h2>Feedback</h2>
+    <Container size="xl">
+      <Title order={2} mb="sm">
+        Feedback
+      </Title>
       <FeedbackForm />
     </Container>
   );

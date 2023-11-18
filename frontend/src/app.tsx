@@ -1,19 +1,21 @@
-import { css } from "@emotion/css";
 import {
   Button,
-  Col,
-  Container,
-  GitlabIcon,
-  LikeFilledIcon,
-  Logo,
   Modal,
-  ModalBody,
-  ModalHeader,
-  Row,
-  VSETHContext,
-} from "@vseth/components";
-import React, { useEffect, useState } from "react";
-import { Route, Switch } from "react-router-dom";
+  Badge,
+  MantineProvider,
+  Box,
+  Text,
+  Affix,
+  rem,
+} from "@mantine/core";
+import {
+  ConfigOptions,
+  makeVsethTheme,
+  VSETHExternalApp,
+  VSETHThemeProvider,
+} from "vseth-canine-ui";
+import React, { ReactNode, useEffect, useState } from "react";
+import { Link, Route, Switch, useLocation } from "react-router-dom";
 import {
   authenticationStatus,
   fetchGet,
@@ -27,7 +29,6 @@ import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
-import ExamsNavbar from "./components/exams-navbar";
 import HashLocationHandler from "./components/hash-location-handler";
 import useToggle from "./hooks/useToggle";
 import CategoryPage from "./pages/category-page";
@@ -44,10 +45,8 @@ import SearchPage from "./pages/search-page";
 import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-import serverData from "./utils/server-data";
-const minHeight = css`
-  min-height: 100vh;
-`;
+import { useRequest } from "@umijs/hooks";
+
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
@@ -136,146 +135,218 @@ const App: React.FC<{}> = () => {
   }, [user]);
   const [debugPanel, toggleDebugPanel] = useToggle(false);
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
+
+  const loadUnreadCount = async () => {
+    return (await fetchGet("/api/notification/unreadcount/")).value as number;
+  };
+  const { data: unreadCount } = useRequest(loadUnreadCount, {
+    pollingInterval: 300_000,
+  });
+
+  const data = (window as any).configOptions as ConfigOptions;
+
+  const vsethTheme = makeVsethTheme("#333");
+  vsethTheme.colorScheme = "light";
+
+  const fvTheme = makeVsethTheme("#FFE210");
+  fvTheme.colorScheme = "light";
+  fvTheme.components = {
+    Anchor: {
+      defaultProps: {
+        color: "dark",
+      },
+    },
+    Progress: {
+      defaultProps: {
+        color: "dark",
+      },
+    },
+    Alert: {
+      defaultProps: {
+        color: "gray",
+      },
+    },
+    Badge: {
+      defaultProps: {
+        color: "gray",
+      },
+    },
+    Button: {
+      variants: {
+        brand: theme => ({
+          root: {
+            backgroundColor: theme.colors[theme.primaryColor][7],
+            color: theme.colors.gray[8],
+            ...theme.fn.hover({
+              backgroundColor: theme.fn.darken(
+                theme.colors[theme.primaryColor][7],
+                0.1,
+              ),
+            }),
+          },
+        }),
+      },
+      defaultProps: {
+        color: "dark",
+      },
+    },
+  };
+
+  const adminItems = [
+    { title: "Upload Exam", href: "/uploadpdf" },
+    { title: "Mod Queue", href: "/modqueue" },
+  ];
+
+  const bottomHeaderNav = [
+    { title: "Home", href: "/" },
+    { title: "Scoreboard ", href: "/scoreboard" },
+    {
+      title: "More",
+      childItems: [
+        { title: "FAQ", href: "/faq" },
+        { title: "Feedback", href: "/feedback" },
+        { title: "Submit Transcript", href: "/submittranscript" },
+        ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
+      ],
+    },
+    { title: "Search", href: "/search" },
+    {
+      title: (
+        <span>
+          Account
+          {unreadCount !== undefined && unreadCount > 0 && (
+            <>
+              {" "}
+              <Badge>{unreadCount}</Badge>
+            </>
+          )}
+        </span>
+      ),
+      href: `/user/${user?.username}`,
+    },
+  ];
+
   return (
-    <VSETHContext>
-      <Modal isOpen={loggedOut}>
-        <ModalHeader>You've been logged out due to inactivity</ModalHeader>
-        <ModalBody>
-          Your session has expired due to inactivity, you have to log in again
-          to continue.
-          <div className="text-center py-3">
-            <Button size="lg" color="primary" outline onClick={() => login()}>
+    <VSETHThemeProvider theme={vsethTheme}>
+      <VSETHExternalApp
+        title="Community Solutions"
+        appNav={bottomHeaderNav}
+        activeHref={useLocation().pathname}
+        organizationNav={data?.externalNav}
+        socialMedia={data?.socialMedia}
+        logo={data?.logo}
+        signet={data?.signet}
+        privacyPolicy={data?.privacy}
+        disclaimer={data?.copyright}
+        makeWrapper={(url: string | undefined, child: ReactNode) => (
+          <Link to={url!} style={{ textDecoration: "none", color: "inherit" }}>
+            {child}
+          </Link>
+        )}
+        size="xl"
+      >
+        <MantineProvider theme={fvTheme} withGlobalStyles withNormalizeCSS>
+          <Modal
+            opened={loggedOut}
+            onClose={() => login()}
+            title="You've been logged out due to inactivity"
+          >
+            <Text mb="md">
+              Your session has expired due to inactivity, you have to log in
+              again to continue.
+            </Text>
+            <Button size="lg" variant="outline" onClick={() => login()}>
               Sign in with AAI
             </Button>
-          </div>
-        </ModalBody>
-      </Modal>
-      <Route component={HashLocationHandler} />
-      <DebugContext.Provider value={debugOptions}>
-        <UserContext.Provider value={user}>
-          <SetUserContext.Provider value={setUser}>
-            <div
-              className={`mobile-capable position-relative ${minHeight} d-flex flex-column justify-content-between`}
-            >
-              <div>
-                <ExamsNavbar />
-                <main className="main__container pb-5">
-                  <Switch>
-                    <UserRoute exact path="/" component={HomePage} />
-                    <Route exact path="/login" component={LoginPage} />
-                    <UserRoute
-                      exact
-                      path="/uploadpdf"
-                      component={UploadPdfPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/submittranscript"
-                      component={UploadTranscriptPage}
-                    />
-                    <UserRoute exact path="/faq" component={FAQ} />
-                    <UserRoute
-                      exact
-                      path="/feedback"
-                      component={FeedbackPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/category/:slug"
-                      component={CategoryPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/user/:author/document/:slug"
-                      component={DocumentPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/exams/:filename"
-                      component={ExamPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/user/:username"
-                      component={UserPage}
-                    />
-                    <UserRoute exact path="/user/" component={UserPage} />
-                    <UserRoute exact path="/search/" component={SearchPage} />
-                    <UserRoute
-                      exact
-                      path="/scoreboard"
-                      component={Scoreboard}
-                    />
-                    <UserRoute exact path="/modqueue" component={ModQueue} />
-                    <Route component={NotFoundPage} />
-                  </Switch>
-                </main>
-              </div>
-              <div className="py-3">
-                <Container>
-                  <Logo variant="logo-mono" />
-                  <div className="bg-primary my-3" style={{ height: 2 }} />
-                  <Row>
-                    <Col xs="auto" form className="font-weight-bold">
-                      Made with{" "}
-                      <LikeFilledIcon
-                        color="currenColor"
-                        className="mx-1 text-danger"
-                        aria-label="love"
-                      />{" "}
-                      by volunteers at{" "}
-                      <a
-                        href="http://vis.ethz.ch/"
-                        title="Verein der Informatik Studierenden an der ETH Zürich"
-                        className="text-primary"
-                      >
-                        VIS
-                      </a>
-                    </Col>
-                    <Col xs="auto" form>
-                      <a
-                        href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
-                        className="text-primary"
-                      >
-                        <GitlabIcon color="primary" /> Repository
-                      </a>
-                    </Col>
-                    <Col xs="auto" form>
-                      <a href={serverData.imprint} className="text-primary">
-                        Imprint
-                      </a>
-                    </Col>
-                    <Col xs="auto" form>
-                      <a
-                        href={serverData.privacy_policy}
-                        className="text-primary"
-                      >
-                        Privacy Policy
-                      </a>
-                    </Col>
-                  </Row>
-                </Container>
-              </div>
-            </div>
-          </SetUserContext.Provider>
-        </UserContext.Provider>
-      </DebugContext.Provider>
-      {process.env.NODE_ENV === "development" && (
-        <>
-          <div className="position-fixed" style={{ bottom: 0, left: 0 }}>
-            <Button color="white" onClick={toggleDebugPanel}>
-              DEBUG
-            </Button>
-          </div>
-          <DebugModal
-            isOpen={debugPanel}
-            toggle={toggleDebugPanel}
-            debugOptions={debugOptions}
-            setDebugOptions={setDebugOptions}
-          />
-        </>
-      )}
-    </VSETHContext>
+          </Modal>
+          <Route component={HashLocationHandler} />
+          <DebugContext.Provider value={debugOptions}>
+            <UserContext.Provider value={user}>
+              <SetUserContext.Provider value={setUser}>
+                <div>
+                  <div>
+                    <Box component="main" mt="2em">
+                      <Switch>
+                        <UserRoute exact path="/" component={HomePage} />
+                        <Route exact path="/login" component={LoginPage} />
+                        <UserRoute
+                          exact
+                          path="/uploadpdf"
+                          component={UploadPdfPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/submittranscript"
+                          component={UploadTranscriptPage}
+                        />
+                        <UserRoute exact path="/faq" component={FAQ} />
+                        <UserRoute
+                          exact
+                          path="/feedback"
+                          component={FeedbackPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/category/:slug"
+                          component={CategoryPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/user/:author/document/:slug"
+                          component={DocumentPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/exams/:filename"
+                          component={ExamPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/user/:username"
+                          component={UserPage}
+                        />
+                        <UserRoute exact path="/user/" component={UserPage} />
+                        <UserRoute
+                          exact
+                          path="/search/"
+                          component={SearchPage}
+                        />
+                        <UserRoute
+                          exact
+                          path="/scoreboard"
+                          component={Scoreboard}
+                        />
+                        <UserRoute
+                          exact
+                          path="/modqueue"
+                          component={ModQueue}
+                        />
+                        <Route component={NotFoundPage} />
+                      </Switch>
+                    </Box>
+                  </div>
+                </div>
+              </SetUserContext.Provider>
+            </UserContext.Provider>
+          </DebugContext.Provider>
+          {process.env.NODE_ENV === "development" && (
+            <>
+              <Affix position={{ bottom: rem(10), left: rem(10) }}>
+                <Button variant="brand" onClick={toggleDebugPanel}>
+                  DEBUG
+                </Button>
+              </Affix>
+              <DebugModal
+                isOpen={debugPanel}
+                toggle={toggleDebugPanel}
+                debugOptions={debugOptions}
+                setDebugOptions={setDebugOptions}
+              />
+            </>
+          )}
+        </MantineProvider>
+      </VSETHExternalApp>
+    </VSETHThemeProvider>
   );
 };
 export default App;

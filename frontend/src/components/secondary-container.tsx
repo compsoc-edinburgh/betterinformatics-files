@@ -1,20 +1,38 @@
 import React from "react";
-import { css } from "@emotion/css";
-interface Props {
+import { Box, createStyles, DefaultProps, Divider } from "@mantine/core";
+const useStyles = createStyles(theme => ({
+  contentContainer: {
+    backgroundColor:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[5]
+        : theme.colors.gray[0],
+  },
+}));
+
+interface ContentContainerProps extends DefaultProps {
   className?: string;
 }
-const contentContainerBg = css`
-  background-color: #fafafa;
-`;
-const ContentContainer: React.FC<Props> = ({ children, className }) => {
+
+const ContentContainer: React.FC<ContentContainerProps> = ({
+  children,
+  className,
+  ...others
+}) => {
+  const { classes } = useStyles();
   return (
-    <div
-      className={`border-gray-300 border-top border-bottom py-5 px-0 ${contentContainerBg}${
-        className ? ` ${className}` : ""
-      }`}
-    >
-      {children}
-    </div>
+    <>
+      <Divider mt="lg" {...others} />
+      <Box
+        py="md"
+        px={0}
+        className={`${classes.contentContainer} ${
+          className ? ` ${className}` : ""
+        }`}
+      >
+        {children}
+      </Box>
+      <Divider />
+    </>
   );
 };
 export default ContentContainer;

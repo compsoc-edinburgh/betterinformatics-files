@@ -1,17 +1,6 @@
-import {
-  ButtonGroup,
-  Card,
-  CardBody,
-  Input,
-  Col,
-  EditIcon,
-  SaveIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  DeleteIcon,
-  CloseIcon,
-} from "@vseth/components";
+import { Button, Card, Flex, Group, TextInput, Title } from "@mantine/core";
 import React, { useCallback, useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
@@ -55,30 +44,28 @@ const FAQEntryComponent: React.FC<Props> = ({
   };
   const { isAdmin } = useUser()!;
   return (
-    <Card className="my-1">
+    <Card shadow="md" withBorder my="xs">
       {modals}
-      <CardBody>
-        <h4>
-          {!editing && isAdmin && (
+      {!editing && (
+        <Group position="apart" mb="xs">
+          <Title order={3}>{entry.question}</Title>
+          {isAdmin && (
             <IconButton
               tooltip="Edit FAQ entry"
-              close
-              icon={EditIcon}
+              iconName={ICONS.EDIT}
               onClick={() => startEditing()}
             />
           )}
-          {editing ? (
-            <Input
-              type="text"
-              placeholder="Question"
-              value={question}
-              onChange={e => setQuestion(e.target.value)}
-            />
-          ) : (
-            entry.question
-          )}
-        </h4>
-        {editing ? (
+        </Group>
+      )}
+      {editing ? (
+        <>
+          <TextInput
+            placeholder="Question"
+            mb="sm"
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+          />
           <Editor
             imageHandler={imageHandler}
             value={answer}
@@ -87,40 +74,45 @@ const FAQEntryComponent: React.FC<Props> = ({
             setUndoStack={setUndoStack}
             preview={value => <MarkdownText value={value} />}
           />
-        ) : (
-          <MarkdownText value={entry.answer} />
-        )}
-        {isAdmin && (
-          <div className="my-2 d-flex flex-between">
-            <Col xs="auto">
-              {editing && (
-                <IconButton
-                  color="primary"
-                  size="sm"
-                  icon={SaveIcon}
-                  onClick={save}
-                >
-                  Save
-                </IconButton>
-              )}
-            </Col>
-            <Col xs="auto">
-              <ButtonGroup size="sm">
+        </>
+      ) : (
+        <MarkdownText value={entry.answer} />
+      )}
+      {isAdmin && editing && (
+        <Flex mt="sm" justify="space-between">
+          <Button
+            variant="brand"
+            size="sm"
+            leftIcon={<Icon icon={ICONS.SAVE} />}
+            onClick={save}
+          >
+            Save
+          </Button>
+          <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={cancel}>
+            Cancel
+          </Button>
+        </Flex>
+      )}
+      {isAdmin && !editing && (
+        <Group position="right">
+          <Button.Group>
+            {!editing && (
+              <>
                 <IconButton
                   tooltip="Move up"
-                  icon={ArrowUpIcon}
+                  iconName={ICONS.ARROW_UP}
                   disabled={prevEntry === undefined}
                   onClick={() => prevEntry && onSwap(entry, prevEntry)}
                 />
                 <IconButton
                   tooltip="Move down"
-                  icon={ArrowDownIcon}
+                  iconName={ICONS.ARROW_DOWN}
                   disabled={nextEntry === undefined}
                   onClick={() => nextEntry && onSwap(entry, nextEntry)}
                 />
                 <IconButton
                   tooltip="Delete FAQ entry"
-                  icon={DeleteIcon}
+                  iconName={ICONS.DELETE}
                   onClick={() =>
                     confirm(
                       "Are you sure that you want to remove this?",
@@ -128,16 +120,11 @@ const FAQEntryComponent: React.FC<Props> = ({
                     )
                   }
                 />
-                {editing && (
-                  <IconButton icon={CloseIcon} onClick={cancel}>
-                    Cancel
-                  </IconButton>
-                )}
-              </ButtonGroup>
-            </Col>
-          </div>
-        )}
-      </CardBody>
+              </>
+            )}
+          </Button.Group>
+        </Group>
+      )}
     </Card>
   );
 };

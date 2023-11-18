@@ -1,66 +1,60 @@
 import React from "react";
 import { Document } from "../interfaces";
-import {
-  Badge,
-  Card,
-  CardBody,
-  CardTitle,
-  LikeFilledIcon,
-  LikeIcon,
-} from "@vseth/components";
 import { Link } from "react-router-dom";
-import { css, cx } from "@emotion/css";
+import { Anchor, Badge, Flex, Group, Paper, Text } from "@mantine/core";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface DocumentCardProps {
   document: Document;
   showCategory?: boolean;
 }
 
-const overflowHiddenStyles = css`
-  overflow: hidden;
-`;
-
 const DocumentCard: React.FC<DocumentCardProps> = ({
   document,
   showCategory,
 }) => {
   return (
-    <Card>
-      <CardBody>
-        <Link
-          className="text-primary"
-          to={`/user/${document.author}/document/${document.slug}`}
-        >
-          <CardTitle tag="h6">{document.display_name}</CardTitle>
-        </Link>
-        <div className="d-flex align-items-center">
-          <Link to={`/user/${document.author}`} className="text-muted">
-            @{document.author}
-          </Link>
-          <div>
-            {document.liked ? (
-              <span className="text-danger ml-2 d-flex align-items-center">
-                <LikeFilledIcon className="mr-1" /> {document.like_count}
-              </span>
-            ) : (
-              <span className="text-muted ml-2 d-flex align-items-center">
-                <LikeIcon className="mr-1" /> {document.like_count}
-              </span>
-            )}
-          </div>
-          {showCategory && (
-            <Badge className={cx(overflowHiddenStyles, "ml-2")}>
-              <Link
-                className="align-middle d-inline-block text-truncate mw-100"
-                to={`/category/${document.category}`}
-              >
-                {document.category_display_name}
-              </Link>
-            </Badge>
-          )}
-        </div>
-      </CardBody>
-    </Card>
+    <Paper withBorder shadow="md" p="md" key={document.slug}>
+      <Anchor
+        component={Link}
+        to={`/user/${document.author}/document/${document.slug}`}
+        size="lg"
+        weight={600}
+      >
+        <Text>{document.display_name}</Text>
+      </Anchor>
+      <Group position="apart" mt="sm">
+        <Anchor component={Link} to={`/user/${document.author}`}>
+          <Text color="dimmed">@{document.author}</Text>
+        </Anchor>
+        {document.liked ? (
+          <Flex align="center" color="red">
+            <Icon icon={ICONS.LIKE_FILLED} color="red" />
+            <Text fw={700} color="red" ml="0.3em">
+              {document.like_count}
+            </Text>
+          </Flex>
+        ) : (
+          <Flex align="center">
+            <Icon icon={ICONS.LIKE} />
+            <Text fw={700} ml="0.3em">
+              {document.like_count}
+            </Text>
+          </Flex>
+        )}
+        {showCategory && (
+          <Badge ml="xs">
+            <Anchor
+              component={Link}
+              color="blue"
+              to={`/category/${document.category}`}
+            >
+              {document.category_display_name}
+            </Anchor>
+          </Badge>
+        )}
+      </Group>
+    </Paper>
   );
 };
 

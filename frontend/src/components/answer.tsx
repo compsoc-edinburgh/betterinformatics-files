@@ -1,29 +1,19 @@
 import { css } from "@emotion/css";
 import {
-  ButtonDropdown,
-  ButtonGroup,
-  ButtonToolbar,
-  ButtonToolbarProps,
+  Button,
   Card,
-  CardBody,
-  CardHeader,
-  CardProps,
-  CloseIcon,
-  Col,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  FlagIcon,
-  LinkIcon,
-  MinusIcon,
-  PlusIcon,
-  Row,
-  SaveIcon,
-  StarFilledIcon,
-} from "@vseth/components";
+  Flex,
+  Group,
+  GroupProps,
+  Text,
+  Menu,
+  Anchor,
+  Box,
+} from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
@@ -45,22 +35,19 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import SmallButton from "./small-button";
+import TooltipButton from "./TooltipButton";
 
 const answerWrapperStyle = css`
-  margin-top: 1em;
   margin-bottom: 1em;
 `;
-const AnswerWrapper = (props: CardProps) => (
-  <Card className={answerWrapperStyle} {...props} />
-);
 
 const answerToolbarStyle = css`
   justify-content: flex-end;
   margin: 0 -0.3em;
 `;
 
-const AnswerToolbar = (props: ButtonToolbarProps) => (
-  <ButtonToolbar className={answerToolbarStyle} {...props} />
+const AnswerToolbar = (props: GroupProps) => (
+  <Group className={answerToolbarStyle} {...props} />
 );
 
 interface Props {
@@ -93,8 +80,6 @@ const AnswerComponent: React.FC<Props> = ({
   });
   const { isAdmin, isExpert } = useUser()!;
   const [confirm, modals] = useConfirm();
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = useCallback(() => setIsOpen(old => !old), []);
   const [editing, setEditing] = useState(false);
 
   const [draftText, setDraftText] = useState("");
@@ -123,37 +108,49 @@ const AnswerComponent: React.FC<Props> = ({
   return (
     <>
       {modals}
-      <AnswerWrapper id={hasId ? answer?.longId : undefined}>
-        <CardHeader>
-          <div className="d-flex flex-between align-items-center">
+      <Card
+        mb="md"
+        withBorder
+        shadow="md"
+        id={hasId ? answer?.longId : undefined}
+        className={answerWrapperStyle}
+      >
+        <Card.Section px="md" py="md" withBorder bg="gray.0">
+          <Flex justify="space-between" align="center">
             <div>
               {!hasId && (
                 <Link
-                  className="mr-2 text-muted"
                   to={
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
                 >
-                  <LinkIcon size="1em" />
+                  <Text mr={8} color="dimmed" component="span">
+                    <Icon icon={ICONS.LINK} size={12} />
+                  </Text>
                 </Link>
               )}
               {isLegacyAnswer ? (
                 answer?.authorDisplayName ?? "(Legacy Draft)"
               ) : (
-                <Link className="text-dark" to={`/user/${answer?.authorId ?? username}`}>
-                  <span className="text-dark font-weight-bold">
+                <Anchor
+                  component={Link}
+                  to={`/user/${answer?.authorId ?? username}`}
+                >
+                  <Text weight={700} component="span">
                     {answer?.authorDisplayName ?? "(Draft)"}
-                  </span>
-                  <span className="text-muted ml-1">
+                  </Text>
+                  <Text ml="0.3em" color="dimmed" component="span">
                     @{answer?.authorId ?? username}
-                  </span>
-                </Link>
+                  </Text>
+                </Anchor>
               )}
-              <span className="text-muted mx-1">·</span>
+              <Text color="dimmed" mx="xs" component="span">
+                ·
+              </Text>
               {answer && (
-                <span className="text-muted" title={answer.time}>
+                <Text color="dimmed" component="span" title={answer.time}>
                   {formatDistanceToNow(new Date(answer.time))} ago
-                </span>
+                </Text>
               )}
               {answer &&
                 differenceInSeconds(
@@ -161,72 +158,84 @@ const AnswerComponent: React.FC<Props> = ({
                   new Date(answer.time),
                 ) > 1 && (
                   <>
-                    <span className="text-muted mx-1">·</span>
-                    <span className="text-muted" title={answer.edittime}>
+                    <Text color="dimmed" mx="xs" component="span">
+                      ·
+                    </Text>
+                    <Text
+                      color="dimmed"
+                      component="span"
+                      title={answer.edittime}
+                    >
                       edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
                       ago
-                    </span>
+                    </Text>
                   </>
                 )}
             </div>
-            <div className="d-flex">
+            <Flex>
               <AnswerToolbar>
                 {answer &&
                   (answer.expertvotes > 0 ||
                     setExpertVoteLoading ||
                     isExpert) && (
-                    <ButtonGroup className="m-1" size="sm">
-                      <IconButton
-                        color="primary"
+                    <Button.Group>
+                      <TooltipButton
+                        px={8}
                         size="sm"
                         tooltip="This answer is endorsed by an expert"
-                        icon={StarFilledIcon}
-                        active
-                      />
-                      <SmallButton color="primary" size="sm" active>
+                        variant="filled"
+                        color="yellow"
+                      >
+                        <Icon icon={ICONS.STAR_FILLED} size={18} />
+                      </TooltipButton>
+                      <SmallButton
+                        tooltip={`${answer.expertvotes} experts endorse this answer.`}
+                      >
                         {answer.expertvotes}
                       </SmallButton>
                       {isExpert && (
-                        <IconButton
-                          color="primary"
+                        <TooltipButton
                           size="sm"
+                          px={8}
                           loading={setExpertVoteLoading}
                           tooltip={
                             answer.isExpertVoted
                               ? "Remove expert vote"
                               : "Add expert vote"
                           }
-                          icon={answer.isExpertVoted ? MinusIcon : PlusIcon}
                           onClick={() =>
                             setExpertVote(answer.oid, !answer.isExpertVoted)
                           }
-                        />
+                        >
+                          <Icon
+                            icon={
+                              answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS
+                            }
+                          />
+                        </TooltipButton>
                       )}
-                    </ButtonGroup>
+                    </Button.Group>
                   )}
                 {answer &&
                   (answer.isFlagged ||
                     (answer.flagged > 0 && isAdmin) ||
                     flaggedLoading) && (
-                    <ButtonGroup className="m-1" size="sm">
-                      <IconButton
-                        tooltip="This answer was flagged as inappropriate by a user. A moderator will decide whether the answer should be removed."
-                        color="danger"
-                        icon={FlagIcon}
-                        title="Flagged as Inappropriate"
-                        active
+                    <Button.Group>
+                      <TooltipButton
+                        tooltip="Flagged as Inappropriate"
+                        color="red"
+                        variant="filled"
                       >
-                        Inappropriate
-                      </IconButton>
+                        <Icon icon={ICONS.FLAG} />
+                      </TooltipButton>
                       <SmallButton
-                        color="danger"
+                        color="red"
                         tooltip={`${answer.flagged} users consider this answer inappropriate.`}
-                        active
                       >
                         {answer.flagged}
                       </SmallButton>
-                      <IconButton
-                        color="danger"
+                      <TooltipButton
+                        px={4}
                         tooltip={
                           answer.isFlagged
                             ? "Remove inappropriate flag"
@@ -234,12 +243,16 @@ const AnswerComponent: React.FC<Props> = ({
                         }
                         size="sm"
                         loading={flaggedLoading}
-                        icon={answer.isFlagged ? MinusIcon : PlusIcon}
                         onClick={() =>
                           setFlagged(answer.oid, !answer.isFlagged)
                         }
-                      />
-                    </ButtonGroup>
+                      >
+                        <Icon
+                          icon={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS}
+                          size={18}
+                        />
+                      </TooltipButton>
+                    </Button.Group>
                   )}
                 {answer && onSectionChanged && (
                   <Score
@@ -253,12 +266,12 @@ const AnswerComponent: React.FC<Props> = ({
                   />
                 )}
               </AnswerToolbar>
-            </div>
-          </div>
-        </CardHeader>
-        <CardBody className="pt-0">
-          {editing || answer === undefined ? (
-            <div className="pt-3">
+            </Flex>
+          </Flex>
+        </Card.Section>
+        {editing || answer === undefined ? (
+          <Card.Section>
+            <Box p="md">
               <Editor
                 value={draftText}
                 onChange={setDraftText}
@@ -267,117 +280,125 @@ const AnswerComponent: React.FC<Props> = ({
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />
-              Your answer will be licensed as{" "}
-              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-                CC BY-NC-SA 4.0
-              </a>
-              .
-            </div>
-          ) : (
-            <div className="py-3">
+              <Text mt="xs" color="dimmed">
+                Your answer will be licensed as{" "}
+                <Link to="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                  CC BY-NC-SA 4.0
+                </Link>
+                .
+              </Text>
+            </Box>
+          </Card.Section>
+        ) : (
+          <Card.Section>
+            <Box p="md">
               {viewSource ? (
                 <CodeBlock value={answer?.text ?? ""} language="markdown" />
               ) : (
                 <MarkdownText value={answer?.text ?? ""} />
               )}
-            </div>
+            </Box>
+          </Card.Section>
+        )}
+        <Group position="right">
+          {(answer === undefined || editing) && (
+            <Button
+              variant="brand"
+              size="sm"
+              onClick={save}
+              loading={updating}
+              disabled={draftText.trim().length === 0}
+              leftIcon={<Icon icon={ICONS.SAVE} />}
+            >
+              Save
+            </Button>
           )}
-          <Row className="flex-between" form>
-            <Col xs="auto">
+          {onSectionChanged && (
+            <Flex align="center">
               {(answer === undefined || editing) && (
-                <IconButton
-                  className="m-1"
-                  color="primary"
-                  size="sm"
-                  onClick={save}
-                  loading={updating}
-                  disabled={draftText.trim().length === 0}
-                  icon={SaveIcon}
-                >
-                  Save
+                <IconButton size="sm" onClick={onCancel} iconName={ICONS.CLOSE}>
+                  {editing ? "Cancel" : "Delete Draft"}
                 </IconButton>
               )}
-            </Col>
-            <Col xs="auto">
-              {onSectionChanged && (
-                <>
-                  <ButtonGroup className="m-1">
-                    {(answer === undefined || editing) && (
-                      <IconButton size="sm" onClick={onCancel} icon={CloseIcon}>
-                        {editing ? "Cancel" : "Delete Draft"}
-                      </IconButton>
-                    )}
-                    {answer !== undefined && (
-                      <IconButton
-                        size="sm"
-                        onClick={() => setHasCommentDraft(true)}
-                        icon={PlusIcon}
-                        disabled={hasCommentDraft}
+              <Button.Group ml="md">
+                {answer !== undefined && (
+                  <Button
+                    size="sm"
+                    onClick={() => setHasCommentDraft(true)}
+                    leftIcon={<Icon icon={ICONS.PLUS} />}
+                    disabled={hasCommentDraft}
+                  >
+                    Add Comment
+                  </Button>
+                )}
+                {answer !== undefined && (
+                  <Menu>
+                    <Menu.Target>
+                      <Button leftIcon={<Icon icon={ICONS.DOTS_H} />}>
+                        More
+                      </Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {answer.flagged === 0 && (
+                        <Menu.Item onClick={() => setFlagged(answer.oid, true)}>
+                          Flag as Inappropriate
+                        </Menu.Item>
+                      )}
+                      <Menu.Item
+                        onClick={() =>
+                          copy(
+                            `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
+                          )
+                        }
                       >
-                        Add Comment
-                      </IconButton>
-                    )}
-                    {answer !== undefined && (
-                      <ButtonDropdown isOpen={isOpen} toggle={toggle}>
-                        <DropdownToggle size="sm" caret>
-                          More
-                        </DropdownToggle>
-                        <DropdownMenu>
-                          {answer.flagged === 0 && (
-                            <DropdownItem
-                              onClick={() => setFlagged(answer.oid, true)}
-                            >
-                              Flag as Inappropriate
-                            </DropdownItem>
-                          )}
-                          <DropdownItem
-                            onClick={() =>
-                              copy(
-                                `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
-                              )
-                            }
-                          >
-                            Copy Permalink
-                          </DropdownItem>
-                          {isAdmin && answer.flagged > 0 && (
-                            <DropdownItem
-                              onClick={() => resetFlagged(answer.oid)}
-                            >
-                              Remove all inappropriate flags
-                            </DropdownItem>
-                          )}
-                          {!editing && canEdit && (
-                            <DropdownItem onClick={startEdit}>
-                              Edit
-                            </DropdownItem>
-                          )}
-                          {answer && canRemove && (
-                            <DropdownItem onClick={remove}>Delete</DropdownItem>
-                          )}
-                          <DropdownItem onClick={toggleViewSource}>
-                            Toggle Source Code Mode
-                          </DropdownItem>
-                        </DropdownMenu>
-                      </ButtonDropdown>
-                    )}
-                  </ButtonGroup>
-                </>
-              )}
-            </Col>
-          </Row>
+                        Copy Permalink
+                      </Menu.Item>
+                      {isAdmin && answer.flagged > 0 && (
+                        <Menu.Item onClick={() => resetFlagged(answer.oid)}>
+                          Remove all inappropriate flags
+                        </Menu.Item>
+                      )}
+                      {!editing && canEdit && (
+                        <Menu.Item
+                          icon={<Icon icon={ICONS.EDIT} />}
+                          onClick={startEdit}
+                        >
+                          Edit
+                        </Menu.Item>
+                      )}
+                      {answer && canRemove && (
+                        <Menu.Item
+                          icon={<Icon icon={ICONS.DELETE} />}
+                          onClick={remove}
+                        >
+                          Delete
+                        </Menu.Item>
+                      )}
+                      <Menu.Item
+                        icon={<Icon icon={ICONS.CODE} />}
+                        onClick={toggleViewSource}
+                      >
+                        Toggle Source Code Mode
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
+                )}
+              </Button.Group>
+            </Flex>
+          )}
+        </Group>
 
-          {answer &&
-            onSectionChanged &&
-            (hasCommentDraft || answer.comments.length > 0) && (
-              <CommentSectionComponent
-                hasDraft={hasCommentDraft}
-                answer={answer}
-                onSectionChanged={onSectionChanged}
-                onDraftDelete={() => setHasCommentDraft(false)}
-              />
-            )}
-        </CardBody>
-      </AnswerWrapper>
+        {answer &&
+          onSectionChanged &&
+          (hasCommentDraft || answer.comments.length > 0) && (
+            <CommentSectionComponent
+              hasDraft={hasCommentDraft}
+              answer={answer}
+              onSectionChanged={onSectionChanged}
+              onDraftDelete={() => setHasCommentDraft(false)}
+            />
+          )}
+      </Card>
     </>
   );
 };

@@ -1,12 +1,14 @@
 import {
   Badge,
   Button,
-  Input,
-  InputGroup,
-  InputGroupAddon,
-  ListGroup,
-  ListGroupItem,
-} from "@vseth/components";
+  CloseButton,
+  Flex,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import React, { useState } from "react";
 import FileInput from "./file-input";
 
@@ -39,35 +41,34 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
     setAttachments(attachments.filter((_item, i) => i !== index));
   };
   return (
-    <div className="mb-5">
-      <ListGroup>
+    <div>
+      <Stack spacing="xs" mb="xs">
         {attachments.map(({ displayname, filename }, index) => (
-          <ListGroupItem key={toKey(filename)}>
-            <Button close onClick={() => onRemove(index)} />
-            {displayname} <Badge>{toKey(filename)}</Badge>
-            {filename instanceof File && <Badge color="success">New</Badge>}
-          </ListGroupItem>
+          <Paper withBorder p="xs" key={toKey(filename)}>
+            <Group>
+              <CloseButton onClick={() => onRemove(index)} />
+              <Text>{displayname}</Text>
+              <Badge>{toKey(filename)}</Badge>
+              {filename instanceof File && <Badge color="green">New</Badge>}
+            </Group>
+          </Paper>
         ))}
-      </ListGroup>
-      <InputGroup>
+      </Stack>
+      <Flex>
         <FileInput
           accept=".pdf,.zip,.tar.gz,.tar.xz"
           value={file}
           onChange={setFile}
         />
 
-        <Input
-          type="text"
+        <TextInput
+          mx="sm"
           placeholder="Display name"
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-        <InputGroupAddon addonType="append">
-          <Button block onClick={onAdd}>
-            Add
-          </Button>
-        </InputGroupAddon>
-      </InputGroup>
+        <Button onClick={onAdd}>Add</Button>
+      </Flex>
     </div>
   );
 };

@@ -1,17 +1,35 @@
-import { Button } from "@vseth/components";
+import { Button, Flex, Text } from "@mantine/core";
 import React from "react";
 import { login } from "../api/fetch-utils";
 
 const LoginOverlay: React.FC<{}> = () => {
   return (
-    <div className="text-center position-cover d-flex align-items-center justify-content-center">
+    <Flex
+      align="center"
+      justify="center"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        textAlign: "center",
+      }}
+    >
       <div>
-        <h4 className="mb-4 font-weight-bold text-white">Please Sign in</h4>
-        <Button size="lg" color="white" outline onClick={() => login()}>
+        <Text color="gray.0" size="1.75rem" weight={700} mb="md">
+          Please Sign in
+        </Text>
+        <Button
+          size="lg"
+          color="gray.0"
+          variant="outline"
+          onClick={() => login()}
+        >
           Sign in with AAI
         </Button>
       </div>
-    </div>
+    </Flex>
   );
 };
 export default LoginOverlay;

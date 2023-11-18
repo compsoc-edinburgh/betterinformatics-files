@@ -1,11 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  CardBody,
-  CardHeader,
-} from "@vseth/components";
+import { Button, Card, Group, Title, Text } from "@mantine/core";
 import moment from "moment";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -19,7 +13,11 @@ const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
 };
 const wrapText = (text: string) => {
   const textSplit = text.split("\n");
-  return textSplit.map(t => <p key={t}>{t}</p>);
+  return textSplit.map(t => (
+    <Text pt="xs" key={t}>
+      {t}
+    </Text>
+  ));
 };
 
 interface Props {
@@ -32,30 +30,26 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
     { manual: true, onSuccess: entryChanged },
   );
   return (
-    <Card className="my-1">
-      <CardHeader>
-        <h6>
-          {entry.authorDisplayName} •{" "}
-          {moment(entry.time, GlobalConsts.momentParseString).format(
-            GlobalConsts.momentFormatString,
-          )}
-        </h6>
-        <ButtonGroup>
-          <Button
-            color={entry.done ? "secondary" : "primary"}
-            onClick={() => runSetFlag("done", !entry.done)}
-          >
-            {entry.done ? "Set Undone" : "Set Done"}
-          </Button>
-          <Button
-            color={entry.read ? "secondary" : "primary"}
-            onClick={() => runSetFlag("read", !entry.read)}
-          >
-            {entry.read ? "Set Unread" : "Set Read"}
-          </Button>
-        </ButtonGroup>
-      </CardHeader>
-      <CardBody>{wrapText(entry.text)}</CardBody>
+    <Card my="xs" withBorder shadow="md">
+      <Card.Section bg="gray.0" withBorder inheritPadding>
+        <Group py="md" position="apart">
+          <Title order={4}>
+            {entry.authorDisplayName} •{" "}
+            {moment(entry.time, GlobalConsts.momentParseString).format(
+              GlobalConsts.momentFormatString,
+            )}
+          </Title>
+          <Button.Group>
+            <Button onClick={() => runSetFlag("done", !entry.done)}>
+              {entry.done ? "Set Undone" : "Set Done"}
+            </Button>
+            <Button onClick={() => runSetFlag("read", !entry.read)}>
+              {entry.read ? "Set Unread" : "Set Read"}
+            </Button>
+          </Button.Group>
+        </Group>
+      </Card.Section>
+      {wrapText(entry.text)}
     </Card>
   );
 };

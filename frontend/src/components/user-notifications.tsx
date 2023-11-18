@@ -1,4 +1,4 @@
-import { Alert, Button, Spinner } from "@vseth/components";
+import { Button, Alert, Loader } from "@mantine/core";
 import React, { useState } from "react";
 import { useNotifications } from "../api/hooks";
 import NotificationComponent from "./notification";
@@ -12,18 +12,16 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
     useNotifications(showRead ? "all" : "unread");
   const error = notificationsError;
   return (
-    <>
+    <div>
       <h3>Notifications</h3>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
-      <div className="my-3">
-        <Button onClick={() => setShowRead(prev => !prev)}>
-          {showRead ? "Show unread" : "Show all"}
-        </Button>
-      </div>
+      {error && <Alert color="red">{error.toString()}</Alert>}
+      <Button mb="sm" onClick={() => setShowRead(prev => !prev)}>
+        {showRead ? "Show unread" : "Show all"}
+      </Button>
       {(!notifications || notifications.length === 0) && (
-        <Alert color="secondary">No notifications</Alert>
+        <Alert color="gray">No notifications</Alert>
       )}
-      {notificationsLoading && <Spinner />}
+      {notificationsLoading && <Loader />}
       {notifications &&
         notifications.map(notification => (
           <NotificationComponent
@@ -31,7 +29,7 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
             key={notification.oid}
           />
         ))}
-    </>
+    </div>
   );
 };
 export default UserNotifications;

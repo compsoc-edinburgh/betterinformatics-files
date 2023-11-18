@@ -1,4 +1,4 @@
-import { Badge } from "@vseth/components";
+import { Badge } from "@mantine/core";
 import React, {
   useCallback,
   useMemo,
@@ -90,7 +90,6 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
           optimalCutAreas.map(({ start, end, snapPoints }) => (
             <React.Fragment key={`${start}-${end}`}>
               <div
-                className="position-absolute w-100"
                 style={{
                   top: `${start * 100}%`,
                   height: `${(end - start) * 100}%`,
@@ -100,10 +99,9 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
               {snapPoints.map(position => (
                 <div
                   key={position}
-                  className="position-absolute w-100 m-0"
                   style={{
                     height: "1px",
-                    backgroundColor: "var(--info)",
+                    backgroundColor: "blue",
                     top: `${position * 100}%`,
                   }}
                 />
@@ -114,8 +112,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
           <div
             style={{
               transform: `translateY(${displayPos}px) translateY(-50%)`,
-              backgroundColor:
-                snap && snapBad ? "var(--warning)" : "var(--primary)",
+              backgroundColor: snap && snapBad ? "red" : "black",
               height: "3px",
               position: "absolute",
               width: "100%",
@@ -124,7 +121,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
             id="add-cut"
           >
             <Badge
-              color={snap && snapBad ? "warning" : "primary"}
+              color={snap && snapBad ? "red" : "black"}
               size="lg"
               className={badgeStyle}
             >
