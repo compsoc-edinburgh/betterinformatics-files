@@ -23,6 +23,7 @@ import IconButton from "./icon-button";
 import ThreeButtons from "./three-columns";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import { Icon, ICONS } from "vseth-canine-ui";
+import useAlmostInViewport from "../hooks/useAlmostInViewport";
 
 const nameCardStyle = css`
   border-top-left-radius: 0;
@@ -174,10 +175,16 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       },
       [setCutVersion, run],
     );
+
+    const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
+
     // initial run to get the answers in a section
     useEffect(() => {
-      run();
-    }, [run]);
+      if ((visible || !hidden) && !data) {
+        run();
+      }
+    }, [run, visible, hidden, data]);
+
     const [hasDraft, setHasDraft] = useState(false);
     const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = useCallback(() => {
@@ -217,7 +224,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const id = getAnswerSectionId(oid, cutName);
 
     return (
-      <>
+      <div ref={containerElement}>
         <HideAnswerSectionModal
           isOpen={deleteAnswersWarning}
           toggle={() => setDeleteAnswersWarning(false)}
@@ -383,7 +390,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </div>
           </AnswerSectionButtonWrapper>
         </Container>
-      </>
+      </div>
     );
   },
 );
