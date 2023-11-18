@@ -124,6 +124,7 @@ OIDC_JWKS_URL = (
         "https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/certs",
     )
 )
+
 JWT_VERIFY_SIGNATURE = (
     os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE",
                    "TRUE") != "FALSE" or not DEBUG
@@ -139,6 +140,7 @@ PRIMARY_DEPLOYMENT_DOMAIN = os.environ.get(
 DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
     [] if CNAMES == "" else CNAMES.split(" ")
 )
+
 BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
 
 ALLOWED_HOSTS = []
@@ -153,6 +155,9 @@ else:
     # As we are behind a reverse proxy, it should be fine to ignore this...
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
+
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
