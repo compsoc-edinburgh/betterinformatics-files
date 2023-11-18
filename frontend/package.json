@@ -39,7 +39,7 @@
     "remark-math": "4.0.0",
     "typescript": "^4.8.0",
     "use-query-params": "1.2.3",
-    "vseth-canine-ui": "^1.1.0"
+    "vseth-canine-ui": "1.1.1"
   },
   "resolutions": {
     "eslint-webpack-plugin": "^3.0.0",
