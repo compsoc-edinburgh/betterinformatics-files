@@ -5,12 +5,12 @@ import {
   Text,
   Group,
   Paper,
+  LoadingOverlay,
 } from "@mantine/core";
 import React from "react";
 import { logout } from "../api/fetch-utils";
 import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
-import LoadingOverlay from "./loading-overlay";
 import { Icon, ICONS } from "vseth-canine-ui";
 
 interface UserScoreCardProps {
@@ -26,8 +26,8 @@ function scoreCard(
   iconName: string,
 ) {
   return (
-    <Paper shadow="md" withBorder px="md" py="xs">
-      <LoadingOverlay loading={!userInfo} />
+    <Paper shadow="md" withBorder px="md" py="xs" pos="relative">
+      <LoadingOverlay visible={!userInfo} />
       <Group position="apart">
         <Text inline size="xs" tt="uppercase" component="p" color="dimmed">
           {title}

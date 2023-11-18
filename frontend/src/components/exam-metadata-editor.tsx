@@ -362,7 +362,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         </Button>
         <Button
           leftIcon={<Icon icon={ICONS.SAVE} />}
-          color="primary"
+          variant="brand"
           loading={loading}
           onClick={onSubmit}
         >

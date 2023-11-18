@@ -20,7 +20,6 @@ const useConfirm = () => {
 
       <Group position="right">
         <Button
-          color="secondary"
           onClick={() => {
             pop();
             no();
@@ -29,6 +28,7 @@ const useConfirm = () => {
           Cancel
         </Button>
         <Button
+          variant="outline"
           onClick={() => {
             pop();
             yes();

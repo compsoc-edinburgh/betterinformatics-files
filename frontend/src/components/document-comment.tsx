@@ -81,7 +81,7 @@ const DocumentCommentComponent = ({
           />
           <TooltipButton
             mt="sm"
-            color="primary"
+            variant="brand"
             tooltip="Save comment"
             disabled={editLoading || draftText.length === 0}
             onClick={() => updateComment(draftText)}

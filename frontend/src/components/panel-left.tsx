@@ -99,7 +99,7 @@ const Panel: React.FC<PanelProps> = ({
         <div className={iconContainerStyle} style={{ padding: iconPadding }}>
           <Button
             size="lg"
-            color="primary"
+            variant="brand"
             className={closeButtonStyle}
             onClick={toggle}
             leftIcon={<Icon icon={ICONS.ARROW_RIGHT} size={24} />}
@@ -132,7 +132,7 @@ const Panel: React.FC<PanelProps> = ({
             >
               <Button
                 size="lg"
-                color="primary"
+                variant="brand"
                 className={closeButtonStyle}
                 onClick={toggle}
                 leftIcon={<Icon icon={ICONS.CLOSE} size={24} />}

@@ -81,7 +81,7 @@ const FAQEntryComponent: React.FC<Props> = ({
       {isAdmin && editing && (
         <Flex mt="sm" justify="space-between">
           <Button
-            color="primary"
+            variant="brand"
             size="sm"
             leftIcon={<Icon icon={ICONS.SAVE} />}
             onClick={save}

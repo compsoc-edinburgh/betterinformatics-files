@@ -12,7 +12,9 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
         <Grid>
           <Grid.Col md={5}>
             <Flex direction="column" justify="center">
-              <h1>Community Solutions</h1>
+              <Text size="4.5rem" lh={1.2} my="lg">
+                Community Solutions
+              </Text>
               <Text size="lg" weight={500}>
                 Community Solutions is a platform for students that allows them
                 to share answers of previous exams, comment on answers and

@@ -78,7 +78,7 @@ export const FAQPage: React.FC = () => {
           />
           <Flex mt="sm" justify="space-between">
             <Button
-              color="primary"
+              variant="brand"
               size="sm"
               leftIcon={<Icon icon={ICONS.SAVE} />}
               onClick={handleNew}

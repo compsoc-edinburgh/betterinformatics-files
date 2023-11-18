@@ -161,9 +161,33 @@ const App: React.FC<{}> = () => {
         color: "dark",
       },
     },
+    Alert: {
+      defaultProps: {
+        color: "gray",
+      },
+    },
     Badge: {
       defaultProps: {
         color: "gray",
+      },
+    },
+    Button: {
+      variants: {
+        brand: theme => ({
+          root: {
+            backgroundColor: theme.colors[theme.primaryColor][7],
+            color: theme.colors.gray[8],
+            ...theme.fn.hover({
+              backgroundColor: theme.fn.darken(
+                theme.colors[theme.primaryColor][7],
+                0.1,
+              ),
+            }),
+          },
+        }),
+      },
+      defaultProps: {
+        color: "dark",
       },
     },
   };
@@ -231,12 +255,7 @@ const App: React.FC<{}> = () => {
               Your session has expired due to inactivity, you have to log in
               again to continue.
             </Text>
-            <Button
-              size="lg"
-              color="primary"
-              variant="outline"
-              onClick={() => login()}
-            >
+            <Button size="lg" variant="outline" onClick={() => login()}>
               Sign in with AAI
             </Button>
           </Modal>
@@ -313,7 +332,7 @@ const App: React.FC<{}> = () => {
           {process.env.NODE_ENV === "development" && (
             <>
               <Affix position={{ bottom: rem(10), left: rem(10) }}>
-                <Button color="white" onClick={toggleDebugPanel}>
+                <Button variant="brand" onClick={toggleDebugPanel}>
                   DEBUG
                 </Button>
               </Affix>

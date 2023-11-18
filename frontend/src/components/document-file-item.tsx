@@ -78,7 +78,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
           />
           <Button
-            color="primary"
+            variant="brand"
             disabled={displayName?.trim() === ""}
             onClick={() =>
               updateFile({

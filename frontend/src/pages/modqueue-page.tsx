@@ -125,9 +125,8 @@ const ModQueue: React.FC = () => {
                       {exam.displayname}
                     </Anchor>
                     <div>
-                      <Badge color="primary">
-                        {exam.public ? "public" : "hidden"}
-                      </Badge>
+                      {exam.public && <Badge color="green">public</Badge>}
+                      {!exam.public && <Badge color="orange">hidden</Badge>}
                     </div>
                     <p>{exam.remark}</p>
                   </td>
@@ -146,7 +145,7 @@ const ModQueue: React.FC = () => {
           </tbody>
         </Table>
       </div>
-      <Button mt="sm" onClick={() => setIncludeHidden(!includeHidden)}>
+      <Button mt="sm" mb="xl" onClick={() => setIncludeHidden(!includeHidden)}>
         {includeHidden ? "Hide" : "Show"} Complete Hidden Exams
       </Button>
     </Container>

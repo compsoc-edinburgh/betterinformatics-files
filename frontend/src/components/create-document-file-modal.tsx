@@ -53,7 +53,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           you that you can edit afterwards.
         </div>
         <Button
-          color="primary"
+          variant="brand"
           loading={loading}
           leftIcon={<Icon icon={ICONS.PLUS} />}
           disabled={loading || displayName.trim() === ""}

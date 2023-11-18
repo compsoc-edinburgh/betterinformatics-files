@@ -271,6 +271,7 @@ const Editor: React.FC<Props> = ({
     <Paper
       withBorder={!isDragHovered}
       p="sm"
+      my="sm"
       className={cx(isDragHovered && classes.hoverBorder)}
       onClick={() => textareaElRef.current && textareaElRef.current.focus()}
       onDragEnter={onDragEnter}

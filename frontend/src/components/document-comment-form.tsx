@@ -50,7 +50,7 @@ const DocumentCommentForm: React.FC<Props> = ({
         <TooltipButton
           size="md"
           tooltip="Submit comment"
-          color="primary"
+          variant="brand"
           disabled={loading || draftText.length === 0}
           onClick={() => createDocumentComment(draftText)}
         >

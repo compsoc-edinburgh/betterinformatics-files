@@ -74,7 +74,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
     <>
       {error && <Alert color="red">{error.message}</Alert>}
       {(!answers || answers.length === 0) && !loading && (
-        <Alert color="secondary">No answers</Alert>
+        <Alert color="gray">No answers</Alert>
       )}
       <div className={columnStyle}>
         {answers &&

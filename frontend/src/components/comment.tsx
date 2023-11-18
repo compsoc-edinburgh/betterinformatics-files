@@ -160,10 +160,10 @@ const CommentComponent: React.FC<Props> = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-          <Flex justify="space-between">
+          <Flex justify="space-between" mt="sm">
             <Button
               size="sm"
-              color="primary"
+              variant="brand"
               loading={loading}
               disabled={draftText.trim().length === 0}
               onClick={onSave}

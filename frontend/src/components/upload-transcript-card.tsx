@@ -87,7 +87,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
               nothingFound="No category found"
               onChange={(value: string) => setCategory(value)}
             />
-            <Button color="primary" type="submit" loading={loading}>
+            <Button variant="brand" type="submit" loading={loading}>
               Submit
             </Button>
           </Stack>

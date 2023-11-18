@@ -44,7 +44,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
       {documentsError && <Alert color="red">{documentsError.toString()}</Alert>}
       {documents && displayDocuments(documents)}
       {(!documents || documents.length === 0) && (
-        <Alert color="secondary">No documents</Alert>
+        <Alert color="gray">No documents</Alert>
       )}
       {loading && <Loader />}
 
@@ -54,7 +54,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
           {likedError && <Alert color="red">{likedError.toString()}</Alert>}
           {likedDocuments && displayDocuments(likedDocuments)}
           {(!likedDocuments || likedDocuments.length === 0) && (
-            <Alert color="secondary">No liked documents</Alert>
+            <Alert color="gray">No liked documents</Alert>
           )}
           {likedLoading && <Loader />}
         </>

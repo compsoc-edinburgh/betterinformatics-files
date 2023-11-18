@@ -135,58 +135,59 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     </Text>
                   )}
                   <Flex mt="0.2em" gap={4}>
-                  {catAdmin &&
-                    (exam.public ? (
-                      <Badge className={badgeStyle}>public</Badge>
-                    ) : (
-                      <Badge className={badgeStyle}>hidden</Badge>
-                    ))}
-                  {exam.needs_payment && (
-                    <Badge className={badgeStyle} color="blue">
-                      oral
-                    </Badge>
-                  )}
-                  {catAdmin &&
-                    (exam.finished_cuts ? (
-                      exam.finished_wiki_transfer ? (
-                        <Badge className={badgeStyle} color="green">
-                          All done
-                        </Badge>
+                    {catAdmin &&
+                      (exam.public ? (
+                        <Badge className={badgeStyle}>public</Badge>
                       ) : (
-                        <Badge className={badgeStyle} color="blue">
-                          Needs Wiki Import
-                        </Badge>
-                      )
-                    ) : (
-                      <Badge className={badgeStyle} color="orange">
-                        Needs Cuts
+                        <Badge className={badgeStyle}>hidden</Badge>
+                      ))}
+                    {exam.needs_payment && (
+                      <Badge className={badgeStyle} color="blue">
+                        oral
                       </Badge>
-                    ))}
+                    )}
+                    {catAdmin &&
+                      (exam.finished_cuts ? (
+                        exam.finished_wiki_transfer ? (
+                          <Badge className={badgeStyle} color="green">
+                            All done
+                          </Badge>
+                        ) : (
+                          <Badge className={badgeStyle} color="blue">
+                            Needs Wiki Import
+                          </Badge>
+                        )
+                      ) : (
+                        <Badge className={badgeStyle} color="orange">
+                          Needs Cuts
+                        </Badge>
+                      ))}
 
-                  {exam.is_printonly && (
+                    {exam.is_printonly && (
+                      <Badge
+                        color="red"
+                        className={badgeStyle}
+                        title="This exam can only be printed. We can not provide this exam online."
+                      >
+                        Print Only
+                      </Badge>
+                    )}
                     <Badge
-                      color="red"
                       className={badgeStyle}
-                      title="This exam can only be printed. We can not provide this exam online."
+                      title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
                     >
-                      Print Only
+                      {exam.count_answered} / {exam.count_cuts}
                     </Badge>
-                  )}
-                  <Badge
-                    color="secondary"
-                    className={badgeStyle}
-                    title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-                  >
-                    {exam.count_answered} / {exam.count_cuts}
-                  </Badge>
-                  {exam.has_solution && (
-                    <Badge title="Has an official solution." color="green">
-                      Solution
-                    </Badge>
-                  )}
+                    {exam.has_solution && (
+                      <Badge title="Has an official solution." color="green">
+                        Solution
+                      </Badge>
+                    )}
                   </Flex>
                 </div>
-                {catAdmin && <ClaimButton exam={exam} reloadExams={reload} mt="sm" />}
+                {catAdmin && (
+                  <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
+                )}
               </Grid.Col>
               <Grid.Col span="content">
                 {user.isAdmin && (

@@ -195,7 +195,6 @@ const AnswerComponent: React.FC<Props> = ({
                       </SmallButton>
                       {isExpert && (
                         <TooltipButton
-                          color="primary"
                           size="sm"
                           px={8}
                           loading={setExpertVoteLoading}
@@ -304,7 +303,7 @@ const AnswerComponent: React.FC<Props> = ({
         <Group position="right">
           {(answer === undefined || editing) && (
             <Button
-              color="primary"
+              variant="brand"
               size="sm"
               onClick={save}
               loading={updating}
@@ -360,12 +359,25 @@ const AnswerComponent: React.FC<Props> = ({
                         </Menu.Item>
                       )}
                       {!editing && canEdit && (
-                        <Menu.Item icon={<Icon icon={ICONS.EDIT} />} onClick={startEdit}>Edit</Menu.Item>
+                        <Menu.Item
+                          icon={<Icon icon={ICONS.EDIT} />}
+                          onClick={startEdit}
+                        >
+                          Edit
+                        </Menu.Item>
                       )}
                       {answer && canRemove && (
-                        <Menu.Item icon={<Icon icon={ICONS.DELETE} />} onClick={remove}>Delete</Menu.Item>
+                        <Menu.Item
+                          icon={<Icon icon={ICONS.DELETE} />}
+                          onClick={remove}
+                        >
+                          Delete
+                        </Menu.Item>
                       )}
-                      <Menu.Item icon={<Icon icon={ICONS.CODE} />} onClick={toggleViewSource}>
+                      <Menu.Item
+                        icon={<Icon icon={ICONS.CODE} />}
+                        onClick={toggleViewSource}
+                      >
                         Toggle Source Code Mode
                       </Menu.Item>
                     </Menu.Dropdown>

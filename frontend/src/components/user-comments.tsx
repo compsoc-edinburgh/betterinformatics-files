@@ -75,7 +75,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
     <>
       {error && <Alert color="red">{error.message}</Alert>}
       {(!comments || comments.length === 0) && !loading && (
-        <Alert color="secondary">No comments</Alert>
+        <Alert color="gray">No comments</Alert>
       )}
       <div
         className={columnStyle}

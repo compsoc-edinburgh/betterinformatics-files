@@ -87,7 +87,7 @@ const ImageModal: React.FC<ModalProps> = ({
                   {selected.has(image) && selected.size === 1 && (
                     <Button
                       pos="absolute"
-                      color="primary"
+                      variant="brand"
                       onClick={() => closeWithImage(image)}
                     >
                       Insert

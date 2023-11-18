@@ -38,7 +38,7 @@ const CreateDocumentForm: React.FC<Props> = ({
             added to the document in the settings tab.
           </div>
           <Button
-            color="primary"
+            variant="brand"
             disabled={loading || displayName.trim() === ""}
             onClick={() => run(displayName.trim(), categorySlug)}
             leftIcon={<Icon icon={ICONS.PLUS} />}

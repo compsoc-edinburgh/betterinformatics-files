@@ -78,7 +78,7 @@ const UploadPdfCard: React.FC<{}> = () => {
               onChange={(value: string) => setCategory(value)}
               required
             />
-            <Button color="primary" type="submit" loading={loading}>
+            <Button variant="brand" type="submit" loading={loading}>
               Submit
             </Button>
           </Stack>

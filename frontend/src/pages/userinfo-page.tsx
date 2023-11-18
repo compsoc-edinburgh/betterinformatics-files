@@ -1,5 +1,11 @@
 import { css } from "@emotion/css";
-import { Container, Alert, Loader, Tabs, SimpleGrid } from "@mantine/core";
+import {
+  Container,
+  Alert,
+  Tabs,
+  SimpleGrid,
+  LoadingOverlay,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -44,13 +50,14 @@ const UserPage: React.FC<{}> = () => {
           userInfo={userInfo}
         />
         {error && <Alert color="red">{error.toString()}</Alert>}
-        {loading && <Loader />}
         <Tabs
-          color="blue"
+          color="primary"
           value={activeTab}
           onTabChange={setActiveTab}
           className={navStyle}
+          pos="relative"
         >
+          <LoadingOverlay visible={loading} />
           <Tabs.List grow>
             <Tabs.Tab value="overview">Overview</Tabs.Tab>
             <Tabs.Tab value="answers">Answers</Tabs.Tab>
@@ -61,7 +68,7 @@ const UserPage: React.FC<{}> = () => {
           <Tabs.Panel value="overview" pt="sm">
             <SimpleGrid breakpoints={[{ maxWidth: "48rem", cols: 1 }]} cols={2}>
               {!isMyself && !user.isAdmin && (
-                <Alert color="secondary">There's nothing here</Alert>
+                <Alert color="gray">There's nothing here</Alert>
               )}
               {isMyself && <UserNotifications username={username} />}
               {(isMyself || user.isAdmin) && (
