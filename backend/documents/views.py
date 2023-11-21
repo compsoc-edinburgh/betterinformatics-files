@@ -20,6 +20,12 @@ from notifications import notification_util
 
 logger = logging.getLogger(__name__)
 
+@response.request_get()
+@auth_check.require_login
+def list_document_types(request):
+    return response.success(
+        value=list(DocumentType.objects.values_list("display_name", flat=True))
+    )
 
 def get_comment_obj(comment: Comment, request: HttpRequest):
     return {

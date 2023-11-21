@@ -7,7 +7,8 @@ def add_default_document_types(apps, schema_editor):
     Type = apps.get_model('documents', 'DocumentType')
     Type.objects.using(db_alias).create(display_name='Documents', order=-100)
     Type.objects.using(db_alias).create(display_name='Summaries', order=-99)
-    Type.objects.using(db_alias).create(display_name='Flashcards', order=-98)
+    Type.objects.using(db_alias).create(display_name='Cheat Sheets', order=-98)
+    Type.objects.using(db_alias).create(display_name='Flashcards', order=-97)
 
 
 class Migration(migrations.Migration):
