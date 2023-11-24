@@ -44,7 +44,7 @@ const FAQEntryComponent: React.FC<Props> = ({
   };
   const { isAdmin } = useUser()!;
   return (
-    <Card shadow="md" withBorder my="xs">
+    <Card shadow="md" withBorder my="md">
       {modals}
       {!editing && (
         <Group position="apart" mb="xs">
