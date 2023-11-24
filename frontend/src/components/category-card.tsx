@@ -39,16 +39,23 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     >
       <Stack h="100%" justify="space-between">
         <div className="category-card">
-          <Anchor component="span" weight={700} size="xl" tabIndex={-1} mb={0}>
+          <Anchor
+            component="span"
+            weight={700}
+            size="xl"
+            tabIndex={-1}
+            mb={0}
+            lh={1.25}
+          >
             {"match" in category
               ? highlight(category.displayname, category.match)
               : category.displayname}
           </Anchor>
-          <Text mt="xs">
+          <Text mt={4} color="gray.8">
             Exams:{" "}
             {`${category.examcountanswered} / ${category.examcountpublic}`}
           </Text>
-          <Text>
+          <Text mb={4} color="gray.8">
             Answers: {((category.answerprogress * 100) | 0).toString()} %
           </Text>
         </div>

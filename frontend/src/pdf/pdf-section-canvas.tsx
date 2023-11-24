@@ -24,7 +24,9 @@ const canvasWrapperStyle = css`
 `;
 // Allows hiding sections while adding cuts (Displays button over Overlay)
 const addCutButtonStyle = css`
-  position: relative;
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
   z-index: 1;
 `;
 
@@ -235,10 +237,9 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
               <div className={cx(isMainCanvas ? "bg-success" : "bg-info")} />
             )}
             {displayHideShowButtons && (
-              <div>
+              <div className={addCutButtonStyle}>
                 <IconButton
-                  className={addCutButtonStyle}
-                  size="sm"
+                  size="md"
                   iconName={hidden ? ICONS.VIEW : ICONS.VIEW_OFF}
                   tooltip="Toggle visibility"
                   onClick={toggleVisibility}
