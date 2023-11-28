@@ -1,4 +1,4 @@
-import { css } from "@emotion/css";
+import { css, cx } from "@emotion/css";
 import TeX from "@matejmazur/react-katex";
 // Import mchem plugin to register macros for chemical equations in katex.
 // The plugin registers macros when it is imported. We do this after we import "@matejmazur/react-katex"
@@ -11,6 +11,20 @@ import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
 import RemarkGfm from "remark-gfm";
 import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
+import { createStyles } from "@mantine/core";
+
+const useStyles = createStyles(theme => ({
+  blockquoteStyle: {
+    [`& blockquote`]: {
+      padding: "0.3rem 0 0.3rem 0.6rem",
+      borderLeftStyle: "solid",
+      borderLeftWidth: "3px",
+      borderLeftColor: theme.colors.gray[7],
+      color: theme.colors.gray[7],
+      fill: theme.colors.gray[7],
+    },
+  },
+}));
 
 const wrapperStyle = css`
   overflow-x: auto;
@@ -32,12 +46,6 @@ const wrapperStyle = css`
   }
   & .katex {
     font-size: 1rem;
-  }
-  & blockquote {
-    padding: 0.3rem 0 0.3rem 0.5rem;
-    border-left: 4px solid var(--gray);
-    color: var(--gray-dark);
-    fill: var(--gray-dark);
   }
   // Undo effect of .overlay class defined in the theme css
   & .overlay {
@@ -111,11 +119,12 @@ interface Props {
 const MarkdownText: React.FC<Props> = ({ value, regex }) => {
   const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
   const renderers = useMemo(() => createRenderers(regex, macros), [regex]);
+  const { classes, cx } = useStyles();
   if (value.length === 0) {
     return <div />;
   }
   return (
-    <div className={wrapperStyle}>
+    <div className={cx(wrapperStyle, classes.blockquoteStyle)}>
       <ReactMarkdown
         source={value}
         transformImageUri={transformImageUri}
