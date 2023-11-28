@@ -12,7 +12,6 @@ const panelStyle = css`
   left: 0;
   display: flex;
   flex-direction: row;
-  padding: 3.5em 0 3.5em 0;
   z-index: ${GlobalConsts.zIndex.panel};
   height: 100%;
   min-width: 400px;
@@ -122,9 +121,8 @@ const Panel: React.FC<PanelProps> = ({
             variant="brand"
             className={closeButtonStyle}
             onClick={toggle}
-            leftIcon={<Icon icon={ICONS.ARROW_RIGHT} size={24} />}
+            leftIcon={<Icon icon={ICONS.ARROW_RIGHT} className={movingRightAnimation} size={24} />}
           >
-            <ArrowRightIcon className={movingRightAnimation} size={24} />
             {buttonText && (
               <div>
                 <small>{buttonText}</small>
