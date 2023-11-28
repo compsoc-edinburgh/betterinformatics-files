@@ -230,7 +230,7 @@ class DocumentElementView(View):
             old_document_type = document.document_type
             document.document_type, _ = DocumentType.objects.get_or_create(display_name=request.DATA['document_type'])
             document.save()
-            if old_document_type.id > 3 and not old_document_type.type_set.exists():
+            if old_document_type.id > 4 and not old_document_type.type_set.exists():
                 old_document_type.delete()
         
         document.save()

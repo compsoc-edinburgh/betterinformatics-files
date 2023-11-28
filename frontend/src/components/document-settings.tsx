@@ -9,14 +9,16 @@ import {
   Stack,
   Group,
   Select,
+  Grid,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   loadCategories,
+  loadDocumentTypes,
   Mutate,
   useDeleteDocument,
   useRegenerateDocumentAPIKey,
@@ -31,6 +33,8 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
+import { valid } from "semver";
+import { string } from "yargs";
 
 interface Props {
   data: Document;
@@ -50,6 +54,14 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
       ) as { [key: string]: string },
     );
 
+  const { data: documentTypes } =
+    useRequest(loadDocumentTypes);
+
+  const [documentTypeOptions, setDocumentTypeOptions] = useState<string[]>([]);
+  useEffect(() => {
+    setDocumentTypeOptions(documentTypes ?? [])
+  }, [documentTypes]);
+
   const [loading, updateDocument] = useUpdateDocument(
     data.author,
     data.slug,
@@ -57,6 +69,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
       mutate(s => ({ ...s, ...result }));
       setDisplayName(undefined);
       setCategory(undefined);
+      setDocumentType(undefined);
       if (result.slug !== data.slug) {
         history.replace(`/user/${result.author}/document/${result.slug}`);
       }
@@ -76,6 +89,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
+  const [documentType, setDocumentType] = useState<string | undefined>();
   const [descriptionDraftText, setDescriptionDraftText] = useState<
     string | undefined
   >(undefined);
@@ -105,19 +119,46 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
             value={displayName ?? data.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <Select
-            label="Category"
-            data={categoryOptions ? (options(categoryOptions) as any) : []}
-            value={
-              categoryOptions &&
-              (category
-                ? categoryOptions[category].value
-                : undefined)
-            }
-            onChange={(value: string) => {
-              setCategory(value);
-            }}
-          />
+          <Grid>
+            <Grid.Col span={6}>
+              <Select
+                label="Category"
+                data={categoryOptions ? (options(categoryOptions) as any) : []}
+                value={
+                  categoryOptions &&
+                  (category
+                    ? categoryOptions[category].value
+                    : undefined)
+                }
+                onChange={(value: string) => {
+                  setCategory(value);
+                }}
+              />
+            </Grid.Col>
+            <Grid.Col span={6}>
+              <Select
+                label="Document type"
+                creatable
+                searchable
+                getCreateLabel={query => `+ Create new document type "${query}"`}
+                onCreate={query => {
+                  setDocumentType(query);
+                  setDocumentTypeOptions([...documentTypes ?? [], query])
+                  return query;
+                }}
+                data={documentTypeOptions}
+                value={
+                  documentTypeOptions &&
+                  (documentType
+                    ? documentType
+                    : data.document_type)
+                }
+                onChange={(value: string) => {
+                  setDocumentType(value);
+                }}
+              />
+            </Grid.Col>
+          </Grid>
           <div>
             <Text size="sm">Description</Text>
             <Editor
@@ -137,6 +178,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                 updateDocument({
                   display_name: displayName,
                   category,
+                  document_type: documentType,
                   description: descriptionDraftText,
                 })
               }
