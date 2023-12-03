@@ -2,8 +2,8 @@ import * as React from "react";
 import { Container, createStyles } from "@mantine/core";
 import type { MantineNumberSize } from "@mantine/core";
 
-import { globalNav, translate, _NavItem } from "./_GlobalNav";
-import _ExternalNavElement from "./_ExternalNav";
+import { globalNav, translate, NavItem } from "./GlobalNav";
+import ExternalNavElement from "./ExternalNav";
 
 const useStyles = createStyles((theme, _params) => ({
   navbar: {
@@ -36,7 +36,7 @@ interface Props {
   selectedLanguage: "en" | "de" | string;
   languages?: { key: string; label: string }[];
   onLanguageSelect: (language: string) => void;
-  organizationNav?: _NavItem[];
+  organizationNav?: NavItem[];
   logo: string | undefined;
   size: MantineNumberSize | undefined;
 }
@@ -76,15 +76,16 @@ const TopHeader: React.FC<Props> = ({
             organizationNav ? organizationNav : globalNav,
             selectedLanguage,
           ).map((item, i) => (
-            <_ExternalNavElement
+            <ExternalNavElement
               item={item}
               lightBg={false}
               mobile={false}
               key={i}
+              isExternal={true}
             />
           ))}
           {languages ? (
-            <_ExternalNavElement
+            <ExternalNavElement
               item={{
                 title: selectedLanguage,
                 childItems: languages.map(lang => {
@@ -96,6 +97,7 @@ const TopHeader: React.FC<Props> = ({
               }}
               lightBg={false}
               mobile={false}
+              isExternal={true}
             />
           ) : undefined}
         </div>

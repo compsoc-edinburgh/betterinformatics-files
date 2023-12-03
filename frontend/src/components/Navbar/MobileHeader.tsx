@@ -10,8 +10,8 @@ import {
   Text,
 } from "@mantine/core";
 
-import { _NavItem, translate } from "./_GlobalNav";
-import _ExternalNavElement from "./_ExternalNav";
+import { NavItem, translate } from "./GlobalNav";
+import ExternalNavElement from "./ExternalNav";
 
 const useStyles = createStyles((_theme, _params) => ({
   navbar: {
@@ -53,7 +53,7 @@ interface Props {
   selectedLanguage: "en" | "de" | string;
   languages?: { key: string; label: string }[];
   onLanguageSelect: (language: string) => void;
-  appNav: _NavItem[];
+  appNav: NavItem[];
   title: string;
   loginButton?: ReactNode;
   signet?: string;
@@ -111,10 +111,11 @@ const BottomHeader: React.FC<Props> = ({
           {translate(appNav, selectedLanguage).map((item, i) => {
             return (
               <div key={i} onClick={() => setOpened(false)}>
-                <_ExternalNavElement
+                <ExternalNavElement
                   item={item}
                   lightBg={false}
                   mobile={true}
+                  isExternal={false}
                 />
               </div>
             );

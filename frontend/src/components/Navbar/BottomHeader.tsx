@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Container, createStyles, Group } from "@mantine/core";
 import type { MantineNumberSize } from "@mantine/core";
-import { _NavItem, translate } from "./_GlobalNav";
-import _ExternalNavElement from "./_ExternalNav";
+import { NavItem, translate } from "./GlobalNav";
+import ExternalNavElement from "./ExternalNav";
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -35,12 +35,13 @@ const useStyles = createStyles((theme, _params, _getRef) => ({
 
 interface Props {
   lang: "en" | "de" | string;
-  appNav: _NavItem[];
+  appNav: NavItem[];
   title: string;
   activeHref?: string;
   loginButton?: ReactNode;
   size: MantineNumberSize | undefined;
 }
+
 const BottomHeader: React.FC<Props> = ({
   lang,
   appNav,
@@ -67,10 +68,11 @@ const BottomHeader: React.FC<Props> = ({
         >
           {translate(appNav, lang).map((item, i) => {
             return (
-              <_ExternalNavElement
+              <ExternalNavElement
                 item={item}
                 lightBg={theme.colorScheme === "light"}
                 mobile={false}
+                isExternal={false}
                 activeHref={activeHref}
                 key={i}
               />

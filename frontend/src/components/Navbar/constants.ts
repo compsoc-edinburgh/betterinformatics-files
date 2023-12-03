@@ -1,4 +1,4 @@
-import { _NavItem } from "./_GlobalNav";
+import { NavItem } from "./GlobalNav";
 
 export const _defaultCopyright = "Copyright 2023 VSETH ";
 
@@ -28,7 +28,7 @@ export interface ConfigOptions {
     link: string;
   }[];
   languages: { key: string; label: string }[];
-  externalNav: _NavItem[];
+  externalNav: NavItem[];
 }
 
 export const defaultConfigOptions = {
