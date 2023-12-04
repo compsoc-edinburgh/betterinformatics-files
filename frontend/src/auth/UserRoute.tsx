@@ -24,10 +24,7 @@ const UserRouteContent = <T extends RouteProps>({
 };
 const UserRoute = <T extends RouteProps>(props: T) => {
   return (
-    <Route
-      exact={props.exact}
-      path={props.path}
-    >
+    <Route exact={props.exact} path={props.path}>
       <UserRouteContent
         props={props}
         loginProps={{ isHome: props.path === "/" }}

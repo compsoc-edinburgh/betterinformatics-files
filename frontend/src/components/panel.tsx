@@ -111,7 +111,7 @@ const Panel: React.FC<PanelProps> = ({
               ...transitionStyles[state as keyof typeof transitionStyles],
             }}
           >
-            <div 
+            <div
               className={iconContainerStyle}
               style={{ padding: iconPadding }}
             >
