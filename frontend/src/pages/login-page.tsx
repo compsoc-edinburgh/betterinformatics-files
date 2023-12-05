@@ -10,10 +10,9 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
     <>
       <Container>
         <Row>
-          <Col md={6} className="d-flex flex-column justify-content-center">
-            <h1 className="mb-5 display-3">
-              Better&shy;Informatics Exam Collection
-            </h1>
+          <Col md={5} lg={6} className="d-flex flex-column justify-content-center">
+            <h2 className="display-5">Better&shy;Informatics</h2>
+            <h1 className="mb-5 display-3">Exam Collection</h1>
             <h6>
               The BI Exam Collection is a platform for students to share answers
               for previous exams, leave comments on answers, and upload other
@@ -22,16 +21,16 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
           </Col>
           <Col
             xs={11}
-            md={6}
+            md={7}
             lg={6}
             xl={4}
             className="py-4 position-relative d-flex align-items-center mx-auto"
           >
             <svg
-            x="0px" y="0px"
+              x="0px" y="0px"
               viewBox="0 0 200 200"
               xmlns="http://www.w3.org/2000/svg"
-              className="text-primary m-auto w-100"
+              className="text-primary m-auto"
             >
               <path
                 d="M146.9,18.7c15.7,0.8,32.3,8.2,30.9,29.7c-1.4,22.2,7.7,33.5,7.4,68.9c-0.1,16.3-1.8,34.1-3.3,37
