@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { Button } from "@vseth/components";
+import { Button } from "@mantine/core";
 import useToggle from "../../hooks/useToggle";
 import CodeBlock from "../code-block";
 import MarkdownText from "../markdown-text";

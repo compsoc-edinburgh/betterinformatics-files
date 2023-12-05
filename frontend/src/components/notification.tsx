@@ -1,4 +1,13 @@
-import { Alert, Card, CardBody, CardHeader } from "@vseth/components";
+import {
+  ActionIcon,
+  Alert,
+  Anchor,
+  Badge,
+  Card,
+  Group,
+  Text,
+  Title,
+} from "@mantine/core";
 import moment from "moment";
 import * as React from "react";
 import { useEffect } from "react";
@@ -7,6 +16,7 @@ import { useMarkAllAsRead } from "../api/hooks";
 import GlobalConsts from "../globalconsts";
 import { NotificationInfo } from "../interfaces";
 import MarkdownText from "./markdown-text";
+import { ICONS, Icon } from "vseth-canine-ui";
 interface Props {
   notification: NotificationInfo;
 }
@@ -20,30 +30,42 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
 
   return (
     <div>
-      {error && <Alert color="danger">{error.message}</Alert>}
-      <Card className="my-2">
-        <CardHeader>
-          <h6>
-            <Link to={notification.link} className="text-primary">
-              {notification.title}
-            </Link>
+      {error && <Alert color="red">{error.message}</Alert>}
+      <Card withBorder shadow="md" my="sm">
+        <Card.Section p="md" mb="md" withBorder bg="gray.0">
+          <Group position="apart">
             <div>
-              <small>
-                <Link to={notification.sender} className="text-primary">
+              <Title order={4}>
+                <Anchor component={Link} to={notification.link}>
+                  {notification.title}
+                </Anchor>
+              </Title>
+              <Group spacing={0}>
+                <Anchor component={Link} to={notification.sender}>
                   {notification.senderDisplayName}
-                </Link>{" "}
-                •{" "}
-                {moment(
-                  notification.time,
-                  GlobalConsts.momentParseString,
-                ).format(GlobalConsts.momentFormatString)}
-              </small>
+                </Anchor>
+                <Text mx={6} component="span">
+                  •
+                </Text>
+                <Text>
+                  {moment(
+                    notification.time,
+                    GlobalConsts.momentParseString,
+                  ).format(GlobalConsts.momentFormatString)}
+                </Text>
+                {!notification.read && (
+                  <Badge ml="sm" component="span" color="red">
+                    Unread
+                  </Badge>
+                )}
+              </Group>
             </div>
-          </h6>
-        </CardHeader>
-        <CardBody>
-          <MarkdownText value={notification.message} />
-        </CardBody>
+            <ActionIcon component={Link} to={notification.link}>
+              <Icon icon={ICONS.LINK} />
+            </ActionIcon>
+          </Group>
+        </Card.Section>
+        <MarkdownText value={notification.message} />
       </Card>
     </div>
   );

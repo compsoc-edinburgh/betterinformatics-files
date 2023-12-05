@@ -1,4 +1,3 @@
-import React from "react";
 import { Route, RouteProps } from "react-router-dom";
 import { useUser } from ".";
 import LoadingOverlay from "../components/loading-overlay";
@@ -28,13 +27,12 @@ const UserRoute = <T extends RouteProps>(props: T) => {
     <Route
       exact={props.exact}
       path={props.path}
-      render={() => (
-        <UserRouteContent
-          props={props}
-          loginProps={{ isHome: props.path === "/" }}
-        />
-      )}
-    />
+    >
+      <UserRouteContent
+        props={props}
+        loginProps={{ isHome: props.path === "/" }}
+      />
+    </Route>
   );
 };
 export default UserRoute;

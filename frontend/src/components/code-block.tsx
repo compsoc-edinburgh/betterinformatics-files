@@ -1,4 +1,3 @@
-import * as React from "react";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
 import atomOneLight from "react-syntax-highlighter/dist/esm/styles/hljs/atom-one-light";
 

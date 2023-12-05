@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { Modal, ModalBody, ModalFooter, Button } from "@vseth/components";
+import { Modal, Button, Group } from "@mantine/core";
 type CB = () => void;
 const useConfirm = () => {
   const [stack, setStack] = useState<Array<[string, CB, CB]>>([]);
@@ -10,11 +10,16 @@ const useConfirm = () => {
     setStack(prevStack => prevStack.slice(0, prevStack.length - 1));
   }, []);
   const modals = stack.map(([message, yes, no], i) => (
-    <Modal isOpen={true} key={i + message}>
-      <ModalBody>{message}</ModalBody>
-      <ModalFooter>
+    <Modal
+      opened={true}
+      withCloseButton={false}
+      onClose={() => {}}
+      key={i + message}
+    >
+      <Modal.Body mt="sm">{message}</Modal.Body>
+
+      <Group position="right">
         <Button
-          color="secondary"
           onClick={() => {
             pop();
             no();
@@ -23,7 +28,7 @@ const useConfirm = () => {
           Cancel
         </Button>
         <Button
-          color="primary"
+          variant="outline"
           onClick={() => {
             pop();
             yes();
@@ -31,7 +36,7 @@ const useConfirm = () => {
         >
           Okay
         </Button>
-      </ModalFooter>
+      </Group>
     </Modal>
   ));
   return [push, modals] as const;

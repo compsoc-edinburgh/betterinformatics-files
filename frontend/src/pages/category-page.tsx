@@ -1,18 +1,18 @@
 import { useRequest } from "@umijs/hooks";
 import {
+  Breadcrumbs,
   Alert,
   Badge,
-  Breadcrumb,
-  Col,
   Container,
-  DeleteIcon,
-  EditIcon,
-  ListGroup,
-  Row,
-  Spinner,
-} from "@vseth/components";
-import { BreadcrumbItem } from "@vseth/components/dist/components/Breadcrumb/Breadcrumb";
-import { css } from "@emotion/css";
+  Anchor,
+  Flex,
+  Group,
+  Grid,
+  List,
+  Button,
+  Box,
+  Title,
+} from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import {
@@ -23,7 +23,6 @@ import {
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
-import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
 import useConfirm from "../hooks/useConfirm";
@@ -31,6 +30,8 @@ import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
+import { Loader } from "@mantine/core";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -72,14 +73,14 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   return (
     <>
       {modals}
-      <Breadcrumb>
-        <BreadcrumbItem>
-          <Link className="text-primary" to="/">
-            Home
-          </Link>
-        </BreadcrumbItem>
-        <BreadcrumbItem>{metaData.displayname}</BreadcrumbItem>
-      </Breadcrumb>
+      <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
+        <Anchor tt="uppercase" size="xs" component={Link} to="/">
+          Home
+        </Anchor>
+        <Anchor tt="uppercase" size="xs">
+          {metaData.displayname}
+        </Anchor>
+      </Breadcrumbs>
       {editing ? (
         offeredIn && (
           <CategoryMetaDataEditor
@@ -94,90 +95,95 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         )
       ) : (
         <>
-          <Row>
-            <Col>
-              <h1 className="mb-3">{metaData.displayname}</h1>
-            </Col>
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            justify="space-between"
+            mb="sm"
+          >
+            <Title order={1} my="md">
+              {metaData.displayname}
+            </Title>
             {user.isCategoryAdmin && (
-              <Col md="auto" className="d-flex align-items-center">
-                <IconButton
-                  size="sm"
-                  className="m-1"
-                  icon={EditIcon}
+              <Group>
+                <Button
+                  leftIcon={<Icon color="currentColor" icon={ICONS.EDIT} />}
                   onClick={() => setEditing(true)}
                 >
                   Edit
-                </IconButton>
-                <IconButton
-                  color="danger"
-                  size="sm"
-                  className="m-1"
+                </Button>
+                <Button
+                  color="red"
                   loading={removeLoading}
-                  icon={DeleteIcon}
+                  leftIcon={<Icon color="currentColor" icon={ICONS.DELETE} />}
                   onClick={onRemove}
                 >
                   Delete
-                </IconButton>
-              </Col>
+                </Button>
+              </Group>
             )}
-          </Row>
+          </Flex>
 
-          <Row className="my-2">
+          <Grid mb="xs">
             {metaData.semester && (
-              <Col md="auto">
+              <Grid.Col span="content">
                 Semester: <Badge>{metaData.semester}</Badge>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.form && (
-              <Col md="auto">
+              <Grid.Col span="content">
                 Form: <Badge>{metaData.form}</Badge>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.more_exams_link && (
-              <Col md="auto">
-                <a
+              <Grid.Col span="content">
+                <Anchor
                   href={metaData.more_exams_link}
                   target="_blank"
                   rel="noopener noreferrer"
+                  color="blue"
                 >
                   Additional Exams
-                </a>
-              </Col>
+                </Anchor>
+              </Grid.Col>
             )}
-            {metaData.remark && <Col md="auto">Remark: {metaData.remark}</Col>}
-          </Row>
+            {metaData.remark && (
+              <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>
+            )}
+          </Grid>
           {(offeredIn === undefined || offeredIn.length > 0) && (
-            <div>
+            <Box mb="sm">
               Offered in:
-              <div>
-                {loading ? (
-                  <Spinner />
-                ) : (
-                  <ul>
-                    {offeredIn?.map(meta1 =>
-                      meta1.meta2.map(meta2 => (
-                        <li key={meta1.displayname + meta2.displayname}>
-                          {meta2.displayname} in {meta1.displayname}
-                        </li>
-                      )),
-                    )}
-                  </ul>
-                )}
-              </div>
-            </div>
+              {loading ? (
+                <Loader />
+              ) : (
+                <List>
+                  {offeredIn?.map(meta1 =>
+                    meta1.meta2.map(meta2 => (
+                      <List.Item key={meta1.displayname + meta2.displayname}>
+                        {meta2.displayname} in {meta1.displayname}
+                      </List.Item>
+                    )),
+                  )}
+                </List>
+              )}
+            </Box>
           )}
-          <Row className="my-2">
+          <Grid my="sm">
             {metaData.experts.includes(user.username) && (
-              <Col>
-                <Alert>
+              <Grid.Col span="auto">
+                <Alert
+                  color="yellow"
+                  title="Category expert"
+                  icon={<Icon icon={ICONS.STAR} />}
+                >
                   You are an expert for this category. You can endorse correct
-                  answers.
+                  answers, which will be visible to other users.
                 </Alert>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.has_payments && (
-              <Col>
-                <Alert>
+              <Grid.Col span="auto">
+                <Alert bg="gray.2">
                   You have to pay a deposit in order to see oral exams.
                   {serverData.unlock_deposit_notice ? (
                     <>
@@ -189,36 +195,47 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   After submitting a report of your own oral exam you can get
                   your deposit back.
                 </Alert>
-              </Col>
+              </Grid.Col>
             )}
             {metaData.catadmin && (
-              <Col>
-                <Alert color="info">
+              <Grid.Col span="auto">
+                <Alert
+                  variant="light"
+                  color="blue"
+                  title="Category admin"
+                  icon={<Icon icon={ICONS.USER} />}
+                >
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
-              </Col>
+              </Grid.Col>
             )}
-          </Row>
+          </Grid>
           <ExamList metaData={metaData} />
 
-          <h2 className="mb-3 mt-5">Documents</h2>
+          <Title order={2} mt="xl" mb="lg">
+            Documents
+          </Title>
           <DocumentList slug={metaData.slug} />
 
           {metaData.attachments.length > 0 && (
             <>
-              <h2 className="mb-3 mt-5">Attachments</h2>
-              <ListGroup flush>
+              <Title order={2} mt="xl" mb="lg">
+                Attachments
+              </Title>
+              <List>
                 {metaData.attachments.map(att => (
-                  <a
-                    href={`/api/filestore/get/${att.filename}/`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    key={att.filename}
-                  >
-                    <div>{att.displayname}</div>
-                  </a>
+                  <List.Item key={att.filename}>
+                    <Anchor
+                      href={`/api/filestore/get/${att.filename}/`}
+                      color="blue"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {att.displayname}
+                    </Anchor>
+                  </List.Item>
                 ))}
-              </ListGroup>
+              </List>
             </>
           )}
         </>
@@ -246,8 +263,8 @@ const CategoryPage: React.FC<{}> = () => {
   useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
-    <Container>
-      {error && <Alert color="danger">{error.message}</Alert>}
+    <Container size="xl" mb="xl">
+      {error && <Alert color="red">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay loading={loading} />}
       {data && (
         <UserContext.Provider

@@ -1,22 +1,20 @@
-import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  ButtonGroup,
-  Card,
-  Col,
   Container,
-  FormGroup,
-  InputField,
+  Flex,
+  Loader,
   Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  PlusIcon,
-  Row,
-  Spinner,
-} from "@vseth/components";
+  Paper,
+  SegmentedControl,
+  Stack,
+  TextInput,
+  Title,
+  Tooltip,
+} from "@mantine/core";
+import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import React, { useCallback, useMemo, useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
@@ -24,17 +22,13 @@ import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
 import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
-import TooltipButton from "../components/TooltipButton";
 import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
+import CourseCategoriesPanel from "../components/course-categories-panel";
+import useToggle from "../hooks/useToggle";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
-
-enum Mode {
-  Alphabetical,
-  BySemester,
-}
 
 const loadCategories = async () => {
   return (await fetchGet("/api/category/listwithmeta/"))
@@ -107,34 +101,36 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} toggle={() => setIsOpen(false)}>
-        <ModalHeader>Add Category</ModalHeader>
-        <ModalBody>
-          <InputField
+      <Modal
+        opened={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Add Category"
+      >
+        <Stack>
+          <TextInput
             label="Category Name"
             type="text"
             value={categoryName}
             onChange={e => setCategoryName(e.currentTarget.value)}
           />
-        </ModalBody>
-        <ModalFooter>
           <Button
             onClick={onSubmit}
             disabled={categoryName.length === 0 || loading}
           >
-            {loading ? <Spinner /> : "Add Category"}
+            {loading ? <Loader /> : "Add Category"}
           </Button>
-        </ModalFooter>
+        </Stack>
       </Modal>
-      <Card style={{ minHeight: "10em" }}>
-        <TooltipButton
-          tooltip="Add a new category"
-          onClick={() => setIsOpen(true)}
-          className="position-cover w-100"
-        >
-          <PlusIcon size={40} className="m-auto" />
-        </TooltipButton>
-      </Card>
+      <Paper withBorder shadow="md" style={{ minHeight: "10em" }}>
+        <Tooltip label="Add a new category" withinPortal>
+          <Button
+            style={{ width: "100%", height: "100%" }}
+            onClick={() => setIsOpen(true)}
+          >
+            <Icon icon={ICONS.PLUS} size={40} />
+          </Button>
+        </Tooltip>
+      </Paper>
     </>
   );
 };
@@ -143,8 +139,8 @@ const HomePage: React.FC<{}> = () => {
   useTitle("Home");
   return (
     <>
-      <Container>
-        <h1 className="mb-3">Community Solutions</h1>
+      <Container size="xl">
+        <Title mb="sm">Community Solutions</Title>
       </Container>
       <CategoryList />
     </>
@@ -152,7 +148,7 @@ const HomePage: React.FC<{}> = () => {
 };
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
-  const [mode, setMode] = useLocalStorageState("mode", Mode.Alphabetical);
+  const [mode, setMode] = useLocalStorageState("mode", "alphabetical");
   const [filter, setFilter] = useState("");
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
@@ -185,54 +181,47 @@ export const CategoryList: React.FC<{}> = () => {
   const onAddCategory = useCallback(() => {
     run();
   }, [run]);
+  const [panelIsOpen, togglePanel] = useToggle();
+
+  const slugify = (str: string): string =>
+    str
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
   return (
     <>
-      <Container>
-        <Row className="d-flex flex-row flex-between px-2">
-          <Col md="auto">
-            <FormGroup className="m-1">
-              <ButtonGroup>
-                <Button
-                  onClick={() => setMode(Mode.Alphabetical)}
-                  active={mode === Mode.Alphabetical}
-                >
-                  Alphabetical
-                </Button>
-                <Button
-                  onClick={() => setMode(Mode.BySemester)}
-                  active={mode === Mode.BySemester}
-                >
-                  By Semester
-                </Button>
-              </ButtonGroup>
-            </FormGroup>
-          </Col>
-          <Col md="auto">
-            <FormGroup className="m-1">
-              <div className="search m-0">
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Filter..."
-                  value={filter}
-                  onChange={e => setFilter(e.currentTarget.value)}
-                  autoFocus
-                />
-                <div className="search-icon-wrapper">
-                  <div className="search-icon" />
-                </div>
-              </div>
-            </FormGroup>
-          </Col>
-        </Row>
+      <Container size="xl">
+        <Flex
+          gap="md"
+          direction={{ base: "column", sm: "row" }}
+          justify="space-between"
+        >
+          <SegmentedControl
+            value={mode}
+            onChange={setMode}
+            data={[
+              { label: "Alphabetical", value: "alphabetical" },
+              { label: "By Semester", value: "bySemester" },
+            ]}
+          />
+          <TextInput
+            placeholder="Filter..."
+            value={filter}
+            autoFocus
+            onChange={e => setFilter(e.currentTarget.value)}
+            icon={<Icon icon={ICONS.SEARCH} size={12} />}
+          />
+        </Flex>
       </Container>
-      <ContentContainer className="position-relative my-3">
+      <ContentContainer>
         <LoadingOverlay loading={loading} />
-        <Container>
+        <Container size="xl" py="md">
           {error ? (
-            <Alert color="danger">{error.toString()}</Alert>
-          ) : mode === Mode.Alphabetical || filter.length > 0 ? (
+            <Alert color="red">{error.toString()}</Alert>
+          ) : mode === "alphabetical" || filter.length > 0 ? (
             <>
               <Grid>
                 {searchResult.map(category => (
@@ -245,11 +234,18 @@ export const CategoryList: React.FC<{}> = () => {
             <>
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
-                  <div key={meta1display}>
-                    <h4 className="my-4">{meta1display}</h4>
+                  <div key={meta1display} id={slugify(meta1display)}>
+                    <Title order={2} my="sm">
+                      {meta1display}
+                    </Title>
                     {meta2.map(([meta2display, categories]) => (
-                      <div key={meta2display}>
-                        <h5 className="my-3">{meta2display}</h5>
+                      <div
+                        key={meta2display}
+                        id={slugify(meta1display) + slugify(meta2display)}
+                      >
+                        <Title order={3} my="md">
+                          {meta2display}
+                        </Title>
                         <Grid>
                           {categories.map(category => (
                             <CategoryCard
@@ -264,7 +260,9 @@ export const CategoryList: React.FC<{}> = () => {
                 ))}
               {unassignedList && (
                 <>
-                  <h4 className="my-4">Unassigned Categories</h4>
+                  <Title order={3} my="md">
+                    Unassigned Categories
+                  </Title>
                   <Grid>
                     {unassignedList.map(category => (
                       <CategoryCard category={category} key={category.slug} />
@@ -274,7 +272,9 @@ export const CategoryList: React.FC<{}> = () => {
               )}
               {isAdmin && (
                 <>
-                  <h4 className="my-4">New Category</h4>
+                  <Title order={3} my="md">
+                    New Category
+                  </Title>
                   <Grid>
                     <AddCategory onAddCategory={onAddCategory} />
                   </Grid>
@@ -284,6 +284,14 @@ export const CategoryList: React.FC<{}> = () => {
           )}
         </Container>
       </ContentContainer>
+      {!loading ? (
+        <CourseCategoriesPanel
+          mode={mode}
+          isOpen={panelIsOpen}
+          toggle={togglePanel}
+          metaList={metaList}
+        />
+      ) : null}
     </>
   );
 };

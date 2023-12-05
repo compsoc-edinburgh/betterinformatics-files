@@ -1,10 +1,4 @@
-import {
-  Alert,
-  Button,
-  ListGroup,
-  ListGroupItem,
-  Spinner,
-} from "@vseth/components";
+import { Alert, Button, List, Loader } from "@mantine/core";
 import moment from "moment";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -35,16 +29,16 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
     paymentsLoading || refundLoading || removeLoading || addLoading;
   const [openPayment, setOpenPayment] = useState("");
   return (
-    <>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
+    <div>
+      {error && <Alert color="red">{error.toString()}</Alert>}
       <h3>Paid Oral Exams</h3>
-      {loading && <Spinner />}
+      {loading && <Loader />}
       {payments && (payments.length > 0 || isAdmin) && (
         <>
           {payments
             .filter(payment => payment.active)
             .map(payment => (
-              <Alert key={payment.oid}>
+              <Alert mb="xs" key={payment.oid}>
                 You have paid for all oral exams until{" "}
                 {moment(
                   payment.valid_until,
@@ -56,66 +50,66 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
           <Grid>
             {payments.map(payment =>
               openPayment === payment.oid ? (
-                <ListGroup key={payment.oid} onClick={() => setOpenPayment("")}>
-                  <ListGroupItem>
+                <List key={payment.oid} onClick={() => setOpenPayment("")}>
+                  <div>
                     Payment Time:{" "}
                     {moment(
                       payment.payment_time,
                       GlobalConsts.momentParseString,
                     ).format(GlobalConsts.momentFormatString)}
-                  </ListGroupItem>
-                  <ListGroupItem>
+                  </div>
+                  <div>
                     Valid Until:{" "}
                     {moment(
                       payment.valid_until,
                       GlobalConsts.momentParseString,
                     ).format(GlobalConsts.momentFormatStringDate)}
-                  </ListGroupItem>
+                  </div>
                   {payment.refund_time && (
-                    <ListGroupItem>
+                    <div>
                       Refund Time:{" "}
                       {moment(
                         payment.refund_time,
                         GlobalConsts.momentParseString,
                       ).format(GlobalConsts.momentFormatString)}
-                    </ListGroupItem>
+                    </div>
                   )}
                   {payment.uploaded_filename && (
-                    <ListGroupItem>
-                      <Link className="text-dark" to={`/exams/${payment.uploaded_filename}`}>
+                    <div>
+                      <Link
+                        color="dark"
+                        to={`/exams/${payment.uploaded_filename}`}
+                      >
                         Uploaded Transcript
                       </Link>
-                    </ListGroupItem>
+                    </div>
                   )}
                   {isAdmin && (
-                    <ListGroupItem>
+                    <div>
                       {!payment.refund_time && (
-                        <Button
-                          onClick={() => refund(payment.oid)}
-                          className="mr-1"
-                        >
+                        <Button onClick={() => refund(payment.oid)} mr="xs">
                           Mark Refunded
                         </Button>
                       )}
                       <Button onClick={() => remove(payment.oid)}>
                         Remove Payment
                       </Button>
-                    </ListGroupItem>
+                    </div>
                   )}
-                </ListGroup>
+                </List>
               ) : (
-                <ListGroup
+                <List
                   key={payment.oid}
                   onClick={() => setOpenPayment(payment.oid)}
                 >
-                  <ListGroupItem>
+                  <div>
                     Payment Time:{" "}
                     {moment(
                       payment.payment_time,
                       GlobalConsts.momentParseString,
                     ).format(GlobalConsts.momentFormatString)}
-                  </ListGroupItem>
-                </ListGroup>
+                  </div>
+                </List>
               ),
             )}
           </Grid>
@@ -124,11 +118,11 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
       {isAdmin &&
         payments &&
         payments.filter(payment => payment.active).length === 0 && (
-          <Button className="my-3" onClick={() => add(username)}>
+          <Button my="sm" onClick={() => add(username)}>
             Add Payment
           </Button>
         )}
-    </>
+    </div>
   );
 };
 export default UserPayments;

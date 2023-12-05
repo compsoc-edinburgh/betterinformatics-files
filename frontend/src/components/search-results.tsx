@@ -1,25 +1,26 @@
 import {
+  Anchor,
   Badge,
-  Breadcrumb,
-  BreadcrumbItem,
+  Box,
+  Breadcrumbs,
   Card,
-  CardColumns,
-  Col,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-  Row,
-} from "@vseth/components";
+  Group,
+  Paper,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { css } from "@emotion/css";
 import { escapeRegExp } from "lodash-es";
 import React from "react";
 import { Link } from "react-router-dom";
 import MarkdownText from "../components/markdown-text";
 import { HighlightedMatch, SearchResponse } from "../interfaces";
+import { ICONS, Icon } from "vseth-canine-ui";
 
 const columnStyle = css`
-  column-gap: 0;
-  grid-column-gap: 0;
+  column-gap: 0.75em;
+  grid-column-gap: 0.75em;
   margin: 0 -0.75em;
   padding-top: 1em;
   padding-bottom: 1em;
@@ -67,111 +68,108 @@ interface Props {
 }
 const SearchResults: React.FC<Props> = React.memo(({ data }) => {
   return (
-    <CardColumns className={columnStyle}>
+    <div className={columnStyle}>
       {data.map(result => {
         if (result.type === "exam") {
           return (
-            <div className="px-2" key={`exam-${result.filename}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
-                <Row>
-                  <Col
-                    xs="auto"
-                    className="d-flex flex-column justify-content-center"
+            <div key={`exam-${result.filename}`}>
+              <Card withBorder shadow="md" mb="sm" p="md">
+                <Group>
+                  <Badge>Exam</Badge>
+                  <Breadcrumbs
+                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
+                    className={noMarginBreadcrumb}
                   >
-                    <Badge>Exam</Badge>
-                  </Col>
-                  <Col xs="auto">
-                    <Breadcrumb className={noMarginBreadcrumb}>
-                      <BreadcrumbItem>
-                        <Link
-                          to={`/category/${result.category_slug}`}
-                          className="text-primary"
-                        >
-                          {result.category_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                    </Breadcrumb>
-                  </Col>
-                </Row>
-                <h6>
-                  <Link
-                    to={`/exams/${result.filename}/`}
-                    className="text-primary"
-                  >
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
+                      to={`/category/${result.category_slug}`}
+                    >
+                      {result.category_displayname}
+                    </Anchor>
+                  </Breadcrumbs>
+                </Group>
+                <Title py="xs" order={4}>
+                  <Anchor component={Link} to={`/exams/${result.filename}/`}>
                     {result.headline.map((part, i) => (
                       <HighlightedContent content={part} key={i} />
                     ))}
-                  </Link>
-                </h6>
+                  </Anchor>
+                </Title>
                 {result.pages.map(([page, _, matches]) => (
-                  <Row key={page} className="position-relative">
-                    <Col xs="auto" className="position-static">
-                      <Pagination>
-                        <PaginationItem active>
-                          <PaginationLink
-                            tag={Link}
-                            to={`/exams/${result.filename}/#page-${page}`}
-                            className="border stretched-link position-static"
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </Pagination>
-                    </Col>
-                    <Col>
+                  <Group key={page}>
+                    <Link
+                      to={`/exams/${result.filename}/#page-${page}`}
+                      className="border stretched-link position-static"
+                      style={{ textDecoration: "none" }}
+                    >
+                      <Paper
+                        withBorder
+                        py="xs"
+                        px="md"
+                        style={{ position: "static", flex: "0 0 auto" }}
+                      >
+                        <Text>{page}</Text>
+                      </Paper>
+                    </Link>
+                    <Stack style={{ flexGrow: "1", flexBasis: "0" }}>
                       {matches.map((part, i) => (
-                        <React.Fragment key={i}>
-                          <span className="text-muted">...</span>
+                        <Box key={i}>
+                          <Text component="span" color="dimmed">
+                            ...{" "}
+                          </Text>
                           <HighlightedContent content={part} key={i} />
-                          <span className="text-muted">...</span>
+                          <Text component="span" color="dimmed">
+                            {" "}
+                            ...
+                          </Text>
                           {i !== matches.length - 1 && " "}
-                        </React.Fragment>
+                        </Box>
                       ))}
-                    </Col>
-                  </Row>
+                    </Stack>
+                  </Group>
                 ))}
               </Card>
             </div>
           );
         } else if (result.type === "answer") {
           return (
-            <div className="px-2" key={`answer-${result.long_id}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
-                <Row>
-                  <Col
-                    xs="auto"
-                    className="d-flex flex-column justify-content-center"
+            <div key={`answer-${result.long_id}`}>
+              <Card withBorder shadow="md" mb="sm" p="md">
+                <Group>
+                  <Badge>Answer</Badge>
+                  <Breadcrumbs
+                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
+                    className={noMarginBreadcrumb}
                   >
-                    <Badge>Answer</Badge>
-                  </Col>
-                  <Col xs="auto">
-                    <Breadcrumb className={noMarginBreadcrumb}>
-                      <BreadcrumbItem>
-                        <Link
-                          to={`/category/${result.category_slug}`}
-                          className="text-primary"
-                        >
-                          {result.category_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                      <BreadcrumbItem>
-                        <Link
-                          to={`/exams/${result.filename}`}
-                          className="text-primary"
-                        >
-                          {result.exam_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                    </Breadcrumb>
-                  </Col>
-                </Row>
-                <div className="position-relative">
-                  <Link
-                    className="text-primary stretched-link"
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
+                      to={`/category/${result.category_slug}`}
+                    >
+                      {result.category_displayname}
+                    </Anchor>
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
+                      to={`/exams/${result.filename}`}
+                    >
+                      {result.exam_displayname}
+                    </Anchor>
+                  </Breadcrumbs>
+                </Group>
+                <div>
+                  <Anchor
+                    component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
-                    <h6>{result.author_displayname}</h6>
-                  </Link>
+                    <Title py="xs" order={4}>
+                      {result.author_displayname}
+                    </Title>
+                  </Anchor>
                   <HighlightedMarkdown
                     content={result.text}
                     matches={result.highlighted_words}
@@ -182,43 +180,41 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           );
         } else {
           return (
-            <div className="px-2" key={`comment-${result.long_id}`}>
-              <Card className="mb-3 px-3 pb-3 pt-2 position-static">
-                <Row>
-                  <Col
-                    xs="auto"
-                    className="d-flex flex-column justify-content-center"
+            <div key={`comment-${result.long_id}`}>
+              <Card withBorder shadow="md" mb="sm" p="md">
+                <Group>
+                  <Badge>Comment</Badge>
+                  <Breadcrumbs
+                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
+                    className={noMarginBreadcrumb}
                   >
-                    <Badge>Comment</Badge>
-                  </Col>
-                  <Col xs="auto">
-                    <Breadcrumb className={noMarginBreadcrumb}>
-                      <BreadcrumbItem>
-                        <Link
-                          className="text-primary"
-                          to={`/category/${result.category_slug}`}
-                        >
-                          {result.category_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                      <BreadcrumbItem>
-                        <Link
-                          className="text-primary"
-                          to={`/exams/${result.filename}`}
-                        >
-                          {result.exam_displayname}
-                        </Link>
-                      </BreadcrumbItem>
-                    </Breadcrumb>
-                  </Col>
-                </Row>
-                <div className="position-relative">
-                  <Link
-                    className="text-primary stretched-link"
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
+                      to={`/category/${result.category_slug}`}
+                    >
+                      {result.category_displayname}
+                    </Anchor>
+                    <Anchor
+                      tt="uppercase"
+                      size="xs"
+                      component={Link}
+                      to={`/exams/${result.filename}`}
+                    >
+                      {result.exam_displayname}
+                    </Anchor>
+                  </Breadcrumbs>
+                </Group>
+                <div>
+                  <Anchor
+                    component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
                   >
-                    <h6>{result.author_displayname}</h6>
-                  </Link>
+                    <Title py="xs" order={4}>
+                      {result.author_displayname}
+                    </Title>
+                  </Anchor>
                   <HighlightedMarkdown
                     content={result.text}
                     matches={result.highlighted_words}
@@ -229,7 +225,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
           );
         }
       })}
-    </CardColumns>
+    </div>
   );
 });
 export default SearchResults;

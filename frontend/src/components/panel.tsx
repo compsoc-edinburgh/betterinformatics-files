@@ -1,8 +1,10 @@
-import { css, cx, keyframes } from "@emotion/css";
-import { ArrowLeftIcon, Button, CloseIcon } from "@vseth/components";
+import { css, cx } from "@emotion/css";
+import { Button } from "@mantine/core";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
+import { Icon, ICONS } from "vseth-canine-ui";
 import GlobalConsts from "../globalconsts";
+
 const panelStyle = css`
   pointer-events: none;
   position: fixed;
@@ -26,10 +28,8 @@ const closeButtonStyle = css`
   display: inline-block;
   font-size: 0.5em;
   pointer-events: all;
-  &.btn {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 `;
 const modalWrapper = css`
   width: 100%;
@@ -38,12 +38,24 @@ const modalWrapper = css`
   align-items: flex-end;
 `;
 const modalStyle = css`
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-clip: padding-box;
+  background: #fff;
+  padding: 1em;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-top-left-radius: 0.3rem;
+  outline: 0;
   max-height: 100%;
   overflow: auto;
-  &.modal-content {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
   & .modal-header {
     display: block;
   }
@@ -56,32 +68,13 @@ interface PanelProps {
 }
 
 const duration = 200;
-const enteringAnimation = keyframes`
-  0% {
-    transform: translate(100%);
-  }
-  100% {
-    transform: translate(0);
-  }
-`;
-const exitingAnimation = keyframes`
-  0% {
-  transform: translate(0);
-  }
-  100% {
-    transform: translate(100%);
-  }
-`;
 
 const transitionStyles = {
-  entering: {
-    animation: `${enteringAnimation} ${duration}ms cubic-bezier(0.45, 0, 0.55, 1)`,
-  },
-  entered: { transform: "" },
-  exiting: {
-    animation: `${exitingAnimation} ${duration}ms cubic-bezier(0.45, 0, 0.55, 1)`,
-  },
+  entering: { transform: "translate(0)" },
+  entered: { transform: "translate(0)" },
+  exiting: { transform: "translate(100%)" },
   exited: { transform: "translate(100%)" },
+  unmounted: { transform: "translate(100%)" },
 };
 
 const Panel: React.FC<PanelProps> = ({
@@ -97,11 +90,11 @@ const Panel: React.FC<PanelProps> = ({
         <div className={iconContainerStyle} style={{ padding: iconPadding }}>
           <Button
             size="lg"
-            color="primary"
+            variant="brand"
             className={closeButtonStyle}
             onClick={toggle}
+            leftIcon={<Icon icon={ICONS.ARROW_LEFT} size={24} />}
           >
-            <ArrowLeftIcon size={24} />
             {buttonText && (
               <div>
                 <small>{buttonText}</small>
@@ -118,17 +111,17 @@ const Panel: React.FC<PanelProps> = ({
               ...transitionStyles[state as keyof typeof transitionStyles],
             }}
           >
-            <div
+            <div 
               className={iconContainerStyle}
               style={{ padding: iconPadding }}
             >
               <Button
                 size="lg"
-                color="primary"
+                variant="brand"
                 className={closeButtonStyle}
                 onClick={toggle}
               >
-                <CloseIcon size={24} />
+                <Icon icon={ICONS.CLOSE} size={24} />
                 {buttonText && (
                   <div>
                     <small>{buttonText}</small>

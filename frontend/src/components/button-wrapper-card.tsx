@@ -1,4 +1,4 @@
-import { CardProps, Card, CardHeader } from "@vseth/components";
+import { CardProps, Card } from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 const wrapperStyle = css`
@@ -8,7 +8,7 @@ const wrapperStyle = css`
 const ButtonWrapperCard: React.FC<CardProps> = ({ children, ...props }) => {
   return (
     <Card className={wrapperStyle} {...props}>
-      <CardHeader>{children}</CardHeader>
+      {children}
     </Card>
   );
 };

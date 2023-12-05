@@ -1,4 +1,14 @@
-import { Button, FormGroup, Form, Label, Input, Spinner } from "@vseth/components";
+import {
+  Button,
+  Loader,
+  Group,
+  Flex,
+  PinInput,
+  TextInput,
+  Title,
+  Text,
+  Anchor,
+} from "@mantine/core";
 import React, { FormEventHandler, useState, useEffect } from "react";
 import { sendLoginCode, verifyLoginCode } from "../api/fetch-utils";
 import { useLocation } from "react-router-dom";
@@ -81,98 +91,138 @@ const LoginOverlay: React.FC<{}> = () => {
 
   if (loginState === LoginState.PROCESSING) {
     return (
-      <div className="position-center text-white">
-        <Spinner />
-      </div>
+      <Flex
+        align="center"
+        justify="center"
+        style={{
+          textAlign: "left",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}>
+        <Loader />
+      </Flex>
     );
   }
 
   return (
     <>
-      <div className="text-left position-cover d-flex align-items-center justify-content-center">
+      <Flex
+        align="center"
+        justify="center"
+        style={{
+          textAlign: "left",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}>
           {(loginState === LoginState.AWAITING_UUN_INPUT && (
             <div>
-              <h4 className="mb-4 font-weight-bold text-white">Sign in to view</h4>
-              <Form onSubmit={handleSubmitUUN}>
-                <FormGroup className="m-1">
-                  <Label for="login-email" className="text-white">
-                    Edinburgh UUN:
-                  </Label>
-                  <Input
-                    name="login-uun"
-                    type="text"
-                    className="login-uun"
-                    placeholder="s0000000"
-                    value={uun}
-                    onChange={e => setUUN(e.currentTarget.value)}
-                    required
-                    autoFocus />
-                  {error && (
-                    <p
-                      className="text-danger mb-0"
-                      style={{ minWidth: "100%", width: 0 }}>
-                      {error}
-                    </p>
-                  )}
-                  <Button className="mt-3" size="lg" color="white" outline type="submit">
-                    Next
-                  </Button>
-                </FormGroup>
-              </Form>
+              <Title order={4} color="gray.0" size="1.75rem" weight={700} mb="md">Sign in to view</Title>
+              <form onSubmit={handleSubmitUUN}>
+                <TextInput
+                  label="Edinburgh UUN"
+                  placeholder="s0000000"
+                  value={uun}
+                  onChange={(e: any) => setUUN(e.currentTarget.value)}
+                  required
+                  autoFocus
+                  error={error}
+                  color="white"
+                  styles={{ label: { color: "white" }, error: { minWidth: "100%", width: 0 } }}
+                />
+                <Button color="white" variant="outline" mt="sm" type="submit">
+                  Next
+                </Button>
+              </form>
             </div>
           )) || (loginState === LoginState.AWAITING_PROCESSING_AGREEMENT && (
-            <Form onSubmit={handleProcessingAgreement}>
-              <p className="text-white mt-3" style={{ minWidth: "100%", width: 0 }}>
-                Do you consent to the processing (see our <a href="/privacy-policy" className="text-info">privacy policy</a>) of your UUN and IP address? This is personally identifiable information.
-              </p>
-              <p className="text-white mt-3" style={{ minWidth: "100%", width: 0 }}>
+            <form onSubmit={handleProcessingAgreement}>
+              <Text color="white" mt="md" style={{ minWidth: "100%", width: 0 }}>
+                Do you consent to the processing (see our <a href="/privacy-policy">privacy policy</a>) of your UUN and IP address? This is personally identifiable information.
+              </Text>
+              <Text color="white" mt="md" style={{ minWidth: "100%", width: 0 }}>
                 Selecting "Yes" will send a 6-digit verification code to your email.
-              </p>
-              <FormGroup className="m-1">
-                <Button className="mr-5" size="lg" color="white" outline type="submit" onClick={() => setProcessingAgreement(false)}>
+              </Text>
+              <Group>
+                <Button color="white" variant="outline" mt="sm" mr="3rem" type="submit" onClick={() => setProcessingAgreement(false)}>
                   No
                 </Button>
-                <Button className="ml-4" size="lg" color="white" outline type="submit" onClick={() => setProcessingAgreement(true)}>
+                <Button color="white" variant="outline" mt="sm" ml="3rem" type="submit" onClick={() => setProcessingAgreement(true)}>
                   Yes
                 </Button>
-              </FormGroup>
-            </Form>
+              </Group>
+            </form>
           )) || (loginState === LoginState.AWAITING_CODE_INPUT && (
-            <Form onSubmit={handleSubmitCode}>
-              <p className="text-white mt-3" 
+            <form onSubmit={handleSubmitCode}>
+              <Text color="white"
                       style={{ minWidth: "100%", width: 0 }}>
                 A 6-digit verification code has been sent to your email: <br/>
                 {uun}@ed.ac.uk (<span onClick={changeUUN} style={{ cursor: "pointer" }} className="text-info">change</span>).
-              </p>
-              <FormGroup className="m-1">
-                <Label for="login-code" className="text-white">
-                  6-digit Code:
-                </Label>
-                <Input
-                  name="login-code"
-                  type="number"
-                  pattern="[0-9]{6}" // fallback in case type="number" is too new
-                  autoComplete="one-time-code"
-                  className="login-code"
-                  value={verificationCode}
-                  required
-                  autoFocus
-                  onChange={e => setVerificationCode(e.currentTarget.value)} />
-                  {error && (
-                    <p
-                      className="text-danger mb-0"
-                      style={{ minWidth: "100%", width: 0 }}>
-                      {error}
-                    </p>
-                  )}
-                <Button className="mt-3" size="lg" color="white" outline type="submit">
-                  Sign in
-                </Button>
-              </FormGroup>
-            </Form>
+              </Text>
+              <PinInput
+                mt="md"
+                oneTimeCode
+                length={6}
+                value={verificationCode}
+                required
+                autoFocus
+                onChange={(value: string) => setVerificationCode(value)}
+                error={!!error} /* cast to boolean */
+              />
+              {error && (
+                <Text
+                  color="red"
+                  style={{ minWidth: "100%", width: 0 }}
+                  size="xs">
+                  {error}
+                </Text>
+              )}
+              <Button mt="md" color="white" variant="outline" type="submit">
+                Sign in
+              </Button>
+            </form>
           ))}
-      </div>
+      </Flex>
     </>
+// =======
+// import { Button, Flex, Text } from "@mantine/core";
+// import React from "react";
+// import { login } from "../api/fetch-utils";
+
+// const LoginOverlay: React.FC<{}> = () => {
+//   return (
+//     <Flex
+//       align="center"
+//       justify="center"
+//       style={{
+//         position: "absolute",
+//         top: 0,
+//         left: 0,
+//         right: 0,
+//         bottom: 0,
+//         textAlign: "center",
+//       }}
+//     >
+//       <div>
+//         <Text color="gray.0" size="1.75rem" weight={700} mb="md">
+//           Please Sign in
+//         </Text>
+//         <Button
+//           size="lg"
+//           color="gray.0"
+//           variant="outline"
+//           onClick={() => login()}
+//         >
+//           Sign in with AAI
+//         </Button>
+//       </div>
+//     </Flex>
+// >>>>>>> upstream/master
   );
 };
 export default LoginOverlay;

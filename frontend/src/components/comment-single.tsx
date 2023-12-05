@@ -1,18 +1,11 @@
-import {
-  Col,
-  CardHeader,
-  CardBody,
-  Row,
-  Card,
-  Breadcrumb,
-  BreadcrumbItem,
-} from "@vseth/components";
+import { Anchor, Box, Breadcrumbs, Card, Divider, Text } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React from "react";
 import { Link } from "react-router-dom";
 import { SingleComment } from "../interfaces";
 import MarkdownText from "./markdown-text";
 import { css } from "@emotion/css";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface Props {
   comment: SingleComment;
@@ -23,56 +16,58 @@ const noMarginBreadcrumb = css`
     margin: 0;
   }
 `;
-const marginCommentText = css`
-  margin: 1em;
-`;
 
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
-    <Card className={marginCommentText}>
-      <CardHeader>
-        <Row>
-          <Col xs="auto">
-            <Breadcrumb className={noMarginBreadcrumb}>
-              <BreadcrumbItem>
-                <Link
-                  to={`/category/${comment.category_slug}`}
-                  className="text-primary"
-                >
-                  {comment.category_displayname}
-                </Link>
-              </BreadcrumbItem>
-              <BreadcrumbItem>
-                <Link
-                  to={`/exams/${comment.filename}`}
-                  className="text-primary"
-                >
-                  {comment.exam_displayname}
-                </Link>
-              </BreadcrumbItem>
-              <BreadcrumbItem>
-                <Link
-                  to={`/exams/${comment.filename}#${comment.answerId}`}
-                  className="text-primary"
-                >
-                  Comment
-                </Link>
-              </BreadcrumbItem>
-            </Breadcrumb>
-          </Col>
-        </Row>
-        <div>
-          <Link className="text-dark" to={`/user/${comment.authorId}`}>
-            <span className="text-dark font-weight-bold">
+    <Card withBorder shadow="md" mb="md">
+      <Card.Section bg="gray.0">
+        <Breadcrumbs
+          px="md"
+          pt="md"
+          separator={<Icon icon={ICONS.RIGHT} size={10} />}
+          className={noMarginBreadcrumb}
+        >
+          <Anchor
+            component={Link}
+            to={`/category/${comment.category_slug}`}
+            tt="uppercase"
+            size="xs"
+          >
+            {comment.category_displayname}
+          </Anchor>
+          <Anchor
+            component={Link}
+            to={`/exams/${comment.filename}`}
+            tt="uppercase"
+            size="xs"
+          >
+            {comment.exam_displayname}
+          </Anchor>
+          <Anchor
+            component={Link}
+            to={`/exams/${comment.filename}#${comment.answerId}`}
+            tt="uppercase"
+            size="xs"
+          >
+            Comment
+          </Anchor>
+        </Breadcrumbs>
+        <Box my="xs" px="md">
+          <Anchor component={Link} to={`/user/${comment.authorId}`}>
+            <Text weight={700} component="span">
               {comment.authorDisplayName}
-            </span>
-            <span className="text-muted ml-1">@{comment.authorId}</span>
-          </Link>
-          <span className="text-muted mx-1">·</span>
+            </Text>
+            <Text ml="0.3em" color="dimmed" component="span">
+              @{comment.authorId}
+            </Text>
+          </Anchor>
+          <Text color="dimmed" mx={6} component="span">
+            ·
+          </Text>
           {comment && (
-            <span className="text-muted" title={comment.time}>
+            <Text color="dimmed" component="span" title={comment.time}>
               {formatDistanceToNow(new Date(comment.time))} ago
-            </span>
+            </Text>
           )}
           {comment &&
             differenceInSeconds(
@@ -80,17 +75,18 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
               new Date(comment.time),
             ) > 1 && (
               <>
-                <span className="text-muted mx-1">·</span>
-                <span className="text-muted" title={comment.edittime}>
+                <Text color="dimmed" mx={6} component="span">
+                  ·
+                </Text>
+                <Text color="dimmed" component="span" title={comment.edittime}>
                   edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                </span>
+                </Text>
               </>
             )}
-        </div>
-      </CardHeader>
-      <CardBody>
-        <MarkdownText value={comment.text} />
-      </CardBody>
+        </Box>
+        <Divider mb="md" />
+      </Card.Section>
+      <MarkdownText value={comment.text} />
     </Card>
   );
 };

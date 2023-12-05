@@ -1,4 +1,4 @@
-import { Button, Modal, ModalBody, ModalHeader } from "@vseth/components";
+import { Button, Modal } from "@mantine/core";
 import React from "react";
 interface ModalProps {
   isOpen: boolean;
@@ -11,20 +11,17 @@ const HideAnswerSectionModal: React.FC<ModalProps> = ({
   setHidden,
 }) => {
   return (
-    <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Hide Section?</ModalHeader>
-      <ModalBody>
+    <Modal size="lg" opened={isOpen} title="Hide section?" onClose={toggle}>
+      <Modal.Body>
         <p>All corresponding answers will be deleted, this cannot be undone!</p>
 
-        <div className="text-right">
-          <Button className="mt-1 mr-1" onClick={toggle}>
-            Cancel
-          </Button>
-          <Button className="mt-1" color="danger" onClick={setHidden}>
+        <div>
+          <Button onClick={toggle}>Cancel</Button>
+          <Button color="red" onClick={setHidden}>
             Delete Answers
           </Button>
         </div>
-      </ModalBody>
+      </Modal.Body>
     </Modal>
   );
 };

@@ -1,22 +1,19 @@
-import { useRequest } from "@umijs/hooks";
 import {
   Button,
-  DeleteIcon,
-  FormGroup,
-  InputField,
-  ListGroup,
+  List,
+  TextInput,
   Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  PlusIcon,
-  RepeatIcon,
-  SaveIcon,
+  Flex,
+  Title,
+  Text,
+  Stack,
+  Group,
   Select,
-  Spinner,
-} from "@vseth/components";
+} from "@mantine/core";
+import { useRequest } from "@umijs/hooks";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   loadCategories,
@@ -42,8 +39,7 @@ interface Props {
 
 const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
   const history = useHistory();
-  const { loading: categoriesLoading, data: categories } =
-    useRequest(loadCategories);
+  const { data: categories } = useRequest(loadCategories);
   const categoryOptions =
     categories &&
     createOptions(
@@ -91,7 +87,11 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
   const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
     <>
-      <Modal isOpen={addModalIsOpen} toggle={toggleAddModalIsOpen}>
+      <Modal
+        title="Add File"
+        opened={addModalIsOpen}
+        onClose={toggleAddModalIsOpen}
+      >
         <CreateDocumentFileModal
           toggle={toggleAddModalIsOpen}
           document={data}
@@ -99,31 +99,27 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
         />
       </Modal>
       {data.can_edit && (
-        <>
-          <InputField
+        <Stack>
+          <TextInput
             label="Display Name"
             value={displayName ?? data.display_name}
             onChange={e => setDisplayName(e.currentTarget.value)}
           />
-          <FormGroup>
-            <label className="form-input-label">Category</label>
-            <Select
-              options={categoryOptions ? (options(categoryOptions) as any) : []}
-              value={
-                categoryOptions &&
-                (category
-                  ? categoryOptions[category]
-                  : categoryOptions[data.category])
-              }
-              onChange={(e: any) => {
-                setCategory(e.value as string);
-              }}
-              isLoading={categoriesLoading}
-              required
-            />
-          </FormGroup>
-          <FormGroup>
-            <label className="form-input-label">Description</label>
+          <Select
+            label="Category"
+            data={categoryOptions ? (options(categoryOptions) as any) : []}
+            value={
+              categoryOptions &&
+              (category
+                ? categoryOptions[category].value
+                : undefined)
+            }
+            onChange={(value: string) => {
+              setCategory(value);
+            }}
+          />
+          <div>
+            <Text size="sm">Description</Text>
             <Editor
               value={descriptionDraftText ?? data.description}
               onChange={setDescriptionDraftText}
@@ -132,9 +128,11 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
               undoStack={descriptionUndoStack}
               setUndoStack={setDescriptionUndoStack}
             />
-          </FormGroup>
-          <div className="form-group d-flex justify-content-end">
+          </div>
+          <Flex justify="end">
             <Button
+              loading={loading}
+              leftIcon={<Icon icon={ICONS.SAVE} />}
               onClick={() =>
                 updateDocument({
                   display_name: displayName,
@@ -145,30 +143,25 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
               disabled={displayName?.trim() === ""}
             >
               Save
-              {loading ? (
-                <Spinner className="ml-2" size="sm" />
-              ) : (
-                <SaveIcon className="ml-2" />
-              )}
             </Button>
-          </div>
-        </>
+          </Flex>
+        </Stack>
       )}
-      <h3 className="mt-5 mb-4">Files</h3>
+      <Title order={3}>Files</Title>
       {data.api_key && (
-        <div className="flex align-items-center my-2">
+        <Flex align="center" my="sm" gap="sm">
           API Key:
-          <pre className="mx-2 my-auto">{data.api_key}</pre>
+          <pre>{data.api_key}</pre>
           <IconButton
             loading={regenerateLoading}
             onClick={regenerate}
             size="sm"
-            icon={RepeatIcon}
+            iconName={ICONS.REPEAT}
             tooltip="Regenerating the API token will invalidate the old one and generate a new one"
           />
-        </div>
+        </Flex>
       )}
-      <ListGroup className="mb-2">
+      <List mb="md">
         {data.files.map(file => (
           <DocumentFileItem
             key={file.oid}
@@ -177,49 +170,52 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
             mutate={mutate}
           />
         ))}
-      </ListGroup>
-      <div className="form-group d-flex justify-content-end">
-        <Button onClick={toggleAddModalIsOpen}>
+      </List>
+      <Flex justify="end">
+        <Button
+          leftIcon={<Icon icon={ICONS.PLUS} />}
+          onClick={toggleAddModalIsOpen}
+        >
           Add
-          <PlusIcon className="ml-2" />
         </Button>
-      </div>
+      </Flex>
       {data.can_delete && (
         <>
-          <h3 className="mt-5 mb-4">Danger Zone</h3>
-          <div className="d-flex flex-wrap justify-content-between align-items-center">
-            <div className="d-flex flex-column">
-              <h6>Delete this document</h6>
+          <Title order={3}>Red Zone</Title>
+          <Flex wrap="wrap" justify="space-between" align="center" my="md">
+            <Flex direction="column">
+              <Title order={4}>Delete this document</Title>
               <div>
                 Deleting the document will delete all associated files and all
                 comments. <b>This cannot be undone.</b>
               </div>
-            </div>
+            </Flex>
 
-            <Button color="danger" onClick={toggleDeleteModalIsOpen}>
-              Delete <DeleteIcon className="ml-2" />
+            <Button
+              leftIcon={<Icon icon={ICONS.DELETE} />}
+              color="red"
+              onClick={toggleDeleteModalIsOpen}
+            >
+              Delete
             </Button>
-          </div>
+          </Flex>
         </>
       )}
-      <Modal isOpen={deleteModalIsOpen} toggle={toggleDeleteModalIsOpen}>
-        <ModalHeader toggle={toggleDeleteModalIsOpen}>
-          Are you absolutely sure?
-        </ModalHeader>
-        <ModalBody>
+      <Modal
+        opened={deleteModalIsOpen}
+        title="Are you absolutely sure?"
+        onClose={toggleDeleteModalIsOpen}
+      >
+        <Modal.Body>
           Deleting the document will delete all associated files and all
           comments. <b>This cannot be undone.</b>
-        </ModalBody>
-        <ModalFooter>
-          <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
-          <Button
-            onClick={deleteDocument}
-            color="danger"
-            loading={deleteDocument}
-          >
-            Delete this document
-          </Button>
-        </ModalFooter>
+          <Group position="right" mt="md">
+            <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+            <Button onClick={deleteDocument} color="red">
+              Delete this document
+            </Button>
+          </Group>
+        </Modal.Body>
       </Modal>
     </>
   );

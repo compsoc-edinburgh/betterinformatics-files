@@ -214,8 +214,8 @@ export const loadMetaCategories = async () => {
     .value as MetaCategory[];
 };
 export const useMetaCategories = () => {
-  const { error, loading, data } = useRequest(loadMetaCategories);
-  return [error, loading, data] as const;
+  const { error, loading, data, mutate } = useRequest(loadMetaCategories);
+  return [error, loading, data, mutate] as const;
 };
 export const loadList = async (slug: string) => {
   return (await fetchGet(`/api/category/listexams/${slug}/`))

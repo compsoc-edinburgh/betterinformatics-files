@@ -1,25 +1,17 @@
 import {
   Button,
   Card,
-  CardColumns,
-  CardImg,
+  Center,
+  Group,
+  Image,
   Modal,
-  ModalBody,
-  ModalHeader,
-  Row,
-  Col,
-} from "@vseth/components";
+  SimpleGrid,
+} from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
 import { css } from "@emotion/css";
-const columnStyle = css`
-  column-gap: 0;
-  grid-column-gap: 0;
-  margin: 0 -0.75em;
-  padding-top: 1em;
-`;
 const cardWrapperStyle = css`
   padding: 0 0.75em;
 `;
@@ -43,49 +35,40 @@ const ImageModal: React.FC<ModalProps> = ({
     }
   };
   return (
-    <Modal size="lg" isOpen={isOpen} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Images</ModalHeader>
-      <ModalBody>
-        <Row>
-          <Col>
-            <FileInput value={file} onChange={setFile} accept="image/*" />
-          </Col>
-          <Col xs="auto">
-            <Button
-              onClick={() => {
-                if (file) {
-                  add(file);
-                  setFile(undefined);
-                }
-              }}
-              disabled={file === undefined}
-            >
-              Upload
-            </Button>
-          </Col>
-        </Row>
-
-        <div className="text-right">
-          <Button className="mt-1 mr-1" onClick={reload}>
-            Reload
-          </Button>
+    <Modal title="Images" size="lg" opened={isOpen} onClose={toggle}>
+      <Modal.Body>
+        <FileInput value={file} onChange={setFile} accept="image/*" />
+        <Group mt="sm">
           <Button
-            className="mt-1"
-            color="danger"
+            onClick={() => {
+              if (file) {
+                add(file);
+                setFile(undefined);
+              }
+            }}
+            disabled={file === undefined}
+          >
+            Upload
+          </Button>
+          <Button onClick={reload}>Reload</Button>
+          <Button
+            color="red"
             disabled={selected.size === 0}
             onClick={removeSelected}
           >
             Delete selected
           </Button>
-        </div>
+        </Group>
 
-        <CardColumns className={columnStyle}>
+        <SimpleGrid cols={3} mt="sm">
           {images &&
             images.map(image => (
               <div key={image} className={cardWrapperStyle}>
                 <Card
-                  className="p-2"
                   color={selected.has(image) ? "primary" : undefined}
+                  style={{
+                    border: selected.has(image) ? "5px solid black" : "",
+                  }}
                   onClick={e =>
                     e.metaKey
                       ? selected.has(image)
@@ -96,26 +79,25 @@ const ImageModal: React.FC<ModalProps> = ({
                       : setSelected(image)
                   }
                 >
-                  <CardImg
-                    width="100%"
-                    src={`/api/image/get/${image}/`}
-                    alt={image}
-                  />
-                  {selected.has(image) && selected.size === 1 && (
-                    <div className="position-absolute position-bottom-right">
-                      <Button
-                        color="primary"
-                        onClick={() => closeWithImage(image)}
-                      >
-                        Insert
-                      </Button>
-                    </div>
-                  )}
+                  <Card.Section>
+                    <Image src={`/api/image/get/${image}/`} alt={image} />
+                  </Card.Section>
                 </Card>
+                <Center>
+                  {selected.has(image) && selected.size === 1 && (
+                    <Button
+                      pos="absolute"
+                      variant="brand"
+                      onClick={() => closeWithImage(image)}
+                    >
+                      Insert
+                    </Button>
+                  )}
+                </Center>
               </div>
             ))}
-        </CardColumns>
-      </ModalBody>
+        </SimpleGrid>
+      </Modal.Body>
     </Modal>
   );
 };

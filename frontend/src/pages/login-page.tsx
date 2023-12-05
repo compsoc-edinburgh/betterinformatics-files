@@ -1,4 +1,4 @@
-import { Col, Container, Row } from "@vseth/components";
+import { Container, Flex, Grid, Text, Space } from "@mantine/core";
 import React from "react";
 import LoginOverlay from "../components/login-overlay";
 import useTitle from "../hooks/useTitle";
@@ -8,29 +8,39 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
   useTitle("Login");
   return (
     <>
-      <Container>
-        <Row>
-          <Col md={5} lg={6} className="d-flex flex-column justify-content-center">
-            <h2 className="display-5">Better&shy;Informatics</h2>
-            <h1 className="mb-5 display-3">Exam Collection</h1>
-            <h6>
+      <Container size="xl">
+        <Grid>
+          <Grid.Col span={5} style={{ alignSelf: "center" }}>
+            <Flex direction="column" justify="center">
+              <Text size="4.5rem" lh={1} mt="lg">
+                Better&shy;Informatics
+              </Text>
+              <Text size="2.5rem" lh={1.2} my="lg">
+                Exam Collection
+              </Text>
+              <Text size="1rem" weight={500}>
               The BI Exam Collection is a platform for students to share answers
               for previous exams, leave comments on answers, and upload other
               relevant documents.
-            </h6>
-          </Col>
-          <Col
-            xs={11}
-            md={7}
-            lg={6}
+              </Text>
+            </Flex>
+          </Grid.Col>
+          <Grid.Col
+            xs={12}
+            md={6}
+            lg={5}
             xl={4}
-            className="py-4 position-relative d-flex align-items-center mx-auto"
+            mx="auto"
+            py="sm"
+            style={{ position: "relative" }}
           >
+            <Flex align="center">
             <svg
               x="0px" y="0px"
               viewBox="0 0 200 200"
               xmlns="http://www.w3.org/2000/svg"
-              className="text-primary m-auto"
+              style={{"margin": "auto"}}
+              color="gray.0"
             >
               <path
                 d="M146.9,18.7c15.7,0.8,32.3,8.2,30.9,29.7c-1.4,22.2,7.7,33.5,7.4,68.9c-0.1,16.3-1.8,34.1-3.3,37
@@ -38,9 +48,10 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
                 c2.4-16.4-7.7-42.7-2.9-64c8-36,31.3-35,35.6-35c5.6,0,24.7,4.1,39.7,4.3C128.4,26.5,134.5,18,146.9,18.7z"
               />
             </svg>
-            <LoginOverlay />
-          </Col>
-        </Row>
+              <LoginOverlay />
+            </Flex>
+          </Grid.Col>
+        </Grid>
       </Container>
       {isHome && <CategoryList />}
     </>

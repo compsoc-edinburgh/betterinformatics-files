@@ -1,17 +1,16 @@
 import {
+  Anchor,
+  Button,
   Card,
-  DeleteIcon,
-  EditIcon,
+  Divider,
+  Flex,
   Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  SaveIcon,
-  Spinner,
-} from "@vseth/components";
+  Text,
+} from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   Mutate,
@@ -70,9 +69,8 @@ const DocumentCommentComponent = ({
   const toggle = () => setHasDraft(e => !e);
   return (
     <>
-      <Modal toggle={toggle} isOpen={hasDraft} size="lg">
-        <ModalHeader toggle={toggle}>Edit Comment</ModalHeader>
-        <ModalBody>
+      <Modal title="Edit comment" onClose={toggle} opened={hasDraft} size="lg">
+        <Modal.Body>
           <Editor
             value={draftText}
             onChange={setDraftText}
@@ -81,79 +79,87 @@ const DocumentCommentComponent = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-        </ModalBody>
-        <ModalFooter className="d-flex justify-content-end mt-2">
           <TooltipButton
-            color="primary"
+            mt="sm"
+            variant="brand"
+            tooltip="Save comment"
             disabled={editLoading || draftText.length === 0}
             onClick={() => updateComment(draftText)}
           >
-            Save{" "}
-            {editLoading ? (
-              <Spinner className="ml-2" size="sm" />
-            ) : (
-              <SaveIcon className="ml-2" />
-            )}
+            Save
           </TooltipButton>
-        </ModalFooter>
+        </Modal.Body>
       </Modal>
-      <Card className="my-3 pt-3" body>
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <div>
-            <Link className="text-muted" to={`/user/${comment.authorId}`}>
-              {comment.authorDisplayName}
-              <span className="text-muted ml-2">@{comment.authorId}</span>
-            </Link>
-            <span className="text-muted mx-1">·</span>
-            {comment && (
-              <span className="text-muted" title={comment.time}>
-                {formatDistanceToNow(new Date(comment.time))} ago
-              </span>
-            )}
-            {comment &&
-              differenceInSeconds(
-                new Date(comment.edittime),
-                new Date(comment.time),
-              ) > 1 && (
-                <>
-                  <span className="text-muted mx-1">·</span>
-                  <span className="text-muted" title={comment.edittime}>
-                    edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                  </span>
-                </>
+      <Card withBorder shadow="md" my="sm">
+        <Card.Section bg="gray.0" mb="sm">
+          <Flex py="sm" px="md" justify="space-between" align="center">
+            <Flex align="center">
+              <Anchor component={Link} to={`/user/${comment.authorId}`}>
+                <Text weight={700} component="span">
+                  {comment.authorDisplayName}
+                </Text>
+                <Text ml="0.25em" color="dimmed" component="span">
+                  @{comment.authorId}
+                </Text>
+              </Anchor>
+              <Text component="span" mx={6} color="dimmed">
+                ·
+              </Text>
+              {comment && (
+                <Text component="span" color="dimmed" title={comment.time}>
+                  {formatDistanceToNow(new Date(comment.time))} ago
+                </Text>
               )}
-          </div>
-          <div>
+              {comment &&
+                differenceInSeconds(
+                  new Date(comment.edittime),
+                  new Date(comment.time),
+                ) > 1 && (
+                  <>
+                    <Text component="span" color="dimmed" mx={6}>
+                      ·
+                    </Text>
+                    <Text
+                      component="span"
+                      color="dimmed"
+                      title={comment.edittime}
+                    >
+                      edited {formatDistanceToNow(new Date(comment.edittime))}{" "}
+                      ago
+                    </Text>
+                  </>
+                )}
+            </Flex>
             {(comment.canEdit || isAdmin) && (
-              <SmallButton
-                tooltip="Delete comment"
-                size="sm"
-                color="white"
-                onClick={deleteComment}
-              >
-                <DeleteIcon size={18} />
-              </SmallButton>
+              <Button.Group>
+                <SmallButton
+                  tooltip="Delete comment"
+                  size="xs"
+                  color="white"
+                  onClick={deleteComment}
+                >
+                  <Icon icon={ICONS.DELETE} size={18} />
+                </SmallButton>
+                <SmallButton
+                  tooltip="Edit comment"
+                  size="xs"
+                  color="white"
+                  onClick={() => {
+                    toggle();
+                    setDraftText(comment.text);
+                    setUndoStack({
+                      prev: [],
+                      next: [],
+                    });
+                  }}
+                >
+                  <Icon icon={ICONS.EDIT} size={18} />
+                </SmallButton>
+              </Button.Group>
             )}
-
-            {comment.canEdit && (
-              <SmallButton
-                tooltip="Edit comment"
-                size="sm"
-                color="white"
-                onClick={() => {
-                  toggle();
-                  setDraftText(comment.text);
-                  setUndoStack({
-                    prev: [],
-                    next: [],
-                  });
-                }}
-              >
-                <EditIcon size={18} />
-              </SmallButton>
-            )}
-          </div>
-        </div>
+          </Flex>
+          <Divider color="gray.3" />
+        </Card.Section>
         <MarkdownText value={comment.text} />
       </Card>
     </>

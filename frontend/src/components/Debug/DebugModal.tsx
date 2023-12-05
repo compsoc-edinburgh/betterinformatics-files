@@ -1,6 +1,6 @@
 import React from "react";
 import { DebugOptions } from ".";
-import { Modal, ModalHeader, ModalBody, InputField } from "@vseth/components";
+import { Checkbox, Modal, Stack } from "@mantine/core";
 interface Props {
   isOpen: boolean;
   toggle: () => void;
@@ -14,22 +14,9 @@ const DebugModal: React.FC<Props> = ({
   setDebugOptions,
 }) => {
   return (
-    <Modal isOpen={isOpen} toggle={toggle}>
-      <ModalHeader>Debug</ModalHeader>
-      <ModalBody>
-        <InputField
-          type="checkbox"
-          label="Display all tooltips"
-          checked={debugOptions.displayAllTooltips}
-          onChange={e =>
-            setDebugOptions({
-              ...debugOptions,
-              displayAllTooltips: e.currentTarget.checked,
-            })
-          }
-        />
-        <InputField
-          type="checkbox"
+    <Modal opened={isOpen} title="Debug" onClose={toggle}>
+      <Stack spacing="sm">
+        <Checkbox
           label="Display canvas debugging indicators"
           checked={debugOptions.displayCanvasType}
           onChange={e =>
@@ -39,8 +26,7 @@ const DebugModal: React.FC<Props> = ({
             })
           }
         />
-        <InputField
-          type="checkbox"
+        <Checkbox
           label="Display snap regions"
           checked={debugOptions.viewOptimalCutAreas}
           onChange={e =>
@@ -50,7 +36,7 @@ const DebugModal: React.FC<Props> = ({
             })
           }
         />
-      </ModalBody>
+      </Stack>
     </Modal>
   );
 };

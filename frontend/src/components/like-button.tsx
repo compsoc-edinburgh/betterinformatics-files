@@ -1,4 +1,4 @@
-import { Button } from "@vseth/components";
+import { Button } from "@mantine/core";
 import { keyframes, css } from "@emotion/css";
 import React from "react";
 import { Mutate, useUpdateDocument } from "../api/hooks";
@@ -81,33 +81,33 @@ const fillAnimation = keyframes`
 	}
 
 	0% {
-		fill: var(--red);
+		fill: red;
     fill-opacity: 0;
     stroke: var(--dark);
 	}
 
 	20% {
-		fill: var(--red);
+		fill: red;
     fill-opacity: 1;
-		stroke: var(--red);
+		stroke: red;
 	}
 `;
 
 const redFilled = css`
   animation-name: ${fillAnimation};
   animation-duration: 1.1s;
-  fill: var(--red);
-  stroke: var(--red);
+  fill: red;
+  stroke: red;
 `;
 
 const outlinedAnimation = keyframes`
   0% {
-    fill: var(--red);
-		stroke: var(--red);
+    fill: red;
+		stroke: red;
   }
   30% {
-    fill: var(--red);
-		stroke: var(--red);
+    fill: red;
+		stroke: red;
   }
 	35% {
 		fill: transparent;
@@ -122,7 +122,7 @@ const outlined = css`
 
 const likedNumberActive = css`
   transform-origin: top left;
-  color: var(--red);
+  color: red;
   transition: 0.5s all;
 `;
 
@@ -130,7 +130,7 @@ const likedNumberInactive = css`
   transform-origin: top left;
   transform: translateY(-100%);
   opacity: 0;
-  color: var(--red);
+  color: red;
   transition: 0.5s all;
   transition-delay: 0.3s;
 `;
@@ -168,7 +168,7 @@ const LikeButton: React.FC<Props> = ({ document, mutate }) => {
   const likeCount = document.like_count + (document.liked ? 0 : 1);
   return (
     <Button
-      color="white"
+      variant="subtle"
       onClick={() => {
         updateDocument({ liked: !document.liked });
         if (!document.liked) {
@@ -194,7 +194,7 @@ const LikeButton: React.FC<Props> = ({ document, mutate }) => {
           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
         />
       </svg>
-      <div className="ml-2 position-relative">
+      <div style={{ position: "relative", marginLeft: "0.5em" }}>
         <div
           className={document.liked ? likedNumberActive : likedNumberInactive}
         >

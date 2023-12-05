@@ -1,7 +1,7 @@
 import { CategoryExam } from "../interfaces";
 import { useUser } from "../auth";
 import { hasValidClaim } from "../utils/exam-utils";
-import { Button } from "@vseth/components";
+import { Button, ButtonProps } from "@mantine/core";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import { useRequest } from "@umijs/hooks";
@@ -13,11 +13,15 @@ const setClaim = async (filename: string, claim: boolean) => {
   });
 };
 
-interface Props {
+interface Props extends ButtonProps {
   exam: CategoryExam;
   reloadExams: () => void;
 }
-const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
+const ClaimButton: React.FC<Props> = ({ 
+  exam, 
+  reloadExams,
+  ...buttonProps
+}) => {
   const { username } = useUser()!;
   const { loading, run: runSetClaim } = useRequest(setClaim, {
     manual: true,
@@ -27,14 +31,16 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
     hasValidClaim(exam) ? (
       exam.import_claim === username ? (
         <Button
+          mt="xs"
           size="sm"
           color="dark"
-          outline
+          variant="outline"
           onClick={e => {
             e.stopPropagation();
             runSetClaim(exam.filename, false);
           }}
           disabled={loading}
+          {...buttonProps}
         >
           Release Claim
         </Button>
@@ -42,8 +48,8 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
         <TooltipButton
           size="sm"
           color="white"
-          active
           tooltip={`Claimed by ${exam.import_claim_displayname}`}
+          {...buttonProps}
         >
           Claimed
         </TooltipButton>
@@ -52,12 +58,13 @@ const ClaimButton: React.FC<Props> = ({ exam, reloadExams }) => {
       <Button
         size="sm"
         color="dark"
-        outline
+        variant="outline"
         onClick={e => {
           e.stopPropagation();
           runSetClaim(exam.filename, true);
         }}
         disabled={loading}
+        {...buttonProps}
       >
         Claim Exam
       </Button>

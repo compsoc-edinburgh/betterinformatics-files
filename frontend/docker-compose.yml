@@ -16,3 +16,4 @@ services:
 networks:
   default:
     name: community-solutions
+    external: true

@@ -2,26 +2,24 @@ import { useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  Col,
-  FormGroup,
-  InputField,
-  Row,
-  Select,
-  TextareaField,
-  Input,
-  Label,
-  CloseIcon,
-  SaveIcon,
-} from "@vseth/components";
+  Checkbox,
+  CloseButton,
+  Grid,
+  Group,
+  NativeSelect,
+  Stack,
+  Textarea,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import React from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
-import { createOptions, options, SelectOption } from "../utils/ts-utils";
+import { createOptions, options } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
-import ButtonWrapperCard from "./button-wrapper-card";
-import IconButton from "./icon-button";
 import OfferedInEditor from "./offered-in-editor";
 import UserSetEditor from "./user-set-editor";
 
@@ -242,129 +240,119 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   });
   return (
     <>
-      <Button close onClick={toggle} />
-      <h2>Edit Category</h2>
-      {error && <Alert color="danger">{error.toString()}</Alert>}
-      <h6 className="mb-3 mt-4">Metadata</h6>
-      <InputField type="url" label="Name" {...registerInput("displayname")} />
-      <Row form>
-        <Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Semester</label>
-            <Select
-              options={options(semesterOptions)}
+      <Group position="apart">
+        <h2>Edit Category</h2>
+        <CloseButton onClick={toggle} />
+      </Group>
+      {error && <Alert color="red">{error.toString()}</Alert>}
+      <Title order={4} mb="xs">
+        Metadata
+      </Title>
+      <Stack>
+        <TextInput label="Name" {...registerInput("displayname")} />
+        <Grid>
+          <Grid.Col md={6}>
+            <NativeSelect
+              label="Semester"
+              data={options(semesterOptions)}
               value={
                 semesterOptions[
                   formState.semester as keyof typeof semesterOptions
-                ]
+                ].value
               }
-              onChange={(option: any) =>
-                setFormValue(
-                  "semester",
-                  (option as SelectOption<typeof semesterOptions>).value,
-                )
+              onChange={(event: any) =>
+                setFormValue("semester", event.currentTarget.value)
               }
             />
-          </FormGroup>
-        </Col>
-        <Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Form</label>
-            <Select
-              options={options(formOptions)}
-              value={formOptions[formState.form as keyof typeof formOptions]}
-              onChange={(option: any) =>
-                setFormValue(
-                  "form",
-                  (option as SelectOption<typeof formOptions>).value,
-                )
+          </Grid.Col>
+          <Grid.Col md={6}>
+            <NativeSelect
+              label="Form"
+              data={options(formOptions)}
+              value={
+                formOptions[formState.form as keyof typeof formOptions].value
+              }
+              onChange={(event: any) =>
+                setFormValue("form", event.currentTarget.value)
               }
             />
-          </FormGroup>
-        </Col>
-      </Row>
-      <TextareaField label="Remark" textareaProps={registerInput("remark")} />
-      <Row form>
-        <Col md={6}>
-          <FormGroup>
-            <label className="form-input-label">Permission</label>
-            <Select
-              options={options(permissionOptions)}
+          </Grid.Col>
+        </Grid>
+        <Textarea label="Remark" />
+        <Grid>
+          <Grid.Col md={6}>
+            <NativeSelect
+              label="Permission"
+              data={options(permissionOptions)}
               value={
                 permissionOptions[
                   formState.permission as keyof typeof permissionOptions
-                ]
+                ].value
               }
-              onChange={(option: any) =>
-                setFormValue(
-                  "permission",
-                  (option as SelectOption<typeof permissionOptions>).value,
-                )
+              onChange={(event: any) =>
+                setFormValue("permission", event.currentTarget.value)
               }
             />
-          </FormGroup>
-        </Col>
-        <Col md={6}>
-          <InputField
-            type="url"
-            label="More Exams Link"
-            {...registerInput("more_exams_link")}
-          />
-        </Col>
-      </Row>
-      <FormGroup check>
-        <Input
-          type="checkbox"
+          </Grid.Col>
+          <Grid.Col md={6}>
+            <TextInput
+              type="url"
+              label="More Exams Link"
+              {...registerInput("more_exams_link")}
+            />
+          </Grid.Col>
+        </Grid>
+        <Checkbox
           name="check"
-          id="Has Payments"
+          label="Has Payments"
           {...registerCheckbox("has_payments")}
         />
-        <Label for="Has Payments" check>
-          Has Payments
-        </Label>
-      </FormGroup>
-      <h6 className="mb-3 mt-4">Attachments</h6>
+      </Stack>
+      <Title order={4} mt="xl" mb="sm">
+        Attachments
+      </Title>
       <AttachmentsEditor
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <h6 className="mb-3 mt-4">Offered In</h6>
+      <Title order={4} mt="xl" mb="sm">
+        Offered In
+      </Title>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-      <h6 className="mb-3 mt-4">Admins</h6>
+      <Title order={4} mt="xl" mb="sm">
+        Admins
+      </Title>
       <UserSetEditor
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
       />
-      <h6 className="mb-3 mt-4">Experts</h6>
+      <Title order={4} mt="xl" mb="sm">
+        Experts
+      </Title>
       <UserSetEditor
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}
       />
-      <ButtonWrapperCard>
-        <Row className="flex-between">
-          <Col xs="auto">
-            <IconButton
-              icon={CloseIcon}
-              onClick={() => {
-                reset();
-                toggle();
-              }}
-            >
-              Cancel
-            </IconButton>
-          </Col>
-          <Col xs="auto">
-            <IconButton
-              icon={SaveIcon}
-              color="primary"
-              loading={loading}
-              onClick={onSubmit}
-            >
-              Save
-            </IconButton>
-          </Col>
-        </Row>
-      </ButtonWrapperCard>
+      <Group mt="lg" position="right">
+        <Button
+          leftIcon={<Icon icon={ICONS.CLOSE} />}
+          variant="light"
+          onClick={() => {
+            reset();
+            toggle();
+          }}
+        >
+          Cancel
+        </Button>
+        <Button
+          leftIcon={<Icon icon={ICONS.SAVE} />}
+          variant="light"
+          loading={loading}
+          onClick={onSubmit}
+        >
+          Save
+        </Button>
+      </Group>
     </>
   );
 };

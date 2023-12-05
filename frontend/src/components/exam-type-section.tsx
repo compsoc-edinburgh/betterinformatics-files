@@ -1,5 +1,15 @@
 import { useRequest } from "@umijs/hooks";
-import { Badge, Card, Col, DeleteIcon, Row } from "@vseth/components";
+import {
+  Anchor,
+  Badge,
+  Card,
+  Checkbox,
+  Flex,
+  Grid,
+  Group,
+  Text,
+  Title,
+} from "@mantine/core";
 import { css } from "@emotion/css";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -9,15 +19,15 @@ import useConfirm from "../hooks/useConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
-import { focusOutline } from "../utils/style";
+import { useStyles } from "../utils/style";
 import ExamGrid from "./exam-grid";
+import { ICONS } from "vseth-canine-ui";
 
 const removeExam = async (filename: string) => {
   await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
 
 const badgeStyle = css`
-  margin: 0.15rem;
   font-size: 0.75rem !important;
 `;
 interface ExamTypeCardProps {
@@ -37,6 +47,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   onDeselect,
   reload,
 }) => {
+  const { classes } = useStyles();
   const user = useUser()!;
   const catAdmin = user.isCategoryAdmin;
   const history = useHistory();
@@ -67,32 +78,31 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <h3 className="mt-4 mb-3 pl-2 d-flex align-items-center">
-        <input
-          className="mr-3"
-          type="checkbox"
+      <Group align="center" ml="md" mt="xl" mb="md">
+        <Checkbox
           checked={checked}
-          ref={el => el && (el.indeterminate = indeterminate)}
+          indeterminate={indeterminate}
           onChange={e => setChecked(e.currentTarget.checked)}
         />
-        {examtype}
-      </h3>
+        <Title order={2}>{examtype}</Title>
+      </Group>
       <ExamGrid>
         {exams.map(exam => (
           <Card
-            className={`${focusOutline} p-3`}
+            shadow="md"
+            withBorder
+            className={classes.focusOutline}
             onKeyDown={e => {
-              if (e.keyCode === 13 && exam.canView) {
+              if (e.code === "Enter" && exam.canView) {
                 history.push(`/exams/${exam.filename}`);
               }
             }}
             tabIndex={0}
             key={exam.filename}
           >
-            <Row>
-              <Col xs="auto">
-                <input
-                  type="checkbox"
+            <Grid>
+              <Grid.Col span="content">
+                <Checkbox
                   checked={selected.has(exam.filename)}
                   onClick={e => e.stopPropagation()}
                   onChange={e => {
@@ -101,95 +111,99 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       : onDeselect(exam.filename);
                   }}
                   disabled={!exam.canView}
+                  mt="0.25em"
                 />
-              </Col>
-              <Col>
-                <h6 className="mb-1">
-                  {exam.canView ? (
-                    <Link
-                      to={`/exams/${exam.filename}`}
-                      className="text-dark stretched-link"
-                    >
-                      {exam.displayname}
-                    </Link>
-                  ) : (
-                    exam.displayname
-                  )}
-                </h6>
+              </Grid.Col>
+              <Grid.Col span="auto">
+                {exam.canView ? (
+                  <Anchor
+                    component={Link}
+                    to={`/exams/${exam.filename}`}
+                    size="lg"
+                    weight={600}
+                    mb="sm"
+                  >
+                    <Text>{exam.displayname}</Text>
+                  </Anchor>
+                ) : (
+                  exam.displayname
+                )}
                 <div>
                   {exam.remark && (
-                    <div className="text-meta">{exam.remark}</div>
+                    <Text color="dimmed" size="sm" mb="0.15em">
+                      {exam.remark}
+                    </Text>
                   )}
-                  {catAdmin &&
-                    (exam.public ? (
-                      <Badge className={badgeStyle} color="primary">
-                        public
-                      </Badge>
-                    ) : (
-                      <Badge className={badgeStyle} color="primary">
-                        hidden
-                      </Badge>
-                    ))}
-                  {exam.needs_payment && (
-                    <Badge className={badgeStyle} color="info">
-                      oral
-                    </Badge>
-                  )}
-                  {catAdmin &&
-                    (exam.finished_cuts ? (
-                      exam.finished_wiki_transfer ? (
-                        <Badge className={badgeStyle} color="success">
-                          All done
-                        </Badge>
+                  <Flex mt="0.2em" gap={4}>
+                    {catAdmin &&
+                      (exam.public ? (
+                        <Badge className={badgeStyle}>public</Badge>
                       ) : (
-                        <Badge className={badgeStyle} color="info">
-                          Needs Wiki Import
-                        </Badge>
-                      )
-                    ) : (
-                      <Badge className={badgeStyle} color="warning">
-                        Needs Cuts
+                        <Badge className={badgeStyle}>hidden</Badge>
+                      ))}
+                    {exam.needs_payment && (
+                      <Badge className={badgeStyle} color="blue">
+                        oral
                       </Badge>
-                    ))}
+                    )}
+                    {catAdmin &&
+                      (exam.finished_cuts ? (
+                        exam.finished_wiki_transfer ? (
+                          <Badge className={badgeStyle} color="green">
+                            All done
+                          </Badge>
+                        ) : (
+                          <Badge className={badgeStyle} color="blue">
+                            Needs Wiki Import
+                          </Badge>
+                        )
+                      ) : (
+                        <Badge className={badgeStyle} color="orange">
+                          Needs Cuts
+                        </Badge>
+                      ))}
 
-                  {exam.is_printonly && (
+                    {exam.is_printonly && (
+                      <Badge
+                        color="red"
+                        className={badgeStyle}
+                        title="This exam can only be printed. We can not provide this exam online."
+                      >
+                        Print Only
+                      </Badge>
+                    )}
                     <Badge
-                      color="danger"
                       className={badgeStyle}
-                      title="This exam can only be printed. We can not provide this exam online."
+                      title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
                     >
-                      (Print Only)
+                      {exam.count_answered} / {exam.count_cuts}
                     </Badge>
-                  )}
-                  <Badge
-                    color="secondary"
-                    className={badgeStyle}
-                    title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
-                  >
-                    {exam.count_answered} / {exam.count_cuts}
-                  </Badge>
-                  {exam.has_solution && (
-                    <Badge title="Has an official solution." color="success">
-                      Solution
-                    </Badge>
-                  )}
+                    {exam.has_solution && (
+                      <Badge title="Has an official solution." color="green">
+                        Solution
+                      </Badge>
+                    )}
+                  </Flex>
                 </div>
-              </Col>
-              <Col xs="auto">
-                {catAdmin && <ClaimButton exam={exam} reloadExams={reload} />}
+                {catAdmin && (
+                  <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
+                )}
+              </Grid.Col>
+              <Grid.Col span="content">
                 {user.isAdmin && (
                   <IconButton
-                    size="sm"
-                    color="dark"
+                    size="lg"
+                    color="gray.6"
                     tooltip="Delete exam"
-                    icon={DeleteIcon}
-                    outline
-                    className="ml-2 m-1"
-                    onClick={e => handleRemoveClick(e, exam)}
+                    iconName={ICONS.DELETE}
+                    variant="outline"
+                    onClick={(
+                      e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                    ) => handleRemoveClick(e, exam)}
                   />
                 )}
-              </Col>
-            </Row>
+              </Grid.Col>
+            </Grid>
           </Card>
         ))}
       </ExamGrid>

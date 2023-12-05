@@ -1,4 +1,4 @@
-import { SendIcon, Spinner } from "@vseth/components";
+import { Flex } from "@mantine/core";
 import React, { useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentComment } from "../api/hooks";
@@ -46,20 +46,17 @@ const DocumentCommentForm: React.FC<Props> = ({
         undoStack={undoStack}
         setUndoStack={setUndoStack}
       />
-      <div className="d-flex justify-content-end mt-2">
+      <Flex justify="end" mt="xs">
         <TooltipButton
-          color="primary"
+          size="md"
+          tooltip="Submit comment"
+          variant="brand"
           disabled={loading || draftText.length === 0}
           onClick={() => createDocumentComment(draftText)}
         >
-          Submit{" "}
-          {loading ? (
-            <Spinner className="ml-2" size="sm" />
-          ) : (
-            <SendIcon className="ml-2" />
-          )}
+          Submit
         </TooltipButton>
-      </div>
+      </Flex>
     </div>
   );
 };

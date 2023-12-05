@@ -1,5 +1,5 @@
 import { useRequest, useSize } from "@umijs/hooks";
-import { Container } from "@vseth/components";
+import { Container } from "@mantine/core";
 import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import React from "react";
 import { getHeaders } from "../api/fetch-utils";
@@ -40,13 +40,13 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const renderer = data ? data[1] : undefined;
   return (
-    <ContentContainer>
-      <Container>
+    <ContentContainer mt="-2px">
+      <Container size="xl">
         {pdfError && "Error loading PDF"}
 
-        <div ref={sizeRef} className="mx-auto my-3">
+        <div ref={sizeRef}>
           {renderer && (
-            <div className="d-flex flex-column">
+            <div>
               {getPages(renderer).map(pageNumber => (
                 <PdfSectionCanvas
                   key={pageNumber}

@@ -1,23 +1,18 @@
-import { useRequest } from "@umijs/hooks";
 import {
   Alert,
-  Button,
   Card,
-  CardBody,
-  CardHeader,
-  Col,
-  Form,
-  FormGroup,
-  Row,
+  FileInput,
+  Stack,
+  Text,
+  Title,
   Select,
-  Spinner,
-  DownloadIcon,
-} from "@vseth/components";
+} from "@mantine/core";
+import { useRequest } from "@umijs/hooks";
+import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
-import FileInput from "./file-input";
-import IconButton from "./icon-button";
 
 const UploadTranscriptCard: React.FC<{}> = () => {
   const history = useHistory();
@@ -43,11 +38,11 @@ const UploadTranscriptCard: React.FC<{}> = () => {
       categories?.map(category => ({
         value: category.slug,
         label: category.displayname,
-      })),
+      })) ?? [],
     [categories],
   );
 
-  const [file, setFile] = useState<File | undefined>();
+  const [file, setFile] = useState<File | null>();
   const [category, setCategory] = useState<string | undefined>();
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,47 +56,43 @@ const UploadTranscriptCard: React.FC<{}> = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>Submit Transcript for Oral Exam</CardHeader>
-      <CardBody>
-        <p>Please use the following template:</p>
-        <IconButton
-          icon={DownloadIcon}
+    <Card withBorder shadow="md">
+      <Card.Section withBorder p="md" bg="gray.0">
+        <Title order={4}>Submit Transcript for Oral Exam</Title>
+      </Card.Section>
+      <Stack mt="sm">
+        <Text>Please use the following template:</Text>
+        <Button
+          leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
           onClick={() => window.open("/static/transcript_template.tex")}
-          style={{ marginBottom: "1.5em" }}
         >
           Download template
-        </IconButton>
-        <Form onSubmit={onSubmit}>
-          {error && <Alert color="danger">{error.toString()}</Alert>}
-          <FormGroup>
-            <label className="form-input-label">File</label>
+        </Button>
+        <form onSubmit={onSubmit}>
+          <Stack>
+            {error && <Alert color="red">{error.toString()}</Alert>}
             <FileInput
+              label="File"
+              placeholder="Click to choose file..."
+              icon={<Icon icon={ICONS.CLOUD_UP} />}
               value={file}
               onChange={setFile}
               accept="application/pdf"
             />
-          </FormGroup>
-          <FormGroup>
-            <label className="form-input-label">Category</label>
             <Select
-              options={options}
-              onChange={(e: any) => setCategory(e.value as string)}
-              isLoading={categoriesLoading}
-              required
+              label="Category"
+              placeholder="Choose category..."
+              data={options}
+              searchable
+              nothingFound="No category found"
+              onChange={(value: string) => setCategory(value)}
             />
-          </FormGroup>
-          <Row form>
-            <Col md={4}>
-              <FormGroup>
-                <Button color="primary" type="submit" disabled={loading}>
-                  {uploadLoading ? <Spinner /> : "Submit"}
-                </Button>
-              </FormGroup>
-            </Col>
-          </Row>
-        </Form>
-      </CardBody>
+            <Button variant="brand" type="submit" loading={loading}>
+              Submit
+            </Button>
+          </Stack>
+        </form>
+      </Stack>
     </Card>
   );
 };

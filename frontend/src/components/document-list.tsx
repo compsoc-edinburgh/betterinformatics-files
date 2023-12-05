@@ -1,9 +1,9 @@
-import { Card, Modal, PlusIcon } from "@vseth/components";
+import { Button, Paper, Tooltip } from "@mantine/core";
 import React, { useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
-import TooltipButton from "./TooltipButton";
 import DocumentCard from "./document-card";
 
 interface Props {
@@ -15,27 +15,27 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
   const [documents] = useDocuments(slug);
   return (
     <>
-      <Modal isOpen={isOpen} toggle={() => setIsOpen(r => !r)}>
-        <CreateDocumentForm
-          categorySlug={slug}
-          toggle={() => setIsOpen(r => !r)}
-        />
-      </Modal>
+      <CreateDocumentForm
+        isOpen={isOpen}
+        categorySlug={slug}
+        toggle={() => setIsOpen(r => !r)}
+      />
 
       <Grid>
         {documents &&
           documents.map(document => (
             <DocumentCard key={document.slug} document={document} />
           ))}
-        <Card style={{ minHeight: "4em" }}>
-          <TooltipButton
-            tooltip="Add a new document"
-            onClick={() => setIsOpen(true)}
-            className="position-cover w-100"
-          >
-            <PlusIcon size={40} className="m-auto" />
-          </TooltipButton>
-        </Card>
+        <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
+          <Tooltip label="Add a new document">
+            <Button
+              style={{ width: "100%", height: "100%" }}
+              onClick={() => setIsOpen(true)}
+            >
+              <Icon icon={ICONS.PLUS} size={40} />
+            </Button>
+          </Tooltip>
+        </Paper>
       </Grid>
     </>
   );

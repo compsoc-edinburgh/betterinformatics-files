@@ -8,6 +8,7 @@ const small = css`
 const SmallButton = ({ className, ...props }: TooltipButtonProps) => (
   <TooltipButton
     className={className ? `${className} ${small}` : small}
+    px="xs"
     {...props}
   />
 );

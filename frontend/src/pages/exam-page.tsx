@@ -1,18 +1,16 @@
 import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
 import {
-  Alert,
-  Breadcrumb,
-  BreadcrumbItem,
   Card,
-  CardBody,
-  CheckIcon,
-  Col,
+  Breadcrumbs,
+  Anchor,
+  Loader,
+  Alert,
   Container,
-  DownloadIcon,
-  EditIcon,
-  Row,
-  Spinner,
-} from "@vseth/components";
+  Grid,
+  Flex,
+  Group,
+  Button,
+} from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
@@ -46,6 +44,7 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
+import { ICONS, Icon } from "vseth-canine-ui";
 
 const addCut = async (
   filename: string,
@@ -218,17 +217,15 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
 
   return (
     <>
-      <Container>
-        <div className="d-flex justify-content-between align-items-center">
+      <Container size="xl">
+        <Flex justify="space-between" align="center">
           <h1>{metaData.displayname}</h1>
-          <div className="d-flex">
+          <Group>
             <IconButton
-              color="white"
-              as="a"
-              icon={DownloadIcon}
-              target="_blank"
-              rel="noopener noreferrer"
-              href={metaData.exam_file}
+              color="gray"
+              iconName={ICONS.DOWNLOAD}
+              tooltip="Download"
+              onClick={() => window.open(metaData.exam_file, "_blank")}
             />
             {user.isCategoryAdmin && (
               <>
@@ -236,122 +233,131 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                   metaData.is_oral_transcript &&
                   !metaData.oral_transcript_checked && (
                     <IconButton
-                      color="white"
-                      className="ml-2"
+                      color="gray"
                       tooltip="Mark as checked"
-                      icon={CheckIcon}
+                      iconName={ICONS.CHECK}
                       onClick={() => runMarkChecked(metaData.filename)}
                     />
                   )}
-
                 <IconButton
-                  color="white"
-                  className="ml-2"
-                  icon={EditIcon}
+                  color="gray"
+                  iconName={ICONS.EDIT}
                   tooltip="Edit"
                   onClick={() => toggleEditing()}
                 />
               </>
             )}
-          </div>
-        </div>
-        <Row>
+          </Group>
+        </Flex>
+        <Grid>
           {!metaData.canView && (
-            <Col md={6} lg={4}>
-              <Card className="m-1">
-                <CardBody>
-                  {metaData.needs_payment && !metaData.hasPayed ? (
-                    <>
-                      You have to pay a deposit in order to see oral exams.
-                      After submitting a report of your own oral exam you can
-                      get your deposit back.
-                    </>
-                  ) : (
-                    <>You can not view this exam at this time.</>
-                  )}
-                </CardBody>
+            <Grid.Col md={6} lg={4}>
+              <Card m="xs">
+                {metaData.needs_payment && !metaData.hasPayed ? (
+                  <>
+                    You have to pay a deposit in order to see oral exams. After
+                    submitting a report of your own oral exam you can get your
+                    deposit back.
+                  </>
+                ) : (
+                  <>You can not view this exam at this time.</>
+                )}
               </Card>
-            </Col>
+            </Grid.Col>
           )}
           {metaData.is_printonly && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <PrintExam
                 title="exam"
                 examtype="exam"
                 filename={metaData.filename}
               />
-            </Col>
+            </Grid.Col>
           )}
           {metaData.has_solution && metaData.solution_printonly && (
-            <Col md={6} lg={4}>
+            <Grid.Col md={6} lg={4}>
               <PrintExam
                 title="solution"
                 examtype="solution"
                 filename={metaData.filename}
               />
-            </Col>
+            </Grid.Col>
           )}
           {metaData.legacy_solution && (
-            <Col md={6} lg={4}>
-              <a
+            <Grid.Col md={4} lg={3}>
+              <Button
+                fullWidth
+                component="a"
+                variant="light"
                 href={metaData.legacy_solution}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.LINK} />}
               >
                 Legacy Solution in VISki
-              </a>
-            </Col>
+              </Button>
+            </Grid.Col>
           )}
           {metaData.master_solution && (
-            <Col md={6} lg={4}>
-              <a
+            <Grid.Col md={4} lg={3}>
+              <Button
+                fullWidth
+                color="gray"
+                component="a"
+                variant="light"
                 href={metaData.master_solution}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.LINK} />}
               >
                 Official Solution (external)
-              </a>
-            </Col>
+              </Button>
+            </Grid.Col>
           )}
 
           {metaData.has_solution && !metaData.solution_printonly && (
-            <Col md={6} lg={4}>
-              <a
+            <Grid.Col md={4} lg={3}>
+              <Button
+                fullWidth
+                color="gray"
+                component="a"
                 href={metaData.solution_file}
+                variant="light"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
               >
                 Official Solution
-              </a>
-            </Col>
+              </Button>
+            </Grid.Col>
           )}
           {metaData.attachments.map(attachment => (
-            <Col md={6} lg={4} key={attachment.filename}>
-              <a
+            <Grid.Col md={4} lg={3} key={attachment.filename}>
+              <Button
+                fullWidth
+                component="a"
+                variant="light"
                 href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn p-3 btn-block btn-secondary text-left"
+                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
               >
                 {attachment.displayname}
-              </a>
-            </Col>
+              </Button>
+            </Grid.Col>
           ))}
-        </Row>
+        </Grid>
         {toc && (
-          <Row form>
-            <Col lg={12}>
+          <Grid>
+            <Grid.Col lg={12}>
               <TOC toc={toc} />
-            </Col>
-          </Row>
+            </Grid.Col>
+          </Grid>
         )}
       </Container>
 
-      <ContentContainer className="my-3">
-        <div ref={sizeRef} style={{ maxWidth }} className="mx-auto my-3">
+      <ContentContainer>
+        <Container ref={sizeRef} style={{ maxWidth }} my="sm" px="xs">
           {width && sections && renderer && (
             <Exam
               metaData={metaData}
@@ -376,7 +382,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               onExpandSections={expandSections}
             />
           )}
-        </div>
+        </Container>
       </ContentContainer>
       <ExamPanel
         isOpen={panelIsOpen}
@@ -442,38 +448,38 @@ const ExamPage: React.FC<{}> = () => {
   const user = useUser()!;
   return (
     <div>
-      <Container>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <Link className="text-primary" to="/">
-              Home
-            </Link>
-          </BreadcrumbItem>
-          <BreadcrumbItem>
-            <Link
-              className="text-primary"
-              to={`/category/${metaData ? metaData.category : ""}`}
-            >
-              {metaData && metaData.category_displayname}
-            </Link>
-          </BreadcrumbItem>
-          <BreadcrumbItem>{metaData && metaData.displayname}</BreadcrumbItem>
-        </Breadcrumb>
+      <Container size="xl">
+        <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
+          <Anchor component={Link} tt="uppercase" size="xs" to="/">
+            Home
+          </Anchor>
+          <Anchor
+            tt="uppercase"
+            size="xs"
+            component={Link}
+            to={`/category/${metaData ? metaData.category : ""}`}
+          >
+            {metaData && metaData.category_displayname}
+          </Anchor>
+          <Anchor tt="uppercase" size="xs">
+            {metaData && metaData.displayname}
+          </Anchor>
+        </Breadcrumbs>
       </Container>
       <div>
         {error && (
           <Container>
-            <Alert color="danger">{error.toString()}</Alert>
+            <Alert color="red">{error.toString()}</Alert>
           </Container>
         )}
         {metaDataLoading && (
-          <Container className="position-absolute">
-            <Spinner />
+          <Container>
+            <Loader />
           </Container>
         )}
         {metaData &&
           (editing ? (
-            <Container>
+            <Container size="xl">
               <ExamMetadataEditor
                 currentMetaData={metaData}
                 toggle={toggleEditing}
@@ -501,7 +507,7 @@ const ExamPage: React.FC<{}> = () => {
           ))}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>
-            <Spinner />
+            <Loader />
           </Container>
         )}
       </div>

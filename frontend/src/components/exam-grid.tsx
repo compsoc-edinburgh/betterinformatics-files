@@ -8,8 +8,8 @@ const gridStyles = css`
   }
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  grid-column-gap: 9px;
-  grid-row-gap: 9px;
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
 `;
 const ExamGrid: React.FC<{}> = ({ children }) => {
   return <div className={gridStyles}>{children}</div>;

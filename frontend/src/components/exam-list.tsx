@@ -1,13 +1,7 @@
+import { Alert, Button, Flex, Loader, TextInput } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
-import {
-  Alert,
-  Col,
-  DownloadIcon,
-  FormGroup,
-  Row,
-  Spinner,
-} from "@vseth/components";
 import React, { useMemo, useState } from "react";
+import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
 import useSet from "../hooks/useSet";
@@ -18,7 +12,6 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
-import IconButton from "./icon-button";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -65,39 +58,26 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
-      {error && <Alert color="danger">{error}</Alert>}
-      {loading && <Spinner />}
-      <Row className="d-flex flex-between">
-        <Col md={6} xs={12} className="text-center text-md-left">
-          <FormGroup className="mb-2 d-md-inline-block">
-            <IconButton
-              disabled={selected.size === 0}
-              onClick={() => dlSelectedExams(getSelectedExams(selected))}
-              block
-              icon={DownloadIcon}
-            >
-              Download selected exams
-            </IconButton>
-          </FormGroup>
-        </Col>
-        <Col md={6} xs={12} className="text-center text-md-right">
-          <FormGroup className="d-md-inline-block">
-            <div className="search mb-0">
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Filter..."
-                value={filter}
-                onChange={e => setFilter(e.currentTarget.value)}
-                autoFocus
-              />
-              <div className="search-icon-wrapper">
-                <div className="search-icon" />
-              </div>
-            </div>
-          </FormGroup>
-        </Col>
-      </Row>
+      {error && <Alert color="red">{error}</Alert>}
+      {loading && <Loader />}
+      <Flex direction={{ base: "column", sm: "row" }} gap="sm" mt="sm" mb="lg" justify="space-between">
+        <div>
+          <Button
+            disabled={selected.size === 0}
+            onClick={() => dlSelectedExams(getSelectedExams(selected))}
+            leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+          >
+            Download selected exams
+          </Button>
+        </div>
+        <TextInput
+          placeholder="Filter..."
+          value={filter}
+          autoFocus
+          onChange={e => setFilter(e.currentTarget.value)}
+          icon={<Icon icon={ICONS.SEARCH} size={14} />}
+        />
+      </Flex>
 
       {examTypeMap &&
         examTypeMap.map(

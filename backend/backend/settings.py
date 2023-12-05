@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
-DEBUG = os.environ.get("SIP_POSTGRES_DB_USER", "docker") == "docker"
+DEBUG = os.environ.get("IS_DEBUG", "false").lower() == "true"
 SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
@@ -126,6 +126,7 @@ OIDC_JWKS_URL = (
         "https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/certs",
     )
 )
+
 JWT_VERIFY_SIGNATURE = (
     os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE",
                    "TRUE") != "FALSE" or not DEBUG
@@ -141,6 +142,7 @@ PRIMARY_DEPLOYMENT_DOMAIN = os.environ.get(
 DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
     [] if CNAMES == "" else CNAMES.split(" ")
 )
+
 BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
 
 ALLOWED_HOSTS = []
@@ -156,6 +158,9 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
@@ -164,7 +169,11 @@ if DEBUG:
 else:
     allowed_script_sources = [f"https://{host}/static/"
                for host in REAL_ALLOWED_HOSTS]
-CSP_SCRIPT_SRC = ("'unsafe-eval'", *allowed_script_sources)
+CSP_SCRIPT_SRC = (
+    "'unsafe-eval'",
+    "https://static.vseth.ethz.ch",
+    *allowed_script_sources
+)
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",
@@ -182,7 +191,12 @@ CSP_CONNECT_SRC = (
     "https://" + s3_host + ":" + s3_port,
     "http://" + s3_host + ":" + s3_port,
 )
-CSP_IMG_SRC = ("'self'", "data:", "https://static.vseth.ethz.ch")
+CSP_IMG_SRC = (
+    "'self'", 
+    "data:", 
+    "https://static.vseth.ethz.ch", 
+    "https://fe.vseth.ethz.ch",
+)
 
 
 # Application definition
@@ -283,8 +297,7 @@ if "SIP_POSTGRES_DB_NAME" in os.environ:
             "PASSWORD": os.environ["SIP_POSTGRES_DB_PW"],
             "HOST": os.environ["SIP_POSTGRES_DB_SERVER"],
             "PORT": os.environ["SIP_POSTGRES_DB_PORT"],
-            "OPTIONS": {"sslmode": "disable"},
-            "CONN_MAX_AGE": 60,
+            "CONN_MAX_AGE": 0,
         }
     }
 else:

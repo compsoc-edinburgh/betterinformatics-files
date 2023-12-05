@@ -1,7 +1,7 @@
-import { Spinner } from "@vseth/components";
 import { css, keyframes } from "@emotion/css";
 import React from "react";
 import GlobalConsts from "../globalconsts";
+import { Loader } from "@mantine/core";
 const fadeIn = keyframes`
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -33,7 +33,7 @@ const LoadingOverlay: React.FC<{ loading: boolean }> = ({ loading }) => {
   return (
     <div className={loading ? style : inactiveStyle}>
       <div className="position-center">
-        <Spinner />
+        <Loader />
       </div>
     </div>
   );

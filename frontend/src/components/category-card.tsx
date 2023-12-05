@@ -1,51 +1,66 @@
-import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
+import { Card, Text, Progress, Anchor, Stack } from "@mantine/core";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
-import { focusOutline } from "../utils/style";
+import { useStyles } from "../utils/style";
 
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
 }
 const CategoryCard: React.FC<Props> = ({ category }) => {
+  const { classes } = useStyles();
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-    if (e.keyCode === 13) {
+    if (e.code === "Enter") {
       if (!authenticated()) history.push(`/login/?rd=/category/${category.slug}`);
       else history.push(`/category/${category.slug}`);
     }
   };
   return (
-    <Card className={focusOutline} tabIndex={0} onKeyDown={handleKeyDown}>
-      <CardBody>
-        <Link
-          to={`/category/${category.slug}`}
-          onClick={e => {
-            if (!authenticated()) {
-              e.preventDefault();
-              history.push(`/login/?rd=/category/${category.slug}`);
-            }
-          }}
-          className="stretched-link text-dark"
-	  tabIndex={-1}
-        >
-          <h5>
+    <Card
+      component={Link}
+      to={`/category/${category.slug}`}
+      onClick={e => {
+        if (!authenticated()) {
+          e.preventDefault();
+          history.push(`/login/?rd=/category/${category.slug}`);
+        }
+      }}
+      withBorder
+      shadow="md"
+      px="lg"
+      py="md"
+      className={classes.focusOutline}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+    >
+      <Stack h="100%" justify="space-between">
+        <div className="category-card">
+          <Anchor
+            component="span"
+            weight={700}
+            size="xl"
+            tabIndex={-1}
+            mb={0}
+            lh={1.25}
+          >
             {"match" in category
               ? highlight(category.displayname, category.match)
               : category.displayname}
-          </h5>
-        </Link>
-        <div>
-          Exams: {`${category.examcountanswered} / ${category.examcountpublic}`}
+          </Anchor>
+          <Text mt={4} color="gray.8">
+            Exams:{" "}
+            {`${category.examcountanswered} / ${category.examcountpublic}`}
+          </Text>
+          <Text mb={4} color="gray.8">
+            Answers: {((category.answerprogress * 100) | 0).toString()} %
+          </Text>
         </div>
-        <div>Answers: {((category.answerprogress * 100) | 0).toString()} %</div>
-      </CardBody>
-      <CardFooter>
-        <Progress value={category.answerprogress} max={1} />
-      </CardFooter>
+        <Progress radius={0} value={category.answerprogress * 100} />
+      </Stack>
     </Card>
   );
 };

@@ -1,5 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import { Container } from "@vseth/components";
+import { Container } from "@mantine/core";
 import React from "react";
 import MarkdownText from "./markdown-text";
 
@@ -15,7 +15,7 @@ const DocumentMarkdown: React.FC<DocumentMarkdownProps> = ({ url }) => {
   );
 
   return (
-    <Container className="py-5">
+    <Container py="sm">
       {mdError && "Error loading Markdown"}
       {data !== undefined &&
         (data.length > 0 ? (
