@@ -19,9 +19,8 @@ import {
   fetchGet,
   getCookie,
   isTokenExpired,
-  login,
   minValidity,
-  refreshToken,
+  // refreshToken,
 } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
@@ -49,57 +48,57 @@ const minHeight = css`
   min-height: 100vh;
 `;
 const App: React.FC<{}> = () => {
-  const [loggedOut, setLoggedOut] = useState(false);
-  useEffect(() => {
-    let cancel = false;
-    // How often refreshing failed
-    let counter = 0;
-    let counterExp = getCookie("token_expires");
+  // const [loggedOut, setLoggedOut] = useState(false);
+  // useEffect(() => {
+  //   let cancel = false;
+  //   // How often refreshing failed
+  //   let counter = 0;
+  //   let counterExp = getCookie("token_expires");
 
-    let handle: ReturnType<typeof setTimeout> | undefined = undefined;
-    const startTimer = () => {
-      // Check whether we have a token and when it will expire;
-      const exp = authenticationStatus();
-      if (
-        isTokenExpired(exp) &&
-        !(counterExp === getCookie("token_expires") && counter > 5)
-      ) {
-        refreshToken().then(r => {
-          if (cancel) return;
-          // If the refresh was successful we are happy
-          if (r.status >= 200 && r.status < 400) {
-            setLoggedOut(false);
-            counter = 0;
-            return;
-          }
+  //   let handle: ReturnType<typeof setTimeout> | undefined = undefined;
+  //   const startTimer = () => {
+  //     // Check whether we have a token and when it will expire;
+  //     const exp = authenticationStatus();
+  //     if (
+  //       isTokenExpired(exp) &&
+  //       !(counterExp === getCookie("token_expires") && counter > 5)
+  //     ) {
+  //       refreshToken().then(r => {
+  //         if (cancel) return;
+  //         // If the refresh was successful we are happy
+  //         if (r.status >= 200 && r.status < 400) {
+  //           setLoggedOut(false);
+  //           counter = 0;
+  //           return;
+  //         }
 
-          // Otherwise it probably failed
-          setLoggedOut(true);
-          if (counter === 0) {
-            counterExp = getCookie("token_expires");
-          }
-          counter++;
-          return;
-        });
-      }
-      // When we are authenticated (`exp !== undefined`) we want to refresh the token
-      // `minValidity` seconds before it expires. If there's no token we recheck this
-      // condition every 10 seconds.
-      // `Math.max` ensures that we don't call startTimer too often.
-      const delay =
-        exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 60_000;
-      handle = setTimeout(() => {
-        startTimer();
-      }, delay);
-    };
-    startTimer();
+  //         // Otherwise it probably failed
+  //         setLoggedOut(true);
+  //         if (counter === 0) {
+  //           counterExp = getCookie("token_expires");
+  //         }
+  //         counter++;
+  //         return;
+  //       });
+  //     }
+  //     // When we are authenticated (`exp !== undefined`) we want to refresh the token
+  //     // `minValidity` seconds before it expires. If there's no token we recheck this
+  //     // condition every 10 seconds.
+  //     // `Math.max` ensures that we don't call startTimer too often.
+  //     const delay =
+  //       exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 60_000;
+  //     handle = setTimeout(() => {
+  //       startTimer();
+  //     }, delay);
+  //   };
+  //   startTimer();
 
-    return () => {
-      cancel = true;
-      if (handle === undefined) return;
-      clearTimeout(handle);
-    };
-  }, []);
+  //   return () => {
+  //     cancel = true;
+  //     if (handle === undefined) return;
+  //     clearTimeout(handle);
+  //   };
+  // }, []);
 
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
@@ -138,7 +137,7 @@ const App: React.FC<{}> = () => {
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   return (
     <VSETHContext>
-      <Modal isOpen={loggedOut}>
+      {/* <Modal isOpen={loggedOut}>
         <ModalHeader>You've been logged out due to inactivity</ModalHeader>
         <ModalBody>
           Your session has expired due to inactivity, you have to log in again
@@ -149,7 +148,7 @@ const App: React.FC<{}> = () => {
             </Button>
           </div>
         </ModalBody>
-      </Modal>
+      </Modal> */}
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>

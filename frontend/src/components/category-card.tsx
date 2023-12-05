@@ -1,7 +1,7 @@
 import { Card, CardBody, CardFooter, Progress } from "@vseth/components";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
-import { authenticated, login } from "../api/fetch-utils";
+import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
@@ -14,7 +14,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.keyCode === 13) {
-      if (!authenticated()) login(`/category/${category.slug}`);
+      if (!authenticated()) history.push(`/login/?rd=/category/${category.slug}`);
       else history.push(`/category/${category.slug}`);
     }
   };
@@ -26,7 +26,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
           onClick={e => {
             if (!authenticated()) {
               e.preventDefault();
-              login(`/category/${category.slug}`);
+              history.push(`/login/?rd=/category/${category.slug}`);
             }
           }}
           className="stretched-link text-dark"

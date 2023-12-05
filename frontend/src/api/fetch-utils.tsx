@@ -5,15 +5,25 @@ import { ImageHandle } from "../components/Editor/utils/types";
  */
 export const minValidity = 10;
 
-let refreshRequest: Promise<Response> | undefined = undefined;
+// let refreshRequest: Promise<Response> | undefined = undefined;
+
+// export function authenticationStatus() {
+//   const expires = getCookie("token_expires");
+//   if (expires === null) {
+//     return undefined;
+//   }
+//   const now = new Date().getTime();
+//   const time = new Date(parseFloat(expires) * 1000).getTime();
+//   return time - now;
+// }
 
 export function authenticationStatus() {
-  const expires = getCookie("token_expires");
-  if (expires === null) {
+  const cookie_data = getCookie("token_expires");
+  if (cookie_data === null) {
     return undefined;
   }
   const now = new Date().getTime();
-  const time = new Date(parseFloat(expires) * 1000).getTime();
+  const time = new Date(cookie_data).getTime();
   return time - now;
 }
 
@@ -34,14 +44,27 @@ export function authenticated(expires = authenticationStatus()) {
   return expires !== undefined;
 }
 
-const encodeScopes = (...scopes: string[]) => scopes.join("+");
+// const encodeScopes = (...scopes: string[]) => scopes.join("+");
 
-const scopes = encodeScopes("profile", "openid");
+// const scopes = encodeScopes("profile", "openid");
 
-export function login(redirectUrl = window.location.pathname) {
-  window.location.href = `/api/auth/login?scope=${scopes}&rd=${encodeURIComponent(
-    redirectUrl,
-  )}`;
+// export function login(redirectUrl = window.location.pathname) {
+//   window.location.href = `/api/auth/login?scope=${scopes}&rd=${encodeURIComponent(
+//     redirectUrl,
+//   )}`;
+// }
+
+// First step of the login, generates a verification code. The backend will
+// store the code in the database (so a repeat call to login() will use the
+// same code until a time limit), then send an email to the user with the code.
+// The user will then enter the code in the frontend, which will call the second
+// function - verifyLoginCode().
+export function sendLoginCode(uun: string) {
+  return fetchPost(`/api/auth/login`, { uun });
+}
+
+export function verifyLoginCode(uun: string, code: string) {
+  return fetchPost("/api/auth/verify", { uun, code });
 }
 
 export function logout(redirectUrl = window.location.pathname) {
@@ -50,18 +73,18 @@ export function logout(redirectUrl = window.location.pathname) {
   )}`;
 }
 
-export function refreshToken() {
-  if (refreshRequest !== undefined) {
-    return refreshRequest;
-  }
-  refreshRequest = fetch("/api/auth/refresh", {
-    headers: getHeaders(),
-  }).then(req => {
-    refreshRequest = undefined;
-    return req;
-  });
-  return refreshRequest;
-}
+// export function refreshToken() {
+//   if (refreshRequest !== undefined) {
+//     return refreshRequest;
+//   }
+//   refreshRequest = fetch("/api/auth/refresh", {
+//     headers: getHeaders(),
+//   }).then(req => {
+//     refreshRequest = undefined;
+//     return req;
+//   });
+//   return refreshRequest;
+// }
 
 export function getHeaders() {
   const headers: Record<string, string> = {
@@ -85,7 +108,7 @@ async function performDataRequest<T>(
   url: string,
   data: { [key: string]: any },
 ) {
-  if (isTokenExpired()) await refreshToken();
+  // if (isTokenExpired()) await refreshToken();
 
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
@@ -123,7 +146,7 @@ async function performDataRequest<T>(
 }
 
 async function performRequest<T>(method: string, url: string) {
-  if (isTokenExpired()) await refreshToken();
+  // if (isTokenExpired()) await refreshToken();
 
   const response = await fetch(url, {
     credentials: "include",
