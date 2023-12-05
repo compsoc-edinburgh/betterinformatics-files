@@ -11,8 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from myauth import auth_check
-from myauth.models import MyUser, get_my_user
+from ediauth import auth_check
 from util import s3_util, response
 
 from documents.models import Comment, Document, DocumentFile, generate_api_key
@@ -26,7 +25,7 @@ def get_comment_obj(comment: Comment, request: HttpRequest):
         "oid": comment.pk,
         "text": comment.text,
         "authorId": comment.author.username,
-        "authorDisplayName": get_my_user(comment.author).displayname(),
+        "authorDisplayName": comment.author.profile.display_username,
         "canEdit": comment.current_user_can_edit(request),
         "time": comment.time,
         "edittime": comment.edittime,

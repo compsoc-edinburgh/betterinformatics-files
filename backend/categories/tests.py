@@ -1,7 +1,8 @@
+from django.contrib.auth.models import User
+
 from answers.models import Exam
-from myauth.models import MyUser
-from testing.tests import ComsolTest, ComsolTestExamsData
 from categories.models import Category, MetaCategory
+from testing.tests import ComsolTest, ComsolTestExamsData
 
 
 class TestAddRemove(ComsolTest):
@@ -104,7 +105,7 @@ class TestMetadata(ComsolTest):
         self.assertEqual(self.cat1.slug, 'test1')
 
     def test_add_remove_user(self):
-        user, _ = MyUser.objects.get_or_create(username='morica')
+        user, _ = User.objects.get_or_create(username='morica')
         self.post('/api/category/addusertoset/test1/', {
             'key': 'admins',
             'user': 'morica',

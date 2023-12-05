@@ -15,6 +15,8 @@ programs:
       - SIP_POSTGRES_DB_NAME:
       - SIP_POSTGRES_DB_USER:
       - SIP_POSTGRES_DB_PW:
+
+      - GSUITE_CREDENTIALS_FILE:
   - name: migrate
     path: /usr/bin/python3
     args:
@@ -31,6 +33,8 @@ programs:
       - SIP_POSTGRES_DB_NAME:
       - SIP_POSTGRES_DB_USER:
       - SIP_POSTGRES_DB_PW:
+
+      - GSUITE_CREDENTIALS_FILE:
   - name: configure-cors
     path: /usr/bin/python3
     args:
@@ -51,6 +55,8 @@ programs:
       - SIP_S3_FILES_SECRET_KEY:
       - SIP_S3_FILES_BUCKET:
       - SIP_S3_FILES_USE_SSL:
+
+      - GSUITE_CREDENTIALS_FILE:
   - name: gunicorn
     path: /usr/local/bin/gunicorn
     args:
@@ -117,3 +123,5 @@ programs:
       - FRONTEND_PRIVACY_POLICY:
 
       - PDEP_IS_PREVIEW:
+
+      - GSUITE_CREDENTIALS_FILE:

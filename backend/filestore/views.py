@@ -2,7 +2,7 @@ from util import response, s3_util
 from filestore.models import Attachment
 from categories.models import Category
 from answers.models import Exam
-from myauth import auth_check
+from ediauth import auth_check
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 

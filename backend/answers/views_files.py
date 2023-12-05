@@ -1,5 +1,5 @@
 from util import response, s3_util, ethprint
-from myauth import auth_check
+from ediauth import auth_check
 from django.conf import settings
 from answers.models import Exam, ExamType
 from categories.models import Category

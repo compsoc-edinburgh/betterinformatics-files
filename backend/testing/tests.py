@@ -1,12 +1,13 @@
-from django.test import TestCase, Client, override_settings
-from django.test.client import encode_multipart, BOUNDARY, MULTIPART_CONTENT
-from answers.models import Exam, ExamType, AnswerSection, Answer, Comment
-from categories.models import Category
-from myauth.models import MyUser
 import logging
+
+from django.contrib.auth.models import User
+from django.test import Client, TestCase, override_settings
+from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
 from jwcrypto.jwk import JWK
 from jwcrypto.jwt import JWT
 
+from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
+from categories.models import Category
 
 private_key_data = open("testing/jwtRS256.key", "rb").read()
 key = JWK()
@@ -140,13 +141,14 @@ class ComsolTest(TestCase):
         return response
 
     def get_my_user(self):
-        return MyUser.objects.get(username=self.user["username"])
+        return User.objects.get(username=self.user["username"])
 
     def setUp(self, call_my_setup=True):
         logger = logging.getLogger("django.request")
         logger.setLevel(logging.ERROR)
 
         self.client = Client()
+        print(self.loginUser)
         if self.loginUser >= 0:
             self.user = self.loginUsers[self.loginUser]
             self.get("/api/auth/me/")
@@ -219,7 +221,7 @@ class ComsolTestExamData(ComsolTest):
                 self.answers.append(
                     Answer(
                         answer_section=section,
-                        author=MyUser.objects.get(
+                        author=User.objects.get(
                             username=self.loginUsers[i]["username"]
                         ),
                         text="Test Answer {}/{}".format(section.id, i),
@@ -228,7 +230,7 @@ class ComsolTestExamData(ComsolTest):
             self.answers.append(
                 Answer(
                     answer_section=section,
-                    author=MyUser.objects.get(username=self.loginUsers[0]["username"]),
+                    author=User.objects.get(username=self.loginUsers[0]["username"]),
                     text="Legacy Answer {}".format(section.id),
                     is_legacy_answer=True,
                 )
@@ -241,7 +243,7 @@ class ComsolTestExamData(ComsolTest):
                 self.comments.append(
                     Comment(
                         answer=answer,
-                        author=MyUser.objects.get(
+                        author=User.objects.get(
                             username=self.loginUsers[i]["username"]
                         ),
                         text="Comment {}/{}".format(answer.id, i),

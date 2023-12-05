@@ -1,6 +1,6 @@
 gunicorn==20.1.0
 Django==3.2.18
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.7
 django-csp==3.7
 jwcrypto==1.4.2
 beautifulsoup4==4.9.3
@@ -8,3 +8,6 @@ django-prometheus==2.2.0
 django-probes==1.7.0
 boto3==1.17.112
 requests==2.25.1
+email-validator==2.0.0.post2
+django-gsuite-email==0.1.2
+python-ipware==1.0.5

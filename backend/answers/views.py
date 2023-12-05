@@ -1,5 +1,5 @@
 from util import response
-from myauth import auth_check
+from ediauth import auth_check
 from answers.models import Exam, ExamType
 from categories.models import Category
 from django.shortcuts import get_object_or_404

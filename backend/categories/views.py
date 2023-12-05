@@ -1,12 +1,12 @@
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models import Count, Exists, OuterRef, Q
+from django.shortcuts import get_object_or_404
 
 from answers.models import Answer
-from util import response
-from myauth import auth_check
-from myauth.models import get_my_user, MyUser
 from categories.models import Category, MetaCategory
-from django.conf import settings
-from django.shortcuts import get_object_or_404
+from ediauth import auth_check
+from util import response
 
 
 @response.request_get()
@@ -123,7 +123,7 @@ def list_exams(request, slug):
             'examtype': ex.exam_type.displayname if ex.exam_type else '',
             'remark': ex.remark,
             'import_claim': ex.import_claim.username if ex.import_claim else None,
-            'import_claim_displayname': get_my_user(ex.import_claim).displayname() if ex.import_claim else None,
+            'import_claim_displayname': ex.import_claim.profile.display_username if ex.import_claim else None,
             'import_claim_time': ex.import_claim_time,
             'public': ex.public,
             'has_solution': ex.has_solution,
@@ -200,7 +200,7 @@ def set_metadata(request, slug):
 @auth_check.require_admin
 def add_user_to_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
-    user = get_object_or_404(MyUser, username=request.POST['user'])
+    user = get_object_or_404(User, username=request.POST['user'])
     if request.POST['key'] == 'admins':
         if not cat.admins.filter(pk=user.pk).exists():
             cat.admins.add(user)
@@ -218,7 +218,7 @@ def add_user_to_set(request, slug):
 @auth_check.require_admin
 def remove_user_from_set(request, slug):
     cat = get_object_or_404(Category, slug=slug)
-    user = get_object_or_404(MyUser, username=request.POST['user'])
+    user = get_object_or_404(User, username=request.POST['user'])
     if request.POST['key'] == 'admins':
         if cat.admins.filter(pk=user.pk).exists():
             cat.admins.remove(user)

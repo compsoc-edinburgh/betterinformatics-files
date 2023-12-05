@@ -56,6 +56,8 @@ services:
       - SIP_S3_FILES_BUCKET=community-solutions
       - SIP_S3_FILES_USE_SSL=false
 
+      - GSUITE_CREDENTIALS_FILE=/app/backend/credentials.json
+
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
 
@@ -65,8 +67,8 @@ services:
       - SIP_AUTH_OIDC_CLIENT_ID=vis_cat_staging_community_solutions_oidc
       - SIP_AUTH_OIDC_CLIENT_SECRET=tYousukJDxqlhpFuyonjmXyJm
 
-      - FRONTEND_TITLE_PREFIX=prefix
-      - FRONTEND_TITLE_SUFFIX=suffix
+      - FRONTEND_TITLE_PREFIX=
+      - FRONTEND_TITLE_SUFFIX=- BI Exam Collection
       - FRONTEND_FAVICON_URL=favicon
       - FRONTEND_EMAIL_ADDRESS=nothing@localhost
 

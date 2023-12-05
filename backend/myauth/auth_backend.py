@@ -77,7 +77,6 @@ def add_auth(request: HttpRequest):
         encoded = request.COOKIES["access_token"]
 
     if encoded is not None:
-
         token = JWT()
         key_set = get_key_set()
         # deserialize will raise an error if the encoded token is not valid / isn't signed correctly
@@ -144,7 +143,6 @@ def add_auth(request: HttpRequest):
                     request.user = old_existing_user
 
                 else:
-
                     user = MyUser()
                     user.first_name = claims["given_name"]
                     user.last_name = claims["family_name"]

@@ -76,6 +76,8 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
 COMSOL_FRONTEND_GLOB_ID = os.environ.get(
     "FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
 
+COMSOL_AUTH_ACCEPTED_DOMAINS = ("ed.ac.uk", "sms.ed.ac.uk", "exceed.ed.ac.uk")
+
 # The following config settings configure the config with which a keycloak js client instance is
 # constructed in the React frontend.
 COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
@@ -201,18 +203,19 @@ INSTALLED_APPS = [
     "frontend.apps.FrontendConfig",
     "health.apps.HealthConfig",
     "images.apps.ImagesConfig",
-    "myauth.apps.MyAuthConfig",
+    "ediauth",
     "util.apps.UtilConfig",
     "notifications.apps.NotificationsConfig",
     "payments.apps.PaymentsConfig",
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
     "django_probes",
+    "django_gsuite_email"
 ]
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
-    "myauth.auth_backend.AuthenticationMiddleware",
+    "ediauth.auth_backend.AuthenticationMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -263,6 +266,10 @@ LOGGING = {
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
+# For django-suite-email (which allows us to use the GSuite SMTP server for
+# the send_mail function), set the backend and credential file.
+EMAIL_BACKEND = 'django_gsuite_email.GSuiteEmailBackend'
+GSUITE_CREDENTIALS_FILE = os.environ.get("GSUITE_CREDENTIALS_FILE", "")
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

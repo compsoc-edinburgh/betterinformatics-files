@@ -8,9 +8,8 @@ from django.db.models import Q, F, Count
 
 from answers import section_util
 from answers.models import Answer, Comment, Exam, ExamPage, ExamType
-from myauth import auth_check
-from myauth.auth_check import has_admin_rights
-from myauth.models import get_my_user
+from ediauth import auth_check
+from ediauth.auth_check import has_admin_rights
 from util import response
 
 
@@ -51,7 +50,7 @@ def list_import_exams(request):
             "category_displayname": exam.category.displayname,
             "remark": exam.remark,
             "import_claim": exam.import_claim.username if exam.import_claim else None,
-            "import_claim_displayname": get_my_user(exam.import_claim).displayname()
+            "import_claim_displayname": exam.import_claim.profile.display_username
             if exam.import_claim
             else None,
             "import_claim_time": exam.import_claim_time,
@@ -76,9 +75,7 @@ def list_payment_check_exams(request):
             "filename": exam.filename,
             "displayname": exam.displayname,
             "category_displayname": exam.category.displayname,
-            "payment_uploader_displayname": get_my_user(
-                exam.oral_transcript_uploader
-            ).displayname(),
+            "payment_uploader_displayname": exam.oral_transcript_uploader.profile.display_username,
         }
         for exam in Exam.objects.filter(
             is_oral_transcript=True, oral_transcript_checked=False

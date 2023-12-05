@@ -2,11 +2,10 @@ import re
 import random
 from django.db.models.functions import Concat
 from django.db.models import Q, F, When, Case, Value as V, Func, TextField
-from myauth import auth_check
-from myauth.models import get_my_user
+from ediauth import auth_check
 from util import response
 from answers.models import Answer, Comment, Exam, ExamPage, ExamType
-from myauth.auth_check import has_admin_rights
+from ediauth.auth_check import has_admin_rights
 from django.contrib.postgres.search import (
     SearchQuery,
     SearchRank,

@@ -1,6 +1,6 @@
 from util import response
-from myauth import auth_check
-from myauth.models import MyUser
+from ediauth import auth_check
+from django.contrib.auth.models import User
 from payments.models import Payment
 from answers.models import Exam
 from django.shortcuts import get_object_or_404
@@ -10,7 +10,7 @@ from django.utils import timezone
 @response.request_post('username')
 @auth_check.require_admin
 def pay(request):
-    user = get_object_or_404(MyUser, username=request.POST['username'])
+    user = get_object_or_404(User, username=request.POST['username'])
     payment = Payment(user=user)
     payment.save()
     return response.success()
@@ -56,7 +56,7 @@ def get_user_payments(user):
 @response.request_get()
 @auth_check.require_admin
 def query(request, username):
-    user = get_object_or_404(MyUser, username=username)
+    user = get_object_or_404(User, username=username)
     return response.success(value=get_user_payments(user))
 
 

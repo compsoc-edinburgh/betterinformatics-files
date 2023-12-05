@@ -1,5 +1,5 @@
 from util import response
-from myauth import auth_check
+from ediauth import auth_check
 from answers.models import AnswerSection, Answer
 from answers import section_util
 from notifications import notification_util

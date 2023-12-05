@@ -1,7 +1,7 @@
 from django.db.models.expressions import Case, When
 from util import response, func_cache
-from myauth import auth_check
-from myauth.models import MyUser
+from ediauth import auth_check
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, F, Q, Value as V
 from django.db.models.functions import Concat
@@ -23,7 +23,7 @@ def get_user_scores(user, res):
 
 @func_cache.cache(600)
 def get_scoreboard_top(scoretype, limit):
-    users = MyUser.objects.annotate(
+    users = User.objects.annotate(
         displayName=Case(
             When(
                 Q(first_name__isnull=True),
@@ -73,10 +73,10 @@ def get_scoreboard_top(scoretype, limit):
 @response.request_get()
 @auth_check.require_login
 def userinfo(request, username):
-    user = get_object_or_404(MyUser, username=username)
+    user = get_object_or_404(User, username=username)
     res = {
         "username": username,
-        "displayName": user.displayname(),
+        "displayName": user.profile.display_username,
     }
     get_user_scores(user, res)
     return response.success(value=res)

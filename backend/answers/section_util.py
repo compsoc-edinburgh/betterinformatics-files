@@ -1,5 +1,4 @@
-from myauth.models import get_my_user
-from myauth import auth_check
+from ediauth import auth_check
 from answers.models import Comment
 
 
@@ -14,7 +13,7 @@ def get_answer_response(request, answer, ignore_exam_admin=False):
             'longId': comment.long_id,
             'text': comment.text,
             'authorId': comment.author.username,
-            'authorDisplayName': get_my_user(comment.author).displayname(),
+            'authorDisplayName': comment.author.profile.display_username,
             'canEdit': comment.author == request.user,
             'time': comment.time,
             'edittime': comment.edittime,
@@ -26,7 +25,7 @@ def get_answer_response(request, answer, ignore_exam_admin=False):
         'upvotes': answer.upvotes.count() - answer.downvotes.count(),
         'expertvotes': answer.expertvotes.count(),
         'authorId': '' if answer.is_legacy_answer else answer.author.username,
-        'authorDisplayName': 'Old VISki Solution' if answer.is_legacy_answer else get_my_user(answer.author).displayname(),
+        'authorDisplayName': answer.author.profile.display_username,
         'canEdit': answer.author == request.user or (answer.is_legacy_answer and exam_admin),
         'isUpvoted': request.user in answer.upvotes.all(),
         'isDownvoted': request.user in answer.downvotes.all(),
@@ -50,7 +49,7 @@ def get_comment_response(request, comment: Comment):
         'answerId': comment.answer.long_id,
         'text': comment.text,
         'authorId': comment.author.username,
-        'authorDisplayName': get_my_user(comment.author).displayname(),
+        'authorDisplayName': comment.author.profile.display_username,
         'time': comment.time,
         'edittime': comment.edittime,
         'exam_displayname': comment.answer.answer_section.exam.displayname,

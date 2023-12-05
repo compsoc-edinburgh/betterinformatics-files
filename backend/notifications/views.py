@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
-from myauth import auth_check
-from myauth.models import get_my_user
+from ediauth import auth_check
 from util import response
 
 from notifications.models import (Notification, NotificationSetting,
@@ -43,7 +42,7 @@ def get_notifications(request, unread):
             'type': notification.type,
             'time': notification.time,
             'sender': notification.sender.username,
-            'senderDisplayName': get_my_user(notification.sender).displayname(),
+            'senderDisplayName': notification.sender.profile.display_username,
             'title': notification.title,
             'message': notification.text,
             'link': _get_notification_link(notification), 

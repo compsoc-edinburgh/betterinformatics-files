@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from myauth import auth_check
+from ediauth import auth_check
 from django.db.models import Exists, OuterRef
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex

@@ -2,7 +2,7 @@ import secrets
 from django.db import models
 from django.utils.text import slugify
 from django_prometheus.models import ExportModelOperationsMixin
-from myauth import auth_check
+from ediauth import auth_check
 from util.models import CommentMixin
 
 

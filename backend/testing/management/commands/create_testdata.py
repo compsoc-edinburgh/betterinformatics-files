@@ -4,8 +4,7 @@ from django.conf import settings
 from util import s3_util
 from django.utils import timezone
 from datetime import timedelta
-
-from myauth.models import MyUser
+from django.contrib.auth.models import User
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
 from categories.models import Category, MetaCategory
 from feedback.models import Feedback
@@ -41,11 +40,11 @@ class Command(BaseCommand):
             ("Josef", "Widmer", "widmjo"),
             ("Werner", "Steiner", "steinewe"),
         ]:
-            MyUser(first_name=first_name, last_name=last_name, username=username).save()
+            User(first_name=first_name, last_name=last_name, username=username).save()
 
     def create_images(self):
         self.stdout.write("Create images")
-        for user in MyUser.objects.all():
+        for user in User.objects.all():
             for i in range(user.id % 10 + 5):
                 filename = s3_util.generate_filename(
                     16, settings.COMSOL_IMAGE_DIR, ".svg"
@@ -85,7 +84,7 @@ class Command(BaseCommand):
                 has_payments=(i % 5 == 0),
             )
             category.save()
-            for j, user in enumerate(MyUser.objects.all()):
+            for j, user in enumerate(User.objects.all()):
                 if (i + j) % 6 == 0:
                     category.admins.add(user)
                 if (i + j) % 9 == 0:
@@ -154,7 +153,7 @@ class Command(BaseCommand):
 
     def create_answer_sections(self):
         self.stdout.write("Create answer sections")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         objs = []
         for exam in Exam.objects.all():
             for page in range(3):
@@ -170,7 +169,7 @@ class Command(BaseCommand):
 
     def create_answers(self):
         self.stdout.write("Create answers")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         objs = []
         for section in AnswerSection.objects.all():
             for i in range(section.id % 7):
@@ -205,7 +204,7 @@ class Command(BaseCommand):
 
     def create_comments(self):
         self.stdout.write("Create comments")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         objs = []
         for answer in Answer.objects.all():
             for i in range(answer.id % 17):
@@ -225,7 +224,7 @@ class Command(BaseCommand):
 
     def create_feedback(self):
         self.stdout.write("Create feedback")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         objs = [Feedback(
                 text="Feedback " + str(i + 1),
                 author=users[i % len(users)],
@@ -266,9 +265,9 @@ class Command(BaseCommand):
 
     def create_notifications(self):
         self.stdout.write("Create notifications")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         answers = Answer.objects.all()
-        for user in MyUser.objects.all():
+        for user in User.objects.all():
             for i in range(user.id % 22):
                 Notification(
                     sender=users[i % len(users)],
@@ -286,7 +285,7 @@ class Command(BaseCommand):
     def create_payments(self):
         self.stdout.write("Create payments")
         categories = Category.objects.all()
-        for user in MyUser.objects.all():
+        for user in User.objects.all():
             if user.id % 7 == 0:
                 Payment(user=user).save()
                 if user.id % 9 == 0:

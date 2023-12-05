@@ -1,7 +1,7 @@
 from datetime import timedelta
 
+from django.contrib.auth.models import User
 from answers.models import Exam
-from myauth.models import MyUser
 from payments.models import Payment
 from testing.tests import ComsolTest, ComsolTestExamsData
 
@@ -9,7 +9,7 @@ from testing.tests import ComsolTest, ComsolTestExamsData
 class TestPayment(ComsolTest):
 
     def mySetUp(self):
-        self.testuser = MyUser(username='test')
+        self.testuser = User(username='test')
         self.testuser.save()
         self.post('/api/payment/pay/', {'username': 'test'})
         self.payment = Payment.objects.get(user__username='test')
@@ -52,7 +52,7 @@ class TestPayment(ComsolTest):
 class TestMarkChecked(ComsolTestExamsData):
 
     def mySetUp(self):
-        self.testuser = MyUser(username='test')
+        self.testuser = User(username='test')
         self.testuser.save()
         self.post('/api/payment/pay/', {'username': 'test'})
         self.payment = Payment.objects.get(user__username='test')
