@@ -7,16 +7,9 @@ import {
   Text,
   Affix,
   rem,
-  Container,
-  Group,
-  Divider,
-  Anchor,
-  Flex,
 } from "@mantine/core";
 import {
   ConfigOptions,
-  Icon,
-  ICONS,
   makeVsethTheme,
   VSETHThemeProvider,
 } from "vseth-canine-ui";
@@ -55,6 +48,7 @@ import { useRequest } from "@umijs/hooks";
 import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
+import Footer from "./components/footer";
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -330,66 +324,11 @@ const App: React.FC<{}> = () => {
                     </Switch>
                   </Box>
                 </div>
-                <Box pt="md" pb="lg">
-                  <Container size="xl">
-                    <Divider my="md" />
-                    <Flex
-                      justify={{ base: "center", sm: "space-between" }}
-                      direction={{ base: "column", sm: "row" }}
-                      gap="sm"
-                      align="center"
-                    >
-                      <Text fw="bold" style={{ flex: 1 }}>
-                        Made with
-                        <Icon
-                          icon={ICONS.LIKE_FILLED}
-                          color="red"
-                          aria-label="love"
-                          style={{
-                            position: "relative",
-                            top: 2,
-                            margin: "0px 4px",
-                          }}
-                        />
-                        by volunteers at{" "}
-                        <Anchor
-                          href="http://vis.ethz.ch/"
-                          title="Verein der Informatik Studierenden an der ETH Zürich"
-                          color="blue"
-                        >
-                          VIS
-                        </Anchor>
-                      </Text>
-                      <img
-                        height={32}
-                        src={data?.signet}
-                        alt="Logo of the student organization"
-                      />
-                      <Group style={{ flex: 1, justifyContent: "flex-end" }}>
-                        <Anchor
-                          href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
-                          color="blue"
-                        >
-                          <Icon
-                            icon={ICONS.GITLAB}
-                            style={{
-                              position: "relative",
-                              top: 2,
-                              marginRight: 6,
-                            }}
-                          />
-                          Repository
-                        </Anchor>
-                        <Anchor href={data?.disclaimer} color="blue">
-                          Imprint
-                        </Anchor>
-                        <Anchor href={data?.privacy} color="blue">
-                          Privacy Policy
-                        </Anchor>
-                      </Group>
-                    </Flex>
-                  </Container>
-                </Box>
+                <Footer
+                  logo={data?.logo}
+                  disclaimer={data?.disclaimer}
+                  privacy={data?.privacy}
+                />
               </div>
             </SetUserContext.Provider>
           </UserContext.Provider>
