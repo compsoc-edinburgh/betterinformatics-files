@@ -59,7 +59,12 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
               VIS
             </Anchor>
           </Text>
-          <img height={32} src={logo} alt="Logo of the student organization" />
+          <img
+            height={32}
+            src={logo}
+            style={{ filter: "brightness(0)" }}
+            alt="Logo of the student organization"
+          />
           <Group
             style={{
               flex: 1,

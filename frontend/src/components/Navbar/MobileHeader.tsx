@@ -90,6 +90,7 @@ const BottomHeader: React.FC<Props> = ({
                 ? signet
                 : "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/signet-mono.svg"
             }
+            alt="Signet of the student organization"
             className={classes.logo}
           />
           <div className={classes.title}>

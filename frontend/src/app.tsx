@@ -49,6 +49,7 @@ import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
+import { defaultConfigOptions } from "./components/Navbar/constants";
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -252,9 +253,11 @@ const App: React.FC<{}> = () => {
               <div>
                 <div>
                   <TopHeader
-                    logo={data?.logo}
+                    logo={data.logo ?? defaultConfigOptions.logo}
                     size="xl"
-                    organizationNav={data?.externalNav}
+                    organizationNav={
+                      data.externalNav ?? defaultConfigOptions.externalNav
+                    }
                     selectedLanguage={"en"}
                     onLanguageSelect={() => {}}
                   />
@@ -266,7 +269,7 @@ const App: React.FC<{}> = () => {
                     activeHref={useLocation().pathname}
                   />
                   <MobileHeader
-                    signet={data?.signet}
+                    signet={data.signet ?? defaultConfigOptions.signet}
                     selectedLanguage={"en"}
                     onLanguageSelect={() => {}}
                     appNav={bottomHeaderNav}
@@ -325,9 +328,11 @@ const App: React.FC<{}> = () => {
                   </Box>
                 </div>
                 <Footer
-                  logo={data?.logo}
-                  disclaimer={data?.disclaimer}
-                  privacy={data?.privacy}
+                  logo={data.logo ?? defaultConfigOptions.logo}
+                  disclaimer={
+                    data.disclaimer ?? defaultConfigOptions.disclaimer
+                  }
+                  privacy={data.privacy ?? defaultConfigOptions.privacy}
                 />
               </div>
             </SetUserContext.Provider>
