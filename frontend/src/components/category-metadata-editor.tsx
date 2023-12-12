@@ -258,7 +258,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               value={
                 semesterOptions[
                   formState.semester as keyof typeof semesterOptions
-                ].value
+                ]?.value ?? "--"
               }
               onChange={(event: any) =>
                 setFormValue("semester", event.currentTarget.value)
