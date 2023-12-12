@@ -278,7 +278,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             />
           </Grid.Col>
         </Grid>
-        <Textarea label="Remark" />
+        <Textarea label="Remark" {...registerInput("remark")} />
         <Grid>
           <Grid.Col md={6}>
             <NativeSelect
