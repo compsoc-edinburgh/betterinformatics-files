@@ -110,9 +110,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
             data={categoryOptions ? (options(categoryOptions) as any) : []}
             value={
               categoryOptions &&
-              (category
-                ? categoryOptions[category].value
-                : undefined)
+              (category ? categoryOptions[category].value : undefined)
             }
             onChange={(value: string) => {
               setCategory(value);

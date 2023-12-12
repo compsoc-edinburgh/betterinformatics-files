@@ -30,7 +30,8 @@ const iconContainerStyle = css`
   flex-direction: column;
   justify-content: flex-end;
   @keyframes biggerAndBack {
-    0%, 100% {
+    0%,
+    100% {
       // transform: scaleX(0.8);
     }
     50% {
@@ -84,7 +85,8 @@ interface PanelProps {
 }
 const movingRightAnimation = css`
   @keyframes moveRightAndBack {
-    0%, 100% {
+    0%,
+    100% {
       width: 34px;
     }
     50% {
@@ -92,7 +94,7 @@ const movingRightAnimation = css`
     }
   }
   animation: moveRightAndBack 2s ease-in-out infinite;
-`
+`;
 
 const duration = 200;
 
@@ -121,7 +123,13 @@ const Panel: React.FC<PanelProps> = ({
             variant="brand"
             className={closeButtonStyle}
             onClick={toggle}
-            leftIcon={<Icon icon={ICONS.ARROW_RIGHT} className={movingRightAnimation} size={24} />}
+            leftIcon={
+              <Icon
+                icon={ICONS.ARROW_RIGHT}
+                className={movingRightAnimation}
+                size={24}
+              />
+            }
           >
             {buttonText && (
               <div>

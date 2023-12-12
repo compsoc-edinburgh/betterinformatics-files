@@ -258,7 +258,7 @@ export const CategoryList: React.FC<{}> = () => {
                     ))}
                   </div>
                 ))}
-              {unassignedList && (
+              {unassignedList && unassignedList.length > 0 && (
                 <>
                   <Title order={3} my="md">
                     Unassigned Categories
