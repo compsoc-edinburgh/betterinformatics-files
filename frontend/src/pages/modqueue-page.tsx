@@ -98,7 +98,7 @@ const ModQueue: React.FC = () => {
       <Title my="sm" order={2}>
         Import Queue
       </Title>
-      {error && <div>{error}</div>}
+      {error && <div>{error.message}</div>}
       <div>
         <LoadingOverlay loading={examsLoading} />
         <Table striped fontSize="md">

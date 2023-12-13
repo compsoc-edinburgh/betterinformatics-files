@@ -82,6 +82,7 @@ interface PanelProps {
   toggle: () => void;
   iconPadding?: CSSProperties["padding"];
   buttonText?: string;
+  children?: React.ReactNode;
 }
 const movingRightAnimation = css`
   @keyframes moveRightAndBack {

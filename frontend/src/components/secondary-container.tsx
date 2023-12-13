@@ -11,6 +11,7 @@ const useStyles = createStyles(theme => ({
 
 interface ContentContainerProps extends DefaultProps {
   className?: string;
+  children?: React.ReactNode;
 }
 
 const ContentContainer: React.FC<ContentContainerProps> = ({
