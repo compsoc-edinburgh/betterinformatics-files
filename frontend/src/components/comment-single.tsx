@@ -61,7 +61,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
               @{comment.authorId}
             </Text>
           </Anchor>
-          <Text color="dimmed" mx="xs" component="span">
+          <Text color="dimmed" mx={6} component="span">
             ·
           </Text>
           {comment && (
@@ -75,10 +75,12 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
               new Date(comment.time),
             ) > 1 && (
               <>
-                <span>·</span>
-                <span title={comment.edittime}>
+                <Text color="dimmed" mx={6} component="span">
+                  ·
+                </Text>
+                <Text color="dimmed" component="span" title={comment.edittime}>
                   edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                </span>
+                </Text>
               </>
             )}
         </Box>

@@ -19,7 +19,9 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
         {showRead ? "Show unread" : "Show all"}
       </Button>
       {(!notifications || notifications.length === 0) && (
-        <Alert color="gray">No notifications</Alert>
+        <Alert my="sm" color="gray">
+          No notifications
+        </Alert>
       )}
       {notificationsLoading && <Loader />}
       {notifications &&

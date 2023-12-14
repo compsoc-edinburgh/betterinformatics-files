@@ -65,6 +65,7 @@ interface PanelProps {
   toggle: () => void;
   iconPadding?: CSSProperties["padding"];
   buttonText?: string;
+  children?: React.ReactNode;
 }
 
 const duration = 200;

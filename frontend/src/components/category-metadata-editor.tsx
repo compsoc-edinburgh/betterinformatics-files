@@ -258,7 +258,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               value={
                 semesterOptions[
                   formState.semester as keyof typeof semesterOptions
-                ].value
+                ]?.value ?? "--"
               }
               onChange={(event: any) =>
                 setFormValue("semester", event.currentTarget.value)
@@ -278,7 +278,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             />
           </Grid.Col>
         </Grid>
-        <Textarea label="Remark" />
+        <Textarea label="Remark" {...registerInput("remark")} />
         <Grid>
           <Grid.Col md={6}>
             <NativeSelect

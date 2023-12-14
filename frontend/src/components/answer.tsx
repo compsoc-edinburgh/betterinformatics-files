@@ -144,7 +144,7 @@ const AnswerComponent: React.FC<Props> = ({
                   </Text>
                 </Anchor>
               )}
-              <Text color="dimmed" mx="xs" component="span">
+              <Text color="dimmed" mx={6} component="span">
                 ·
               </Text>
               {answer && (
@@ -158,7 +158,7 @@ const AnswerComponent: React.FC<Props> = ({
                   new Date(answer.time),
                 ) > 1 && (
                   <>
-                    <Text color="dimmed" mx="xs" component="span">
+                    <Text color="dimmed" mx={6} component="span">
                       ·
                     </Text>
                     <Text

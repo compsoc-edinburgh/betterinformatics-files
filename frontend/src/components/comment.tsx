@@ -87,7 +87,7 @@ const CommentComponent: React.FC<Props> = ({
               @{comment?.authorId ?? username}
             </Text>
           </Anchor>
-          <Text component="span" mx="xs" color="dimmed">
+          <Text component="span" mx={6} color="dimmed">
             ·
           </Text>
           {comment && (
@@ -101,10 +101,12 @@ const CommentComponent: React.FC<Props> = ({
               new Date(comment.time),
             ) > 1 && (
               <>
-                <span>·</span>
-                <span title={comment.edittime}>
+                <Text component="span" mx={6} color="dimmed">
+                  ·
+                </Text>
+                <Text component="span" color="dimmed" title={comment.edittime}>
                   edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                </span>
+                </Text>
               </>
             )}
         </div>

@@ -102,7 +102,7 @@ const DocumentCommentComponent = ({
                   @{comment.authorId}
                 </Text>
               </Anchor>
-              <Text component="span" mx="xs" color="dimmed">
+              <Text component="span" mx={6} color="dimmed">
                 ·
               </Text>
               {comment && (
@@ -116,7 +116,7 @@ const DocumentCommentComponent = ({
                   new Date(comment.time),
                 ) > 1 && (
                   <>
-                    <Text component="span" color="dimmed" mx="xs">
+                    <Text component="span" color="dimmed" mx={6}>
                       ·
                     </Text>
                     <Text
