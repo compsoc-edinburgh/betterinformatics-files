@@ -19,28 +19,30 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
     { type: string; docs: Document[] }[]
   >([]);
   useEffect(() => {
-    async function temp() {
+    (async () => {
       setDocTypes(await loadDocumentTypes());
-    }
-    temp();
+    })()
   }, []);
   useEffect(() => {
-    const currentDocTypes: { type: string; docs: Document[] }[] = [];
-    if (docTypes === null) {
+    const currentDocTypes = new Map<string, Document[]>();
+    currentDocTypes.set("Documents", []);
+    if (!docTypes || documents === undefined) {
       return;
     }
-    if (documents === undefined) {
-      return;
-    }
-    for (const dType of docTypes) {
-      const typelist = documents.filter(
-        document => document.document_type == dType,
-      );
-      typelist.sort((a, b) => b.like_count - a.like_count);
-      currentDocTypes.push({ type: dType, docs: typelist });
-    }
-    currentDocTypes.push({ type: "Add files", docs: [] });
-    setSortedDocs(currentDocTypes);
+    documents.reduce(
+      (map, doc) => {
+        const doctype = doc.document_type;
+        const typearr = map.get(doctype);
+        if (typearr){
+          typearr.push(doc)
+        } else {
+          map.set(doctype, [doc])
+        }
+        return map;
+      }, currentDocTypes,
+    );
+    currentDocTypes.forEach(docs => docs.sort((a, b) => b.like_count - a.like_count));    
+    setSortedDocs(Array.from(currentDocTypes, ([type, docs]) => ({ type, docs })));
   }, [docTypes, documents]);
   return (
     <>
@@ -49,34 +51,37 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         categorySlug={slug}
         toggle={() => setIsOpen(r => !r)}
       />
-
+      <Title order={2} mt="xl" mb={sortedDocs[0] && sortedDocs[0].docs.length && "lg"}>Documents</Title>
       {sortedDocs &&
         sortedDocs.map(obj => (
           <>
-            <Title order={3} mt="xl" mb="lg">
-              {obj.type}
-            </Title>
+            {obj.type !== "Documents" &&
+              <Title order={3} mt="xl" mb="lg">
+                {obj.type}
+              </Title>
+            }
             <Grid>
-              {obj.type === "Add files" ? (
-                <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
-                  <Tooltip label="Add a new document">
-                    <Button
-                      style={{ width: "100%", height: "100%" }}
-                      onClick={() => setIsOpen(true)}
-                    >
-                      <Icon icon={ICONS.PLUS} size={40} />
-                    </Button>
-                  </Tooltip>
-                </Paper>
-              ) : (
-                obj.docs &&
-                obj.docs.map(document => (
-                  <DocumentCard key={document.slug} document={document} />
-                ))
-              )}
+              {obj.docs &&
+              obj.docs.map(document => (
+                <DocumentCard key={document.slug} document={document} />
+              ))}
             </Grid>
           </>
-        ))}
+        ))
+        }
+        <Title order={3} mt="xl" mb="lg">Add Documents</Title>
+        <Grid>
+          <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
+            <Tooltip label="Add a new document">
+              <Button
+                style={{ width: "100%", height: "100%" }}
+                onClick={() => setIsOpen(true)}
+              >
+                <Icon icon={ICONS.PLUS} size={40} />
+              </Button>
+            </Tooltip>
+          </Paper>
+        </Grid>
     </>
   );
 };
