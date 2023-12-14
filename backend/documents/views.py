@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 @auth_check.require_login
 def list_document_types(request):
     return response.success(
-        value=list(DocumentType.objects.values_list("display_name", flat=True))
+        value=list(DocumentType.objects.values_list("display_name", flat=True).order_by("order"))
     )
 
 def get_comment_obj(comment: Comment, request: HttpRequest):

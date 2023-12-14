@@ -25,24 +25,13 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
   }, []);
   useEffect(() => {
     const currentDocTypes = new Map<string, Document[]>();
-    currentDocTypes.set("Documents", []);
     if (!docTypes || documents === undefined) {
       return;
     }
-    documents.reduce(
-      (map, doc) => {
-        const doctype = doc.document_type;
-        const typearr = map.get(doctype);
-        if (typearr){
-          typearr.push(doc)
-        } else {
-          map.set(doctype, [doc])
-        }
-        return map;
-      }, currentDocTypes,
-    );
+    docTypes.forEach((type) => currentDocTypes.set(type, []));
+    documents.forEach((doc) => currentDocTypes.get(doc.document_type)?.push(doc));
     currentDocTypes.forEach(docs => docs.sort((a, b) => b.like_count - a.like_count));    
-    setSortedDocs(Array.from(currentDocTypes, ([type, docs]) => ({ type, docs })));
+    setSortedDocs(Array.from(currentDocTypes, ([type, docs]) => ({ type, docs })).filter((value) => value.docs.length > 0));
   }, [docTypes, documents]);
   return (
     <>
