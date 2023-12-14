@@ -54,12 +54,11 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
       ) as { [key: string]: string },
     );
 
-  const { data: documentTypes } =
-    useRequest(loadDocumentTypes);
+  const { data: documentTypes } = useRequest(loadDocumentTypes);
 
   const [documentTypeOptions, setDocumentTypeOptions] = useState<string[]>([]);
   useEffect(() => {
-    setDocumentTypeOptions(documentTypes ?? [])
+    setDocumentTypeOptions(documentTypes ?? []);
   }, [documentTypes]);
 
   const [loading, updateDocument] = useUpdateDocument(
@@ -126,9 +125,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                 data={categoryOptions ? (options(categoryOptions) as any) : []}
                 value={
                   categoryOptions &&
-                  (category
-                    ? categoryOptions[category].value
-                    : undefined)
+                  (category ? categoryOptions[category].value : undefined)
                 }
                 onChange={(value: string) => {
                   setCategory(value);
@@ -140,18 +137,18 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                 label="Document type"
                 creatable
                 searchable
-                getCreateLabel={query => `+ Create new document type "${query}"`}
+                getCreateLabel={query =>
+                  `+ Create new document type "${query}"`
+                }
                 onCreate={query => {
                   setDocumentType(query);
-                  setDocumentTypeOptions([...documentTypes ?? [], query])
+                  setDocumentTypeOptions([...(documentTypes ?? []), query]);
                   return query;
                 }}
                 data={documentTypeOptions}
                 value={
                   documentTypeOptions &&
-                  (documentType
-                    ? documentType
-                    : data.document_type)
+                  (documentType ? documentType : data.document_type)
                 }
                 onChange={(value: string) => {
                   setDocumentType(value);

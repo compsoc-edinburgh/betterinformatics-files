@@ -353,7 +353,7 @@ export interface Document {
   display_name: string;
   description: string;
   category: string;
-  document_type:  string;
+  document_type: string;
   category_display_name: string;
   author: string;
   comments: DocumentComment[];
