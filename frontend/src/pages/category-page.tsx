@@ -212,9 +212,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Grid>
           <ExamList metaData={metaData} />
 
-          <Title order={2} mt="xl" mb="lg">
-            Documents
-          </Title>
           <DocumentList slug={metaData.slug} />
 
           {metaData.attachments.length > 0 && (

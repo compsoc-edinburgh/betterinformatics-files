@@ -78,7 +78,10 @@ export function getHeaders() {
  * a multipart filename attached to it.
  */
 export class NamedBlob {
-  constructor(public blob: Blob, public filename: string) {}
+  constructor(
+    public blob: Blob,
+    public filename: string,
+  ) {}
 }
 async function performDataRequest<T>(
   method: string,
