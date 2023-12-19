@@ -93,10 +93,10 @@ def add_auth(request: HttpRequest):
         now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
         # Validate "nbf" (Not Before) Claim if present
         if "exp" in claims and claims["exp"] < now:
-            raise PermissionDenied
+            raise PermissionDenied("Expired")
         # Valdiate "exp" (Expiration Time) Claim if present
         if "nbf" in claims and claims["nbf"] > now:
-            raise PermissionDenied
+            raise PermissionDenied("Not before invalid")
 
         sub = claims["sub"]
         if (

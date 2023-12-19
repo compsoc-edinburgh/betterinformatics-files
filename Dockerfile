@@ -28,7 +28,7 @@ COPY ./frontend/public/static ./static
 COPY ./backend/ ./
 COPY ./pgbouncer ./pgbouncer
 
-FROM node:16-alpine AS frontend-build
+FROM node:20-alpine AS frontend-build
 ARG git_branch
 ARG git_commit
 

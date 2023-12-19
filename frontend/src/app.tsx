@@ -11,11 +11,10 @@ import {
 import {
   ConfigOptions,
   makeVsethTheme,
-  VSETHExternalApp,
   VSETHThemeProvider,
 } from "vseth-canine-ui";
-import React, { ReactNode, useEffect, useState } from "react";
-import { Link, Route, Switch, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Route, Switch, useLocation } from "react-router-dom";
 import {
   authenticationStatus,
   fetchGet,
@@ -46,6 +45,11 @@ import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { useRequest } from "@umijs/hooks";
+import TopHeader from "./components/Navbar/TopHeader";
+import BottomHeader from "./components/Navbar/BottomHeader";
+import MobileHeader from "./components/Navbar/MobileHeader";
+import Footer from "./components/footer";
+import { defaultConfigOptions } from "./components/Navbar/constants";
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -148,7 +152,7 @@ const App: React.FC<{}> = () => {
   const vsethTheme = makeVsethTheme("#333");
   vsethTheme.colorScheme = "light";
 
-  const fvTheme = makeVsethTheme("#FFE210");
+  const fvTheme = makeVsethTheme(data.primaryColor ?? "#009FE3");
   fvTheme.colorScheme = "light";
   fvTheme.components = {
     Anchor: {
@@ -228,124 +232,128 @@ const App: React.FC<{}> = () => {
 
   return (
     <VSETHThemeProvider theme={vsethTheme}>
-      <VSETHExternalApp
-        title="Community Solutions"
-        appNav={bottomHeaderNav}
-        activeHref={useLocation().pathname}
-        organizationNav={data?.externalNav}
-        socialMedia={data?.socialMedia}
-        logo={data?.logo}
-        signet={data?.signet}
-        privacyPolicy={data?.privacy}
-        disclaimer={data?.copyright}
-        makeWrapper={(url: string | undefined, child: ReactNode) => (
-          <Link to={url!} style={{ textDecoration: "none", color: "inherit" }}>
-            {child}
-          </Link>
-        )}
-        size="xl"
-      >
-        <MantineProvider theme={fvTheme} withGlobalStyles withNormalizeCSS>
-          <Modal
-            opened={loggedOut}
-            onClose={() => login()}
-            title="You've been logged out due to inactivity"
-          >
-            <Text mb="md">
-              Your session has expired due to inactivity, you have to log in
-              again to continue.
-            </Text>
-            <Button size="lg" variant="outline" onClick={() => login()}>
-              Sign in with AAI
-            </Button>
-          </Modal>
-          <Route component={HashLocationHandler} />
-          <DebugContext.Provider value={debugOptions}>
-            <UserContext.Provider value={user}>
-              <SetUserContext.Provider value={setUser}>
+      <MantineProvider theme={fvTheme} withGlobalStyles withNormalizeCSS>
+        <Modal
+          opened={loggedOut}
+          onClose={() => login()}
+          title="You've been logged out due to inactivity"
+        >
+          <Text mb="md">
+            Your session has expired due to inactivity, you have to log in again
+            to continue.
+          </Text>
+          <Button size="lg" variant="outline" onClick={() => login()}>
+            Sign in with AAI
+          </Button>
+        </Modal>
+        <Route component={HashLocationHandler} />
+        <DebugContext.Provider value={debugOptions}>
+          <UserContext.Provider value={user}>
+            <SetUserContext.Provider value={setUser}>
+              <div>
                 <div>
-                  <div>
-                    <Box component="main" mt="2em">
-                      <Switch>
-                        <UserRoute exact path="/" component={HomePage} />
-                        <Route exact path="/login" component={LoginPage} />
-                        <UserRoute
-                          exact
-                          path="/uploadpdf"
-                          component={UploadPdfPage}
-                        />
-                        <UserRoute
-                          exact
-                          path="/submittranscript"
-                          component={UploadTranscriptPage}
-                        />
-                        <UserRoute exact path="/faq" component={FAQ} />
-                        <UserRoute
-                          exact
-                          path="/feedback"
-                          component={FeedbackPage}
-                        />
-                        <UserRoute
-                          exact
-                          path="/category/:slug"
-                          component={CategoryPage}
-                        />
-                        <UserRoute
-                          exact
-                          path="/user/:author/document/:slug"
-                          component={DocumentPage}
-                        />
-                        <UserRoute
-                          exact
-                          path="/exams/:filename"
-                          component={ExamPage}
-                        />
-                        <UserRoute
-                          exact
-                          path="/user/:username"
-                          component={UserPage}
-                        />
-                        <UserRoute exact path="/user/" component={UserPage} />
-                        <UserRoute
-                          exact
-                          path="/search/"
-                          component={SearchPage}
-                        />
-                        <UserRoute
-                          exact
-                          path="/scoreboard"
-                          component={Scoreboard}
-                        />
-                        <UserRoute
-                          exact
-                          path="/modqueue"
-                          component={ModQueue}
-                        />
-                        <Route component={NotFoundPage} />
-                      </Switch>
-                    </Box>
-                  </div>
+                  <TopHeader
+                    logo={data.logo ?? defaultConfigOptions.logo}
+                    size="xl"
+                    organizationNav={
+                      data.externalNav ?? defaultConfigOptions.externalNav
+                    }
+                    selectedLanguage={"en"}
+                    onLanguageSelect={() => {}}
+                  />
+                  <BottomHeader
+                    lang={"en"}
+                    appNav={bottomHeaderNav}
+                    title={"Community Solutions"}
+                    size="xl"
+                    activeHref={useLocation().pathname}
+                  />
+                  <MobileHeader
+                    signet={data.signet ?? defaultConfigOptions.signet}
+                    selectedLanguage={"en"}
+                    onLanguageSelect={() => {}}
+                    appNav={bottomHeaderNav}
+                    title={"Community Solutions"}
+                  />
+                  <Box component="main" mt="2em">
+                    <Switch>
+                      <UserRoute exact path="/" component={HomePage} />
+                      <Route exact path="/login" component={LoginPage} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        component={UploadPdfPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/submittranscript"
+                        component={UploadTranscriptPage}
+                      />
+                      <UserRoute exact path="/faq" component={FAQ} />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        component={FeedbackPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/category/:slug"
+                        component={CategoryPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:author/document/:slug"
+                        component={DocumentPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/exams/:filename"
+                        component={ExamPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        component={UserPage}
+                      />
+                      <UserRoute exact path="/user/" component={UserPage} />
+                      <UserRoute exact path="/search/" component={SearchPage} />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        component={Scoreboard}
+                      />
+                      <UserRoute exact path="/modqueue" component={ModQueue} />
+                      <Route component={NotFoundPage} />
+                    </Switch>
+                  </Box>
                 </div>
-              </SetUserContext.Provider>
-            </UserContext.Provider>
-          </DebugContext.Provider>
-          {process.env.NODE_ENV === "development" && (
-            <>
-              <Affix position={{ bottom: rem(10), left: rem(10) }}>
-                <Button variant="brand" onClick={toggleDebugPanel}>
-                  DEBUG
-                </Button>
-              </Affix>
-              <DebugModal
-                isOpen={debugPanel}
-                toggle={toggleDebugPanel}
-                debugOptions={debugOptions}
-                setDebugOptions={setDebugOptions}
-              />
-            </>
-          )}
-        </MantineProvider>
-      </VSETHExternalApp>
+                <Footer
+                  logo={data.logo ?? defaultConfigOptions.logo}
+                  disclaimer={
+                    data.disclaimer ?? defaultConfigOptions.disclaimer
+                  }
+                  privacy={data.privacy ?? defaultConfigOptions.privacy}
+                />
+              </div>
+            </SetUserContext.Provider>
+          </UserContext.Provider>
+        </DebugContext.Provider>
+        {process.env.NODE_ENV === "development" && (
+          <>
+            <Affix position={{ bottom: rem(10), left: rem(10) }}>
+              <Button variant="brand" onClick={toggleDebugPanel}>
+                DEBUG
+              </Button>
+            </Affix>
+            <DebugModal
+              isOpen={debugPanel}
+              toggle={toggleDebugPanel}
+              debugOptions={debugOptions}
+              setDebugOptions={setDebugOptions}
+            />
+          </>
+        )}
+      </MantineProvider>
     </VSETHThemeProvider>
   );
 };

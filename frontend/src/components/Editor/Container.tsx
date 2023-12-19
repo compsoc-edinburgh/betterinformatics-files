@@ -8,7 +8,11 @@ const containerStyle = css`
   box-sizing: border-box;
 `;
 
-const Container: React.FC<{}> = ({ children }) => {
+interface EditorContainerProps {
+  children?: React.ReactNode;
+}
+
+const Container: React.FC<EditorContainerProps> = ({ children }) => {
   return <div className={containerStyle}>{children}</div>;
 };
 export default Container;

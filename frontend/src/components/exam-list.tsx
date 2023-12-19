@@ -58,9 +58,15 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
-      {error && <Alert color="red">{error}</Alert>}
+      {error && <Alert color="red">{error.message}</Alert>}
       {loading && <Loader />}
-      <Flex direction={{ base: "column", sm: "row" }} gap="sm" mt="sm" mb="lg" justify="space-between">
+      <Flex
+        direction={{ base: "column", sm: "row" }}
+        gap="sm"
+        mt="sm"
+        mb="lg"
+        justify="space-between"
+      >
         <div>
           <Button
             disabled={selected.size === 0}

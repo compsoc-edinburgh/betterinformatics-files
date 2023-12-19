@@ -1,4 +1,4 @@
-import * as ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { ReactRouter5Adapter } from "use-query-params/adapters/react-router-5";
@@ -7,7 +7,10 @@ import App from "./app";
 import React from "react";
 import { parse, stringify } from "query-string";
 
-ReactDOM.render(
+const container = document.getElementById("root") as HTMLElement;
+const root = createRoot(container);
+
+root.render(
   <BrowserRouter>
     <QueryParamProvider
       adapter={ReactRouter5Adapter}
@@ -16,5 +19,4 @@ ReactDOM.render(
       <App />
     </QueryParamProvider>
   </BrowserRouter>,
-  document.getElementById("root") as HTMLElement,
 );

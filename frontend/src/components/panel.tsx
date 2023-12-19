@@ -65,6 +65,7 @@ interface PanelProps {
   toggle: () => void;
   iconPadding?: CSSProperties["padding"];
   buttonText?: string;
+  children?: React.ReactNode;
 }
 
 const duration = 200;
@@ -111,7 +112,7 @@ const Panel: React.FC<PanelProps> = ({
               ...transitionStyles[state as keyof typeof transitionStyles],
             }}
           >
-            <div 
+            <div
               className={iconContainerStyle}
               style={{ padding: iconPadding }}
             >
