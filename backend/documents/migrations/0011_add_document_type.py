@@ -2,7 +2,6 @@
 
 from django.conf import settings
 from django.db import migrations, models
-import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -20,11 +19,5 @@ class Migration(migrations.Migration):
                 ('display_name', models.CharField(max_length=256)),
                 ('order', models.IntegerField(default=0)),
             ],
-        ),
-        migrations.AddField(
-            model_name='document',
-            name='document_type',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.PROTECT, related_name='type_set', to='documents.documenttype'),
-            preserve_default=False,
         ),
     ]
