@@ -33,8 +33,6 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
-import { valid } from "semver";
-import { string } from "yargs";
 
 interface Props {
   data: Document;
