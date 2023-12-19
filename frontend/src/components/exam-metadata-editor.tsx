@@ -15,7 +15,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadCategories, loadExamTypes } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
@@ -175,13 +175,12 @@ const ExamMetadataEditor: React.FC<Props> = ({
         ),
       ) as { [key: string]: string },
     );
-  const examTypeOptions =
-    examTypes &&
-    createOptions(
-      Object.fromEntries(
-        examTypes.map(examType => [examType, examType] as const),
-      ) as { [key: string]: string },
-    );
+
+  const [examTypeOptions, setExamTypeOptions] = useState<string[]>([]);
+  useEffect(() => {
+    setExamTypeOptions(examTypes ?? []);
+  }, [examTypes]);
+
   const {
     loading,
     error,
@@ -252,7 +251,11 @@ const ExamMetadataEditor: React.FC<Props> = ({
             creatable
             searchable
             getCreateLabel={query => `+ Create new exam type "${query}"`}
-            data={examTypeOptions ? (options(examTypeOptions) as any) : []}
+            onCreate={query => {
+              setExamTypeOptions([...(examTypes ?? []), query]);
+              return query;
+            }}
+            data={examTypeOptions}
             value={formState.examtype}
             onChange={(value: string) => setFormValue("examtype", value)}
           />
