@@ -30,6 +30,8 @@ interface Props {
 
   undoStack: UndoStack;
   setUndoStack: (newStack: UndoStack) => void;
+
+  enableFullscreen?: boolean;
 }
 const Editor: React.FC<Props> = ({
   value,
@@ -38,6 +40,7 @@ const Editor: React.FC<Props> = ({
   preview,
   undoStack,
   setUndoStack,
+  enableFullscreen,
 }) => {
   const [mode, setMode] = useState<EditorMode>("write");
   const [isDragHovered, setIsDragHovered] = useState(false);
@@ -267,6 +270,16 @@ const Editor: React.FC<Props> = ({
 
   const { classes, cx } = useStyles();
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const toggleFullscreen = useCallback(() => {
+    const newValue = !isFullscreen;
+    setIsFullscreen(newValue);
+    // enable split mode only in fullscreen mode
+    if (!newValue && mode === 'split') {
+      setMode('write');
+    }
+  }, [mode, setMode, isFullscreen, setIsFullscreen]);
+
   return (
     <Paper
       withBorder={!isDragHovered}
@@ -285,6 +298,9 @@ const Editor: React.FC<Props> = ({
         onLinkClick={onLinkClick}
         onItalicClick={onItalicClick}
         onBoldClick={onBoldClick}
+        enableFullscreen={enableFullscreen}
+        isFullscreen={isFullscreen}
+        toggleFullscreen={toggleFullscreen}
       />
       <div className={classes.editorWrapperStyle}>
         {mode === "write" ? (

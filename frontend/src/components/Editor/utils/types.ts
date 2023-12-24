@@ -7,4 +7,4 @@ export interface ImageHandle {
   src: string;
   remove: () => Promise<void>;
 }
-export type EditorMode = "write" | "preview";
+export type EditorMode = "write" | "preview" | "split";

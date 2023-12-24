@@ -1,6 +1,6 @@
 import { css } from "@emotion/css";
 import * as React from "react";
-import { Bold, Code, DollarSign, Image, Italic, Link } from "react-feather";
+import { Bold, Code, DollarSign, Image, Italic, Link, Maximize, Minimize } from "react-feather";
 import TooltipButton from "../TooltipButton";
 import { EditorMode } from "./utils/types";
 import { useCallback, useRef } from "react";
@@ -37,6 +37,10 @@ interface Props {
   activeMode: EditorMode;
   onActiveModeChange: (newMode: EditorMode) => void;
 
+  enableFullscreen?: boolean;
+  isFullscreen: boolean;
+  toggleFullscreen: () => void;
+
   onFiles: (files: File[]) => void;
   onMathClick: () => void;
   onCodeClick: () => void;
@@ -48,6 +52,8 @@ const EditorHeader: React.FC<Props> = ({
   activeMode,
   onActiveModeChange,
   onFiles,
+  enableFullscreen,
+  isFullscreen,
   ...handlers
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,73 +93,91 @@ const EditorHeader: React.FC<Props> = ({
         <Tabs.List>
           <Tabs.Tab value="write">Write</Tabs.Tab>
           <Tabs.Tab value="preview">Preview</Tabs.Tab>
+          {isFullscreen && <Tabs.Tab value="split">Split</Tabs.Tab>}
         </Tabs.List>
-        {activeMode === "write" && (
-          <Flex>
+        <Flex>
+          {activeMode !== "preview" && (
+            <>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={() => fileInputRef.current?.click()}
+                type="button"
+                size="sm"
+                tooltip="Insert Image"
+              >
+                <Image size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onMathClick}
+                type="button"
+                size="sm"
+                tooltip="Inline Math"
+              >
+                <DollarSign size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onCodeClick}
+                type="button"
+                size="sm"
+                tooltip="Code Block"
+              >
+                <Code size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onLinkClick}
+                type="button"
+                size="sm"
+                tooltip="Hyperlink"
+              >
+                <Link size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onItalicClick}
+                type="button"
+                size="sm"
+                tooltip={
+                  <>
+                    Italic<kbd>Ctrl + I</kbd>{" "}
+                  </>
+                }
+              >
+                <Italic size={iconSize} />
+              </TooltipButton>
+              <TooltipButton
+                className={iconButtonStyle}
+                onClick={handlers.onBoldClick}
+                type="button"
+                size="sm"
+                tooltip={
+                  <>
+                    Bold<kbd>Ctrl + B</kbd>{" "}
+                  </>
+                }
+              >
+                <Bold size={iconSize} />
+              </TooltipButton>
+            </>
+          )}
+          {enableFullscreen && (
             <TooltipButton
               className={iconButtonStyle}
-              onClick={() => fileInputRef.current?.click()}
-              type="button"
-              size="sm"
-              tooltip="Insert Image"
-            >
-              <Image size={iconSize} />
-            </TooltipButton>
-            <TooltipButton
-              className={iconButtonStyle}
-              onClick={handlers.onMathClick}
-              type="button"
-              size="sm"
-              tooltip="Inline Math"
-            >
-              <DollarSign size={iconSize} />
-            </TooltipButton>
-            <TooltipButton
-              className={iconButtonStyle}
-              onClick={handlers.onCodeClick}
-              type="button"
-              size="sm"
-              tooltip="Code Block"
-            >
-              <Code size={iconSize} />
-            </TooltipButton>
-            <TooltipButton
-              className={iconButtonStyle}
-              onClick={handlers.onLinkClick}
-              type="button"
-              size="sm"
-              tooltip="Hyperlink"
-            >
-              <Link size={iconSize} />
-            </TooltipButton>
-            <TooltipButton
-              className={iconButtonStyle}
-              onClick={handlers.onItalicClick}
+              onClick={handlers.toggleFullscreen}
               type="button"
               size="sm"
               tooltip={
                 <>
-                  Italic<kbd>Ctrl + I</kbd>{" "}
+                  Toggle fullscreen
                 </>
               }
             >
-              <Italic size={iconSize} />
+              {isFullscreen ? <Minimize size={iconSize} /> : <Maximize size={iconSize} />}
             </TooltipButton>
-            <TooltipButton
-              className={iconButtonStyle}
-              onClick={handlers.onBoldClick}
-              type="button"
-              size="sm"
-              tooltip={
-                <>
-                  Bold<kbd>Ctrl + B</kbd>{" "}
-                </>
-              }
-            >
-              <Bold size={iconSize} />
-            </TooltipButton>
-          </Flex>
-        )}
+          )}
+        </Flex>
       </Tabs>
     </div>
   );
