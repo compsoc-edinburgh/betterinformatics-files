@@ -17,8 +17,8 @@ interface Props extends ButtonProps {
   exam: CategoryExam;
   reloadExams: () => void;
 }
-const ClaimButton: React.FC<Props> = ({ 
-  exam, 
+const ClaimButton: React.FC<Props> = ({
+  exam,
   reloadExams,
   ...buttonProps
 }) => {

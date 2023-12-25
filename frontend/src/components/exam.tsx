@@ -116,8 +116,8 @@ const Exam: React.FC<Props> = React.memo(
       editState.mode === EditMode.Add
         ? "Add Cut"
         : editState.mode === EditMode.Move
-        ? "Move Cut"
-        : undefined;
+          ? "Move Cut"
+          : undefined;
     const hash = document.location.hash.substr(1);
     useEffect(() => {
       let cancelled = false;

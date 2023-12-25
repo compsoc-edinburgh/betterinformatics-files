@@ -384,7 +384,9 @@ export const markAsChecked = async (filename: string) => {
   return (await fetchPost(`/api/payment/markexamchecked/${filename}/`, {}))
     .value;
 };
-
+export const loadDocumentTypes = async () => {
+  return (await fetchGet("/api/document/listdocumenttypes/")).value as string[];
+};
 export const createDocument = async (
   displayName: string,
   categorySlug: string,
@@ -483,6 +485,7 @@ export interface DocumentUpdate {
   category?: string;
   liked?: boolean;
   description?: string;
+  document_type?: string;
 }
 export const updateDocument = async (
   author: string,

@@ -41,4 +41,5 @@ urlpatterns = [
         views.DocumentFileElementView.as_view(),
         name="files_element",
     ),
+    path('listdocumenttypes/', views.list_document_types, name='listdocumenttypes'),
 ]

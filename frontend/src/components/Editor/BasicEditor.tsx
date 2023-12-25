@@ -77,8 +77,8 @@ const BasicEditor: React.FC<Props> = ({
   };
 
   const onTextareaChange = useCallback(
-    e => {
-      const newContent = e.currentTarget.value;
+    (e: React.FormEvent<HTMLTextAreaElement>) => {
+      const newContent = e.currentTarget!.value;
       onChange(newContent);
     },
     [onChange],

@@ -14,11 +14,17 @@ from django.views.decorators.csrf import csrf_exempt
 from ediauth import auth_check
 from util import s3_util, response
 
-from documents.models import Comment, Document, DocumentFile, generate_api_key
+from documents.models import Comment, Document, DocumentType, DocumentFile, generate_api_key
 from notifications import notification_util
 
 logger = logging.getLogger(__name__)
 
+@response.request_get()
+@auth_check.require_login
+def list_document_types(request):
+    return response.success(
+        value=list(DocumentType.objects.values_list("display_name", flat=True).order_by("order"))
+    )
 
 def get_comment_obj(comment: Comment, request: HttpRequest):
     return {
@@ -52,6 +58,7 @@ def get_document_obj(
         "display_name": document.display_name,
         "description": document.description,
         "category": document.category.slug,
+        "document_type": document.document_type.display_name,
         "category_display_name": document.category.displayname,
         "author": document.author.username,
         "can_edit": document.current_user_can_edit(request),
@@ -109,6 +116,11 @@ class DocumentRootView(View):
         liked_by = request.GET.get("liked_by")
         username = request.GET.get("username")
         category = request.GET.get("category")
+        document_type = request.GET.get("document_type")
+
+        if document_type is not None:
+            objects = objects.filter(document_type__display_name=document_type)
+
         if liked_by is not None:
             if liked_by == request.user.username:
                 # to ensure one can only view their own liked documents
@@ -151,6 +163,7 @@ class DocumentRootView(View):
             description=description,
             category=category,
             author=request.user,
+            document_type=DocumentType.objects.get(display_name="Documents")
         )
         document.save()
 
@@ -176,6 +189,7 @@ class DocumentElementView(View):
 
         document = get_object_or_404(
             objects, author__username=username, slug=slug)
+
         return response.success(
             value=get_document_obj(
                 document, request, include_comments, include_files)
@@ -209,6 +223,15 @@ class DocumentElementView(View):
             category = get_object_or_404(
                 Category, slug=request.DATA["category"])
             document.category = category
+        if "document_type" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            old_document_type = document.document_type
+            document.document_type, _ = DocumentType.objects.get_or_create(display_name=request.DATA['document_type'])
+            document.save()
+            if old_document_type.id > 4 and not old_document_type.type_set.exists():
+                old_document_type.delete()
+        
         document.save()
         return response.success(value=get_document_obj(document, request))
 

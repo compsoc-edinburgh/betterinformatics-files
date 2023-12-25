@@ -70,7 +70,7 @@ export interface SingleComment {
 }
 
 export interface PdfSection {
-  key: React.Key;
+  key: string | number;
   cutOid?: string;
   kind: SectionKind.Pdf;
   start: CutPosition;
@@ -353,6 +353,7 @@ export interface Document {
   display_name: string;
   description: string;
   category: string;
+  document_type: string;
   category_display_name: string;
   author: string;
   comments: DocumentComment[];
