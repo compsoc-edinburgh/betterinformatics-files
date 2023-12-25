@@ -263,7 +263,7 @@ const App: React.FC<{}> = () => {
                   <BottomHeader
                     lang={"en"}
                     appNav={bottomHeaderNav}
-                    title={"Community Solutions"}
+                    title={"Exam Collection"}
                     size="xl"
                     activeHref={useLocation().pathname}
                   />
@@ -272,7 +272,7 @@ const App: React.FC<{}> = () => {
                     selectedLanguage={"en"}
                     onLanguageSelect={() => {}}
                     appNav={bottomHeaderNav}
-                    title={"Community Solutions"}
+                    title={"Exam Collection"}
                   />
                   <Box component="main" mt="2em">
                     <Switch>
