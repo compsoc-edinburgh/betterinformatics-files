@@ -4,6 +4,7 @@ import {
   Container,
   Flex,
   Loader,
+  LoadingOverlay,
   Modal,
   Paper,
   SegmentedControl,
@@ -20,7 +21,6 @@ import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
-import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
@@ -217,7 +217,7 @@ export const CategoryList: React.FC<{}> = () => {
         </Flex>
       </Container>
       <ContentContainer>
-        <LoadingOverlay loading={loading} />
+        <LoadingOverlay visible={loading} />
         <Container size="xl" py="md">
           {error ? (
             <Alert color="red">{error.toString()}</Alert>

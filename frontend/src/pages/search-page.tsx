@@ -1,9 +1,8 @@
 import { useDebounce, useRequest } from "@umijs/hooks";
-import { Container, TextInput } from "@mantine/core";
+import { Container, LoadingOverlay, TextInput } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { StringParam, useQueryParam } from "use-query-params";
 import { fetchPost } from "../api/fetch-utils";
-import LoadingOverlay from "../components/loading-overlay";
 import SearchResults from "../components/search-results";
 import useTitle from "../hooks/useTitle";
 import { SearchResponse } from "../interfaces";
@@ -42,7 +41,7 @@ const SearchPage: React.FC<{}> = () => {
         />
       </Container>
       <div>
-        <LoadingOverlay loading={loading} />
+        <LoadingOverlay visible={loading} />
         <Container size="xl">
           <div>
             {data && data.length === 0 && debouncedTerm !== "" && (
