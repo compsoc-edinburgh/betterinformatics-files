@@ -165,7 +165,7 @@ const App: React.FC<{}> = () => {
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
-    { title: "Scoreboard ", href: "/scoreboard" },
+    { title: "Search", href: "/search" },
     {
       title: "More",
       childItems: [
@@ -174,7 +174,6 @@ const App: React.FC<{}> = () => {
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
-    { title: "Search", href: "/search" },
     {
       title: (
         <span>
