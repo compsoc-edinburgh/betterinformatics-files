@@ -93,6 +93,8 @@ const applyChanges = async (
   const metaDataDiff: Partial<CategoryMetaData> = {};
   if (oldMetaData.displayname !== newMetaData.displayname)
     metaDataDiff.displayname = newMetaData.displayname;
+  if (oldMetaData.slug !== newMetaData.slug)
+    metaDataDiff.slug = newMetaData.slug;
   if (oldMetaData.semester !== newMetaData.semester)
     metaDataDiff.semester = newMetaData.semester;
   if (oldMetaData.form !== newMetaData.form)
@@ -250,6 +252,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       </Title>
       <Stack>
         <TextInput label="Name" {...registerInput("displayname")} />
+        <TextInput label="Slug" {...registerInput("slug")} />
         <Grid>
           <Grid.Col md={6}>
             <NativeSelect

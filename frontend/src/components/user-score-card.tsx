@@ -86,7 +86,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
       </Group>
 
       <Container fluid p={0}>
-        <SimpleGrid cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <SimpleGrid cols={4} breakpoints={[{ maxWidth: "sm", cols: 1 }, { maxWidth: "md", cols: 2 }]}>
           {scoreCard(userInfo, "Score", "score", ICONS.UP)}
           {scoreCard(userInfo, "Answers", "score_answers", ICONS.PEN)}
           {scoreCard(

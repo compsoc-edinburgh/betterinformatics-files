@@ -54,7 +54,11 @@ def list_categories_only_admin(request):
 @response.request_post("category")
 @auth_check.require_admin
 def add_category(request):
-    slug = create_category_slug(request.POST["category"])
+    slug = create_category_slug(
+        request.POST["slug"]
+        if "slug" in request.POST  # Use slug if provided, but still sanitise it
+        else request.POST["category"]
+    )
     cat = Category(
         displayname=request.POST["category"],
         slug=slug,
@@ -67,6 +71,7 @@ def create_category_slug(category, ignored_pk=None):
     """
     Create a valid and unique slug for the category name
     :param category: category name
+    :param ignored_pk: pk of category to ignore when checking for uniqueness (used for renaming categories without changing the slug)
     """
     oslug = "".join(
         filter(
@@ -198,7 +203,10 @@ def set_metadata(request, slug):
         if request.POST["displayname"].strip() == "":
             return response.not_possible("Invalid displayname")
         cat.displayname = request.POST["displayname"]
-        cat.slug = create_category_slug(cat.displayname, cat.pk)
+    if "slug" in request.POST:
+        # Use slug if provided, but still sanitise it. Make sure that it is
+        # unique barring the current category when checking uniqueness.
+        cat.slug = create_category_slug(request.POST["slug"], cat.pk)
     for key in ["semester", "form", "permission", "remark", "more_exams_link"]:
         if key in request.POST:
             setattr(cat, key, request.POST[key])
