@@ -43,9 +43,9 @@ const FeedbackForm: React.FC<{}> = () => {
     <Stack>
       {success && <Alert>Feedback was submitted successfully.</Alert>}
       <Text>
-        Please tell us what you think about Community Solutions! What do you
-        like? What could we improve? Ideas for new features? Use the form below
-        or write to{" "}
+        Please tell us what you think about the BetterInformatics Exam
+        Collection! What do you like? What could we improve? Ideas for new
+        features? Use the form below or write to{" "}
         <Anchor
           component="a"
           href={`mailto:${serverData.email_address}`}
@@ -60,7 +60,7 @@ const FeedbackForm: React.FC<{}> = () => {
         <Anchor
           component="a"
           color="blue"
-          href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
+          href="https://git.tardisproject.uk/kilo/edinburgh-community-solutions"
           target="_blank"
           rel="noopener noreferrer"
         >
