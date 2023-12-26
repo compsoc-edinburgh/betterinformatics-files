@@ -29,7 +29,6 @@ import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
-import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 

@@ -46,8 +46,9 @@ services:
     ports:
       - "8081:80"
     environment:
-      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN=localhost
-      - SIP_INGRESS_HTTP_DEFAULT_CNAMES=
+      - THESE_ARE_DEBUG_ENV_VAR_OVERRIDES=
+
+      - DEPLOYMENT_DOMAINS=localhost
 
       - SIP_POSTGRES_DB_SERVER=postgres
       - SIP_POSTGRES_DB_PORT=5432
@@ -67,19 +68,10 @@ services:
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
 
-      - RUNTIME_FRONTEND_KEYCLOAK_URL=https://auth.vseth.ethz.ch/auth
-      - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
-
-      - SIP_AUTH_OIDC_CLIENT_ID=vis_cat_staging_community_solutions_oidc
-      - SIP_AUTH_OIDC_CLIENT_SECRET=tYousukJDxqlhpFuyonjmXyJm
-
       - FRONTEND_TITLE_PREFIX=
       - FRONTEND_TITLE_SUFFIX=- BI Exam Collection
-      - FRONTEND_FAVICON_URL=favicon
+      - FRONTEND_FAVICON_URL=
       - FRONTEND_EMAIL_ADDRESS=nothing@localhost
-
-      - SIP_AUTH_OIDC_AUTH_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/auth
-      - SIP_AUTH_OIDC_TOKEN_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/token
 
       - PDEP_IS_PREVIEW=TRUE
     depends_on:

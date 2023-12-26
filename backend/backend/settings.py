@@ -70,27 +70,14 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
-COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
-
 COMSOL_AUTH_ACCEPTED_DOMAINS = ("ed.ac.uk", "sms.ed.ac.uk", "exceed.ed.ac.uk")
 
-# The following config settings configure the config with which a keycloak js client instance is
-# constructed in the React frontend.
-COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
-    "FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
-)
-COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get("FRONTEND_KEYCLOAK_REALM", "VSETH")
-COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
-    "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
-)
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
     "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", ""),
     "imprint": os.environ.get("FRONTEND_IMPRINT", ""),
-    "unlock_deposit_notice": os.environ.get("FRONTEND_UNLOCK_DEPOSIT_NOTICE", ""),
-    "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", "")
-    or "https://account.vseth.ethz.ch/privacy",
+    "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
@@ -108,34 +95,11 @@ pub_key_set_url = "data:text/plain;base64," + b64encode(
     key_data.encode("utf-8")
 ).decode("utf-8")
 
-OAUTH2_CLIENT_ID = os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
-OAUTH2_CLIENT_SECRET = os.environ.get("SIP_AUTH_OIDC_CLIENT_SECRET", "")
-OAUTH2_TOKEN_URL = os.environ.get("SIP_AUTH_OIDC_TOKEN_ENDPOINT", "")
-OAUTH2_AUTH_URL = os.environ.get("SIP_AUTH_OIDC_AUTH_ENDPOINT", "")
-
-OIDC_JWKS_URL = (
-    pub_key_set_url
-    if TESTING
-    else os.environ.get(
-        "SIP_AUTH_OIDC_JWKS_URL",
-        "https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/certs",
-    )
-)
-
 JWT_VERIFY_SIGNATURE = (
     os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
 )
-JWT_RESOURCE_GROUP = (
-    "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
-)
 
-CNAMES = os.environ.get("SIP_INGRESS_HTTP_DEFAULT_CNAMES", "")
-PRIMARY_DEPLOYMENT_DOMAIN = os.environ.get(
-    "SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN", ""
-)
-DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
-    [] if CNAMES == "" else CNAMES.split(" ")
-)
+DEPLOYMENT_DOMAINS = os.environ.get("DEPLOYMENT_DOMAINS", "").split(",")
 
 BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
 
@@ -145,7 +109,6 @@ if DEBUG:
     ALLOWED_HOSTS.append("localhost")
     REAL_ALLOWED_HOSTS.append("localhost")
 else:
-    # ALLOWED_HOSTS.append(os.environ['SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN'])
     # USE_X_FORWARDED_HOST = True
     # In K8s, the host is the IP of the pod and can thus change
     # As we are behind a reverse proxy, it should be fine to ignore this...
@@ -165,14 +128,12 @@ else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
-    "https://static.vseth.ethz.ch",
     *allowed_script_sources,
 )
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",
     "https://fonts.googleapis.com",
-    "https://static.vseth.ethz.ch",
 )
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 
@@ -180,16 +141,12 @@ s3_host = os.environ.get("SIP_S3_FILES_HOST", "s3")
 s3_port = os.environ.get("SIP_S3_FILES_PORT", "9000")
 CSP_CONNECT_SRC = (
     "'self'",
-    "https://static.vseth.ethz.ch",
-    "https://auth.vseth.ethz.ch",
     "https://" + s3_host + ":" + s3_port,
     "http://" + s3_host + ":" + s3_port,
 )
 CSP_IMG_SRC = (
     "'self'",
     "data:",
-    "https://static.vseth.ethz.ch",
-    "https://fe.vseth.ethz.ch",
 )
 
 
