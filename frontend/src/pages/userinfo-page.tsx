@@ -15,7 +15,6 @@ import UserComments from "../components/user-comments";
 import UserNotifications from "../components/user-notifications";
 import UserNotificationsSettings from "../components/user-notification-settings";
 import UserDocuments from "../components/user-documents";
-import UserPayments from "../components/user-payments";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
 
@@ -66,15 +65,10 @@ const UserPage: React.FC<{}> = () => {
             {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
           <Tabs.Panel value="overview" pt="sm">
-            <SimpleGrid breakpoints={[{ maxWidth: "48rem", cols: 1 }]} cols={2}>
-              {!isMyself && !user.isAdmin && (
-                <Alert color="gray">There's nothing here</Alert>
-              )}
-              {isMyself && <UserNotifications username={username} />}
-              {(isMyself || user.isAdmin) && (
-                <UserPayments username={username} />
-              )}
-            </SimpleGrid>
+            {!isMyself && !user.isAdmin && (
+              <Alert color="gray">There's nothing here</Alert>
+            )}
+            {isMyself && <UserNotifications username={username} />}
           </Tabs.Panel>
           <Tabs.Panel value="answers" pt="sm">
             <UserAnswers username={username} />
