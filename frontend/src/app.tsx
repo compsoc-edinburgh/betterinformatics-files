@@ -1,30 +1,19 @@
 import {
   Button,
-  Modal,
   Badge,
   MantineProvider,
   Box,
-  Text,
   Affix,
   rem,
   MantineThemeOverride,
   Tuple,
 } from "@mantine/core";
-import {
-  ConfigOptions,
-  makeVsethTheme,
-  VSETHThemeProvider,
-} from "vseth-canine-ui";
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import tinycolor from "tinycolor2";
 import {
-  authenticationStatus,
   fetchGet,
   getCookie,
-  isTokenExpired,
-  minValidity,
-  // refreshToken,
 } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
@@ -51,7 +40,7 @@ import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
-import { defaultConfigOptions } from "./components/Navbar/constants";
+import { defaultConfigOptions, ConfigOptions } from "./components/Navbar/constants";
 
 function calculateShades(primaryColor: string) {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -67,58 +56,6 @@ function calculateShades(primaryColor: string) {
 }
 
 const App: React.FC<{}> = () => {
-  // const [loggedOut, setLoggedOut] = useState(false);
-  // useEffect(() => {
-  //   let cancel = false;
-  //   // How often refreshing failed
-  //   let counter = 0;
-  //   let counterExp = getCookie("token_expires");
-
-  //   let handle: ReturnType<typeof setTimeout> | undefined = undefined;
-  //   const startTimer = () => {
-  //     // Check whether we have a token and when it will expire;
-  //     const exp = authenticationStatus();
-  //     if (
-  //       isTokenExpired(exp) &&
-  //       !(counterExp === getCookie("token_expires") && counter > 5)
-  //     ) {
-  //       refreshToken().then(r => {
-  //         if (cancel) return;
-  //         // If the refresh was successful we are happy
-  //         if (r.status >= 200 && r.status < 400) {
-  //           setLoggedOut(false);
-  //           counter = 0;
-  //           return;
-  //         }
-
-  //         // Otherwise it probably failed
-  //         setLoggedOut(true);
-  //         if (counter === 0) {
-  //           counterExp = getCookie("token_expires");
-  //         }
-  //         counter++;
-  //         return;
-  //       });
-  //     }
-  //     // When we are authenticated (`exp !== undefined`) we want to refresh the token
-  //     // `minValidity` seconds before it expires. If there's no token we recheck this
-  //     // condition every 10 seconds.
-  //     // `Math.max` ensures that we don't call startTimer too often.
-  //     const delay =
-  //       exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 60_000;
-  //     handle = setTimeout(() => {
-  //       startTimer();
-  //     }, delay);
-  //   };
-  //   startTimer();
-
-  //   return () => {
-  //     cancel = true;
-  //     if (handle === undefined) return;
-  //     clearTimeout(handle);
-  //   };
-  // }, []);
-
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
     // `yarn start` as only certain pages will set the csrf cookie.
@@ -162,8 +99,12 @@ const App: React.FC<{}> = () => {
     pollingInterval: 300_000,
   });
 
+  // Retrieve the config options (such as the logo, global menu items, etc) from
+  // the global configOptions variable if set (in index.html). The defaults are
+  // for VSETH and are not to be used for Edinburgh CompSoc.
   const configOptions = (window as any).configOptions as ConfigOptions;
 
+  // CompSoc theme
   var compsocTheme: MantineThemeOverride = {
     colors: {
         compsocMain: calculateShades("#e95468") as Tuple<string, 10>,
@@ -256,19 +197,6 @@ const App: React.FC<{}> = () => {
 
   return (
       <MantineProvider theme={compsocTheme} withGlobalStyles withNormalizeCSS>
-        {/* <Modal
-          opened={loggedOut}
-          onClose={() => login()}
-          title="You've been logged out due to inactivity"
-        >
-          <Text mb="md">
-            Your session has expired due to inactivity, you have to log in again
-            to continue.
-          </Text>
-          <Button size="lg" variant="outline" onClick={() => login()}>
-            Sign in with AAI
-          </Button>
-        </Modal> */}
         <Route component={HashLocationHandler} />
         <DebugContext.Provider value={debugOptions}>
           <UserContext.Provider value={user}>
