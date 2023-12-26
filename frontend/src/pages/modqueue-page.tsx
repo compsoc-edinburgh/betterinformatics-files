@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
 import ClaimButton from "../components/claim-button";
 import LoadingOverlay from "../components/loading-overlay";
-import { CategoryExam, CategoryPaymentExam } from "../interfaces";
+import { CategoryExam } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 
 const loadExams = async (includeHidden: boolean) => {
@@ -14,10 +14,6 @@ const loadExams = async (includeHidden: boolean) => {
       `/api/exam/listimportexams/${includeHidden ? "?includehidden=true" : ""}`,
     )
   ).value as CategoryExam[];
-};
-const loadPaymentExams = async () => {
-  return (await fetchGet("/api/exam/listpaymentcheckexams/"))
-    .value as CategoryPaymentExam[];
 };
 const loadFlagged = async () => {
   return (await fetchGet("/api/exam/listflagged/")).value as string[];
@@ -35,13 +31,8 @@ const ModQueue: React.FC = () => {
     refreshDeps: [includeHidden],
   });
   const { error: flaggedError, data: flaggedAnswers } = useRequest(loadFlagged);
-  const {
-    error: payError,
-    loading: payLoading,
-    data: paymentExams,
-  } = useRequest(loadPaymentExams);
 
-  const error = examsError || flaggedError || payError;
+  const error = examsError || flaggedError;
 
   return (
     <Container size="xl">
@@ -57,42 +48,6 @@ const ModQueue: React.FC = () => {
               </Link>
             </div>
           ))}
-        </div>
-      )}
-      {paymentExams && paymentExams.length > 0 && (
-        <div>
-          <Title my="sm" order={2}>
-            Transcripts
-          </Title>
-          <div>
-            <LoadingOverlay loading={payLoading} />
-            <Table striped>
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Name</th>
-                  <th>Uploader</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paymentExams.map(exam => (
-                  <tr key={exam.filename}>
-                    <td>{exam.category_displayname}</td>
-                    <td>
-                      <Link to={`/exams/${exam.filename}`} target="_blank">
-                        {exam.displayname}
-                      </Link>
-                    </td>
-                    <td>
-                      <Link to={`/user/${exam.payment_uploader}`}>
-                        {exam.payment_uploader_displayname}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
         </div>
       )}
       <Title my="sm" order={2}>
@@ -132,9 +87,7 @@ const ModQueue: React.FC = () => {
                   </td>
                   <td>
                     {exam.finished_cuts
-                      ? exam.finished_wiki_transfer
-                        ? "All done"
-                        : "Needs Wiki Import"
+                      ? "All done"
                       : "Needs Cuts"}
                   </td>
                   <td>

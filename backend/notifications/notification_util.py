@@ -19,9 +19,11 @@ def send_notification(sender, receiver, type_, title, message, answer):
     # "new comment to answer" will be shown instead of "new comment to comment"
     # the only time we want to prevent this is when the receiver is the answer author AND
     # the receiver has both settings turned on
-    if answer.author == receiver \
-        and type_ == NotificationType.NEW_COMMENT_TO_COMMENT \
-            and is_notification_enabled(receiver, NotificationType.NEW_COMMENT_TO_ANSWER):
+    if (
+        answer.author == receiver
+        and type_ == NotificationType.NEW_COMMENT_TO_COMMENT
+        and is_notification_enabled(receiver, NotificationType.NEW_COMMENT_TO_ANSWER)
+    ):
         return
     notification = Notification(
         sender=sender,
@@ -52,15 +54,12 @@ def send_doc_notification(sender, receiver, type_, title, message, document):
 
 
 def new_comment_to_answer(answer, new_comment):
-    if answer.is_legacy_answer:
-        return
     send_notification(
         new_comment.author,
         answer.author,
         NotificationType.NEW_COMMENT_TO_ANSWER,
         "New comment",
-        "A new comment to your answer was added.\n\n{}".format(
-            new_comment.text),
+        "A new comment to your answer was added.\n\n{}".format(new_comment.text),
         answer,
     )
 
@@ -87,8 +86,6 @@ def new_comment_to_comment(answer, new_comment):
 
 
 def _new_answer_to_answer(old_answer, new_answer):
-    if old_answer.is_legacy_answer:
-        return
     send_notification(
         new_answer.author,
         old_answer.author,
@@ -100,9 +97,7 @@ def _new_answer_to_answer(old_answer, new_answer):
 
 
 def new_answer_to_answer(new_answer):
-    for other_answer in Answer.objects.filter(
-        answer_section=new_answer.answer_section, is_legacy_answer=False
-    ):
+    for other_answer in Answer.objects.filter(answer_section=new_answer.answer_section):
         if other_answer != new_answer:
             _new_answer_to_answer(other_answer, new_answer)
 
@@ -113,7 +108,6 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
         document.author,
         NotificationType.NEW_COMMENT_TO_DOCUMENT,
         "New comment",
-        "A new comment was added to your document.\n\n{}".format(
-            new_comment.text),
+        "A new comment was added to your document.\n\n{}".format(new_comment.text),
         document=document,
     )

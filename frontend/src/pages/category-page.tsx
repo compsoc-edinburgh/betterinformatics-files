@@ -181,22 +181,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Alert>
               </Grid.Col>
             )}
-            {metaData.has_payments && (
-              <Grid.Col span="auto">
-                <Alert bg="gray.2">
-                  You have to pay a deposit in order to see oral exams.
-                  {serverData.unlock_deposit_notice ? (
-                    <>
-                      <br />
-                      {serverData.unlock_deposit_notice}
-                    </>
-                  ) : null}
-                  <br />
-                  After submitting a report of your own oral exam you can get
-                  your deposit back.
-                </Alert>
-              </Grid.Col>
-            )}
             {metaData.catadmin && (
               <Grid.Col span="auto">
                 <Alert

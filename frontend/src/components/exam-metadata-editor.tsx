@@ -29,7 +29,6 @@ const stringKeys = [
   "displayname",
   "category",
   "examtype",
-  "legacy_solution",
   "master_solution",
   "resolve_alias",
   "remark",
@@ -37,9 +36,6 @@ const stringKeys = [
 const booleanKeys = [
   "public",
   "finished_cuts",
-  "finished_wiki_transfer",
-  "needs_payment",
-  "solution_printonly",
 ] as const;
 
 const setMetaData = async (
@@ -61,12 +57,6 @@ const addAttachment = async (exam: string, displayname: string, file: File) => {
 const removeAttachment = async (filename: string) => {
   await fetchPost(`/api/filestore/remove/${filename}/`, {});
 };
-const setPrintOnly = async (filename: string, file: File) => {
-  await fetchPost(`/api/exam/upload/printonly/`, { file, filename });
-};
-const removePrintOnly = async (filename: string) => {
-  await fetchPost(`/api/exam/remove/printonly/${filename}/`, {});
-};
 const setSolution = async (filename: string, file: File) => {
   await fetchPost(`/api/exam/upload/solution/`, { file, filename });
 };
@@ -81,7 +71,6 @@ const applyChanges = async (
   filename: string,
   oldMetaData: ExamMetaData,
   newMetaData: ExamMetaDataDraft,
-  printonly: File | true | undefined,
   masterSolution: File | true | undefined,
 ) => {
   const metaDataDiff: Partial<ExamMetaData> = {};
@@ -120,18 +109,6 @@ const applyChanges = async (
     } else {
       await removeAttachment(attachment.filename);
     }
-  }
-
-  if (printonly === undefined && oldMetaData.is_printonly) {
-    await removePrintOnly(filename);
-    metaDataDiff.is_printonly = false;
-  } else if (printonly instanceof File) {
-    await setPrintOnly(filename, printonly);
-    metaDataDiff.is_printonly = true;
-  }
-  if (!oldMetaData.is_printonly && printonly instanceof File) {
-    const newUrl = await fetchGet(`/api/exam/pdf/printonly/${filename}/`);
-    metaDataDiff.printonly_file = newUrl.value;
   }
 
   if (masterSolution === undefined && oldMetaData.has_solution) {
@@ -193,9 +170,6 @@ const ExamMetadataEditor: React.FC<Props> = ({
     },
   });
 
-  const [printonlyFile, setPrintonlyFile] = useInitialState<
-    File | true | undefined
-  >(currentMetaData.is_printonly ? true : undefined);
   const [masterFile, setMasterFile] = useInitialState<File | true | undefined>(
     currentMetaData.has_solution ? true : undefined,
   );
@@ -208,7 +182,6 @@ const ExamMetadataEditor: React.FC<Props> = ({
           currentMetaData.filename,
           currentMetaData,
           values,
-          printonlyFile,
           masterFile,
         ),
       ["category", "category_displayname", "examtype", "remark", "attachments"],
@@ -272,67 +245,18 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <Grid.Col md={6}>
           <Checkbox
             name="check"
-            id="needsPayment"
-            label="Needs Payment"
-            {...registerCheckbox("needs_payment")}
-          />
-        </Grid.Col>
-      </Grid>
-      <Grid>
-        <Grid.Col md={6}>
-          <Checkbox
-            name="check"
             label="Finished Cuts"
             {...registerCheckbox("finished_cuts")}
           />
         </Grid.Col>
-        <Grid.Col md={6}>
-          <Checkbox
-            label="Finished Wiki Transfer"
-            name="check"
-            {...registerCheckbox("finished_wiki_transfer")}
-          />
-        </Grid.Col>
       </Grid>
       <Grid>
-        <Grid.Col md={6}>
-          <TextInput
-            type="url"
-            {...registerInput("legacy_solution")}
-            label="Legacy Solution"
-          />
-        </Grid.Col>
         <Grid.Col md={6}>
           <TextInput
             type="url"
             {...registerInput("master_solution")}
             label="Master Solution (extern)"
           />
-        </Grid.Col>
-      </Grid>
-      <Grid>
-        <Grid.Col md={6}>
-          <Text size="sm">Print Only File</Text>
-          {printonlyFile === true ? (
-            <Flex align="center" gap="sm">
-              <Button
-                size="sm"
-                onClick={() =>
-                  downloadIndirect(
-                    `/api/exam/pdf/printonly/${currentMetaData.filename}/`,
-                  )
-                }
-              >
-                Download Current File
-              </Button>
-              <CloseButton onClick={() => setPrintonlyFile(undefined)} />
-            </Flex>
-          ) : (
-            <FileInput
-              value={printonlyFile}
-              onChange={e => setPrintonlyFile(e)}
-            />
-          )}
         </Grid.Col>
         <Grid.Col md={6}>
           <Text size="sm">Master Solution</Text>

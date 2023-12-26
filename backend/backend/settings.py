@@ -34,14 +34,12 @@ SECRET_KEY = (
     )
 )
 API_KEY = (
-    "API_KEY" if DEBUG else os.environ.get(
-        "RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
+    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 )
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
 COMSOL_EXAM_DIR = "exams/"
-COMSOL_PRINTONLY_DIR = "printonly/"
 COMSOL_SOLUTION_DIR = "solutions/"
 COMSOL_DOCUMENT_DIR = "documents/"
 COMSOL_IMAGE_DIR = "imgs/"
@@ -63,8 +61,7 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".apkg", "application/octet-stream"),  # anki
     (".colpkg", "application/octet-stream"),  # anki collection
 }
-COMSOL_IMAGE_ALLOWED_EXTENSIONS = {
-    "jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
+COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -73,8 +70,7 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
-COMSOL_FRONTEND_GLOB_ID = os.environ.get(
-    "FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
+COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
 
 COMSOL_AUTH_ACCEPTED_DOMAINS = ("ed.ac.uk", "sms.ed.ac.uk", "exceed.ed.ac.uk")
 
@@ -83,8 +79,7 @@ COMSOL_AUTH_ACCEPTED_DOMAINS = ("ed.ac.uk", "sms.ed.ac.uk", "exceed.ed.ac.uk")
 COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
     "FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
 )
-COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
-    "FRONTEND_KEYCLOAK_REALM", "VSETH")
+COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get("FRONTEND_KEYCLOAK_REALM", "VSETH")
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
@@ -128,8 +123,7 @@ OIDC_JWKS_URL = (
 )
 
 JWT_VERIFY_SIGNATURE = (
-    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE",
-                   "TRUE") != "FALSE" or not DEBUG
+    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
 )
 JWT_RESOURCE_GROUP = (
     "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
@@ -164,15 +158,15 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
-    allowed_script_sources = [f"http://{host}:8080/static/"
-               for host in REAL_ALLOWED_HOSTS]
+    allowed_script_sources = [
+        f"http://{host}:8080/static/" for host in REAL_ALLOWED_HOSTS
+    ]
 else:
-    allowed_script_sources = [f"https://{host}/static/"
-               for host in REAL_ALLOWED_HOSTS]
+    allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
     "https://static.vseth.ethz.ch",
-    *allowed_script_sources
+    *allowed_script_sources,
 )
 CSP_STYLE_SRC = (
     "'self'",
@@ -192,9 +186,9 @@ CSP_CONNECT_SRC = (
     "http://" + s3_host + ":" + s3_port,
 )
 CSP_IMG_SRC = (
-    "'self'", 
-    "data:", 
-    "https://static.vseth.ethz.ch", 
+    "'self'",
+    "data:",
+    "https://static.vseth.ethz.ch",
     "https://fe.vseth.ethz.ch",
 )
 
@@ -220,11 +214,10 @@ INSTALLED_APPS = [
     "ediauth",
     "util.apps.UtilConfig",
     "notifications.apps.NotificationsConfig",
-    "payments.apps.PaymentsConfig",
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
     "django_probes",
-    "django_gsuite_email"
+    "django_gsuite_email",
 ]
 
 MIDDLEWARE = [
@@ -282,7 +275,7 @@ WSGI_APPLICATION = "backend.wsgi.application"
 
 # For django-suite-email (which allows us to use the GSuite SMTP server for
 # the send_mail function), set the backend and credential file.
-EMAIL_BACKEND = 'django_gsuite_email.GSuiteEmailBackend'
+EMAIL_BACKEND = "django_gsuite_email.GSuiteEmailBackend"
 GSUITE_CREDENTIALS_FILE = os.environ.get("GSUITE_CREDENTIALS_FILE", "")
 
 # Database

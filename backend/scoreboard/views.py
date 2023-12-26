@@ -10,11 +10,12 @@ from django.db.models.functions import Concat
 def get_user_scores(user, res):
     res.update(
         {
-            "score": user.scores.document_likes + user.scores.upvotes - user.scores.downvotes,
-            "score_answers": user.answer_set.filter(is_legacy_answer=False).count(),
+            "score": user.scores.document_likes
+            + user.scores.upvotes
+            - user.scores.downvotes,
+            "score_answers": user.answer_set.count(),
             "score_comments": user.answers_comments.count(),
             "score_cuts": user.answersection_set.count(),
-            "score_legacy": user.answer_set.filter(is_legacy_answer=True).count(),
             "score_documents": user.document_set.count(),
         }
     )
@@ -38,7 +39,6 @@ def get_scoreboard_top(scoretype, limit):
         score_comments=F("scores__comments"),
         score_documents=F("scores__documents"),
         score_cuts=F("scores__cuts"),
-        score_legacy=F("scores__legacy"),
     )
 
     if scoretype == "score":
@@ -51,8 +51,6 @@ def get_scoreboard_top(scoretype, limit):
         users = users.order_by("-score_documents")
     elif scoretype == "score_cuts":
         users = users.order_by("-score_cuts")
-    elif scoretype == "score_legacy":
-        users = users.order_by("-score_legacy")
     else:
         return response.not_found()
 
@@ -64,7 +62,6 @@ def get_scoreboard_top(scoretype, limit):
             "score_answers",
             "score_comments",
             "score_cuts",
-            "score_legacy",
             "score_documents",
         )
     )

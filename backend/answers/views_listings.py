@@ -69,23 +69,6 @@ def list_import_exams(request):
 
 @response.request_get()
 @auth_check.require_admin
-def list_payment_check_exams(request):
-    res = [
-        {
-            "filename": exam.filename,
-            "displayname": exam.displayname,
-            "category_displayname": exam.category.displayname,
-            "payment_uploader_displayname": exam.oral_transcript_uploader.profile.display_username,
-        }
-        for exam in Exam.objects.filter(
-            is_oral_transcript=True, oral_transcript_checked=False
-        ).order_by("category__displayname", "displayname")
-    ]
-    return response.success(value=res)
-
-
-@response.request_get()
-@auth_check.require_admin
 def list_flagged(request):
     answers = Answer.objects.exclude(flagged=None)
     return response.success(
@@ -99,26 +82,25 @@ def list_flagged(request):
 @response.request_get()
 @auth_check.require_login
 def get_by_user(request, username, page=-1):
-    sorted_answers = Answer.objects \
-        .filter(
-            author__username=username,
-            is_legacy_answer=False) \
-        .select_related(*section_util.get_answer_fields_to_preselect()) \
-        .prefetch_related(*section_util.get_answer_fields_to_prefetch()) \
+    sorted_answers = (
+        Answer.objects.filter(author__username=username)
+        .select_related(*section_util.get_answer_fields_to_preselect())
+        .prefetch_related(*section_util.get_answer_fields_to_prefetch())
         .annotate(
             expert_count=Count("expertvotes"),
             downvotes_count=Count("downvotes"),
             upvotes_count=Count("upvotes"),
-            delta_votes=F("downvotes_count")-F("upvotes_count")) \
+            delta_votes=F("downvotes_count") - F("upvotes_count"),
+        )
         .order_by("-expert_count", "delta_votes", "time")
+    )
 
     if page >= 0:
         PAGE_SIZE = 20
-        sorted_answers = sorted_answers[page*PAGE_SIZE: (page+1)*PAGE_SIZE]
+        sorted_answers = sorted_answers[page * PAGE_SIZE : (page + 1) * PAGE_SIZE]
 
     res = [
-        section_util.get_answer_response(
-            request, answer, ignore_exam_admin=True)
+        section_util.get_answer_response(request, answer, ignore_exam_admin=True)
         for answer in sorted_answers
     ]
     return response.success(value=res)
@@ -127,16 +109,19 @@ def get_by_user(request, username, page=-1):
 @response.request_get()
 @auth_check.require_login
 def get_comments_by_user(request, username, page=-1):
-    sorted_comments = Comment.objects \
-        .filter(author__username=username) \
-        .select_related(*section_util.get_comment_fields_to_preselect()) \
-        .prefetch_related(*section_util.get_comment_fields_to_prefetch()) \
+    sorted_comments = (
+        Comment.objects.filter(author__username=username)
+        .select_related(*section_util.get_comment_fields_to_preselect())
+        .prefetch_related(*section_util.get_comment_fields_to_prefetch())
         .order_by("-time", "id")
+    )
 
     if page >= 0:
         PAGE_SIZE = 20
-        sorted_comments = sorted_comments[page*PAGE_SIZE: (page+1)*PAGE_SIZE]
+        sorted_comments = sorted_comments[page * PAGE_SIZE : (page + 1) * PAGE_SIZE]
 
-    res = [section_util.get_comment_response(request, comment)
-           for comment in sorted_comments]
+    res = [
+        section_util.get_comment_response(request, comment)
+        for comment in sorted_comments
+    ]
     return response.success(value=res)

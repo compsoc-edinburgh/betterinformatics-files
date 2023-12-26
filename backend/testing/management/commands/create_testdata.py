@@ -185,8 +185,6 @@ class Command(BaseCommand):
                         ),
                     ][(section.id + i) % 3],
                 )
-                if i == 6:
-                    answer.is_legacy_answer = True
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
         
@@ -282,40 +280,6 @@ class Command(BaseCommand):
                     answer=answers[(user.id + i) % len(answers)],
                 ).save()
 
-    def create_payments(self):
-        self.stdout.write("Create payments")
-        categories = Category.objects.all()
-        for user in User.objects.all():
-            if user.id % 7 == 0:
-                Payment(user=user).save()
-                if user.id % 9 == 0:
-                    filename = s3_util.generate_filename(
-                        8, settings.COMSOL_EXAM_DIR, ".pdf"
-                    )
-                    s3_util.save_file_to_s3(
-                        settings.COMSOL_EXAM_DIR, filename, "exam10.pdf"
-                    )
-                    exam_type = ExamType.objects.get(displayname="Transcripts")
-                    exam = Exam(
-                        filename=filename,
-                        displayname="Transcript by {}".format(user.displayname()),
-                        exam_type=exam_type,
-                        category=categories[user.id % len(categories)],
-                        resolve_alias="resolve_" + filename,
-                        public=False,
-                        finished_cuts=False,
-                        finished_wiki_transfer=True,
-                        needs_payment=True,
-                        is_oral_transcript=True,
-                        oral_transcript_uploader=user,
-                    )
-                    exam.save()
-                if user.id % 14 == 0:
-                    Payment(
-                        user=user,
-                        payment_time=timezone.now() - timedelta(days=365),
-                    ).save()
-
     def handle(self, *args, **options):
         self.flush_db()
         self.create_users()
@@ -330,4 +294,3 @@ class Command(BaseCommand):
         self.create_feedback()
         self.create_attachments()
         self.create_notifications()
-        self.create_payments()

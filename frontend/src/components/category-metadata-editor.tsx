@@ -99,8 +99,6 @@ const applyChanges = async (
     metaDataDiff.form = newMetaData.form;
   if (oldMetaData.remark !== newMetaData.remark)
     metaDataDiff.remark = newMetaData.remark;
-  if (oldMetaData.has_payments !== newMetaData.has_payments)
-    metaDataDiff.has_payments = newMetaData.has_payments;
   if (oldMetaData.more_exams_link !== newMetaData.more_exams_link)
     metaDataDiff.more_exams_link = newMetaData.more_exams_link;
   if (oldMetaData.permission !== newMetaData.permission)
@@ -304,11 +302,6 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             />
           </Grid.Col>
         </Grid>
-        {/* <Checkbox
-          name="check"
-          label="Has Payments"
-          {...registerCheckbox("has_payments")}
-        /> */}
       </Stack>
       <Title order={4} mt="xl" mb="sm">
         Attachments

@@ -19,7 +19,6 @@ class Category(models.Model):
         default="public",
     )
     more_exams_link = models.CharField(max_length=512, default="")
-    has_payments = models.BooleanField(default=False)
     admins = models.ManyToManyField("auth.User", related_name="category_admin_set")
     experts = models.ManyToManyField("auth.User", related_name="category_expert_set")
     meta_categories = models.ManyToManyField(

@@ -27,14 +27,10 @@ class TestMetadata(ComsolTestExamData):
                 "displayname": "New Displayname",
                 "category": "default",
                 "examtype": "Transcripts",
-                "legacy_solution": "New legacy solution",
                 "resolve_alias": "new_resolve_alias.pdf",
                 "remark": "New remark",
                 "public": False,
                 "finished_cuts": False,
-                "finished_wiki_transfer": False,
-                "needs_payment": True,
-                "solution_printonly": True,
             },
         )
         self.exam.refresh_from_db()

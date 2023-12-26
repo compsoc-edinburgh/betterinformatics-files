@@ -61,53 +61,20 @@ const AnswerSectionButtonWrapper = (props: CardProps) => (
 
 interface AddButtonProps {
   allowAnswer: boolean;
-  allowLegacyAnswer: boolean;
   hasAnswerDraft: boolean;
-  hasLegacyAnswerDraft: boolean;
   onAnswer: () => void;
-  onLegacyAnswer: () => void;
 }
 const AddButton: React.FC<AddButtonProps> = ({
   allowAnswer,
-  allowLegacyAnswer,
   hasAnswerDraft,
-  hasLegacyAnswerDraft,
   onAnswer,
-  onLegacyAnswer,
 }) => {
-  const [isOpen, setOpen] = useState(false);
-  const toggle = useCallback(() => setOpen(old => !old), []);
-  if (allowAnswer && allowLegacyAnswer) {
-    return (
-      <Menu opened={isOpen} withinPortal onChange={toggle}>
-        <Menu.Target>
-          <Button rightIcon={<Icon icon={ICONS.DOWN} />}>Add Answer</Button>
-        </Menu.Target>
-        <Menu.Dropdown>
-          <Menu.Item onClick={onAnswer} disabled={hasAnswerDraft}>
-            Add Answer
-          </Menu.Item>
-          <Menu.Item onClick={onLegacyAnswer} disabled={hasLegacyAnswerDraft}>
-            Add Legacy Answer
-          </Menu.Item>
-        </Menu.Dropdown>
-      </Menu>
-    );
-  } else {
+  if (allowAnswer) {
     return (
       <div>
         {allowAnswer && (
           <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
-          </Button>
-        )}
-        {allowLegacyAnswer && (
-          <Button
-            size="sm"
-            onClick={onLegacyAnswer}
-            disabled={hasLegacyAnswerDraft}
-          >
-            Add Legacy Answer
           </Button>
         )}
       </div>
@@ -186,13 +153,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     }, [run, visible, hidden, data]);
 
     const [hasDraft, setHasDraft] = useState(false);
-    const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
     const onAddAnswer = useCallback(() => {
       setHasDraft(true);
-      if (hidden) onToggleHidden();
-    }, [hidden, onToggleHidden]);
-    const onAddLegacyAnswer = useCallback(() => {
-      setHasLegacyDraft(true);
       if (hidden) onToggleHidden();
     }, [hidden, onToggleHidden]);
     const user = useUser()!;
@@ -275,7 +237,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   section={data}
                   answer={answer}
                   onSectionChanged={setAnswerSection}
-                  isLegacyAnswer={answer.isLegacyAnswer}
                 />
               ))}
               {hasDraft && (
@@ -283,15 +244,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   section={data}
                   onSectionChanged={setAnswerSection}
                   onDelete={() => setHasDraft(false)}
-                  isLegacyAnswer={false}
-                />
-              )}
-              {hasLegacyDraft && (
-                <AnswerComponent
-                  section={data}
-                  onSectionChanged={setAnswerSection}
-                  onDelete={() => setHasLegacyDraft(false)}
-                  isLegacyAnswer={true}
                 />
               )}
             </div>
@@ -324,17 +276,11 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                           (data.answers.length === 0 || !hidden) &&
                           has_answers &&
                           data &&
-                          (data.allow_new_answer ||
-                            (data.allow_new_legacy_answer && isCatAdmin)) && (
+                          (data.allow_new_answer) && (
                             <AddButton
                               allowAnswer={data.allow_new_answer}
-                              allowLegacyAnswer={
-                                data.allow_new_legacy_answer && isCatAdmin
-                              }
                               hasAnswerDraft={hasDraft}
-                              hasLegacyAnswerDraft={hasLegacyDraft}
                               onAnswer={onAddAnswer}
-                              onLegacyAnswer={onAddLegacyAnswer}
                             />
                           )
                         )}

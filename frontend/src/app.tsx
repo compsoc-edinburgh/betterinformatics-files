@@ -32,7 +32,6 @@ import ModQueue from "./pages/modqueue-page";
 import NotFoundPage from "./pages/not-found-page";
 import Scoreboard from "./pages/scoreboard-page";
 import SearchPage from "./pages/search-page";
-import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { useRequest } from "@umijs/hooks";
@@ -172,9 +171,6 @@ const App: React.FC<{}> = () => {
       childItems: [
         { title: "FAQ", href: "/faq" },
         { title: "Feedback", href: "/feedback" },
-        // Oral exam transcript submission should be disabled for Edinburgh,
-        // we don't have enough oral exams to justify it.
-        // { title: "Submit Transcript", href: "/submittranscript" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
@@ -234,11 +230,6 @@ const App: React.FC<{}> = () => {
                         exact
                         path="/uploadpdf"
                         component={UploadPdfPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/submittranscript"
-                        component={UploadTranscriptPage}
                       />
                       <UserRoute exact path="/faq" component={FAQ} />
                       <UserRoute

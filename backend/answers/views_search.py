@@ -54,7 +54,7 @@ def parse_recursive(text, start_re, end_re, i, start_len, end_len):
     can be used to remove the separators. `i` is the index from which the function starts
     matching. The function assumes that the string is well formed. In the case that `end_re`
     occurs more times then `end_re` the returned `i` can be used to include the rest
-    of `text`. 
+    of `text`.
 
     Returns:
         `list, number`: The parsing result and the index where parsing stopped
@@ -103,7 +103,7 @@ def parse_nested(text, start_re, end_re, start_len, end_len):
 def parse_headline(text, start, end, frag):
     """
     Returns the parsed result of a psql headline function where `start`, `end`and
-    `frag` are the psql parameters and `text` is the text result. 
+    `frag` are the psql parameters and `text` is the text result.
     """
     start_re = re.compile(".*?(" + re.escape(str(start)) + ")", flags=re.DOTALL)
     end_re = re.compile(".*?(" + re.escape(str(end)) + ")", flags=re.DOTALL)
@@ -117,7 +117,7 @@ def parse_headline(text, start, end, frag):
 def generate_boundary():
     """
     Generates a random boundary that can be used for finding matches using psql
-    headline 
+    headline
     """
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"
     res = ""
@@ -137,7 +137,7 @@ def headline(
 ):
     """A function that can be used in django queries to call the psql ts_headline
     function. Given a text field and  a full text search query it returns a string
-    that contains the highlighted matches that should be shown as search results. 
+    that contains the highlighted matches that should be shown as search results.
 
     Args:
         text (F): F object of the column / expression that should be highlighted
@@ -173,7 +173,7 @@ def headline(
     )
 
 
-def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
+def search_exams(term, is_admin, user_admin_categories, amount):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -181,9 +181,6 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     fragment_delimeter = generate_boundary()
 
     can_view = Q(public=True) | Q(category__in=user_admin_categories)
-    if not has_payed:
-        can_view = can_view & Q(needs_payment=False)
-
     exams = (
         Exam.objects.filter(
             id__in=ExamPage.objects.filter(search_vector=term).values("exam_id")
@@ -192,7 +189,11 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     ).annotate(
         rank=SearchRank(F("search_vector"), query),
         headline=headline(
-            F("displayname"), query, start_boundary, end_boundary, fragment_delimeter,
+            F("displayname"),
+            query,
+            start_boundary,
+            end_boundary,
+            fragment_delimeter,
         ),
         category_displayname=F("category__displayname"),
         category_slug=F("category__slug"),
@@ -208,7 +209,11 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
         .annotate(
             rank=SearchRank(F("search_vector"), query),
             headline=headline(
-                F("text"), query, start_boundary, end_boundary, fragment_delimeter,
+                F("text"),
+                query,
+                start_boundary,
+                end_boundary,
+                fragment_delimeter,
             ),
         )
         .order_by("page_number")
@@ -250,7 +255,7 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     ]
 
 
-def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
+def search_answers(term, is_admin, user_admin_categories, amount):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -260,10 +265,6 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
     answer_section_exam_can_view = Q(answer_section__exam__public=True) | Q(
         answer_section__exam__category__in=user_admin_categories
     )
-    if not has_payed:
-        answer_section_exam_can_view = answer_section_exam_can_view & Q(
-            answer_section__exam__needs_payment=False
-        )
     answers = Answer.objects
     if not is_admin:
         answers = answers.filter(answer_section_exam_can_view)
@@ -273,7 +274,10 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
             rank=SearchRank(F("search_vector"), query),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__last_name",),
+                When(
+                    Q(author__first_name__isnull=True),
+                    "author__last_name",
+                ),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
@@ -318,7 +322,7 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
     return answers
 
 
-def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
+def search_comments(term, is_admin, user_admin_categories, amount):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -328,10 +332,6 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
     answer_answer_section_exam_can_view = Q(
         answer__answer_section__exam__public=True
     ) | Q(answer__answer_section__exam__category__in=user_admin_categories)
-    if not has_payed:
-        answer_answer_section_exam_can_view = answer_answer_section_exam_can_view & Q(
-            answer__answer_section__exam__needs_payment=False
-        )
     comments = Comment.objects
     if not is_admin:
         comments = comments.filter(answer_answer_section_exam_can_view)
@@ -341,7 +341,10 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
             rank=SearchRank(F("search_vector"), query),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__last_name",),
+                When(
+                    Q(author__first_name__isnull=True),
+                    "author__last_name",
+                ),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
@@ -399,23 +402,22 @@ def search(request):
 
     user = request.user
     user_admin_categories = user.category_admin_set.values_list("id", flat=True)
-    has_payed = False # user.has_payed() TODO: remove as payment is not used at Edinburgh
     is_admin = has_admin_rights(request)
     exams_start = time.time()
     exams = (
-        search_exams(term, has_payed, is_admin, user_admin_categories, amount)
+        search_exams(term, is_admin, user_admin_categories, amount)
         if include_exams
         else []
     )
     answers_start = time.time()
     answers = (
-        search_answers(term, has_payed, is_admin, user_admin_categories, amount)
+        search_answers(term, is_admin, user_admin_categories, amount)
         if include_answers
         else []
     )
     comments_start = time.time()
     comments = (
-        search_comments(term, has_payed, is_admin, user_admin_categories, amount)
+        search_comments(term, is_admin, user_admin_categories, amount)
         if include_comments
         else []
     )

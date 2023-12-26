@@ -44,7 +44,6 @@ urlpatterns = [
     path("api/image/", include("images.urls")),
     path("api/auth/", include("ediauth.urls")),
     path("api/notification/", include("notifications.urls")),
-    path("api/payment/", include("payments.urls")),
     path("api/scoreboard/", include("scoreboard.urls")),
     path("api/document/", include("documents.urls")),
     re_path(
@@ -58,7 +57,7 @@ urlpatterns = [
 ]
 
 if DEBUG:
-    urlpatterns += [path("api/debug/", include('testing.urls'))]
+    urlpatterns += [path("api/debug/", include("testing.urls"))]
 
 handler400 = views.handler400
 handler403 = views.handler403

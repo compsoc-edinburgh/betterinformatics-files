@@ -67,7 +67,6 @@ class TestCutVersion(ComsolTestExamData):
         oldversion = section.cut_version
         self.post('/api/exam/setanswer/{}/'.format(section.id), {
             'text': 'New Test Answer',
-            'legacy_answer': False,
         })
         section.refresh_from_db()
         self.assertGreater(section.cut_version, oldversion)

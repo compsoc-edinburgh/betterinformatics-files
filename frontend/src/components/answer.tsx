@@ -55,7 +55,6 @@ interface Props {
   answer?: Answer;
   onSectionChanged?: (newSection: AnswerSection) => void;
   onDelete?: () => void;
-  isLegacyAnswer: boolean;
   hasId?: boolean;
 }
 const AnswerComponent: React.FC<Props> = ({
@@ -63,7 +62,6 @@ const AnswerComponent: React.FC<Props> = ({
   answer,
   onDelete,
   onSectionChanged,
-  isLegacyAnswer,
   hasId = true,
 }) => {
   const [viewSource, toggleViewSource] = useToggle(false);
@@ -93,8 +91,8 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText, isLegacyAnswer);
-  }, [section, draftText, update, isLegacyAnswer]);
+    if (section) update(section.oid, draftText);
+  }, [section, draftText, update]);
   const remove = useCallback(() => {
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
@@ -129,21 +127,17 @@ const AnswerComponent: React.FC<Props> = ({
                   </Text>
                 </Link>
               )}
-              {isLegacyAnswer ? (
-                answer?.authorDisplayName ?? "(Legacy Draft)"
-              ) : (
-                <Anchor
-                  component={Link}
-                  to={`/user/${answer?.authorId ?? username}`}
-                >
-                  <Text weight={700} component="span">
-                    {answer?.authorDisplayName ?? "(Draft)"}
-                  </Text>
-                  <Text ml="0.3em" color="dimmed" component="span">
-                    @{answer?.authorId ?? username}
-                  </Text>
-                </Anchor>
-              )}
+              <Anchor
+                component={Link}
+                to={`/user/${answer?.authorId ?? username}`}
+              >
+                <Text weight={700} component="span">
+                  {answer?.authorDisplayName ?? "(Draft)"}
+                </Text>
+                <Text ml="0.3em" color="dimmed" component="span">
+                  @{answer?.authorId ?? username}
+                </Text>
+              </Anchor>
               <Text color="dimmed" mx={6} component="span">
                 ·
               </Text>

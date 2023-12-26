@@ -11,7 +11,6 @@ import {
   FeedbackEntry,
   MetaCategory,
   NotificationInfo,
-  PaymentInfo,
   ServerCutResponse,
   Document,
   DocumentComment,
@@ -70,52 +69,6 @@ const setEnabledNotifications = async (type: number, enabled: boolean) => {
 };
 export const useSetEnabledNotifications = (cb: () => void) => {
   const { error, loading, run } = useRequest(setEnabledNotifications, {
-    manual: true,
-    onSuccess: cb,
-  });
-  return [error, loading, run] as const;
-};
-const loadPayments = async (username: string, isMyself: boolean) => {
-  const query = isMyself
-    ? "/api/payment/me/"
-    : `/api/payment/query/${username}/`;
-  return (await fetchGet(query)).value as PaymentInfo[];
-};
-export const usePayments = (username: string, isMyself: boolean) => {
-  const { error, loading, data, run } = useRequest(
-    () => loadPayments(username, isMyself),
-    {
-      refreshDeps: [username, isMyself],
-      cacheKey: `payments-${username}`,
-    },
-  );
-  return [error, loading, data, run] as const;
-};
-const addPayment = async (username: string) => {
-  return (await fetchPost("/api/payment/pay/", { username })).value;
-};
-export const useAddPayments = (cb: () => void) => {
-  const { error, loading, run } = useRequest(addPayment, {
-    manual: true,
-    onSuccess: cb,
-  });
-  return [error, loading, run] as const;
-};
-const removePayment = async (payment: string) => {
-  return await fetchPost(`/api/payment/remove/${payment}/`, {});
-};
-export const useRemovePayment = (cb: () => void) => {
-  const { error, loading, run } = useRequest(removePayment, {
-    manual: true,
-    onSuccess: cb,
-  });
-  return [error, loading, run] as const;
-};
-const refundPayment = async (payment: string) => {
-  return await fetchPost(`/api/payment/refund/${payment}/`, {});
-};
-export const useRefundPayment = (cb: () => void) => {
-  const { error, loading, run } = useRequest(refundPayment, {
     manual: true,
     onSuccess: cb,
   });
@@ -201,10 +154,6 @@ export const uploadPdf = async (
     await fetchPost("/api/exam/upload/exam/", { file, displayname, category })
   ).filename as string;
 };
-export const uploadTranscript = async (file: Blob, category: string) => {
-  return (await fetchPost("/api/exam/upload/transcript/", { file, category }))
-    .filename as string;
-};
 export const loadCategoryMetaData = async (slug: string) => {
   return (await fetchGet(`/api/category/metadata/${slug}/`))
     .value as CategoryMetaData;
@@ -258,10 +207,6 @@ export const loadFeedback = async () => {
   fb.sort((a: FeedbackEntry, b: FeedbackEntry) => getScore(a) - getScore(b));
   return fb;
 };
-export const loadPaymentCategories = async () => {
-  return (await fetchGet("/api/category/listonlypayment/"))
-    .value as CategoryMetaData[];
-};
 const loadAnswers = async (oid: string) => {
   const section = (await fetchGet(`/api/exam/answersection/${oid}/`))
     .value as AnswerSection;
@@ -293,10 +238,9 @@ export const useRemoveSplit = (oid: string, onSuccess: () => void) => {
 const updateAnswer = async (
   answerId: string,
   text: string,
-  legacy_answer: boolean,
 ) => {
   return (
-    await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
+    await fetchPost(`/api/exam/setanswer/${answerId}/`, { text })
   ).value as AnswerSection;
 };
 const removeAnswer = async (answerId: string) => {
@@ -380,10 +324,6 @@ export const removeCategory = async (slug: string) => {
 export const useRemoveCategory = (onSuccess?: () => void) =>
   useMutation(removeCategory, onSuccess);
 
-export const markAsChecked = async (filename: string) => {
-  return (await fetchPost(`/api/payment/markexamchecked/${filename}/`, {}))
-    .value;
-};
 export const loadDocumentTypes = async () => {
   return (await fetchGet("/api/document/listdocumenttypes/")).value as string[];
 };

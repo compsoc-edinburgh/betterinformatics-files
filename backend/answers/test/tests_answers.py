@@ -10,7 +10,7 @@ class TestExistingAnswer(ComsolTestExamData):
         answer = self.answers[0]
         self.post(
             "/api/exam/setanswer/{}/".format(answer.answer_section.id),
-            {"text": "New Answer Text", "legacy_answer": False,},
+            {"text": "New Answer Text"},
         )
         answer.refresh_from_db()
         self.assertEqual(answer.text, "New Answer Text")
@@ -131,7 +131,7 @@ class TestNonexisting(ComsolTestExamData):
         )
         self.post(
             "/api/exam/setanswer/{}/".format(self.mysection.id),
-            {"text": "Test Answer 123", "legacy_answer": False,},
+            {"text": "Test Answer 123",},
         )
         self.assertEqual(self.mysection.answer_set.count(), 1)
         self.assertTrue(

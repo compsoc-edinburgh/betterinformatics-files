@@ -83,7 +83,6 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
               <AnswerComponent
                 hasId={false}
                 answer={answer}
-                isLegacyAnswer={answer.isLegacyAnswer}
                 onSectionChanged={reload}
               />
             </div>
