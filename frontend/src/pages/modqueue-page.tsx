@@ -1,10 +1,9 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Button, Container, Table, Title } from "@mantine/core";
+import { Anchor, Badge, Button, Container, LoadingOverlay, Table, Title } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
 import ClaimButton from "../components/claim-button";
-import LoadingOverlay from "../components/loading-overlay";
 import { CategoryExam } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 
@@ -55,7 +54,7 @@ const ModQueue: React.FC = () => {
       </Title>
       {error && <div>{error.message}</div>}
       <div>
-        <LoadingOverlay loading={examsLoading} />
+        <LoadingOverlay visible={examsLoading} />
         <Table striped fontSize="md">
           <thead>
             <tr>
