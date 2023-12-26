@@ -9,11 +9,13 @@ class Category(models.Model):
     )
     remark = models.TextField(default="")
     semester = models.CharField(
-        max_length=4, choices=[(x, x) for x in ["--", "FS", "HS", "Both"]], default="--"
+        max_length=10,
+        choices=[(x, x) for x in ["--", "Semester 1", "Semester 2", "Full Year"]],
+        default="--",
     )
     permission = models.CharField(
         max_length=64,
-        choices=[(x, x) for x in ["public", "intern", "hidden", "none"]],
+        choices=[(x, x) for x in ["public", "internal", "hidden", "none"]],
         default="public",
     )
     more_exams_link = models.CharField(max_length=512, default="")

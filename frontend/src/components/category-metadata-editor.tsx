@@ -2,12 +2,12 @@ import { useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  Checkbox,
   CloseButton,
   Grid,
   Group,
   NativeSelect,
   Stack,
+  Text,
   Textarea,
   TextInput,
   Title,
@@ -178,11 +178,13 @@ const applyChanges = async (
   };
 };
 
+// These values are hardcoded in the backend database model, so you must perform
+// database migrations when modifing them.
 const semesterOptions = createOptions({
   None: "--",
-  HS: "HS",
-  FS: "FS",
-  Both: "Both",
+  Semester1: "Semester 1",
+  Semetser2: "Semester 2",
+  FullYear: "Full Year",
 });
 const formOptions = createOptions({
   oral: "Oral",
@@ -190,7 +192,7 @@ const formOptions = createOptions({
 });
 const permissionOptions = createOptions({
   public: "public",
-  intern: "intern",
+  internal: "internal",
   hidden: "hidden",
   none: "none",
 });
@@ -302,11 +304,11 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             />
           </Grid.Col>
         </Grid>
-        <Checkbox
+        {/* <Checkbox
           name="check"
           label="Has Payments"
           {...registerCheckbox("has_payments")}
-        />
+        /> */}
       </Stack>
       <Title order={4} mt="xl" mb="sm">
         Attachments
@@ -322,6 +324,9 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <Title order={4} mt="xl" mb="sm">
         Admins
       </Title>
+      <Text>
+        These users will be able to edit the category metadata (this page), and its exams fully, including uploading and deleting them. Provide their username on this site.
+      </Text>
       <UserSetEditor
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
@@ -329,6 +334,9 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <Title order={4} mt="xl" mb="sm">
         Experts
       </Title>
+      <Text>
+        These users will be able to endorse community answers and those will be highlighted. Provide their username on this site.
+      </Text>
       <UserSetEditor
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}
