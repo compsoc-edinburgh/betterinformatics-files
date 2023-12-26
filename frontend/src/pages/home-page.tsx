@@ -204,7 +204,7 @@ export const CategoryList: React.FC<{}> = () => {
             onChange={setMode}
             data={[
               { label: "Alphabetical", value: "alphabetical" },
-              { label: "By Semester", value: "bySemester" },
+              { label: "By SCQF", value: "bySCQF" },
             ]}
           />
           <TextInput
