@@ -8,6 +8,7 @@ import {
   Paper,
   SegmentedControl,
   Stack,
+  Text,
   TextInput,
   Title,
   Tooltip,
@@ -139,8 +140,18 @@ const HomePage: React.FC<{}> = () => {
   useTitle("Home");
   return (
     <>
-      <Container size="xl">
-        <Title mb="sm">Exam Collection</Title>
+      <Container size="xl" mb="sm">
+        <Text size="1rem" lh={1}>
+          Better&shy;Informatics
+        </Text>
+        <Title mb="sm">
+          Exam Collection
+        </Title>
+        <Text size="1rem" weight={500}>
+        The BI Exam Collection is a platform for students to share answers
+        for previous exams, leave comments on answers, and upload other
+        relevant documents.
+        </Text>
       </Container>
       <CategoryList />
     </>
