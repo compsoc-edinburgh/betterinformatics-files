@@ -399,7 +399,7 @@ def search(request):
 
     user = request.user
     user_admin_categories = user.category_admin_set.values_list("id", flat=True)
-    has_payed = user.has_payed()
+    has_payed = False # user.has_payed() TODO: remove as payment is not used at Edinburgh
     is_admin = has_admin_rights(request)
     exams_start = time.time()
     exams = (

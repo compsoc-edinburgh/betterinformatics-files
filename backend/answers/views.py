@@ -42,7 +42,6 @@ def exam_metadata(request, filename):
         'canEdit': admin_rights,
         'isExpert': auth_check.is_expert_for_exam(request, exam),
         'canView': can_view,
-        'hasPayed': request.user.has_payed(),
     }
 
     if can_view:
