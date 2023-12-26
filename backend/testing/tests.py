@@ -3,8 +3,11 @@ import logging
 from django.contrib.auth.models import User
 from django.test import Client, TestCase, override_settings
 from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
+from http.cookies import SimpleCookie
 from jwcrypto.jwk import JWK
 from jwcrypto.jwt import JWT
+import datetime
+import json
 
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
 from categories.models import Category
@@ -14,35 +17,29 @@ key = JWK()
 key.import_from_pem(private_key_data)
 
 
-
 def get_token(user):
-    sub = user["sub"]
-    username = user["username"]
-    given_name = user["given_name"]
-    family_name = user["family_name"]
+    data = {
+        "uun": user["username"],
+        "email": user["username"] + "@ed.ac.uk",
+        "exp": str(
+            datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(weeks=4)
+        ),
+        "admin": user["admin"],
+    }
+
     admin = user["admin"]
     roles = ["admin"] if admin else []
 
     token = JWT(
         header={"alg": "RS256", "typ": "JWT", "kid": key.key_id},
-        claims={
-            "sub": sub,
-            "resource_access": {"group": {"roles": roles}},
-            "scope": "openid profile",
-            "website": "https://www.vis.ethz.ch",
-            "name": given_name + " " + family_name,
-            "preferred_username": username,
-            "given_name": given_name,
-            "family_name": family_name,
-        },
+        claims=data,
     )
     token.make_signed_token(key)
 
-    return "Bearer " + token.serialize()
+    return json.dumps(data)
 
 
 class ComsolTest(TestCase):
-
     loginUsers = [
         {
             "sub": "42",
@@ -74,55 +71,51 @@ class ComsolTest(TestCase):
     test_http_methods = True
 
     def get(self, path, status_code=200, test_post=True, as_json=True):
+        if self.user:
+            self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
+        else:
+            self.client.cookies = SimpleCookie()
+
         if test_post and self.test_http_methods:
-            response = (
-                self.client.post(path, HTTP_AUTHORIZATION=get_token(self.user))
-                if self.user
-                else self.client.post(path)
-            )
+            response = self.client.post(path)
             self.assertEqual(response.status_code, 405)
-        response = (
-            self.client.get(path, HTTP_AUTHORIZATION=get_token(self.user))
-            if self.user
-            else self.client.get(path)
-        )
+        response = self.client.get(path)
         self.assertEqual(response.status_code, status_code)
         if as_json:
             return response.json()
         return response
 
     def post(self, path, args, status_code=200, test_get=True, as_json=True):
+        if self.user:
+            self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
+        else:
+            self.client.cookies = SimpleCookie()
+
         if test_get and self.test_http_methods:
             response = self.client.get(path)
             self.assertEqual(response.status_code, 405)
         for arg in args:
             if isinstance(args[arg], bool):
                 args[arg] = "true" if args[arg] else "false"
-        response = (
-            self.client.post(path, args, HTTP_AUTHORIZATION=get_token(self.user))
-            if self.user
-            else self.client.post(path, args)
-        )
+        response = self.client.post(path, args)
         self.assertEqual(response.status_code, status_code)
         if as_json:
             return response.json()
         return response
 
     def put(self, path, args, status_code=200, as_json=True):
+        if self.user:
+            self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
+        else:
+            self.client.cookies = SimpleCookie()
+
         for arg in args:
             if isinstance(args[arg], bool):
                 args[arg] = "true" if args[arg] else "false"
-        response = (
-            self.client.put(
-                path,
-                encode_multipart(BOUNDARY, args),
-                content_type=MULTIPART_CONTENT,
-                HTTP_AUTHORIZATION=get_token(self.user),
-            )
-            if self.user
-            else self.client.put(
-                path, encode_multipart(BOUNDARY, args), content_type=MULTIPART_CONTENT
-            )
+        response = self.client.put(
+            path,
+            encode_multipart(BOUNDARY, args),
+            content_type=MULTIPART_CONTENT,
         )
         self.assertEqual(response.status_code, status_code)
         if as_json:
@@ -130,11 +123,12 @@ class ComsolTest(TestCase):
         return response
 
     def delete(self, path, status_code=200, as_json=True):
-        response = (
-            self.client.delete(path, HTTP_AUTHORIZATION=get_token(self.user))
-            if self.user
-            else self.client.delete(path)
-        )
+        if self.user:
+            self.client.cookies = SimpleCookie({"access_token": get_token(self.user)})
+        else:
+            self.client.cookies = SimpleCookie()
+
+        response = self.client.delete(path)
         self.assertEqual(response.status_code, status_code)
         if as_json:
             return response.json()
@@ -148,10 +142,9 @@ class ComsolTest(TestCase):
         logger.setLevel(logging.ERROR)
 
         self.client = Client()
-        print(self.loginUser)
         if self.loginUser >= 0:
             self.user = self.loginUsers[self.loginUser]
-            self.get("/api/auth/me/")
+            r = self.get("/api/auth/me/")
         if call_my_setup:
             self.mySetUp()
 
@@ -166,7 +159,6 @@ class ComsolTest(TestCase):
 
 
 class ComsolTestExamData(ComsolTest):
-
     add_sections = True
     add_answers = True
     add_comments = True
@@ -227,14 +219,6 @@ class ComsolTestExamData(ComsolTest):
                         text="Test Answer {}/{}".format(section.id, i),
                     )
                 )
-            self.answers.append(
-                Answer(
-                    answer_section=section,
-                    author=User.objects.get(username=self.loginUsers[0]["username"]),
-                    text="Legacy Answer {}".format(section.id),
-                    is_legacy_answer=True,
-                )
-            )
         for answer in self.answers:
             answer.save()
             if not self.add_comments:
