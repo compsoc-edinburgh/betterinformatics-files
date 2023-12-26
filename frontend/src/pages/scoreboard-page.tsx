@@ -154,7 +154,7 @@ const Scoreboard: React.FC<{}> = () => {
                   <td>{idx + 1}</td>
                   <td>
                     <Anchor component={Link} to={`/user/${board.username}`}>
-                      {board.displayName}
+                      {board.username}
                     </Anchor>
                   </td>
                   <td>{board.score}</td>
