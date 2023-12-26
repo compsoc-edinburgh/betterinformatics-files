@@ -152,7 +152,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Grid>
           {(offeredIn === undefined || offeredIn.length > 0) && (
             <Box mb="sm">
-              Offered in:
+              Availability:
               {loading ? (
                 <Loader />
               ) : (
