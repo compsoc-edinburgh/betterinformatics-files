@@ -13,11 +13,8 @@
     <script type="application/json" id="server-data">
       %REACT_APP_SERVER_DATA%
     </script>
-    <script src="https://static.vseth.ethz.ch/assets/%REACT_APP_GLOB_ID%/config.js"></script>
-    <script type="application/json" id="vseth-context-data">
-      { "globID": "%REACT_APP_GLOB_ID%" }
-    </script>
-    <title>Community Solutions</title>
+    <script src="config.js"></script>
+    <title>Exam Collection</title>
   </head>
 
   <body>
@@ -25,3 +22,5 @@
     <div id="root"></div>
   </body>
 </html>
+<!-- The placeholders (%%) get replaced by .env files (dev/prod), which then may
+  get further replaced by Django's template system if in prod -->

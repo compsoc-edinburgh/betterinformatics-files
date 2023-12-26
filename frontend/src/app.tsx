@@ -7,6 +7,8 @@ import {
   Text,
   Affix,
   rem,
+  MantineThemeOverride,
+  Tuple,
 } from "@mantine/core";
 import {
   ConfigOptions,
@@ -15,6 +17,7 @@ import {
 } from "vseth-canine-ui";
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
+import tinycolor from "tinycolor2";
 import {
   authenticationStatus,
   fetchGet,
@@ -49,6 +52,19 @@ import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
 import { defaultConfigOptions } from "./components/Navbar/constants";
+
+function calculateShades(primaryColor: string) {
+  var baseHSLcolor = tinycolor(primaryColor).toHsl();
+  var darkerRatio = (0.95 - baseHSLcolor.l) / 7.0;
+  var shadesArray = new Array(10);
+  for (var i = 0; i < 7; i++) {
+      shadesArray[i] = tinycolor({ h: baseHSLcolor.h, s: baseHSLcolor.s, l: .95 - (i * darkerRatio) }).toString('hex6');
+  }
+  shadesArray[7] = primaryColor;
+  shadesArray[8] = tinycolor({ h: baseHSLcolor.h, s: baseHSLcolor.s, l: .05 + ((baseHSLcolor.l - 0.05) / 2.0) }).toString('hex6');
+  shadesArray[9] = tinycolor({ h: baseHSLcolor.h, s: baseHSLcolor.s, l: .05 }).toString('hex6');
+  return shadesArray;
+}
 
 const App: React.FC<{}> = () => {
   // const [loggedOut, setLoggedOut] = useState(false);
@@ -146,14 +162,21 @@ const App: React.FC<{}> = () => {
     pollingInterval: 300_000,
   });
 
-  const data = (window as any).configOptions as ConfigOptions;
+  const configOptions = (window as any).configOptions as ConfigOptions;
 
-  const vsethTheme = makeVsethTheme("#333");
-  vsethTheme.colorScheme = "light";
+  var compsocTheme: MantineThemeOverride = {
+    colors: {
+        compsocMain: calculateShades("#e95468") as Tuple<string, 10>,
+        compsocGray: new Array(10).fill("rgb(144, 146, 150)") as Tuple<string, 10>,
+    },
+    primaryColor: "compsocMain",
+    primaryShade: 7,
+    fontFamily: '"Source Sans Pro",Lato,Arial,Helvetica,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol',
+    lineHeight: 1.5,
+  };
 
-  const fvTheme = makeVsethTheme(data.primaryColor ?? "#009FE3");
-  fvTheme.colorScheme = "light";
-  fvTheme.components = {
+  compsocTheme.colorScheme = "light";
+  compsocTheme.components = {
     Anchor: {
       defaultProps: {
         color: "dark",
@@ -208,7 +231,9 @@ const App: React.FC<{}> = () => {
       childItems: [
         { title: "FAQ", href: "/faq" },
         { title: "Feedback", href: "/feedback" },
-        { title: "Submit Transcript", href: "/submittranscript" },
+        // Oral exam transcript submission should be disabled for Edinburgh,
+        // we don't have enough oral exams to justify it.
+        // { title: "Submit Transcript", href: "/submittranscript" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
@@ -230,8 +255,7 @@ const App: React.FC<{}> = () => {
   ];
 
   return (
-    <VSETHThemeProvider theme={vsethTheme}>
-      <MantineProvider theme={fvTheme} withGlobalStyles withNormalizeCSS>
+      <MantineProvider theme={compsocTheme} withGlobalStyles withNormalizeCSS>
         {/* <Modal
           opened={loggedOut}
           onClose={() => login()}
@@ -252,10 +276,10 @@ const App: React.FC<{}> = () => {
               <div>
                 <div>
                   <TopHeader
-                    logo={data.logo ?? defaultConfigOptions.logo}
+                    logo={configOptions.logo ?? defaultConfigOptions.logo}
                     size="xl"
                     organizationNav={
-                      data.externalNav ?? defaultConfigOptions.externalNav
+                      configOptions.externalNav ?? defaultConfigOptions.externalNav
                     }
                     selectedLanguage={"en"}
                     onLanguageSelect={() => {}}
@@ -268,7 +292,7 @@ const App: React.FC<{}> = () => {
                     activeHref={useLocation().pathname}
                   />
                   <MobileHeader
-                    signet={data.signet ?? defaultConfigOptions.signet}
+                    signet={configOptions.signet ?? defaultConfigOptions.signet}
                     selectedLanguage={"en"}
                     onLanguageSelect={() => {}}
                     appNav={bottomHeaderNav}
@@ -327,11 +351,11 @@ const App: React.FC<{}> = () => {
                   </Box>
                 </div>
                 <Footer
-                  logo={data.logo ?? defaultConfigOptions.logo}
+                  logo={configOptions.logo ?? defaultConfigOptions.logo}
                   disclaimer={
-                    data.disclaimer ?? defaultConfigOptions.disclaimer
+                    configOptions.disclaimer ?? defaultConfigOptions.disclaimer
                   }
-                  privacy={data.privacy ?? defaultConfigOptions.privacy}
+                  privacy={configOptions.privacy ?? defaultConfigOptions.privacy}
                 />
               </div>
             </SetUserContext.Provider>
@@ -353,7 +377,6 @@ const App: React.FC<{}> = () => {
           </>
         )}
       </MantineProvider>
-    </VSETHThemeProvider>
   );
 };
 export default App;
