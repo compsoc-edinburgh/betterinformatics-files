@@ -51,7 +51,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         mt="xl"
         mb={sortedDocs[0] && sortedDocs[0].docs.length && "lg"}
       >
-        Documents
+        Community Documents
       </Title>
       {sortedDocs &&
         sortedDocs.map(obj => (
