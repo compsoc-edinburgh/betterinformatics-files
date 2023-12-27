@@ -3,7 +3,6 @@ window.configOptions = {
   'org_logo': 'https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/horizontal/compsoc-horizontal-no-fill.svg',
   'org_signet': 'https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/profile/compsoc-profile-no-fill.svg',
   'primaryColor': '#e95468',
-  'disclaimer': 'https://betterinformatics.com',
   'copyright': 'Copyright 2023 CompSoc',
   'languages': [{
       'key': 'en',
@@ -82,5 +81,6 @@ window.configOptions = {
       'type': 'facebook',
       'link': 'https://www.facebook.com/compsoc/'
   }],
-  'privacy': 'https://comp-soc.com/privacy'
+  'disclaimer': '/disclaimer',
+  'privacy': '/privacy'
 };
