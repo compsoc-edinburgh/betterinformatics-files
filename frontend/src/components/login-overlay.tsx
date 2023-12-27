@@ -1,14 +1,18 @@
 import {
+  ActionIcon,
   Button,
   Loader,
   Group,
   Flex,
   PinInput,
+  Stack,
   TextInput,
   Title,
   Text,
+  Tooltip,
   Anchor,
 } from "@mantine/core";
+import { ICONS, Icon } from "vseth-canine-ui";
 import React, { FormEventHandler, useState } from "react";
 import { sendLoginCode, verifyLoginCode } from "../api/fetch-utils";
 import { useLocation } from "react-router-dom";
@@ -101,112 +105,81 @@ const LoginOverlay: React.FC<{}> = () => {
   }
 
   return (
-    <>
-      <Flex
-        align="center"
-        justify="center"
-      >
-          {(loginState === LoginState.AWAITING_UUN_INPUT && (
-            <div>
-              <Title order={4} size="1.75rem" weight={700} mb="md">Sign in to view</Title>
-              <form onSubmit={handleSubmitUUN}>
-                <TextInput
-                  label="Edinburgh UUN"
-                  placeholder="s0000000"
-                  value={uun}
-                  onChange={(e: any) => setUUN(e.currentTarget.value)}
-                  required
-                  autoFocus
-                  error={error}
-                />
-                <Button variant="outline" fullWidth mt="sm" type="submit">
-                  Next
-                </Button>
-              </form>
-            </div>
-          )) || (loginState === LoginState.AWAITING_PROCESSING_AGREEMENT && (
-            <form onSubmit={handleProcessingAgreement}>
-              <Text mt="md">
-                Do you consent to the processing (see our <Anchor href="/privacy" color="blue">privacy policy</Anchor>) of your UUN and IP address? The UUN will be visible to other users on this site.
-              </Text>
-              <Text mt="md">
-                Selecting "Yes" will send a 6-digit verification code to your email.
-              </Text>
-              <Group position="apart">
-                <Button variant="outline" mt="sm" type="submit" onClick={() => setProcessingAgreement(false)}>
-                  No
-                </Button>
-                <Button variant="outline" mt="sm" type="submit" onClick={() => setProcessingAgreement(true)}>
-                  Yes
-                </Button>
-              </Group>
-            </form>
-          )) || (loginState === LoginState.AWAITING_CODE_INPUT && (
-            <form onSubmit={handleSubmitCode}>
-              <Text>
-                A 6-digit verification code has been sent to your email: <br/>
-                {uun}@ed.ac.uk (<span onClick={changeUUN} style={{ cursor: "pointer" }} className="text-info">change</span>).
-              </Text>
-              <PinInput
-                mt="md"
-                size="md"
-                oneTimeCode
-                length={6}
-                value={verificationCode}
+    <Stack spacing="xs"
+    >
+        {(loginState === LoginState.AWAITING_UUN_INPUT && (
+          <>
+            <Title order={4} size="1.75rem" weight={700} mb="md">Sign in to view</Title>
+            <form onSubmit={handleSubmitUUN}>
+              <TextInput
+                label="Edinburgh UUN"
+                placeholder="s0000000"
+                value={uun}
+                onChange={(e: any) => setUUN(e.currentTarget.value)}
                 required
                 autoFocus
-                onChange={(value: string) => setVerificationCode(value)}
-                error={!!error} /* cast to boolean */
-                style={{ display: "flex", justifyContent: "center" }}
+                error={error}
+                rightSection={
+                  <Tooltip
+                    withinPortal
+                    label="Login"
+                  >
+                    <ActionIcon type="submit">
+                      <Icon icon={ICONS.ARROW_RIGHT} />
+                    </ActionIcon>
+                  </Tooltip>
+                }
               />
-              {error && (
-                <Text
-                  color="red"
-                  size="xs">
-                  {error}
-                </Text>
-              )}
-              <Button mt="md" fullWidth variant="outline" type="submit">
-                Sign in
-              </Button>
             </form>
-          ))}
-      </Flex>
-    </>
-// =======
-// import { Button, Flex, Text } from "@mantine/core";
-// import React from "react";
-// import { login } from "../api/fetch-utils";
-
-// const LoginOverlay: React.FC<{}> = () => {
-//   return (
-//     <Flex
-//       align="center"
-//       justify="center"
-//       style={{
-//         position: "absolute",
-//         top: 0,
-//         left: 0,
-//         right: 0,
-//         bottom: 0,
-//         textAlign: "center",
-//       }}
-//     >
-//       <div>
-//         <Text color="gray.0" size="1.75rem" weight={700} mb="md">
-//           Please Sign in
-//         </Text>
-//         <Button
-//           size="lg"
-//           color="gray.0"
-//           variant="outline"
-//           onClick={() => login()}
-//         >
-//           Sign in with AAI
-//         </Button>
-//       </div>
-//     </Flex>
-// >>>>>>> upstream/master
+          </>
+        )) || (loginState === LoginState.AWAITING_PROCESSING_AGREEMENT && (
+          <form onSubmit={handleProcessingAgreement}>
+            <Text mt="md">
+              Do you consent to the processing (see our <Anchor href="/privacy" color="blue">privacy policy</Anchor>) of your UUN and IP address? The UUN will be visible to other users on this site.
+            </Text>
+            <Text mt="md">
+              Selecting "Yes" will send a 6-digit verification code to your email.
+            </Text>
+            <Group position="apart">
+              <Button variant="outline" mt="sm" type="submit" onClick={() => setProcessingAgreement(false)}>
+                No
+              </Button>
+              <Button variant="outline" mt="sm" type="submit" onClick={() => setProcessingAgreement(true)}>
+                Yes
+              </Button>
+            </Group>
+          </form>
+        )) || (loginState === LoginState.AWAITING_CODE_INPUT && (
+          <form onSubmit={handleSubmitCode}>
+            <Text>
+              A 6-digit verification code has been sent to your email: <br/>
+              {uun}@ed.ac.uk (<span onClick={changeUUN} style={{ cursor: "pointer" }} className="text-info">change</span>).
+            </Text>
+            <PinInput
+              mt="md"
+              size="md"
+              oneTimeCode
+              length={6}
+              value={verificationCode}
+              required
+              autoFocus
+              onChange={(value: string) => setVerificationCode(value)}
+              error={!!error} /* cast to boolean */
+              style={{ display: "flex", justifyContent: "center" }}
+            />
+            {error && (
+              <Text
+                color="red"
+                size="xs">
+                {error}
+              </Text>
+            )}
+            <Button mt="md" fullWidth variant="outline" type="submit">
+              Sign in
+            </Button>
+          </form>
+        ))}
+    </Stack>
   );
 };
 export default LoginOverlay;
