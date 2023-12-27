@@ -157,6 +157,7 @@ CSP_IMG_SRC = (
     "data:",
     "https://betterinformatics.com/static/img/",  # for the camel image
     "https://comp-soc.com/static/img/",  # for the compsoc logo
+    "https://raw.githubusercontent.com/compsoc-edinburgh/", # for anything else
 )
 
 
