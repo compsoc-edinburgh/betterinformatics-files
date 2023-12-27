@@ -69,6 +69,9 @@ services:
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
 
+      - RUNTIME_JWT_PRIVATE_KEY_PATH=/app/community_solutions_jwt_private.pem
+      - RUNTIME_JWT_PUBLIC_KEY_PATH=/app/community_solutions_jwt_public.pem
+
       - FRONTEND_TITLE_PREFIX=
       - FRONTEND_TITLE_SUFFIX=- Debug
       - FRONTEND_FAVICON_URL=https://betterinformatics.com/static/img/favicon.ico
