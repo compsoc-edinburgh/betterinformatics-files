@@ -6,6 +6,7 @@ import {
   Affix,
   rem,
   MantineThemeOverride,
+  Indicator,
   Tuple,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
@@ -178,15 +179,9 @@ const App: React.FC<{}> = () => {
     },
     {
       title: (
-        <span>
+        <Indicator disabled={unreadCount === undefined || unreadCount == 0}>
           Account
-          {unreadCount !== undefined && unreadCount > 0 && (
-            <>
-              {" "}
-              <Badge>{unreadCount}</Badge>
-            </>
-          )}
-        </span>
+        </Indicator>
       ),
       href: `/user/${user?.username}`,
     },
