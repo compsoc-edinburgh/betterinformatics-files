@@ -22,6 +22,7 @@ import DebugModal from "./components/Debug/DebugModal";
 import HashLocationHandler from "./components/hash-location-handler";
 import useToggle from "./hooks/useToggle";
 import CategoryPage from "./pages/category-page";
+import DisclaimerPage from "./pages/disclaimer-page";
 import DocumentPage from "./pages/document-page";
 import ExamPage from "./pages/exam-page";
 import FAQ from "./pages/faq-page";
@@ -30,6 +31,7 @@ import HomePage from "./pages/home-page";
 import LoginPage from "./pages/login-page";
 import ModQueue from "./pages/modqueue-page";
 import NotFoundPage from "./pages/not-found-page";
+import PrivacyPolicyPage from "./pages/privacypolicy-page";
 import Scoreboard from "./pages/scoreboard-page";
 import SearchPage from "./pages/search-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
@@ -213,7 +215,7 @@ const App: React.FC<{}> = () => {
                     title={"Exam Collection"}
                     size="xl"
                     activeHref={useLocation().pathname}
-                    icon={configOptions.org_signet}
+                    icon={configOptions.logo}
                   />
                   <MobileHeader
                     signet={configOptions.org_signet ?? defaultConfigOptions.org_signet}
@@ -232,6 +234,8 @@ const App: React.FC<{}> = () => {
                         component={UploadPdfPage}
                       />
                       <UserRoute exact path="/faq" component={FAQ} />
+                      <UserRoute exact path="/disclaimer" component={DisclaimerPage} />
+                      <UserRoute exact path="/privacy" component={PrivacyPolicyPage} />
                       <UserRoute
                         exact
                         path="/feedback"
