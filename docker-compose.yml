@@ -71,7 +71,7 @@ services:
       - ADMIN_UUNS=s2100747
 
       - FRONTEND_TITLE_PREFIX=
-      - FRONTEND_TITLE_SUFFIX=- BI Exam Collection
+      - FRONTEND_TITLE_SUFFIX=- Debug
       - FRONTEND_FAVICON_URL=
       - FRONTEND_EMAIL_ADDRESS=nothing@localhost
 
