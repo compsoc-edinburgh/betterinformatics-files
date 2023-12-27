@@ -33,10 +33,7 @@ const stringKeys = [
   "resolve_alias",
   "remark",
 ] as const;
-const booleanKeys = [
-  "public",
-  "finished_cuts",
-] as const;
+const booleanKeys = ["public", "finished_cuts"] as const;
 
 const setMetaData = async (
   filename: string,

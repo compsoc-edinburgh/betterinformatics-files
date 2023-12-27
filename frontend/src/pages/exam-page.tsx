@@ -15,11 +15,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
-import {
-  loadCuts,
-  loadExamMetaData,
-  loadSplitRenderer,
-} from "../api/hooks";
+import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import Exam from "../components/exam";
 import ExamMetadataEditor from "../components/exam-metadata-editor";

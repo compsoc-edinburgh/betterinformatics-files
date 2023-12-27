@@ -33,15 +33,12 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
           gap="md"
           align="center"
         >
-          <img
-            height={32}
-            src={logo}
-            alt="Logo of the student organization"
-          />
+          <img height={32} src={logo} alt="Logo of the student organization" />
           <Text
-          style={{
-            flex: 1,
-          }}>
+            style={{
+              flex: 1,
+            }}
+          >
             Orginal software (GPL) built with
             <Icon
               icon={ICONS.LIKE_FILLED}

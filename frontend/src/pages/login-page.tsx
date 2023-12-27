@@ -15,7 +15,8 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             md={6}
             lg={6}
             xl={6}
-            style={{ alignSelf: "center" }}>
+            style={{ alignSelf: "center" }}
+          >
             <Flex direction="column" justify="center">
               <Text size="4rem" lh={1} mt="lg">
                 Better&shy;Informatics
@@ -24,9 +25,9 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
                 Exam Collection
               </Text>
               <Text size="1rem" weight={500}>
-              The BI Exam Collection is a platform for students to share answers
-              for previous exams, leave comments on answers, and upload other
-              relevant documents.
+                The BI Exam Collection is a platform for students to share
+                answers for previous exams, leave comments on answers, and
+                upload other relevant documents.
               </Text>
             </Flex>
           </Grid.Col>
@@ -41,13 +42,7 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             mx="auto"
             py="sm"
           >
-            <Paper
-              withBorder
-              shadow="sm"
-              p={30}
-              mt={30}
-              radius="md" 
-            >
+            <Paper withBorder shadow="sm" p={30} mt={30} radius="md">
               <LoginOverlay />
             </Paper>
           </Grid.Col>

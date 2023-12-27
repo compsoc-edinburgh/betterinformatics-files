@@ -1,10 +1,5 @@
 import { css } from "@emotion/css";
-import {
-  Container,
-  Alert,
-  Tabs,
-  LoadingOverlay,
-} from "@mantine/core";
+import { Container, Alert, Tabs, LoadingOverlay } from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";

@@ -1,5 +1,13 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Button, Container, LoadingOverlay, Table, Title } from "@mantine/core";
+import {
+  Anchor,
+  Badge,
+  Button,
+  Container,
+  LoadingOverlay,
+  Table,
+  Title,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
@@ -84,11 +92,7 @@ const ModQueue: React.FC = () => {
                     </div>
                     <p>{exam.remark}</p>
                   </td>
-                  <td>
-                    {exam.finished_cuts
-                      ? "All done"
-                      : "Needs Cuts"}
-                  </td>
+                  <td>{exam.finished_cuts ? "All done" : "Needs Cuts"}</td>
                   <td>
                     <ClaimButton exam={exam} reloadExams={reloadExams} />
                   </td>

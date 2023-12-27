@@ -12,10 +12,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import tinycolor from "tinycolor2";
-import {
-  fetchGet,
-  getCookie,
-} from "./api/fetch-utils";
+import { fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
@@ -42,18 +39,33 @@ import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
-import { defaultConfigOptions, ConfigOptions } from "./components/Navbar/constants";
+import {
+  defaultConfigOptions,
+  ConfigOptions,
+} from "./components/Navbar/constants";
 
 function calculateShades(primaryColor: string) {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
   var darkerRatio = (0.95 - baseHSLcolor.l) / 7.0;
   var shadesArray = new Array(10);
   for (var i = 0; i < 7; i++) {
-      shadesArray[i] = tinycolor({ h: baseHSLcolor.h, s: baseHSLcolor.s, l: .95 - (i * darkerRatio) }).toString('hex6');
+    shadesArray[i] = tinycolor({
+      h: baseHSLcolor.h,
+      s: baseHSLcolor.s,
+      l: 0.95 - i * darkerRatio,
+    }).toString("hex6");
   }
   shadesArray[7] = primaryColor;
-  shadesArray[8] = tinycolor({ h: baseHSLcolor.h, s: baseHSLcolor.s, l: .05 + ((baseHSLcolor.l - 0.05) / 2.0) }).toString('hex6');
-  shadesArray[9] = tinycolor({ h: baseHSLcolor.h, s: baseHSLcolor.s, l: .05 }).toString('hex6');
+  shadesArray[8] = tinycolor({
+    h: baseHSLcolor.h,
+    s: baseHSLcolor.s,
+    l: 0.05 + (baseHSLcolor.l - 0.05) / 2.0,
+  }).toString("hex6");
+  shadesArray[9] = tinycolor({
+    h: baseHSLcolor.h,
+    s: baseHSLcolor.s,
+    l: 0.05,
+  }).toString("hex6");
   return shadesArray;
 }
 
@@ -109,12 +121,16 @@ const App: React.FC<{}> = () => {
   // CompSoc theme
   var compsocTheme: MantineThemeOverride = {
     colors: {
-        compsocMain: calculateShades("#b89c7c") as Tuple<string, 10>,
-        compsocGray: new Array(10).fill("rgb(144, 146, 150)") as Tuple<string, 10>,
+      compsocMain: calculateShades("#b89c7c") as Tuple<string, 10>,
+      compsocGray: new Array(10).fill("rgb(144, 146, 150)") as Tuple<
+        string,
+        10
+      >,
     },
     primaryColor: "compsocMain",
     primaryShade: 7,
-    fontFamily: '"Source Sans Pro",Lato,Arial,Helvetica,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol',
+    fontFamily:
+      '"Source Sans Pro",Lato,Arial,Helvetica,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol',
     lineHeight: 1.5,
   };
 
@@ -179,7 +195,10 @@ const App: React.FC<{}> = () => {
     },
     {
       title: (
-        <Indicator disabled={unreadCount === undefined || unreadCount === 0} label={unreadCount}>
+        <Indicator
+          disabled={unreadCount === undefined || unreadCount === 0}
+          label={unreadCount}
+        >
           Account
         </Indicator>
       ),
@@ -188,113 +207,124 @@ const App: React.FC<{}> = () => {
   ];
 
   return (
-      <MantineProvider theme={compsocTheme} withGlobalStyles withNormalizeCSS>
-        <Route component={HashLocationHandler} />
-        <DebugContext.Provider value={debugOptions}>
-          <UserContext.Provider value={user}>
-            <SetUserContext.Provider value={setUser}>
+    <MantineProvider theme={compsocTheme} withGlobalStyles withNormalizeCSS>
+      <Route component={HashLocationHandler} />
+      <DebugContext.Provider value={debugOptions}>
+        <UserContext.Provider value={user}>
+          <SetUserContext.Provider value={setUser}>
+            <div>
               <div>
-                <div>
-                  <TopHeader
-                    logo={configOptions.org_logo ?? defaultConfigOptions.org_logo}
-                    size="xl"
-                    organizationNav={
-                      configOptions.externalNav ?? defaultConfigOptions.externalNav
-                    }
-                    selectedLanguage={"en"}
-                    onLanguageSelect={() => {}}
-                  />
-                  <BottomHeader
-                    lang={"en"}
-                    appNav={bottomHeaderNav}
-                    title={"Exam Collection"}
-                    size="xl"
-                    activeHref={useLocation().pathname}
-                    icon={configOptions.logo}
-                  />
-                  <MobileHeader
-                    signet={configOptions.org_signet ?? defaultConfigOptions.org_signet}
-                    selectedLanguage={"en"}
-                    onLanguageSelect={() => {}}
-                    appNav={bottomHeaderNav}
-                    title={"Exam Collection"}
-                  />
-                  <Box component="main" mt="2em">
-                    <Switch>
-                      <UserRoute exact path="/" component={HomePage} />
-                      <Route exact path="/login" component={LoginPage} />
-                      <UserRoute
-                        exact
-                        path="/uploadpdf"
-                        component={UploadPdfPage}
-                      />
-                      <UserRoute exact path="/faq" component={FAQ} />
-                      <Route exact path="/disclaimer" component={DisclaimerPage} />
-                      <Route exact path="/privacy" component={PrivacyPolicyPage} />
-                      <UserRoute
-                        exact
-                        path="/feedback"
-                        component={FeedbackPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/category/:slug"
-                        component={CategoryPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:author/document/:slug"
-                        component={DocumentPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/exams/:filename"
-                        component={ExamPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:username"
-                        component={UserPage}
-                      />
-                      <UserRoute exact path="/user/" component={UserPage} />
-                      <UserRoute exact path="/search/" component={SearchPage} />
-                      <UserRoute
-                        exact
-                        path="/scoreboard"
-                        component={Scoreboard}
-                      />
-                      <UserRoute exact path="/modqueue" component={ModQueue} />
-                      <Route component={NotFoundPage} />
-                    </Switch>
-                  </Box>
-                </div>
-                <Footer
+                <TopHeader
                   logo={configOptions.org_logo ?? defaultConfigOptions.org_logo}
-                  disclaimer={
-                    configOptions.disclaimer ?? defaultConfigOptions.disclaimer
+                  size="xl"
+                  organizationNav={
+                    configOptions.externalNav ??
+                    defaultConfigOptions.externalNav
                   }
-                  privacy={configOptions.privacy ?? defaultConfigOptions.privacy}
+                  selectedLanguage={"en"}
+                  onLanguageSelect={() => {}}
                 />
+                <BottomHeader
+                  lang={"en"}
+                  appNav={bottomHeaderNav}
+                  title={"Exam Collection"}
+                  size="xl"
+                  activeHref={useLocation().pathname}
+                  icon={configOptions.logo}
+                />
+                <MobileHeader
+                  signet={
+                    configOptions.org_signet ?? defaultConfigOptions.org_signet
+                  }
+                  selectedLanguage={"en"}
+                  onLanguageSelect={() => {}}
+                  appNav={bottomHeaderNav}
+                  title={"Exam Collection"}
+                />
+                <Box component="main" mt="2em">
+                  <Switch>
+                    <UserRoute exact path="/" component={HomePage} />
+                    <Route exact path="/login" component={LoginPage} />
+                    <UserRoute
+                      exact
+                      path="/uploadpdf"
+                      component={UploadPdfPage}
+                    />
+                    <UserRoute exact path="/faq" component={FAQ} />
+                    <Route
+                      exact
+                      path="/disclaimer"
+                      component={DisclaimerPage}
+                    />
+                    <Route
+                      exact
+                      path="/privacy"
+                      component={PrivacyPolicyPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/feedback"
+                      component={FeedbackPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/category/:slug"
+                      component={CategoryPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/user/:author/document/:slug"
+                      component={DocumentPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/exams/:filename"
+                      component={ExamPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/user/:username"
+                      component={UserPage}
+                    />
+                    <UserRoute exact path="/user/" component={UserPage} />
+                    <UserRoute exact path="/search/" component={SearchPage} />
+                    <UserRoute
+                      exact
+                      path="/scoreboard"
+                      component={Scoreboard}
+                    />
+                    <UserRoute exact path="/modqueue" component={ModQueue} />
+                    <Route component={NotFoundPage} />
+                  </Switch>
+                </Box>
               </div>
-            </SetUserContext.Provider>
-          </UserContext.Provider>
-        </DebugContext.Provider>
-        {process.env.NODE_ENV === "development" && (
-          <>
-            <Affix position={{ top: rem(10), left: rem(10) }}>
-              <Button variant="brand" onClick={toggleDebugPanel}>
-                DEBUG
-              </Button>
-            </Affix>
-            <DebugModal
-              isOpen={debugPanel}
-              toggle={toggleDebugPanel}
-              debugOptions={debugOptions}
-              setDebugOptions={setDebugOptions}
-            />
-          </>
-        )}
-      </MantineProvider>
+              <Footer
+                logo={configOptions.org_logo ?? defaultConfigOptions.org_logo}
+                disclaimer={
+                  configOptions.disclaimer ?? defaultConfigOptions.disclaimer
+                }
+                privacy={configOptions.privacy ?? defaultConfigOptions.privacy}
+              />
+            </div>
+          </SetUserContext.Provider>
+        </UserContext.Provider>
+      </DebugContext.Provider>
+      {process.env.NODE_ENV === "development" && (
+        <>
+          <Affix position={{ top: rem(10), left: rem(10) }}>
+            <Button variant="brand" onClick={toggleDebugPanel}>
+              DEBUG
+            </Button>
+          </Affix>
+          <DebugModal
+            isOpen={debugPanel}
+            toggle={toggleDebugPanel}
+            debugOptions={debugOptions}
+            setDebugOptions={setDebugOptions}
+          />
+        </>
+      )}
+    </MantineProvider>
   );
 };
 export default App;

@@ -8,12 +8,16 @@ export const PrivacyPolicyPage: React.FC = () => {
 
   return (
     <Container size="xl">
-      <Title order={1} mb="md">Privacy Policy</Title>
+      <Title order={1} mb="md">
+        Privacy Policy
+      </Title>
       <Title order={2}>Our Contact Details</Title>
       <p>
         <b>Name: </b> CompSoc BetterInformatics <br />
-        <b>Address: </b> CompSoc, School of Informatics, Informatics Forum, 10 Crichton Street, Edinburgh, EH8 9AB. <br />
-        <b>Email: </b> <a href={`mailto:${serverData.email_address}`}>
+        <b>Address: </b> CompSoc, School of Informatics, Informatics Forum, 10
+        Crichton Street, Edinburgh, EH8 9AB. <br />
+        <b>Email: </b>{" "}
+        <a href={`mailto:${serverData.email_address}`}>
           {serverData.email_address}
         </a>
       </p>
@@ -27,10 +31,12 @@ export const PrivacyPolicyPage: React.FC = () => {
         </ul>
       </p>
 
-      <Title order={2}>How we get the personal information and why we have it</Title>
+      <Title order={2}>
+        How we get the personal information and why we have it
+      </Title>
       <p>
-        All of the personal information we process is provided to us directly
-        by you for authentication and identification purposes.
+        All of the personal information we process is provided to us directly by
+        you for authentication and identification purposes.
       </p>
       <p>
         We use the information that you have given us in order to limit access
@@ -41,8 +47,9 @@ export const PrivacyPolicyPage: React.FC = () => {
         Under the UK General Data Protection Regulation (UK GDPR), the lawful
         bases we rely on for processing this information are:
         <ul>
-          <li>Your consent. You are able to remove your consent at any time.
-            You can do this by contacting us at{" "}
+          <li>
+            Your consent. You are able to remove your consent at any time. You
+            can do this by contacting us at{" "}
             <a href={`mailto:${serverData.email_address}`}>
               {serverData.email_address}
             </a>
@@ -67,12 +74,23 @@ export const PrivacyPolicyPage: React.FC = () => {
       <p>
         Under data protection law, you have rights including:
         <ul>
-          <li><b>Your Right of Access</b> - You have the right to ask us for copies of your personal information.</li>
-          <li><b>Your Right to Erasure</b> - You have the right to ask us to erase your personal information.</li>
-          <li><b>Your Right to Restrict Processing</b> - You have the right to ask us to restrict the processing of your personal information.</li>
-          <li><b>Your Right to Object to Processing</b> - You have the right to object to the processing of your personal information.</li>
+          <li>
+            <b>Your Right of Access</b> - You have the right to ask us for
+            copies of your personal information.
+          </li>
+          <li>
+            <b>Your Right to Erasure</b> - You have the right to ask us to erase
+            your personal information.
+          </li>
+          <li>
+            <b>Your Right to Restrict Processing</b> - You have the right to ask
+            us to restrict the processing of your personal information.
+          </li>
+          <li>
+            <b>Your Right to Object to Processing</b> - You have the right to
+            object to the processing of your personal information.
+          </li>
         </ul>
-
         You are not required to pay any charge for exercising your rights. If
         you make a request, we have one month to respond to you. Please contact
         us at{" "}
@@ -83,8 +101,8 @@ export const PrivacyPolicyPage: React.FC = () => {
 
       <Title order={2}>How to complain</Title>
       <p>
-        If you have any concerns about our use of your personal information,
-        you can make a complaint to us at{" "}
+        If you have any concerns about our use of your personal information, you
+        can make a complaint to us at{" "}
         <a href={`mailto:${serverData.email_address}`}>
           {serverData.email_address}
         </a>

@@ -224,21 +224,18 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   });
   const [offeredIn, setOfferedIn] =
     useInitialState<Array<readonly [string, string]>>(propOfferedIn);
-  const {
-    registerInput,
-    reset,
-    formState,
-    setFormValue,
-    onSubmit,
-  } = useForm(currentMetaData as CategoryMetaDataDraft, data => {
-    runApplyChanges(
-      currentMetaData.slug,
-      currentMetaData,
-      data,
-      propOfferedIn,
-      offeredIn,
-    );
-  });
+  const { registerInput, reset, formState, setFormValue, onSubmit } = useForm(
+    currentMetaData as CategoryMetaDataDraft,
+    data => {
+      runApplyChanges(
+        currentMetaData.slug,
+        currentMetaData,
+        data,
+        propOfferedIn,
+        offeredIn,
+      );
+    },
+  );
   return (
     <>
       <Group position="apart">
@@ -320,7 +317,9 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         Admins
       </Title>
       <Text>
-        These users will be able to edit the category metadata (this page), and its exams fully, including uploading and deleting them. Provide their username on this site.
+        These users will be able to edit the category metadata (this page), and
+        its exams fully, including uploading and deleting them. Provide their
+        username on this site.
       </Text>
       <UserSetEditor
         users={formState.admins}
@@ -330,7 +329,8 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         Experts
       </Title>
       <Text>
-        These users will be able to endorse community answers and those will be highlighted. Provide their username on this site.
+        These users will be able to endorse community answers and those will be
+        highlighted. Provide their username on this site.
       </Text>
       <UserSetEditor
         users={formState.experts}

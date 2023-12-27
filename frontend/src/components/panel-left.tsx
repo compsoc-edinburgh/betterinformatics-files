@@ -119,21 +119,13 @@ const Panel: React.FC<PanelProps> = ({
     <>
       <div className={panelStyle}>
         <div className={iconContainerStyle} style={{ padding: iconPadding }}>
-          <Tooltip
-            withinPortal
-            label="Quick jump"
-          >
+          <Tooltip withinPortal label="Quick jump">
             <Button
               size="lg"
               variant="brand"
               className={closeButtonStyle}
               onClick={toggle}
-              leftIcon={
-                  <Icon
-                    icon={ICONS.MENU_BURGER}
-                    size={24}
-                  />
-              }
+              leftIcon={<Icon icon={ICONS.MENU_BURGER} size={24} />}
             >
               {buttonText && (
                 <div>

@@ -8,7 +8,9 @@ export const DisclaimerPage: React.FC = () => {
 
   return (
     <Container size="xl">
-      <Title order={1} mb="md">Disclaimers</Title>
+      <Title order={1} mb="md">
+        Disclaimers
+      </Title>
       <Title order={2}>Legal Disclaimer</Title>
       <p>
         The Exam Collection is not affiliated with the University of Edinburgh,
@@ -30,8 +32,8 @@ export const DisclaimerPage: React.FC = () => {
       <p>
         We do not endorse any use of past papers outside of its intended purpose
         of study aid for our users. The Exam Collection may ban access to the
-        service for users who do not respect these violate engage in any form
-        of academic dishonesty.
+        service for users who do not respect these violate engage in any form of
+        academic dishonesty.
       </p>
 
       <Title order={2}>External Links</Title>
@@ -44,30 +46,26 @@ export const DisclaimerPage: React.FC = () => {
       <p>
         If you are a member of the University of Edinburgh staff and would like
         to request the removal of a past paper or any of its community-provided
-        answers from the Exam Collection, please
-        contact us at{" "}
+        answers from the Exam Collection, please contact us at{" "}
         <a href={`mailto:${serverData.email_address}`}>
           {serverData.email_address}
         </a>
-        .
-
-        You may also want to separately contact Exam Papers Online to request
+        . You may also want to separately contact Exam Papers Online to request
         the removal of the original past paper.
       </p>
 
       <Title order={2}>License and Copyright</Title>
       <p>
-        The past papers available on the Exam Collection belong to the University
-        of Edinburgh.
+        The past papers available on the Exam Collection belong to the
+        University of Edinburgh.
       </p>
       <p>
-        The community-provided answers are licensed under the
-        Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
-        License.
+        The community-provided answers are licensed under the Creative Commons
+        Attribution-NonCommercial-ShareAlike 4.0 International License.
       </p>
       <p>
-        The source code for the Exam Collection is available under the
-        GNU GPL v3 license.
+        The source code for the Exam Collection is available under the GNU GPL
+        v3 license.
       </p>
     </Container>
   );

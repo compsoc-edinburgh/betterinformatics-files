@@ -276,7 +276,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                           (data.answers.length === 0 || !hidden) &&
                           has_answers &&
                           data &&
-                          (data.allow_new_answer) && (
+                          data.allow_new_answer && (
                             <AddButton
                               allowAnswer={data.allow_new_answer}
                               hasAnswerDraft={hasDraft}

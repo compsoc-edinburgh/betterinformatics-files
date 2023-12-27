@@ -16,7 +16,8 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
-      if (!authenticated()) history.push(`/login/?rd=/category/${category.slug}`);
+      if (!authenticated())
+        history.push(`/login/?rd=/category/${category.slug}`);
       else history.push(`/category/${category.slug}`);
     }
   };
@@ -25,7 +26,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
   // to the login form for first-time users. This is purely cosmetic. Access is
   // blocked anyway by the onClick handler and on the server side.
   const hide_titles = !authenticated();
-  
+
   return hide_titles ? (
     <Card
       withBorder
