@@ -27,7 +27,7 @@ const useStyles = createStyles((_theme, _params) => ({
     padding: "0.75rem 0",
   },
   logo: {
-    filter: "invert() contrast(234234)",
+    filter: "brightness(0) invert(1)",
     height: "2rem",
     paddingRight: "1.25rem",
   },
