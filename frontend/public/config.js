@@ -62,6 +62,11 @@ window.configOptions = {
               'en': 'Exam Collection'
           },
           'href': 'https://exams.comp-soc.com'
+      },{
+        'title': {
+            'en': 'Useful Links'
+        },
+        'href': 'https://betterinformatics.com'
       }, {
           'title': {
               'en': 'Merchandise'
