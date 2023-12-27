@@ -2,29 +2,24 @@ import { ImageHandle } from "../components/Editor/utils/types";
 import { jwtDecode } from "jwt-decode";
 
 /**
- * Check if the user is authenticated.
- * @returns The number of seconds before the auth token expires, or `undefined`
- * if there is no auth cookie.
+ * Check if the user is authenticated: checks whether the auth cookie is set and
+ * has a value in the future. Note that this does not verify the cookie
+ * signature and it can be forged by the client.
+ * @returns Boolean whether the user is authenticated, or `undefined` if there
+ * is no auth cookie.
  */
-function authenticationStatus() {
+export function authenticated() {
   const access_token_jwt = getCookie("access_token");
   if (access_token_jwt === null) {
     return undefined;
   }
-  const claims = jwtDecode(access_token_jwt);
-  const now = new Date().getTime();
-  const time = new Date(claims["exp"]).getTime();
-  return time - now;
-}
-
-/**
- * Checks whether the auth cookie is set and has a value in the future. Note
- * that this does not verify the cookie signature and it can be forged by the
- * client.
- * @returns
- */
-export function authenticated(expires = authenticationStatus()) {
-  return expires !== undefined && expires > 0;
+  // Attempt to get the exp field. Use empty object if jwtDecode returns undefined.
+  const { exp } = jwtDecode(access_token_jwt) || {};
+  if (exp === undefined) {
+    return undefined;
+  }
+  // Multiply because exp is epoch but Date.now() is in milliseconds.
+  return Date.now() < exp * 1000;
 }
 
 // First step of the login, generates a verification code. The backend will
