@@ -12,7 +12,7 @@ export const PrivacyPolicyPage: React.FC = () => {
       <Title order={2}>Our Contact Details</Title>
       <p>
         <b>Name: </b> CompSoc BetterInformatics <br />
-        <b>Address: </b> <pre>CompSoc, School of Informatics, Informatics Forum, 10 Crichton Street, Edinburgh, EH8 9AB.</pre> <br />
+        <b>Address: </b> CompSoc, School of Informatics, Informatics Forum, 10 Crichton Street, Edinburgh, EH8 9AB. <br />
         <b>Email: </b> <a href={`mailto:${serverData.email_address}`}>
           {serverData.email_address}
         </a>
