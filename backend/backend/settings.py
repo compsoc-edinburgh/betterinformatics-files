@@ -89,8 +89,12 @@ jwt_public_key_path = (
     else os.environ.get("RUNTIME_JWT_PUBLIC_KEY_PATH", "")
 )
 
-JWT_PRIVATE_KEY = "" if not jwt_private_key_path else open(jwt_private_key_path, "rb").read()
-JWT_PUBLIC_KEY = "" if not jwt_public_key_path else open(jwt_public_key_path, "rb").read()
+JWT_PRIVATE_KEY = (
+    "" if not jwt_private_key_path else open(jwt_private_key_path, "rb").read()
+)
+JWT_PUBLIC_KEY = (
+    "" if not jwt_public_key_path else open(jwt_public_key_path, "rb").read()
+)
 
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
@@ -120,6 +124,8 @@ else:
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# Set up Content Security Policy so only .js files from the frontend /static
+# path (and inline ones) are allowed to be executed. We also assume HTTPS.
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
