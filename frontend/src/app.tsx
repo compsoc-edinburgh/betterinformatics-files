@@ -281,7 +281,7 @@ const App: React.FC<{}> = () => {
         </DebugContext.Provider>
         {process.env.NODE_ENV === "development" && (
           <>
-            <Affix position={{ bottom: rem(10), left: rem(10) }}>
+            <Affix position={{ top: rem(10), left: rem(10) }}>
               <Button variant="brand" onClick={toggleDebugPanel}>
                 DEBUG
               </Button>
