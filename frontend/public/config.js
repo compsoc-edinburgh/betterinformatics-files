@@ -1,6 +1,6 @@
 window.configOptions = {
   'logo': 'https://betterinformatics.com/static/img/camel-transparent.png',
-  'org_logo': 'https://comp-soc.com/static/img/compsoc-horizontal.svg',
+  'org_logo': 'https://comp-soc.com/static/img/compsoc-horizontal-nofill.svg',
   'org_signet': 'https://comp-soc.com/static/img/compsoc-profile-white-fill.png',
   'primaryColor': '#e95468',
   'copyright': 'Copyright 2023 CompSoc',
