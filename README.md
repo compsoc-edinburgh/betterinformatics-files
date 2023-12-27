@@ -95,6 +95,20 @@ Backend is built with Django. It can be run using Docker.
 
 - Non-macOS users need to install Docker-Compose separately [like this](https://docs.docker.com/compose/install/).
 
+### Create keypair
+
+Make a directory called `keys` in the root dir and populate it with an RSA keypair, which will be used for signing and verifying auth tokens.
+
+```bash
+mkdir keys
+cd keys
+openssl genrsa -out community_solutions_jwt_private.pem
+openssl rsa -in community_solutions_jwt_private.pem -pubout -outform PEM -out community_solutions_jwt_public.pem
+```
+
+(These are mounted by the local development Docker Compose file, and its path
+passed to the underlying backend code via environment variables.)
+
 ### Start the backend
 
 The backend can be started with the command:
@@ -195,7 +209,11 @@ RUNTIME_JWT_PRIVATE_KEY_PATH and RUNTIME_JWT_PUBLIC_KEY_PATH environment
 variables. During local development, you should pre-generate this with e.g.
 openssl, and use mounted volumes within the backend Docker Compose file to make
 it accessible from backend code. For production, the equivalent procedure should
-be taken for the deployment image (e.g. Kubernetes secrets)
+be taken for the deployment image (e.g. Kubernetes secrets).
+
+A GSuite credentials file should also be passed to the container (similar to
+keypair procedure), so that it can send email verification emails as a GSuite
+user.
 
 # License
 This program is free software: you can redistribute it and/or modify
