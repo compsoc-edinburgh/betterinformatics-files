@@ -234,8 +234,8 @@ const App: React.FC<{}> = () => {
                         component={UploadPdfPage}
                       />
                       <UserRoute exact path="/faq" component={FAQ} />
-                      <UserRoute exact path="/disclaimer" component={DisclaimerPage} />
-                      <UserRoute exact path="/privacy" component={PrivacyPolicyPage} />
+                      <Route exact path="/disclaimer" component={DisclaimerPage} />
+                      <Route exact path="/privacy" component={PrivacyPolicyPage} />
                       <UserRoute
                         exact
                         path="/feedback"
@@ -274,7 +274,7 @@ const App: React.FC<{}> = () => {
                   </Box>
                 </div>
                 <Footer
-                  logo={configOptions.logo ?? defaultConfigOptions.logo}
+                  logo={configOptions.org_logo ?? defaultConfigOptions.org_logo}
                   disclaimer={
                     configOptions.disclaimer ?? defaultConfigOptions.disclaimer
                   }
