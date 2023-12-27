@@ -77,7 +77,8 @@ sudo docker compose up --build  # or docker-compose depending on your installed 
 ## Editing frontend code
 
 There is an autoformatter for the frontend code
-([prettier](https://prettier.io/)). It can be run once using `yarn run format`.
+([prettier](https://prettier.io/)). It can be run once using `yarn run format`
+if you have Yarn locally, otherwise as `cd frontend; docker compose run --rm react-frontend yarn run format` to run it within the frontend Docker container.
 Some aspects of code quality and coding style are checked automatically using
 [eslint](https://eslint.org). You can run eslint using `yarn run lint`. There are plugins
 for most editors so that you can see warnings and errors as you type.
