@@ -3,7 +3,6 @@ import {
   Container,
   Alert,
   Tabs,
-  SimpleGrid,
   LoadingOverlay,
 } from "@mantine/core";
 import React, { useState } from "react";

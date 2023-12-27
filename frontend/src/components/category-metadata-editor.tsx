@@ -226,7 +226,6 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
     useInitialState<Array<readonly [string, string]>>(propOfferedIn);
   const {
     registerInput,
-    registerCheckbox,
     reset,
     formState,
     setFormValue,

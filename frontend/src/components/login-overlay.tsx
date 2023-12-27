@@ -9,7 +9,7 @@ import {
   Text,
   Anchor,
 } from "@mantine/core";
-import React, { FormEventHandler, useState, useEffect } from "react";
+import React, { FormEventHandler, useState } from "react";
 import { sendLoginCode, verifyLoginCode } from "../api/fetch-utils";
 import { useLocation } from "react-router-dom";
 

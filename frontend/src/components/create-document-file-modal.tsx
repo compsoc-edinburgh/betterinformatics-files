@@ -1,4 +1,4 @@
-import { Button, FileInput, Stack, TextInput } from "@mantine/core";
+import { Alert, Button, FileInput, Stack, TextInput } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -49,6 +49,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
         />
         <div>
+          PDF, LaTeX, Markdown, Text, Zip, and Anki files are supported. <br />
           If you don't select any file we will create an empty markdown file for
           you that you can edit afterwards.
         </div>

@@ -1,5 +1,5 @@
 import { Button, Paper, Tooltip, Title } from "@mantine/core";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadDocumentTypes, useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";

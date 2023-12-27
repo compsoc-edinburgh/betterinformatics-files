@@ -7,7 +7,6 @@ import {
   Flex,
   Group,
   Text,
-  Stack,
 } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 
