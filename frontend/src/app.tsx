@@ -109,7 +109,7 @@ const App: React.FC<{}> = () => {
   // CompSoc theme
   var compsocTheme: MantineThemeOverride = {
     colors: {
-        compsocMain: calculateShades("#e95468") as Tuple<string, 10>,
+        compsocMain: calculateShades("#d0b798") as Tuple<string, 10>,
         compsocGray: new Array(10).fill("rgb(144, 146, 150)") as Tuple<string, 10>,
     },
     primaryColor: "compsocMain",
