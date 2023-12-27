@@ -94,14 +94,7 @@ const LoginOverlay: React.FC<{}> = () => {
       <Flex
         align="center"
         justify="center"
-        style={{
-          textAlign: "left",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}>
+      >
         <Loader />
       </Flex>
     );
@@ -112,17 +105,10 @@ const LoginOverlay: React.FC<{}> = () => {
       <Flex
         align="center"
         justify="center"
-        style={{
-          textAlign: "left",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}>
+      >
           {(loginState === LoginState.AWAITING_UUN_INPUT && (
             <div>
-              <Title order={4} color="gray.0" size="1.75rem" weight={700} mb="md">Sign in to view</Title>
+              <Title order={4} size="1.75rem" weight={700} mb="md">Sign in to view</Title>
               <form onSubmit={handleSubmitUUN}>
                 <TextInput
                   label="Edinburgh UUN"
@@ -132,40 +118,38 @@ const LoginOverlay: React.FC<{}> = () => {
                   required
                   autoFocus
                   error={error}
-                  color="white"
-                  styles={{ label: { color: "white" }, error: { minWidth: "100%", width: 0 } }}
                 />
-                <Button color="white" variant="outline" mt="sm" type="submit">
+                <Button variant="outline" fullWidth mt="sm" type="submit">
                   Next
                 </Button>
               </form>
             </div>
           )) || (loginState === LoginState.AWAITING_PROCESSING_AGREEMENT && (
             <form onSubmit={handleProcessingAgreement}>
-              <Text color="white" mt="md" style={{ minWidth: "100%", width: 0 }}>
-                Do you consent to the processing (see our <Anchor href="/privacy" color="lightblue">privacy policy</Anchor>) of your UUN and IP address? The UUN will be visible to other users on this site.
+              <Text mt="md">
+                Do you consent to the processing (see our <Anchor href="/privacy" color="blue">privacy policy</Anchor>) of your UUN and IP address? The UUN will be visible to other users on this site.
               </Text>
-              <Text color="white" mt="md" style={{ minWidth: "100%", width: 0 }}>
+              <Text mt="md">
                 Selecting "Yes" will send a 6-digit verification code to your email.
               </Text>
-              <Group>
-                <Button color="white" variant="outline" mt="sm" mr="3rem" type="submit" onClick={() => setProcessingAgreement(false)}>
+              <Group position="apart">
+                <Button variant="outline" mt="sm" type="submit" onClick={() => setProcessingAgreement(false)}>
                   No
                 </Button>
-                <Button color="white" variant="outline" mt="sm" ml="3rem" type="submit" onClick={() => setProcessingAgreement(true)}>
+                <Button variant="outline" mt="sm" type="submit" onClick={() => setProcessingAgreement(true)}>
                   Yes
                 </Button>
               </Group>
             </form>
           )) || (loginState === LoginState.AWAITING_CODE_INPUT && (
             <form onSubmit={handleSubmitCode}>
-              <Text color="white"
-                      style={{ minWidth: "100%", width: 0 }}>
+              <Text>
                 A 6-digit verification code has been sent to your email: <br/>
                 {uun}@ed.ac.uk (<span onClick={changeUUN} style={{ cursor: "pointer" }} className="text-info">change</span>).
               </Text>
               <PinInput
                 mt="md"
+                size="md"
                 oneTimeCode
                 length={6}
                 value={verificationCode}
@@ -173,16 +157,16 @@ const LoginOverlay: React.FC<{}> = () => {
                 autoFocus
                 onChange={(value: string) => setVerificationCode(value)}
                 error={!!error} /* cast to boolean */
+                style={{ display: "flex", justifyContent: "center" }}
               />
               {error && (
                 <Text
                   color="red"
-                  style={{ minWidth: "100%", width: 0 }}
                   size="xs">
                   {error}
                 </Text>
               )}
-              <Button mt="md" color="white" variant="outline" type="submit">
+              <Button mt="md" fullWidth variant="outline" type="submit">
                 Sign in
               </Button>
             </form>
