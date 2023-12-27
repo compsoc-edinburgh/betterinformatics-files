@@ -8,6 +8,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
   return (
     <Container size="xl">
+      <Title order={1} mb="md">Privacy Policy</Title>
       <Title order={2}>Our Contact Details</Title>
       <p>
         <b>Name: </b> CompSoc BetterInformatics <br />

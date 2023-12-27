@@ -8,6 +8,7 @@ export const DisclaimerPage: React.FC = () => {
 
   return (
     <Container size="xl">
+      <Title order={1} mb="md">Disclaimers</Title>
       <Title order={2}>Legal Disclaimer</Title>
       <p>
         The Exam Collection is not affiliated with the University of Edinburgh,
