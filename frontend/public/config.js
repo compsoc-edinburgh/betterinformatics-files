@@ -26,7 +26,7 @@ window.configOptions = {
           'title': {
               'en': 'SIGs'
           },
-          'href': 'https://comp-soc.com/sigs'
+          'href': 'https://comp-soc.com/special-interest-groups'
       }, {
           'title': {
               'en': 'Constitution'
