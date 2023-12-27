@@ -179,7 +179,7 @@ const App: React.FC<{}> = () => {
     },
     {
       title: (
-        <Indicator disabled={unreadCount === undefined || unreadCount == 0}>
+        <Indicator disabled={unreadCount === undefined || unreadCount === 0}>
           Account
         </Indicator>
       ),
