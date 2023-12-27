@@ -21,9 +21,9 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     }
   };
 
-  // Hide titles if not authenticated, just to clearly draw attention to the
-  // login form. This is purely cosmetic, but it's further blocked by the
-  // onClick handler and on the server side.
+  // Hide titles if (probably) not authenticated, just to clearly draw attention
+  // to the login form for first-time users. This is purely cosmetic. Access is
+  // blocked anyway by the onClick handler and on the server side.
   const hide_titles = !authenticated();
   
   return hide_titles ? (

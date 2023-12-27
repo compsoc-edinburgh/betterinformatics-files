@@ -130,13 +130,6 @@ def verify(request: HttpRequest):
 
     success_response = JsonResponse(data={})
     success_response.set_cookie(
-        "token_expires",
-        str(jwt_claims["exp"]),
-        httponly=False,  # Allow JS to read this cookie
-        samesite="Strict",
-        secure=settings.SECURE,
-    )
-    success_response.set_cookie(
         "access_token",
         token,
         httponly=True,
@@ -151,5 +144,4 @@ def logout(request: HttpRequest):
     redirect_url = request.GET.get("rd", "/")
     response = HttpResponseRedirect(redirect_url)
     response.delete_cookie("access_token")
-    response.delete_cookie("token_expires")
     return response

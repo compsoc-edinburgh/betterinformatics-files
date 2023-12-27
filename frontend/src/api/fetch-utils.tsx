@@ -1,58 +1,31 @@
 import { ImageHandle } from "../components/Editor/utils/types";
+import { jwtDecode } from "jwt-decode";
 
 /**
- * Minimum validity of the access token in seconds when a request to the API starts
+ * Check if the user is authenticated.
+ * @returns The number of seconds before the auth token expires, or `undefined`
+ * if there is no auth cookie.
  */
-export const minValidity = 10;
-
-// let refreshRequest: Promise<Response> | undefined = undefined;
-
-// export function authenticationStatus() {
-//   const expires = getCookie("token_expires");
-//   if (expires === null) {
-//     return undefined;
-//   }
-//   const now = new Date().getTime();
-//   const time = new Date(parseFloat(expires) * 1000).getTime();
-//   return time - now;
-// }
-
-export function authenticationStatus() {
-  const cookie_data = getCookie("token_expires");
-  if (cookie_data === null) {
+function authenticationStatus() {
+  const access_token_jwt = getCookie("access_token");
+  if (access_token_jwt === null) {
     return undefined;
   }
+  const claims = jwtDecode(access_token_jwt);
   const now = new Date().getTime();
-  const time = new Date(cookie_data).getTime();
+  const time = new Date(claims["exp"]).getTime();
   return time - now;
 }
 
 /**
- * Checks whether it would make sense to call `refreshToken()`
- * @returns Returns `true` iff. there is a token and it is expired.
- */
-export function isTokenExpired(expires = authenticationStatus()) {
-  if (expires === undefined) return false;
-  return expires < minValidity * 1000;
-}
-
-/**
- * Checks whether it makes sense to
+ * Checks whether the auth cookie is set and has a value in the future. Note
+ * that this does not verify the cookie signature and it can be forged by the
+ * client.
  * @returns
  */
 export function authenticated(expires = authenticationStatus()) {
-  return expires !== undefined;
+  return expires !== undefined && expires > 0;
 }
-
-// const encodeScopes = (...scopes: string[]) => scopes.join("+");
-
-// const scopes = encodeScopes("profile", "openid");
-
-// export function login(redirectUrl = window.location.pathname) {
-//   window.location.href = `/api/auth/login?scope=${scopes}&rd=${encodeURIComponent(
-//     redirectUrl,
-//   )}`;
-// }
 
 // First step of the login, generates a verification code. The backend will
 // store the code in the database (so a repeat call to login() will use the
@@ -72,19 +45,6 @@ export function logout(redirectUrl = window.location.pathname) {
     redirectUrl,
   )}`;
 }
-
-// export function refreshToken() {
-//   if (refreshRequest !== undefined) {
-//     return refreshRequest;
-//   }
-//   refreshRequest = fetch("/api/auth/refresh", {
-//     headers: getHeaders(),
-//   }).then(req => {
-//     refreshRequest = undefined;
-//     return req;
-//   });
-//   return refreshRequest;
-// }
 
 export function getHeaders() {
   const headers: Record<string, string> = {
