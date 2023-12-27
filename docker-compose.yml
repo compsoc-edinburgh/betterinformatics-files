@@ -46,7 +46,8 @@ services:
     ports:
       - "8081:80"
     environment:
-      - THESE_ARE_DEBUG_ENV_VAR_OVERRIDES=
+      # The following environment variables are used by the backend for local
+      # development.
 
       - DEPLOYMENT_DOMAINS=localhost
 
@@ -63,16 +64,14 @@ services:
       - SIP_S3_FILES_BUCKET=community-solutions
       - SIP_S3_FILES_USE_SSL=false
 
-      - GSUITE_CREDENTIALS_FILE=/app/backend/credentials.json
+      - GSUITE_CREDENTIALS_FILE=credentials.json
 
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
 
-      - ADMIN_UUNS=s2100747
-
       - FRONTEND_TITLE_PREFIX=
       - FRONTEND_TITLE_SUFFIX=- Debug
-      - FRONTEND_FAVICON_URL=
+      - FRONTEND_FAVICON_URL=https://betterinformatics.com/static/img/favicon.ico
       - FRONTEND_EMAIL_ADDRESS=nothing@localhost
 
       - PDEP_IS_PREVIEW=TRUE
