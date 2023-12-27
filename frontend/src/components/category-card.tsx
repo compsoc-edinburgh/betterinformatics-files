@@ -1,5 +1,6 @@
 import { Card, Text, Progress, Anchor, Stack } from "@mantine/core";
 import React from "react";
+import { cx } from "@emotion/css";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
@@ -30,10 +31,9 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         }
       }}
       withBorder
-      shadow="md"
       px="lg"
       py="md"
-      className={classes.focusOutline}
+      className={cx(classes.focusOutline, classes.hoverShadow)}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
