@@ -1,4 +1,32 @@
 programs:
+  - name: generate-private-key
+    path: /usr/bin/openssl
+    args:
+      - "genrsa"
+      - "-out"
+      - "community_solutions_jwt_private.pem"
+      - "2048"
+    workdir: /app
+    user: app-user
+    group: app-user
+    before:
+      - generate-public-key
+  - name: generate-public-key
+    path: /usr/bin/openssl
+    args:
+      - "rsa"
+      - "-in"
+      - "community_solutions_jwt_private.pem"
+      - "-pubout"
+      - "-outform"
+      - "PEM"
+      - "-out"
+      - "community_solutions_jwt_public.pem"
+    workdir: /app
+    user: app-user
+    group: app-user
+    before:
+      - wait-for-db
   - name: wait-for-db
     path: /usr/bin/python3
     args:
@@ -92,6 +120,7 @@ programs:
       - "/dev/shm"
       - "--log-level"
       - "debug"
+      - "--reload"
     workdir: /app
     user: app-user
     group: app-user
@@ -117,9 +146,13 @@ programs:
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY:
 
       - BANNED_USERS:
+      - ADMIN_UUNS:
 
       - RUNTIME_JWT_PUBLIC_KEY:
       - prometheus_multiproc_dir: /dev/shm
+
+      - RUNTIME_JWT_PRIVATE_KEY_PATH: "/app/community_solutions_jwt_private.pem"
+      - RUNTIME_JWT_PUBLIC_KEY_PATH: "/app/community_solutions_jwt_public.pem"
 
       # Only for debug purposes
       - RUNTIME_JWT_VERIFY_SIGNATURE:

@@ -10,9 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
-from base64 import b64encode
 import sys
-from jwcrypto.jwk import JWKSet, JWK
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,6 +69,28 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
 )
 
 COMSOL_AUTH_ACCEPTED_DOMAINS = ("ed.ac.uk", "sms.ed.ac.uk", "exceed.ed.ac.uk")
+COMSOL_AUTH_ADMIN_UUNS = os.environ.get("ADMIN_UUNS", "").split(",")
+
+COMSOL_AUTH_BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+
+# The public / private key path in the testing directory should only be
+# used for unit testing and nothing else. For production, the keys are
+# generated at runtime by cinit. Restarting the backend will invalidate all
+# existing tokens, but this isn't really a large problem except for the
+# small inconvenience of all users having to log in again.
+jwt_private_key_path = (
+    "testing/jwtRS256.key"
+    if TESTING
+    else os.environ.get("RUNTIME_JWT_PRIVATE_KEY_PATH", "")
+)
+jwt_public_key_path = (
+    "testing/jwtRS256.key.pub"
+    if TESTING
+    else os.environ.get("RUNTIME_JWT_PUBLIC_KEY_PATH", "")
+)
+
+JWT_PRIVATE_KEY = "" if not jwt_private_key_path else open(jwt_private_key_path, "rb").read()
+JWT_PUBLIC_KEY = "" if not jwt_public_key_path else open(jwt_public_key_path, "rb").read()
 
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
@@ -83,25 +103,7 @@ FRONTEND_SERVER_DATA = {
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
 IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE"
 
-
-# The public / private key path in the testing directory should only be used for unit testing and nothing else
-# During testing we use the public / private key pair located in the testing directory
-# We convert it from pem to a data_url so that even while testing the jwk is loaded from an url
-test_pub_key_data = open("testing/jwtRS256.key.pub", "rb").read()
-test_key = JWK()
-test_key.import_from_pem(test_pub_key_data)
-key_data = JWKSet(keys=test_key).export(private_keys=False)
-pub_key_set_url = "data:text/plain;base64," + b64encode(
-    key_data.encode("utf-8")
-).decode("utf-8")
-
-JWT_VERIFY_SIGNATURE = (
-    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
-)
-
 DEPLOYMENT_DOMAINS = os.environ.get("DEPLOYMENT_DOMAINS", "").split(",")
-
-BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []

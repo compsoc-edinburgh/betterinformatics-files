@@ -1,6 +1,7 @@
 import datetime
-import json
 import random
+import jwt
+import typing
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -111,28 +112,33 @@ def verify(request: HttpRequest):
     # Make the code one-time-use
     codeRow.delete()
 
-    # TODO: In the future, create a JWT token that will be set as a cookie, and
-    # encrypt the uun & expiry in it to prevent tampering.
-
-    data = {
+    # Create a JWT token with the user's UUN and email address -- this is signed
+    # with the server's private key to prevent tampering.
+    jwt_claims = {
         "uun": uun,
         "email": uun + "@ed.ac.uk",
-        "exp": str(
-            datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(weeks=4)
-        ),
+        "exp": datetime.datetime.now(datetime.timezone.utc)
+        + datetime.timedelta(weeks=4),
+        "admin": uun in settings.COMSOL_AUTH_ADMIN_UUNS,
     }
+
+    token = jwt.encode(
+        jwt_claims,
+        settings.JWT_PRIVATE_KEY,
+        algorithm="RS256",
+    )
 
     success_response = JsonResponse(data={})
     success_response.set_cookie(
         "token_expires",
-        data["exp"],
+        str(jwt_claims["exp"]),
         httponly=False,  # Allow JS to read this cookie
         samesite="Strict",
         secure=settings.SECURE,
     )
     success_response.set_cookie(
         "access_token",
-        json.dumps(data),
+        token,
         httponly=True,
         samesite="Strict",
         secure=settings.SECURE,

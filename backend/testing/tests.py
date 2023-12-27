@@ -1,42 +1,33 @@
+import datetime
 import logging
 
+from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import Client, TestCase, override_settings
+from django.test import Client, TestCase
 from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
 from http.cookies import SimpleCookie
-from jwcrypto.jwk import JWK
-from jwcrypto.jwt import JWT
-import datetime
-import json
+import jwt
 
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
 from categories.models import Category
 
-private_key_data = open("testing/jwtRS256.key", "rb").read()
-key = JWK()
-key.import_from_pem(private_key_data)
-
 
 def get_token(user):
-    data = {
+    jwt_claims = {
         "uun": user["username"],
         "email": user["username"] + "@ed.ac.uk",
-        "exp": str(
-            datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(weeks=4)
-        ),
+        "exp": datetime.datetime.now(datetime.timezone.utc)
+        + datetime.timedelta(weeks=4),
         "admin": user["admin"],
     }
 
-    admin = user["admin"]
-    roles = ["admin"] if admin else []
-
-    token = JWT(
-        header={"alg": "RS256", "typ": "JWT", "kid": key.key_id},
-        claims=data,
+    token = jwt.encode(
+        jwt_claims,
+        settings.JWT_PRIVATE_KEY,
+        algorithm="RS256",
     )
-    token.make_signed_token(key)
 
-    return json.dumps(data)
+    return token
 
 
 class ComsolTest(TestCase):

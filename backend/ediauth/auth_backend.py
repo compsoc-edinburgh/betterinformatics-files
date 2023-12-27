@@ -1,5 +1,5 @@
 import logging
-import json
+import jwt
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -7,7 +7,6 @@ from django.db import transaction
 from django.http.request import HttpRequest
 from django.contrib.auth.models import User
 from notifications.models import NotificationSetting, NotificationType
-import datetime
 from ediauth.models import Profile
 
 logger = logging.getLogger(__name__)
@@ -18,26 +17,33 @@ def add_auth_to_request(request: HttpRequest):
     headers = request.headers
     request.simulate_nonadmin = "SimulateNonAdmin" in headers  # type: ignore
 
-    data = json.loads(request.COOKIES["access_token"])
-    if "uun" not in data or "email" not in data or "exp" not in data:
+    try:
+        jwt_claims = jwt.decode(
+            request.COOKIES["access_token"],
+            settings.JWT_PUBLIC_KEY,
+            algorithms=["RS256"],
+        )
+    except (
+        jwt.ExpiredSignatureError,
+        jwt.InvalidSignatureError,
+        jwt.InvalidTokenError,
+    ):
+        # For these errors, don't let the user know of the exact reason, because
+        # it could just be that the user's session expired.
         return None
 
-    now = datetime.datetime.now(datetime.timezone.utc)
-
-    # Check if the token is expired first
-    if datetime.datetime.fromisoformat(data["exp"]) < now:
-        return None  # act as if user is not logged in
+    if "uun" not in jwt_claims or "email" not in jwt_claims:
+        return None
 
     # Check if the UUN claimed in the token is banned
-    if data["uun"] in settings.BANNED_USERS:
+    if jwt_claims["uun"] in settings.COMSOL_AUTH_BANNED_USERS:
         # make it explicit that the user is banned (don't just pretend
         # they're not logged in)
         raise PermissionDenied("User is banned")
 
-    # Add admin role if it's a preview deployment (TODO: when is this true?)
-    if settings.IS_PREVIEW:
-        roles = ["admin"]
-    request.roles = roles  # type: ignore
+    # Add admin role if it's a preview deployment or if the user is an admin
+    if settings.IS_PREVIEW or jwt_claims.get("admin", False):
+        request.roles = ["admin"]  # type: ignore
 
     with transaction.atomic():
         # Try finding an existing user with the given UUN, or create a new one.
@@ -45,7 +51,7 @@ def add_auth_to_request(request: HttpRequest):
         # because it handles concurrency properly and avoids duplicate entries
         # during race conditions.
         (user, created) = User.objects.get_or_create(
-            username=data["uun"], email=data["email"]
+            username=jwt_claims["uun"], email=jwt_claims["email"]
         )
         if not created:
             request.user = user
@@ -53,7 +59,7 @@ def add_auth_to_request(request: HttpRequest):
             # Create a one-to-one profile storing app-specific data (since the
             # User model is from Django). From now, we can get the preferred
             # username from a User by doing `user.profile.display_username`.
-            Profile.objects.create(user=user, display_username=data["uun"])
+            Profile.objects.create(user=user, display_username=jwt_claims["uun"])
 
             request.user = user
 
@@ -72,7 +78,7 @@ def AuthenticationMiddleware(get_response):
         except PermissionDenied as err:
             logger.warning("permission denied: %s", err)
             raise err
-        except Exception:
+        except Exception as err:
             pass
 
         response = get_response(request)
