@@ -10,7 +10,12 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
     <>
       <Container size="xl">
         <Grid>
-          <Grid.Col span={5} style={{ alignSelf: "center" }}>
+          <Grid.Col
+            xs={12}
+            md={6}
+            lg={7}
+            xl={8}
+            style={{ alignSelf: "center" }}>
             <Flex direction="column" justify="center">
               <Text size="4.5rem" lh={1} mt="lg">
                 Better&shy;Informatics
