@@ -1,4 +1,4 @@
-import { Card, Text, Progress, Anchor, Stack } from "@mantine/core";
+import { Card, Text, Progress, Anchor, Stack, Skeleton } from "@mantine/core";
 import React from "react";
 import { cx } from "@emotion/css";
 import { Link, useHistory } from "react-router-dom";
@@ -20,7 +20,23 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       else history.push(`/category/${category.slug}`);
     }
   };
-  return (
+
+  // Hide titles if not authenticated, just to clearly draw attention to the
+  // login form. This is purely cosmetic, but it's further blocked by the
+  // onClick handler and on the server side.
+  const hide_titles = !authenticated();
+  
+  return hide_titles ? (
+    <Card
+      withBorder
+      px="lg"
+      py="md"
+      className={cx(classes.focusOutline, classes.hoverShadow)}
+    >
+      <Skeleton animate={false} height={50} />
+      <Skeleton animate={false} height={10} mt={8} />
+    </Card>
+  ) : (
     <Card
       component={Link}
       to={`/category/${category.slug}`}
