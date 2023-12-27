@@ -143,7 +143,7 @@ const LoginOverlay: React.FC<{}> = () => {
           )) || (loginState === LoginState.AWAITING_PROCESSING_AGREEMENT && (
             <form onSubmit={handleProcessingAgreement}>
               <Text color="white" mt="md" style={{ minWidth: "100%", width: 0 }}>
-                Do you consent to the processing (see our <Anchor href="/privacy-policy" color="lightblue">privacy policy</Anchor>) of your UUN and IP address? The UUN will be visible to other users on this site.
+                Do you consent to the processing (see our <Anchor href="/privacy" color="lightblue">privacy policy</Anchor>) of your UUN and IP address? The UUN will be visible to other users on this site.
               </Text>
               <Text color="white" mt="md" style={{ minWidth: "100%", width: 0 }}>
                 Selecting "Yes" will send a 6-digit verification code to your email.
