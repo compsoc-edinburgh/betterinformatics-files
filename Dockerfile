@@ -48,8 +48,7 @@ RUN yarn run build
 
 FROM backend AS combined
 
-# ETH-specific manifest file, commented since not relevant to Edinburgh
-# COPY --from=frontend-build /usr/src/app/build/manifest.json ./manifest.json
+COPY --from=frontend-build /usr/src/app/build/manifest.json ./manifest.json
 COPY --from=frontend-build /usr/src/app/build/index.html ./templates/index.html
 COPY --from=frontend-build /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=frontend-build /usr/src/app/build/static ./static
