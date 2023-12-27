@@ -199,7 +199,7 @@ const App: React.FC<{}> = () => {
               <div>
                 <div>
                   <TopHeader
-                    logo={configOptions.logo ?? defaultConfigOptions.logo}
+                    logo={configOptions.org_logo ?? defaultConfigOptions.org_logo}
                     size="xl"
                     organizationNav={
                       configOptions.externalNav ?? defaultConfigOptions.externalNav
@@ -213,9 +213,10 @@ const App: React.FC<{}> = () => {
                     title={"Exam Collection"}
                     size="xl"
                     activeHref={useLocation().pathname}
+                    icon={configOptions.org_signet}
                   />
                   <MobileHeader
-                    signet={configOptions.signet ?? defaultConfigOptions.signet}
+                    signet={configOptions.org_signet ?? defaultConfigOptions.org_signet}
                     selectedLanguage={"en"}
                     onLanguageSelect={() => {}}
                     appNav={bottomHeaderNav}

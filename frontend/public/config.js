@@ -1,6 +1,7 @@
 window.configOptions = {
-  'logo': 'https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/horizontal/compsoc-horizontal-no-fill.svg',
-  'signet': 'https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/profile/compsoc-profile-no-fill.svg',
+  'logo': 'https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/static/img/camel-transparent.png',
+  'org_logo': 'https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/horizontal/compsoc-horizontal-no-fill.svg',
+  'org_signet': 'https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/profile/compsoc-profile-no-fill.svg',
   'primaryColor': '#e95468',
   'disclaimer': 'https://betterinformatics.com',
   'copyright': 'Copyright 2023 CompSoc',

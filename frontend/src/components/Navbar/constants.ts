@@ -18,7 +18,8 @@ export const COLORS = {
 
 export interface ConfigOptions {
   logo: string;
-  signet: string;
+  org_logo: string;
+  org_signet: string;
   primaryColor: string;
   privacy: string;
   disclaimer: string;
@@ -33,6 +34,8 @@ export interface ConfigOptions {
 
 export const defaultConfigOptions = {
   logo: "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg",
+  org_logo: "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg",
+  org_signet: "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/signet-mono.svg",
   primaryColor: "#009FE3",
   disclaimer: "https://account.vseth.ethz.ch/impressum",
   privacy: "https://account.vseth.ethz.ch/legal/privacy",

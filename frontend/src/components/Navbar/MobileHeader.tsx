@@ -85,11 +85,7 @@ const BottomHeader: React.FC<Props> = ({
       <Group className={classes.logoLine} align="center" position="apart">
         <div style={{ display: "flex" }}>
           <img
-            src={
-              signet
-                ? signet
-                : "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/signet-mono.svg"
-            }
+            src={signet}
             alt="Signet of the student organization"
             className={classes.logo}
           />
