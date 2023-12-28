@@ -89,12 +89,25 @@ jwt_public_key_path = (
     else os.environ.get("RUNTIME_JWT_PUBLIC_KEY_PATH", "")
 )
 
+# Use keys (and thus RS256 for JWT instead of HS256) if both keys are provided.
+# Otherwise, use a symmetric key (empty string).
+JWT_USE_KEYS = jwt_private_key_path and jwt_public_key_path
 JWT_PRIVATE_KEY = (
     "" if not jwt_private_key_path else open(jwt_private_key_path, "rb").read()
 )
 JWT_PUBLIC_KEY = (
     "" if not jwt_public_key_path else open(jwt_public_key_path, "rb").read()
 )
+
+# If we don't have a Gsuite credentials file (e.g. during local dev), use the
+# dummy email backend that will write emails to console.
+if os.environ.get("GSUITE_CREDENTIALS_FILE", "") == "":
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    # Use django-suite-email (which allows us to use the GSuite SMTP server for
+    # the send_mail function), set the backend and credential file.
+    EMAIL_BACKEND = "django_gsuite_email.GSuiteEmailBackend"
+    GSUITE_CREDENTIALS_FILE = os.environ.get("GSUITE_CREDENTIALS_FILE", "")
 
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
@@ -157,7 +170,7 @@ CSP_IMG_SRC = (
     "data:",
     "https://betterinformatics.com/static/img/",  # for the camel image
     "https://comp-soc.com/static/img/",  # for the compsoc logo
-    "https://raw.githubusercontent.com/compsoc-edinburgh/", # for anything else
+    "https://raw.githubusercontent.com/compsoc-edinburgh/",  # for anything else
 )
 
 
@@ -185,8 +198,7 @@ INSTALLED_APPS = [
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
     "django_probes",
-    "django_gsuite_email",
-]
+] + (["django_gsuite_email"] if "django_gsuite_email" in EMAIL_BACKEND else [])
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
@@ -240,11 +252,6 @@ LOGGING = {
 }
 
 WSGI_APPLICATION = "backend.wsgi.application"
-
-# For django-suite-email (which allows us to use the GSuite SMTP server for
-# the send_mail function), set the backend and credential file.
-EMAIL_BACKEND = "django_gsuite_email.GSuiteEmailBackend"
-GSUITE_CREDENTIALS_FILE = os.environ.get("GSUITE_CREDENTIALS_FILE", "")
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

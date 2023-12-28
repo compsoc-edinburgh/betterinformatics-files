@@ -18,10 +18,12 @@ def add_auth_to_request(request: HttpRequest):
     request.simulate_nonadmin = "SimulateNonAdmin" in headers  # type: ignore
 
     try:
+        # Decode using public key if server is configured to use them, but
+        # fallback to just plain hashing (with empty keystring) if not.
         jwt_claims = jwt.decode(
             request.COOKIES["access_token"],
             settings.JWT_PUBLIC_KEY,
-            algorithms=["RS256"],
+            algorithms=["RS256"] if settings.JWT_USE_KEYS else ["HS256"],
         )
     except (
         jwt.ExpiredSignatureError,
@@ -57,7 +59,7 @@ def add_auth_to_request(request: HttpRequest):
             request.user = user
         else:
             # Create a one-to-one profile storing app-specific data (since the
-            # User model is from Django). From now, we can get the preferred
+            # User model is from Django). From now on, we can get the preferred
             # username from a User by doing `user.profile.display_username`.
             Profile.objects.create(user=user, display_username=jwt_claims["uun"])
 

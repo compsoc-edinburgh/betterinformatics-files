@@ -66,13 +66,13 @@ services:
       - SIP_S3_FILES_BUCKET=community-solutions
       - SIP_S3_FILES_USE_SSL=false
 
-      - GSUITE_CREDENTIALS_FILE=/app/config/credentials.json
+      - GSUITE_CREDENTIALS_FILE=
 
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
 
-      - RUNTIME_JWT_PRIVATE_KEY_PATH=/app/config/community_solutions_jwt_private.pem
-      - RUNTIME_JWT_PUBLIC_KEY_PATH=/app/config/community_solutions_jwt_public.pem
+      - RUNTIME_JWT_PRIVATE_KEY_PATH=
+      - RUNTIME_JWT_PUBLIC_KEY_PATH=
 
       - FRONTEND_TITLE_PREFIX=
       - FRONTEND_TITLE_SUFFIX=- Debug

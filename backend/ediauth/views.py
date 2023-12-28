@@ -122,10 +122,13 @@ def verify(request: HttpRequest):
         "admin": uun in settings.COMSOL_AUTH_ADMIN_UUNS,
     }
 
+    # Create a signed JWT token. If the server is configured with private/public
+    # keys, use those with RS256 signing. Otherwise, the private/public keys
+    # will be an empty string and we'll use HS256 symmetric key signing.
     token = jwt.encode(
         jwt_claims,
         settings.JWT_PRIVATE_KEY,
-        algorithm="RS256",
+        algorithm="RS256" if settings.JWT_USE_KEYS else "HS256",
     )
 
     success_response = JsonResponse(data={})
