@@ -298,8 +298,8 @@ const App: React.FC<{}> = () => {
                   </Switch>
                 </Box>
               </div>
-              <Footer
-                logo={configOptions.org_logo ?? defaultConfigOptions.org_logo}
+              <Footer 
+                logo={configOptions.org_signet?? defaultConfigOptions.org_signet}
                 disclaimer={
                   configOptions.disclaimer ?? defaultConfigOptions.disclaimer
                 }
