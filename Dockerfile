@@ -52,8 +52,5 @@ COPY --from=frontend-build /usr/src/app/build/manifest.json ./manifest.json
 COPY --from=frontend-build /usr/src/app/build/index.html ./templates/index.html
 COPY --from=frontend-build /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=frontend-build /usr/src/app/build/static ./static
-# create-react-app build (run by yarn run build) will output javascript into
-# static/js, so we should be safe to copy a custom script in without overwriting
-COPY --from=frontend-build /usr/src/app/build/config.js ./static/config.js
 
 EXPOSE 80
