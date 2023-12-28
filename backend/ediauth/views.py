@@ -135,7 +135,7 @@ def verify(request: HttpRequest):
     success_response.set_cookie(
         "access_token",
         token,
-        httponly=True,
+        httponly=False, # Allow JS to access the cookie
         samesite="Strict",
         secure=settings.SECURE,
     )
