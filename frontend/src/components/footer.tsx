@@ -42,7 +42,7 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
             Orginal software (GPL) built with
             <Icon
               icon={ICONS.LIKE_FILLED}
-              color="red"
+              color="darkred"
               aria-label="love"
               style={{
                 position: "relative",
@@ -62,7 +62,7 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
             Modified and deployed with
             <Icon
               icon={ICONS.LIKE_FILLED}
-              color="red"
+              color="darkred"
               aria-label="love"
               style={{
                 position: "relative",
