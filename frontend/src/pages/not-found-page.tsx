@@ -1,24 +1,16 @@
-import { Container, Grid, Text, Title } from "@mantine/core";
+import { Container, Text, Title } from "@mantine/core";
 import React from "react";
 import useTitle from "../hooks/useTitle";
-import { ReactComponent as Bjoern } from "../assets/bjoern.svg";
 
 const NotFoundPage: React.FC<{}> = () => {
   useTitle("404");
   return (
     <Container size="xl">
-      <Grid>
-        <Grid.Col sm={9} md={8} lg={6}>
-          <Title mb="sm">This is a 404.</Title>
-          <Text>
-            No need to freak out. Did you enter the URL correctly? For this
-            inconvenience, have this drawing of Björn:
-          </Text>
-        </Grid.Col>
-        <Grid.Col sm={9} md={8} lg={6}>
-          <Bjoern />
-        </Grid.Col>
-      </Grid>
+      <Title color="dimmed" mb="xl" style={{ fontSize: 150 }}>404 Not Found.</Title>
+      <Text mb="xl">
+        No need to freak out. Maybe you want to double-check whether you
+        entered the URL correctly?
+      </Text>
     </Container>
   );
 };
