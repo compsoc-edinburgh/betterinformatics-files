@@ -253,9 +253,11 @@ LOGGING = {
     "handlers": {
         "console": {"class": "logging.StreamHandler", "formatter": "simple"},
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO" if DEBUG else "WARNING",
+    "loggers": {
+        "django": {
+            "handlers": ["console", "mail_admins"],
+            "level": "INFO" if DEBUG else "WARNING",
+        },
     },
 }
 
