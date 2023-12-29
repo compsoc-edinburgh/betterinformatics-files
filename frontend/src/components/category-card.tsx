@@ -70,7 +70,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
           </Anchor>
           <Text mt={4} color="gray.8">
             Exams:{" "}
-            {`${category.examcountanswered} / ${category.examcountpublic}`}
+            {category.examcountpublic}
           </Text>
           <Text mb={4} color="gray.8">
             Answers: {((category.answerprogress * 100) | 0).toString()} %

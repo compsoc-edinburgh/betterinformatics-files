@@ -35,9 +35,13 @@ class CategoryMetaData(models.Model):
     category = models.OneToOneField(
         "Category", related_name="meta", on_delete=models.DO_NOTHING
     )
+    # number of exams that are public
     examcount_public = models.IntegerField()
+    # number of exams that are public and have at least one answer
     examcount_answered = models.IntegerField()
+    # number of cuts in public exams
     total_cuts = models.IntegerField()
+    # number of cuts in public exams that have at least one answer
     answered_cuts = models.IntegerField()
 
     class Meta:
