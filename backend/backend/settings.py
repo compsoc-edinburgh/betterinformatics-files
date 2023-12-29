@@ -109,6 +109,14 @@ else:
     EMAIL_BACKEND = "django_gsuite_email.GSuiteEmailBackend"
     GSUITE_CREDENTIALS_FILE = os.environ.get("GSUITE_CREDENTIALS_FILE", "")
 
+# The address in the From field must be a valid user address (not a
+# group address or non-existent address) that the provided credential
+# file has access to. If the credential was created for an organisation,
+# you must enable "domain-wide delegation" or impersonation for the
+# associated service account in GSuite Admin Console, with the following
+# as the scope: "https://www.googleapis.com/auth/gmail.send"
+VERIF_CODE_FROM_EMAIL_ADDRESS = os.environ.get("VERIF_CODE_FROM_EMAIL_ADDRESS", "")
+
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),

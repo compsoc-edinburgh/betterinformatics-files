@@ -66,7 +66,8 @@ services:
       - SIP_S3_FILES_BUCKET=community-solutions
       - SIP_S3_FILES_USE_SSL=false
 
-      - GSUITE_CREDENTIALS_FILE=
+      - GSUITE_CREDENTIALS_FILE=/app/config/credentials.json
+      - VERIF_CODE_FROM_EMAIL_ADDRESS=no-reply@betterinformatics.com
 
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42

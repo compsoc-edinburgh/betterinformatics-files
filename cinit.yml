@@ -138,4 +138,5 @@ programs:
       - PDEP_IS_PREVIEW:
 
       - GSUITE_CREDENTIALS_FILE:
+      - VERIF_CODE_FROM_EMAIL_ADDRESS:
       - IS_DEBUG: "{{ get_env(name='SIP_POSTGRES_DB_USER', default='prod') == 'docker' }}"

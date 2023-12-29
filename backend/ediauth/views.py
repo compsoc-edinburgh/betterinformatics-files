@@ -88,9 +88,9 @@ def login(request: HttpRequest):
     ip, _ = ipw.get_client_ip(request.META)
 
     send_mail(
-        "Your Verification Code for CompSoc BI Exam Collection",
+        "BetterInformatics: Your Verification Code is " + codeRow.code,
         (
-            f"Thank you for using CompSoc BetterInformatics. \n\n"
+            f"Thank you for using BetterInformatics! \n\n"
             f"There is a new sign-in request from IP: "
             f"{ip.exploded if ip else 'unknown'} to access the "
             f"BetterInformatics Exam Collection (exams.betterinformatics.com).\n\n"
@@ -100,7 +100,7 @@ def login(request: HttpRequest):
             f"If you notice suspicious behaviour, please contact us at "
             f"admin@betterinformatics.com"
         ),
-        "yuto@comp-soc.com",
+        settings.VERIF_CODE_FROM_EMAIL_ADDRESS,
         [email],
         fail_silently=False,
     )
