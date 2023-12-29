@@ -70,13 +70,13 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
                 margin: "0px 4px",
               }}
             />
-            by{" "}
+            by volunteers at{" "}
             <Anchor
               href="http://comp-soc.com"
               title="Computing Society at the University of Edinburgh"
               color="blue"
             >
-              CompSoc Edinburgh
+              CompSoc
             </Anchor>
           </Text>
           <Group
