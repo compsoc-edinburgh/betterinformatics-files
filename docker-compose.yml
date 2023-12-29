@@ -66,7 +66,7 @@ services:
       - SIP_S3_FILES_BUCKET=community-solutions
       - SIP_S3_FILES_USE_SSL=false
 
-      - GSUITE_CREDENTIALS_FILE=/app/config/credentials.json
+      - GSUITE_CREDENTIALS_FILE=
       - VERIF_CODE_FROM_EMAIL_ADDRESS=no-reply@betterinformatics.com
 
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
@@ -80,6 +80,7 @@ services:
       - FRONTEND_FAVICON_URL=https://betterinformatics.com/static/img/favicon.ico
       - FRONTEND_EMAIL_ADDRESS=nothing@localhost
 
+      # In preview mode, every user is an admin.
       - PDEP_IS_PREVIEW=TRUE
     depends_on:
       - postgres
