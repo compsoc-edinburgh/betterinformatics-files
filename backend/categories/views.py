@@ -29,6 +29,7 @@ def list_categories_with_meta(request):
             "slug": cat.slug,
             "examcountpublic": cat.meta.examcount_public,
             "examcountanswered": cat.meta.examcount_answered,
+            "documentcount": cat.meta.documentcount,
             "answerprogress": cat.answer_progress(),
         }
         for cat in categories

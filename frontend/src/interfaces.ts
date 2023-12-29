@@ -147,6 +147,7 @@ export interface CategoryMetaDataOverview {
   slug: string;
   examcountpublic: number;
   examcountanswered: number;
+  documentcount: number;
   answerprogress: number;
 }
 
@@ -163,6 +164,7 @@ export interface CategoryMetaData {
   more_exams_link: string;
   examcountpublic: number;
   examcountanswered: number;
+  documentcount: number;
   answerprogress: number;
   attachments: Attachment[];
 }

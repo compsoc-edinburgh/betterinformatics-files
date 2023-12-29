@@ -44,6 +44,9 @@ class CategoryMetaData(models.Model):
     # number of cuts in public exams that have at least one answer
     answered_cuts = models.IntegerField()
 
+    # number of user-contributed documents
+    documentcount = models.IntegerField()
+
     class Meta:
         managed = False
 

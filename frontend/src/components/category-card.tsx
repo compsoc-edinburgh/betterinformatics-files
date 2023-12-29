@@ -11,6 +11,10 @@ import { useStyles } from "../utils/style";
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
 }
+
+const pluralize = (count: number, noun: string) =>
+  `${count} ${noun}${count !== 1 ? 's' : ''}`;
+
 const CategoryCard: React.FC<Props> = ({ category }) => {
   const { classes } = useStyles();
   const history = useHistory();
@@ -69,11 +73,13 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
               : category.displayname}
           </Anchor>
           <Text mt={4} color="gray.8">
-            Exams:{" "}
-            {category.examcountpublic}
+          {pluralize(category.documentcount, "Community Document")}
+          </Text>
+          <Text color="gray.8">
+          {pluralize(category.examcountpublic, "Exam")}
           </Text>
           <Text mb={4} color="gray.8">
-            Answers: {((category.answerprogress * 100) | 0).toString()} %
+            {((category.answerprogress * 100) | 0).toString()} % Solved by community
           </Text>
         </div>
         <Progress radius={0} value={category.answerprogress * 100} />
