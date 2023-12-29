@@ -21,9 +21,9 @@ def user_authenticated(request):
 def has_admin_rights(request):
     if check_api_key(request):
         return True
-    if request.simulate_nonadmin:
+    if getattr(request, "simulate_nonadmin", False):
         return False
-    return "admin" in request.roles
+    return "admin" in getattr(request, "roles", [])
 
 
 @func_cache.cache(60)
