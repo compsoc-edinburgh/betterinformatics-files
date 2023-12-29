@@ -40,6 +40,16 @@ def me_view(request: HttpRequest) -> JsonResponse:
         )
 
 
+# Validity of 6-digit verification code (during which attempts to login will
+# email the same code too)
+verification_code_validity = datetime.timedelta(hours=1)
+
+# Validity of JWT token (after which the user will be logged out). There is no
+# mechanism to refresh/extend so the validity is from the last time the user
+# logged in explicitly.
+auth_token_validity = datetime.timedelta(weeks=4)
+
+
 @response.request_post()
 def login(request: HttpRequest):
     uun = request.POST.get("uun", "")
@@ -58,13 +68,22 @@ def login(request: HttpRequest):
         codeRow = VerificationCode.objects.get(
             uun=uun,
             created_at__gt=datetime.datetime.now(datetime.timezone.utc)
-            - datetime.timedelta(hours=1),
+            - verification_code_validity,
         )
     except VerificationCode.DoesNotExist:
+        # Generate a new code, and either add the new primary key to the database
+        # or update the existing row.
         newCode = "".join(map(str, random.choices(range(0, 10), k=6)))
 
-        codeRow = VerificationCode(uun=uun, code=newCode)
-        codeRow.save()
+        codeRow, _newlyAdded = VerificationCode.objects.update_or_create(
+            # Filter by UUN
+            uun=uun,
+            # Update/insert the new code and timestamp
+            defaults={
+                "code": newCode,
+                "created_at": datetime.datetime.now(datetime.timezone.utc),
+            },
+        )
 
     ip, _ = ipw.get_client_ip(request.META)
 
@@ -100,7 +119,7 @@ def verify(request: HttpRequest):
         codeRow = VerificationCode.objects.get(
             uun=uun,
             created_at__gt=datetime.datetime.now(datetime.timezone.utc)
-            - datetime.timedelta(hours=1),
+            - verification_code_validity,
         )
 
         if codeRow.code != code:
@@ -117,8 +136,7 @@ def verify(request: HttpRequest):
     jwt_claims = {
         "uun": uun,
         "email": uun + "@ed.ac.uk",
-        "exp": datetime.datetime.now(datetime.timezone.utc)
-        + datetime.timedelta(weeks=4),
+        "exp": datetime.datetime.now(datetime.timezone.utc) + auth_token_validity,
         "admin": uun in settings.COMSOL_AUTH_ADMIN_UUNS,
     }
 
@@ -135,7 +153,7 @@ def verify(request: HttpRequest):
     success_response.set_cookie(
         "access_token",
         token,
-        httponly=False, # Allow JS to access the cookie
+        httponly=False,  # Allow JS to access the cookie
         samesite="Strict",
         secure=settings.SECURE,
     )
