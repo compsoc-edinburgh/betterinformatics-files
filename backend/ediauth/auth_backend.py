@@ -29,6 +29,7 @@ def add_auth_to_request(request: HttpRequest):
         jwt.ExpiredSignatureError,
         jwt.InvalidSignatureError,
         jwt.InvalidTokenError,
+        KeyError,
     ):
         # For these errors, don't let the user know of the exact reason, because
         # it could just be that the user's session expired.
@@ -81,6 +82,10 @@ def AuthenticationMiddleware(get_response):
             logger.warning("permission denied: %s", err)
             raise err
         except Exception as err:
+            # All assumed exceptions should be handled above, but just in case
+            # something unexpected happens, log it and let the request continue
+            # as unauthenticated instead of crashing the app.
+            logger.warning("unpredicted exception: %s", err)
             pass
 
         response = get_response(request)
