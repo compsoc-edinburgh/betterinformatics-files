@@ -219,7 +219,6 @@ export const CategoryList: React.FC<{}> = () => {
           <TextInput
             placeholder="Filter..."
             value={filter}
-            autoFocus
             onChange={e => setFilter(e.currentTarget.value)}
             icon={<Icon icon={ICONS.SEARCH} size={12} />}
           />
