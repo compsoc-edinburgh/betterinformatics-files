@@ -83,4 +83,6 @@ def userinfo(request, username):
 @auth_check.require_login
 def scoreboard_top(request, scoretype):
     limit = int(request.GET.get("limit", "10"))
+    if limit > 10 and not auth_check.has_admin_rights(request):
+        return response.not_allowed()
     return response.success(value=get_scoreboard_top(scoretype, limit))
