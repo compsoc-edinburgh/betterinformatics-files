@@ -192,6 +192,7 @@ const LoginOverlay: React.FC<{}> = () => {
               value={verificationCode}
               required
               autoFocus
+              type="number"
               onChange={(value: string) => setVerificationCode(value)}
               error={!!error} /* cast to boolean */
               style={{ display: "flex", justifyContent: "center" }}
