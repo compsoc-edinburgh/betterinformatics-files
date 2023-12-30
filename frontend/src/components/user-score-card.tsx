@@ -104,7 +104,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
           {scoreCard(userInfo, "Documents", "score_documents", ICONS.FILE)}
           {userInfo &&
             userInfo.score_cuts > 0 &&
-            scoreCard(userInfo, "Exam Import", "score_cuts", ICONS.FILE_UP)}
+            scoreCard(userInfo, "Exam Cuts", "score_cuts", ICONS.FILE_UP)}
         </SimpleGrid>
       </Container>
     </>
