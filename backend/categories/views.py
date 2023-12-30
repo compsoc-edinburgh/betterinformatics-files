@@ -15,7 +15,7 @@ def list_categories(request):
     return response.success(value=list(Category.objects.order_by('displayname').values_list('displayname', flat=True)))
 
 
-@func_cache.static_cache(600) #temporary fix for high query latency
+@func_cache.static_cache(900) #temporary fix for high query latency
 @response.request_get()
 def list_categories_with_meta(request):
     categories = Category.objects.select_related('meta').order_by('displayname').all()
