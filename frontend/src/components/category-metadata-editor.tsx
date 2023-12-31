@@ -103,6 +103,8 @@ const applyChanges = async (
     metaDataDiff.remark = newMetaData.remark;
   if (oldMetaData.more_exams_link !== newMetaData.more_exams_link)
     metaDataDiff.more_exams_link = newMetaData.more_exams_link;
+  if (oldMetaData.more_markdown_link !== newMetaData.more_markdown_link)
+    metaDataDiff.more_markdown_link = newMetaData.more_markdown_link;
   if (oldMetaData.permission !== newMetaData.permission)
     metaDataDiff.permission = newMetaData.permission;
   const fetchedMetaData = await setMetaData(slug, metaDataDiff);
@@ -301,6 +303,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             />
           </Grid.Col>
         </Grid>
+        <TextInput label="More Markdown Link" {...registerInput("more_markdown_link")} />
       </Stack>
       <Title order={4} mt="xl" mb="sm">
         Attachments

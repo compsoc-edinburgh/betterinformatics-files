@@ -25,6 +25,11 @@ class Category(models.Model):
         "MetaCategory", related_name="category_set"
     )
 
+    # HTTP link to a markdown file (optional frontmatter ignored) with more
+    # useful information about the category (this will be queried by the
+    # frontend to display a rendered version) -- use for BetterInformatics link
+    more_markdown_link = models.CharField(max_length=512, default="")
+
     def answer_progress(self):
         if self.meta.total_cuts == 0:
             return 0

@@ -12,7 +12,9 @@ import {
   LoadingOverlay,
   Button,
   Box,
+  Text,
   Title,
+  Paper,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -27,8 +29,9 @@ import ExamList from "../components/exam-list";
 import DocumentList from "../components/document-list";
 import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";
+import MarkdownText from "../components/markdown-text";
 import { CategoryMetaData } from "../interfaces";
-import { getMetaCategoriesForCategory } from "../utils/category-utils";
+import { getMetaCategoriesForCategory, removeMarkdownFrontmatter, useEditableMarkdownLink } from "../utils/category-utils";
 import { Loader } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 
@@ -43,6 +46,15 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const { data, loading, run } = useRequest(loadMetaCategories, {
     cacheKey: "meta-categories",
   });
+
+  // Fetch the content at data.more_markdown_link (should be CSP-compliant
+  // because we verify before storing it in the database)
+  const { data: raw_md_contents, loading: md_loading, error: md_error } = useRequest(
+    () => (metaData ? fetch(metaData.more_markdown_link).then(r => r.text()).then(m => removeMarkdownFrontmatter(m)) : Promise.resolve()),
+    { refreshDeps: [metaData] },
+  );
+  const { editable: md_editable, link: md_edit_link } = useEditableMarkdownLink(metaData.more_markdown_link);
+
   const history = useHistory();
   const [removeLoading, remove] = useRemoveCategory(() => history.push("/"));
   const [confirm, modals] = useConfirm();
@@ -166,6 +178,38 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </List>
               )}
             </Box>
+          )}
+          {metaData.more_markdown_link && (
+            <Paper withBorder radius="md" p="lg" mt="xl">
+              <Group align="baseline" position="apart">
+                <Group align="baseline">
+                  <Icon icon={ICONS.INFO} />
+                  <Title order={2}>
+                    Community Knowledgebase
+                  </Title>
+                </Group>
+                {md_editable && (
+                  <Button
+                    compact
+                    variant="outline"
+                    component="a"
+                    target="_blank"
+                    href={md_edit_link}
+                  >
+                    Edit (anyone welcome!)
+                  </Button>
+                )}
+              </Group>
+              {md_loading && <LoadingOverlay visible={md_loading} />}
+              {md_error && (
+                <Alert color="red">Failed to render additional info: {md_error.message}</Alert>
+              )}
+              {raw_md_contents && (
+                <Text color="gray.7">
+                  <MarkdownText value={raw_md_contents} />
+                </Text>
+              )}
+            </Paper>
           )}
           <Grid my="sm">
             {metaData.experts.includes(user.username) && (

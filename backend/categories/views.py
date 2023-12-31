@@ -158,6 +158,7 @@ def get_category_data(request, cat):
         "remark": cat.remark,
         "catadmin": auth_check.has_admin_rights_for_category(request, cat),
         "more_exams_link": cat.more_exams_link,
+        "more_markdown_link": cat.more_markdown_link,
         # These values are not needed in the frontend and are expensive to calculate
         # 'examcountpublic': cat.exam_set.filter(public=True).count(),
         # 'examcountanswered': cat.exam_count_answered(),
@@ -194,6 +195,7 @@ def get_metadata(request, slug):
     "permission",
     "remark",
     "more_exams_link",
+    "more_markdown_link",
     optional=True,
 )
 @auth_check.require_admin
@@ -208,7 +210,24 @@ def set_metadata(request, slug):
         # Use slug if provided, but still sanitise it. Make sure that it is
         # unique barring the current category when checking uniqueness.
         cat.slug = create_category_slug(request.POST["slug"], cat.pk)
-    for key in ["semester", "form", "permission", "remark", "more_exams_link"]:
+    if "more_markdown_link" in request.POST:
+        # verify that the link is CSP-compliant, since the frontend will be
+        # fetch-ing and rendering it
+        if not any(
+            [
+                request.POST["more_markdown_link"].startswith(x)
+                for x in settings.CSP_CONNECT_SRC
+            ]
+        ):
+            return response.not_possible("Markdown link violates CSP")
+    for key in [
+        "semester",
+        "form",
+        "permission",
+        "remark",
+        "more_exams_link",
+        "more_markdown_link",
+    ]:
         if key in request.POST:
             setattr(cat, key, request.POST[key])
     cat.save()

@@ -162,6 +162,7 @@ export interface CategoryMetaData {
   remark: string;
   catadmin: boolean;
   more_exams_link: string;
+  more_markdown_link: string;
   examcountpublic: number;
   examcountanswered: number;
   documentcount: number;
