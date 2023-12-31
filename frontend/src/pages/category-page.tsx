@@ -31,7 +31,11 @@ import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";
 import MarkdownText from "../components/markdown-text";
 import { CategoryMetaData } from "../interfaces";
-import { getMetaCategoriesForCategory, removeMarkdownFrontmatter, useEditableMarkdownLink } from "../utils/category-utils";
+import {
+  getMetaCategoriesForCategory,
+  removeMarkdownFrontmatter,
+  useEditableMarkdownLink,
+} from "../utils/category-utils";
 import { Loader } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 
@@ -49,11 +53,22 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
   // Fetch the content at data.more_markdown_link (should be CSP-compliant
   // because we verify before storing it in the database)
-  const { data: raw_md_contents, loading: md_loading, error: md_error } = useRequest(
-    () => (metaData ? fetch(metaData.more_markdown_link).then(r => r.text()).then(m => removeMarkdownFrontmatter(m)) : Promise.resolve()),
+  const {
+    data: raw_md_contents,
+    loading: md_loading,
+    error: md_error,
+  } = useRequest(
+    () =>
+      metaData
+        ? fetch(metaData.more_markdown_link)
+            .then(r => r.text())
+            .then(m => removeMarkdownFrontmatter(m))
+        : Promise.resolve(),
     { refreshDeps: [metaData] },
   );
-  const { editable: md_editable, link: md_edit_link } = useEditableMarkdownLink(metaData.more_markdown_link);
+  const { editable: md_editable, link: md_edit_link } = useEditableMarkdownLink(
+    metaData.more_markdown_link,
+  );
 
   const history = useHistory();
   const [removeLoading, remove] = useRemoveCategory(() => history.push("/"));
@@ -184,9 +199,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <Group align="baseline" position="apart">
                 <Group align="baseline">
                   <Icon icon={ICONS.INFO} />
-                  <Title order={2}>
-                    Community Knowledgebase
-                  </Title>
+                  <Title order={2}>Community Knowledgebase</Title>
                 </Group>
                 {md_editable && (
                   <Button
@@ -202,11 +215,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </Group>
               {md_loading && <LoadingOverlay visible={md_loading} />}
               {md_error && (
-                <Alert color="red">Failed to render additional info: {md_error.message}</Alert>
+                <Alert color="red">
+                  Failed to render additional info: {md_error.message}
+                </Alert>
               )}
               {raw_md_contents !== undefined && (
                 <Text color="gray.7">
-                  <MarkdownText value={raw_md_contents} />
+                  <MarkdownText
+                    value={raw_md_contents}
+                    localLinkBase="https://betterinformatics.com"
+                  />
                 </Text>
               )}
             </Paper>

@@ -7,7 +7,10 @@ import "katex/contrib/mhchem/mhchem";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
-import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
+import ReactMarkdown, {
+  ReactMarkdownProps,
+  uriTransformer,
+} from "react-markdown";
 import RemarkGfm from "remark-gfm";
 import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
@@ -115,8 +118,13 @@ interface Props {
    * be highlighted.
    */
   regex?: RegExp;
+  /**
+   * If defined, local links will be prefixed with this string. Use for showing
+   * Markdown from a different domain.
+   */
+  localLinkBase?: string;
 }
-const MarkdownText: React.FC<Props> = ({ value, regex }) => {
+const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
   const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
   const renderers = useMemo(() => createRenderers(regex, macros), [regex]);
   const { classes, cx } = useStyles();
@@ -128,6 +136,18 @@ const MarkdownText: React.FC<Props> = ({ value, regex }) => {
       <ReactMarkdown
         source={value}
         transformImageUri={transformImageUri}
+        transformLinkUri={
+          localLinkBase
+            ? (uri: string, children?: React.ReactNode, title?: string) => {
+                if (uri.startsWith("/")) {
+                  return localLinkBase + uriTransformer(uri);
+                } else {
+                  // Apply default sanitizer for external links
+                  return uriTransformer(uri);
+                }
+              }
+            : uriTransformer
+        }
         plugins={markdownPlugins}
         renderers={renderers}
       />
