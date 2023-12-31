@@ -204,7 +204,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               {md_error && (
                 <Alert color="red">Failed to render additional info: {md_error.message}</Alert>
               )}
-              {raw_md_contents && (
+              {raw_md_contents !== undefined && (
                 <Text color="gray.7">
                   <MarkdownText value={raw_md_contents} />
                 </Text>
