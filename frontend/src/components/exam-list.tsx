@@ -58,11 +58,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
-      <Title
-        order={2}
-        mt="xl"
-        mb="lg"
-      >
+      <Title order={2} mt="xl" mb="lg">
         Past Exams
       </Title>
       {error && <Alert color="red">{error.message}</Alert>}

@@ -303,7 +303,10 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             />
           </Grid.Col>
         </Grid>
-        <TextInput label="More Markdown Link" {...registerInput("more_markdown_link")} />
+        <TextInput
+          label="More Markdown Link"
+          {...registerInput("more_markdown_link")}
+        />
       </Stack>
       <Title order={4} mt="xl" mb="sm">
         Attachments

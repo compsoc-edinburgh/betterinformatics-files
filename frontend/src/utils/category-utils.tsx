@@ -178,7 +178,10 @@ export const useEditableMarkdownLink = (link: string | undefined) => {
   const editLink = link.replace("raw.githubusercontent.com", "github.com");
   const pathComponents = editLink.split("/");
   const thirdPathComponent = pathComponents[4];
-  const newEditLink = editLink.replace(thirdPathComponent, `${thirdPathComponent}/edit`);
+  const newEditLink = editLink.replace(
+    thirdPathComponent,
+    `${thirdPathComponent}/edit`,
+  );
   return {
     editable: true,
     link: newEditLink,

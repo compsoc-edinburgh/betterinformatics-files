@@ -6,10 +6,12 @@ const NotFoundPage: React.FC<{}> = () => {
   useTitle("404");
   return (
     <Container size="xl">
-      <Title color="dimmed" mb="xl" style={{ fontSize: 150 }}>404 Not Found.</Title>
+      <Title color="dimmed" mb="xl" style={{ fontSize: 150 }}>
+        404 Not Found.
+      </Title>
       <Text mb="xl">
-        No need to freak out. Maybe you want to double-check whether you
-        entered the URL correctly?
+        No need to freak out. Maybe you want to double-check whether you entered
+        the URL correctly?
       </Text>
     </Container>
   );
