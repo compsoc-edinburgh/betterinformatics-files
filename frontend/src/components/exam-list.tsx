@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Loader, TextInput } from "@mantine/core";
+import { Alert, Button, Flex, Loader, TextInput, Title } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -58,6 +58,13 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   return (
     <>
+      <Title
+        order={2}
+        mt="xl"
+        mb="lg"
+      >
+        Past Exams
+      </Title>
       {error && <Alert color="red">{error.message}</Alert>}
       {loading && <Loader />}
       <Flex
