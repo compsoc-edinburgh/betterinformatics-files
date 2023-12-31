@@ -6,6 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
     dependencies = [
         ("categories", "0012_remove_category_has_payments"),
+        ("documents", "0001_initial"),
     ]
 
     sql = """
