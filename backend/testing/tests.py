@@ -38,7 +38,7 @@ class ComsolTest(TestCase):
             "given_name": "Jonas",
             "family_name": "Schneider",
             "admin": True,
-            "displayname": "Jonas Schneider",
+            "displayname": "schneij",
         },
         {
             "sub": "42-1",
@@ -46,7 +46,7 @@ class ComsolTest(TestCase):
             "given_name": "Zoe",
             "family_name": "Fletcher",
             "admin": True,
-            "displayname": "Zoe Fletcher",
+            "displayname": "fletchz",
         },
         {
             "sub": "42-2",
@@ -54,7 +54,7 @@ class ComsolTest(TestCase):
             "given_name": "Carla",
             "family_name": "Morin",
             "admin": False,
-            "displayname": "Carla Morin",
+            "displayname": "morica",
         },
     ]
     loginUser = 0
