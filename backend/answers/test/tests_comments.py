@@ -30,7 +30,7 @@ class TestComment(ComsolTestExamData):
         self.assertNotEqual(comment.text, 'New Comment content')
 
     def test_remove_comment(self):
-        self.assertEqual(Comment.objects.count(), 48)
+        self.assertEqual(Comment.objects.count(), 36)
         for comment in self.comments:
             self.post('/api/exam/removecomment/{}/'.format(comment.id), {})
         self.assertEqual(Comment.objects.count(), 0)
@@ -41,12 +41,12 @@ class TestCommentNonadmin(ComsolTestExamData):
     loginUser = 2
 
     def test_remove_all_comments(self):
-        self.assertEqual(Comment.objects.count(), 48)
+        self.assertEqual(Comment.objects.count(), 36)
         removed = 0
         for comment in self.comments:
             can_remove = comment.author.username == self.user['username']
             if can_remove:
                 removed += 1
             self.post('/api/exam/removecomment/{}/'.format(comment.id), {}, status_code=200 if can_remove else 403)
-        self.assertEqual(removed, 16)
-        self.assertEqual(Comment.objects.count(), 48 - removed)
+        self.assertEqual(removed, 12)
+        self.assertEqual(Comment.objects.count(), 36 - removed)
