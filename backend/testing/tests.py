@@ -177,8 +177,6 @@ class ComsolTestExamData(ComsolTest):
             resolve_alias="resolve.pdf",
             public=True,
             finished_cuts=True,
-            finished_wiki_transfer=True,
-            needs_payment=False,
         )
         self.exam.save()
         self.sections = []
@@ -248,7 +246,6 @@ class ComsolTestExamsData(ComsolTest):
                     displayname="test",
                     exam_type=ExamType.objects.get(displayname="Exams"),
                     finished_cuts=True,
-                    finished_wiki_transfer=True,
                     public=True,
                 )
             )

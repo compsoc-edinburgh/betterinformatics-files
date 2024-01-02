@@ -15,10 +15,6 @@ class TestMetadata(ComsolTestExamData):
         self.assertEqual(res["resolve_alias"], self.exam.resolve_alias)
         self.assertEqual(res["public"], self.exam.public)
         self.assertEqual(res["finished_cuts"], self.exam.finished_cuts)
-        self.assertEqual(
-            res["finished_wiki_transfer"], self.exam.finished_wiki_transfer
-        )
-        self.assertEqual(res["needs_payment"], self.exam.needs_payment)
 
     def test_set_metadata(self):
         self.post(
