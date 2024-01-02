@@ -21,12 +21,12 @@ class TestListings(ComsolTestExamsData):
         self.exams[0].save()
         res = self.get('/api/exam/listimportexams/')['value']
         self.assertEqual(len(res), 1)
-        self.exams[2].public = False
-        self.exams[2].save()
+        self.exams[1].public = False
+        self.exams[1].save()
         res = self.get('/api/exam/listimportexams/')['value']
-        self.assertEqual(len(res), 2)
+        self.assertEqual(len(res), 1)
         res = self.get('/api/exam/listimportexams/?includehidden=true')['value']
-        self.assertEqual(len(res), 3)
+        self.assertEqual(len(res), 2)
 
 
 class TestListingsWithContent(ComsolTestExamData):
