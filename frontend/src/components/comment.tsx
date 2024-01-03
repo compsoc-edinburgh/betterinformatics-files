@@ -161,6 +161,7 @@ const CommentComponent: React.FC<Props> = ({
             preview={value => <MarkdownText value={value} />}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
+            enableFullscreen
           />
           <Flex justify="space-between" mt="sm">
             <Button
