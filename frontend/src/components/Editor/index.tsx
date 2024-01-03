@@ -1,4 +1,4 @@
-import { createStyles, MantineTheme, Modal, Paper } from "@mantine/core";
+import { createStyles, Divider, MantineTheme, Modal, Paper } from "@mantine/core";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import ImageOverlay from "../image-overlay";
@@ -17,35 +17,43 @@ type EditorStyleProps = {
 const borderStyles = (theme: MantineTheme) => ({
   borderWidth: "0.1em",
   borderColor:
-    theme.colorScheme === "dark"
-      ? theme.colors.gray[1]
-      : theme.colors.gray[9],
+    theme.colorScheme === "dark" ? theme.colors.gray[1] : theme.colors.gray[9],
   borderStyle: "solid",
 });
 
-const useStyles = createStyles((theme, { isDragHovered, isFullscreen }: EditorStyleProps) => ({
-  editorWrapperStyle: {
-    padding: "1.2em",
-    flexGrow: isFullscreen ? 1 : undefined,
-    ...(isDragHovered && isFullscreen ? borderStyles(theme) : {}),
-  },
-  hoverBorder: isDragHovered ? borderStyles(theme) : {},
-  fullscreenContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  },
-  fullscreenPreview: {
-    position: 'relative',
-    height: '100%',
-  },
-  fullscreenPreviewInner: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    overflowY: 'auto',
-  },
-}));
+const useStyles = createStyles(
+  (theme, { isDragHovered, isFullscreen }: EditorStyleProps) => ({
+    editorWrapperStyle: {
+      padding: "1.2em",
+      flexGrow: isFullscreen ? 1 : undefined,
+      ...(isDragHovered && isFullscreen ? borderStyles(theme) : {}),
+    },
+    hoverBorder: isDragHovered ? borderStyles(theme) : {},
+    fullscreenContainer: {
+      display: "flex",
+      flexDirection: "column",
+      height: "100%",
+    },
+    fullscreenPreview: {
+      position: "relative",
+      height: "100%",
+    },
+    fullscreenPreviewInner: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      overflowY: "auto",
+    },
+    splitViewContainer: {
+      display: 'flex',
+      height: '100%',
+      gap: '0.5em',
+    },
+    splitLeftRight: {
+      flex: '1 1 0',
+    },
+  }),
+);
 
 interface Props {
   value: string;
@@ -295,7 +303,7 @@ const Editor: React.FC<Props> = ({
 
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const { classes, cx } = useStyles({ isFullscreen, isDragHovered });
+  const { classes } = useStyles({ isFullscreen, isDragHovered });
 
   const toggleFullscreen = useCallback(() => {
     const newValue = !isFullscreen;
@@ -362,24 +370,32 @@ const Editor: React.FC<Props> = ({
     </>
   );
 
-  const editorPreview = mode !== 'write' ? (
-    isFullscreen ? (
-      <div className={classes.fullscreenPreview}>
-        <div className={classes.fullscreenPreviewInner}>
-          {preview(value)}
+  const editorPreview =
+    mode !== "write" ? (
+      isFullscreen ? (
+        <div className={classes.fullscreenPreview}>
+          <div className={classes.fullscreenPreviewInner}>{preview(value)}</div>
         </div>
-      </div>
-    ) : preview(value)
-  ) : null;
-
+      ) : (
+        preview(value)
+      )
+    ) : null;
 
   const main = (
     <>
       {header}
       <div className={classes.editorWrapperStyle}>
-        {mode === "write" ? editor : editorPreview}
+        {mode === "write" && editor}
+        {mode === "preview" && editorPreview}
+        {mode === "split" && (
+          <div className={classes.splitViewContainer}>
+            <div className={classes.splitLeftRight}>{editor}</div>
+            <Divider orientation="vertical" size="xs" />
+            <div className={classes.splitLeftRight}>{editorPreview}</div>
+          </div>
+        )}
       </div>
-      {(!isFullscreen || mode !== 'preview') && footer}
+      {(!isFullscreen || mode !== "preview") && footer}
     </>
   );
 
