@@ -89,10 +89,10 @@ class TestMetadata(ComsolTest):
 
     def test_set_slug(self):
         self.post('/api/category/setmetadata/test1/', {
-            'slug': 'newslug'
+            'slug': 'inf1a'
         })
         self.cat1.refresh_from_db()
-        self.assertEqual(self.cat1.slug, 'test1')
+        self.assertEqual(self.cat1.slug, 'inf1a')
 
     def test_add_remove_user(self):
         user, _ = User.objects.get_or_create(username='morica')
