@@ -279,7 +279,6 @@ const AnswerComponent: React.FC<Props> = ({
                 preview={value => <MarkdownText value={value} />}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
-                enableFullscreen
               />
               <Text mt="xs" color="dimmed">
                 Your answer will be licensed as{" "}

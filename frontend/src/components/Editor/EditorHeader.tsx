@@ -1,6 +1,15 @@
 import { css } from "@emotion/css";
 import * as React from "react";
-import { Bold, Code, DollarSign, Image, Italic, Link, Maximize, Minimize } from "react-feather";
+import {
+  Bold,
+  Code,
+  DollarSign,
+  Image,
+  Italic,
+  Link,
+  Maximize,
+  Minimize,
+} from "react-feather";
 import TooltipButton from "../TooltipButton";
 import { EditorMode } from "./utils/types";
 import { useCallback, useRef } from "react";
@@ -37,7 +46,6 @@ interface Props {
   activeMode: EditorMode;
   onActiveModeChange: (newMode: EditorMode) => void;
 
-  enableFullscreen?: boolean;
   isFullscreen: boolean;
   toggleFullscreen: () => void;
 
@@ -52,7 +60,6 @@ const EditorHeader: React.FC<Props> = ({
   activeMode,
   onActiveModeChange,
   onFiles,
-  enableFullscreen,
   isFullscreen,
   ...handlers
 }) => {
@@ -162,21 +169,19 @@ const EditorHeader: React.FC<Props> = ({
               </TooltipButton>
             </>
           )}
-          {enableFullscreen && (
-            <TooltipButton
-              className={iconButtonStyle}
-              onClick={handlers.toggleFullscreen}
-              type="button"
-              size="sm"
-              tooltip={
-                <>
-                  Toggle fullscreen
-                </>
-              }
-            >
-              {isFullscreen ? <Minimize size={iconSize} /> : <Maximize size={iconSize} />}
-            </TooltipButton>
-          )}
+          <TooltipButton
+            className={iconButtonStyle}
+            onClick={handlers.toggleFullscreen}
+            type="button"
+            size="sm"
+            tooltip={<>Toggle fullscreen</>}
+          >
+            {isFullscreen ? (
+              <Minimize size={iconSize} />
+            ) : (
+              <Maximize size={iconSize} />
+            )}
+          </TooltipButton>
         </Flex>
       </Tabs>
     </div>
