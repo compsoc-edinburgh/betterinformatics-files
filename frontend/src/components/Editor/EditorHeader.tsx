@@ -13,7 +13,7 @@ import {
 import TooltipButton from "../TooltipButton";
 import { EditorMode } from "./utils/types";
 import { useCallback, useRef } from "react";
-import { Flex, Tabs } from "@mantine/core";
+import { Flex, Stack, Tabs } from "@mantine/core";
 
 const iconButtonStyle = css`
   margin: 0;
@@ -147,9 +147,10 @@ const EditorHeader: React.FC<Props> = ({
                 type="button"
                 size="sm"
                 tooltip={
-                  <>
-                    Italic<kbd>Ctrl + I</kbd>{" "}
-                  </>
+                  <Stack spacing="0.4em">
+                    Italic
+                    <kbd>Ctrl + I</kbd>
+                  </Stack>
                 }
               >
                 <Italic size={iconSize} />
@@ -160,9 +161,10 @@ const EditorHeader: React.FC<Props> = ({
                 type="button"
                 size="sm"
                 tooltip={
-                  <>
-                    Bold<kbd>Ctrl + B</kbd>{" "}
-                  </>
+                  <Stack spacing="0.4em">
+                    Bold
+                    <kbd>Ctrl + B</kbd>
+                  </Stack>
                 }
               >
                 <Bold size={iconSize} />
@@ -174,7 +176,7 @@ const EditorHeader: React.FC<Props> = ({
             onClick={handlers.toggleFullscreen}
             type="button"
             size="sm"
-            tooltip={<>Toggle fullscreen</>}
+            tooltip="Toggle fullscreen"
           >
             {isFullscreen ? (
               <Minimize size={iconSize} />
