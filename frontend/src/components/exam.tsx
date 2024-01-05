@@ -215,9 +215,11 @@ const Exam: React.FC<Props> = React.memo(
               // Return empty div so that jumping to hidden section from contents is still possible
               const id = getAnswerSectionId(section.oid, section.name);
               return (
-                <>
-                  <div id={id} style={{ visibility: "hidden" }} />
-                </>
+                <div
+                  id={id}
+                  key={section.oid}
+                  style={{ visibility: "hidden" }}
+                />
               );
             }
           } else {
@@ -225,7 +227,7 @@ const Exam: React.FC<Props> = React.memo(
               return (
                 <React.Fragment key={section.key}>
                   {pageCounter < section.start.page && ++pageCounter && (
-                    <div id={`page-${pageCounter}`} />
+                    <div id={`page-${pageCounter}`} key={section.key} />
                   )}
                   {renderer && (
                     <PdfSectionCanvas

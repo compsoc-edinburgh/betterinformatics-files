@@ -7,6 +7,7 @@ import {
   Text,
   Affix,
   rem,
+  Group,
 } from "@mantine/core";
 import {
   ConfigOptions,
@@ -216,15 +217,12 @@ const App: React.FC<{}> = () => {
     { title: "Search", href: "/search" },
     {
       title: (
-        <span>
-          Account
+        <Group noWrap spacing="xs">
+          <Text>Account</Text>
           {unreadCount !== undefined && unreadCount > 0 && (
-            <>
-              {" "}
-              <Badge>{unreadCount}</Badge>
-            </>
+            <Badge mt={2}>{unreadCount}</Badge>
           )}
-        </span>
+        </Group>
       ),
       href: `/user/${user?.username}`,
     },
