@@ -35,7 +35,6 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
-import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
 
 const answerWrapperStyle = css`
@@ -341,7 +340,7 @@ const AnswerComponent: React.FC<Props> = ({
                   </Button>
                 )}
                 {answer !== undefined && (
-                  <Menu>
+                  <Menu withinPortal>
                     <Menu.Target>
                       <Button leftIcon={<Icon icon={ICONS.DOTS_H} />}>
                         More
