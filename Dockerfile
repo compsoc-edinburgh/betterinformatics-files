@@ -35,8 +35,10 @@ ARG git_commit
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .
 COPY ./frontend/yarn.lock .
-RUN yarn --ignore-engines --ignore-optional
+COPY ./frontend/index.html ./index.html
+RUN yarn --ignore-engines
 COPY ./frontend/tsconfig.json .
+COPY ./frontend/vite.config.ts .
 COPY ./frontend/.eslintrc.json .
 COPY ./frontend/.env.production .
 COPY ./frontend/.prettierrc.json ./.prettierrc.json
