@@ -54,5 +54,6 @@ COPY --from=frontend-build /usr/src/app/build/manifest.json ./manifest.json
 COPY --from=frontend-build /usr/src/app/build/index.html ./templates/index.html
 COPY --from=frontend-build /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=frontend-build /usr/src/app/build/static ./static
+COPY --from=frontend-build /usr/src/app/build/assets ./assets
 
 EXPOSE 80
