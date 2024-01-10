@@ -1,7 +1,7 @@
 import { Container, Grid, Text, Title } from "@mantine/core";
 import React from "react";
 import useTitle from "../hooks/useTitle";
-import Bjoern from "../assets/bjoern.svg?react";
+import { ReactComponent as Bjoern } from "../assets/bjoern.svg";
 
 const NotFoundPage: React.FC<{}> = () => {
   useTitle("404");
