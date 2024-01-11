@@ -9,7 +9,6 @@ import {
   Group,
   Grid,
   List,
-  LoadingOverlay,
   Button,
   Box,
   Title,
@@ -24,6 +23,7 @@ import {
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
+import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
 import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";

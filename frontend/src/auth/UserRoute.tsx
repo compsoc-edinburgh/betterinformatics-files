@@ -1,6 +1,6 @@
 import { Route, RouteProps } from "react-router-dom";
 import { useUser } from ".";
-import { LoadingOverlay } from "@mantine/core";
+import LoadingOverlay from "../components/loading-overlay";
 import LoginOverlay from "../pages/login-page";
 
 const UserRouteContent = <T extends RouteProps>({
