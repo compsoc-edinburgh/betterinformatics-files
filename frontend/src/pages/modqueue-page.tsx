@@ -65,7 +65,7 @@ const ModQueue: React.FC = () => {
             Transcripts
           </Title>
           <div>
-            <LoadingOverlay loading={payLoading} />
+            <LoadingOverlay visible={payLoading} />
             <Table striped>
               <thead>
                 <tr>
@@ -100,7 +100,7 @@ const ModQueue: React.FC = () => {
       </Title>
       {error && <div>{error.message}</div>}
       <div>
-        <LoadingOverlay loading={examsLoading} />
+        <LoadingOverlay visible={examsLoading} />
         <Table striped fontSize="md">
           <thead>
             <tr>

@@ -217,7 +217,7 @@ export const CategoryList: React.FC<{}> = () => {
         </Flex>
       </Container>
       <ContentContainer>
-        <LoadingOverlay loading={loading} />
+        <LoadingOverlay visible={loading} />
         <Container size="xl" py="md">
           {error ? (
             <Alert color="red">{error.toString()}</Alert>

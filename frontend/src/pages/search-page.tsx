@@ -42,7 +42,7 @@ const SearchPage: React.FC<{}> = () => {
         />
       </Container>
       <div>
-        <LoadingOverlay loading={loading} />
+        <LoadingOverlay visible={loading} />
         <Container size="xl">
           <div>
             {data && data.length === 0 && debouncedTerm !== "" && (

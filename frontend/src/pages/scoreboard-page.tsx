@@ -98,7 +98,7 @@ const Scoreboard: React.FC<{}> = () => {
     <Container size="xl">
       <h1>Scoreboard</h1>
       {error && <Alert color="red">{error.message}</Alert>}
-      <LoadingOverlay loading={loading} />
+      <LoadingOverlay visible={loading} />
       <div className={overflowScroll}>
         <Table
           striped

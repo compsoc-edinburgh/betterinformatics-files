@@ -16,7 +16,7 @@ const UserRouteContent = <T extends RouteProps>({
   } else {
     return (
       <>
-        <LoadingOverlay loading={user === undefined} />
+        <LoadingOverlay visible={user === undefined} />
         {user !== undefined && <Route {...props} />}
       </>
     );
