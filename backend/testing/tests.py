@@ -38,7 +38,7 @@ class ComsolTest(TestCase):
             "given_name": "Jonas",
             "family_name": "Schneider",
             "admin": True,
-            "displayname": "Jonas Schneider",
+            "displayname": "schneij",
         },
         {
             "sub": "42-1",
@@ -46,7 +46,7 @@ class ComsolTest(TestCase):
             "given_name": "Zoe",
             "family_name": "Fletcher",
             "admin": True,
-            "displayname": "Zoe Fletcher",
+            "displayname": "fletchz",
         },
         {
             "sub": "42-2",
@@ -54,7 +54,7 @@ class ComsolTest(TestCase):
             "given_name": "Carla",
             "family_name": "Morin",
             "admin": False,
-            "displayname": "Carla Morin",
+            "displayname": "morica",
         },
     ]
     loginUser = 0
@@ -177,8 +177,6 @@ class ComsolTestExamData(ComsolTest):
             resolve_alias="resolve.pdf",
             public=True,
             finished_cuts=True,
-            finished_wiki_transfer=True,
-            needs_payment=False,
         )
         self.exam.save()
         self.sections = []
@@ -248,7 +246,6 @@ class ComsolTestExamsData(ComsolTest):
                     displayname="test",
                     exam_type=ExamType.objects.get(displayname="Exams"),
                     finished_cuts=True,
-                    finished_wiki_transfer=True,
                     public=True,
                 )
             )

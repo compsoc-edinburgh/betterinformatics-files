@@ -81,7 +81,6 @@ class Command(BaseCommand):
                 ][i % 3],
                 semester=["HS", "FS"][i % 2],
                 permission="public",
-                has_payments=(i % 5 == 0),
             )
             category.save()
             for j, user in enumerate(User.objects.all()):
@@ -112,15 +111,11 @@ class Command(BaseCommand):
                 s3_util.save_file_to_s3(
                     settings.COMSOL_EXAM_DIR, filename, "exam10.pdf"
                 )
-                needs_payment = category.has_payments and (i + category.id % 3 == 0)
-                if needs_payment:
-                    exam_type = ExamType.objects.get(displayname="Transcripts")
-                else:
-                    exam_type = (
-                        ExamType.objects.get(displayname="Exams")
-                        if (i + category.id % 4 != 0)
-                        else ExamType.objects.get(displayname="Midterms")
-                    )
+                exam_type = (
+                    ExamType.objects.get(displayname="Exams")
+                    if (i + category.id % 4 != 0)
+                    else ExamType.objects.get(displayname="Midterms")
+                )
                 exam = Exam(
                     filename=filename,
                     displayname="Exam {} in {}".format(i + 1, category.displayname),
@@ -129,8 +124,6 @@ class Command(BaseCommand):
                     resolve_alias="resolve_" + filename,
                     public=(i + category.id % 7 != 0),
                     finished_cuts=(i + category.id % 5 != 0),
-                    finished_wiki_transfer=(i + category.id % 9 != 0),
-                    needs_payment=needs_payment,
                 )
                 exam.save()
                 pdf_utils.analyze_pdf(
@@ -141,13 +134,6 @@ class Command(BaseCommand):
                     exam.has_solution = True
                     s3_util.save_file_to_s3(
                         settings.COMSOL_SOLUTION_DIR, filename, "exam10.pdf"
-                    )
-                    exam.save()
-
-                if i + category.id % 5 == 0:
-                    exam.is_printonly = True
-                    s3_util.save_file_to_s3(
-                        settings.COMSOL_PRINTONLY_DIR, filename, "exam10.pdf"
                     )
                     exam.save()
 

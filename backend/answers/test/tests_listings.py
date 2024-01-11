@@ -21,29 +21,12 @@ class TestListings(ComsolTestExamsData):
         self.exams[0].save()
         res = self.get('/api/exam/listimportexams/')['value']
         self.assertEqual(len(res), 1)
-        self.exams[1].finished_wiki_transfer = False
+        self.exams[1].public = False
         self.exams[1].save()
         res = self.get('/api/exam/listimportexams/')['value']
-        self.assertEqual(len(res), 2)
-        self.exams[2].public = False
-        self.exams[2].save()
-        res = self.get('/api/exam/listimportexams/')['value']
-        self.assertEqual(len(res), 2)
-        res = self.get('/api/exam/listimportexams/?includehidden=true')['value']
-        self.assertEqual(len(res), 3)
-
-    def test_list_payment_check(self):
-        res = self.get('/api/exam/listpaymentcheckexams/')['value']
-        self.assertEqual(len(res), 0)
-        self.exams[0].is_oral_transcript = True
-        self.exams[0].oral_transcript_uploader = self.get_my_user()
-        self.exams[0].save()
-        res = self.get('/api/exam/listpaymentcheckexams/')['value']
         self.assertEqual(len(res), 1)
-        self.exams[0].oral_transcript_checked = True
-        self.exams[0].save()
-        res = self.get('/api/exam/listpaymentcheckexams/')['value']
-        self.assertEqual(len(res), 0)
+        res = self.get('/api/exam/listimportexams/?includehidden=true')['value']
+        self.assertEqual(len(res), 2)
 
 
 class TestListingsWithContent(ComsolTestExamData):
