@@ -28,6 +28,7 @@ import useAlmostInViewport from "../hooks/useAlmostInViewport";
 const nameCardStyle = css`
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  border-top-width: 0 !important;
 `;
 
 interface NameCardProps {
@@ -38,6 +39,7 @@ interface NameCardProps {
 const NameCard = (props: NameCardProps) => (
   <Card
     bg="gray.1"
+    withBorder
     className={nameCardStyle}
     {...props}
     shadow="md"

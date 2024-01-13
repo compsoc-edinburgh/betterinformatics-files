@@ -1,4 +1,4 @@
-import { createStyles, Paper } from "@mantine/core";
+import { createStyles, Divider, MantineTheme, Modal, Paper } from "@mantine/core";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import ImageOverlay from "../image-overlay";
@@ -9,19 +9,52 @@ import EditorHeader from "./EditorHeader";
 import { EditorMode, ImageHandle, Range } from "./utils/types";
 import { push, redo, undo, UndoStack } from "./utils/undo-stack";
 
-const useStyles = createStyles(theme => ({
-  editorWrapperStyle: {
-    padding: "1.2em",
-  },
-  hoverBorder: {
-    borderWidth: "0.1em",
-    borderColor:
-      theme.colorScheme === "dark"
-        ? theme.colors.gray[1]
-        : theme.colors.gray[9],
-    borderStyle: "solid",
-  },
-}));
+type EditorStyleProps = {
+  isFullscreen: boolean;
+  isDragHovered: boolean;
+};
+
+const borderStyles = (theme: MantineTheme) => ({
+  borderWidth: "0.1em",
+  borderColor:
+    theme.colorScheme === "dark" ? theme.colors.gray[1] : theme.colors.gray[9],
+  borderStyle: "solid",
+});
+
+const useStyles = createStyles(
+  (theme, { isDragHovered, isFullscreen }: EditorStyleProps) => ({
+    editorWrapperStyle: {
+      padding: "1.2em",
+      flexGrow: isFullscreen ? 1 : undefined,
+      ...(isDragHovered && isFullscreen ? borderStyles(theme) : {}),
+    },
+    hoverBorder: isDragHovered ? borderStyles(theme) : {},
+    fullscreenContainer: {
+      display: "flex",
+      flexDirection: "column",
+      height: "100%",
+    },
+    fullscreenPreview: {
+      position: "relative",
+      height: "100%",
+    },
+    fullscreenPreviewInner: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      overflowY: "auto",
+    },
+    splitViewContainer: {
+      display: 'flex',
+      height: '100%',
+      gap: '0.5em',
+    },
+    splitLeftRight: {
+      flex: '1 1 0',
+    },
+  }),
+);
+
 interface Props {
   value: string;
   onChange: (newValue: string) => void;
@@ -265,53 +298,60 @@ const Editor: React.FC<Props> = ({
     setOverlayOpen(true);
   }, []);
 
-  const { classes, cx } = useStyles();
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  return (
-    <Paper
-      withBorder={!isDragHovered}
-      p="sm"
-      my="sm"
-      className={cx(isDragHovered && classes.hoverBorder)}
-      onClick={() => textareaElRef.current && textareaElRef.current.focus()}
-      onDragEnter={onDragEnter}
-    >
-      <EditorHeader
-        onFiles={onFiles}
-        activeMode={mode}
-        onActiveModeChange={setMode}
-        onMathClick={onMathClick}
-        onCodeClick={onCodeClick}
-        onLinkClick={onLinkClick}
-        onItalicClick={onItalicClick}
-        onBoldClick={onBoldClick}
-      />
-      <div className={classes.editorWrapperStyle}>
-        {mode === "write" ? (
-          <BasicEditor
-            textareaElRef={textareaElRef}
-            value={value}
-            onChange={newValue => setCurrent(newValue)}
-            setSelectionRangeRef={setSelectionRangeRef}
-            getSelectionRangeRef={getSelectionRangeRef}
-            onMetaKey={onMetaKey}
-            onPaste={e => {
-              const fileList = e.clipboardData.files;
-              const filesArray: File[] = [];
-              if (fileList.length === 0) return;
-              for (let i = 0; i < fileList.length; i++) {
-                const file = fileList.item(i);
-                if (file) {
-                  filesArray.push(file);
-                }
-              }
-              Promise.all(filesArray.map(getHandle)).then(insertImages);
-            }}
-          />
-        ) : (
-          preview(value)
-        )}
-      </div>
+  const { classes } = useStyles({ isFullscreen, isDragHovered });
+
+  const toggleFullscreen = useCallback(() => {
+    const newValue = !isFullscreen;
+    setIsFullscreen(newValue);
+    // enable split mode only in fullscreen mode
+    if (!newValue && mode === "split") {
+      setMode("write");
+    }
+  }, [mode, setMode, isFullscreen, setIsFullscreen]);
+
+  const header = (
+    <EditorHeader
+      onFiles={onFiles}
+      activeMode={mode}
+      onActiveModeChange={setMode}
+      onMathClick={onMathClick}
+      onCodeClick={onCodeClick}
+      onLinkClick={onLinkClick}
+      onItalicClick={onItalicClick}
+      onBoldClick={onBoldClick}
+      isFullscreen={isFullscreen}
+      toggleFullscreen={toggleFullscreen}
+    />
+  );
+
+  const editor = (
+    <BasicEditor
+      textareaElRef={textareaElRef}
+      value={value}
+      onChange={newValue => setCurrent(newValue)}
+      setSelectionRangeRef={setSelectionRangeRef}
+      getSelectionRangeRef={getSelectionRangeRef}
+      onMetaKey={onMetaKey}
+      resize={isFullscreen ? "fill" : "vertical"}
+      onPaste={e => {
+        const fileList = e.clipboardData.files;
+        const filesArray: File[] = [];
+        if (fileList.length === 0) return;
+        for (let i = 0; i < fileList.length; i++) {
+          const file = fileList.item(i);
+          if (file) {
+            filesArray.push(file);
+          }
+        }
+        Promise.all(filesArray.map(getHandle)).then(insertImages);
+      }}
+    />
+  );
+
+  const footer = (
+    <>
       <EditorFooter
         attachments={attachments}
         onDelete={onDeleteAttachment}
@@ -323,7 +363,66 @@ const Editor: React.FC<Props> = ({
         toggle={() => onImageDialogClose("")}
         closeWithImage={onImageDialogClose}
       />
-    </Paper>
+    </>
+  );
+
+  const editorPreview =
+    mode !== "write" ? (
+      isFullscreen ? (
+        <div className={classes.fullscreenPreview}>
+          <div className={classes.fullscreenPreviewInner}>{preview(value)}</div>
+        </div>
+      ) : (
+        preview(value)
+      )
+    ) : null;
+
+  const main = (
+    <>
+      {header}
+      <div className={classes.editorWrapperStyle}>
+        {mode === "write" && editor}
+        {mode === "preview" && editorPreview}
+        {mode === "split" && (
+          <div className={classes.splitViewContainer}>
+            <div className={classes.splitLeftRight}>{editor}</div>
+            <Divider orientation="vertical" size="xs" />
+            <div className={classes.splitLeftRight}>{editorPreview}</div>
+          </div>
+        )}
+      </div>
+      {(!isFullscreen || mode !== "preview") && footer}
+    </>
+  );
+
+  return (
+    <div
+      onClick={() => textareaElRef.current && textareaElRef.current.focus()}
+      onDragEnter={onDragEnter}
+    >
+      {isFullscreen ? (
+        <Modal
+          withCloseButton={false}
+          fullScreen
+          opened
+          onClose={toggleFullscreen}
+          classNames={{
+            body: classes.fullscreenContainer,
+          }}
+        >
+          {main}
+        </Modal>
+      ) : (
+        <Paper
+          withBorder={!isDragHovered}
+          p="sm"
+          my="sm"
+          className={classes.hoverBorder}
+        >
+          {main}
+        </Paper>
+      )}
+    </div>
   );
 };
 export default Editor;
