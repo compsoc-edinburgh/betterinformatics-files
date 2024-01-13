@@ -182,11 +182,11 @@ const applyChanges = async (
 
 // These values are hardcoded in the backend database model, so you must perform
 // database migrations when modifing them.
-const semesterOptions = createOptions({
-  None: "--",
-  Semester1: "Semester 1",
-  Semetser2: "Semester 2",
-  FullYear: "Full Year",
+export const semesterOptions = createOptions({
+  none: "--",
+  sem1: "Semester 1",
+  sem2: "Semester 2",
+  full: "Full Year",
 });
 const formOptions = createOptions({
   oral: "Oral",
@@ -259,7 +259,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               value={
                 semesterOptions[
                   formState.semester as keyof typeof semesterOptions
-                ]?.value ?? "--"
+                ]?.value ?? "none"
               }
               onChange={(event: any) =>
                 setFormValue("semester", event.currentTarget.value)
