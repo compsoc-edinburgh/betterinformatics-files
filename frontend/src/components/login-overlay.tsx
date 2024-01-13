@@ -66,7 +66,7 @@ const LoginOverlay: React.FC<{}> = () => {
     e.preventDefault();
     if (!processingAgreement) {
       setLoginState(LoginState.AWAITING_UUN_INPUT);
-      setError("Exam Collection cannot sign you in without your consent.");
+      setError("BetterInformatics cannot sign you in without your consent.");
       return;
     }
 

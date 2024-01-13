@@ -22,11 +22,11 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
                 Better&shy;Informatics
               </Text>
               <Text size="2.5rem" lh={1.2} my="lg">
-                Exam Collection
+                File Collection
               </Text>
               <Text size="1rem" weight={500}>
-                The BI Exam Collection is a platform for students to share
-                answers for previous exams, leave comments on answers, and
+                BetterInformatics File Collection is a platform for students to
+                share answers for previous exams, leave comments on answers, and
                 upload other relevant documents.
               </Text>
             </Flex>

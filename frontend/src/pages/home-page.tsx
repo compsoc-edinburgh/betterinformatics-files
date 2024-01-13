@@ -144,11 +144,11 @@ const HomePage: React.FC<{}> = () => {
         <Text size="1rem" lh={1}>
           Better&shy;Informatics
         </Text>
-        <Title mb="sm">Exam Collection</Title>
+        <Title mb="sm">File Collection</Title>
         <Text size="1rem" weight={500}>
-          The BI Exam Collection is a platform for students to share answers for
-          previous exams, leave comments on answers, and upload other relevant
-          documents.
+          BetterInformatics File Collection is a platform for students to share
+          answers for previous exams, leave comments on answers, and upload
+          other relevant documents.
         </Text>
       </Container>
       <CategoryList />

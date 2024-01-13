@@ -40,8 +40,8 @@ export const PrivacyPolicyPage: React.FC = () => {
       </p>
       <p>
         We use the information that you have given us in order to limit access
-        to the exam collection and its answers to current University of
-        Edinburgh students.
+        to BetterInformatics File Collection and its community-provided
+        documents to current University of Edinburgh students.
       </p>
       <p>
         Under the UK General Data Protection Regulation (UK GDPR), the lawful
