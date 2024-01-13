@@ -10,8 +10,8 @@ class Category(models.Model):
     remark = models.TextField(default="")
     semester = models.CharField(
         max_length=10,
-        choices=[(x, x) for x in ["--", "Semester 1", "Semester 2", "Full Year"]],
-        default="--",
+        choices=[(x, x) for x in ["none", "sem1", "sem2", "full"]],
+        default="none",
     )
     permission = models.CharField(
         max_length=64,
