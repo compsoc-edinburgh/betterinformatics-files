@@ -123,32 +123,34 @@ const ExternalNavElement: React.FC<Props> = ({
         </Menu.Target>
         <Menu.Dropdown>
           {item.childItems.map((childItem, i) => (
-            <Menu.Item
-              onClick={childItem.onClick ? childItem.onClick : undefined}
-              key={i}
-              pl="xs"
-              py="xs"
-            >
-              {isExternal ? (
-                <Anchor
-                  target="_blank"
-                  display={"block"}
-                  href={childItem.href}
-                  className={cx(classes.link, classes.childItem)}
-                >
-                  {childItem.title as ReactNode}
-                </Anchor>
-              ) : (
-                <Anchor
-                  component={NavLink}
-                  display={"block"}
-                  to={childItem.href!}
-                  className={cx(classes.link, classes.childItem)}
-                >
-                  {childItem.title as ReactNode}
-                </Anchor>
-              )}
-            </Menu.Item>
+            isExternal ? (
+              <Menu.Item
+                display={"block"}
+                component={"a"}
+                target={"_blank"}
+                href={childItem.href}
+                className={cx(classes.link, classes.childItem)}
+                onClick={childItem.onClick ? childItem.onClick : undefined}
+                key={i}
+                pl="xs"
+                py="xs"
+              >
+                {childItem.title as ReactNode}
+              </Menu.Item>
+            ) : (
+              <Menu.Item
+                display={"block"}
+                component={NavLink}
+                to={childItem.href!}
+                className={cx(classes.link, classes.childItem)}
+                onClick={childItem.onClick ? childItem.onClick : undefined}
+                key={i}
+                pl="xs"
+                py="xs"
+              >
+                {childItem.title as ReactNode}
+              </Menu.Item>
+            )
           ))}
         </Menu.Dropdown>
       </Menu>
