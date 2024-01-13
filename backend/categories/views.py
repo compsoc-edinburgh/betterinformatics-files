@@ -20,7 +20,6 @@ def list_categories(request):
     )
 
 
-@func_cache.static_cache(900)  # temporary fix for high query latency
 @response.request_get()
 def list_categories_with_meta(request):
     categories = Category.objects.select_related("meta").order_by("displayname").all()
