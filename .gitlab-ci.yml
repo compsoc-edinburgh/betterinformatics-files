@@ -1,0 +1,72 @@
+stages:          # List of stages for jobs, and their order of execution
+  - test
+  - build
+
+"Django Unit Tests":
+  stage: test
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+  image: python:3.8 # version when installing python3 from apt (same as Dockerfile)
+  services:
+    - postgres:16
+    - name: minio/minio:RELEASE.2023-10-25T06-33-25Z
+      command: ['server', '/minio']
+      alias: minio
+  before_script:
+    # Install mc so that we can create the community-solutions bucket in minio
+    - curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
+    - chmod +x ./mc
+    - ./mc config host add myminio http://minio:9000 minio minio123
+    - ./mc mb myminio/community-solutions
+    # Install poppler to get pdftotext binary
+    - apt update && apt install -y --no-install-recommends poppler-utils
+    - pip3 install -r backend/requirements.txt
+    # Make/copy files (same as Dockerfile definition) to make resources availabe to tests
+    - mkdir backend/intermediate_pdf_storage
+    - mv ./frontend/public/exam10.pdf backend
+    - mv ./frontend/public/static backend
+  script:
+    - export SIP_POSTGRES_DB_NAME=$POSTGRES_DB
+    - export SIP_POSTGRES_DB_USER=$POSTGRES_USER
+    - export SIP_POSTGRES_DB_PW=$POSTGRES_PASSWORD
+    - export SIP_POSTGRES_DB_SERVER=postgres
+    - export SIP_POSTGRES_DB_PORT=5432
+    - export SIP_S3_FILES_HOST=minio
+    - export SIP_S3_FILES_PORT=9000
+    - export SIP_S3_FILES_ACCESS_KEY=minio
+    - export SIP_S3_FILES_SECRET_KEY=minio123
+    - export SIP_S3_FILES_BUCKET=community-solutions
+    - export SIP_S3_FILES_USE_SSL=false
+    - cd backend
+    - python3 manage.py test --parallel
+  variables:
+    POSTGRES_DB: testdb
+    POSTGRES_USER: testuser
+    POSTGRES_PASSWORD: testpw
+    POSTGRES_HOST_AUTH_METHOD: trust
+    MINIO_ACCESS_KEY: minio
+    MINIO_SECRET_KEY: minio123
+    MINIO_DOMAIN: localhost
+
+
+"Build production image":
+  stage: build
+  rules:
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    # Because we can't use Docker within Kubernetes CI workers (which is what
+    # Tardis GitLab uses), we intead use Kaniko to build our image
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:latest"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+
+# Deployment is not part of this CI because the Tardis Kubernetes (which is
+# where production is) needs interactive authentication to use, and we cannot
+# currently automate the rollout through say, SSH from the CI.
+# Admins will have to manually enter the production SSH instance and execute
+# the deployment command.
