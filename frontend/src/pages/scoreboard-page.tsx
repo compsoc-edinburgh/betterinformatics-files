@@ -5,7 +5,6 @@ import {
   Center,
   Container,
   Group,
-  LoadingOverlay,
   Table,
   UnstyledButton,
   Text,
@@ -13,6 +12,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { Link } from "react-router-dom";
+import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
 import useTitle from "../hooks/useTitle";

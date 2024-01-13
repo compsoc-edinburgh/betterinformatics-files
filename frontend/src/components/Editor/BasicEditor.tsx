@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useRef, useCallback, useEffect } from "react";
 import { css, cx } from "@emotion/css";
-import { Range } from "./utils/types";
+import { EditorSizingMode, Range } from "./utils/types";
 
 const wrapperStyle = css`
   position: relative;
@@ -32,6 +32,9 @@ const preStyle = css`
   user-select: none;
   color: transparent;
 `;
+const fullHeightStyle = css`
+  height: 100%;
+`;
 
 interface Props {
   value: string;
@@ -44,6 +47,8 @@ interface Props {
 
   onMetaKey: (str: string, shift: boolean) => boolean;
   onPaste: React.ClipboardEventHandler<HTMLTextAreaElement>;
+
+  resize: EditorSizingMode;
 }
 const BasicEditor: React.FC<Props> = ({
   value,
@@ -53,6 +58,7 @@ const BasicEditor: React.FC<Props> = ({
   textareaElRef,
   onMetaKey,
   onPaste,
+  resize,
 }) => {
   const preElRef = useRef<HTMLPreElement>(null);
 
@@ -95,30 +101,35 @@ const BasicEditor: React.FC<Props> = ({
     [onMetaKey],
   );
 
-  const onResize = useCallback(() => {
+  useEffect(() => {
     const textareaEl = textareaElRef.current;
-    if (textareaEl === null) return;
+    if (resize === "fill" || textareaEl === null) {
+      return;
+    }
+
     const preEl = preElRef.current;
     if (preEl === null) return;
     textareaEl.style.height = `${preEl.clientHeight}px`;
-  }, [textareaElRef]);
-
-  useEffect(() => {
-    onResize();
-  }, [value, onResize]);
+  }, [value, textareaElRef, resize]);
 
   return (
-    <div className={wrapperStyle}>
-      <pre ref={preElRef} className={cx(commonStyle, preStyle)}>
-        {`${value}\n`}
-      </pre>
+    <div className={cx(wrapperStyle, resize === "fill" && fullHeightStyle)}>
+      {resize === "vertical" && (
+        <pre ref={preElRef} className={cx(commonStyle, preStyle)}>
+          {`${value}\n`}
+        </pre>
+      )}
       <textarea
         value={value}
         onChange={onTextareaChange}
         onKeyDown={onTextareaKeyDown}
         onPaste={onPaste}
         ref={textareaElRef}
-        className={cx(commonStyle, textareaStyle)}
+        className={cx(
+          commonStyle,
+          textareaStyle,
+          resize === "fill" && fullHeightStyle,
+        )}
       />
     </div>
   );

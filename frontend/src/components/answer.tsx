@@ -9,6 +9,7 @@ import {
   Menu,
   Anchor,
   Box,
+  Paper,
 } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -34,7 +35,6 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
-import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
 
 const answerWrapperStyle = css`
@@ -172,81 +172,89 @@ const AnswerComponent: React.FC<Props> = ({
                   (answer.expertvotes > 0 ||
                     setExpertVoteLoading ||
                     isExpert) && (
-                    <Button.Group>
-                      <TooltipButton
-                        px={8}
-                        size="sm"
-                        tooltip="This answer is endorsed by an expert"
-                        variant="filled"
-                        color="yellow"
-                      >
-                        <Icon icon={ICONS.STAR_FILLED} size={18} />
-                      </TooltipButton>
-                      <SmallButton
-                        tooltip={`${answer.expertvotes} experts endorse this answer.`}
-                      >
-                        {answer.expertvotes}
-                      </SmallButton>
-                      {isExpert && (
+                    <Paper shadow="xs">
+                      <Button.Group>
                         <TooltipButton
-                          size="sm"
-                          px={8}
-                          loading={setExpertVoteLoading}
-                          tooltip={
-                            answer.isExpertVoted
-                              ? "Remove expert vote"
-                              : "Add expert vote"
-                          }
-                          onClick={() =>
-                            setExpertVote(answer.oid, !answer.isExpertVoted)
-                          }
+                          px={12}
+                          tooltip="This answer is endorsed by an expert"
+                          variant="filled"
+                          color="yellow"
                         >
-                          <Icon
-                            icon={
-                              answer.isExpertVoted ? ICONS.MINUS : ICONS.PLUS
-                            }
-                          />
+                          <Icon icon={ICONS.STAR_FILLED} size={18} />
                         </TooltipButton>
-                      )}
-                    </Button.Group>
+                        <TooltipButton
+                          miw={30}
+                          tooltip={`${answer.expertvotes} experts endorse this answer.`}
+                          loading={setExpertVoteLoading}
+                        >
+                          {answer.expertvotes}
+                        </TooltipButton>
+                        {isExpert && (
+                          <TooltipButton
+                            size="sm"
+                            px={8}
+                            tooltip={
+                              answer.isExpertVoted
+                                ? "Remove expert vote"
+                                : "Add expert vote"
+                            }
+                            style={{ borderLeftWidth: 0 }}
+                            onClick={() =>
+                              setExpertVote(answer.oid, !answer.isExpertVoted)
+                            }
+                          >
+                            <Icon
+                              icon={
+                                answer.isExpertVoted ? ICONS.DOWN : ICONS.UP
+                              }
+                            />
+                          </TooltipButton>
+                        )}
+                      </Button.Group>
+                    </Paper>
                   )}
                 {answer &&
                   (answer.isFlagged ||
                     (answer.flagged > 0 && isAdmin) ||
                     flaggedLoading) && (
-                    <Button.Group>
-                      <TooltipButton
-                        tooltip="Flagged as Inappropriate"
-                        color="red"
-                        variant="filled"
-                      >
-                        <Icon icon={ICONS.FLAG} />
-                      </TooltipButton>
-                      <SmallButton
-                        color="red"
-                        tooltip={`${answer.flagged} users consider this answer inappropriate.`}
-                      >
-                        {answer.flagged}
-                      </SmallButton>
-                      <TooltipButton
-                        px={4}
-                        tooltip={
-                          answer.isFlagged
-                            ? "Remove inappropriate flag"
-                            : "Add inappropriate flag"
-                        }
-                        size="sm"
-                        loading={flaggedLoading}
-                        onClick={() =>
-                          setFlagged(answer.oid, !answer.isFlagged)
-                        }
-                      >
-                        <Icon
-                          icon={answer.isFlagged ? ICONS.MINUS : ICONS.PLUS}
-                          size={18}
-                        />
-                      </TooltipButton>
-                    </Button.Group>
+                    <Paper shadow="xs">
+                      <Button.Group>
+                        <TooltipButton
+                          tooltip="Flagged as Inappropriate"
+                          color="red"
+                          px={12}
+                          variant="filled"
+                        >
+                          <Icon icon={ICONS.FLAG} />
+                        </TooltipButton>
+                        <TooltipButton
+                          color="red"
+                          miw={30}
+                          tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                        >
+                          {answer.flagged}
+                        </TooltipButton>
+                        <TooltipButton
+                          px={8}
+                          tooltip={
+                            answer.isFlagged
+                              ? "Remove inappropriate flag"
+                              : "Add inappropriate flag"
+                          }
+                          size="sm"
+                          loading={flaggedLoading}
+                          style={{ borderLeftWidth: 0 }}
+                          onClick={() =>
+                            setFlagged(answer.oid, !answer.isFlagged)
+                          }
+                        >
+                          <Icon
+                            icon={answer.isFlagged ? ICONS.CLOSE : ICONS.UP}
+                            size={16}
+                          />
+                        </TooltipButton>
+                      </Button.Group>
+                    </Paper>
                   )}
                 {answer && onSectionChanged && (
                   <Score
@@ -326,7 +334,7 @@ const AnswerComponent: React.FC<Props> = ({
                   </Button>
                 )}
                 {answer !== undefined && (
-                  <Menu>
+                  <Menu withinPortal>
                     <Menu.Target>
                       <Button leftIcon={<Icon icon={ICONS.DOTS_H} />}>
                         More
@@ -334,11 +342,15 @@ const AnswerComponent: React.FC<Props> = ({
                     </Menu.Target>
                     <Menu.Dropdown>
                       {answer.flagged === 0 && (
-                        <Menu.Item onClick={() => setFlagged(answer.oid, true)}>
+                        <Menu.Item
+                          icon={<Icon icon={ICONS.FLAG} />}
+                          onClick={() => setFlagged(answer.oid, true)}
+                        >
                           Flag as Inappropriate
                         </Menu.Item>
                       )}
                       <Menu.Item
+                        icon={<Icon icon={ICONS.LINK} />}
                         onClick={() =>
                           copy(
                             `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
@@ -348,7 +360,10 @@ const AnswerComponent: React.FC<Props> = ({
                         Copy Permalink
                       </Menu.Item>
                       {isAdmin && answer.flagged > 0 && (
-                        <Menu.Item onClick={() => resetFlagged(answer.oid)}>
+                        <Menu.Item
+                          icon={<Icon icon={ICONS.FLAG} />}
+                          onClick={() => resetFlagged(answer.oid)}
+                        >
                           Remove all inappropriate flags
                         </Menu.Item>
                       )}

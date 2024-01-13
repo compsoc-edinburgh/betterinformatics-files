@@ -4,7 +4,6 @@ import {
   Badge,
   Button,
   Container,
-  LoadingOverlay,
   Table,
   Title,
 } from "@mantine/core";
@@ -12,6 +11,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
 import ClaimButton from "../components/claim-button";
+import LoadingOverlay from "../components/loading-overlay";
 import { CategoryExam } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 

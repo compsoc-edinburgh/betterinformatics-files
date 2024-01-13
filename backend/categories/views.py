@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from answers.models import Answer
 from categories.models import Category, MetaCategory
 from ediauth import auth_check
-from util import response
+from util import response, func_cache
 
 
 @response.request_get()
@@ -20,6 +20,7 @@ def list_categories(request):
     )
 
 
+@func_cache.static_cache(900)  # temporary fix for high query latency
 @response.request_get()
 def list_categories_with_meta(request):
     categories = Category.objects.select_related("meta").order_by("displayname").all()
