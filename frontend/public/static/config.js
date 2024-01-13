@@ -59,12 +59,12 @@ window.configOptions = {
       },
       'childItems': [{
           'title': {
-              'en': 'Exam Collection'
+              'en': 'BI File Collection'
           },
-          'href': 'https://exams.comp-soc.com'
+          'href': 'https://files.betterinformatics.com'
       },{
         'title': {
-            'en': 'Useful Links'
+            'en': 'BI Knowledgebase'
         },
         'href': 'https://betterinformatics.com'
       }, {
