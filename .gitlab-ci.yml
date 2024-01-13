@@ -21,6 +21,7 @@ stages:          # List of stages for jobs, and their order of execution
     # Install poppler to get pdftotext binary
     - apt update && apt install -y --no-install-recommends poppler-utils
     - pip3 install -r backend/requirements.txt
+    - pip3 install tblib
     # Make/copy files (same as Dockerfile definition) to make resources availabe to tests
     - mkdir backend/intermediate_pdf_storage
     - mv ./frontend/public/exam10.pdf backend
