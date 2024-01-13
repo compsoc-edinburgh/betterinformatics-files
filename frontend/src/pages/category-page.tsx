@@ -23,7 +23,7 @@ import {
   useRemoveCategory,
 } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
-import CategoryMetaDataEditor from "../components/category-metadata-editor";
+import CategoryMetaDataEditor, { semesterOptions } from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
@@ -152,7 +152,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           <Grid mb="xs">
             {metaData.semester && (
               <Grid.Col span="content">
-                Semester: <Badge>{metaData.semester}</Badge>
+                Semester:{" "}
+                <Badge>
+                  {semesterOptions[
+                    metaData.semester as keyof typeof semesterOptions
+                  ] ?? metaData.semester}
+                </Badge>
               </Grid.Col>
             )}
             {metaData.form && (

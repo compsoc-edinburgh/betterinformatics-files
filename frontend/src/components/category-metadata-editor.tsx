@@ -182,7 +182,7 @@ const applyChanges = async (
 
 // These values are hardcoded in the backend database model, so you must perform
 // database migrations when modifing them.
-const semesterOptions = createOptions({
+export const semesterOptions = createOptions({
   none: "--",
   sem1: "Semester 1",
   sem2: "Semester 2",
