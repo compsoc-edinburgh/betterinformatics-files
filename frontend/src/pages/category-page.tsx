@@ -156,7 +156,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <Badge>
                   {semesterOptions[
                     metaData.semester as keyof typeof semesterOptions
-                  ] ?? metaData.semester}
+                  ]?.label ?? metaData.semester}
                 </Badge>
               </Grid.Col>
             )}
