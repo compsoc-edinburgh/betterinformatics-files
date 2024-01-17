@@ -160,6 +160,27 @@ def verify(request: HttpRequest):
     return success_response
 
 
+@response.request_post("display_username")
+def update_name(request: HttpRequest):
+    if request.user == None:
+        return response.not_allowed()
+
+    if "display_username" not in request.POST:
+        return response.not_possible("No display name specified")
+
+    display_username = request.POST["display_username"].strip()
+
+    if display_username == "":
+        # Use the UUN as the display name if the user didn't specify one
+        display_username = request.user.username
+    if len(display_username) > 256:
+        return response.not_possible("Display name too long")
+
+    request.user.profile.display_username = display_username.strip()
+    request.user.profile.save()
+    return response.success()
+
+
 @response.request_get()
 def logout(request: HttpRequest):
     redirect_url = request.GET.get("rd", "/")
