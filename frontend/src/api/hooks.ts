@@ -42,6 +42,16 @@ export const useUserInfo = (username: string) => {
   });
   return [error, loading, data] as const;
 };
+const setUserDisplayUsername = async (displayUsername: string) => {
+  await fetchPost("/api/auth/update_name/", { display_username: displayUsername });
+}
+export const useSetUserDisplayUsername = (onSuccess: () => void) => {
+  const { error, loading, run } = useRequest(setUserDisplayUsername, {
+    manual: true,
+    onSuccess,
+  });
+  return [error, loading, run] as const;
+};
 const loadEnabledNotifications = async (isMyself: boolean) => {
   if (isMyself) {
     return new Set<number>(
