@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import { Container, Alert, Tabs, LoadingOverlay } from "@mantine/core";
+import { Container, Alert, Tabs, LoadingOverlay, Space } from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -8,6 +8,7 @@ import UserAnswers from "../components/user-answers";
 import UserComments from "../components/user-comments";
 import UserNotifications from "../components/user-notifications";
 import UserNotificationsSettings from "../components/user-notification-settings";
+import UserDisplayNameSettings from "../components/user-displayname-settings";
 import UserDocuments from "../components/user-documents";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
@@ -30,7 +31,7 @@ const UserPage: React.FC<{}> = () => {
   const { username = user.username } = useParams() as { username: string };
   useTitle(username);
   const isMyself = user.username === username;
-  const [userInfoError, userInfoLoading, userInfo] = useUserInfo(username);
+  const [userInfoError, userInfoLoading, userInfo, reloadUserInfo] = useUserInfo(username);
   const error = userInfoError;
   const loading = userInfoLoading;
   const [activeTab, setActiveTab] = useState<string | null>("overview");
@@ -74,7 +75,16 @@ const UserPage: React.FC<{}> = () => {
             <UserDocuments username={username} userInfo={userInfo} />
           </Tabs.Panel>
           <Tabs.Panel value="settings" pt="sm">
-            {isMyself && <UserNotificationsSettings username={username} />}
+            {isMyself && (
+              <>
+                <UserNotificationsSettings username={username} />
+                <Space h="md" />
+                {userInfo && (<UserDisplayNameSettings
+                  userInfo={userInfo}
+                  reloadUserInfo={reloadUserInfo}
+                />)}
+              </>
+            )}
           </Tabs.Panel>
         </Tabs>
       </Container>

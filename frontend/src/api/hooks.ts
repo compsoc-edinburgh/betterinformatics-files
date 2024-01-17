@@ -36,11 +36,11 @@ const loadUserInfo = async (username: string) => {
 };
 
 export const useUserInfo = (username: string) => {
-  const { error, loading, data } = useRequest(() => loadUserInfo(username), {
+  const { error, loading, data, run } = useRequest(() => loadUserInfo(username), {
     refreshDeps: [username],
     cacheKey: `userinfo-${username}`,
   });
-  return [error, loading, data] as const;
+  return [error, loading, data, run ] as const;
 };
 const setUserDisplayUsername = async (displayUsername: string) => {
   await fetchPost("/api/auth/update_name/", { display_username: displayUsername });
