@@ -24,6 +24,7 @@ class Category(models.Model):
     meta_categories = models.ManyToManyField(
         "MetaCategory", related_name="category_set"
     )
+    euclid_codes: models.QuerySet["EuclidCode"]  # type hint for many-to-one relation
 
     # HTTP link to a markdown file (optional frontmatter ignored) with more
     # useful information about the category (this will be queried by the
@@ -72,3 +73,16 @@ class MetaCategory(models.Model):
     displayname = models.CharField(max_length=256)
     parent = models.ForeignKey("MetaCategory", null=True, on_delete=models.CASCADE)
     order = models.IntegerField(default=0)
+
+
+class EuclidCode(models.Model):
+    # e.g. "INFR09014"
+    # A code that is used to identify a course at University of Edinburgh - a
+    # community solutions category can have multiple INFR codes because of
+    # shadow courses (same course offered to UG/PG etc). This is used to both
+    # show to users which courses on DRPS the category corresponds to, and
+    # for admins, automatically analyse which courses are missing as categories.
+    code = models.CharField(max_length=12)
+    category = models.ForeignKey(
+        "Category", related_name="euclid_codes", on_delete=models.CASCADE
+    )
