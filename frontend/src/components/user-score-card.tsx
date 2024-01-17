@@ -54,7 +54,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
     <>
       <Group position="apart" mb="sm">
         <div>
-          <h1>{userInfo?.displayName || username}</h1>
+          <h1>@{username} {userInfo && userInfo.displayName !== username && `(${userInfo.displayName})`}</h1>
         </div>
 
         {isMyself && (
