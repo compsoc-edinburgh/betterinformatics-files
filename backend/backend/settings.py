@@ -176,6 +176,7 @@ CSP_CONNECT_SRC = (
     # (assumption being that they are relatively safe -- if they contain XSS,
     # the Markdown renderer should prevent it from being executed)
     "https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/_sections/",
+    "https://betterinformatics.com/courses.json",
 )
 CSP_IMG_SRC = (
     "'self'",
