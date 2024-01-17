@@ -10,6 +10,9 @@
 #
 # Our solution is to add a new IntegerField "id", fill it with incremental
 # integers, and then make it AutoField and mark it as the primary key.
+#
+# Note that this migration is not reversible, because Django struggles to revert
+# the final AlterField operation (see https://code.djangoproject.com/ticket/32634).
 
 from django.db import migrations, models
 
