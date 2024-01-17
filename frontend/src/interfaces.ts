@@ -158,6 +158,7 @@ export interface CategoryMetaData {
   experts: string[];
   semester: string;
   form: string;
+  euclid_codes: string[];
   permission: string;
   remark: string;
   catadmin: boolean;

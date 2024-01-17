@@ -159,6 +159,7 @@ def get_category_data(request, cat):
         "catadmin": auth_check.has_admin_rights_for_category(request, cat),
         "more_exams_link": cat.more_exams_link,
         "more_markdown_link": cat.more_markdown_link,
+        "euclid_codes": list(cat.euclid_codes.all().values_list("code", flat=True)),
         # These values are not needed in the frontend and are expensive to calculate
         # 'examcountpublic': cat.exam_set.filter(public=True).count(),
         # 'examcountanswered': cat.exam_count_answered(),
@@ -357,3 +358,38 @@ def set_metacategory_order(request):
         meta1.order = int(request.POST["order"])
         meta1.save()
     return response.success()
+
+
+@response.request_post("code")
+@auth_check.require_admin
+def add_euclid_code(request, slug):
+    cat = get_object_or_404(Category, slug=slug)
+    code = request.POST["code"].upper()
+    if len(code) > 12:
+        return response.not_possible("Code too long")
+
+    # Check if code is already assigned to another category, if so return the name of it
+    if cat.euclid_codes.filter(code=code).exists():
+        return response.not_possible(
+            "Code already assigned to category {}".format(
+                cat.euclid_codes.get(code=code).category.displayname
+            )
+        )
+    cat.euclid_codes.create(code=code)
+    return response.success()
+
+
+@response.request_post("code")
+@auth_check.require_admin
+def remove_euclid_code(request, slug):
+    cat = get_object_or_404(Category, slug=slug)
+    code = request.POST["code"].upper()
+    cat.euclid_codes.filter(code=code).delete()
+    return response.success()
+
+
+@response.request_get("code")
+def get_category_from_euclid_code(request):
+    code = request.GET["code"].upper()
+    cat = get_object_or_404(Category, euclid_codes__code=code)
+    return response.success(value=cat.slug)
