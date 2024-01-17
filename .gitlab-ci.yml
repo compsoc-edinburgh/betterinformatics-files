@@ -5,7 +5,8 @@ stages:          # List of stages for jobs, and their order of execution
 "Django Unit Tests":
   stage: test
   rules:
-    - if: $CI_COMMIT_REF_PROTECTED == "true"
+    - if: $CI_COMMIT_REF_PROTECTED == "true" # Run on protected branches, or
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
   image: python:3.8 # version when installing python3 from apt (same as Dockerfile)
   services:
     - postgres:16
