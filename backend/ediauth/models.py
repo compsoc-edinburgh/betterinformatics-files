@@ -36,7 +36,7 @@ class VerificationCode(models.Model):
 
 
 class Profile(models.Model):
-    display_username = models.CharField(max_length=256, primary_key=True)
+    display_username = models.CharField(max_length=256)
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile"
     )  # Delete this profile if the user is deleted
