@@ -7,6 +7,8 @@ stages:          # List of stages for jobs, and their order of execution
   rules:
     - if: $CI_COMMIT_REF_PROTECTED == "true" # Run on protected branches, or
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
+      changes:
+        - backend/**/*
   image: python:3.8 # version when installing python3 from apt (same as Dockerfile)
   services:
     - postgres:16
@@ -57,6 +59,8 @@ stages:          # List of stages for jobs, and their order of execution
     # No need to run on protected branches because the build is executed when
     # building the Docker image anyway.
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
+      changes:
+        - frontend/**/*
   image: node:20-alpine # version when installing python3 from apt (same as Dockerfile)
   before_script:
     - cd frontend
