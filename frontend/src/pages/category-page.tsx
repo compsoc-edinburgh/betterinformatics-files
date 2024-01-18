@@ -103,10 +103,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const asynchronously_updated_euclid_codes = useMemo(() => {
     // While the BI course JSON is loading, it is just a list of codes with
     // no BI course data
-    if (bi_courses_loading || !bi_courses_data) return metaData.euclid_codes.map(c => [c, undefined] as const);
+    if (bi_courses_loading || !bi_courses_data) {
+      return metaData.euclid_codes.map(c => [c, undefined, undefined] as const);
+    }
 
     // Once data is ready, it becomes a list of codes and BI course data
-    return metaData.euclid_codes.map(c => [c, Object.values(bi_courses_data.list).find(d => d.euclid_code === c)] as const);
+    return metaData.euclid_codes.map(c => [
+      c,
+      Object.values(bi_courses_data.list).find(d => d.euclid_code === c),
+      Object.values(bi_courses_data.list).find(d => d.euclid_code_shadow === c),
+    ] as const);
   }, [metaData, bi_courses_loading, bi_courses_data]);
   return (
     <>
@@ -162,18 +168,19 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Flex>
 
           <List>
-            Offered as:
-            {asynchronously_updated_euclid_codes.map(([code, bi_data]) => (
+            {asynchronously_updated_euclid_codes.length > 0 && "Offered as:"}
+            {asynchronously_updated_euclid_codes.map(([code, bi_data, shadow_data]) => (
               <List.Item key={code}>
                 <Group>
                   <Badge
                     // Will show red if data isn't available or still loading
-                    color={bi_data ? "violet" : "red"}
+                    color={bi_data || shadow_data ? "violet" : "red"}
                     radius="xs"
                     component="a"
-                    href={bi_data?.course_url}
+                    // Choose course URL over EUCLID URL
+                    href={bi_data?.course_url ?? bi_data?.euclid_url ?? shadow_data?.course_url ?? shadow_data?.euclid_url_shadow}
                     // Badges don't look clickable by default, use pointer
-                    styles={{ inner: { cursor: bi_data ? "pointer" : "default" } }}
+                    styles={{ inner: { cursor: bi_data || shadow_data ? "pointer" : "default" } }}
                   >
                     {code}
                   </Badge>
@@ -181,7 +188,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   {!bi_courses_loading && bi_data && (
                     `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`
                   )}
-                  {!bi_courses_loading && !bi_data && "Not Running"}
+                  {!bi_courses_loading && shadow_data && (
+                    `${shadow_data.name} (Shadow of ${shadow_data.euclid_code})`
+                  )}
+                  {!bi_courses_loading && !bi_data && !shadow_data && "Not Running"}
                   {bi_courses_error && bi_courses_error.message}
                   {bi_courses_loading && <Skeleton height="1rem" width="8rem" />}
                 </Group>

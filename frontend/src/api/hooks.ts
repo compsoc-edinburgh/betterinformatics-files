@@ -3,7 +3,7 @@ import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import {
   Answer,
   AnswerSection,
-  BICourseList,
+  BICourseDict,
   CategoryExam,
   CategoryMetaData,
   CategoryMetaDataMinimal,
@@ -37,15 +37,20 @@ const loadUserInfo = async (username: string) => {
 };
 
 export const useUserInfo = (username: string) => {
-  const { error, loading, data, run } = useRequest(() => loadUserInfo(username), {
-    refreshDeps: [username],
-    cacheKey: `userinfo-${username}`,
-  });
-  return [error, loading, data, run ] as const;
+  const { error, loading, data, run } = useRequest(
+    () => loadUserInfo(username),
+    {
+      refreshDeps: [username],
+      cacheKey: `userinfo-${username}`,
+    },
+  );
+  return [error, loading, data, run] as const;
 };
 const setUserDisplayUsername = async (displayUsername: string) => {
-  await fetchPost("/api/auth/update_name/", { display_username: displayUsername });
-}
+  await fetchPost("/api/auth/update_name/", {
+    display_username: displayUsername,
+  });
+};
 export const useSetUserDisplayUsername = (onSuccess: () => void) => {
   const { error, loading, run } = useRequest(setUserDisplayUsername, {
     manual: true,
@@ -57,15 +62,17 @@ export const useSetUserDisplayUsername = (onSuccess: () => void) => {
 const loadBICourseList = async () => {
   // Use normal fetch() instead of fetchGet as the latter is for internal API
   // and sends some credential cookies
-  return ((await fetch("https://betterinformatics.com/courses.json")).json()) as Promise<BICourseList>;
-}
+  return fetch("https://betterinformatics.com/courses.json")
+    .then(r => r.json())
+    .then(r => r?.list) as Promise<BICourseDict>;
+};
 
 export const useBICourseList = () => {
   const { error, loading, data } = useRequest(loadBICourseList, {
     cacheKey: "bicourselist",
   });
   return [error, loading, data] as const;
-}
+};
 
 const loadEnabledNotifications = async (isMyself: boolean) => {
   if (isMyself) {
