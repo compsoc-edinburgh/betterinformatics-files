@@ -64,12 +64,12 @@ stages:          # List of stages for jobs, and their order of execution
   image: node:20-alpine # version when installing python3 from apt (same as Dockerfile)
   before_script:
     - cd frontend
-    - yarn --ignore-engines --ignore-optional
   script:
+    - yarn --ignore-engines --ignore-optional
     # Ideally we want a quick build test so we don't want to waste time
     # optimizing, but Create React App doesn't have a way to do that so we just
     # build as production.
-    - yarn run build
+    - CI=false yarn run build
 
 
 "Build production image":
