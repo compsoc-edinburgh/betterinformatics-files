@@ -167,11 +167,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <List.Item key={code}>
                 <Group>
                   <Badge
+                    // Will show red if data isn't available or still loading
                     color={bi_data ? "violet" : "red"}
                     radius="xs"
                     component="a"
                     href={bi_data?.course_url}
-                    styles={{ inner: { cursor: "pointer" } }}
+                    // Badges don't look clickable by default, use pointer
+                    styles={{ inner: { cursor: bi_data ? "pointer" : "default" } }}
                   >
                     {code}
                   </Badge>
