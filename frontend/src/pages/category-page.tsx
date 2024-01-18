@@ -11,6 +11,7 @@ import {
   List,
   Button,
   Box,
+  Skeleton,
   Text,
   Title,
   Paper,
@@ -21,6 +22,7 @@ import {
   loadCategoryMetaData,
   loadMetaCategories,
   useRemoveCategory,
+  useBICourseList,
 } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor, { semesterOptions } from "../components/category-metadata-editor";
@@ -96,6 +98,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     },
     [run, onMetaDataChange],
   );
+
+  const [ bi_courses_error, bi_courses_loading, bi_courses_data ] = useBICourseList();
+  const asynchronously_updated_euclid_codes = useMemo(() => {
+    // While the BI course JSON is loading, it is just a list of codes with
+    // no BI course data
+    if (bi_courses_loading || !bi_courses_data) return metaData.euclid_codes.map(c => [c, undefined] as const);
+
+    // Once data is ready, it becomes a list of codes and BI course data
+    return metaData.euclid_codes.map(c => [c, Object.values(bi_courses_data.list).find(d => d.euclid_code === c)] as const);
+  }, [metaData, bi_courses_loading, bi_courses_data]);
   return (
     <>
       {modals}
@@ -149,22 +161,34 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
           </Flex>
 
+          <List>
+            Offered as:
+            {asynchronously_updated_euclid_codes.map(([code, bi_data]) => (
+              <List.Item key={code}>
+                <Group>
+                  <Badge
+                    // Will show red if data isn't available or still loading
+                    color={bi_data ? "violet" : "red"}
+                    radius="xs"
+                    component="a"
+                    href={bi_data?.course_url}
+                    // Badges don't look clickable by default, use pointer
+                    styles={{ inner: { cursor: bi_data ? "pointer" : "default" } }}
+                  >
+                    {code}
+                  </Badge>
+                  {" "}
+                  {!bi_courses_loading && bi_data && (
+                    `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`
+                  )}
+                  {!bi_courses_loading && !bi_data && "Not Running"}
+                  {bi_courses_error && bi_courses_error.message}
+                  {bi_courses_loading && <Skeleton height="1rem" width="8rem" />}
+                </Group>
+              </List.Item>
+            ))}
+          </List>
           <Grid mb="xs">
-            {metaData.semester && (
-              <Grid.Col span="content">
-                Semester:{" "}
-                <Badge>
-                  {semesterOptions[
-                    metaData.semester as keyof typeof semesterOptions
-                  ]?.label ?? metaData.semester}
-                </Badge>
-              </Grid.Col>
-            )}
-            {metaData.form && (
-              <Grid.Col span="content">
-                Form: <Badge>{metaData.form}</Badge>
-              </Grid.Col>
-            )}
             {metaData.more_exams_link && (
               <Grid.Col span="content">
                 <Anchor
@@ -181,24 +205,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>
             )}
           </Grid>
-          {(offeredIn === undefined || offeredIn.length > 0) && (
-            <Box mb="sm">
-              Availability:
-              {loading ? (
-                <Loader />
-              ) : (
-                <List>
-                  {offeredIn?.map(meta1 =>
-                    meta1.meta2.map(meta2 => (
-                      <List.Item key={meta1.displayname + meta2.displayname}>
-                        {meta2.displayname} in {meta1.displayname}
-                      </List.Item>
-                    )),
-                  )}
-                </List>
-              )}
-            </Box>
-          )}
           {metaData.more_markdown_link && (
             <Paper withBorder radius="md" p="lg" mt="xl">
               <Group align="baseline" position="apart">

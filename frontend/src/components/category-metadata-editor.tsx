@@ -61,6 +61,16 @@ const removeMetaCategory = async (
     category: slug,
   });
 };
+const addEuclidCode = async (slug: string, code: string) => {
+  await fetchPost(`/api/category/addeuclidcode/${slug}/`, {
+    code,
+  });
+}
+const removeEuclidCode = async (slug: string, code: string) => {
+  await fetchPost(`/api/category/removeeuclidcode/${slug}/`, {
+    code,
+  });
+}
 const addAttachment = async (
   category: string,
   displayname: string,
@@ -170,12 +180,24 @@ const applyChanges = async (
       await removeUserFromSet(newSlug, "experts", expert);
     }
   }
+
+  for (const code of newMetaData.euclid_codes) {
+    if (oldMetaData.euclid_codes.indexOf(code) === -1) {
+      await addEuclidCode(newSlug, code);
+    }
+  }
+  for (const code of oldMetaData.euclid_codes) {
+    if (newMetaData.euclid_codes.indexOf(code) === -1) {
+      await removeEuclidCode(newSlug, code);
+    }
+  }
   return {
     ...oldMetaData,
     ...metaDataDiff,
     attachments: newAttachments,
     admins: newMetaData.admins,
     experts: newMetaData.experts,
+    euclid_codes: newMetaData.euclid_codes,
     slug: newSlug,
   };
 };
@@ -319,10 +341,23 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         Offered In
       </Title>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-      <Title order={4} mt="xl" mb="sm">
+      <Title order={4} mt="xl">
+        EUCLID Codes
+      </Title>
+      <Text mb="sm">
+        Associate any EUCLID codes for this course. There may be multiple, e.g.
+        for shadow courses or UG/PG variants. However, it should fundamentally be
+        the same course. Mergers and splits should be handled by creating a new
+        category.
+      </Text>
+      <UserSetEditor
+        users={formState.euclid_codes}
+        setUsers={u => setFormValue("euclid_codes", u)}
+      />
+      <Title order={4} mt="xl">
         Admins
       </Title>
-      <Text>
+      <Text mb="sm">
         These users will be able to edit the category metadata (this page), and
         its exams fully, including uploading and deleting them. Provide their
         username on this site.
@@ -331,10 +366,10 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
       />
-      <Title order={4} mt="xl" mb="sm">
+      <Title order={4} mt="xl">
         Experts
       </Title>
-      <Text>
+      <Text mb="sm">
         These users will be able to endorse community answers and those will be
         highlighted. Provide their username on this site.
       </Text>

@@ -25,4 +25,15 @@ urlpatterns = [
         views.set_metacategory_order,
         name="setmetacategoryorder",
     ),
+    path("addeuclidcode/<slug:slug>/", views.add_euclid_code, name="addeuclidcode"),
+    path(
+        "removeeuclidcode/<slug:slug>/",
+        views.remove_euclid_code,
+        name="removeeuclidcode",
+    ),
+    path(
+        "slugfromeuclidcode",
+        views.get_category_from_euclid_code,
+        name="slugfromeuclidcode",
+    ),
 ]

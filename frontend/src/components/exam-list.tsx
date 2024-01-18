@@ -61,8 +61,6 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
       <Title order={2} mt="xl" mb="lg">
         Past Exams
       </Title>
-      {error && <Alert color="red">{error.message}</Alert>}
-      {loading && <Loader />}
       <Flex
         direction={{ base: "column", sm: "row" }}
         gap="sm"
@@ -87,6 +85,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           icon={<Icon icon={ICONS.SEARCH} size={14} />}
         />
       </Flex>
+      {error && <Alert color="red">{error.message}</Alert>}
+      {loading && <Loader />}
 
       {examTypeMap &&
         examTypeMap.map(

@@ -78,13 +78,13 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <Group align="center" ml="md" mt="xl" mb="md">
+      <Group align="center" mt="xl" mb="md">
         <Checkbox
           checked={checked}
           indeterminate={indeterminate}
           onChange={e => setChecked(e.currentTarget.checked)}
         />
-        <Title order={2}>{examtype}</Title>
+        <Title order={3}>{examtype}</Title>
       </Group>
       <ExamGrid>
         {exams.map(exam => (

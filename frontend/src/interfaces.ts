@@ -158,6 +158,7 @@ export interface CategoryMetaData {
   experts: string[];
   semester: string;
   form: string;
+  euclid_codes: string[];
   permission: string;
   remark: string;
   catadmin: boolean;
@@ -345,4 +346,30 @@ export interface DocumentFile {
 export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
   oid: number;
   documentId: number;
+}
+
+export interface BICourseList {
+  last_update: string;
+  list: BICourseDict;
+}
+
+export interface BICourseDict {
+  [key: string]: BICourse
+}
+
+export interface BICourse {
+  acronym: string,
+  course_url: string,
+  credits: number,
+  cw_exam_ratio: number[],
+  delivery: string,
+  delivery_ordinal: number,
+  diet: string,
+  euclid_code: string,
+  euclid_url: string,
+  euclid_code2: string | undefined,
+  euclid_url2: string | undefined,
+  level: number,
+  name: string,
+  year: string,
 }
