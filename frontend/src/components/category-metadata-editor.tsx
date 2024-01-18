@@ -65,12 +65,12 @@ const addEuclidCode = async (slug: string, code: string) => {
   await fetchPost(`/api/category/addeuclidcode/${slug}/`, {
     code,
   });
-}
+};
 const removeEuclidCode = async (slug: string, code: string) => {
   await fetchPost(`/api/category/removeeuclidcode/${slug}/`, {
     code,
   });
-}
+};
 const addAttachment = async (
   category: string,
   displayname: string,
@@ -346,9 +346,9 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       </Title>
       <Text mb="sm">
         Associate any EUCLID codes for this course. There may be multiple, e.g.
-        for shadow courses or UG/PG variants. However, it should fundamentally be
-        the same course. Mergers and splits should be handled by creating a new
-        category.
+        for shadow courses or UG/PG variants. However, it should fundamentally
+        be the same course. Mergers and splits should be handled by creating a
+        new category.
       </Text>
       <UserSetEditor
         users={formState.euclid_codes}
