@@ -354,22 +354,22 @@ export interface BICourseList {
 }
 
 export interface BICourseDict {
-  [key: string]: BICourse
+  [key: string]: BICourse;
 }
 
 export interface BICourse {
-  acronym: string,
-  course_url: string,
-  credits: number,
-  cw_exam_ratio: number[],
-  delivery: string,
-  delivery_ordinal: number,
-  diet: string,
-  euclid_code: string,
-  euclid_url: string,
-  euclid_code2: string | undefined,
-  euclid_url2: string | undefined,
-  level: number,
-  name: string,
-  year: string,
+  acronym: string;
+  course_url: string;
+  credits: number;
+  cw_exam_ratio: number[];
+  delivery: string;
+  delivery_ordinal: number;
+  diet: string;
+  euclid_code: string;
+  euclid_url: string;
+  euclid_code_shadow: string | undefined;
+  euclid_url_shadow: string | undefined;
+  level: number;
+  name: string;
+  year: string;
 }
