@@ -7,6 +7,8 @@ stages:          # List of stages for jobs, and their order of execution
   rules:
     - if: $CI_COMMIT_REF_PROTECTED == "true" # Run on protected branches, or
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
+      changes:
+        - backend/**/*
   image: python:3.8 # version when installing python3 from apt (same as Dockerfile)
   services:
     - postgres:16
@@ -49,6 +51,25 @@ stages:          # List of stages for jobs, and their order of execution
     MINIO_ACCESS_KEY: minio
     MINIO_SECRET_KEY: minio123
     MINIO_DOMAIN: localhost
+
+
+"Frontend Compile Test":
+  stage: test
+  rules:
+    # No need to run on protected branches because the build is executed when
+    # building the Docker image anyway.
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
+      changes:
+        - frontend/**/*
+  image: node:20-alpine # version when installing python3 from apt (same as Dockerfile)
+  before_script:
+    - cd frontend
+    - yarn --ignore-engines --ignore-optional
+  script:
+    # Ideally we want a quick build test so we don't want to waste time
+    # optimizing, but Create React App doesn't have a way to do that so we just
+    # build as production.
+    - yarn run build
 
 
 "Build production image":
