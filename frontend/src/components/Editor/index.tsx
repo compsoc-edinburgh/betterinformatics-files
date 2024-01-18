@@ -1,4 +1,10 @@
-import { createStyles, Divider, MantineTheme, Modal, Paper } from "@mantine/core";
+import {
+  createStyles,
+  Divider,
+  MantineTheme,
+  Modal,
+  Paper,
+} from "@mantine/core";
 import * as React from "react";
 import { useCallback, useRef, useState } from "react";
 import ImageOverlay from "../image-overlay";
@@ -45,12 +51,12 @@ const useStyles = createStyles(
       overflowY: "auto",
     },
     splitViewContainer: {
-      display: 'flex',
-      height: '100%',
-      gap: '0.5em',
+      display: "flex",
+      height: "100%",
+      gap: "0.5em",
     },
     splitLeftRight: {
-      flex: '1 1 0',
+      flex: "1 1 0",
     },
   }),
 );

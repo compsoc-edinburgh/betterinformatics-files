@@ -122,7 +122,7 @@ const ExternalNavElement: React.FC<Props> = ({
           </Container>
         </Menu.Target>
         <Menu.Dropdown>
-          {item.childItems.map((childItem, i) => (
+          {item.childItems.map((childItem, i) =>
             isExternal ? (
               <Menu.Item
                 display={"block"}
@@ -150,8 +150,8 @@ const ExternalNavElement: React.FC<Props> = ({
               >
                 {childItem.title as ReactNode}
               </Menu.Item>
-            )
-          ))}
+            ),
+          )}
         </Menu.Dropdown>
       </Menu>
     )
