@@ -87,6 +87,8 @@ stages:          # List of stages for jobs, and their order of execution
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
       --destination "${CI_REGISTRY_IMAGE}:latest"
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      --snapshot-mode=redo
+      --use-new-run
 
 # Deployment is not part of this CI because the Tardis Kubernetes (which is
 # where production is) needs interactive authentication to use, and we cannot
