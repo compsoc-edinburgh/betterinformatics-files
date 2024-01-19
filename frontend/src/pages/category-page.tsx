@@ -110,8 +110,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     // Once data is ready, it becomes a list of codes and BI course data
     return metaData.euclid_codes.map(c => [
       c,
-      Object.values(bi_courses_data.list).find(d => d.euclid_code === c),
-      Object.values(bi_courses_data.list).find(d => d.euclid_code_shadow === c),
+      Object.values(bi_courses_data).find(d => d.euclid_code === c),
+      Object.values(bi_courses_data).find(d => d.euclid_code_shadow === c),
     ] as const);
   }, [metaData, bi_courses_loading, bi_courses_data]);
   return (
