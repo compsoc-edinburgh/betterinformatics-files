@@ -49,6 +49,7 @@ class Migration(migrations.Migration):
             model_name="profile",
             name="id",
             field=models.AutoField(
+                auto_created=True,
                 primary_key=True,
                 serialize=False,
                 verbose_name="ID",
