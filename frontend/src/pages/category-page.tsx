@@ -234,7 +234,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   </Button>
                 )}
               </Group>
-              {md_loading && <LoadingOverlay visible={md_loading} />}
+              {md_loading && <Skeleton height="2rem" />}
               {md_error && (
                 <Alert color="red">
                   Failed to render additional info: {md_error.message}
