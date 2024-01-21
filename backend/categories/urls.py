@@ -36,4 +36,5 @@ urlpatterns = [
         views.get_category_from_euclid_code,
         name="slugfromeuclidcode",
     ),
+    path("listeuclidcodes/", views.list_euclid_codes, name="listeuclidcodes"),
 ]

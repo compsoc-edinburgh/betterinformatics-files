@@ -4,7 +4,7 @@ from django.db.models import Count, Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 
 from answers.models import Answer
-from categories.models import Category, MetaCategory
+from categories.models import Category, MetaCategory, EuclidCode
 from ediauth import auth_check
 from util import response, func_cache
 
@@ -393,3 +393,16 @@ def get_category_from_euclid_code(request):
     code = request.GET["code"].upper()
     cat = get_object_or_404(Category, euclid_codes__code=code)
     return response.success(value=cat.slug)
+
+
+@response.request_get()
+def list_euclid_codes(request):
+    codes = EuclidCode.objects.all()
+    res = [
+        {
+            "code": code.code,
+            "category": code.category.slug,
+        }
+        for code in codes
+    ]
+    return response.success(value=res)
