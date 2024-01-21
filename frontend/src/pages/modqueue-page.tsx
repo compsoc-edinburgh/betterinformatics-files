@@ -15,6 +15,7 @@ import { fetchGet, fetchPost } from "../api/fetch-utils";
 import useTitle from "../hooks/useTitle";
 import useConfirm from "../hooks/useConfirm";
 import ClaimButton from "../components/claim-button";
+import CourseMetadataChecker from "../components/course-metadata-checker";
 import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
 import { ICONS } from "vseth-canine-ui";
@@ -147,6 +148,18 @@ const ModQueue: React.FC = () => {
       <Button mt="sm" mb="xl" onClick={() => setIncludeHidden(!includeHidden)}>
         {includeHidden ? "Hide" : "Show"} Complete Hidden Exams
       </Button>
+      <Title my="sm" order={2}>
+        Course Checker
+      </Title>
+      <Text>
+        The following courses are apparently running according to the official
+        course list but are missing from the categories data. Please associate
+        them to the correct categories if required. You can ignore courses that
+        are "dissertations", "group projects", "seminars" etc where past exams
+        and revision notes wouldn't be very helpful for (unless its addition is
+        requested by students).
+      </Text>
+      <CourseMetadataChecker />
     </Container>
   );
 };
