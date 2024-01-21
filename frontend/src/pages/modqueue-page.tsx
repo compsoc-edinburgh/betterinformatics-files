@@ -1,12 +1,5 @@
 import { useRequest } from "@umijs/hooks";
-import {
-  Anchor,
-  Badge,
-  Button,
-  Container,
-  Table,
-  Title,
-} from "@mantine/core";
+import { Anchor, Badge, Button, Container, Table, Title } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
