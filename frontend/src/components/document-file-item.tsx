@@ -144,8 +144,8 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
       >
         <Modal.Body>
           Deleting the file is a destructive operation.{" "}
-          <b>This cannot be undone.</b>{" "}
-          Please make sure you have a backup of the file elsewhere.
+          <b>This cannot be undone.</b> Please make sure you have a backup of
+          the file elsewhere.
           <Group position="right" mt="md">
             <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
             <Button onClick={deleteFile} color="red">

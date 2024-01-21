@@ -253,7 +253,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           )}
           <AnswerSectionButtonWrapper
             bg="gray.0"
-          // color={isBeingMoved || !has_answers ? "primary" : undefined}
+            // color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <div>
               {data === undefined ? (
