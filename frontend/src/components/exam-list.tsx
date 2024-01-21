@@ -2,7 +2,6 @@ import {
   Alert,
   Button,
   Flex,
-  Grid,
   Loader,
   Modal,
   Paper,
@@ -15,6 +14,7 @@ import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
+import Grid from "./grid";
 import useSet from "../hooks/useSet";
 import { CategoryMetaData, ExamSelectedForDownload } from "../interfaces";
 import {
@@ -123,18 +123,18 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         </Alert>
       )}
 
-      <Title order={3} mt="xl" mb="lg">
-        Add Exams
-      </Title>
       <Modal
         opened={formIsOpen}
-        title="Add Document"
+        title="Upload a new exam PDF"
         onClose={() => setFormIsOpen(r => !r)}
       >
         <Modal.Body>
-          <UploadPdfCard asAdmin={isCategoryAdmin} />
+          <UploadPdfCard preChosenCategory={metaData.slug} />
         </Modal.Body>
       </Modal>
+      <Title order={3} mt="xl" mb="lg">
+        Add Exams
+      </Title>
       <Grid>
         <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
           <Tooltip label="Upload a new exam PDF">
