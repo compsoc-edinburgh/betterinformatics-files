@@ -216,11 +216,14 @@ def set_metadata(request, slug):
     if "more_markdown_link" in request.POST:
         # verify that the link is CSP-compliant, since the frontend will be
         # fetch-ing and rendering it
-        if not any(
-            [
-                request.POST["more_markdown_link"].startswith(x)
-                for x in settings.CSP_CONNECT_SRC
-            ]
+        if (
+            not any(
+                [
+                    request.POST["more_markdown_link"].startswith(x)
+                    for x in settings.CSP_CONNECT_SRC
+                ]
+            )
+            and request.POST["more_markdown_link"].strip() != ""
         ):
             return response.not_possible("Markdown link violates CSP")
     for key in [
