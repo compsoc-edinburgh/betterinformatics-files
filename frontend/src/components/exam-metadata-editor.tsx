@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
-import { loadCategories, loadExamTypes } from "../api/hooks";
+import { loadAdminCategories, loadExamTypes } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
 import { createOptions, options } from "../utils/ts-utils";
@@ -138,7 +138,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
   toggle,
   onMetaDataChange,
 }) => {
-  const { data: categories } = useRequest(loadCategories);
+  const { data: categories } = useRequest(loadAdminCategories);
   const { data: examTypes } = useRequest(loadExamTypes);
   const categoryOptions =
     categories &&

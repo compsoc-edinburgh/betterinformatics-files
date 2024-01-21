@@ -31,7 +31,8 @@ const UserPage: React.FC<{}> = () => {
   const { username = user.username } = useParams() as { username: string };
   useTitle(username);
   const isMyself = user.username === username;
-  const [userInfoError, userInfoLoading, userInfo, reloadUserInfo] = useUserInfo(username);
+  const [userInfoError, userInfoLoading, userInfo, reloadUserInfo] =
+    useUserInfo(username);
   const error = userInfoError;
   const loading = userInfoLoading;
   const [activeTab, setActiveTab] = useState<string | null>("overview");
@@ -79,10 +80,12 @@ const UserPage: React.FC<{}> = () => {
               <>
                 <UserNotificationsSettings username={username} />
                 <Space h="md" />
-                {userInfo && (<UserDisplayNameSettings
-                  userInfo={userInfo}
-                  reloadUserInfo={reloadUserInfo}
-                />)}
+                {userInfo && (
+                  <UserDisplayNameSettings
+                    userInfo={userInfo}
+                    reloadUserInfo={reloadUserInfo}
+                  />
+                )}
               </>
             )}
           </Tabs.Panel>

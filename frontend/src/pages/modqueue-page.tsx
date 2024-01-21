@@ -5,15 +5,19 @@ import {
   Button,
   Container,
   Table,
+  Text,
   Title,
 } from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchGet } from "../api/fetch-utils";
-import ClaimButton from "../components/claim-button";
-import LoadingOverlay from "../components/loading-overlay";
 import { CategoryExam } from "../interfaces";
+import { fetchGet, fetchPost } from "../api/fetch-utils";
 import useTitle from "../hooks/useTitle";
+import useConfirm from "../hooks/useConfirm";
+import ClaimButton from "../components/claim-button";
+import IconButton from "../components/icon-button";
+import LoadingOverlay from "../components/loading-overlay";
+import { ICONS } from "vseth-canine-ui";
 
 const loadExams = async (includeHidden: boolean) => {
   return (
@@ -21,6 +25,9 @@ const loadExams = async (includeHidden: boolean) => {
       `/api/exam/listimportexams/${includeHidden ? "?includehidden=true" : ""}`,
     )
   ).value as CategoryExam[];
+};
+const removeExam = async (filename: string) => {
+  await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
 const loadFlagged = async () => {
   return (await fetchGet("/api/exam/listflagged/")).value as string[];
@@ -41,6 +48,22 @@ const ModQueue: React.FC = () => {
 
   const error = examsError || flaggedError;
 
+  const [confirm, modals] = useConfirm();
+  const { run: runRemoveExam } = useRequest(removeExam, {
+    manual: true,
+    onSuccess: reloadExams,
+  });
+  const handleRemoveClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    exam: CategoryExam,
+  ) => {
+    e.stopPropagation();
+    confirm(
+      `Remove the exam named ${exam.displayname}? This will remove all answers and can not be undone!`,
+      () => runRemoveExam(exam.filename),
+    );
+  };
+
   return (
     <Container size="xl">
       {flaggedAnswers && flaggedAnswers.length > 0 && (
@@ -60,7 +83,14 @@ const ModQueue: React.FC = () => {
       <Title my="sm" order={2}>
         Import Queue
       </Title>
+      <Text>
+        Here you can see exams that have been uploaded for categories that you
+        are an admin for. Click claim to claim an exam to start working on it
+        (add cuts, make it public, rename if necessary) to prevent race
+        conditions. After 4 hours, the claim will release.
+      </Text>
       {error && <div>{error.message}</div>}
+      {modals}
       <div>
         <LoadingOverlay visible={examsLoading} />
         <Table striped fontSize="md">
@@ -70,6 +100,7 @@ const ModQueue: React.FC = () => {
               <th>Name</th>
               <th>Import State</th>
               <th>Claim</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -95,6 +126,18 @@ const ModQueue: React.FC = () => {
                   <td>{exam.finished_cuts ? "All done" : "Needs Cuts"}</td>
                   <td>
                     <ClaimButton exam={exam} reloadExams={reloadExams} />
+                  </td>
+                  <td>
+                    <IconButton
+                      size="lg"
+                      color="gray.6"
+                      tooltip="Delete exam"
+                      iconName={ICONS.DELETE}
+                      variant="outline"
+                      onClick={(
+                        e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                      ) => handleRemoveClick(e, exam)}
+                    />
                   </td>
                 </tr>
               ))}
