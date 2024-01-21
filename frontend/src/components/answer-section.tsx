@@ -48,13 +48,14 @@ const NameCard = (props: NameCardProps) => (
 );
 
 const answerSectionButtonWrapperStyle = css`
-  margin-top: 1em;
-  margin-bottom: 1em;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 `;
 const AnswerSectionButtonWrapper = (props: CardProps) => (
   <Card
     p="sm"
     shadow="md"
+    mb="1em"
     withBorder
     className={answerSectionButtonWrapperStyle}
     {...props}
@@ -230,7 +231,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             )}
           </NameCard>
         )}
-        <Container fluid py="md" px="md">
+        <Container fluid pb="md" px="md">
           {!hidden && data && (
             <div>
               {data.answers.map(answer => (
@@ -251,6 +252,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </div>
           )}
           <AnswerSectionButtonWrapper
+            bg="gray.0"
           // color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <div>

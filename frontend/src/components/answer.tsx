@@ -37,10 +37,6 @@ import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TooltipButton from "./TooltipButton";
 
-const answerWrapperStyle = css`
-  margin-bottom: 1em;
-`;
-
 const answerToolbarStyle = css`
   justify-content: flex-end;
   margin: 0 -0.3em;
@@ -107,11 +103,10 @@ const AnswerComponent: React.FC<Props> = ({
     <>
       {modals}
       <Card
-        mb="md"
         withBorder
         shadow="md"
         id={hasId ? answer?.longId : undefined}
-        className={answerWrapperStyle}
+        radius={0}
       >
         <Card.Section px="md" py="md" withBorder bg="gray.0">
           <Flex justify="space-between" align="center">
