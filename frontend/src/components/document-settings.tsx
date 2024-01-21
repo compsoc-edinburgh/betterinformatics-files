@@ -17,7 +17,7 @@ import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
-  loadCategories,
+  loadAdminCategories,
   loadDocumentTypes,
   Mutate,
   useDeleteDocument,
@@ -41,7 +41,7 @@ interface Props {
 
 const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
   const history = useHistory();
-  const { data: categories } = useRequest(loadCategories);
+  const { data: categories } = useRequest(loadAdminCategories);
   const categoryOptions =
     categories &&
     createOptions(
