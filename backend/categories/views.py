@@ -364,7 +364,7 @@ def set_metacategory_order(request):
 @auth_check.require_admin
 def add_euclid_code(request, slug):
     cat = get_object_or_404(Category, slug=slug)
-    code = request.POST["code"].upper()
+    code = request.POST["code"].upper().strip()
     if len(code) > 12:
         return response.not_possible("Code too long")
 
