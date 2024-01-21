@@ -20,6 +20,10 @@ def prepare_exam_pdf_file(request):
 
 
 @response.request_post("category", "displayname")
+# Anyone can upload an exam, but it can't be viewed until it is claimed and cut
+# from the modqueue by an admin. This is different from upstream where users
+# can't upload exams at all, but is a modification to encourage the collection's
+# growth.
 @auth_check.require_login
 def upload_exam_pdf(request):
     err, file = prepare_exam_pdf_file(request)
@@ -27,8 +31,6 @@ def upload_exam_pdf(request):
         return err
     filename = s3_util.generate_filename(8, settings.COMSOL_EXAM_DIR, ".pdf")
     category = get_object_or_404(Category, slug=request.POST.get("category", "default"))
-    if not auth_check.has_admin_rights_for_category(request, category):
-        return response.not_allowed()
     exam = Exam(
         filename=filename,
         displayname=request.POST["displayname"],

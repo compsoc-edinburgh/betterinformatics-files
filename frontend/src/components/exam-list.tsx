@@ -1,4 +1,15 @@
-import { Alert, Button, Flex, Loader, TextInput, Title } from "@mantine/core";
+import {
+  Alert,
+  Button,
+  Flex,
+  Grid,
+  Loader,
+  Modal,
+  Paper,
+  TextInput,
+  Title,
+  Tooltip,
+} from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -12,6 +23,7 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
+import UploadPdfCard from "./upload-pdf-card";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -55,6 +67,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     }
     return selectedExams;
   };
+
+  const [formIsOpen, setFormIsOpen] = useState(false);
 
   return (
     <>
@@ -108,6 +122,31 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           No exams available to view.
         </Alert>
       )}
+
+      <Title order={3} mt="xl" mb="lg">
+        Add Exams
+      </Title>
+      <Modal
+        opened={formIsOpen}
+        title="Add Document"
+        onClose={() => setFormIsOpen(r => !r)}
+      >
+        <Modal.Body>
+          <UploadPdfCard asAdmin={isCategoryAdmin} />
+        </Modal.Body>
+      </Modal>
+      <Grid>
+        <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
+          <Tooltip label="Upload a new exam PDF">
+            <Button
+              style={{ width: "100%", height: "100%" }}
+              onClick={() => setFormIsOpen(true)}
+            >
+              <Icon icon={ICONS.PLUS} size={40} />
+            </Button>
+          </Tooltip>
+        </Paper>
+      </Grid>
     </>
   );
 };
