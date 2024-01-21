@@ -1,4 +1,4 @@
-import { Button, Paper, Tooltip, Title } from "@mantine/core";
+import { Alert, Button, Flex, Group, Tooltip, Title } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadDocumentTypes, useDocuments } from "../api/hooks";
@@ -53,6 +53,25 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       >
         Community Documents
       </Title>
+      <Flex
+        direction={{ base: "column", sm: "row" }}
+        gap="sm"
+        mt="sm"
+        mb="lg"
+        justify="space-between"
+      >
+        <Group>
+          <Tooltip label="Upload a new document to share">
+            <Button
+              onClick={() => setIsOpen(true)}
+              leftIcon={<Icon icon={ICONS.PLUS} />}
+              variant="outline"
+            >
+              Add document
+            </Button>
+          </Tooltip>
+        </Group>
+      </Flex>
       {sortedDocs &&
         sortedDocs.map(obj => (
           <>
@@ -69,21 +88,13 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
             </Grid>
           </>
         ))}
-      <Title order={3} mt="xl" mb="lg">
-        Add Documents
-      </Title>
-      <Grid>
-        <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
-          <Tooltip label="Add a new document">
-            <Button
-              style={{ width: "100%", height: "100%" }}
-              onClick={() => setIsOpen(true)}
-            >
-              <Icon icon={ICONS.PLUS} size={40} />
-            </Button>
-          </Tooltip>
-        </Paper>
-      </Grid>
+      {sortedDocs && sortedDocs.length === 0 && (
+        <Alert variant="light" color="orange">
+          No community documents yet. Upload your own to share! Cheatsheets,
+          study notes, code implementations of algorithms, Anki decks, and more
+          are all welcome.
+        </Alert>
+      )}
     </>
   );
 };

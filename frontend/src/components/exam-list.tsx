@@ -2,19 +2,17 @@ import {
   Alert,
   Button,
   Flex,
+  Group,
   Loader,
   Modal,
-  Paper,
   TextInput,
   Title,
-  Tooltip,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
-import Grid from "./grid";
 import useSet from "../hooks/useSet";
 import { CategoryMetaData, ExamSelectedForDownload } from "../interfaces";
 import {
@@ -82,7 +80,14 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         mb="lg"
         justify="space-between"
       >
-        <div>
+        <Group>
+          <Button
+            onClick={() => setFormIsOpen(true)}
+            leftIcon={<Icon icon={ICONS.PLUS} />}
+            variant="outline"
+          >
+            Add new exam
+          </Button>
           <Button
             disabled={selected.size === 0}
             onClick={() => dlSelectedExams(getSelectedExams(selected))}
@@ -90,7 +95,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           >
             Download selected exams
           </Button>
-        </div>
+        </Group>
         <TextInput
           placeholder="Filter..."
           value={filter}
@@ -132,21 +137,6 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <UploadPdfCard preChosenCategory={metaData.slug} />
         </Modal.Body>
       </Modal>
-      <Title order={3} mt="xl" mb="lg">
-        Add Exams
-      </Title>
-      <Grid>
-        <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
-          <Tooltip label="Upload a new exam PDF">
-            <Button
-              style={{ width: "100%", height: "100%" }}
-              onClick={() => setFormIsOpen(true)}
-            >
-              <Icon icon={ICONS.PLUS} size={40} />
-            </Button>
-          </Tooltip>
-        </Paper>
-      </Grid>
     </>
   );
 };
