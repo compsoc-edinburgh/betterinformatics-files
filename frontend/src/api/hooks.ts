@@ -171,6 +171,10 @@ export const useUserComments = (username: string, page: number = -1) => {
   return [error, loading, data, run] as const;
 };
 export const loadCategories = async () => {
+  return (await fetchGet("/api/category/list/"))
+    .value as CategoryMetaDataMinimal[];
+};
+export const loadAdminCategories = async () => {
   return (await fetchGet("/api/category/listonlyadmin/"))
     .value as CategoryMetaDataMinimal[];
 };

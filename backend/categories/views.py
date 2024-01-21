@@ -11,13 +11,15 @@ from util import response, func_cache
 
 @response.request_get()
 def list_categories(request):
-    return response.success(
-        value=list(
-            Category.objects.order_by("displayname").values_list(
-                "displayname", flat=True
-            )
-        )
-    )
+    categories = Category.objects.order_by("displayname").all()
+    res = [
+        {
+            "displayname": cat.displayname,
+            "slug": cat.slug,
+        }
+        for cat in categories
+    ]
+    return response.success(value=res)
 
 
 @response.request_get()

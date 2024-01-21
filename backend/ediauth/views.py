@@ -52,7 +52,7 @@ auth_token_validity = datetime.timedelta(weeks=4)
 
 @response.request_post()
 def login(request: HttpRequest):
-    uun = request.POST.get("uun", "")
+    uun = request.POST.get("uun", "").lower().strip()
     try:
         email_info = validate_email(uun + "@ed.ac.uk", check_deliverability=True)
         email = email_info.normalized
@@ -112,7 +112,7 @@ def login(request: HttpRequest):
 def verify(request: HttpRequest):
     # TODO: Add rate-limiting or something to prevent brute-force attacks.
 
-    uun = request.POST.get("uun", "")
+    uun = request.POST.get("uun", "").lower().strip()
     code = request.POST.get("code", "")
 
     try:

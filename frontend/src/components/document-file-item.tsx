@@ -30,7 +30,7 @@ interface Props {
 const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
-
+  const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
   const [deleteLoading, deleteFile] = useDeleteDocumentFile(
     document.author,
     document.slug,
@@ -137,6 +137,23 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </pre>
         </Modal.Body>
       </Modal>
+      <Modal
+        opened={deleteModalIsOpen}
+        title="Are you absolutely sure?"
+        onClose={toggleDeleteModalIsOpen}
+      >
+        <Modal.Body>
+          Deleting the file is a destructive operation.{" "}
+          <b>This cannot be undone.</b>{" "}
+          Please make sure you have a backup of the file elsewhere.
+          <Group position="right" mt="md">
+            <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+            <Button onClick={deleteFile} color="red">
+              Delete "{file.filename}"
+            </Button>
+          </Group>
+        </Modal.Body>
+      </Modal>
       <Card withBorder my="xs">
         <Flex justify="space-between" align="center">
           <Flex direction="column" gap="xs">
@@ -167,7 +184,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               <IconButton
                 iconName={ICONS.DELETE}
                 color="red"
-                onClick={deleteFile}
+                onClick={toggleDeleteModalIsOpen}
                 loading={deleteLoading}
                 tooltip="Delete file"
               />
