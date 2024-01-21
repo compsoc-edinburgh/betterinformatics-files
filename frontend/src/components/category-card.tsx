@@ -1,5 +1,5 @@
 import { Card, Text, Progress, Anchor, Stack, Skeleton } from "@mantine/core";
-import React from "react";
+import React, { useMemo } from "react";
 import { cx } from "@emotion/css";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated } from "../api/fetch-utils";
@@ -29,7 +29,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
   // Hide titles if (probably) not authenticated, just to clearly draw attention
   // to the login form for first-time users. This is purely cosmetic. Access is
   // blocked anyway by the onClick handler and on the server side.
-  const hide_titles = !authenticated();
+  const hide_titles = useMemo(() => !authenticated(), []);
 
   return hide_titles ? (
     <Card
