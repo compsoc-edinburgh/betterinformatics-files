@@ -75,7 +75,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           <FileInput
             value={replaceFile}
             onChange={setFile}
-            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
+            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg,.docx,.xlsx,.pptx" // apkg=anki
           />
           <Button
             variant="brand"

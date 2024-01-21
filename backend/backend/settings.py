@@ -58,6 +58,15 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".zip", "application/x-zip-compressed"),
     (".apkg", "application/octet-stream"),  # anki
     (".colpkg", "application/octet-stream"),  # anki collection
+    (
+        ".docx",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ),
+    (".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+    (
+        ".pptx",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ),
 }
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
