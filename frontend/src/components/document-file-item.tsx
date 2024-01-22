@@ -32,7 +32,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
   const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
   const [deleteLoading, deleteFile] = useDeleteDocumentFile(
-    document.author,
     document.slug,
     file.oid,
     () => {
@@ -43,7 +42,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
     },
   );
   const [updateLoading, updateFile] = useUpdateDocumentFile(
-    document.author,
     document.slug,
     file.oid,
     file => {

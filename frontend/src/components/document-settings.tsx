@@ -4,6 +4,7 @@ import {
   TextInput,
   Modal,
   Flex,
+  Switch,
   Title,
   Text,
   Stack,
@@ -60,7 +61,6 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
   }, [documentTypes]);
 
   const [loading, updateDocument] = useUpdateDocument(
-    data.author,
     data.slug,
     result => {
       mutate(s => ({ ...s, ...result }));
@@ -68,17 +68,15 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
       setCategory(undefined);
       setDocumentType(undefined);
       if (result.slug !== data.slug) {
-        history.replace(`/user/${result.author}/document/${result.slug}`);
+        history.replace(`/document/${result.slug}`);
       }
     },
   );
   const [regenerateLoading, regenerate] = useRegenerateDocumentAPIKey(
-    data.author,
     data.slug,
     result => mutate(s => ({ ...s, ...result })),
   );
   const [_, deleteDocument] = useDeleteDocument(
-    data.author,
     data.slug,
     () => data && history.push(`/category/${data.category}`),
   );
@@ -94,6 +92,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     prev: [],
     next: [],
   });
+  const [anonymised, setAnonymised] = useState<boolean | undefined>(undefined);
 
   const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
@@ -165,6 +164,14 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
               setUndoStack={setDescriptionUndoStack}
             />
           </div>
+          <div>
+            <Text size="sm">Anonymise</Text>
+            <Switch
+              checked={anonymised ?? data.anonymised}
+              onChange={e => setAnonymised(e.currentTarget.checked)}
+              label="Check this to hide the author UUN from normal users. Yourself, BI admins, and category admins will still be able to see the original UUN."
+            />
+          </div>
           <Flex justify="end">
             <Button
               loading={loading}
@@ -175,6 +182,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                   category,
                   document_type: documentType,
                   description: descriptionDraftText,
+                  anonymised,
                 })
               }
               disabled={displayName?.trim() === ""}

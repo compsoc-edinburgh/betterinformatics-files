@@ -160,7 +160,6 @@ interface Props {
 
 const LikeButton: React.FC<Props> = ({ document, mutate }) => {
   const [_, updateDocument] = useUpdateDocument(
-    document.author,
     document.slug,
     () => void 0,
   );

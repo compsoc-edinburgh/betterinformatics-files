@@ -326,6 +326,7 @@ export interface Document {
   document_type: string;
   category_display_name: string;
   author: string;
+  anonymised: boolean;
   comments: DocumentComment[];
   files: DocumentFile[];
   liked: boolean;

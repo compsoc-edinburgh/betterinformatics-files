@@ -17,16 +17,20 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
     <Paper withBorder shadow="md" p="md" key={document.slug}>
       <Anchor
         component={Link}
-        to={`/user/${document.author}/document/${document.slug}`}
+        to={`/document/${document.slug}`}
         size="lg"
         weight={600}
       >
         <Text>{document.display_name}</Text>
       </Anchor>
       <Group position="apart" mt="sm">
-        <Anchor component={Link} to={`/user/${document.author}`}>
-          <Text color="dimmed">@{document.author}</Text>
-        </Anchor>
+        {document.anonymised ? (
+          <Text color="dimmed">Anonymous</Text>
+        ) : (
+          <Anchor component={Link} to={`/user/${document.author}`}>
+            <Text color="dimmed">@{document.author}</Text>
+          </Anchor>
+        )}
         {document.liked ? (
           <Flex align="center" color="red">
             <Icon icon={ICONS.LIKE_FILLED} color="red" />

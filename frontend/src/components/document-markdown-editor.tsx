@@ -20,7 +20,6 @@ const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
     onSuccess: text => setDraftText(text),
   });
   const [loading, updateDocument] = useUpdateDocumentFile(
-    document.author,
     document.slug,
     file.oid,
   );

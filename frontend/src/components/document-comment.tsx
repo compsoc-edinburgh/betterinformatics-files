@@ -26,20 +26,17 @@ import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
 
 interface Props {
-  documentAuthor: string;
   documentSlug: string;
   comment: DocumentComment;
   mutate: Mutate<Document>;
 }
 const DocumentCommentComponent = ({
-  documentAuthor,
   documentSlug,
   comment,
   mutate,
 }: Props) => {
   const { isAdmin } = useUser()!;
   const [editLoading, updateComment] = useUpdateDocumentComment(
-    documentAuthor,
     documentSlug,
     comment.oid,
     res => {
@@ -51,7 +48,6 @@ const DocumentCommentComponent = ({
     },
   );
   const [_, deleteComment] = useDeleteDocumentComment(
-    documentAuthor,
     documentSlug,
     comment.oid,
     () =>
