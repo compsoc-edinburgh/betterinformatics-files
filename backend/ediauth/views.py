@@ -91,8 +91,7 @@ def login(request: HttpRequest):
         "BetterInformatics: Your Verification Code is " + codeRow.code,
         (
             f"Thank you for using BetterInformatics! \n\n"
-            f"There is a new sign-in request from IP: "
-            f"{ip.exploded if ip else 'unknown'} to access "
+            f"There is a new sign-in request to access "
             f"BetterInformatics File Collection (files.betterinformatics.com).\n\n"
             f"If this is you, please confirm your identity using the following "
             f"verification code when prompted:\n\n{codeRow.code}\n\n"
