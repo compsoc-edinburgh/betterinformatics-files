@@ -22,7 +22,6 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   const [file, setFile] = useState<File | null>(null);
 
   const [loading, createDocumentFile] = useCreateDocumentFile(
-    document.author,
     document.slug,
     f => {
       toggle(false);

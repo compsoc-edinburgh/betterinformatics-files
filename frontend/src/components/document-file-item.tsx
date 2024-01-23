@@ -32,7 +32,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
   const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
   const [deleteLoading, deleteFile] = useDeleteDocumentFile(
-    document.author,
     document.slug,
     file.oid,
     () => {
@@ -43,7 +42,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
     },
   );
   const [updateLoading, updateFile] = useUpdateDocumentFile(
-    document.author,
     document.slug,
     file.oid,
     file => {
@@ -113,7 +111,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             The token is valid for an endpoint that can be found at{" "}
             <code>
               {
-                "POST /api/document/<str:username>/<str:document_slug>/files/<int:id>/update/"
+                "POST /api/document/<str:document_slug>/files/<int:id>/update/"
               }
             </code>
             . The token has to be supplied as an Authorization header, a
@@ -132,7 +130,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </p>
           <pre>
             <code>
-              {`curl ${window.location.origin}/api/document/${document.author}/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
+              {`curl ${window.location.origin}/api/document/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
         </Modal.Body>

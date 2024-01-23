@@ -14,17 +14,29 @@ from django.views.decorators.csrf import csrf_exempt
 from ediauth import auth_check
 from util import s3_util, response
 
-from documents.models import Comment, Document, DocumentType, DocumentFile, generate_api_key
+from documents.models import (
+    Comment,
+    Document,
+    DocumentType,
+    DocumentFile,
+    generate_api_key,
+)
 from notifications import notification_util
 
 logger = logging.getLogger(__name__)
+
 
 @response.request_get()
 @auth_check.require_login
 def list_document_types(request):
     return response.success(
-        value=list(DocumentType.objects.values_list("display_name", flat=True).order_by("order"))
+        value=list(
+            DocumentType.objects.values_list("display_name", flat=True).order_by(
+                "order"
+            )
+        )
     )
+
 
 def get_comment_obj(comment: Comment, request: HttpRequest):
     return {
@@ -61,9 +73,19 @@ def get_document_obj(
         "document_type": document.document_type.display_name,
         "category_display_name": document.category.displayname,
         "author": document.author.username,
+        "anonymised": document.anonymised,
         "can_edit": document.current_user_can_edit(request),
         "can_delete": document.current_user_can_delete(request),
     }
+    # if the document is anonymised, we don't want to show the author. but
+    # if the current user can edit/delete the document (i.e. owner or admin),
+    # they should have power to see the author
+    if (
+        document.anonymised
+        and not document.current_user_can_edit(request)
+        and not document.current_user_can_delete(request)
+    ):
+        obj["author"] = "anonymous"
     if hasattr(document, "like_count"):
         obj["like_count"] = document.like_count
     if hasattr(document, "liked"):
@@ -128,7 +150,8 @@ class DocumentRootView(View):
             else:
                 return response.not_allowed()
         elif username is not None:
-            objects = objects.filter(author__username=username)
+            # Return only documents that are not anonymised
+            objects = objects.filter(author__username=username, anonymised=False)
         elif category is not None:
             objects = objects.filter(category__slug=category)
         else:  # if nothing is given, we return an empty result instead of giving back everything
@@ -143,8 +166,7 @@ class DocumentRootView(View):
             objects = objects.prefetch_related("files")
 
         res = [
-            get_document_obj(document, request,
-                             include_comments, include_files)
+            get_document_obj(document, request, include_comments, include_files)
             for document in objects.all()
         ]
         return response.success(value=res)
@@ -158,12 +180,14 @@ class DocumentRootView(View):
         display_name = request.POST["display_name"]
         # description is optional
         description = request.POST.get("description", "")
+        anonymised = request.POST.get("anonymised", "false") == "true"
         document = Document(
             display_name=display_name,
             description=description,
             category=category,
             author=request.user,
-            document_type=DocumentType.objects.get(display_name="Documents")
+            anonymised=anonymised,
+            document_type=DocumentType.objects.get(display_name="Documents"),
         )
         document.save()
 
@@ -174,7 +198,7 @@ class DocumentElementView(View):
     http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, username: str, slug: str):
+    def get(self, request: HttpRequest, slug: str):
         objects = Document.objects.prefetch_related("category", "author").annotate(
             like_count=like_count,
             liked=user_liked(request),
@@ -187,18 +211,15 @@ class DocumentElementView(View):
         if include_files:
             objects = objects.prefetch_related("files")
 
-        document = get_object_or_404(
-            objects, author__username=username, slug=slug)
+        document = get_object_or_404(objects, slug=slug)
 
         return response.success(
-            value=get_document_obj(
-                document, request, include_comments, include_files)
+            value=get_document_obj(document, request, include_comments, include_files)
         )
 
     @auth_check.require_login
-    def put(self, request: HttpRequest, username: str, slug: str):
-        document = get_object_or_404(
-            Document, author__username=username, slug=slug)
+    def put(self, request: HttpRequest, slug: str):
+        document = get_object_or_404(Document, slug=slug)
         if "liked" in request.DATA:
             if request.DATA["liked"] == "true":
                 document.likes.add(request.user)
@@ -220,31 +241,34 @@ class DocumentElementView(View):
         if "category" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
-            category = get_object_or_404(
-                Category, slug=request.DATA["category"])
+            category = get_object_or_404(Category, slug=request.DATA["category"])
             document.category = category
         if "document_type" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
             old_document_type = document.document_type
-            document.document_type, _ = DocumentType.objects.get_or_create(display_name=request.DATA['document_type'])
+            document.document_type, _ = DocumentType.objects.get_or_create(
+                display_name=request.DATA["document_type"]
+            )
             document.save()
             if old_document_type.id > 4 and not old_document_type.type_set.exists():
                 old_document_type.delete()
-        
+        if "anonymised" in request.DATA:
+            if not can_edit:
+                return response.not_allowed()
+            document.anonymised = request.DATA["anonymised"] == "true"
+
         document.save()
         return response.success(value=get_document_obj(document, request))
 
     @auth_check.require_login
-    def delete(self, request: HttpRequest, username: str, slug: str):
+    def delete(self, request: HttpRequest, slug: str):
         objects = Document.objects.prefetch_related("author")
-        document = get_object_or_404(
-            objects, author__username=username, slug=slug)
+        document = get_object_or_404(objects, slug=slug)
         if not document.current_user_can_delete(request):
             return response.not_allowed()
 
-        filenames = [
-            document_file.filename for document_file in document.files.all()]
+        filenames = [document_file.filename for document_file in document.files.all()]
         success = s3_util.delete_files(settings.COMSOL_DOCUMENT_DIR, filenames)
         document.delete()
         return response.success(value=success)
@@ -254,10 +278,8 @@ class DocumentCommentRootView(View):
     http_method_names = ["get", "post"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, username: str, document_slug: str):
-        document = get_object_or_404(
-            Document, author__username=username, slug=document_slug
-        )
+    def get(self, request: HttpRequest, document_slug: str):
+        document = get_object_or_404(Document, slug=document_slug)
         objects = Comment.objects.filter(document=document).all()
         return response.success(
             value=[get_comment_obj(comment, request) for comment in objects]
@@ -265,10 +287,8 @@ class DocumentCommentRootView(View):
 
     @response.required_args("text")
     @auth_check.require_login
-    def post(self, request: HttpRequest, username: str, document_slug: str):
-        document = get_object_or_404(
-            Document, author__username=username, slug=document_slug
-        )
+    def post(self, request: HttpRequest, document_slug: str):
+        document = get_object_or_404(Document, slug=document_slug)
         comment = Comment(
             document=document, text=request.POST["text"], author=request.user
         )
@@ -281,22 +301,20 @@ class DocumentCommentElementView(View):
     http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, username: str, document_slug: str, id: int):
+    def get(self, request: HttpRequest, document_slug: str, id: int):
         comment = get_object_or_404(
             Comment,
             pk=id,
-            document__author__username=username,
             document__slug=document_slug,
         )
         return get_comment_obj(comment, request)
 
     @auth_check.require_login
-    def put(self, request: HttpRequest, username: str, document_slug: str, id: int):
+    def put(self, request: HttpRequest, document_slug: str, id: int):
         objects = Comment.objects.prefetch_related("author")
         comment = get_object_or_404(
             objects,
             pk=id,
-            document__author__username=username,
             document__slug=document_slug,
         )
         if not comment.current_user_can_edit(request):
@@ -308,12 +326,11 @@ class DocumentCommentElementView(View):
         return response.success(value=get_comment_obj(comment, request))
 
     @auth_check.require_login
-    def delete(self, request: HttpRequest, username: str, document_slug: str, id: int):
+    def delete(self, request: HttpRequest, document_slug: str, id: int):
         objects = Comment.objects.prefetch_related("author")
         comment = get_object_or_404(
             objects,
             pk=id,
-            document__author__username=username,
             document__slug=document_slug,
         )
         if not comment.current_user_can_delete(request):
@@ -326,10 +343,8 @@ class DocumentFileRootView(View):
     http_method_names = ["get", "post"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, username: str, document_slug: str):
-        document = get_object_or_404(
-            Document, author__username=username, slug=document_slug
-        )
+    def get(self, request: HttpRequest, document_slug: str):
+        document = get_object_or_404(Document, slug=document_slug)
         objects = DocumentFile.objects.filter(document=document).all()
         return response.success(
             value=[get_document_file(file, request) for file in objects]
@@ -337,13 +352,10 @@ class DocumentFileRootView(View):
 
     @response.required_args("display_name")
     @auth_check.require_login
-    def post(self, request: HttpRequest, username: str, document_slug: str):
-        document = get_object_or_404(
-            Document, author__username=username, slug=document_slug
-        )
+    def post(self, request: HttpRequest, document_slug: str):
+        document = get_object_or_404(Document, slug=document_slug)
         if not document.current_user_can_edit(request):
             return response.not_allowed()
-        
 
         if request.DATA["display_name"].strip() == "":
             return response.not_possible("Invalid displayname")
@@ -352,8 +364,7 @@ class DocumentFileRootView(View):
         if err is not None:
             return err
 
-        filename = s3_util.generate_filename(
-            16, settings.COMSOL_DOCUMENT_DIR, ext)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
             display_name=request.POST["display_name"],
             document=document,
@@ -374,20 +385,17 @@ class DocumentFileElementView(View):
     http_method_names = ["get", "delete", "put"]
 
     @auth_check.require_login
-    def get(self, request: HttpRequest, username: str, document_slug: str, id: int):
+    def get(self, request: HttpRequest, document_slug: str, id: int):
         document_file = get_object_or_404(
             DocumentFile,
             pk=id,
-            document__author__username=username,
             document__slug=document_slug,
         )
         return get_file_obj(document_file)
 
     @auth_check.require_login
-    def put(self, request: HttpRequest, username: str, document_slug: str, id: int):
-        document = get_object_or_404(
-            Document, author__username=username, slug=document_slug
-        )
+    def put(self, request: HttpRequest, document_slug: str, id: int):
+        document = get_object_or_404(Document, slug=document_slug)
         if not document.current_user_can_edit(request):
             return response.not_allowed()
 
@@ -429,10 +437,8 @@ class DocumentFileElementView(View):
         return response.success(value=get_file_obj(document_file))
 
     @auth_check.require_login
-    def delete(self, request: HttpRequest, username: str, document_slug: str, id: int):
-        document = get_object_or_404(
-            Document, author__username=username, slug=document_slug
-        )
+    def delete(self, request: HttpRequest, document_slug: str, id: int):
+        document = get_object_or_404(Document, slug=document_slug)
         if not document.current_user_can_edit(request):
             return response.not_allowed()
 
@@ -453,10 +459,8 @@ class DocumentFileElementView(View):
 
 @response.request_post()
 @auth_check.require_login
-def regenerate_api_key(request: HttpRequest, username: str, document_slug: str):
-    document = get_object_or_404(
-        Document, author__username=username, slug=document_slug
-    )
+def regenerate_api_key(request: HttpRequest, document_slug: str):
+    document = get_object_or_404(Document, slug=document_slug)
     if not document.current_user_can_edit(request):
         return response.not_allowed()
     document.api_key = generate_api_key()
@@ -465,8 +469,10 @@ def regenerate_api_key(request: HttpRequest, username: str, document_slug: str):
 
 
 @response.request_get()
-def get_document_file(request, filename):
-    document_file = get_object_or_404(DocumentFile, filename=filename)
+def get_document_file(request, document_slug: str, filename):
+    document_file = get_object_or_404(
+        DocumentFile, document__slug=document_slug, filename=filename
+    )
     _, ext = os.path.splitext(document_file.filename)
     attachment_filename = document_file.display_name + ext
     return s3_util.send_file(
@@ -479,11 +485,9 @@ def get_document_file(request, filename):
 
 @csrf_exempt
 @response.request_post()
-def update_file(request: HttpRequest, username: str, document_slug: str, id: int):
+def update_file(request: HttpRequest, document_slug: str, id: int):
     token = request.headers.get("Authorization", "")
-    document = get_object_or_404(
-        Document, author__username=username, slug=document_slug
-    )
+    document = get_object_or_404(Document, slug=document_slug)
     if document.api_key != token:
         return HttpResponseForbidden("invalid authorization token")
 
@@ -506,10 +510,8 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
         changed = True
 
     if not document_file.filename.endswith(ext):
-        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR,
-                            document_file.filename)
-        filename = s3_util.generate_filename(
-            16, settings.COMSOL_DOCUMENT_DIR, ext)
+        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR, document_file.filename)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file.filename = filename
         changed = True
 

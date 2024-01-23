@@ -69,8 +69,8 @@ const getFile = (document: Document | undefined, oid: number) =>
 
 interface Props {}
 const DocumentPage: React.FC<Props> = () => {
-  const { author, slug } = useParams() as { slug: string; author: string };
-  const [error, _, data, mutate] = useDocument(author, slug, document => {
+  const { slug } = useParams() as { slug: string };
+  const [error, _, data, mutate] = useDocument(slug, document => {
     if (document.files.length > 0) setTab(document.files[0].oid.toString());
   });
 
@@ -117,7 +117,9 @@ const DocumentPage: React.FC<Props> = () => {
         )}
         <div>
           Author:{" "}
-          {data && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
+          {data && !data.anonymised && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
+          {data && data.anonymised && "Anonymous"}
+          {data && data.anonymised && (data.can_edit || data.can_delete) && ` (${data.author})`}
         </div>
         {error && <Alert color="red">{error.toString()}</Alert>}
         {data && data.description && (
@@ -218,7 +220,6 @@ const DocumentPage: React.FC<Props> = () => {
             )}
             {data.comments.map(comment => (
               <DocumentCommentComponent
-                documentAuthor={data.author}
                 documentSlug={slug}
                 comment={comment}
                 key={comment.oid}
@@ -227,7 +228,6 @@ const DocumentPage: React.FC<Props> = () => {
             ))}
             <Card shadow="md" withBorder>
               <DocumentCommentForm
-                documentAuthor={author}
                 documentSlug={slug}
                 mutate={mutate}
               />

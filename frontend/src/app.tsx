@@ -273,7 +273,7 @@ const App: React.FC<{}> = () => {
                     />
                     <UserRoute
                       exact
-                      path="/user/:author/document/:slug"
+                      path="/document/:slug"
                       component={DocumentPage}
                     />
                     <UserRoute
