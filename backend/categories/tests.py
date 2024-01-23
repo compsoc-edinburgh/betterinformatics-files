@@ -10,12 +10,26 @@ class TestAddRemove(ComsolTest):
     def test_add_remove(self):
         self.post('/api/category/add/', {'category': 'Test Category'})
         res = self.get('/api/category/list/')['value']
-        self.assertEqual(res, ['default', 'Test Category'])
+        self.assertEqual(res, [
+            {
+                'slug': 'default',
+                'displayname': 'default',
+            },
+            {
+                'slug': 'testcategory',
+                'displayname': 'Test Category',
+            },
+        ])
         res = self.get('/api/category/listwithmeta/')['value'][1]
         self.assertEqual(res['displayname'], 'Test Category')
         self.post('/api/category/remove/', {'slug': res['slug']})
         res = self.get('/api/category/list/')['value']
-        self.assertEqual(res, ['default'])
+        self.assertEqual(res, [
+            {
+                'slug': 'default',
+                'displayname': 'default',
+            }
+        ])
 
     def test_remove_not_existing(self):
         self.post('/api/category/remove/', {'slug': 'nonexistant'}, status_code=404)
