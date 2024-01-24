@@ -98,22 +98,17 @@ Backend is built with Django. It can be run using Docker.
 
 ### Start the backend
 
-The backend can be started with the command:
+The backend can be started with the following command:
 
 ```bash
-docker compose up --build  # or 'sudo docker-compose' depending on your installed version
+docker compose watch --no-up &\
+    docker compose up --build
 ```
 
 The `--build` is important so that the images are rebuilt in case of changes.
 
-If you're working on the backend, open up an additional terminal and start docker-compose watch:
-
-```bash
-docker compose watch
-```
-
-This will result in the backend restarting automatically everytime you change one of the python files. Then you
-don't have to first down docker compose and then put it back up again.
+The first line (the `watch`) is optional, but it enables hot-reloading for the backend
+so you don't have to restart the build process on every change.
 
 ### Post-Setup for backend (needed for documents to work)
 

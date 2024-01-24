@@ -1,9 +1,9 @@
 from myauth.models import get_my_user
 from myauth import auth_check
 from answers.models import Comment, Answer
-from django.db.models import Count, F, Exists, OuterRef
+from django.db.models import Count, F, Exists, OuterRef, Manager
 
-def prepare_answer_objects(objects: any, request) -> any:
+def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]:
     # Almost halves (-40%) the amount of queries made if
     # the counts are annotated instead of executed manually
     return objects.annotate(
