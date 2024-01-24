@@ -37,14 +37,23 @@ services:
       - "5432:5432"
   community-solutions:
     build:
+      dockerfile: ./util/local.backend.Dockerfile
       context: .
       args:
         git_branch: <docker>
         git_commit: <compose>
-      target: backend
+    develop:
+      watch:
+        - action: sync
+          path: backend/
+          target: /app
+          ignore:
+            - __pycache__/
+        - action: rebuild
+          path: backend/requirements.txt
     container_name: community-solutions
     ports:
-      - "8081:80"
+      - "8081:8081"
     environment:
       - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN=localhost
       - SIP_INGRESS_HTTP_DEFAULT_CNAMES=

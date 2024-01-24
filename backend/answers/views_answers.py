@@ -11,7 +11,7 @@ from django.utils import timezone
 @auth_check.require_login
 def get_answer(request, long_id):
     try:
-        answer = Answer.objects.get(long_id=long_id)
+        answer = section_util.prepare_answer_objects(Answer.objects, request).get(long_id=long_id)
         return response.success(value=section_util.get_answer_response(request, answer))
     except Answer.DoesNotExist as e:
         raise Http404()

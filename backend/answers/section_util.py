@@ -1,9 +1,28 @@
 from myauth.models import get_my_user
 from myauth import auth_check
-from answers.models import Comment
+from answers.models import Comment, Answer
+from django.db.models import Count, F, Exists, OuterRef
 
+def prepare_answer_objects(objects: any, request) -> any:
+    # Almost halves (-40%) the amount of queries made if
+    # the counts are annotated instead of executed manually
+    return objects.annotate(
+        expert_count=Count("expertvotes"),
+        downvotes_count=Count("downvotes"),
+        upvotes_count=Count("upvotes"),
+        flagged_count=Count("flagged"),
+        is_upvoted=Exists(Answer.objects.filter(id=OuterRef("id"), upvotes=request.user)),
+        is_downvoted=Exists(Answer.objects.filter(id=OuterRef("id"), downvotes=request.user)),
+        is_expertvoted=Exists(Answer.objects.filter(id=OuterRef("id"), expertvotes=request.user)),
+        is_flagged=Exists(Answer.objects.filter(id=OuterRef("id"), flagged=request.user)),
+        delta_votes=F("upvotes_count") - F("downvotes_count"),
+    )
 
-def get_answer_response(request, answer, ignore_exam_admin=False):
+def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
+    """
+    Call `prepare_answer_objects` on the answer objects beforehand to annotate
+    them with the required aggregations. This function will fail otherwise.
+    """
     if ignore_exam_admin:
         exam_admin = False
     else:
@@ -18,29 +37,33 @@ def get_answer_response(request, answer, ignore_exam_admin=False):
             'canEdit': comment.author == request.user,
             'time': comment.time,
             'edittime': comment.edittime,
-        } for comment in answer.comments.order_by('time', 'id').all()
+        } for comment in answer.comments.order_by("time", "id").all()
     ]
-    return {
-        'oid': answer.id,
-        'longId': answer.long_id,
-        'upvotes': answer.upvotes.count() - answer.downvotes.count(),
-        'expertvotes': answer.expertvotes.count(),
-        'authorId': '' if answer.is_legacy_answer else answer.author.username,
-        'authorDisplayName': 'Old VISki Solution' if answer.is_legacy_answer else get_my_user(answer.author).displayname(),
-        'canEdit': answer.author == request.user or (answer.is_legacy_answer and exam_admin),
-        'isUpvoted': request.user in answer.upvotes.all(),
-        'isDownvoted': request.user in answer.downvotes.all(),
-        'isExpertVoted': request.user in answer.expertvotes.all(),
-        'isFlagged': request.user in answer.flagged.all(),
-        'flagged': answer.flagged.count(),
-        'comments': comments,
-        'text': answer.text,
-        'time': answer.time,
-        'edittime': answer.edittime,
-        'filename': answer.answer_section.exam.filename,
-        'sectionId': answer.answer_section.id,
-        'isLegacyAnswer': answer.is_legacy_answer,
-    }
+
+    try:
+        return {
+            'oid': answer.id,
+            'longId': answer.long_id,
+            'upvotes': answer.delta_votes,
+            'expertvotes': answer.expert_count,
+            'authorId': '' if answer.is_legacy_answer else answer.author.username,
+            'authorDisplayName': 'Old VISki Solution' if answer.is_legacy_answer else get_my_user(answer.author).displayname(),
+            'canEdit': answer.author == request.user or (answer.is_legacy_answer and exam_admin),
+            'isUpvoted': answer.is_upvoted,
+            'isDownvoted': answer.is_downvoted,
+            'isExpertVoted': answer.is_expertvoted,
+            'isFlagged': answer.is_flagged,
+            'flagged': answer.flagged_count,
+            'comments': comments,
+            'text': answer.text,
+            'time': answer.time,
+            'edittime': answer.edittime,
+            'filename': answer.answer_section.exam.filename,
+            'sectionId': answer.answer_section.id,
+            'isLegacyAnswer': answer.is_legacy_answer,
+        }
+    except AttributeError:
+        raise ValueError("The given answer has not been prepared with 'prepare_answer_objects'")
 
 
 def get_comment_response(request, comment: Comment):
@@ -64,7 +87,7 @@ def get_answersection_response(request, section):
     answers = [
         get_answer_response(request, answer)
         for answer in sorted(
-            section.answer_set.all(),
+            prepare_answer_objects(section.answer_set, request).all(),
             key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count(), x.time)
         )
     ]
