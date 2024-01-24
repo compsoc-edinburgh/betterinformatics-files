@@ -1,11 +1,13 @@
 from myauth.models import get_my_user
 from myauth import auth_check
 from answers.models import Comment, Answer
-from django.db.models import Count, F, Exists, OuterRef, Manager
+from django.db.models import Count, F, Exists, OuterRef, Manager, Prefetch
 
 def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]:
-    # Almost halves (-40%) the amount of queries made if
-    # the counts are annotated instead of executed manually
+    # Important optimization. Prevents amount of queries from
+    # increasing quadratically ((N+1 problem)^2) and instead
+    # results in a constant amount of queries.
+    comments_query = Comment.objects.select_related("author").order_by("time", "id")
     return objects.annotate(
         expert_count=Count("expertvotes"),
         downvotes_count=Count("downvotes"),
@@ -16,6 +18,12 @@ def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]
         is_expertvoted=Exists(Answer.objects.filter(id=OuterRef("id"), expertvotes=request.user)),
         is_flagged=Exists(Answer.objects.filter(id=OuterRef("id"), flagged=request.user)),
         delta_votes=F("upvotes_count") - F("downvotes_count"),
+    ).prefetch_related(
+        Prefetch(
+            "comments",
+            queryset=comments_query,
+            to_attr="all_comments",
+        )
     )
 
 def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
@@ -27,20 +35,21 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
         exam_admin = False
     else:
         exam_admin = auth_check.has_admin_rights_for_exam(request, answer.answer_section.exam)
-    comments = [
-        {
-            'oid': comment.id,
-            'longId': comment.long_id,
-            'text': comment.text,
-            'authorId': comment.author.username,
-            'authorDisplayName': get_my_user(comment.author).displayname(),
-            'canEdit': comment.author == request.user,
-            'time': comment.time,
-            'edittime': comment.edittime,
-        } for comment in answer.comments.order_by("time", "id").all()
-    ]
-
+    
     try:
+        comments = [
+            {
+                'oid': comment.id,
+                'longId': comment.long_id,
+                'text': comment.text,
+                'authorId': comment.author.username,
+                'authorDisplayName': get_my_user(comment.author).displayname(),
+                'canEdit': comment.author == request.user,
+                'time': comment.time,
+                'edittime': comment.edittime,
+            } for comment in answer.all_comments
+        ]
+
         return {
             'oid': answer.id,
             'longId': answer.long_id,
@@ -88,7 +97,7 @@ def get_answersection_response(request, section):
         get_answer_response(request, answer)
         for answer in sorted(
             prepare_answer_objects(section.answer_set, request).all(),
-            key=lambda x: (-x.expertvotes.count(), x.downvotes.count() - x.upvotes.count(), x.time)
+            key=lambda x: (-x.expert_count, x.downvotes_count - x.upvotes_count, x.time)
         )
     ]
     return {

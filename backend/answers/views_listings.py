@@ -1,5 +1,4 @@
 from django.db.models import Q
-
 from answers import section_util
 from answers.models import Answer, Comment, Exam, ExamType
 from myauth import auth_check
@@ -100,8 +99,7 @@ def get_by_user(request, username, page=-1):
             author__username=username,
             is_legacy_answer=False) \
         .select_related(*section_util.get_answer_fields_to_preselect()) \
-        .prefetch_related(*section_util.get_answer_fields_to_prefetch())
-    
+
     sorted_answers = section_util.prepare_answer_objects(sorted_answers, request) \
         .order_by("-expert_count", "-delta_votes", "time")
 
@@ -112,7 +110,7 @@ def get_by_user(request, username, page=-1):
     res = [
         section_util.get_answer_response(
             request, answer, ignore_exam_admin=True)
-        for answer in sorted_answers.iterator()
+        for answer in sorted_answers
     ]
 
     return response.success(value=res)
