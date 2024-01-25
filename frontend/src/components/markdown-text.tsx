@@ -11,7 +11,7 @@ import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
 import RemarkGfm from "remark-gfm";
 import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
-import { createStyles } from "@mantine/core";
+import { createStyles, Table } from "@mantine/core";
 
 const useStyles = createStyles(theme => ({
   blockquoteStyle: {
@@ -68,7 +68,7 @@ const createRenderers = (
   macros: object,
 ): ReactMarkdownProps["renderers"] => ({
   table: ({ children }) => {
-    return <table>{children}</table>;
+    return <Table>{children}</Table>;
   },
   text: ({ value }: { value: string }) => {
     if (regex === undefined) return <span>{value}</span>;
