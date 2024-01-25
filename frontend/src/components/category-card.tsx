@@ -1,4 +1,4 @@
-import { Card, Text, Progress, Anchor, Stack, Skeleton } from "@mantine/core";
+import { Card, Text, Progress, Anchor, LoadingOverlay, Stack } from "@mantine/core";
 import React, { useMemo } from "react";
 import { cx } from "@emotion/css";
 import { Link, useHistory } from "react-router-dom";
@@ -7,6 +7,7 @@ import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
 import { useStyles } from "../utils/style";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
@@ -26,22 +27,13 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     }
   };
 
-  // Hide titles if (probably) not authenticated, just to clearly draw attention
-  // to the login form for first-time users. This is purely cosmetic. Access is
-  // blocked anyway by the onClick handler and on the server side.
-  const hide_titles = useMemo(() => !authenticated(), []);
+  // Show a padlock on cards if not authenticated (as determined by a cookie).
+  // This is to clearly draw attention to the login form for first-time users.
+  // The lock is purely cosmetic, you can still click it but that will make the
+  // server actually check auth and redirect you to the login form.
+  const lock_titles = useMemo(() => !authenticated(), []);
 
-  return hide_titles ? (
-    <Card
-      withBorder
-      px="lg"
-      py="md"
-      className={cx(classes.focusOutline, classes.hoverShadow)}
-    >
-      <Skeleton animate={false} height={50} />
-      <Skeleton animate={false} height={10} mt={8} />
-    </Card>
-  ) : (
+  return (
     <Card
       component={Link}
       to={`/category/${category.slug}`}
@@ -58,6 +50,15 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
+      {lock_titles && (
+        // Show a padlock when not logged in, to draw attention to the login form.
+        <LoadingOverlay
+          visible={true}
+          loader={(
+            <Icon icon={ICONS.LOCK} size="1.5rem" aria-label="Locked" />
+          )}
+        />
+      )}
       <Stack h="100%" justify="space-between">
         <div className="category-card">
           <Anchor
