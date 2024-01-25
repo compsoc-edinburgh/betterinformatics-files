@@ -72,7 +72,10 @@ def set_answer(request, oid):
 @response.request_post()
 @auth_check.require_login
 def remove_answer(request, oid):
-    answer = get_object_or_404(Answer, pk=oid)
+    answer = get_object_or_404(
+        Answer.objects.select_related("answer_section").all(),
+        pk=oid
+    )
     if not (answer.author == request.user or auth_check.has_admin_rights(request)):
         return response.not_allowed()
     section = answer.answer_section
@@ -86,7 +89,10 @@ def remove_answer(request, oid):
 @response.request_post("like")
 @auth_check.require_login
 def set_like(request, oid):
-    answer = get_object_or_404(Answer, pk=oid)
+    answer = get_object_or_404(
+        Answer.objects.select_related("answer_section").all(),
+        pk=oid
+    )
     like = int(request.POST["like"])
     old_like = 0
     if answer.upvotes.filter(pk=request.user.pk).exists():
@@ -112,7 +118,10 @@ def set_like(request, oid):
 @response.request_post("vote")
 @auth_check.require_login
 def set_expertvote(request, oid):
-    answer = get_object_or_404(Answer, pk=oid)
+    answer = get_object_or_404(
+        Answer.objects.select_related("answer_section").all(),
+        pk=oid
+    )
     if not auth_check.is_expert_for_exam(request, answer.answer_section.exam):
         return response.not_allowed()
     vote = request.POST["vote"] != "false"
@@ -132,7 +141,10 @@ def set_expertvote(request, oid):
 @response.request_post("flagged")
 @auth_check.require_login
 def set_flagged(request, oid):
-    answer = get_object_or_404(Answer, pk=oid)
+    answer = get_object_or_404(
+        Answer.objects.select_related("answer_section").all(),
+        pk=oid
+    )
     flagged = request.POST["flagged"] != "false"
     old_flagged = answer.flagged.filter(pk=request.user.pk).exists()
     if flagged != old_flagged:
@@ -150,7 +162,10 @@ def set_flagged(request, oid):
 @response.request_post()
 @auth_check.require_admin
 def reset_flagged(request, oid):
-    answer = get_object_or_404(Answer, pk=oid)
+    answer = get_object_or_404(
+        Answer.objects.select_related("answer_section").all(),
+        pk=oid
+    )
     answer.flagged.clear()
     answer.save()
     section_util.increase_section_version(answer.answer_section)

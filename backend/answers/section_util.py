@@ -24,7 +24,7 @@ def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]
             queryset=comments_query,
             to_attr="all_comments",
         )
-    )
+    ).select_related("author")
 
 def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
     """
@@ -93,18 +93,20 @@ def get_comment_response(request, comment: Comment):
 
 
 def get_answersection_response(request, section):
+    prepared_query = prepare_answer_objects(section.answer_set, request)
+
     answers = [
         get_answer_response(request, answer)
         for answer in sorted(
-            prepare_answer_objects(section.answer_set, request).all(),
+            prepared_query,
             key=lambda x: (-x.expert_count, x.downvotes_count - x.upvotes_count, x.time)
         )
     ]
     return {
         'oid': section.id,
         'answers': answers,
-        'allow_new_answer': not section.answer_set.filter(author=request.user, is_legacy_answer=False).exists(),
-        'allow_new_legacy_answer': not section.answer_set.filter(is_legacy_answer=True).exists(),
+        'allow_new_answer': not prepared_query.filter(author=request.user, is_legacy_answer=False).exists(),
+        'allow_new_legacy_answer': not prepared_query.filter(is_legacy_answer=True).exists(),
         'cutVersion': section.cut_version,
         'has_answers': section.has_answers,
     }
