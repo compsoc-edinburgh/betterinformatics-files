@@ -21,7 +21,6 @@ class TestListings(ComsolTestExamsData):
         self.exams[0].save()
         res = self.get('/api/exam/listimportexams/')['value']
         self.assertEqual(len(res), 1)
-        self.exams[1].finished_wiki_transfer = False
         self.exams[1].save()
         res = self.get('/api/exam/listimportexams/')['value']
         self.assertEqual(len(res), 2)

@@ -27,7 +27,7 @@ const ClaimButton: React.FC<Props> = ({
     manual: true,
     onSuccess: reloadExams,
   });
-  return !exam.finished_cuts || !exam.finished_wiki_transfer ? (
+  return !exam.finished_cuts ? (
     hasValidClaim(exam) ? (
       exam.import_claim === username ? (
         <Button

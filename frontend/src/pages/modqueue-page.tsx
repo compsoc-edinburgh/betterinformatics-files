@@ -132,9 +132,7 @@ const ModQueue: React.FC = () => {
                   </td>
                   <td>
                     {exam.finished_cuts
-                      ? exam.finished_wiki_transfer
-                        ? "All done"
-                        : "Needs Wiki Import"
+                      ? "All done"
                       : "Needs Cuts"}
                   </td>
                   <td>

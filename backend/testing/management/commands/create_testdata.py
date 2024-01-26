@@ -130,7 +130,6 @@ class Command(BaseCommand):
                     resolve_alias="resolve_" + filename,
                     public=(i + category.id % 7 != 0),
                     finished_cuts=(i + category.id % 5 != 0),
-                    finished_wiki_transfer=(i + category.id % 9 != 0),
                     needs_payment=needs_payment,
                 )
                 exam.save()
@@ -305,7 +304,6 @@ class Command(BaseCommand):
                         resolve_alias="resolve_" + filename,
                         public=False,
                         finished_cuts=False,
-                        finished_wiki_transfer=True,
                         needs_payment=True,
                         is_oral_transcript=True,
                         oral_transcript_uploader=user,

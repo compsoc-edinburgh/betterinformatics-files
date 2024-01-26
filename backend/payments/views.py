@@ -76,7 +76,6 @@ def mark_exam_checked(request, filename):
         return response.not_possible('Exam was already checked')
     exam.oral_transcript_checked = True
     exam.public = True
-    exam.finished_wiki_transfer = True
     exam.save()
     payment = [x for x in Payment.objects.filter(user=exam.oral_transcript_uploader) if x.valid() and not x.check_time]
     if payment:

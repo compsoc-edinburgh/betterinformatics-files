@@ -21,7 +21,6 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
 
     public = models.BooleanField(default=False)
     finished_cuts = models.BooleanField(default=False)
-    finished_wiki_transfer = models.BooleanField(default=False)
     needs_payment = models.BooleanField(default=False)
 
     import_claim = models.ForeignKey(
@@ -33,7 +32,6 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
     has_solution = models.BooleanField(default=False)
     solution_printonly = models.BooleanField(default=False)
     master_solution = models.CharField(max_length=512)
-    legacy_solution = models.CharField(max_length=512)
 
     is_oral_transcript = models.BooleanField(default=False)
     oral_transcript_uploader = models.ForeignKey(
