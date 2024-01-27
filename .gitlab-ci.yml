@@ -118,10 +118,10 @@ stages:
     # replicaset get and patch.
     #
     # --fail is crucial
-    #    It sets the exit code to 22 on error, stopping the script and not
-    #      printing the output. Otherwise, the response body will be printed
-    #      which may contain confidential information
+    #    It sets the exit code to 22 on error, stopping the script.
     # --silent is optional for making the output cleaner
+    # --output is for not printing the API response as it may contain some
+    #    confidential information. To debug any errors, use the command locally.
     # --insecure is required
     #    This is to access the k8s endpoint without a valid client-side
     #      certificate as otherwise cURL will complain about self-signed
@@ -140,6 +140,7 @@ stages:
       curl "${PRODUCTION_K8S_DEPLOYMENT_URL}?fieldManager=kubectl-rollout" \
         --fail \
         --silent \
+        --output /dev/null \
         --header "Content-Type: application/strategic-merge-patch+json" \
         --header "Authorization: Bearer $(echo "$PRODUCTION_K8S_SA_TOKEN" | base64 -d)" \
         --insecure \
