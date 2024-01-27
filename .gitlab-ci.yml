@@ -1,16 +1,24 @@
-stages:          # List of stages for jobs, and their order of execution
+# List of stages for jobs, which is executed in order. To define dependencies
+# between jobs in the same stage, use the 'needs' keyword.
+stages:
   - test
   - build
+  - deploy
 
 "Django Unit Tests":
   stage: test
   rules:
+    # This job runs on protected branches and on merge requests to master.
+    # Both should be done because the branch state within the MR and the
+    # merged result can and often is different if there are other commits
+    # merged between the executions.
     - if: $CI_COMMIT_REF_PROTECTED == "true" # Run on protected branches, or
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
       changes:
         - backend/**/*
   image: python:3.8 # version when installing python3 from apt (same as Dockerfile)
   services:
+    # Run required services to test Django
     - postgres:16
     - name: minio/minio:RELEASE.2023-10-25T06-33-25Z
       command: ['server', '/minio']
@@ -42,7 +50,7 @@ stages:          # List of stages for jobs, and their order of execution
     - export SIP_S3_FILES_BUCKET=community-solutions
     - export SIP_S3_FILES_USE_SSL=false
     - cd backend
-    - python3 manage.py test --parallel
+    - python3 manage.py test --parallel # parallel speeds up by approx 4x.
   variables:
     POSTGRES_DB: testdb
     POSTGRES_USER: testuser
@@ -56,8 +64,9 @@ stages:          # List of stages for jobs, and their order of execution
 "Frontend Compile Test":
   stage: test
   rules:
-    # No need to run on protected branches because the build is executed when
-    # building the Docker image anyway.
+    # No need to run on protected branches because the frontend build is
+    # executed when building the Docker image anyway. But in MRs, we won't
+    # build any Docker images so we should test the frontend.
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
       changes:
         - frontend/**/*
@@ -66,9 +75,11 @@ stages:          # List of stages for jobs, and their order of execution
     - cd frontend
   script:
     - yarn --ignore-engines --ignore-optional
-    # Ideally we want a quick build test so we don't want to waste time
-    # optimizing, but Create React App doesn't have a way to do that so we just
-    # build as production.
+    # Ideally we want a quick development build test so we don't want to waste
+    # time optimizing the build, but Create React App doesn't have a way to do
+    # that so we just build as normal (i.e. as production).
+    # CI=false is required to treat warnings and warnings. Otherwise it will
+    # exit on warnings, of which there are quite a few in this repository.
     - CI=false yarn run build
 
 
@@ -90,8 +101,58 @@ stages:          # List of stages for jobs, and their order of execution
       --snapshot-mode=redo
       --use-new-run
 
-# Deployment is not part of this CI because the Tardis Kubernetes (which is
-# where production is) needs interactive authentication to use, and we cannot
-# currently automate the rollout through say, SSH from the CI.
-# Admins will have to manually enter the production SSH instance and execute
-# the deployment command.
+"Deploy":
+  stage: deploy
+  rules:
+    # Run on commits to the protected branches. This uses project-level secrets.
+    # The job would also run if you fork the repository and commit to its
+    # protected branch, but that is OK because in that case the job will use the
+    # forked project's CI variables.
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
+  environment: production
+  before_script:
+    # Install curl so we can make requests to the Kubernetes API
+    - apt-get update && apt-get install -y curl
+  script:
+    # The service account token should have the permissions for deployment and
+    # replicaset get and patch.
+    #
+    # --fail-with-body is crucial
+    #    It shows response body on failure and sets exit code != 0, otherwise
+    #      shows nothing. If this flag isn't set, the Kubernetes API response
+    #      contains the whole deployment configuration, including potentially
+    #      confidential environment variables.
+    # --insecure is required
+    #    This is to access the k8s endpoint without a valid client-side
+    #      certificate as otherwise cURL will complain about self-signed
+    #      server-side certs.
+    # --location
+    #    Makes it follow redirects and isn't necessary but doesn't hurt to have
+    # --request PATCH and the --data-raw
+    #    The request modifies a harmless annotation on the deployment, which has
+    #      the same overall effect as restarting the deployment:
+    #      `kubectl rollout restart deployment`.
+    #    The restart causes the deployment to pull the latest image from the
+    #      GitLab registry and restart the pods. If the pods don't successfully
+    #      start up (due to a critical failure), the previous deployment stays.
+    - echo "Initiating Rollout on Production Kubernetes..."
+    - >
+      curl "${PRODUCTION_K8S_DEPLOYMENT_URL}?fieldManager=kubectl-rollout" \
+        --fail-with-body \
+        --header "Content-Type: application/strategic-merge-patch+json" \
+        --header "Authorization: Bearer $(echo "$PRODUCTION_K8S_SA_TOKEN" | base64 -d)" \
+        --insecure \
+        --location \
+        --request PATCH \
+        --data-raw "{
+            \"spec\": {
+                \"template\": {
+                    \"metadata\": {
+                        \"annotations\": {
+                            \"kubectl.kubernetes.io/restartedAt\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\"
+                        }
+                    }
+                }
+            }
+        }"
+      - echo "Rollout complete."
