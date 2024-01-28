@@ -52,8 +52,8 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
             />
             by volunteers at{" "}
             <Anchor
-              href="http://vis.ethz.ch/"
-              title="Verein der Informatik Studierenden an der ETH Zürich"
+              href="https://vis.ethz.ch/"
+              title="Verein der Informatikstudierenden an der ETH Zürich"
               color="blue"
             >
               VIS ETH Zurich
