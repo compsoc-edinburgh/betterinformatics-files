@@ -74,7 +74,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       </Flex>
       {sortedDocs &&
         sortedDocs.map(obj => (
-          <>
+          <React.Fragment key={obj.type}>
             {obj.type !== "Documents" && (
               <Title order={3} mt="xl" mb="lg">
                 {obj.type}
@@ -86,7 +86,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
                   <DocumentCard key={document.slug} document={document} />
                 ))}
             </Grid>
-          </>
+          </React.Fragment>
         ))}
       {sortedDocs && sortedDocs.length === 0 && (
         <Alert variant="light" color="orange">
