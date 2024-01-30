@@ -175,7 +175,7 @@ const DocumentPage: React.FC<Props> = () => {
                 <Components.Viewer
                   file={activeFile!}
                   document={data}
-                  url={`/api/document/file/${activeFile?.filename}`}
+                  url={`/api/document/${slug}/file/${activeFile?.filename}`}
                 />
               )}
               {editing && (
@@ -183,7 +183,7 @@ const DocumentPage: React.FC<Props> = () => {
                   <Components.Editor
                     file={activeFile!}
                     document={data}
-                    url={`/api/document/file/${activeFile?.filename}`}
+                    url={`/api/document/${slug}/file/${activeFile?.filename}`}
                   />
                 </Container>
               )}
@@ -192,7 +192,7 @@ const DocumentPage: React.FC<Props> = () => {
             <Components.Viewer
               file={activeFile!}
               document={data}
-              url={`/api/document/file/${activeFile?.filename}`}
+              url={`/api/document/${slug}/file/${activeFile?.filename}`}
             />
           )
         ) : (
@@ -204,7 +204,7 @@ const DocumentPage: React.FC<Props> = () => {
               <Button
                 leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
                 onClick={() =>
-                  download(`/api/document/file/${activeFile?.filename}`)
+                  download(`/api/document/${slug}/file/${activeFile?.filename}`)
                 }
               >
                 Download
