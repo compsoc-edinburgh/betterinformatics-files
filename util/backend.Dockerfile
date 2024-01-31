@@ -8,7 +8,6 @@ WORKDIR /app
 RUN mkdir intermediate_pdf_storage
 
 COPY ./backend/requirements.txt ./requirements.txt
-# RUN apt-get install -y --no-install-recommends pgbouncer
 RUN	pip install -r requirements.txt
 RUN	rm -rf /var/lib/apt/lists/*
 

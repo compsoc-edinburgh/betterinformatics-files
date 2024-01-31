@@ -67,13 +67,15 @@ yarn start
 
 ## Running the frontend with Docker
 
+**This should be a last resort method**.
 You will need to install [Docker](#install-docker).
-Then you can simply start the frontend with the following command which will handle
-all the setup automatically:
+
+Just like [starting the backend](#start-the-backend), you'll want to execute
+docker compose but with the `--profile frontend` flag:
 
 ```bash
-cd frontend
-sudo docker compose up --build  # or docker-compose depending on your installed version
+docker compose watch --no-up &\
+    docker compose --profile frontend up --build
 ```
 
 ## Editing frontend code
@@ -107,8 +109,11 @@ docker compose watch --no-up &\
 
 The `--build` is important so that the images are rebuilt in case of changes.
 
-The first line (the `watch`) is optional, but it enables hot-reloading for the backend
-so you don't have to restart the build process on every change.
+> Note: The `watch` command allows for hot-reloading. If you have an older version of
+> docker you might have to execute `docker-compose` with a hyphen (if that is the case,
+> please update docker) and/or leave out the watch line completely.
+> You might also have to execute docker using `sudo`
+> permissions if your docker isn't installed rootless.
 
 ### Post-Setup for backend (needed for documents to work)
 

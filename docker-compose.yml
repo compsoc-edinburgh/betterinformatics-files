@@ -37,7 +37,7 @@ services:
       - "5432:5432"
   community-solutions:
     build:
-      dockerfile: ./util/local.backend.Dockerfile
+      dockerfile: ./util/backend.Dockerfile
       context: .
       args:
         git_branch: <docker>
@@ -93,7 +93,24 @@ services:
       - postgres
       - minio
 
-# required so that the frontend docker can access the backend
-networks:
-  default:
-    name: community-solutions
+  react-frontend:
+    profiles: [frontend] # only executed if the '--profile frontend' flag is given
+    build:
+      dockerfile: ./util/frontend.Dockerfile
+      context: .
+      args:
+        git_branch: <docker>
+        git_commit: <compose>
+    develop:
+      watch:
+        - action: sync
+          path: frontend/src
+          target: /app/src
+        - action: rebuild
+          path: frontend/package.json
+    ports:
+      - "3000:3000"
+    extra_hosts:
+      - "minio:127.0.0.1"
+    environment:
+      - BACKEND_HOST=community-solutions:8081
