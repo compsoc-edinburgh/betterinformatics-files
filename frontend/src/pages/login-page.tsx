@@ -26,8 +26,9 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
               </Text>
               <Text size="1rem" weight={500}>
                 BetterInformatics File Collection is a platform for students to
-                share answers for previous exams, leave comments on answers, and
-                upload other relevant documents.
+                share notes, summaries, tips and recommendations for courses, as
+                well as a study platform to collaborate on answers to previous
+                exams.
               </Text>
             </Flex>
           </Grid.Col>
