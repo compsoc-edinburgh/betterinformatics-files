@@ -60,18 +60,15 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     setDocumentTypeOptions(documentTypes ?? []);
   }, [documentTypes]);
 
-  const [loading, updateDocument] = useUpdateDocument(
-    data.slug,
-    result => {
-      mutate(s => ({ ...s, ...result }));
-      setDisplayName(undefined);
-      setCategory(undefined);
-      setDocumentType(undefined);
-      if (result.slug !== data.slug) {
-        history.replace(`/document/${result.slug}`);
-      }
-    },
-  );
+  const [loading, updateDocument] = useUpdateDocument(data.slug, result => {
+    mutate(s => ({ ...s, ...result }));
+    setDisplayName(undefined);
+    setCategory(undefined);
+    setDocumentType(undefined);
+    if (result.slug !== data.slug) {
+      history.replace(`/document/${result.slug}`);
+    }
+  });
   const [regenerateLoading, regenerate] = useRegenerateDocumentAPIKey(
     data.slug,
     result => mutate(s => ({ ...s, ...result })),

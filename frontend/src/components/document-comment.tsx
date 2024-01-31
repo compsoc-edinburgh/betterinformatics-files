@@ -30,11 +30,7 @@ interface Props {
   comment: DocumentComment;
   mutate: Mutate<Document>;
 }
-const DocumentCommentComponent = ({
-  documentSlug,
-  comment,
-  mutate,
-}: Props) => {
+const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
   const { isAdmin } = useUser()!;
   const [editLoading, updateComment] = useUpdateDocumentComment(
     documentSlug,
