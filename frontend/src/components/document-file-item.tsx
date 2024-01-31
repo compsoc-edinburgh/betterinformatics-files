@@ -110,9 +110,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           <p>
             The token is valid for an endpoint that can be found at{" "}
             <code>
-              {
-                "POST /api/document/<str:document_slug>/files/<int:id>/update/"
-              }
+              {"POST /api/document/<str:document_slug>/files/<int:id>/update/"}
             </code>
             . The token has to be supplied as an Authorization header, a
             replacement file can be sent as multipart-form upload with the key

@@ -445,10 +445,8 @@ export const deleteDocument = async (documentSlug: string) => {
   await fetchDelete(`/api/document/${documentSlug}/`);
 };
 
-export const useDeleteDocument = (
-  documentSlug: string,
-  cb: () => void,
-) => useMutation(() => deleteDocument(documentSlug), cb);
+export const useDeleteDocument = (documentSlug: string, cb: () => void) =>
+  useMutation(() => deleteDocument(documentSlug), cb);
 
 export interface DocumentUpdate {
   display_name?: string;
@@ -469,10 +467,7 @@ export const useUpdateDocument = (
   documentSlug: string,
   cb: (document: Document) => void,
 ) =>
-  useMutation(
-    (data: DocumentUpdate) => updateDocument(documentSlug, data),
-    cb,
-  );
+  useMutation((data: DocumentUpdate) => updateDocument(documentSlug, data), cb);
 
 export const createDocumentComment = async (
   documentSlug: string,
@@ -497,9 +492,7 @@ export const deleteDocumentComment = async (
   documentSlug: string,
   commentId: number,
 ) => {
-  await fetchDelete(
-    `/api/document/${documentSlug}/comments/${commentId}/`,
-  );
+  await fetchDelete(`/api/document/${documentSlug}/comments/${commentId}/`);
 };
 
 export const useDeleteDocumentComment = (
@@ -507,10 +500,7 @@ export const useDeleteDocumentComment = (
   commentId: number,
   onSuccess?: () => void,
 ) =>
-  useMutation(
-    () => deleteDocumentComment(documentSlug, commentId),
-    onSuccess,
-  );
+  useMutation(() => deleteDocumentComment(documentSlug, commentId), onSuccess);
 
 export const updateDocumentComment = async (
   documentSlug: string,
@@ -518,10 +508,9 @@ export const updateDocumentComment = async (
   text: string,
 ) => {
   return (
-    await fetchPut(
-      `/api/document/${documentSlug}/comments/${commentId}/`,
-      { text },
-    )
+    await fetchPut(`/api/document/${documentSlug}/comments/${commentId}/`, {
+      text,
+    })
   ).value as DocumentComment;
 };
 
@@ -531,8 +520,7 @@ export const useUpdateDocumentComment = (
   onSuccess?: (res: DocumentComment) => void,
 ) =>
   useMutation(
-    (text: string) =>
-      updateDocumentComment(documentSlug, commentId, text),
+    (text: string) => updateDocumentComment(documentSlug, commentId, text),
     onSuccess,
   );
 
@@ -568,11 +556,7 @@ export const useDeleteDocumentFile = (
   documentSlug: string,
   fileId: number,
   onSuccess?: () => void,
-) =>
-  useMutation(
-    () => deleteDocumentFile(documentSlug, fileId),
-    onSuccess,
-  );
+) => useMutation(() => deleteDocumentFile(documentSlug, fileId), onSuccess);
 
 interface DocumentFileUpdate {
   display_name?: string;
@@ -584,10 +568,7 @@ export const updateDocumentFile = async (
   update: DocumentFileUpdate,
 ) => {
   return (
-    await fetchPut(
-      `/api/document/${documentSlug}/files/${fileId}/`,
-      update,
-    )
+    await fetchPut(`/api/document/${documentSlug}/files/${fileId}/`, update)
   ).value as DocumentFile;
 };
 
@@ -602,19 +583,13 @@ export const useUpdateDocumentFile = (
     onSuccess,
   );
 
-export const regenerateDocumentAPIKey = async (
-  documentSlug: string,
-) => {
+export const regenerateDocumentAPIKey = async (documentSlug: string) => {
   return (
-    await fetchPost(
-      `/api/document/${documentSlug}/regenerate_api_key/`,
-      {},
-    )
+    await fetchPost(`/api/document/${documentSlug}/regenerate_api_key/`, {})
   ).value as Document;
 };
 
 export const useRegenerateDocumentAPIKey = (
   documentSlug: string,
   onSuccess?: (res: Document) => void,
-) =>
-  useMutation(() => regenerateDocumentAPIKey(documentSlug), onSuccess);
+) => useMutation(() => regenerateDocumentAPIKey(documentSlug), onSuccess);

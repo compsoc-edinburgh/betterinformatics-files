@@ -1,4 +1,11 @@
-import { Card, Text, Progress, Anchor, LoadingOverlay, Stack } from "@mantine/core";
+import {
+  Card,
+  Text,
+  Progress,
+  Anchor,
+  LoadingOverlay,
+  Stack,
+} from "@mantine/core";
 import React, { useMemo } from "react";
 import { cx } from "@emotion/css";
 import { Link, useHistory } from "react-router-dom";
@@ -54,9 +61,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         // Show a padlock when not logged in, to draw attention to the login form.
         <LoadingOverlay
           visible={true}
-          loader={(
-            <Icon icon={ICONS.LOCK} size="1.5rem" aria-label="Locked" />
-          )}
+          loader={<Icon icon={ICONS.LOCK} size="1.5rem" aria-label="Locked" />}
         />
       )}
       <Stack h="100%" justify="space-between">

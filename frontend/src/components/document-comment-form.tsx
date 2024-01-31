@@ -12,10 +12,7 @@ interface Props {
   documentSlug: string;
   mutate: Mutate<Document>;
 }
-const DocumentCommentForm: React.FC<Props> = ({
-  documentSlug,
-  mutate,
-}) => {
+const DocumentCommentForm: React.FC<Props> = ({ documentSlug, mutate }) => {
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({
     prev: [],

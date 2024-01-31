@@ -117,9 +117,14 @@ const DocumentPage: React.FC<Props> = () => {
         )}
         <div>
           Author:{" "}
-          {data && !data.anonymised && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
+          {data && !data.anonymised && (
+            <Link to={`/user/${data.author}`}>@{data.author}</Link>
+          )}
           {data && data.anonymised && "Anonymous"}
-          {data && data.anonymised && (data.can_edit || data.can_delete) && ` (${data.author})`}
+          {data &&
+            data.anonymised &&
+            (data.can_edit || data.can_delete) &&
+            ` (${data.author})`}
         </div>
         {error && <Alert color="red">{error.toString()}</Alert>}
         {data && data.description && (
@@ -227,10 +232,7 @@ const DocumentPage: React.FC<Props> = () => {
               />
             ))}
             <Card shadow="md" withBorder>
-              <DocumentCommentForm
-                documentSlug={slug}
-                mutate={mutate}
-              />
+              <DocumentCommentForm documentSlug={slug} mutate={mutate} />
             </Card>
           </Container>
         </ContentContainer>
