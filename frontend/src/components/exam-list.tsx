@@ -99,7 +99,6 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         <TextInput
           placeholder="Filter..."
           value={filter}
-          autoFocus
           onChange={e => setFilter(e.currentTarget.value)}
           icon={<Icon icon={ICONS.SEARCH} size={14} />}
         />
