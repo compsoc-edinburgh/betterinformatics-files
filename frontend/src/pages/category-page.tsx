@@ -63,12 +63,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     error: md_error,
   } = useRequest(
     () =>
-      metaData
-        ? fetch(metaData.more_markdown_link)
-            .then(r => r.text())
-            .then(m => removeMarkdownFrontmatter(m))
-        : Promise.resolve(),
-    { refreshDeps: [metaData] },
+      fetch(metaData.more_markdown_link)
+        .then(r => r.text())
+        .then(m => removeMarkdownFrontmatter(m)),
+    { refreshDeps: [metaData], cacheKey: `category-md-${metaData.slug}` },
   );
   const { editable: md_editable, link: md_edit_link } = useEditableMarkdownLink(
     metaData.more_markdown_link,
