@@ -10,7 +10,6 @@ import {
   Grid,
   List,
   Button,
-  Box,
   Skeleton,
   Text,
   Title,
@@ -25,9 +24,7 @@ import {
   useBICourseList,
 } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
-import CategoryMetaDataEditor, {
-  semesterOptions,
-} from "../components/category-metadata-editor";
+import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
@@ -40,7 +37,6 @@ import {
   removeMarkdownFrontmatter,
   useEditableMarkdownLink,
 } from "../utils/category-utils";
-import { Loader } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 
 interface CategoryPageContentProps {
@@ -51,7 +47,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   onMetaDataChange,
   metaData,
 }) => {
-  const { data, loading, run } = useRequest(loadMetaCategories, {
+  const {
+    data,
+    loading: _,
+    run,
+  } = useRequest(loadMetaCategories, {
     cacheKey: "meta-categories",
   });
 
@@ -66,7 +66,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       fetch(metaData.more_markdown_link)
         .then(r => r.text())
         .then(m => removeMarkdownFrontmatter(m)),
-    { refreshDeps: [metaData], cacheKey: `category-md-${metaData.slug}` },
+    {
+      // cache and set a liberal throttle (ms) to avoid frequently fetching
+      // something that doesn't change too often
+      refreshDeps: [metaData],
+      cacheKey: `category-md-${metaData.slug}`,
+      throttleInterval: 1800000,
+    },
   );
   const { editable: md_editable, link: md_edit_link } = useEditableMarkdownLink(
     metaData.more_markdown_link,
@@ -199,18 +205,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                     >
                       {code}
                     </Badge>{" "}
-                    {!bi_courses_loading &&
-                      bi_data &&
+                    {bi_data &&
                       `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`}
-                    {!bi_courses_loading &&
-                      shadow_data &&
+                    {shadow_data &&
                       `${shadow_data.name} (Shadow of ${shadow_data.euclid_code})`}
                     {!bi_courses_loading &&
                       !bi_data &&
                       !shadow_data &&
                       "Not Running"}
                     {bi_courses_error && bi_courses_error.message}
-                    {bi_courses_loading && (
+                    {bi_courses_loading && !bi_data && !shadow_data && (
                       <Skeleton height="1rem" width="8rem" />
                     )}
                   </Group>
@@ -254,7 +258,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   </Button>
                 )}
               </Group>
-              {md_loading && <Skeleton height="2rem" />}
+              {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
               {md_error && (
                 <Alert color="red">
                   Failed to render additional info: {md_error.message}
