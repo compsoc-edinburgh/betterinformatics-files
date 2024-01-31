@@ -193,7 +193,6 @@ def AuthenticationMiddleware(get_response):
             raise PermissionDenied("no username set")
         except PermissionDenied as err:
             logger.warning("permission denied: %s", err)
-            raise err
         except Exception:
             pass
 
