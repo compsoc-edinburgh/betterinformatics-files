@@ -99,7 +99,7 @@ def get_answersection_response(request, section):
         get_answer_response(request, answer)
         for answer in sorted(
             prepared_query,
-            key=lambda x: (-x.expert_count, x.downvotes_count - x.upvotes_count, x.time)
+            key=lambda x: (-x.expert_count, -x.delta_votes, x.time)
         )
     ]
     return {

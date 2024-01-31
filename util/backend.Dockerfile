@@ -14,4 +14,5 @@ RUN	rm -rf /var/lib/apt/lists/*
 COPY backend /app
 
 ENV IS_DEBUG true
-CMD python manage.py runserver 0:8081
+CMD python manage.py migrate \
+    && python manage.py runserver 0:8081
