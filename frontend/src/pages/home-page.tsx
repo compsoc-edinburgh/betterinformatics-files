@@ -147,8 +147,8 @@ const HomePage: React.FC<{}> = () => {
         <Title mb="sm">File Collection</Title>
         <Text size="1rem" weight={500}>
           BetterInformatics File Collection is a platform for students to share
-          answers for previous exams, leave comments on answers, and upload
-          other relevant documents.
+          notes, summaries, tips and recommendations for courses, as well as a
+          study platform to collaborate on answers to previous exams.
         </Text>
       </Container>
       <CategoryList />
