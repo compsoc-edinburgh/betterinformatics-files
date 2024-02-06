@@ -131,7 +131,6 @@ def list_exams(request, slug):
             'has_solution': ex.has_solution,
             'is_printonly': ex.is_printonly,
             'finished_cuts': ex.finished_cuts,
-            'finished_wiki_transfer': ex.finished_wiki_transfer,
             'canView': ex.current_user_can_view(request),
             'count_cuts': ex.counts.count_cuts,
             'count_answered': ex.counts.count_answered,

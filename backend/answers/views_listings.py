@@ -31,7 +31,7 @@ def list_exams(request):
 @response.request_get()
 @auth_check.require_login
 def list_import_exams(request):
-    condition = Q(finished_cuts=False) | Q(finished_wiki_transfer=False)
+    condition = Q(finished_cuts=False)
     if request.GET.get("includehidden", "false") != "false":
         condition = condition | Q(public=False)
 
@@ -57,7 +57,6 @@ def list_import_exams(request):
             "import_claim_time": exam.import_claim_time,
             "public": exam.public,
             "finished_cuts": exam.finished_cuts,
-            "finished_wiki_transfer": exam.finished_wiki_transfer,
         }
         for exam in filter_exams(
             Exam.objects.filter(condition)

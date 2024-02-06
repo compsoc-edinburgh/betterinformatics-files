@@ -150,7 +150,7 @@ const Scoreboard: React.FC<{}> = () => {
                 onSort={() => setMode("score_legacy")}
                 sorted={mode === "score_legacy"}
               >
-                Import Wiki
+                Legacy Answers
               </Th>
             </tr>
           </thead>

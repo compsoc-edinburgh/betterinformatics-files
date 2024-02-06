@@ -103,7 +103,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
             userInfo.score_legacy > 0 &&
             scoreCard(
               userInfo,
-              "Wiki Import",
+              "Legacy Answers",
               "score_legacy",
               ICONS.FILE_MISSING_PLUS,
             )}

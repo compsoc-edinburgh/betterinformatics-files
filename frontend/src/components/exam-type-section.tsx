@@ -148,15 +148,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     )}
                     {catAdmin &&
                       (exam.finished_cuts ? (
-                        exam.finished_wiki_transfer ? (
                           <Badge className={badgeStyle} color="green">
                             All done
                           </Badge>
-                        ) : (
-                          <Badge className={badgeStyle} color="blue">
-                            Needs Wiki Import
-                          </Badge>
-                        )
                       ) : (
                         <Badge className={badgeStyle} color="orange">
                           Needs Cuts

@@ -29,7 +29,6 @@ const stringKeys = [
   "displayname",
   "category",
   "examtype",
-  "legacy_solution",
   "master_solution",
   "resolve_alias",
   "remark",
@@ -37,7 +36,6 @@ const stringKeys = [
 const booleanKeys = [
   "public",
   "finished_cuts",
-  "finished_wiki_transfer",
   "needs_payment",
   "solution_printonly",
 ] as const;
@@ -286,22 +284,8 @@ const ExamMetadataEditor: React.FC<Props> = ({
             {...registerCheckbox("finished_cuts")}
           />
         </Grid.Col>
-        <Grid.Col md={6}>
-          <Checkbox
-            label="Finished Wiki Transfer"
-            name="check"
-            {...registerCheckbox("finished_wiki_transfer")}
-          />
-        </Grid.Col>
       </Grid>
       <Grid>
-        <Grid.Col md={6}>
-          <TextInput
-            type="url"
-            {...registerInput("legacy_solution")}
-            label="Legacy Solution"
-          />
-        </Grid.Col>
         <Grid.Col md={6}>
           <TextInput
             type="url"

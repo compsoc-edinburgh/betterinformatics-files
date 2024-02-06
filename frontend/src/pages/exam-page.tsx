@@ -283,21 +283,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               />
             </Grid.Col>
           )}
-          {metaData.legacy_solution && (
-            <Grid.Col md={4} lg={3}>
-              <Button
-                fullWidth
-                component="a"
-                variant="light"
-                href={metaData.legacy_solution}
-                target="_blank"
-                rel="noopener noreferrer"
-                leftIcon={<Icon icon={ICONS.LINK} />}
-              >
-                Legacy Solution in VISki
-              </Button>
-            </Grid.Col>
-          )}
           {metaData.master_solution && (
             <Grid.Col md={4} lg={3}>
               <Button

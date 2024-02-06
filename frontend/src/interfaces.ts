@@ -120,7 +120,6 @@ export interface CategoryExam {
   has_solution: boolean; // whether there is an official solution
   is_printonly: boolean; // whether this exam can only be printed
   finished_cuts: boolean; // whether all cuts were added
-  finished_wiki_transfer: boolean; // whether all old solutions were added
   canView: boolean; // whether the exam can be viewed by the user
   count_cuts: number; // number of cuts in exam
   count_answered: number; // number of cuts with answers in exam
@@ -196,13 +195,11 @@ export interface ExamMetaData {
   category: string;
   category_displayname: string;
   examtype: string;
-  legacy_solution: string;
   master_solution: string;
   resolve_alias: string;
   remark: string;
   public: boolean;
   finished_cuts: boolean;
-  finished_wiki_transfer: boolean;
   needs_payment: boolean;
   is_printonly: boolean;
   has_solution: boolean;
