@@ -51,7 +51,7 @@ interface Props {
   answer?: Answer;
   onSectionChanged?: (newSection: AnswerSection) => void;
   onDelete?: () => void;
-  hasId?: boolean;
+  hasId?: boolean; // whether the answer is displayed inside an exam page
 }
 const AnswerComponent: React.FC<Props> = ({
   section,
