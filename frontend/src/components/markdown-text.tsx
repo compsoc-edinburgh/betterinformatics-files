@@ -64,17 +64,15 @@ const transformImageUri = (uri: string) => {
 const createComponents = (
   regex: RegExp | undefined,
 ): Components => ({
-  table: (props) => {
-    const {children, ...rest} = props;
+  table: ({ children }) => {
     return <Table>{children}</Table>;
   },
-  p: (props) => {
-    const { children } = props;
+  p: ({ children }) => {
+    if (regex === undefined) return <span>{children}</span>;
+    const arr = [];
     const value = String(children)
-    if (regex === undefined) return <span>{value}</span>;
-    const arr: React.ReactChild[] = [];
     const m = regex.test(value);
-    if (!m) return <span>{value}</span>;
+    if (!m) return <span>{children}</span>;
     let i = 0;
     while (i < value.length) {
       const rest = value.substring(i);
