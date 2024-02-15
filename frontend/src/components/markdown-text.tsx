@@ -11,7 +11,8 @@ import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
 import CodeBlock from "./code-block";
-import { createStyles, Table } from "@mantine/core";
+import { Alert, createStyles, Table } from "@mantine/core";
+import ErrorBoundary from "./error-boundary";
 
 const useStyles = createStyles(theme => ({
   blockquoteStyle: {
@@ -113,6 +114,10 @@ interface Props {
    */
   regex?: RegExp;
 }
+
+// Example that triggers the error: $\begin{\pmatrix}$
+const errorMessage = <Alert color="red" title="Rendering error">An error ocurred when rendering this content. This is likely caused by invalid LaTeX syntax.</Alert>;
+
 const MarkdownText: React.FC<Props> = ({ value, regex }) => {
   const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
   const renderers = useMemo(() => createComponents(regex), [regex]);
@@ -122,13 +127,15 @@ const MarkdownText: React.FC<Props> = ({ value, regex }) => {
   }
   return (
     <div className={cx(wrapperStyle, classes.blockquoteStyle)}>
-      <ReactMarkdown
-        children={value}
-        urlTransform={transformImageUri}
-        remarkPlugins={[remarkMath, remarkGfm]}
-        rehypePlugins={[[rehypeKatex, {macros: macros}]]}
-        components={renderers}
-      />
+      <ErrorBoundary fallback={errorMessage}>
+        <ReactMarkdown
+          children={value}
+          urlTransform={transformImageUri}
+          remarkPlugins={[remarkMath, remarkGfm]}
+          rehypePlugins={[[rehypeKatex, {macros: macros}]]}
+          components={renderers}
+        />
+      </ErrorBoundary>
     </div>
   );
 };
