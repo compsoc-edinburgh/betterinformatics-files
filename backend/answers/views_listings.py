@@ -1,15 +1,7 @@
-from django.contrib.postgres.search import (
-    SearchQuery,
-    SearchRank,
-    SearchVector,
-    TrigramSimilarity,
-)
-from django.db.models import Q, F, Count
-
+from django.db.models import Q
 from answers import section_util
-from answers.models import Answer, Comment, Exam, ExamPage, ExamType
+from answers.models import Answer, Comment, Exam, ExamType
 from myauth import auth_check
-from myauth.auth_check import has_admin_rights
 from myauth.models import get_my_user
 from util import response
 
@@ -106,13 +98,9 @@ def get_by_user(request, username, page=-1):
             author__username=username,
             is_legacy_answer=False) \
         .select_related(*section_util.get_answer_fields_to_preselect()) \
-        .prefetch_related(*section_util.get_answer_fields_to_prefetch()) \
-        .annotate(
-            expert_count=Count("expertvotes"),
-            downvotes_count=Count("downvotes"),
-            upvotes_count=Count("upvotes"),
-            delta_votes=F("downvotes_count")-F("upvotes_count")) \
-        .order_by("-expert_count", "delta_votes", "time")
+
+    sorted_answers = section_util.prepare_answer_objects(sorted_answers, request) \
+        .order_by("-expert_count", "-delta_votes", "time")
 
     if page >= 0:
         PAGE_SIZE = 20
@@ -123,6 +111,7 @@ def get_by_user(request, username, page=-1):
             request, answer, ignore_exam_admin=True)
         for answer in sorted_answers
     ]
+
     return response.success(value=res)
 
 

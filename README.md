@@ -7,6 +7,7 @@ This guide is based on Ubuntu 20.04 LTS, but should work on anything similar.
 ---
 
 # Installation
+
 ## Frontend
 
 There are 2 ways to start the frontend:
@@ -26,6 +27,7 @@ the version manager n simply do:
 ```bash
 curl -L https://git.io/n-install | bash
 ```
+
 n should install npm as well.
 It is recommended to use **Node.js 16**, since the Dockerfile also uses v16. Newer versions of Node.js have been reported to not work correctly.
 
@@ -65,13 +67,15 @@ yarn start
 
 ## Running the frontend with Docker
 
+**This should be a last resort method**.
 You will need to install [Docker](#install-docker).
-Then you can simply start the frontend with the following command which will handle
-all the setup automatically:
+
+Just like [starting the backend](#start-the-backend), you'll want to execute
+docker compose but with the `--profile frontend` flag:
 
 ```bash
-cd frontend
-sudo docker compose up --build  # or docker-compose depending on your installed version
+docker compose watch --no-up &\
+    docker compose --profile frontend up --build
 ```
 
 ## Editing frontend code
@@ -96,13 +100,20 @@ Backend is built with Django. It can be run using Docker.
 
 ### Start the backend
 
-The backend can be started with the command:
+The backend can be started with the following command:
 
 ```bash
-sudo docker compose up --build  # or docker-compose depending on your installed version
+docker compose watch --no-up &\
+    docker compose up --build
 ```
 
 The `--build` is important so that the images are rebuilt in case of changes.
+
+> Note: The `watch` command allows for hot-reloading. If you have an older version of
+> docker you might have to execute `docker-compose` with a hyphen (if that is the case,
+> please update docker) and/or leave out the watch line completely.
+> You might also have to execute docker using `sudo`
+> permissions if your docker isn't installed rootless.
 
 ### Post-Setup for backend (needed for documents to work)
 
@@ -175,11 +186,12 @@ make sure you're on the latest commit of the branch with `git pull`.
   caused by minio not being in your hosts file. Your browser gets an url with minio
   as the host, but if minio is not in your hosts file, it won't be redirected correctly.
 
-
 # The important bits
+
 The pipeline is managed by [Preview Deployment Manager](https://gitlab.ethz.ch/vseth/0403-isg/sip-sip-apps/pdep). It uses Webhooks to build and deploy upon merge requests. PDep interacts with TeamCity, and schedules the actual jobs on there. As CIT / CAT member you should be able to see the TeamCity project and see pipeline status & logs as well as re-run it. It sometimes happens that the pipeline fails because of Out-Of-Memory issues, you can usually just restart it and run again if that is the case.
 
 # License
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -187,8 +199,8 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>
+along with this program. If not, see <https://www.gnu.org/licenses/>

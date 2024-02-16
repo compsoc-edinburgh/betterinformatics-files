@@ -52,7 +52,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
     // called if the last answer is seen, resulting in a new set of answers being loaded
     const handleObserver = (
       entities: IntersectionObserverEntry[],
-      observer: IntersectionObserver,
+      _: IntersectionObserver,
     ) => {
       const first = entities[0];
       if (first.isIntersecting) {
