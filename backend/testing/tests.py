@@ -15,7 +15,7 @@ from categories.models import Category
 def get_token(user):
     jwt_claims = {
         "uun": user["username"],
-        "email": user["username"] + "@ed.ac.uk",
+        "email": user["username"] + "@sms.ed.ac.uk",
         "exp": datetime.datetime.now(datetime.timezone.utc)
         + datetime.timedelta(weeks=4),
         "admin": user["admin"],

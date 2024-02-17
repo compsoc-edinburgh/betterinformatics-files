@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
+
 import os
 import sys
 
@@ -77,7 +78,7 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
-COMSOL_AUTH_ACCEPTED_DOMAINS = ("ed.ac.uk", "sms.ed.ac.uk", "exceed.ed.ac.uk")
+COMSOL_AUTH_ACCEPTED_DOMAINS = "sms.ed.ac.uk"
 COMSOL_AUTH_ADMIN_UUNS = os.environ.get("ADMIN_UUNS", "").split(",")
 
 COMSOL_AUTH_BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
