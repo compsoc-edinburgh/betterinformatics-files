@@ -1,47 +1,93 @@
 from ediauth import auth_check
-from answers.models import Comment
+from answers.models import Comment, Answer
+from django.db.models import Count, F, Exists, OuterRef, Manager, Prefetch
 
 
-def get_answer_response(request, answer, ignore_exam_admin=False):
+def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]:
+    # Important optimization. Prevents amount of queries from
+    # increasing quadratically ((N+1 problem)^2) and instead
+    # results in a constant amount of queries.
+    comments_query = Comment.objects.select_related("author").order_by("time", "id")
+    return (
+        objects.annotate(
+            expert_count=Count("expertvotes"),
+            downvotes_count=Count("downvotes"),
+            upvotes_count=Count("upvotes"),
+            flagged_count=Count("flagged"),
+            is_upvoted=Exists(
+                Answer.objects.filter(id=OuterRef("id"), upvotes=request.user)
+            ),
+            is_downvoted=Exists(
+                Answer.objects.filter(id=OuterRef("id"), downvotes=request.user)
+            ),
+            is_expertvoted=Exists(
+                Answer.objects.filter(id=OuterRef("id"), expertvotes=request.user)
+            ),
+            is_flagged=Exists(
+                Answer.objects.filter(id=OuterRef("id"), flagged=request.user)
+            ),
+            delta_votes=F("upvotes_count") - F("downvotes_count"),
+        )
+        .prefetch_related(
+            Prefetch(
+                "comments",
+                queryset=comments_query,
+                to_attr="all_comments",
+            )
+        )
+        .select_related("author")
+    )
+
+
+def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
+    """
+    Call `prepare_answer_objects` on the answer objects beforehand to annotate
+    them with the required aggregations. This function will fail otherwise.
+    """
     if ignore_exam_admin:
         exam_admin = False
     else:
         exam_admin = auth_check.has_admin_rights_for_exam(
             request, answer.answer_section.exam
         )
-    comments = [
-        {
-            "oid": comment.id,
-            "longId": comment.long_id,
-            "text": comment.text,
-            "authorId": comment.author.username,
-            "authorDisplayName": comment.author.profile.display_username,
-            "canEdit": comment.author == request.user,
-            "time": comment.time,
-            "edittime": comment.edittime,
+    try:
+        comments = [
+            {
+                "oid": comment.id,
+                "longId": comment.long_id,
+                "text": comment.text,
+                "authorId": comment.author.username,
+                "authorDisplayName": comment.author.profile.display_username,
+                "canEdit": comment.author == request.user,
+                "time": comment.time,
+                "edittime": comment.edittime,
+            }
+            for comment in answer.all_comments
+        ]
+        return {
+            "oid": answer.id,
+            "longId": answer.long_id,
+            "upvotes": answer.delta_votes,
+            "expertvotes": answer.expert_count,
+            "authorId": answer.author.username,
+            "authorDisplayName": answer.author.profile.display_username,
+            "canEdit": answer.author == request.user,
+            "isUpvoted": answer.is_upvoted,
+            "isDownvoted": answer.is_downvoted,
+            "isExpertVoted": answer.is_expertvoted,
+            "isFlagged": answer.is_flagged,
+            "flagged": answer.flagged_count,
+            "comments": comments,
+            "text": answer.text,
+            "time": answer.time,
+            "edittime": answer.edittime,
+            "filename": answer.answer_section.exam.filename,
+            "sectionId": answer.answer_section.id,
         }
-        for comment in answer.comments.order_by("time", "id").all()
-    ]
-    return {
-        "oid": answer.id,
-        "longId": answer.long_id,
-        "upvotes": answer.upvotes.count() - answer.downvotes.count(),
-        "expertvotes": answer.expertvotes.count(),
-        "authorId": answer.author.username,
-        "authorDisplayName": answer.author.profile.display_username,
-        "canEdit": answer.author == request.user,
-        "isUpvoted": request.user in answer.upvotes.all(),
-        "isDownvoted": request.user in answer.downvotes.all(),
-        "isExpertVoted": request.user in answer.expertvotes.all(),
-        "isFlagged": request.user in answer.flagged.all(),
-        "flagged": answer.flagged.count(),
-        "comments": comments,
-        "text": answer.text,
-        "time": answer.time,
-        "edittime": answer.edittime,
-        "filename": answer.answer_section.exam.filename,
-        "sectionId": answer.answer_section.id,
-    }
+    except AttributeError:
+        raise ValueError(
+            "The given answer has not been prepared with 'prepare_answer_objects'"
+        )
 
 
 def get_comment_response(request, comment: Comment):
@@ -62,21 +108,18 @@ def get_comment_response(request, comment: Comment):
 
 
 def get_answersection_response(request, section):
+    prepared_query = prepare_answer_objects(section.answer_set, request)
+
     answers = [
         get_answer_response(request, answer)
         for answer in sorted(
-            section.answer_set.all(),
-            key=lambda x: (
-                -x.expertvotes.count(),
-                x.downvotes.count() - x.upvotes.count(),
-                x.time,
-            ),
+            prepared_query, key=lambda x: (-x.expert_count, -x.delta_votes, x.time)
         )
     ]
     return {
         "oid": section.id,
         "answers": answers,
-        "allow_new_answer": not section.answer_set.filter(author=request.user).exists(),
+        "allow_new_answer": not prepared_query.filter(author=request.user).exists(),
         "cutVersion": section.cut_version,
         "has_answers": section.has_answers,
     }

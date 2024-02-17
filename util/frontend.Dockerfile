@@ -2,11 +2,11 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package.json .
-COPY yarn.lock .
+COPY frontend/package.json .
+COPY frontend/yarn.lock .
 RUN yarn install --ignore-optional
 
-COPY . .
+COPY frontend /app
 
 EXPOSE 3000
 

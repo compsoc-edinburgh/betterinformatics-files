@@ -125,9 +125,11 @@ def list_exams(request, slug):
                 "examtype": ex.exam_type.displayname if ex.exam_type else "",
                 "remark": ex.remark,
                 "import_claim": ex.import_claim.username if ex.import_claim else None,
-                "import_claim_displayname": ex.import_claim.profile.display_username
-                if ex.import_claim
-                else None,
+                "import_claim_displayname": (
+                    ex.import_claim.profile.display_username
+                    if ex.import_claim
+                    else None
+                ),
                 "import_claim_time": ex.import_claim_time,
                 "public": ex.public,
                 "has_solution": ex.has_solution,
