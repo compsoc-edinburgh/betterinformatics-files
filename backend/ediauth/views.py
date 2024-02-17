@@ -54,7 +54,7 @@ auth_token_validity = datetime.timedelta(weeks=4)
 def login(request: HttpRequest):
     uun = request.POST.get("uun", "").lower().strip()
     try:
-        email_info = validate_email(uun + "@ed.ac.uk", check_deliverability=True)
+        email_info = validate_email(uun + "@sms.ed.ac.uk", check_deliverability=True)
         email = email_info.normalized
     except EmailNotValidError as e:
         return response.not_possible(str(e))
@@ -134,7 +134,7 @@ def verify(request: HttpRequest):
     # with the server's private key to prevent tampering.
     jwt_claims = {
         "uun": uun,
-        "email": uun + "@ed.ac.uk",
+        "email": uun + "@sms.ed.ac.uk",
         "exp": datetime.datetime.now(datetime.timezone.utc) + auth_token_validity,
         "admin": uun in settings.COMSOL_AUTH_ADMIN_UUNS,
     }

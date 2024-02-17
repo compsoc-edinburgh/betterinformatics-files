@@ -174,7 +174,7 @@ const LoginOverlay: React.FC<{}> = () => {
           <form onSubmit={handleSubmitCode}>
             <Text>
               A 6-digit verification code has been sent to your email: <br />
-              {uun}@ed.ac.uk (
+              {uun}@sms.ed.ac.uk (
               <span
                 onClick={changeUUN}
                 style={{ cursor: "pointer" }}
