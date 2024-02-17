@@ -124,7 +124,11 @@ const ModQueue: React.FC = () => {
                     </div>
                     <p>{exam.remark}</p>
                   </td>
-                  <td>{exam.finished_cuts ? "All done" : "Needs Cuts"}</td>
+                  <td>
+                    {exam.finished_cuts
+                      ? "All done"
+                      : "Needs Cuts"}
+                  </td>
                   <td>
                     <ClaimButton exam={exam} reloadExams={reloadExams} />
                   </td>

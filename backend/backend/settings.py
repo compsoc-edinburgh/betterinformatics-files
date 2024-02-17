@@ -151,7 +151,6 @@ else:
     ALLOWED_HOSTS.append("*")
     REAL_ALLOWED_HOSTS = DEPLOYMENT_DOMAINS
 
-
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Set up Content Security Policy so only .js files from the frontend /static
@@ -265,7 +264,11 @@ LOGGING = {
         },
     },
     "handlers": {
-        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "stream": sys.stdout,
+        },
     },
     "loggers": {
         "django": {

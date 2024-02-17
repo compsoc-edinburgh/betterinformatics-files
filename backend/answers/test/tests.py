@@ -33,7 +33,9 @@ class TestMetadata(ComsolTestExamData):
         self.test_metadata()
         self.post(
             "/api/exam/setmetadata/{}/".format(self.exam.filename),
-            {"filename": "cannotchange.pdf",},
+            {
+                "filename": "cannotchange.pdf",
+            },
         )
         res = self.get("/api/exam/metadata/{}/".format(self.exam.filename))["value"]
         self.assertNotEqual(res["filename"], "cannotchange.pdf")

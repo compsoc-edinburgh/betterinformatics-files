@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for (first_name, last_name, username) in [
+        for first_name, last_name, username in [
             ("Zoe", "Fletcher", "fletchz"),
             ("Ernst", "Meyer", "meyee"),
             ("Jonas", "Schneider", "schneij"),
@@ -144,13 +144,15 @@ class Command(BaseCommand):
         for exam in Exam.objects.all():
             for page in range(3):
                 for i in range(4):
-                    objs.append(AnswerSection(
-                        exam=exam,
-                        author=users[(exam.id + page + i) % len(users)],
-                        page_num=page,
-                        rel_height=0.2 + 0.15 * i,
-                        name="Aufgabe " + str(i),
-                    ))
+                    objs.append(
+                        AnswerSection(
+                            exam=exam,
+                            author=users[(exam.id + page + i) % len(users)],
+                            page_num=page,
+                            rel_height=0.2 + 0.15 * i,
+                            name="Aufgabe " + str(i),
+                        )
+                    )
         AnswerSection.objects.bulk_create(objs)
 
     def create_answers(self):
@@ -173,7 +175,7 @@ class Command(BaseCommand):
                 )
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
-        
+
         for answer in Answer.objects.all():
             i = answer.answer_section.id
             for user in users:
@@ -209,13 +211,15 @@ class Command(BaseCommand):
     def create_feedback(self):
         self.stdout.write("Create feedback")
         users = User.objects.all()
-        objs = [Feedback(
+        objs = [
+            Feedback(
                 text="Feedback " + str(i + 1),
                 author=users[i % len(users)],
                 read=i % 7 == 0,
                 done=i % 17 == 0,
             )
-         for i in range(122)]
+            for i in range(122)
+        ]
         Feedback.objects.bulk_create(objs)
 
     def create_attachments(self):

@@ -26,6 +26,7 @@ the version manager n simply do:
 ```bash
 curl -L https://git.io/n-install | bash
 ```
+
 n should install npm as well.
 It is recommended to use **Node.js 16**, since the Dockerfile also uses v16. Newer versions of Node.js have been reported to not work correctly.
 
@@ -65,13 +66,15 @@ yarn start
 
 ## Running the frontend with Docker
 
+**This should be a last resort method**.
 You will need to install [Docker](#install-docker).
-Then you can simply start the frontend with the following command which will handle
-all the setup automatically:
+
+Just like [starting the backend](#start-the-backend), you'll want to execute
+docker compose but with the `--profile frontend` flag:
 
 ```bash
-cd frontend
-sudo docker compose up --build  # or docker-compose depending on your installed version
+docker compose watch --no-up &\
+    docker compose --profile frontend up --build
 ```
 
 ## Editing frontend code
@@ -97,13 +100,20 @@ Backend is built with Django. It can be run using Docker.
 
 ### Start the backend
 
-The backend can be started with the command:
+The backend can be started with the following command:
 
 ```bash
-sudo docker compose up --build  # or docker-compose depending on your installed version
+docker compose watch --no-up &\
+    docker compose up --build
 ```
 
 The `--build` is important so that the images are rebuilt in case of changes.
+
+> Note: The `watch` command allows for hot-reloading. If you have an older version of
+> docker you might have to execute `docker-compose` with a hyphen (if that is the case,
+> please update docker) and/or leave out the watch line completely.
+> You might also have to execute docker using `sudo`
+> permissions if your docker isn't installed rootless.
 
 ### Post-Setup for backend (needed for documents to work)
 
@@ -182,16 +192,24 @@ The root Dockerfile is a multi-staged Dockerfile. By using the Docker Compose
 method to start the backend, you specify that only the first section on backend-
 specific things get built into the image.
 
-For production, run `docker build -t yourname/yourtag .` to build the image
-properly, which will also build the frontend, optimise it for production (this
-can take 5-10 minutes), and bundled it together with the backend in a single
-image. You can then deploy this image to production. Make sure to configure any
-runtime environment variables (such as the Postgres DB details) using Docker's
-`-e` flag or any equivalent.
+Deployment is automatically done through the CI once a commit is merged into
+the master branch. Specifically, the production instance runs on a Kubernetes
+cluster within CompSoc's Tardis account, and the CI performs a rolling restart
+on it. The database is hosted with Docker Compose outside of the cluster for
+persistence, and for S3 we use Tardis' Minio service.
+
+To manually deploy (e.g. to a new VM), follow these steps:
+
+1. Run `docker build -t yourname/yourtag .` to build the image properly, which
+will also build the frontend, optimise it for production (this can take 5-10
+minutes), and bundle it together with the backend in a single image.
+2. You can then run this image in production using either Docker or Kubernetes.
+3. Make sure to configure any runtime environment variables (such as the
+Postgres DB details) using Docker's `-e` flag or any equivalent.
 
 To handle authentication (signing JWT tokens to prevent forgery), the backend
 requires an RSA private/public keypair to be available at the path specified at
-RUNTIME_JWT_PRIVATE_KEY_PATH and RUNTIME_JWT_PUBLIC_KEY_PATH environment
+`RUNTIME_JWT_PRIVATE_KEY_PATH` and `RUNTIME_JWT_PUBLIC_KEY_PATH` environment
 variables. During local development, this can be left empty to use an empty
 string as the key. For production, you should pre-generate this with e.g.
 openssl, and use mounted volumes to make it available within the deployment
@@ -203,6 +221,7 @@ user. This can also be left empty during local development, which will make
 emails display to console instead.
 
 # License
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -210,8 +229,8 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>
+along with this program. If not, see <https://www.gnu.org/licenses/>

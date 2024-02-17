@@ -1,11 +1,4 @@
-from django.contrib.postgres.search import (
-    SearchQuery,
-    SearchRank,
-    SearchVector,
-    TrigramSimilarity,
-)
-from django.db.models import Q, F, Count
-
+from django.db.models import Q
 from answers import section_util
 from answers.models import Answer, Comment, Exam, ExamPage, ExamType
 from ediauth import auth_check
@@ -50,9 +43,11 @@ def list_import_exams(request):
             "category_displayname": exam.category.displayname,
             "remark": exam.remark,
             "import_claim": exam.import_claim.username if exam.import_claim else None,
-            "import_claim_displayname": exam.import_claim.profile.display_username
-            if exam.import_claim
-            else None,
+            "import_claim_displayname": (
+                exam.import_claim.profile.display_username
+                if exam.import_claim
+                else None
+            ),
             "import_claim_time": exam.import_claim_time,
             "public": exam.public,
             "finished_cuts": exam.finished_cuts,
@@ -81,18 +76,13 @@ def list_flagged(request):
 @response.request_get()
 @auth_check.require_login
 def get_by_user(request, username, page=-1):
-    sorted_answers = (
-        Answer.objects.filter(author__username=username)
-        .select_related(*section_util.get_answer_fields_to_preselect())
-        .prefetch_related(*section_util.get_answer_fields_to_prefetch())
-        .annotate(
-            expert_count=Count("expertvotes"),
-            downvotes_count=Count("downvotes"),
-            upvotes_count=Count("upvotes"),
-            delta_votes=F("downvotes_count") - F("upvotes_count"),
-        )
-        .order_by("-expert_count", "delta_votes", "time")
+    sorted_answers = Answer.objects.filter(author__username=username).select_related(
+        *section_util.get_answer_fields_to_preselect()
     )
+
+    sorted_answers = section_util.prepare_answer_objects(
+        sorted_answers, request
+    ).order_by("-expert_count", "-delta_votes", "time")
 
     if page >= 0:
         PAGE_SIZE = 20
@@ -102,6 +92,7 @@ def get_by_user(request, username, page=-1):
         section_util.get_answer_response(request, answer, ignore_exam_admin=True)
         for answer in sorted_answers
     ]
+
     return response.success(value=res)
 
 

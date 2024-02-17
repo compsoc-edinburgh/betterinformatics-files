@@ -143,7 +143,7 @@ const Scoreboard: React.FC<{}> = () => {
                 onSort={() => setMode("score_cuts")}
                 sorted={mode === "score_cuts"}
               >
-                Questions Cut
+                Sections Cut
               </Th>
             </tr>
           </thead>
