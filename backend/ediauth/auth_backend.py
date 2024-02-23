@@ -53,9 +53,7 @@ def add_auth_to_request(request: HttpRequest):
         # get_or_create is better than filter().first() followed by .save()
         # because it handles concurrency properly and avoids duplicate entries
         # during race conditions.
-        (user, created) = User.objects.get_or_create(
-            username=jwt_claims["uun"], email=jwt_claims["email"]
-        )
+        (user, created) = User.objects.get_or_create(username=jwt_claims["uun"])
         if not created:
             request.user = user
         else:
