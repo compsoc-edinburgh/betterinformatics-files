@@ -1,11 +1,22 @@
 import { Container, Flex, Grid, Paper, Text } from "@mantine/core";
 import React from "react";
+import { useLocation } from "react-router-dom";
 import LoginOverlay from "../components/login-overlay";
 import useTitle from "../hooks/useTitle";
+import { useUser } from "../auth";
 import { CategoryList } from "./home-page";
 
 const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
   useTitle("Login");
+  const user = useUser();
+  const rd = new URLSearchParams(useLocation().search).get("rd");
+
+  if (user !== undefined && user.loggedin) {
+    // If the user is already logged in, redirect them to the home page or what
+    // they were trying to access.
+    window.location.replace(rd ?? "/");
+    return null;
+  }
   return (
     <>
       <Container size="xl" mb="xl">
