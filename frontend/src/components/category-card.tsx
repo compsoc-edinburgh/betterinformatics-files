@@ -47,7 +47,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       onClick={e => {
         if (!authenticated()) {
           e.preventDefault();
-          history.push(`/login/?rd=/category/${category.slug}`);
+          history.push(`/login/?rd=${encodeURIComponent(`/category/${category.slug}`)}`);
         }
       }}
       withBorder
