@@ -35,6 +35,11 @@ services:
       - ./data/sql:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d docker -U docker"]
+      interval: 1s
+      timeout: 1s
+      retries: 50
   community-solutions:
     build:
       dockerfile: ./util/backend.Dockerfile
@@ -90,8 +95,10 @@ services:
 
       - PDEP_IS_PREVIEW=TRUE
     depends_on:
-      - postgres
-      - minio
+      postgres:
+          condition: service_healthy
+      minio:
+          condition: service_healthy
 
   react-frontend:
     profiles: [frontend] # only executed if the '--profile frontend' flag is given
