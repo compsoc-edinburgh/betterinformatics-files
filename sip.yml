@@ -72,24 +72,32 @@ env:
     secret:
       key: banned-users
       create: provided
+
 livenessProbe:
   httpGet:
     path: /health
     port: 80
   initialDelaySeconds: 10
   periodSeconds: 3
+
 startupProbe:
   httpGet:
     path: /health
     port: 80
   failureThreshold: 30
   periodSeconds: 10
+
 readinessProbe:
   httpGet:
     path: /
     port: 80
   initialDelaySeconds: 10
   periodSeconds: 3
+
+prometheus:
+  path: /metrics/
+  port: 80
+
 resources:
   limits:
     memory: 512Mi
