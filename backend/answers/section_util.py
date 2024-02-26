@@ -9,10 +9,10 @@ def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]
     # results in a constant amount of queries.
     comments_query = Comment.objects.select_related("author").order_by("time", "id")
     return objects.annotate(
-        expert_count=Count("expertvotes"),
-        downvotes_count=Count("downvotes"),
-        upvotes_count=Count("upvotes"),
-        flagged_count=Count("flagged"),
+        expert_count=Count("expertvotes", distinct=True),
+        downvotes_count=Count("downvotes", distinct=True),
+        upvotes_count=Count("upvotes", distinct=True),
+        flagged_count=Count("flagged", distinct=True),
         is_upvoted=Exists(Answer.objects.filter(id=OuterRef("id"), upvotes=request.user)),
         is_downvoted=Exists(Answer.objects.filter(id=OuterRef("id"), downvotes=request.user)),
         is_expertvoted=Exists(Answer.objects.filter(id=OuterRef("id"), expertvotes=request.user)),

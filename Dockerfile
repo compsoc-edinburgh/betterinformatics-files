@@ -31,14 +31,14 @@ RUN	rm -rf /var/lib/apt/lists/*
 
 COPY ./backend/ ./
 
+COPY ./frontend/public/exam10.pdf ./exam10.pdf
+COPY ./frontend/public/static ./static
+
 
 FROM backend-base AS backend
 
 # prevent guincorn from buffering prints from python workers
 ENV PYTHONUNBUFFERED True
-
-COPY ./frontend/public/exam10.pdf ./exam10.pdf
-COPY ./frontend/public/static ./static
 
 COPY ./pgbouncer ./pgbouncer
 COPY cinit.yml /etc/cinit.d/community-solutions.yml
