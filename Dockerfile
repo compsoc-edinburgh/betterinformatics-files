@@ -2,9 +2,8 @@ ARG git_branch="<none>"
 ARG git_commit="<none>"
 
 # Backend targets:
-# - backend-base: Common base for both deployment and development containers
 # - backend: Includes only the backend part. Can be used for development, does not support hot-reloading.
-# - backend-hotreload: Support hot-reloading, used only for local deployment
+# - backend-hotreload: Support hot-reloading, used only for local deployment. Excludes frontend
 #
 # Frontend targets:
 # - frontend-base: Common base for both deployment and development containers
@@ -13,7 +12,7 @@ ARG git_commit="<none>"
 #
 # The `combined` stage extends the `backend` target with files built in the `frontend-build` step. Includes everything, production-ready
 
-FROM eu.gcr.io/vseth-public/base:echo AS backend-base
+FROM eu.gcr.io/vseth-public/base:echo AS backend
 LABEL maintainer='cat@vis.ethz.ch'
 
 WORKDIR /app
@@ -34,9 +33,6 @@ COPY ./backend/ ./
 COPY ./frontend/public/exam10.pdf ./exam10.pdf
 COPY ./frontend/public/static ./static
 
-
-FROM backend-base AS backend
-
 # prevent guincorn from buffering prints from python workers
 ENV PYTHONUNBUFFERED True
 
@@ -47,8 +43,8 @@ COPY cinit.yml /etc/cinit.d/community-solutions.yml
 FROM node:20-alpine AS frontend-base
 
 WORKDIR /usr/src/app
-COPY ./frontend/package.json .
-COPY ./frontend/yarn.lock .
+COPY ./frontend/package.json \
+     ./frontend/yarn.lock .
 
 
 FROM frontend-base AS frontend-build
@@ -56,21 +52,21 @@ ARG git_branch
 ARG git_commit
 
 RUN yarn --ignore-engines --ignore-optional
-COPY ./frontend/tsconfig.json .
-COPY ./frontend/.eslintrc.json .
-COPY ./frontend/.env.production .
-COPY ./frontend/.prettierrc.json ./.prettierrc.json
+COPY ./frontend/tsconfig.json \
+     ./frontend/.eslintrc.json \
+     ./frontend/.env.production \
+     ./frontend/.prettierrc.json .
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
-ENV REACT_APP_GIT_BRANCH=${git_branch}
-ENV REACT_APP_GIT_COMMIT=${git_commit}
+ENV REACT_APP_GIT_BRANCH=${git_branch} \
+    REACT_APP_GIT_COMMIT=${git_commit}
 RUN yarn run build
 
 FROM backend AS combined
 
-COPY --from=frontend-build /usr/src/app/build/manifest.json ./manifest.json
+COPY --from=frontend-build /usr/src/app/build/manifest.json \
+     /usr/src/app/build/favicon.ico .
 COPY --from=frontend-build /usr/src/app/build/index.html ./templates/index.html
-COPY --from=frontend-build /usr/src/app/build/favicon.ico ./favicon.ico
 COPY --from=frontend-build /usr/src/app/build/static ./static
 
 EXPOSE 80
@@ -78,7 +74,7 @@ EXPOSE 80
 
 # Development-only stages
 # Backend
-FROM backend-base AS backend-hotreload
+FROM backend AS backend-hotreload
 
 ENV IS_DEBUG true
 CMD python3 manage.py migrate \
