@@ -1,1 +1,1 @@
-export * from "pdfjs-dist/legacy/build/pdf.js";
+export { getDocument } from "pdfjs-dist/build/pdf.js";

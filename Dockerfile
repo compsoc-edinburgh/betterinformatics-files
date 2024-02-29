@@ -35,15 +35,17 @@ ARG git_commit
 WORKDIR /usr/src/app
 COPY ./frontend/package.json .
 COPY ./frontend/yarn.lock .
-RUN yarn --ignore-engines --ignore-optional
+COPY ./frontend/index.html ./index.html
+RUN yarn --ignore-engines
 COPY ./frontend/tsconfig.json .
+COPY ./frontend/vite.config.ts .
 COPY ./frontend/.eslintrc.json .
 COPY ./frontend/.env.production .
 COPY ./frontend/.prettierrc.json ./.prettierrc.json
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
-ENV REACT_APP_GIT_BRANCH=${git_branch}
-ENV REACT_APP_GIT_COMMIT=${git_commit}
+ENV VITE_GIT_BRANCH=${git_branch}
+ENV VITE_GIT_COMMIT=${git_commit}
 RUN yarn run build
 
 FROM backend AS combined

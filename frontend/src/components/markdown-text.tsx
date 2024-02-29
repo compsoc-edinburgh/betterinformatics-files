@@ -1,17 +1,18 @@
-import { css, cx } from "@emotion/css";
-import TeX from "@matejmazur/react-katex";
+import { css } from "@emotion/css";
+import ReactMarkdown, { Components }  from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from 'rehype-katex';
 // Import mchem plugin to register macros for chemical equations in katex.
-// The plugin registers macros when it is imported. We do this after we import "@matejmazur/react-katex"
+// The plugin registers macros when it is imported. We do this after we import "rehype-katex"
 // which transitively imports katex such that the global variables which katex uses are set up.
 import "katex/contrib/mhchem/mhchem";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
-import ReactMarkdown, { ReactMarkdownProps } from "react-markdown";
-import RemarkGfm from "remark-gfm";
-import * as RemarkMathPlugin from "remark-math";
 import CodeBlock from "./code-block";
-import { createStyles, Table } from "@mantine/core";
+import { Alert, createStyles, Table } from "@mantine/core";
+import ErrorBoundary from "./error-boundary";
 
 const useStyles = createStyles(theme => ({
   blockquoteStyle: {
@@ -61,20 +62,18 @@ const transformImageUri = (uri: string) => {
   }
 };
 
-const markdownPlugins = [RemarkMathPlugin, RemarkGfm];
-
-const createRenderers = (
+const createComponents = (
   regex: RegExp | undefined,
-  macros: object,
-): ReactMarkdownProps["renderers"] => ({
+): Components => ({
   table: ({ children }) => {
     return <Table>{children}</Table>;
   },
-  text: ({ value }: { value: string }) => {
-    if (regex === undefined) return <span>{value}</span>;
-    const arr: React.ReactChild[] = [];
+  p: ({ children }) => {
+    if (regex === undefined) return <span>{children}</span>;
+    const arr = [];
+    const value = String(children)
     const m = regex.test(value);
-    if (!m) return <span>{value}</span>;
+    if (!m) return <span>{children}</span>;
     let i = 0;
     while (i < value.length) {
       const rest = value.substring(i);
@@ -92,17 +91,16 @@ const createRenderers = (
     }
     return <>{arr}</>;
   },
-  math: (props: { value: string }) => (
-    <TeX settings={{ macros }} math={props.value} block />
-  ),
-  inlineMath: (props: { value: string }) => (
-    <TeX settings={{ macros }} math={props.value} />
-  ),
-  code: (props: { value: string; language: string | null }) => (
-    // In TypeScript I prefer to represent optional properties as `undefined`, whereas
-    // react-markdown uses `null` here if no language is provided for the code block.
-    <CodeBlock language={props.language ?? undefined} value={props.value} />
-  ),
+  code({node, className, children, ...props}) {
+    const match = /language-(\w+)/.exec(className || '')
+    return match ? (
+      <CodeBlock language={match ? match[1] : undefined} value={String(children).replace(/\n$/, '')} {...props} />
+    ) : (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    )
+  }
 });
 
 interface Props {
@@ -116,21 +114,28 @@ interface Props {
    */
   regex?: RegExp;
 }
+
+// Example that triggers the error: $\begin{\pmatrix}$
+const errorMessage = <Alert color="red" title="Rendering error">An error ocurred when rendering this content. This is likely caused by invalid LaTeX syntax.</Alert>;
+
 const MarkdownText: React.FC<Props> = ({ value, regex }) => {
   const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
-  const renderers = useMemo(() => createRenderers(regex, macros), [regex]);
+  const renderers = useMemo(() => createComponents(regex), [regex]);
   const { classes, cx } = useStyles();
   if (value.length === 0) {
     return <div />;
   }
   return (
     <div className={cx(wrapperStyle, classes.blockquoteStyle)}>
-      <ReactMarkdown
-        source={value}
-        transformImageUri={transformImageUri}
-        plugins={markdownPlugins}
-        renderers={renderers}
-      />
+      <ErrorBoundary fallback={errorMessage}>
+        <ReactMarkdown
+          children={value}
+          urlTransform={transformImageUri}
+          remarkPlugins={[remarkMath, remarkGfm]}
+          rehypePlugins={[[rehypeKatex, {macros: macros}]]}
+          components={renderers}
+        />
+      </ErrorBoundary>
     </div>
   );
 };
