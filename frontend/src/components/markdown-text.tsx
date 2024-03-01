@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import ReactMarkdown, { Components, uriTransformer }  from "react-markdown";
+import ReactMarkdown, { Components, defaultUrlTransform }  from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from 'rehype-katex';
@@ -135,19 +135,14 @@ const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
       <ErrorBoundary fallback={errorMessage}>
         <ReactMarkdown
           children={value}
-          urlTransform={transformImageUri}
-          transformLinkUri={
-            localLinkBase
-              ? (uri: string, children?: React.ReactNode, title?: string) => {
-                  if (uri.startsWith("/")) {
-                    return localLinkBase + uriTransformer(uri);
-                  } else {
-                    // Apply default sanitizer for external links
-                    return uriTransformer(uri);
-                  }
-                }
-              : uriTransformer
-          }
+          urlTransform={(uri: string, key, node) => {
+            if (node.tagName === "img") {
+              return transformImageUri(uri);
+            } else if (localLinkBase && uri.startsWith("/")) {
+              return localLinkBase + defaultUrlTransform(uri);
+            }
+            return defaultUrlTransform(uri);
+          }}
           remarkPlugins={[remarkMath, remarkGfm]}
           rehypePlugins={[[rehypeKatex, {macros: macros}]]}
           components={renderers}
