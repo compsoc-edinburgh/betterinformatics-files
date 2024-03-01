@@ -61,7 +61,7 @@ stages:
     MINIO_DOMAIN: localhost
 
 
-"Frontend Compile Test":
+"Frontend Typecheck & Lint":
   stage: test
   rules:
     # No need to run on protected branches because the frontend build is
@@ -75,12 +75,8 @@ stages:
     - cd frontend
   script:
     - yarn --ignore-engines
-    # Ideally we want a quick development build test so we don't want to waste
-    # time optimizing the build, but Create React App doesn't have a way to do
-    # that so we just build as normal (i.e. as production).
-    # CI=false is required to treat warnings and warnings. Otherwise it will
-    # exit on warnings, of which there are quite a few in this repository.
-    - CI=false yarn run build
+    - yarn run tsc
+    - yarn run eslint 'src/**/*.{js,jsx,ts,tsx}'
 
 
 "Build production image":
