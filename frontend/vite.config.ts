@@ -16,11 +16,12 @@ export default defineConfig({
     assetsDir: "static",
   },
   server: {
-    open: true,
     port: 3000,
+    host: "0.0.0.0",
     proxy: {
       "/api": {
-        target: "http://localhost:8081",
+        // If we're running in a container, we can't use localhost
+        target: "http://" + (process.env.BACKEND_HOST ?? "localhost:8081"),
         changeOrigin: false,
         secure: false,
       },
