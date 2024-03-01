@@ -74,7 +74,7 @@ stages:
   before_script:
     - cd frontend
   script:
-    - yarn --ignore-engines --ignore-optional
+    - yarn --ignore-engines
     # Ideally we want a quick development build test so we don't want to waste
     # time optimizing the build, but Create React App doesn't have a way to do
     # that so we just build as normal (i.e. as production).
