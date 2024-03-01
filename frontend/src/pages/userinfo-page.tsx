@@ -82,6 +82,7 @@ const UserPage: React.FC<{}> = () => {
                 <Space h="md" />
                 {userInfo && (
                   <UserDisplayNameSettings
+                    key={userInfo.username}
                     userInfo={userInfo}
                     reloadUserInfo={reloadUserInfo}
                   />
