@@ -100,7 +100,7 @@ const createComponents = (
         {children}
       </code>
     )
-  }
+  },
 });
 
 interface Props {
@@ -144,7 +144,7 @@ const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
             return defaultUrlTransform(uri);
           }}
           remarkPlugins={[remarkMath, remarkGfm]}
-          rehypePlugins={[[rehypeKatex, {macros: macros}]]}
+          rehypePlugins={[[rehypeKatex, {macros}]]}
           components={renderers}
         />
       </ErrorBoundary>
