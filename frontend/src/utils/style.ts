@@ -9,4 +9,11 @@ export const useStyles = createStyles(theme => ({
       outlineOffset: 2,
     },
   },
+  hoverShadow: {
+    transition: "box-shadow 150ms ease, transform 100ms ease",
+    "&:hover": {
+      boxShadow: theme.shadows.md,
+      transform: "scale(1.05)",
+    },
+  },
 }));

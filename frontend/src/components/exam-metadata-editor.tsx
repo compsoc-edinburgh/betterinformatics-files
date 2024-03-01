@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
-import { loadCategories, loadExamTypes } from "../api/hooks";
+import { loadAdminCategories, loadExamTypes } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
 import { createOptions, options } from "../utils/ts-utils";
@@ -33,12 +33,7 @@ const stringKeys = [
   "resolve_alias",
   "remark",
 ] as const;
-const booleanKeys = [
-  "public",
-  "finished_cuts",
-  "needs_payment",
-  "solution_printonly",
-] as const;
+const booleanKeys = ["public", "finished_cuts"] as const;
 
 const setMetaData = async (
   filename: string,
@@ -59,12 +54,6 @@ const addAttachment = async (exam: string, displayname: string, file: File) => {
 const removeAttachment = async (filename: string) => {
   await fetchPost(`/api/filestore/remove/${filename}/`, {});
 };
-const setPrintOnly = async (filename: string, file: File) => {
-  await fetchPost(`/api/exam/upload/printonly/`, { file, filename });
-};
-const removePrintOnly = async (filename: string) => {
-  await fetchPost(`/api/exam/remove/printonly/${filename}/`, {});
-};
 const setSolution = async (filename: string, file: File) => {
   await fetchPost(`/api/exam/upload/solution/`, { file, filename });
 };
@@ -79,7 +68,6 @@ const applyChanges = async (
   filename: string,
   oldMetaData: ExamMetaData,
   newMetaData: ExamMetaDataDraft,
-  printonly: File | true | undefined,
   masterSolution: File | true | undefined,
 ) => {
   const metaDataDiff: Partial<ExamMetaData> = {};
@@ -120,18 +108,6 @@ const applyChanges = async (
     }
   }
 
-  if (printonly === undefined && oldMetaData.is_printonly) {
-    await removePrintOnly(filename);
-    metaDataDiff.is_printonly = false;
-  } else if (printonly instanceof File) {
-    await setPrintOnly(filename, printonly);
-    metaDataDiff.is_printonly = true;
-  }
-  if (!oldMetaData.is_printonly && printonly instanceof File) {
-    const newUrl = await fetchGet(`/api/exam/pdf/printonly/${filename}/`);
-    metaDataDiff.printonly_file = newUrl.value;
-  }
-
   if (masterSolution === undefined && oldMetaData.has_solution) {
     await removeSolution(filename);
     metaDataDiff.has_solution = false;
@@ -162,7 +138,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
   toggle,
   onMetaDataChange,
 }) => {
-  const { data: categories } = useRequest(loadCategories);
+  const { data: categories } = useRequest(loadAdminCategories);
   const { data: examTypes } = useRequest(loadExamTypes);
   const categoryOptions =
     categories &&
@@ -191,9 +167,6 @@ const ExamMetadataEditor: React.FC<Props> = ({
     },
   });
 
-  const [printonlyFile, setPrintonlyFile] = useInitialState<
-    File | true | undefined
-  >(currentMetaData.is_printonly ? true : undefined);
   const [masterFile, setMasterFile] = useInitialState<File | true | undefined>(
     currentMetaData.has_solution ? true : undefined,
   );
@@ -206,7 +179,6 @@ const ExamMetadataEditor: React.FC<Props> = ({
           currentMetaData.filename,
           currentMetaData,
           values,
-          printonlyFile,
           masterFile,
         ),
       ["category", "category_displayname", "examtype", "remark", "attachments"],
@@ -270,16 +242,6 @@ const ExamMetadataEditor: React.FC<Props> = ({
         <Grid.Col md={6}>
           <Checkbox
             name="check"
-            id="needsPayment"
-            label="Needs Payment"
-            {...registerCheckbox("needs_payment")}
-          />
-        </Grid.Col>
-      </Grid>
-      <Grid>
-        <Grid.Col md={6}>
-          <Checkbox
-            name="check"
             label="Finished Cuts"
             {...registerCheckbox("finished_cuts")}
           />
@@ -292,31 +254,6 @@ const ExamMetadataEditor: React.FC<Props> = ({
             {...registerInput("master_solution")}
             label="Master Solution (extern)"
           />
-        </Grid.Col>
-      </Grid>
-      <Grid>
-        <Grid.Col md={6}>
-          <Text size="sm">Print Only File</Text>
-          {printonlyFile === true ? (
-            <Flex align="center" gap="sm">
-              <Button
-                size="sm"
-                onClick={() =>
-                  downloadIndirect(
-                    `/api/exam/pdf/printonly/${currentMetaData.filename}/`,
-                  )
-                }
-              >
-                Download Current File
-              </Button>
-              <CloseButton onClick={() => setPrintonlyFile(undefined)} />
-            </Flex>
-          ) : (
-            <FileInput
-              value={printonlyFile}
-              onChange={e => setPrintonlyFile(e)}
-            />
-          )}
         </Grid.Col>
         <Grid.Col md={6}>
           <Text size="sm">Master Solution</Text>

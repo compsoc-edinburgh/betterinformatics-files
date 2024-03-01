@@ -27,7 +27,7 @@ const useStyles = createStyles((_theme, _params) => ({
     padding: "0.75rem 0",
   },
   logo: {
-    filter: "invert() contrast(234234)",
+    filter: "brightness(0) invert(1)",
     height: "2rem",
     paddingRight: "1.25rem",
   },
@@ -85,11 +85,7 @@ const BottomHeader: React.FC<Props> = ({
       <Group className={classes.logoLine} align="center" position="apart">
         <div style={{ display: "flex" }}>
           <img
-            src={
-              signet
-                ? signet
-                : "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/signet-mono.svg"
-            }
+            src={signet}
             alt="Signet of the student organization"
             className={classes.logo}
           />

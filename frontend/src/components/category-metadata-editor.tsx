@@ -2,12 +2,12 @@ import { useRequest } from "@umijs/hooks";
 import {
   Alert,
   Button,
-  Checkbox,
   CloseButton,
   Grid,
   Group,
   NativeSelect,
   Stack,
+  Text,
   Textarea,
   TextInput,
   Title,
@@ -61,6 +61,16 @@ const removeMetaCategory = async (
     category: slug,
   });
 };
+const addEuclidCode = async (slug: string, code: string) => {
+  await fetchPost(`/api/category/addeuclidcode/${slug}/`, {
+    code,
+  });
+};
+const removeEuclidCode = async (slug: string, code: string) => {
+  await fetchPost(`/api/category/removeeuclidcode/${slug}/`, {
+    code,
+  });
+};
 const addAttachment = async (
   category: string,
   displayname: string,
@@ -93,16 +103,18 @@ const applyChanges = async (
   const metaDataDiff: Partial<CategoryMetaData> = {};
   if (oldMetaData.displayname !== newMetaData.displayname)
     metaDataDiff.displayname = newMetaData.displayname;
+  if (oldMetaData.slug !== newMetaData.slug)
+    metaDataDiff.slug = newMetaData.slug;
   if (oldMetaData.semester !== newMetaData.semester)
     metaDataDiff.semester = newMetaData.semester;
   if (oldMetaData.form !== newMetaData.form)
     metaDataDiff.form = newMetaData.form;
   if (oldMetaData.remark !== newMetaData.remark)
     metaDataDiff.remark = newMetaData.remark;
-  if (oldMetaData.has_payments !== newMetaData.has_payments)
-    metaDataDiff.has_payments = newMetaData.has_payments;
   if (oldMetaData.more_exams_link !== newMetaData.more_exams_link)
     metaDataDiff.more_exams_link = newMetaData.more_exams_link;
+  if (oldMetaData.more_markdown_link !== newMetaData.more_markdown_link)
+    metaDataDiff.more_markdown_link = newMetaData.more_markdown_link;
   if (oldMetaData.permission !== newMetaData.permission)
     metaDataDiff.permission = newMetaData.permission;
   const fetchedMetaData = await setMetaData(slug, metaDataDiff);
@@ -168,21 +180,35 @@ const applyChanges = async (
       await removeUserFromSet(newSlug, "experts", expert);
     }
   }
+
+  for (const code of newMetaData.euclid_codes) {
+    if (oldMetaData.euclid_codes.indexOf(code) === -1) {
+      await addEuclidCode(newSlug, code);
+    }
+  }
+  for (const code of oldMetaData.euclid_codes) {
+    if (newMetaData.euclid_codes.indexOf(code) === -1) {
+      await removeEuclidCode(newSlug, code);
+    }
+  }
   return {
     ...oldMetaData,
     ...metaDataDiff,
     attachments: newAttachments,
     admins: newMetaData.admins,
     experts: newMetaData.experts,
+    euclid_codes: newMetaData.euclid_codes,
     slug: newSlug,
   };
 };
 
-const semesterOptions = createOptions({
-  None: "--",
-  HS: "HS",
-  FS: "FS",
-  Both: "Both",
+// These values are hardcoded in the backend database model, so you must perform
+// database migrations when modifing them.
+export const semesterOptions = createOptions({
+  none: "--",
+  sem1: "Semester 1",
+  sem2: "Semester 2",
+  full: "Full Year",
 });
 const formOptions = createOptions({
   oral: "Oral",
@@ -190,7 +216,7 @@ const formOptions = createOptions({
 });
 const permissionOptions = createOptions({
   public: "public",
-  intern: "intern",
+  internal: "internal",
   hidden: "hidden",
   none: "none",
 });
@@ -222,22 +248,18 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   });
   const [offeredIn, setOfferedIn] =
     useInitialState<Array<readonly [string, string]>>(propOfferedIn);
-  const {
-    registerInput,
-    registerCheckbox,
-    reset,
-    formState,
-    setFormValue,
-    onSubmit,
-  } = useForm(currentMetaData as CategoryMetaDataDraft, data => {
-    runApplyChanges(
-      currentMetaData.slug,
-      currentMetaData,
-      data,
-      propOfferedIn,
-      offeredIn,
-    );
-  });
+  const { registerInput, reset, formState, setFormValue, onSubmit } = useForm(
+    currentMetaData as CategoryMetaDataDraft,
+    data => {
+      runApplyChanges(
+        currentMetaData.slug,
+        currentMetaData,
+        data,
+        propOfferedIn,
+        offeredIn,
+      );
+    },
+  );
   return (
     <>
       <Group position="apart">
@@ -250,6 +272,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       </Title>
       <Stack>
         <TextInput label="Name" {...registerInput("displayname")} />
+        <TextInput label="Slug" {...registerInput("slug")} />
         <Grid>
           <Grid.Col md={6}>
             <NativeSelect
@@ -258,7 +281,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               value={
                 semesterOptions[
                   formState.semester as keyof typeof semesterOptions
-                ]?.value ?? "--"
+                ]?.value ?? "none"
               }
               onChange={(event: any) =>
                 setFormValue("semester", event.currentTarget.value)
@@ -302,10 +325,9 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
             />
           </Grid.Col>
         </Grid>
-        <Checkbox
-          name="check"
-          label="Has Payments"
-          {...registerCheckbox("has_payments")}
+        <TextInput
+          label="More Markdown Link"
+          {...registerInput("more_markdown_link")}
         />
       </Stack>
       <Title order={4} mt="xl" mb="sm">
@@ -319,16 +341,38 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         Offered In
       </Title>
       <OfferedInEditor offeredIn={offeredIn} setOfferedIn={setOfferedIn} />
-      <Title order={4} mt="xl" mb="sm">
+      <Title order={4} mt="xl">
+        EUCLID Codes
+      </Title>
+      <Text mb="sm">
+        Associate any EUCLID codes for this course. There may be multiple, e.g.
+        for shadow courses or UG/PG variants. However, it should fundamentally
+        be the same course. Mergers and splits should be handled by creating a
+        new category.
+      </Text>
+      <UserSetEditor
+        users={formState.euclid_codes}
+        setUsers={u => setFormValue("euclid_codes", u)}
+      />
+      <Title order={4} mt="xl">
         Admins
       </Title>
+      <Text mb="sm">
+        These users will be able to edit the category metadata (this page), and
+        its exams fully, including uploading and deleting them. Provide their
+        username on this site.
+      </Text>
       <UserSetEditor
         users={formState.admins}
         setUsers={u => setFormValue("admins", u)}
       />
-      <Title order={4} mt="xl" mb="sm">
+      <Title order={4} mt="xl">
         Experts
       </Title>
+      <Text mb="sm">
+        These users will be able to endorse community answers and those will be
+        highlighted. Provide their username on this site.
+      </Text>
       <UserSetEditor
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}

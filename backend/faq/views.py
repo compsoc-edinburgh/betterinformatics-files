@@ -1,6 +1,6 @@
 from faq.models import FAQuestion
 from util import response
-from myauth import auth_check
+from ediauth import auth_check
 from django.views import View
 from django.shortcuts import get_object_or_404
 

@@ -9,22 +9,16 @@ import MarkdownText from "./markdown-text";
 import TooltipButton from "./TooltipButton";
 
 interface Props {
-  documentAuthor: string;
   documentSlug: string;
   mutate: Mutate<Document>;
 }
-const DocumentCommentForm: React.FC<Props> = ({
-  documentAuthor,
-  documentSlug,
-  mutate,
-}) => {
+const DocumentCommentForm: React.FC<Props> = ({ documentSlug, mutate }) => {
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({
     prev: [],
     next: [],
   });
   const [loading, createDocumentComment] = useCreateDocumentComment(
-    documentAuthor,
     documentSlug,
     document => {
       mutate(data => ({ ...data, comments: [...data.comments, document] }));

@@ -26,7 +26,6 @@ const modes = [
   "score_answers",
   "score_comments",
   "score_cuts",
-  "score_legacy",
   "score_documents",
 ] as const;
 type Mode = (typeof modes)[number];
@@ -144,13 +143,7 @@ const Scoreboard: React.FC<{}> = () => {
                 onSort={() => setMode("score_cuts")}
                 sorted={mode === "score_cuts"}
               >
-                Import Exams
-              </Th>
-              <Th
-                onSort={() => setMode("score_legacy")}
-                sorted={mode === "score_legacy"}
-              >
-                Legacy Answers
+                Sections Cut
               </Th>
             </tr>
           </thead>
@@ -161,7 +154,7 @@ const Scoreboard: React.FC<{}> = () => {
                   <td>{idx + 1}</td>
                   <td>
                     <Anchor component={Link} to={`/user/${board.username}`}>
-                      {board.displayName}
+                      {board.username}
                     </Anchor>
                   </td>
                   <td>{board.score}</td>
@@ -169,7 +162,6 @@ const Scoreboard: React.FC<{}> = () => {
                   <td>{board.score_comments}</td>
                   <td>{board.score_documents}</td>
                   <td>{board.score_cuts}</td>
-                  <td>{board.score_legacy}</td>
                 </tr>
               ))}
           </tbody>

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scoreboard", "0002_add_user_score"),
     ]
@@ -21,13 +20,11 @@ CREATE VIEW scoreboard_userscore (id, user_id, upvotes, downvotes, document_like
     LEFT JOIN (SELECT aa.author_id as id, COUNT(*) as count
         FROM answers_answer_upvotes aav
         INNER JOIN answers_answer aa ON (aa.id = aav.answer_id)
-        WHERE aa.is_legacy_answer = false
         GROUP by aa.author_id
     ) auv ON (auv.id = au.id)
     LEFT JOIN (SELECT aa.author_id as id, COUNT(*) as count
         FROM answers_answer_downvotes aav
         INNER JOIN answers_answer aa ON (aa.id = aav.answer_id)
-        WHERE aa.is_legacy_answer = false
         GROUP by aa.author_id
     ) adv ON (adv.id = au.id)
     LEFT JOIN (SELECT dd.author_id as id, COUNT(*) as count
@@ -41,8 +38,8 @@ CREATE VIEW scoreboard_userscore (id, user_id, upvotes, downvotes, document_like
     CREATE OR REPLACE VIEW scoreboard_userscore (id, user_id, upvotes, downvotes) AS
         SELECT row_number() OVER () as id,
             au.id AS user_id,
-            (SELECT COUNT(*) FROM answers_answer_upvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id AND aa.is_legacy_answer = false),
-            (SELECT COUNT(*) FROM answers_answer_downvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id AND aa.is_legacy_answer = false)
+            (SELECT COUNT(*) FROM answers_answer_upvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id),
+            (SELECT COUNT(*) FROM answers_answer_downvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id)
         FROM auth_user au
     ;
     """

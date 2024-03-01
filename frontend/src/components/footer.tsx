@@ -30,19 +30,19 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
             base: "column",
             sm: "row",
           }}
-          gap="sm"
+          gap="md"
           align="center"
         >
+          <img height={32} src={logo} alt="Logo of the student organization" />
           <Text
-            fw="bold"
             style={{
               flex: 1,
             }}
           >
-            Made with
+            Orginal software (GPL) built with
             <Icon
               icon={ICONS.LIKE_FILLED}
-              color="red"
+              color="darkred"
               aria-label="love"
               style={{
                 position: "relative",
@@ -56,15 +56,29 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
               title="Verein der Informatikstudierenden an der ETH Zürich"
               color="blue"
             >
-              VIS
+              VIS ETH Zurich
+            </Anchor>
+            <br />
+            Modified and deployed with
+            <Icon
+              icon={ICONS.LIKE_FILLED}
+              color="darkred"
+              aria-label="love"
+              style={{
+                position: "relative",
+                top: 2,
+                margin: "0px 4px",
+              }}
+            />
+            by volunteers at{" "}
+            <Anchor
+              href="http://comp-soc.com"
+              title="Computing Society at the University of Edinburgh"
+              color="blue"
+            >
+              CompSoc
             </Anchor>
           </Text>
-          <img
-            height={32}
-            src={logo}
-            style={{ filter: "brightness(0)" }}
-            alt="Logo of the student organization"
-          />
           <Group
             style={{
               flex: 1,
@@ -72,7 +86,7 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
             }}
           >
             <Anchor
-              href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
+              href="https://git.tardisproject.uk/kilo/edinburgh-community-solutions"
               color="blue"
             >
               <Icon
@@ -86,7 +100,7 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
               Repository
             </Anchor>
             <Anchor href={disclaimer} color="blue">
-              Imprint
+              Disclaimer
             </Anchor>
             <Anchor href={privacy} color="blue">
               Privacy Policy

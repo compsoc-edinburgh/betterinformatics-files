@@ -30,9 +30,8 @@ interface Props {
 const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
-
+  const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
   const [deleteLoading, deleteFile] = useDeleteDocumentFile(
-    document.author,
     document.slug,
     file.oid,
     () => {
@@ -43,7 +42,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
     },
   );
   const [updateLoading, updateFile] = useUpdateDocumentFile(
-    document.author,
     document.slug,
     file.oid,
     file => {
@@ -75,7 +73,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           <FileInput
             value={replaceFile}
             onChange={setFile}
-            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg" // apkg=anki
+            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg,.docx,.xlsx,.pptx" // apkg=anki
           />
           <Button
             variant="brand"
@@ -112,9 +110,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           <p>
             The token is valid for an endpoint that can be found at{" "}
             <code>
-              {
-                "POST /api/document/<str:username>/<str:document_slug>/files/<int:id>/update/"
-              }
+              {"POST /api/document/<str:document_slug>/files/<int:id>/update/"}
             </code>
             . The token has to be supplied as an Authorization header, a
             replacement file can be sent as multipart-form upload with the key
@@ -132,9 +128,26 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </p>
           <pre>
             <code>
-              {`curl ${window.location.origin}/api/document/${document.author}/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
+              {`curl ${window.location.origin}/api/document/${document.slug}/files/${file.oid}/update/ \\\n  -H "Authorization: ${document.api_key}" \\\n  -F "file=@my_document.pdf"`}
             </code>
           </pre>
+        </Modal.Body>
+      </Modal>
+      <Modal
+        opened={deleteModalIsOpen}
+        title="Are you absolutely sure?"
+        onClose={toggleDeleteModalIsOpen}
+      >
+        <Modal.Body>
+          Deleting the file is a destructive operation.{" "}
+          <b>This cannot be undone.</b> Please make sure you have a backup of
+          the file elsewhere.
+          <Group position="right" mt="md">
+            <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+            <Button onClick={deleteFile} color="red">
+              Delete "{file.filename}"
+            </Button>
+          </Group>
         </Modal.Body>
       </Modal>
       <Card withBorder my="xs">
@@ -167,7 +180,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               <IconButton
                 iconName={ICONS.DELETE}
                 color="red"
-                onClick={deleteFile}
+                onClick={toggleDeleteModalIsOpen}
                 loading={deleteLoading}
                 tooltip="Delete file"
               />

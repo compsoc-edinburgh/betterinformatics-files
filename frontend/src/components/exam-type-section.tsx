@@ -78,13 +78,13 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   return (
     <>
       {modals}
-      <Group align="center" ml="md" mt="xl" mb="md">
+      <Group align="center" mt="xl" mb="md">
         <Checkbox
           checked={checked}
           indeterminate={indeterminate}
           onChange={e => setChecked(e.currentTarget.checked)}
         />
-        <Title order={2}>{examtype}</Title>
+        <Title order={3}>{examtype}</Title>
       </Group>
       <ExamGrid>
         {exams.map(exam => (
@@ -141,31 +141,17 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       ) : (
                         <Badge className={badgeStyle}>hidden</Badge>
                       ))}
-                    {exam.needs_payment && (
-                      <Badge className={badgeStyle} color="blue">
-                        oral
-                      </Badge>
-                    )}
                     {catAdmin &&
                       (exam.finished_cuts ? (
-                          <Badge className={badgeStyle} color="green">
-                            All done
-                          </Badge>
+                        <Badge className={badgeStyle} color="green">
+                          All done
+                        </Badge>
                       ) : (
                         <Badge className={badgeStyle} color="orange">
                           Needs Cuts
                         </Badge>
                       ))}
 
-                    {exam.is_printonly && (
-                      <Badge
-                        color="red"
-                        className={badgeStyle}
-                        title="This exam can only be printed. We can not provide this exam online."
-                      >
-                        Print Only
-                      </Badge>
-                    )}
                     <Badge
                       className={badgeStyle}
                       title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}

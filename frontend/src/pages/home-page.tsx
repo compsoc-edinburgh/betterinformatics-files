@@ -8,6 +8,7 @@ import {
   Paper,
   SegmentedControl,
   Stack,
+  Text,
   TextInput,
   Title,
   Tooltip,
@@ -139,8 +140,16 @@ const HomePage: React.FC<{}> = () => {
   useTitle("Home");
   return (
     <>
-      <Container size="xl">
-        <Title mb="sm">Community Solutions</Title>
+      <Container size="xl" mb="sm">
+        <Text size="1rem" lh={1}>
+          Better&shy;Informatics
+        </Text>
+        <Title mb="sm">File Collection</Title>
+        <Text size="1rem" weight={500}>
+          BetterInformatics File Collection is a platform for students to share
+          notes, summaries, tips and recommendations for courses, as well as a
+          study platform to collaborate on answers to previous exams.
+        </Text>
       </Container>
       <CategoryList />
     </>
@@ -204,13 +213,12 @@ export const CategoryList: React.FC<{}> = () => {
             onChange={setMode}
             data={[
               { label: "Alphabetical", value: "alphabetical" },
-              { label: "By Semester", value: "bySemester" },
+              { label: "By SCQF", value: "bySCQF" },
             ]}
           />
           <TextInput
             placeholder="Filter..."
             value={filter}
-            autoFocus
             onChange={e => setFilter(e.currentTarget.value)}
             icon={<Icon icon={ICONS.SEARCH} size={12} />}
           />

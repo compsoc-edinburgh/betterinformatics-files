@@ -8,7 +8,7 @@ class TestScoreboard(ComsolTestExamData):
             self.assertEqual(res['username'], user['username'])
 
     def test_top(self):
-        for ty in ['score', 'score_answers', 'score_comments', 'score_cuts', 'score_legacy']:
+        for ty in ['score', 'score_answers', 'score_comments', 'score_cuts']:
             res = self.get('/api/scoreboard/top/{}/'.format(ty))['value']
             self.assertEqual(len(res), min(10, len(self.loginUsers)))
 

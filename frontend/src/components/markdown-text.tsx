@@ -1,5 +1,5 @@
 import { css } from "@emotion/css";
-import ReactMarkdown, { Components }  from "react-markdown";
+import ReactMarkdown, { Components, uriTransformer }  from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from 'rehype-katex';
@@ -113,12 +113,17 @@ interface Props {
    * be highlighted.
    */
   regex?: RegExp;
+  /**
+   * If defined, local links will be prefixed with this string. Use for showing
+   * Markdown from a different domain.
+   */
+  localLinkBase?: string;
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
 const errorMessage = <Alert color="red" title="Rendering error">An error ocurred when rendering this content. This is likely caused by invalid LaTeX syntax.</Alert>;
 
-const MarkdownText: React.FC<Props> = ({ value, regex }) => {
+const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
   const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
   const renderers = useMemo(() => createComponents(regex), [regex]);
   const { classes, cx } = useStyles();
@@ -131,6 +136,18 @@ const MarkdownText: React.FC<Props> = ({ value, regex }) => {
         <ReactMarkdown
           children={value}
           urlTransform={transformImageUri}
+          transformLinkUri={
+            localLinkBase
+              ? (uri: string, children?: React.ReactNode, title?: string) => {
+                  if (uri.startsWith("/")) {
+                    return localLinkBase + uriTransformer(uri);
+                  } else {
+                    // Apply default sanitizer for external links
+                    return uriTransformer(uri);
+                  }
+                }
+              : uriTransformer
+          }
           remarkPlugins={[remarkMath, remarkGfm]}
           rehypePlugins={[[rehypeKatex, {macros: macros}]]}
           components={renderers}

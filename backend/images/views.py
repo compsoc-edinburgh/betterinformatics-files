@@ -1,5 +1,5 @@
 from util import response, s3_util
-from myauth import auth_check
+from ediauth import auth_check
 from images.models import Image
 from django.conf import settings
 from django.shortcuts import get_object_or_404

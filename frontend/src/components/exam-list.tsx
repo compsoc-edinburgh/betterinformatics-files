@@ -1,4 +1,13 @@
-import { Alert, Button, Flex, Loader, TextInput } from "@mantine/core";
+import {
+  Alert,
+  Button,
+  Flex,
+  Group,
+  Loader,
+  Modal,
+  TextInput,
+  Title,
+} from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
@@ -12,6 +21,7 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
+import UploadPdfCard from "./upload-pdf-card";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -56,10 +66,13 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
     return selectedExams;
   };
 
+  const [formIsOpen, setFormIsOpen] = useState(false);
+
   return (
     <>
-      {error && <Alert color="red">{error.message}</Alert>}
-      {loading && <Loader />}
+      <Title order={2} mt="xl" mb="lg">
+        Past Exams
+      </Title>
       <Flex
         direction={{ base: "column", sm: "row" }}
         gap="sm"
@@ -67,7 +80,14 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         mb="lg"
         justify="space-between"
       >
-        <div>
+        <Group>
+          <Button
+            onClick={() => setFormIsOpen(true)}
+            leftIcon={<Icon icon={ICONS.PLUS} />}
+            variant="outline"
+          >
+            Add new exam
+          </Button>
           <Button
             disabled={selected.size === 0}
             onClick={() => dlSelectedExams(getSelectedExams(selected))}
@@ -75,15 +95,16 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           >
             Download selected exams
           </Button>
-        </div>
+        </Group>
         <TextInput
           placeholder="Filter..."
           value={filter}
-          autoFocus
           onChange={e => setFilter(e.currentTarget.value)}
           icon={<Icon icon={ICONS.SEARCH} size={14} />}
         />
       </Flex>
+      {error && <Alert color="red">{error.message}</Alert>}
+      {loading && <Loader />}
 
       {examTypeMap &&
         examTypeMap.map(
@@ -100,6 +121,21 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
               />
             ),
         )}
+      {viewableExams && viewableExams.length === 0 && (
+        <Alert variant="light" color="orange">
+          No exams available to view.
+        </Alert>
+      )}
+
+      <Modal
+        opened={formIsOpen}
+        title="Upload a new exam PDF"
+        onClose={() => setFormIsOpen(r => !r)}
+      >
+        <Modal.Body>
+          <UploadPdfCard preChosenCategory={metaData.slug} />
+        </Modal.Body>
+      </Modal>
     </>
   );
 };

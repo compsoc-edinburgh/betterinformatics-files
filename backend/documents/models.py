@@ -2,7 +2,7 @@ import secrets
 from django.db import models
 from django.utils.text import slugify
 from django_prometheus.models import ExportModelOperationsMixin
-from myauth import auth_check
+from ediauth import auth_check
 from util.models import CommentMixin
 
 
@@ -15,9 +15,12 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
     display_name = models.CharField(max_length=256)
     description = models.CharField(max_length=4096)
     category = models.ForeignKey("categories.Category", on_delete=models.CASCADE)
-    document_type = models.ForeignKey('DocumentType', on_delete=models.PROTECT, related_name="type_set")
+    document_type = models.ForeignKey(
+        "DocumentType", on_delete=models.PROTECT, related_name="type_set"
+    )
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     likes = models.ManyToManyField("auth.User", related_name="liked_documents")
+    anonymised = models.BooleanField(default=False)
     api_key = models.CharField(max_length=1024, default=generate_api_key)
 
     def current_user_can_delete(self, request):
@@ -51,9 +54,11 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
 
         super(Document, self).save(*args, **kwargs)
 
+
 class DocumentType(models.Model):
     display_name = models.CharField(max_length=256)
     order = models.IntegerField(default=0)
+
 
 class Comment(ExportModelOperationsMixin("document_comment"), CommentMixin):
     document = models.ForeignKey(

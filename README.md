@@ -6,8 +6,7 @@ This guide is based on Ubuntu 20.04 LTS, but should work on anything similar.
 
 ---
 
-# Installation
-
+# Local Installation
 ## Frontend
 
 There are 2 ways to start the frontend:
@@ -81,7 +80,8 @@ docker compose watch --no-up &\
 ## Editing frontend code
 
 There is an autoformatter for the frontend code
-([prettier](https://prettier.io/)). It can be run once using `yarn run format`.
+([prettier](https://prettier.io/)). It can be run once using `yarn run format`
+if you have Yarn locally, otherwise as `cd frontend; docker compose run --rm react-frontend yarn run format` to run it within the frontend Docker container.
 Some aspects of code quality and coding style are checked automatically using
 [eslint](https://eslint.org). You can run eslint using `yarn run lint`. There are plugins
 for most editors so that you can see warnings and errors as you type.
@@ -186,9 +186,39 @@ make sure you're on the latest commit of the branch with `git pull`.
   caused by minio not being in your hosts file. Your browser gets an url with minio
   as the host, but if minio is not in your hosts file, it won't be redirected correctly.
 
-# The important bits
+# Deployment
 
-The pipeline is managed by [Preview Deployment Manager](https://gitlab.ethz.ch/vseth/0403-isg/sip-sip-apps/pdep). It uses Webhooks to build and deploy upon merge requests. PDep interacts with TeamCity, and schedules the actual jobs on there. As CIT / CAT member you should be able to see the TeamCity project and see pipeline status & logs as well as re-run it. It sometimes happens that the pipeline fails because of Out-Of-Memory issues, you can usually just restart it and run again if that is the case.
+The root Dockerfile is a multi-staged Dockerfile. By using the Docker Compose
+method to start the backend, you specify that only the first section on backend-
+specific things get built into the image.
+
+Deployment is automatically done through the CI once a commit is merged into
+the master branch. Specifically, the production instance runs on a Kubernetes
+cluster within CompSoc's Tardis account, and the CI performs a rolling restart
+on it. The database is hosted with Docker Compose outside of the cluster for
+persistence, and for S3 we use Tardis' Minio service.
+
+To manually deploy (e.g. to a new VM), follow these steps:
+
+1. Run `docker build -t yourname/yourtag .` to build the image properly, which
+will also build the frontend, optimise it for production (this can take 5-10
+minutes), and bundle it together with the backend in a single image.
+2. You can then run this image in production using either Docker or Kubernetes.
+3. Make sure to configure any runtime environment variables (such as the
+Postgres DB details) using Docker's `-e` flag or any equivalent.
+
+To handle authentication (signing JWT tokens to prevent forgery), the backend
+requires an RSA private/public keypair to be available at the path specified at
+`RUNTIME_JWT_PRIVATE_KEY_PATH` and `RUNTIME_JWT_PUBLIC_KEY_PATH` environment
+variables. During local development, this can be left empty to use an empty
+string as the key. For production, you should pre-generate this with e.g.
+openssl, and use mounted volumes to make it available within the deployment
+image (such as Docker Compose volumes or Kubernetes secret mounts).
+
+A GSuite credentials file should also be passed to the container (similar to
+keypair procedure), so that it can send email verification emails as a GSuite
+user. This can also be left empty during local development, which will make
+emails display to console instead.
 
 # License
 

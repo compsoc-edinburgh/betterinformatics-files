@@ -4,6 +4,7 @@ import {
   TextInput,
   Modal,
   Flex,
+  Switch,
   Title,
   Text,
   Stack,
@@ -17,7 +18,7 @@ import { useHistory } from "react-router-dom";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
-  loadCategories,
+  loadAdminCategories,
   loadDocumentTypes,
   Mutate,
   useDeleteDocument,
@@ -41,7 +42,7 @@ interface Props {
 
 const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
   const history = useHistory();
-  const { data: categories } = useRequest(loadCategories);
+  const { data: categories } = useRequest(loadAdminCategories);
   const categoryOptions =
     categories &&
     createOptions(
@@ -59,26 +60,20 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     setDocumentTypeOptions(documentTypes ?? []);
   }, [documentTypes]);
 
-  const [loading, updateDocument] = useUpdateDocument(
-    data.author,
-    data.slug,
-    result => {
-      mutate(s => ({ ...s, ...result }));
-      setDisplayName(undefined);
-      setCategory(undefined);
-      setDocumentType(undefined);
-      if (result.slug !== data.slug) {
-        history.replace(`/user/${result.author}/document/${result.slug}`);
-      }
-    },
-  );
+  const [loading, updateDocument] = useUpdateDocument(data.slug, result => {
+    mutate(s => ({ ...s, ...result }));
+    setDisplayName(undefined);
+    setCategory(undefined);
+    setDocumentType(undefined);
+    if (result.slug !== data.slug) {
+      history.replace(`/document/${result.slug}`);
+    }
+  });
   const [regenerateLoading, regenerate] = useRegenerateDocumentAPIKey(
-    data.author,
     data.slug,
     result => mutate(s => ({ ...s, ...result })),
   );
   const [_, deleteDocument] = useDeleteDocument(
-    data.author,
     data.slug,
     () => data && history.push(`/category/${data.category}`),
   );
@@ -94,6 +89,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     prev: [],
     next: [],
   });
+  const [anonymised, setAnonymised] = useState<boolean | undefined>(undefined);
 
   const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
   return (
@@ -123,7 +119,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                 data={categoryOptions ? (options(categoryOptions) as any) : []}
                 value={
                   categoryOptions &&
-                  (category ? categoryOptions[category].value : undefined)
+                  (category ? categoryOptions[category].value : data.category)
                 }
                 onChange={(value: string) => {
                   setCategory(value);
@@ -165,6 +161,14 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
               setUndoStack={setDescriptionUndoStack}
             />
           </div>
+          <div>
+            <Text size="sm">Anonymise</Text>
+            <Switch
+              checked={anonymised ?? data.anonymised}
+              onChange={e => setAnonymised(e.currentTarget.checked)}
+              label="Check this to hide the author UUN from normal users. Yourself, BI admins, and category admins will still be able to see the original UUN."
+            />
+          </div>
           <Flex justify="end">
             <Button
               loading={loading}
@@ -175,6 +179,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                   category,
                   document_type: documentType,
                   description: descriptionDraftText,
+                  anonymised,
                 })
               }
               disabled={displayName?.trim() === ""}

@@ -9,10 +9,9 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
+
 import os
-from base64 import b64encode
 import sys
-from jwcrypto.jwk import JWKSet, JWK
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,14 +33,12 @@ SECRET_KEY = (
     )
 )
 API_KEY = (
-    "API_KEY" if DEBUG else os.environ.get(
-        "RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
+    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 )
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
 COMSOL_EXAM_DIR = "exams/"
-COMSOL_PRINTONLY_DIR = "printonly/"
 COMSOL_SOLUTION_DIR = "solutions/"
 COMSOL_DOCUMENT_DIR = "documents/"
 COMSOL_IMAGE_DIR = "imgs/"
@@ -62,9 +59,17 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".zip", "application/x-zip-compressed"),
     (".apkg", "application/octet-stream"),  # anki
     (".colpkg", "application/octet-stream"),  # anki collection
+    (
+        ".docx",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ),
+    (".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+    (
+        ".pptx",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    ),
 }
-COMSOL_IMAGE_ALLOWED_EXTENSIONS = {
-    "jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
+COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -73,75 +78,67 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
-COMSOL_FRONTEND_GLOB_ID = os.environ.get(
-    "FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
+COMSOL_AUTH_ACCEPTED_DOMAINS = "sms.ed.ac.uk"
+COMSOL_AUTH_ADMIN_UUNS = os.environ.get("ADMIN_UUNS", "").split(",")
 
-# The following config settings configure the config with which a keycloak js client instance is
-# constructed in the React frontend.
-COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
-    "FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
+COMSOL_AUTH_BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+
+# The public / private key path in the testing directory should only be
+# used for unit testing and nothing else. For production, the keys are
+# generated at runtime by cinit. Restarting the backend will invalidate all
+# existing tokens, but this isn't really a large problem except for the
+# small inconvenience of all users having to log in again.
+jwt_private_key_path = (
+    "testing/jwtRS256.key"
+    if TESTING
+    else os.environ.get("RUNTIME_JWT_PRIVATE_KEY_PATH", "")
 )
-COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
-    "FRONTEND_KEYCLOAK_REALM", "VSETH")
-COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
-    "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
+jwt_public_key_path = (
+    "testing/jwtRS256.key.pub"
+    if TESTING
+    else os.environ.get("RUNTIME_JWT_PUBLIC_KEY_PATH", "")
 )
+
+# Use keys (and thus RS256 for JWT instead of HS256) if both keys are provided.
+# Otherwise, use a symmetric key (empty string).
+JWT_USE_KEYS = jwt_private_key_path and jwt_public_key_path
+JWT_PRIVATE_KEY = (
+    "" if not jwt_private_key_path else open(jwt_private_key_path, "rb").read()
+)
+JWT_PUBLIC_KEY = (
+    "" if not jwt_public_key_path else open(jwt_public_key_path, "rb").read()
+)
+
+# If we don't have a Gsuite credentials file (e.g. during local dev), use the
+# dummy email backend that will write emails to console.
+if os.environ.get("GSUITE_CREDENTIALS_FILE", "") == "":
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    # Use django-suite-email (which allows us to use the GSuite SMTP server for
+    # the send_mail function), set the backend and credential file.
+    EMAIL_BACKEND = "django_gsuite_email.GSuiteEmailBackend"
+    GSUITE_CREDENTIALS_FILE = os.environ.get("GSUITE_CREDENTIALS_FILE", "")
+
+# The address in the From field must be a valid user address (not a
+# group address or non-existent address) that the provided credential
+# file has access to. If the credential was created for an organisation,
+# you must enable "domain-wide delegation" or impersonation for the
+# associated service account in GSuite Admin Console, with the following
+# as the scope: "https://www.googleapis.com/auth/gmail.send"
+VERIF_CODE_FROM_EMAIL_ADDRESS = os.environ.get("VERIF_CODE_FROM_EMAIL_ADDRESS", "")
+
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
     "email_address": os.environ.get("FRONTEND_EMAIL_ADDRESS", ""),
     "imprint": os.environ.get("FRONTEND_IMPRINT", ""),
-    "unlock_deposit_notice": os.environ.get("FRONTEND_UNLOCK_DEPOSIT_NOTICE", ""),
-    "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", "")
-    or "https://account.vseth.ethz.ch/privacy",
+    "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
 IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE"
 
-
-# The public / private key path in the testing directory should only be used for unit testing and nothing else
-# During testing we use the public / private key pair located in the testing directory
-# We convert it from pem to a data_url so that even while testing the jwk is loaded from an url
-test_pub_key_data = open("testing/jwtRS256.key.pub", "rb").read()
-test_key = JWK()
-test_key.import_from_pem(test_pub_key_data)
-key_data = JWKSet(keys=test_key).export(private_keys=False)
-pub_key_set_url = "data:text/plain;base64," + b64encode(
-    key_data.encode("utf-8")
-).decode("utf-8")
-
-OAUTH2_CLIENT_ID = os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
-OAUTH2_CLIENT_SECRET = os.environ.get("SIP_AUTH_OIDC_CLIENT_SECRET", "")
-OAUTH2_TOKEN_URL = os.environ.get("SIP_AUTH_OIDC_TOKEN_ENDPOINT", "")
-OAUTH2_AUTH_URL = os.environ.get("SIP_AUTH_OIDC_AUTH_ENDPOINT", "")
-
-OIDC_JWKS_URL = (
-    pub_key_set_url
-    if TESTING
-    else os.environ.get(
-        "SIP_AUTH_OIDC_JWKS_URL",
-        "https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/certs",
-    )
-)
-
-JWT_VERIFY_SIGNATURE = (
-    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE",
-                   "TRUE") != "FALSE" or not DEBUG
-)
-JWT_RESOURCE_GROUP = (
-    "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
-)
-
-CNAMES = os.environ.get("SIP_INGRESS_HTTP_DEFAULT_CNAMES", "")
-PRIMARY_DEPLOYMENT_DOMAIN = os.environ.get(
-    "SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN", ""
-)
-DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
-    [] if CNAMES == "" else CNAMES.split(" ")
-)
-
-BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+DEPLOYMENT_DOMAINS = os.environ.get("DEPLOYMENT_DOMAINS", "").split(",")
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
@@ -149,7 +146,6 @@ if DEBUG:
     ALLOWED_HOSTS.append("localhost")
     REAL_ALLOWED_HOSTS.append("localhost")
 else:
-    # ALLOWED_HOSTS.append(os.environ['SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN'])
     # USE_X_FORWARDED_HOST = True
     # In K8s, the host is the IP of the pod and can thus change
     # As we are behind a reverse proxy, it should be fine to ignore this...
@@ -158,24 +154,24 @@ else:
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# Set up Content Security Policy so only .js files from the frontend /static
+# path (and inline ones) are allowed to be executed. We also assume HTTPS.
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
-    allowed_script_sources = [f"http://{host}:8080/static/"
-               for host in REAL_ALLOWED_HOSTS]
+    allowed_script_sources = [
+        f"http://{host}:8080/static/" for host in REAL_ALLOWED_HOSTS
+    ]
 else:
-    allowed_script_sources = [f"https://{host}/static/"
-               for host in REAL_ALLOWED_HOSTS]
+    allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
-    "https://static.vseth.ethz.ch",
-    *allowed_script_sources
+    *allowed_script_sources,
 )
 CSP_STYLE_SRC = (
     "'self'",
     "'unsafe-inline'",
     "https://fonts.googleapis.com",
-    "https://static.vseth.ethz.ch",
 )
 CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com")
 
@@ -183,16 +179,20 @@ s3_host = os.environ.get("SIP_S3_FILES_HOST", "s3")
 s3_port = os.environ.get("SIP_S3_FILES_PORT", "9000")
 CSP_CONNECT_SRC = (
     "'self'",
-    "https://static.vseth.ethz.ch",
-    "https://auth.vseth.ethz.ch",
     "https://" + s3_host + ":" + s3_port,
     "http://" + s3_host + ":" + s3_port,
+    # Allow fetch()-ing and rendering Markdown files from BetterInformatics
+    # (assumption being that they are relatively safe -- if they contain XSS,
+    # the Markdown renderer should prevent it from being executed)
+    "https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/_sections/",
+    "https://betterinformatics.com/courses.json",
 )
 CSP_IMG_SRC = (
-    "'self'", 
-    "data:", 
-    "https://static.vseth.ethz.ch", 
-    "https://fe.vseth.ethz.ch",
+    "'self'",
+    "data:",
+    "https://betterinformatics.com/static/img/",  # for the camel image
+    "https://comp-soc.com/static/img/",  # for the compsoc logo
+    "https://raw.githubusercontent.com/compsoc-edinburgh/",  # for anything else
 )
 
 
@@ -214,18 +214,17 @@ INSTALLED_APPS = [
     "frontend.apps.FrontendConfig",
     "health.apps.HealthConfig",
     "images.apps.ImagesConfig",
-    "myauth.apps.MyAuthConfig",
+    "ediauth",
     "util.apps.UtilConfig",
     "notifications.apps.NotificationsConfig",
-    "payments.apps.PaymentsConfig",
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
     "django_probes",
-]
+] + (["django_gsuite_email"] if "django_gsuite_email" in EMAIL_BACKEND else [])
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
-    "myauth.auth_backend.AuthenticationMiddleware",
+    "ediauth.auth_backend.AuthenticationMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -272,14 +271,15 @@ LOGGING = {
             "stream": sys.stdout,
         },
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO" if DEBUG else "WARNING",
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO" if DEBUG else "WARNING",
+        },
     },
 }
 
 WSGI_APPLICATION = "backend.wsgi.application"
-
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

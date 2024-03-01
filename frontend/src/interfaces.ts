@@ -10,7 +10,6 @@ export interface AnswerSection {
   kind: SectionKind.Answer;
   answers: Answer[];
   allow_new_answer: boolean; // whether the current user can add an answer
-  allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
   cutHidden: boolean;
   has_answers: boolean;
   hidden: boolean; // whether the element is currently hidden
@@ -37,7 +36,6 @@ export interface Answer {
   edittime: string; // ISO 8601, last edit time
   filename: string; // filename of the corresponding exam
   sectionId: string; // id of section containing answer
-  isLegacyAnswer: boolean; // whether this is a legacy answer
   divRef?: HTMLDivElement; // root div element for scroll jumping
 }
 
@@ -110,7 +108,6 @@ export interface CategoryExam {
   displayname: string; // Name of exam which should be displayed
   filename: string; // unique filename
   category_displayname: string; // category of exam
-  needs_payment: boolean; // whether a payment is required
   examtype: string; // type of exam
   remark: string; // remark for the exam
   import_claim: string | null; // the user who is importing the exam
@@ -118,19 +115,10 @@ export interface CategoryExam {
   import_claim_time: string | null; // time at which the user claimed the exam
   public: boolean; // whether the exam is public
   has_solution: boolean; // whether there is an official solution
-  is_printonly: boolean; // whether this exam can only be printed
   finished_cuts: boolean; // whether all cuts were added
   canView: boolean; // whether the exam can be viewed by the user
   count_cuts: number; // number of cuts in exam
   count_answered: number; // number of cuts with answers in exam
-}
-
-export interface CategoryPaymentExam {
-  displayname: string;
-  filename: string;
-  category_displayname: string;
-  payment_uploader: string;
-  payment_uploader_displayname: string;
 }
 
 export interface MetaCategory {
@@ -159,6 +147,7 @@ export interface CategoryMetaDataOverview {
   slug: string;
   examcountpublic: number;
   examcountanswered: number;
+  documentcount: number;
   answerprogress: number;
 }
 
@@ -169,13 +158,15 @@ export interface CategoryMetaData {
   experts: string[];
   semester: string;
   form: string;
+  euclid_codes: string[];
   permission: string;
   remark: string;
-  has_payments: boolean;
   catadmin: boolean;
   more_exams_link: string;
+  more_markdown_link: string;
   examcountpublic: number;
   examcountanswered: number;
+  documentcount: number;
   answerprogress: number;
   attachments: Attachment[];
 }
@@ -189,7 +180,6 @@ export interface ExamMetaData {
   canEdit: boolean;
   isExpert: boolean;
   canView: boolean;
-  hasPayed: boolean;
   filename: string;
   displayname: string;
   category: string;
@@ -200,19 +190,13 @@ export interface ExamMetaData {
   remark: string;
   public: boolean;
   finished_cuts: boolean;
-  needs_payment: boolean;
-  is_printonly: boolean;
   has_solution: boolean;
-  solution_printonly: boolean;
-  is_oral_transcript: boolean;
-  oral_transcript_checked: boolean;
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];
 
   exam_file?: string;
   solution_file?: string;
-  printonly_file?: string;
 }
 
 export interface ExamSelectedForDownload {
@@ -240,18 +224,7 @@ export interface UserInfo {
   score_answers: number;
   score_comments: number;
   score_cuts: number;
-  score_legacy: number;
   score_documents: number;
-}
-
-export interface PaymentInfo {
-  oid: string;
-  active: boolean;
-  payment_time: string;
-  uploaded_filename: string | null;
-  check_time: string | null;
-  refund_time: string | null;
-  valid_until: string;
 }
 
 export interface FeedbackEntry {
@@ -353,6 +326,7 @@ export interface Document {
   document_type: string;
   category_display_name: string;
   author: string;
+  anonymised: boolean;
   comments: DocumentComment[];
   files: DocumentFile[];
   liked: boolean;
@@ -373,4 +347,30 @@ export interface DocumentFile {
 export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
   oid: number;
   documentId: number;
+}
+
+export interface BICourseList {
+  last_update: string;
+  list: BICourseDict;
+}
+
+export interface BICourseDict {
+  [key: string]: BICourse;
+}
+
+export interface BICourse {
+  acronym: string;
+  course_url: string;
+  credits: number;
+  cw_exam_ratio: number[];
+  delivery: string;
+  delivery_ordinal: number;
+  diet: string;
+  euclid_code: string;
+  euclid_url: string;
+  euclid_code_shadow: string | undefined;
+  euclid_url_shadow: string | undefined;
+  level: number;
+  name: string;
+  year: string;
 }

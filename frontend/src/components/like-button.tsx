@@ -159,11 +159,7 @@ interface Props {
 }
 
 const LikeButton: React.FC<Props> = ({ document, mutate }) => {
-  const [_, updateDocument] = useUpdateDocument(
-    document.author,
-    document.slug,
-    () => void 0,
-  );
+  const [_, updateDocument] = useUpdateDocument(document.slug, () => void 0);
   const nonLikeCount = document.like_count - (document.liked ? 1 : 0);
   const likeCount = document.like_count + (document.liked ? 0 : 1);
   return (

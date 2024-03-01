@@ -1,6 +1,5 @@
 from util import response
-from myauth import auth_check
-from myauth.models import get_my_user
+from ediauth import auth_check
 from feedback.models import Feedback
 from django.shortcuts import get_object_or_404
 
@@ -22,7 +21,7 @@ def list_all(request):
             'oid': obj.id,
             'text': obj.text,
             'author': obj.author.username,
-            'authorDisplayName': get_my_user(obj.author).displayname(),
+            'authorDisplayName': obj.author.profile.display_username,
             'time': obj.time.isoformat(),
             'read': obj.read,
             'done': obj.done,

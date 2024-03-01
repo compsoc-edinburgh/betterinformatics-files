@@ -16,11 +16,10 @@ const CreateDocumentForm: React.FC<Props> = ({
   isOpen,
   toggle,
 }) => {
-  const { username } = useUser()!;
   const [displayName, setDisplayName] = useState("");
   const history = useHistory();
   const [loading, run] = useCreateDocument(({ slug }) => {
-    history.push(`/user/${username}/document/${slug}/`);
+    history.push(`/document/${slug}/`);
   });
   return (
     <Modal opened={isOpen} title="Add Document" onClose={toggle}>

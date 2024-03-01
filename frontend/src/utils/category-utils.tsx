@@ -148,3 +148,42 @@ export const dlSelectedExams = async (
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 };
+/**
+ * Strip the YAML frontmatter (if it exists) from a raw markdown file content,
+ * and any leading newlines.
+ * @param markdown Raw markdowwn string
+ * @returns Stripped raw markdown string
+ */
+export const removeMarkdownFrontmatter = (markdown: string) => {
+  const regex = /^---[\s\S]*?---\n+/;
+  return markdown.replace(regex, "");
+};
+/**
+ * Determine if a link to a markdown file is on GitHub, and if so, construct an
+ * edit link for it.
+ * @param link Link to a raw markdown file
+ * @returns Whether the link is editable on GitHub and if so, an edit link
+ */
+export const useEditableMarkdownLink = (link: string | undefined) => {
+  // Only editable if it's a link to a public file on GitHub
+  if (!link || !link.includes("raw.githubusercontent.com")) {
+    return {
+      editable: false,
+      link: undefined,
+    };
+  }
+
+  // Generate the edit link by inserting /edit/ into the URL and changing the
+  // domain -- this leads directly to the editor for the file on GitHub
+  const editLink = link.replace("raw.githubusercontent.com", "github.com");
+  const pathComponents = editLink.split("/");
+  const thirdPathComponent = pathComponents[4];
+  const newEditLink = editLink.replace(
+    thirdPathComponent,
+    `${thirdPathComponent}/edit`,
+  );
+  return {
+    editable: true,
+    link: newEditLink,
+  };
+};

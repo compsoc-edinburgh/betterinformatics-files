@@ -20,7 +20,7 @@ export const useDocumentDownload = (doc: Document | undefined) => {
     (async () => {
       if (doc.files.length === 0) return;
       if (doc.files.length === 1) {
-        download(`/api/document/file/${doc.files[0].filename}`);
+        download(`/api/document/${doc.slug}/file/${doc.files[0].filename}`);
         setIsLoading(false);
         return;
       }
@@ -37,7 +37,7 @@ export const useDocumentDownload = (doc: Document | undefined) => {
               : undefined;
           if (controller !== undefined) controllers.push(controller);
           const responseFile = await fetch(
-            `/api/document/file/${file.filename}`,
+            `/api/document/${doc.slug}/file/${file.filename}`,
             {
               signal: controller?.signal,
             },

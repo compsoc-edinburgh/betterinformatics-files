@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css";
-import { Button, Title } from "@mantine/core";
+import { Button, Title, Tooltip } from "@mantine/core";
 import { Icon, ICONS } from "vseth-canine-ui";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
@@ -14,7 +14,7 @@ const panelStyle = css`
   flex-direction: row;
   z-index: ${GlobalConsts.zIndex.panel};
   height: 100%;
-  min-width: 400px;
+  min-width: 300px;
   box-sizing: border-box;
   transition: transform 0.5s;
   @media (max-width: 1199.98px) {
@@ -84,7 +84,7 @@ interface PanelProps {
   buttonText?: string;
   children?: React.ReactNode;
 }
-const movingRightAnimation = css`
+const _movingRightAnimation = css`
   @keyframes moveRightAndBack {
     0%,
     100% {
@@ -119,25 +119,21 @@ const Panel: React.FC<PanelProps> = ({
     <>
       <div className={panelStyle}>
         <div className={iconContainerStyle} style={{ padding: iconPadding }}>
-          <Button
-            size="lg"
-            variant="brand"
-            className={closeButtonStyle}
-            onClick={toggle}
-            leftIcon={
-              <Icon
-                icon={ICONS.ARROW_RIGHT}
-                className={movingRightAnimation}
-                size={24}
-              />
-            }
-          >
-            {buttonText && (
-              <div>
-                <small>{buttonText}</small>
-              </div>
-            )}
-          </Button>
+          <Tooltip withinPortal label="Quick jump">
+            <Button
+              size="lg"
+              variant="brand"
+              className={closeButtonStyle}
+              onClick={toggle}
+              leftIcon={<Icon icon={ICONS.MENU_BURGER} size={24} />}
+            >
+              {buttonText && (
+                <div>
+                  <small>{buttonText}</small>
+                </div>
+              )}
+            </Button>
+          </Tooltip>
         </div>
       </div>
       <Transition in={isOpen} timeout={duration} unmountOnExit>
@@ -150,7 +146,7 @@ const Panel: React.FC<PanelProps> = ({
           >
             <div className={modalWrapper}>
               <div className={`${cx("modal-content", modalStyle)}`}>
-                <Title>{header}</Title>
+                <Title order={3}>{header}</Title>
                 {children}
               </div>
             </div>

@@ -54,7 +54,12 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
     <>
       <Group position="apart" mb="sm">
         <div>
-          <h1>{userInfo?.displayName || username}</h1>
+          <h1>
+            @{username}{" "}
+            {userInfo &&
+              userInfo.displayName !== username &&
+              `(${userInfo.displayName})`}
+          </h1>
         </div>
 
         {isMyself && (
@@ -86,7 +91,13 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
       </Group>
 
       <Container fluid p={0}>
-        <SimpleGrid cols={3} breakpoints={[{ maxWidth: "sm", cols: 1 }]}>
+        <SimpleGrid
+          cols={4}
+          breakpoints={[
+            { maxWidth: "sm", cols: 1 },
+            { maxWidth: "md", cols: 2 },
+          ]}
+        >
           {scoreCard(userInfo, "Score", "score", ICONS.UP)}
           {scoreCard(userInfo, "Answers", "score_answers", ICONS.PEN)}
           {scoreCard(
@@ -98,15 +109,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
           {scoreCard(userInfo, "Documents", "score_documents", ICONS.FILE)}
           {userInfo &&
             userInfo.score_cuts > 0 &&
-            scoreCard(userInfo, "Exam Import", "score_cuts", ICONS.FILE_UP)}
-          {userInfo &&
-            userInfo.score_legacy > 0 &&
-            scoreCard(
-              userInfo,
-              "Legacy Answers",
-              "score_legacy",
-              ICONS.FILE_MISSING_PLUS,
-            )}
+            scoreCard(userInfo, "Exam Cuts", "score_cuts", ICONS.FILE_UP)}
         </SimpleGrid>
       </Container>
     </>

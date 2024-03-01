@@ -57,11 +57,15 @@ services:
         - action: rebuild
           path: backend/requirements.txt
     container_name: community-solutions
+    volumes:
+      - ./keys:/app/config
     ports:
       - "8081:8081"
     environment:
-      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN=localhost
-      - SIP_INGRESS_HTTP_DEFAULT_CNAMES=
+      # The following environment variables are used by the backend for local
+      # development.
+
+      - DEPLOYMENT_DOMAINS=localhost
 
       - SIP_POSTGRES_DB_SERVER=postgres
       - SIP_POSTGRES_DB_PORT=5432
@@ -76,23 +80,21 @@ services:
       - SIP_S3_FILES_BUCKET=community-solutions
       - SIP_S3_FILES_USE_SSL=false
 
+      - GSUITE_CREDENTIALS_FILE=
+      - VERIF_CODE_FROM_EMAIL_ADDRESS=no-reply@betterinformatics.com
+
       - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
       - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
 
-      - RUNTIME_FRONTEND_KEYCLOAK_URL=https://auth.vseth.ethz.ch/auth
-      - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
+      - RUNTIME_JWT_PRIVATE_KEY_PATH=
+      - RUNTIME_JWT_PUBLIC_KEY_PATH=
 
-      - SIP_AUTH_OIDC_CLIENT_ID=vis_cat_staging_community_solutions_oidc
-      - SIP_AUTH_OIDC_CLIENT_SECRET=tYousukJDxqlhpFuyonjmXyJm
-
-      - FRONTEND_TITLE_PREFIX=prefix
-      - FRONTEND_TITLE_SUFFIX=suffix
-      - FRONTEND_FAVICON_URL=favicon
+      - FRONTEND_TITLE_PREFIX=
+      - FRONTEND_TITLE_SUFFIX=- Debug
+      - FRONTEND_FAVICON_URL=https://betterinformatics.com/static/img/favicon.ico
       - FRONTEND_EMAIL_ADDRESS=nothing@localhost
 
-      - SIP_AUTH_OIDC_AUTH_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/auth
-      - SIP_AUTH_OIDC_TOKEN_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/token
-
+      # In preview mode, every user is an admin.
       - PDEP_IS_PREVIEW=TRUE
     depends_on:
       postgres:

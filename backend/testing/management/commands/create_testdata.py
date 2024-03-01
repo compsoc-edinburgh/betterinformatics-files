@@ -4,8 +4,7 @@ from django.conf import settings
 from util import s3_util
 from django.utils import timezone
 from datetime import timedelta
-
-from myauth.models import MyUser
+from django.contrib.auth.models import User
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
 from categories.models import Category, MetaCategory
 from feedback.models import Feedback
@@ -29,7 +28,7 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for (first_name, last_name, username) in [
+        for first_name, last_name, username in [
             ("Zoe", "Fletcher", "fletchz"),
             ("Ernst", "Meyer", "meyee"),
             ("Jonas", "Schneider", "schneij"),
@@ -41,11 +40,11 @@ class Command(BaseCommand):
             ("Josef", "Widmer", "widmjo"),
             ("Werner", "Steiner", "steinewe"),
         ]:
-            MyUser(first_name=first_name, last_name=last_name, username=username).save()
+            User(first_name=first_name, last_name=last_name, username=username).save()
 
     def create_images(self):
         self.stdout.write("Create images")
-        for user in MyUser.objects.all():
+        for user in User.objects.all():
             for i in range(user.id % 10 + 5):
                 filename = s3_util.generate_filename(
                     16, settings.COMSOL_IMAGE_DIR, ".svg"
@@ -82,10 +81,9 @@ class Command(BaseCommand):
                 ][i % 3],
                 semester=["HS", "FS"][i % 2],
                 permission="public",
-                has_payments=(i % 5 == 0),
             )
             category.save()
-            for j, user in enumerate(MyUser.objects.all()):
+            for j, user in enumerate(User.objects.all()):
                 if (i + j) % 6 == 0:
                     category.admins.add(user)
                 if (i + j) % 9 == 0:
@@ -113,15 +111,11 @@ class Command(BaseCommand):
                 s3_util.save_file_to_s3(
                     settings.COMSOL_EXAM_DIR, filename, "exam10.pdf"
                 )
-                needs_payment = category.has_payments and (i + category.id % 3 == 0)
-                if needs_payment:
-                    exam_type = ExamType.objects.get(displayname="Transcripts")
-                else:
-                    exam_type = (
-                        ExamType.objects.get(displayname="Exams")
-                        if (i + category.id % 4 != 0)
-                        else ExamType.objects.get(displayname="Midterms")
-                    )
+                exam_type = (
+                    ExamType.objects.get(displayname="Exams")
+                    if (i + category.id % 4 != 0)
+                    else ExamType.objects.get(displayname="Midterms")
+                )
                 exam = Exam(
                     filename=filename,
                     displayname="Exam {} in {}".format(i + 1, category.displayname),
@@ -130,7 +124,6 @@ class Command(BaseCommand):
                     resolve_alias="resolve_" + filename,
                     public=(i + category.id % 7 != 0),
                     finished_cuts=(i + category.id % 5 != 0),
-                    needs_payment=needs_payment,
                 )
                 exam.save()
                 pdf_utils.analyze_pdf(
@@ -144,32 +137,27 @@ class Command(BaseCommand):
                     )
                     exam.save()
 
-                if i + category.id % 5 == 0:
-                    exam.is_printonly = True
-                    s3_util.save_file_to_s3(
-                        settings.COMSOL_PRINTONLY_DIR, filename, "exam10.pdf"
-                    )
-                    exam.save()
-
     def create_answer_sections(self):
         self.stdout.write("Create answer sections")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         objs = []
         for exam in Exam.objects.all():
             for page in range(3):
                 for i in range(4):
-                    objs.append(AnswerSection(
-                        exam=exam,
-                        author=users[(exam.id + page + i) % len(users)],
-                        page_num=page,
-                        rel_height=0.2 + 0.15 * i,
-                        name="Aufgabe " + str(i),
-                    ))
+                    objs.append(
+                        AnswerSection(
+                            exam=exam,
+                            author=users[(exam.id + page + i) % len(users)],
+                            page_num=page,
+                            rel_height=0.2 + 0.15 * i,
+                            name="Aufgabe " + str(i),
+                        )
+                    )
         AnswerSection.objects.bulk_create(objs)
 
     def create_answers(self):
         self.stdout.write("Create answers")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         objs = []
         for section in AnswerSection.objects.all():
             for i in range(section.id % 7):
@@ -185,11 +173,9 @@ class Command(BaseCommand):
                         ),
                     ][(section.id + i) % 3],
                 )
-                if i == 6:
-                    answer.is_legacy_answer = True
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
-        
+
         for answer in Answer.objects.all():
             i = answer.answer_section.id
             for user in users:
@@ -204,7 +190,7 @@ class Command(BaseCommand):
 
     def create_comments(self):
         self.stdout.write("Create comments")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         objs = []
         for answer in Answer.objects.all():
             for i in range(answer.id % 17):
@@ -224,14 +210,16 @@ class Command(BaseCommand):
 
     def create_feedback(self):
         self.stdout.write("Create feedback")
-        users = MyUser.objects.all()
-        objs = [Feedback(
+        users = User.objects.all()
+        objs = [
+            Feedback(
                 text="Feedback " + str(i + 1),
                 author=users[i % len(users)],
                 read=i % 7 == 0,
                 done=i % 17 == 0,
             )
-         for i in range(122)]
+            for i in range(122)
+        ]
         Feedback.objects.bulk_create(objs)
 
     def create_attachments(self):
@@ -265,9 +253,9 @@ class Command(BaseCommand):
 
     def create_notifications(self):
         self.stdout.write("Create notifications")
-        users = MyUser.objects.all()
+        users = User.objects.all()
         answers = Answer.objects.all()
-        for user in MyUser.objects.all():
+        for user in User.objects.all():
             for i in range(user.id % 22):
                 Notification(
                     sender=users[i % len(users)],
@@ -281,39 +269,6 @@ class Command(BaseCommand):
                     text="Test Notification",
                     answer=answers[(user.id + i) % len(answers)],
                 ).save()
-
-    def create_payments(self):
-        self.stdout.write("Create payments")
-        categories = Category.objects.all()
-        for user in MyUser.objects.all():
-            if user.id % 7 == 0:
-                Payment(user=user).save()
-                if user.id % 9 == 0:
-                    filename = s3_util.generate_filename(
-                        8, settings.COMSOL_EXAM_DIR, ".pdf"
-                    )
-                    s3_util.save_file_to_s3(
-                        settings.COMSOL_EXAM_DIR, filename, "exam10.pdf"
-                    )
-                    exam_type = ExamType.objects.get(displayname="Transcripts")
-                    exam = Exam(
-                        filename=filename,
-                        displayname="Transcript by {}".format(user.displayname()),
-                        exam_type=exam_type,
-                        category=categories[user.id % len(categories)],
-                        resolve_alias="resolve_" + filename,
-                        public=False,
-                        finished_cuts=False,
-                        needs_payment=True,
-                        is_oral_transcript=True,
-                        oral_transcript_uploader=user,
-                    )
-                    exam.save()
-                if user.id % 14 == 0:
-                    Payment(
-                        user=user,
-                        payment_time=timezone.now() - timedelta(days=365),
-                    ).save()
 
     def handle(self, *args, **options):
         self.flush_db()
@@ -329,4 +284,3 @@ class Command(BaseCommand):
         self.create_feedback()
         self.create_attachments()
         self.create_notifications()
-        self.create_payments()

@@ -21,6 +21,10 @@ const useStyles = createStyles((theme, _params, _getRef) => ({
     flexWrap: "nowrap",
     height: "100%",
   },
+  logo: {
+    height: "2rem",
+    paddingRight: "1.25rem",
+  },
   title: {
     textDecoration: "none",
     width: "12.5rem",
@@ -40,6 +44,7 @@ interface Props {
   activeHref?: string;
   loginButton?: ReactNode;
   size: MantineNumberSize | undefined;
+  icon?: string;
 }
 
 const BottomHeader: React.FC<Props> = ({
@@ -49,6 +54,7 @@ const BottomHeader: React.FC<Props> = ({
   activeHref,
   loginButton,
   size,
+  icon,
 }) => {
   const { classes, theme } = useStyles();
 
@@ -56,6 +62,13 @@ const BottomHeader: React.FC<Props> = ({
     <Container className={classes.navbar} fluid={true}>
       <Container size={size ? size : "md"} className={classes.container}>
         <Link to={""} className={classes.title}>
+          {icon && (
+            <img
+              src={icon}
+              alt="BetterInformatics Icon"
+              className={classes.logo}
+            />
+          )}
           {title}
         </Link>
 

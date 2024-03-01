@@ -1,24 +1,45 @@
-import { Card, Text, Progress, Anchor, Stack } from "@mantine/core";
-import React from "react";
+import {
+  Card,
+  Text,
+  Progress,
+  Anchor,
+  LoadingOverlay,
+  Stack,
+} from "@mantine/core";
+import React, { useMemo } from "react";
+import { cx } from "@emotion/css";
 import { Link, useHistory } from "react-router-dom";
-import { authenticated, login } from "../api/fetch-utils";
+import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
 import { useStyles } from "../utils/style";
+import { Icon, ICONS } from "vseth-canine-ui";
 
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
 }
+
+const pluralize = (count: number, noun: string) =>
+  `${count} ${noun}${count !== 1 ? "s" : ""}`;
+
 const CategoryCard: React.FC<Props> = ({ category }) => {
   const { classes } = useStyles();
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
-      if (!authenticated()) login(`/category/${category.slug}`);
+      if (!authenticated())
+        history.push(`/login/?rd=/category/${category.slug}`);
       else history.push(`/category/${category.slug}`);
     }
   };
+
+  // Show a padlock on cards if not authenticated (as determined by a cookie).
+  // This is to clearly draw attention to the login form for first-time users.
+  // The lock is purely cosmetic, you can still click it but that will make the
+  // server actually check auth and redirect you to the login form.
+  const lock_titles = useMemo(() => !authenticated(), []);
+
   return (
     <Card
       component={Link}
@@ -26,17 +47,23 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       onClick={e => {
         if (!authenticated()) {
           e.preventDefault();
-          login(`/category/${category.slug}`);
+          history.push(`/login/?rd=${encodeURIComponent(`/category/${category.slug}`)}`);
         }
       }}
       withBorder
-      shadow="md"
       px="lg"
       py="md"
-      className={classes.focusOutline}
+      className={cx(classes.focusOutline, classes.hoverShadow)}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
+      {lock_titles && (
+        // Show a padlock when not logged in, to draw attention to the login form.
+        <LoadingOverlay
+          visible={true}
+          loader={<Icon icon={ICONS.LOCK} size="1.5rem" aria-label="Locked" />}
+        />
+      )}
       <Stack h="100%" justify="space-between">
         <div className="category-card">
           <Anchor
@@ -52,11 +79,14 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
               : category.displayname}
           </Anchor>
           <Text mt={4} color="gray.8">
-            Exams:{" "}
-            {`${category.examcountanswered} / ${category.examcountpublic}`}
+            {pluralize(category.documentcount, "Community Document")}
+          </Text>
+          <Text color="gray.8">
+            {pluralize(category.examcountpublic, "Exam")}
           </Text>
           <Text mb={4} color="gray.8">
-            Answers: {((category.answerprogress * 100) | 0).toString()} %
+            {((category.answerprogress * 100) | 0).toString()} % Solved by
+            community
           </Text>
         </div>
         <Progress radius={0} value={category.answerprogress * 100} />

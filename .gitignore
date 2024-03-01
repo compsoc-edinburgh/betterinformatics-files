@@ -10,3 +10,4 @@ data
 .envrc
 shell.nix
 .direnv
+keys

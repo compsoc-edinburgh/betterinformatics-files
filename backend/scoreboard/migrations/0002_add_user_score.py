@@ -4,22 +4,21 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('scoreboard', '0001_initial'),
+        ("scoreboard", "0001_initial"),
     ]
 
     sql = """
     CREATE VIEW scoreboard_userscore (id, user_id, upvotes, downvotes) AS
         SELECT row_number() OVER () as id,
             au.id AS user_id,
-            (SELECT COUNT(*) FROM answers_answer_upvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id AND aa.is_legacy_answer = false),
-            (SELECT COUNT(*) FROM answers_answer_downvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id AND aa.is_legacy_answer = false)
+            (SELECT COUNT(*) FROM answers_answer_upvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id),
+            (SELECT COUNT(*) FROM answers_answer_downvotes aav INNER JOIN answers_answer aa ON (aa.id = aav.answer_id) WHERE aa.author_id = au.id)
         FROM auth_user au
     ;
     """
 
     operations = [
-        migrations.RunSQL('DROP VIEW IF EXISTS scoreboard_userscore;'),
-        migrations.RunSQL(sql)
+        migrations.RunSQL("DROP VIEW IF EXISTS scoreboard_userscore;"),
+        migrations.RunSQL(sql),
     ]

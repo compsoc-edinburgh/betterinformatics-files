@@ -1,66 +1,44 @@
 import { ImageHandle } from "../components/Editor/utils/types";
+import { jwtDecode } from "jwt-decode";
 
 /**
- * Minimum validity of the access token in seconds when a request to the API starts
+ * Check if the user is authenticated: checks whether the auth cookie is set and
+ * has a value in the future. Note that this does not verify the cookie
+ * signature and it can be forged by the client.
+ * @returns Boolean whether the user is authenticated, or `undefined` if there
+ * is no auth cookie.
  */
-export const minValidity = 10;
-
-let refreshRequest: Promise<Response> | undefined = undefined;
-
-export function authenticationStatus() {
-  const expires = getCookie("token_expires");
-  if (expires === null) {
+export function authenticated() {
+  const access_token_jwt = getCookie("access_token");
+  if (access_token_jwt === null) {
     return undefined;
   }
-  const now = new Date().getTime();
-  const time = new Date(parseFloat(expires) * 1000).getTime();
-  return time - now;
+  // Attempt to get the exp field. Use empty object if jwtDecode returns undefined.
+  const { exp } = jwtDecode(access_token_jwt) || {};
+  if (exp === undefined) {
+    return undefined;
+  }
+  // Multiply because exp is epoch but Date.now() is in milliseconds.
+  return Date.now() < exp * 1000;
 }
 
-/**
- * Checks whether it would make sense to call `refreshToken()`
- * @returns Returns `true` iff. there is a token and it is expired.
- */
-export function isTokenExpired(expires = authenticationStatus()) {
-  if (expires === undefined) return false;
-  return expires < minValidity * 1000;
+// First step of the login, generates a verification code. The backend will
+// store the code in the database (so a repeat call to login() will use the
+// same code until a time limit), then send an email to the user with the code.
+// The user will then enter the code in the frontend, which will call the second
+// function - verifyLoginCode().
+export function sendLoginCode(uun: string) {
+  return fetchPost(`/api/auth/login`, { uun });
 }
 
-/**
- * Checks whether it makes sense to
- * @returns
- */
-export function authenticated(expires = authenticationStatus()) {
-  return expires !== undefined;
-}
-
-const encodeScopes = (...scopes: string[]) => scopes.join("+");
-
-const scopes = encodeScopes("profile", "openid");
-
-export function login(redirectUrl = window.location.pathname) {
-  window.location.href = `/api/auth/login?scope=${scopes}&rd=${encodeURIComponent(
-    redirectUrl,
-  )}`;
+export function verifyLoginCode(uun: string, code: string) {
+  return fetchPost("/api/auth/verify", { uun, code });
 }
 
 export function logout(redirectUrl = window.location.pathname) {
   window.location.href = `/api/auth/logout?rd=${encodeURIComponent(
     redirectUrl,
   )}`;
-}
-
-export function refreshToken() {
-  if (refreshRequest !== undefined) {
-    return refreshRequest;
-  }
-  refreshRequest = fetch("/api/auth/refresh", {
-    headers: getHeaders(),
-  }).then(req => {
-    refreshRequest = undefined;
-    return req;
-  });
-  return refreshRequest;
 }
 
 export function getHeaders() {
@@ -88,7 +66,7 @@ async function performDataRequest<T>(
   url: string,
   data: { [key: string]: any },
 ) {
-  if (isTokenExpired()) await refreshToken();
+  // if (isTokenExpired()) await refreshToken();
 
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
@@ -126,7 +104,7 @@ async function performDataRequest<T>(
 }
 
 async function performRequest<T>(method: string, url: string) {
-  if (isTokenExpired()) await refreshToken();
+  // if (isTokenExpired()) await refreshToken();
 
   const response = await fetch(url, {
     credentials: "include",

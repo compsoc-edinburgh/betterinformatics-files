@@ -10,10 +10,6 @@ import json
 @ensure_csrf_cookie
 def index(request):
     context = {
-        "GLOB_ID": settings.COMSOL_FRONTEND_GLOB_ID,
-        "KEYCLOAK_URL": settings.COMSOL_FRONTEND_KEYCLOAK_URL,
-        "KEYCLOAK_REALM": settings.COMSOL_FRONTEND_KEYCLOAK_REALM,
-        "KEYCLOAK_CLIENT_ID": settings.COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID,
         "FAVICON_URL": settings.FAVICON_URL,
         "SERVER_DATA": json.dumps(settings.FRONTEND_SERVER_DATA)
     }

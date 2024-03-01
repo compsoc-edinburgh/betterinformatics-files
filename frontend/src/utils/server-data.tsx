@@ -4,7 +4,6 @@ interface IServerData {
   email_address: string;
   imprint: string;
   privacy_policy: string;
-  unlock_deposit_notice: string;
 }
 const getServerData = () => {
   const element = document.getElementById("server-data");

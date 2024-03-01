@@ -15,18 +15,12 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
-import {
-  loadCuts,
-  loadExamMetaData,
-  loadSplitRenderer,
-  markAsChecked,
-} from "../api/hooks";
+import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import Exam from "../components/exam";
 import ExamMetadataEditor from "../components/exam-metadata-editor";
 import ExamPanel from "../components/exam-panel";
 import IconButton from "../components/icon-button";
-import PrintExam from "../components/print-exam";
 import ContentContainer from "../components/secondary-container";
 import { TOC, TOCNode } from "../components/table-of-contents";
 import useSet from "../hooks/useSet";
@@ -86,15 +80,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   mutateMetaData,
   toggleEditing,
 }) => {
-  const { run: runMarkChecked } = useRequest(markAsChecked, {
-    manual: true,
-    onSuccess() {
-      mutateMetaData(metaData => ({
-        ...metaData,
-        oral_transcript_checked: true,
-      }));
-    },
-  });
   const user = useUser()!;
   const { run: runAddCut } = useRequest(addCut, {
     manual: true,
@@ -229,16 +214,6 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             />
             {user.isCategoryAdmin && (
               <>
-                {user.isAdmin &&
-                  metaData.is_oral_transcript &&
-                  !metaData.oral_transcript_checked && (
-                    <IconButton
-                      color="gray"
-                      tooltip="Mark as checked"
-                      iconName={ICONS.CHECK}
-                      onClick={() => runMarkChecked(metaData.filename)}
-                    />
-                  )}
                 <IconButton
                   color="gray"
                   iconName={ICONS.EDIT}
@@ -253,34 +228,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           {!metaData.canView && (
             <Grid.Col md={6} lg={4}>
               <Card m="xs">
-                {metaData.needs_payment && !metaData.hasPayed ? (
-                  <>
-                    You have to pay a deposit in order to see oral exams. After
-                    submitting a report of your own oral exam you can get your
-                    deposit back.
-                  </>
-                ) : (
-                  <>You can not view this exam at this time.</>
-                )}
+                <>You can not view this exam at this time.</>
               </Card>
-            </Grid.Col>
-          )}
-          {metaData.is_printonly && (
-            <Grid.Col md={6} lg={4}>
-              <PrintExam
-                title="exam"
-                examtype="exam"
-                filename={metaData.filename}
-              />
-            </Grid.Col>
-          )}
-          {metaData.has_solution && metaData.solution_printonly && (
-            <Grid.Col md={6} lg={4}>
-              <PrintExam
-                title="solution"
-                examtype="solution"
-                filename={metaData.filename}
-              />
             </Grid.Col>
           )}
           {metaData.master_solution && (
@@ -300,7 +249,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             </Grid.Col>
           )}
 
-          {metaData.has_solution && !metaData.solution_printonly && (
+          {metaData.has_solution && (
             <Grid.Col md={4} lg={3}>
               <Button
                 fullWidth

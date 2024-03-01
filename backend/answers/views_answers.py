@@ -1,5 +1,5 @@
 from util import response
-from myauth import auth_check
+from ediauth import auth_check
 from answers.models import AnswerSection, Answer
 from answers import section_util
 from notifications import notification_util
@@ -19,7 +19,7 @@ def get_answer(request, long_id):
         raise Http404()
 
 
-@response.request_post("text", "legacy_answer")
+@response.request_post("text")
 @auth_check.require_login
 def set_answer(request, oid):
     section = get_object_or_404(
@@ -37,17 +37,9 @@ def set_answer(request, oid):
     if not section.has_answers:
         return response.not_allowed()
 
-    legacy_answer = request.POST["legacy_answer"] != "false"
     text = request.POST["text"]
 
-    if legacy_answer and not auth_check.has_admin_rights_for_exam(
-        request, section.exam
-    ):
-        return response.not_allowed()
-    where = {"answer_section": section, "is_legacy_answer": legacy_answer}
-
-    if not legacy_answer:
-        where["author"] = request.user
+    where = {"answer_section": section, "author": request.user}
 
     answer, created = None, False
     if not text:
@@ -59,7 +51,7 @@ def set_answer(request, oid):
             "edittime": timezone.now(),
         }
         answer, created = Answer.objects.update_or_create(**where, defaults=defaults)
-    if created and not legacy_answer:
+    if created:
         answer.upvotes.add(request.user)
         notification_util.new_answer_to_answer(answer)
 

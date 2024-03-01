@@ -107,7 +107,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
 
   return (
     <Panel
-      header={mode === "alphabetical" ? "Alphabet" : "Semester"}
+      header={mode === "alphabetical" ? "Alphabet" : "SCQF"}
       isOpen={isOpen}
       toggle={toggle}
     >

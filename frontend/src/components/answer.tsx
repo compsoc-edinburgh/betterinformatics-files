@@ -37,10 +37,6 @@ import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TooltipButton from "./TooltipButton";
 
-const answerWrapperStyle = css`
-  margin-bottom: 1em;
-`;
-
 const answerToolbarStyle = css`
   justify-content: flex-end;
   margin: 0 -0.3em;
@@ -55,15 +51,13 @@ interface Props {
   answer?: Answer;
   onSectionChanged?: (newSection: AnswerSection) => void;
   onDelete?: () => void;
-  isLegacyAnswer: boolean;
-  hasId?: boolean;
+  hasId?: boolean; // whether the answer is displayed inside an exam page
 }
 const AnswerComponent: React.FC<Props> = ({
   section,
   answer,
   onDelete,
   onSectionChanged,
-  isLegacyAnswer,
   hasId = true,
 }) => {
   const [viewSource, toggleViewSource] = useToggle(false);
@@ -93,8 +87,8 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText, isLegacyAnswer);
-  }, [section, draftText, update, isLegacyAnswer]);
+    if (section) update(section.oid, draftText);
+  }, [section, draftText, update]);
   const remove = useCallback(() => {
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
@@ -109,11 +103,10 @@ const AnswerComponent: React.FC<Props> = ({
     <>
       {modals}
       <Card
-        mb="md"
         withBorder
         shadow="md"
         id={hasId ? answer?.longId : undefined}
-        className={answerWrapperStyle}
+        radius={0}
       >
         <Card.Section px="md" py="md" withBorder bg="gray.0">
           <Flex justify="space-between" align="center">
@@ -129,21 +122,17 @@ const AnswerComponent: React.FC<Props> = ({
                   </Text>
                 </Link>
               )}
-              {isLegacyAnswer ? (
-                answer?.authorDisplayName ?? "(Legacy Draft)"
-              ) : (
-                <Anchor
-                  component={Link}
-                  to={`/user/${answer?.authorId ?? username}`}
-                >
-                  <Text weight={700} component="span">
-                    {answer?.authorDisplayName ?? "(Draft)"}
-                  </Text>
-                  <Text ml="0.3em" color="dimmed" component="span">
-                    @{answer?.authorId ?? username}
-                  </Text>
-                </Anchor>
-              )}
+              <Anchor
+                component={Link}
+                to={`/user/${answer?.authorId ?? username}`}
+              >
+                <Text weight={700} component="span">
+                  {answer?.authorDisplayName ?? "(Draft)"}
+                </Text>
+                <Text ml="0.3em" color="dimmed" component="span">
+                  @{answer?.authorId ?? username}
+                </Text>
+              </Anchor>
               <Text color="dimmed" mx={6} component="span">
                 ·
               </Text>

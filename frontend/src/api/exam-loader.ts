@@ -62,7 +62,6 @@ export function loadSections(
           kind: SectionKind.Answer,
           answers: [],
           allow_new_answer: true,
-          allow_new_legacy_answer: false,
           hidden: true,
           has_answers,
           cutHidden: hidden,

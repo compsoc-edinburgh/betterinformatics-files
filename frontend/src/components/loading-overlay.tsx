@@ -9,6 +9,6 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ ...props }) => {
       {...props}
     />
   );
-}
+};
 
 export default LoadingOverlay;

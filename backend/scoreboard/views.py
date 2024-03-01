@@ -1,7 +1,7 @@
 from django.db.models.expressions import Case, When
 from util import response, func_cache
-from myauth import auth_check
-from myauth.models import MyUser
+from ediauth import auth_check
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, F, Q, Value as V
 from django.db.models.functions import Concat
@@ -10,11 +10,12 @@ from django.db.models.functions import Concat
 def get_user_scores(user, res):
     res.update(
         {
-            "score": user.scores.document_likes + user.scores.upvotes - user.scores.downvotes,
-            "score_answers": user.answer_set.filter(is_legacy_answer=False).count(),
+            "score": user.scores.document_likes
+            + user.scores.upvotes
+            - user.scores.downvotes,
+            "score_answers": user.answer_set.count(),
             "score_comments": user.answers_comments.count(),
             "score_cuts": user.answersection_set.count(),
-            "score_legacy": user.answer_set.filter(is_legacy_answer=True).count(),
             "score_documents": user.document_set.count(),
         }
     )
@@ -23,7 +24,7 @@ def get_user_scores(user, res):
 
 @func_cache.cache(600)
 def get_scoreboard_top(scoretype, limit):
-    users = MyUser.objects.annotate(
+    users = User.objects.annotate(
         displayName=Case(
             When(
                 Q(first_name__isnull=True),
@@ -38,7 +39,6 @@ def get_scoreboard_top(scoretype, limit):
         score_comments=F("scores__comments"),
         score_documents=F("scores__documents"),
         score_cuts=F("scores__cuts"),
-        score_legacy=F("scores__legacy"),
     )
 
     if scoretype == "score":
@@ -51,8 +51,6 @@ def get_scoreboard_top(scoretype, limit):
         users = users.order_by("-score_documents")
     elif scoretype == "score_cuts":
         users = users.order_by("-score_cuts")
-    elif scoretype == "score_legacy":
-        users = users.order_by("-score_legacy")
     else:
         return response.not_found()
 
@@ -64,7 +62,6 @@ def get_scoreboard_top(scoretype, limit):
             "score_answers",
             "score_comments",
             "score_cuts",
-            "score_legacy",
             "score_documents",
         )
     )
@@ -73,10 +70,10 @@ def get_scoreboard_top(scoretype, limit):
 @response.request_get()
 @auth_check.require_login
 def userinfo(request, username):
-    user = get_object_or_404(MyUser, username=username)
+    user = get_object_or_404(User, username=username)
     res = {
         "username": username,
-        "displayName": user.displayname(),
+        "displayName": user.profile.display_username,
     }
     get_user_scores(user, res)
     return response.success(value=res)

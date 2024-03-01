@@ -1,12 +1,24 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Button, Container, Table, Title } from "@mantine/core";
+import {
+  Anchor,
+  Badge,
+  Button,
+  Container,
+  Table,
+  Text,
+  Title,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchGet } from "../api/fetch-utils";
-import ClaimButton from "../components/claim-button";
-import LoadingOverlay from "../components/loading-overlay";
-import { CategoryExam, CategoryPaymentExam } from "../interfaces";
+import { CategoryExam } from "../interfaces";
+import { fetchGet, fetchPost } from "../api/fetch-utils";
 import useTitle from "../hooks/useTitle";
+import useConfirm from "../hooks/useConfirm";
+import ClaimButton from "../components/claim-button";
+import CourseMetadataChecker from "../components/course-metadata-checker";
+import IconButton from "../components/icon-button";
+import LoadingOverlay from "../components/loading-overlay";
+import { ICONS } from "vseth-canine-ui";
 
 const loadExams = async (includeHidden: boolean) => {
   return (
@@ -15,9 +27,8 @@ const loadExams = async (includeHidden: boolean) => {
     )
   ).value as CategoryExam[];
 };
-const loadPaymentExams = async () => {
-  return (await fetchGet("/api/exam/listpaymentcheckexams/"))
-    .value as CategoryPaymentExam[];
+const removeExam = async (filename: string) => {
+  await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
 const loadFlagged = async () => {
   return (await fetchGet("/api/exam/listflagged/")).value as string[];
@@ -35,13 +46,24 @@ const ModQueue: React.FC = () => {
     refreshDeps: [includeHidden],
   });
   const { error: flaggedError, data: flaggedAnswers } = useRequest(loadFlagged);
-  const {
-    error: payError,
-    loading: payLoading,
-    data: paymentExams,
-  } = useRequest(loadPaymentExams);
 
-  const error = examsError || flaggedError || payError;
+  const error = examsError || flaggedError;
+
+  const [confirm, modals] = useConfirm();
+  const { run: runRemoveExam } = useRequest(removeExam, {
+    manual: true,
+    onSuccess: reloadExams,
+  });
+  const handleRemoveClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    exam: CategoryExam,
+  ) => {
+    e.stopPropagation();
+    confirm(
+      `Remove the exam named ${exam.displayname}? This will remove all answers and can not be undone!`,
+      () => runRemoveExam(exam.filename),
+    );
+  };
 
   return (
     <Container size="xl">
@@ -59,46 +81,17 @@ const ModQueue: React.FC = () => {
           ))}
         </div>
       )}
-      {paymentExams && paymentExams.length > 0 && (
-        <div>
-          <Title my="sm" order={2}>
-            Transcripts
-          </Title>
-          <div>
-            <LoadingOverlay visible={payLoading} />
-            <Table striped>
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Name</th>
-                  <th>Uploader</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paymentExams.map(exam => (
-                  <tr key={exam.filename}>
-                    <td>{exam.category_displayname}</td>
-                    <td>
-                      <Link to={`/exams/${exam.filename}`} target="_blank">
-                        {exam.displayname}
-                      </Link>
-                    </td>
-                    <td>
-                      <Link to={`/user/${exam.payment_uploader}`}>
-                        {exam.payment_uploader_displayname}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </div>
-      )}
       <Title my="sm" order={2}>
         Import Queue
       </Title>
+      <Text>
+        Here you can see exams that have been uploaded for categories that you
+        are an admin for. Click claim to claim an exam to start working on it
+        (add cuts, make it public, rename if necessary) to prevent race
+        conditions. After 4 hours, the claim will release.
+      </Text>
       {error && <div>{error.message}</div>}
+      {modals}
       <div>
         <LoadingOverlay visible={examsLoading} />
         <Table striped fontSize="md">
@@ -108,6 +101,7 @@ const ModQueue: React.FC = () => {
               <th>Name</th>
               <th>Import State</th>
               <th>Claim</th>
+              <th>Delete</th>
             </tr>
           </thead>
           <tbody>
@@ -138,6 +132,18 @@ const ModQueue: React.FC = () => {
                   <td>
                     <ClaimButton exam={exam} reloadExams={reloadExams} />
                   </td>
+                  <td>
+                    <IconButton
+                      size="lg"
+                      color="gray.6"
+                      tooltip="Delete exam"
+                      iconName={ICONS.DELETE}
+                      variant="outline"
+                      onClick={(
+                        e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+                      ) => handleRemoveClick(e, exam)}
+                    />
+                  </td>
                 </tr>
               ))}
           </tbody>
@@ -146,6 +152,18 @@ const ModQueue: React.FC = () => {
       <Button mt="sm" mb="xl" onClick={() => setIncludeHidden(!includeHidden)}>
         {includeHidden ? "Hide" : "Show"} Complete Hidden Exams
       </Button>
+      <Title my="sm" order={2}>
+        Course Checker
+      </Title>
+      <Text>
+        The following courses are apparently running according to the official
+        course list but are missing from the categories data. Please associate
+        them to the correct categories if required. You can ignore courses that
+        are "dissertations", "group projects", "seminars" etc where past exams
+        and revision notes wouldn't be very helpful for (unless its addition is
+        requested by students).
+      </Text>
+      <CourseMetadataChecker />
     </Container>
   );
 };

@@ -10,8 +10,10 @@ import {
   Grid,
   List,
   Button,
-  Box,
+  Skeleton,
+  Text,
   Title,
+  Paper,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -19,6 +21,7 @@ import {
   loadCategoryMetaData,
   loadMetaCategories,
   useRemoveCategory,
+  useBICourseList,
 } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
@@ -27,10 +30,13 @@ import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
 import useConfirm from "../hooks/useConfirm";
 import useTitle from "../hooks/useTitle";
+import MarkdownText from "../components/markdown-text";
 import { CategoryMetaData } from "../interfaces";
-import { getMetaCategoriesForCategory } from "../utils/category-utils";
-import serverData from "../utils/server-data";
-import { Loader } from "@mantine/core";
+import {
+  getMetaCategoriesForCategory,
+  removeMarkdownFrontmatter,
+  useEditableMarkdownLink,
+} from "../utils/category-utils";
 import { Icon, ICONS } from "vseth-canine-ui";
 
 interface CategoryPageContentProps {
@@ -41,9 +47,37 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   onMetaDataChange,
   metaData,
 }) => {
-  const { data, loading, run } = useRequest(loadMetaCategories, {
+  const {
+    data,
+    loading: _,
+    run,
+  } = useRequest(loadMetaCategories, {
     cacheKey: "meta-categories",
   });
+
+  // Fetch the content at data.more_markdown_link (should be CSP-compliant
+  // because we verify before storing it in the database)
+  const {
+    data: raw_md_contents,
+    loading: md_loading,
+    error: md_error,
+  } = useRequest(
+    () =>
+      fetch(metaData.more_markdown_link)
+        .then(r => r.text())
+        .then(m => removeMarkdownFrontmatter(m)),
+    {
+      // cache and set a liberal throttle (ms) to avoid frequently fetching
+      // something that doesn't change too often
+      refreshDeps: [metaData],
+      cacheKey: `category-md-${metaData.slug}`,
+      throttleInterval: 1800000,
+    },
+  );
+  const { editable: md_editable, link: md_edit_link } = useEditableMarkdownLink(
+    metaData.more_markdown_link,
+  );
+
   const history = useHistory();
   const [removeLoading, remove] = useRemoveCategory(() => history.push("/"));
   const [confirm, modals] = useConfirm();
@@ -70,6 +104,26 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     },
     [run, onMetaDataChange],
   );
+
+  const [bi_courses_error, bi_courses_loading, bi_courses_data] =
+    useBICourseList();
+  const asynchronously_updated_euclid_codes = useMemo(() => {
+    // While the BI course JSON is loading, it is just a list of codes with
+    // no BI course data
+    if (bi_courses_loading || !bi_courses_data) {
+      return metaData.euclid_codes.map(c => [c, undefined, undefined] as const);
+    }
+
+    // Once data is ready, it becomes a list of codes and BI course data
+    return metaData.euclid_codes.map(
+      c =>
+        [
+          c,
+          Object.values(bi_courses_data).find(d => d.euclid_code === c),
+          Object.values(bi_courses_data).find(d => d.euclid_code_shadow === c),
+        ] as const,
+    );
+  }, [metaData, bi_courses_loading, bi_courses_data]);
   return (
     <>
       {modals}
@@ -123,17 +177,52 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
           </Flex>
 
+          <List>
+            {asynchronously_updated_euclid_codes.length > 0 && "Offered as:"}
+            {asynchronously_updated_euclid_codes.map(
+              ([code, bi_data, shadow_data]) => (
+                <List.Item key={code}>
+                  <Group>
+                    <Badge
+                      // Will show red if data isn't available or still loading
+                      color={bi_data || shadow_data ? "violet" : "red"}
+                      radius="xs"
+                      component="a"
+                      // Choose course URL over EUCLID URL
+                      href={
+                        bi_data?.course_url ??
+                        bi_data?.euclid_url ??
+                        shadow_data?.course_url ??
+                        shadow_data?.euclid_url_shadow
+                      }
+                      // Badges don't look clickable by default, use pointer
+                      styles={{
+                        inner: {
+                          cursor:
+                            bi_data || shadow_data ? "pointer" : "default",
+                        },
+                      }}
+                    >
+                      {code}
+                    </Badge>{" "}
+                    {bi_data &&
+                      `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`}
+                    {shadow_data &&
+                      `${shadow_data.name} (Shadow of ${shadow_data.euclid_code})`}
+                    {!bi_courses_loading &&
+                      !bi_data &&
+                      !shadow_data &&
+                      "Not Running"}
+                    {bi_courses_error && bi_courses_error.message}
+                    {bi_courses_loading && !bi_data && !shadow_data && (
+                      <Skeleton height="1rem" width="8rem" />
+                    )}
+                  </Group>
+                </List.Item>
+              ),
+            )}
+          </List>
           <Grid mb="xs">
-            {metaData.semester && (
-              <Grid.Col span="content">
-                Semester: <Badge>{metaData.semester}</Badge>
-              </Grid.Col>
-            )}
-            {metaData.form && (
-              <Grid.Col span="content">
-                Form: <Badge>{metaData.form}</Badge>
-              </Grid.Col>
-            )}
             {metaData.more_exams_link && (
               <Grid.Col span="content">
                 <Anchor
@@ -150,23 +239,40 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>
             )}
           </Grid>
-          {(offeredIn === undefined || offeredIn.length > 0) && (
-            <Box mb="sm">
-              Offered in:
-              {loading ? (
-                <Loader />
-              ) : (
-                <List>
-                  {offeredIn?.map(meta1 =>
-                    meta1.meta2.map(meta2 => (
-                      <List.Item key={meta1.displayname + meta2.displayname}>
-                        {meta2.displayname} in {meta1.displayname}
-                      </List.Item>
-                    )),
-                  )}
-                </List>
+          {metaData.more_markdown_link && (
+            <Paper withBorder radius="md" p="lg" mt="xl">
+              <Group align="baseline" position="apart">
+                <Group align="baseline">
+                  <Icon icon={ICONS.INFO} />
+                  <Title order={2}>Community Knowledgebase</Title>
+                </Group>
+                {md_editable && (
+                  <Button
+                    compact
+                    variant="outline"
+                    component="a"
+                    target="_blank"
+                    href={md_edit_link}
+                  >
+                    Edit (anyone welcome!)
+                  </Button>
+                )}
+              </Group>
+              {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
+              {md_error && (
+                <Alert color="red">
+                  Failed to render additional info: {md_error.message}
+                </Alert>
               )}
-            </Box>
+              {raw_md_contents !== undefined && (
+                <Text color="gray.7">
+                  <MarkdownText
+                    value={raw_md_contents}
+                    localLinkBase="https://betterinformatics.com"
+                  />
+                </Text>
+              )}
+            </Paper>
           )}
           <Grid my="sm">
             {metaData.experts.includes(user.username) && (
@@ -178,22 +284,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 >
                   You are an expert for this category. You can endorse correct
                   answers, which will be visible to other users.
-                </Alert>
-              </Grid.Col>
-            )}
-            {metaData.has_payments && (
-              <Grid.Col span="auto">
-                <Alert bg="gray.2">
-                  You have to pay a deposit in order to see oral exams.
-                  {serverData.unlock_deposit_notice ? (
-                    <>
-                      <br />
-                      {serverData.unlock_deposit_notice}
-                    </>
-                  ) : null}
-                  <br />
-                  After submitting a report of your own oral exam you can get
-                  your deposit back.
                 </Alert>
               </Grid.Col>
             )}

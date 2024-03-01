@@ -67,7 +67,6 @@ class TestCutVersion(ComsolTestExamData):
         oldversion = section.cut_version
         self.post('/api/exam/setanswer/{}/'.format(section.id), {
             'text': 'New Test Answer',
-            'legacy_answer': False,
         })
         section.refresh_from_db()
         self.assertGreater(section.cut_version, oldversion)
@@ -119,7 +118,7 @@ class TestAnswerSection(ComsolTestExamData):
     def test_get_section(self):
         for section in self.sections:
             res = self.get('/api/exam/answersection/{}/'.format(section.id))['value']
-            self.assertEqual(len(res['answers']), 4)
+            self.assertEqual(len(res['answers']), 3)
             self.assertEqual(len(res['answers'][0]['comments']), 3)
 
             # TODO test whether the content makes any sense
