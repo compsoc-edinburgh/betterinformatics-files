@@ -96,6 +96,8 @@ stages:
       --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"
       --build-arg git_branch="${CI_COMMIT_REF_NAME}"
       --build-arg git_commit="${CI_COMMIT_SHA}"
+      --cache=true
+      --cache-copy-layers=true
       --snapshot-mode=redo
       --use-new-run
 
