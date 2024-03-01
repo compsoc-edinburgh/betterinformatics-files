@@ -1,9 +1,8 @@
-import { GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf.js";
+import * as pdfjs from "pdfjs-dist/build/pdf";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker?url";
 
 if (typeof window !== "undefined" && window.Worker) {
-  const PdfjsWorker = new Worker(
-    new URL("pdfjs-dist/legacy/build/pdf.worker.js", import.meta.url),
-  );
-  GlobalWorkerOptions.workerPort = PdfjsWorker;
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 }
-export * from "pdfjs-dist/legacy/build/pdf.js";
+
+export { getDocument } from "pdfjs-dist/build/pdf.js";

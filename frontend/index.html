@@ -6,14 +6,14 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="git_branch" content="%REACT_APP_GIT_BRANCH%" />
-    <meta name="git_commit" content="%REACT_APP_GIT_COMMIT%" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link rel="shortcut icon" href="%REACT_APP_FAVICON_URL%" />
+    <meta name="git_branch" content="%VITE_GIT_BRANCH%" />
+    <meta name="git_commit" content="%VITE_GIT_COMMIT%" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="%VITE_FAVICON_URL%" />
     <script type="application/json" id="server-data">
-      %REACT_APP_SERVER_DATA%
+      %VITE_SERVER_DATA%
     </script>
-    <script src="%PUBLIC_URL%/static/config.js"></script>
+    <script src="/static/config.js"></script>
     <title>File Collection</title>
     <meta name="description" content="BI File Collection is a platform for students to collaborate on past exam paper answers and share course notes/cheatsheets/Anki decks/etc.">
     <meta property="og:title" content="BetterInformatics File Collection">
@@ -23,6 +23,7 @@
   <body>
     <noscript> You need to enable JavaScript to run this app. </noscript>
     <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>
 <!-- The placeholders (%%) get replaced by .env files (dev/prod), which then may

@@ -55,7 +55,7 @@ dependencies were installed to.
 ### Start the frontend
 
 The frontend is built using
-[Create React App](https://github.com/facebook/create-react-app). This is like a
+[Vite](https://vitejs.dev/). This is like a
 compiler toolchain, which combines Javascript files and provides a server with
 special development features. Start the dev server with:
 
