@@ -68,6 +68,7 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
         ".pptx",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     ),
+    (".epub", "application/epub+zip"),
 }
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
