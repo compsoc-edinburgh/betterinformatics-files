@@ -47,12 +47,13 @@ COPY ./frontend/package.json \
      ./frontend/yarn.lock \
      ./frontend/index.html .
 
+RUN yarn --ignore-engines
+
 
 FROM frontend-base AS frontend-build
 ARG git_branch
 ARG git_commit
 
-RUN yarn --ignore-engines
 COPY ./frontend/tsconfig.json \
      ./frontend/vite.config.ts \
      ./frontend/.eslintrc.json \
