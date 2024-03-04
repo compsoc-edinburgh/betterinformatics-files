@@ -177,7 +177,7 @@ CSP_STYLE_SRC = (
     "https://fonts.googleapis.com",
     "https://static.vseth.ethz.ch",
 )
-CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
+CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com")
 
 s3_host = os.environ.get("SIP_S3_FILES_HOST", "s3")
 s3_port = os.environ.get("SIP_S3_FILES_PORT", "9000")

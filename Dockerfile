@@ -44,22 +44,24 @@ FROM node:20-alpine AS frontend-base
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json \
-     ./frontend/yarn.lock .
+     ./frontend/yarn.lock \
+     ./frontend/index.html .
 
 
 FROM frontend-base AS frontend-build
 ARG git_branch
 ARG git_commit
 
-RUN yarn --ignore-engines --ignore-optional
+RUN yarn --ignore-engines
 COPY ./frontend/tsconfig.json \
+     ./frontend/vite.config.ts \
      ./frontend/.eslintrc.json \
      ./frontend/.env.production \
      ./frontend/.prettierrc.json .
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
-ENV REACT_APP_GIT_BRANCH=${git_branch} \
-    REACT_APP_GIT_COMMIT=${git_commit}
+ENV VITE_GIT_BRANCH=${git_branch}
+ENV VITE_GIT_COMMIT=${git_commit}
 RUN yarn run build
 
 FROM backend AS combined
