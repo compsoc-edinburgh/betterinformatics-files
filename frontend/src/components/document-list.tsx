@@ -31,7 +31,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
     docTypes.forEach(type => currentDocTypes.set(type, []));
     documents.forEach(doc => currentDocTypes.get(doc.document_type)?.push(doc));
     currentDocTypes.forEach(docs =>
-      docs.sort((a, b) => b.like_count - a.like_count),
+      docs.sort((a, b) => b.like_count - a.like_count || a.display_name.localeCompare(b.display_name)),
     );
     setSortedDocs(
       Array.from(currentDocTypes, ([type, docs]) => ({ type, docs })).filter(
