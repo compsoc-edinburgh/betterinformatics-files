@@ -88,7 +88,7 @@ FROM frontend-base AS frontend-dev
 RUN yarn install --ignore-optional
 COPY frontend ./
 EXPOSE 3000
-CMD ["yarn", "start"]
+CMD ["yarn", "start-no-open"]
 
 
 # Production build as final result
