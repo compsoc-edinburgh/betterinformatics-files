@@ -144,7 +144,7 @@ def get_by_user(request, username, page=-1):
     sorted_answers = Answer.objects \
         .filter(
             author__username=username,
-            is_legacy_answer=False) \
+            kind=Answer.Kind.PERSONAL) \
         .select_related(*section_util.get_answer_fields_to_preselect()) \
 
     sorted_answers = section_util.prepare_answer_objects(sorted_answers, request) \

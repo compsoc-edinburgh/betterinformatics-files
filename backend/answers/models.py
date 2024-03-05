@@ -134,6 +134,11 @@ def generate_long_id():
 
 
 class Answer(ExportModelOperationsMixin('answer'), models.Model):
+    class Kind(models.TextChoices):
+        PERSONAL = "personal"
+        LEGACY = "legacy"
+        OFFICIAL = "official"
+
     answer_section = models.ForeignKey(
         'AnswerSection', on_delete=models.CASCADE)
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -148,7 +153,7 @@ class Answer(ExportModelOperationsMixin('answer'), models.Model):
         'auth.User', related_name='expertvote_answer_set')
     flagged = models.ManyToManyField(
         'auth.User', related_name='flagged_answer_set')
-    is_legacy_answer = models.BooleanField(default=False)
+    kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.PERSONAL)
     long_id = models.CharField(
         max_length=256, default=generate_long_id, unique=True)
 

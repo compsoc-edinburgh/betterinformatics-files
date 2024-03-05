@@ -19,7 +19,7 @@ def get_answer(request, long_id):
         raise Http404()
 
 
-@response.request_post("text", "legacy_answer")
+@response.request_post("text", "kind")
 @auth_check.require_login
 def set_answer(request, oid):
     section = get_object_or_404(
@@ -37,16 +37,26 @@ def set_answer(request, oid):
     if not section.has_answers:
         return response.not_allowed()
 
-    legacy_answer = request.POST["legacy_answer"] != "false"
+    kind = {
+        "personal": Answer.Kind.PERSONAL,
+        "legacy": Answer.Kind.LEGACY,
+        "official": Answer.Kind.OFFICIAL,
+    }
+    
+    if request.POST["kind"] not in kind:
+        return response.not_possible(f"kind must be one of {kind.keys.join(',')}")
+
+    kind = kind[request.POST["kind"]]
+
     text = request.POST["text"]
 
-    if legacy_answer and not auth_check.has_admin_rights_for_exam(
+    if kind != Answer.Kind.PERSONAL and not auth_check.has_admin_rights_for_exam(
         request, section.exam
     ):
         return response.not_allowed()
-    where = {"answer_section": section, "is_legacy_answer": legacy_answer}
+    where = {"answer_section": section, "kind": kind}
 
-    if not legacy_answer:
+    if kind == Answer.Kind.PERSONAL:
         where["author"] = request.user
 
     answer, created = None, False
@@ -59,7 +69,7 @@ def set_answer(request, oid):
             "edittime": timezone.now(),
         }
         answer, created = Answer.objects.update_or_create(**where, defaults=defaults)
-    if created and not legacy_answer:
+    if created and kind == Answer.Kind.PERSONAL:
         answer.upvotes.add(request.user)
         notification_util.new_answer_to_answer(answer)
 
