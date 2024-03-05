@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('categories', '0003_auto_20200123_1332'),
+        ('answers', '0001_initial'),
     ]
 
     sql = """

@@ -6,6 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
     dependencies = [
         ("categories", "0007_examcounts"),
+        ("answers", "0003_answersection_name"),
     ]
 
     # The subquery contains all answer_section ids with at least one answer. By doing a left join on it
