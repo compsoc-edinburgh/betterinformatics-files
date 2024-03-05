@@ -69,7 +69,7 @@ yarn start
 
 ## Running the frontend with Docker
 
-**This should be a last resort method**.
+This method is less flexible than running it fully locally, so prefer the above setup.
 You will need to install [Docker](#install-docker).
 
 Just like [starting the backend](#start-the-backend), you'll want to execute
@@ -79,6 +79,8 @@ docker compose but with the `--profile frontend` flag:
 docker compose watch --no-up &\
     docker compose --profile frontend up --build
 ```
+
+> If you do work on the frontend with Docker, or are simply too lazy to always start both individually, create a `.env` file in this directory and add the the line `COMPOSE_PROFILES=frontend`.
 
 ## Editing frontend code
 
