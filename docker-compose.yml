@@ -118,4 +118,4 @@ services:
     extra_hosts:
       - "minio:127.0.0.1"
     environment:
-      - BACKEND_HOST=community-solutions:8081
+      - BACKEND_HOST=community-solutions
