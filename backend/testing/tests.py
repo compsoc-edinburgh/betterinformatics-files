@@ -229,7 +229,7 @@ class ComsolTestExamData(ComsolTest):
                     answer_section=section,
                     author=MyUser.objects.get(username=self.loginUsers[0]["username"]),
                     text="Legacy Answer {}".format(section.id),
-                    kind=Answer.Kind.PERSONAL,
+                    kind=Answer.Kind.LEGACY,
                 )
             )
         for answer in self.answers:
