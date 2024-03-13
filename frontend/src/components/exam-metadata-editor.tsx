@@ -238,8 +238,9 @@ const ExamMetadataEditor: React.FC<Props> = ({
             data={categoryOptions ? (options(categoryOptions) as any) : []}
             value={categoryOptions && categoryOptions[formState.category].value}
             onChange={(e: any) => {
-              setFormValue("category", e.value as string);
-              setFormValue("category_displayname", e.label as string);
+              const value = e.currentTarget.value;
+              setFormValue("category", value as string);
+              setFormValue("category_displayname", categoryOptions?.[value]?.label ?? value);
             }}
           />
         </Grid.Col>
