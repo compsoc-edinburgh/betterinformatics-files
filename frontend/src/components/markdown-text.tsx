@@ -69,11 +69,11 @@ const createComponents = (
     return <Table>{children}</Table>;
   },
   p: ({ children }) => {
-    if (regex === undefined) return <span>{children}</span>;
+    if (regex === undefined) return <p>{children}</p>;
     const arr = [];
     const value = String(children)
     const m = regex.test(value);
-    if (!m) return <span>{children}</span>;
+    if (!m) return <p>{children}</p>;
     let i = 0;
     while (i < value.length) {
       const rest = value.substring(i);
