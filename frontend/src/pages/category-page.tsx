@@ -114,6 +114,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <Button
                   color="red"
                   loading={removeLoading}
+                  disabled={metaData.slug === "default"}
                   leftIcon={<Icon color="currentColor" icon={ICONS.DELETE} />}
                   onClick={onRemove}
                 >
