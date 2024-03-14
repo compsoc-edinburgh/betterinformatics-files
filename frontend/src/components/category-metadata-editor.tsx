@@ -249,7 +249,11 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         Metadata
       </Title>
       <Stack>
-        <TextInput label="Name" {...registerInput("displayname")} />
+        <TextInput
+          disabled={currentMetaData.slug === "default"}
+          label="Name" 
+          {...registerInput("displayname")} 
+        />
         <Grid>
           <Grid.Col md={6}>
             <NativeSelect
