@@ -8,6 +8,9 @@ import {
   Flex,
   Group,
   Title,
+  Text,
+  Box,
+  Tooltip,
 } from "@mantine/core";
 import React, { useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -27,6 +30,7 @@ import { useDocumentDownload } from "../hooks/useDocumentDownload";
 import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
+import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { Tabs } from "@mantine/core";
 
@@ -101,24 +105,55 @@ const DocumentPage: React.FC<Props> = () => {
           </Anchor>
         </Breadcrumbs>
         {data && (
-          <Flex justify="space-between" align="center">
-            <Title my="sm">{data.display_name ?? slug}</Title>
-            <Group>
-              <IconButton
-                iconName={ICONS.DOWNLOAD}
-                onClick={startDownload}
-                color="white"
-                loading={loadingDownload}
-              />
-
-              <LikeButton document={data} mutate={mutate} />
-            </Group>
-          </Flex>
+          <Box my="sm">
+            <Flex justify="space-between" align="center">
+              <Title>{data.display_name ?? slug}</Title>
+              <Group>
+                <IconButton
+                  iconName={ICONS.DOWNLOAD}
+                  onClick={startDownload}
+                  color="white"
+                  loading={loadingDownload}
+                />
+                <LikeButton document={data} mutate={mutate} />
+              </Group>
+            </Flex>
+            <Anchor
+                component={Link}
+                to={`/user/${data.author}`}
+              >
+                <Text weight={700} component="span">
+                  {data.author_displayname}
+                </Text>
+                <Text ml="0.3em" color="dimmed" component="span">
+                  @{data.author}
+                </Text>
+              </Anchor>
+            {differenceInSeconds(
+                new Date(data.edittime),
+                new Date(data.time),
+              ) > 1 &&
+                <>
+                  <Text color="dimmed" mx={6} component="span">
+                    ·
+                  </Text>
+                  <Tooltip 
+                    withArrow 
+                    withinPortal
+                    label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
+                    disabled={data.time === null}
+                    >
+                      <Text
+                      color="dimmed"
+                      component="span"
+                      >
+                        updated {formatDistanceToNow(new Date(data.edittime))} ago
+                      </Text>
+                  </Tooltip>
+                </>
+            }
+          </Box>
         )}
-        <div>
-          Author:{" "}
-          {data && <Link to={`/user/${data.author}`}>@{data.author}</Link>}
-        </div>
         {error && <Alert color="red">{error.toString()}</Alert>}
         {data && data.description && (
           <div>
