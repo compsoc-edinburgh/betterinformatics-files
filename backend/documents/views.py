@@ -62,8 +62,11 @@ def get_document_obj(
         "document_type": document.document_type.display_name,
         "category_display_name": document.category.displayname,
         "author": document.author.username,
+        "author_displayname": get_my_user(document.author).displayname(),
         "can_edit": document.current_user_can_edit(request),
         "can_delete": document.current_user_can_delete(request),
+        "time": document.time,
+        "edittime": document.edittime,
     }
     if hasattr(document, "like_count"):
         obj["like_count"] = document.like_count
@@ -207,10 +210,12 @@ class DocumentElementView(View):
                 document.likes.remove(request.user)
 
         can_edit = document.current_user_can_edit(request)
+        edited = False
         if "description" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
             document.description = request.DATA["description"]
+            edited = True
         if "display_name" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
@@ -218,12 +223,14 @@ class DocumentElementView(View):
             if request.DATA["display_name"].strip() == "":
                 return response.not_possible("Invalid displayname")
             document.display_name = request.DATA["display_name"]
+            edited = True
         if "category" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
             category = get_object_or_404(
                 Category, slug=request.DATA["category"])
             document.category = category
+            edited = True
         if "document_type" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
@@ -232,8 +239,12 @@ class DocumentElementView(View):
             document.save()
             if old_document_type.id > 4 and not old_document_type.type_set.exists():
                 old_document_type.delete()
+            edited = True
         
-        document.save()
+        if edited:
+            document.edittime = timezone.now()
+            document.save()
+            
         return response.success(value=get_document_obj(document, request))
 
     @auth_check.require_login
@@ -367,6 +378,9 @@ class DocumentFileRootView(View):
             settings.COMSOL_DOCUMENT_DIR, filename, file, file.content_type
         )
 
+        document.edittime = timezone.now()
+        document.save()
+
         # We know that the current user can edit the document and can therefore always include the key
         return response.success(value=get_file_obj(document_file))
 
@@ -397,7 +411,6 @@ class DocumentFileElementView(View):
             pk=id,
             document=document,
         )
-        document_file.edittime = timezone.now()
 
         if "display_name" in request.DATA:
             if request.DATA["display_name"].strip() == "":
@@ -426,6 +439,8 @@ class DocumentFileElementView(View):
             )
 
         document_file.save()
+        document.edittime = timezone.now()
+        document.save()
         # We know that the current user can edit the document and can therefore always include the key
         return response.success(value=get_file_obj(document_file))
 
@@ -448,6 +463,9 @@ class DocumentFileElementView(View):
             settings.COMSOL_DOCUMENT_DIR,
             document_file.filename,
         )
+
+        document.edittime = timezone.now()
+        document.save()
 
         return response.success(value=success)
 
@@ -494,8 +512,6 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
         pk=id,
     )
 
-    document_file.edittime = timezone.now()
-
     err, file, ext = prepare_document_file(request)
     if err is not None:
         return err
@@ -523,5 +539,8 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
         file,
         document_file.mime_type,
     )
+
+    document.edittime = timezone.now()
+    document.save()
 
     return HttpResponse("updated")

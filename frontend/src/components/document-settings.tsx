@@ -123,7 +123,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                 data={categoryOptions ? (options(categoryOptions) as any) : []}
                 value={
                   categoryOptions &&
-                  (category ? categoryOptions[category].value : undefined)
+                  (category ? categoryOptions[category].value : data.category)
                 }
                 onChange={(value: string) => {
                   setCategory(value);
@@ -146,7 +146,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                 data={documentTypeOptions}
                 value={
                   documentTypeOptions &&
-                  (documentType ? documentType : data.document_type)
+                  (documentType ?? data.document_type)
                 }
                 onChange={(value: string) => {
                   setDocumentType(value);
