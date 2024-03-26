@@ -59,7 +59,15 @@ const UploadPdfCard: React.FC<{}> = () => {
               placeholder="Click to choose file..."
               icon={<Icon icon={ICONS.CLOUD_UP} />}
               value={file}
-              onChange={setFile}
+              onChange={(file) => {
+                if (file && file.size > 2.5e6){
+                  setValidationError("File too large! Maximum file size is 2.5MB")
+                  setFile(undefined)
+                } else {
+                  setValidationError("")
+                  setFile(file)
+                }
+              }}
               accept="application/pdf"
             />
             <TextInput
