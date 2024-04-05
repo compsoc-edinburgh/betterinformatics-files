@@ -5,13 +5,12 @@ import { authenticated, login } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
-import { useStyles } from "../utils/style";
+import classes from "../utils/focus-outline.module.css";
 
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
 }
 const CategoryCard: React.FC<Props> = ({ category }) => {
-  const { classes } = useStyles();
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
@@ -41,7 +40,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         <div className="category-card">
           <Anchor
             component="span"
-            weight={700}
+            fw={700}
             size="xl"
             tabIndex={-1}
             mb={0}
@@ -51,11 +50,11 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
               ? highlight(category.displayname, category.match)
               : category.displayname}
           </Anchor>
-          <Text mt={4} color="gray.8">
+          <Text mt={4}>
             Exams:{" "}
             {`${category.examcountanswered} / ${category.examcountpublic}`}
           </Text>
-          <Text mb={4} color="gray.8">
+          <Text mb={4}>
             Answers: {((category.answerprogress * 100) | 0).toString()} %
           </Text>
         </div>

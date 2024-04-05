@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useUserAnswers } from "../api/hooks";
 import AnswerComponent from "./answer";
 import { Alert, Loader } from "@mantine/core";
-import { css } from "@emotion/css";
+import classes from "./user-answers.module.css";
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
 // with multiple columns. This is a quick-fix as pointed out on the
@@ -17,17 +17,6 @@ import { css } from "@emotion/css";
 interface UserAnswersProps {
   username: string;
 }
-
-const columnStyle = css`
-  column-gap: 0.75em;
-  margin: 0;
-  padding-top: 1em;
-  padding-bottom: 1em;
-  column-count: 1;
-  @media (min-width: 900px) {
-    column-count: 2;
-  }
-`;
 
 const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
@@ -76,7 +65,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       {(!answers || answers.length === 0) && !loading && (
         <Alert color="gray">No answers</Alert>
       )}
-      <div className={columnStyle}>
+      <div className={classes.column}>
         {answers &&
           answers.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
             <div key={answer.oid}>

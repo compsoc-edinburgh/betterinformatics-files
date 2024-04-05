@@ -18,7 +18,7 @@ const useConfirm = () => {
     >
       <Modal.Body mt="sm">{message}</Modal.Body>
 
-      <Group position="right">
+      <Group justify="right">
         <Button
           onClick={() => {
             pop();

@@ -32,7 +32,6 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
     <div>
       {error && <Alert color="red">{error.toString()}</Alert>}
       <h3>Paid Oral Exams</h3>
-      {loading && <Loader />}
       {payments && (payments.length > 0 || isAdmin) && (
         <>
           {payments
@@ -118,9 +117,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
       {isAdmin &&
         payments &&
         payments.filter(payment => payment.active).length === 0 && (
-          <Button my="sm" onClick={() => add(username)}>
-            Add Payment
-          </Button>
+          <Button onClick={() => add(username)}>Add Payment</Button>
         )}
     </div>
   );

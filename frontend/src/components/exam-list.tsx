@@ -1,7 +1,6 @@
 import { Alert, Button, Flex, Loader, TextInput } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
 import useSet from "../hooks/useSet";
@@ -12,6 +11,7 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
+import { IconDownload, IconSearch } from "@tabler/icons-react";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -71,7 +71,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <Button
             disabled={selected.size === 0}
             onClick={() => dlSelectedExams(getSelectedExams(selected))}
-            leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+            leftSection={<IconDownload />}
           >
             Download selected exams
           </Button>
@@ -81,7 +81,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           value={filter}
           autoFocus
           onChange={e => setFilter(e.currentTarget.value)}
-          icon={<Icon icon={ICONS.SEARCH} size={14} />}
+          leftSection={<IconSearch style={{ height: "15px", width: "15px" }} />}
         />
       </Flex>
 

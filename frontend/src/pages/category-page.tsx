@@ -31,7 +31,14 @@ import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
-import { Icon, ICONS } from "vseth-canine-ui";
+import {
+  IconChevronRight,
+  IconEdit,
+  IconInfoCircle,
+  IconStar,
+  IconTrash,
+  IconUserStar,
+} from "@tabler/icons-react";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -73,7 +80,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   return (
     <>
       {modals}
-      <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
+      <Breadcrumbs separator={<IconChevronRight />}>
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
@@ -106,7 +113,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             {user.isCategoryAdmin && (
               <Group>
                 <Button
-                  leftIcon={<Icon color="currentColor" icon={ICONS.EDIT} />}
+                  leftSection={<IconEdit />}
                   onClick={() => setEditing(true)}
                 >
                   Edit
@@ -115,7 +122,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   color="red"
                   loading={removeLoading}
                   disabled={metaData.slug === "default"}
-                  leftIcon={<Icon color="currentColor" icon={ICONS.DELETE} />}
+                  leftSection={<IconTrash />}
                   onClick={onRemove}
                 >
                   Delete
@@ -141,15 +148,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   href={metaData.more_exams_link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  color="blue"
+                  c="blue"
                 >
                   Additional Exams
                 </Anchor>
               </Grid.Col>
             )}
-            {metaData.remark && (
-              <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>
-            )}
+            {metaData.remark && <Grid.Col>Remark: {metaData.remark}</Grid.Col>}
           </Grid>
           {(offeredIn === undefined || offeredIn.length > 0) && (
             <Box mb="sm">
@@ -175,7 +180,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <Alert
                   color="yellow"
                   title="Category expert"
-                  icon={<Icon icon={ICONS.STAR} />}
+                  icon={<IconStar />}
                 >
                   You are an expert for this category. You can endorse correct
                   answers, which will be visible to other users.
@@ -184,7 +189,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
             {metaData.has_payments && (
               <Grid.Col span="auto">
-                <Alert bg="gray.2">
+                <Alert color="gray" icon={<IconInfoCircle />}>
                   You have to pay a deposit in order to see oral exams.
                   {serverData.unlock_deposit_notice ? (
                     <>
@@ -204,7 +209,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   variant="light"
                   color="blue"
                   title="Category admin"
-                  icon={<Icon icon={ICONS.USER} />}
+                  icon={<IconUserStar />}
                 >
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>

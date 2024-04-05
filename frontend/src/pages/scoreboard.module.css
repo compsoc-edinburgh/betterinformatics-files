@@ -1,0 +1,22 @@
+.th {
+  padding: 0;
+}
+
+.control {
+  width: 100%;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+
+  @mixin hover {
+    background-color: var(--mantine-color-gray-0);
+  }
+}
+
+.icon {
+  width: 21px;
+  height: 21px;
+  border-radius: 21px;
+}
+
+.overflow-scroll {
+  overflow: auto;
+}

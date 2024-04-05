@@ -1,0 +1,24 @@
+.navbar {
+  height: 3.5rem;
+  color: var(--mantine-color-white);
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.logo {
+  height: 2rem;
+  filter: brightness(0) invert(1);
+}
+
+.items {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+}

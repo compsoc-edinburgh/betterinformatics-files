@@ -4,8 +4,8 @@ import {
   FileInput as FileInputCore,
   Flex,
 } from "@mantine/core";
+import { IconFileUpload, IconX } from "@tabler/icons-react";
 import React, { useRef } from "react";
-import { CloseIcon, FileUploadIcon } from "vseth-canine-ui";
 interface FileInputProps
   extends Omit<
     React.DetailedHTMLProps<
@@ -42,11 +42,11 @@ const FileInput: React.FC<FileInputProps> = ({ value, onChange, ...props }) => {
           Value(value)
         )
       }
-      icon={<FileUploadIcon />}
+      leftSection={<IconFileUpload />}
       rightSection={
         value && (
           <ActionIcon onClick={() => onChange(undefined)}>
-            <CloseIcon />
+            <IconX />
           </ActionIcon>
         )
       }

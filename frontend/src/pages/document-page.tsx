@@ -31,8 +31,15 @@ import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { Tabs } from "@mantine/core";
+import {
+  IconChevronRight,
+  IconDownload,
+  IconEdit,
+  IconFile,
+  IconMessage,
+  IconSettings,
+} from "@tabler/icons-react";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -88,7 +95,7 @@ const DocumentPage: React.FC<Props> = () => {
   return (
     <>
       <Container size="xl">
-        <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
+        <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">
             Home
           </Anchor>
@@ -110,48 +117,41 @@ const DocumentPage: React.FC<Props> = () => {
               <Title>{data.display_name ?? slug}</Title>
               <Group>
                 <IconButton
-                  iconName={ICONS.DOWNLOAD}
+                  icon={<IconDownload />}
                   onClick={startDownload}
-                  color="white"
+                  color="gray"
+                  tooltip="Download"
                   loading={loadingDownload}
                 />
                 <LikeButton document={data} mutate={mutate} />
               </Group>
             </Flex>
-            <Anchor
-                component={Link}
-                to={`/user/${data.author}`}
-              >
-                <Text weight={700} component="span">
-                  {data.author_displayname}
+            <Anchor component={Link} to={`/user/${data.author}`}>
+              <Text fw={700} component="span">
+                {data.author_displayname}
+              </Text>
+              <Text ml="0.3em" color="dimmed" component="span">
+                @{data.author}
+              </Text>
+            </Anchor>
+            {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
+              1 && (
+              <>
+                <Text color="dimmed" mx={6} component="span">
+                  ·
                 </Text>
-                <Text ml="0.3em" color="dimmed" component="span">
-                  @{data.author}
-                </Text>
-              </Anchor>
-            {differenceInSeconds(
-                new Date(data.edittime),
-                new Date(data.time),
-              ) > 1 &&
-                <>
-                  <Text color="dimmed" mx={6} component="span">
-                    ·
+                <Tooltip
+                  withArrow
+                  withinPortal
+                  label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
+                  disabled={data.time === null}
+                >
+                  <Text color="dimmed" component="span">
+                    updated {formatDistanceToNow(new Date(data.edittime))} ago
                   </Text>
-                  <Tooltip 
-                    withArrow 
-                    withinPortal
-                    label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
-                    disabled={data.time === null}
-                    >
-                      <Text
-                      color="dimmed"
-                      component="span"
-                      >
-                        updated {formatDistanceToNow(new Date(data.edittime))} ago
-                      </Text>
-                  </Tooltip>
-                </>
-            }
+                </Tooltip>
+              </>
+            )}
           </Box>
         )}
         {error && <Alert color="red">{error.toString()}</Alert>}
@@ -162,26 +162,23 @@ const DocumentPage: React.FC<Props> = () => {
         )}
       </Container>
       <Container size="xl" mt="sm">
-        <Tabs value={tab} onTabChange={setTab}>
+        <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
             {data &&
               data.files.map(file => (
                 <Tabs.Tab
                   key={file.oid}
                   value={file.oid.toString()}
-                  icon={<Icon icon={ICONS.FILE} />}
+                  leftSection={<IconFile />}
                 >
                   {file.display_name}
                 </Tabs.Tab>
               ))}
-            <Tabs.Tab
-              value="comments"
-              icon={<Icon icon={ICONS.MESSAGE_THREE_POINTS} />}
-            >
+            <Tabs.Tab value="comments" leftSection={<IconMessage />}>
               Comments
             </Tabs.Tab>
             {data && (data.can_delete || data.can_edit) && (
-              <Tabs.Tab value="settings" icon={<Icon icon={ICONS.SETTINGS} />}>
+              <Tabs.Tab value="settings" leftSection={<IconSettings />}>
                 Settings
               </Tabs.Tab>
             )}
@@ -196,10 +193,7 @@ const DocumentPage: React.FC<Props> = () => {
             <ContentContainer mt="-2px">
               <Container>
                 <Flex py="sm" justify="center">
-                  <Button
-                    leftIcon={<Icon icon={ICONS.EDIT} />}
-                    onClick={toggleEditing}
-                  >
+                  <Button leftSection={<IconEdit />} onClick={toggleEditing}>
                     Toggle Edit Mode
                   </Button>
                 </Flex>
@@ -235,7 +229,7 @@ const DocumentPage: React.FC<Props> = () => {
                 This file can only be downloaded.
               </Alert>
               <Button
-                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+                leftSection={<IconDownload />}
                 onClick={() =>
                   download(`/api/document/file/${activeFile?.filename}`)
                 }

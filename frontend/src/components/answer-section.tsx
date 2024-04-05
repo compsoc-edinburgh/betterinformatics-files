@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import {
   Card,
   CardProps,
@@ -10,7 +9,6 @@ import {
   Group,
   Flex,
   Text,
-  MediaQuery,
 } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
@@ -22,14 +20,18 @@ import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import ThreeButtons from "./three-columns";
 import { getAnswerSectionId } from "../utils/exam-utils";
-import { Icon, ICONS } from "vseth-canine-ui";
 import useAlmostInViewport from "../hooks/useAlmostInViewport";
-
-const nameCardStyle = css`
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border-top-width: 0 !important;
-`;
+import {
+  IconArrowsMoveVertical,
+  IconChevronDown,
+  IconDeviceFloppy,
+  IconDots,
+  IconEdit,
+  IconEye,
+  IconEyeOff,
+  IconTrash,
+} from "@tabler/icons-react";
+import classes from "./answer-section.module.css";
 
 interface NameCardProps {
   id: string;
@@ -40,23 +42,19 @@ const NameCard = (props: NameCardProps) => (
   <Card
     bg="gray.1"
     withBorder
-    className={nameCardStyle}
+    className={classes.nameCard}
     {...props}
     shadow="md"
     id={props.id}
   />
 );
 
-const answerSectionButtonWrapperStyle = css`
-  margin-top: 1em;
-  margin-bottom: 1em;
-`;
 const AnswerSectionButtonWrapper = (props: CardProps) => (
   <Card
     p="sm"
     shadow="md"
     withBorder
-    className={answerSectionButtonWrapperStyle}
+    className={classes.answerSectionButtonWrapper}
     {...props}
   />
 );
@@ -83,7 +81,7 @@ const AddButton: React.FC<AddButtonProps> = ({
     return (
       <Menu opened={isOpen} withinPortal onChange={toggle}>
         <Menu.Target>
-          <Button rightIcon={<Icon icon={ICONS.DOWN} />}>Add Answer</Button>
+          <Button rightSection={<IconChevronDown />}>Add Answer</Button>
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item onClick={onAnswer} disabled={hasAnswerDraft}>
@@ -243,8 +241,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   onChange={e => setDraftName(e.target.value)}
                 />
                 <IconButton
+                  variant="filled"
                   tooltip="Save PDF section name"
-                  iconName={ICONS.SAVE}
+                  icon={<IconDeviceFloppy />}
                   onClick={() => {
                     setIsEditingName(false);
                     onCutNameChange(draftName);
@@ -252,15 +251,15 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                 />
               </Group>
             ) : (
-              <Flex justify="space-between">
-                <Text component="h6" m={0}>
+              <Flex justify="space-between" align="center">
+                <Text fw={700} m={0}>
                   {cutName}
                 </Text>
                 {isCatAdmin && (
                   <IconButton
+                    variant="filled"
                     tooltip="Edit PDF section name"
-                    size="sm"
-                    iconName={ICONS.EDIT}
+                    icon={<IconEdit />}
                     onClick={() => setIsEditingName(true)}
                   />
                 )}
@@ -312,7 +311,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         {displayHideShowButtons ? (
                           <IconButton
                             size="sm"
-                            iconName={has_answers ? ICONS.VIEW_OFF : ICONS.VIEW}
+                            icon={has_answers ? <IconEyeOff /> : <IconEye />}
                             tooltip="Toggle visibility"
                             onClick={hideAnswerSectionWithWarning}
                           />
@@ -346,26 +345,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <>
-                          <MediaQuery
-                            smallerThan="sm"
-                            styles={{ display: "none" }}
-                          >
-                            <Button variant="brand" onClick={onToggleHidden}>
-                              {hidden ? "Show Answers" : "Hide Answers"}
-                            </Button>
-                          </MediaQuery>
-                          <MediaQuery
-                            largerThan="sm"
-                            styles={{ display: "none" }}
-                          >
-                            <Button
-                              variant="brand"
-                              size="xs"
-                              onClick={onToggleHidden}
-                            >
-                              {hidden ? "Show Answers" : "Hide Answers"}
-                            </Button>
-                          </MediaQuery>
+                          <Button onClick={onToggleHidden}>
+                            {hidden ? "Show Answers" : "Hide Answers"}
+                          </Button>
                         </>
                       )
                     }
@@ -373,15 +355,23 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
-                            <Button rightIcon={<Icon icon={ICONS.DOWN} />}>
-                              <Icon icon={ICONS.DOTS_H} size={18} />
+                            <Button rightSection={<IconChevronDown />}>
+                              <IconDots />
                             </Button>
                           </Menu.Target>
                           <Menu.Dropdown>
-                            <Menu.Item onClick={runRemoveSplit}>
+                            <Menu.Item
+                              leftSection={<IconTrash />}
+                              onClick={runRemoveSplit}
+                            >
                               Delete
                             </Menu.Item>
-                            <Menu.Item onClick={onMove}>Move</Menu.Item>
+                            <Menu.Item
+                              leftSection={<IconArrowsMoveVertical />}
+                              onClick={onMove}
+                            >
+                              Move
+                            </Menu.Item>
                           </Menu.Dropdown>
                         </Menu>
                       )

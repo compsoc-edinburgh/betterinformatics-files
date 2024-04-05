@@ -10,12 +10,12 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
     <>
       <Container size="xl">
         <Grid>
-          <Grid.Col md={5}>
+          <Grid.Col span={{ md: 5 }}>
             <Flex direction="column" justify="center">
               <Text size="4.5rem" lh={1.2} my="lg">
                 Community Solutions
               </Text>
-              <Text size="lg" weight={500}>
+              <Text size="lg" fw={500}>
                 Community Solutions is a platform for students that allows them
                 to share answers of previous exams, comment on answers and
                 upload summaries.
@@ -23,10 +23,7 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             </Flex>
           </Grid.Col>
           <Grid.Col
-            xs={11}
-            md={7}
-            lg={6}
-            xl={4}
+            span={{ xs: 11, md: 7, lg: 6, xl: 4 }}
             mx="auto"
             py="sm"
             style={{ position: "relative" }}

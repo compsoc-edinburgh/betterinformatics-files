@@ -1,0 +1,39 @@
+.navItem {
+  padding-left: 0rem;
+  padding-right: 0rem;
+  text-align: right;
+  display: initial;
+  cursor: pointer;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  text-transform: uppercase;
+  font-weight: 500;
+
+  @media (max-width: $mantine-breakpoint-md) {
+    text-align: left;
+    display: block;
+  }
+}
+
+.childItem {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  cursor: pointer;
+  fill: rgba(51, 51, 51, 0.5);
+}
+
+.link {
+  text-decoration: none !important;
+  width: 100%;
+}
+
+.active {
+  border-bottom: solid 0.25rem rgba(255, 255, 255, 0.8);
+}
+
+.mobileChild {
+  margin-left: 1rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding-top: 0.25rem;
+}

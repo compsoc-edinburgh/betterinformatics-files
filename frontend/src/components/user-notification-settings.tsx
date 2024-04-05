@@ -21,7 +21,7 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
     <>
       <h3>Notifications</h3>
       {error && <Alert color="red">{error.toString()}</Alert>}
-      <Stack spacing="sm">
+      <Stack gap="sm">
         <Checkbox
           label="Comment to my answer"
           checked={enabled ? enabled.has(1) : false}

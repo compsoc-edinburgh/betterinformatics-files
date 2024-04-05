@@ -1,0 +1,24 @@
+.navbar {
+  height: 3.5rem;
+  box-shadow: var(--mantine-shadow-sm);
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  height: 100%;
+}
+
+.title {
+  text-decoration: none;
+  width: 12.5rem;
+  color: rgba(51, 51, 51, 1);
+  font-weight: 400;
+  font-size: 1.25rem;
+
+  @mixin dark {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}

@@ -8,7 +8,7 @@ import {
   Group,
   Text,
 } from "@mantine/core";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { IconBrandGit, IconHeartFilled } from "@tabler/icons-react";
 
 interface FooterProps {
   logo: string;
@@ -40,21 +40,22 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
             }}
           >
             Made with
-            <Icon
-              icon={ICONS.LIKE_FILLED}
-              color="red"
-              aria-label="love"
+            <IconHeartFilled
               style={{
                 position: "relative",
                 top: 2,
+                color: "red",
                 margin: "0px 4px",
+                height: "15px",
+                width: "15px",
               }}
             />
             by volunteers at{" "}
             <Anchor
+              fw="bold"
               href="https://vis.ethz.ch/"
               title="Verein der Informatikstudierenden an der ETH Zürich"
-              color="blue"
+              c="blue"
             >
               VIS
             </Anchor>
@@ -73,22 +74,23 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
           >
             <Anchor
               href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions"
-              color="blue"
+              c="blue"
             >
-              <Icon
-                icon={ICONS.GITLAB}
+              <IconBrandGit
                 style={{
                   position: "relative",
                   top: 2,
                   marginRight: 6,
+                  height: "15px",
+                  width: "15px",
                 }}
               />
               Repository
             </Anchor>
-            <Anchor href={disclaimer} color="blue">
+            <Anchor href={disclaimer} c="blue">
               Imprint
             </Anchor>
-            <Anchor href={privacy} color="blue">
+            <Anchor href={privacy} c="blue">
               Privacy Policy
             </Anchor>
           </Group>

@@ -8,12 +8,8 @@ import {
   Affix,
   rem,
   Group,
+  CSSVariablesResolver,
 } from "@mantine/core";
-import {
-  ConfigOptions,
-  makeVsethTheme,
-  VSETHThemeProvider,
-} from "vseth-canine-ui";
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import {
@@ -50,7 +46,12 @@ import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
-import { defaultConfigOptions } from "./components/Navbar/constants";
+import {
+  ConfigOptions,
+  defaultConfigOptions,
+} from "./components/Navbar/constants";
+import makeVsethTheme from "./makeVsethTheme";
+import "@mantine/core/styles.css";
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -150,11 +151,8 @@ const App: React.FC<{}> = () => {
 
   const data = (window as any).configOptions as ConfigOptions;
 
-  const vsethTheme = makeVsethTheme("#333");
-  vsethTheme.colorScheme = "light";
+  const fvTheme = makeVsethTheme(data.primaryColor);
 
-  const fvTheme = makeVsethTheme(data.primaryColor ?? "#009FE3");
-  fvTheme.colorScheme = "light";
   fvTheme.components = {
     Anchor: {
       defaultProps: {
@@ -166,33 +164,10 @@ const App: React.FC<{}> = () => {
         color: "dark",
       },
     },
-    Alert: {
-      defaultProps: {
-        color: "gray",
-      },
-    },
     Badge: {
       defaultProps: {
         color: "gray",
-      },
-    },
-    Button: {
-      variants: {
-        brand: theme => ({
-          root: {
-            backgroundColor: theme.colors[theme.primaryColor][7],
-            color: theme.colors.gray[8],
-            ...theme.fn.hover({
-              backgroundColor: theme.fn.darken(
-                theme.colors[theme.primaryColor][7],
-                0.1,
-              ),
-            }),
-          },
-        }),
-      },
-      defaultProps: {
-        color: "dark",
+        variant: "light",
       },
     },
   };
@@ -217,8 +192,8 @@ const App: React.FC<{}> = () => {
     { title: "Search", href: "/search" },
     {
       title: (
-        <Group noWrap spacing="xs">
-          <Text>Account</Text>
+        <Group wrap="nowrap" gap="xs">
+          Account
           {unreadCount !== undefined && unreadCount > 0 && (
             <Badge mt={2}>{unreadCount}</Badge>
           )}
@@ -228,131 +203,135 @@ const App: React.FC<{}> = () => {
     },
   ];
 
+  const resolver: CSSVariablesResolver = _ => ({
+    variables: {},
+    light: {
+      "--mantine-color-anchor": "--mantine-color-black",
+    },
+    dark: {
+      "--mantine-color-anchor": "--mantine-color-white",
+    },
+  });
+
   return (
-    <VSETHThemeProvider theme={vsethTheme}>
-      <MantineProvider theme={fvTheme} withGlobalStyles withNormalizeCSS>
-        <Modal
-          opened={loggedOut}
-          onClose={() => login()}
-          title="You've been logged out due to inactivity"
-        >
-          <Text mb="md">
-            Your session has expired due to inactivity, you have to log in again
-            to continue.
-          </Text>
-          <Button size="lg" variant="outline" onClick={() => login()}>
-            Sign in with AAI
-          </Button>
-        </Modal>
-        <Route component={HashLocationHandler} />
-        <DebugContext.Provider value={debugOptions}>
-          <UserContext.Provider value={user}>
-            <SetUserContext.Provider value={setUser}>
+    <MantineProvider theme={fvTheme} cssVariablesResolver={resolver}>
+      <Modal
+        opened={loggedOut}
+        onClose={() => login()}
+        title="You've been logged out due to inactivity"
+      >
+        <Text mb="md">
+          Your session has expired due to inactivity, you have to log in again
+          to continue.
+        </Text>
+        <Button size="lg" variant="outline" onClick={() => login()}>
+          Sign in with AAI
+        </Button>
+      </Modal>
+      <Route component={HashLocationHandler} />
+      <DebugContext.Provider value={debugOptions}>
+        <UserContext.Provider value={user}>
+          <SetUserContext.Provider value={setUser}>
+            <div>
               <div>
-                <div>
-                  <TopHeader
-                    logo={data.logo ?? defaultConfigOptions.logo}
-                    size="xl"
-                    organizationNav={
-                      data.externalNav ?? defaultConfigOptions.externalNav
-                    }
-                    selectedLanguage={"en"}
-                    onLanguageSelect={() => {}}
-                  />
-                  <BottomHeader
-                    lang={"en"}
-                    appNav={bottomHeaderNav}
-                    title={"Community Solutions"}
-                    size="xl"
-                    activeHref={useLocation().pathname}
-                  />
-                  <MobileHeader
-                    signet={data.signet ?? defaultConfigOptions.signet}
-                    selectedLanguage={"en"}
-                    onLanguageSelect={() => {}}
-                    appNav={bottomHeaderNav}
-                    title={"Community Solutions"}
-                  />
-                  <Box component="main" mt="2em">
-                    <Switch>
-                      <UserRoute exact path="/" component={HomePage} />
-                      <Route exact path="/login" component={LoginPage} />
-                      <UserRoute
-                        exact
-                        path="/uploadpdf"
-                        component={UploadPdfPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/submittranscript"
-                        component={UploadTranscriptPage}
-                      />
-                      <UserRoute exact path="/faq" component={FAQ} />
-                      <UserRoute
-                        exact
-                        path="/feedback"
-                        component={FeedbackPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/category/:slug"
-                        component={CategoryPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:author/document/:slug"
-                        component={DocumentPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/exams/:filename"
-                        component={ExamPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:username"
-                        component={UserPage}
-                      />
-                      <UserRoute exact path="/user/" component={UserPage} />
-                      <UserRoute exact path="/search/" component={SearchPage} />
-                      <UserRoute
-                        exact
-                        path="/scoreboard"
-                        component={Scoreboard}
-                      />
-                      <UserRoute exact path="/modqueue" component={ModQueue} />
-                      <Route component={NotFoundPage} />
-                    </Switch>
-                  </Box>
-                </div>
-                <Footer
+                <TopHeader
                   logo={data.logo ?? defaultConfigOptions.logo}
-                  disclaimer={
-                    data.disclaimer ?? defaultConfigOptions.disclaimer
+                  size="xl"
+                  organizationNav={
+                    data.externalNav ?? defaultConfigOptions.externalNav
                   }
-                  privacy={data.privacy ?? defaultConfigOptions.privacy}
+                  selectedLanguage={"en"}
+                  onLanguageSelect={() => {}}
                 />
+                <BottomHeader
+                  lang={"en"}
+                  appNav={bottomHeaderNav}
+                  title={"Community Solutions"}
+                  size="xl"
+                  activeHref={useLocation().pathname}
+                />
+                <MobileHeader
+                  signet={data.signet ?? defaultConfigOptions.signet}
+                  selectedLanguage={"en"}
+                  onLanguageSelect={() => {}}
+                  appNav={bottomHeaderNav}
+                  title={"Community Solutions"}
+                />
+                <Box component="main" mt="2em">
+                  <Switch>
+                    <UserRoute exact path="/" component={HomePage} />
+                    <Route exact path="/login" component={LoginPage} />
+                    <UserRoute
+                      exact
+                      path="/uploadpdf"
+                      component={UploadPdfPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/submittranscript"
+                      component={UploadTranscriptPage}
+                    />
+                    <UserRoute exact path="/faq" component={FAQ} />
+                    <UserRoute
+                      exact
+                      path="/feedback"
+                      component={FeedbackPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/category/:slug"
+                      component={CategoryPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/user/:author/document/:slug"
+                      component={DocumentPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/exams/:filename"
+                      component={ExamPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/user/:username"
+                      component={UserPage}
+                    />
+                    <UserRoute exact path="/user/" component={UserPage} />
+                    <UserRoute exact path="/search/" component={SearchPage} />
+                    <UserRoute
+                      exact
+                      path="/scoreboard"
+                      component={Scoreboard}
+                    />
+                    <UserRoute exact path="/modqueue" component={ModQueue} />
+                    <Route component={NotFoundPage} />
+                  </Switch>
+                </Box>
               </div>
-            </SetUserContext.Provider>
-          </UserContext.Provider>
-        </DebugContext.Provider>
-        {process.env.NODE_ENV === "development" && (
-          <>
-            <Affix position={{ bottom: rem(10), left: rem(10) }}>
-              <Button variant="brand" onClick={toggleDebugPanel}>
-                DEBUG
-              </Button>
-            </Affix>
-            <DebugModal
-              isOpen={debugPanel}
-              toggle={toggleDebugPanel}
-              debugOptions={debugOptions}
-              setDebugOptions={setDebugOptions}
-            />
-          </>
-        )}
-      </MantineProvider>
-    </VSETHThemeProvider>
+              <Footer
+                logo={data.logo ?? defaultConfigOptions.logo}
+                disclaimer={data.disclaimer ?? defaultConfigOptions.disclaimer}
+                privacy={data.privacy ?? defaultConfigOptions.privacy}
+              />
+            </div>
+          </SetUserContext.Provider>
+        </UserContext.Provider>
+      </DebugContext.Provider>
+      {process.env.NODE_ENV === "development" && (
+        <>
+          <Affix position={{ bottom: rem(10), left: rem(10) }}>
+            <Button onClick={toggleDebugPanel}>DEBUG</Button>
+          </Affix>
+          <DebugModal
+            isOpen={debugPanel}
+            toggle={toggleDebugPanel}
+            debugOptions={debugOptions}
+            setDebugOptions={setDebugOptions}
+          />
+        </>
+      )}
+    </MantineProvider>
   );
 };
 export default App;

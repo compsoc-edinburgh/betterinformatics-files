@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import {
   Button,
   Card,
@@ -14,7 +13,6 @@ import {
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
@@ -36,18 +34,25 @@ import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TooltipButton from "./TooltipButton";
-
-const answerWrapperStyle = css`
-  margin-bottom: 1em;
-`;
-
-const answerToolbarStyle = css`
-  justify-content: flex-end;
-  margin: 0 -0.3em;
-`;
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconCode,
+  IconDeviceFloppy,
+  IconDots,
+  IconEdit,
+  IconFlag,
+  IconLink,
+  IconPencilCancel,
+  IconPlus,
+  IconStarFilled,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react";
+import classes from "./answer.module.css";
 
 const AnswerToolbar = (props: GroupProps) => (
-  <Group className={answerToolbarStyle} {...props} />
+  <Group className={classes.answerToolbarStyle} {...props} />
 );
 
 interface Props {
@@ -113,7 +118,7 @@ const AnswerComponent: React.FC<Props> = ({
         withBorder
         shadow="md"
         id={hasId ? answer?.longId : undefined}
-        className={answerWrapperStyle}
+        className={classes.answerWrapperStyle}
       >
         <Card.Section px="md" py="md" withBorder bg="gray.0">
           <Flex justify="space-between" align="center">
@@ -125,7 +130,7 @@ const AnswerComponent: React.FC<Props> = ({
                   }
                 >
                   <Text mr={8} color="dimmed" component="span">
-                    <Icon icon={ICONS.LINK} size={12} />
+                    <IconLink style={{ height: "13px", width: "13px" }} />
                   </Text>
                 </Link>
               )}
@@ -136,19 +141,19 @@ const AnswerComponent: React.FC<Props> = ({
                   component={Link}
                   to={`/user/${answer?.authorId ?? username}`}
                 >
-                  <Text weight={700} component="span">
+                  <Text fw={700} component="span">
                     {answer?.authorDisplayName ?? "(Draft)"}
                   </Text>
-                  <Text ml="0.3em" color="dimmed" component="span">
+                  <Text ml="0.3em" c="dimmed" component="span">
                     @{answer?.authorId ?? username}
                   </Text>
                 </Anchor>
               )}
-              <Text color="dimmed" mx={6} component="span">
+              <Text c="dimmed" mx={6} component="span">
                 ·
               </Text>
               {answer && (
-                <Text color="dimmed" component="span" title={answer.time}>
+                <Text c="dimmed" component="span" title={answer.time}>
                   {formatDistanceToNow(new Date(answer.time))} ago
                 </Text>
               )}
@@ -186,7 +191,7 @@ const AnswerComponent: React.FC<Props> = ({
                           variant="filled"
                           color="yellow"
                         >
-                          <Icon icon={ICONS.STAR_FILLED} size={18} />
+                          <IconStarFilled />
                         </TooltipButton>
                         <TooltipButton
                           miw={30}
@@ -209,11 +214,11 @@ const AnswerComponent: React.FC<Props> = ({
                               setExpertVote(answer.oid, !answer.isExpertVoted)
                             }
                           >
-                            <Icon
-                              icon={
-                                answer.isExpertVoted ? ICONS.DOWN : ICONS.UP
-                              }
-                            />
+                            {answer.isExpertVoted ? (
+                              <IconChevronDown />
+                            ) : (
+                              <IconChevronUp />
+                            )}
                           </TooltipButton>
                         )}
                       </Button.Group>
@@ -231,7 +236,7 @@ const AnswerComponent: React.FC<Props> = ({
                           px={12}
                           variant="filled"
                         >
-                          <Icon icon={ICONS.FLAG} />
+                          <IconFlag />
                         </TooltipButton>
                         <TooltipButton
                           color="red"
@@ -254,10 +259,7 @@ const AnswerComponent: React.FC<Props> = ({
                             setFlagged(answer.oid, !answer.isFlagged)
                           }
                         >
-                          <Icon
-                            icon={answer.isFlagged ? ICONS.CLOSE : ICONS.UP}
-                            size={16}
-                          />
+                          {answer.isFlagged ? <IconX /> : <IconChevronUp />}
                         </TooltipButton>
                       </Button.Group>
                     </Paper>
@@ -290,7 +292,10 @@ const AnswerComponent: React.FC<Props> = ({
               />
               <Text mt="xs" color="dimmed">
                 Your answer will be licensed as{" "}
-                <Link to="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+                <Link
+                  style={{ textDecoration: "none" }}
+                  to="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+                >
                   CC BY-NC-SA 4.0
                 </Link>
                 .
@@ -308,15 +313,14 @@ const AnswerComponent: React.FC<Props> = ({
             </Box>
           </Card.Section>
         )}
-        <Group position="right">
+        <Group justify="right">
           {(answer === undefined || editing) && (
             <Button
-              variant="brand"
               size="sm"
               onClick={save}
               loading={updating}
               disabled={draftText.trim().length === 0}
-              leftIcon={<Icon icon={ICONS.SAVE} />}
+              leftSection={<IconDeviceFloppy />}
             >
               Save
             </Button>
@@ -324,16 +328,21 @@ const AnswerComponent: React.FC<Props> = ({
           {onSectionChanged && (
             <Flex align="center">
               {(answer === undefined || editing) && (
-                <IconButton size="sm" onClick={onCancel} iconName={ICONS.CLOSE}>
+                <Button
+                  size="sm"
+                  color="red"
+                  onClick={onCancel}
+                  leftSection={<IconPencilCancel />}
+                >
                   {editing ? "Cancel" : "Delete Draft"}
-                </IconButton>
+                </Button>
               )}
               <Button.Group ml="md">
                 {answer !== undefined && (
                   <Button
                     size="sm"
                     onClick={() => setHasCommentDraft(true)}
-                    leftIcon={<Icon icon={ICONS.PLUS} />}
+                    leftSection={<IconPlus />}
                     disabled={hasCommentDraft}
                   >
                     Add Comment
@@ -342,21 +351,19 @@ const AnswerComponent: React.FC<Props> = ({
                 {answer !== undefined && (
                   <Menu withinPortal>
                     <Menu.Target>
-                      <Button leftIcon={<Icon icon={ICONS.DOTS_H} />}>
-                        More
-                      </Button>
+                      <Button leftSection={<IconDots />}>More</Button>
                     </Menu.Target>
                     <Menu.Dropdown>
                       {answer.flagged === 0 && (
                         <Menu.Item
-                          icon={<Icon icon={ICONS.FLAG} />}
+                          leftSection={<IconFlag />}
                           onClick={() => setFlagged(answer.oid, true)}
                         >
                           Flag as Inappropriate
                         </Menu.Item>
                       )}
                       <Menu.Item
-                        icon={<Icon icon={ICONS.LINK} />}
+                        leftSection={<IconLink />}
                         onClick={() =>
                           copy(
                             `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
@@ -367,7 +374,7 @@ const AnswerComponent: React.FC<Props> = ({
                       </Menu.Item>
                       {isAdmin && answer.flagged > 0 && (
                         <Menu.Item
-                          icon={<Icon icon={ICONS.FLAG} />}
+                          leftSection={<IconFlag />}
                           onClick={() => resetFlagged(answer.oid)}
                         >
                           Remove all inappropriate flags
@@ -375,22 +382,19 @@ const AnswerComponent: React.FC<Props> = ({
                       )}
                       {!editing && canEdit && (
                         <Menu.Item
-                          icon={<Icon icon={ICONS.EDIT} />}
+                          leftSection={<IconEdit />}
                           onClick={startEdit}
                         >
                           Edit
                         </Menu.Item>
                       )}
                       {answer && canRemove && (
-                        <Menu.Item
-                          icon={<Icon icon={ICONS.DELETE} />}
-                          onClick={remove}
-                        >
+                        <Menu.Item leftSection={<IconTrash />} onClick={remove}>
                           Delete
                         </Menu.Item>
                       )}
                       <Menu.Item
-                        icon={<Icon icon={ICONS.CODE} />}
+                        leftSection={<IconCode />}
                         onClick={toggleViewSource}
                       >
                         Toggle Source Code Mode

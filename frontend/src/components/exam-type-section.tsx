@@ -10,8 +10,8 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { css } from "@emotion/css";
 import React from "react";
+import examTypeClasses from "./exam-type-section.module.css";
 import { Link, useHistory } from "react-router-dom";
 import { fetchPost } from "../api/fetch-utils";
 import { useUser } from "../auth";
@@ -19,17 +19,14 @@ import useConfirm from "../hooks/useConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
-import { useStyles } from "../utils/style";
+import classes from "../utils/focus-outline.module.css";
 import ExamGrid from "./exam-grid";
-import { ICONS } from "vseth-canine-ui";
+import { IconTrash } from "@tabler/icons-react";
 
 const removeExam = async (filename: string) => {
   await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
 
-const badgeStyle = css`
-  font-size: 0.75rem !important;
-`;
 interface ExamTypeCardProps {
   examtype: string;
   exams: CategoryExam[];
@@ -47,7 +44,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
   onDeselect,
   reload,
 }) => {
-  const { classes } = useStyles();
   const user = useUser()!;
   const catAdmin = user.isCategoryAdmin;
   const history = useHistory();
@@ -120,10 +116,10 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     component={Link}
                     to={`/exams/${exam.filename}`}
                     size="lg"
-                    weight={600}
+                    fw={600}
                     mb="sm"
                   >
-                    <Text>{exam.displayname}</Text>
+                    <Text fw={600}>{exam.displayname}</Text>
                   </Anchor>
                 ) : (
                   exam.displayname
@@ -137,22 +133,22 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   <Flex mt="0.2em" gap={4}>
                     {catAdmin &&
                       (exam.public ? (
-                        <Badge className={badgeStyle}>public</Badge>
+                        <Badge className={examTypeClasses.badge}>public</Badge>
                       ) : (
-                        <Badge className={badgeStyle}>hidden</Badge>
+                        <Badge className={examTypeClasses.badge}>hidden</Badge>
                       ))}
                     {exam.needs_payment && (
-                      <Badge className={badgeStyle} color="blue">
+                      <Badge className={examTypeClasses.badge} color="blue">
                         oral
                       </Badge>
                     )}
                     {catAdmin &&
                       (exam.finished_cuts ? (
-                          <Badge className={badgeStyle} color="green">
-                            All done
-                          </Badge>
+                        <Badge className={examTypeClasses.badge} color="green">
+                          All done
+                        </Badge>
                       ) : (
-                        <Badge className={badgeStyle} color="orange">
+                        <Badge className={examTypeClasses.badge} color="orange">
                           Needs Cuts
                         </Badge>
                       ))}
@@ -160,14 +156,14 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     {exam.is_printonly && (
                       <Badge
                         color="red"
-                        className={badgeStyle}
+                        className={examTypeClasses.badge}
                         title="This exam can only be printed. We can not provide this exam online."
                       >
                         Print Only
                       </Badge>
                     )}
                     <Badge
-                      className={badgeStyle}
+                      className={examTypeClasses.badge}
                       title={`There are ${exam.count_cuts} questions, of which ${exam.count_answered} have at least one solution.`}
                     >
                       {exam.count_answered} / {exam.count_cuts}
@@ -186,10 +182,10 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               <Grid.Col span="content">
                 {user.isAdmin && (
                   <IconButton
-                    size="lg"
-                    color="gray.6"
+                    size="md"
+                    color="red"
                     tooltip="Delete exam"
-                    iconName={ICONS.DELETE}
+                    icon={<IconTrash />}
                     variant="outline"
                     onClick={(
                       e: React.MouseEvent<HTMLButtonElement, MouseEvent>,

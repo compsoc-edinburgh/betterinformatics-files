@@ -1,0 +1,8 @@
+.focusOutline {
+  &:focus {
+    outline-width: 1.5;
+    outline-style: "solid";
+    outline-color: var(--mantine-color-gray-9);
+    outline-offset: 2;
+  }
+}
