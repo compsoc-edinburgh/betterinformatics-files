@@ -1,0 +1,8 @@
+.answer-wrapper-style {
+  margin-bottom: 1em;
+}
+
+.answer-toolbar-style {
+  justify-content: flex-end;
+  margin: 0 -0.3em;
+}

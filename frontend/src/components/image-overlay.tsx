@@ -11,10 +11,7 @@ import React, { useEffect, useState } from "react";
 import { useImages } from "../api/image";
 import useSet from "../hooks/useSet";
 import FileInput from "./file-input";
-import { css } from "@emotion/css";
-const cardWrapperStyle = css`
-  padding: 0 0.75em;
-`;
+
 interface ModalProps {
   isOpen: boolean;
   toggle: () => void;
@@ -63,7 +60,7 @@ const ImageModal: React.FC<ModalProps> = ({
         <SimpleGrid cols={3} mt="sm">
           {images &&
             images.map(image => (
-              <div key={image} className={cardWrapperStyle}>
+              <div key={image} style={{ padding: "0 0.75em" }}>
                 <Card
                   color={selected.has(image) ? "primary" : undefined}
                   style={{
@@ -87,7 +84,6 @@ const ImageModal: React.FC<ModalProps> = ({
                   {selected.has(image) && selected.size === 1 && (
                     <Button
                       pos="absolute"
-                      variant="brand"
                       onClick={() => closeWithImage(image)}
                     >
                       Insert

@@ -1,0 +1,36 @@
+.wrapper {
+  position: relative;
+}
+
+.common {
+  font-family: "Fira Code", monospace;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.textarea {
+  position: absolute;
+  top: 0;
+  color: black;
+  caret-color: inherit;
+  background: transparent;
+  resize: none;
+  border: none;
+  &:focus {
+    outline: none;
+  }
+}
+
+.pre {
+  user-select: none;
+  color: transparent;
+}
+
+.fullHeight {
+  height: 100%;
+}

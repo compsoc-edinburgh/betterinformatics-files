@@ -11,8 +11,8 @@ import { useRequest } from "@umijs/hooks";
 import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
+import { IconCloudUpload, IconDownload } from "@tabler/icons-react";
 
 const UploadTranscriptCard: React.FC<{}> = () => {
   const history = useHistory();
@@ -63,7 +63,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
       <Stack mt="sm">
         <Text>Please use the following template:</Text>
         <Button
-          leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+          leftSection={<IconDownload />}
           onClick={() => window.open("/static/transcript_template.tex")}
         >
           Download template
@@ -74,7 +74,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
             <FileInput
               label="File"
               placeholder="Click to choose file..."
-              icon={<Icon icon={ICONS.CLOUD_UP} />}
+              leftSection={<IconCloudUpload />}
               value={file}
               onChange={setFile}
               accept="application/pdf"
@@ -84,10 +84,12 @@ const UploadTranscriptCard: React.FC<{}> = () => {
               placeholder="Choose category..."
               data={options}
               searchable
-              nothingFound="No category found"
-              onChange={(value: string) => setCategory(value)}
+              nothingFoundMessage="No category found"
+              onChange={(value: string | null) =>
+                value != null && setCategory(value)
+              }
             />
-            <Button variant="brand" type="submit" loading={loading}>
+            <Button type="submit" loading={loading}>
               Submit
             </Button>
           </Stack>

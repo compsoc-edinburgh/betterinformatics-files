@@ -1,4 +1,3 @@
-import { css } from "@emotion/css";
 import {
   Container,
   Alert,
@@ -19,19 +18,6 @@ import UserPayments from "../components/user-payments";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
 
-const navStyle = css`
-  width: 100%;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  justify-content: space-between;
-  .nav-item {
-    margin: 0;
-  }
-  .nav-item .nav-link p {
-    font-size: x-large;
-  }
-`;
-
 const UserPage: React.FC<{}> = () => {
   const user = useUser()!;
   const { username = user.username } = useParams() as { username: string };
@@ -50,13 +36,7 @@ const UserPage: React.FC<{}> = () => {
           userInfo={userInfo}
         />
         {error && <Alert color="red">{error.toString()}</Alert>}
-        <Tabs
-          color="primary"
-          value={activeTab}
-          onTabChange={setActiveTab}
-          className={navStyle}
-          pos="relative"
-        >
+        <Tabs value={activeTab} onChange={setActiveTab} pos="relative" my="xl">
           <LoadingOverlay visible={loading} />
           <Tabs.List grow>
             <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -66,7 +46,7 @@ const UserPage: React.FC<{}> = () => {
             {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
           <Tabs.Panel value="overview" pt="sm">
-            <SimpleGrid breakpoints={[{ maxWidth: "48rem", cols: 1 }]} cols={2}>
+            <SimpleGrid cols={{ base: 1, md: 2 }}>
               {!isMyself && !user.isAdmin && (
                 <Alert color="gray">There's nothing here</Alert>
               )}

@@ -1,9 +1,9 @@
 import { Button, TextInput, Modal, Stack } from "@mantine/core";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { useCreateDocument } from "../api/hooks";
 import { useUser } from "../auth";
+import { IconPlus } from "@tabler/icons-react";
 
 interface Props {
   categorySlug: string;
@@ -38,10 +38,9 @@ const CreateDocumentForm: React.FC<Props> = ({
             added to the document in the settings tab.
           </div>
           <Button
-            variant="brand"
             disabled={loading || displayName.trim() === ""}
             onClick={() => run(displayName.trim(), categorySlug)}
-            leftIcon={<Icon icon={ICONS.PLUS} />}
+            leftSection={<IconPlus />}
             loading={loading}
           >
             Add

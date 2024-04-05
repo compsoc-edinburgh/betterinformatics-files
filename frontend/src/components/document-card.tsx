@@ -2,7 +2,7 @@ import React from "react";
 import { Document } from "../interfaces";
 import { Link } from "react-router-dom";
 import { Anchor, Badge, Flex, Group, Paper, Text } from "@mantine/core";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 
 interface DocumentCardProps {
   document: Document;
@@ -19,24 +19,24 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
         component={Link}
         to={`/user/${document.author}/document/${document.slug}`}
         size="lg"
-        weight={600}
+        fw={600}
       >
         <Text>{document.display_name}</Text>
       </Anchor>
-      <Group position="apart" mt="sm">
+      <Group justify="space-between" mt="sm">
         <Anchor component={Link} to={`/user/${document.author}`}>
           <Text color="dimmed">@{document.author}</Text>
         </Anchor>
         {document.liked ? (
           <Flex align="center" color="red">
-            <Icon icon={ICONS.LIKE_FILLED} color="red" />
+            <IconHeartFilled color="red" />
             <Text fw={700} color="red" ml="0.3em">
               {document.like_count}
             </Text>
           </Flex>
         ) : (
           <Flex align="center">
-            <Icon icon={ICONS.LIKE} />
+            <IconHeart />
             <Text fw={700} ml="0.3em">
               {document.like_count}
             </Text>

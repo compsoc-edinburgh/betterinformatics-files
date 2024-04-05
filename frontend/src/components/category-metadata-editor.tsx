@@ -13,7 +13,6 @@ import {
   Title,
 } from "@mantine/core";
 import React from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
@@ -22,6 +21,7 @@ import { createOptions, options } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import OfferedInEditor from "./offered-in-editor";
 import UserSetEditor from "./user-set-editor";
+import { IconDeviceFloppy, IconX } from "@tabler/icons-react";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
 const setMetaData = async (
@@ -240,7 +240,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   });
   return (
     <>
-      <Group position="apart">
+      <Group justify="space-between">
         <h2>Edit Category</h2>
         <CloseButton onClick={toggle} />
       </Group>
@@ -251,11 +251,11 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
       <Stack>
         <TextInput
           disabled={currentMetaData.slug === "default"}
-          label="Name" 
-          {...registerInput("displayname")} 
+          label="Name"
+          {...registerInput("displayname")}
         />
         <Grid>
-          <Grid.Col md={6}>
+          <Grid.Col span={{ md: 6 }}>
             <NativeSelect
               label="Semester"
               data={options(semesterOptions)}
@@ -269,7 +269,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               }
             />
           </Grid.Col>
-          <Grid.Col md={6}>
+          <Grid.Col span={{ md: 6 }}>
             <NativeSelect
               label="Form"
               data={options(formOptions)}
@@ -284,7 +284,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         </Grid>
         <Textarea label="Remark" {...registerInput("remark")} />
         <Grid>
-          <Grid.Col md={6}>
+          <Grid.Col span={{ md: 6 }}>
             <NativeSelect
               label="Permission"
               data={options(permissionOptions)}
@@ -298,7 +298,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
               }
             />
           </Grid.Col>
-          <Grid.Col md={6}>
+          <Grid.Col span={{ md: 6 }}>
             <TextInput
               type="url"
               label="More Exams Link"
@@ -337,10 +337,9 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         users={formState.experts}
         setUsers={e => setFormValue("experts", e)}
       />
-      <Group mt="lg" position="right">
+      <Group mt="lg" justify="right">
         <Button
-          leftIcon={<Icon icon={ICONS.CLOSE} />}
-          variant="light"
+          leftSection={<IconX />}
           onClick={() => {
             reset();
             toggle();
@@ -349,8 +348,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           Cancel
         </Button>
         <Button
-          leftIcon={<Icon icon={ICONS.SAVE} />}
-          variant="light"
+          leftSection={<IconDeviceFloppy />}
           loading={loading}
           onClick={onSubmit}
         >

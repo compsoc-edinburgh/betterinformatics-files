@@ -1,6 +1,5 @@
 import { Button, Card, Flex, Group, TextInput, Title } from "@mantine/core";
 import React, { useCallback, useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
@@ -9,6 +8,14 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
+import {
+  IconArrowDown,
+  IconArrowUp,
+  IconDeviceFloppy,
+  IconEdit,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react";
 interface Props {
   isAdmin?: boolean;
   entry: FAQEntry;
@@ -47,12 +54,12 @@ const FAQEntryComponent: React.FC<Props> = ({
     <Card shadow="md" withBorder my="md">
       {modals}
       {!editing && (
-        <Group position="apart" mb="xs">
+        <Group justify="space-between" mb="xs">
           <Title order={3}>{entry.question}</Title>
           {isAdmin && (
             <IconButton
               tooltip="Edit FAQ entry"
-              iconName={ICONS.EDIT}
+              icon={<IconEdit />}
               onClick={() => startEditing()}
             />
           )}
@@ -80,39 +87,34 @@ const FAQEntryComponent: React.FC<Props> = ({
       )}
       {isAdmin && editing && (
         <Flex mt="sm" justify="space-between">
-          <Button
-            variant="brand"
-            size="sm"
-            leftIcon={<Icon icon={ICONS.SAVE} />}
-            onClick={save}
-          >
+          <Button size="sm" leftSection={<IconDeviceFloppy />} onClick={save}>
             Save
           </Button>
-          <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={cancel}>
+          <Button leftSection={<IconX />} onClick={cancel}>
             Cancel
           </Button>
         </Flex>
       )}
       {isAdmin && !editing && (
-        <Group position="right">
+        <Group justify="right">
           <Button.Group>
             {!editing && (
               <>
                 <IconButton
                   tooltip="Move up"
-                  iconName={ICONS.ARROW_UP}
+                  icon={<IconArrowUp />}
                   disabled={prevEntry === undefined}
                   onClick={() => prevEntry && onSwap(entry, prevEntry)}
                 />
                 <IconButton
                   tooltip="Move down"
-                  iconName={ICONS.ARROW_DOWN}
+                  icon={<IconArrowDown />}
                   disabled={nextEntry === undefined}
                   onClick={() => nextEntry && onSwap(entry, nextEntry)}
                 />
                 <IconButton
                   tooltip="Delete FAQ entry"
-                  iconName={ICONS.DELETE}
+                  icon={<IconTrash />}
                   onClick={() =>
                     confirm(
                       "Are you sure that you want to remove this?",

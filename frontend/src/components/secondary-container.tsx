@@ -1,15 +1,8 @@
 import React from "react";
-import { Box, createStyles, DefaultProps, Divider } from "@mantine/core";
-const useStyles = createStyles(theme => ({
-  contentContainer: {
-    backgroundColor:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[5]
-        : theme.colors.gray[0],
-  },
-}));
+import { Box, DividerProps, Divider } from "@mantine/core";
+import classes from "./secondary-container.module.css";
 
-interface ContentContainerProps extends DefaultProps {
+interface ContentContainerProps extends DividerProps {
   className?: string;
   children?: React.ReactNode;
 }
@@ -19,7 +12,6 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
   className,
   ...others
 }) => {
-  const { classes } = useStyles();
   return (
     <>
       <Divider mt="lg" {...others} />

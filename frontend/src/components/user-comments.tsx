@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useUserComments } from "../api/hooks";
 import SingleCommentComponent from "./comment-single";
 import { Alert, Loader } from "@mantine/core";
-import { css } from "@emotion/css";
+import classes from "./user-comments.module.css";
 
 // `transform: translateX(0)` fixes an issue on webkit browsers
 // where relative positioned elements aren't displayed in containers
@@ -14,17 +14,6 @@ import { css } from "@emotion/css";
 // It seems like there is a fix live in Safari Technology Preview
 // This fix should be left in here until the fix is published for
 // Safari iOS + macOS
-
-const columnStyle = css`
-  column-gap: 0.75em;
-  margin: 0;
-  padding-top: 1em;
-  padding-bottom: 1em;
-  column-count: 1;
-  @media (min-width: 900px) {
-    column-count: 2;
-  }
-`;
 
 interface UserCommentsProps {
   username: string;
@@ -77,10 +66,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
       {(!comments || comments.length === 0) && !loading && (
         <Alert color="gray">No comments</Alert>
       )}
-      <div
-        className={columnStyle}
-        // options={{ fitWidth: true, transitionDuration: 0 }}
-      >
+      <div className={classes.column}>
         {comments &&
           comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
             <div key={comment.oid}>

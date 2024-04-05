@@ -1,18 +1,11 @@
 import * as React from "react";
-import { css } from "@emotion/css";
-const containerStyle = css`
-  width: 100%;
-  max-width: 600px;
-  margin: auto;
-  padding: 1em;
-  box-sizing: border-box;
-`;
+import classes from "./Container.module.css";
 
 interface EditorContainerProps {
   children?: React.ReactNode;
 }
 
 const Container: React.FC<EditorContainerProps> = ({ children }) => {
-  return <div className={containerStyle}>{children}</div>;
+  return <div className={classes.container}>{children}</div>;
 };
 export default Container;

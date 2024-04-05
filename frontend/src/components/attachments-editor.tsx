@@ -42,7 +42,7 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
   };
   return (
     <div>
-      <Stack spacing="xs" mb="xs">
+      <Stack gap="xs" mb="xs">
         {attachments.map(({ displayname, filename }, index) => (
           <Paper withBorder p="xs" key={toKey(filename)}>
             <Group>

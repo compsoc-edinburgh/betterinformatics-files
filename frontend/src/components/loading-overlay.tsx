@@ -3,12 +3,12 @@ import { LoadingOverlayProps, LoadingOverlay as Original } from "@mantine/core";
 const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ ...props }) => {
   return (
     <Original
-      overlayOpacity={0.1}
-      transitionDuration={500}
-      overlayColor="gray"
+      opacity={0.3}
+      transitionProps={{ transition: "fade", duration: 500 }}
+      overlayProps={{ color: "gray" }}
       {...props}
     />
   );
-}
+};
 
 export default LoadingOverlay;

@@ -9,7 +9,7 @@ const UploadPdfPage: React.FC<{}> = () => {
     <Container size="xl">
       <Grid>
         <Grid.Col span="auto" />
-        <Grid.Col lg={6}>
+        <Grid.Col span={{ lg: 6 }}>
           <UploadPdfCard />
         </Grid.Col>
         <Grid.Col span="auto" />

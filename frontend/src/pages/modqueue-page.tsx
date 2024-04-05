@@ -1,5 +1,13 @@
 import { useRequest } from "@umijs/hooks";
-import { Anchor, Badge, Button, Container, Table, Title } from "@mantine/core";
+import {
+  Anchor,
+  Badge,
+  Button,
+  Container,
+  Group,
+  Table,
+  Title,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchGet } from "../api/fetch-utils";
@@ -77,17 +85,17 @@ const ModQueue: React.FC = () => {
               <tbody>
                 {paymentExams.map(exam => (
                   <tr key={exam.filename}>
-                    <td>{exam.category_displayname}</td>
-                    <td>
+                    <Table.Td>{exam.category_displayname}</Table.Td>
+                    <Table.Td>
                       <Link to={`/exams/${exam.filename}`} target="_blank">
                         {exam.displayname}
                       </Link>
-                    </td>
-                    <td>
+                    </Table.Td>
+                    <Table.Td>
                       <Link to={`/user/${exam.payment_uploader}`}>
                         {exam.payment_uploader_displayname}
                       </Link>
-                    </td>
+                    </Table.Td>
                   </tr>
                 ))}
               </tbody>
@@ -101,46 +109,44 @@ const ModQueue: React.FC = () => {
       {error && <div>{error.message}</div>}
       <div>
         <LoadingOverlay visible={examsLoading} />
-        <Table striped fontSize="md">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Name</th>
-              <th>Import State</th>
-              <th>Claim</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table fz="md">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Category</Table.Th>
+              <Table.Th>Name</Table.Th>
+              <Table.Th>Import State</Table.Th>
+              <Table.Th>Claim</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
             {exams &&
               exams.map((exam: CategoryExam) => (
-                <tr key={exam.filename}>
-                  <td>{exam.category_displayname}</td>
-                  <td>
-                    <Anchor
-                      color="blue"
-                      component={Link}
-                      to={`/exams/${exam.filename}`}
-                      target="_blank"
-                    >
-                      {exam.displayname}
-                    </Anchor>
-                    <div>
+                <Table.Tr key={exam.filename}>
+                  <Table.Td>{exam.category_displayname}</Table.Td>
+                  <Table.Td>
+                    <Group>
+                      <Anchor
+                        c="blue"
+                        component={Link}
+                        to={`/exams/${exam.filename}`}
+                        target="_blank"
+                      >
+                        {exam.displayname}
+                      </Anchor>
                       {exam.public && <Badge color="green">public</Badge>}
                       {!exam.public && <Badge color="orange">hidden</Badge>}
-                    </div>
-                    <p>{exam.remark}</p>
-                  </td>
-                  <td>
-                    {exam.finished_cuts
-                      ? "All done"
-                      : "Needs Cuts"}
-                  </td>
-                  <td>
+                      <p>{exam.remark}</p>
+                    </Group>
+                  </Table.Td>
+                  <Table.Td>
+                    {exam.finished_cuts ? "All done" : "Needs Cuts"}
+                  </Table.Td>
+                  <Table.Td>
                     <ClaimButton exam={exam} reloadExams={reloadExams} />
-                  </td>
-                </tr>
+                  </Table.Td>
+                </Table.Tr>
               ))}
-          </tbody>
+          </Table.Tbody>
         </Table>
       </div>
       <Button mt="sm" mb="xl" onClick={() => setIncludeHidden(!includeHidden)}>

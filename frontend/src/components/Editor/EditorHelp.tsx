@@ -1,8 +1,8 @@
-import { css } from "@emotion/css";
 import { Button } from "@mantine/core";
 import useToggle from "../../hooks/useToggle";
 import CodeBlock from "../code-block";
 import MarkdownText from "../markdown-text";
+import classes from "./EditorHelp.module.css";
 
 const EditorMdString = `
 In the editor, there are buttons that will help you getting started with basic formatting.
@@ -91,10 +91,6 @@ class Main {
 Toggle source code mode to see how to do this! It makes it much more pleasant for any reader to read your code, so please use it.
 `;
 
-const divider = css`
-  margin: 1rem;
-  opacity: 0.2;
-`;
 const EditorHelp = () => {
   const [viewSource, toggleViewSource] = useToggle(false);
 
@@ -106,7 +102,7 @@ const EditorHelp = () => {
         <MarkdownText value={EditorMdString} />
       )}
 
-      <hr className={divider} />
+      <hr className={classes.divider} />
       <Button onClick={toggleViewSource}>Toggle Source Code Mode</Button>
     </div>
   );

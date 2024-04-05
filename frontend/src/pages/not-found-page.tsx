@@ -8,14 +8,14 @@ const NotFoundPage: React.FC<{}> = () => {
   return (
     <Container size="xl">
       <Grid>
-        <Grid.Col sm={9} md={8} lg={6}>
+        <Grid.Col span={{ sm: 9, md: 8, lg: 6 }}>
           <Title mb="sm">This is a 404.</Title>
           <Text>
             No need to freak out. Did you enter the URL correctly? For this
             inconvenience, have this drawing of Björn:
           </Text>
         </Grid.Col>
-        <Grid.Col sm={9} md={8} lg={6}>
+        <Grid.Col span={{ sm: 9, md: 8, lg: 6 }}>
           <Bjoern />
         </Grid.Col>
       </Grid>
