@@ -32,7 +32,7 @@
     "vite-plugin-svgr": "^4.2.0"
   },
   "resolutions": {
-    "@types/react": "18.2.74",
+    "@types/react": "18.2.75",
     "@types/react-dom": "18.2.24"
   },
   "scripts": {
@@ -60,7 +60,7 @@
     "@types/katex": "^0.16.6",
     "@types/lodash-es": "^4.17.5",
     "@types/node": "^20.10.5",
-    "@types/react": "18.2.74",
+    "@types/react": "18.2.75",
     "@types/react-dom": "^18.2.17",
     "@types/react-router-dom": "^5.3.0",
     "@types/react-syntax-highlighter": "^15.0.0",
