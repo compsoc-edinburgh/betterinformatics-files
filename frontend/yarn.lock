@@ -1311,9 +1311,9 @@
     "@floating-ui/dom" "^1.6.1"
 
 "@floating-ui/react@^0.26.9":
-  version "0.26.11"
-  resolved "https://registry.yarnpkg.com/@floating-ui/react/-/react-0.26.11.tgz#226d3fec890de439443b62f3138ef7de052b0998"
-  integrity sha512-fo01Cu+jzLDVG/AYAV2OtV6flhXvxP5rDaR1Fk8WWhtsFqwk478Dr2HGtB8s0HqQCsFWVbdHYpPjMiQiR/A9VA==
+  version "0.26.12"
+  resolved "https://registry.yarnpkg.com/@floating-ui/react/-/react-0.26.12.tgz#6908f774d8e3167d89b37fd83be975c7e5d8be99"
+  integrity sha512-D09o62HrWdIkstF2kGekIKAC0/N/Dl6wo3CQsnLcOmO3LkW6Ik8uIb3kw8JYkwxNCcg+uJ2bpWUiIijTBep05w==
   dependencies:
     "@floating-ui/react-dom" "^2.0.0"
     "@floating-ui/utils" "^0.2.0"
@@ -1376,14 +1376,14 @@
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
 "@mantine/colors-generator@^7.7.0":
-  version "7.7.1"
-  resolved "https://registry.yarnpkg.com/@mantine/colors-generator/-/colors-generator-7.7.1.tgz#7a10153a534c9094e25242de825d11101b00506c"
-  integrity sha512-ewTelcp9zVZ2YC30Capl719yQfS8t4CRCgSxC13LCK9uWbjciZQOV2C9OCjsojeTGdwyNk4qf7YjG7GsCZsEyA==
+  version "7.7.2"
+  resolved "https://registry.yarnpkg.com/@mantine/colors-generator/-/colors-generator-7.7.2.tgz#fbac1e60da7d3925df5a79af5d1194627093a0fd"
+  integrity sha512-ZVLYmZmITiqlOXF2zw9NGDth1P4hNDOisQJOjmIL68uPGaDqaW+0HcZzKWtl4xQWXjfnbuaaFW9m7ip1UvJYCw==
 
 "@mantine/core@^7.0.0":
-  version "7.7.1"
-  resolved "https://registry.yarnpkg.com/@mantine/core/-/core-7.7.1.tgz#1c294d53d409934a87fac7c578671353327a0b1a"
-  integrity sha512-SdPzjvqvEK7uHFuVD3a8w3OZyQVoCwIXLSUfOtRNouDMQgsq6Ac7QjKXBBOk3wNweOWFVOU1vATLHobSmow0lQ==
+  version "7.7.2"
+  resolved "https://registry.yarnpkg.com/@mantine/core/-/core-7.7.2.tgz#1e70069e7888fd35d28817075d2cb88d74ddb17b"
+  integrity sha512-5kpAB6GWxywAiiVNBrSOYD68IRmr5Sj8nbXiotvPhypc2cvDlhJ3EI6JQhN+DS9xZHBzgAY4zjvXpk8CDKBCsA==
   dependencies:
     "@floating-ui/react" "^0.26.9"
     clsx "2.1.0"
@@ -1393,9 +1393,9 @@
     type-fest "^4.12.0"
 
 "@mantine/hooks@^7.0.0":
-  version "7.7.1"
-  resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-7.7.1.tgz#04fd8999fe109615d064bf42a8ff04435c93b927"
-  integrity sha512-3YH2FzKMlg840tb04PBDcDXyBCi9puFOxEBVgc6Y/pN6KFqfOoAnQE/YvgOtwSNXZlbTWyDlQoYj+3je7pA7og==
+  version "7.7.2"
+  resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-7.7.2.tgz#8cf3bdf5c94117b9ddf60c58a5031a8781f3edde"
+  integrity sha512-fupbyZvH/hK7YPVlrRnx3uV5eOaMzFFF2Ll3RKMTRQnMhk4uvddzt9uUgGLIIsnZKfhPUZSIr54LZkHQTbPXhg==
 
 "@mapbox/node-pre-gyp@^1.0.0":
   version "1.0.11"
@@ -1751,10 +1751,10 @@
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.7.12.tgz#12bb1e2be27293c1406acb6af1c3f3a1481d98c6"
   integrity sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==
 
-"@types/react-dom@18.2.24", "@types/react-dom@^18.2.17":
-  version "18.2.24"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.2.24.tgz#8dda8f449ae436a7a6e91efed8035d4ab03ff759"
-  integrity sha512-cN6upcKd8zkGy4HU9F1+/s98Hrp6D4MOcippK4PoE8OZRngohHZpbJn1GsaDLz87MqvHNoT13nHvNqM9ocRHZg==
+"@types/react-dom@18.2.25", "@types/react-dom@^18.2.17":
+  version "18.2.25"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.2.25.tgz#2946a30081f53e7c8d585eb138277245caedc521"
+  integrity sha512-o/V48vf4MQh7juIKZU2QGDfli6p1+OOi5oXx36Hffpc9adsHeXjVp8rHuPkjd8VT8sOJ2Zp05HR7CdpGTIUFUA==
   dependencies:
     "@types/react" "*"
 
@@ -1789,10 +1789,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@18.2.75":
-  version "18.2.75"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.75.tgz#45d18f384939306d35312def1bf532eb38a68562"
-  integrity sha512-+DNnF7yc5y0bHkBTiLKqXFe+L4B3nvOphiMY3tuA5X10esmjqk7smyBZzbGTy2vsiy/Bnzj8yFIBL8xhRacoOg==
+"@types/react@*", "@types/react@18.2.77":
+  version "18.2.77"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.77.tgz#af2f857b6a6dfb6ca89ec102ebc147b1f1616880"
+  integrity sha512-CUT9KUUF+HytDM7WiXKLF9qUSg4tGImwy4FXTlfEDPEkkNUzJ7rVFolYweJ9fS1ljoIaP7M7Rdjc5eUm/Yu5AA==
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
