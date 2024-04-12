@@ -131,7 +131,9 @@ def verify(request: HttpRequest):
     codeRow.delete()
 
     # Create a JWT token with the user's UUN and email address -- this is signed
-    # with the server's private key to prevent tampering.
+    # with the server's private key to prevent tampering. These values are then
+    # stored in the database as a User object when it receives a request with
+    # this token.
     jwt_claims = {
         "uun": uun,
         "email": uun + "@sms.ed.ac.uk",
