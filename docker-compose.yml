@@ -1,4 +1,4 @@
-version: "3.4"
+version: "3.7"
 
 services:
   minio:
@@ -42,8 +42,7 @@ services:
       retries: 50
   community-solutions:
     build:
-      dockerfile: ./util/backend.Dockerfile
-      context: .
+      target: backend-hotreload
       args:
         git_branch: <docker>
         git_commit: <compose>
@@ -105,8 +104,7 @@ services:
   react-frontend:
     profiles: [frontend] # only executed if the '--profile frontend' flag is given
     build:
-      dockerfile: ./util/frontend.Dockerfile
-      context: .
+      target: frontend-dev
       args:
         git_branch: <docker>
         git_commit: <compose>
@@ -122,4 +120,4 @@ services:
     extra_hosts:
       - "minio:127.0.0.1"
     environment:
-      - BACKEND_HOST=community-solutions:8081
+      - BACKEND_HOST=community-solutions

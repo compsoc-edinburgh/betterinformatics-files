@@ -7,14 +7,14 @@ import {
   Stack,
 } from "@mantine/core";
 import React, { useMemo } from "react";
-import { cx } from "@emotion/css";
+import { IconLock } from "@tabler/icons-react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
-import { useStyles } from "../utils/style";
-import { Icon, ICONS } from "vseth-canine-ui";
+import clsx from "clsx";
+import classes from "../utils/focus-outline.module.css";
 
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
@@ -24,7 +24,6 @@ const pluralize = (count: number, noun: string) =>
   `${count} ${noun}${count !== 1 ? "s" : ""}`;
 
 const CategoryCard: React.FC<Props> = ({ category }) => {
-  const { classes } = useStyles();
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
@@ -53,7 +52,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       withBorder
       px="lg"
       py="md"
-      className={cx(classes.focusOutline, classes.hoverShadow)}
+      className={clsx(classes.focusOutline, classes.hoverShadow)}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
@@ -61,14 +60,14 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         // Show a padlock when not logged in, to draw attention to the login form.
         <LoadingOverlay
           visible={true}
-          loader={<Icon icon={ICONS.LOCK} size="1.5rem" aria-label="Locked" />}
+          loaderProps={{ children: <IconLock style={{ height: "1.5rem", width: "1.5rem" }} aria-label="Locked" />}}
         />
       )}
       <Stack h="100%" justify="space-between">
         <div className="category-card">
           <Anchor
             component="span"
-            weight={700}
+            fw={700}
             size="xl"
             tabIndex={-1}
             mb={0}
@@ -78,13 +77,13 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
               ? highlight(category.displayname, category.match)
               : category.displayname}
           </Anchor>
-          <Text mt={4} color="gray.8">
+          <Text mt={4} c="gray.8">
             {pluralize(category.documentcount, "Community Document")}
           </Text>
-          <Text color="gray.8">
+          <Text c="gray.8">
             {pluralize(category.examcountpublic, "Exam")}
           </Text>
-          <Text mb={4} color="gray.8">
+          <Text mb={4} c="gray.8">
             {((category.answerprogress * 100) | 0).toString()} % Solved by
             community
           </Text>

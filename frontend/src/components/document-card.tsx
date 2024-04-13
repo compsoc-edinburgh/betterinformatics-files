@@ -2,7 +2,7 @@ import React from "react";
 import { Document } from "../interfaces";
 import { Link } from "react-router-dom";
 import { Anchor, Badge, Flex, Group, Paper, Text } from "@mantine/core";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 
 interface DocumentCardProps {
   document: Document;
@@ -19,42 +19,36 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
         component={Link}
         to={`/document/${document.slug}`}
         size="lg"
-        weight={600}
+        fw={600}
       >
         <Text>{document.display_name}</Text>
       </Anchor>
-      <Group position="apart" mt="sm">
+      <Group justify="space-between" mt="sm">
         {document.anonymised ? (
-          <Text color="dimmed">Anonymous</Text>
+          <Text c="dimmed">Anonymous</Text>
         ) : (
           <Anchor component={Link} to={`/user/${document.author}`}>
-            <Text color="dimmed">@{document.author}</Text>
+            <Text c="dimmed">@{document.author}</Text>
           </Anchor>
         )}
         {document.liked ? (
           <Flex align="center" color="red">
-            <Icon icon={ICONS.LIKE_FILLED} color="red" />
-            <Text fw={700} color="red" ml="0.3em">
+            <IconHeartFilled color="red" />
+            <Text fw={700} c="red" ml="0.3em">
               {document.like_count}
             </Text>
           </Flex>
         ) : (
           <Flex align="center">
-            <Icon icon={ICONS.LIKE} />
+            <IconHeart />
             <Text fw={700} ml="0.3em">
               {document.like_count}
             </Text>
           </Flex>
         )}
         {showCategory && (
-          <Badge ml="xs">
-            <Anchor
-              component={Link}
-              color="blue"
-              to={`/category/${document.category}`}
-            >
-              {document.category_display_name}
-            </Anchor>
+          <Badge ml="xs" component={Link} to={`/category/${document.category}`} c="blue" style={{ cursor: "pointer" }}>
+            {document.category_display_name}
           </Badge>
         )}
       </Group>

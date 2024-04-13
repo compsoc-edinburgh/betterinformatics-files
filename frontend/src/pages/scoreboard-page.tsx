@@ -8,7 +8,7 @@ import {
   Table,
   UnstyledButton,
   Text,
-  createStyles,
+  rem,
 } from "@mantine/core";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -16,11 +16,9 @@ import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
 import { UserInfo } from "../interfaces";
 import useTitle from "../hooks/useTitle";
-import { css } from "@emotion/css";
-import { Icon, ICONS } from "vseth-canine-ui";
-const overflowScroll = css`
-  overflow: auto;
-`;
+import { IconArrowsUpDown, IconChevronDown } from "@tabler/icons-react";
+import classes from "./scoreboard.module.css";
+
 const modes = [
   "score",
   "score_answers",
@@ -34,30 +32,6 @@ const loadScoreboard = async (scoretype: Mode) => {
     .value as UserInfo[];
 };
 
-const useStyles = createStyles(theme => ({
-  th: {
-    padding: "0 !important",
-  },
-
-  control: {
-    width: "100%",
-    padding: `${theme.spacing.xs}px ${theme.spacing.md}px`,
-
-    "&:hover": {
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[6]
-          : theme.colors.gray[0],
-    },
-  },
-
-  icon: {
-    width: 21,
-    height: 21,
-    borderRadius: 21,
-  },
-}));
-
 interface ThProps {
   children: React.ReactNode;
   sorted: boolean;
@@ -65,21 +39,24 @@ interface ThProps {
 }
 
 function Th({ children, sorted, onSort }: ThProps) {
-  const { classes } = useStyles();
-  const iconName = sorted ? ICONS.DOWN : ICONS.ARROW_UP_DOWN;
+  const Icon = sorted ? IconChevronDown : IconArrowsUpDown;
   return (
-    <th className={classes.th}>
+    <Table.Th className={classes.th}>
       <UnstyledButton onClick={onSort} className={classes.control}>
-        <Group position="apart">
-          <Text weight={700} size="md">
-            {children}
-          </Text>
-          <Center className={classes.icon} mr={4}>
-            <Icon icon={iconName} size={12} color="gray" />
+        <Group justify="space-between">
+          <Text fw={600}>{children}</Text>
+          <Center className={classes.icon}>
+            <Icon
+              style={{
+                width: rem(16),
+                height: rem(16),
+                color: "var(--mantine-color-dimmed)",
+              }}
+            />
           </Center>
         </Group>
       </UnstyledButton>
-    </th>
+    </Table.Th>
   );
 }
 
@@ -98,26 +75,20 @@ const Scoreboard: React.FC<{}> = () => {
       <h1>Scoreboard</h1>
       {error && <Alert color="red">{error.message}</Alert>}
       <LoadingOverlay visible={loading} />
-      <div className={overflowScroll}>
-        <Table
-          striped
-          highlightOnHover
-          verticalSpacing="md"
-          fontSize="md"
-          mb="xl"
-        >
-          <thead>
-            <tr>
-              <th>
-                <Text weight={700} size="md" color="black">
+      <div className={classes.overflowScroll}>
+        <Table highlightOnHover verticalSpacing="md" fz="md">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>
+                <Text fw={600} size="md">
                   Rank
                 </Text>
-              </th>
-              <th>
-                <Text weight={700} size="md" color="black">
+              </Table.Th>
+              <Table.Th>
+                <Text fw={600} size="md">
                   User
                 </Text>
-              </th>
+              </Table.Th>
               <Th onSort={() => setMode("score")} sorted={mode === "score"}>
                 Score
               </Th>
@@ -145,26 +116,26 @@ const Scoreboard: React.FC<{}> = () => {
               >
                 Sections Cut
               </Th>
-            </tr>
-          </thead>
-          <tbody>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
             {data &&
               data.map((board, idx) => (
-                <tr key={board.username}>
-                  <td>{idx + 1}</td>
-                  <td>
+                <Table.Tr key={board.username}>
+                  <Table.Td>{idx + 1}</Table.Td>
+                  <Table.Td>
                     <Anchor component={Link} to={`/user/${board.username}`}>
                       {board.username}
                     </Anchor>
-                  </td>
-                  <td>{board.score}</td>
-                  <td>{board.score_answers}</td>
-                  <td>{board.score_comments}</td>
-                  <td>{board.score_documents}</td>
-                  <td>{board.score_cuts}</td>
-                </tr>
+                  </Table.Td>
+                  <Table.Td>{board.score}</Table.Td>
+                  <Table.Td>{board.score_answers}</Table.Td>
+                  <Table.Td>{board.score_comments}</Table.Td>
+                  <Table.Td>{board.score_documents}</Table.Td>
+                  <Table.Td>{board.score_cuts}</Table.Td>
+                </Table.Tr>
               ))}
-          </tbody>
+          </Table.Tbody>
         </Table>
       </div>
     </Container>

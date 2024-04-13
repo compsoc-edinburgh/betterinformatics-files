@@ -15,7 +15,6 @@ import {
 import { useRequest } from "@umijs/hooks";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   loadAdminCategories,
@@ -34,6 +33,13 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
+import {
+  IconDeviceFloppy,
+  IconPlus,
+  IconReload,
+  IconTrash,
+} from "@tabler/icons-react";
+import Creatable from "./creatable";
 
 interface Props {
   data: Document;
@@ -121,28 +127,25 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
                   categoryOptions &&
                   (category ? categoryOptions[category].value : data.category)
                 }
-                onChange={(value: string) => {
-                  setCategory(value);
+                onChange={(value: string | null) => {
+                  value && setCategory(value);
                 }}
               />
             </Grid.Col>
             <Grid.Col span={6}>
-              <Select
-                label="Document type"
-                creatable
-                searchable
-                getCreateLabel={query =>
+              <Creatable
+                title="Document type"
+                getCreateLabel={(query: string) =>
                   `+ Create new document type "${query}"`
                 }
-                onCreate={query => {
+                onCreate={(query: string) => {
                   setDocumentType(query);
                   setDocumentTypeOptions([...(documentTypes ?? []), query]);
                   return query;
                 }}
                 data={documentTypeOptions}
                 value={
-                  documentTypeOptions &&
-                  (documentType ? documentType : data.document_type)
+                  documentTypeOptions && (documentType ?? data.document_type)
                 }
                 onChange={(value: string) => {
                   setDocumentType(value);
@@ -172,7 +175,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
           <Flex justify="end">
             <Button
               loading={loading}
-              leftIcon={<Icon icon={ICONS.SAVE} />}
+              leftSection={<IconDeviceFloppy />}
               onClick={() =>
                 updateDocument({
                   display_name: displayName,
@@ -198,7 +201,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
             loading={regenerateLoading}
             onClick={regenerate}
             size="sm"
-            iconName={ICONS.REPEAT}
+            icon={<IconReload />}
             tooltip="Regenerating the API token will invalidate the old one and generate a new one"
           />
         </Flex>
@@ -214,10 +217,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
         ))}
       </List>
       <Flex justify="end">
-        <Button
-          leftIcon={<Icon icon={ICONS.PLUS} />}
-          onClick={toggleAddModalIsOpen}
-        >
+        <Button leftSection={<IconPlus />} onClick={toggleAddModalIsOpen}>
           Add
         </Button>
       </Flex>
@@ -234,7 +234,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
             </Flex>
 
             <Button
-              leftIcon={<Icon icon={ICONS.DELETE} />}
+              leftSection={<IconTrash />}
               color="red"
               onClick={toggleDeleteModalIsOpen}
             >
@@ -251,7 +251,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
         <Modal.Body>
           Deleting the document will delete all associated files and all
           comments. <b>This cannot be undone.</b>
-          <Group position="right" mt="md">
+          <Group justify="right" mt="md">
             <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
             <Button onClick={deleteDocument} color="red">
               Delete this document

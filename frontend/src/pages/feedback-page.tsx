@@ -99,7 +99,7 @@ const FeedbackReader: React.FC<{}> = () => {
       {feedback && (
         <Grid>
           {feedback.map(fb => (
-            <Grid.Col lg={6} key={fb.oid}>
+            <Grid.Col span={{ lg: 6 }} key={fb.oid}>
               <FeedbackEntryComponent entry={fb} entryChanged={reload} />
             </Grid.Col>
           ))}
@@ -118,7 +118,7 @@ const FeedbackAdminView: React.FC<{}> = () => {
   return (
     <Container size="xl">
       <Title order={2}>Feedback</Title>
-      <Tabs value={mode} onTabChange={setMode} my="sm">
+      <Tabs value={mode} onChange={setMode} my="sm">
         <Tabs.List defaultValue="read">
           <Tabs.Tab value="read">Read</Tabs.Tab>
           <Tabs.Tab value="write">Write</Tabs.Tab>

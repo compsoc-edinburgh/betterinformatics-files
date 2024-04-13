@@ -10,7 +10,6 @@ import {
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";
 import useSet from "../hooks/useSet";
@@ -22,6 +21,7 @@ import {
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
 import UploadPdfCard from "./upload-pdf-card";
+import { IconDownload, IconPlus, IconSearch } from "@tabler/icons-react";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -83,7 +83,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         <Group>
           <Button
             onClick={() => setFormIsOpen(true)}
-            leftIcon={<Icon icon={ICONS.PLUS} />}
+            leftSection={<IconPlus />}
+            color="dark"
             variant="outline"
           >
             Add new exam
@@ -91,7 +92,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <Button
             disabled={selected.size === 0}
             onClick={() => dlSelectedExams(getSelectedExams(selected))}
-            leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+            leftSection={<IconDownload />}
           >
             Download selected exams
           </Button>
@@ -100,7 +101,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           placeholder="Filter..."
           value={filter}
           onChange={e => setFilter(e.currentTarget.value)}
-          icon={<Icon icon={ICONS.SEARCH} size={14} />}
+          leftSection={<IconSearch style={{ height: "15px", width: "15px" }} />}
         />
       </Flex>
       {error && <Alert color="red">{error.message}</Alert>}

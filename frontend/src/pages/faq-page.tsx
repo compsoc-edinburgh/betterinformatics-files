@@ -9,8 +9,8 @@ import FAQEntryComponent from "../components/faq-entry";
 import MarkdownText from "../components/markdown-text";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { Button, Card, Container, Flex, TextInput } from "@mantine/core";
+import { IconDeviceFloppy, IconPlus, IconX } from "@tabler/icons-react";
 
 export const FAQPage: React.FC = () => {
   useTitle("FAQ");
@@ -78,16 +78,15 @@ export const FAQPage: React.FC = () => {
           />
           <Flex mt="sm" justify="space-between">
             <Button
-              variant="brand"
               size="sm"
-              leftIcon={<Icon icon={ICONS.SAVE} />}
+              leftSection={<IconDeviceFloppy />}
               onClick={handleNew}
             >
               Save
             </Button>
             <Button
               size="sm"
-              leftIcon={<Icon icon={ICONS.CLOSE} />}
+              leftSection={<IconX />}
               onClick={handleDeleteDraft}
             >
               Delete Draft
@@ -97,8 +96,9 @@ export const FAQPage: React.FC = () => {
       ) : (
         isAdmin && (
           <Button
+            color="dark"
             my="md"
-            leftIcon={<Icon icon={ICONS.PLUS} />}
+            leftSection={<IconPlus />}
             onClick={() => setHasDraft(true)}
           >
             Add new FAQ entry

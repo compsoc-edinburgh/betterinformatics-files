@@ -1,0 +1,17 @@
+.last-section {
+  margin-bottom: 2rem;
+}
+
+.canvas-wrapper {
+  font-size: 0;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Allows hiding sections while adding cuts (Displays button over Overlay) */
+.add-cut-button {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1;
+}

@@ -12,7 +12,7 @@ import {
   Tooltip,
   Anchor,
 } from "@mantine/core";
-import { ICONS, Icon } from "vseth-canine-ui";
+import { IconArrowRight } from "@tabler/icons-react";
 import React, { FormEventHandler, useState } from "react";
 import { sendLoginCode, verifyLoginCode } from "../api/fetch-utils";
 import { useLocation } from "react-router-dom";
@@ -113,7 +113,7 @@ const LoginOverlay: React.FC<{}> = () => {
     <Stack spacing="xs">
       {(loginState === LoginState.AWAITING_UUN_INPUT && (
         <>
-          <Title order={4} size="1.75rem" weight={700} mb="md">
+          <Title order={4} size="1.75rem" fw={700} mb="md">
             Sign in to view
           </Title>
           <form onSubmit={handleSubmitUUN}>
@@ -128,7 +128,7 @@ const LoginOverlay: React.FC<{}> = () => {
               rightSection={
                 <Tooltip withinPortal label="Login">
                   <ActionIcon type="submit">
-                    <Icon icon={ICONS.ARROW_RIGHT} />
+                    <IconArrowRight />
                   </ActionIcon>
                 </Tooltip>
               }
@@ -150,7 +150,7 @@ const LoginOverlay: React.FC<{}> = () => {
               Selecting "Yes" will send a 6-digit verification code to your
               email.
             </Text>
-            <Group position="apart">
+            <Group justify="space-between">
               <Button
                 variant="outline"
                 mt="sm"
@@ -198,7 +198,7 @@ const LoginOverlay: React.FC<{}> = () => {
               style={{ display: "flex", justifyContent: "center" }}
             />
             {error && (
-              <Text color="red" size="xs">
+              <Text c="red" size="xs">
                 {error}
               </Text>
             )}

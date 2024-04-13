@@ -15,7 +15,7 @@ const DebugModal: React.FC<Props> = ({
 }) => {
   return (
     <Modal opened={isOpen} title="Debug" onClose={toggle}>
-      <Stack spacing="sm">
+      <Stack gap="sm">
         <Checkbox
           label="Display canvas debugging indicators"
           checked={debugOptions.displayCanvasType}

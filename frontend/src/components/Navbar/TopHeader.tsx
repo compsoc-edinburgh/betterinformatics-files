@@ -1,36 +1,10 @@
 import * as React from "react";
-import { Container, createStyles } from "@mantine/core";
-import type { MantineNumberSize } from "@mantine/core";
+import { Container } from "@mantine/core";
+import classes from "./TopHeader.module.css";
+import type { MantineSize } from "@mantine/core";
 
 import { globalNav, translate, NavItem } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
-
-const useStyles = createStyles((theme, _params) => ({
-  navbar: {
-    height: "3.5rem",
-    color: "white",
-    width: "100%",
-    [theme.fn.smallerThan("md")]: {
-      display: "none",
-    },
-  },
-  container: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    height: "100%",
-  },
-  logo: {
-    height: "2rem",
-    filter: "brightness(0) invert(1)",
-  },
-  items: {
-    display: "flex",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    gap: "2.75rem",
-  },
-}));
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
@@ -38,7 +12,7 @@ interface Props {
   onLanguageSelect: (language: string) => void;
   organizationNav?: NavItem[];
   logo: string | undefined;
-  size: MantineNumberSize | undefined;
+  size: MantineSize | undefined;
 }
 
 const TopHeader: React.FC<Props> = ({
@@ -49,17 +23,12 @@ const TopHeader: React.FC<Props> = ({
   onLanguageSelect,
   size,
 }) => {
-  const { classes } = useStyles();
-
   return (
     <Container
+      visibleFrom="md"
       className={classes.navbar}
       fluid={true}
-      sx={(theme: any) => {
-        return {
-          backgroundColor: "rgba(51,51,51)",
-        };
-      }}
+      style={{ backgroundColor: "var(--mantine-color-dark-6)" }}
     >
       <Container size={size ? size : "xl"} className={classes.container}>
         <img
@@ -78,7 +47,6 @@ const TopHeader: React.FC<Props> = ({
           ).map((item, i) => (
             <ExternalNavElement
               item={item}
-              lightBg={false}
               mobile={false}
               key={i}
               isExternal={true}
@@ -95,7 +63,6 @@ const TopHeader: React.FC<Props> = ({
                   };
                 }),
               }}
-              lightBg={false}
               mobile={false}
               isExternal={true}
             />

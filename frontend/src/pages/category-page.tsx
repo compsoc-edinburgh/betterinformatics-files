@@ -37,7 +37,14 @@ import {
   removeMarkdownFrontmatter,
   useEditableMarkdownLink,
 } from "../utils/category-utils";
-import { Icon, ICONS } from "vseth-canine-ui";
+import {
+  IconChevronRight,
+  IconEdit,
+  IconStar,
+  IconTrash,
+  IconUserStar,
+  IconInfoCircle,
+} from "@tabler/icons-react";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -127,7 +134,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   return (
     <>
       {modals}
-      <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
+      <Breadcrumbs separator={<IconChevronRight />}>
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
@@ -160,15 +167,17 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             {user.isCategoryAdmin && (
               <Group>
                 <Button
-                  leftIcon={<Icon color="currentColor" icon={ICONS.EDIT} />}
+                  leftSection={<IconEdit />}
                   onClick={() => setEditing(true)}
+                  color="dark"
                 >
                   Edit
                 </Button>
                 <Button
                   color="red"
                   loading={removeLoading}
-                  leftIcon={<Icon color="currentColor" icon={ICONS.DELETE} />}
+                  disabled={metaData.slug === "default"}
+                  leftSection={<IconTrash />}
                   onClick={onRemove}
                 >
                   Delete
@@ -197,7 +206,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       }
                       // Badges don't look clickable by default, use pointer
                       styles={{
-                        inner: {
+                        root: {
                           cursor:
                             bi_data || shadow_data ? "pointer" : "default",
                         },
@@ -222,34 +231,34 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               ),
             )}
           </List>
-          <Grid mb="xs">
-            {metaData.more_exams_link && (
-              <Grid.Col span="content">
-                <Anchor
-                  href={metaData.more_exams_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  color="blue"
-                >
-                  Additional Exams
-                </Anchor>
-              </Grid.Col>
-            )}
-            {metaData.remark && (
-              <Grid.Col md="content">Remark: {metaData.remark}</Grid.Col>
-            )}
-          </Grid>
+          {(metaData.more_exams_link || metaData.remark) && (
+            <Grid mb="xs">
+              {metaData.more_exams_link && (
+                <Grid.Col span="content">
+                  <Anchor
+                    href={metaData.more_exams_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    c="blue"
+                  >
+                    Additional Exams
+                  </Anchor>
+                </Grid.Col>
+              )}
+              {metaData.remark && <Grid.Col>Remark: {metaData.remark}</Grid.Col>}
+            </Grid>
+          )}
           {metaData.more_markdown_link && (
             <Paper withBorder radius="md" p="lg" mt="xl">
-              <Group align="baseline" position="apart">
+              <Group align="baseline" justify="space-between">
                 <Group align="baseline">
-                  <Icon icon={ICONS.INFO} />
+                  <IconInfoCircle />
                   <Title order={2}>Community Knowledgebase</Title>
                 </Group>
                 {md_editable && (
                   <Button
-                    compact
-                    variant="outline"
+                    size="compact-sm"
+                    variant="light"
                     component="a"
                     target="_blank"
                     href={md_edit_link}
@@ -265,7 +274,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Alert>
               )}
               {raw_md_contents !== undefined && (
-                <Text color="gray.7">
+                <Text c="gray.7">
                   <MarkdownText
                     value={raw_md_contents}
                     localLinkBase="https://betterinformatics.com"
@@ -280,7 +289,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 <Alert
                   color="yellow"
                   title="Category expert"
-                  icon={<Icon icon={ICONS.STAR} />}
+                  icon={<IconStar />}
                 >
                   You are an expert for this category. You can endorse correct
                   answers, which will be visible to other users.
@@ -293,7 +302,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   variant="light"
                   color="blue"
                   title="Category admin"
-                  icon={<Icon icon={ICONS.USER} />}
+                  icon={<IconUserStar />}
                 >
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>

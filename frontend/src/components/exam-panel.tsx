@@ -11,12 +11,19 @@ import {
 import { useDebounceFn } from "@umijs/hooks";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
 import IconButton from "./icon-button";
 import Panel from "./panel";
+import {
+  IconArrowUp,
+  IconArrowsMaximize,
+  IconArrowsMinimize,
+  IconMessageBolt,
+  IconPlus,
+  IconX,
+} from "@tabler/icons-react";
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
@@ -105,7 +112,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
-      <Stack spacing="xs">
+      <Stack gap="xs">
         <div>
           <Title order={2}>{metaData && metaData.displayname}</Title>
           <Text size="sm" fs="italic">
@@ -135,25 +142,28 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <Button.Group>
           <IconButton
             tooltip="Report problem"
-            iconName={ICONS.MESSAGE}
+            icon={<IconMessageBolt />}
             onClick={reportProblem}
           />
           <IconButton
+            ml="sm"
             tooltip="Back to the top"
-            iconName={ICONS.ARROW_UP}
+            icon={<IconArrowUp />}
             onClick={scrollToTop}
           />
           {!allSectionsExpanded && (
             <IconButton
+              ml="sm"
               tooltip="Expand all answers"
-              iconName={ICONS.ADJUST_UP_DOWN}
+              icon={<IconArrowsMaximize />}
               onClick={onExpandAllSections}
             />
           )}
           {!allSectionsCollapsed && (
             <IconButton
+              ml="sm"
               tooltip="Collapse all answers"
-              iconName={ICONS.ADJUST_UP_DOWN_ALT}
+              icon={<IconArrowsMinimize />}
               onClick={onCollapseAllSections}
             />
           )}
@@ -164,18 +174,18 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             <Title order={6}>Edit Mode</Title>
             <Grid>
               {editState.mode !== EditMode.None && (
-                <Grid.Col xs="auto">
+                <Grid.Col span={{ xs: "auto" }}>
                   <Button
                     size="sm"
                     onClick={() => setEditState({ mode: EditMode.None })}
-                    leftIcon={<Icon icon={ICONS.CLOSE} />}
+                    leftSection={<IconX />}
                   >
                     Stop Editing
                   </Button>
                 </Grid.Col>
               )}
               {editState.mode !== EditMode.Add && (
-                <Grid.Col xs="auto">
+                <Grid.Col span={{ xs: "auto" }}>
                   <Button
                     size="sm"
                     onClick={() =>
@@ -184,7 +194,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                         snap,
                       })
                     }
-                    leftIcon={<Icon icon={ICONS.PLUS} />}
+                    leftSection={<IconPlus />}
                   >
                     Add Cuts
                   </Button>
@@ -204,7 +214,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
               )}
             </div>
             <Title order={6}>Display Options</Title>
-            <Stack spacing="xs">
+            <Stack gap="xs">
               <Checkbox
                 name="check"
                 label="Display hidden PDF sections"
@@ -240,12 +250,14 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
             </Stack>
           </>
         )}
-        <Text size="sm" color="dimmed">
+        <Text size="sm" c="dimmed">
           All answers are licensed as&nbsp;
-          <Link to="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+          <Link
+            style={{ textDecoration: "none" }}
+            to="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+          >
             CC BY-NC-SA 4.0
           </Link>
-          .
         </Text>
       </Stack>
     </Panel>

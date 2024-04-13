@@ -6,7 +6,7 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import { ICONS, Icon } from "vseth-canine-ui";
+import { IconCheck } from "@tabler/icons-react";
 import React, { useState } from "react";
 import { useSetUserDisplayUsername } from "../api/hooks";
 import { UserInfo } from "../interfaces";
@@ -60,7 +60,7 @@ const UserDisplayNameSettings: React.FC<UserDisplayNameProps> = ({
               ) : (
                 <Tooltip withinPortal label="Login">
                   <ActionIcon type="submit">
-                    <Icon icon={ICONS.CHECK} />
+                    <IconCheck />
                   </ActionIcon>
                 </Tooltip>
               )

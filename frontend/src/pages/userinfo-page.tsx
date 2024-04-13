@@ -1,5 +1,10 @@
-import { css } from "@emotion/css";
-import { Container, Alert, Tabs, LoadingOverlay, Space } from "@mantine/core";
+import {
+  Container,
+  Alert,
+  Tabs,
+  LoadingOverlay,
+  Space,
+} from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -12,19 +17,6 @@ import UserDisplayNameSettings from "../components/user-displayname-settings";
 import UserDocuments from "../components/user-documents";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
-
-const navStyle = css`
-  width: 100%;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  justify-content: space-between;
-  .nav-item {
-    margin: 0;
-  }
-  .nav-item .nav-link p {
-    font-size: x-large;
-  }
-`;
 
 const UserPage: React.FC<{}> = () => {
   const user = useUser()!;
@@ -45,13 +37,7 @@ const UserPage: React.FC<{}> = () => {
           userInfo={userInfo}
         />
         {error && <Alert color="red">{error.toString()}</Alert>}
-        <Tabs
-          color="primary"
-          value={activeTab}
-          onTabChange={setActiveTab}
-          className={navStyle}
-          pos="relative"
-        >
+        <Tabs value={activeTab} onChange={setActiveTab} pos="relative" my="xl">
           <LoadingOverlay visible={loading} />
           <Tabs.List grow>
             <Tabs.Tab value="overview">Overview</Tabs.Tab>

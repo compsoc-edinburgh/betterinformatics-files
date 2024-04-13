@@ -10,7 +10,6 @@ import {
   Title,
 } from "@mantine/core";
 import React, { useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import {
   Mutate,
   useDeleteDocumentFile,
@@ -20,6 +19,12 @@ import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
+import {
+  IconDeviceFloppy,
+  IconEdit,
+  IconKey,
+  IconTrash,
+} from "@tabler/icons-react";
 
 interface Props {
   document: Document;
@@ -76,7 +81,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg,.docx,.xlsx,.pptx,.epub" // apkg=anki
           />
           <Button
-            variant="brand"
             disabled={displayName?.trim() === ""}
             onClick={() =>
               updateFile({
@@ -84,7 +88,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
                 file: replaceFile,
               })
             }
-            leftIcon={<Icon icon={ICONS.SAVE} />}
+            leftSection={<IconDeviceFloppy />}
             loading={updateLoading}
           >
             Save
@@ -153,32 +157,30 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
       <Card withBorder my="xs">
         <Flex justify="space-between" align="center">
           <Flex direction="column" gap="xs">
-            <Title order={3} inline>
-              {file.display_name || <i>Unnamed</i>}
-            </Title>
+            <Title order={3}>{file.display_name || <i>Unnamed</i>}</Title>
             <Group>
               <Badge>{file.filename}</Badge>{" "}
               <Badge color="gray">{file.mime_type}</Badge>
             </Group>
           </Flex>
           <Grid>
-            <Grid.Col xs="auto">
+            <Grid.Col span={{ xs: "auto" }}>
               <IconButton
-                iconName={ICONS.KEY}
+                icon={<IconKey />}
                 onClick={toggleKeyIsOpen}
                 tooltip="View access token"
               />
             </Grid.Col>
-            <Grid.Col xs="auto">
+            <Grid.Col span={{ xs: "auto" }}>
               <IconButton
-                iconName={ICONS.EDIT}
+                icon={<IconEdit />}
                 onClick={toggleEditIsOpen}
                 tooltip="Edit file"
               />
             </Grid.Col>
-            <Grid.Col xs="auto">
+            <Grid.Col span={{ xs: "auto" }}>
               <IconButton
-                iconName={ICONS.DELETE}
+                icon={<IconTrash />}
                 color="red"
                 onClick={toggleDeleteModalIsOpen}
                 loading={deleteLoading}

@@ -1,0 +1,37 @@
+.blockquote-style {
+  & blockquote {
+    padding: 0.3rem 0 0.3rem 0.6rem;
+    border-left-style: solid;
+    border-left-width: 3px;
+    border-left-color: var(--mantine-color-gray-7);
+    color: var(--mantine-color-gray-7);
+    fill: var(--mantine-color-gray-7);
+  }
+}
+
+.wrapper-style {
+  overflow-x: auto;
+  overflow-y: hidden;
+  & p:first-child {
+    margin-block-start: 0;
+  }
+  & p:last-child {
+    margin-block-end: 0;
+  }
+  & img {
+    max-width: 100%;
+  }
+  @media (max-width: 699px) {
+    & p {
+      margin-block-start: 0.5em;
+      margin-block-end: 0.5em;
+    }
+  }
+  & .katex {
+    font-size: 1rem;
+  }
+  /* Undo effect of .overlay class defined in the theme css */
+  & .overlay {
+    padding: unset;
+  }
+}

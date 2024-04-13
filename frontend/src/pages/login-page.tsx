@@ -19,13 +19,10 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
   }
   return (
     <>
-      <Container size="xl" mb="xl">
+      <Container size="xl" mb="lg">
         <Grid gutter="xl">
           <Grid.Col
-            xs={12}
-            md={6}
-            lg={6}
-            xl={6}
+            span={{ base: 12, md: 6, lg: 6, xl: 6 }}
             style={{ alignSelf: "center" }}
           >
             <Flex direction="column" justify="center">
@@ -35,7 +32,7 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
               <Text size="2.5rem" lh={1.2} my="lg">
                 File Collection
               </Text>
-              <Text size="1rem" weight={500}>
+              <Text fw={500}>
                 BetterInformatics File Collection is a platform for students to
                 share notes, summaries, tips and recommendations for courses, as
                 well as a study platform to collaborate on answers to previous
@@ -44,14 +41,8 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             </Flex>
           </Grid.Col>
           <Grid.Col
-            xs={12}
-            md={6}
-            offset={0}
-            lg={5}
-            offsetLg={1}
-            xl={4}
-            offsetXl={2}
-            mx="auto"
+            span={{ base: 12, md: 6, lg: 5, xl: 4 }}
+            offset={{ base: 0, lg: 1, xl: 2 }}
             py="sm"
           >
             <Paper withBorder shadow="sm" p={30} mt={30} radius="md">

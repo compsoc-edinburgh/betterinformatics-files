@@ -15,7 +15,6 @@ import {
 } from "@mantine/core";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import React, { useCallback, useMemo, useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
@@ -28,6 +27,7 @@ import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
 import useToggle from "../hooks/useToggle";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -125,10 +125,12 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
       <Paper withBorder shadow="md" style={{ minHeight: "10em" }}>
         <Tooltip label="Add a new category" withinPortal>
           <Button
+            color="dark"
             style={{ width: "100%", height: "100%" }}
             onClick={() => setIsOpen(true)}
+            leftSection={<IconPlus />}
           >
-            <Icon icon={ICONS.PLUS} size={40} />
+            Add new category
           </Button>
         </Tooltip>
       </Paper>
@@ -141,11 +143,11 @@ const HomePage: React.FC<{}> = () => {
   return (
     <>
       <Container size="xl" mb="sm">
-        <Text size="1rem" lh={1}>
+        <Text lh={1}>
           Better&shy;Informatics
         </Text>
         <Title mb="sm">File Collection</Title>
-        <Text size="1rem" weight={500}>
+        <Text fw={500}>
           BetterInformatics File Collection is a platform for students to share
           notes, summaries, tips and recommendations for courses, as well as a
           study platform to collaborate on answers to previous exams.
@@ -220,7 +222,9 @@ export const CategoryList: React.FC<{}> = () => {
             placeholder="Filter..."
             value={filter}
             onChange={e => setFilter(e.currentTarget.value)}
-            icon={<Icon icon={ICONS.SEARCH} size={12} />}
+            leftSection={
+              <IconSearch style={{ height: "15px", width: "15px" }} />
+            }
           />
         </Flex>
       </Container>

@@ -21,10 +21,15 @@ export default defineConfig({
     proxy: {
       "/api": {
         // If we're running in a container, we can't use localhost
-        target: "http://" + (process.env.BACKEND_HOST ?? "localhost:8081"),
+        target: `http://${process.env.BACKEND_HOST ?? "localhost"}:8081`,
         changeOrigin: false,
         secure: false,
       },
+    },
+  },
+  css: {
+    modules: {
+      localsConvention: "camelCaseOnly",
     },
   },
 });

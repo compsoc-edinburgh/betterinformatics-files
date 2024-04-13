@@ -1,10 +1,10 @@
 import { Button, Paper } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";
 import TooltipButton from "./TooltipButton";
+import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 
 const setLikeReq = async (oid: string, like: -1 | 0 | 1) => {
   return (await fetchPost(`/api/exam/setlike/${oid}/`, { like }))
@@ -40,7 +40,7 @@ const Score: React.FC<Props> = ({
           style={{ borderRightWidth: 0, borderColor: "#ced4da" }}
           onClick={() => setLike(oid, -1)}
         >
-          <Icon icon={ICONS.DOWN} size={16} />
+          <IconChevronDown />
         </TooltipButton>
         <TooltipButton
           tooltip="Reset vote"
@@ -60,7 +60,7 @@ const Score: React.FC<Props> = ({
           style={{ borderLeftWidth: 0, borderColor: "#ced4da" }}
           onClick={() => setLike(oid, 1)}
         >
-          <Icon icon={ICONS.UP} size={16} />
+          <IconChevronUp />
         </TooltipButton>
       </Button.Group>
     </Paper>

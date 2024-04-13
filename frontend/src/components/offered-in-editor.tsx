@@ -1,7 +1,8 @@
-import { Alert, Button, Grid, Group, Select } from "@mantine/core";
+import { Alert, Button, Grid, Group } from "@mantine/core";
 import React, { useMemo, useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { useMetaCategories } from "../api/hooks";
+import { IconX } from "@tabler/icons-react";
+import Creatable from "./creatable";
 
 interface OfferedInEditorProps {
   offeredIn: Array<readonly [string, string]>;
@@ -32,13 +33,18 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   const onMeta1Change = (value: string) => {
     setNewMeta1(value);
     setNewMeta2("");
-    if (data && !data.some(d => d.displayname === value)) {
+  };
+  const onMeta1Create = (value: string) => {
+    if (data) {
       mutate([{ displayname: value, meta2: [] }]);
     }
+    return value;
   };
   const onMeta2Change = (value: string) => {
     setNewMeta2(value);
-    if (data && !data.some(d => d.displayname === value)) {
+  };
+  const onMeta2Create = (value: string) => {
+    if (data) {
       mutate([
         {
           displayname: newMeta1,
@@ -48,6 +54,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
         },
       ]);
     }
+    return value;
   };
   const onAdd = () => {
     setNewMeta1("");
@@ -68,7 +75,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
         {offeredIn.map(([meta1, meta2]) => (
           <Button
             key={`${meta1}-${meta2}`}
-            leftIcon={<Icon icon={ICONS.CLOSE} />}
+            leftSection={<IconX />}
             variant="default"
             loading={loading}
             onClick={() => onRemove(meta1, meta2)}
@@ -84,33 +91,35 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
         }}
       >
         <Grid my="xs" align="end">
-          <Grid.Col md={5}>
+          <Grid.Col span={{ md: 5 }}>
             {data && (
-              <Select
-                label="Meta 1"
-                creatable
-                searchable
-                getCreateLabel={query => `+ Create new Meta 1 "${query}"`}
+              <Creatable
+                title="Meta 1"
+                getCreateLabel={(query: string) =>
+                  `+ Create new Meta 1 "${query}"`
+                }
                 data={meta1Options}
                 value={meta1Value}
                 onChange={onMeta1Change}
+                onCreate={onMeta1Create}
               />
             )}
           </Grid.Col>
-          <Grid.Col md={5}>
+          <Grid.Col span={{ md: 5 }}>
             {data && (
-              <Select
-                label="Meta 2"
-                creatable
-                searchable
-                getCreateLabel={query => `+ Create new Meta 2 "${query}"`}
+              <Creatable
+                title="Meta 2"
+                getCreateLabel={(query: string) =>
+                  `+ Create new Meta 2 "${query}"`
+                }
                 data={meta2Options}
                 value={meta2Value}
                 onChange={onMeta2Change}
+                onCreate={onMeta2Create}
               />
             )}
           </Grid.Col>
-          <Grid.Col md={2}>
+          <Grid.Col span={{ md: 2 }}>
             <Button fullWidth type="submit">
               Add
             </Button>

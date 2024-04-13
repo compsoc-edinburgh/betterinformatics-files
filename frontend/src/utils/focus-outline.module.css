@@ -1,0 +1,16 @@
+.focusOutline {
+  &:focus {
+    outline-width: 1.5;
+    outline-style: "solid";
+    outline-color: var(--mantine-color-gray-9);
+    outline-offset: 2;
+  }
+}
+
+.hoverShadow {
+  transition: box-shadow 150ms ease, transform 100ms ease;
+  &:hover {
+    box-shadow: var(--mantine-shadow-md);
+    transform: scale(1.05);
+  }
+}

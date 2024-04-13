@@ -13,8 +13,15 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
-import { Icon, ICONS } from "vseth-canine-ui";
-import { Anchor, Button, Flex, Paper, Text } from "@mantine/core";
+import { Anchor, Button, Flex, Group, Paper, Text } from "@mantine/core";
+import {
+  IconCode,
+  IconDeviceFloppy,
+  IconEdit,
+  IconPencilCancel,
+  IconTrash,
+} from "@tabler/icons-react";
+import IconButton from "./icon-button";
 
 interface Props {
   answer: Answer;
@@ -72,7 +79,13 @@ const CommentComponent: React.FC<Props> = ({
       confirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
   return (
-    <Paper radius={0} withBorder p="sm">
+    <Paper
+      radius={0}
+      withBorder
+      shadow="none"
+      p="sm"
+      style={{ marginBottom: "-1px" }}
+    >
       {modals}
       <Flex justify="space-between">
         <div>
@@ -80,7 +93,7 @@ const CommentComponent: React.FC<Props> = ({
             component={Link}
             to={`/user/${comment?.authorId ?? username}`}
           >
-            <Text weight={700} component="span">
+            <Text fw={700} component="span">
               {comment?.authorDisplayName ?? "(Draft)"}
             </Text>
             <Text ml="0.25em" color="dimmed" component="span">
@@ -112,43 +125,39 @@ const CommentComponent: React.FC<Props> = ({
         </div>
         {comment && !editing && comment.canEdit && (
           <Button.Group>
-            <SmallButton
+            <IconButton
               tooltip="Edit comment"
-              size="sm"
-              color="white"
+              color="gray"
+              mr="4px"
               onClick={startEditing}
-            >
-              <Icon icon={ICONS.EDIT} size={18} />
-            </SmallButton>
+              icon={<IconEdit />}
+            />
             {(comment.canEdit || isAdmin) && (
-              <SmallButton
+              <IconButton
                 tooltip="Delete comment"
-                size="sm"
-                color="white"
+                color="red"
+                mr="4px"
                 onClick={remove}
-              >
-                <Icon icon={ICONS.DELETE} size={18} />
-              </SmallButton>
+                icon={<IconTrash />}
+              />
             )}
-            <SmallButton
+            <IconButton
               tooltip="Toggle Source Code Mode"
-              size="sm"
-              color="white"
+              color="gray"
               onClick={toggleViewSource}
+              icon={<IconCode />}
             >
-              <Icon icon={ICONS.CODE} size={18} />
-            </SmallButton>
+              <IconCode />
+            </IconButton>
           </Button.Group>
         )}
         {comment && !editing && !comment.canEdit && (
-          <SmallButton
+          <IconButton
             tooltip="Toggle Source Code Mode"
-            size="sm"
-            color="white"
+            color="gray"
             onClick={toggleViewSource}
-          >
-            <Icon icon={ICONS.CODE} size={18} />
-          </SmallButton>
+            icon={<IconCode />}
+          />
         )}
       </Flex>
 
@@ -162,25 +171,24 @@ const CommentComponent: React.FC<Props> = ({
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
-          <Flex justify="space-between" mt="sm">
+          <Group justify="flex-end" mt="sm">
             <Button
               size="sm"
-              variant="brand"
               loading={loading}
               disabled={draftText.trim().length === 0}
               onClick={onSave}
-              leftIcon={<Icon icon={ICONS.SAVE} />}
+              leftSection={<IconDeviceFloppy />}
             >
               Save
             </Button>
             <Button
               size="sm"
               onClick={onCancel}
-              leftIcon={<Icon icon={ICONS.CLOSE} />}
+              leftSection={<IconPencilCancel />}
             >
               {comment === undefined ? "Delete Draft" : "Cancel"}
             </Button>
-          </Flex>
+          </Group>
         </>
       ) : (
         <div>

@@ -327,10 +327,13 @@ export interface Document {
   category_display_name: string;
   author: string;
   anonymised: boolean;
+  author_displayname: string;
   comments: DocumentComment[];
   files: DocumentFile[];
   liked: boolean;
   like_count: number;
+  time: string; // ISO 8601, creation time
+  edittime: string; // ISO 8601, last edit time
 
   can_edit: boolean;
   can_delete: boolean;

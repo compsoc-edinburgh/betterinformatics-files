@@ -1,0 +1,10 @@
+.column {
+  column-gap: 0.75em;
+  margin: 0;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  column-count: 1;
+  @media (min-width: 900px) {
+    column-count: 2;
+  }
+}

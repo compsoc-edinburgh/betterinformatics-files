@@ -1,8 +1,7 @@
-import { css } from "@emotion/css";
 import ReactMarkdown, { Components, defaultUrlTransform }  from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import rehypeKatex from 'rehype-katex';
+import rehypeKatex from "rehype-katex";
 // Import mchem plugin to register macros for chemical equations in katex.
 // The plugin registers macros when it is imported. We do this after we import "rehype-katex"
 // which transitively imports katex such that the global variables which katex uses are set up.
@@ -11,48 +10,10 @@ import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
 import CodeBlock from "./code-block";
-import { Alert, createStyles, Table } from "@mantine/core";
+import { Alert, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
-
-const useStyles = createStyles(theme => ({
-  blockquoteStyle: {
-    [`& blockquote`]: {
-      padding: "0.3rem 0 0.3rem 0.6rem",
-      borderLeftStyle: "solid",
-      borderLeftWidth: "3px",
-      borderLeftColor: theme.colors.gray[7],
-      color: theme.colors.gray[7],
-      fill: theme.colors.gray[7],
-    },
-  },
-}));
-
-const wrapperStyle = css`
-  overflow-x: auto;
-  overflow-y: hidden;
-  & p:first-child {
-    margin-block-start: 0;
-  }
-  & p:last-child {
-    margin-block-end: 0;
-  }
-  & img {
-    max-width: 100%;
-  }
-  @media (max-width: 699px) {
-    & p {
-      margin-block-start: 0.5em;
-      margin-block-end: 0.5em;
-    }
-  }
-  & .katex {
-    font-size: 1rem;
-  }
-  // Undo effect of .overlay class defined in the theme css
-  & .overlay {
-    padding: unset;
-  }
-`;
+import clsx from "clsx";
+import classes from "./markdown-text.module.css";
 
 const transformImageUri = (uri: string) => {
   if (uri.includes("/")) {
@@ -62,18 +23,16 @@ const transformImageUri = (uri: string) => {
   }
 };
 
-const createComponents = (
-  regex: RegExp | undefined,
-): Components => ({
+const createComponents = (regex: RegExp | undefined): Components => ({
   table: ({ children }) => {
     return <Table>{children}</Table>;
   },
   p: ({ children }) => {
-    if (regex === undefined) return <span>{children}</span>;
+    if (regex === undefined) return <p>{children}</p>;
     const arr = [];
-    const value = String(children)
+    const value = String(children);
     const m = regex.test(value);
-    if (!m) return <span>{children}</span>;
+    if (!m) return <p>{children}</p>;
     let i = 0;
     while (i < value.length) {
       const rest = value.substring(i);
@@ -91,15 +50,19 @@ const createComponents = (
     }
     return <>{arr}</>;
   },
-  code({node, className, children, ...props}) {
-    const match = /language-(\w+)/.exec(className || '')
+  code({ node, className, children, ...props }) {
+    const match = /language-(\w+)/.exec(className || "");
     return match ? (
-      <CodeBlock language={match ? match[1] : undefined} value={String(children).replace(/\n$/, '')} {...props} />
+      <CodeBlock
+        language={match ? match[1] : undefined}
+        value={String(children).replace(/\n$/, "")}
+        {...props}
+      />
     ) : (
       <code className={className} {...props}>
         {children}
       </code>
-    )
+    );
   },
 });
 
@@ -121,17 +84,21 @@ interface Props {
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
-const errorMessage = <Alert color="red" title="Rendering error">An error ocurred when rendering this content. This is likely caused by invalid LaTeX syntax.</Alert>;
+const errorMessage = (
+  <Alert color="red" title="Rendering error">
+    An error ocurred when rendering this content. This is likely caused by
+    invalid LaTeX syntax.
+  </Alert>
+);
 
 const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
   const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
   const renderers = useMemo(() => createComponents(regex), [regex]);
-  const { classes, cx } = useStyles();
   if (value.length === 0) {
     return <div />;
   }
   return (
-    <div className={cx(wrapperStyle, classes.blockquoteStyle)}>
+    <div className={clsx(classes.wrapperStyle, classes.blockquoteStyle)}>
       <ErrorBoundary fallback={errorMessage}>
         <ReactMarkdown
           children={value}
@@ -144,7 +111,7 @@ const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
             return defaultUrlTransform(uri);
           }}
           remarkPlugins={[remarkMath, remarkGfm]}
-          rehypePlugins={[[rehypeKatex, {macros}]]}
+          rehypePlugins={[[rehypeKatex, { macros }]]}
           components={renderers}
         />
       </ErrorBoundary>

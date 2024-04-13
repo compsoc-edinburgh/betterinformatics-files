@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Group, Tooltip, Title } from "@mantine/core";
+import { Alert, Button, Flex, Group, Paper, Tooltip, Title } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Icon, ICONS } from "vseth-canine-ui";
 import { loadDocumentTypes, useDocuments } from "../api/hooks";
@@ -6,6 +6,7 @@ import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
 import DocumentCard from "./document-card";
 import { Document } from "../interfaces";
+import { IconPlus } from "@tabler/icons-react";
 
 interface Props {
   slug: string;
@@ -31,7 +32,11 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
     docTypes.forEach(type => currentDocTypes.set(type, []));
     documents.forEach(doc => currentDocTypes.get(doc.document_type)?.push(doc));
     currentDocTypes.forEach(docs =>
-      docs.sort((a, b) => b.like_count - a.like_count),
+      docs.sort(
+        (a, b) =>
+          b.like_count - a.like_count ||
+          a.display_name.localeCompare(b.display_name),
+      ),
     );
     setSortedDocs(
       Array.from(currentDocTypes, ([type, docs]) => ({ type, docs })).filter(
@@ -64,7 +69,8 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
           <Tooltip label="Upload a new document to share">
             <Button
               onClick={() => setIsOpen(true)}
-              leftIcon={<Icon icon={ICONS.PLUS} />}
+              leftSection={<IconPlus />}
+              color="dark"
               variant="outline"
             >
               Add document

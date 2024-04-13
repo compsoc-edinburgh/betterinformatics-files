@@ -38,7 +38,13 @@ import {
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
-import { ICONS, Icon } from "vseth-canine-ui";
+import {
+  IconChevronRight,
+  IconDownload,
+  IconEdit,
+  IconFileCheck,
+  IconLink,
+} from "@tabler/icons-react";
 
 const addCut = async (
   filename: string,
@@ -208,7 +214,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           <Group>
             <IconButton
               color="gray"
-              iconName={ICONS.DOWNLOAD}
+              icon={<IconDownload />}
               tooltip="Download"
               onClick={() => window.open(metaData.exam_file, "_blank")}
             />
@@ -216,7 +222,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               <>
                 <IconButton
                   color="gray"
-                  iconName={ICONS.EDIT}
+                  icon={<IconEdit />}
                   tooltip="Edit"
                   onClick={() => toggleEditing()}
                 />
@@ -226,14 +232,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         </Flex>
         <Grid>
           {!metaData.canView && (
-            <Grid.Col md={6} lg={4}>
+            <Grid.Col span={{ md: 6, lg: 4 }}>
               <Card m="xs">
                 <>You can not view this exam at this time.</>
               </Card>
             </Grid.Col>
           )}
           {metaData.master_solution && (
-            <Grid.Col md={4} lg={3}>
+            <Grid.Col span={{ md: 4, lg: 3 }}>
               <Button
                 fullWidth
                 color="gray"
@@ -242,7 +248,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={metaData.master_solution}
                 target="_blank"
                 rel="noopener noreferrer"
-                leftIcon={<Icon icon={ICONS.LINK} />}
+                leftSection={<IconLink />}
               >
                 Official Solution (external)
               </Button>
@@ -250,7 +256,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           )}
 
           {metaData.has_solution && (
-            <Grid.Col md={4} lg={3}>
+            <Grid.Col span={{ md: 4, lg: 3 }}>
               <Button
                 fullWidth
                 color="gray"
@@ -259,14 +265,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 variant="light"
                 target="_blank"
                 rel="noopener noreferrer"
-                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+                leftSection={<IconDownload />}
               >
                 Official Solution
               </Button>
             </Grid.Col>
           )}
           {metaData.attachments.map(attachment => (
-            <Grid.Col md={4} lg={3} key={attachment.filename}>
+            <Grid.Col span={{ md: 4, lg: 3 }} key={attachment.filename}>
               <Button
                 fullWidth
                 component="a"
@@ -274,7 +280,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                 href={`/api/filestore/get/${attachment.filename}/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                leftIcon={<Icon icon={ICONS.DOWNLOAD} />}
+                leftSection={<IconDownload />}
               >
                 {attachment.displayname}
               </Button>
@@ -283,7 +289,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         </Grid>
         {toc && (
           <Grid>
-            <Grid.Col lg={12}>
+            <Grid.Col span={{ lg: 12 }}>
               <TOC toc={toc} />
             </Grid.Col>
           </Grid>
@@ -383,7 +389,7 @@ const ExamPage: React.FC<{}> = () => {
   return (
     <div>
       <Container size="xl">
-        <Breadcrumbs separator={<Icon icon={ICONS.RIGHT} size={10} />}>
+        <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor component={Link} tt="uppercase" size="xs" to="/">
             Home
           </Anchor>

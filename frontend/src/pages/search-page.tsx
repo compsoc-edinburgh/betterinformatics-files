@@ -7,7 +7,7 @@ import LoadingOverlay from "../components/loading-overlay";
 import SearchResults from "../components/search-results";
 import useTitle from "../hooks/useTitle";
 import { SearchResponse } from "../interfaces";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { IconSearch } from "@tabler/icons-react";
 
 const loadSearch = async (term: string) => {
   return (await fetchPost("/api/exam/search/", { term }))
@@ -35,7 +35,7 @@ const SearchPage: React.FC<{}> = () => {
         <TextInput
           placeholder="Search"
           type="text"
-          icon={<Icon icon={ICONS.SEARCH} />}
+          leftSection={<IconSearch />}
           value={term}
           onChange={e => setTerm(e.currentTarget.value)}
         />
