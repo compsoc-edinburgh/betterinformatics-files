@@ -7,6 +7,7 @@ import {
   Stack,
   Text,
   Title,
+  Anchor,
 } from "@mantine/core";
 import { useDebounceFn } from "@umijs/hooks";
 import React, { useCallback, useState } from "react";
@@ -249,12 +250,13 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         )}
         <Text size="sm" c="dimmed">
           All answers are licensed as&nbsp;
-          <Link
-            style={{ textDecoration: "none" }}
-            to="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+          <Anchor
+            c="blue"
+            href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+            target="_blank"
           >
             CC BY-NC-SA 4.0
-          </Link>
+          </Anchor>
         </Text>
       </Stack>
     </Panel>
