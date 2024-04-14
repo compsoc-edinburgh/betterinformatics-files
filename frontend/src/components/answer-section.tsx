@@ -24,6 +24,7 @@ import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import {
   IconArrowsMoveVertical,
   IconChevronDown,
+  IconChevronUp,
   IconDeviceFloppy,
   IconDots,
   IconEdit,
@@ -272,8 +273,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         ) : null}
 
                         {isBeingMoved ? (
-                          <Button size="sm" onClick={onCancelMove}>
-                            Cancel
+                          <Button size="sm" onClick={onCancelMove} color="red" variant="outline">
+                            Cancel Move
                           </Button>
                         ) : (
                           (data.answers.length === 0 || !hidden) &&
@@ -293,7 +294,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <>
-                          <Button onClick={onToggleHidden}>
+                          <Button onClick={onToggleHidden} variant={hidden ? "filled" : "outline"} leftSection={hidden ? <IconChevronDown /> : <IconChevronUp /> }>
                             {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
                         </>

@@ -310,6 +310,17 @@ const AnswerComponent: React.FC<Props> = ({
           {(answer === undefined || editing) && (
             <Button
               size="sm"
+              color="red"
+              variant="subtle"
+              onClick={onCancel}
+              leftSection={<IconPencilCancel />}
+            >
+              {editing ? "Cancel" : "Delete Draft"}
+            </Button>
+          )}
+          {(answer === undefined || editing) && (
+            <Button
+              size="sm"
               onClick={save}
               loading={updating}
               disabled={draftText.trim().length === 0}
@@ -318,32 +329,22 @@ const AnswerComponent: React.FC<Props> = ({
               Save
             </Button>
           )}
-          {onSectionChanged && (
+          {onSectionChanged && !editing && (
             <Flex align="center">
-              {(answer === undefined || editing) && (
-                <Button
-                  size="sm"
-                  color="red"
-                  variant="subtle"
-                  onClick={onCancel}
-                  leftSection={<IconPencilCancel />}
-                >
-                  {editing ? "Cancel" : "Delete Draft"}
-                </Button>
-              )}
               {answer !== undefined && (
-              <Button.Group ml="md">
+              <Button.Group>
                 <Button
                   size="sm"
                   onClick={() => setHasCommentDraft(true)}
                   leftSection={<IconPlus />}
                   disabled={hasCommentDraft}
+                  color="dark"
                 >
                   Add Comment
                 </Button>
                 <Menu withinPortal>
                   <Menu.Target>
-                    <Button leftSection={<IconDots />}>More</Button>
+                    <Button leftSection={<IconDots />} color="dark">More</Button>
                   </Menu.Target>
                   <Menu.Dropdown>
                     {answer.flagged === 0 && (
