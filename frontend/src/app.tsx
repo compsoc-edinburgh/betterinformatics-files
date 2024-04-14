@@ -69,7 +69,7 @@ function calculateShades(primaryColor: string): MantineColorsTuple {
     s: baseHSLcolor.s,
     l: 0.05,
   }).toString("hex6");
-  return shadesArray;
+  return shadesArray as unknown as MantineColorsTuple;
 }
 
 const App: React.FC<{}> = () => {
