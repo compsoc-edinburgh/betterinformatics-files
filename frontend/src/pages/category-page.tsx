@@ -249,7 +249,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             </Grid>
           )}
           {metaData.more_markdown_link && (
-            <Paper withBorder radius="md" p="lg" mt="xl">
+            <Paper withBorder radius="md" p="lg" my="sm">
               <Group align="baseline" justify="space-between">
                 <Group align="baseline">
                   <IconInfoCircle />
