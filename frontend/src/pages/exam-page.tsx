@@ -5,6 +5,7 @@ import {
   Anchor,
   Loader,
   Alert,
+  Center,
   Container,
   Grid,
   Flex,
@@ -412,11 +413,6 @@ const ExamPage: React.FC<{}> = () => {
             <Alert color="red">{error.toString()}</Alert>
           </Container>
         )}
-        {metaDataLoading && (
-          <Container>
-            <Loader />
-          </Container>
-        )}
         {metaData &&
           (editing ? (
             <Container size="xl">
@@ -445,10 +441,10 @@ const ExamPage: React.FC<{}> = () => {
               />
             </UserContext.Provider>
           ))}
-        {(cutsLoading || pdfLoading) && !metaDataLoading && (
-          <Container>
+        {(metaDataLoading || ((cutsLoading || pdfLoading) && !metaDataLoading)) && (
+          <Center>
             <Loader />
-          </Container>
+          </Center>
         )}
       </div>
     </div>
