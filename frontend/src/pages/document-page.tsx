@@ -127,14 +127,23 @@ const DocumentPage: React.FC<Props> = () => {
               </Group>
             </Flex>
             {data && !data.anonymised && (
-              <Link to={`/user/${data.author}`}>
-                <Text fw={700} component="span">
-                  {data.author_displayname}
-                </Text>
-                <Text ml="0.3em" c="dimmed" component="span">
-                  @{data.author}
-                </Text>
-              </Link>
+              <Anchor component={Link} to={`/user/${data.author}`} underline="never">
+                {(data.author_displayname !== data.author) && (
+                  <>
+                    <Text fw={700} component="span">
+                      {data.author_displayname}
+                    </Text>
+                    <Text ml="0.3em" c="dimmed" component="span">
+                      @{data.author}
+                    </Text>
+                  </>
+                )}
+                {data.author_displayname === data.author && (
+                  <Text fw={700} component="span">
+                    @{data.author}
+                  </Text>
+                )}
+              </Anchor>
             )}
             {data && data.anonymised && (
               <Text fw={700} component="span">
@@ -142,9 +151,11 @@ const DocumentPage: React.FC<Props> = () => {
               </Text>
             )}
             {data && data.anonymised && (data.can_edit || data.can_delete) && (
-              <Text ml="0.3em" c="dimmed" component="span">
-                (@{data.author})
-              </Text>
+              <Anchor component={Link} to={`/user/${data.author}`} underline="never">
+                <Text ml="0.3em" c="dimmed" component="span">
+                  ({(data.author_displayname !== data.author) && data.author_displayname} @{data.author})
+                </Text>
+              </Anchor>
             )}
             {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
               1 && (
