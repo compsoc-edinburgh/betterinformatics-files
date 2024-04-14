@@ -81,6 +81,10 @@ interface Props {
    * Markdown from a different domain.
    */
   localLinkBase?: string;
+  /**
+   * If true, HTML will not be rendered in the markdown.
+   */
+  ignoreHtml?: boolean;
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -91,7 +95,7 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
+const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase, ignoreHtml }) => {
   const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
   const renderers = useMemo(() => createComponents(regex), [regex]);
   if (value.length === 0) {
@@ -110,6 +114,7 @@ const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase }) => {
             }
             return defaultUrlTransform(uri);
           }}
+          skipHtml={!!ignoreHtml}
           remarkPlugins={[remarkMath, remarkGfm]}
           rehypePlugins={[[rehypeKatex, { macros }]]}
           components={renderers}

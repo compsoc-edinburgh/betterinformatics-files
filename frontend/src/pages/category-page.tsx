@@ -278,6 +278,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   <MarkdownText
                     value={raw_md_contents}
                     localLinkBase="https://betterinformatics.com"
+                    ignoreHtml={true}
                   />
                 </Text>
               )}
