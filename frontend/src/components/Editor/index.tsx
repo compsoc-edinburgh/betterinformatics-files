@@ -1,7 +1,5 @@
 import {
-  createStyles,
   Divider,
-  MantineTheme,
   Modal,
   Paper,
 } from "@mantine/core";

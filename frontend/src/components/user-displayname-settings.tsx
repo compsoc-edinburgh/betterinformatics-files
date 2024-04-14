@@ -39,11 +39,7 @@ const UserDisplayNameSettings: React.FC<UserDisplayNameProps> = ({
       </Text>
       <form onSubmit={handleSubmitDisplayName}>
         <SimpleGrid
-          cols={4}
-          breakpoints={[
-            { maxWidth: "sm", cols: 1 },
-            { maxWidth: "md", cols: 2 },
-          ]}
+          cols={{ xl: 4, sm: 1, md: 2 }}
         >
           <TextInput
             label="Display Name"

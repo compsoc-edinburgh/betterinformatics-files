@@ -110,7 +110,7 @@ const LoginOverlay: React.FC<{}> = () => {
   }
 
   return (
-    <Stack spacing="xs">
+    <Stack gap="xs">
       {(loginState === LoginState.AWAITING_UUN_INPUT && (
         <>
           <Title order={4} size="1.75rem" fw={700} mb="md">
@@ -190,7 +190,7 @@ const LoginOverlay: React.FC<{}> = () => {
               oneTimeCode
               length={6}
               value={verificationCode}
-              required
+              hiddenInputProps={{ required: true }}
               autoFocus
               type="number"
               onChange={(value: string) => setVerificationCode(value)}
