@@ -9,7 +9,7 @@ const UploadPdfPage: React.FC<{}> = () => {
     <Container size="xl">
       <Grid>
         <Grid.Col span="auto" />
-        <Grid.Col lg={6}>
+        <Grid.Col span={{ lg: 6 }}>
           <Card withBorder shadow="md">
             <Card.Section withBorder p="md" mb="sm" bg="gray.0">
               <Title order={4}>Upload PDF</Title>

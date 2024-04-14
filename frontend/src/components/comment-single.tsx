@@ -4,28 +4,22 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { SingleComment } from "../interfaces";
 import MarkdownText from "./markdown-text";
-import { css } from "@emotion/css";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { IconChevronRight } from "@tabler/icons-react";
+import classes from "./comment-single.module.css";
 
 interface Props {
   comment: SingleComment;
 }
 
-const noMarginBreadcrumb = css`
-  & .breadcrumb {
-    margin: 0;
-  }
-`;
-
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
     <Card withBorder shadow="md" mb="md">
-      <Card.Section bg="gray.0">
+      <Card.Section bg="gray.0" mb="md">
         <Breadcrumbs
           px="md"
           pt="md"
-          separator={<Icon icon={ICONS.RIGHT} size={10} />}
-          className={noMarginBreadcrumb}
+          separator={<IconChevronRight />}
+          className={classes.noMargin}
         >
           <Anchor
             component={Link}
@@ -54,7 +48,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
         </Breadcrumbs>
         <Box my="xs" px="md">
           <Anchor component={Link} to={`/user/${comment.authorId}`}>
-            <Text weight={700} component="span">
+            <Text fw={700} component="span">
               {comment.authorDisplayName}
             </Text>
             <Text ml="0.3em" color="dimmed" component="span">
@@ -84,7 +78,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
               </>
             )}
         </Box>
-        <Divider mb="md" />
+        <Divider />
       </Card.Section>
       <MarkdownText value={comment.text} />
     </Card>

@@ -1,40 +1,8 @@
 import * as React from "react";
 import { useRef, useCallback, useEffect } from "react";
-import { css, cx } from "@emotion/css";
 import { EditorSizingMode, Range } from "./utils/types";
-
-const wrapperStyle = css`
-  position: relative;
-`;
-const commonStyle = css`
-  font-family: "Fira Code", monospace;
-  font-size: 0.875rem;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-`;
-const textareaStyle = css`
-  position: absolute;
-  top: 0;
-  color: black;
-  caret-color: inherit;
-  background: transparent;
-  resize: none;
-  border: none;
-  &:focus {
-    outline: none;
-  }
-`;
-const preStyle = css`
-  user-select: none;
-  color: transparent;
-`;
-const fullHeightStyle = css`
-  height: 100%;
-`;
+import classes from "./BasicEditor.module.css";
+import clsx from "clsx";
 
 interface Props {
   value: string;
@@ -113,9 +81,11 @@ const BasicEditor: React.FC<Props> = ({
   }, [value, textareaElRef, resize]);
 
   return (
-    <div className={cx(wrapperStyle, resize === "fill" && fullHeightStyle)}>
+    <div
+      className={clsx(classes.wrapper, resize === "fill" && classes.fullHeight)}
+    >
       {resize === "vertical" && (
-        <pre ref={preElRef} className={cx(commonStyle, preStyle)}>
+        <pre ref={preElRef} className={clsx(classes.common, classes.pre)}>
           {`${value}\n`}
         </pre>
       )}
@@ -125,10 +95,10 @@ const BasicEditor: React.FC<Props> = ({
         onKeyDown={onTextareaKeyDown}
         onPaste={onPaste}
         ref={textareaElRef}
-        className={cx(
-          commonStyle,
-          textareaStyle,
-          resize === "fill" && fullHeightStyle,
+        className={clsx(
+          classes.common,
+          classes.textarea,
+          resize === "fill" && classes.fullHeight,
         )}
       />
     </div>

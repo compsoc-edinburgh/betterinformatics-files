@@ -1,16 +1,8 @@
 import { Stack, Text } from "@mantine/core";
-import { css } from "@emotion/css";
+import classes from "./comment-section.module.css";
 import React, { useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentComponent from "./comment";
-
-const showMoreStyle = css`
-  text-decoration: underline;
-  cursor: pointer;
-`;
-const listGroupStyle = css`
-  margin-top: 1em;
-`;
 
 interface Props {
   hasDraft: boolean;
@@ -27,7 +19,7 @@ const CommentSectionComponent: React.FC<Props> = ({
   const [expanded, setExpanded] = useState(false);
   return (
     <>
-      <Stack spacing="0" className={listGroupStyle}>
+      <Stack gap="0" className={classes.listGroup}>
         {(expanded ? answer.comments : answer.comments.slice(0, 3)).map(
           comment => (
             <CommentComponent
@@ -51,7 +43,7 @@ const CommentSectionComponent: React.FC<Props> = ({
         <Text
           pt="xs"
           onClick={() => setExpanded(true)}
-          className={showMoreStyle}
+          className={classes.showMore}
         >
           {answer.comments.length === 4 ? (
             "Show 1 more comment..."

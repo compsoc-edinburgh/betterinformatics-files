@@ -1,0 +1,160 @@
+@keyframes rubberband {
+  0% {
+    transform: scaleX(1);
+  }
+
+  30% {
+    transform: scale3d(1.35, 0.75, 1);
+  }
+
+  40% {
+    transform: scale3d(0.55, 1.45, 1);
+  }
+
+  50% {
+    transform: scale3d(1.15, 0.85, 1);
+  }
+
+  65% {
+    transform: scale3d(0.95, 1.05, 1);
+  }
+
+  75% {
+    transform: scale3d(1.05, 0.95, 1);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.rubber-band {
+  animation-name: rubberband;
+  animation-duration: 1.1s;
+  will-change: transform;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  5% {
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  20% {
+    transform: scale3d(1.3, 1.3, 1.3);
+  }
+
+  40% {
+    transform: scale3d(0.8, 0.8, 0.8);
+  }
+
+  60% {
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.bounce {
+  animation-name: bounce;
+  animation-duration: 1.1s;
+  will-change: transform;
+}
+
+@keyframes fill {
+  0%,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  0% {
+    fill: red;
+    fill-opacity: 0;
+    stroke: var(--dark);
+  }
+
+  20% {
+    fill: red;
+    fill-opacity: 1;
+    stroke: red;
+  }
+}
+
+.red-filled {
+  animation-name: fill;
+  animation-duration: 1.1s;
+  fill: red;
+  stroke: red;
+}
+
+@keyframes outlined {
+  0% {
+    fill: red;
+    stroke: red;
+  }
+  30% {
+    fill: red;
+    stroke: red;
+  }
+  35% {
+    fill: transparent;
+    stroke: var(--dark);
+  }
+}
+
+.outlined {
+  animation-name: outlined;
+  animation-duration: 1.1s;
+}
+
+.liked-number-active {
+  transform-origin: top left;
+  color: red;
+  transition: 0.5s all;
+}
+
+.liked-number-inactive {
+  transform-origin: top left;
+  transform: translateY(-100%);
+  opacity: 0;
+  color: red;
+  transition: 0.5s all;
+  transition-delay: 0.3s;
+}
+
+.not-liked-number-active {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--dark);
+  transition: 0.5s all;
+  transition-delay: 0.3s;
+}
+
+.not-liked-number-inactive {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(100%);
+  opacity: 0;
+  color: var(--dark);
+  transition: 0.5s all;
+}

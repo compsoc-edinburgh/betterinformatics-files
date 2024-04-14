@@ -27,22 +27,3 @@ def cache(validity):
 
     return FuncCache
 
-
-def static_cache(validity):  # Ignores function arguments
-    class FuncStaticCache:
-        def __init__(self, fun):
-            self.fun = fun
-            self.cache = None
-            self.cache_time = 0
-
-        def __call__(self, *item):
-            if (
-                settings.TESTING
-                or self.cache is None
-                or time.time() - self.cache_time > validity
-            ):
-                self.cache = self.fun(*item)
-                self.cache_time = time.time()
-            return self.cache
-
-    return FuncStaticCache

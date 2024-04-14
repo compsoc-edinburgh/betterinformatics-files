@@ -1,7 +1,5 @@
 import {
-  createStyles,
   Divider,
-  MantineTheme,
   Modal,
   Paper,
 } from "@mantine/core";
@@ -12,54 +10,10 @@ import BasicEditor from "./BasicEditor";
 import DropZone from "./Dropzone";
 import EditorFooter from "./EditorFooter";
 import EditorHeader from "./EditorHeader";
-import { EditorMode, ImageHandle, Range } from "./utils/types";
+import { ImageHandle, Range } from "./utils/types";
 import { push, redo, undo, UndoStack } from "./utils/undo-stack";
-
-type EditorStyleProps = {
-  isFullscreen: boolean;
-  isDragHovered: boolean;
-};
-
-const borderStyles = (theme: MantineTheme) => ({
-  borderWidth: "0.1em",
-  borderColor:
-    theme.colorScheme === "dark" ? theme.colors.gray[1] : theme.colors.gray[9],
-  borderStyle: "solid",
-});
-
-const useStyles = createStyles(
-  (theme, { isDragHovered, isFullscreen }: EditorStyleProps) => ({
-    editorWrapperStyle: {
-      padding: "1.2em",
-      flexGrow: isFullscreen ? 1 : undefined,
-      ...(isDragHovered && isFullscreen ? borderStyles(theme) : {}),
-    },
-    hoverBorder: isDragHovered ? borderStyles(theme) : {},
-    fullscreenContainer: {
-      display: "flex",
-      flexDirection: "column",
-      height: "100%",
-    },
-    fullscreenPreview: {
-      position: "relative",
-      height: "100%",
-    },
-    fullscreenPreviewInner: {
-      position: "absolute",
-      width: "100%",
-      height: "100%",
-      overflowY: "auto",
-    },
-    splitViewContainer: {
-      display: "flex",
-      height: "100%",
-      gap: "0.5em",
-    },
-    splitLeftRight: {
-      flex: "1 1 0",
-    },
-  }),
-);
+import classes from "./Editor.module.css";
+import clsx from "clsx";
 
 interface Props {
   value: string;
@@ -70,6 +24,7 @@ interface Props {
   undoStack: UndoStack;
   setUndoStack: (newStack: UndoStack) => void;
 }
+
 const Editor: React.FC<Props> = ({
   value,
   onChange,
@@ -78,7 +33,7 @@ const Editor: React.FC<Props> = ({
   undoStack,
   setUndoStack,
 }) => {
-  const [mode, setMode] = useState<EditorMode>("write");
+  const [mode, setMode] = useState<string | null>("write");
   const [isDragHovered, setIsDragHovered] = useState(false);
   const [attachments, setAttachments] = useState<ImageHandle[]>([]);
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -306,8 +261,6 @@ const Editor: React.FC<Props> = ({
 
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const { classes } = useStyles({ isFullscreen, isDragHovered });
-
   const toggleFullscreen = useCallback(() => {
     const newValue = !isFullscreen;
     setIsFullscreen(newValue);
@@ -386,7 +339,13 @@ const Editor: React.FC<Props> = ({
   const main = (
     <>
       {header}
-      <div className={classes.editorWrapperStyle}>
+      <div
+        className={clsx(
+          classes.editorWrapperStyle,
+          isFullscreen && classes.fullScreen,
+          isDragHovered && isFullscreen && classes.borderStyle,
+        )}
+      >
         {mode === "write" && editor}
         {mode === "preview" && editorPreview}
         {mode === "split" && (
@@ -420,10 +379,11 @@ const Editor: React.FC<Props> = ({
         </Modal>
       ) : (
         <Paper
+          shadow="none"
           withBorder={!isDragHovered}
           p="sm"
           my="sm"
-          className={classes.hoverBorder}
+          className={clsx(isDragHovered && classes.borderStyle)}
         >
           {main}
         </Paper>

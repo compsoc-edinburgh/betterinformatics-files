@@ -10,25 +10,13 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { css } from "@emotion/css";
 import { escapeRegExp } from "lodash-es";
 import React from "react";
 import { Link } from "react-router-dom";
 import MarkdownText from "../components/markdown-text";
 import { HighlightedMatch, SearchResponse } from "../interfaces";
-import { ICONS, Icon } from "vseth-canine-ui";
-
-const columnStyle = css`
-  column-gap: 0.75em;
-  grid-column-gap: 0.75em;
-  margin: 0 -0.75em;
-  padding-top: 1em;
-  padding-bottom: 1em;
-  column-count: 1;
-  @media (min-width: 900px) {
-    column-count: 2;
-  }
-`;
+import { IconChevronRight } from "@tabler/icons-react";
+import classes from "./search-results.module.css";
 
 const HighlightedContent: React.FC<{
   content: HighlightedMatch;
@@ -50,11 +38,6 @@ const HighlightedContent: React.FC<{
   }
 };
 
-const noMarginBreadcrumb = css`
-  & .breadcrumb {
-    margin: 0;
-  }
-`;
 const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
   content,
   matches,
@@ -68,7 +51,7 @@ interface Props {
 }
 const SearchResults: React.FC<Props> = React.memo(({ data }) => {
   return (
-    <div className={columnStyle}>
+    <div className={classes.column}>
       {data.map(result => {
         if (result.type === "exam") {
           return (
@@ -77,8 +60,8 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                 <Group>
                   <Badge>Exam</Badge>
                   <Breadcrumbs
-                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
-                    className={noMarginBreadcrumb}
+                    separator={<IconChevronRight />}
+                    className={classes.noMarginBreadcrumb}
                   >
                     <Anchor
                       tt="uppercase"
@@ -140,8 +123,8 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                 <Group>
                   <Badge>Answer</Badge>
                   <Breadcrumbs
-                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
-                    className={noMarginBreadcrumb}
+                    separator={<IconChevronRight />}
+                    className={classes.noMarginBreadcrumb}
                   >
                     <Anchor
                       tt="uppercase"
@@ -185,8 +168,8 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                 <Group>
                   <Badge>Comment</Badge>
                   <Breadcrumbs
-                    separator={<Icon icon={ICONS.RIGHT} size={10} />}
-                    className={noMarginBreadcrumb}
+                    separator={<IconChevronRight />}
+                    className={classes.noMarginBreadcrumb}
                   >
                     <Anchor
                       tt="uppercase"

@@ -1,0 +1,28 @@
+.icon-button {
+  margin: 0;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  padding: 0 0.875rem;
+  height: 100%;
+  color: rgba(0, 0, 0, 0.8);
+  transition: color 0.1s;
+  min-width: 0;
+  &:hover {
+    color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+.header {
+  position: relative;
+}
+
+.file-input {
+  visibility: hidden;
+  display: none;
+}

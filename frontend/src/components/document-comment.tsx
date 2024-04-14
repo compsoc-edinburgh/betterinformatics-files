@@ -10,7 +10,6 @@ import {
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler } from "../api/fetch-utils";
 import {
   Mutate,
@@ -24,6 +23,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
 
 interface Props {
   documentSlug: string;
@@ -73,7 +73,6 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
           />
           <TooltipButton
             mt="sm"
-            variant="brand"
             tooltip="Save comment"
             disabled={editLoading || draftText.length === 0}
             onClick={() => updateComment(draftText)}
@@ -87,7 +86,7 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
           <Flex py="sm" px="md" justify="space-between" align="center">
             <Flex align="center">
               <Anchor component={Link} to={`/user/${comment.authorId}`}>
-                <Text weight={700} component="span">
+                <Text fw={700} component="span">
                   {comment.authorDisplayName}
                 </Text>
                 <Text ml="0.25em" color="dimmed" component="span">
@@ -130,7 +129,7 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
                   color="white"
                   onClick={deleteComment}
                 >
-                  <Icon icon={ICONS.DELETE} size={18} />
+                  <IconTrash />
                 </SmallButton>
                 <SmallButton
                   tooltip="Edit comment"
@@ -145,7 +144,7 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
                     });
                   }}
                 >
-                  <Icon icon={ICONS.EDIT} size={18} />
+                  <IconEdit />
                 </SmallButton>
               </Button.Group>
             )}

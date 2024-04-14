@@ -1,6 +1,6 @@
 import { Button, Grid, Group, TextInput } from "@mantine/core";
+import { IconX } from "@tabler/icons-react";
 import React, { useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 
 interface UserSetEditorProps {
   users: string[];
@@ -23,7 +23,7 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
           <Button
             key={user}
             variant="default"
-            leftIcon={<Icon icon={ICONS.CLOSE} />}
+            leftSection={<IconX />}
             onClick={() => remove(user)}
           >
             {user}
@@ -44,7 +44,7 @@ const UserSetEditor: React.FC<UserSetEditorProps> = ({ users, setUsers }) => {
               onChange={e => setUsername(e.currentTarget.value)}
             />
           </Grid.Col>
-          <Grid.Col md={2}>
+          <Grid.Col span={{ md: 2 }}>
             <Button fullWidth type="submit">
               Add
             </Button>

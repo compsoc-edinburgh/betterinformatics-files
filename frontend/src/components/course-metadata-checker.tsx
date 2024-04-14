@@ -57,15 +57,16 @@ const CourseEuclidAssociateButton: React.FC<
   return (
     <>
       <form onSubmit={onSubmit}>
-        <Group>
+        <Group align="end">
           <Select
             label="Category"
             placeholder="Choose category..."
             searchable
-            nothingFound="No category found"
+            nothingFoundMessage="No category found"
             data={options}
-            onChange={(value: string) => setCategorySlug(value)}
+            onChange={(value: string | null) => value && setCategorySlug(value)}
             required
+            style={{ flexGrow: 1}}
           />
           <Button variant="brand" type="submit">
             Associate
@@ -133,43 +134,43 @@ const CourseMetadataChecker: React.FC = () => {
       {courseCheckError && <div>{courseCheckError.message}</div>}
       <div>
         {courseCheckLoading && <LoadingOverlay visible={courseCheckLoading} />}
-        <Table striped fontSize="md">
-          <thead>
-            <tr>
-              <th>EUCLID Code</th>
-              <th>Course Details</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table fz="md">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>EUCLID Code</Table.Th>
+              <Table.Th>Course Details</Table.Th>
+              <Table.Th>Actions</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
             {missingMapping &&
               missingMapping.map(({ code, data, loading }) => (
-                <tr key={code}>
-                  <td>{code}</td>
-                  <td>
+                <Table.Tr key={code}>
+                  <Table.Td>{code}</Table.Td>
+                  <Table.Td>
                     {data.name}
                     <br />
                     {`${data.delivery} / SCQF ${data.level} / ${data.credits} credits`}
                     <br />
                     <Anchor
-                      color="blue"
+                      c="blue"
                       component="a"
                       href={data.euclid_url}
                       target="_blank"
                     >
                       {data.euclid_url}
                     </Anchor>
-                  </td>
-                  <td>
+                  </Table.Td>
+                  <Table.Td>
                     <CourseEuclidAssociateButton
                       code={code}
                       onAssociated={reloadEuclidList}
                       categories={categories}
                     />
-                  </td>
-                </tr>
+                  </Table.Td>
+                </Table.Tr>
               ))}
-          </tbody>
+          </Table.Tbody>
         </Table>
       </div>
     </>

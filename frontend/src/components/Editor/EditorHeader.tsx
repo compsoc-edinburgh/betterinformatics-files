@@ -1,50 +1,22 @@
-import { css } from "@emotion/css";
 import * as React from "react";
-import {
-  Bold,
-  Code,
-  DollarSign,
-  Image,
-  Italic,
-  Link,
-  Maximize,
-  Minimize,
-} from "react-feather";
 import TooltipButton from "../TooltipButton";
-import { EditorMode } from "./utils/types";
 import { useCallback, useRef } from "react";
-import { Flex, Stack, Tabs } from "@mantine/core";
-
-const iconButtonStyle = css`
-  margin: 0;
-  border: none;
-  cursor: pointer;
-  background-color: transparent;
-  padding: 0 0.875rem;
-  height: 100%;
-  color: rgba(0, 0, 0, 0.8);
-  transition: color 0.1s;
-  min-width: 0;
-  &:hover {
-    color: rgba(0, 0, 0, 0.8);
-  }
-`;
-const navStyle = css`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-`;
-const headerStyle = css`
-  position: relative;
-`;
-const fileInputStyle = css`
-  visibility: hidden;
-  display: none;
-`;
+import { Button, Flex, Group, Stack, Tabs } from "@mantine/core";
+import {
+  IconBold,
+  IconCode,
+  IconItalic,
+  IconLink,
+  IconMath,
+  IconMaximize,
+  IconMinimize,
+  IconPhoto,
+} from "@tabler/icons-react";
+import classes from "./EditorHeader.module.css";
 
 interface Props {
-  activeMode: EditorMode;
-  onActiveModeChange: (newMode: EditorMode) => void;
+  activeMode: string | null;
+  onActiveModeChange: (newMode: string | null) => void;
 
   isFullscreen: boolean;
   toggleFullscreen: () => void;
@@ -83,109 +55,100 @@ const EditorHeader: React.FC<Props> = ({
     [onFiles],
   );
 
-  const iconSize = 15;
   return (
-    <div className={headerStyle}>
+    <div className={classes.header}>
       <input
         type="file"
-        className={fileInputStyle}
+        className={classes.fileInput}
         ref={fileInputRef}
         onChange={onChangeHandler}
       />
-      <Tabs
-        value={activeMode}
-        onTabChange={onActiveModeChange}
-        className={navStyle}
-      >
-        <Tabs.List>
-          <Tabs.Tab value="write">Write</Tabs.Tab>
-          <Tabs.Tab value="preview">Preview</Tabs.Tab>
-          {isFullscreen && <Tabs.Tab value="split">Split</Tabs.Tab>}
-        </Tabs.List>
+      <Group justify="space-between">
+        <Tabs
+          value={activeMode}
+          onChange={onActiveModeChange}
+          className={classes.nav}
+        >
+          <Tabs.List>
+            <Tabs.Tab value="write">Write</Tabs.Tab>
+            <Tabs.Tab value="preview">Preview</Tabs.Tab>
+            {isFullscreen && <Tabs.Tab value="split">Split</Tabs.Tab>}
+          </Tabs.List>
+        </Tabs>
         <Flex>
           {activeMode !== "preview" && (
-            <>
+            <Button.Group>
               <TooltipButton
-                className={iconButtonStyle}
+                className={classes.iconButton}
                 onClick={() => fileInputRef.current?.click()}
-                type="button"
                 size="sm"
                 tooltip="Insert Image"
               >
-                <Image size={iconSize} />
+                <IconPhoto />
               </TooltipButton>
               <TooltipButton
-                className={iconButtonStyle}
+                className={classes.iconButton}
                 onClick={handlers.onMathClick}
-                type="button"
                 size="sm"
                 tooltip="Inline Math"
               >
-                <DollarSign size={iconSize} />
+                <IconMath />
               </TooltipButton>
               <TooltipButton
-                className={iconButtonStyle}
+                className={classes.iconButton}
                 onClick={handlers.onCodeClick}
-                type="button"
                 size="sm"
                 tooltip="Code Block"
               >
-                <Code size={iconSize} />
+                <IconCode />
               </TooltipButton>
               <TooltipButton
-                className={iconButtonStyle}
+                className={classes.iconButton}
                 onClick={handlers.onLinkClick}
-                type="button"
                 size="sm"
                 tooltip="Hyperlink"
               >
-                <Link size={iconSize} />
+                <IconLink />
               </TooltipButton>
               <TooltipButton
-                className={iconButtonStyle}
+                className={classes.iconButton}
                 onClick={handlers.onItalicClick}
-                type="button"
                 size="sm"
                 tooltip={
-                  <Stack spacing="0.4em">
+                  <Stack gap="0.4em">
                     Italic
                     <kbd>Ctrl + I</kbd>
                   </Stack>
                 }
               >
-                <Italic size={iconSize} />
+                <IconItalic />
               </TooltipButton>
               <TooltipButton
-                className={iconButtonStyle}
+                className={classes.iconButton}
                 onClick={handlers.onBoldClick}
-                type="button"
                 size="sm"
                 tooltip={
-                  <Stack spacing="0.4em">
+                  <Stack gap="0.4em">
                     Bold
                     <kbd>Ctrl + B</kbd>
                   </Stack>
                 }
               >
-                <Bold size={iconSize} />
+                <IconBold />
               </TooltipButton>
-            </>
+            </Button.Group>
           )}
           <TooltipButton
-            className={iconButtonStyle}
+            ml="sm"
+            className={classes.iconButton}
             onClick={handlers.toggleFullscreen}
-            type="button"
             size="sm"
             tooltip="Toggle fullscreen"
           >
-            {isFullscreen ? (
-              <Minimize size={iconSize} />
-            ) : (
-              <Maximize size={iconSize} />
-            )}
+            {isFullscreen ? <IconMinimize /> : <IconMaximize />}
           </TooltipButton>
         </Flex>
-      </Tabs>
+      </Group>
     </div>
   );
 };

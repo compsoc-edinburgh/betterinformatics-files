@@ -14,24 +14,29 @@ class TestDocument(ComsolTest):
         )
         self.category.save()
         self.documents = []
-        for i in range(2):
+        for i in range(3):
+            # Create the user profiles for the owner
+            self.user = self.loginUsers[i]
+            self.get("/api/auth/me/")
+            # Create the document owned by that user
             self.documents.append(
                 Document(
                     display_name="document{}".format(i),
                     description="description{}".format(i),
                     category=self.category,
-                    author=User.objects.get_or_create(
-                        username=self.loginUsers[i]["username"]
-                    )[0],
+                    author=User.objects.get(username=self.loginUsers[i]["username"]),
                     anonymised=False,
                     document_type=DocumentType.objects.get(display_name="Documents"),
                 )
             )
+        # Reset user for the rest of the tests
+        self.user = self.loginUsers[self.loginUser]
         for document in self.documents:
             document.save()
 
     def test_owner_can_set_metadata(self):
         document = self.documents[0]
+        self.user = self.loginUsers[0]
         self.put(
             "/api/document/{}/".format(document.slug),
             {"description": "New Description"},
@@ -95,7 +100,8 @@ class TestDocument(ComsolTest):
         self.assertEqual(res["anonymised"], True)
 
     def test_owner_can_see_anonymised_author(self):
-        document = self.documents[0]
+        self.user = self.loginUsers[2]  # non-admin user
+        document = self.documents[2]
         document.anonymised = True
         document.save()
         res = self.get(

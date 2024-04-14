@@ -1,13 +1,13 @@
 import { Button } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";
 import { useUpdateDocumentFile } from "../api/hooks";
 import { Document, DocumentFile } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
+import { IconDeviceFloppy } from "@tabler/icons-react";
 
 interface Props {
   document: Document;
@@ -47,7 +47,7 @@ const DocumentMarkdownEditor: React.FC<Props> = ({ document, file, url }) => {
             })
           }
           loading={loading}
-          leftIcon={<Icon icon={ICONS.SAVE} />}
+          leftSection={<IconDeviceFloppy />}
         >
           Save
         </Button>

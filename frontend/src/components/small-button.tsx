@@ -1,13 +1,10 @@
-import { css } from "@emotion/css";
 import TooltipButton, { TooltipButtonProps } from "./TooltipButton";
-
-const small = css`
-  min-width: 0;
-`;
+import classes from "./small-button.module.css";
+import clsx from "clsx";
 
 const SmallButton = ({ className, ...props }: TooltipButtonProps) => (
   <TooltipButton
-    className={className ? `${className} ${small}` : small}
+    className={clsx(className && className, classes.small)}
     px="xs"
     {...props}
   />

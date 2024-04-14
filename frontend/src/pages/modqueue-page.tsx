@@ -6,6 +6,7 @@ import {
   Container,
   Table,
   Text,
+  Group,
   Title,
 } from "@mantine/core";
 import React, { useState } from "react";
@@ -18,7 +19,7 @@ import ClaimButton from "../components/claim-button";
 import CourseMetadataChecker from "../components/course-metadata-checker";
 import IconButton from "../components/icon-button";
 import LoadingOverlay from "../components/loading-overlay";
-import { ICONS } from "vseth-canine-ui";
+import { IconTrash } from "@tabler/icons-react";
 
 const loadExams = async (includeHidden: boolean) => {
   return (
@@ -94,59 +95,57 @@ const ModQueue: React.FC = () => {
       {modals}
       <div>
         <LoadingOverlay visible={examsLoading} />
-        <Table striped fontSize="md">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Name</th>
-              <th>Import State</th>
-              <th>Claim</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table fz="md">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Category</Table.Th>
+              <Table.Th>Name</Table.Th>
+              <Table.Th>Import State</Table.Th>
+              <Table.Th>Claim</Table.Th>
+              <Table.Th>Delete</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
             {exams &&
               exams.map((exam: CategoryExam) => (
-                <tr key={exam.filename}>
-                  <td>{exam.category_displayname}</td>
-                  <td>
-                    <Anchor
-                      color="blue"
-                      component={Link}
-                      to={`/exams/${exam.filename}`}
-                      target="_blank"
-                    >
-                      {exam.displayname}
-                    </Anchor>
-                    <div>
+                <Table.Tr key={exam.filename}>
+                  <Table.Td>{exam.category_displayname}</Table.Td>
+                  <Table.Td>
+                    <Group>
+                      <Anchor
+                        c="blue"
+                        component={Link}
+                        to={`/exams/${exam.filename}`}
+                        target="_blank"
+                      >
+                        {exam.displayname}
+                      </Anchor>
                       {exam.public && <Badge color="green">public</Badge>}
                       {!exam.public && <Badge color="orange">hidden</Badge>}
-                    </div>
-                    <p>{exam.remark}</p>
-                  </td>
-                  <td>
-                    {exam.finished_cuts
-                      ? "All done"
-                      : "Needs Cuts"}
-                  </td>
-                  <td>
+                      <p>{exam.remark}</p>
+                    </Group>
+                  </Table.Td>
+                  <Table.Td>
+                    {exam.finished_cuts ? "All done" : "Needs Cuts"}
+                  </Table.Td>
+                  <Table.Td>
                     <ClaimButton exam={exam} reloadExams={reloadExams} />
-                  </td>
-                  <td>
+                  </Table.Td>
+                  <Table.Td>
                     <IconButton
                       size="lg"
                       color="gray.6"
                       tooltip="Delete exam"
-                      iconName={ICONS.DELETE}
+                      icon={<IconTrash />}
                       variant="outline"
                       onClick={(
                         e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
                       ) => handleRemoveClick(e, exam)}
                     />
-                  </td>
-                </tr>
+                  </Table.Td>
+                </Table.Tr>
               ))}
-          </tbody>
+          </Table.Tbody>
         </Table>
       </div>
       <Button mt="sm" mb="xl" onClick={() => setIncludeHidden(!includeHidden)}>

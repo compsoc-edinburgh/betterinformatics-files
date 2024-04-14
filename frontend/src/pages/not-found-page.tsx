@@ -6,7 +6,7 @@ const NotFoundPage: React.FC<{}> = () => {
   useTitle("404");
   return (
     <Container size="xl">
-      <Title color="dimmed" mb="xl" style={{ fontSize: 150 }}>
+      <Title c="dimmed" mb="xl" style={{ fontSize: 150 }}>
         404 Not Found.
       </Title>
       <Text mb="xl">

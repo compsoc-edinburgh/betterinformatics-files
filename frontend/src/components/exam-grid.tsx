@@ -1,22 +1,11 @@
-import { css } from "@emotion/css";
+import classes from "./exam-grid.module.css";
 import React from "react";
-
-const gridStyles = css`
-  @media screen and (max-width: 767.98px) {
-    display: flex;
-    flex-direction: column;
-  }
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  grid-column-gap: 16px;
-  grid-row-gap: 16px;
-`;
 
 interface ExamGridProps {
   children?: React.ReactNode;
 }
 
 const ExamGrid: React.FC<ExamGridProps> = ({ children }) => {
-  return <div className={gridStyles}>{children}</div>;
+  return <div className={classes.grid}>{children}</div>;
 };
 export default ExamGrid;

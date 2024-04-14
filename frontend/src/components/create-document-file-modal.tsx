@@ -1,11 +1,11 @@
 import { Alert, Button, FileInput, Stack, TextInput } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
-import { Icon, ICONS } from "vseth-canine-ui";
 import { NamedBlob } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentFile } from "../api/hooks";
 import { Toggle } from "../hooks/useToggle";
 import { Document } from "../interfaces";
+import { IconCloudUpload, IconPlus } from "@tabler/icons-react";
 
 interface Props {
   document: Document;
@@ -42,7 +42,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
         <FileInput
           label="File"
           placeholder="Click here to pick file..."
-          icon={<Icon icon={ICONS.CLOUD_UP} />}
+          leftSection={<IconCloudUpload />}
           value={file}
           onChange={setFile}
           accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg,.docx,.xlsx,.pptx,.epub" // apkg=anki
@@ -53,9 +53,8 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           you that you can edit afterwards.
         </div>
         <Button
-          variant="brand"
           loading={loading}
-          leftIcon={<Icon icon={ICONS.PLUS} />}
+          leftSection={<IconPlus />}
           disabled={loading || displayName.trim() === ""}
           onClick={() =>
             createDocumentFile(

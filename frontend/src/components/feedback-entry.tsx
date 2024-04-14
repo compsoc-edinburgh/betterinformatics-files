@@ -32,7 +32,7 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
   return (
     <Card my="xs" withBorder shadow="md">
       <Card.Section bg="gray.0" withBorder inheritPadding>
-        <Group py="md" position="apart">
+        <Group py="md" justify="space-between">
           <Title order={4}>
             {entry.authorDisplayName} •{" "}
             {moment(entry.time, GlobalConsts.momentParseString).format(

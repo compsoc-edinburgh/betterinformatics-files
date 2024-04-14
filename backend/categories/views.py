@@ -107,6 +107,7 @@ def remove_category(request):
     if cat.slug == "default":
         return response.not_possible("Can not delete default category")
     cat.exam_set.update(category=Category.objects.get(slug="default"))
+    cat.document_set.update(category=Category.objects.get(slug="default"))
     cat.delete()
     return response.success()
 
@@ -207,6 +208,8 @@ def get_metadata(request, slug):
 def set_metadata(request, slug):
     cat = get_object_or_404(Category, slug=slug)
     if "displayname" in request.POST:
+        if cat.slug == "default":
+            return response.not_possible("Can not rename default category")
         # prevent whitespaced or empty displaynames
         if request.POST["displayname"].strip() == "":
             return response.not_possible("Invalid displayname")

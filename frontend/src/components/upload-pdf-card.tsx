@@ -12,7 +12,7 @@ import React, { useMemo, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
 import { useUser } from "../auth";
-import { ICONS, Icon } from "vseth-canine-ui";
+import { IconCloudUpload } from "@tabler/icons-react";
 
 const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
   preChosenCategory,
@@ -85,7 +85,7 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
             <FileInput
               label="File"
               placeholder="Click to choose file..."
-              icon={<Icon icon={ICONS.CLOUD_UP} />}
+              leftSection={<IconCloudUpload />}
               value={file}
               onChange={setFile}
               accept="application/pdf"
@@ -102,9 +102,9 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
                 label="Category"
                 placeholder="Choose category..."
                 searchable
-                nothingFound="No category found"
+                nothingFoundMessage="No category found"
                 data={options}
-                onChange={(value: string) => setCategory(value)}
+                onChange={(value: string | null) => value && setCategory(value)}
                 required
               />
             )}
@@ -114,7 +114,7 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
                 your contribution won't appear immediately.
               </Text>
             )}
-            <Button variant="brand" type="submit" loading={loading}>
+            <Button type="submit" loading={loading}>
               Submit
             </Button>
           </Stack>

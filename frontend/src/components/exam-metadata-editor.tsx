@@ -8,7 +8,6 @@ import {
   Grid,
   Group,
   NativeSelect,
-  Select,
   Stack,
   Text,
   Textarea,
@@ -24,7 +23,8 @@ import { createOptions, options } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import FileInput from "./file-input";
 import useForm from "../hooks/useForm";
-import { Icon, ICONS } from "vseth-canine-ui";
+import { IconDeviceFloppy, IconX } from "@tabler/icons-react";
+import Creatable from "./creatable";
 const stringKeys = [
   "displayname",
   "category",
@@ -186,17 +186,17 @@ const ExamMetadataEditor: React.FC<Props> = ({
 
   return (
     <Stack mb="xl">
-      <Group position="apart" pt="sm">
+      <Group justify="space-between" pt="sm">
         <Title order={2}>Edit Exam</Title>
         <CloseButton onClick={toggle} />
       </Group>
       {error && <Alert color="red">{error.toString()}</Alert>}
       <Title order={5}>Metadata</Title>
       <Grid>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <TextInput label="Display name" {...registerInput("displayname")} />
         </Grid.Col>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <TextInput
             label="Resolve Alias"
             {...registerInput("resolve_alias")}
@@ -204,24 +204,28 @@ const ExamMetadataEditor: React.FC<Props> = ({
         </Grid.Col>
       </Grid>
       <Grid>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <NativeSelect
             label="Category"
             data={categoryOptions ? (options(categoryOptions) as any) : []}
             value={categoryOptions && categoryOptions[formState.category].value}
             onChange={(e: any) => {
-              setFormValue("category", e.value as string);
-              setFormValue("category_displayname", e.label as string);
+              const value = e.currentTarget.value;
+              setFormValue("category", value as string);
+              setFormValue(
+                "category_displayname",
+                categoryOptions?.[value]?.label ?? value,
+              );
             }}
           />
         </Grid.Col>
-        <Grid.Col md={6}>
-          <Select
-            label="Exam type"
-            creatable
-            searchable
-            getCreateLabel={query => `+ Create new exam type "${query}"`}
-            onCreate={query => {
+        <Grid.Col span={{ md: 6 }}>
+          <Creatable
+            title="Exam type"
+            getCreateLabel={(query: string) =>
+              `+ Create new exam type "${query}"`
+            }
+            onCreate={(query: string) => {
               setExamTypeOptions([...(examTypes ?? []), query]);
               return query;
             }}
@@ -232,14 +236,14 @@ const ExamMetadataEditor: React.FC<Props> = ({
         </Grid.Col>
       </Grid>
       <Grid>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <Checkbox
             name="check"
             label="Public"
             {...registerCheckbox("public")}
           />
         </Grid.Col>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <Checkbox
             name="check"
             label="Finished Cuts"
@@ -248,14 +252,14 @@ const ExamMetadataEditor: React.FC<Props> = ({
         </Grid.Col>
       </Grid>
       <Grid>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <TextInput
             type="url"
             {...registerInput("master_solution")}
             label="Master Solution (extern)"
           />
         </Grid.Col>
-        <Grid.Col md={6}>
+        <Grid.Col span={{ md: 6 }}>
           <Text size="sm">Master Solution</Text>
           {masterFile === true ? (
             <Flex align="center" gap="sm">
@@ -282,13 +286,12 @@ const ExamMetadataEditor: React.FC<Props> = ({
         attachments={formState.attachments}
         setAttachments={a => setFormValue("attachments", a)}
       />
-      <Group position="right">
-        <Button leftIcon={<Icon icon={ICONS.CLOSE} />} onClick={toggle}>
+      <Group justify="right">
+        <Button leftSection={<IconX />} onClick={toggle} color="dark" variant="light">
           Cancel
         </Button>
         <Button
-          leftIcon={<Icon icon={ICONS.SAVE} />}
-          variant="brand"
+          leftSection={<IconDeviceFloppy />}
           loading={loading}
           onClick={onSubmit}
         >

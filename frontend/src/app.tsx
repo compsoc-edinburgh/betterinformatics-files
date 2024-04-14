@@ -5,10 +5,13 @@ import {
   Box,
   Affix,
   rem,
-  MantineThemeOverride,
+  createTheme,
   Indicator,
-  Tuple,
+  MantineColorsTuple,
+  CSSVariablesResolver,
+  useMantineColorScheme,
 } from "@mantine/core";
+import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import tinycolor from "tinycolor2";
@@ -40,11 +43,11 @@ import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
 import {
-  defaultConfigOptions,
   ConfigOptions,
+  defaultConfigOptions,
 } from "./components/Navbar/constants";
 
-function calculateShades(primaryColor: string) {
+function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
   var darkerRatio = (0.95 - baseHSLcolor.l) / 7.0;
   var shadesArray = new Array(10);
@@ -66,7 +69,7 @@ function calculateShades(primaryColor: string) {
     s: baseHSLcolor.s,
     l: 0.05,
   }).toString("hex6");
-  return shadesArray;
+  return shadesArray as unknown as MantineColorsTuple;
 }
 
 const App: React.FC<{}> = () => {
@@ -119,22 +122,22 @@ const App: React.FC<{}> = () => {
   const configOptions = (window as any).configOptions as ConfigOptions;
 
   // CompSoc theme
-  var compsocTheme: MantineThemeOverride = {
+  var compsocTheme = createTheme({
     colors: {
-      compsocMain: calculateShades("#b89c7c") as Tuple<string, 10>,
-      compsocGray: new Array(10).fill("rgb(144, 146, 150)") as Tuple<
-        string,
-        10
-      >,
+      compsocMain: calculateShades("#b89c7c"),
+      compsocGray: new Array(10).fill("rgb(144, 146, 150)") as unknown as MantineColorsTuple,
     },
     primaryColor: "compsocMain",
     primaryShade: 7,
     fontFamily:
       '"Source Sans Pro",Lato,Arial,Helvetica,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol',
-    lineHeight: 1.5,
-  };
+    lineHeights: {
+      base: "1.5",
+    },
+    autoContrast: true,
+    luminanceThreshold: 0.4,
+  });
 
-  compsocTheme.colorScheme = "light";
   compsocTheme.components = {
     Anchor: {
       defaultProps: {
@@ -146,33 +149,10 @@ const App: React.FC<{}> = () => {
         color: "dark",
       },
     },
-    Alert: {
-      defaultProps: {
-        color: "gray",
-      },
-    },
     Badge: {
       defaultProps: {
-        color: "gray",
-      },
-    },
-    Button: {
-      variants: {
-        brand: theme => ({
-          root: {
-            backgroundColor: theme.colors[theme.primaryColor][7],
-            color: theme.colors.gray[8],
-            ...theme.fn.hover({
-              backgroundColor: theme.fn.darken(
-                theme.colors[theme.primaryColor][7],
-                0.1,
-              ),
-            }),
-          },
-        }),
-      },
-      defaultProps: {
-        color: "dark",
+        color: "compsocGray",
+        variant: "light",
       },
     },
   };
@@ -206,8 +186,18 @@ const App: React.FC<{}> = () => {
     },
   ];
 
+  const resolver: CSSVariablesResolver = _ => ({
+    variables: {},
+    light: {
+      "--mantine-color-anchor": "--mantine-color-black",
+    },
+    dark: {
+      "--mantine-color-anchor": "--mantine-color-white",
+    },
+  });
+
   return (
-    <MantineProvider theme={compsocTheme} withGlobalStyles withNormalizeCSS>
+    <MantineProvider theme={compsocTheme} cssVariablesResolver={resolver}>
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>

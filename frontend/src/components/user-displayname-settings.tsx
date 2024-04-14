@@ -6,7 +6,7 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import { ICONS, Icon } from "vseth-canine-ui";
+import { IconCheck } from "@tabler/icons-react";
 import React, { useState } from "react";
 import { useSetUserDisplayUsername } from "../api/hooks";
 import { UserInfo } from "../interfaces";
@@ -39,11 +39,7 @@ const UserDisplayNameSettings: React.FC<UserDisplayNameProps> = ({
       </Text>
       <form onSubmit={handleSubmitDisplayName}>
         <SimpleGrid
-          cols={4}
-          breakpoints={[
-            { maxWidth: "sm", cols: 1 },
-            { maxWidth: "md", cols: 2 },
-          ]}
+          cols={{ xl: 4, sm: 1, md: 2 }}
         >
           <TextInput
             label="Display Name"
@@ -60,7 +56,7 @@ const UserDisplayNameSettings: React.FC<UserDisplayNameProps> = ({
               ) : (
                 <Tooltip withinPortal label="Login">
                   <ActionIcon type="submit">
-                    <Icon icon={ICONS.CHECK} />
+                    <IconCheck />
                   </ActionIcon>
                 </Tooltip>
               )

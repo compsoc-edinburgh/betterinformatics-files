@@ -1,0 +1,17 @@
+.column {
+  column-gap: 0.75em;
+  grid-column-gap: 0.75em;
+  margin: 0 -0.75em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  column-count: 1;
+  @media (min-width: 900px) {
+    column-count: 2;
+  }
+}
+
+.no-margin-breadcrumb {
+  & .breadcrumb {
+    margin: 0;
+  }
+}

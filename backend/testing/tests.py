@@ -243,7 +243,7 @@ class ComsolTestExamsData(ComsolTest):
                 Exam(
                     filename="test{}.pdf".format(i),
                     category=self.category,
-                    displayname="test",
+                    displayname="test{}".format(i),
                     exam_type=ExamType.objects.get(displayname="Exams"),
                     finished_cuts=True,
                     public=True,

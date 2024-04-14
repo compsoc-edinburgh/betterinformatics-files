@@ -45,7 +45,7 @@ def add_auth_to_request(request: HttpRequest):
         raise PermissionDenied("User is banned")
 
     # Add admin role if it's a preview deployment or if the user is an admin
-    if settings.IS_PREVIEW or jwt_claims.get("admin", False):
+    if (settings.IS_PREVIEW and not settings.TESTING) or jwt_claims.get("admin", False):
         request.roles = ["admin"]  # type: ignore
 
     with transaction.atomic():

@@ -1,0 +1,10 @@
+.name-card {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top-width: 0 !important;
+}
+
+.answer-section-button-wrapper {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}

@@ -16,7 +16,7 @@ import { useMarkAllAsRead } from "../api/hooks";
 import GlobalConsts from "../globalconsts";
 import { NotificationInfo } from "../interfaces";
 import MarkdownText from "./markdown-text";
-import { ICONS, Icon } from "vseth-canine-ui";
+import { IconLink } from "@tabler/icons-react";
 interface Props {
   notification: NotificationInfo;
 }
@@ -33,14 +33,14 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
       {error && <Alert color="red">{error.message}</Alert>}
       <Card withBorder shadow="md" my="sm">
         <Card.Section p="md" mb="md" withBorder bg="gray.0">
-          <Group position="apart">
+          <Group justify="space-between">
             <div>
               <Title order={4}>
                 <Anchor component={Link} to={notification.link}>
                   {notification.title}
                 </Anchor>
               </Title>
-              <Group spacing={0}>
+              <Group gap={0}>
                 <Anchor component={Link} to={notification.sender}>
                   {notification.senderDisplayName}
                 </Anchor>
@@ -61,7 +61,7 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
               </Group>
             </div>
             <ActionIcon component={Link} to={notification.link}>
-              <Icon icon={ICONS.LINK} />
+              <IconLink />
             </ActionIcon>
           </Group>
         </Card.Section>

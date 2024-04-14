@@ -1,6 +1,5 @@
 import { useInViewport } from "@umijs/hooks";
 import { Card } from "@mantine/core";
-import { css, cx } from "@emotion/css";
 import * as React from "react";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { DebugContext } from "../components/Debug";
@@ -12,23 +11,9 @@ import useDpr from "../hooks/useDpr";
 import PDF from "./pdf-renderer";
 import { PdfCanvasReference } from "./reference-counting";
 import { CutUpdate } from "../interfaces";
-import { ICONS } from "vseth-canine-ui";
-
-const lastSection = css`
-  margin-bottom: 2rem;
-`;
-const canvasWrapperStyle = css`
-  font-size: 0;
-  user-select: none;
-  pointer-events: none;
-`;
-// Allows hiding sections while adding cuts (Displays button over Overlay)
-const addCutButtonStyle = css`
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 1;
-`;
+import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import classes from "./pdf-section-canvas.module.css";
+import clsx from "clsx";
 
 const usePdf = (
   shouldRender: boolean,
@@ -208,7 +193,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     let content: React.ReactNode;
     if (canvas) {
       content = (
-        <div className={canvasWrapperStyle} ref={canvasMountingPoint} />
+        <div className={classes.canvasWrapper} ref={canvasMountingPoint} />
       );
     } else {
       content = <div />;
@@ -219,7 +204,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
         shadow="md"
         p={0}
         withBorder
-        className={end === 1 ? lastSection : undefined}
+        className={clsx(end === 1 && classes.lastSection)}
       >
         <div ref={inViewportRef}>
           <div
@@ -234,13 +219,18 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
           >
             {content}
             {displayCanvasType && (
-              <div className={cx(isMainCanvas ? "bg-success" : "bg-info")} />
+              <div
+                className={clsx(
+                  isMainCanvas && "bg-success",
+                  !isMainCanvas && "bg-info",
+                )}
+              />
             )}
             {displayHideShowButtons && (
-              <div className={addCutButtonStyle}>
+              <div className={classes.addCutButton}>
                 <IconButton
                   size="md"
-                  iconName={hidden ? ICONS.VIEW : ICONS.VIEW_OFF}
+                  icon={hidden ? <IconEye /> : <IconEyeOff />}
                   tooltip="Toggle visibility"
                   onClick={toggleVisibility}
                 />
