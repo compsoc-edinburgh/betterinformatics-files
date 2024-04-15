@@ -2,21 +2,21 @@ import { Button, Modal } from "@mantine/core";
 import React from "react";
 interface ModalProps {
   isOpen: boolean;
-  toggle: () => void;
+  onClose: () => void;
   setHidden: () => void;
 }
 const HideAnswerSectionModal: React.FC<ModalProps> = ({
   isOpen,
-  toggle,
+  onClose,
   setHidden,
 }) => {
   return (
-    <Modal size="lg" opened={isOpen} title="Hide section?" onClose={toggle}>
+    <Modal size="lg" opened={isOpen} title="Hide section?" onClose={onClose}>
       <Modal.Body>
         <p>All corresponding answers will be deleted, this cannot be undone!</p>
 
         <div>
-          <Button onClick={toggle}>Cancel</Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button color="red" onClick={setHidden}>
             Delete Answers
           </Button>

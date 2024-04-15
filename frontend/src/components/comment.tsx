@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
 import { imageHandler } from "../api/fetch-utils";
 import { useMutation } from "../api/hooks";
-import useToggle from "../hooks/useToggle";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
 import { Answer, AnswerSection, Comment } from "../interfaces";
@@ -22,6 +21,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import IconButton from "./icon-button";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
   answer: Answer;
@@ -35,7 +35,7 @@ const CommentComponent: React.FC<Props> = ({
   onSectionChanged,
   onDelete,
 }) => {
-  const [viewSource, toggleViewSource] = useToggle(false);
+  const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
   const { isAdmin, username } = useUser()!;
   const [confirm, modals] = useConfirm();
   const [editing, setEditing] = useState(false);

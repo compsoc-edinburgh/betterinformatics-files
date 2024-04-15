@@ -15,7 +15,6 @@ import {
   useDeleteDocumentFile,
   useUpdateDocumentFile,
 } from "../api/hooks";
-import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
@@ -25,6 +24,7 @@ import {
   IconKey,
   IconTrash,
 } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
   document: Document;
@@ -58,16 +58,16 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         ...s,
         files: s.files.map(f => (f.oid !== file.oid ? f : file)),
       }));
-      toggleEditIsOpen(false);
+      closeEditModal();
     },
   );
-  const [editIsOpen, toggleEditIsOpen] = useToggle();
-  const [keyIsOpen, toggleKeyIsOpen] = useToggle();
+  const [editIsOpen, {toggle: toggleEditIsOpen, close: closeEditModal}] = useDisclosure();
+  const [keyIsOpen, {toggle: toggleKeyIsOpen, close: closeKeyModal}] = useDisclosure();
   return (
     <>
       <Modal
         title="Edit {file.display_name}"
-        onClose={toggleEditIsOpen}
+        onClose={closeEditModal}
         opened={editIsOpen}
       >
         <Modal.Body>
@@ -99,7 +99,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
       </Modal>
       <Modal
         title="Access Token"
-        onClose={toggleKeyIsOpen}
+        onClose={closeKeyModal}
         opened={keyIsOpen}
         size="lg"
       >

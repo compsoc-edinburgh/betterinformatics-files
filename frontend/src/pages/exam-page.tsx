@@ -31,7 +31,6 @@ import ContentContainer from "../components/secondary-container";
 import { TOC, TOCNode } from "../components/table-of-contents";
 import useSet from "../hooks/useSet";
 import useTitle from "../hooks/useTitle";
-import useToggle from "../hooks/useToggle";
 import {
   CutUpdate,
   EditMode,
@@ -51,6 +50,7 @@ import {
   IconFileCheck,
   IconLink,
 } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 const addCut = async (
   filename: string,
@@ -149,7 +149,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
   const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
-  const [panelIsOpen, togglePanel] = useToggle();
+  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
   const [editState, setEditState] = useState<EditState>({
     mode: EditMode.None,
   });
@@ -434,7 +434,7 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  const [editing, toggleEditing] = useToggle();
+  const [editing, {toggle: toggleEditing}] = useDisclosure();
   const error = metaDataError || cutsError || pdfError;
   const user = useUser()!;
   return (

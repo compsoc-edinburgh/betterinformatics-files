@@ -23,7 +23,6 @@ import {
   useRegenerateDocumentAPIKey,
   useUpdateDocument,
 } from "../api/hooks";
-import useToggle from "../hooks/useToggle";
 import { Document } from "../interfaces";
 import { createOptions, options } from "../utils/ts-utils";
 import CreateDocumentFileModal from "./create-document-file-modal";
@@ -39,6 +38,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import Creatable from "./creatable";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
   data: Document;
@@ -88,7 +88,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     data.slug,
     () => data && history.push(`/category/${data.category}`),
   );
-  const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
+  const [deleteModalIsOpen, {toggle: toggleDeleteModalIsOpen, close: closeDeleteModal}] = useDisclosure();
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
@@ -101,16 +101,16 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     next: [],
   });
 
-  const [addModalIsOpen, toggleAddModalIsOpen] = useToggle(false);
+  const [addModalIsOpen, {toggle: toggleAddModalIsOpen, open: openAddModal, close: closeAddModal}] = useDisclosure();
   return (
     <>
       <Modal
         title="Add File"
         opened={addModalIsOpen}
-        onClose={toggleAddModalIsOpen}
+        onClose={closeAddModal}
       >
         <CreateDocumentFileModal
-          toggle={toggleAddModalIsOpen}
+          onClose={openAddModal}
           document={data}
           mutate={mutate}
         />
@@ -241,7 +241,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
       <Modal
         opened={deleteModalIsOpen}
         title="Are you absolutely sure?"
-        onClose={toggleDeleteModalIsOpen}
+        onClose={closeDeleteModal}
       >
         <Modal.Body>
           Deleting the document will delete all associated files and all

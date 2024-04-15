@@ -23,7 +23,6 @@ import {
 } from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
-import useToggle from "../hooks/useToggle";
 import { Answer, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
 import CodeBlock from "./code-block";
@@ -50,6 +49,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import classes from "./answer.module.css";
+import { useDisclosure } from "@mantine/hooks";
 
 const AnswerToolbar = (props: GroupProps) => (
   <Group className={classes.answerToolbarStyle} {...props} />
@@ -71,7 +71,7 @@ const AnswerComponent: React.FC<Props> = ({
   isLegacyAnswer,
   hasId = true,
 }) => {
-  const [viewSource, toggleViewSource] = useToggle(false);
+  const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
   const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetFlagged] =
     useResetFlaggedVote(onSectionChanged);

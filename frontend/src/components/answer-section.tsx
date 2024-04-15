@@ -32,6 +32,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import classes from "./answer-section.module.css";
+import { useDisclosure } from "@mantine/hooks";
 
 interface NameCardProps {
   id: string;
@@ -198,10 +199,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
-    const [deleteAnswersWarning, setDeleteAnswersWarning] = useState(false);
+    const [deleteWarningIsOpen, {open: openDeleteWarning, close: closeDeleteWarning}] = useDisclosure();
     const hideAnswerSection = async () => {
       await onHasAnswersChange();
-      setDeleteAnswersWarning(false);
+      closeDeleteWarning();
       run(); // updates data when setting visibility to hidden
     };
     const hideAnswerSectionWithWarning = () => {
@@ -209,7 +210,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         if (data.answers.length === 0 || !has_answers) {
           hideAnswerSection();
         } else {
-          setDeleteAnswersWarning(true);
+          openDeleteWarning();
         }
       }
     };
@@ -226,8 +227,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     return (
       <div ref={containerElement}>
         <HideAnswerSectionModal
-          isOpen={deleteAnswersWarning}
-          toggle={() => setDeleteAnswersWarning(false)}
+          isOpen={deleteWarningIsOpen}
+          onClose={closeDeleteWarning}
           setHidden={hideAnswerSection}
         />
         {((cutName && cutName.length > 0) ||
