@@ -27,7 +27,6 @@ import DocumentMarkdownEditor from "../components/document-markdown-editor";
 import DocumentPdf from "../components/document-pdf";
 import DocumentSettings from "../components/document-settings";
 import { useDocumentDownload } from "../hooks/useDocumentDownload";
-import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
@@ -40,6 +39,7 @@ import {
   IconMessage,
   IconSettings,
 } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -90,7 +90,7 @@ const DocumentPage: React.FC<Props> = () => {
     ? getFile(data, Number(tab))
     : undefined;
   const Components = getComponents(activeFile);
-  const [editing, toggleEditing] = useToggle();
+  const [editing, {toggle: toggleEditing}] = useDisclosure();
   const [loadingDownload, startDownload] = useDocumentDownload(data);
   return (
     <>

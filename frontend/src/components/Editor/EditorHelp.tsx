@@ -1,8 +1,8 @@
 import { Button } from "@mantine/core";
-import useToggle from "../../hooks/useToggle";
 import CodeBlock from "../code-block";
 import MarkdownText from "../markdown-text";
 import classes from "./EditorHelp.module.css";
+import { useDisclosure } from "@mantine/hooks";
 
 const EditorMdString = `
 In the editor, there are buttons that will help you getting started with basic formatting.
@@ -92,7 +92,7 @@ Toggle source code mode to see how to do this! It makes it much more pleasant fo
 `;
 
 const EditorHelp = () => {
-  const [viewSource, toggleViewSource] = useToggle(false);
+  const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
 
   return (
     <div>

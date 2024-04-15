@@ -26,7 +26,6 @@ import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
 import HashLocationHandler from "./components/hash-location-handler";
-import useToggle from "./hooks/useToggle";
 import CategoryPage from "./pages/category-page";
 import DocumentPage from "./pages/document-page";
 import ExamPage from "./pages/exam-page";
@@ -52,6 +51,7 @@ import {
 } from "./components/Navbar/constants";
 import makeVsethTheme from "./makeVsethTheme";
 import "@mantine/core/styles.css";
+import { useDisclosure } from "@mantine/hooks";
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -139,7 +139,7 @@ const App: React.FC<{}> = () => {
       cancelled = true;
     };
   }, [user]);
-  const [debugPanel, toggleDebugPanel] = useToggle(false);
+  const [debugPanel, {toggle: toggleDebugPanel, close: closeDebugPanel}] = useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
 
   const loadUnreadCount = async () => {
@@ -325,7 +325,7 @@ const App: React.FC<{}> = () => {
           </Affix>
           <DebugModal
             isOpen={debugPanel}
-            toggle={toggleDebugPanel}
+            onClose={closeDebugPanel}
             debugOptions={debugOptions}
             setDebugOptions={setDebugOptions}
           />
