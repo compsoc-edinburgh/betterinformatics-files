@@ -285,12 +285,13 @@ const AnswerComponent: React.FC<Props> = ({
               />
               <Text mt="xs" color="dimmed">
                 Your answer will be licensed as{" "}
-                <Link
-                  style={{ textDecoration: "none" }}
-                  to="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+                <Anchor
+                  c="blue"
+                  href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+                  target="_blank"
                 >
                   CC BY-NC-SA 4.0
-                </Link>
+                </Anchor>
                 .
               </Text>
             </Box>
