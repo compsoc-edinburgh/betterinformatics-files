@@ -1,12 +1,15 @@
 import logging
 from django.core import mail
 from testing.tests import ComsolTest
+import re
 from django.contrib.auth.models import User
 
 
 class TestEdiAuth(ComsolTest):
 
     loginUser = -1
+
+    code_finder = re.compile(r"\b\d{6}\b")
 
     def test_sign_in(self):
 
@@ -27,14 +30,9 @@ class TestEdiAuth(ComsolTest):
         self.assertEqual(mail.outbox[0].to, ["s123456@sms.ed.ac.uk"])
 
         # Find the 6-digit integer sequence somewhere in the email subject
-        code = None
-        for word in mail.outbox[0].subject.split():
-            try:
-                code = str(int(word))
-                break
-            except ValueError:
-                pass
-        self.assertIsNotNone(code)
+        finds = self.code_finder.findall(mail.outbox[0].subject)
+        self.assertEqual(len(finds), 1)
+        code = finds[0]
 
         # Use the verification code
         self.post(
@@ -66,13 +64,9 @@ class TestEdiAuth(ComsolTest):
         self.assertEqual(mail.outbox[0].to, ["s123456@sms.ed.ac.uk"])
 
         # Find the 6-digit integer sequence somewhere in the email subject
-        code = "000000"
-        for word in mail.outbox[0].subject.split():
-            try:
-                code = str(int(word))
-                break
-            except ValueError:
-                pass
+        finds = self.code_finder.findall(mail.outbox[0].subject)
+        self.assertEqual(len(finds), 1)
+        code = finds[0]
 
         # Use the wrong verification code
         wrongCode = "000000" if code != "000000" else "000001"
@@ -102,14 +96,10 @@ class TestEdiAuth(ComsolTest):
         self.assertEqual(mail.outbox[0].to, ["s123456@sms.ed.ac.uk"])
 
         # Find the 6-digit integer sequence somewhere in the email subject
-        code = None
-        for word in mail.outbox[0].subject.split():
-            try:
-                code = str(int(word))
-                break
-            except ValueError:
-                pass
-        self.assertIsNotNone(code)
+        # and store as text. Make sure that preceding zeros don't get removed.
+        finds = self.code_finder.findall(mail.outbox[0].subject)
+        self.assertEqual(len(finds), 1)
+        code = finds[0]
 
         # Use the verification code
         self.post(
