@@ -6,13 +6,14 @@ import Grid from "./grid";
 import DocumentCard from "./document-card";
 import { Document } from "../interfaces";
 import { IconPlus } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
   slug: string;
 }
 
 const DocumentList: React.FC<Props> = ({ slug }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, {open, close}] = useDisclosure();
   const [documents] = useDocuments(slug);
   const [docTypes, setDocTypes] = useState<string[] | null>(null);
   const [sortedDocs, setSortedDocs] = useState<
@@ -48,7 +49,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       <CreateDocumentForm
         isOpen={isOpen}
         categorySlug={slug}
-        toggle={() => setIsOpen(r => !r)}
+        onClose={close}
       />
       <Title
         order={2}
@@ -67,7 +68,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         <Group>
           <Tooltip label="Upload a new document to share">
             <Button
-              onClick={() => setIsOpen(true)}
+              onClick={open}
               leftSection={<IconPlus />}
               color="dark"
               variant="outline"

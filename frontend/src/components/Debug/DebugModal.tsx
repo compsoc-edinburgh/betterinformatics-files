@@ -3,18 +3,18 @@ import { DebugOptions } from ".";
 import { Checkbox, Modal, Stack } from "@mantine/core";
 interface Props {
   isOpen: boolean;
-  toggle: () => void;
+  onClose: () => void;
   debugOptions: DebugOptions;
   setDebugOptions: (newOptions: DebugOptions) => void;
 }
 const DebugModal: React.FC<Props> = ({
   isOpen,
-  toggle,
+  onClose,
   debugOptions,
   setDebugOptions,
 }) => {
   return (
-    <Modal opened={isOpen} title="Debug" onClose={toggle}>
+    <Modal opened={isOpen} title="Debug" onClose={onClose}>
       <Stack gap="sm">
         <Checkbox
           label="Display canvas debugging indicators"

@@ -3,18 +3,17 @@ import * as React from "react";
 import { useState } from "react";
 import { NamedBlob } from "../api/fetch-utils";
 import { Mutate, useCreateDocumentFile } from "../api/hooks";
-import { Toggle } from "../hooks/useToggle";
 import { Document } from "../interfaces";
 import { IconCloudUpload, IconPlus } from "@tabler/icons-react";
 
 interface Props {
   document: Document;
-  toggle: Toggle;
+  onClose: () => void;
   mutate: Mutate<Document>;
 }
 
 const CreateDocumentFileModal: React.FC<Props> = ({
-  toggle,
+  onClose,
   document,
   mutate,
 }) => {
@@ -24,7 +23,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   const [loading, createDocumentFile] = useCreateDocumentFile(
     document.slug,
     f => {
-      toggle(false);
+      onClose();
       mutate(s => ({ ...s, files: [...s.files, f] }));
       setDisplayName("");
       setFile(null);

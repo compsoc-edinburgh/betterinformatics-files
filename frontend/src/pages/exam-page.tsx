@@ -26,7 +26,6 @@ import ContentContainer from "../components/secondary-container";
 import { TOC, TOCNode } from "../components/table-of-contents";
 import useSet from "../hooks/useSet";
 import useTitle from "../hooks/useTitle";
-import useToggle from "../hooks/useToggle";
 import {
   CutUpdate,
   EditMode,
@@ -46,6 +45,7 @@ import {
   IconFileCheck,
   IconLink,
 } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 const addCut = async (
   filename: string,
@@ -134,24 +134,17 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
-  const [visibleSplits, addVisible, removeVisible] = useSet<PdfSection>();
-  const [panelIsOpen, togglePanel] = useToggle();
+  const [inViewSplits, addInViewSplit, removeInViewSplit] = useSet<PdfSection>();
+  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
   const [editState, setEditState] = useState<EditState>({
     mode: EditMode.None,
   });
 
-  const visibleChangeListener = useCallback(
+  const inViewChangeListener = useCallback(
     (section: PdfSection, v: boolean) =>
-      v ? addVisible(section) : removeVisible(section),
-    [addVisible, removeVisible],
+      v ? addInViewSplit(section) : removeInViewSplit(section),
+    [addInViewSplit, removeInViewSplit],
   );
-  const visiblePages = useMemo(() => {
-    const s = new Set<number>();
-    for (const split of visibleSplits) {
-      s.add(split.start.page);
-    }
-    return s;
-  }, [visibleSplits]);
 
   const width = size.width;
   const [displayOptions, setDisplayOptions] = useState({
@@ -160,6 +153,25 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     displayHideShowButtons: false,
     displayEmptyCutLabels: false,
   });
+
+  const inViewPages = useMemo(() => {
+    const s = new Set<number>();
+    for (const split of inViewSplits) {
+      s.add(split.start.page);
+    }
+    return s;
+  }, [inViewSplits]);
+
+  const visiblePages = useMemo(() => {
+    const s = new Set<number>();
+    if (!sections) return undefined;
+    for (const section of sections) {
+      if (section.kind === SectionKind.Pdf && (!section.hidden || displayOptions.displayHiddenPdfSections)) {
+        s.add(section.start.page);
+      }
+    }
+    return s;
+  }, [sections, displayOptions]);
 
   const [expandedSections, expandSections, collapseSections] = useSet<string>();
   const answerSections = useMemo(() => {
@@ -311,7 +323,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               onUpdateCut={onSectionChange}
               onAddCut={runAddCut}
               onMoveCut={runMoveCut}
-              visibleChangeListener={visibleChangeListener}
+              inViewChangeListener={inViewChangeListener}
               displayHiddenPdfSections={displayOptions.displayHiddenPdfSections}
               displayHiddenAnswerSections={
                 displayOptions.displayHiddenAnswerSections
@@ -330,6 +342,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
         toggle={togglePanel}
         metaData={metaData}
         renderer={renderer}
+        inViewPages={inViewPages}
         visiblePages={visiblePages}
         allSectionsExpanded={allSectionsExpanded}
         allSectionsCollapsed={allSectionsCollapsed}
@@ -384,7 +397,7 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  const [editing, toggleEditing] = useToggle();
+  const [editing, {toggle: toggleEditing}] = useDisclosure();
   const error = metaDataError || cutsError || pdfError;
   const user = useUser()!;
   return (

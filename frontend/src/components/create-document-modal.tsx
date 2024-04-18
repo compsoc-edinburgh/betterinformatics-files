@@ -8,13 +8,13 @@ import { IconPlus } from "@tabler/icons-react";
 interface Props {
   categorySlug: string;
   isOpen: boolean;
-  toggle: () => void;
+  onClose: () => void;
 }
 
 const CreateDocumentForm: React.FC<Props> = ({
   categorySlug,
   isOpen,
-  toggle,
+  onClose,
 }) => {
   const [displayName, setDisplayName] = useState("");
   const history = useHistory();
@@ -22,7 +22,7 @@ const CreateDocumentForm: React.FC<Props> = ({
     history.push(`/document/${slug}/`);
   });
   return (
-    <Modal opened={isOpen} title="Add Document" onClose={toggle}>
+    <Modal opened={isOpen} title="Add Document" onClose={onClose}>
       <Modal.Body>
         <Stack>
           <TextInput

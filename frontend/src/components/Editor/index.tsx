@@ -319,7 +319,7 @@ const Editor: React.FC<Props> = ({
       {isDragHovered && <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />}
       <ImageOverlay
         isOpen={overlayOpen}
-        toggle={() => onImageDialogClose("")}
+        onClose={() => onImageDialogClose("")}
         closeWithImage={onImageDialogClose}
       />
     </>

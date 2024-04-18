@@ -26,8 +26,8 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import useToggle from "../hooks/useToggle";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -86,12 +86,12 @@ const mapToCategories = (
 const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   onAddCategory,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [addCategoryModalIsOpen, {open: openAddCategoryModal, close: closeAddCategoryModal}] = useDisclosure();
   const { loading, run } = useRequest(addCategory, {
     manual: true,
     onSuccess: () => {
       setCategoryName("");
-      setIsOpen(false);
+      closeAddCategoryModal();
       onAddCategory();
     },
   });
@@ -103,8 +103,8 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   return (
     <>
       <Modal
-        opened={isOpen}
-        onClose={() => setIsOpen(false)}
+        opened={addCategoryModalIsOpen}
+        onClose={closeAddCategoryModal}
         title="Add Category"
       >
         <Stack>
@@ -127,7 +127,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           <Button
             color="dark"
             style={{ width: "100%", height: "100%" }}
-            onClick={() => setIsOpen(true)}
+            onClick={openAddCategoryModal}
             leftSection={<IconPlus />}
           >
             Add new category
@@ -192,7 +192,7 @@ export const CategoryList: React.FC<{}> = () => {
   const onAddCategory = useCallback(() => {
     run();
   }, [run]);
-  const [panelIsOpen, togglePanel] = useToggle();
+  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
 
   const slugify = (str: string): string =>
     str
