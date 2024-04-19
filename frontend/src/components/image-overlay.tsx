@@ -14,12 +14,12 @@ import FileInput from "./file-input";
 
 interface ModalProps {
   isOpen: boolean;
-  toggle: () => void;
+  onClose: () => void;
   closeWithImage: (image: string) => void;
 }
 const ImageModal: React.FC<ModalProps> = ({
   isOpen,
-  toggle,
+  onClose,
   closeWithImage,
 }) => {
   const { images, add, remove, reload } = useImages();
@@ -32,7 +32,7 @@ const ImageModal: React.FC<ModalProps> = ({
     }
   };
   return (
-    <Modal title="Images" size="lg" opened={isOpen} onClose={toggle}>
+    <Modal title="Images" size="lg" opened={isOpen} onClose={onClose}>
       <Modal.Body>
         <FileInput value={file} onChange={setFile} accept="image/*" />
         <Group mt="sm">

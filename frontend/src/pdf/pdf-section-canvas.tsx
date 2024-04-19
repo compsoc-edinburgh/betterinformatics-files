@@ -88,7 +88,7 @@ interface Props {
   renderer: PDF;
   hidden?: boolean;
   targetWidth?: number;
-  onVisibleChange?: (newVisible: boolean) => void;
+  onInViewChange?: (newInView: boolean) => void;
   onAddCut?: (pos: number) => void;
   addCutText?: string;
   snap?: boolean;
@@ -108,7 +108,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
 
     hidden = false,
     targetWidth = 300,
-    onVisibleChange,
+    onInViewChange,
     onAddCut,
     addCutText,
     snap = true,
@@ -118,7 +118,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const relativeHeight = end - start;
 
     const { displayCanvasType } = useContext(DebugContext);
-    const [visible, containerElement] = useAlmostInViewport<HTMLDivElement>();
+    const [almostInView, containerElement] = useAlmostInViewport<HTMLDivElement>();
     const [containerHeight, setContainerHeight] = useState(0);
     const [translateY, setTranslateY] = useState(0);
     const [currentScale, setCurrentScale] = useState<number | undefined>(
@@ -130,20 +130,20 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     );
     const dpr = useDpr();
     const [canvas, view, width, height, isMainCanvas] = usePdf(
-      visible || false,
+      almostInView || false,
       renderer,
       page,
       start,
       end,
-      visible ? (currentScale ? currentScale * dpr : undefined) : undefined,
+      almostInView ? (currentScale ? currentScale * dpr : undefined) : undefined,
     );
     const [inViewport, inViewportRef] = useInViewport<HTMLDivElement>();
     const v = inViewport || false;
     useEffect(() => {
-      if (onVisibleChange) onVisibleChange(v);
+      if (onInViewChange) onInViewChange(v);
       return () => {
-        if (onVisibleChange) {
-          onVisibleChange(false);
+        if (onInViewChange) {
+          onInViewChange(false);
         }
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,7 +236,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
                 />
               </div>
             )}
-            {visible && (
+            {almostInView && (
               <PdfSectionText
                 page={page}
                 start={start}

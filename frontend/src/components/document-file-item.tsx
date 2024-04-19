@@ -15,7 +15,6 @@ import {
   useDeleteDocumentFile,
   useUpdateDocumentFile,
 } from "../api/hooks";
-import useToggle from "../hooks/useToggle";
 import { Document, DocumentFile } from "../interfaces";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
@@ -25,6 +24,7 @@ import {
   IconKey,
   IconTrash,
 } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
   document: Document;
@@ -35,7 +35,7 @@ interface Props {
 const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
-  const [deleteModalIsOpen, toggleDeleteModalIsOpen] = useToggle();
+  const [deleteModalIsOpen, {toggle: toggleDeleteModalIsOpen, close: closeDeleteModal}] = useDisclosure();
   const [deleteLoading, deleteFile] = useDeleteDocumentFile(
     document.slug,
     file.oid,
@@ -56,16 +56,16 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         ...s,
         files: s.files.map(f => (f.oid !== file.oid ? f : file)),
       }));
-      toggleEditIsOpen(false);
+      closeEditModal();
     },
   );
-  const [editIsOpen, toggleEditIsOpen] = useToggle();
-  const [keyIsOpen, toggleKeyIsOpen] = useToggle();
+  const [editIsOpen, {toggle: toggleEditIsOpen, close: closeEditModal}] = useDisclosure();
+  const [keyIsOpen, {toggle: toggleKeyIsOpen, close: closeKeyModal}] = useDisclosure();
   return (
     <>
       <Modal
         title="Edit {file.display_name}"
-        onClose={toggleEditIsOpen}
+        onClose={closeEditModal}
         opened={editIsOpen}
       >
         <Modal.Body>
@@ -97,7 +97,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
       </Modal>
       <Modal
         title="Access Token"
-        onClose={toggleKeyIsOpen}
+        onClose={closeKeyModal}
         opened={keyIsOpen}
         size="lg"
       >
@@ -140,14 +140,14 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
       <Modal
         opened={deleteModalIsOpen}
         title="Are you absolutely sure?"
-        onClose={toggleDeleteModalIsOpen}
+        onClose={closeDeleteModal}
       >
         <Modal.Body>
           Deleting the file is a destructive operation.{" "}
           <b>This cannot be undone.</b> Please make sure you have a backup of
           the file elsewhere.
           <Group justify="flex-end" mt="md">
-            <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+            <Button onClick={closeDeleteModal}>Not really</Button>
             <Button onClick={deleteFile} color="red">
               Delete "{file.filename}"
             </Button>

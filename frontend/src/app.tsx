@@ -11,7 +11,6 @@ import {
   CSSVariablesResolver,
   useMantineColorScheme,
 } from "@mantine/core";
-import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import tinycolor from "tinycolor2";
@@ -21,7 +20,6 @@ import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
 import HashLocationHandler from "./components/hash-location-handler";
-import useToggle from "./hooks/useToggle";
 import CategoryPage from "./pages/category-page";
 import DisclaimerPage from "./pages/disclaimer-page";
 import DocumentPage from "./pages/document-page";
@@ -46,6 +44,8 @@ import {
   ConfigOptions,
   defaultConfigOptions,
 } from "./components/Navbar/constants";
+import "@mantine/core/styles.css";
+import { useDisclosure } from "@mantine/hooks";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -106,7 +106,7 @@ const App: React.FC<{}> = () => {
       cancelled = true;
     };
   }, [user]);
-  const [debugPanel, toggleDebugPanel] = useToggle(false);
+  const [debugPanel, {toggle: toggleDebugPanel, close: closeDebugPanel}] = useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
 
   const loadUnreadCount = async () => {
@@ -310,7 +310,7 @@ const App: React.FC<{}> = () => {
           </Affix>
           <DebugModal
             isOpen={debugPanel}
-            toggle={toggleDebugPanel}
+            onClose={closeDebugPanel}
             debugOptions={debugOptions}
             setDebugOptions={setDebugOptions}
           />
