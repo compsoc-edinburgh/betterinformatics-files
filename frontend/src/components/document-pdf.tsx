@@ -61,7 +61,7 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
   const inViewChangeListeners = useMemo(
     () =>
       Object.fromEntries(getPages(renderer).map(pageNumber =>
-        [pageNumber, (v: boolean) => inViewChange(pageNumber, v)]
+        [pageNumber, (v: boolean) => inViewChange(pageNumber, v)],
       )),
     [renderer],
   );
