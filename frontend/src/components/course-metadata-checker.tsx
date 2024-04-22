@@ -68,7 +68,7 @@ const CourseEuclidAssociateButton: React.FC<
             required
             style={{ flexGrow: 1}}
           />
-          <Button variant="brand" type="submit">
+          <Button variant="outline" type="submit" color="dark">
             Associate
           </Button>
         </Group>

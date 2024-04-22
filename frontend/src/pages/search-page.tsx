@@ -38,6 +38,7 @@ const SearchPage: React.FC<{}> = () => {
           leftSection={<IconSearch />}
           value={term}
           onChange={e => setTerm(e.currentTarget.value)}
+          autoFocus
         />
       </Container>
       <div>
