@@ -204,6 +204,12 @@ export interface ExamSelectedForDownload {
   displayname: string;
 }
 
+export interface NotificationEnabled {
+  type: number;
+  enabled: boolean;
+  email_enabled: boolean;
+}
+
 export interface NotificationInfo {
   oid: string;
   receiver: string;

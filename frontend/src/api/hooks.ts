@@ -11,6 +11,7 @@ import {
   ExamMetaData,
   FeedbackEntry,
   MetaCategory,
+  NotificationEnabled,
   NotificationInfo,
   ServerCutResponse,
   Document,
@@ -76,9 +77,7 @@ export const useBICourseList = () => {
 
 const loadEnabledNotifications = async (isMyself: boolean) => {
   if (isMyself) {
-    return new Set<number>(
-      (await fetchGet(`/api/notification/getenabled/`)).value,
-    );
+    return (await fetchGet(`/api/notification/getenabled/`)).value as NotificationEnabled[];
   } else {
     return undefined;
   }
@@ -93,10 +92,11 @@ export const useEnabledNotifications = (isMyself: boolean) => {
   );
   return [error, loading, data, run] as const;
 };
-const setEnabledNotifications = async (type: number, enabled: boolean) => {
+const setEnabledNotifications = async (type: number, enabled?: boolean, email_enabled?: boolean) => {
   await fetchPost(`/api/notification/setenabled/`, {
     type,
     enabled,
+    email_enabled,
   });
 };
 export const useSetEnabledNotifications = (cb: () => void) => {
