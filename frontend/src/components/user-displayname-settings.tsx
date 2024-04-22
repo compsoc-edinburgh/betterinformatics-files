@@ -54,7 +54,7 @@ const UserDisplayNameSettings: React.FC<UserDisplayNameProps> = ({
               loading ? (
                 <Loader size="xs" />
               ) : (
-                <Tooltip withinPortal label="Login">
+                <Tooltip withinPortal label="Submit">
                   <ActionIcon type="submit">
                     <IconCheck />
                   </ActionIcon>
