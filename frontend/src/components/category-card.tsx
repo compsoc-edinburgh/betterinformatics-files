@@ -37,7 +37,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
       onKeyDown={handleKeyDown}
     >
       <Stack h="100%" justify="space-between">
-        <div className="category-card">
+        <div className="category-card" id={category.slug}>
           <Anchor
             component="span"
             fw={700}
