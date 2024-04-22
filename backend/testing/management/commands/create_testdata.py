@@ -5,13 +5,14 @@ from util import s3_util
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
+from ediauth.models import Profile
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
-from categories.models import Category, MetaCategory
+from categories.models import Category, MetaCategory, EuclidCode
+from documents.models import DocumentType, Document, DocumentFile
 from feedback.models import Feedback
 from filestore.models import Attachment
 from images.models import Image
 from notifications.models import Notification, NotificationSetting, NotificationType
-from payments.models import Payment
 import os
 from answers import pdf_utils
 
@@ -28,19 +29,28 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for first_name, last_name, username in [
-            ("Zoe", "Fletcher", "fletchz"),
-            ("Ernst", "Meyer", "meyee"),
-            ("Jonas", "Schneider", "schneij"),
-            ("Julia", "Keller", "kellerju"),
-            ("Sophie", "Baumann", "baumanso"),
-            ("Hans", "Brunner", "brunh"),
-            ("Carla", "Morin", "morica"),
-            ("Paul", "Moser", "mosep"),
-            ("Josef", "Widmer", "widmjo"),
-            ("Werner", "Steiner", "steinewe"),
+        for first_name, last_name, uun in [
+            ("Zoe", "Fletcher", "s1111111"),
+            ("Ernst", "Meyer", "s2222232"),
+            ("Jonas", "Schneider", "s3333433"),
+            ("Julia", "Keller", "s4444444"),
+            ("Sophie", "Baumann", "s5555555"),
+            ("Hans", "Brunner", "s6666666"),
+            ("Carla", "Morin", "s7777777"),
+            ("Paul", "Moser", "s8888888"),
+            ("Josef", "Widmer", "s9999999"),
+            ("Werner", "Steiner", "s0000000"),
         ]:
-            User(first_name=first_name, last_name=last_name, username=username).save()
+            User(
+                first_name=first_name,
+                last_name=last_name,
+                username=uun,
+                email=uun + "@sms.ed.ac.uk",
+            ).save()
+            Profile(
+                user=User.objects.get(username=uun),
+                display_username=first_name + " " + last_name,
+            ).save()
 
     def create_images(self):
         self.stdout.write("Create images")
@@ -56,7 +66,7 @@ class Command(BaseCommand):
 
     def create_meta_categories(self):
         self.stdout.write("Create meta categories")
-        metas = [MetaCategory(displayname="Bachelor " + str(i + 1)) for i in range(6)]
+        metas = [MetaCategory(displayname="SCQF " + str(i + 1)) for i in range(8, 12)]
         for meta in metas:
             meta.save()
             for i in range(5):
@@ -79,10 +89,15 @@ class Command(BaseCommand):
                     "Slightly longer remark",
                     "This is a very long remark.\nIt even has multiple lines.\nHowever, it is not useful at all.\n\nThank you for reading!",
                 ][i % 3],
-                semester=["HS", "FS"][i % 2],
+                semester=["sem1", "sem2", "full", "none"][i % 4],
                 permission="public",
             )
             category.save()
+
+            # Assign some EUCLID codes
+            for j in range(2 if i % 5 == 0 else 1):
+                category.euclid_codes.create(code="INFR100" + str(i) + str(j))
+
             for j, user in enumerate(User.objects.all()):
                 if (i + j) % 6 == 0:
                     category.admins.add(user)
@@ -270,6 +285,50 @@ class Command(BaseCommand):
                     answer=answers[(user.id + i) % len(answers)],
                 ).save()
 
+    def create_document_types(self):
+        self.stdout.write("Create document types")
+        DocumentType(display_name="Documents", order=-100).save()
+        DocumentType(display_name="Summaries", order=-99).save()
+        DocumentType(display_name="Cheat Sheets", order=-98).save()
+        DocumentType(display_name="Flashcards", order=-97).save()
+
+    def create_documents(self):
+        self.stdout.write("Create documents")
+        users = User.objects.all()
+        for i, category in enumerate(Category.objects.all()):
+            for document_type in DocumentType.objects.all():
+                document = Document(
+                    display_name=document_type.display_name
+                    + " in "
+                    + str(category.displayname),
+                    description="This is a test document.",
+                    category=category,
+                    author=users[i % len(users)],
+                    anonymised=i % 3 == 0,
+                    document_type=document_type,
+                )
+                document.save()
+
+                # Add some files
+                for j in range(2):
+                    filename = s3_util.generate_filename(
+                        16, settings.COMSOL_DOCUMENT_DIR, ".pdf"
+                    )
+                    s3_util.save_file_to_s3(
+                        settings.COMSOL_DOCUMENT_DIR, filename, "exam10.pdf"
+                    )
+                    DocumentFile(
+                        display_name="File " + str(j + 1),
+                        document=document,
+                        filename=filename,
+                        mime_type="application/pdf",
+                    ).save()
+
+                # Make users like it
+                for user in users:
+                    if (i + user.id) % 4 == 0:
+                        document.likes.add(user)
+
     def handle(self, *args, **options):
         self.flush_db()
         self.create_users()
@@ -284,3 +343,5 @@ class Command(BaseCommand):
         self.create_feedback()
         self.create_attachments()
         self.create_notifications()
+        self.create_document_types()
+        self.create_documents()
