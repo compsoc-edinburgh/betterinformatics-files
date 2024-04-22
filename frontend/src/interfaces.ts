@@ -174,6 +174,7 @@ export interface CategoryMetaData {
   has_payments: boolean;
   catadmin: boolean;
   more_exams_link: string;
+  documentcount: number;
   examcountpublic: number;
   examcountanswered: number;
   answerprogress: number;
