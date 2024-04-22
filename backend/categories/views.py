@@ -21,6 +21,7 @@ def list_categories_with_meta(request):
         {
             'displayname': cat.displayname,
             'slug': cat.slug,
+            'documentcount': cat.meta.documentcount,
             'examcountpublic': cat.meta.examcount_public,
             'examcountanswered': cat.meta.examcount_answered,
             'answerprogress': cat.answer_progress(),

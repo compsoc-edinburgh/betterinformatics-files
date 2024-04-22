@@ -1,4 +1,4 @@
-import { Card, Text, Progress, Anchor, Stack } from "@mantine/core";
+import { Card, Text, Progress, Anchor, Stack, Tooltip } from "@mantine/core";
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
@@ -50,15 +50,16 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
               ? highlight(category.displayname, category.match)
               : category.displayname}
           </Anchor>
-          <Text mt={4}>
-            Exams:{" "}
-            {`${category.examcountanswered} / ${category.examcountpublic}`}
+          <Text mt={4} color="gray.8">
+            {`Exams: ${category.examcountpublic}`}
           </Text>
-          <Text mb={4}>
-            Answers: {((category.answerprogress * 100) | 0).toString()} %
+          <Text mb={4} color="gray.8">
+            {`Documents: ${category.documentcount}`}
           </Text>
         </div>
-        <Progress radius={0} value={category.answerprogress * 100} />
+        <Tooltip label={`Answers: ${((category.answerprogress * 100) | 0).toString()} %`}>
+          <Progress radius={0} value={category.answerprogress * 100} />
+        </Tooltip>
       </Stack>
     </Card>
   );
