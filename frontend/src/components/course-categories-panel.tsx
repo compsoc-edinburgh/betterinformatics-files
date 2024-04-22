@@ -40,70 +40,24 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-  const scrollToDiv = (id: string): void => {
+  const scrollToElementById = (id: string): void => {
     const element = document.getElementById(id);
     element?.scrollIntoView({ behavior: "smooth" });
   };
-  const scrollToDivLetter = (letter: string): void => {
-    const els = document.getElementsByClassName("category-card");
-    for (let i = 0; i < els.length; i++) {
-      if (
-        els[i].firstElementChild?.firstElementChild?.innerHTML
-          .toLowerCase()
-          .startsWith(letter.toLowerCase())
-      ) {
-        els[i]?.scrollIntoView({ behavior: "smooth" });
-        return;
-      }
-    }
-  };
 
-  const alphabet = [
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-  ];
-  const [availableLetters, setAvailableLetters] = useState<string[]>(alphabet);
+  const [availableLetters, setAvailableLetters] = useState<Map<string, string>>(); //mapping between available letters and element id of first category card with that letter
+  
   useEffect(() => {
-    const avails = [];
-    const elss = document.getElementsByClassName("category-card");
-    for (let i = 0; i < alphabet.length; i++) {
-      for (let j = 0; j < elss.length; j++) {
-        if (
-          elss[j].firstElementChild?.firstElementChild?.innerHTML
-            .toLowerCase()
-            .startsWith(alphabet[i].toLowerCase())
-        ) {
-          avails.push(alphabet[i]);
-          break;
-        }
+    const letters = new Map<string, string>();
+    const elems = document.getElementsByClassName("category-card");
+    for (let i = 0; i < elems.length; i++) {
+      const letter = elems[i].id.toUpperCase().at(0);
+      if (letter && !letters.has(letter)) {
+        letters.set(letter, elems[i].id);
       }
     }
-    setAvailableLetters(avails);
-  }, [metaList]);
+    setAvailableLetters(letters);
+  }, []);
 
   return (
     <Panel
@@ -112,7 +66,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
       toggle={toggle}
     >
       {mode === "alphabetical"
-        ? availableLetters.map(letter => (
+        ? availableLetters && Array.from(availableLetters, ([letter, id]) => (
             <div key={letter}>
               <Title
                 order={5}
@@ -120,7 +74,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
                 style={{
                   cursor: "pointer",
                 }}
-                onClick={() => scrollToDivLetter(letter)}
+                onClick={() => scrollToElementById(id)}
               >
                 {letter}
               </Title>
@@ -135,7 +89,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
                 style={{
                   cursor: "pointer",
                 }}
-                onClick={() => scrollToDiv(slugify(meta1display))}
+                onClick={() => scrollToElementById(slugify(meta1display))}
               >
                 {meta1display}
               </Title>
@@ -146,9 +100,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
                     style={{
                       cursor: "pointer",
                     }}
-                    onClick={() =>
-                      scrollToDiv(slugify(meta1display) + slugify(meta2display))
-                    }
+                    onClick={() => scrollToElementById(slugify(meta1display) + slugify(meta2display))}
                   >
                     {meta2display}
                   </Text>
