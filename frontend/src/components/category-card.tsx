@@ -5,6 +5,7 @@ import {
   Anchor,
   LoadingOverlay,
   Stack,
+  Tooltip,
 } from "@mantine/core";
 import React, { useMemo } from "react";
 import { IconLock } from "@tabler/icons-react";
@@ -64,7 +65,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         />
       )}
       <Stack h="100%" justify="space-between">
-        <div className="category-card">
+        <div className="category-card" id={category.slug}>
           <Anchor
             component="span"
             fw={700}
@@ -88,7 +89,9 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
             community
           </Text>
         </div>
-        <Progress radius={0} value={category.answerprogress * 100} />
+        <Tooltip label={`${((category.answerprogress * 100) | 0).toString()} %`}>
+          <Progress radius={0} value={category.answerprogress * 100} />
+        </Tooltip>
       </Stack>
     </Card>
   );
