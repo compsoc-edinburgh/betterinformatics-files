@@ -49,7 +49,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
   
   useEffect(() => {
     const letters = new Map<string, string>();
-    const elems = document.getElementsByClassName("category-card");
+    const elems = Array.from(document.getElementsByClassName("category-card")).sort((a, b) => a.id.localeCompare(b.id)); //make sure to sort category cards by id (not guaranteed if mode isn't alphabetical)
     for (let i = 0; i < elems.length; i++) {
       const letter = elems[i].id.toUpperCase().at(0);
       if (letter && !letters.has(letter)) {
