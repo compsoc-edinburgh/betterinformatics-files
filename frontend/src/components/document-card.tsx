@@ -14,7 +14,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
   showCategory,
 }) => {
   return (
-    <Paper withBorder shadow="md" p="md" key={document.slug}>
+    <Paper withBorder shadow="xs" p="md" key={document.slug}>
       <Anchor
         component={Link}
         to={`/document/${document.slug}`}
