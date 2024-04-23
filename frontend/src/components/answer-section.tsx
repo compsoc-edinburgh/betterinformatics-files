@@ -34,6 +34,7 @@ import {
 } from "@tabler/icons-react";
 import classes from "./answer-section.module.css";
 import { useDisclosure } from "@mantine/hooks";
+import ShimmerButton from "./shimmer-button";
 
 interface NameCardProps {
   id: string;
@@ -76,9 +77,9 @@ const AddButton: React.FC<AddButtonProps> = ({
     return (
       <div>
         {allowAnswer && (
-          <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft} color="dark">
+          <ShimmerButton size="sm" onClick={onAnswer} disabled={hasAnswerDraft} color="dark">
             Add Answer
-          </Button>
+          </ShimmerButton>
         )}
       </div>
     );
