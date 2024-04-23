@@ -160,37 +160,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         )
       ) : (
         <>
-          <Flex
-            direction={{ base: "column", sm: "row" }}
-            justify="space-between"
-            mb="sm"
-          >
-            <Title order={1} my="md">
-              {metaData.displayname}
-            </Title>
-            {user.isCategoryAdmin && (
-              <Group>
-                <Button
-                  leftSection={<IconEdit />}
-                  onClick={() => setEditing(true)}
-                  color="dark"
-                >
-                  Edit
-                </Button>
-                <Button
-                  color="red"
-                  loading={removeLoading}
-                  disabled={metaData.slug === "default"}
-                  leftSection={<IconTrash />}
-                  onClick={onRemove}
-                >
-                  Delete
-                </Button>
-              </Group>
-            )}
-          </Flex>
-
-          <Group gap="xs">
+          <Group gap="xs" mt="lg">
             {asynchronously_updated_euclid_codes.map(
               ([code, bi_data, shadow_data]) => (
                 <HoverCard shadow="md" styles={{ dropdown: { maxWidth: 300 }}}>
@@ -237,6 +207,36 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               ),
             )}
           </Group>
+
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            justify="space-between"
+          >
+            <Title order={1} mb="md">
+              {metaData.displayname}
+            </Title>
+            {user.isCategoryAdmin && (
+              <Group>
+                <Button
+                  leftSection={<IconEdit />}
+                  onClick={() => setEditing(true)}
+                  color="dark"
+                >
+                  Edit
+                </Button>
+                <Button
+                  color="red"
+                  loading={removeLoading}
+                  disabled={metaData.slug === "default"}
+                  leftSection={<IconTrash />}
+                  onClick={onRemove}
+                >
+                  Delete
+                </Button>
+              </Group>
+            )}
+          </Flex>
+
           {(metaData.more_exams_link || metaData.remark) && (
             <Grid mb="xs">
               {metaData.more_exams_link && (
@@ -285,7 +285,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           {metaData.more_markdown_link && (
             <>
               <Group align="baseline" justify="space-between">
-                <Title order={2} mt="xl" mb="lg">Community Knowledgebase</Title>
+                <Title order={2} mt="sm" mb="sm">Community Knowledgebase</Title>
                 {md_editable && (
                   <Tooltip label="Edit this page on GitHub">
                     <Button
