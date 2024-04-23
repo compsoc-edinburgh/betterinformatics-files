@@ -119,6 +119,9 @@ else:
     # the send_mail function), set the backend and credential file.
     EMAIL_BACKEND = "django_gsuite_email.GSuiteEmailBackend"
     GSUITE_CREDENTIALS_FILE = os.environ.get("GSUITE_CREDENTIALS_FILE", "")
+    # Below: Required fields for django_gsuite_email (v0.1.4)
+    GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+    GMAIL_USER = None
 
 # The address in the From field must be a valid user address (not a
 # group address or non-existent address) that the provided credential
