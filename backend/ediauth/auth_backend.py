@@ -68,7 +68,9 @@ def add_auth_to_request(request: HttpRequest):
 
             for type_ in [
                 NotificationType.NEW_COMMENT_TO_ANSWER,
+                NotificationType.NEW_COMMENT_TO_COMMENT,
                 NotificationType.NEW_ANSWER_TO_ANSWER,
+                NotificationType.NEW_COMMENT_TO_DOCUMENT,
             ]:
                 setting = NotificationSetting(user=user, type=type_.value)
                 setting.save()
