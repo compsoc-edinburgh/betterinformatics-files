@@ -25,7 +25,22 @@ const transformImageUri = (uri: string) => {
 
 const createComponents = (regex: RegExp | undefined): Components => ({
   table: ({ children }) => {
-    return <Table>{children}</Table>;
+    return <Table style={{ width: "auto" }} withColumnBorders={true}>{children}</Table>;
+  },
+  tbody: ({ children }) => {
+    return <Table.Tbody>{children}</Table.Tbody>;
+  },
+  thead: ({ children }) => {
+    return <Table.Thead>{children}</Table.Thead>;
+  },
+  td: ({ children }) => {
+    return <Table.Td>{children}</Table.Td>;
+  },
+  th: ({ children }) => {
+    return <Table.Th>{children}</Table.Th>;
+  },
+  tr: ({ children }) => {
+    return <Table.Tr>{children}</Table.Tr>;
   },
   p: ({ children }) => {
     if (regex === undefined) return <p>{children}</p>;
