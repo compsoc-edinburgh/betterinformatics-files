@@ -9,29 +9,21 @@ from notifications.models import (Notification, NotificationSetting,
 @response.request_get()
 @auth_check.require_login
 def getenabled(request):
-    settings = NotificationSetting.objects.filter(user=request.user)
-    res = [
-        {
-            "type": setting.type,
-            "enabled": setting.enabled,
-            "email_enabled": setting.email_enabled,
-        }
-        for setting in settings if setting.enabled or setting.email_enabled
-    ]
-    return response.success(value=res)
+    return response.success(value=list(
+        NotificationSetting.objects.filter(
+            user=request.user, enabled=True
+        ).values_list('type', flat=True)
+    ))
 
 
-@response.request_post('type')
+@response.request_post('type', 'enabled')
 @auth_check.require_login
 def setenabled(request):
     type_ = int(request.POST['type'])
     if type_ < 1 or type_ > len(NotificationType.__members__):
         return response.not_possible('Invalid Type')
     setting, _ = NotificationSetting.objects.get_or_create(user=request.user, type=type_)
-    if 'enabled' in request.POST:
-        setting.enabled = request.POST['enabled'] != 'false'
-    if 'email_enabled' in request.POST:
-        setting.email_enabled = request.POST['email_enabled'] != 'false'
+    setting.enabled = request.POST['enabled'] != 'false'
     setting.save()
     return response.success()
 

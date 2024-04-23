@@ -26,4 +26,3 @@ class NotificationSetting(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     type = models.IntegerField()
     enabled = models.BooleanField(default=True)
-    email_enabled = models.BooleanField(default=True)
