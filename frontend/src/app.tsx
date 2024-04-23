@@ -10,6 +10,7 @@ import {
   Group,
   CSSVariablesResolver,
 } from "@mantine/core";
+import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import {
@@ -50,7 +51,6 @@ import {
   defaultConfigOptions,
 } from "./components/Navbar/constants";
 import makeVsethTheme from "./makeVsethTheme";
-import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 
 const App: React.FC<{}> = () => {
