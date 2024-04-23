@@ -11,6 +11,7 @@ import {
   CSSVariablesResolver,
   useMantineColorScheme,
 } from "@mantine/core";
+import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
 import { Route, Switch, useLocation } from "react-router-dom";
 import tinycolor from "tinycolor2";
@@ -44,7 +45,6 @@ import {
   ConfigOptions,
   defaultConfigOptions,
 } from "./components/Navbar/constants";
-import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {

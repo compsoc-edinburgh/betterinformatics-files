@@ -7,6 +7,7 @@ import DocumentCard from "./document-card";
 import { Document } from "../interfaces";
 import { IconPlus } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import ShimmerButton from "./shimmer-button";
 
 interface Props {
   slug: string;
@@ -67,14 +68,14 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       >
         <Group>
           <Tooltip label="Upload a new document to share">
-            <Button
+            <ShimmerButton
               onClick={open}
               leftSection={<IconPlus />}
               color="dark"
               variant="outline"
             >
               Add document
-            </Button>
+            </ShimmerButton>
           </Tooltip>
         </Group>
       </Flex>

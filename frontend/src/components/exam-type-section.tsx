@@ -85,7 +85,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       <ExamGrid>
         {exams.map(exam => (
           <Card
-            shadow="md"
+            shadow="xs"
             withBorder
             className={classes.focusOutline}
             onKeyDown={e => {

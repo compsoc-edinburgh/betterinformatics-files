@@ -1,16 +1,28 @@
 .focusOutline {
   &:focus {
-    outline-width: 1.5;
-    outline-style: "solid";
+    outline-width: 2px;
+    outline-style: solid;
     outline-color: var(--mantine-color-gray-9);
-    outline-offset: 2;
+    outline-offset: 2px;
   }
 }
 
 .hoverShadow {
-  transition: box-shadow 150ms ease, transform 100ms ease;
-  &:hover {
-    box-shadow: var(--mantine-shadow-md);
-    transform: scale(1.05);
+  transition: border-color 70ms ease, transform 40ms ease, box-shadow 70ms ease;
+  border-width: 2px;
+  border-color: var(--mantine-color-gray-2);
+}
+
+/** Show hover effect only if device supports hover, to avoid confusing with
+  * focus effect
+  */
+@media (hover: hover) {
+  .hoverShadow:hover {
+    border-color: var(--mantine-color-compsocMain-7);
+    box-shadow: var(--mantine-shadow-sm);
+  }
+
+  .hoverShadow:active {
+    transform: translateY(1px);
   }
 }

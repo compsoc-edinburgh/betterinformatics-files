@@ -14,6 +14,10 @@ import {
   Text,
   Title,
   Paper,
+  HoverCardDropdown,
+  HoverCardTarget,
+  HoverCard,
+  Tooltip,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -186,12 +190,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             )}
           </Flex>
 
-          <List>
-            {asynchronously_updated_euclid_codes.length > 0 && "Offered as:"}
+          <Group gap="xs">
             {asynchronously_updated_euclid_codes.map(
               ([code, bi_data, shadow_data]) => (
-                <List.Item key={code}>
-                  <Group>
+                <HoverCard shadow="md" styles={{ dropdown: { maxWidth: 300 }}}>
+                  <HoverCardTarget>
                     <Badge
                       // Will show red if data isn't available or still loading
                       color={bi_data || shadow_data ? "violet" : "red"}
@@ -213,24 +216,27 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       }}
                     >
                       {code}
-                    </Badge>{" "}
-                    {bi_data &&
-                      `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`}
-                    {shadow_data &&
-                      `${shadow_data.name} (Shadow of ${shadow_data.euclid_code})`}
-                    {!bi_courses_loading &&
-                      !bi_data &&
-                      !shadow_data &&
-                      "Not Running"}
-                    {bi_courses_error && bi_courses_error.message}
-                    {bi_courses_loading && !bi_data && !shadow_data && (
-                      <Skeleton height="1rem" width="8rem" />
-                    )}
-                  </Group>
-                </List.Item>
+                    </Badge>
+                  </HoverCardTarget>
+                  {(bi_data || shadow_data || !bi_courses_loading) && (
+                    <HoverCardDropdown>
+                      <Text size="sm">
+                        {bi_data &&
+                          `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`}
+                        {shadow_data &&
+                          `${shadow_data.name} (Shadow of ${shadow_data.euclid_code})`}
+                        {!bi_courses_loading &&
+                          !bi_data &&
+                          !shadow_data &&
+                          "Not Running"}
+                        {bi_courses_error && bi_courses_error.message}
+                      </Text>
+                    </HoverCardDropdown>
+                  )}
+                </HoverCard>
               ),
             )}
-          </List>
+          </Group>
           {(metaData.more_exams_link || metaData.remark) && (
             <Grid mb="xs">
               {metaData.more_exams_link && (
@@ -248,42 +254,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               {metaData.remark && <Grid.Col>Remark: {metaData.remark}</Grid.Col>}
             </Grid>
           )}
-          {metaData.more_markdown_link && (
-            <Paper withBorder radius="md" p="lg" my="sm">
-              <Group align="baseline" justify="space-between">
-                <Group align="baseline">
-                  <IconInfoCircle />
-                  <Title order={2}>Community Knowledgebase</Title>
-                </Group>
-                {md_editable && (
-                  <Button
-                    size="compact-sm"
-                    variant="light"
-                    component="a"
-                    target="_blank"
-                    href={md_edit_link}
-                  >
-                    Edit (anyone welcome!)
-                  </Button>
-                )}
-              </Group>
-              {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
-              {md_error && (
-                <Alert color="red">
-                  Failed to render additional info: {md_error.message}
-                </Alert>
-              )}
-              {raw_md_contents !== undefined && (
-                <Text c="gray.7">
-                  <MarkdownText
-                    value={raw_md_contents}
-                    localLinkBase="https://betterinformatics.com"
-                    ignoreHtml={true}
-                  />
-                </Text>
-              )}
-            </Paper>
-          )}
+
           <Grid my="sm">
             {metaData.experts.includes(user.username) && (
               <Grid.Col span="auto">
@@ -310,6 +281,42 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </Grid.Col>
             )}
           </Grid>
+
+          {metaData.more_markdown_link && (
+            <>
+              <Group align="baseline" justify="space-between">
+                <Title order={2} mt="xl" mb="lg">Community Knowledgebase</Title>
+                {md_editable && (
+                  <Tooltip label="Edit this page on GitHub">
+                    <Button
+                      size="compact-sm"
+                      variant="light"
+                      component="a"
+                      target="_blank"
+                      href={md_edit_link}
+                    >
+                      Edit (anyone welcome!)
+                    </Button>
+                  </Tooltip>
+                )}
+              </Group>
+              {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
+              {md_error && (
+                <Alert color="red">
+                  Failed to render additional info: {md_error.message}
+                </Alert>
+              )}
+              {raw_md_contents !== undefined && (
+                <Text c="gray.7">
+                  <MarkdownText
+                    value={raw_md_contents}
+                    localLinkBase="https://betterinformatics.com"
+                    ignoreHtml={true}
+                  />
+                </Text>
+              )}
+            </>
+          )}
           <ExamList metaData={metaData} />
 
           <DocumentList slug={metaData.slug} />

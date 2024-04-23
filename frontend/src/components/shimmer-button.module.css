@@ -1,0 +1,106 @@
+.shimmer {
+  transform: translateX(-150%);
+  position: absolute;
+  opacity: 0.5;
+}
+
+.button:hover .shimmer {
+  animation: shimmer 3s infinite;
+  animation-delay: 0.5s;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-150%) scale(1);
+  }
+  25% {
+    transform: translateX(150%) scale(1.5);
+  }
+  50%, 100% {
+    transform: translateX(150%) scale(1);
+  }
+}
+
+.darkshimmer {
+  :global(.gradientColorOne), :global(.gradientColorTwo) {
+    stop-color: var(--mantine-color-gray-5);
+  }
+}
+
+.lightshimmer {
+  :global(.gradientColorOne), :global(.gradientColorTwo) {
+    stop-color: white;
+  }
+}
+
+.star {
+	position: absolute;
+	z-index: 3;
+	width: calc(var(--mantine-font-size-md) * 0.5);
+	aspect-ratio: 1;
+
+  --delay-step: 0.15;
+  left:  calc(var(--x, 0) * 1%);
+  top: calc(var(--y, 50) * 1%);
+  transform: translate(-50%, -50%) scale(0);
+
+  &.lightStar path {
+    fill: hsla(0, 0%, 100%, 0.75);
+  }
+
+  &.darkStar path {
+    fill: hsla(0, 0%, 0%, 0.75);
+  }
+
+  &:nth-child(1) {
+    --x: 10;
+    --y: 20;
+    --s: 1.1;
+    --d: 1;
+  }
+
+  &:nth-child(2) {
+    --x: 15;
+    --y: 80;
+    --s: 1.25;
+    --d: 2;
+  }
+
+  &:nth-child(3) {
+    --x: 45;
+    --y: 40;
+    --s: 1.1;
+    --d: 3;
+  }
+
+  &:nth-child(4) {
+    --x: 75;
+    --y: 60;
+    --s: 0.9;
+    --d: 2;
+  }
+
+  &:nth-child(5) {
+    --x: 90;
+    --y: 30;
+    --s: 0.8;
+    --d: 4;
+  }
+}
+
+.button:hover .star {
+	animation-name: sparkle;
+  animation-duration: 3s;
+  animation-delay: calc(0.3s + (var(--delay-step) * var(--d)) * 1s);
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+}
+
+@keyframes sparkle {
+	10% {
+		transform: translate(-50%, -50%) scale(var(--s, 1));
+	}
+  0%, 20% {
+    transform: translate(-50%, -50%) scale(0);
+  }
+}

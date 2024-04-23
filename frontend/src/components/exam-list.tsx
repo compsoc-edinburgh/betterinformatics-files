@@ -22,6 +22,7 @@ import {
 import ExamTypeSection from "./exam-type-section";
 import UploadPdfCard from "./upload-pdf-card";
 import { IconDownload, IconPlus, IconSearch } from "@tabler/icons-react";
+import ShimmerButton from "./shimmer-button";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -81,14 +82,14 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         justify="space-between"
       >
         <Group>
-          <Button
+          <ShimmerButton
             onClick={() => setFormIsOpen(true)}
             leftSection={<IconPlus />}
             color="dark"
             variant="outline"
           >
             Add new exam
-          </Button>
+          </ShimmerButton>
           <Button
             disabled={selected.size === 0}
             onClick={() => dlSelectedExams(getSelectedExams(selected))}
