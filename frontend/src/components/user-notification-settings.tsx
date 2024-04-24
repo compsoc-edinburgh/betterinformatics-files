@@ -1,4 +1,4 @@
-import { Alert, Checkbox, Stack, Table } from "@mantine/core";
+import { Alert, Checkbox, Table } from "@mantine/core";
 import React from "react";
 import {
   useEnabledNotifications,
@@ -8,6 +8,22 @@ import {
 interface UserNotificationsProps {
   username: string;
 }
+
+const mapTypeToString = (type: number) => {
+  switch (type) {
+    case 1:
+      return "Comment to my answer";
+    case 2:
+      return "Comment to my comment";
+    case 3:
+      return "Other answer to same question";
+    case 4:
+      return "Comment to my document";
+    default:
+      return "Unknown";
+  }
+}
+
 const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
   username,
 }) => {
@@ -30,74 +46,25 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          <Table.Tr>
-            <Table.Td>Comment to my answer</Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.enabled && v.type == 1) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(1, e.currentTarget.checked, undefined)}
-              />
-            </Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.email_enabled && v.type == 1) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(1, undefined, e.currentTarget.checked)}
-              />
-            </Table.Td>
-          </Table.Tr>
-          <Table.Tr>
-            <Table.Td>Comment to my comment</Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.enabled && v.type == 2) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(2, e.currentTarget.checked, undefined)}
-              />
-            </Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.email_enabled && v.type == 2) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(2, undefined, e.currentTarget.checked)}
-              />
-            </Table.Td>
-          </Table.Tr>
-          <Table.Tr>
-            <Table.Td>Other answer to same question</Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.enabled && v.type == 3) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(3, e.currentTarget.checked, undefined)}
-              />
-            </Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.email_enabled && v.type == 3) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(3, undefined, e.currentTarget.checked)}
-              />
-            </Table.Td>
-          </Table.Tr>
-          <Table.Tr>
-            <Table.Td>Comment to my document</Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.enabled && v.type == 4) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(4, e.currentTarget.checked, undefined)}
-              />
-            </Table.Td>
-            <Table.Td>
-              <Checkbox
-                checked={enabled ? enabled.some(v => v.email_enabled && v.type == 4) : false}
-                disabled={checkboxLoading}
-                onChange={e => setEnabled(4, undefined, e.currentTarget.checked)}
-              />
-            </Table.Td>
-          </Table.Tr>
+          {[1, 2, 3, 4].map(type => (
+            <Table.Tr key={type}>
+              <Table.Td>{mapTypeToString(type)}</Table.Td>
+              <Table.Td>
+                <Checkbox
+                  checked={enabled ? enabled.some(v => v.enabled && v.type === type) : false}
+                  disabled={checkboxLoading}
+                  onChange={e => setEnabled(type, e.currentTarget.checked, undefined)}
+                />
+              </Table.Td>
+              <Table.Td>
+                <Checkbox
+                  checked={enabled ? enabled.some(v => v.email_enabled && v.type == type) : false}
+                  disabled={checkboxLoading}
+                  onChange={e => setEnabled(type, undefined, e.currentTarget.checked)}
+                />
+              </Table.Td>
+            </Table.Tr>
+          ))}
         </Table.Tbody>
       </Table>
     </>

@@ -101,7 +101,7 @@ const Scoreboard: React.FC<{}> = () => {
       <Container size="md">
         <LineChart
           h={300}
-          data={(statsGranularity == "Weekly" ? stats?.weekly_user_stats : stats?.monthly_user_stats) || []}
+          data={(statsGranularity === "Weekly" ? stats?.weekly_user_stats : stats?.monthly_user_stats) || []}
           dataKey="date"
           series={[
             { name: "count", label: "User Count", color: "indigo.6" },
@@ -113,7 +113,7 @@ const Scoreboard: React.FC<{}> = () => {
       <Container size="md">
         <LineChart
           h={300}
-          data={(statsGranularity == "Weekly" ? stats?.weekly_exam_stats : stats?.monthly_exam_stats) || []}
+          data={(statsGranularity === "Weekly" ? stats?.weekly_exam_stats : stats?.monthly_exam_stats) || []}
           dataKey="date"
           series={[
             { name: "answers_count", label: "Total Answer Count", color: "cyan.6" },
@@ -126,7 +126,7 @@ const Scoreboard: React.FC<{}> = () => {
       <Container size="md">
         <LineChart
           h={300}
-          data={(statsGranularity == "Weekly" ? stats?.weekly_document_stats : stats?.monthly_document_stats) || []}
+          data={(statsGranularity === "Weekly" ? stats?.weekly_document_stats : stats?.monthly_document_stats) || []}
           dataKey="date"
           series={[
             { name: "count", label: "Document Count", color: "green.6" },
