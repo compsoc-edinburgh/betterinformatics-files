@@ -37,6 +37,12 @@ stages:
     - mkdir backend/intermediate_pdf_storage
     - mv ./frontend/public/exam10.pdf backend
     - mv ./frontend/public/static backend
+  cache:
+    key:
+      files:
+        - backend/requirements.txt
+    paths:
+      - backend/.cache/pip
   script:
     - export SIP_POSTGRES_DB_NAME=$POSTGRES_DB
     - export SIP_POSTGRES_DB_USER=$POSTGRES_USER
@@ -52,6 +58,9 @@ stages:
     - cd backend
     - python3 manage.py test --parallel # parallel speeds up by approx 4x.
   variables:
+    # Set the pip cache directory to a directory that we can access and cache
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/backend/.cache/pip"
+
     POSTGRES_DB: testdb
     POSTGRES_USER: testuser
     POSTGRES_PASSWORD: testpw
@@ -73,6 +82,14 @@ stages:
   image: node:20-alpine # version when installing python3 from apt (same as Dockerfile)
   before_script:
     - cd frontend
+    - echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
+    - echo 'yarn-offline-mirror-pruning true' >> .yarnrc
+  cache:
+    key:
+      files:
+        - frontend/yarn.lock
+    paths:
+      - frontend/.yarn-cache/
   script:
     - yarn --ignore-engines
     - yarn run tsc
