@@ -58,7 +58,7 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
               </Table.Td>
               <Table.Td>
                 <Checkbox
-                  checked={enabled ? enabled.some(v => v.email_enabled && v.type == type) : false}
+                  checked={enabled ? enabled.some(v => v.email_enabled && v.type === type) : false}
                   disabled={checkboxLoading}
                   onChange={e => setEnabled(type, undefined, e.currentTarget.checked)}
                 />

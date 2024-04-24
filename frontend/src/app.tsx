@@ -12,7 +12,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
-import '@mantine/charts/styles.css';
+import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
 import { Redirect, Route, Switch, useLocation } from "react-router-dom";
 import tinycolor from "tinycolor2";
