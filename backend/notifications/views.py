@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from ediauth import auth_check
 from util import response
+from notifications.notification_util import get_relative_notification_url
 
 from notifications.models import (Notification, NotificationSetting,
                                   NotificationType)
@@ -53,18 +54,13 @@ def get_notifications(request, unread):
             'senderDisplayName': notification.sender.profile.display_username,
             'title': notification.title,
             'message': notification.text,
-            'link': _get_notification_link(notification), 
+            'link': get_relative_notification_url(
+                notification.answer or notification.document
+            ),
             'read': notification.read,
         } for notification in notifications
     ]
     return response.success(value=res)
-
-def _get_notification_link(notification):
-    if notification.answer:
-        return f'/exams/{notification.answer.answer_section.exam.filename}#{notification.answer.long_id}'
-    elif notification.document:
-        return f'/user/{notification.receiver.username}/document/{notification.document.slug}'
-    return ''
 
 
 @response.request_get()

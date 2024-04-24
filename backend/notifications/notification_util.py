@@ -129,10 +129,17 @@ def send_email_notification(
 
 
 def get_absolute_notification_url(data: Union[Document, Answer]):
+    return (
+        f"https://{settings.DEPLOYMENT_DOMAINS[0]}{get_relative_notification_url(data)}"
+    )
+
+
+def get_relative_notification_url(data: Union[Document, Answer]):
     if isinstance(data, Answer):
-        return f"https://{settings.DEPLOYMENT_DOMAINS[0]}/exams/{data.answer_section.exam.filename}#{data.long_id}"
-    else:
-        return f"https://{settings.DEPLOYMENT_DOMAINS[0]}/user/{data.author.username}/document/{data.slug}"
+        return f"/exams/{data.answer_section.exam.filename}#{data.long_id}"
+    elif isinstance(data, Document):
+        return f"/document/{data.slug}"
+    return ""
 
 
 def new_comment_to_answer(answer: Answer, new_comment: AnswerComment):
