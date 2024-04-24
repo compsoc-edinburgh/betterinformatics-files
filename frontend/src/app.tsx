@@ -12,8 +12,9 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
+import '@mantine/charts/styles.css';
 import React, { useEffect, useState } from "react";
-import { Route, Switch, useLocation } from "react-router-dom";
+import { Redirect, Route, Switch, useLocation } from "react-router-dom";
 import tinycolor from "tinycolor2";
 import { fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
@@ -169,6 +170,7 @@ const App: React.FC<{}> = () => {
       title: "More",
       childItems: [
         { title: "FAQ", href: "/faq" },
+        { title: "Stats and Scores", href: "/stats" },
         { title: "Feedback", href: "/feedback" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
@@ -283,6 +285,7 @@ const App: React.FC<{}> = () => {
                       path="/scoreboard"
                       component={Scoreboard}
                     />
+                    <UserRoute exact path="/stats" render={() => (<Redirect to="/scoreboard" />)}/>
                     <UserRoute exact path="/modqueue" component={ModQueue} />
                     <Route component={NotFoundPage} />
                   </Switch>

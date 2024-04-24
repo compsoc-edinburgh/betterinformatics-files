@@ -358,6 +358,31 @@ export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
   documentId: number;
 }
 
+export interface Stats {
+  weekly_user_stats: UserStat[];
+  weekly_exam_stats: ExamStat[];
+  weekly_document_stats: DocumentStat[];
+  monthly_user_stats: UserStat[];
+  monthly_exam_stats: ExamStat[];
+  monthly_document_stats: DocumentStat[];
+}
+
+export interface UserStat {
+  date: string;
+  count: number;
+}
+
+export interface ExamStat {
+  date: string;
+  answered_count: number;
+  answers_count: number;
+}
+
+export interface DocumentStat {
+  date: string;
+  count: number;
+}
+
 export interface BICourseList {
   last_update: string;
   list: BICourseDict;

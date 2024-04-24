@@ -7,14 +7,17 @@ import {
   Group,
   Table,
   UnstyledButton,
+  SegmentedControl,
   Text,
+  Title,
   rem,
 } from "@mantine/core";
+import { LineChart } from '@mantine/charts';
 import React from "react";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
-import { UserInfo } from "../interfaces";
+import { UserInfo, Stats } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 import { IconArrowsUpDown, IconChevronDown } from "@tabler/icons-react";
 import classes from "./scoreboard.module.css";
@@ -30,6 +33,11 @@ type Mode = (typeof modes)[number];
 const loadScoreboard = async (scoretype: Mode) => {
   return (await fetchGet(`/api/scoreboard/top/${scoretype}/`))
     .value as UserInfo[];
+};
+
+const loadStats = async () => {
+  return (await fetchGet("/api/stats/"))
+    .value as Stats;
 };
 
 interface ThProps {
@@ -61,7 +69,7 @@ function Th({ children, sorted, onSort }: ThProps) {
 }
 
 const Scoreboard: React.FC<{}> = () => {
-  useTitle("Scoreboard");
+  useTitle("Stats and Scores");
   const [mode, setMode] = useLocalStorageState<Mode>(
     "scoreboard-mode",
     "score",
@@ -70,11 +78,67 @@ const Scoreboard: React.FC<{}> = () => {
     refreshDeps: [mode],
     cacheKey: `scoreboard-${mode}`,
   });
+
+  const [statsGranularity, setStatsGranularity] = useLocalStorageState<string>("stats-granularity", "Weekly");
+
+  const { data: stats, error: statsError, loading: statsLoading } = useRequest(
+    loadStats,
+  );
   return (
     <Container size="xl">
+      <Title order={1} my="lg">Stats</Title>
+      <SegmentedControl
+        value={statsGranularity}
+        onChange={setStatsGranularity}
+        data={[
+          { label: 'Weekly', value: 'Weekly' },
+          { label: 'Month', value: 'Monthly' },
+        ]}
+      />
+      {statsError && <Alert color="red">{String(statsError)}</Alert>}
+
+      <Title order={2} my="lg">{statsGranularity} User Stats</Title>
+      <Container size="md">
+        <LineChart
+          h={300}
+          data={(statsGranularity == "Weekly" ? stats?.weekly_user_stats : stats?.monthly_user_stats) || []}
+          dataKey="date"
+          series={[
+            { name: "count", label: "User Count", color: "indigo.6" },
+          ]}
+          curveType="monotone"
+        />
+      </Container>
+      <Title order={2} my="lg">{statsGranularity} Answered Questions Stats</Title>
+      <Container size="md">
+        <LineChart
+          h={300}
+          data={(statsGranularity == "Weekly" ? stats?.weekly_exam_stats : stats?.monthly_exam_stats) || []}
+          dataKey="date"
+          series={[
+            { name: "answers_count", label: "Total Answer Count", color: "cyan.6" },
+            { name: "answered_count", label: "Unique Questions Answered", color: "blue.6" },
+          ]}
+          curveType="monotone"
+        />
+      </Container>
+      <Title order={2} my="lg">{statsGranularity} Document Stats</Title>
+      <Container size="md">
+        <LineChart
+          h={300}
+          data={(statsGranularity == "Weekly" ? stats?.weekly_document_stats : stats?.monthly_document_stats) || []}
+          dataKey="date"
+          series={[
+            { name: "count", label: "Document Count", color: "green.6" },
+          ]}
+          tickLine="x"
+          curveType="monotone"
+        />
+      </Container>
+
       <h1>Scoreboard</h1>
       {error && <Alert color="red">{error.message}</Alert>}
-      <LoadingOverlay visible={loading} />
+      <LoadingOverlay visible={loading || statsLoading} />
       <div className={classes.overflowScroll}>
         <Table highlightOnHover verticalSpacing="md" fz="md">
           <Table.Thead>
