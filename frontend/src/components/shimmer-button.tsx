@@ -9,22 +9,55 @@ interface ShimmerButtonProps extends ButtonProps {
   onClick?: any;
 }
 
-const ShimmerButton: React.FC<ShimmerButtonProps & React.RefAttributes<HTMLButtonElement>> = forwardRef(({
-  children,
-  onClick,
-  ...buttonProps
-}, ref) => {
+const ShimmerButton: React.FC<
+  ShimmerButtonProps & React.RefAttributes<HTMLButtonElement>
+> = forwardRef(({ children, onClick, ...buttonProps }, ref) => {
   const useDarkEffects = buttonProps.variant === "outline";
   return (
-    <Button {...buttonProps} onClick={onClick} className={classes.button} ref={ref}>
+    <Button
+      {...buttonProps}
+      onClick={onClick}
+      className={classes.button}
+      ref={ref}
+    >
       {children}
-      <Shimmer className={clsx(classes.shimmer, useDarkEffects ? classes.darkshimmer : classes.lightshimmer)}/>
+      <Shimmer
+        className={clsx(
+          classes.shimmer,
+          useDarkEffects ? classes.darkshimmer : classes.lightshimmer,
+        )}
+      />
       <div>
-        <Star className={clsx(classes.star, useDarkEffects ? classes.darkStar : classes.lightStar)} />
-        <Star className={clsx(classes.star, useDarkEffects ? classes.darkStar : classes.lightStar)} />
-        <Star className={clsx(classes.star, useDarkEffects ? classes.darkStar : classes.lightStar)} />
-        <Star className={clsx(classes.star, useDarkEffects ? classes.darkStar : classes.lightStar)} />
-        <Star className={clsx(classes.star, useDarkEffects ? classes.darkStar : classes.lightStar)} />
+        <Star
+          className={clsx(
+            classes.star,
+            useDarkEffects ? classes.darkStar : classes.lightStar,
+          )}
+        />
+        <Star
+          className={clsx(
+            classes.star,
+            useDarkEffects ? classes.darkStar : classes.lightStar,
+          )}
+        />
+        <Star
+          className={clsx(
+            classes.star,
+            useDarkEffects ? classes.darkStar : classes.lightStar,
+          )}
+        />
+        <Star
+          className={clsx(
+            classes.star,
+            useDarkEffects ? classes.darkStar : classes.lightStar,
+          )}
+        />
+        <Star
+          className={clsx(
+            classes.star,
+            useDarkEffects ? classes.darkStar : classes.lightStar,
+          )}
+        />
       </div>
     </Button>
   );

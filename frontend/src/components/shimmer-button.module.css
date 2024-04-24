@@ -14,31 +14,34 @@
   25% {
     transform: translateX(150%) scale(1.5);
   }
-  50%, 100% {
+  50%,
+  100% {
     transform: translateX(150%) scale(1);
   }
 }
 
 .darkshimmer {
-  :global(.gradientColorOne), :global(.gradientColorTwo) {
+  :global(.gradientColorOne),
+  :global(.gradientColorTwo) {
     stop-color: var(--mantine-color-gray-5);
   }
 }
 
 .lightshimmer {
-  :global(.gradientColorOne), :global(.gradientColorTwo) {
+  :global(.gradientColorOne),
+  :global(.gradientColorTwo) {
     stop-color: white;
   }
 }
 
 .star {
-	position: absolute;
-	z-index: 3;
-	width: calc(var(--mantine-font-size-md) * 0.5);
-	aspect-ratio: 1;
+  position: absolute;
+  z-index: 3;
+  width: calc(var(--mantine-font-size-md) * 0.5);
+  aspect-ratio: 1;
 
   --delay-step: 0.15;
-  left:  calc(var(--x, 0) * 1%);
+  left: calc(var(--x, 0) * 1%);
   top: calc(var(--y, 50) * 1%);
   transform: translate(-50%, -50%) scale(0);
 
@@ -87,7 +90,7 @@
 }
 
 .button:hover .star {
-	animation-name: sparkle;
+  animation-name: sparkle;
   animation-duration: 3s;
   animation-delay: calc((var(--delay-step) * var(--d)) * 1s);
   animation-fill-mode: both;
@@ -95,10 +98,11 @@
 }
 
 @keyframes sparkle {
-	10% {
-		transform: translate(-50%, -50%) scale(var(--s, 1));
-	}
-  0%, 20% {
+  10% {
+    transform: translate(-50%, -50%) scale(var(--s, 1));
+  }
+  0%,
+  20% {
     transform: translate(-50%, -50%) scale(0);
   }
 }
