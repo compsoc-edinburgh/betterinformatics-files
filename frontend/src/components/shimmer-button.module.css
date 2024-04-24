@@ -2,9 +2,7 @@
   transform: translateX(-150%);
   position: absolute;
   opacity: 0.5;
-}
 
-.button:hover .shimmer {
   animation: shimmer 3s infinite;
   animation-delay: 0.5s;
 }
@@ -56,42 +54,42 @@
     --x: 10;
     --y: 20;
     --s: 1.1;
-    --d: 1;
+    --d: 0;
   }
 
   &:nth-child(2) {
     --x: 15;
     --y: 80;
     --s: 1.25;
-    --d: 2;
+    --d: 1;
   }
 
   &:nth-child(3) {
     --x: 45;
     --y: 40;
     --s: 1.1;
-    --d: 3;
+    --d: 0;
   }
 
   &:nth-child(4) {
     --x: 75;
     --y: 60;
     --s: 0.9;
-    --d: 2;
+    --d: 1;
   }
 
   &:nth-child(5) {
     --x: 90;
     --y: 30;
     --s: 0.8;
-    --d: 4;
+    --d: 2;
   }
 }
 
 .button:hover .star {
 	animation-name: sparkle;
   animation-duration: 3s;
-  animation-delay: calc(0.3s + (var(--delay-step) * var(--d)) * 1s);
+  animation-delay: calc((var(--delay-step) * var(--d)) * 1s);
   animation-fill-mode: both;
   animation-iteration-count: infinite;
 }
