@@ -7,6 +7,8 @@
     "@mantine/colors-generator": "^7.7.0",
     "@mantine/core": "^7.0.0",
     "@mantine/hooks": "^7.0.0",
+    "@mantine/charts": "^7.0.0",
+    "recharts": "^2.0.0",
     "@tabler/icons-react": "^3.0.0",
     "@umijs/hooks": "1.9.3",
     "chroma-js": "^2.4.2",

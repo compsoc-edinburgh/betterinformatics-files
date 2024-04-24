@@ -1375,6 +1375,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@mantine/charts@^7.0.0":
+  version "7.8.1"
+  resolved "https://registry.yarnpkg.com/@mantine/charts/-/charts-7.8.1.tgz#fef57f32201dba04f91c481ad240ebd292309ba7"
+  integrity sha512-ZMUQPin8ILv3ruRelOycXvex3PW87+QrPWHKEUUTUqp8RANLuz7dYnmeGaemG91ymsd2kHxzFlGYX96Yc/tCdQ==
+
 "@mantine/colors-generator@^7.7.0":
   version "7.7.2"
   resolved "https://registry.yarnpkg.com/@mantine/colors-generator/-/colors-generator-7.7.2.tgz#fbac1e60da7d3925df5a79af5d1194627093a0fd"
