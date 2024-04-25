@@ -73,6 +73,10 @@ def not_possible(msg):
     return JsonResponse({"err": msg}, status=400)
 
 
+def unsupported_media_type():
+    return JsonResponse({"err": "Unsupported Media Type"}, status=415)
+
+
 def internal_error():
     return JsonResponse({'err': 'Internal Server Error'}, status=500)
 

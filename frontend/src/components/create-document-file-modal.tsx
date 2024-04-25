@@ -1,4 +1,4 @@
-import { Button, FileInput, Stack, TextInput } from "@mantine/core";
+import { Alert, Button, FileInput, Stack, TextInput } from "@mantine/core";
 import * as React from "react";
 import { useState } from "react";
 import { NamedBlob } from "../api/fetch-utils";
@@ -20,7 +20,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   const [displayName, setDisplayName] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  const [loading, createDocumentFile] = useCreateDocumentFile(
+  const {loading, error, run: createDocumentFile} = useCreateDocumentFile(
     document.author,
     document.slug,
     f => {
@@ -34,6 +34,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   return (
     <>
       <Stack>
+        {error && <Alert color="red">{String(error)}</Alert>}
         <TextInput
           label="Display Name"
           value={displayName}
