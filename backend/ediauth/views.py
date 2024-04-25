@@ -47,7 +47,7 @@ verification_code_validity = datetime.timedelta(hours=1)
 # Validity of JWT token (after which the user will be logged out). There is no
 # mechanism to refresh/extend so the validity is from the last time the user
 # logged in explicitly.
-auth_token_validity = datetime.timedelta(weeks=4)
+auth_token_validity = datetime.timedelta(weeks=12)
 
 
 @response.request_post()
