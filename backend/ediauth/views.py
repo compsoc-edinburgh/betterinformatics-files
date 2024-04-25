@@ -157,6 +157,7 @@ def verify(request: HttpRequest):
         httponly=False,  # Allow JS to access the cookie
         samesite="Strict",
         secure=settings.SECURE,
+        max_age=int(auth_token_validity.total_seconds()),
     )
     return success_response
 
