@@ -15,11 +15,9 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
   const test = () => {
     const loadDocument = getDocument(solution_file);
     loadDocument.promise
-// tslint:disable-next-line: no-any
       .then((pdf: { getPage: (arg0: number) => any; }) => {
         return pdf.getPage(solpage);
       })
-// tslint:disable-next-line: no-any
       .then((page: { getViewport: (arg0: { scale: number; offsetX: number; offsetY: number; }) => any; render: (arg0: { canvasContext: CanvasRenderingContext2D; viewport: any; }) => void; }) => {
         const viewport = page.getViewport({ 
           scale: 1,
