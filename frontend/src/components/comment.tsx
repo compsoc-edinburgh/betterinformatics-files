@@ -29,6 +29,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TooltipButton from "./TooltipButton";
 import TimeText from "./time-text";
 import { copy } from "../utils/clipboard";
+import { officialSolutionLanguage } from "./OfficialSolution";
 
 interface Props {
   answer: Answer;
@@ -245,8 +246,7 @@ const CommentComponent: React.FC<Props> = ({
             preview={value => (
               <MarkdownText 
                 value={value} 
-                solutionFile={solutionFile} 
-                targetWidth={targetWidth}
+                languages={officialSolutionLanguage(solutionFile, targetWidth)}
               />
             )}
             undoStack={undoStack}
@@ -280,8 +280,7 @@ const CommentComponent: React.FC<Props> = ({
           ) : (
             <MarkdownText 
               value={comment.text} 
-              solutionFile={solutionFile} 
-              targetWidth={targetWidth} 
+              languages={officialSolutionLanguage(solutionFile, targetWidth)}
             />
           )}
         </div>

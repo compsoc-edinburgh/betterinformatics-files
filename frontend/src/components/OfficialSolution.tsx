@@ -1,8 +1,8 @@
 // import { pdfjs } from 'pdfjs-dist';
 import { PDFDocumentLoadingTask } from "pdfjs-dist";
-import { loadSplitRenderer } from "../api/hooks";
 import { getDocument } from "../pdf/pdfjs";
-import React, { useEffect, useRef } from "react";
+import React, { useMemo, useRef } from "react";
+import { ComponentGenerator } from "./markdown-text";
 
 interface PdfCoordinates {
   ref_page: number;
@@ -10,7 +10,11 @@ interface PdfCoordinates {
   p2: [number, number];
 }
 
-function PdfRenderer(solutionFile: string, pdfCoordinates: PdfCoordinates, targetWidth?: number) {
+function PdfRenderer(
+  solutionFile: string,
+  pdfCoordinates: PdfCoordinates,
+  targetWidth?: number,
+) {
   const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
 
   const renderCanvas = () => {
@@ -24,8 +28,9 @@ function PdfRenderer(solutionFile: string, pdfCoordinates: PdfCoordinates, targe
         const [x2, y2] = pdfCoordinates.p2;
 
         const unscaledViewport = page.getViewport({ scale: 1 }); // Get viewport at scale 1 to calculate dimensions
-        targetWidth = targetWidth?targetWidth:500
-        const scale = 0.8*targetWidth / (unscaledViewport.width*Math.abs(x1-x2));
+        targetWidth = targetWidth ? targetWidth : 500;
+        const scale =
+          (0.8 * targetWidth) / (unscaledViewport.width * Math.abs(x1 - x2));
         const offsetX = -unscaledViewport.width * scale * x1;
         const offsetY = -unscaledViewport.height * scale * y1;
         const viewport = page.getViewport({
@@ -62,6 +67,24 @@ function PdfRenderer(solutionFile: string, pdfCoordinates: PdfCoordinates, targe
   }
 }
 
+export const officialSolutionLanguage = (
+  solutionFile?: string,
+  targetWidth?: number,
+): { [key: string]: ComponentGenerator } => {
+  return {
+    official: ({ children }) =>
+      useMemo(() => {
+        return (
+          <OfficialSolution
+            solutionFile={solutionFile}
+            value={String(children).replace(/\n$/, "")}
+            targetWidth={targetWidth}
+          />
+        );
+      }, [solutionFile, children]),
+  };
+};
+
 interface Props {
   solutionFile?: string;
   value?: string | null;
@@ -83,13 +106,22 @@ const OfficialSolution: React.FC<Props> = ({
       if (match) {
         const page = parseInt(match[1]); // Extract page number and convert it to integer
         if (page < 1) return <>Invalid Page</>;
-        const p1: [number, number] = [parseFloat(match[2]), parseFloat(match[3])]
-        const p2: [number, number] = [parseFloat(match[4]), parseFloat(match[5])]
-        return PdfRenderer(solutionFile, {
-          ref_page: page,
-          p1,
-          p2},
-          targetWidth=targetWidth,
+        const p1: [number, number] = [
+          parseFloat(match[2]),
+          parseFloat(match[3]),
+        ];
+        const p2: [number, number] = [
+          parseFloat(match[4]),
+          parseFloat(match[5]),
+        ];
+        return PdfRenderer(
+          solutionFile,
+          {
+            ref_page: page,
+            p1,
+            p2,
+          },
+          (targetWidth = targetWidth),
         );
       }
     }

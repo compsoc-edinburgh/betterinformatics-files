@@ -26,6 +26,10 @@ const transformImageUri = (uri: string) => {
   }
 };
 
+export type ComponentGenerator = (
+  elem: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>,
+) => React.ReactElement;
+
 const addMarks = (
   obj: any,
   regex: RegExp | undefined,
@@ -76,7 +80,11 @@ const addMarks = (
   return obj;
 };
 
-const createComponents = (regex: RegExp | undefined, solutionFile?: string, targetWidth?:number): Components => ({
+const createComponents = (
+  regex: RegExp | undefined,
+  languages?: { [key: string]: ComponentGenerator },
+  targetWidth?: number,
+): Components => ({
   table: ({ children }) => {
     return (
       <Table style={{ width: "auto" }} withColumnBorders={true}>
@@ -123,16 +131,11 @@ const createComponents = (regex: RegExp | undefined, solutionFile?: string, targ
   code({node, className, children, ...props}) {
     const match = /language-(\w+)/.exec(className || "");
     const language = match ? match[1] : undefined;
-    if (language == "official") {
-      return useMemo(() => {
-        return (
-          <OfficialSolution
-            solutionFile={solutionFile}
-            value={String(children).replace(/\n$/, "")}
-            targetWidth={targetWidth}
-          />
-        );
-      }, [solutionFile, children, targetWidth]);
+    if (language && languages && languages[language]) {
+      console.log(language);
+      return languages[language]({
+        ...{ node, className, children, ...props },
+      });
     }
     return match ? (
       <CodeBlock
@@ -158,10 +161,8 @@ interface Props {
    * text will be highlighted.
    */
   highlight_matches?: string[];
-  regex?: RegExp;
-
-  solutionFile?: string;
-  targetWidth?: number
+  languages?: { [key: string]: ComponentGenerator };
+  targetWidth?: number;
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -172,7 +173,7 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, highlight_matches, solutionFile, targetWidth }) => {
+const MarkdownText: React.FC<Props> = ({ value, highlight_matches, languages, targetWidth }) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
   // highlighting.
@@ -184,7 +185,7 @@ const MarkdownText: React.FC<Props> = ({ value, highlight_matches, solutionFile,
     [highlight_matches],
   );
 
-  const renderers = useMemo(() => createComponents(regex, solutionFile, targetWidth), [regex, solutionFile, targetWidth]);
+  const renderers = useMemo(() => createComponents(regex, languages, targetWidth), [regex, languages, targetWidth]);
 
   return useMemo(() => {
     const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
