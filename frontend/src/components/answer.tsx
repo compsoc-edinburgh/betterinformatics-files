@@ -66,7 +66,7 @@ interface Props {
   answerKind: AnswerKind;
   hasId?: boolean;
   solution_file?: string;
-  targetWidth:number
+  targetWidth:number;
 }
 const AnswerComponent: React.FC<Props> = ({
   section,
@@ -305,7 +305,9 @@ const AnswerComponent: React.FC<Props> = ({
                 value={draftText}
                 onChange={setDraftText}
                 imageHandler={imageHandler}
-                preview={value => <MarkdownText value={value} solution_file={solution_file} targetWidth={targetWidth}/>}
+                preview={value => (
+                  <MarkdownText value={value} solution_file={solution_file} targetWidth={targetWidth} />
+                )}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />
@@ -328,7 +330,10 @@ const AnswerComponent: React.FC<Props> = ({
               {viewSource ? (
                 <CodeBlock value={answer?.text ?? ""} language="markdown" />
               ) : (
-                <MarkdownText value={answer?.text ?? "" } solution_file={solution_file} />
+                <MarkdownText
+                  value={answer?.text ?? ""}
+                  solution_file={solution_file}
+                />
               )}
             </Box>
           </Card.Section>

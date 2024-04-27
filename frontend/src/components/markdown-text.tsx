@@ -121,14 +121,18 @@ const createComponents = (regex: RegExp | undefined, solution_file?: string, tar
     return <h6>{addMarks(children, regex)}</h6>;
   },
   code({node, className, children, ...props}) {
-    const match = /language-(\w+)/.exec(className || '')
-    const language=match ? match[1] : undefined
-    if(language=="official"){
-      return (useMemo(()=>{
-        return (<OfficialSolution solution_file={solution_file } value={String(children).replace(/\n$/, '')} targetWidth={targetWidth}/>)
-
-      },[solution_file,children]))
-  
+    const match = /language-(\w+)/.exec(className || "");
+    const language = match ? match[1] : undefined;
+    if (language == "official") {
+      return useMemo(() => {
+        return (
+          <OfficialSolution
+            solution_file={solution_file}
+            value={String(children).replace(/\n$/, "")}
+            targetWidth={targetWidth}
+          />
+        );
+      }, [solution_file, children]);
     }
     return match ? (
       <CodeBlock
