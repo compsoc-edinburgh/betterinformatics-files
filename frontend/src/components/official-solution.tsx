@@ -32,6 +32,7 @@ function PdfRenderer(
         targetWidth = targetWidth ? targetWidth : 500;
         const scale =
           (0.8 * targetWidth) / (unscaledViewport.width * Math.abs(x1 - x2));
+        scale=Math.min(scale, 2.5);
         const offsetX = -unscaledViewport.width * scale * x1;
         const offsetY = -unscaledViewport.height * scale * y1;
         const viewport = page.getViewport({
