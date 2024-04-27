@@ -3,6 +3,7 @@ import { PDFDocumentLoadingTask } from "pdfjs-dist";
 import { getDocument } from "../pdf/pdfjs";
 import React, { useMemo, useRef } from "react";
 import { ComponentRenderer } from "./markdown-text";
+import { Tooltip } from "@mantine/core";
 
 interface PdfCoordinates {
   ref_page: number;
@@ -114,14 +115,18 @@ const OfficialSolution: React.FC<Props> = ({
           parseFloat(match[4]),
           parseFloat(match[5]),
         ];
-        return PdfRenderer(
-          solutionFile,
-          {
-            ref_page: page,
-            p1,
-            p2,
-          },
-          (targetWidth = targetWidth),
+        return (
+          <Tooltip label="Official Solution">
+            {PdfRenderer(
+              solutionFile,
+              {
+                ref_page: page,
+                p1,
+                p2,
+              },
+              (targetWidth = targetWidth),
+            )}
+          </Tooltip>
         );
       }
     }
