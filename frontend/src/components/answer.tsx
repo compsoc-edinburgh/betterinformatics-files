@@ -426,6 +426,7 @@ const AnswerComponent: React.FC<Props> = ({
               onSectionChanged={onSectionChanged}
               onChainReply={() => setHasCommentDraft(true)}
               onDraftDelete={() => setHasCommentDraft(false)}
+              solution_file={solution_file}
             />
           )}
       </Card>

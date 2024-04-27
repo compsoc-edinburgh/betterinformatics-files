@@ -15,6 +15,7 @@ interface Props {
   // although the behaviour may be identical depending on what the callback does.
   onChainReply: () => void;
   onDraftDelete: () => void;
+  solution_file?: string;
 }
 const CommentSectionComponent: React.FC<Props> = ({
   hasDraft,
@@ -22,6 +23,7 @@ const CommentSectionComponent: React.FC<Props> = ({
   onSectionChanged,
   onChainReply,
   onDraftDelete,
+  solution_file,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const {search: searchParams} = useLocation();
@@ -42,6 +44,7 @@ const CommentSectionComponent: React.FC<Props> = ({
               onSectionChanged={onSectionChanged}
               comment={comment}
               key={comment.oid}
+              solution_file={solution_file}
             />
           ),
         )}
@@ -72,6 +75,7 @@ const CommentSectionComponent: React.FC<Props> = ({
             onSectionChanged={onSectionChanged}
             comment={undefined}
             onDelete={onDraftDelete}
+            solution_file={solution_file}
           />
         )}
       </Stack>
