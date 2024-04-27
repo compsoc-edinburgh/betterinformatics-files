@@ -52,31 +52,36 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
   }
   
 }
+interface OfficialSolutionProps{
+  solution_file?:string;
+  value?:string;
+}
 
 
-
-const OfficialSolution = ({solution_file="", value=""}) => {
+const OfficialSolution: React.FC<OfficialSolutionProps>= ({solution_file, value}) => {
 
   if(solution_file){
     const regx = new RegExp(/page: (\d+)\r?\nfrom-relative-coords: \((0\.\d+|1), (0.\d+|1)\)\r?\nto-relative-coords: \((0\.\d+|1), (0.\d+|1)\)/)
 
-
-    const match = value.match(regx)
-    if(match){
-      const page = parseInt(match[1], 10); // Extract page number and convert it to integer
-      const x1 = parseFloat(match[2]);
-      const y1 = parseFloat(match[3]);
-      const x2 = parseFloat(match[4]);
-      const y2 = parseFloat(match[5]);
-      return PdfTest(solution_file, page, x1,y1,x2,y2)
-    }else{
-      return <>"Invalid Syntax"</>
-      // return <>"Invalid Syntax use:\npage: \<page number>\nfrom-relative-coords: (\<x1>, \<y1>)\r\nto-relative-coords: (\<x2>, \<y2>)"</>
+    if(value){
+      const match = value.match(regx)
+      if(match){
+        const page = parseInt(match[1], 10); // Extract page number and convert it to integer
+        const x1 = parseFloat(match[2]);
+        const y1 = parseFloat(match[3]);
+        const x2 = parseFloat(match[4]);
+        const y2 = parseFloat(match[5]);
+        return PdfTest(solution_file, page, x1,y1,x2,y2)
+      }
     }
+    return <>"Invalid Syntax"</>
+      // return <>"Invalid Syntax use:\npage: \<page number>\nfrom-relative-coords: (\<x1>, \<y1>)\r\nto-relative-coords: (\<x2>, \<y2>)"</>
+    
   }else{
     return <>"No Solution File found"</>
   }
   
 };
+
 
 export default OfficialSolution;
