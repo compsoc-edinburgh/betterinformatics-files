@@ -1,4 +1,5 @@
 // import { pdfjs } from 'pdfjs-dist';
+import { PDFDocumentLoadingTask } from 'pdfjs-dist';
 import { loadSplitRenderer } from '../api/hooks';
 import { getDocument } from '../pdf/pdfjs';
 import React, { useEffect, useRef } from "react";
@@ -14,9 +15,11 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
   const test = () => {
     const loadDocument = getDocument(solution_file);
     loadDocument.promise
+// tslint:disable-next-line: no-any
       .then((pdf) => {
-        return pdf.getPage(1);
+        return pdf.getPage(solpage);
       })
+// tslint:disable-next-line: no-any
       .then((page) => {
         const viewport = page.getViewport({ 
           scale: 1,
@@ -52,7 +55,7 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
 
 
 
-const OfficialSolution = ({solution_file, value}) => {
+const OfficialSolution = ({solution_file="", value=""}) => {
 
   if(solution_file){
     const regx = new RegExp(/page: (\d+)\r?\nfrom-relative-coords: \((0\.\d+|1), (0.\d+|1)\)\r?\nto-relative-coords: \((0\.\d+|1), (0.\d+|1)\)/)
