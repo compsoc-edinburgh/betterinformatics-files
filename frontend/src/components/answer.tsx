@@ -65,7 +65,7 @@ interface Props {
   onDelete?: () => void;
   answerKind: AnswerKind;
   hasId?: boolean;
-  solution_file?: string;
+  solutionFile?: string;
   targetWidth?: number
 }
 const AnswerComponent: React.FC<Props> = ({
@@ -75,7 +75,7 @@ const AnswerComponent: React.FC<Props> = ({
   onSectionChanged,
   answerKind,
   hasId = true,
-  solution_file,
+  solutionFile,
   targetWidth
 }) => {
   const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
@@ -306,7 +306,7 @@ const AnswerComponent: React.FC<Props> = ({
                 onChange={setDraftText}
                 imageHandler={imageHandler}
                 preview={value => (
-                  <MarkdownText value={value} solution_file={solution_file} targetWidth={targetWidth} />
+                  <MarkdownText value={value} solutionFile={solutionFile} targetWidth={targetWidth} />
                 )}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
@@ -332,7 +332,7 @@ const AnswerComponent: React.FC<Props> = ({
               ) : (
                 <MarkdownText
                   value={answer?.text ?? ""}
-                  solution_file={solution_file}
+                  solutionFile={solutionFile}
                   targetWidth={targetWidth}
                 />
               )}
@@ -434,7 +434,7 @@ const AnswerComponent: React.FC<Props> = ({
               onSectionChanged={onSectionChanged}
               onChainReply={() => setHasCommentDraft(true)}
               onDraftDelete={() => setHasCommentDraft(false)}
-              solution_file={solution_file}
+              solutionFile={solutionFile}
               targetWidth={targetWidth}
             />
           )}

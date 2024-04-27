@@ -214,7 +214,7 @@ const Exam: React.FC<Props> = React.memo(
                     editState.mode === EditMode.Move &&
                     editState.cut === section.oid
                   }
-                  solution_file={metaData.solution_file}
+                  solutionFile={metaData.solution_file}
                   targetWidth={width}
                 />
               );

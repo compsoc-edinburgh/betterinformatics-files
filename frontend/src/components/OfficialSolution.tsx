@@ -10,11 +10,11 @@ interface PdfCoordinates {
   p2: [number, number];
 }
 
-function PdfRenderer(solution_file: string, pdfCoordinates: PdfCoordinates, targetWidth?: number) {
+function PdfRenderer(solutionFile: string, pdfCoordinates: PdfCoordinates, targetWidth?: number) {
   const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
 
   const renderCanvas = () => {
-    const loadDocument: PDFDocumentLoadingTask = getDocument(solution_file);
+    const loadDocument: PDFDocumentLoadingTask = getDocument(solutionFile);
     loadDocument.promise
       .then(pdf => {
         return pdf.getPage(Math.min(pdfCoordinates.ref_page, pdf.numPages));
@@ -46,7 +46,7 @@ function PdfRenderer(solution_file: string, pdfCoordinates: PdfCoordinates, targ
   };
 
   // Render function
-  if (solution_file) {
+  if (solutionFile) {
     try {
       renderCanvas();
       return (
@@ -63,17 +63,17 @@ function PdfRenderer(solution_file: string, pdfCoordinates: PdfCoordinates, targ
 }
 
 interface Props {
-  solution_file?: string;
+  solutionFile?: string;
   value?: string | null;
   targetWidth?: number;
 }
 
 const OfficialSolution: React.FC<Props> = ({
-  solution_file,
+  solutionFile,
   value,
   targetWidth,
 }) => {
-  if (solution_file) {
+  if (solutionFile) {
     const regx = new RegExp(
       /page: (\d+)\r?\nfrom-relative-coords: \((0\.\d+|1), (0.\d+|1)\)\r?\nto-relative-coords: \((0\.\d+|1), (0.\d+|1)\)/,
     );
@@ -85,7 +85,7 @@ const OfficialSolution: React.FC<Props> = ({
         if (page < 1) return <>Invalid Page</>;
         const p1: [number, number] = [parseFloat(match[2]), parseFloat(match[3])]
         const p2: [number, number] = [parseFloat(match[4]), parseFloat(match[5])]
-        return PdfRenderer(solution_file, {
+        return PdfRenderer(solutionFile, {
           ref_page: page,
           p1,
           p2},

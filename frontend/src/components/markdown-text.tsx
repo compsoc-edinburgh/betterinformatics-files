@@ -76,7 +76,7 @@ const addMarks = (
   return obj;
 };
 
-const createComponents = (regex: RegExp | undefined, solution_file?: string, targetWidth?:number): Components => ({
+const createComponents = (regex: RegExp | undefined, solutionFile?: string, targetWidth?:number): Components => ({
   table: ({ children }) => {
     return (
       <Table style={{ width: "auto" }} withColumnBorders={true}>
@@ -127,12 +127,12 @@ const createComponents = (regex: RegExp | undefined, solution_file?: string, tar
       return useMemo(() => {
         return (
           <OfficialSolution
-            solution_file={solution_file}
+            solutionFile={solutionFile}
             value={String(children).replace(/\n$/, "")}
             targetWidth={targetWidth}
           />
         );
-      }, [solution_file, children, targetWidth]);
+      }, [solutionFile, children, targetWidth]);
     }
     return match ? (
       <CodeBlock
@@ -160,7 +160,7 @@ interface Props {
   highlight_matches?: string[];
   regex?: RegExp;
 
-  solution_file?: string;
+  solutionFile?: string;
   targetWidth?: number
 }
 
@@ -172,7 +172,7 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, highlight_matches, solution_file, targetWidth }) => {
+const MarkdownText: React.FC<Props> = ({ value, highlight_matches, solutionFile, targetWidth }) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
   // highlighting.
@@ -184,7 +184,7 @@ const MarkdownText: React.FC<Props> = ({ value, highlight_matches, solution_file
     [highlight_matches],
   );
 
-  const renderers = useMemo(() => createComponents(regex, solution_file, targetWidth), [regex, solution_file, targetWidth]);
+  const renderers = useMemo(() => createComponents(regex, solutionFile, targetWidth), [regex, solutionFile, targetWidth]);
 
   return useMemo(() => {
     const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
