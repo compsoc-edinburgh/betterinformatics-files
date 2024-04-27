@@ -54,7 +54,7 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
 }
 interface OfficialSolutionProps{
   solution_file?:string;
-  value?:string;
+  value?:string | null;
 }
 
 
