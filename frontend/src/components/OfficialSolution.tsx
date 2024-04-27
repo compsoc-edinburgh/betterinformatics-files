@@ -16,11 +16,11 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
     const loadDocument = getDocument(solution_file);
     loadDocument.promise
 // tslint:disable-next-line: no-any
-      .then((pdf) => {
+      .then((pdf: { getPage: (arg0: number) => any; }) => {
         return pdf.getPage(solpage);
       })
 // tslint:disable-next-line: no-any
-      .then((page) => {
+      .then((page: { getViewport: (arg0: { scale: number; offsetX: number; offsetY: number; }) => any; render: (arg0: { canvasContext: CanvasRenderingContext2D; viewport: any; }) => void; }) => {
         const viewport = page.getViewport({ 
           scale: 1,
           offsetX: -100 * 2,
@@ -48,7 +48,7 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
       </div>
     );
   }else{
-    return "No Solution File found"
+    return <>"No Solution File found"</>
   }
   
 }
@@ -62,7 +62,6 @@ const OfficialSolution = ({solution_file="", value=""}) => {
 
 
     const match = value.match(regx)
-    console.log(match)
     if(match){
       const page = parseInt(match[1], 10); // Extract page number and convert it to integer
       const x1 = parseFloat(match[2]);
@@ -71,10 +70,11 @@ const OfficialSolution = ({solution_file="", value=""}) => {
       const y2 = parseFloat(match[5]);
       return PdfTest(solution_file, page, x1,y1,x2,y2)
     }else{
-      return "Invalid Syntax use:\npage: <page number>\nfrom-relative-coords: (<x1>, <y1>)\r\nto-relative-coords: (<x2>, <y2>)"
+      return <>"Invalid Syntax"</>
+      // return <>"Invalid Syntax use:\npage: \<page number>\nfrom-relative-coords: (\<x1>, \<y1>)\r\nto-relative-coords: (\<x2>, \<y2>)"</>
     }
   }else{
-    return "No Solution File found"
+    return <>"No Solution File found"</>
   }
   
 };
