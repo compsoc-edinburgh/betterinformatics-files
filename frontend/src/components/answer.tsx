@@ -54,7 +54,7 @@ import {
 import classes from "./answer.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
-import { officialSolutionLanguage } from "./OfficialSolution";
+import { officialSolutionLanguage } from "./official-solution";
 
 const AnswerToolbar = (props: GroupProps) => (
   <Group className={classes.answerToolbarStyle} {...props} />

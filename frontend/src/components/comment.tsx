@@ -29,7 +29,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TooltipButton from "./TooltipButton";
 import TimeText from "./time-text";
 import { copy } from "../utils/clipboard";
-import { officialSolutionLanguage } from "./OfficialSolution";
+import { officialSolutionLanguage } from "./official-solution";
 
 interface Props {
   answer: Answer;
