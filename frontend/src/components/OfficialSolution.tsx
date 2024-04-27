@@ -8,21 +8,31 @@ import React, { useEffect, useRef } from "react";
 
 // pdfjs.GlobalWorkerOptions.workerSrc = 'pdf.worker.js';
 
-function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2: number , y2: number) {
+function PdfRenderer(solution_file: string, solpage:number, x1:number, y1:number, x2: number , y2: number) {
   // useRef hooks
   const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
 
-  const test = () => {
-    const loadDocument = getDocument(solution_file);
+  const renderCanvas = () => {
+    const loadDocument:PDFDocumentLoadingTask = getDocument(solution_file);
     loadDocument.promise
-      .then((pdf: { getPage: (arg0: number) => any; }) => {
+      .then((pdf) => {
+        if(solpage>pdf.numPages){
+          // returns the last page if page too big
+          return pdf.getPage(pdf.numPages)
+        }
+       
         return pdf.getPage(solpage);
       })
-      .then((page: { getViewport: (arg0: { scale: number; offsetX: number; offsetY: number; }) => any; render: (arg0: { canvasContext: CanvasRenderingContext2D; viewport: any; }) => void; }) => {
+      .then((page) => {
+       
+        const unscaledViewport = page.getViewport({ scale: 1 }); // Get viewport at scale 1 to calculate dimensions
+        const scale = 1.3;
+        const offsetX = -unscaledViewport.width * scale * x1;
+        const offsetY = -unscaledViewport.height * scale * y1;
         const viewport = page.getViewport({ 
-          scale: 1,
-          offsetX: -100 * 2,
-          offsetY: -100 * 2
+          scale: scale,
+          offsetX: offsetX,
+          offsetY: offsetY
         });
 
 
@@ -34,19 +44,26 @@ function PdfTest(solution_file: string, solpage:number, x1:number, y1:number, x2
             myCanvas.current.width = viewport.width*(Math.abs(x1-x2));
           }
         }
-      });
+      })
   };
 
   // Render function
   if(solution_file){
-    test()
-    return (
-      <div>
-        <canvas ref={myCanvas} />
-      </div>
-    );
+    try{
+      renderCanvas()
+      return (
+        <div>
+          <canvas ref={myCanvas} />
+        </div>
+      );
+    }catch{
+      return <>An Error occoured. Check your syntax.</> 
+
+    }
+    
+    
   }else{
-    return <>"No Solution File found"</>
+    return <>No Solution File found</>
   }
   
 }
@@ -64,19 +81,20 @@ const OfficialSolution: React.FC<OfficialSolutionProps>= ({solution_file, value}
     if(value){
       const match = value.match(regx)
       if(match){
-        const page = parseInt(match[1], 10); // Extract page number and convert it to integer
+        const page = parseInt(match[1]); // Extract page number and convert it to integer
         const x1 = parseFloat(match[2]);
         const y1 = parseFloat(match[3]);
         const x2 = parseFloat(match[4]);
         const y2 = parseFloat(match[5]);
-        return PdfTest(solution_file, page, x1,y1,x2,y2)
+        if(page<1) return <>Invalid Page</>
+        return PdfRenderer(solution_file, page, x1,y1,x2,y2)
       }
     }
-    return <>"Invalid Syntax"</>
+    return <>Invalid Syntax</>
       // return <>"Invalid Syntax use:\npage: \<page number>\nfrom-relative-coords: (\<x1>, \<y1>)\r\nto-relative-coords: (\<x2>, \<y2>)"</>
     
   }else{
-    return <>"No Solution File found"</>
+    return <>No Solution File found</>
   }
   
 };
