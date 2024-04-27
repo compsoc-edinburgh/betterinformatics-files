@@ -214,6 +214,7 @@ const Exam: React.FC<Props> = React.memo(
                     editState.mode === EditMode.Move &&
                     editState.cut === section.oid
                   }
+                  solution_file={metaData.has_solution? metaData.solution_file: undefined}
                 />
               );
             } else {

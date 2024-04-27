@@ -15,6 +15,8 @@ import { Alert, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
 import clsx from "clsx";
 import classes from "./markdown-text.module.css";
+import OfficialSolution from "./OfficialSolution";
+
 
 const transformImageUri = (uri: string) => {
   if (uri.includes("/")) {
@@ -74,7 +76,7 @@ const addMarks = (
   return obj;
 };
 
-const createComponents = (regex: RegExp | undefined): Components => ({
+const createComponents = (regex: RegExp | undefined, solution_file?: string): Components => ({
   table: ({ children }) => {
     return (
       <Table style={{ width: "auto" }} withColumnBorders={true}>
@@ -118,8 +120,16 @@ const createComponents = (regex: RegExp | undefined): Components => ({
   h6: ({ children }) => {
     return <h6>{addMarks(children, regex)}</h6>;
   },
-  code({ node, className, children, ...props }) {
-    const match = /language-(\w+)/.exec(className || "");
+  code({node, className, children, ...props}) {
+    const match = /language-(\w+)/.exec(className || '')
+    const language=match ? match[1] : undefined
+    console.log(language)
+    console.log(solution_file)
+    if(language=="official"){
+      console.log(children)
+      return (<OfficialSolution solution_file={solution_file } value={children}/>)
+  
+    }
     return match ? (
       <CodeBlock
         language={match ? match[1] : undefined}
@@ -144,6 +154,9 @@ interface Props {
    * text will be highlighted.
    */
   highlight_matches?: string[];
+  regex?: RegExp;
+
+  solution_file?: string;
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -154,7 +167,7 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, highlight_matches }) => {
+const MarkdownText: React.FC<Props> = ({ value, highlight_matches, solution_file }) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
   // highlighting.
@@ -166,7 +179,7 @@ const MarkdownText: React.FC<Props> = ({ value, highlight_matches }) => {
     [highlight_matches],
   );
 
-  const renderers = useMemo(() => createComponents(regex), [regex]);
+  const renderers = useMemo(() => createComponents(regex, solution_file), [regex, solution_file]);
 
   return useMemo(() => {
     const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
