@@ -15,7 +15,6 @@ import { Alert, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
 import clsx from "clsx";
 import classes from "./markdown-text.module.css";
-import OfficialSolution from "./OfficialSolution";
 
 
 const transformImageUri = (uri: string) => {
@@ -26,8 +25,8 @@ const transformImageUri = (uri: string) => {
   }
 };
 
-export type ComponentGenerator = (
-  elem: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>,
+export type ComponentRenderer = (
+  props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>,
 ) => React.ReactElement;
 
 const addMarks = (
@@ -82,7 +81,7 @@ const addMarks = (
 
 const createComponents = (
   regex: RegExp | undefined,
-  languages?: { [key: string]: ComponentGenerator },
+  languages?: { [key: string]: ComponentRenderer },
   targetWidth?: number,
 ): Components => ({
   table: ({ children }) => {
@@ -161,7 +160,7 @@ interface Props {
    * text will be highlighted.
    */
   highlight_matches?: string[];
-  languages?: { [key: string]: ComponentGenerator };
+  languages?: { [key: string]: ComponentRenderer };
   targetWidth?: number;
 }
 

@@ -2,7 +2,7 @@
 import { PDFDocumentLoadingTask } from "pdfjs-dist";
 import { getDocument } from "../pdf/pdfjs";
 import React, { useMemo, useRef } from "react";
-import { ComponentGenerator } from "./markdown-text";
+import { ComponentRenderer } from "./markdown-text";
 
 interface PdfCoordinates {
   ref_page: number;
@@ -70,7 +70,7 @@ function PdfRenderer(
 export const officialSolutionLanguage = (
   solutionFile?: string,
   targetWidth?: number,
-): { [key: string]: ComponentGenerator } => {
+): { [key: string]: ComponentRenderer } => {
   return {
     official: ({ children }) =>
       useMemo(() => {
