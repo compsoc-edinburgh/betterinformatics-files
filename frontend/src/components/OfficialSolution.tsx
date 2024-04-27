@@ -10,7 +10,7 @@ interface PdfCoordinates {
   p2: [number, number];
 }
 
-function PdfRenderer(solution_file: string, pdfCoordinates: PdfCoordinates, targetWidth: number) {
+function PdfRenderer(solution_file: string, pdfCoordinates: PdfCoordinates, targetWidth?: number) {
   const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
 
   const renderCanvas = () => {
@@ -24,7 +24,8 @@ function PdfRenderer(solution_file: string, pdfCoordinates: PdfCoordinates, targ
         const [x2, y2] = pdfCoordinates.p2;
 
         const unscaledViewport = page.getViewport({ scale: 1 }); // Get viewport at scale 1 to calculate dimensions
-        const scale = targetWidth / (unscaledViewport.width*Math.abs(x1-x2));
+        targetWidth = targetWidth?targetWidth:500
+        const scale = 0.8*targetWidth / (unscaledViewport.width*Math.abs(x1-x2));
         const offsetX = -unscaledViewport.width * scale * x1;
         const offsetY = -unscaledViewport.height * scale * y1;
         const viewport = page.getViewport({
@@ -70,7 +71,7 @@ interface Props {
 const OfficialSolution: React.FC<Props> = ({
   solution_file,
   value,
-  targetWidth = 800,
+  targetWidth,
 }) => {
   if (solution_file) {
     const regx = new RegExp(

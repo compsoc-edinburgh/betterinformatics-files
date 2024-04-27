@@ -66,7 +66,7 @@ interface Props {
   answerKind: AnswerKind;
   hasId?: boolean;
   solution_file?: string;
-  targetWidth:number;
+  targetWidth?: number
 }
 const AnswerComponent: React.FC<Props> = ({
   section,
@@ -333,6 +333,7 @@ const AnswerComponent: React.FC<Props> = ({
                 <MarkdownText
                   value={answer?.text ?? ""}
                   solution_file={solution_file}
+                  targetWidth={targetWidth}
                 />
               )}
             </Box>
@@ -434,6 +435,7 @@ const AnswerComponent: React.FC<Props> = ({
               onChainReply={() => setHasCommentDraft(true)}
               onDraftDelete={() => setHasCommentDraft(false)}
               solution_file={solution_file}
+              targetWidth={targetWidth}
             />
           )}
       </Card>

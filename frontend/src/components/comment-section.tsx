@@ -16,6 +16,7 @@ interface Props {
   onChainReply: () => void;
   onDraftDelete: () => void;
   solution_file?: string;
+  targetWidth?: number
 }
 const CommentSectionComponent: React.FC<Props> = ({
   hasDraft,
@@ -24,6 +25,7 @@ const CommentSectionComponent: React.FC<Props> = ({
   onChainReply,
   onDraftDelete,
   solution_file,
+  targetWidth,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const {search: searchParams} = useLocation();
@@ -45,6 +47,7 @@ const CommentSectionComponent: React.FC<Props> = ({
               comment={comment}
               key={comment.oid}
               solution_file={solution_file}
+              targetWidth={targetWidth}
             />
           ),
         )}
@@ -76,6 +79,7 @@ const CommentSectionComponent: React.FC<Props> = ({
             comment={undefined}
             onDelete={onDraftDelete}
             solution_file={solution_file}
+            targetWidth={targetWidth}
           />
         )}
       </Stack>
