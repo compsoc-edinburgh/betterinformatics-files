@@ -124,7 +124,7 @@ const createComponents = (regex: RegExp | undefined, solution_file?: string): Co
     const match = /language-(\w+)/.exec(className || '')
     const language=match ? match[1] : undefined
     if(language=="official"){
-      return (<OfficialSolution solution_file={solution_file } value={children}/>)
+      return (<OfficialSolution solution_file={solution_file } value={String(children).replace(/\n$/, '')}/>)
   
     }
     return match ? (
