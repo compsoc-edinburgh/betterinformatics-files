@@ -7,7 +7,7 @@ import React, { useEffect, useRef } from "react";
 
 
 
-function PdfRenderer(solution_file: string, solpage:number, x1:number, y1:number, x2: number , y2: number) {
+function PdfRenderer(solution_file: string, solpage:number, x1:number, y1:number, x2: number , y2: number, targetWidth: number) {
   const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
 
   const renderCanvas = () => {
@@ -24,7 +24,7 @@ function PdfRenderer(solution_file: string, solpage:number, x1:number, y1:number
       .then((page) => {
        
         const unscaledViewport = page.getViewport({ scale: 1 }); // Get viewport at scale 1 to calculate dimensions
-        const scale = 1.3;
+        const scale = targetWidth / (unscaledViewport.width*Math.abs(x1-x2));
         const offsetX = -unscaledViewport.width * scale * x1;
         const offsetY = -unscaledViewport.height * scale * y1;
         const viewport = page.getViewport({ 
@@ -68,10 +68,11 @@ function PdfRenderer(solution_file: string, solpage:number, x1:number, y1:number
 interface OfficialSolutionProps{
   solution_file?:string;
   value?:string | null;
+  targetWidth?:number;
 }
 
 
-const OfficialSolution: React.FC<OfficialSolutionProps>= ({solution_file, value}) => {
+const OfficialSolution: React.FC<OfficialSolutionProps>= ({solution_file, value,targetWidth=800}) => {
 
   if(solution_file){
     const regx = new RegExp(/page: (\d+)\r?\nfrom-relative-coords: \((0\.\d+|1), (0.\d+|1)\)\r?\nto-relative-coords: \((0\.\d+|1), (0.\d+|1)\)/)
@@ -85,7 +86,7 @@ const OfficialSolution: React.FC<OfficialSolutionProps>= ({solution_file, value}
         const x2 = parseFloat(match[4]);
         const y2 = parseFloat(match[5]);
         if(page<1) return <>Invalid Page</>
-        return PdfRenderer(solution_file, page, x1,y1,x2,y2)
+        return PdfRenderer(solution_file, page, x1,y1,x2,y2, targetWidth)
       }
     }
     return <>Invalid Syntax</>
