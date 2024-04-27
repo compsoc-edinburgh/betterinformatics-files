@@ -6,10 +6,8 @@ import React, { useEffect, useRef } from "react";
 
 
 
-// pdfjs.GlobalWorkerOptions.workerSrc = 'pdf.worker.js';
 
 function PdfRenderer(solution_file: string, solpage:number, x1:number, y1:number, x2: number , y2: number) {
-  // useRef hooks
   const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
 
   const renderCanvas = () => {
@@ -91,7 +89,8 @@ const OfficialSolution: React.FC<OfficialSolutionProps>= ({solution_file, value}
       }
     }
     return <>Invalid Syntax</>
-      // return <>"Invalid Syntax use:\npage: \<page number>\nfrom-relative-coords: (\<x1>, \<y1>)\r\nto-relative-coords: (\<x2>, \<y2>)"</>
+    // return <>"Invalid Syntax use:\npage: page number\nfrom-relative-coords: (x1, y1)\nto-relative-coords: (x2, y2)"</>
+    
     
   }else{
     return <>No Solution File found</>
