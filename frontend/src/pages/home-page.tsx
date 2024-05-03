@@ -151,9 +151,7 @@ const HomePage: React.FC<{}> = () => {
           </Container>
         ) : (
           <>
-            <Text lh={1}>
-              Better&shy;Informatics
-            </Text>
+            <Text lh={1}>Better&shy;Informatics</Text>
             <Title mb="sm">File Collection</Title>
           </>
         )}

@@ -121,7 +121,8 @@ const App: React.FC<{}> = () => {
   // Update local storage if a new uwu query parameter is set
   const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
   const [newUwu, _] = useQueryParam("uwu", BooleanParam);
-  if (newUwu !== null && newUwu !== undefined && uwu !== newUwu) setLocalUwu(newUwu);
+  if (newUwu !== null && newUwu !== undefined && uwu !== newUwu)
+    setLocalUwu(newUwu);
 
   // Retrieve the config options (such as the logo, global menu items, etc) from
   // the global configOptions variable if set (in index.html). The defaults are
@@ -291,7 +292,11 @@ const App: React.FC<{}> = () => {
                       path="/scoreboard"
                       component={Scoreboard}
                     />
-                    <UserRoute exact path="/stats" render={() => (<Redirect to="/scoreboard" />)}/>
+                    <UserRoute
+                      exact
+                      path="/stats"
+                      render={() => <Redirect to="/scoreboard" />}
+                    />
                     <UserRoute exact path="/modqueue" component={ModQueue} />
                     <Route component={NotFoundPage} />
                   </Switch>

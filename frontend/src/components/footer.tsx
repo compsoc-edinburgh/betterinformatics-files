@@ -106,7 +106,9 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
               />
               Repository
             </Anchor>
-            <Anchor onClick={setUwu} c="blue">uwu?</Anchor>
+            <Anchor onClick={setUwu} c="blue">
+              uwu?
+            </Anchor>
             <Anchor href={disclaimer} c="blue">
               Disclaimer
             </Anchor>
