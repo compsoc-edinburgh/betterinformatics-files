@@ -20,7 +20,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   const [displayName, setDisplayName] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  const [loading, createDocumentFile] = useCreateDocumentFile(
+  const {loading, error, run: createDocumentFile} = useCreateDocumentFile(
     document.slug,
     f => {
       onClose();
@@ -33,6 +33,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   return (
     <>
       <Stack>
+        {error && <Alert color="red">{String(error)}</Alert>}
         <TextInput
           label="Display Name"
           value={displayName}
