@@ -12,6 +12,7 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
   useTitle("Login");
   const user = useUser();
   const rd = new URLSearchParams(useLocation().search).get("rd");
+  const [uwu, _] = useLocalStorageState("uwu", false);
 
   if (user !== undefined && user.loggedin) {
     // If the user is already logged in, redirect them to the home page or what
@@ -20,7 +21,6 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
     return null;
   }
 
-  const [uwu, _] = useLocalStorageState("uwu", false);
   return (
     <>
       <Container size="xl" mb="lg">
