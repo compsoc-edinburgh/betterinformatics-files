@@ -87,7 +87,7 @@ const mapToCategories = (
 const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   onAddCategory,
 }) => {
-  const [addCategoryModalIsOpen, {open: openAddCategoryModal, close: closeAddCategoryModal}] = useDisclosure();
+  const [addCategoryModalIsOpen, { open: openAddCategoryModal, close: closeAddCategoryModal }] = useDisclosure();
   const { loading, run } = useRequest(addCategory, {
     manual: true,
     onSuccess: () => {
@@ -165,9 +165,12 @@ const HomePage: React.FC<{}> = () => {
     </>
   );
 };
+
+type Mode = "alphabetical" | "bySCQF" | "favourites";
+
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
-  const [mode, setMode] = useLocalStorageState("mode", "alphabetical");
+  const [mode, setMode] = useLocalStorageState<Mode>("category-list-mode", "alphabetical"); // default to alphabetical
   const [filter, setFilter] = useState("");
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
@@ -178,8 +181,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-            ({ slug }) => slug !== "default" || isAdmin,
-          )
+          ({ slug }) => slug !== "default" || isAdmin,
+        )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -200,7 +203,7 @@ export const CategoryList: React.FC<{}> = () => {
   const onAddCategory = useCallback(() => {
     run();
   }, [run]);
-  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
+  const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
 
   const slugify = (str: string): string =>
     str
@@ -220,10 +223,13 @@ export const CategoryList: React.FC<{}> = () => {
         >
           <SegmentedControl
             value={mode}
-            onChange={setMode}
+            onChange={(value: string) => {
+              setMode(value as Mode);
+            }}
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
+              { label: "Favourites", value: "favourites" },
             ]}
           />
           <TextInput
@@ -250,34 +256,33 @@ export const CategoryList: React.FC<{}> = () => {
                 {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
               </Grid>
             </>
-          ) : (
+          ) : mode === "bySCQF" ? (
             <>
-              {metaList &&
-                metaList.map(([meta1display, meta2]) => (
-                  <div key={meta1display} id={slugify(meta1display)}>
-                    <Title order={2} my="sm">
-                      {meta1display}
-                    </Title>
-                    {meta2.map(([meta2display, categories]) => (
-                      <div
-                        key={meta2display}
-                        id={slugify(meta1display) + slugify(meta2display)}
-                      >
-                        <Title order={3} my="md">
-                          {meta2display}
-                        </Title>
-                        <Grid>
-                          {categories.map(category => (
-                            <CategoryCard
-                              category={category}
-                              key={category.slug}
-                            />
-                          ))}
-                        </Grid>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+              {metaList && metaList.map(([meta1display, meta2]) => (
+                <div key={meta1display} id={slugify(meta1display)}>
+                  <Title order={2} my="sm">
+                    {meta1display}
+                  </Title>
+                  {meta2.map(([meta2display, categories]) => (
+                    <div
+                      key={meta2display}
+                      id={slugify(meta1display) + slugify(meta2display)}
+                    >
+                      <Title order={3} my="md">
+                        {meta2display}
+                      </Title>
+                      <Grid>
+                        {categories.map(category => (
+                          <CategoryCard
+                            category={category}
+                            key={category.slug}
+                          />
+                        ))}
+                      </Grid>
+                    </div>
+                  ))}
+                </div>
+              ))}
               {unassignedList && unassignedList.length > 0 && (
                 <>
                   <Title order={3} my="md">
@@ -301,7 +306,9 @@ export const CategoryList: React.FC<{}> = () => {
                 </>
               )}
             </>
-          )}
+          ) : // favourites
+            <p>TODO: implement favourites</p>
+          }
         </Container>
       </ContentContainer>
       {!loading ? (
