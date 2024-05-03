@@ -8,10 +8,12 @@ import {
   useMantineTheme,
   Text,
 } from "@mantine/core";
-
+import { useLocalStorageState } from "@umijs/hooks";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
+import KawaiiBetterInformatics from "../../assets/kawaii-betterinformatics.svg?react";
 import classes from "./MobileHeader.module.css";
+import clsx from "clsx";
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
@@ -33,6 +35,7 @@ const BottomHeader: React.FC<Props> = ({
 }) => {
   const theme = useMantineTheme();
   const [opened, setOpened] = React.useState(false);
+  const [uwu, _] = useLocalStorageState("uwu", false);
 
   return (
     <Container
@@ -47,11 +50,13 @@ const BottomHeader: React.FC<Props> = ({
         justify="space-between"
       >
         <div style={{ display: "flex" }}>
-          <img
-            src={signet}
-            alt="Signet of the student organization"
-            className={classes.logo}
-          />
+          {uwu ? <KawaiiBetterInformatics className={classes.logo}/> : (
+            <img
+              src={signet}
+              alt="Signet of the student organization"
+              className={clsx(classes.logo, classes.invertedLogo)}
+            />
+          )}
           <div className={classes.title}>
             <a style={{ color: "inherit", textDecoration: "none" }} href="/">
               {title}

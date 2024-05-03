@@ -28,6 +28,7 @@ import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -140,13 +141,20 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
 const HomePage: React.FC<{}> = () => {
   useTitle("Home");
+  const [uwu, _] = useLocalStorageState("uwu", false);
   return (
     <>
       <Container size="xl" mb="sm">
-        <Text lh={1}>
-          Better&shy;Informatics
-        </Text>
-        <Title mb="sm">File Collection</Title>
+        {uwu ? (
+          <Container size="sm" mb="lg">
+            <KawaiiBetterInformatics />
+          </Container>
+        ) : (
+          <>
+            <Text lh={1}>Better&shy;Informatics</Text>
+            <Title mb="sm">File Collection</Title>
+          </>
+        )}
         <Text fw={500}>
           BetterInformatics File Collection is a platform for students to share
           notes, summaries, tips and recommendations for courses, as well as a
@@ -229,8 +237,8 @@ export const CategoryList: React.FC<{}> = () => {
         </Flex>
       </Container>
       <ContentContainer>
-        <LoadingOverlay visible={loading} />
-        <Container size="xl" py="md">
+        <Container size="xl" py="md" pos="relative">
+          {loading && !error && <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />}
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (

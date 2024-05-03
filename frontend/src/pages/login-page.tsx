@@ -1,15 +1,18 @@
 import { Container, Flex, Grid, Paper, Text } from "@mantine/core";
 import React from "react";
+import { useLocalStorageState } from "@umijs/hooks";
 import { useLocation } from "react-router-dom";
 import LoginOverlay from "../components/login-overlay";
 import useTitle from "../hooks/useTitle";
 import { useUser } from "../auth";
 import { CategoryList } from "./home-page";
+import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 
 const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
   useTitle("Login");
   const user = useUser();
   const rd = new URLSearchParams(useLocation().search).get("rd");
+  const [uwu, _] = useLocalStorageState("uwu", false);
 
   if (user !== undefined && user.loggedin) {
     // If the user is already logged in, redirect them to the home page or what
@@ -17,6 +20,7 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
     window.location.replace(rd ?? "/");
     return null;
   }
+
   return (
     <>
       <Container size="xl" mb="lg">
@@ -26,12 +30,18 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
             style={{ alignSelf: "center" }}
           >
             <Flex direction="column" justify="center">
-              <Text size="4rem" lh={1} mt="lg">
-                Better&shy;Informatics
-              </Text>
-              <Text size="2.5rem" lh={1.2} my="lg">
-                File Collection
-              </Text>
+              {uwu ? (
+                <KawaiiBetterInformatics />
+              ) : (
+                <>
+                  <Text size="4rem" lh={1} mt="lg">
+                    Better&shy;Informatics
+                  </Text>
+                  <Text size="2.5rem" lh={1.2} my="lg">
+                    File Collection
+                  </Text>
+                </>
+              )}
               <Text fw={500}>
                 BetterInformatics File Collection is a platform for students to
                 share notes, summaries, tips and recommendations for courses, as

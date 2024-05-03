@@ -8,6 +8,7 @@ import {
   Group,
   Text,
 } from "@mantine/core";
+import { useLocalStorageState } from "@umijs/hooks";
 import { IconBrandGit, IconHeartFilled } from "@tabler/icons-react";
 
 interface FooterProps {
@@ -17,6 +18,11 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
+  const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
+  const setUwu = () => {
+    setLocalUwu(!uwu);
+    window.location.reload();
+  };
   return (
     <Box pt="md" pb="lg">
       <Container size="xl">
@@ -39,7 +45,7 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
               flex: 1,
             }}
           >
-            Orginal software (GPL) built with
+            Original software (GPL) built with
             <IconHeartFilled
               style={{
                 position: "relative",
@@ -99,6 +105,9 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
                 }}
               />
               Repository
+            </Anchor>
+            <Anchor onClick={setUwu} c="blue">
+              uwu?
             </Anchor>
             <Anchor href={disclaimer} c="blue">
               Disclaimer
