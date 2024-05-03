@@ -37,7 +37,8 @@ import Scoreboard from "./pages/scoreboard-page";
 import SearchPage from "./pages/search-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-import { useRequest } from "@umijs/hooks";
+import { useLocalStorageState, useRequest } from "@umijs/hooks";
+import { BooleanParam, useQueryParam } from "use-query-params";
 import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
@@ -116,6 +117,11 @@ const App: React.FC<{}> = () => {
   const { data: unreadCount } = useRequest(loadUnreadCount, {
     pollingInterval: 300_000,
   });
+
+  // Update local storage if a new uwu query parameter is set
+  const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
+  const [newUwu, _] = useQueryParam("uwu", BooleanParam);
+  if (newUwu !== null && newUwu !== undefined && uwu !== newUwu) setLocalUwu(newUwu);
 
   // Retrieve the config options (such as the logo, global menu items, etc) from
   // the global configOptions variable if set (in index.html). The defaults are
