@@ -6,9 +6,10 @@ import {
   LoadingOverlay,
   Stack,
   Tooltip,
+  Flex,
 } from "@mantine/core";
 import React, { useMemo } from "react";
-import { IconLock } from "@tabler/icons-react";
+import { IconHeart, IconLock } from "@tabler/icons-react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
@@ -61,7 +62,7 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
         // Show a padlock when not logged in, to draw attention to the login form.
         <LoadingOverlay
           visible={true}
-          loaderProps={{ children: <IconLock style={{ height: "1.5rem", width: "1.5rem" }} aria-label="Locked" />}}
+          loaderProps={{ children: <IconLock style={{ height: "1.5rem", width: "1.5rem" }} aria-label="Locked" /> }}
         />
       )}
       <Stack h="100%" justify="space-between">
@@ -74,9 +75,13 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
             mb={0}
             lh={1.25}
           >
-            {"match" in category
-              ? highlight(category.displayname, category.match)
-              : category.displayname}
+            <Flex justify="space-between">
+              {"match" in category
+                ? highlight(category.displayname, category.match)
+                : category.displayname}
+              {/* TODO: Add favourite functionality */}
+              <IconHeart aria-label="Favourite" />
+            </Flex>
           </Anchor>
           <Text mt={4} c="gray.8">
             {pluralize(category.documentcount, "Community Document")}
