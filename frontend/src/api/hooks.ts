@@ -540,11 +540,8 @@ export const useCreateDocumentFile = (
   documentSlug: string,
   onSuccess?: (res: DocumentFile) => void,
 ) =>
-  useMutation(
-    (display_name: string, file: NamedBlob | File) =>
-      createDocumentFile(documentSlug, display_name, file),
-    onSuccess,
-  );
+  useRequest((display_name: string, file: NamedBlob | File) =>
+    createDocumentFile(documentSlug, display_name, file), { manual: true, onSuccess });
 export const deleteDocumentFile = async (
   documentSlug: string,
   fileId: number,
