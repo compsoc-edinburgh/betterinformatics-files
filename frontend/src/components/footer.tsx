@@ -45,7 +45,7 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
               flex: 1,
             }}
           >
-            Orginal software (GPL) built with
+            Original software (GPL) built with
             <IconHeartFilled
               style={{
                 position: "relative",
