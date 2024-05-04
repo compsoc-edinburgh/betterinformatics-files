@@ -55,8 +55,10 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
   const lock_titles = useMemo(() => !authenticated(), []);
 
   const toggleFavourite = (e: React.MouseEvent) => {
-    if (favouriteLoading || favouriteRemoveLoading) return;
+    // Prevent the card from navigating to the category page when clicking the
+    // favourite button (also while it's loading).
     e.preventDefault();
+    if (favouriteLoading || favouriteRemoveLoading) return;
     if (category.favourite) {
       remove(category.slug);
     } else {
