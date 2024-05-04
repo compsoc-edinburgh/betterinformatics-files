@@ -17,6 +17,10 @@ def get_favourites(request):
 @response.request_post()
 @auth_check.require_login
 def add_favorite(request, slug):
+    favourites = FavouriteCategory.objects.filter(
+        user=request.user, category__slug=slug)
+    if favourites.exists():
+        return response.error("Category already in favourites")
     new_favourite = FavouriteCategory(
         user=request.user, category=Category.objects.get(slug=slug))
 
@@ -29,5 +33,6 @@ def add_favorite(request, slug):
 def remove_favorite(request, slug):
     favourite = FavouriteCategory.objects.get(
         user=request.user, category__slug=slug)
+
     favourite.delete()
     return response.success()

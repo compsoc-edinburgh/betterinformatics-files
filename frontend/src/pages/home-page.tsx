@@ -211,7 +211,17 @@ export const CategoryList: React.FC<{}> = () => {
   const onAddCategory = useCallback(() => {
     run();
   }, [run]);
+
   const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
+
+
+  const favouriteCategories = useMemo(
+    () => categories?.filter(c => c.favourite),
+    [categories],
+  );
+  const onFavouriteToggle = useCallback(() => {
+    run();
+  }, [run]);
 
   const slugify = (str: string): string =>
     str
@@ -237,7 +247,7 @@ export const CategoryList: React.FC<{}> = () => {
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
-              { label: "Favourites", value: "favourites" },
+              { label: "Favourites", value: "favourites" }
             ]}
           />
           <TextInput
@@ -259,7 +269,7 @@ export const CategoryList: React.FC<{}> = () => {
             <>
               <Grid>
                 {searchResult.map(category => (
-                  <CategoryCard category={category} key={category.slug} />
+                  <CategoryCard category={category} key={category.slug} onFavouriteToggle={onFavouriteToggle} />
                 ))}
                 {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
               </Grid>
@@ -284,6 +294,7 @@ export const CategoryList: React.FC<{}> = () => {
                           <CategoryCard
                             category={category}
                             key={category.slug}
+                            onFavouriteToggle={onFavouriteToggle}
                           />
                         ))}
                       </Grid>
@@ -298,7 +309,7 @@ export const CategoryList: React.FC<{}> = () => {
                   </Title>
                   <Grid>
                     {unassignedList.map(category => (
-                      <CategoryCard category={category} key={category.slug} />
+                      <CategoryCard category={category} key={category.slug} onFavouriteToggle={onFavouriteToggle} />
                     ))}
                   </Grid>
                 </>
@@ -315,7 +326,15 @@ export const CategoryList: React.FC<{}> = () => {
               )}
             </>
           ) : // favourites
-            <p>Not implemented yet</p>
+            <>
+              <Grid>
+                {favouriteCategories && favouriteCategories.length > 0 ? favouriteCategories.map(category => (
+                  <CategoryCard category={category} key={category.slug} onFavouriteToggle={onFavouriteToggle} />
+                )) : (
+                  <Text>No favourite categories</Text>
+                )}
+              </Grid>
+            </>
           }
         </Container>
       </ContentContainer>

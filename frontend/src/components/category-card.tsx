@@ -22,12 +22,13 @@ import { addNewFavourite, removeFavourite } from "../api/favourite";
 
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
+  onFavouriteToggle: () => void;
 }
 
 const pluralize = (count: number, noun: string) =>
   `${count} ${noun}${count !== 1 ? "s" : ""}`;
 
-const CategoryCard: React.FC<Props> = ({ category }) => {
+const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh }) => {
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
@@ -39,9 +40,11 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
 
 
   const [favouriteLoading, add] = useMutation(addNewFavourite, res => {
+    refresh();
   });
 
   const [favouriteRemoveLoading, remove] = useMutation(removeFavourite, res => {
+    refresh();
   });
 
   // Show a padlock on cards if not authenticated (as determined by a cookie).
@@ -51,16 +54,13 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
   const lock_titles = useMemo(() => !authenticated(), []);
 
   const toggleFavourite = (e: React.MouseEvent) => {
+    if (favouriteLoading || favouriteRemoveLoading) return;
     e.preventDefault();
     if (category.favourite) {
       remove(category.slug);
     } else {
       add(category.slug);
     }
-
-    // TODO: Reload site is not a good user experience
-    // Look into revalidating 
-    document.location.reload();
   }
 
   return (
