@@ -101,7 +101,6 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
               {"match" in category
                 ? highlight(category.displayname, category.match)
                 : category.displayname}
-              {/* TODO: Add favourite functionality */}
               <div onClick={toggleFavourite}>
                 {category.favourite ? <IconHeartFilled aria-label="Favourite" /> :
                   <IconHeart aria-label="Favourite" />
