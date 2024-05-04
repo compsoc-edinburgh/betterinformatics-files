@@ -29,6 +29,7 @@ import CourseCategoriesPanel from "../components/course-categories-panel";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
+import { getFavourites } from "../api/favourite";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -37,13 +38,15 @@ const loadCategories = async () => {
     .value as CategoryMetaData[];
 };
 const loadCategoryData = async () => {
-  const [categories, metaCategories] = await Promise.all([
+  const [categories, metaCategories, favourites] = await Promise.all([
     loadCategories(),
     loadMetaCategories(),
+    getFavourites(),
   ]);
   return [
     categories.sort((a, b) => a.displayname.localeCompare(b.displayname)),
     metaCategories,
+    favourites,
   ] as const;
 };
 const addCategory = async (category: string) => {
@@ -175,7 +178,8 @@ export const CategoryList: React.FC<{}> = () => {
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
   });
-  const [categoriesWithDefault, metaCategories] = data ? data : [];
+
+  const [categoriesWithDefault, metaCategories, favourites] = data ? data : [];
 
   const categories = useMemo(
     () =>
@@ -183,6 +187,10 @@ export const CategoryList: React.FC<{}> = () => {
         ? categoriesWithDefault.filter(
           ({ slug }) => slug !== "default" || isAdmin,
         )
+          .map(category => ({
+            ...category,
+            favourite: favourites ? favourites.includes(category.slug) : false,
+          }))
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -307,7 +315,7 @@ export const CategoryList: React.FC<{}> = () => {
               )}
             </>
           ) : // favourites
-            <p>TODO: implement favourites</p>
+            <p>Not implemented yet</p>
           }
         </Container>
       </ContentContainer>

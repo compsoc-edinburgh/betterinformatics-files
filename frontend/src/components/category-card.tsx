@@ -9,7 +9,7 @@ import {
   Flex,
 } from "@mantine/core";
 import React, { useMemo } from "react";
-import { IconHeart, IconLock } from "@tabler/icons-react";
+import { IconHeart, IconHeartFilled, IconLock } from "@tabler/icons-react";
 import { Link, useHistory } from "react-router-dom";
 import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
@@ -17,6 +17,8 @@ import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
 import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
+import { useMutation } from "../api/hooks";
+import { addNewFavourite, removeFavourite } from "../api/favourite";
 
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
@@ -35,11 +37,31 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
     }
   };
 
+
+  const [favouriteLoading, add] = useMutation(addNewFavourite, res => {
+  });
+
+  const [favouriteRemoveLoading, remove] = useMutation(removeFavourite, res => {
+  });
+
   // Show a padlock on cards if not authenticated (as determined by a cookie).
   // This is to clearly draw attention to the login form for first-time users.
   // The lock is purely cosmetic, you can still click it but that will make the
   // server actually check auth and redirect you to the login form.
   const lock_titles = useMemo(() => !authenticated(), []);
+
+  const toggleFavourite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (category.favourite) {
+      remove(category.slug);
+    } else {
+      add(category.slug);
+    }
+
+    // TODO: Reload site is not a good user experience
+    // Look into revalidating 
+    document.location.reload();
+  }
 
   return (
     <Card
@@ -80,7 +102,11 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
                 ? highlight(category.displayname, category.match)
                 : category.displayname}
               {/* TODO: Add favourite functionality */}
-              <IconHeart aria-label="Favourite" />
+              <div onClick={toggleFavourite}>
+                {category.favourite ? <IconHeartFilled aria-label="Favourite" /> :
+                  <IconHeart aria-label="Favourite" />
+                }
+              </div>
             </Flex>
           </Anchor>
           <Text mt={4} c="gray.8">
