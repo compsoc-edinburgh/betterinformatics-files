@@ -89,25 +89,25 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
       )}
       <Stack h="100%" justify="space-between">
         <div className="category-card" id={category.slug}>
-          <Anchor
-            component="span"
-            fw={700}
-            size="xl"
-            tabIndex={-1}
-            mb={0}
-            lh={1.25}
-          >
-            <Flex justify="space-between">
+          <Flex justify="space-between">
+            <Anchor
+              component="span"
+              fw={700}
+              size="xl"
+              tabIndex={-1}
+              mb={0}
+              lh={1.25}
+            >
               {"match" in category
                 ? highlight(category.displayname, category.match)
                 : category.displayname}
-              <div onClick={toggleFavourite}>
-                {category.favourite ? <IconHeartFilled aria-label="Favourite" /> :
-                  <IconHeart aria-label="Favourite" />
-                }
-              </div>
-            </Flex>
-          </Anchor>
+            </Anchor>
+            <ActionIcon onClick={toggleFavourite} variant="subtle">
+              {category.favourite
+                ? <IconHeartFilled aria-label="Favourite" />
+                : <IconHeart aria-label="Favourite" />}
+            </ActionIcon>
+          </Flex>
           <Text mt={4} c="gray.8">
             {pluralize(category.documentcount, "Community Document")}
           </Text>
