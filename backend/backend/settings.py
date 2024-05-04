@@ -33,7 +33,8 @@ SECRET_KEY = (
     )
 )
 API_KEY = (
-    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
+    "API_KEY" if DEBUG else os.environ.get(
+        "RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 )
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -70,7 +71,8 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     ),
     (".epub", "application/epub+zip"),
 }
-COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
+COMSOL_IMAGE_ALLOWED_EXTENSIONS = {
+    "jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -129,7 +131,8 @@ else:
 # you must enable "domain-wide delegation" or impersonation for the
 # associated service account in GSuite Admin Console, with the following
 # as the scope: "https://www.googleapis.com/auth/gmail.send"
-VERIF_CODE_FROM_EMAIL_ADDRESS = os.environ.get("VERIF_CODE_FROM_EMAIL_ADDRESS", "")
+VERIF_CODE_FROM_EMAIL_ADDRESS = os.environ.get(
+    "VERIF_CODE_FROM_EMAIL_ADDRESS", "")
 
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
@@ -167,7 +170,8 @@ if DEBUG:
         f"http://{host}:8080/static/" for host in REAL_ALLOWED_HOSTS
     ]
 else:
-    allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
+    allowed_script_sources = [
+        f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
     *allowed_script_sources,
@@ -212,6 +216,7 @@ INSTALLED_APPS = [
     "answers.apps.AnswersConfig",
     "documents.apps.DocumentsConfig",
     "categories.apps.CategoriesConfig",
+    "favourites.apps.FavouritesConfig",
     "faq.apps.FaqConfig",
     "feedback.apps.FeedbackConfig",
     "filestore.apps.FilestoreConfig",
