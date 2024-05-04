@@ -169,6 +169,7 @@ export interface CategoryMetaData {
   documentcount: number;
   answerprogress: number;
   attachments: Attachment[];
+  favourite: boolean;
 }
 
 export type CategoryMetaDataAny =

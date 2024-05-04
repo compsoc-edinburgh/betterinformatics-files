@@ -36,6 +36,7 @@ def restrict_proxied(f):
 urlpatterns = [
     path("", include("health.urls")),
     path("", include("frontend.urls")),
+    path("api/favourites/", include("favourites.urls")),
     path("api/exam/", include("answers.urls")),
     path("api/faq/", include("faq.urls")),
     path("api/category/", include("categories.urls")),
