@@ -1,7 +1,7 @@
 import { fetchGet, fetchPost } from "./fetch-utils";
 
 export const addNewFavourite = async (slug: string) => {
-  const url = "/api/favourites/add/" + slug + "/";
+  const url = `/api/favourites/add/${slug}/`;
   const success = await fetchPost(`/api/favourites/add/${slug}/`, {})
 };;
 

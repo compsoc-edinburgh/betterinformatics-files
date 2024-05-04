@@ -247,7 +247,7 @@ export const CategoryList: React.FC<{}> = () => {
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
-              { label: "Favourites", value: "favourites" }
+              { label: "Favourites", value: "favourites" },
             ]}
           />
           <TextInput
