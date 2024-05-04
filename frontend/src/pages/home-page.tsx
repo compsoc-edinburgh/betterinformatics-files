@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import React, { useCallback, useMemo, useState } from "react";
-import { fetchGet, fetchPost } from "../api/fetch-utils";
+import { authenticated, fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
@@ -41,7 +41,7 @@ const loadCategoryData = async () => {
   const [categories, metaCategories, favourites] = await Promise.all([
     loadCategories(),
     loadMetaCategories(),
-    getFavourites(),
+    authenticated() ? getFavourites() : undefined,
   ]);
   return [
     categories.sort((a, b) => a.displayname.localeCompare(b.displayname)),
@@ -247,7 +247,7 @@ export const CategoryList: React.FC<{}> = () => {
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
-              { label: "Favourites", value: "favourites" },
+              { label: "Favourites", value: "favourites", disabled: !favourites },
             ]}
           />
           <TextInput
