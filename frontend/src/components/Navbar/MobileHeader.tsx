@@ -14,6 +14,7 @@ import ExternalNavElement from "./ExternalNav";
 import KawaiiBetterInformatics from "../../assets/kawaii-betterinformatics.svg?react";
 import classes from "./MobileHeader.module.css";
 import clsx from "clsx";
+import { Link } from "react-router-dom";
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
@@ -42,7 +43,6 @@ const BottomHeader: React.FC<Props> = ({
       hiddenFrom="md"
       className={classes.navbar}
       fluid={true}
-      style={{ backgroundColor: "rgba(51,51,51)" }}
     >
       <Group
         className={classes.logoLine}
@@ -54,13 +54,13 @@ const BottomHeader: React.FC<Props> = ({
             <img
               src={signet}
               alt="Signet of the student organization"
-              className={clsx(classes.logo, classes.invertedLogo)}
+              className={classes.logo}
             />
           )}
           <div className={classes.title}>
-            <a style={{ color: "inherit", textDecoration: "none" }} href="/">
+            <Link to={""} style={{ color: "inherit", textDecoration: "none" }} >
               {title}
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -68,7 +68,7 @@ const BottomHeader: React.FC<Props> = ({
           opened={opened}
           onClick={() => setOpened((o: boolean) => !o)}
           size="sm"
-          color={theme.colors.gray[0]}
+          color="black"
         />
       </Group>
       {opened ? (

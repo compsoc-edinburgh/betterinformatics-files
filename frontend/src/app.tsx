@@ -223,7 +223,7 @@ const App: React.FC<{}> = () => {
                 />
                 <MobileHeader
                   signet={
-                    configOptions.org_signet ?? defaultConfigOptions.org_signet
+                    configOptions.logo ?? defaultConfigOptions.logo
                   }
                   selectedLanguage={"en"}
                   onLanguageSelect={() => {}}
