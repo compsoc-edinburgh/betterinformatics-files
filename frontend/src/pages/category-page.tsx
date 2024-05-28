@@ -142,7 +142,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
-        <Anchor tt="uppercase" size="xs">
+        <Anchor
+          tt="uppercase"
+          size="xs"
+          style={{ wordBreak: "break-word", textWrap: "pretty" }}
+        >
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
@@ -163,7 +167,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           <Group gap="xs" mt="lg">
             {asynchronously_updated_euclid_codes.map(
               ([code, bi_data, shadow_data]) => (
-                <HoverCard shadow="md" styles={{ dropdown: { maxWidth: 300 }}}>
+                <HoverCard shadow="md" styles={{ dropdown: { maxWidth: 300 } }}>
                   <HoverCardTarget>
                     <Badge
                       // Will show red if data isn't available or still loading
@@ -216,7 +220,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               {metaData.displayname}
             </Title>
             {user.isCategoryAdmin && (
-              <Group>
+              <Group justify="flex-end">
                 <Button
                   leftSection={<IconEdit />}
                   onClick={() => setEditing(true)}
@@ -251,7 +255,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   </Anchor>
                 </Grid.Col>
               )}
-              {metaData.remark && <Grid.Col>Remark: {metaData.remark}</Grid.Col>}
+              {metaData.remark && (
+                <Grid.Col>Remark: {metaData.remark}</Grid.Col>
+              )}
             </Grid>
           )}
 
@@ -284,8 +290,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
           {metaData.more_markdown_link && (
             <>
-              <Group align="baseline" justify="space-between">
-                <Title order={2} mt="sm" mb="sm">Community Knowledgebase</Title>
+              <Group align="baseline" justify="space-between" mt="sm" mb="sm">
+                <Title order={2}>Community Knowledgebase</Title>
                 {md_editable && (
                   <Tooltip label="Edit this page on GitHub">
                     <Button
@@ -294,6 +300,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       component="a"
                       target="_blank"
                       href={md_edit_link}
+                      visibleFrom="md"
                     >
                       Edit (anyone welcome!)
                     </Button>

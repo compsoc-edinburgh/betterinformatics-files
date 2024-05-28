@@ -134,8 +134,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
-  const [inViewSplits, addInViewSplit, removeInViewSplit] = useSet<PdfSection>();
-  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
+  const [inViewSplits, addInViewSplit, removeInViewSplit] =
+    useSet<PdfSection>();
+  const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
   const [editState, setEditState] = useState<EditState>({
     mode: EditMode.None,
   });
@@ -166,7 +167,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     const s = new Set<number>();
     if (!sections) return undefined;
     for (const section of sections) {
-      if (section.kind === SectionKind.Pdf && (!section.hidden || displayOptions.displayHiddenPdfSections)) {
+      if (
+        section.kind === SectionKind.Pdf &&
+        (!section.hidden || displayOptions.displayHiddenPdfSections)
+      ) {
         s.add(section.start.page);
       }
     }
@@ -397,7 +401,7 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  const [editing, {toggle: toggleEditing}] = useDisclosure();
+  const [editing, { toggle: toggleEditing }] = useDisclosure();
   const error = metaDataError || cutsError || pdfError;
   const user = useUser()!;
   return (
@@ -412,10 +416,15 @@ const ExamPage: React.FC<{}> = () => {
             size="xs"
             component={Link}
             to={`/category/${metaData ? metaData.category : ""}`}
+            style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
             {metaData && metaData.category_displayname}
           </Anchor>
-          <Anchor tt="uppercase" size="xs">
+          <Anchor
+            tt="uppercase"
+            size="xs"
+            style={{ wordBreak: "break-word", textWrap: "pretty" }}
+          >
             {metaData && metaData.displayname}
           </Anchor>
         </Breadcrumbs>
@@ -454,7 +463,8 @@ const ExamPage: React.FC<{}> = () => {
               />
             </UserContext.Provider>
           ))}
-        {(metaDataLoading || ((cutsLoading || pdfLoading) && !metaDataLoading)) && (
+        {(metaDataLoading ||
+          ((cutsLoading || pdfLoading) && !metaDataLoading)) && (
           <Center>
             <Loader />
           </Center>
