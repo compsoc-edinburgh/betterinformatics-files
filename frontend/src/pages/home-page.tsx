@@ -41,7 +41,7 @@ const loadCategoryData = async () => {
   const [categories, metaCategories, favourites] = await Promise.all([
     loadCategories(),
     loadMetaCategories(),
-    authenticated() ? getFavourites() : undefined,
+    authenticated() ? getFavourites() : Promise.resolve([]),
   ]);
   return [
     categories.sort((a, b) => a.displayname.localeCompare(b.displayname)),
@@ -90,7 +90,10 @@ const mapToCategories = (
 const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   onAddCategory,
 }) => {
-  const [addCategoryModalIsOpen, { open: openAddCategoryModal, close: closeAddCategoryModal }] = useDisclosure();
+  const [
+    addCategoryModalIsOpen,
+    { open: openAddCategoryModal, close: closeAddCategoryModal },
+  ] = useDisclosure();
   const { loading, run } = useRequest(addCategory, {
     manual: true,
     onSuccess: () => {
@@ -173,24 +176,48 @@ type Mode = "alphabetical" | "bySCQF" | "favourites";
 
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
-  const [mode, setMode] = useLocalStorageState<Mode>("category-list-mode", "alphabetical"); // default to alphabetical
+  const [mode, setMode] = useLocalStorageState<Mode>(
+    "category-list-mode",
+    "alphabetical",
+  ); // default to alphabetical
   const [filter, setFilter] = useState("");
+  // Check for local storage cache of category data and use that as a backup
+  // while the actual request is loading
+  const [localStorageCategoryData, setLocalStorageCategoryData] =
+    useLocalStorageState<[CategoryMetaData[]?, MetaCategory[]?, string[]?]>(
+      "category-data",
+      [undefined, undefined, undefined],
+    );
+  // Run the promise to get the various category data
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
+    onSuccess: data => {
+      // Update the cache with the new data.
+      // onSuccess gives us a readonly array, so cast it to a mutable array
+      setLocalStorageCategoryData(
+        data as [CategoryMetaData[], MetaCategory[], string[]],
+      );
+    },
   });
 
-  const [categoriesWithDefault, metaCategories, favourites] = data ? data : [];
+  // Combine the data from the request with the local storage cache, preferring
+  // the actual data. Each of the three elements in the array can be 'undefined'
+  // when neither the cache or the request have been loaded yet. This is
+  // different from an empty array which implies the loaded data is empty.
+  const [categoriesWithDefault, metaCategories, favourites] =
+    data ?? localStorageCategoryData;
 
   const categories = useMemo(
     () =>
       categoriesWithDefault
-        ? categoriesWithDefault.filter(
-          ({ slug }) => slug !== "default" || isAdmin,
-        )
-          .map(category => ({
-            ...category,
-            favourite: favourites ? favourites.includes(category.slug) : false,
-          }))
+        ? categoriesWithDefault
+            .filter(({ slug }) => slug !== "default" || isAdmin)
+            .map(category => ({
+              ...category,
+              favourite: favourites
+                ? favourites.includes(category.slug)
+                : false,
+            }))
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -213,7 +240,6 @@ export const CategoryList: React.FC<{}> = () => {
   }, [run]);
 
   const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
-
 
   const favouriteCategories = useMemo(
     () => categories?.filter(c => c.favourite),
@@ -247,7 +273,11 @@ export const CategoryList: React.FC<{}> = () => {
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
-              { label: "Favourites", value: "favourites", disabled: !favourites },
+              {
+                label: "Favourites",
+                value: "favourites",
+                disabled: !favourites,
+              },
             ]}
           />
           <TextInput
@@ -262,46 +292,53 @@ export const CategoryList: React.FC<{}> = () => {
       </Container>
       <ContentContainer>
         <Container size="xl" py="md" pos="relative">
-          {loading && !error && <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />}
+          {loading && !error && (
+            <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />
+          )}
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (
             <>
               <Grid>
                 {searchResult.map(category => (
-                  <CategoryCard category={category} key={category.slug} onFavouriteToggle={onFavouriteToggle} />
+                  <CategoryCard
+                    category={category}
+                    key={category.slug}
+                    onFavouriteToggle={onFavouriteToggle}
+                  />
                 ))}
                 {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
               </Grid>
             </>
           ) : mode === "bySCQF" ? (
             <>
-              {metaList && metaList.map(([meta1display, meta2]) => (
-                <div key={meta1display} id={slugify(meta1display)}>
-                  <Title order={2} my="sm">
-                    {meta1display}
-                  </Title>
-                  {meta2.map(([meta2display, categories]) => (
-                    <div
-                      key={meta2display}
-                      id={slugify(meta1display) + slugify(meta2display)}
-                    >
-                      <Title order={3} my="md">
-                        {meta2display}
-                      </Title>
-                      <Grid>
-                        {categories.map(category => (
-                          <CategoryCard
-                            category={category}
-                            key={category.slug}
-                            onFavouriteToggle={onFavouriteToggle}
-                          />
-                        ))}
-                      </Grid>
-                    </div>
-                  ))}
-                </div>
-              ))}
+              {metaList &&
+                metaList.map(([meta1display, meta2]) => (
+                  <div key={meta1display} id={slugify(meta1display)}>
+                    <Title order={2} my="sm">
+                      {meta1display}
+                    </Title>
+                    {meta2.map(([meta2display, categories]) => (
+                      <div
+                        key={meta2display}
+                        id={slugify(meta1display) + slugify(meta2display)}
+                      >
+                        <Title order={3} my="md">
+                          {meta2display}
+                        </Title>
+                        <Grid>
+                          {categories.map(category => (
+                            <CategoryCard
+                              category={category}
+                              key={category.slug}
+                              onFavouriteToggle={onFavouriteToggle}
+                            />
+                          ))}
+                        </Grid>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               {unassignedList && unassignedList.length > 0 && (
                 <>
                   <Title order={3} my="md">
@@ -309,7 +346,11 @@ export const CategoryList: React.FC<{}> = () => {
                   </Title>
                   <Grid>
                     {unassignedList.map(category => (
-                      <CategoryCard category={category} key={category.slug} onFavouriteToggle={onFavouriteToggle} />
+                      <CategoryCard
+                        category={category}
+                        key={category.slug}
+                        onFavouriteToggle={onFavouriteToggle}
+                      />
                     ))}
                   </Grid>
                 </>
@@ -325,17 +366,24 @@ export const CategoryList: React.FC<{}> = () => {
                 </>
               )}
             </>
-          ) : // favourites
+          ) : (
+            // favourites
             <>
               <Grid>
-                {favouriteCategories && favouriteCategories.length > 0 ? favouriteCategories.map(category => (
-                  <CategoryCard category={category} key={category.slug} onFavouriteToggle={onFavouriteToggle} />
-                )) : (
+                {favouriteCategories && favouriteCategories.length > 0 ? (
+                  favouriteCategories.map(category => (
+                    <CategoryCard
+                      category={category}
+                      key={category.slug}
+                      onFavouriteToggle={onFavouriteToggle}
+                    />
+                  ))
+                ) : (
                   <Text>No favourite categories</Text>
                 )}
               </Grid>
             </>
-          }
+          )}
         </Container>
       </ContentContainer>
       {!loading ? (
