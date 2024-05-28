@@ -294,7 +294,7 @@ const App: React.FC<{}> = () => {
               </div>
               <Footer
                 logo={
-                  configOptions.org_signet ?? defaultConfigOptions.org_signet
+                  configOptions.logo ?? defaultConfigOptions.logo
                 }
                 disclaimer={
                   configOptions.disclaimer ?? defaultConfigOptions.disclaimer
