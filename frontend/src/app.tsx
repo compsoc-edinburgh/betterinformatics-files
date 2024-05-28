@@ -213,16 +213,6 @@ const App: React.FC<{}> = () => {
           <SetUserContext.Provider value={setUser}>
             <div>
               <div>
-                <TopHeader
-                  logo={configOptions.org_logo ?? defaultConfigOptions.org_logo}
-                  size="xl"
-                  organizationNav={
-                    configOptions.externalNav ??
-                    defaultConfigOptions.externalNav
-                  }
-                  selectedLanguage={"en"}
-                  onLanguageSelect={() => {}}
-                />
                 <BottomHeader
                   lang={"en"}
                   appNav={bottomHeaderNav}
@@ -304,12 +294,16 @@ const App: React.FC<{}> = () => {
               </div>
               <Footer
                 logo={
-                  configOptions.org_signet ?? defaultConfigOptions.org_signet
+                  configOptions.logo ?? defaultConfigOptions.logo
                 }
                 disclaimer={
                   configOptions.disclaimer ?? defaultConfigOptions.disclaimer
                 }
                 privacy={configOptions.privacy ?? defaultConfigOptions.privacy}
+                organizationNav={
+                  configOptions.externalNav ??
+                  defaultConfigOptions.externalNav
+                }
               />
             </div>
           </SetUserContext.Provider>

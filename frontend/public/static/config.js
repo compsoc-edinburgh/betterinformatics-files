@@ -8,9 +8,30 @@ window.configOptions = {
       'key': 'en',
       'label': 'English'
   }],
-  'externalNav': [{
+  'externalNav': [
+    {
+      'title': 'Project',
+      'childItems': [
+        {
+          'title': 'Repository',
+          'href': 'https://git.tardisproject.uk/betterinformatics/edinburgh-community-solutions'
+        },
+        {
+          'title': 'Disclaimer',
+          'href': '/disclaimer'
+        },
+        {
+          'title': 'Privacy Policy',
+          'href': '/privacy'
+        },
+        {
+          'title': 'uwu?'
+        }
+      ]
+    },
+    {
       'title': {
-          'en': 'About Us'
+          'en': 'CompSoc'
       },
       'childItems': [{
           'title': {
@@ -32,26 +53,11 @@ window.configOptions = {
               'en': 'Constitution'
           },
           'href': 'https://github.com/compsoc-edinburgh/constitution'
-      }]
-  }, {
-      'title': {
-          'en': 'Events'
-      },
-      'childItems': [{
-          'title': {
-              'en': 'Upcoming events'
-          },
-          'href': 'https://comp-soc.com/calendar'
       }, {
           'title': {
-              'en': 'InfBall'
+              'en': 'Merchandise'
           },
-          'href': 'https://infball.comp-soc.com'
-      }, {
-          'title': {
-              'en': 'Hack the Burgh'
-          },
-          'href': 'https://hacktheburgh.com'
+          'href': 'https://comp-soc.com/merch'
       }]
   }, {
       'title': {
@@ -68,16 +74,21 @@ window.configOptions = {
         },
         'href': 'https://betterinformatics.com'
       }, {
-          'title': {
-              'en': 'Merchandise'
-          },
-          'href': 'https://comp-soc.com/merch'
-      }, {
-          'title': {
-              'en': 'Tardis Project'
-          },
-          'href': 'https://tardisproject.uk'
-      }]
+        'title': {
+            'en': 'Upcoming events'
+        },
+        'href': 'https://comp-soc.com/calendar'
+    }, {
+        'title': {
+            'en': 'InfBall'
+        },
+        'href': 'https://infball.comp-soc.com'
+    }, {
+        'title': {
+            'en': 'Hack the Burgh'
+        },
+        'href': 'https://hacktheburgh.com'
+    }]
   }],
   'socialMedia': [{
       'type': 'instagram',
