@@ -31,7 +31,7 @@ const BottomHeader: React.FC<Props> = ({
   const [uwu, _] = useLocalStorageState("uwu", false);
   return (
     <>
-      <Box className={classes.placeholder} />
+      <Box visibleFrom="md" className={classes.placeholder} />
       <Container visibleFrom="md" className={classes.navbar} fluid={true}>
         <Container size={size ? size : "md"} className={classes.container}>
           <Link to={""} className={classes.title}>
