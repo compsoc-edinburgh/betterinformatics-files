@@ -108,7 +108,8 @@ const App: React.FC<{}> = () => {
       cancelled = true;
     };
   }, [user]);
-  const [debugPanel, {toggle: toggleDebugPanel, close: closeDebugPanel}] = useDisclosure();
+  const [debugPanel, { toggle: toggleDebugPanel, close: closeDebugPanel }] =
+    useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
 
   const loadUnreadCount = async () => {
@@ -133,7 +134,9 @@ const App: React.FC<{}> = () => {
   var compsocTheme = createTheme({
     colors: {
       compsocMain: calculateShades("#b89c7c"),
-      compsocGray: new Array(10).fill("rgb(144, 146, 150)") as unknown as MantineColorsTuple,
+      compsocGray: new Array(10).fill(
+        "rgb(144, 146, 150)",
+      ) as unknown as MantineColorsTuple,
     },
     primaryColor: "compsocMain",
     primaryShade: 7,
@@ -222,9 +225,7 @@ const App: React.FC<{}> = () => {
                   icon={configOptions.logo}
                 />
                 <MobileHeader
-                  signet={
-                    configOptions.logo ?? defaultConfigOptions.logo
-                  }
+                  signet={configOptions.logo ?? defaultConfigOptions.logo}
                   selectedLanguage={"en"}
                   onLanguageSelect={() => {}}
                   appNav={bottomHeaderNav}
@@ -293,16 +294,13 @@ const App: React.FC<{}> = () => {
                 </Box>
               </div>
               <Footer
-                logo={
-                  configOptions.logo ?? defaultConfigOptions.logo
-                }
+                logo={configOptions.logo ?? defaultConfigOptions.logo}
                 disclaimer={
                   configOptions.disclaimer ?? defaultConfigOptions.disclaimer
                 }
                 privacy={configOptions.privacy ?? defaultConfigOptions.privacy}
                 organizationNav={
-                  configOptions.externalNav ??
-                  defaultConfigOptions.externalNav
+                  configOptions.externalNav ?? defaultConfigOptions.externalNav
                 }
               />
             </div>

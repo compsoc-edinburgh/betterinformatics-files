@@ -35,21 +35,21 @@ const BottomHeader: React.FC<Props> = ({
       <Container visibleFrom="md" className={classes.navbar} fluid={true}>
         <Container size={size ? size : "md"} className={classes.container}>
           <Link to={""} className={classes.title}>
-            {uwu ? <KawaiiBetterInformatics className={classes.logo}/> : icon && (
-              <img
-                src={icon}
-                alt="BetterInformatics Icon"
-                className={classes.logo}
-              />
+            {uwu ? (
+              <KawaiiBetterInformatics className={classes.logo} />
+            ) : (
+              icon && (
+                <img
+                  src={icon}
+                  alt="BetterInformatics Icon"
+                  className={classes.logo}
+                />
+              )
             )}
             {title}
           </Link>
 
-          <Group
-            justify="flex-end"
-            wrap="nowrap"
-            gap="2.75rem"
-          >
+          <Group justify="flex-end" wrap="nowrap" gap="2.75rem">
             {translate(appNav, lang).map((item, i) => {
               return (
                 <ExternalNavElement

@@ -39,18 +39,16 @@ const BottomHeader: React.FC<Props> = ({
   const [uwu, _] = useLocalStorageState("uwu", false);
 
   return (
-    <Container
-      hiddenFrom="md"
-      className={classes.navbar}
-      fluid={true}
-    >
+    <Container hiddenFrom="md" className={classes.navbar} fluid={true}>
       <Group
         className={classes.logoLine}
         align="center"
         justify="space-between"
       >
         <div style={{ display: "flex" }}>
-          {uwu ? <KawaiiBetterInformatics className={classes.logo}/> : (
+          {uwu ? (
+            <KawaiiBetterInformatics className={classes.logo} />
+          ) : (
             <img
               src={signet}
               alt="Signet of the student organization"
@@ -58,7 +56,7 @@ const BottomHeader: React.FC<Props> = ({
             />
           )}
           <div className={classes.title}>
-            <Link to={""} style={{ color: "inherit", textDecoration: "none" }} >
+            <Link to={""} style={{ color: "inherit", textDecoration: "none" }}>
               {title}
             </Link>
           </div>
