@@ -10,14 +10,16 @@ import {
 } from "@mantine/core";
 import { useLocalStorageState } from "@umijs/hooks";
 import { IconBrandGit, IconHeartFilled } from "@tabler/icons-react";
+import { NavItem } from "./Navbar/GlobalNav";
 
 interface FooterProps {
   logo: string;
   disclaimer: string;
   privacy: string;
+  organizationNav: NavItem[];
 }
 
-const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
+const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy, organizationNav }) => {
   const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
   const setUwu = () => {
     setLocalUwu(!uwu);

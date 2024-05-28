@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Group } from "@mantine/core";
+import { Box, Container, Group } from "@mantine/core";
 import type { MantineSize } from "@mantine/core";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
@@ -30,39 +30,42 @@ const BottomHeader: React.FC<Props> = ({
 }) => {
   const [uwu, _] = useLocalStorageState("uwu", false);
   return (
-    <Container visibleFrom="md" className={classes.navbar} fluid={true}>
-      <Container size={size ? size : "md"} className={classes.container}>
-        <Link to={""} className={classes.title}>
-          {uwu ? <KawaiiBetterInformatics className={classes.logo}/> : icon && (
-            <img
-              src={icon}
-              alt="BetterInformatics Icon"
-              className={classes.logo}
-            />
-          )}
-          {title}
-        </Link>
-
-        <Group
-          justify="flex-end"
-          wrap="nowrap"
-          gap="2.75rem"
-        >
-          {translate(appNav, lang).map((item, i) => {
-            return (
-              <ExternalNavElement
-                item={item}
-                mobile={false}
-                isExternal={false}
-                activeHref={activeHref}
-                key={i}
+    <>
+      <Box className={classes.placeholder} />
+      <Container visibleFrom="md" className={classes.navbar} fluid={true}>
+        <Container size={size ? size : "md"} className={classes.container}>
+          <Link to={""} className={classes.title}>
+            {uwu ? <KawaiiBetterInformatics className={classes.logo}/> : icon && (
+              <img
+                src={icon}
+                alt="BetterInformatics Icon"
+                className={classes.logo}
               />
-            );
-          })}
-          {loginButton}
-        </Group>
+            )}
+            {title}
+          </Link>
+
+          <Group
+            justify="flex-end"
+            wrap="nowrap"
+            gap="2.75rem"
+          >
+            {translate(appNav, lang).map((item, i) => {
+              return (
+                <ExternalNavElement
+                  item={item}
+                  mobile={false}
+                  isExternal={false}
+                  activeHref={activeHref}
+                  key={i}
+                />
+              );
+            })}
+            {loginButton}
+          </Group>
+        </Container>
       </Container>
-    </Container>
+    </>
   );
 };
 

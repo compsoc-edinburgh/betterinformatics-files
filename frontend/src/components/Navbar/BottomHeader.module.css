@@ -1,6 +1,19 @@
+.placeholder {
+  height: 3.5rem;
+}
+
 .navbar {
   height: 3.5rem;
-  box-shadow: var(--mantine-shadow-sm);
+  box-sizing: border-box;
+  border-bottom: 2px solid var(--mantine-color-gray-2);
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  background: var(--mantine-color-white);
+  z-index: var(--mantine-z-index-app);
+  /* box-shadow: var(--mantine-shadow-xs); */
 }
 
 .container {
