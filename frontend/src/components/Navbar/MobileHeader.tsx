@@ -14,6 +14,7 @@ import ExternalNavElement from "./ExternalNav";
 import KawaiiBetterInformatics from "../../assets/kawaii-betterinformatics.svg?react";
 import classes from "./MobileHeader.module.css";
 import clsx from "clsx";
+import { Link } from "react-router-dom";
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
@@ -38,29 +39,26 @@ const BottomHeader: React.FC<Props> = ({
   const [uwu, _] = useLocalStorageState("uwu", false);
 
   return (
-    <Container
-      hiddenFrom="md"
-      className={classes.navbar}
-      fluid={true}
-      style={{ backgroundColor: "rgba(51,51,51)" }}
-    >
+    <Container hiddenFrom="md" className={classes.navbar} fluid={true}>
       <Group
         className={classes.logoLine}
         align="center"
         justify="space-between"
       >
         <div style={{ display: "flex" }}>
-          {uwu ? <KawaiiBetterInformatics className={classes.logo}/> : (
+          {uwu ? (
+            <KawaiiBetterInformatics className={classes.logo} />
+          ) : (
             <img
               src={signet}
               alt="Signet of the student organization"
-              className={clsx(classes.logo, classes.invertedLogo)}
+              className={classes.logo}
             />
           )}
           <div className={classes.title}>
-            <a style={{ color: "inherit", textDecoration: "none" }} href="/">
+            <Link to={""} style={{ color: "inherit", textDecoration: "none" }}>
               {title}
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -68,7 +66,7 @@ const BottomHeader: React.FC<Props> = ({
           opened={opened}
           onClick={() => setOpened((o: boolean) => !o)}
           size="sm"
-          color={theme.colors.gray[0]}
+          color="black"
         />
       </Group>
       {opened ? (

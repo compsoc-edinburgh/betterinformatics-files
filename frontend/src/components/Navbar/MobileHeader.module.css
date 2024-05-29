@@ -1,8 +1,9 @@
 .navbar {
   min-height: 3.5rem;
-  color: var(--mantine-color-white);
+  color: var(--mantine-color-black);
   width: 100%;
-  box-shadow: var(--mantine-shadow-sm);
+  box-sizing: border-box;
+  border-bottom: 2px solid var(--mantine-color-gray-2);
 }
 
 .logoLine {

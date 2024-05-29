@@ -26,6 +26,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
             to={`/category/${comment.category_slug}`}
             tt="uppercase"
             size="xs"
+            style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
             {comment.category_displayname}
           </Anchor>
@@ -34,6 +35,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
             to={`/exams/${comment.filename}`}
             tt="uppercase"
             size="xs"
+            style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
             {comment.exam_displayname}
           </Anchor>

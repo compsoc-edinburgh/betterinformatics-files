@@ -68,6 +68,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/category/${result.category_slug}`}
+                      style={{ wordBreak: "break-word", textWrap: "pretty" }}
                     >
                       {result.category_displayname}
                     </Anchor>
@@ -131,6 +132,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/category/${result.category_slug}`}
+                      style={{ wordBreak: "break-word", textWrap: "pretty" }}
                     >
                       {result.category_displayname}
                     </Anchor>
@@ -139,6 +141,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/exams/${result.filename}`}
+                      style={{ wordBreak: "break-word", textWrap: "pretty" }}
                     >
                       {result.exam_displayname}
                     </Anchor>
@@ -176,6 +179,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/category/${result.category_slug}`}
+                      style={{ wordBreak: "break-word", textWrap: "pretty" }}
                     >
                       {result.category_displayname}
                     </Anchor>
@@ -184,6 +188,7 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       size="xs"
                       component={Link}
                       to={`/exams/${result.filename}`}
+                      style={{ wordBreak: "break-word", textWrap: "pretty" }}
                     >
                       {result.exam_displayname}
                     </Anchor>

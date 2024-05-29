@@ -12,7 +12,7 @@ import {
   Title,
   rem,
 } from "@mantine/core";
-import { LineChart } from '@mantine/charts';
+import { LineChart } from "@mantine/charts";
 import React from "react";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
@@ -36,8 +36,7 @@ const loadScoreboard = async (scoretype: Mode) => {
 };
 
 const loadStats = async () => {
-  return (await fetchGet("/api/stats/"))
-    .value as Stats;
+  return (await fetchGet("/api/stats/")).value as Stats;
 };
 
 interface ThProps {
@@ -79,54 +78,85 @@ const Scoreboard: React.FC<{}> = () => {
     cacheKey: `scoreboard-${mode}`,
   });
 
-  const [statsGranularity, setStatsGranularity] = useLocalStorageState<string>("stats-granularity", "Weekly");
-
-  const { data: stats, error: statsError, loading: statsLoading } = useRequest(
-    loadStats,
+  const [statsGranularity, setStatsGranularity] = useLocalStorageState<string>(
+    "stats-granularity",
+    "Weekly",
   );
+
+  const {
+    data: stats,
+    error: statsError,
+    loading: statsLoading,
+  } = useRequest(loadStats);
   return (
     <Container size="xl">
-      <Title order={1} my="lg">Stats</Title>
+      <Title order={1} my="lg">
+        Stats
+      </Title>
       <SegmentedControl
         value={statsGranularity}
         onChange={setStatsGranularity}
         data={[
-          { label: 'Weekly', value: 'Weekly' },
-          { label: 'Month', value: 'Monthly' },
+          { label: "Weekly", value: "Weekly" },
+          { label: "Month", value: "Monthly" },
         ]}
       />
       {statsError && <Alert color="red">{String(statsError)}</Alert>}
 
-      <Title order={2} my="lg">{statsGranularity} User Stats</Title>
+      <Title order={2} my="lg">
+        {statsGranularity} User Stats
+      </Title>
       <Container size="md">
         <LineChart
           h={300}
-          data={(statsGranularity === "Weekly" ? stats?.weekly_user_stats : stats?.monthly_user_stats) || []}
+          data={
+            (statsGranularity === "Weekly"
+              ? stats?.weekly_user_stats
+              : stats?.monthly_user_stats) || []
+          }
+          dataKey="date"
+          series={[{ name: "count", label: "User Count", color: "indigo.6" }]}
+          curveType="monotone"
+        />
+      </Container>
+      <Title order={2} my="lg">
+        {statsGranularity} Answered Questions Stats
+      </Title>
+      <Container size="md">
+        <LineChart
+          h={300}
+          data={
+            (statsGranularity === "Weekly"
+              ? stats?.weekly_exam_stats
+              : stats?.monthly_exam_stats) || []
+          }
           dataKey="date"
           series={[
-            { name: "count", label: "User Count", color: "indigo.6" },
+            {
+              name: "answers_count",
+              label: "Total Answer Count",
+              color: "cyan.6",
+            },
+            {
+              name: "answered_count",
+              label: "Unique Questions Answered",
+              color: "blue.6",
+            },
           ]}
           curveType="monotone"
         />
       </Container>
-      <Title order={2} my="lg">{statsGranularity} Answered Questions Stats</Title>
+      <Title order={2} my="lg">
+        {statsGranularity} Document Stats
+      </Title>
       <Container size="md">
         <LineChart
           h={300}
-          data={(statsGranularity === "Weekly" ? stats?.weekly_exam_stats : stats?.monthly_exam_stats) || []}
-          dataKey="date"
-          series={[
-            { name: "answers_count", label: "Total Answer Count", color: "cyan.6" },
-            { name: "answered_count", label: "Unique Questions Answered", color: "blue.6" },
-          ]}
-          curveType="monotone"
-        />
-      </Container>
-      <Title order={2} my="lg">{statsGranularity} Document Stats</Title>
-      <Container size="md">
-        <LineChart
-          h={300}
-          data={(statsGranularity === "Weekly" ? stats?.weekly_document_stats : stats?.monthly_document_stats) || []}
+          data={
+            (statsGranularity === "Weekly"
+              ? stats?.weekly_document_stats
+              : stats?.monthly_document_stats) || []
+          }
           dataKey="date"
           series={[
             { name: "count", label: "Document Count", color: "green.6" },

@@ -90,7 +90,7 @@ const DocumentPage: React.FC<Props> = () => {
     ? getFile(data, Number(tab))
     : undefined;
   const Components = getComponents(activeFile);
-  const [editing, {toggle: toggleEditing}] = useDisclosure();
+  const [editing, { toggle: toggleEditing }] = useDisclosure();
   const [loadingDownload, startDownload] = useDocumentDownload(data);
   return (
     <>
@@ -104,10 +104,15 @@ const DocumentPage: React.FC<Props> = () => {
             tt="uppercase"
             component={Link}
             to={`/category/${data ? data.category : ""}`}
+            style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
             {data && data.category_display_name}
           </Anchor>
-          <Anchor size="xs" tt="uppercase">
+          <Anchor
+            size="xs"
+            tt="uppercase"
+            style={{ wordBreak: "break-word", textWrap: "pretty" }}
+          >
             {data && data.display_name}
           </Anchor>
         </Breadcrumbs>
@@ -127,8 +132,12 @@ const DocumentPage: React.FC<Props> = () => {
               </Group>
             </Flex>
             {data && !data.anonymised && (
-              <Anchor component={Link} to={`/user/${data.author}`} underline="never">
-                {(data.author_displayname !== data.author) && (
+              <Anchor
+                component={Link}
+                to={`/user/${data.author}`}
+                underline="never"
+              >
+                {data.author_displayname !== data.author && (
                   <>
                     <Text fw={700} component="span">
                       {data.author_displayname}
@@ -151,9 +160,16 @@ const DocumentPage: React.FC<Props> = () => {
               </Text>
             )}
             {data && data.anonymised && (data.can_edit || data.can_delete) && (
-              <Anchor component={Link} to={`/user/${data.author}`} underline="never">
+              <Anchor
+                component={Link}
+                to={`/user/${data.author}`}
+                underline="never"
+              >
                 <Text ml="0.3em" c="dimmed" component="span">
-                  ({(data.author_displayname !== data.author) && `${data.author_displayname} `}@{data.author})
+                  (
+                  {data.author_displayname !== data.author &&
+                    `${data.author_displayname} `}
+                  @{data.author})
                 </Text>
               </Anchor>
             )}
