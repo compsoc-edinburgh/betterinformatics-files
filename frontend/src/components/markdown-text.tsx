@@ -23,54 +23,6 @@ const transformImageUri = (uri: string) => {
   }
 };
 
-const addMarks = (obj: any, regex: RegExp | undefined, index: number = 0): React.ReactNode => {
-  if (isNaN(index))
-    index = 0;
-  if (obj && typeof obj === 'string') {
-    if (regex === undefined) return obj;
-    const value = obj;
-    const m = regex.test(value);
-    if (!m) return obj;
-    let i = 0;
-    const arr = [];
-    while (i < value.length) {
-      const rest = value.substring(i);
-      const m = rest.match(regex);
-      if (m) {
-        const start = m.index || 0;
-        arr.push(<span key={`s${start}`}>{rest.substring(0, start)}</span>);
-        arr.push(<mark key={`s${start}match`}>{m[0]}</mark>);
-
-        i += start + m[0].length;
-      } else {
-        arr.push(<span key={`rest`}>{rest}</span>);
-        break;
-      }
-    }
-    return <React.Fragment key={index}>{arr}</React.Fragment>;
-  }
-  if (obj && obj instanceof Array) {
-    const newArr = []
-    for (let index = 0; index < obj.length; index++) {
-      newArr.push(addMarks(obj[index], regex, index));
-    }
-    return newArr
-  }
-  if (obj) {
-    if (obj.props.className === 'katex')
-      return obj;
-    let arr = obj.props.children;
-    if (!(arr instanceof Array))
-      arr = [arr];
-    const newArr = Array<any>();
-    for (let index = 0; index < arr.length; index++) {
-      newArr.push(addMarks(arr[index], regex, index));
-    }
-    return React.cloneElement(obj, obj.props, newArr);
-  }
-  return obj;
-};
-
 const createComponents = (regex: RegExp | undefined): Components => ({
   table: ({ children }) => {
     return <Table style={{ width: "auto" }} withColumnBorders={true}>{children}</Table>;
@@ -91,25 +43,27 @@ const createComponents = (regex: RegExp | undefined): Components => ({
     return <Table.Tr>{children}</Table.Tr>;
   },
   p: ({ children }) => {
-    return <p>{addMarks(children, regex)}</p>;
-  },
-  h1: ({ children }) => {
-    return <h1>{addMarks(children, regex)}</h1>;
-  },
-  h2: ({ children }) => {
-    return <h2>{addMarks(children, regex)}</h2>;
-  },
-  h3: ({ children }) => {
-    return <h3>{addMarks(children, regex)}</h3>;
-  },
-  h4: ({ children }) => {
-    return <h4>{addMarks(children, regex)}</h4>;
-  },
-  h5: ({ children }) => {
-    return <h5>{addMarks(children, regex)}</h5>;
-  },
-  h6: ({ children }) => {
-    return <h6>{addMarks(children, regex)}</h6>;
+    if (regex === undefined) return <p>{children}</p>;
+    const arr = [];
+    const value = String(children);
+    const m = regex.test(value);
+    if (!m) return <p>{children}</p>;
+    let i = 0;
+    while (i < value.length) {
+      const rest = value.substring(i);
+      const m = rest.match(regex);
+      if (m) {
+        const start = m.index || 0;
+        arr.push(<span key={start}>{rest.substring(0, start)}</span>);
+        arr.push(<mark key={`${start}match`}>{m[0]}</mark>);
+
+        i += start + m[0].length;
+      } else {
+        arr.push(<span key="rest">{rest}</span>);
+        break;
+      }
+    }
+    return <>{arr}</>;
   },
   code({ node, className, children, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
