@@ -92,6 +92,8 @@ const PdfTextElement: React.FC<TextElementProps> = ({ item, view, scale }) => {
         style={{
           transformOrigin: "left bottom",
           whiteSpace: "pre",
+          margin: "0",
+          fontFamily: "serif",
         }}
         ref={divRef}
       >
@@ -129,6 +131,8 @@ const PdfSectionText: React.FC<Props> = React.memo(
           display: view ? "block" : "none",
           color: "transparent",
           opacity: "0.7",
+          position: "absolute",
+          top: "0",
         }}
       >
         {textContent &&
