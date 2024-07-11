@@ -60,6 +60,8 @@ def data_dumper(obj):
 def success(**obj):
     return JsonResponse(obj, json_dumps_params={'default': data_dumper})
 
+def unauthorized():
+    return JsonResponse({'err': 'Unauthorized'}, status=401)
 
 def not_allowed():
     return JsonResponse({'err': 'Not allowed'}, status=403)
