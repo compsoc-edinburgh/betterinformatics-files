@@ -71,7 +71,7 @@ def _new_comment_to_comment(old_comment, new_comment):
         old_comment.author,
         NotificationType.NEW_COMMENT_TO_COMMENT,
         "New comment",
-        "A new comment to an answer you commented was added.\n\n{}".format(
+        "A new comment was added to an answer you commented on.\n\n{}".format(
             new_comment.text
         ),
         old_comment.answer,
