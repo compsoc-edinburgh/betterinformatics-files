@@ -16,7 +16,6 @@
 .textarea {
   position: absolute;
   top: 0;
-  color: black;
   caret-color: inherit;
   background: transparent;
   resize: none;

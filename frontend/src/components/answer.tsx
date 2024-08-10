@@ -29,7 +29,6 @@ import CodeBlock from "./code-block";
 import CommentSectionComponent from "./comment-section";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
-import IconButton from "./icon-button";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TooltipButton from "./TooltipButton";
@@ -120,7 +119,7 @@ const AnswerComponent: React.FC<Props> = ({
         id={hasId ? answer?.longId : undefined}
         className={classes.answerWrapperStyle}
       >
-        <Card.Section px="md" py="md" withBorder bg="gray.0">
+        <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">
             <div>
               {!hasId && (
@@ -129,7 +128,7 @@ const AnswerComponent: React.FC<Props> = ({
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
                 >
-                  <Text mr={8} color="dimmed" component="span">
+                  <Text mr={8} component="span">
                     <IconLink style={{ height: "13px", width: "13px" }} />
                   </Text>
                 </Link>

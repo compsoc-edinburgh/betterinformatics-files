@@ -17,12 +17,11 @@ const LoginOverlay: React.FC<{}> = () => {
       }}
     >
       <div>
-        <Text c="gray.0" size="1.75rem" fw={700} mb="md">
+        <Text size="1.75rem" fw={700} mb="md">
           Please Sign in
         </Text>
         <Button
           size="lg"
-          color="gray.0"
           variant="outline"
           onClick={() => login()}
         >

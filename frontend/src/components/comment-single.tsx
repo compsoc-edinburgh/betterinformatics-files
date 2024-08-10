@@ -14,7 +14,7 @@ interface Props {
 const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
   return (
     <Card withBorder shadow="md" mb="md">
-      <Card.Section bg="gray.0" mb="md">
+      <Card.Section mb="md">
         <Breadcrumbs
           px="md"
           pt="md"

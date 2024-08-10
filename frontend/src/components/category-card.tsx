@@ -50,10 +50,10 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
               ? highlight(category.displayname, category.match)
               : category.displayname}
           </Anchor>
-          <Text mt={4} color="gray.8">
+          <Text mt={4}>
             {`Exams: ${category.examcountpublic}`}
           </Text>
-          <Text mb={4} color="gray.8">
+          <Text mb={4}>
             {`Documents: ${category.documentcount}`}
           </Text>
         </div>

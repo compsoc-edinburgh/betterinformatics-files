@@ -139,7 +139,8 @@ const App: React.FC<{}> = () => {
       cancelled = true;
     };
   }, [user]);
-  const [debugPanel, {toggle: toggleDebugPanel, close: closeDebugPanel}] = useDisclosure();
+  const [debugPanel, { toggle: toggleDebugPanel, close: closeDebugPanel }] =
+    useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
 
   const loadUnreadCount = async () => {
@@ -152,25 +153,6 @@ const App: React.FC<{}> = () => {
   const data = (window as any).configOptions as ConfigOptions;
 
   const fvTheme = makeVsethTheme(data.primaryColor);
-
-  fvTheme.components = {
-    Anchor: {
-      defaultProps: {
-        color: "dark",
-      },
-    },
-    Progress: {
-      defaultProps: {
-        color: "dark",
-      },
-    },
-    Badge: {
-      defaultProps: {
-        color: "gray",
-        variant: "light",
-      },
-    },
-  };
 
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
@@ -214,7 +196,11 @@ const App: React.FC<{}> = () => {
   });
 
   return (
-    <MantineProvider theme={fvTheme} cssVariablesResolver={resolver}>
+    <MantineProvider
+      theme={fvTheme}
+      cssVariablesResolver={resolver}
+      defaultColorScheme="dark"
+    >
       <Modal
         opened={loggedOut}
         onClose={() => login()}
