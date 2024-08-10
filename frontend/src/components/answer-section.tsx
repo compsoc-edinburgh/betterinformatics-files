@@ -41,7 +41,6 @@ interface NameCardProps {
 
 const NameCard = (props: NameCardProps) => (
   <Card
-    bg="gray.1"
     withBorder
     className={classes.nameCard}
     {...props}

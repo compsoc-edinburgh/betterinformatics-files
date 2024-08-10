@@ -47,7 +47,7 @@ const UploadPdfCard: React.FC<{}> = () => {
   };
   return (
     <Card withBorder shadow="md">
-      <Card.Section withBorder p="md" bg="gray.0">
+      <Card.Section withBorder p="md">
         <Title order={4}>Upload PDF</Title>
       </Card.Section>
       <div>

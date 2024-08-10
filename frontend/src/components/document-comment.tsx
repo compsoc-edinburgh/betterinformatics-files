@@ -90,7 +90,7 @@ const DocumentCommentComponent = ({
         </Modal.Body>
       </Modal>
       <Card withBorder shadow="md" my="sm">
-        <Card.Section bg="gray.0" mb="sm">
+        <Card.Section mb="sm">
           <Flex py="sm" px="md" justify="space-between" align="center">
             <Flex align="center">
               <Anchor component={Link} to={`/user/${comment.authorId}`}>
@@ -157,7 +157,7 @@ const DocumentCommentComponent = ({
               </Button.Group>
             )}
           </Flex>
-          <Divider color="gray.3" />
+          <Divider/>
         </Card.Section>
         <MarkdownText value={comment.text} />
       </Card>
