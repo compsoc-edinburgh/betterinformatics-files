@@ -17,7 +17,7 @@ const LoginOverlay: React.FC<{}> = () => {
       }}
     >
       <div>
-        <Text size="1.75rem" fw={700} mb="md">
+        <Text size="1.75rem" fw={700} mb="md" c="white">
           Please Sign in
         </Text>
         <Button
