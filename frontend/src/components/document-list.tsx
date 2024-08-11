@@ -81,7 +81,6 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
           <Tooltip label="Add a new document">
             <Button
-              color="dark"
               style={{ width: "100%", height: "100%" }}
               onClick={open}
               leftSection={<IconPlus />}

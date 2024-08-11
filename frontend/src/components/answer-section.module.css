@@ -7,4 +7,8 @@
 .answer-section-button-wrapper {
   margin-top: 1em;
   margin-bottom: 1em;
+
+  @mixin dark {
+    background-color: var(--mantine-color-dark-8);
+  }
 }

@@ -197,10 +197,11 @@ const App: React.FC<{}> = () => {
   const resolver: CSSVariablesResolver = _ => ({
     variables: {},
     light: {
-      "--mantine-color-anchor": "--mantine-color-black",
+      "--mantine-color-anchor": "var(--mantine-color-black)",
     },
     dark: {
-      "--mantine-color-anchor": "--mantine-color-white",
+      "--mantine-color-anchor": "var(--mantine-color-white)",
+      "--mantine-color-body": "var(--mantine-color-dark-8)",
     },
   });
 

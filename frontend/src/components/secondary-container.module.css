@@ -1,7 +1,11 @@
 .contentContainer {
-  background-color: var(--mantine-color-gray-0);
+  @mixin light {
+    background-color: var(--mantine-color-gray-0);
+    box-shadow: inset var(--mantine-color-gray-2) 0px 0px 10px;
+  }
 
   @mixin dark {
-    background-color: var(--mantine-color-dark-5);
+    background-color: var(--mantine-color-dark-9);
+    box-shadow: inset var(--mantine-color-dark-8) 0px 0px 10px;
   }
 }
