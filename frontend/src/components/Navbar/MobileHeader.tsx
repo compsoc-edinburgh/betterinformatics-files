@@ -12,6 +12,7 @@ import {
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
 import classes from "./MobileHeader.module.css";
+import ColorSchemeToggle from "../color-scheme-toggle";
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
@@ -62,13 +63,15 @@ const BottomHeader: React.FC<Props> = ({
             </a>
           </div>
         </div>
-
-        <Burger
-          opened={opened}
-          onClick={() => setOpened((o: boolean) => !o)}
-          size="sm"
-          color={theme.colors.gray[0]}
-        />
+        <Group>
+          <ColorSchemeToggle />
+          <Burger
+            opened={opened}
+            onClick={() => setOpened((o: boolean) => !o)}
+            size="sm"
+            color={theme.colors.gray[0]}
+          />
+        </Group>
       </Group>
       {opened ? (
         <Stack align="left" gap="sm" py="xs">

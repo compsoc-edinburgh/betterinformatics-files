@@ -7,7 +7,7 @@
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
 
   @mixin hover {
-    background-color: var(--mantine-color-gray-0);
+    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8));
   }
 }
 

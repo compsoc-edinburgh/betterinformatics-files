@@ -1,17 +1,13 @@
 import * as React from "react";
 import {
-  ActionIcon,
-  Affix,
-  Container,
-  rem,
-  useMantineColorScheme,
+  Container
 } from "@mantine/core";
 import classes from "./TopHeader.module.css";
 import type { MantineSize } from "@mantine/core";
 
 import { globalNav, translate, NavItem } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
-import { IconMoon, IconSun } from "@tabler/icons-react";
+import ColorSchemeToggle from "../color-scheme-toggle";
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
@@ -30,9 +26,6 @@ const TopHeader: React.FC<Props> = ({
   onLanguageSelect,
   size,
 }) => {
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-  const dark = colorScheme === "dark";
-
   return (
     <Container
       visibleFrom="md"
@@ -77,16 +70,7 @@ const TopHeader: React.FC<Props> = ({
               isExternal={true}
             />
           ) : undefined}
-          {
-            <ActionIcon
-              color="white"
-              onClick={() => toggleColorScheme()}
-              title="Toggle color scheme"
-              variant="transparent"
-            >
-              {dark ? <IconSun /> : <IconMoon />}
-            </ActionIcon>
-          }
+          <ColorSchemeToggle/>
         </div>
       </Container>
     </Container>

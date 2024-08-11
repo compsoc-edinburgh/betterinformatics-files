@@ -55,6 +55,7 @@ ARG git_branch
 ARG git_commit
 
 COPY ./frontend/tsconfig.json \
+     ./frontend/postcss.config.cjs \
      ./frontend/vite.config.ts \
      ./frontend/.eslintrc.json \
      ./frontend/.env.production \

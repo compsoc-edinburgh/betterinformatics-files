@@ -8,7 +8,7 @@ import {
   Affix,
   rem,
   Group,
-  CSSVariablesResolver,
+  CSSVariablesResolver
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
@@ -154,6 +154,15 @@ const App: React.FC<{}> = () => {
 
   const fvTheme = makeVsethTheme(data.primaryColor);
 
+  fvTheme.components = {
+    Badge: {
+      defaultProps: {
+        color: "gray",
+        variant: "light",
+      },
+    },
+  };
+  
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
@@ -199,7 +208,6 @@ const App: React.FC<{}> = () => {
     <MantineProvider
       theme={fvTheme}
       cssVariablesResolver={resolver}
-      defaultColorScheme="dark"
     >
       <Modal
         opened={loggedOut}
