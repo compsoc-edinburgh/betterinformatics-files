@@ -14,7 +14,6 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
 }) => {
   return (
     <>
-      <Divider mt="lg" {...others} />
       <Box
         py="md"
         px={0}
@@ -24,7 +23,6 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
       >
         {children}
       </Box>
-      <Divider />
     </>
   );
 };

@@ -37,7 +37,6 @@ const Score: React.FC<Props> = ({
           tooltip="Downvote"
           size="sm"
           disabled={userVote === -1}
-          style={{ borderRightWidth: 0, borderColor: "#ced4da" }}
           onClick={() => setLike(oid, -1)}
         >
           <IconChevronDown />
@@ -57,7 +56,6 @@ const Score: React.FC<Props> = ({
           tooltip="Upvote"
           size="sm"
           disabled={userVote === 1}
-          style={{ borderLeftWidth: 0, borderColor: "#ced4da" }}
           onClick={() => setLike(oid, 1)}
         >
           <IconChevronUp />

@@ -114,7 +114,6 @@ const AnswerComponent: React.FC<Props> = ({
       {modals}
       <Card
         mb="md"
-        withBorder
         shadow="md"
         id={hasId ? answer?.longId : undefined}
         className={classes.answerWrapperStyle}
