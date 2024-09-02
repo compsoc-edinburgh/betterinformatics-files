@@ -6,6 +6,10 @@
   font-size: 0;
   user-select: none;
   pointer-events: none;
+
+  @mixin dark {
+    filter: invert(0.9);
+  }
 }
 
 /* Allows hiding sections while adding cuts (Displays button over Overlay) */

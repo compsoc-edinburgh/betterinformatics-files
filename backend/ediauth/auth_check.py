@@ -82,13 +82,13 @@ def require_login(f):
     @wraps(f)
     def wrapper(request, *args, **kwargs):
         if not user_authenticated(request):
-            return response.not_allowed()
+            return response.unauthorized()
         return f(request, *args, **kwargs)
 
     @wraps(f)
     def wrapper_class(self, request, *args, **kwargs):
         if not user_authenticated(request):
-            return response.not_allowed()
+            return response.unauthorized()
         return f(self, request, *args, **kwargs)
 
     return wrapper_class if _is_class_method(f) else wrapper
@@ -100,7 +100,7 @@ def require_exam_admin(f):
     @wraps(f)
     def wrapper(request, *args, **kwargs):
         if not user_authenticated(request):
-            return response.not_allowed()
+            return response.unauthorized()
         exam = get_object_or_404(Exam, filename=kwargs["filename"])
         if not has_admin_rights_for_exam(request, exam):
             return response.not_allowed()
@@ -113,7 +113,7 @@ def require_admin(f):
     @wraps(f)
     def wrapper(request, *args, **kwargs):
         if not user_authenticated(request):
-            return response.not_allowed()
+            return response.unauthorized()
         if not has_admin_rights(request):
             return response.not_allowed()
         return f(request, *args, **kwargs)
@@ -121,7 +121,7 @@ def require_admin(f):
     @wraps(f)
     def wrapper_class(self, request, *args, **kwargs):
         if not user_authenticated(request):
-            return response.not_allowed()
+            return response.unauthorized()
         if not has_admin_rights(request):
             return response.not_allowed()
         return f(self, request, *args, **kwargs)

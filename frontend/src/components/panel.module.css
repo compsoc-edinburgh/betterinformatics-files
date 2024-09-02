@@ -46,7 +46,6 @@
   width: 100%;
   pointer-events: auto;
   background-clip: padding-box;
-  background: #fff;
   padding: 1em;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-top-left-radius: 0.3rem;
@@ -55,5 +54,11 @@
   overflow: auto;
   & .modal-header {
     display: block;
+  }
+  @mixin light {
+    background: #fff;
+  }
+  @mixin dark {
+    background: var(--mantine-color-dark-6);
   }
 }

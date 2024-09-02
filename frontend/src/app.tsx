@@ -39,7 +39,6 @@ import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import { BooleanParam, useQueryParam } from "use-query-params";
-import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
@@ -150,16 +149,6 @@ const App: React.FC<{}> = () => {
   });
 
   compsocTheme.components = {
-    Anchor: {
-      defaultProps: {
-        color: "dark",
-      },
-    },
-    Progress: {
-      defaultProps: {
-        color: "dark",
-      },
-    },
     Badge: {
       defaultProps: {
         color: "compsocGray",
@@ -201,10 +190,11 @@ const App: React.FC<{}> = () => {
   const resolver: CSSVariablesResolver = _ => ({
     variables: {},
     light: {
-      "--mantine-color-anchor": "--mantine-color-black",
+      "--mantine-color-anchor": "var(--mantine-color-black)",
     },
     dark: {
-      "--mantine-color-anchor": "--mantine-color-white",
+      "--mantine-color-anchor": "var(--mantine-color-white)",
+      "--mantine-color-body": "var(--mantine-color-dark-8)",
     },
   });
 

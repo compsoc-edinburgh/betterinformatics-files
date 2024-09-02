@@ -71,7 +71,6 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
             <ShimmerButton
               onClick={open}
               leftSection={<IconPlus />}
-              color="dark"
               variant="outline"
             >
               Add document

@@ -1,10 +1,13 @@
 import * as React from "react";
-import { Container } from "@mantine/core";
+import {
+  Container
+} from "@mantine/core";
 import classes from "./TopHeader.module.css";
 import type { MantineSize } from "@mantine/core";
 
 import { globalNav, translate, NavItem } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
+import ColorSchemeToggle from "../color-scheme-toggle";
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
@@ -67,6 +70,7 @@ const TopHeader: React.FC<Props> = ({
               isExternal={true}
             />
           ) : undefined}
+          <ColorSchemeToggle/>
         </div>
       </Container>
     </Container>

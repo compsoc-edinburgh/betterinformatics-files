@@ -43,8 +43,6 @@ interface NameCardProps {
 
 const NameCard = (props: NameCardProps) => (
   <Card
-    bg="gray.1"
-    withBorder
     className={classes.nameCard}
     {...props}
     shadow="md"
@@ -57,7 +55,6 @@ const AnswerSectionButtonWrapper = (props: CardProps) => (
     p="sm"
     shadow="md"
     mb="1em"
-    withBorder
     className={classes.answerSectionButtonWrapper}
     {...props}
   />

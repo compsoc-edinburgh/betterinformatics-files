@@ -1,4 +1,6 @@
+import { useComputedColorScheme } from "@mantine/core";
 import { LightAsync as SyntaxHighlighter } from "react-syntax-highlighter";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import atomOneLight from "react-syntax-highlighter/dist/esm/styles/hljs/atom-one-light";
 
 const aliases: Record<string, string | undefined> = {
@@ -36,6 +38,7 @@ interface Props {
 }
 
 const CodeBlock = ({ value, language }: Props) => {
+  const computedColorScheme = useComputedColorScheme();
   return (
     <SyntaxHighlighter
       // Defaulting to "text" here prevents hljs from applying heuristics to determine the language
@@ -43,7 +46,7 @@ const CodeBlock = ({ value, language }: Props) => {
       // cases. Users can annotate their code blocks with the respective language if they wish their code
       // to be highlighted.
       language={language ? aliases[language] ?? language : "text"}
-      style={atomOneLight}
+      style={computedColorScheme === "light" ? atomOneLight : atomOneDark}
       customStyle={{
         padding: "0.8em",
         borderRadius: "0.2rem",
