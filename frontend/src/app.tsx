@@ -8,7 +8,8 @@ import {
   Affix,
   rem,
   Group,
-  CSSVariablesResolver
+  CSSVariablesResolver,
+  SegmentedControl,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
@@ -161,6 +162,23 @@ const App: React.FC<{}> = () => {
         variant: "light",
       },
     },
+    // By default, SegmentedControl on dark mode has a "light indicator on dark
+    // background" look, with the background color of the root component being
+    // identical to the page's background color. This makes the component hard
+    // to see. We therefore want to override the default styles to flip the
+    // colors, while keeping the light mode appearance the same.
+    // Mantine gives us a CSS variable (--sc-color) to configure the indicator
+    // color, but not the root background color. So we define a new variable to
+    // do just that. Both variables are then set in the CSSVariablesResolver
+    // based on the theme colors.
+    SegmentedControl: SegmentedControl.extend({
+      styles: {
+        root: {
+          // This is the new variable we define to set the root background color
+          background: "var(--custom-segmented-control-background)"
+        },
+      }
+    }),
   };
   
   const adminItems = [
@@ -194,14 +212,23 @@ const App: React.FC<{}> = () => {
     },
   ];
 
+  // Change CSS variables depending on the color scheme in use
   const resolver: CSSVariablesResolver = _ => ({
     variables: {},
     light: {
       "--mantine-color-anchor": "var(--mantine-color-black)",
+      // Segmented control background
+      "--custom-segmented-control-background": "var(--mantine-color-gray-2)",
+      // Segmented control indicator
+      "--sc-color": "var(--mantine-color-white)",
     },
     dark: {
       "--mantine-color-anchor": "var(--mantine-color-white)",
       "--mantine-color-body": "var(--mantine-color-dark-8)",
+      // Segmented control background
+      "--custom-segmented-control-background": "var(--mantine-color-dark-6)",
+      // Segmented control indicator
+      "--sc-color": "var(--mantine-color-dark-8)",
     },
   });
 
