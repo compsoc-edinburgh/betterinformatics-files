@@ -366,6 +366,9 @@ export interface Stats {
   monthly_user_stats: UserStat[];
   monthly_exam_stats: ExamStat[];
   monthly_document_stats: DocumentStat[];
+  semesterly_user_stats: UserStat[];
+  semesterly_exam_stats: ExamStat[];
+  semesterly_document_stats: DocumentStat[];
 }
 
 export interface UserStat {

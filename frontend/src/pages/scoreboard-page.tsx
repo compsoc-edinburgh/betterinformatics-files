@@ -98,7 +98,8 @@ const Scoreboard: React.FC<{}> = () => {
         onChange={setStatsGranularity}
         data={[
           { label: "Weekly", value: "Weekly" },
-          { label: "Month", value: "Monthly" },
+          { label: "Monthly", value: "Monthly" },
+          { label: "Semesterly", value: "Semesterly" },
         ]}
       />
       {statsError && <Alert color="red">{String(statsError)}</Alert>}
@@ -112,7 +113,11 @@ const Scoreboard: React.FC<{}> = () => {
           data={
             (statsGranularity === "Weekly"
               ? stats?.weekly_user_stats
-              : stats?.monthly_user_stats) || []
+              : statsGranularity === "Monthly"
+              ? stats?.monthly_user_stats
+              : statsGranularity === "Semesterly"
+              ? stats?.semesterly_user_stats
+              : []) || []
           }
           dataKey="date"
           series={[{ name: "count", label: "User Count", color: "indigo.6" }]}
@@ -128,7 +133,11 @@ const Scoreboard: React.FC<{}> = () => {
           data={
             (statsGranularity === "Weekly"
               ? stats?.weekly_exam_stats
-              : stats?.monthly_exam_stats) || []
+              : statsGranularity === "Monthly"
+              ? stats?.monthly_exam_stats
+              : statsGranularity === "Semesterly"
+              ? stats?.semesterly_exam_stats
+              : []) || []
           }
           dataKey="date"
           series={[
@@ -155,7 +164,11 @@ const Scoreboard: React.FC<{}> = () => {
           data={
             (statsGranularity === "Weekly"
               ? stats?.weekly_document_stats
-              : stats?.monthly_document_stats) || []
+              : statsGranularity === "Monthly"
+              ? stats?.monthly_document_stats
+              : statsGranularity === "Semesterly"
+              ? stats?.semesterly_document_stats
+              : []) || []
           }
           dataKey="date"
           series={[
