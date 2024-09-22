@@ -8,6 +8,7 @@ import {
   Stack,
   Tooltip,
   Flex,
+  useComputedColorScheme,
 } from "@mantine/core";
 import React, { useMemo } from "react";
 import { IconHeart, IconHeartFilled, IconLock } from "@tabler/icons-react";
@@ -39,6 +40,10 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
     }
   };
 
+  // Find a secondary text color to use based on the current color scheme, for
+  // the document count, exam count, and answer progress.
+  const computedColorScheme = useComputedColorScheme('light');
+  const subTextColor = computedColorScheme == "light" ? "gray.8" : "gray.5";
 
   const [favouriteLoading, add] = useMutation(addNewFavourite, res => {
     refresh();
@@ -111,13 +116,13 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
                 : <IconHeart aria-label="Favourite" />}
             </ActionIcon>
           </Flex>
-          <Text mt={4} c="gray.8">
+          <Text mt={4} c={subTextColor}>
             {pluralize(category.documentcount, "Community Document")}
           </Text>
-          <Text c="gray.8">
+          <Text c={subTextColor}>
             {pluralize(category.examcountpublic, "Exam")}
           </Text>
-          <Text mb={4} c="gray.8">
+          <Text mb={4} c={subTextColor}>
             {((category.answerprogress * 100) | 0).toString()} % Solved by
             community
           </Text>
