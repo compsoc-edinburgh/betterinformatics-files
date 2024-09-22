@@ -140,7 +140,7 @@ const LoginOverlay: React.FC<{}> = () => {
           <form onSubmit={handleProcessingAgreement}>
             <Text mt="md">
               Do you consent to the processing (see our{" "}
-              <Anchor href="/privacy" color="blue">
+              <Anchor href="/privacy" c="blue">
                 privacy policy
               </Anchor>
               ) of your UUN and IP address? The UUN will be visible to other
