@@ -132,7 +132,9 @@ const App: React.FC<{}> = () => {
   // CompSoc theme
   var compsocTheme = createTheme({
     colors: {
+      // A brown-like color for the primary color
       compsocMain: calculateShades("#b89c7c"),
+      // Various tones of gray for miscellaneous elements
       compsocGray: new Array(10).fill(
         "rgb(144, 146, 150)",
       ) as unknown as MantineColorsTuple,
