@@ -63,8 +63,8 @@ const BottomHeader: React.FC<Props> = ({
               );
             })}
             {loginButton}
+            <ColorSchemeToggle/>
           </Group>
-          <ColorSchemeToggle/>
         </Container>
       </Container>
     </>

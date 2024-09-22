@@ -6,7 +6,7 @@ const ColorSchemeToggle = () => {
   const dark = colorScheme === "dark";
   return (
     <ActionIcon
-      color="white"
+      color={dark ? "white" : "black"}
       onClick={() => toggleColorScheme()}
       title="Toggle color scheme"
       variant="transparent"

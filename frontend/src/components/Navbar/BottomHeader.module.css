@@ -6,14 +6,18 @@
   height: 3.5rem;
   box-sizing: border-box;
   border-bottom: 2px solid var(--mantine-color-gray-2);
+  background: var(--mantine-color-body);
   position: fixed;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  background: var(--mantine-color-white);
   z-index: var(--mantine-z-index-app);
   /* box-shadow: var(--mantine-shadow-xs); */
+
+  @mixin dark {
+    border-bottom: 2px solid var(--mantine-color-dark-6);
+  }
 }
 
 .container {
