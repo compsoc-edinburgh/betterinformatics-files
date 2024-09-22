@@ -10,7 +10,6 @@
 .hoverShadow {
   transition: border-color 70ms ease, transform 40ms ease, box-shadow 70ms ease;
   border-width: 2px;
-  border-color: var(--mantine-color-gray-2);
 }
 
 /** Show hover effect only if device supports hover, to avoid confusing with
