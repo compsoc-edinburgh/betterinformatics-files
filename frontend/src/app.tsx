@@ -171,7 +171,7 @@ const App: React.FC<{}> = () => {
         indicator: {
           background: "light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))",
         },
-      }
+      },
     }),
   };
 
