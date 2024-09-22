@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@mantine/core";
+import { Button, ButtonProps, useComputedColorScheme } from "@mantine/core";
 import Shimmer from "../assets/shimmer.svg?react";
 import Star from "../assets/star.svg?react";
 import React, { forwardRef } from "react";
@@ -12,7 +12,8 @@ interface ShimmerButtonProps extends ButtonProps {
 const ShimmerButton: React.FC<
   ShimmerButtonProps & React.RefAttributes<HTMLButtonElement>
 > = forwardRef(({ children, onClick, ...buttonProps }, ref) => {
-  const useDarkEffects = buttonProps.variant === "outline";
+  const computedColorScheme = useComputedColorScheme("light");
+  const useDarkEffects = buttonProps.variant === "outline" && computedColorScheme === "light";
   return (
     <Button
       {...buttonProps}
