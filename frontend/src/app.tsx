@@ -10,6 +10,7 @@ import {
   MantineColorsTuple,
   CSSVariablesResolver,
   useMantineColorScheme,
+  SegmentedControl,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
@@ -157,6 +158,21 @@ const App: React.FC<{}> = () => {
         variant: "light",
       },
     },
+    // By default, SegmentedControl on dark mode has a "light indicator on dark
+    // background" look, with the background color of the root component being
+    // identical to the page's background color. This makes the component hard
+    // to see. We therefore override the default styles to flip the colors,
+    // while keeping the light mode appearance the same.
+    SegmentedControl: SegmentedControl.extend({
+      styles: {
+        root: {
+          background: "light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))",
+        },
+        indicator: {
+          background: "light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))",
+        },
+      }
+    }),
   };
 
   const adminItems = [
