@@ -9,6 +9,7 @@ import {
   Group,
   Flex,
   Text,
+  useComputedColorScheme,
 } from "@mantine/core";
 import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
@@ -126,6 +127,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     onHasAnswersChange,
     has_answers,
   }) => {
+    const computedColorScheme = useComputedColorScheme("light");
+
     const [data, setData] = useState<AnswerSection | undefined>();
     const run = useAnswers(oid, data => {
       setData(data);
@@ -251,7 +254,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </div>
           )}
           <AnswerSectionButtonWrapper
-            bg="gray.0"
+            bg={computedColorScheme == "light" ? "gray.0" : "dark.7"}
             // color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <div>
