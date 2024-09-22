@@ -360,15 +360,14 @@ export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
 }
 
 export interface Stats {
-  weekly_user_stats: UserStat[];
-  weekly_exam_stats: ExamStat[];
-  weekly_document_stats: DocumentStat[];
-  monthly_user_stats: UserStat[];
-  monthly_exam_stats: ExamStat[];
-  monthly_document_stats: DocumentStat[];
-  semesterly_user_stats: UserStat[];
-  semesterly_exam_stats: ExamStat[];
-  semesterly_document_stats: DocumentStat[];
+  user_stats: GranularityStats<UserStat>;
+  exam_stats: GranularityStats<ExamStat>;
+  document_stats: GranularityStats<DocumentStat>;
+}
+
+// Mapping from granularity to list of data points for that granularity
+export interface GranularityStats<T> {
+  [key: string]: T[];
 }
 
 export interface UserStat {

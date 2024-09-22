@@ -80,7 +80,7 @@ const Scoreboard: React.FC<{}> = () => {
 
   const [statsGranularity, setStatsGranularity] = useLocalStorageState<string>(
     "stats-granularity",
-    "Weekly",
+    "weekly",
   );
 
   const {
@@ -97,48 +97,33 @@ const Scoreboard: React.FC<{}> = () => {
         value={statsGranularity}
         onChange={setStatsGranularity}
         data={[
-          { label: "Weekly", value: "Weekly" },
-          { label: "Monthly", value: "Monthly" },
-          { label: "Semesterly", value: "Semesterly" },
+          // Should equal the values in the backend as it is used as a key
+          { label: "Weekly", value: "weekly" },
+          { label: "Monthly", value: "monthly" },
+          { label: "Semesterly", value: "semesterly" },
         ]}
       />
       {statsError && <Alert color="red">{String(statsError)}</Alert>}
 
       <Title order={2} my="lg">
-        {statsGranularity} User Stats
+        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)} User Stats
       </Title>
       <Container size="md">
         <LineChart
           h={300}
-          data={
-            (statsGranularity === "Weekly"
-              ? stats?.weekly_user_stats
-              : statsGranularity === "Monthly"
-              ? stats?.monthly_user_stats
-              : statsGranularity === "Semesterly"
-              ? stats?.semesterly_user_stats
-              : []) || []
-          }
+          data={stats?.user_stats[statsGranularity] || []}
           dataKey="date"
           series={[{ name: "count", label: "User Count", color: "indigo.6" }]}
           curveType="monotone"
         />
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity} Answered Questions Stats
+        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)} Answered Questions Stats
       </Title>
       <Container size="md">
         <LineChart
           h={300}
-          data={
-            (statsGranularity === "Weekly"
-              ? stats?.weekly_exam_stats
-              : statsGranularity === "Monthly"
-              ? stats?.monthly_exam_stats
-              : statsGranularity === "Semesterly"
-              ? stats?.semesterly_exam_stats
-              : []) || []
-          }
+          data={stats?.exam_stats[statsGranularity] || []}
           dataKey="date"
           series={[
             {
@@ -156,20 +141,12 @@ const Scoreboard: React.FC<{}> = () => {
         />
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity} Document Stats
+        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)} Document Stats
       </Title>
       <Container size="md">
         <LineChart
           h={300}
-          data={
-            (statsGranularity === "Weekly"
-              ? stats?.weekly_document_stats
-              : statsGranularity === "Monthly"
-              ? stats?.monthly_document_stats
-              : statsGranularity === "Semesterly"
-              ? stats?.semesterly_document_stats
-              : []) || []
-          }
+          data={stats?.document_stats[statsGranularity] || []}
           dataKey="date"
           series={[
             { name: "count", label: "Document Count", color: "green.6" },
