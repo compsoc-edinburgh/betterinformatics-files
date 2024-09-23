@@ -11,6 +11,7 @@ import {
   Text,
   Tooltip,
   Anchor,
+  Highlight,
 } from "@mantine/core";
 import { IconArrowRight } from "@tabler/icons-react";
 import React, { FormEventHandler, useState } from "react";
@@ -116,6 +117,13 @@ const LoginOverlay: React.FC<{}> = () => {
           <Title order={4} size="1.75rem" fw={700} mb="md">
             Sign in to view
           </Title>
+          {rd && (
+            <Text size="xs" mb="xs">
+              <Highlight highlight={rd}>
+                {`The content at ${rd} is only available to University of Edinburgh students. Please sign in to view.`}
+              </Highlight>
+            </Text>
+          )}
           <form onSubmit={handleSubmitUUN}>
             <TextInput
               label="Edinburgh UUN"

@@ -27,7 +27,6 @@ const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
         <Grid gutter="xl">
           <Grid.Col
             span={{ base: 12, md: 6, lg: 6, xl: 6 }}
-            style={{ alignSelf: "center" }}
           >
             <Flex direction="column" justify="center">
               {uwu ? (
