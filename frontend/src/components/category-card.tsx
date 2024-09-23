@@ -92,6 +92,7 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
         // Show a padlock when not logged in, to draw attention to the login form.
         <LoadingOverlay
           visible={true}
+          zIndex={1}
           loaderProps={{ children: <IconLock style={{ height: "1.5rem", width: "1.5rem" }} aria-label="Locked" /> }}
         />
       )}
