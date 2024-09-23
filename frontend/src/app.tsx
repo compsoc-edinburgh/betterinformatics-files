@@ -10,6 +10,7 @@ import {
   MantineColorsTuple,
   CSSVariablesResolver,
   useMantineColorScheme,
+  SegmentedControl,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
@@ -39,7 +40,6 @@ import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import { BooleanParam, useQueryParam } from "use-query-params";
-import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
 import Footer from "./components/footer";
@@ -133,7 +133,9 @@ const App: React.FC<{}> = () => {
   // CompSoc theme
   var compsocTheme = createTheme({
     colors: {
+      // A brown-like color for the primary color
       compsocMain: calculateShades("#b89c7c"),
+      // Various tones of gray for miscellaneous elements
       compsocGray: new Array(10).fill(
         "rgb(144, 146, 150)",
       ) as unknown as MantineColorsTuple,
@@ -150,22 +152,27 @@ const App: React.FC<{}> = () => {
   });
 
   compsocTheme.components = {
-    Anchor: {
-      defaultProps: {
-        color: "dark",
-      },
-    },
-    Progress: {
-      defaultProps: {
-        color: "dark",
-      },
-    },
     Badge: {
       defaultProps: {
         color: "compsocGray",
         variant: "light",
       },
     },
+    // By default, SegmentedControl on dark mode has a "light indicator on dark
+    // background" look, with the background color of the root component being
+    // identical to the page's background color. This makes the component hard
+    // to see. We therefore override the default styles to flip the colors,
+    // while keeping the light mode appearance the same.
+    SegmentedControl: SegmentedControl.extend({
+      styles: {
+        root: {
+          background: "light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5))",
+        },
+        indicator: {
+          background: "light-dark(var(--mantine-color-white), var(--mantine-color-dark-8))",
+        },
+      },
+    }),
   };
 
   const adminItems = [
@@ -201,10 +208,11 @@ const App: React.FC<{}> = () => {
   const resolver: CSSVariablesResolver = _ => ({
     variables: {},
     light: {
-      "--mantine-color-anchor": "--mantine-color-black",
+      "--mantine-color-anchor": "var(--mantine-color-black)",
     },
     dark: {
-      "--mantine-color-anchor": "--mantine-color-white",
+      "--mantine-color-anchor": "var(--mantine-color-white)",
+      "--mantine-color-body": "var(--mantine-color-dark-8)",
     },
   });
 

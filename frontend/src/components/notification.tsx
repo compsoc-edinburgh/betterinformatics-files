@@ -32,7 +32,7 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
     <div>
       {error && <Alert color="red">{error.message}</Alert>}
       <Card withBorder shadow="md" my="sm">
-        <Card.Section p="md" mb="md" withBorder bg="gray.0">
+        <Card.Section p="md" mb="md" withBorder>
           <Group justify="space-between">
             <div>
               <Title order={4}>

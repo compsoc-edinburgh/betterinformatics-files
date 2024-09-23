@@ -203,7 +203,6 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       <Card
         shadow="md"
         p={0}
-        withBorder
         className={clsx(end === 1 && classes.lastSection)}
       >
         <div ref={inViewportRef}>

@@ -14,7 +14,7 @@ class TestEdiAuth(ComsolTest):
     def test_sign_in(self):
 
         # Check that the user cannot access the unreadcount endpoint
-        self.get("/api/notification/unreadcount/", 403)
+        self.get("/api/notification/unreadcount/", 401)
 
         # Send login request
         self.post(
@@ -141,4 +141,4 @@ class TestEdiAuth(ComsolTest):
 
         # Check that the client user cannot access the me endpoint
         response = self.client.get("/api/notification/unreadcount/")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)

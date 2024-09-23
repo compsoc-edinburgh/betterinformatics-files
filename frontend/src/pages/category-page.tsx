@@ -18,6 +18,7 @@ import {
   HoverCardTarget,
   HoverCard,
   Tooltip,
+  useComputedColorScheme,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -58,6 +59,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   onMetaDataChange,
   metaData,
 }) => {
+  const computedColorScheme = useComputedColorScheme("light");
+
   const {
     data,
     loading: _,
@@ -314,7 +317,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Alert>
               )}
               {raw_md_contents !== undefined && (
-                <Text c="gray.7">
+                <Text c={computedColorScheme == "light" ? "gray.7" : "gray.4"}>
                   <MarkdownText
                     value={raw_md_contents}
                     localLinkBase="https://betterinformatics.com"

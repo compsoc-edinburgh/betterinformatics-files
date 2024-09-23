@@ -11,7 +11,7 @@ const UploadPdfPage: React.FC<{}> = () => {
         <Grid.Col span="auto" />
         <Grid.Col span={{ lg: 6 }}>
           <Card withBorder shadow="md">
-            <Card.Section withBorder p="md" mb="sm" bg="gray.0">
+            <Card.Section withBorder p="md" mb="sm">
               <Title order={4}>Upload PDF</Title>
             </Card.Section>
             <UploadPdfCard />

@@ -7,4 +7,8 @@
 .answer-section-button-wrapper {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+
+  @mixin dark {
+    background-color: var(--mantine-color-dark-8);
+  }
 }

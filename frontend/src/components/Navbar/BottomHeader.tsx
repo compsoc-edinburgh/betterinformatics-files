@@ -3,6 +3,7 @@ import { Box, Container, Group } from "@mantine/core";
 import type { MantineSize } from "@mantine/core";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
+import ColorSchemeToggle from "../color-scheme-toggle";
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import classes from "./BottomHeader.module.css";
@@ -62,6 +63,7 @@ const BottomHeader: React.FC<Props> = ({
               );
             })}
             {loginButton}
+            <ColorSchemeToggle/>
           </Group>
         </Container>
       </Container>

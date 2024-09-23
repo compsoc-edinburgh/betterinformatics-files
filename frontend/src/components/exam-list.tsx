@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   Title,
+  useComputedColorScheme,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
@@ -69,6 +70,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
 
   const [formIsOpen, setFormIsOpen] = useState(false);
 
+  const computedColorScheme = useComputedColorScheme("light");
+
   return (
     <>
       <Title order={2} mt="xl" mb="lg">
@@ -85,7 +88,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <ShimmerButton
             onClick={() => setFormIsOpen(true)}
             leftSection={<IconPlus />}
-            color="dark"
+            color={computedColorScheme == "dark" ? "compsocMain" : "dark"}
             variant="outline"
           >
             Add new exam
