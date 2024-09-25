@@ -96,7 +96,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
           <div
             style={{
               transform: `translateY(${displayPos}px) translateY(-50%)`,
-              backgroundColor: snap && snapBad ? "red" : "black",
+              backgroundColor: snap && snapBad ? "red" : "var(--mantine-color-text)",
               height: "3px",
               position: "absolute",
               width: "100%",
@@ -105,9 +105,10 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
             id="add-cut"
           >
             <Badge
-              color={snap && snapBad ? "red" : "black"}
+              color={snap && snapBad ? "red" : "var(--mantine-color-text)"}
               size="lg"
               className={classes.badge}
+              variant="filled"
             >
               {addCutText}
             </Badge>
