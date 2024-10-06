@@ -105,13 +105,13 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
             className={clsx(classes.focusOutline, classes.hoverShadow)}
             // Add onClick and onKeydown functionality for when the component
             // is not a Link, i.e. when there are exams selected.
-            onClick={e => clickOnExam(exam)}
-            onKeyDown={e => { if (e.code === "Enter") clickOnExam(exam) }}
+            onClick={(_e: any) => clickOnExam(exam)}
+            onKeyDown={(e: any) => { if (e.code === "Enter") clickOnExam(exam) }}
             tabIndex={0}
             key={exam.filename}
             fw={600}
             // Prevent navigating away when there are exams selected.
-            component={someSelected ? undefined : Link}
+            component={(someSelected ? undefined : Link) as any}
             style={{ cursor: someSelected ? 'default' : 'pointer' }}
             to={`/exams/${exam.filename}`}
           >
