@@ -111,7 +111,9 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         />
       </Flex>
       {error && <Alert color="red">{error.message}</Alert>}
-      {loading && <Loader />}
+      <Box pos="relative">
+        {loading && <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />}
+      </Box>
 
       {examTypeMap &&
         examTypeMap.map(
