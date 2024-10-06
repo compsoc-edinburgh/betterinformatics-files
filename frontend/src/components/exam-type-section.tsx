@@ -1,6 +1,5 @@
 import { useRequest } from "@umijs/hooks";
 import {
-  Anchor,
   Badge,
   Card,
   Checkbox,
@@ -19,6 +18,7 @@ import useConfirm from "../hooks/useConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
+import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import ExamGrid from "./exam-grid";
 import { IconTrash } from "@tabler/icons-react";
@@ -64,12 +64,28 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     e: React.MouseEvent<HTMLButtonElement>,
     exam: CategoryExam,
   ) => {
+    // Prevent the click event from propagating to the containing card.
     e.stopPropagation();
+    e.preventDefault();
     confirm(
       `Remove the exam named ${exam.displayname}? This will remove all answers and can not be undone!`,
       () => runRemoveExam(exam.filename),
     );
   };
+
+  const clickOnExam = (exam: CategoryExam) => {
+    // If there are exams selected already, then clicking on an exam will behave
+    // as if we clicked on the checkbox. This is to make the UX less prone to
+    // inadvertently clicking on exams and navigating away, losing the selection.
+    if (someSelected) {
+      if (selected.has(exam.filename)) {
+        onDeselect(exam.filename);
+      } else {
+        onSelect(exam.filename);
+      }
+    }
+    // If there are no exams selected, the Link component will handle the click.
+  }
 
   return (
     <>
@@ -85,42 +101,42 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       <ExamGrid>
         {exams.map(exam => (
           <Card
-            shadow="xs"
             withBorder
-            className={classes.focusOutline}
-            onKeyDown={e => {
-              if (e.code === "Enter" && exam.canView) {
-                history.push(`/exams/${exam.filename}`);
-              }
-            }}
+            className={clsx(classes.focusOutline, classes.hoverShadow)}
+            // Add onClick and onKeydown functionality for when the component
+            // is not a Link, i.e. when there are exams selected.
+            onClick={e => clickOnExam(exam)}
+            onKeyDown={e => { if (e.code === "Enter") clickOnExam(exam) }}
             tabIndex={0}
             key={exam.filename}
+            fw={600}
+            // Prevent navigating away when there are exams selected.
+            component={someSelected ? undefined : Link}
+            style={{ cursor: someSelected ? 'default' : 'pointer' }}
+            to={`/exams/${exam.filename}`}
           >
             <Grid>
               <Grid.Col span="content">
                 <Checkbox
+                  mt="0.25em"
                   checked={selected.has(exam.filename)}
+                  // Prevent the click event from propagating to the containing
+                  // card's handlers.
                   onClick={e => e.stopPropagation()}
+                  // Toggle the selection state in the parent component.
                   onChange={e => {
                     e.currentTarget.checked
                       ? onSelect(exam.filename)
                       : onDeselect(exam.filename);
                   }}
+                  // Might be obsolete code below, unviewable exams should be
+                  // filtered already at this point.
                   disabled={!exam.canView}
-                  mt="0.25em"
                 />
               </Grid.Col>
               <Grid.Col span="auto">
                 {exam.canView ? (
-                  <Anchor
-                    component={Link}
-                    to={`/exams/${exam.filename}`}
-                    size="lg"
-                    fw={600}
-                    mb="sm"
-                  >
-                    <Text fw={600}>{exam.displayname}</Text>
-                  </Anchor>
+                  <Text fw={600} size="lg">{exam.displayname}</Text>
                 ) : (
                   exam.displayname
                 )}
