@@ -1,7 +1,9 @@
 import React from "react";
 import { Document } from "../interfaces";
 import { Link } from "react-router-dom";
-import { Anchor, Badge, Flex, Group, Paper, Text } from "@mantine/core";
+import { Anchor, Badge, Flex, Group, Card, Text } from "@mantine/core";
+import clsx from "clsx";
+import classes from "../utils/focus-outline.module.css";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 
 interface DocumentCardProps {
@@ -14,15 +16,17 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
   showCategory,
 }) => {
   return (
-    <Paper withBorder shadow="xs" p="md" key={document.slug}>
-      <Anchor
-        component={Link}
-        to={`/document/${document.slug}`}
-        size="lg"
-        fw={600}
-      >
-        <Text>{document.display_name}</Text>
-      </Anchor>
+    <Card
+      withBorder
+      className={clsx(classes.focusOutline, classes.hoverShadow)}
+      tabIndex={0}
+      key={document.slug}
+      p="md"
+      component={Link}
+      to={`/document/${document.slug}`}
+      fw={600}
+    >
+      <Text size="lg">{document.display_name}</Text>
       <Group justify="space-between" mt="sm">
         {document.anonymised ? (
           <Text c="dimmed">Anonymous</Text>
@@ -52,7 +56,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
           </Badge>
         )}
       </Group>
-    </Paper>
+    </Card>
   );
 };
 

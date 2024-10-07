@@ -3,7 +3,6 @@ import {
   Card,
   Text,
   Progress,
-  Anchor,
   LoadingOverlay,
   Stack,
   Tooltip,
@@ -92,6 +91,7 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
         // Show a padlock when not logged in, to draw attention to the login form.
         <LoadingOverlay
           visible={true}
+          // Default zIndex is too high (it'll draw over navbar), so lower it
           zIndex={1}
           loaderProps={{ children: <IconLock style={{ height: "1.5rem", width: "1.5rem" }} aria-label="Locked" /> }}
         />
@@ -99,7 +99,7 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
       <Stack h="100%" justify="space-between">
         <div className="category-card" id={category.slug}>
           <Flex justify="space-between">
-            <Anchor
+            <Text
               component="span"
               fw={700}
               size="xl"
@@ -110,7 +110,7 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
               {"match" in category
                 ? highlight(category.displayname, category.match)
                 : category.displayname}
-            </Anchor>
+            </Text>
             <ActionIcon onClick={toggleFavourite} variant="subtle">
               {category.favourite
                 ? <IconHeartFilled aria-label="Favourite" />
