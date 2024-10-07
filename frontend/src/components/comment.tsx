@@ -22,6 +22,7 @@ import {
 } from "@tabler/icons-react";
 import IconButton from "./icon-button";
 import { useDisclosure } from "@mantine/hooks";
+import TimeText from "./time-text";
 
 interface Props {
   answer: Answer;
@@ -104,9 +105,7 @@ const CommentComponent: React.FC<Props> = ({
             ·
           </Text>
           {comment && (
-            <Text component="span" color="dimmed" title={comment.time}>
-              {formatDistanceToNow(new Date(comment.time))} ago
-            </Text>
+            <TimeText time={comment.time} suffix="ago" />
           )}
           {comment &&
             differenceInSeconds(
@@ -117,9 +116,7 @@ const CommentComponent: React.FC<Props> = ({
                 <Text component="span" mx={6} color="dimmed">
                   ·
                 </Text>
-                <Text component="span" color="dimmed" title={comment.edittime}>
-                  edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                </Text>
+                <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
               </>
             )}
         </div>
