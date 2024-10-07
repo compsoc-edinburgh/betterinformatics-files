@@ -49,6 +49,7 @@ import {
 } from "@tabler/icons-react";
 import classes from "./answer.module.css";
 import { useDisclosure } from "@mantine/hooks";
+import TimeText from "./time-text";
 
 const AnswerToolbar = (props: GroupProps) => (
   <Group className={classes.answerToolbarStyle} {...props} />
@@ -144,9 +145,7 @@ const AnswerComponent: React.FC<Props> = ({
                 ·
               </Text>
               {answer && (
-                <Text c="dimmed" component="span" title={answer.time}>
-                  {formatDistanceToNow(new Date(answer.time))} ago
-                </Text>
+                <TimeText time={answer.time} suffix="ago" />
               )}
               {answer &&
                 differenceInSeconds(
@@ -157,14 +156,7 @@ const AnswerComponent: React.FC<Props> = ({
                     <Text color="dimmed" mx={6} component="span">
                       ·
                     </Text>
-                    <Text
-                      color="dimmed"
-                      component="span"
-                      title={answer.edittime}
-                    >
-                      edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
-                      ago
-                    </Text>
+                    <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
                   </>
                 )}
             </div>
