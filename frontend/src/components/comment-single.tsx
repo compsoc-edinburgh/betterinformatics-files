@@ -4,6 +4,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { SingleComment } from "../interfaces";
 import MarkdownText from "./markdown-text";
+import TimeText from "./time-text";
 import { IconChevronRight } from "@tabler/icons-react";
 import classes from "./comment-single.module.css";
 
@@ -61,9 +62,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
             ·
           </Text>
           {comment && (
-            <Text color="dimmed" component="span" title={comment.time}>
-              {formatDistanceToNow(new Date(comment.time))} ago
-            </Text>
+            <TimeText time={comment.time} suffix="ago" />
           )}
           {comment &&
             differenceInSeconds(
@@ -74,9 +73,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
                 <Text color="dimmed" mx={6} component="span">
                   ·
                 </Text>
-                <Text color="dimmed" component="span" title={comment.edittime}>
-                  edited {formatDistanceToNow(new Date(comment.edittime))} ago
-                </Text>
+                <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
               </>
             )}
         </Box>

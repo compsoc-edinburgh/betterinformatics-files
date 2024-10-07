@@ -24,6 +24,7 @@ import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
+import TimeText from "./time-text";
 
 interface Props {
   documentSlug: string;
@@ -97,9 +98,7 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
                 ·
               </Text>
               {comment && (
-                <Text component="span" color="dimmed" title={comment.time}>
-                  {formatDistanceToNow(new Date(comment.time))} ago
-                </Text>
+                <TimeText time={comment.time} suffix="ago" />
               )}
               {comment &&
                 differenceInSeconds(
@@ -110,14 +109,7 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
                     <Text component="span" color="dimmed" mx={6}>
                       ·
                     </Text>
-                    <Text
-                      component="span"
-                      color="dimmed"
-                      title={comment.edittime}
-                    >
-                      edited {formatDistanceToNow(new Date(comment.edittime))}{" "}
-                      ago
-                    </Text>
+                    <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
                   </>
                 )}
             </Flex>
