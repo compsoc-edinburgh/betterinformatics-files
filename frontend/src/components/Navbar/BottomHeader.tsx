@@ -11,7 +11,6 @@ interface Props {
   lang: "en" | "de" | string;
   appNav: NavItem[];
   title: string;
-  activeHref?: string;
   loginButton?: ReactNode;
   size: MantineSize | undefined;
 }
@@ -20,7 +19,6 @@ const BottomHeader: React.FC<Props> = ({
   lang,
   appNav,
   title,
-  activeHref,
   loginButton,
   size,
 }) => {
@@ -44,7 +42,6 @@ const BottomHeader: React.FC<Props> = ({
                 item={item}
                 mobile={false}
                 isExternal={false}
-                activeHref={activeHref}
                 key={i}
               />
             );

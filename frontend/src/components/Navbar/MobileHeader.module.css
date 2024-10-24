@@ -5,6 +5,10 @@
   box-shadow: var(--mantine-shadow-sm);
 }
 
+.navItem {
+  color: var(--mantine-color-white);
+}
+
 .logoLine {
   padding: 0.75rem 0;
 }

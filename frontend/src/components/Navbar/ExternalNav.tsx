@@ -11,27 +11,29 @@ import classes from "./ExternalNav.module.css";
 interface Props {
   item: NavItem;
   mobile: boolean;
-  activeHref?: string;
   isExternal: boolean;
+  titleClassName?: string;
 }
 
 const ExternalNavElement: React.FC<Props> = ({
   item,
   mobile,
-  activeHref,
   isExternal,
+  titleClassName: textClassName,
 }) => {
   return item.childItems ? (
     mobile ? (
       <>
-        <div className={classes.navItem}>{item.title as ReactNode}</div>
+        <div className={clsx(classes.navItem, textClassName)}>
+          {item.title as ReactNode}
+        </div>
         {item.childItems.map((childItem, i) => (
           <Anchor
             key={i}
             component={NavLink}
             display={"block"}
             to={childItem.href!}
-            className={clsx(classes.link, classes.mobileChild)}
+            className={clsx(classes.link, classes.mobileChild, textClassName)}
           >
             {childItem.title as ReactNode}
           </Anchor>
@@ -61,7 +63,7 @@ const ExternalNavElement: React.FC<Props> = ({
                 component={"a"}
                 target={"_blank"}
                 href={childItem.href}
-                className={clsx(classes.link, classes.childItem)}
+                className={clsx(classes.link, classes.childItem, textClassName)}
                 onClick={childItem.onClick ? childItem.onClick : undefined}
                 key={i}
                 pl="xs"
@@ -74,7 +76,7 @@ const ExternalNavElement: React.FC<Props> = ({
                 display={"block"}
                 component={NavLink}
                 to={childItem.href!}
-                className={clsx(classes.link, classes.childItem)}
+                className={clsx(classes.link, classes.childItem, textClassName)}
                 onClick={childItem.onClick ? childItem.onClick : undefined}
                 key={i}
                 pl="xs"
@@ -92,7 +94,7 @@ const ExternalNavElement: React.FC<Props> = ({
       component={NavLink}
       to={item.href!}
       size="lg"
-      className={clsx(classes.navItem, classes.link)}
+      className={clsx(classes.navItem, classes.link, textClassName)}
     >
       {item.title as ReactNode}
     </Anchor>
