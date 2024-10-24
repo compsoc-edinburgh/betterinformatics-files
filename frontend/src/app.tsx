@@ -175,12 +175,12 @@ const App: React.FC<{}> = () => {
       styles: {
         root: {
           // This is the new variable we define to set the root background color
-          background: "var(--custom-segmented-control-background)"
+          background: "var(--custom-segmented-control-background)",
         },
-      }
+      },
     }),
   };
-  
+
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
@@ -233,10 +233,7 @@ const App: React.FC<{}> = () => {
   });
 
   return (
-    <MantineProvider
-      theme={fvTheme}
-      cssVariablesResolver={resolver}
-    >
+    <MantineProvider theme={fvTheme} cssVariablesResolver={resolver}>
       <Modal
         opened={loggedOut}
         onClose={() => login()}
@@ -270,12 +267,10 @@ const App: React.FC<{}> = () => {
                   appNav={bottomHeaderNav}
                   title={"Community Solutions"}
                   size="xl"
-                  activeHref={useLocation().pathname}
                 />
                 <MobileHeader
                   signet={data.signet ?? defaultConfigOptions.signet}
                   selectedLanguage={"en"}
-                  onLanguageSelect={() => {}}
                   appNav={bottomHeaderNav}
                   title={"Community Solutions"}
                 />
