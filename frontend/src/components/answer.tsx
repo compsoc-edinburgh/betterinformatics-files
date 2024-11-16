@@ -344,14 +344,8 @@ const AnswerComponent: React.FC<Props> = ({
                     If section is undefined then answer is being displayed on users profile and we can not access solutionFile,
                     instead of rendering the solution pdf we will instead just render a skeleton and link to the answer
                   */
-                  languages={
-                    section
-                      ? officialSolutionLanguage(solutionFile, targetWidth)
-                      : {
-                          official: _ => {
-                            return <Skeleton animate={false} height={150} />;
-                          },
-                        }
+                  languages={ officialSolutionLanguage(solutionFile, targetWidth)
+                      
                   }
                 />
               )}

@@ -27,9 +27,12 @@ const PdfRenderer : React.FC<PProps> = (
 
 ) =>{
   const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
+  const cachedCanvas = useRef<HTMLCanvasElement | null>(null);
 
   const renderCanvas = async (solutionFile: string) => {
-    const pdf: PDFDocumentLoadingTask = await (getDocument(solutionFile).promise);
+    
+    const loadingTask: PDFDocumentLoadingTask = getDocument(solutionFile);
+    const pdf = await loadingTask.promise;
     const page = await pdf.getPage(Math.min(pdfCoordinates.ref_page, pdf.numPages));
     
 
@@ -50,22 +53,15 @@ const PdfRenderer : React.FC<PProps> = (
     console.log(myCanvas)
 
     if (myCanvas.current) {
-      const context = myCanvas.current.getContext("2d");
+      const context = myCanvas.current.getContext('2d');
       if (context) {
         page.render({ canvasContext: context, viewport: viewport });
         myCanvas.current.height = viewport.height * Math.abs(y1 - y2);
         myCanvas.current.width = viewport.width * Math.abs(x1 - x2);
-        return (
-          <div>
-            <canvas ref={myCanvas} />
-          </div>)
-      }
-      else {
-        return <div> <>Invalid Syntax 4</>
-          
-        </div>// !context
+        cachedCanvas.current = myCanvas.current;
       }
     }
+     
     return  <div> <>Invalid Syntax 5</>
     
   </div>// !context</> // !myCanvas.current
@@ -87,7 +83,6 @@ const PdfRenderer : React.FC<PProps> = (
   
   }, [url])
 
-  const [canv, setCanv] = useState<JSX.Element>()
 
 
 
@@ -96,14 +91,11 @@ const PdfRenderer : React.FC<PProps> = (
   console.log(finalurl)
   useEffect(()=>{
 
-  if (finalurl) {
-    renderCanvas(finalurl).then((res) => {
-      setCanv(res)
-    })
-  }
+    if (finalurl && !cachedCanvas.current) {
+      renderCanvas(finalurl);
+    }
   },[finalurl])
   return (
-    canv?canv:
     <div>
             <canvas ref={myCanvas} />
           </div> 
