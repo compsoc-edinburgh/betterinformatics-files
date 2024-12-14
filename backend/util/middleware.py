@@ -12,20 +12,21 @@ def last_user_activity_middleware(get_response):
     KEY = "last-activity"
 
     def middleware(request):
-        if request.user.is_authenticated:
-            if request.session.has_key(KEY):
-                last_activity = dt.fromisoformat(request.session[KEY])
-            else:
-                last_activity = None
+        if request.user:
+            if request.user.is_authenticated:
+                if request.session.has_key(KEY):
+                    last_activity = dt.fromisoformat(request.session[KEY])
+                else:
+                    last_activity = None
 
-            # If key is old enough, update database.
-            too_old_time = timezone.now() - delta(seconds=3600)
-            if not last_activity or last_activity < too_old_time:
-                User.objects.filter(id=request.user.id).update(last_login=timezone.now())
+                # If key is old enough, update database.
+                too_old_time = timezone.now() - delta(seconds=3600)
+                if not last_activity or last_activity < too_old_time:
+                    User.objects.filter(id=request.user.id).update(last_login=timezone.now())
 
-            request.session[KEY] = timezone.now().isoformat()
-        
-        return get_response(request)
+                request.session[KEY] = timezone.now().isoformat()
+            
+            return get_response(request)
 
     return middleware
 
