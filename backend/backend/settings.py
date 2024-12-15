@@ -233,6 +233,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "ediauth.auth_backend.AuthenticationMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -240,6 +241,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "csp.middleware.CSPMiddleware",
     "util.middleware.parse_request_middleware",
+    "util.middleware.last_user_activity_middleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
