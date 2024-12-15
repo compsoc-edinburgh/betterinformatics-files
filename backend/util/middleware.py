@@ -26,7 +26,9 @@ def last_user_activity_middleware(get_response):
 
                 request.session[KEY] = timezone.now().isoformat()
             
-            return get_response(request)
+        response = get_response(request)
+
+        return response
 
     return middleware
 
