@@ -271,18 +271,14 @@ export const CategoryList: React.FC<{}> = () => {
             onChange={(value: string) => {
               setMode(value as Mode);
             }}
-            data={user && user.loggedin ? [
+            data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
-              {
+              ...(user?.loggedin ? [{
                 label: "Favourites",
                 value: "favourites",
                 disabled: !favourites,
-              },
-            ] :
-            [
-              { label: "Alphabetical", value: "alphabetical" },
-              { label: "By SCQF", value: "bySCQF" },
+              }] : []),
             ]}
           />
           <TextInput
