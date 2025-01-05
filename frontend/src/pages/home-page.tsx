@@ -176,6 +176,7 @@ type Mode = "alphabetical" | "bySCQF" | "favourites";
 
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
+  const user = useUser();
   const [mode, setMode] = useLocalStorageState<Mode>(
     "category-list-mode",
     "alphabetical",
@@ -273,11 +274,11 @@ export const CategoryList: React.FC<{}> = () => {
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
-              {
+              ...(user?.loggedin ? [{
                 label: "Favourites",
                 value: "favourites",
                 disabled: !favourites,
-              },
+              }] : []),
             ]}
           />
           <TextInput
