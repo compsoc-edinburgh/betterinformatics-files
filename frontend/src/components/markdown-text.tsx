@@ -16,7 +16,7 @@ import clsx from "clsx";
 import classes from "./markdown-text.module.css";
 
 const transformImageUri = (uri: string) => {
-  if (uri.includes("/")) {
+  if (uri.includes("/") || uri.includes("mailto:")) {
     return uri;
   } else {
     return `/api/image/get/${uri}/`;
