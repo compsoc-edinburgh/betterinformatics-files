@@ -1,16 +1,12 @@
 import {
-  Badge,
   Button,
-  CloseButton,
   Flex,
-  Group,
-  Paper,
   Stack,
-  Text,
   TextInput,
 } from "@mantine/core";
 import React, { useState } from "react";
 import FileInput from "./file-input";
+import AttachmentFileItem from "./attachment-file-item";
 
 export interface EditorAttachment {
   displayname: string;
@@ -20,7 +16,7 @@ interface AttachmentsEditorProps {
   attachments: EditorAttachment[];
   setAttachments: (newAttachments: EditorAttachment[]) => void;
 }
-const toKey = (file: File | string) =>
+export const toKey = (file: File | string) =>
   file instanceof File ? file.name : file;
 const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
   attachments,
@@ -29,7 +25,10 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
   const [file, setFile] = useState<File | undefined>();
   const [displayName, setDisplayName] = useState("");
   const onAdd = () => {
-    if (file === undefined) return;
+    if (file === undefined 
+      || attachments.filter((item) => 
+        displayName === item.displayname && toKey(file) === toKey(item.filename)).length !== 0) 
+      return;
     setAttachments([
       ...attachments,
       { displayname: displayName, filename: file },
@@ -37,21 +36,33 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
     setFile(undefined);
     setDisplayName("");
   };
-  const onRemove = (index: number) => {
-    setAttachments(attachments.filter((_item, i) => i !== index));
+  const onRemove = (displayname: string, filename: File | string) => {
+    setAttachments(attachments.filter((item) => 
+      displayname !== item.displayname || toKey(filename) !== toKey(item.filename)));
   };
+
   return (
     <div>
       <Stack gap="xs" mb="xs">
-        {attachments.map(({ displayname, filename }, index) => (
-          <Paper withBorder p="xs" key={toKey(filename)}>
-            <Group>
-              <CloseButton onClick={() => onRemove(index)} />
-              <Text>{displayname}</Text>
-              <Badge>{toKey(filename)}</Badge>
-              {filename instanceof File && <Badge color="green">New</Badge>}
-            </Group>
-          </Paper>
+        {attachments.map(({ displayname, filename }) => (
+          <AttachmentFileItem
+            displayname={displayname}
+            filename={filename}
+            remove={() => {onRemove(displayname, filename)}}
+            allow={(newDisplayname, newFilename) => {
+              let editedFilename = filename;
+              if (newFilename !== null) editedFilename = newFilename;
+              return attachments.filter((item) => 
+                newDisplayname === item.displayname && toKey(editedFilename) === toKey(item.filename)).length === 0
+            }}
+            edit={(newDisplayname, newFilename) => {
+              setAttachments([
+                ...attachments.filter((item) => 
+                  displayname !== item.displayname || toKey(filename) !== toKey(item.filename)),
+                {displayname: newDisplayname, filename: newFilename},
+              ]);
+            }}
+          />
         ))}
       </Stack>
       <Flex>

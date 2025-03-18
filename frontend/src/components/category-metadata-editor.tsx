@@ -74,6 +74,9 @@ const addAttachment = async (
     })
   ).filename as string;
 };
+const editAttachment = async (filename: string, newdisplayname: string) => {
+  await fetchPost(`/api/filestore/edit/${filename}/`, {newdisplayname});
+};
 const removeAttachment = async (filename: string) => {
   await fetchPost(`/api/filestore/remove/${filename}/`, {});
 };
@@ -119,15 +122,20 @@ const applyChanges = async (
     }
   }
   for (const attachment of oldMetaData.attachments) {
-    if (
-      newMetaData.attachments.find(
-        otherAttachment => otherAttachment.filename === attachment.filename,
-      )
-    ) {
-      newAttachments.push(attachment);
-    } else {
-      await removeAttachment(attachment.filename);
-    }
+    if (newMetaData.attachments.find(otherAttachment => otherAttachment.filename === attachment.filename)) {
+        const editedAttachment = newMetaData.attachments.find(
+          otherAttachment => otherAttachment.filename === attachment.filename
+          && otherAttachment.displayname !== attachment.displayname,
+        ); 
+        if (editedAttachment !== undefined) {
+          await editAttachment(attachment.filename, editedAttachment.displayname);
+          newAttachments.push({ displayname: editedAttachment.displayname, filename: attachment.filename});
+        } else {
+          newAttachments.push(attachment);
+        } 
+      } else {
+        await removeAttachment(attachment.filename);
+      }
   }
   for (const [newMeta1, newMeta2] of newOfferedIn) {
     if (
