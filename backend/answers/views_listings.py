@@ -70,6 +70,7 @@ def list_payment_check_exams(request):
             "payment_uploader_displayname": get_my_user(
                 exam.oral_transcript_uploader
             ).displayname(),
+            "payment_uploader": exam.oral_transcript_uploader.username if exam.oral_transcript_uploader else None,
         }
         for exam in Exam.objects.filter(
             is_oral_transcript=True, oral_transcript_checked=False
