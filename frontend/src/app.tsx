@@ -256,6 +256,12 @@ const App: React.FC<{}> = () => {
                 <TopHeader
                   logo={data.logo ?? defaultConfigOptions.logo}
                   size="xl"
+                  orgHomepage={
+                    /** Keep this '/' for backwards compatibility, until all fachvereine add hompage links to vseth static config
+                     * Once all fachvereine added that config, oen should change it to default
+                     */
+                    data.homepage ?? "/"
+                  }
                   organizationNav={
                     data.externalNav ?? defaultConfigOptions.externalNav
                   }
@@ -330,6 +336,12 @@ const App: React.FC<{}> = () => {
                 logo={data.logo ?? defaultConfigOptions.logo}
                 disclaimer={data.disclaimer ?? defaultConfigOptions.disclaimer}
                 privacy={data.privacy ?? defaultConfigOptions.privacy}
+                orgHomepage={
+                  /** Keep this '/' for backwards compatibility, until all fachvereine add hompage links to vseth static config
+                   * Once all fachvereine added that config, oen should change it to default
+                   */
+                  data.homepage ?? "/"
+                }
               />
             </div>
           </SetUserContext.Provider>
