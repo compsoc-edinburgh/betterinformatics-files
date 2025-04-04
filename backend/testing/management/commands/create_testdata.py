@@ -7,6 +7,7 @@ from datetime import timedelta
 
 from myauth.models import MyUser
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
+from documents.models import Document, DocumentType, DocumentFile
 from categories.models import Category, MetaCategory
 from feedback.models import Feedback
 from filestore.models import Attachment
@@ -315,6 +316,49 @@ class Command(BaseCommand):
                         payment_time=timezone.now() - timedelta(days=365),
                     ).save()
 
+    def create_document_types(self):
+        self.stdout.write("Create document types")
+        DocumentType(display_name="Documents", order=-100).save()
+        DocumentType(display_name="Summaries", order=-99).save()
+        DocumentType(display_name="Cheat Sheets", order=-98).save()
+        DocumentType(display_name="Flashcards", order=-97).save()
+
+    def create_documents(self):
+        self.stdout.write("Create documents")
+        users = MyUser.objects.all()
+        for i, category in enumerate(Category.objects.all()):
+            for document_type in DocumentType.objects.all():
+                document = Document(
+                    display_name=document_type.display_name
+                    + " in "
+                    + str(category.displayname),
+                    description="This is a test document.",
+                    category=category,
+                    author=users[i % len(users)],
+                    document_type=document_type,
+                )
+                document.save()
+
+                # Add some files
+                for j in range(2):
+                    filename = s3_util.generate_filename(
+                        16, settings.COMSOL_DOCUMENT_DIR, ".pdf"
+                    )
+                    s3_util.save_file_to_s3(
+                        settings.COMSOL_DOCUMENT_DIR, filename, "exam10.pdf"
+                    )
+                    DocumentFile(
+                        display_name="File " + str(j + 1),
+                        document=document,
+                        filename=filename,
+                        mime_type="application/pdf",
+                    ).save()
+
+                # Make users like it
+                for user in users:
+                    if (i + user.id) % 4 == 0:
+                        document.likes.add(user)
+
     def handle(self, *args, **options):
         self.flush_db()
         self.create_users()
@@ -330,3 +374,6 @@ class Command(BaseCommand):
         self.create_attachments()
         self.create_notifications()
         self.create_payments()
+        self.create_document_types()
+        self.create_documents()
+        
