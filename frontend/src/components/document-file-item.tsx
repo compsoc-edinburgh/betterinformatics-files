@@ -36,7 +36,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
 
-  const [deleteLoading, deleteFile] = useDeleteDocumentFile(
+  const [_, deleteFile] = useDeleteDocumentFile(
     document.author,
     document.slug,
     file.oid,
@@ -63,10 +63,11 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   );
   const [editIsOpen, {toggle: toggleEditIsOpen, close: closeEditModal}] = useDisclosure();
   const [keyIsOpen, {toggle: toggleKeyIsOpen, close: closeKeyModal}] = useDisclosure();
+  const [deleteModalIsOpen, {toggle: toggleDeleteModalIsOpen, close: closeDeleteModal}] = useDisclosure();
   return (
     <>
       <Modal
-        title="Edit {file.display_name}"
+        title={`Edit ${file.display_name}`}
         onClose={closeEditModal}
         opened={editIsOpen}
       >
@@ -141,6 +142,19 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </pre>
         </Modal.Body>
       </Modal>
+      <Modal
+        title={`Do you really want to delete the file named ${file.display_name}?`}
+        onClose={closeDeleteModal}
+        opened={deleteModalIsOpen}
+      >
+        <Modal.Body>
+            <b>This cannot be undone.</b>
+            <Group justify="right" mt="md">
+              <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+              <Button onClick={deleteFile} color="red">Delete this file</Button>
+            </Group>
+        </Modal.Body>
+      </Modal>
       <Card withBorder my="xs">
         <Flex justify="space-between" align="center">
           <Flex direction="column" gap="xs">
@@ -169,8 +183,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               <IconButton
                 icon={<IconTrash />}
                 color="red"
-                onClick={deleteFile}
-                loading={deleteLoading}
+                onClick={toggleDeleteModalIsOpen}
                 tooltip="Delete file"
               />
             </Grid.Col>
