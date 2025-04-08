@@ -21,7 +21,7 @@ import { createOptions, options } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import OfferedInEditor from "./offered-in-editor";
 import UserSetEditor from "./user-set-editor";
-import { IconDeviceFloppy, IconX } from "@tabler/icons-react";
+import { IconArrowWaveRightDown, IconDeviceFloppy, IconX } from "@tabler/icons-react";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
 const setMetaData = async (
@@ -122,20 +122,17 @@ const applyChanges = async (
     }
   }
   for (const attachment of oldMetaData.attachments) {
-    if (newMetaData.attachments.find(otherAttachment => otherAttachment.filename === attachment.filename)) {
-        const editedAttachment = newMetaData.attachments.find(
-          otherAttachment => otherAttachment.filename === attachment.filename
-          && otherAttachment.displayname !== attachment.displayname,
-        ); 
-        if (editedAttachment !== undefined) {
-          await editAttachment(attachment.filename, editedAttachment.displayname);
-          newAttachments.push({ displayname: editedAttachment.displayname, filename: attachment.filename});
-        } else {
-          newAttachments.push(attachment);
-        } 
-      } else {
-        await removeAttachment(attachment.filename);
-      }
+    const foundAttachment = newMetaData.attachments.find(otherAttachment => otherAttachment.filename === attachment.filename);
+    if (!foundAttachment) {
+      await removeAttachment(attachment.filename);
+      continue;
+    }
+    if (foundAttachment.displayname === attachment.displayname) {
+      newAttachments.push(attachment);
+    } else {
+      await editAttachment(attachment.filename, foundAttachment.displayname);
+      newAttachments.push({ displayname: foundAttachment.displayname, filename: attachment.filename});
+    }
   }
   for (const [newMeta1, newMeta2] of newOfferedIn) {
     if (
