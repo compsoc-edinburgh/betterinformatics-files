@@ -21,7 +21,7 @@ import { createOptions, options } from "../utils/ts-utils";
 import AttachmentsEditor, { EditorAttachment } from "./attachments-editor";
 import OfferedInEditor from "./offered-in-editor";
 import UserSetEditor from "./user-set-editor";
-import { IconArrowWaveRightDown, IconDeviceFloppy, IconX } from "@tabler/icons-react";
+import { IconDeviceFloppy, IconX } from "@tabler/icons-react";
 
 //'semester', 'form', 'permission', 'remark', 'has_payments', 'more_exams_link'
 const setMetaData = async (
