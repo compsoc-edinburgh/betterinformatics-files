@@ -286,6 +286,19 @@ def remove_metacategory(request):
     return response.success()
 
 
+@response.request_post('oldmetacategoryname', 'newmetacategoryname', 'parentmetacategory')
+@auth_check.require_admin
+def edit_metacategory(request):
+    parentMetaCategory = None
+    if not request.POST['parentmetacategory'] == '':
+        parentMetaCategory = get_object_or_404(MetaCategory, displayname=request.POST['parentmetacategory'])
+
+    oldMetaCategoryName = get_object_or_404(MetaCategory, displayname=request.POST['oldmetacategoryname'], parent=parentMetaCategory)
+    oldMetaCategoryName.displayname = request.POST['newmetacategoryname']
+    oldMetaCategoryName.save()
+    return response.success()
+
+
 @response.request_post('meta1', 'order')
 @response.request_post('meta2', optional=True)
 @auth_check.require_admin

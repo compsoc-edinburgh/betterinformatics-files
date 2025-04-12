@@ -25,8 +25,9 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import useInitialState from "../hooks/useInitialState";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -46,6 +47,14 @@ const loadCategoryData = async () => {
 };
 const addCategory = async (category: string) => {
   await fetchPost("/api/category/add/", { category });
+};
+
+const editParentMetaCategoryName = async (oldmetacategoryname: string, newmetacategoryname: string) => {
+  await fetchPost("/api/category/editparentmetacategory/", { oldmetacategoryname, newmetacategoryname });
+};
+
+const editMetaCategoryName = async (oldmetacategoryname: string, newmetacategoryname: string, parentmetacategory: string) => {
+  await fetchPost("/api/category/editmetacategory/", { oldmetacategoryname, newmetacategoryname, parentmetacategory });
 };
 
 const mapToCategories = (
@@ -136,6 +145,110 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
     </>
   );
 };
+
+interface EditParentMetaCategoryProps {
+  initialMetaCategoryName: string;
+  parentMetaCategory: string;
+}
+
+const EditParentMetaCategory: React.FC<EditParentMetaCategoryProps> = ({initialMetaCategoryName}) => {
+  const [editMetaCategory, {open: openEditModel, close: closeEditModal}] = useDisclosure();
+  const [metaCategoryName, setMetaCategoryName] = useInitialState(initialMetaCategoryName);
+  const { loading, run } = useRequest(editParentMetaCategoryName, {
+    manual: true,
+    onSuccess: () => {
+      setMetaCategoryName("");
+      closeEditModal();
+      window.location.reload();
+    },
+  });
+  const onSubmit = () => {
+    run(initialMetaCategoryName, metaCategoryName);
+  };
+
+  return (
+    <>
+      <Modal
+        opened={editMetaCategory}
+        onClose={closeEditModal}
+        title="Edit Meta Category"
+      >
+        <Stack>
+          <TextInput
+            label="Meta Category Name"
+            type="text"
+            value={metaCategoryName}
+            onChange={e => setMetaCategoryName(e.currentTarget.value)}
+          />
+          <Button
+            onClick={onSubmit}
+            disabled={metaCategoryName.length === 0 || loading}
+          >
+            {loading ? <Loader /> : "Edit Meta Category"}
+          </Button>
+        </Stack>
+      </Modal>
+      <Button
+        leftSection={<IconEdit/>}
+        onClick={openEditModel}
+      >
+        Edit
+      </Button>
+    </>
+  )
+}
+
+interface EditParentMetaCategoryProps {
+  initialMetaCategoryName: string;
+  parentMetaCategory: string;
+}
+
+const EditMetaCategory: React.FC<EditParentMetaCategoryProps> = ({initialMetaCategoryName}) => {
+  const [editMetaCategory, {open: openEditModel, close: closeEditModal}] = useDisclosure();
+  const [metaCategoryName, setMetaCategoryName] = useInitialState(initialMetaCategoryName);
+  const { loading, run } = useRequest(editParentMetaCategoryName, {
+    manual: true,
+    onSuccess: () => {
+      setMetaCategoryName("");
+      closeEditModal();
+      window.location.reload();
+    },
+  });
+  const onSubmit = () => {
+    run(initialMetaCategoryName, metaCategoryName);
+  };
+
+  return (
+    <>
+      <Modal
+        opened={editMetaCategory}
+        onClose={closeEditModal}
+        title="Edit Meta Category"
+      >
+        <Stack>
+          <TextInput
+            label="Meta Category Name"
+            type="text"
+            value={metaCategoryName}
+            onChange={e => setMetaCategoryName(e.currentTarget.value)}
+          />
+          <Button
+            onClick={onSubmit}
+            disabled={metaCategoryName.length === 0 || loading}
+          >
+            {loading ? <Loader /> : "Edit Meta Category"}
+          </Button>
+        </Stack>
+      </Modal>
+      <Button
+        leftSection={<IconEdit/>}
+        onClick={openEditModel}
+      >
+        Edit
+      </Button>
+    </>
+  )
+}
 
 const HomePage: React.FC<{}> = () => {
   useTitle("Home");
@@ -240,7 +353,17 @@ export const CategoryList: React.FC<{}> = () => {
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display} id={slugify(meta1display)}>
                     <Title order={2} my="sm">
-                      {meta1display}
+                      <Flex
+                        gap="md"
+                        direction={{base: "row"}}
+                        justify="start"
+                      >
+                        {meta1display}
+                        <EditMetaCategory
+                          initialMetaCategoryName={meta1display}  
+                          parentMetaCategory=""
+                        />
+                      </Flex>
                     </Title>
                     {meta2.map(([meta2display, categories]) => (
                       <div
@@ -248,7 +371,17 @@ export const CategoryList: React.FC<{}> = () => {
                         id={slugify(meta1display) + slugify(meta2display)}
                       >
                         <Title order={3} my="md">
-                          {meta2display}
+                          <Flex
+                          gap="md"
+                          direction={{base: "row"}}
+                          justify="start"
+                          >
+                            {meta2display}
+                            <EditMetaCategory
+                              initialMetaCategoryName={meta2display}  
+                              parentMetaCategory={meta1display} 
+                            />
+                          </Flex>
                         </Title>
                         <Grid>
                           {categories.map(category => (
