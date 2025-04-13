@@ -286,6 +286,23 @@ def remove_metacategory(request):
     return response.success()
 
 
+@response.request_post('meta1')
+@auth_check.require_admin
+def delete_meta1(request):
+    meta1 = get_object_or_404(MetaCategory, displayname=request.POST['meta1'], parent=None)
+    meta1.delete()
+    return response.success()
+
+
+@response.request_post('meta1', 'meta2')
+@auth_check.require_admin
+def delete_meta2(request):
+    meta1 = get_object_or_404(MetaCategory, displayname=request.POST['meta1'], parent=None)
+    meta2 = get_object_or_404(MetaCategory, displayname=request.POST['meta2'], parent=meta1)
+    meta2.delete()
+    return response.success()
+
+
 @response.request_post('oldmeta1', 'newmeta1')
 @auth_check.require_admin
 def edit_meta1(request):

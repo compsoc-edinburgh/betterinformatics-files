@@ -25,7 +25,7 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconEdit, IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconSearch, IconTrash} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import useInitialState from "../hooks/useInitialState";
 import Creatable from "../components/creatable";
@@ -50,12 +50,20 @@ const addCategory = async (category: string) => {
   await fetchPost("/api/category/add/", { category });
 };
 
+const editMeta1Name = async (oldmeta1: string, newmeta1: string) => {
+  await fetchPost("/api/category/editmeta1/", { oldmeta1, newmeta1});
+};
+
 const editMeta2Name = async (oldmeta2: string, newmeta2: string, meta1: string, newmeta1: string) => {
   await fetchPost("/api/category/editmeta2/", { oldmeta2, newmeta2, meta1, newmeta1 });
 };
 
-const editMeta1Name = async (oldmeta1: string, newmeta1: string) => {
-  await fetchPost("/api/category/editmeta1/", { oldmeta1, newmeta1});
+const deleteMeta1 = async (meta1: string) => {
+  await fetchPost("/api/category/deletemeta1/", { meta1 });
+};
+
+const deleteMeta2 = async (meta1: string, meta2: string) => {
+  await fetchPost("/api/category/deletemeta2/", { meta1, meta2 });
 };
 
 const mapToCategories = (
@@ -149,21 +157,33 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
 interface EditMeta1Props {
   oldMeta1: string;
+  isAdmin: boolean;
 }
 
-const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1}) => {
+const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, isAdmin}) => {
+  if (!isAdmin) {
+    return (<></>);
+  }
   const [editMeta1, {open: openEditModel, close: closeEditModal}] = useDisclosure();
   const [meta1, setMeta1] = useInitialState(oldMeta1);
   const { loading, run } = useRequest(editMeta1Name, {
     manual: true,
     onSuccess: () => {
-      setMeta1("");
       closeEditModal();
       window.location.reload();
     },
   });
+  const { loading: deleteLoading, run: deleteRun } = useRequest(deleteMeta1, {
+    manual: true,
+    onSuccess: () => {
+      window.location.reload();
+    }
+  });
   const onSubmit = () => {
     run(oldMeta1, meta1);
+  };
+  const onDelete = () => {
+    deleteRun(oldMeta1);
   };
 
   return (
@@ -194,6 +214,12 @@ const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1}) => {
       >
         Edit
       </Button>
+      <Button
+        leftSection={<IconTrash/>}
+        onClick={onDelete}
+      >
+        Delete
+      </Button>
     </>
   )
 }
@@ -201,17 +227,27 @@ const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1}) => {
 interface EditMeta2Props {
   oldMeta2: string;
   meta1: string;
+  isAdmin: boolean;
 }
 
-const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1}) => {
+const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, isAdmin}) => {
+  if (!isAdmin) {
+    return (<></>);
+  }
   const [editMeta2, {open: openEditModel, close: closeEditModal}] = useDisclosure();
   const { loading, run } = useRequest(editMeta2Name, {
     manual: true,
     onSuccess: () => {
-      setNewMeta1("");
       closeEditModal();
       window.location.reload();
     },
+  });
+
+  const { loading: deleteLoading, run: deleteRun } = useRequest(deleteMeta2, {
+    manual: true,
+    onSuccess: () => {
+      window.location.reload();
+    }
   });
 
   const [newMeta1, setNewMeta1] = useInitialState(meta1);
@@ -230,9 +266,11 @@ const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1}) => {
     setNewMeta1(value);
     return value;
   };
-
   const onSubmit = () => {
     run(oldMeta2, newMeta2, meta1, newMeta1);
+  };
+  const onDelete = () => {
+    deleteRun(meta1, oldMeta2);
   };
 
   return (
@@ -274,6 +312,12 @@ const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1}) => {
         onClick={openEditModel}
       >
         Edit
+      </Button>
+      <Button
+        leftSection={<IconTrash/>}
+        onClick={onDelete}
+      >
+        Delete
       </Button>
     </>
   )
@@ -390,6 +434,7 @@ export const CategoryList: React.FC<{}> = () => {
                         {meta1display}
                         <EditMeta1
                           oldMeta1={meta1display}
+                          isAdmin={isAdmin}
                         />
                       </Flex>
                     </Title>
@@ -408,6 +453,7 @@ export const CategoryList: React.FC<{}> = () => {
                             <EditMeta2
                               oldMeta2={meta2display}  
                               meta1={meta1display} 
+                              isAdmin={isAdmin}
                             />
                           </Flex>
                         </Title>
