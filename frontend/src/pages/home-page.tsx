@@ -157,13 +157,9 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
 interface EditMeta1Props {
   oldMeta1: string;
-  isAdmin: boolean;
 }
 
-const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, isAdmin}) => {
-  if (!isAdmin) {
-    return (<></>);
-  }
+const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1}) => {
   const [editMeta1, {open: openEditModel, close: closeEditModal}] = useDisclosure();
   const [meta1, setMeta1] = useInitialState(oldMeta1);
   const { loading, run } = useRequest(editMeta1Name, {
@@ -227,13 +223,9 @@ const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, isAdmin}) => {
 interface EditMeta2Props {
   oldMeta2: string;
   meta1: string;
-  isAdmin: boolean;
 }
 
-const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, isAdmin}) => {
-  if (!isAdmin) {
-    return (<></>);
-  }
+const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1}) => {
   const [editMeta2, {open: openEditModel, close: closeEditModal}] = useDisclosure();
   const { loading, run } = useRequest(editMeta2Name, {
     manual: true,
@@ -432,10 +424,7 @@ export const CategoryList: React.FC<{}> = () => {
                         justify="start"
                       >
                         {meta1display}
-                        <EditMeta1
-                          oldMeta1={meta1display}
-                          isAdmin={isAdmin}
-                        />
+                        {isAdmin && <EditMeta1 oldMeta1={meta1display}/>}
                       </Flex>
                     </Title>
                     {meta2.map(([meta2display, categories]) => (
@@ -450,11 +439,7 @@ export const CategoryList: React.FC<{}> = () => {
                           justify="start"
                           >
                             {meta2display}
-                            <EditMeta2
-                              oldMeta2={meta2display}  
-                              meta1={meta1display} 
-                              isAdmin={isAdmin}
-                            />
+                            {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} />}
                           </Flex>
                         </Title>
                         <Grid>
