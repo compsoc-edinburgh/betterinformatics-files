@@ -15,7 +15,7 @@ import {
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
 import React, { useCallback, useMemo, useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
-import { loadMetaCategories } from "../api/hooks";
+import { loadMetaCategories, useMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
@@ -28,6 +28,7 @@ import CourseCategoriesPanel from "../components/course-categories-panel";
 import { IconEdit, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import useInitialState from "../hooks/useInitialState";
+import Creatable from "../components/creatable";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -49,12 +50,12 @@ const addCategory = async (category: string) => {
   await fetchPost("/api/category/add/", { category });
 };
 
-const editParentMetaCategoryName = async (oldmetacategoryname: string, newmetacategoryname: string) => {
-  await fetchPost("/api/category/editparentmetacategory/", { oldmetacategoryname, newmetacategoryname });
+const editMeta2Name = async (oldmeta2: string, newmeta2: string, meta1: string, newmeta1: string) => {
+  await fetchPost("/api/category/editmeta2/", { oldmeta2, newmeta2, meta1, newmeta1 });
 };
 
-const editMetaCategoryName = async (oldmetacategoryname: string, newmetacategoryname: string, parentmetacategory: string) => {
-  await fetchPost("/api/category/editmetacategory/", { oldmetacategoryname, newmetacategoryname, parentmetacategory });
+const editMeta1Name = async (oldmeta1: string, newmeta1: string) => {
+  await fetchPost("/api/category/editmeta1/", { oldmeta1, newmeta1});
 };
 
 const mapToCategories = (
@@ -146,30 +147,29 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   );
 };
 
-interface EditParentMetaCategoryProps {
-  initialMetaCategoryName: string;
-  parentMetaCategory: string;
+interface EditMeta1Props {
+  oldMeta1: string;
 }
 
-const EditParentMetaCategory: React.FC<EditParentMetaCategoryProps> = ({initialMetaCategoryName}) => {
-  const [editMetaCategory, {open: openEditModel, close: closeEditModal}] = useDisclosure();
-  const [metaCategoryName, setMetaCategoryName] = useInitialState(initialMetaCategoryName);
-  const { loading, run } = useRequest(editParentMetaCategoryName, {
+const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1}) => {
+  const [editMeta1, {open: openEditModel, close: closeEditModal}] = useDisclosure();
+  const [meta1, setMeta1] = useInitialState(oldMeta1);
+  const { loading, run } = useRequest(editMeta1Name, {
     manual: true,
     onSuccess: () => {
-      setMetaCategoryName("");
+      setMeta1("");
       closeEditModal();
       window.location.reload();
     },
   });
   const onSubmit = () => {
-    run(initialMetaCategoryName, metaCategoryName);
+    run(oldMeta1, meta1);
   };
 
   return (
     <>
       <Modal
-        opened={editMetaCategory}
+        opened={editMeta1}
         onClose={closeEditModal}
         title="Edit Meta Category"
       >
@@ -177,12 +177,12 @@ const EditParentMetaCategory: React.FC<EditParentMetaCategoryProps> = ({initialM
           <TextInput
             label="Meta Category Name"
             type="text"
-            value={metaCategoryName}
-            onChange={e => setMetaCategoryName(e.currentTarget.value)}
+            value={meta1}
+            onChange={e => setMeta1(e.currentTarget.value)}
           />
           <Button
             onClick={onSubmit}
-            disabled={metaCategoryName.length === 0 || loading}
+            disabled={meta1.length === 0 || loading}
           >
             {loading ? <Loader /> : "Edit Meta Category"}
           </Button>
@@ -198,43 +198,72 @@ const EditParentMetaCategory: React.FC<EditParentMetaCategoryProps> = ({initialM
   )
 }
 
-interface EditParentMetaCategoryProps {
-  initialMetaCategoryName: string;
-  parentMetaCategory: string;
+interface EditMeta2Props {
+  oldMeta2: string;
+  meta1: string;
 }
 
-const EditMetaCategory: React.FC<EditParentMetaCategoryProps> = ({initialMetaCategoryName}) => {
-  const [editMetaCategory, {open: openEditModel, close: closeEditModal}] = useDisclosure();
-  const [metaCategoryName, setMetaCategoryName] = useInitialState(initialMetaCategoryName);
-  const { loading, run } = useRequest(editParentMetaCategoryName, {
+const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1}) => {
+  const [editMeta2, {open: openEditModel, close: closeEditModal}] = useDisclosure();
+  const { loading, run } = useRequest(editMeta2Name, {
     manual: true,
     onSuccess: () => {
-      setMetaCategoryName("");
+      setNewMeta1("");
       closeEditModal();
       window.location.reload();
     },
   });
+
+  const [newMeta1, setNewMeta1] = useInitialState(meta1);
+  const meta1Value = useMemo(() => newMeta1, [newMeta1]);
+  const [newMeta2, setNewMeta2] = useInitialState(oldMeta2);
+  const [error, loadingMeta, data, mutate] = useMetaCategories();
+  const meta1Options: string[] = useMemo(
+    () => (data && data.map(d => d.displayname)) ?? [],
+    [data],
+  );
+
+  const onMeta1Change = (value: string) => {
+    setNewMeta1(value);
+  };
+  const onMeta1Create = (value: string) => {
+    setNewMeta1(value);
+    return value;
+  };
+
   const onSubmit = () => {
-    run(initialMetaCategoryName, metaCategoryName);
+    run(oldMeta2, newMeta2, meta1, newMeta1);
   };
 
   return (
     <>
       <Modal
-        opened={editMetaCategory}
+        opened={editMeta2}
         onClose={closeEditModal}
         title="Edit Meta Category"
+        size="md"
       >
-        <Stack>
+        <Stack gap={"lg"}>
           <TextInput
             label="Meta Category Name"
             type="text"
-            value={metaCategoryName}
-            onChange={e => setMetaCategoryName(e.currentTarget.value)}
+            value={newMeta2}
+            onChange={e => setNewMeta2(e.currentTarget.value)}
+          />
+          <Creatable
+            title="Edit Parent"
+            getCreateLabel={(query: string) =>
+              `+ Create new Parent Meta Category "${query}"`
+            }
+            data={meta1Options}
+            value={meta1Value}
+            onChange={onMeta1Change}
+            onCreate={onMeta1Create}  
+            withinPortal={true}
           />
           <Button
             onClick={onSubmit}
-            disabled={metaCategoryName.length === 0 || loading}
+            disabled={newMeta2.length === 0 || loading}
           >
             {loading ? <Loader /> : "Edit Meta Category"}
           </Button>
@@ -359,9 +388,8 @@ export const CategoryList: React.FC<{}> = () => {
                         justify="start"
                       >
                         {meta1display}
-                        <EditMetaCategory
-                          initialMetaCategoryName={meta1display}  
-                          parentMetaCategory=""
+                        <EditMeta1
+                          oldMeta1={meta1display}
                         />
                       </Flex>
                     </Title>
@@ -377,9 +405,9 @@ export const CategoryList: React.FC<{}> = () => {
                           justify="start"
                           >
                             {meta2display}
-                            <EditMetaCategory
-                              initialMetaCategoryName={meta2display}  
-                              parentMetaCategory={meta1display} 
+                            <EditMeta2
+                              oldMeta2={meta2display}  
+                              meta1={meta1display} 
                             />
                           </Flex>
                         </Title>

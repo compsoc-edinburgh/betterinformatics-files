@@ -286,16 +286,25 @@ def remove_metacategory(request):
     return response.success()
 
 
-@response.request_post('oldmetacategoryname', 'newmetacategoryname', 'parentmetacategory')
+@response.request_post('oldmeta1', 'newmeta1')
 @auth_check.require_admin
-def edit_metacategory(request):
-    parentMetaCategory = None
-    if not request.POST['parentmetacategory'] == '':
-        parentMetaCategory = get_object_or_404(MetaCategory, displayname=request.POST['parentmetacategory'])
+def edit_meta1(request):
+    meta1 = get_object_or_404(MetaCategory, displayname=request.POST['oldmeta1'], parent=None)
+    meta1.displayname = request.POST['newmeta1']
+    meta1.save()
+    return response.success()
 
-    oldMetaCategoryName = get_object_or_404(MetaCategory, displayname=request.POST['oldmetacategoryname'], parent=parentMetaCategory)
-    oldMetaCategoryName.displayname = request.POST['newmetacategoryname']
-    oldMetaCategoryName.save()
+
+@response.request_post('oldmeta2', 'newmeta2', 'meta1', 'newmeta1')
+@auth_check.require_admin
+def edit_meta2(request):
+    meta1 = get_object_or_404(MetaCategory, displayname=request.POST['meta1'], parent=None)
+    meta2 = get_object_or_404(MetaCategory, displayname=request.POST['oldmeta2'], parent=meta1)
+    meta2.displayname = request.POST['newmeta2']
+    if request.POST['meta1'] != request.POST['newmeta1']:
+        newMeta1, _ = MetaCategory.objects.get_or_create(displayname=request.POST['newmeta1'], parent=None)
+        meta2.parent = newMeta1
+    meta2.save()
     return response.success()
 
 

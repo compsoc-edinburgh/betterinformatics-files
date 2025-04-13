@@ -17,6 +17,7 @@ urlpatterns = [
     path('listmetacategories/', views.list_metacategories, name='list_metacategories'),
     path('addmetacategory/', views.add_metacategory, name='addmetacategory'),
     path('removemetacategory/', views.remove_metacategory, name='removemetacategory'),
-    path('editmetacategory/', views.edit_metacategory, name='editmetacategory'),
+    path('editmeta1/', views.edit_meta1, name='editmeta1'),
+    path('editmeta2/', views.edit_meta2, name='editmeta2'),
     path('setmetacategoryorder/', views.set_metacategory_order, name='setmetacategoryorder'),
 ]
