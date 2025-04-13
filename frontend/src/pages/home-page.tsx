@@ -157,22 +157,23 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
 
 interface EditMeta1Props {
   oldMeta1: string;
+  onChange: () => void;
 }
 
-const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1}) => {
+const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
   const [editMeta1, {open: openEditModel, close: closeEditModal}] = useDisclosure();
   const [meta1, setMeta1] = useInitialState(oldMeta1);
   const { loading, run } = useRequest(editMeta1Name, {
     manual: true,
     onSuccess: () => {
       closeEditModal();
-      window.location.reload();
+      onChange();
     },
   });
   const { loading: deleteLoading, run: deleteRun } = useRequest(deleteMeta1, {
     manual: true,
     onSuccess: () => {
-      window.location.reload();
+      onChange();
     }
   });
   const onSubmit = () => {
@@ -223,22 +224,23 @@ const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1}) => {
 interface EditMeta2Props {
   oldMeta2: string;
   meta1: string;
+  onChange: () => void;
 }
 
-const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1}) => {
+const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, onChange}) => {
   const [editMeta2, {open: openEditModel, close: closeEditModal}] = useDisclosure();
   const { loading, run } = useRequest(editMeta2Name, {
     manual: true,
     onSuccess: () => {
       closeEditModal();
-      window.location.reload();
+      onChange();
     },
   });
 
   const { loading: deleteLoading, run: deleteRun } = useRequest(deleteMeta2, {
     manual: true,
     onSuccess: () => {
-      window.location.reload();
+      onChange();
     }
   });
 
@@ -358,7 +360,7 @@ export const CategoryList: React.FC<{}> = () => {
     [categories, metaCategories],
   );
 
-  const onAddCategory = useCallback(() => {
+  const onChange = useCallback(() => {
     run();
   }, [run]);
   const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
@@ -409,7 +411,7 @@ export const CategoryList: React.FC<{}> = () => {
                 {searchResult.map(category => (
                   <CategoryCard category={category} key={category.slug} />
                 ))}
-                {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
+                {isAdmin && <AddCategory onAddCategory={onChange} />}
               </Grid>
             </>
           ) : (
@@ -424,7 +426,7 @@ export const CategoryList: React.FC<{}> = () => {
                         justify="start"
                       >
                         {meta1display}
-                        {isAdmin && <EditMeta1 oldMeta1={meta1display}/>}
+                        {isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}
                       </Flex>
                     </Title>
                     {meta2.map(([meta2display, categories]) => (
@@ -439,7 +441,7 @@ export const CategoryList: React.FC<{}> = () => {
                           justify="start"
                           >
                             {meta2display}
-                            {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} />}
+                            {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}
                           </Flex>
                         </Title>
                         <Grid>
@@ -472,7 +474,7 @@ export const CategoryList: React.FC<{}> = () => {
                     New Category
                   </Title>
                   <Grid>
-                    <AddCategory onAddCategory={onAddCategory} />
+                    <AddCategory onAddCategory={onChange} />
                   </Grid>
                 </>
               )}
