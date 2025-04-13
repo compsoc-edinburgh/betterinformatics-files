@@ -305,6 +305,8 @@ def edit_meta2(request):
         newMeta1, _ = MetaCategory.objects.get_or_create(displayname=request.POST['newmeta1'], parent=None)
         meta2.parent = newMeta1
     meta2.save()
+    if not meta1.metacategory_set.exists():
+        meta1.delete()
     return response.success()
 
 
