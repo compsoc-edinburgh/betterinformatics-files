@@ -306,6 +306,8 @@ def delete_meta2(request):
 @response.request_post('oldmeta1', 'newmeta1')
 @auth_check.require_admin
 def edit_meta1(request):
+    if MetaCategory.objects.filter(displayname=request.POST['newmeta1'], parent=None).exists():
+        return response.not_possible('This meta category already exists.')
     meta1 = get_object_or_404(MetaCategory, displayname=request.POST['oldmeta1'], parent=None)
     meta1.displayname = request.POST['newmeta1']
     meta1.save()
@@ -315,15 +317,19 @@ def edit_meta1(request):
 @response.request_post('oldmeta2', 'newmeta2', 'meta1', 'newmeta1')
 @auth_check.require_admin
 def edit_meta2(request):
-    meta1 = get_object_or_404(MetaCategory, displayname=request.POST['meta1'], parent=None)
-    meta2 = get_object_or_404(MetaCategory, displayname=request.POST['oldmeta2'], parent=meta1)
-    meta2.displayname = request.POST['newmeta2']
+    oldmeta1 = get_object_or_404(MetaCategory, displayname=request.POST['meta1'], parent=None)
     if request.POST['meta1'] != request.POST['newmeta1']:
-        newMeta1, _ = MetaCategory.objects.get_or_create(displayname=request.POST['newmeta1'], parent=None)
-        meta2.parent = newMeta1
+        newmeta1, _ = MetaCategory.objects.get_or_create(displayname=request.POST['newmeta1'], parent=None)
+    else:
+        newmeta1 = oldmeta1
+    if MetaCategory.objects.filter(displayname=request.POST['newmeta2'], parent=newmeta1).exists():
+        return response.not_possible('This meta category already exists.')
+    meta2 = get_object_or_404(MetaCategory, displayname=request.POST['oldmeta2'], parent=oldmeta1)
+    meta2.parent = newmeta1
+    meta2.displayname = request.POST['newmeta2']
     meta2.save()
-    if not meta1.metacategory_set.exists():
-        meta1.delete()
+    if not oldmeta1.metacategory_set.exists():
+        oldmeta1.delete()
     return response.success()
 
 

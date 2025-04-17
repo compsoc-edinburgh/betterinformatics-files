@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { useLocalStorageState, useRequest } from "@umijs/hooks";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories, useMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
@@ -163,6 +163,7 @@ interface EditMeta1Props {
 const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
   const [editMeta1, {open: openEditModel, close: closeEditModal}] = useDisclosure();
   const [meta1, setMeta1] = useInitialState(oldMeta1);
+  const [disabled, setDisabled] = useInitialState(true);
   const { loading, run } = useRequest(editMeta1Name, {
     manual: true,
     onSuccess: () => {
@@ -182,6 +183,19 @@ const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
   const onDelete = () => {
     deleteRun(oldMeta1);
   };
+  const [error, metaLoading, data, mutate] = useMetaCategories();
+  const meta1Options: string[] = useMemo(
+    () => (data && data.map(d => d.displayname)) ?? [],
+    [data],
+  );
+  const onTextChange = (input: string) => {
+    setMeta1(input);
+    if (meta1Options.includes(input)) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }
 
   return (
     <>
@@ -195,11 +209,11 @@ const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
             label="Meta Category Name"
             type="text"
             value={meta1}
-            onChange={e => setMeta1(e.currentTarget.value)}
+            onChange={(e) => {onTextChange(e.currentTarget.value)}}
           />
           <Button
             onClick={onSubmit}
-            disabled={meta1.length === 0 || loading}
+            disabled={meta1.length === 0 || loading || disabled}
           >
             {loading ? <Loader /> : "Edit Meta Category"}
           </Button>
@@ -229,6 +243,7 @@ interface EditMeta2Props {
 
 const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, onChange}) => {
   const [editMeta2, {open: openEditModel, close: closeEditModal}] = useDisclosure();
+  const [disabled, setDisabled] = useInitialState(true);
   const { loading, run } = useRequest(editMeta2Name, {
     manual: true,
     onSuccess: () => {
@@ -245,19 +260,29 @@ const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, onChange}) => {
   });
 
   const [newMeta1, setNewMeta1] = useInitialState(meta1);
-  const meta1Value = useMemo(() => newMeta1, [newMeta1]);
   const [newMeta2, setNewMeta2] = useInitialState(oldMeta2);
   const [error, loadingMeta, data, mutate] = useMetaCategories();
   const meta1Options: string[] = useMemo(
     () => (data && data.map(d => d.displayname)) ?? [],
     [data],
   );
+  const meta2Options: string[] = useMemo(
+    () =>
+      data && newMeta1.length > 0
+        ? data
+            .find(m => m.displayname === newMeta1)
+            ?.meta2.map(m => m.displayname) ?? []
+        : [],
+    [data, newMeta1],
+  );
 
   const onMeta1Change = (value: string) => {
     setNewMeta1(value);
+    checkIfExists();
   };
   const onMeta1Create = (value: string) => {
     setNewMeta1(value);
+    checkIfExists();
     return value;
   };
   const onSubmit = () => {
@@ -266,6 +291,19 @@ const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, onChange}) => {
   const onDelete = () => {
     deleteRun(meta1, oldMeta2);
   };
+  const onTextChange = (input: string) => {
+    setNewMeta2(input);
+    checkIfExists();
+  }
+  const checkIfExists = () => {
+    if (meta2Options.includes(newMeta2)) {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
+    }
+  }
+
+  useEffect(checkIfExists, [meta2Options, newMeta2]);
 
   return (
     <>
@@ -280,7 +318,7 @@ const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, onChange}) => {
             label="Meta Category Name"
             type="text"
             value={newMeta2}
-            onChange={e => setNewMeta2(e.currentTarget.value)}
+            onChange={e => onTextChange(e.currentTarget.value)}
           />
           <Creatable
             title="Edit Parent"
@@ -288,14 +326,14 @@ const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, onChange}) => {
               `+ Create new Parent Meta Category "${query}"`
             }
             data={meta1Options}
-            value={meta1Value}
+            value={newMeta1}
             onChange={onMeta1Change}
             onCreate={onMeta1Create}  
             withinPortal={true}
           />
           <Button
             onClick={onSubmit}
-            disabled={newMeta2.length === 0 || loading}
+            disabled={newMeta2.length === 0 || loading || disabled}
           >
             {loading ? <Loader /> : "Edit Meta Category"}
           </Button>
