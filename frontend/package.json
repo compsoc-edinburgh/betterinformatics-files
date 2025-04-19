@@ -11,7 +11,7 @@
     "@umijs/hooks": "1.9.3",
     "chroma-js": "^2.4.2",
     "clsx": "^2.1.0",
-    "date-fns": "^3.3.0",
+    "date-fns": "^4.0.0",
     "jszip": "^3.10.0",
     "katex": "^0.16.9",
     "lodash-es": "^4.17.21",
