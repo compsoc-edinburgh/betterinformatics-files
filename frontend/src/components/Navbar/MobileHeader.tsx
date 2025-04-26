@@ -18,8 +18,6 @@ import ColorSchemeToggle from "../color-scheme-toggle";
 
 interface Props {
   selectedLanguage: "en" | "de" | string;
-  languages?: { key: string; label: string }[];
-  onLanguageSelect: (language: string) => void;
   appNav: NavItem[];
   title: string;
   loginButton?: ReactNode;
@@ -27,8 +25,6 @@ interface Props {
 }
 const BottomHeader: React.FC<Props> = ({
   selectedLanguage,
-  onLanguageSelect,
-  languages,
   appNav,
   title,
   loginButton,
@@ -67,7 +63,6 @@ const BottomHeader: React.FC<Props> = ({
             opened={opened}
             onClick={() => setOpened((o: boolean) => !o)}
             size="sm"
-            color="black"
           />
         </Group>
       </Group>
@@ -80,6 +75,7 @@ const BottomHeader: React.FC<Props> = ({
                   item={item}
                   mobile={true}
                   isExternal={false}
+                  titleClassName={classes.navItem}
                 />
               </div>
             );

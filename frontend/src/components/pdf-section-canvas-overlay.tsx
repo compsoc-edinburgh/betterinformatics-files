@@ -108,6 +108,7 @@ const PdfSectionCanvasOverlay: React.FC<Props> = React.memo(
               color={snap && snapBad ? "red" : "var(--mantine-color-text)"}
               size="lg"
               className={classes.badge}
+              variant="filled"
             >
               {addCutText}
             </Badge>

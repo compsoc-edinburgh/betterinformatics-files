@@ -35,8 +35,7 @@ interface Props {
 const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
-  const [deleteModalIsOpen, {toggle: toggleDeleteModalIsOpen, close: closeDeleteModal}] = useDisclosure();
-  const [deleteLoading, deleteFile] = useDeleteDocumentFile(
+  const [_, deleteFile] = useDeleteDocumentFile(
     document.slug,
     file.oid,
     () => {
@@ -61,10 +60,11 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
   );
   const [editIsOpen, {toggle: toggleEditIsOpen, close: closeEditModal}] = useDisclosure();
   const [keyIsOpen, {toggle: toggleKeyIsOpen, close: closeKeyModal}] = useDisclosure();
+  const [deleteModalIsOpen, {toggle: toggleDeleteModalIsOpen, close: closeDeleteModal}] = useDisclosure();
   return (
     <>
       <Modal
-        title="Edit {file.display_name}"
+        title={`Edit ${file.display_name}`}
         onClose={closeEditModal}
         opened={editIsOpen}
       >
@@ -138,9 +138,9 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
         </Modal.Body>
       </Modal>
       <Modal
-        opened={deleteModalIsOpen}
         title="Are you absolutely sure?"
         onClose={closeDeleteModal}
+        opened={deleteModalIsOpen}
       >
         <Modal.Body>
           Deleting the file is a destructive operation.{" "}
@@ -183,7 +183,6 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
                 icon={<IconTrash />}
                 color="red"
                 onClick={toggleDeleteModalIsOpen}
-                loading={deleteLoading}
                 tooltip="Delete file"
               />
             </Grid.Col>

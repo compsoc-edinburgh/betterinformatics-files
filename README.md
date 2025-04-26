@@ -28,7 +28,7 @@ curl -L https://git.io/n-install | bash
 ```
 
 n should install npm as well.
-It is recommended to use **Node.js 16**, since the Dockerfile also uses v16. Newer versions of Node.js have been reported to not work correctly.
+It is recommended to use **Node.js 20**, since the Dockerfile also uses v20. Newer versions of Node.js have been reported to not work correctly.
 
 ### Install Yarn
 

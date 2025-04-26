@@ -88,6 +88,9 @@ services:
       - RUNTIME_JWT_PRIVATE_KEY_PATH=
       - RUNTIME_JWT_PUBLIC_KEY_PATH=
 
+      - SIP_AUTH_OIDC_CLIENT_ID=vis_cat_staging_community_solutions_oidc
+      - SIP_AUTH_OIDC_CLIENT_SECRET=AWrTAardsNOxlCAzekwWXuARD
+
       - FRONTEND_TITLE_PREFIX=
       - FRONTEND_TITLE_SUFFIX=- Debug
       - FRONTEND_FAVICON_URL=https://betterinformatics.com/static/img/favicon.ico

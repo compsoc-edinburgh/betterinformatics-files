@@ -342,7 +342,7 @@ const Editor: React.FC<Props> = ({
       <div
         className={clsx(
           classes.editorWrapperStyle,
-          isFullscreen && classes.fullScreen,
+          isFullscreen && classes.fullscreen,
           isDragHovered && isFullscreen && classes.borderStyle,
         )}
       >

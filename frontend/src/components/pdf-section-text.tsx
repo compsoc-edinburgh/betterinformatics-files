@@ -43,7 +43,7 @@ const useTextLayer = (
   const result = useMemo(
     () =>
       filteredItems && textContent
-        ? { items: filteredItems, styles: textContent.styles }
+        ? { items: filteredItems, styles: textContent.styles, lang: null }
         : null,
     [textContent, filteredItems],
   );
@@ -93,7 +93,7 @@ const PdfTextElement: React.FC<TextElementProps> = ({ item, view, scale }) => {
           transformOrigin: "left bottom",
           whiteSpace: "pre",
           margin: "0",
-          fontFamily: "serif",
+          display: "inline-block",
         }}
         ref={divRef}
       >
