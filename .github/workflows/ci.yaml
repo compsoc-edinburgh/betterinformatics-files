@@ -106,7 +106,7 @@ jobs:
     needs: determine-changes
     # Only run for pull requests, since on pushes to the default branch, the
     # Docker image building step will run the frontend build anyway.
-    if: ${{ needs.determine-changes.outputs.frontend == 'true' }} && ${{ github.event_name == 'pull_request'}}
+    if: ${{ (needs.determine-changes.outputs.frontend == 'true') && (github.event_name == 'pull_request') }}
     steps:
       - uses: actions/checkout@v4
 
