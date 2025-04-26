@@ -11,6 +11,7 @@ env:
 
 jobs:
   determine-changes:
+    name: Determine Changes
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
@@ -28,6 +29,7 @@ jobs:
             - 'frontend/**'  # Added filter for frontend directory
 
   tests:
+    name: Run Django Unit Tests
     runs-on: ubuntu-latest
     container: python:3.8  # version when installing python3 from apt (same as Dockerfile)
     needs: determine-changes
@@ -101,6 +103,7 @@ jobs:
           python3 manage.py test --parallel # parallel speeds up by approx 4x.
 
   typecheck-lint:
+    name: Frontend Typecheck & Lint
     runs-on: ubuntu-latest
     container: node:20-alpine
     needs: determine-changes
@@ -134,6 +137,8 @@ jobs:
           yarn run eslint 'src/**/*.{js,jsx,ts,tsx}'
 
   build-push-image:
+    name: Build and Push Docker Image
+
     runs-on: ubuntu-latest
 
     # Run this jobas long as the previous jobs have not failed or been cancelled
