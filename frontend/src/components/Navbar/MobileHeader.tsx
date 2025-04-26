@@ -63,7 +63,6 @@ const BottomHeader: React.FC<Props> = ({
             opened={opened}
             onClick={() => setOpened((o: boolean) => !o)}
             size="sm"
-            color="black"
           />
         </Group>
       </Group>
