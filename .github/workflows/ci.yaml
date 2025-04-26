@@ -1,0 +1,196 @@
+name: "CI"
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  determine-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          backend:
+            - 'backend/**'  # Added filter for backend directory
+          frontend:
+            - 'frontend/**'  # Added filter for frontend directory
+
+  tests:
+    runs-on: ubuntu-latest
+    container: python:3.8  # version when installing python3 from apt (same as Dockerfile)
+    needs: determine-changes
+    if: ${{ needs.determine-changes.outputs.backend == 'true' }}
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpw
+      minio:
+        # We use a third party image for minio which sets the CMD to
+        # 'server /data', because the official image does not have a default
+        # CMD and GitHub Actions has not implemented the ability to set the
+        # launch command for a service.
+        image: maragudk/minio-ci:latest
+        env:
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: minio123
+          MINIO_DOMAIN: minio
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: backend/.cache/pip
+          key: ${{ runner.os }}-pip-dependencies-${{ hashFiles('backend/requirements.txt') }}
+
+      - name: Install mc
+        # Install mc so that we can create the community-solutions bucket in minio
+        run: |
+          curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
+          chmod +x ./mc
+          ./mc config host add myminio http://minio:9000 minio minio123
+          ./mc mb myminio/community-solutions
+
+      - name: Install poppler
+        # Install poppler to get pdftotext binary
+        run: |
+          apt update && apt install -y --no-install-recommends poppler-utils
+
+      - name: Install pip dependencies
+        run: |
+          pip3 install -r backend/requirements.txt
+          pip3 install tblib
+
+      - name: Make/copy files
+        # Make/copy files (same as Dockerfile definition) to make resources availabe to tests
+        run: |
+          mkdir backend/intermediate_pdf_storage
+          mv ./frontend/public/exam10.pdf backend
+          mv ./frontend/public/static backend
+
+      - name: Run Django unit tests
+        env:
+          SIP_POSTGRES_DB_NAME: testdb
+          SIP_POSTGRES_DB_USER: testuser
+          SIP_POSTGRES_DB_PW: testpw
+          SIP_POSTGRES_DB_SERVER: postgres
+          SIP_POSTGRES_DB_PORT: 5432
+          SIP_S3_FILES_HOST: minio
+          SIP_S3_FILES_PORT: 9000
+          SIP_S3_FILES_ACCESS_KEY: minio
+          SIP_S3_FILES_SECRET_KEY: minio123
+          SIP_S3_FILES_BUCKET: community-solutions
+          SIP_S3_FILES_USE_SSL: false
+        run: |
+          cd backend
+          python3 manage.py test --parallel # parallel speeds up by approx 4x.
+
+  typecheck-lint:
+    runs-on: ubuntu-latest
+    container: node:20-alpine
+    needs: determine-changes
+    # Only run for pull requests, since on pushes to the default branch, the
+    # Docker image building step will run the frontend build anyway.
+    if: ${{ needs.determine-changes.outputs.frontend == 'true' }} && ${{ github.event_name == 'pull_request'}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/.yarn-cache
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/yarn.lock') }}
+
+      - name: Install node dependencies
+        run: |
+          cd frontend
+          echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
+          echo 'yarn-offline-mirror-pruning true' >> .yarnrc
+          yarn --ignore-engines
+
+      - name: Run typecheck
+        run: |
+          cd frontend
+          yarn run tsc
+
+      - name: Run lint
+        run: |
+          cd frontend
+          yarn run eslint 'src/**/*.{js,jsx,ts,tsx}'
+
+  build-push-image:
+    runs-on: ubuntu-latest
+
+    # Don't run on pull requests, only on pushes to the default branch
+    if: github.ref_name == github.event.repository.default_branch
+
+    # Requires all tests and build checks to pass
+    needs: [tests, typecheck-lint]
+
+    # Job token must have write permissions to the registry
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t community-solutions .
+          # docker buildx build --platform linux/arm64,linux/amd64 -t community-solutions .
+          # docker push community-solutions
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # Set a commit sha-based tag
+            type=sha,prefix=,suffix=,format=short
+            # Set a 'latest' tag'
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            git_branch=${{ github.ref_name }}
+            git_commit=${{ github.sha }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache,mode=max
+
+  # TODO: Add deployment job
