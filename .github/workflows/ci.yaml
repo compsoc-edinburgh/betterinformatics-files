@@ -105,7 +105,7 @@ jobs:
   typecheck-lint:
     name: Frontend Typecheck & Lint
     runs-on: ubuntu-latest
-    container: node:20-alpine
+    container: node:20
     needs: determine-changes
     # Only run for pull requests, since on pushes to the default branch, the
     # Docker image building step will run the frontend build anyway.
