@@ -29,6 +29,7 @@ export interface ConfigOptions {
     link: string;
   }[];
   languages: { key: string; label: string }[];
+  homepage: string;
   externalNav: NavItem[];
 }
 
@@ -46,6 +47,7 @@ export const defaultConfigOptions = {
     { key: "en", label: "English" },
     { key: "de", label: "Deutsch" },
   ],
+  homepage: "https://vseth.ethz.ch",
   externalNav: [
     {
       title: "Services",

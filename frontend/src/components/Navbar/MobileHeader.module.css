@@ -6,6 +6,10 @@
   border-bottom: 2px solid var(--mantine-color-gray-2);
 }
 
+.navItem {
+  color: var(--mantine-color-white);
+}
+
 .logoLine {
   padding: 0.75rem 0;
 }

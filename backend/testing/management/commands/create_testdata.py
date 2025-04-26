@@ -7,8 +7,8 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 from ediauth.models import Profile
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
-from categories.models import Category, MetaCategory, EuclidCode
 from documents.models import DocumentType, Document, DocumentFile
+from categories.models import Category, MetaCategory, EuclidCode
 from feedback.models import Feedback
 from filestore.models import Attachment
 from images.models import Image

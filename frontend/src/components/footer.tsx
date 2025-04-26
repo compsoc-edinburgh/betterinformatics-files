@@ -20,9 +20,16 @@ interface FooterProps {
   disclaimer: string;
   privacy: string;
   organizationNav: NavItem[];
+  orgHomepage: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy, organizationNav }) => {
+const Footer: React.FC<FooterProps> = ({
+  logo,
+  disclaimer,
+  privacy,
+  organizationNav,
+  orgHomepage,
+}) => {
   const [uwu, setLocalUwu] = useLocalStorageState("uwu", false);
   const setUwu = () => {
     setLocalUwu(!uwu);
