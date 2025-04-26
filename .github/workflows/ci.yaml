@@ -227,6 +227,9 @@ jobs:
       #    The restart causes the deployment to pull the latest image from the
       #      GitLab registry and restart the pods. If the pods don't successfully
       #      start up (due to a critical failure), the previous deployment stays.
+        env:
+          PRODUCTION_K8S_DEPLOYMENT_URL: ${{ secrets.PRODUCTION_K8S_DEPLOYMENT_URL }}
+          PRODUCTION_K8S_SA_TOKEN: ${{ secrets.PRODUCTION_K8S_SA_TOKEN }}
         run: |
           set -euo pipefail
           curl "${PRODUCTION_K8S_DEPLOYMENT_URL}?fieldManager=kubectl-rollout" \
