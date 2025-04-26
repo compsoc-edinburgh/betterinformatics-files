@@ -194,4 +194,59 @@ jobs:
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-buildcache:cache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-buildcache:cache,mode=max
 
-  # TODO: Add deployment job
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build-push-image
+    # This job uses production environment secrets, so it should only run on
+    # pushes to the default branch (master). This job would probably also run on
+    # forked repository's default branches, but they wouldn't have access to the
+    # production secrets that's set in the GitHub repository settings UI.
+    if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+    environment: production
+    steps:
+      - name: Rolling out to Production Kubernetes
+      # The service account token should have the permissions for deployment and
+      # replicaset get and patch.
+      #
+      # --fail is crucial
+      #    It sets the exit code to 22 on error, stopping the script.
+      # --silent is optional for making the output cleaner
+      # --output is for not printing the API response as it may contain some
+      #    confidential information. To debug any errors, use the command locally.
+      # --insecure is required
+      #    This is to access the k8s endpoint without a valid client-side
+      #      certificate as otherwise cURL will complain about self-signed
+      #      server-side certs.
+      # --location
+      #    Makes it follow redirects and isn't necessary but doesn't hurt to have
+      # --request PATCH and the --data-raw
+      #    The request modifies a harmless annotation on the deployment, which has
+      #      the same overall effect as restarting the deployment:
+      #      `kubectl rollout restart deployment`.
+      #    The restart causes the deployment to pull the latest image from the
+      #      GitLab registry and restart the pods. If the pods don't successfully
+      #      start up (due to a critical failure), the previous deployment stays.
+        run: |
+          set -euo pipefail
+          curl "${PRODUCTION_K8S_DEPLOYMENT_URL}?fieldManager=kubectl-rollout" \
+            --fail \
+            --silent \
+            --output /dev/null \
+            --header "Content-Type: application/strategic-merge-patch+json" \
+            --header "Authorization: Bearer $(echo "$PRODUCTION_K8S_SA_TOKEN" | base64 -d)" \
+            --insecure \
+            --location \
+            --request PATCH \
+            --data-raw "{
+                \"spec\": {
+                    \"template\": {
+                        \"metadata\": {
+                            \"annotations\": {
+                                \"kubectl.kubernetes.io/restartedAt\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\"
+                            }
+                        }
+                    }
+                }
+            }"
+          echo "Rollout complete."
