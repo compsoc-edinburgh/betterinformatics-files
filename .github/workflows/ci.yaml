@@ -202,7 +202,7 @@ jobs:
     # pushes to the default branch (master). This job would probably also run on
     # forked repository's default branches, but they wouldn't have access to the
     # production secrets that's set in the GitHub repository settings UI.
-    if: ${{ github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
+    if: ${{ !failure() && !cancelled() && github.event_name == 'push' && github.ref_name == github.event.repository.default_branch }}
     environment: production
     steps:
       - name: Rolling out to Production Kubernetes
