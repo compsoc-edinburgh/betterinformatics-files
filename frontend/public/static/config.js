@@ -14,7 +14,7 @@ window.configOptions = {
       'childItems': [
         {
           'title': 'Repository',
-          'href': 'https://git.tardisproject.uk/betterinformatics/edinburgh-community-solutions'
+          'href': 'https://github.com/compsoc-edinburgh/betterinformatics-files'
         },
         {
           'title': 'Disclaimer',
