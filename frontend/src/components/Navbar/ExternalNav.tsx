@@ -49,7 +49,7 @@ const ExternalNavElement: React.FC<Props> = ({
             style={{
               display: "flex",
               padding: 0,
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             <Center>
