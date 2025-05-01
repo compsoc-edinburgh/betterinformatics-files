@@ -42,10 +42,15 @@ const ExternalNavElement: React.FC<Props> = ({
     ) : (
       <Menu position="bottom-end" closeOnItemClick={true} width={200}>
         <Menu.Target>
-          <Container
-            style={{ display: "flex", padding: 0 }}
-            className={classes.navItem}
-            fluid={true}
+          <Anchor
+            component="div"
+            size="lg"
+            className={clsx(classes.navItem, classes.link, textClassName)}
+            style={{
+              display: "flex",
+              padding: 0,
+              cursor: "pointer",
+            }}
           >
             <Center>
               <div style={{ lineHeight: "1.75rem", marginRight: "6px" }}>
@@ -53,7 +58,7 @@ const ExternalNavElement: React.FC<Props> = ({
               </div>
               <IconChevronDown style={{ marginTop: "2px" }} />
             </Center>
-          </Container>
+          </Anchor>
         </Menu.Target>
         <Menu.Dropdown>
           {item.childItems.map((childItem, i) =>
