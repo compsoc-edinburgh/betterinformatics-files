@@ -11,6 +11,8 @@ from django.db.models.functions import Concat
 def get_user_scores(user, res):
     res.update(
         {
+            "rank": get_user_ranking(user),
+            "total_users": MyUser.objects.count(),
             "score": user.scores.document_likes + user.scores.upvotes - user.scores.downvotes,
             "score_answers": user.answer_set.filter(kind=Answer.Kind.PERSONAL).count(),
             "score_comments": user.answers_comments.count(),
@@ -22,6 +24,13 @@ def get_user_scores(user, res):
     )
     return res
 
+@func_cache.cache(600)
+def get_user_ranking(user):
+    return list(MyUser.objects.annotate(
+        score=F("scores__document_likes")
+        + F("scores__upvotes")
+        - F("scores__downvotes"),
+    ).order_by("-score").values_list("username", flat=True)).index(user.username) + 1
 
 @func_cache.cache(600)
 def get_scoreboard_top(scoretype, limit):
