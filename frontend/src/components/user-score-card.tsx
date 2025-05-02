@@ -22,6 +22,7 @@ import {
   IconPencil,
   IconPencilCog,
   IconProps,
+  IconTrophy,
 } from "@tabler/icons-react";
 
 interface UserScoreCardProps {
@@ -56,6 +57,42 @@ function scoreCard(
       <Text lh={1} fz="xl" fw={600}>
         {userInfo ? userInfo[key] : "-"}
       </Text>
+    </Paper>
+  );
+}
+
+function ordinal(n: number) {
+  const s = ["th", "st", "nd", "rd"],
+        v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function rankCard(
+  userInfo: UserInfo | undefined,
+  Icon: React.ForwardRefExoticComponent<
+    Omit<IconProps, "ref"> & React.RefAttributes<Icon>
+  >,
+) {
+  return (
+    <Paper shadow="md" withBorder px="md" py="lg" pos="relative">
+      <LoadingOverlay visible={!userInfo} />
+      <Group justify="space-between" mb="xs">
+        <Text inline size="xs" tt="uppercase" component="p" c="dimmed">
+          Score Ranking
+        </Text>
+        <Icon
+          style={{
+            width: "1em",
+            height: "1em",
+            color: "var(--mantine-color-dimmed)",
+          }}
+        />
+      </Group>
+      <Group>
+        <Text lh={1} fz="xl" fw={600}>
+          {userInfo ? ordinal(userInfo.rank) : "-"} out of {userInfo ? userInfo.total_users : "-"} Students
+        </Text>
+      </Group>
     </Paper>
   );
 }
@@ -98,6 +135,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
       </Group>
 
       <SimpleGrid cols={{ base: 1, xs: 2, sm: 3 }}>
+        {rankCard(userInfo, IconTrophy)}
         {scoreCard(userInfo, "Score", "score", IconChevronUp)}
         {scoreCard(userInfo, "Answers", "score_answers", IconPencil)}
         {scoreCard(userInfo, "Comments", "score_comments", IconMessage)}
