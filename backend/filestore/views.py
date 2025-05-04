@@ -31,11 +31,11 @@ def upload(request):
     s3_util.save_uploaded_file_to_s3(settings.COMSOL_FILESTORE_DIR, filename, file)
     return response.success(filename=filename)
 
-@response.request_post("newdisplayname")
+@response.request_put("newdisplayname")
 @auth_check.require_admin
 def edit(request, filename):
     att = get_object_or_404(Attachment, filename=filename)
-    att.displayname = request.POST["newdisplayname"]
+    att.displayname = request.DATA["newdisplayname"]
     att.save()
     return response.success()
 

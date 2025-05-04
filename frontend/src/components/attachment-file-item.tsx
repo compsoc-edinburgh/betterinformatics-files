@@ -38,18 +38,18 @@ const AttachmentFileItem: React.FC<AttachmentFileItemProps> = ({displayname, fil
                 onClose={closeEditModal}
             >
                 <Modal.Body>
+                    <label>Display name:</label>
+                    <TextInput
+                        placeholder="Display name"
+                        value={draftDisplayname}
+                        onChange={e => setDraftDisplayname(e.currentTarget.value)}
+                    />
                     <label>File:</label>
                     <FileInput
                         placeholder={`${toKey(filename)}`}
                         accept=".pdf,.zip,.tar.gz,.tar.xz"
                         value={file}
                         onChange={setFile}
-                    />
-                    <label>Display name:</label>
-                    <TextInput
-                        placeholder="Display name"
-                        value={draftDisplayname}
-                        onChange={e => setDraftDisplayname(e.currentTarget.value)}
                     />
                     <Group justify="right" mt="md">
                         <Button

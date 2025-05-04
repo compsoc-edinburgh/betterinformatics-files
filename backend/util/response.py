@@ -4,6 +4,7 @@ from django.http import JsonResponse, FileResponse, QueryDict
 from django.http import HttpResponseNotAllowed
 from django.http.multipartparser import MultiPartParser
 from io import BytesIO
+import json
 
 
 def request_post(*req_args, optional=False):
@@ -20,6 +21,19 @@ def request_post(*req_args, optional=False):
         return wrapper
     return wrap_func
 
+def request_put(*req_args, optional=False):
+    def wrap_func(f):
+        @wraps(f)
+        def wrapper(request, *args, **kwargs):
+            if request.method != 'PUT':
+                return HttpResponseNotAllowed(['PUT'])
+            if not optional:
+                for arg in req_args:
+                    if arg not in request.DATA:
+                        return missing_argument()
+            return f(request, *args, **kwargs)
+        return wrapper
+    return wrap_func
 
 def request_get(*req_args, optional=False):
     def wrap_func(f):
