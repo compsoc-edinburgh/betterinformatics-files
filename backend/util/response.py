@@ -4,7 +4,6 @@ from django.http import JsonResponse, FileResponse, QueryDict
 from django.http import HttpResponseNotAllowed
 from django.http.multipartparser import MultiPartParser
 from io import BytesIO
-import json
 
 
 def request_post(*req_args, optional=False):
