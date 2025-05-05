@@ -8,7 +8,7 @@ import {
   Anchor,
 } from "@mantine/core";
 import React, { useCallback } from "react";
-import { EditMode, EditState, ExamMetaData } from "../interfaces";
+import { CategoryExam, EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
 import IconButton from "./icon-button";
@@ -20,6 +20,16 @@ import {
   IconPlus,
   IconX,
 } from "@tabler/icons-react";
+import ClaimButton from "./claim-button";
+import { fetchGet } from "../api/fetch-utils";
+import { useRequest } from "@umijs/hooks";
+import { User, useUser } from "../auth";
+import { hasValidClaim } from "../utils/exam-utils";
+
+const loadExam = async (filename: string) => {
+  return (await fetchGet(`/api/exam/categoryexam/${filename}/`))
+    .value as CategoryExam;
+};
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
@@ -89,6 +99,12 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     name: T,
     value: DisplayOptions[T],
   ) => setDisplayOptions({ ...displayOptions, [name]: value });
+  const {
+    error: examError,
+    loading: examLoading,
+    data: exam,
+    run: reloadExam,
+  } = useRequest(() => loadExam(metaData.filename));
 
   return (
     <PdfPanelBase
@@ -127,6 +143,12 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         <>
           <Title order={6}>Edit Mode</Title>
           <Grid>
+            <Grid.Col>
+              {exam && (<ClaimButton exam={exam} reloadExams={reloadExam}/>)}
+            </Grid.Col>
+            {exam && !exam.finished_cuts &&
+                hasValidClaim(exam) &&
+                  exam.import_claim === useUser()?.username && (<>
             {editState.mode !== EditMode.None && (
               <Grid.Col span={{ xs: "auto" }}>
                 <Button
@@ -154,6 +176,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 </Button>
               </Grid.Col>
             )}
+            </>)}
           </Grid>
           <div>
             {editState.mode !== EditMode.None && (
