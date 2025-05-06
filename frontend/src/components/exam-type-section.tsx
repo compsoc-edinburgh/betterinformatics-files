@@ -19,6 +19,7 @@ import useConfirm from "../hooks/useConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
+import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import ExamGrid from "./exam-grid";
 import { IconTrash } from "@tabler/icons-react";
@@ -85,9 +86,8 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       <ExamGrid>
         {exams.map(exam => (
           <Card
-            shadow="md"
             withBorder
-            className={classes.focusOutline}
+            className={clsx(classes.focusOutline, classes.hoverShadow)}
             onKeyDown={e => {
               if (e.code === "Enter" && exam.canView) {
                 history.push(`/exams/${exam.filename}`);
@@ -95,6 +95,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
             }}
             tabIndex={0}
             key={exam.filename}
+            fw={600}
           >
             <Grid>
               <Grid.Col span="content">
