@@ -30,7 +30,7 @@
   */
 @media (hover: hover) {
   .hoverShadow:hover {
-    border-color: var(--mantine-color-text); /* -brand-7 is yellow, a bit too bright? -default-border is too subtle, we want contrast */
+    border-color: var(--mantine-color-default-border);
     box-shadow: var(--mantine-shadow-sm);
   }
 
