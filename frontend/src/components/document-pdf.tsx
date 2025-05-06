@@ -63,7 +63,7 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
       Object.fromEntries(getPages(renderer).map(pageNumber =>
         [pageNumber, (v: boolean) => inViewChange(pageNumber, v)],
       )),
-    [renderer],
+    [renderer, inViewChange],
   );
 
   return (
@@ -101,7 +101,7 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
         maxWidth={maxWidth}
         setMaxWidth={setMaxWidth}
         inViewPages={inViewPages}
-        />
+      />
     </>
   );
 };

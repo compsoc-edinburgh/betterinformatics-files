@@ -46,7 +46,6 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
 }) => {
   const user = useUser()!;
   const catAdmin = user.isCategoryAdmin;
-  const history = useHistory();
   const allSelected = exams.every(exam => selected.has(exam.filename));
   const someSelected = exams.some(exam => selected.has(exam.filename));
   const checked = someSelected;

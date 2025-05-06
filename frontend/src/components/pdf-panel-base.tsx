@@ -7,7 +7,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useDebounceFn } from "@umijs/hooks";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import PDF from "../pdf/pdf-renderer";
 import IconButton from "./icon-button";
 import Panel from "./panel";
@@ -24,7 +24,7 @@ interface PdfPanelBaseProps {
   subtitle?: string;
 
   inViewPages?: Set<number>;
-  
+
   /**
    * Use this to limit the pagination to only the specified pages.
    */
@@ -99,7 +99,7 @@ const PdfPanelBase: React.FC<PdfPanelBaseProps> = ({
     () => {
       return inViewPages ? Math.min(...Array.from(inViewPages)) : undefined
     }
-  , [inViewPages])  
+    , [inViewPages])
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>

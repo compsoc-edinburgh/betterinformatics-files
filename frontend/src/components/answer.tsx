@@ -10,7 +10,7 @@ import {
   Box,
   Paper,
 } from "@mantine/core";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
@@ -69,7 +69,7 @@ const AnswerComponent: React.FC<Props> = ({
   onSectionChanged,
   hasId = true,
 }) => {
-  const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
+  const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
   const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetFlagged] =
     useResetFlaggedVote(onSectionChanged);

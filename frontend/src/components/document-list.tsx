@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Group, Paper, Tooltip, Title, useComputedColorScheme } from "@mantine/core";
+import { Alert, Flex, Group, Tooltip, Title, useComputedColorScheme } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { loadDocumentTypes, useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";
@@ -14,7 +14,7 @@ interface Props {
 }
 
 const DocumentList: React.FC<Props> = ({ slug }) => {
-  const [isOpen, {open, close}] = useDisclosure();
+  const [isOpen, { open, close }] = useDisclosure();
   const [documents] = useDocuments(slug);
   const [docTypes, setDocTypes] = useState<string[] | null>(null);
   const [sortedDocs, setSortedDocs] = useState<
@@ -74,7 +74,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
             <ShimmerButton
               onClick={open}
               leftSection={<IconPlus />}
-              color={computedColorScheme == "dark" ? "compsocMain" : "dark"}
+              color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
               variant="outline"
             >
               Add document

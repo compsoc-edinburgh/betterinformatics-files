@@ -1,4 +1,4 @@
-import { Button, Title, Tooltip } from "@mantine/core";
+import { Button, Title } from "@mantine/core";
 import React, { CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import { IconMenu2, IconX } from "@tabler/icons-react";

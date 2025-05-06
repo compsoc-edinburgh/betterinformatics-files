@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Button,
-  Container,
   Flex,
   Group,
   Loader,
@@ -90,7 +89,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           <ShimmerButton
             onClick={() => setFormIsOpen(true)}
             leftSection={<IconPlus />}
-            color={computedColorScheme == "dark" ? "compsocMain" : "dark"}
+            color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
             variant="outline"
           >
             Add new exam

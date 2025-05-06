@@ -6,7 +6,6 @@ import {
   Group,
   Stack,
   useMantineTheme,
-  Text,
 } from "@mantine/core";
 import { useLocalStorageState } from "@umijs/hooks";
 import { NavItem, translate } from "./GlobalNav";
@@ -30,7 +29,6 @@ const BottomHeader: React.FC<Props> = ({
   loginButton,
   signet,
 }) => {
-  const theme = useMantineTheme();
   const [opened, setOpened] = React.useState(false);
   const [uwu, _] = useLocalStorageState("uwu", false);
 
