@@ -1,8 +1,41 @@
+/**
+  * Class to add focus outline to an element. This is useful for accessibility.
+  */
 .focusOutline {
   &:focus {
-    outline-width: 1.5;
-    outline-style: "solid";
+    outline-width: 2px;
+    outline-style: solid;
     outline-color: var(--mantine-color-gray-9);
-    outline-offset: 2;
+    outline-offset: 2px;
+
+    /** Outline color for dark mode needs to be brighter to be more distinctive */
+    @mixin dark {
+      outline-color: var(--mantine-color-gray-3);
+    }
+  }
+}
+
+/**
+  * Class to add a "lift-up" effect to an element on hover, where the border
+  * changes color and the shadows are increased.
+  */
+.hoverShadow {
+  transition: border-color 70ms ease, transform 40ms ease, box-shadow 70ms ease;
+  border-width: 2px;
+}
+
+/**
+  * Show hover effect only if device supports hover (i.e. not mobile), to avoid
+  * confusing with focus effect that also adds a border.
+  */
+@media (hover: hover) {
+  .hoverShadow:hover {
+    border-color: var(--mantine-color-text); /* -brand-7 is yellow, a bit too bright? -default-border is too subtle, we want contrast */
+    box-shadow: var(--mantine-shadow-sm);
+  }
+
+  /** Slight push-down effect on click for satisfaction */
+  .hoverShadow:active {
+    transform: translateY(1px);
   }
 }
