@@ -1,6 +1,9 @@
-.show-more {
-  text-decoration: underline;
-  cursor: pointer;
+/* The chain reply button is shown when len(comments) > 0, but the other sibling,
+the "Show More" button is shown only when len(comments) > 3. So, for the case
+when only the chain-reply button is shown, we want to still keep the button on
+the right edge using this trick: */
+.chain-reply:only-child {
+  margin-left: auto;
 }
 
 .list-group {
