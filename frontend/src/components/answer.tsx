@@ -318,95 +318,90 @@ const AnswerComponent: React.FC<Props> = ({
         )}
         <Group justify="right">
           {(answer === undefined || editing) && (
-            <Button
-              size="sm"
-              onClick={save}
-              loading={updating}
-              disabled={draftText.trim().length === 0}
-              leftSection={<IconDeviceFloppy />}
-            >
-              Save
-            </Button>
+            <>
+              <Button
+                size="sm"
+                color="red"
+                variant="subtle"
+                onClick={onCancel}
+                leftSection={<IconPencilCancel />}
+              >
+                {editing ? "Cancel" : "Delete Draft"}
+              </Button>
+              <Button
+                size="sm"
+                onClick={save}
+                loading={updating}
+                disabled={draftText.trim().length === 0}
+                leftSection={<IconDeviceFloppy />}
+              >
+                Save
+              </Button>
+            </>
           )}
-          {onSectionChanged && (
-            <Flex align="center">
-              {(answer === undefined || editing) && (
-                <Button
-                  size="sm"
-                  color="red"
-                  onClick={onCancel}
-                  leftSection={<IconPencilCancel />}
-                >
-                  {editing ? "Cancel" : "Delete Draft"}
-                </Button>
-              )}
-              <Button.Group ml="md">
-                {answer !== undefined && (
-                  <Button
-                    size="sm"
-                    onClick={() => setHasCommentDraft(true)}
-                    leftSection={<IconMessageCirclePlus />}
-                    disabled={hasCommentDraft}
+          {onSectionChanged && !editing && answer !== undefined && (
+            <Button.Group>
+              <Button
+                size="sm"
+                onClick={() => setHasCommentDraft(true)}
+                leftSection={<IconMessageCirclePlus />}
+                disabled={hasCommentDraft}
+              >
+                Add Comment
+              </Button>
+              <Menu withinPortal>
+                <Menu.Target>
+                  <Button leftSection={<IconDots />}>More</Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {answer.flaggedCount === 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => setAnswerFlagged(answer.oid, true)}
+                    >
+                      Flag as Inappropriate
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    leftSection={<IconLink />}
+                    onClick={() =>
+                      copy(
+                        `${document.location.origin}/exams/${answer.filename}?answer=${answer.longId}`,
+                      )
+                    }
                   >
-                    Add Comment
-                  </Button>
-                )}
-                {answer !== undefined && (
-                  <Menu withinPortal>
-                    <Menu.Target>
-                      <Button leftSection={<IconDots />}>More</Button>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                      {answer.flaggedCount === 0 && (
-                        <Menu.Item
-                          leftSection={<IconFlag />}
-                          onClick={() => setAnswerFlagged(answer.oid, true)}
-                        >
-                          Flag as Inappropriate
-                        </Menu.Item>
-                      )}
-                      <Menu.Item
-                        leftSection={<IconLink />}
-                        onClick={() =>
-                          copy(
-                            `${document.location.origin}/exams/${answer.filename}?answer=${answer.longId}`,
-                          )
-                        }
-                      >
-                        Copy Permalink
-                      </Menu.Item>
-                      {isAdmin && answer.flaggedCount > 0 && (
-                        <Menu.Item
-                          leftSection={<IconFlag />}
-                          onClick={() => resetAnswerFlagged(answer.oid)}
-                        >
-                          Remove all inappropriate flags
-                        </Menu.Item>
-                      )}
-                      {!editing && canEdit && (
-                        <Menu.Item
-                          leftSection={<IconEdit />}
-                          onClick={startEdit}
-                        >
-                          Edit
-                        </Menu.Item>
-                      )}
-                      {answer && canRemove && (
-                        <Menu.Item leftSection={<IconTrash />} onClick={remove}>
-                          Delete
-                        </Menu.Item>
-                      )}
-                      <Menu.Item
-                        leftSection={<IconCode />}
-                        onClick={toggleViewSource}
-                      >
-                        Toggle Source Code Mode
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                )}
-              </Button.Group>
-            </Flex>
+                    Copy Permalink
+                  </Menu.Item>
+                  {isAdmin && answer.flaggedCount > 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => resetAnswerFlagged(answer.oid)}
+                    >
+                      Remove all inappropriate flags
+                    </Menu.Item>
+                  )}
+                  {!editing && canEdit && (
+                    <Menu.Item
+                      leftSection={<IconEdit />}
+                      onClick={startEdit}
+                    >
+                      Edit
+                    </Menu.Item>
+                  )}
+                  {answer && canRemove && (
+                    <Menu.Item leftSection={<IconTrash />} onClick={remove}>
+                      Delete
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    leftSection={<IconCode />}
+                    onClick={toggleViewSource}
+                  >
+                    Toggle Source Code Mode
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Button.Group>
           )}
         </Group>
 
