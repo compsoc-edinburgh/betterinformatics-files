@@ -112,9 +112,10 @@ const AnswerComponent: React.FC<Props> = ({
     <>
       {modals}
       <Card
-        shadow="md"
+        mb="xs"
+        shadow="none"
+        withBorder
         id={hasId ? answer?.longId : undefined}
-        radius={0}
       >
         <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">
