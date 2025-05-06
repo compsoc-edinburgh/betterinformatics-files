@@ -375,6 +375,7 @@ const Editor: React.FC<Props> = ({
         </Modal>
       ) : (
         <Paper
+          shadow="none"
           withBorder={!isDragHovered}
           p="sm"
           my="sm"
