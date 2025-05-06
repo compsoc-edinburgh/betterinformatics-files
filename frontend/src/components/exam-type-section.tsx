@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { fetchPost } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";

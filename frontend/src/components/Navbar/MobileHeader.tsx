@@ -5,7 +5,6 @@ import {
   Container,
   Group,
   Stack,
-  useMantineTheme,
 } from "@mantine/core";
 import { useLocalStorageState } from "@umijs/hooks";
 import { NavItem, translate } from "./GlobalNav";

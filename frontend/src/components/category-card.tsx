@@ -42,7 +42,7 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
   // Find a secondary text color to use based on the current color scheme, for
   // the document count, exam count, and answer progress.
   const computedColorScheme = useComputedColorScheme('light');
-  const subTextColor = computedColorScheme == "light" ? "gray.8" : "gray.5";
+  const subTextColor = computedColorScheme === "light" ? "gray.8" : "gray.5";
 
   const [favouriteLoading, add] = useMutation(addNewFavourite, res => {
     refresh();
