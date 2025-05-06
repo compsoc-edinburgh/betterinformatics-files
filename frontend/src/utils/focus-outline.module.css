@@ -30,7 +30,7 @@
   */
 @media (hover: hover) {
   .hoverShadow:hover {
-    border-color: var(--mantine-color-default-border);
+    border-color: var(--mantine-color-brand-7);
     box-shadow: var(--mantine-shadow-sm);
   }
 
