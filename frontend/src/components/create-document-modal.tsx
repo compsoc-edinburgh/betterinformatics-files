@@ -2,7 +2,6 @@ import { Button, TextInput, Modal, Stack } from "@mantine/core";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useCreateDocument } from "../api/hooks";
-import { useUser } from "../auth";
 import { IconPlus } from "@tabler/icons-react";
 
 interface Props {

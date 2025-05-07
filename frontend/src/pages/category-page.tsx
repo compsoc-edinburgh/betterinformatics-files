@@ -13,7 +13,6 @@ import {
   Skeleton,
   Text,
   Title,
-  Paper,
   HoverCardDropdown,
   HoverCardTarget,
   HoverCard,
@@ -48,7 +47,6 @@ import {
   IconStar,
   IconTrash,
   IconUserStar,
-  IconInfoCircle,
 } from "@tabler/icons-react";
 
 interface CategoryPageContentProps {
@@ -317,7 +315,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Alert>
               )}
               {raw_md_contents !== undefined && (
-                <Text c={computedColorScheme == "light" ? "gray.7" : "gray.4"}>
+                <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
                   <MarkdownText
                     value={raw_md_contents}
                     localLinkBase="https://betterinformatics.com"
@@ -385,9 +383,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                  ...user,
-                  isCategoryAdmin: user.isAdmin || data.catadmin,
-                }
+                ...user,
+                isCategoryAdmin: user.isAdmin || data.catadmin,
+              }
               : undefined
           }
         >

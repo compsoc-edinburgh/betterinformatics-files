@@ -8,7 +8,7 @@ import {
   LoadingOverlay,
   Title,
 } from "@mantine/core";
-import React, { ReactNode } from "react";
+import React from "react";
 import { logout } from "../api/fetch-utils";
 import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
@@ -20,7 +20,6 @@ import {
   IconLogout,
   IconMessage,
   IconPencil,
-  IconPencilCog,
   IconProps,
 } from "@tabler/icons-react";
 
@@ -71,10 +70,10 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
     <>
       <Group justify="space-between" mb="sm">
         <Title order={1} my="md">
-            @{username}{" "}
-            {userInfo &&
-              userInfo.displayName !== username &&
-              `(${userInfo.displayName})`}
+          @{username}{" "}
+          {userInfo &&
+            userInfo.displayName !== username &&
+            `(${userInfo.displayName})`}
         </Title>
 
         {isMyself && (
@@ -105,7 +104,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
 
       <Container fluid p={0}>
         <SimpleGrid
-          cols={{ base: 1, xs: 2, sm: 3, md: 4}}
+          cols={{ base: 1, xs: 2, sm: 3, md: 4 }}
         >
           {scoreCard(userInfo, "Score", "score", IconChevronUp)}
           {scoreCard(userInfo, "Answers", "score_answers", IconPencil)}

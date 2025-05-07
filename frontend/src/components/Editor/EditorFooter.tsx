@@ -1,6 +1,5 @@
 import { Button, Group, Modal } from "@mantine/core";
 import * as React from "react";
-import { useCallback, useState } from "react";
 import { ImageHandle } from "./utils/types";
 import EditorHelp from "./EditorHelp";
 import classes from "./EditorFooter.module.css";
@@ -16,7 +15,7 @@ const EditorFooter: React.FC<Props> = ({
   onDelete,
   onOpenOverlay,
 }) => {
-  const [isHelpOpen, {toggle: toggleHelpModal, close: closeHelpModal}] = useDisclosure();
+  const [isHelpOpen, { toggle: toggleHelpModal, close: closeHelpModal }] = useDisclosure();
   return (
     <div>
       <Group justify="right" className={classes.row}>

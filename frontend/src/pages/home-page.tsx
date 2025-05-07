@@ -20,7 +20,6 @@ import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
-import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
@@ -220,7 +219,7 @@ export const CategoryList: React.FC<{}> = () => {
                 : false,
             }))
         : undefined,
-    [categoriesWithDefault, isAdmin],
+    [categoriesWithDefault, isAdmin, favourites],
   );
   const searchResult = useSearch(
     categories ?? [],

@@ -42,7 +42,6 @@ import {
   IconChevronRight,
   IconDownload,
   IconEdit,
-  IconFileCheck,
   IconLink,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
@@ -465,10 +464,10 @@ const ExamPage: React.FC<{}> = () => {
           ))}
         {(metaDataLoading ||
           ((cutsLoading || pdfLoading) && !metaDataLoading)) && (
-          <Center>
-            <Loader />
-          </Center>
-        )}
+            <Center>
+              <Loader />
+            </Center>
+          )}
       </div>
     </div>
   );

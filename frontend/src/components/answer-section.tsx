@@ -164,7 +164,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
-    const [deleteWarningIsOpen, {open: openDeleteWarning, close: closeDeleteWarning}] = useDisclosure();
+    const [deleteWarningIsOpen, { open: openDeleteWarning, close: closeDeleteWarning }] = useDisclosure();
     const hideAnswerSection = async () => {
       await onHasAnswersChange();
       closeDeleteWarning();
@@ -198,41 +198,41 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
-          <NameCard id={id}>
-            {isEditingName ? (
-              <Group>
-                <TextInput
-                  value={draftName}
-                  placeholder="Name"
-                  onChange={e => setDraftName(e.target.value)}
-                />
-                <IconButton
-                  variant="filled"
-                  tooltip="Save PDF section name"
-                  icon={<IconDeviceFloppy />}
-                  onClick={() => {
-                    setIsEditingName(false);
-                    onCutNameChange(draftName);
-                  }}
-                />
-              </Group>
-            ) : (
-              <Flex justify="space-between" align="center">
-                <Text fw={700} m={0}>
-                  {cutName}
-                </Text>
-                {isCatAdmin && (
+            <NameCard id={id}>
+              {isEditingName ? (
+                <Group>
+                  <TextInput
+                    value={draftName}
+                    placeholder="Name"
+                    onChange={e => setDraftName(e.target.value)}
+                  />
                   <IconButton
                     variant="filled"
-                    tooltip="Edit PDF section name"
-                    icon={<IconEdit />}
-                    onClick={() => setIsEditingName(true)}
+                    tooltip="Save PDF section name"
+                    icon={<IconDeviceFloppy />}
+                    onClick={() => {
+                      setIsEditingName(false);
+                      onCutNameChange(draftName);
+                    }}
                   />
-                )}
-              </Flex>
-            )}
-          </NameCard>
-        )}
+                </Group>
+              ) : (
+                <Flex justify="space-between" align="center">
+                  <Text fw={700} m={0}>
+                    {cutName}
+                  </Text>
+                  {isCatAdmin && (
+                    <IconButton
+                      variant="filled"
+                      tooltip="Edit PDF section name"
+                      icon={<IconEdit />}
+                      onClick={() => setIsEditingName(true)}
+                    />
+                  )}
+                </Flex>
+              )}
+            </NameCard>
+          )}
         <Container fluid pb="md" px="md">
           {!hidden && data && (
             <div>
@@ -254,8 +254,8 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </div>
           )}
           <AnswerSectionButtonWrapper
-            bg={computedColorScheme == "light" ? "gray.0" : "dark.7"}
-            // color={isBeingMoved || !has_answers ? "primary" : undefined}
+            bg={computedColorScheme === "light" ? "gray.0" : "dark.7"}
+          // color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <div>
               {data === undefined ? (
@@ -296,7 +296,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <>
-                          <Button onClick={onToggleHidden} variant={hidden ? "filled" : "outline"} leftSection={hidden ? <IconChevronDown /> : <IconChevronUp /> }>
+                          <Button onClick={onToggleHidden} variant={hidden ? "filled" : "outline"} leftSection={hidden ? <IconChevronDown /> : <IconChevronUp />}>
                             {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
                         </>

@@ -1,6 +1,5 @@
 import {
   Button,
-  Badge,
   MantineProvider,
   Box,
   Affix,
@@ -9,13 +8,12 @@ import {
   Indicator,
   MantineColorsTuple,
   CSSVariablesResolver,
-  useMantineColorScheme,
   SegmentedControl,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
-import { Redirect, Route, Switch, useLocation } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import tinycolor from "tinycolor2";
 import { fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";

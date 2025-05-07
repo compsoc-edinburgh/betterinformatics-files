@@ -1,5 +1,5 @@
 import { Anchor, Box, Breadcrumbs, Card, Divider, Text } from "@mantine/core";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import React from "react";
 import { Link } from "react-router-dom";
 import { SingleComment } from "../interfaces";
