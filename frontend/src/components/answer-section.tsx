@@ -235,7 +235,13 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           )}
         <Container fluid pb="md" px="md">
           {!hidden && data && (
-            <div>
+            <Card
+              bg={computedColorScheme == "light" ? "gray.0" : "dark.7"}
+              shadow="md"
+              px="xs"
+              py="xs"
+              radius={0}
+            >
               {data.answers.map(answer => (
                 <AnswerComponent
                   key={answer.oid}
@@ -251,7 +257,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   onDelete={() => setHasDraft(false)}
                 />
               )}
-            </div>
+            </Card>
           )}
           <AnswerSectionButtonWrapper
             bg={computedColorScheme === "light" ? "gray.0" : "dark.7"}
