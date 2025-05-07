@@ -234,7 +234,12 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
             </NameCard>
           )}
         <Container fluid pb="md" px="md">
-          {!hidden && data && (
+          {/* Show answer background only if not hidden, and either answers
+          exist or there is a draft. Careful with the conditionals here because
+          if you start a draft on a collapsed question with no answers, and then
+          delete the draft, you'll end up with a 'expanded but no answers or
+          drafts' state. */}
+          {!hidden && data && (data.answers.length > 0 || hasDraft) && (
             <Card
               bg={computedColorScheme == "light" ? "gray.0" : "dark.7"}
               shadow="md"
