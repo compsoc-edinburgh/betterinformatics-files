@@ -48,7 +48,6 @@ const UserDisplayNameSettings: React.FC<UserDisplayNameProps> = ({
             onChange={(e: any) =>
               setEditingDisplayUsername(e.currentTarget.value)
             }
-            required
             error={error ? error.toString() : ""}
             rightSection={
               loading ? (
