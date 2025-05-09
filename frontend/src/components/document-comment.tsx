@@ -25,6 +25,7 @@ import SmallButton from "./small-button";
 import TooltipButton from "./TooltipButton";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import TimeText from "./time-text";
+import displayNameClasses from "../utils/display-name.module.css";
 
 interface Props {
   documentSlug: string;
@@ -85,36 +86,38 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
       <Card withBorder shadow="md" my="sm">
         <Card.Section mb="sm">
           <Flex py="sm" px="md" justify="space-between" align="center">
-            <Flex align="center">
-              <Anchor component={Link} to={`/user/${comment.authorId}`}>
-                <Text fw={700} component="span">
-                  {comment.authorDisplayName}
-                </Text>
-                <Text ml="0.25em" color="dimmed" component="span">
-                  @{comment.authorId}
-                </Text>
-              </Anchor>
-              <Text component="span" mx={6} color="dimmed">
-                ·
+            <Anchor
+              component={Link}
+              to={`/user/${comment.authorId}`}
+              className={displayNameClasses.shrinkableDisplayName}
+            >
+              <Text fw={700} component="span">
+                {comment.authorDisplayName}
               </Text>
-              {comment && (
-                <TimeText time={comment.time} suffix="ago" />
+              <Text ml="0.25em" color="dimmed" component="span">
+                @{comment.authorId}
+              </Text>
+            </Anchor>
+            <Text component="span" mx={6} color="dimmed">
+              ·
+            </Text>
+            {comment && (
+              <TimeText time={comment.time} suffix="ago" />
+            )}
+            {comment &&
+              differenceInSeconds(
+                new Date(comment.edittime),
+                new Date(comment.time),
+              ) > 1 && (
+                <>
+                  <Text component="span" color="dimmed" mx={6}>
+                    ·
+                  </Text>
+                  <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
+                </>
               )}
-              {comment &&
-                differenceInSeconds(
-                  new Date(comment.edittime),
-                  new Date(comment.time),
-                ) > 1 && (
-                  <>
-                    <Text component="span" color="dimmed" mx={6}>
-                      ·
-                    </Text>
-                    <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
-                  </>
-                )}
-            </Flex>
             {(comment.canEdit || isAdmin) && (
-              <Button.Group>
+              <Button.Group ml="auto">
                 <SmallButton
                   tooltip="Delete comment"
                   size="xs"

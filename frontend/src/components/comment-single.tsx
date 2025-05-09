@@ -1,4 +1,4 @@
-import { Anchor, Box, Breadcrumbs, Card, Divider, Text } from "@mantine/core";
+import { Anchor, Breadcrumbs, Card, Divider, Group, Text } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -7,6 +7,7 @@ import MarkdownText from "./markdown-text";
 import TimeText from "./time-text";
 import { IconChevronRight } from "@tabler/icons-react";
 import classes from "./comment-single.module.css";
+import displayNameClasses from "../utils/display-name.module.css";
 
 interface Props {
   comment: SingleComment;
@@ -49,8 +50,12 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
             Comment
           </Anchor>
         </Breadcrumbs>
-        <Box my="xs" px="md">
-          <Anchor component={Link} to={`/user/${comment.authorId}`}>
+        <Group my="xs" px="md" gap={0}>
+          <Anchor
+            component={Link}
+            to={`/user/${comment.authorId}`}
+            className={displayNameClasses.shrinkableDisplayName}
+          >
             <Text fw={700} component="span">
               {comment.authorDisplayName}
             </Text>
@@ -76,7 +81,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment }) => {
                 <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
               </>
             )}
-        </Box>
+        </Group>
         <Divider />
       </Card.Section>
       <MarkdownText value={comment.text} />

@@ -17,6 +17,7 @@ import MarkdownText from "../components/markdown-text";
 import { HighlightedMatch, SearchResponse } from "../interfaces";
 import { IconChevronRight } from "@tabler/icons-react";
 import classes from "./search-results.module.css";
+import displayNameClasses from "../utils/display-name.module.css";
 
 const HighlightedContent: React.FC<{
   content: HighlightedMatch;
@@ -151,8 +152,14 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   <Anchor
                     component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
+                    // miw required for ellipsis in nested child to work
+                    miw={0}
                   >
-                    <Title py="xs" order={4}>
+                    <Title
+                      py="xs"
+                      order={4}
+                      className={displayNameClasses.shrinkableDisplayName}
+                    >
                       {result.author_displayname}
                     </Title>
                   </Anchor>
@@ -198,8 +205,13 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                   <Anchor
                     component={Link}
                     to={`/exams/${result.filename}/#${result.long_id}`}
+                    miw={0}
                   >
-                    <Title py="xs" order={4}>
+                    <Title
+                      py="xs"
+                      order={4}
+                      className={displayNameClasses.shrinkableDisplayName}
+                    >
                       {result.author_displayname}
                     </Title>
                   </Anchor>
