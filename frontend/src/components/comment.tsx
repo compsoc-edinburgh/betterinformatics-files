@@ -89,36 +89,36 @@ const CommentComponent: React.FC<Props> = ({
     >
       {modals}
       <Group gap={0}>
-          <Anchor
-            component={Link}
-            to={`/user/${comment?.authorId ?? username}`}
-            className={displayNameClasses.shrinkableDisplayName}
-          >
-            <Text fw={700} component="span">
-              {comment?.authorDisplayName ?? "(Draft)"}
-            </Text>
-            <Text ml="0.25em" color="dimmed" component="span">
-              @{comment?.authorId ?? username}
-            </Text>
-          </Anchor>
-          <Text component="span" mx={6} color="dimmed">
-            ·
+        <Anchor
+          component={Link}
+          to={`/user/${comment?.authorId ?? username}`}
+          className={displayNameClasses.shrinkableDisplayName}
+        >
+          <Text fw={700} component="span">
+            {comment?.authorDisplayName ?? "(Draft)"}
           </Text>
-          {comment && (
-            <TimeText time={comment.time} suffix="ago" />
+          <Text ml="0.25em" color="dimmed" component="span">
+            @{comment?.authorId ?? username}
+          </Text>
+        </Anchor>
+        <Text component="span" mx={6} color="dimmed">
+          ·
+        </Text>
+        {comment && (
+          <TimeText time={comment.time} suffix="ago" />
+        )}
+        {comment &&
+          differenceInSeconds(
+            new Date(comment.edittime),
+            new Date(comment.time),
+          ) > 1 && (
+            <>
+              <Text component="span" mx={6} color="dimmed">
+                ·
+              </Text>
+              <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
+            </>
           )}
-          {comment &&
-            differenceInSeconds(
-              new Date(comment.edittime),
-              new Date(comment.time),
-            ) > 1 && (
-              <>
-                <Text component="span" mx={6} color="dimmed">
-                  ·
-                </Text>
-                <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
-              </>
-            )}
         {comment && !editing && comment.canEdit && (
           <Button.Group ml="auto">
             <IconButton

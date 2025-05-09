@@ -120,145 +120,145 @@ const AnswerComponent: React.FC<Props> = ({
       >
         <Card.Section px="md" py="md" withBorder>
           <Group gap={0}>
-              {!hasId && (
-                <Link
-                  to={
-                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
-                  }
-                >
-                  <Text mr={8} component="span">
-                    <IconLink style={{ height: "13px", width: "13px" }} />
-                  </Text>
-                </Link>
-              )}
-              <Anchor
-                component={Link}
-                to={`/user/${answer?.authorId ?? username}`}
-                className={displayNameClasses.shrinkableDisplayName}
+            {!hasId && (
+              <Link
+                to={
+                  answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                }
               >
-                <Text fw={700} component="span">
-                  {answer?.authorDisplayName ?? "(Draft)"}
+                <Text mr={8} component="span">
+                  <IconLink style={{ height: "13px", width: "13px" }} />
                 </Text>
-                <Text ml="0.3em" c="dimmed" component="span">
-                  @{answer?.authorId ?? username}
-                </Text>
-              </Anchor>
-              <Text c="dimmed" mx={6} component="span">
-                ·
+              </Link>
+            )}
+            <Anchor
+              component={Link}
+              to={`/user/${answer?.authorId ?? username}`}
+              className={displayNameClasses.shrinkableDisplayName}
+            >
+              <Text fw={700} component="span">
+                {answer?.authorDisplayName ?? "(Draft)"}
               </Text>
-              {answer && (
-                <TimeText time={answer.time} suffix="ago" />
+              <Text ml="0.3em" c="dimmed" component="span">
+                @{answer?.authorId ?? username}
+              </Text>
+            </Anchor>
+            <Text c="dimmed" mx={6} component="span">
+              ·
+            </Text>
+            {answer && (
+              <TimeText time={answer.time} suffix="ago" />
+            )}
+            {answer &&
+              differenceInSeconds(
+                new Date(answer.edittime),
+                new Date(answer.time),
+              ) > 1 && (
+                <>
+                  <Text color="dimmed" mx={6} component="span">
+                    ·
+                  </Text>
+                  <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
+                </>
               )}
+            <AnswerToolbar ml="auto">
               {answer &&
-                differenceInSeconds(
-                  new Date(answer.edittime),
-                  new Date(answer.time),
-                ) > 1 && (
-                  <>
-                    <Text color="dimmed" mx={6} component="span">
-                      ·
-                    </Text>
-                    <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
-                  </>
-                )}
-              <AnswerToolbar ml="auto">
-                {answer &&
-                  (answer.expertvotes > 0 ||
-                    setExpertVoteLoading ||
-                    isExpert) && (
-                    <Paper shadow="xs">
-                      <Button.Group>
+                (answer.expertvotes > 0 ||
+                  setExpertVoteLoading ||
+                  isExpert) && (
+                  <Paper shadow="xs">
+                    <Button.Group>
+                      <TooltipButton
+                        px={12}
+                        tooltip="This answer is endorsed by an expert"
+                        variant="filled"
+                        color="yellow"
+                      >
+                        <IconStarFilled />
+                      </TooltipButton>
+                      <TooltipButton
+                        miw={30}
+                        tooltip={`${answer.expertvotes} experts endorse this answer.`}
+                        loading={setExpertVoteLoading}
+                      >
+                        {answer.expertvotes}
+                      </TooltipButton>
+                      {isExpert && (
                         <TooltipButton
-                          px={12}
-                          tooltip="This answer is endorsed by an expert"
-                          variant="filled"
-                          color="yellow"
-                        >
-                          <IconStarFilled />
-                        </TooltipButton>
-                        <TooltipButton
-                          miw={30}
-                          tooltip={`${answer.expertvotes} experts endorse this answer.`}
-                          loading={setExpertVoteLoading}
-                        >
-                          {answer.expertvotes}
-                        </TooltipButton>
-                        {isExpert && (
-                          <TooltipButton
-                            size="sm"
-                            px={8}
-                            tooltip={
-                              answer.isExpertVoted
-                                ? "Remove expert vote"
-                                : "Add expert vote"
-                            }
-                            style={{ borderLeftWidth: 0 }}
-                            onClick={() =>
-                              setExpertVote(answer.oid, !answer.isExpertVoted)
-                            }
-                          >
-                            {answer.isExpertVoted ? (
-                              <IconChevronDown />
-                            ) : (
-                              <IconChevronUp />
-                            )}
-                          </TooltipButton>
-                        )}
-                      </Button.Group>
-                    </Paper>
-                  )}
-                {answer &&
-                  (answer.isFlagged ||
-                    (answer.flagged > 0 && isAdmin) ||
-                    flaggedLoading) && (
-                    <Paper shadow="xs">
-                      <Button.Group>
-                        <TooltipButton
-                          tooltip="Flagged as Inappropriate"
-                          color="red"
-                          px={12}
-                          variant="filled"
-                        >
-                          <IconFlag />
-                        </TooltipButton>
-                        <TooltipButton
-                          color="red"
-                          miw={30}
-                          tooltip={`${answer.flagged} users consider this answer inappropriate.`}
-                        >
-                          {answer.flagged}
-                        </TooltipButton>
-                        <TooltipButton
+                          size="sm"
                           px={8}
                           tooltip={
-                            answer.isFlagged
-                              ? "Remove inappropriate flag"
-                              : "Add inappropriate flag"
+                            answer.isExpertVoted
+                              ? "Remove expert vote"
+                              : "Add expert vote"
                           }
-                          size="sm"
-                          loading={flaggedLoading}
                           style={{ borderLeftWidth: 0 }}
                           onClick={() =>
-                            setFlagged(answer.oid, !answer.isFlagged)
+                            setExpertVote(answer.oid, !answer.isExpertVoted)
                           }
                         >
-                          {answer.isFlagged ? <IconX /> : <IconChevronUp />}
+                          {answer.isExpertVoted ? (
+                            <IconChevronDown />
+                          ) : (
+                            <IconChevronUp />
+                          )}
                         </TooltipButton>
-                      </Button.Group>
-                    </Paper>
-                  )}
-                {answer && onSectionChanged && (
-                  <Score
-                    oid={answer.oid}
-                    upvotes={answer.upvotes}
-                    expertUpvotes={answer.expertvotes}
-                    userVote={
-                      answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
-                    }
-                    onSectionChanged={onSectionChanged}
-                  />
+                      )}
+                    </Button.Group>
+                  </Paper>
                 )}
-              </AnswerToolbar>
+              {answer &&
+                (answer.isFlagged ||
+                  (answer.flagged > 0 && isAdmin) ||
+                  flaggedLoading) && (
+                  <Paper shadow="xs">
+                    <Button.Group>
+                      <TooltipButton
+                        tooltip="Flagged as Inappropriate"
+                        color="red"
+                        px={12}
+                        variant="filled"
+                      >
+                        <IconFlag />
+                      </TooltipButton>
+                      <TooltipButton
+                        color="red"
+                        miw={30}
+                        tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                      >
+                        {answer.flagged}
+                      </TooltipButton>
+                      <TooltipButton
+                        px={8}
+                        tooltip={
+                          answer.isFlagged
+                            ? "Remove inappropriate flag"
+                            : "Add inappropriate flag"
+                        }
+                        size="sm"
+                        loading={flaggedLoading}
+                        style={{ borderLeftWidth: 0 }}
+                        onClick={() =>
+                          setFlagged(answer.oid, !answer.isFlagged)
+                        }
+                      >
+                        {answer.isFlagged ? <IconX /> : <IconChevronUp />}
+                      </TooltipButton>
+                    </Button.Group>
+                  </Paper>
+                )}
+              {answer && onSectionChanged && (
+                <Score
+                  oid={answer.oid}
+                  upvotes={answer.upvotes}
+                  expertUpvotes={answer.expertvotes}
+                  userVote={
+                    answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
+                  }
+                  onSectionChanged={onSectionChanged}
+                />
+              )}
+            </AnswerToolbar>
           </Group>
         </Card.Section>
         {editing || answer === undefined ? (

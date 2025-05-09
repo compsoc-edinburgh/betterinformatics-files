@@ -86,36 +86,36 @@ const DocumentCommentComponent = ({ documentSlug, comment, mutate }: Props) => {
       <Card withBorder shadow="md" my="sm">
         <Card.Section mb="sm">
           <Flex py="sm" px="md" justify="space-between" align="center">
-              <Anchor
-                component={Link}
-                to={`/user/${comment.authorId}`}
-                className={displayNameClasses.shrinkableDisplayName}
-              >
-                <Text fw={700} component="span">
-                  {comment.authorDisplayName}
-                </Text>
-                <Text ml="0.25em" color="dimmed" component="span">
-                  @{comment.authorId}
-                </Text>
-              </Anchor>
-              <Text component="span" mx={6} color="dimmed">
-                ·
+            <Anchor
+              component={Link}
+              to={`/user/${comment.authorId}`}
+              className={displayNameClasses.shrinkableDisplayName}
+            >
+              <Text fw={700} component="span">
+                {comment.authorDisplayName}
               </Text>
-              {comment && (
-                <TimeText time={comment.time} suffix="ago" />
+              <Text ml="0.25em" color="dimmed" component="span">
+                @{comment.authorId}
+              </Text>
+            </Anchor>
+            <Text component="span" mx={6} color="dimmed">
+              ·
+            </Text>
+            {comment && (
+              <TimeText time={comment.time} suffix="ago" />
+            )}
+            {comment &&
+              differenceInSeconds(
+                new Date(comment.edittime),
+                new Date(comment.time),
+              ) > 1 && (
+                <>
+                  <Text component="span" color="dimmed" mx={6}>
+                    ·
+                  </Text>
+                  <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
+                </>
               )}
-              {comment &&
-                differenceInSeconds(
-                  new Date(comment.edittime),
-                  new Date(comment.time),
-                ) > 1 && (
-                  <>
-                    <Text component="span" color="dimmed" mx={6}>
-                      ·
-                    </Text>
-                    <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
-                  </>
-                )}
             {(comment.canEdit || isAdmin) && (
               <Button.Group ml="auto">
                 <SmallButton

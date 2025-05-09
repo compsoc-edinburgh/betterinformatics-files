@@ -133,68 +133,68 @@ const DocumentPage: React.FC<Props> = () => {
               </Group>
             </Flex>
             <Group gap={0}>
-            {data && !data.anonymised && (
-              <Anchor
-                component={Link}
-                to={`/user/${data.author}`}
-                underline="never"
-                className={displayNameClasses.shrinkableDisplayName}
-              >
-                {data.author_displayname !== data.author && (
-                  <>
+              {data && !data.anonymised && (
+                <Anchor
+                  component={Link}
+                  to={`/user/${data.author}`}
+                  underline="never"
+                  className={displayNameClasses.shrinkableDisplayName}
+                >
+                  {data.author_displayname !== data.author && (
+                    <>
+                      <Text fw={700} component="span">
+                        {data.author_displayname}
+                      </Text>
+                      <Text ml="0.3em" c="dimmed" component="span">
+                        @{data.author}
+                      </Text>
+                    </>
+                  )}
+                  {data.author_displayname === data.author && (
                     <Text fw={700} component="span">
-                      {data.author_displayname}
-                    </Text>
-                    <Text ml="0.3em" c="dimmed" component="span">
                       @{data.author}
                     </Text>
-                  </>
-                )}
-                {data.author_displayname === data.author && (
-                  <Text fw={700} component="span">
-                    @{data.author}
-                  </Text>
-                )}
-              </Anchor>
-            )}
-            {data && data.anonymised && (
-              <Text fw={700} component="span">
-                Anonymous
-              </Text>
-            )}
-            {data && data.anonymised && (data.can_edit || data.can_delete) && (
-              <Anchor
-                component={Link}
-                to={`/user/${data.author}`}
-                underline="never"
-                className={displayNameClasses.shrinkableDisplayName}
-              >
-                <Text ml="0.3em" c="dimmed" component="span">
-                  (
-                  {data.author_displayname !== data.author &&
-                    `${data.author_displayname} `}
-                  @{data.author})
+                  )}
+                </Anchor>
+              )}
+              {data && data.anonymised && (
+                <Text fw={700} component="span">
+                  Anonymous
                 </Text>
-              </Anchor>
-            )}
-            {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
-              1 && (
-              <>
-                <Text c="dimmed" mx={6} component="span">
-                  ·
-                </Text>
-                <Tooltip
-                  withArrow
-                  withinPortal
-                  label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
-                  disabled={data.time === null}
+              )}
+              {data && data.anonymised && (data.can_edit || data.can_delete) && (
+                <Anchor
+                  component={Link}
+                  to={`/user/${data.author}`}
+                  underline="never"
+                  className={displayNameClasses.shrinkableDisplayName}
                 >
-                  <Text c="dimmed" component="span">
-                    updated {formatDistanceToNow(new Date(data.edittime))} ago
+                  <Text ml="0.3em" c="dimmed" component="span">
+                    (
+                    {data.author_displayname !== data.author &&
+                      `${data.author_displayname} `}
+                    @{data.author})
                   </Text>
-                </Tooltip>
-              </>
-            )}
+                </Anchor>
+              )}
+              {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
+                1 && (
+                <>
+                  <Text c="dimmed" mx={6} component="span">
+                    ·
+                  </Text>
+                  <Tooltip
+                    withArrow
+                    withinPortal
+                    label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
+                    disabled={data.time === null}
+                  >
+                    <Text c="dimmed" component="span">
+                      updated {formatDistanceToNow(new Date(data.edittime))} ago
+                    </Text>
+                  </Tooltip>
+                </>
+              )}
             </Group>
           </Box>
         )}
