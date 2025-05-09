@@ -141,43 +141,46 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     >
       {canEdit && (
         <>
-          <Title order={6}>Edit Mode</Title>
-          <Grid>
-            <Grid.Col>
-              {exam && (<ClaimButton exam={exam} reloadExams={reloadExam}/>)}
-            </Grid.Col>
-            {exam && !exam.finished_cuts &&
-                hasValidClaim(exam) &&
-                  exam.import_claim === useUser()?.username && (<>
-            {editState.mode !== EditMode.None && (
-              <Grid.Col span={{ xs: "auto" }}>
-                <Button
-                  size="sm"
-                  onClick={() => setEditState({ mode: EditMode.None })}
-                  leftSection={<IconX />}
-                >
-                  Stop Editing
-                </Button>
+          {exam && !exam.finished_cuts && 
+          (<>
+            <Title order={6}>Edit Mode</Title>
+            <Grid>
+              <Grid.Col>
+                <ClaimButton exam={exam} reloadExams={reloadExam}/>
               </Grid.Col>
-            )}
-            {editState.mode !== EditMode.Add && (
-              <Grid.Col span={{ xs: "auto" }}>
-                <Button
-                  size="sm"
-                  onClick={() =>
-                    setEditState({
-                      mode: EditMode.Add,
-                      snap,
-                    })
-                  }
-                  leftSection={<IconPlus />}
-                >
-                  Add Cuts
-                </Button>
-              </Grid.Col>
-            )}
-            </>)}
-          </Grid>
+              {hasValidClaim(exam) &&
+                    exam.import_claim === useUser()?.username && 
+              (<>
+                {editState.mode !== EditMode.None && (
+                  <Grid.Col span={{ xs: "auto" }}>
+                    <Button
+                      size="sm"
+                      onClick={() => setEditState({ mode: EditMode.None })}
+                      leftSection={<IconX />}
+                    >
+                      Stop Editing
+                    </Button>
+                  </Grid.Col>
+                )}
+                {editState.mode !== EditMode.Add && (
+                  <Grid.Col span={{ xs: "auto" }}>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        setEditState({
+                          mode: EditMode.Add,
+                          snap,
+                        })
+                      }
+                      leftSection={<IconPlus />}
+                    >
+                      Add Cuts
+                    </Button>
+                  </Grid.Col>
+                )}
+              </>)}
+            </Grid>
+          </>)}
           <div>
             {editState.mode !== EditMode.None && (
               <Checkbox
