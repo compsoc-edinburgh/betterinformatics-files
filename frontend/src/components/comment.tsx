@@ -22,6 +22,7 @@ import {
 import IconButton from "./icon-button";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
+import displayNameClasses from "../utils/display-name.module.css";
 
 interface Props {
   answer: Answer;
@@ -87,11 +88,11 @@ const CommentComponent: React.FC<Props> = ({
       style={{ marginBottom: "-1px" }}
     >
       {modals}
-      <Flex justify="space-between">
-        <div>
+      <Group gap={0}>
           <Anchor
             component={Link}
             to={`/user/${comment?.authorId ?? username}`}
+            className={displayNameClasses.shrinkableDisplayName}
           >
             <Text fw={700} component="span">
               {comment?.authorDisplayName ?? "(Draft)"}
@@ -118,9 +119,8 @@ const CommentComponent: React.FC<Props> = ({
                 <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
               </>
             )}
-        </div>
         {comment && !editing && comment.canEdit && (
-          <Button.Group>
+          <Button.Group ml="auto">
             <IconButton
               tooltip="Edit comment"
               color="gray"
@@ -149,13 +149,14 @@ const CommentComponent: React.FC<Props> = ({
         )}
         {comment && !editing && !comment.canEdit && (
           <IconButton
+            ml="auto"
             tooltip="Toggle Source Code Mode"
             color="gray"
             onClick={toggleViewSource}
             icon={<IconCode />}
           />
         )}
-      </Flex>
+      </Group>
 
       {comment === undefined || editing ? (
         <>

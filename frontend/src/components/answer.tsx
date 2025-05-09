@@ -48,6 +48,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import classes from "./answer.module.css";
+import displayNameClasses from "../utils/display-name.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
 
@@ -118,8 +119,7 @@ const AnswerComponent: React.FC<Props> = ({
         id={hasId ? answer?.longId : undefined}
       >
         <Card.Section px="md" py="md" withBorder>
-          <Flex justify="space-between" align="center">
-            <div>
+          <Group gap={0}>
               {!hasId && (
                 <Link
                   to={
@@ -134,6 +134,7 @@ const AnswerComponent: React.FC<Props> = ({
               <Anchor
                 component={Link}
                 to={`/user/${answer?.authorId ?? username}`}
+                className={displayNameClasses.shrinkableDisplayName}
               >
                 <Text fw={700} component="span">
                   {answer?.authorDisplayName ?? "(Draft)"}
@@ -160,9 +161,7 @@ const AnswerComponent: React.FC<Props> = ({
                     <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
                   </>
                 )}
-            </div>
-            <Flex>
-              <AnswerToolbar>
+              <AnswerToolbar ml="auto">
                 {answer &&
                   (answer.expertvotes > 0 ||
                     setExpertVoteLoading ||
@@ -260,8 +259,7 @@ const AnswerComponent: React.FC<Props> = ({
                   />
                 )}
               </AnswerToolbar>
-            </Flex>
-          </Flex>
+          </Group>
         </Card.Section>
         {editing || answer === undefined ? (
           <Card.Section>
