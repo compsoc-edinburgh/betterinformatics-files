@@ -57,7 +57,7 @@ const ClaimButton: React.FC<Props> = ({
     ) : (
       <Button
         size="sm"
-        variant="default"
+        variant="filled"
         onClick={e => {
           e.stopPropagation();
           runSetClaim(exam.filename, true);
