@@ -175,8 +175,13 @@ def update_name(request: HttpRequest):
     if display_username == "":
         # Use the UUN as the display name if the user didn't specify one
         display_username = request.user.username
-    if len(display_username) > 256:
-        return response.not_possible("Display name too long")
+
+    # Although the DB model allows for up to 256 characters, there was feedback
+    # that it is too much (and the frontend breaks). We've fixed the frontend
+    # to support arbitrary length so that's not a problem anymore, but we'll
+    # keep the limit to 32 characters since that feels more than enough.
+    if len(display_username) > 32:
+        return response.not_possible("Display name too long (max 32 characters)")
 
     request.user.profile.display_username = display_username.strip()
     request.user.profile.save()
