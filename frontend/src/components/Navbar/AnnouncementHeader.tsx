@@ -7,25 +7,25 @@ import { useLocalStorage } from "@mantine/hooks";
 
 
 const AnnouncementHeader: React.FC = () => {
-  const [dismissed, setDismissed, removeDismissed] = useLocalStorage({
+  const [dismissed, setDismissed] = useLocalStorage({
     key: "dismissed-announcements",
     defaultValue: new Set<String>(),
+    getInitialValueInEffect: false,
     serialize: (it) => JSON.stringify([...it]),
     deserialize: (it) => {
-      let parsedHashes: string[] = [];
+      let parsedIds: string[] = [];
       try {
-        parsedHashes = JSON.parse(it ?? "[]");
+        parsedIds = JSON.parse(it ?? "[]");
       } catch (e: any) {
-        console.error("Could not parse dismissed announcement hashes! Ignoring current value!", e);
-        removeDismissed();
+        console.error("Could not parse dismissed announcement ids! Ignoring and deleting current value!", e);
       }
-      return new Set(parsedHashes);
-    }
+      return new Set(parsedIds);
+    },
   });
 
   useEffect(() => {
     const currentDismissed = serverData.announcements
-      .map(it => it.hash)
+      .map(it => it.id)
       .filter(it => dismissed.has(it));
 
     if (currentDismissed.length < dismissed.size)
@@ -34,7 +34,7 @@ const AnnouncementHeader: React.FC = () => {
   }, [dismissed, serverData.announcements]);
 
   const announcements = serverData.announcements.map(it =>
-    (!(dismissed.has(it.hash))) && (< Alert
+    (!(dismissed.has(it.id))) && (< Alert
       icon={
         it.icon === "info" ? (<IconInfoCircle />) :
           it.icon === "alert" ? (<IconAlertCircle />) :
@@ -44,13 +44,13 @@ const AnnouncementHeader: React.FC = () => {
       }
 
       color={it.color}
-      variant={it.variant}
+      variant={it.variant ?? "light"}
       title={it.title}
       withCloseButton
       onClose={() => {
-        setDismissed(new Set([it.hash, ...dismissed]));
+        setDismissed(new Set([it.id, ...dismissed]));
       }}
-      key={it.hash}
+      key={it.id}
       m="md"
     >
       <Text>{it.content}</Text>

@@ -6,8 +6,8 @@ interface IServerData {
   privacy_policy: string;
   unlock_deposit_notice: string;
   announcements: [{
-    hash: string,
-    variant: string,
+    id: string,
+    variant: string | undefined,
     color: string,
     title: string,
     content: string,

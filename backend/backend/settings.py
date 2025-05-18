@@ -96,18 +96,20 @@ COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
 announcements = yaml.safe_load(os.environ.get("FRONTEND_ANNOUNCEMENTS", "")) or []
 announcements = announcements if isinstance(announcements, list) else [announcements]
 for announcement in announcements:
-    allowed_keys = {"variant", "color", "title", "icon", "content"}
+    allowed_keys = {"variant", "color", "title", "icon", "content", "id"}
+    mandatory_keys = allowed_keys - {"id", "icon", "variant"}
     assert isinstance(announcement, dict), "An announcement was parsed incorrectly!"
     assert announcement.keys() <= allowed_keys, (
         f"Announcement has at least one invalid key {announcement.keys() - allowed_keys}"
     )
-    assert announcement.keys() >= allowed_keys, (
-        f"Announcement has at least one missing key {allowed_keys - announcement.keys()}"
+    assert announcement.keys() >= mandatory_keys, (
+        f"Announcement has at least one missing key {mandatory_keys - announcement.keys()}"
     )
 
 announcements = [
     {
-        "hash": base64.b64encode(
+        "id": announcement.get("id")
+        or base64.b64encode(
             hashlib.sha256(yaml.safe_dump(announcement, encoding="utf-8")).digest()
         ).decode(),
         **announcement,
