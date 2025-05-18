@@ -8,7 +8,7 @@ import {
   Anchor,
 } from "@mantine/core";
 import React, { useCallback } from "react";
-import { CategoryExam, EditMode, EditState, ExamMetaData } from "../interfaces";
+import { EditMode, EditState, ExamMetaData } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import serverData from "../utils/server-data";
 import IconButton from "./icon-button";
@@ -21,15 +21,10 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import ClaimButton from "./claim-button";
-import { fetchGet } from "../api/fetch-utils";
 import { useRequest } from "@umijs/hooks";
-import { User, useUser } from "../auth";
+import { useUser } from "../auth";
 import { hasValidClaim } from "../utils/exam-utils";
-
-const loadExam = async (filename: string) => {
-  return (await fetchGet(`/api/exam/categoryexam/${filename}/`))
-    .value as CategoryExam;
-};
+import { loadExamAdminStatus } from "../api/hooks";
 
 export interface DisplayOptions {
   displayHiddenPdfSections: boolean;
@@ -104,7 +99,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     loading: examLoading,
     data: exam,
     run: reloadExam,
-  } = useRequest(() => loadExam(metaData.filename));
+  } = useRequest(() => loadExamAdminStatus(metaData.filename));
 
   return (
     <PdfPanelBase

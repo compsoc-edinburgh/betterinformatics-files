@@ -10,8 +10,10 @@ import answers.views_files as files
 
 @response.request_get()
 @auth_check.require_login
-def category_exam(request, filename):
+def get_exam_admin_status(request, filename):
     exam = get_object_or_404(Exam, filename=filename, finished_cuts=False)
+    if not (auth_check.has_admin_rights(request) or auth_check.has_admin_rights_for_exam(request, exam)):
+        return response.not_allowed()
     res = {
         "filename": exam.filename,
         "displayname": exam.displayname,

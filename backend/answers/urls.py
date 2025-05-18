@@ -33,7 +33,7 @@ urlpatterns = [
          views_cuts.get_cut_versions, name='cutversions'),
     path('answersection/<int:oid>/',
          views_cuts.get_answersection, name='answersection'),
-    path('categoryexam/<str:filename>/', views.category_exam, name='category'),
+    path('status/<str:filename>/', views.get_exam_admin_status, name='status'),
     path('metadata/<str:filename>/', views.exam_metadata, name='metadata'),
     path('setmetadata/<str:filename>/',
          views.exam_set_metadata, name='setmetadata'),
