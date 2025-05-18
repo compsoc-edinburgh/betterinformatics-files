@@ -9,6 +9,11 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
+
+import base64
+import hashlib
+import json
+import yaml
 import os
 from base64 import b64encode
 import sys
@@ -86,6 +91,30 @@ COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
+
+# Things can go wrong here, but server should crash
+announcements = yaml.safe_load(os.environ.get("FRONTEND_ANNOUNCEMENTS", "")) or []
+announcements = announcements if isinstance(announcements, list) else [announcements]
+for announcement in announcements:
+    allowed_keys = {"variant", "color", "title", "icon", "content"}
+    assert isinstance(announcement, dict), "An announcement was parsed incorrectly!"
+    assert announcement.keys() <= allowed_keys, (
+        f"Announcement has at least one invalid key {announcement.keys() - allowed_keys}"
+    )
+    assert announcement.keys() >= allowed_keys, (
+        f"Announcement has at least one missing key {allowed_keys - announcement.keys()}"
+    )
+
+announcements = [
+    {
+        "hash": base64.b64encode(
+            hashlib.sha256(yaml.safe_dump(announcement, encoding="utf-8")).digest()
+        ).decode(),
+        **announcement,
+    }
+    for announcement in announcements
+]
+
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
@@ -94,6 +123,7 @@ FRONTEND_SERVER_DATA = {
     "unlock_deposit_notice": os.environ.get("FRONTEND_UNLOCK_DEPOSIT_NOTICE", ""),
     "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", "")
     or "https://account.vseth.ethz.ch/privacy",
+    "announcements": announcements,
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")

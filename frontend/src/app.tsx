@@ -53,6 +53,7 @@ import {
 } from "./components/Navbar/constants";
 import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
+import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -280,6 +281,7 @@ const App: React.FC<{}> = () => {
                   appNav={bottomHeaderNav}
                   title={"Community Solutions"}
                 />
+                <AnnouncementHeader />
                 <Box component="main" mt="2em">
                   <Switch>
                     <UserRoute exact path="/" component={HomePage} />

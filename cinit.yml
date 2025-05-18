@@ -142,6 +142,7 @@ programs:
       - FRONTEND_EMAIL_ADDRESS:
       - FRONTEND_IMPRINT:
       - FRONTEND_PRIVACY_POLICY:
+      - FRONTEND_ANNOUNCEMENTS:
 
       - PDEP_IS_PREVIEW:
       - IS_DEBUG: "{{ get_env(name='SIP_POSTGRES_DB_USER', default='prod') == 'docker' }}"
