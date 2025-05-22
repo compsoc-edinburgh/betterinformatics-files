@@ -191,6 +191,11 @@ class Command(BaseCommand):
                     )
                     exam.save()
 
+                if i + category.id % 10 == 0:
+                    exam.import_claim = MyUser.objects.get(username="fletchz")
+                    exam.import_claim_time = timezone.now() - timedelta(hours=1)
+                    exam.save()
+
     def create_answer_sections(self):
         self.stdout.write("Create answer sections")
         users = MyUser.objects.all()
