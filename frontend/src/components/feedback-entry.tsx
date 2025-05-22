@@ -40,10 +40,14 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
             )}
           </Title>
           <Button.Group>
-            <Button onClick={() => runSetFlag("done", !entry.done)}>
+            <Button 
+              color = {entry.done ? "red" : ""}
+              onClick={() => runSetFlag("done", !entry.done)}>
               {entry.done ? "Set Undone" : "Set Done"}
             </Button>
-            <Button onClick={() => runSetFlag("read", !entry.read)}>
+            <Button 
+              color = {entry.read ? "red" : ""}
+              onClick={() => runSetFlag("read", !entry.read)}>
               {entry.read ? "Set Unread" : "Set Read"}
             </Button>
           </Button.Group>

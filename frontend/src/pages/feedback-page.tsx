@@ -4,6 +4,7 @@ import {
   Anchor,
   Button,
   Container,
+  Divider,
   Grid,
   Stack,
   Tabs,
@@ -18,6 +19,7 @@ import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
+import { FeedbackEntry } from "../interfaces";
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -93,17 +95,31 @@ const FeedbackReader: React.FC<{}> = () => {
     run: reload,
   } = useRequest(loadFeedback);
 
+  const mapEntries = (feedback : FeedbackEntry[]) => {
+    return (
+      <Grid>
+        {feedback.map(fb => (
+          <Grid.Col span={{ lg: 6 }} key={fb.oid}>
+            <FeedbackEntryComponent entry={fb} entryChanged={reload} />
+          </Grid.Col>
+        ))}
+      </Grid>
+    );
+  }
+
   return (
     <>
       {error && <Alert color="red">{error.message}</Alert>}
       {feedback && (
-        <Grid>
-          {feedback.map(fb => (
-            <Grid.Col span={{ lg: 6 }} key={fb.oid}>
-              <FeedbackEntryComponent entry={fb} entryChanged={reload} />
-            </Grid.Col>
-          ))}
-        </Grid>
+        <>
+          {mapEntries(feedback.filter(fb => !fb.read && !fb.done))}
+          <Divider my="xl"/>
+          <Title order={2}>Done</Title>
+          {mapEntries(feedback.filter(fb => fb.done))}
+          <Divider my="xl"/>
+          <Title order={2}>Read</Title>
+          {mapEntries(feedback.filter(fb => fb.read))}
+        </>
       )}
       {loading && <Loader />}
     </>
