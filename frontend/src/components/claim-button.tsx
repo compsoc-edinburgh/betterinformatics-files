@@ -33,7 +33,7 @@ const ClaimButton: React.FC<Props> = ({
         <Button
           mt="xs"
           size="sm"
-          color="dark"
+          color="gray"
           variant="outline"
           onClick={e => {
             e.stopPropagation();
