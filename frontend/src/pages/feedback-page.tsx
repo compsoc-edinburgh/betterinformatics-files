@@ -107,18 +107,39 @@ const FeedbackReader: React.FC<{}> = () => {
     );
   }
 
+  const categorized = {
+    waiting_action: [] as FeedbackEntry[],
+    done: [] as FeedbackEntry[],
+    read: [] as FeedbackEntry[],
+  };
+
+  if (feedback) {
+    feedback.forEach(fb => {
+      if (!fb.read && !fb.done) {
+        categorized.waiting_action.push(fb);
+      } else {
+        if (fb.done) {
+          categorized.done.push(fb);
+        }
+        if (fb.read) {
+          categorized.read.push(fb);
+        }
+      }
+    });
+  }
+
   return (
     <>
       {error && <Alert color="red">{error.message}</Alert>}
       {feedback && (
         <>
-          {mapEntries(feedback.filter(fb => !fb.read && !fb.done))}
+          {mapEntries(categorized.waiting_action)}
           <Divider my="xl"/>
           <Title order={2}>Done</Title>
-          {mapEntries(feedback.filter(fb => fb.done))}
+          {mapEntries(categorized.done)}
           <Divider my="xl"/>
           <Title order={2}>Read</Title>
-          {mapEntries(feedback.filter(fb => fb.read))}
+          {mapEntries(categorized.read)}
         </>
       )}
       {loading && <Loader />}
