@@ -35,8 +35,8 @@
       margin-block-end: 0.5em;
     }
   }
-  & .katex {
-    font-size: 1rem;
+  & :global(.katex) {
+    font-size: 1em;
   }
   /* Undo effect of .overlay class defined in the theme css */
   & .overlay {
