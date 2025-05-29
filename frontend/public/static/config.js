@@ -45,11 +45,6 @@ window.configOptions = {
           'href': 'https://comp-soc.com/team/'
       }, {
           'title': {
-              'en': 'SIGs'
-          },
-          'href': 'https://comp-soc.com/special-interest-groups'
-      }, {
-          'title': {
               'en': 'Constitution'
           },
           'href': 'https://github.com/compsoc-edinburgh/constitution'
