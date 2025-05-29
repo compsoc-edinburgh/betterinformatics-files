@@ -72,7 +72,7 @@ window.configOptions = {
         'title': {
             'en': 'Upcoming events'
         },
-        'href': 'https://comp-soc.com/events'
+        'href': 'https://comp-soc.com/events/'
     }, {
         'title': {
             'en': 'InfBall'
