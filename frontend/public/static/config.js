@@ -3,7 +3,7 @@ window.configOptions = {
   'org_logo': 'https://comp-soc.com/static/img/compsoc-horizontal-nofill.svg',
   'org_signet': 'https://raw.githubusercontent.com/compsoc-edinburgh/brand/master/profile/compsoc-profile-no-fill.svg',
   'primaryColor': '#e95468',
-  'copyright': 'Copyright 2023 CompSoc',
+  'copyright': 'Copyright 2025 CompSoc',
   'languages': [{
       'key': 'en',
       'label': 'English'
@@ -35,19 +35,14 @@ window.configOptions = {
       },
       'childItems': [{
           'title': {
-              'en': 'Contact'
+              'en': 'Homepage'
           },
-          'href': 'https://comp-soc.com/chat'
+          'href': 'https://comp-soc.com'
       }, {
           'title': {
               'en': 'Committee'
           },
-          'href': 'https://comp-soc.com/team'
-      }, {
-          'title': {
-              'en': 'SIGs'
-          },
-          'href': 'https://comp-soc.com/special-interest-groups'
+          'href': 'https://comp-soc.com/team/'
       }, {
           'title': {
               'en': 'Constitution'
@@ -77,7 +72,7 @@ window.configOptions = {
         'title': {
             'en': 'Upcoming events'
         },
-        'href': 'https://comp-soc.com/calendar'
+        'href': 'https://comp-soc.com/events/'
     }, {
         'title': {
             'en': 'InfBall'
