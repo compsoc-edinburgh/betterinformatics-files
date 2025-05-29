@@ -35,14 +35,14 @@ window.configOptions = {
       },
       'childItems': [{
           'title': {
-              'en': 'Contact'
+              'en': 'Homepage'
           },
-          'href': 'https://comp-soc.com/chat'
+          'href': 'https://comp-soc.com'
       }, {
           'title': {
               'en': 'Committee'
           },
-          'href': 'https://comp-soc.com/team'
+          'href': 'https://comp-soc.com/team/'
       }, {
           'title': {
               'en': 'SIGs'
@@ -77,7 +77,7 @@ window.configOptions = {
         'title': {
             'en': 'Upcoming events'
         },
-        'href': 'https://comp-soc.com/calendar'
+        'href': 'https://comp-soc.com/events'
     }, {
         'title': {
             'en': 'InfBall'
