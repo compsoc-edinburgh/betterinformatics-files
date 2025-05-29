@@ -46,6 +46,7 @@ import {
   defaultConfigOptions,
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
+import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -246,6 +247,7 @@ const App: React.FC<{}> = () => {
                   appNav={bottomHeaderNav}
                   title={"File Collection"}
                 />
+                <AnnouncementHeader />
                 <Box component="main" mt="2em">
                   <Switch>
                     <UserRoute exact path="/" component={HomePage} />
