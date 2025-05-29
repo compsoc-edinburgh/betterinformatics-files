@@ -17,7 +17,7 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
 import {
-  loadAdminCategories,
+  loadAllCategories,
   loadDocumentTypes,
   Mutate,
   useDeleteDocument,
@@ -48,7 +48,7 @@ interface Props {
 
 const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
   const history = useHistory();
-  const { data: categories } = useRequest(loadAdminCategories);
+  const { data: categories } = useRequest(loadAllCategories);
   const categoryOptions =
     categories &&
     createOptions(
