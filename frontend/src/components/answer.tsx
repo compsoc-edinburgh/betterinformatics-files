@@ -9,6 +9,7 @@ import {
   Anchor,
   Box,
   Paper,
+  Switch,
 } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -23,6 +24,8 @@ import {
 } from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
+import useToggle from "../hooks/useToggle";
+
 import { Answer, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
 import CodeBlock from "./code-block";
@@ -87,27 +90,33 @@ const AnswerComponent: React.FC<Props> = ({
 
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
+  const [answerIsAnonymous, toggleAnonymity] = useToggle(false);
+  const [hasCommentDraft, setHasCommentDraft] = useState(false);
+
   const startEdit = useCallback(() => {
     setDraftText(answer?.text ?? "");
+    if (answer?.isAnonymous) {
+      toggleAnonymity(true);
+    }
     setEditing(true);
-  }, [answer]);
+  }, [answer, toggleAnonymity]);
   const onCancel = useCallback(() => {
     setEditing(false);
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText);
-  }, [section, draftText, update]);
+    if (section) update(section.oid, draftText, answerIsAnonymous);
+  }, [section, draftText, update, answerIsAnonymous]);
   const remove = useCallback(() => {
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
-  const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const canEdit = section && onSectionChanged && (answer?.canEdit || false);
   const canRemove =
     section && onSectionChanged && (isAdmin || answer?.canEdit || false);
   const { username } = useUser()!;
+
   return (
     <>
       {modals}
@@ -131,17 +140,37 @@ const AnswerComponent: React.FC<Props> = ({
                   </Text>
                 </Link>
               )}
-              <Anchor
-                component={Link}
-                to={`/user/${answer?.authorId ?? username}`}
-              >
-                <Text fw={700} component="span">
-                  {answer?.authorDisplayName ?? "(Draft)"}
-                </Text>
-                <Text ml="0.3em" c="dimmed" component="span">
-                  @{answer?.authorId ?? username}
-                </Text>
-              </Anchor>
+              {answer?.isAnonymous ? (
+                isAdmin ? (
+                  // Admin view of anonymous posts - clickable
+                  <Anchor
+                    component={Link}
+                    to={`/user/${answer.authorId}`}
+                  >
+                    <Text fw={700} component="span">
+                      {answer.authorDisplayName} <Text c="dimmed" component="span">(Posted anonymously)</Text>
+                    </Text>
+                  </Anchor>
+                ) : (
+                  // Regular user view of anonymous posts - not clickable
+                  <Text fw={700} component="span">
+                    {answer.authorDisplayName}
+                  </Text>
+                )
+              ) : (
+                // Regular non-anonymous posts
+                <Anchor
+                  component={Link}
+                  to={`/user/${answer?.authorId ?? username}`}
+                >
+                  <Text fw={700} component="span">
+                    {answer?.authorDisplayName ?? "(Draft)"}
+                  </Text>
+                  <Text ml="0.3em" c="dimmed" component="span">
+                    @{answer?.authorId ?? username}
+                  </Text>
+                </Anchor>
+              )}
               <Text c="dimmed" mx={6} component="span">
                 ·
               </Text>
@@ -300,6 +329,16 @@ const AnswerComponent: React.FC<Props> = ({
         )}
         <Group justify="right">
           {(answer === undefined || editing) && (
+            <Switch
+              label={answer?.isAnonymous ? "Post Anonymously (currently anonymous)" : "Post Anonymously"}
+              onChange={() => {
+                console.log("Toggling anonymity");
+                toggleAnonymity();
+              }}
+              checked={answerIsAnonymous}
+            />
+          )}
+          {(answer === undefined || editing) && (
             <Button
               size="sm"
               color="red"
@@ -324,69 +363,69 @@ const AnswerComponent: React.FC<Props> = ({
           {onSectionChanged && !editing && (
             <Flex align="center">
               {answer !== undefined && (
-              <Button.Group>
-                <Button
-                  size="sm"
-                  onClick={() => setHasCommentDraft(true)}
-                  leftSection={<IconPlus />}
-                  disabled={hasCommentDraft}
-                  color="dark"
-                >
-                  Add Comment
-                </Button>
-                <Menu withinPortal>
-                  <Menu.Target>
-                    <Button leftSection={<IconDots />} color="dark">More</Button>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    {answer.flagged === 0 && (
+                <Button.Group>
+                  <Button
+                    size="sm"
+                    onClick={() => setHasCommentDraft(true)}
+                    leftSection={<IconPlus />}
+                    disabled={hasCommentDraft}
+                    color="dark"
+                  >
+                    Add Comment
+                  </Button>
+                  <Menu withinPortal>
+                    <Menu.Target>
+                      <Button leftSection={<IconDots />} color="dark">More</Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {answer.flagged === 0 && (
+                        <Menu.Item
+                          leftSection={<IconFlag />}
+                          onClick={() => setFlagged(answer.oid, true)}
+                        >
+                          Flag as Inappropriate
+                        </Menu.Item>
+                      )}
                       <Menu.Item
-                        leftSection={<IconFlag />}
-                        onClick={() => setFlagged(answer.oid, true)}
+                        leftSection={<IconLink />}
+                        onClick={() =>
+                          copy(
+                            `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
+                          )
+                        }
                       >
-                        Flag as Inappropriate
+                        Copy Permalink
                       </Menu.Item>
-                    )}
-                    <Menu.Item
-                      leftSection={<IconLink />}
-                      onClick={() =>
-                        copy(
-                          `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
-                        )
-                      }
-                    >
-                      Copy Permalink
-                    </Menu.Item>
-                    {isAdmin && answer.flagged > 0 && (
+                      {isAdmin && answer.flagged > 0 && (
+                        <Menu.Item
+                          leftSection={<IconFlag />}
+                          onClick={() => resetFlagged(answer.oid)}
+                        >
+                          Remove all inappropriate flags
+                        </Menu.Item>
+                      )}
+                      {!editing && canEdit && (
+                        <Menu.Item
+                          leftSection={<IconEdit />}
+                          onClick={startEdit}
+                        >
+                          Edit
+                        </Menu.Item>
+                      )}
+                      {answer && canRemove && (
+                        <Menu.Item leftSection={<IconTrash />} onClick={remove}>
+                          Delete
+                        </Menu.Item>
+                      )}
                       <Menu.Item
-                        leftSection={<IconFlag />}
-                        onClick={() => resetFlagged(answer.oid)}
+                        leftSection={<IconCode />}
+                        onClick={toggleViewSource}
                       >
-                        Remove all inappropriate flags
+                        Toggle Source Code Mode
                       </Menu.Item>
-                    )}
-                    {!editing && canEdit && (
-                      <Menu.Item
-                        leftSection={<IconEdit />}
-                        onClick={startEdit}
-                      >
-                        Edit
-                      </Menu.Item>
-                    )}
-                    {answer && canRemove && (
-                      <Menu.Item leftSection={<IconTrash />} onClick={remove}>
-                        Delete
-                      </Menu.Item>
-                    )}
-                    <Menu.Item
-                      leftSection={<IconCode />}
-                      onClick={toggleViewSource}
-                    >
-                      Toggle Source Code Mode
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-            </Button.Group>
+                    </Menu.Dropdown>
+                  </Menu>
+                </Button.Group>
               )}
             </Flex>
           )}

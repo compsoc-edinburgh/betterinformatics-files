@@ -137,6 +137,7 @@ class Answer(ExportModelOperationsMixin("answer"), models.Model):
     )
     flagged = models.ManyToManyField("auth.User", related_name="flagged_answer_set")
     long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
+    is_anonymous = models.BooleanField(default=False)
 
     search_vector = SearchVectorField()
 

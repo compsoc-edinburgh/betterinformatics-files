@@ -64,13 +64,30 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             }
             for comment in answer.all_comments
         ]
+        
+        # Handle anonymous answers
+        is_admin = ignore_exam_admin is False and exam_admin
+        
+        if answer.is_anonymous:
+            if is_admin:
+                # Admins see the real username but with an indication it's anonymous
+                author_id = answer.author.username
+                author_display_name = answer.author.profile.display_username
+            else:
+                # Regular users see "Anonymous"
+                author_id = "anonymous"
+                author_display_name = "Anonymous"
+        else:
+            author_id = answer.author.username
+            author_display_name = answer.author.profile.display_username
+        
         return {
             "oid": answer.id,
             "longId": answer.long_id,
             "upvotes": answer.delta_votes,
             "expertvotes": answer.expert_count,
-            "authorId": answer.author.username,
-            "authorDisplayName": answer.author.profile.display_username,
+            "authorId": author_id,
+            "authorDisplayName": author_display_name,
             "canEdit": answer.author == request.user,
             "isUpvoted": answer.is_upvoted,
             "isDownvoted": answer.is_downvoted,
@@ -83,6 +100,7 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             "edittime": answer.edittime,
             "filename": answer.answer_section.exam.filename,
             "sectionId": answer.answer_section.id,
+            "isAnonymous": answer.is_anonymous,
         }
     except AttributeError:
         raise ValueError(

@@ -19,7 +19,7 @@ def get_answer(request, long_id):
         raise Http404()
 
 
-@response.request_post("text")
+@response.request_post("text", "is_anonymous", optional=True)
 @auth_check.require_login
 def set_answer(request, oid):
     section = get_object_or_404(
@@ -38,6 +38,7 @@ def set_answer(request, oid):
         return response.not_allowed()
 
     text = request.POST["text"]
+    is_anonymous = request.POST.get("is_anonymous", "false") != "false"
 
     where = {"answer_section": section, "author": request.user}
 
@@ -49,6 +50,7 @@ def set_answer(request, oid):
             "author": request.user,
             "text": text,
             "edittime": timezone.now(),
+            "is_anonymous": is_anonymous,
         }
         answer, created = Answer.objects.update_or_create(**where, defaults=defaults)
     if created:
