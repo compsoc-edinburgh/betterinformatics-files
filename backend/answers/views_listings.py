@@ -76,7 +76,18 @@ def list_flagged(request):
 @response.request_get()
 @auth_check.require_login
 def get_by_user(request, username, page=-1):
-    sorted_answers = Answer.objects.filter(author__username=username).select_related(
+    # Check if the user is viewing their own profile or is an admin
+    is_own_profile = request.user.username == username
+    is_admin = has_admin_rights(request)
+    
+    # Base query to get answers by the user
+    query = Answer.objects.filter(author__username=username)
+    
+    # If not viewing own profile and not an admin, exclude anonymous answers
+    if not is_own_profile and not is_admin:
+        query = query.filter(is_anonymous=False)
+    
+    sorted_answers = query.select_related(
         *section_util.get_answer_fields_to_preselect()
     )
 

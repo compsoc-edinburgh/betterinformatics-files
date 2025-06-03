@@ -37,6 +37,7 @@ export interface Answer {
   filename: string; // filename of the corresponding exam
   sectionId: string; // id of section containing answer
   divRef?: HTMLDivElement; // root div element for scroll jumping
+  isAnonymous?: boolean; // whether the answer is posted anonymously
 }
 
 export interface Comment {
