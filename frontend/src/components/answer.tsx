@@ -10,6 +10,7 @@ import {
   Box,
   Paper,
   Switch,
+  Tooltip,
 } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -151,6 +152,11 @@ const AnswerComponent: React.FC<Props> = ({
                       {answer.authorDisplayName} <Text c="dimmed" component="span">(Posted anonymously)</Text>
                     </Text>
                   </Anchor>
+                ) : answer?.canEdit ? (
+                  // User's own anonymous post
+                  <Text fw={700} component="span">
+                    {answer.authorDisplayName} <Text c="dimmed" component="span">(Your anonymous post)</Text>
+                  </Text>
                 ) : (
                   // Regular user view of anonymous posts - not clickable
                   <Text fw={700} component="span">
@@ -329,14 +335,24 @@ const AnswerComponent: React.FC<Props> = ({
         )}
         <Group justify="right">
           {(answer === undefined || editing) && (
-            <Switch
-              label={answer?.isAnonymous ? "Post Anonymously (currently anonymous)" : "Post Anonymously"}
-              onChange={() => {
-                console.log("Toggling anonymity");
-                toggleAnonymity();
-              }}
-              checked={answerIsAnonymous}
-            />
+            <Tooltip
+              label="Your answer will appear as 'Anonymous' to regular users, but admins will still be able to see your username. Anonymous answers won't appear on your public profile."
+              multiline
+              maw={300}
+              withArrow
+              withinPortal
+            >
+              <div>
+                <Switch
+                  label={answer?.isAnonymous ? "Post Anonymously (currently anonymous)" : "Post Anonymously"}
+                  onChange={() => {
+                    console.log("Toggling anonymity");
+                    toggleAnonymity();
+                  }}
+                  checked={answerIsAnonymous}
+                />
+              </div>
+            </Tooltip>
           )}
           {(answer === undefined || editing) && (
             <Button
