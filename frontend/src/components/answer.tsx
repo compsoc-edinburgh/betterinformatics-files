@@ -9,6 +9,7 @@ import {
   Anchor,
   Box,
   Paper,
+  Tooltip
 } from "@mantine/core";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -41,6 +42,9 @@ import {
   IconEdit,
   IconFlag,
   IconLink,
+  IconArrowLeft,
+  IconFileArrowLeft,
+  IconFileText,
   IconPencilCancel,
   IconPlus,
   IconStarFilled,
@@ -121,17 +125,21 @@ const AnswerComponent: React.FC<Props> = ({
       >
         <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">
-            <div>
+            <div >
               {!hasId && (
+                <Tooltip label="View Answer in Exam">
                 <Link
                   to={
                     answer ? `/exams/${answer.filename}#${answer.longId}` : ""
                   }
+                  style={{textDecoration: "none", color:"black"}}
                 >
-                  <Text mr={8} component="span">
-                    <IconLink style={{ height: "13px", width: "13px" }} />
+                  <Text mr={8} component="span" >
+                      <IconArrowLeft style={{ height: "21px", verticalAlign:"top"}}/>
+                      <IconFileText style={{ height: "21px", width: "21px", verticalAlign: "top"}} />
                   </Text>
                 </Link>
+                </Tooltip>
               )}
               {isLegacyAnswer ? (
                 answer?.authorDisplayName ?? "(Legacy Draft)"
