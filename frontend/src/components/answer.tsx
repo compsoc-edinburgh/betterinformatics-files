@@ -171,25 +171,14 @@ const AnswerComponent: React.FC<Props> = ({
                 to={`/user/${answer?.authorId ?? username}`}
                 className={displayNameClasses.shrinkableDisplayName}
               >
-                <Text mr={8} component="span">
-                  <IconLink style={{ height: "13px", width: "13px" }} />
+                <Text fw={700} component="span">
+                  {answer?.authorDisplayName ?? "(Draft)"}
+                </Text>
+                <Text ml="0.3em" c="dimmed" component="span">
+                  @{answer?.authorId ?? username}
                 </Text>
               </Anchor>
             )}
-              </Link>
-            )}
-            <Anchor
-              component={Link}
-              to={`/user/${answer?.authorId ?? username}`}
-              className={displayNameClasses.shrinkableDisplayName}
-            >
-              <Text fw={700} component="span">
-                {answer?.authorDisplayName ?? "(Draft)"}
-              </Text>
-              <Text ml="0.3em" c="dimmed" component="span">
-                @{answer?.authorId ?? username}
-              </Text>
-            </Anchor>
             <Text c="dimmed" mx={6} component="span">
               ·
             </Text>
