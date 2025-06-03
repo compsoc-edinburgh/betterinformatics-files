@@ -66,7 +66,8 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
         ]
         
         # Handle anonymous answers
-        is_admin = ignore_exam_admin is False and exam_admin
+        # Check if user is an admin (either exam admin or global admin)
+        is_admin = (ignore_exam_admin is False and exam_admin) or auth_check.has_admin_rights(request)
         
         if answer.is_anonymous:
             if is_admin:
