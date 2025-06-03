@@ -40,6 +40,7 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import displayNameClasses from "../utils/display-name.module.css";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -131,66 +132,70 @@ const DocumentPage: React.FC<Props> = () => {
                 <LikeButton document={data} mutate={mutate} />
               </Group>
             </Flex>
-            {data && !data.anonymised && (
-              <Anchor
-                component={Link}
-                to={`/user/${data.author}`}
-                underline="never"
-              >
-                {data.author_displayname !== data.author && (
-                  <>
+            <Group gap={0}>
+              {data && !data.anonymised && (
+                <Anchor
+                  component={Link}
+                  to={`/user/${data.author}`}
+                  underline="never"
+                  className={displayNameClasses.shrinkableDisplayName}
+                >
+                  {data.author_displayname !== data.author && (
+                    <>
+                      <Text fw={700} component="span">
+                        {data.author_displayname}
+                      </Text>
+                      <Text ml="0.3em" c="dimmed" component="span">
+                        @{data.author}
+                      </Text>
+                    </>
+                  )}
+                  {data.author_displayname === data.author && (
                     <Text fw={700} component="span">
-                      {data.author_displayname}
-                    </Text>
-                    <Text ml="0.3em" c="dimmed" component="span">
                       @{data.author}
                     </Text>
-                  </>
-                )}
-                {data.author_displayname === data.author && (
-                  <Text fw={700} component="span">
-                    @{data.author}
-                  </Text>
-                )}
-              </Anchor>
-            )}
-            {data && data.anonymised && (
-              <Text fw={700} component="span">
-                Anonymous
-              </Text>
-            )}
-            {data && data.anonymised && (data.can_edit || data.can_delete) && (
-              <Anchor
-                component={Link}
-                to={`/user/${data.author}`}
-                underline="never"
-              >
-                <Text ml="0.3em" c="dimmed" component="span">
-                  (
-                  {data.author_displayname !== data.author &&
-                    `${data.author_displayname} `}
-                  @{data.author})
+                  )}
+                </Anchor>
+              )}
+              {data && data.anonymised && (
+                <Text fw={700} component="span">
+                  Anonymous
                 </Text>
-              </Anchor>
-            )}
-            {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
-              1 && (
-              <>
-                <Text c="dimmed" mx={6} component="span">
-                  ·
-                </Text>
-                <Tooltip
-                  withArrow
-                  withinPortal
-                  label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
-                  disabled={data.time === null}
+              )}
+              {data && data.anonymised && (data.can_edit || data.can_delete) && (
+                <Anchor
+                  component={Link}
+                  to={`/user/${data.author}`}
+                  underline="never"
+                  className={displayNameClasses.shrinkableDisplayName}
                 >
-                  <Text c="dimmed" component="span">
-                    updated {formatDistanceToNow(new Date(data.edittime))} ago
+                  <Text ml="0.3em" c="dimmed" component="span">
+                    (
+                    {data.author_displayname !== data.author &&
+                      `${data.author_displayname} `}
+                    @{data.author})
                   </Text>
-                </Tooltip>
-              </>
-            )}
+                </Anchor>
+              )}
+              {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
+                1 && (
+                <>
+                  <Text c="dimmed" mx={6} component="span">
+                    ·
+                  </Text>
+                  <Tooltip
+                    withArrow
+                    withinPortal
+                    label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
+                    disabled={data.time === null}
+                  >
+                    <Text c="dimmed" component="span">
+                      updated {formatDistanceToNow(new Date(data.edittime))} ago
+                    </Text>
+                  </Tooltip>
+                </>
+              )}
+            </Group>
           </Box>
         )}
         {error && <Alert color="red">{error.toString()}</Alert>}
