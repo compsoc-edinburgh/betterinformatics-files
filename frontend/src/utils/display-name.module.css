@@ -1,0 +1,15 @@
+/**
+  * Class for the display name element within a horizontal <Group> component.
+  * This is used to ensure that the display name is always on one line and
+  * becomes ellipsized if it is too long. It also grows to fill available space
+  * up to a maximum width determined by the content of the display name.
+  */
+.shrinkableDisplayName {
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  flex-basis: 4em;
+  min-width: 4em;
+  max-width: fit-content;
+}

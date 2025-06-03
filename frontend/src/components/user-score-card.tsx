@@ -22,6 +22,7 @@ import {
   IconPencil,
   IconProps,
 } from "@tabler/icons-react";
+import displayNameClasses from "../utils/display-name.module.css";
 
 interface UserScoreCardProps {
   username?: string;
@@ -69,7 +70,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   return (
     <>
       <Group justify="space-between" mb="sm">
-        <Title order={1} my="md">
+        <Title order={1} my="md" className={displayNameClasses.shrinkableDisplayName}>
           @{username}{" "}
           {userInfo &&
             userInfo.displayName !== username &&

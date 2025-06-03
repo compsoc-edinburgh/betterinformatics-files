@@ -35,19 +35,22 @@ const UserDisplayNameSettings: React.FC<UserDisplayNameProps> = ({
       <h3>Display Username</h3>
       <Text mb="xs">
         You can choose to set a name that is displayed next to your UUN in
-        comments and answers you submit. This does not hide your UUN.
+        comments and answers you submit. This is purely cosmetic, and does not
+        hide your UUN from other users.
       </Text>
       <form onSubmit={handleSubmitDisplayName}>
         <SimpleGrid
           cols={{ xl: 4, sm: 1, md: 2 }}
         >
           <TextInput
-            label="Display Name"
+            label="Display Username (max 32 characters)"
             placeholder="Leave empty to use your UUN"
             value={editingDisplayUsername}
             onChange={(e: any) =>
               setEditingDisplayUsername(e.currentTarget.value)
             }
+            // Backend will return error if name is too long
+            maxLength={32}
             error={error ? error.toString() : ""}
             rightSection={
               loading ? (

@@ -5,6 +5,7 @@ import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import GlobalConsts from "../globalconsts";
 import { FeedbackEntry } from "../interfaces";
+import displayNameClasses from "../utils/display-name.module.css";
 
 const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
   await fetchPost(`/api/feedback/flags/${oid}/`, {
@@ -33,7 +34,7 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
     <Card my="xs" withBorder shadow="md">
       <Card.Section withBorder inheritPadding>
         <Group py="md" justify="space-between">
-          <Title order={4}>
+          <Title order={4} className={displayNameClasses.shrinkableDisplayName}>
             {entry.authorDisplayName} •{" "}
             {moment(entry.time, GlobalConsts.momentParseString).format(
               GlobalConsts.momentFormatString,
