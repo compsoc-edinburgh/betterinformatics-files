@@ -11,7 +11,8 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
-import { IconDownload, IconSearch } from "@tabler/icons-react";
+import { IconDownload, IconSearch , IconMessage} from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -99,7 +100,29 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
                 reload={reload}
               />
             ),
-        )}
+        )
+      }
+      <Flex
+        direction={{ base: "row", sm:"row"}}
+        gap="sm"
+        mt="lg"
+        mb="lg"
+        justify="start"
+      >
+        <Link
+          to="/feedback"
+          style={{textDecoration:"none"}}  
+          >
+          <Alert
+            color="yellow"
+            icon={<IconMessage/>}
+            flex="1"
+          >
+            If you have any suggestions or want more exams, click here to give us a heads up!
+            <br />
+          </Alert>
+        </Link>
+      </Flex>
     </>
   );
 };
