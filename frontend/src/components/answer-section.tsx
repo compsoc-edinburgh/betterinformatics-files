@@ -18,7 +18,7 @@ import HideAnswerSectionModal from "../components/hide-answer-section-overlay";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
-import ThreeButtons from "./three-columns";
+import ThreeButtons from "./three-grid";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import {
@@ -301,11 +301,17 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           >
             <div>
               {data === undefined ? (
-                <ThreeButtons center={<Loader />} />
+                <ThreeButtons second={<Loader />} />
               ) : (
                 <>
                   <ThreeButtons
-                    left={
+                    first={
+                      displayHideShowButtons || isBeingMoved ||
+                      ((data.answers.length === 0 || !hidden) &&
+                      has_answers &&
+                      data &&
+                      (data.allow_new_answer ||
+                      (data.allow_new_legacy_answer && isCatAdmin))) &&
                       <>
                         {displayHideShowButtons ? (
                           <IconButton
@@ -340,7 +346,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         )}
                       </>
                     }
-                    center={
+                    second={
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <>
@@ -350,7 +356,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         </>
                       )
                     }
-                    right={
+                    third={
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
