@@ -102,6 +102,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             ),
         )
       }
+       
       <Flex
         direction={{ base: "row", sm:"row"}}
         gap="sm"
@@ -113,6 +114,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           to="/feedback"
           style={{textDecoration:"none"}}  
           >
+          { (examTypeMap !== undefined && examTypeMap.length < 10) &&
           <Alert
             color="yellow"
             icon={<IconMessage/>}
@@ -120,7 +122,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           >
             If you have any suggestions or want more exams, click here to give us a heads up!
             <br />
-          </Alert>
+          </Alert> }
         </Link>
       </Flex>
     </>
