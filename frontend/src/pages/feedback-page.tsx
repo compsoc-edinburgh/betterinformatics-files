@@ -60,7 +60,7 @@ const FeedbackForm: React.FC<{}> = () => {
         <Anchor
           component="a"
           color="blue"
-          href="https://gitlab.ethz.ch/vis/cat/community-solutions/issues"
+          href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/issues"
           target="_blank"
           rel="noopener noreferrer"
         >
