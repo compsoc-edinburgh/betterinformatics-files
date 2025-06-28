@@ -17,6 +17,7 @@ const UploadDissertationPage: React.FC = () => {
       notes: '',
       pdf_file: null as File | null,
       study_level: 'UG4', // Default value
+      grade_band: null as string | null, // Optional grade band
     },
 
     validate: {
@@ -40,6 +41,7 @@ const UploadDissertationPage: React.FC = () => {
       notes: values.notes,
       pdf_file: values.pdf_file, // fetch-utils will handle File/Blob instances
       study_level: values.study_level,
+      grade_band: values.grade_band, // Include grade band
     };
 
     try {
@@ -66,6 +68,7 @@ const UploadDissertationPage: React.FC = () => {
           {...form.getInputProps('title')}
           required
         />
+
         <TagsInput
           label="Field of Study (Tags)"
           placeholder="e.g., AI, Machine Learning, Computer Vision"
@@ -75,26 +78,12 @@ const UploadDissertationPage: React.FC = () => {
           clearable
           required
         />
+
         <TextInput
           label="Supervisors"
           placeholder="Comma-separated names"
           mt="md"
           {...form.getInputProps('supervisors')}
-          required
-        />
-        <Textarea
-          label="Notes (Optional)"
-          placeholder="Any additional notes about the dissertation"
-          mt="md"
-          minRows={3}
-          {...form.getInputProps('notes')}
-        />
-        <FileInput
-          label="Upload PDF"
-          placeholder="Choose PDF file"
-          accept="application/pdf"
-          mt="md"
-          {...form.getInputProps('pdf_file')}
           required
         />
 
@@ -108,6 +97,38 @@ const UploadDissertationPage: React.FC = () => {
             { value: 'MSc', label: 'MSc' },
           ]}
           {...form.getInputProps('study_level')}
+          required
+        />
+
+        <Select
+          label="Grade Band (Optional)"
+          placeholder="Select grade band"
+          mt="md"
+          data={[
+            { value: '40-49', label: '40-49' },
+            { value: '50-59', label: '50-59' },
+            { value: '60-69', label: '60-69' },
+            { value: '70-79', label: '70-79' },
+            { value: '80-89', label: '80-89' },
+            { value: '90-100', label: '90-100' },
+          ]}
+          {...form.getInputProps('grade_band')}
+          clearable
+        />
+
+        <Textarea
+          label="Notes (Optional)"
+          placeholder="Any additional notes about the dissertation"
+          mt="md"
+          minRows={3}
+          {...form.getInputProps('notes')}
+        />
+        <FileInput
+          label="Upload PDF"
+          placeholder="Choose PDF file"
+          accept="application/pdf"
+          mt="md"
+          {...form.getInputProps('pdf_file')}
           required
         />
 

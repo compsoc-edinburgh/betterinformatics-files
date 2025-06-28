@@ -8,6 +8,15 @@ class Dissertation(models.Model):
         ('MSc', 'MSc'),
     ]
 
+    GRADE_BAND_CHOICES = [
+        ('40-49', '40-49'),
+        ('50-59', '50-59'),
+        ('60-69', '60-69'),
+        ('70-79', '70-79'),
+        ('80-89', '80-89'),
+        ('90-100', '90-100'),
+    ]
+
     title = models.CharField(max_length=255)
     field_of_study = models.CharField(max_length=255)
     supervisors = models.CharField(max_length=255)  # Can be a comma-separated list
@@ -16,6 +25,7 @@ class Dissertation(models.Model):
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     upload_date = models.DateTimeField(auto_now_add=True)
     study_level = models.CharField(max_length=3, choices=STUDY_LEVEL_CHOICES, default='UG4')
+    grade_band = models.CharField(max_length=6, choices=GRADE_BAND_CHOICES, blank=True, null=True)
 
     def __str__(self):
         return self.title

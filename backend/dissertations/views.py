@@ -17,6 +17,7 @@ def get_dissertation_obj(dissertation: Dissertation):
         'uploaded_by': dissertation.uploaded_by.username if dissertation.uploaded_by else None,
         'upload_date': dissertation.upload_date.isoformat(),
         'study_level': dissertation.study_level,
+        'grade_band': dissertation.grade_band, # Added grade_band
     }
 
 @response.request_post("title", "field_of_study", "supervisors", optional=True)
@@ -28,6 +29,7 @@ def upload_dissertation(request):
     notes = request.POST.get('notes', '') # notes is optional
     pdf_file = request.FILES.get('pdf_file')
     study_level = request.POST.get('study_level')
+    grade_band = request.POST.get('grade_band', None) # Added grade_band, optional
 
     if not pdf_file:
         return response.not_possible("Missing argument: pdf_file")
@@ -62,6 +64,7 @@ def upload_dissertation(request):
         file_path=file_path,
         uploaded_by=request.user,
         study_level=study_level,
+        grade_band=grade_band, # Added grade_band
     )
     return response.success(value=get_dissertation_obj(dissertation))
 

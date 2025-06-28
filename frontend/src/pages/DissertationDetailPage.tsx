@@ -14,6 +14,7 @@ interface Dissertation {
   uploaded_by: string;
   upload_date: string;
   study_level: string;
+  grade_band?: string; // Optional grade band
 }
 
 const DissertationDetailPage: React.FC = () => {
@@ -116,6 +117,13 @@ const DissertationDetailPage: React.FC = () => {
             <Text fw={500}>Study Level:</Text>
             <Text>{dissertation.study_level}</Text>
           </Group>
+          {dissertation.grade_band && (
+            <Group>
+              <IconBook size={20} />
+              <Text fw={500}>Grade Band:</Text>
+              <Text>{dissertation.grade_band}</Text>
+            </Group>
+          )}
           {dissertation.notes && (
             <Stack gap={4}>
               <Text fw={500}>Notes:</Text>
