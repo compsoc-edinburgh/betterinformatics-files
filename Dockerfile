@@ -20,11 +20,12 @@ WORKDIR /app
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
 
 COPY ./backend/requirements.txt ./requirements.txt
+RUN apt-get update -y
 RUN apt-get install -y --no-install-recommends \
-	python3 python3-pip \
-	python3-setuptools python3-cryptography \
-	smbclient poppler-utils \
-  pgbouncer
+     python3 python3-pip \
+     python3-setuptools python3-cryptography \
+     smbclient poppler-utils \
+     pgbouncer
 RUN	pip3 install -r requirements.txt
 RUN	rm -rf /var/lib/apt/lists/*
 
@@ -82,7 +83,7 @@ FROM backend AS backend-hotreload
 
 ENV IS_DEBUG true
 CMD python3 manage.py migrate \
-    && python3 manage.py runserver 0:8081
+     && python3 manage.py runserver 0:8081 --noreload
 
 # Frontend
 FROM frontend-base AS frontend-dev
