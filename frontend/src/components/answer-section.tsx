@@ -241,7 +241,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           drafts' state. */}
           {!hidden && data && (data.answers.length > 0 || hasDraft) && (
             <Card
-              bg={computedColorScheme == "light" ? "gray.0" : "dark.7"}
+              bg={computedColorScheme === "light" ? "gray.0" : "dark.7"}
               shadow="md"
               px="xs"
               py="xs"
