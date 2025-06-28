@@ -83,7 +83,7 @@ FROM backend AS backend-hotreload
 
 ENV IS_DEBUG true
 CMD python3 manage.py migrate \
-     && python3 manage.py runserver 0:8081 --noreload
+     && python3 manage.py runserver 0:8081
 
 # Frontend
 FROM frontend-base AS frontend-dev
