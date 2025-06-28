@@ -15,6 +15,7 @@ interface Dissertation {
   uploaded_by: string;
   upload_date: string;
   study_level: string;
+  year: number;
 }
 
 const DissertationListPage: React.FC = () => {
@@ -84,7 +85,7 @@ const DissertationListPage: React.FC = () => {
         </Group>
       </Table.Td>
       <Table.Td>{dissertation.supervisors}</Table.Td>
-      <Table.Td>{new Date(dissertation.upload_date).getFullYear()}</Table.Td>
+      <Table.Td>{dissertation.year}</Table.Td>
       <Table.Td>{dissertation.study_level}</Table.Td>
     </Table.Tr >
   ));
@@ -113,6 +114,7 @@ const DissertationListPage: React.FC = () => {
             { value: 'title', label: 'Title' },
             { value: 'field_of_study', label: 'Field of Study' },
             { value: 'supervisors', label: 'Supervisors' },
+            { value: 'year', label: 'Year' },
           ]}
           clearable
         />

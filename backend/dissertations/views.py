@@ -18,9 +18,10 @@ def get_dissertation_obj(dissertation: Dissertation):
         'upload_date': dissertation.upload_date.isoformat(),
         'study_level': dissertation.study_level,
         'grade_band': dissertation.grade_band, # Added grade_band
+        'year': dissertation.year, # Added year
     }
 
-@response.request_post("title", "field_of_study", "supervisors", optional=True)
+@response.request_post("title", "field_of_study", "supervisors", "study_level", "year", optional=True)
 @auth_check.require_login
 def upload_dissertation(request):
     title = request.POST.get('title')
@@ -30,6 +31,7 @@ def upload_dissertation(request):
     pdf_file = request.FILES.get('pdf_file')
     study_level = request.POST.get('study_level')
     grade_band = request.POST.get('grade_band', None) # Added grade_band, optional
+    year = request.POST.get('year') # Added year
 
     if not pdf_file:
         return response.not_possible("Missing argument: pdf_file")
@@ -41,6 +43,8 @@ def upload_dissertation(request):
         return response.not_possible("Missing argument: supervisors")
     if not study_level:
         return response.not_possible("Missing argument: study_level")
+    if not year:
+        return response.not_possible("Missing argument: year")
 
     # Upload PDF to Minio
     try:
@@ -64,7 +68,8 @@ def upload_dissertation(request):
         file_path=file_path,
         uploaded_by=request.user,
         study_level=study_level,
-        grade_band=grade_band, # Added grade_band
+        grade_band=grade_band,
+        year=year,
     )
     return response.success(value=get_dissertation_obj(dissertation))
 
@@ -88,12 +93,15 @@ def list_dissertations(request):
             dissertations = dissertations.filter(q_objects)
         elif search_field == 'supervisors':
             dissertations = dissertations.filter(supervisors__icontains=search_query)
+        elif search_field == 'year':
+            dissertations = dissertations.filter(year=search_query)
         else:
             # Default to searching all fields if no specific field is provided or recognized
             dissertations = dissertations.filter(
                 Q(title__icontains=search_query) |
                 Q(field_of_study__icontains=search_query) |
-                Q(supervisors__icontains=search_query)
+                Q(supervisors__icontains=search_query) |
+                Q(year__icontains=search_query)
             )
 
     dissertations = dissertations.order_by('-upload_date')

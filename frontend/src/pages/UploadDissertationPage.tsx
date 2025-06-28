@@ -18,6 +18,7 @@ const UploadDissertationPage: React.FC = () => {
       pdf_file: null as File | null,
       study_level: 'UG4', // Default value
       grade_band: null as string | null, // Optional grade band
+      year: new Date().getFullYear().toString(), // Default to current year
     },
 
     validate: {
@@ -26,6 +27,7 @@ const UploadDissertationPage: React.FC = () => {
       supervisors: (value: string) => (value ? null : 'Supervisors are required'),
       pdf_file: (value: File | null) => (value ? null : 'PDF file is required'),
       study_level: (value: string) => (value ? null : 'Study level is required'),
+      year: (value: string) => (value && /^[0-9]{4}$/.test(value) ? null : 'Year must be a 4-digit number'),
     },
   });
 
@@ -41,7 +43,8 @@ const UploadDissertationPage: React.FC = () => {
       notes: values.notes,
       pdf_file: values.pdf_file, // fetch-utils will handle File/Blob instances
       study_level: values.study_level,
-      grade_band: values.grade_band, // Include grade band
+      grade_band: values.grade_band,
+      year: values.year,
     };
 
     try {
@@ -84,6 +87,15 @@ const UploadDissertationPage: React.FC = () => {
           placeholder="Comma-separated names"
           mt="md"
           {...form.getInputProps('supervisors')}
+          required
+        />
+
+        <Select
+          label="Year"
+          placeholder="Select year"
+          mt="md"
+          data={Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => (2010 + i).toString())}
+          {...form.getInputProps('year')}
           required
         />
 

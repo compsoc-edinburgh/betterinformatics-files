@@ -15,6 +15,7 @@ interface Dissertation {
   upload_date: string;
   study_level: string;
   grade_band?: string; // Optional grade band
+  year: number;
 }
 
 const DissertationDetailPage: React.FC = () => {
@@ -104,8 +105,8 @@ const DissertationDetailPage: React.FC = () => {
           </Group>
           <Group>
             <IconCalendar size={20} />
-            <Text fw={500}>Upload Date:</Text>
-            <Text>{new Date(dissertation.upload_date).toLocaleDateString()}</Text>
+            <Text fw={500}>Year:</Text>
+            <Text>{dissertation.year}</Text>
           </Group>
           <Group>
             <IconFileDescription size={20} />
