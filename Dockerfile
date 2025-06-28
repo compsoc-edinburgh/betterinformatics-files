@@ -20,7 +20,7 @@ WORKDIR /app
 RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
 
 COPY ./backend/requirements.txt ./requirements.txt
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
 	python3 python3-pip \
 	python3-setuptools python3-cryptography \
 	smbclient poppler-utils \
