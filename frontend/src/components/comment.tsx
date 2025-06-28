@@ -11,7 +11,7 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
-import { Anchor, Button, Flex, Group, Paper, Text } from "@mantine/core";
+import { Anchor, Button, Group, Paper, Text } from "@mantine/core";
 import {
   IconCode,
   IconDeviceFloppy,
@@ -22,6 +22,7 @@ import {
 import IconButton from "./icon-button";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
+import displayNameClasses from "../utils/display-name.module.css";
 
 interface Props {
   answer: Answer;
@@ -87,40 +88,39 @@ const CommentComponent: React.FC<Props> = ({
       style={{ marginBottom: "-1px" }}
     >
       {modals}
-      <Flex justify="space-between">
-        <div>
-          <Anchor
-            component={Link}
-            to={`/user/${comment?.authorId ?? username}`}
-          >
-            <Text fw={700} component="span">
-              {comment?.authorDisplayName ?? "(Draft)"}
-            </Text>
-            <Text ml="0.25em" color="dimmed" component="span">
-              @{comment?.authorId ?? username}
-            </Text>
-          </Anchor>
-          <Text component="span" mx={6} color="dimmed">
-            ·
+      <Group gap={0}>
+        <Anchor
+          component={Link}
+          to={`/user/${comment?.authorId ?? username}`}
+          className={displayNameClasses.shrinkableDisplayName}
+        >
+          <Text fw={700} component="span">
+            {comment?.authorDisplayName ?? "(Draft)"}
           </Text>
-          {comment && (
-            <TimeText time={comment.time} suffix="ago" />
+          <Text ml="0.25em" color="dimmed" component="span">
+            @{comment?.authorId ?? username}
+          </Text>
+        </Anchor>
+        <Text component="span" mx={6} color="dimmed">
+          ·
+        </Text>
+        {comment && (
+          <TimeText time={comment.time} suffix="ago" />
+        )}
+        {comment &&
+          differenceInSeconds(
+            new Date(comment.edittime),
+            new Date(comment.time),
+          ) > 1 && (
+            <>
+              <Text component="span" mx={6} color="dimmed">
+                ·
+              </Text>
+              <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
+            </>
           )}
-          {comment &&
-            differenceInSeconds(
-              new Date(comment.edittime),
-              new Date(comment.time),
-            ) > 1 && (
-              <>
-                <Text component="span" mx={6} color="dimmed">
-                  ·
-                </Text>
-                <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
-              </>
-            )}
-        </div>
         {comment && !editing && comment.canEdit && (
-          <Button.Group>
+          <Button.Group ml="auto">
             <IconButton
               tooltip="Edit comment"
               color="gray"
@@ -149,13 +149,14 @@ const CommentComponent: React.FC<Props> = ({
         )}
         {comment && !editing && !comment.canEdit && (
           <IconButton
+            ml="auto"
             tooltip="Toggle Source Code Mode"
             color="gray"
             onClick={toggleViewSource}
             icon={<IconCode />}
           />
         )}
-      </Flex>
+      </Group>
 
       {comment === undefined || editing ? (
         <>

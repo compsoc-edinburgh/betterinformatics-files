@@ -30,6 +30,9 @@ import FeedbackPage from "./pages/feedback-page";
 import HomePage from "./pages/home-page";
 import LoginPage from "./pages/login-page";
 import ModQueue from "./pages/modqueue-page";
+import UploadDissertationPage from "./pages/UploadDissertationPage";
+import DissertationListPage from "./pages/DissertationListPage";
+import DissertationDetailPage from "./pages/DissertationDetailPage";
 import NotFoundPage from "./pages/not-found-page";
 import PrivacyPolicyPage from "./pages/privacypolicy-page";
 import Scoreboard from "./pages/scoreboard-page";
@@ -178,12 +181,14 @@ const App: React.FC<{}> = () => {
 
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
+    { title: "Upload Dissertation", href: "/upload-dissertation" },
     { title: "Mod Queue", href: "/modqueue" },
   ];
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
     { title: "Search", href: "/search" },
+    { title: "Dissertations", href: "/dissertations" },
     {
       title: "More",
       childItems: [
@@ -256,6 +261,21 @@ const App: React.FC<{}> = () => {
                       exact
                       path="/uploadpdf"
                       component={UploadPdfPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/upload-dissertation"
+                      component={UploadDissertationPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/dissertations"
+                      component={DissertationListPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/dissertations/:id"
+                      component={DissertationDetailPage}
                     />
                     <UserRoute exact path="/faq" component={FAQ} />
                     <Route

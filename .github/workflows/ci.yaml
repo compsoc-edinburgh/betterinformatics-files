@@ -65,7 +65,7 @@ jobs:
         run: |
           curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
           chmod +x ./mc
-          ./mc config host add myminio http://minio:9000 minio minio123
+          ./mc alias set myminio http://minio:9000 minio minio123
           ./mc mb myminio/community-solutions
 
       - name: Install poppler

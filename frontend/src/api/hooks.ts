@@ -275,8 +275,8 @@ export const useRemoveSplit = (oid: string, onSuccess: () => void) => {
   return runRemoveSplit;
 };
 
-const updateAnswer = async (answerId: string, text: string) => {
-  return (await fetchPost(`/api/exam/setanswer/${answerId}/`, { text }))
+const updateAnswer = async (answerId: string, text: string, isAnonymous: boolean = false) => {
+  return (await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, is_anonymous: isAnonymous }))
     .value as AnswerSection;
 };
 const removeAnswer = async (answerId: string) => {

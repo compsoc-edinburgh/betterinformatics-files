@@ -1375,10 +1375,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@mantine/charts@^7.0.0":
-  version "7.8.1"
-  resolved "https://registry.yarnpkg.com/@mantine/charts/-/charts-7.8.1.tgz#fef57f32201dba04f91c481ad240ebd292309ba7"
-  integrity sha512-ZMUQPin8ILv3ruRelOycXvex3PW87+QrPWHKEUUTUqp8RANLuz7dYnmeGaemG91ymsd2kHxzFlGYX96Yc/tCdQ==
+"@mantine/charts@^8.0.0":
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/@mantine/charts/-/charts-8.1.2.tgz#50bc11de6c51d6e48872ca33a39a580ef136604e"
+  integrity sha512-K1AfGQa+ABFLWNXT8d1mu+Zsqv6pG1LT+1FnIorpyxe3DOsWLXP3Tr4JHW9QSS0qFyvpOiFuKeCMdDUkdzyMfQ==
 
 "@mantine/colors-generator@^8.0.0":
   version "8.0.0"
@@ -1396,6 +1396,14 @@
     react-remove-scroll "^2.6.2"
     react-textarea-autosize "8.5.9"
     type-fest "^4.27.0"
+
+"@mantine/form@^8.1.2":
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/@mantine/form/-/form-8.1.2.tgz#13cc1d0f78f5cc50b8cef6fa4ed9af05966435e9"
+  integrity sha512-w+PWUQPE3JDiK4ZBWN+WtfixWtt/+KavHjsSjCxIuUodzygdkV/4bWtPKYx7dFQTozWhfMVqxtORhn3no28Qwg==
+  dependencies:
+    fast-deep-equal "^3.1.3"
+    klona "^2.0.6"
 
 "@mantine/hooks@^8.0.0":
   version "8.0.0"
@@ -4071,6 +4079,11 @@ keyv@^4.5.3:
   integrity sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==
   dependencies:
     json-buffer "3.0.1"
+
+klona@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.6.tgz#85bffbf819c03b2f53270412420a4555ef882e22"
+  integrity sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==
 
 language-subtag-registry@^0.3.20:
   version "0.3.22"

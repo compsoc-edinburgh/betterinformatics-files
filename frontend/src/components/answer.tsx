@@ -9,6 +9,8 @@ import {
   Anchor,
   Box,
   Paper,
+  Switch,
+  Tooltip,
 } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -23,6 +25,8 @@ import {
 } from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
+import useToggle from "../hooks/useToggle";
+
 import { Answer, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
 import CodeBlock from "./code-block";
@@ -48,6 +52,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import classes from "./answer.module.css";
+import displayNameClasses from "../utils/display-name.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
 
@@ -87,27 +92,33 @@ const AnswerComponent: React.FC<Props> = ({
 
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
+  const [answerIsAnonymous, toggleAnonymity] = useToggle(false);
+  const [hasCommentDraft, setHasCommentDraft] = useState(false);
+
   const startEdit = useCallback(() => {
     setDraftText(answer?.text ?? "");
+    if (answer?.isAnonymous) {
+      toggleAnonymity(true);
+    }
     setEditing(true);
-  }, [answer]);
+  }, [answer, toggleAnonymity]);
   const onCancel = useCallback(() => {
     setEditing(false);
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText);
-  }, [section, draftText, update]);
+    if (section) update(section.oid, draftText, answerIsAnonymous);
+  }, [section, draftText, update, answerIsAnonymous]);
   const remove = useCallback(() => {
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
-  const [hasCommentDraft, setHasCommentDraft] = useState(false);
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const canEdit = section && onSectionChanged && (answer?.canEdit || false);
   const canRemove =
     section && onSectionChanged && (isAdmin || answer?.canEdit || false);
   const { username } = useUser()!;
+
   return (
     <>
       {modals}
@@ -118,22 +129,47 @@ const AnswerComponent: React.FC<Props> = ({
         id={hasId ? answer?.longId : undefined}
       >
         <Card.Section px="md" py="md" withBorder>
-          <Flex justify="space-between" align="center">
-            <div>
-              {!hasId && (
-                <Link
-                  to={
-                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
-                  }
+          <Group gap={0}>
+            {!hasId && (
+              <Link
+                to={
+                  answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                }
+              >
+                <Text mr={8} component="span">
+                  <IconLink style={{ height: "13px", width: "13px" }} />
+                </Text>
+              </Link>
+            )}
+            {answer?.isAnonymous ? (
+              isAdmin ? (
+                // Admin view of anonymous posts - clickable
+                <Anchor
+                  component={Link}
+                  to={`/user/${answer.authorId}`}
+                  className={displayNameClasses.shrinkableDisplayName}
                 >
-                  <Text mr={8} component="span">
-                    <IconLink style={{ height: "13px", width: "13px" }} />
+                  <Text fw={700} component="span">
+                    {answer.authorDisplayName} <Text c="dimmed" component="span">(Posted anonymously)</Text>
                   </Text>
-                </Link>
-              )}
+                </Anchor>
+              ) : answer?.canEdit ? (
+                // User's own anonymous post
+                <Text fw={700} component="span">
+                  {answer.authorDisplayName} <Text c="dimmed" component="span">(Your anonymous post)</Text>
+                </Text>
+              ) : (
+                // Regular user view of anonymous posts - not clickable
+                <Text fw={700} component="span">
+                  {answer.authorDisplayName}
+                </Text>
+              )
+            ) : (
+              // Regular non-anonymous posts
               <Anchor
                 component={Link}
                 to={`/user/${answer?.authorId ?? username}`}
+                className={displayNameClasses.shrinkableDisplayName}
               >
                 <Text fw={700} component="span">
                   {answer?.authorDisplayName ?? "(Draft)"}
@@ -142,126 +178,124 @@ const AnswerComponent: React.FC<Props> = ({
                   @{answer?.authorId ?? username}
                 </Text>
               </Anchor>
-              <Text c="dimmed" mx={6} component="span">
-                ·
-              </Text>
-              {answer && (
-                <TimeText time={answer.time} suffix="ago" />
+            )}
+            <Text c="dimmed" mx={6} component="span">
+              ·
+            </Text>
+            {answer && (
+              <TimeText time={answer.time} suffix="ago" />
+            )}
+            {answer &&
+              differenceInSeconds(
+                new Date(answer.edittime),
+                new Date(answer.time),
+              ) > 1 && (
+                <>
+                  <Text color="dimmed" mx={6} component="span">
+                    ·
+                  </Text>
+                  <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
+                </>
               )}
+            <AnswerToolbar ml="auto">
               {answer &&
-                differenceInSeconds(
-                  new Date(answer.edittime),
-                  new Date(answer.time),
-                ) > 1 && (
-                  <>
-                    <Text color="dimmed" mx={6} component="span">
-                      ·
-                    </Text>
-                    <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
-                  </>
-                )}
-            </div>
-            <Flex>
-              <AnswerToolbar>
-                {answer &&
-                  (answer.expertvotes > 0 ||
-                    setExpertVoteLoading ||
-                    isExpert) && (
-                    <Paper shadow="xs">
-                      <Button.Group>
+                (answer.expertvotes > 0 ||
+                  setExpertVoteLoading ||
+                  isExpert) && (
+                  <Paper shadow="xs">
+                    <Button.Group>
+                      <TooltipButton
+                        px={12}
+                        tooltip="This answer is endorsed by an expert"
+                        variant="filled"
+                        color="yellow"
+                      >
+                        <IconStarFilled />
+                      </TooltipButton>
+                      <TooltipButton
+                        miw={30}
+                        tooltip={`${answer.expertvotes} experts endorse this answer.`}
+                        loading={setExpertVoteLoading}
+                      >
+                        {answer.expertvotes}
+                      </TooltipButton>
+                      {isExpert && (
                         <TooltipButton
-                          px={12}
-                          tooltip="This answer is endorsed by an expert"
-                          variant="filled"
-                          color="yellow"
-                        >
-                          <IconStarFilled />
-                        </TooltipButton>
-                        <TooltipButton
-                          miw={30}
-                          tooltip={`${answer.expertvotes} experts endorse this answer.`}
-                          loading={setExpertVoteLoading}
-                        >
-                          {answer.expertvotes}
-                        </TooltipButton>
-                        {isExpert && (
-                          <TooltipButton
-                            size="sm"
-                            px={8}
-                            tooltip={
-                              answer.isExpertVoted
-                                ? "Remove expert vote"
-                                : "Add expert vote"
-                            }
-                            style={{ borderLeftWidth: 0 }}
-                            onClick={() =>
-                              setExpertVote(answer.oid, !answer.isExpertVoted)
-                            }
-                          >
-                            {answer.isExpertVoted ? (
-                              <IconChevronDown />
-                            ) : (
-                              <IconChevronUp />
-                            )}
-                          </TooltipButton>
-                        )}
-                      </Button.Group>
-                    </Paper>
-                  )}
-                {answer &&
-                  (answer.isFlagged ||
-                    (answer.flagged > 0 && isAdmin) ||
-                    flaggedLoading) && (
-                    <Paper shadow="xs">
-                      <Button.Group>
-                        <TooltipButton
-                          tooltip="Flagged as Inappropriate"
-                          color="red"
-                          px={12}
-                          variant="filled"
-                        >
-                          <IconFlag />
-                        </TooltipButton>
-                        <TooltipButton
-                          color="red"
-                          miw={30}
-                          tooltip={`${answer.flagged} users consider this answer inappropriate.`}
-                        >
-                          {answer.flagged}
-                        </TooltipButton>
-                        <TooltipButton
+                          size="sm"
                           px={8}
                           tooltip={
-                            answer.isFlagged
-                              ? "Remove inappropriate flag"
-                              : "Add inappropriate flag"
+                            answer.isExpertVoted
+                              ? "Remove expert vote"
+                              : "Add expert vote"
                           }
-                          size="sm"
-                          loading={flaggedLoading}
                           style={{ borderLeftWidth: 0 }}
                           onClick={() =>
-                            setFlagged(answer.oid, !answer.isFlagged)
+                            setExpertVote(answer.oid, !answer.isExpertVoted)
                           }
                         >
-                          {answer.isFlagged ? <IconX /> : <IconChevronUp />}
+                          {answer.isExpertVoted ? (
+                            <IconChevronDown />
+                          ) : (
+                            <IconChevronUp />
+                          )}
                         </TooltipButton>
-                      </Button.Group>
-                    </Paper>
-                  )}
-                {answer && onSectionChanged && (
-                  <Score
-                    oid={answer.oid}
-                    upvotes={answer.upvotes}
-                    expertUpvotes={answer.expertvotes}
-                    userVote={
-                      answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
-                    }
-                    onSectionChanged={onSectionChanged}
-                  />
+                      )}
+                    </Button.Group>
+                  </Paper>
                 )}
-              </AnswerToolbar>
-            </Flex>
-          </Flex>
+              {answer &&
+                (answer.isFlagged ||
+                  (answer.flagged > 0 && isAdmin) ||
+                  flaggedLoading) && (
+                  <Paper shadow="xs">
+                    <Button.Group>
+                      <TooltipButton
+                        tooltip="Flagged as Inappropriate"
+                        color="red"
+                        px={12}
+                        variant="filled"
+                      >
+                        <IconFlag />
+                      </TooltipButton>
+                      <TooltipButton
+                        color="red"
+                        miw={30}
+                        tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                      >
+                        {answer.flagged}
+                      </TooltipButton>
+                      <TooltipButton
+                        px={8}
+                        tooltip={
+                          answer.isFlagged
+                            ? "Remove inappropriate flag"
+                            : "Add inappropriate flag"
+                        }
+                        size="sm"
+                        loading={flaggedLoading}
+                        style={{ borderLeftWidth: 0 }}
+                        onClick={() =>
+                          setFlagged(answer.oid, !answer.isFlagged)
+                        }
+                      >
+                        {answer.isFlagged ? <IconX /> : <IconChevronUp />}
+                      </TooltipButton>
+                    </Button.Group>
+                  </Paper>
+                )}
+              {answer && onSectionChanged && (
+                <Score
+                  oid={answer.oid}
+                  upvotes={answer.upvotes}
+                  expertUpvotes={answer.expertvotes}
+                  userVote={
+                    answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
+                  }
+                  onSectionChanged={onSectionChanged}
+                />
+              )}
+            </AnswerToolbar>
+          </Group>
         </Card.Section>
         {editing || answer === undefined ? (
           <Card.Section>
@@ -300,6 +334,26 @@ const AnswerComponent: React.FC<Props> = ({
         )}
         <Group justify="right">
           {(answer === undefined || editing) && (
+            <Tooltip
+              label="Your answer will appear as 'Anonymous' to regular users, but admins will still be able to see your username. Anonymous answers won't appear on your public profile."
+              multiline
+              maw={300}
+              withArrow
+              withinPortal
+            >
+              <div>
+                <Switch
+                  label={answer?.isAnonymous ? "Post Anonymously (currently anonymous)" : "Post Anonymously"}
+                  onChange={() => {
+                    console.log("Toggling anonymity");
+                    toggleAnonymity();
+                  }}
+                  checked={answerIsAnonymous}
+                />
+              </div>
+            </Tooltip>
+          )}
+          {(answer === undefined || editing) && (
             <Button
               size="sm"
               color="red"
@@ -324,69 +378,69 @@ const AnswerComponent: React.FC<Props> = ({
           {onSectionChanged && !editing && (
             <Flex align="center">
               {answer !== undefined && (
-              <Button.Group>
-                <Button
-                  size="sm"
-                  onClick={() => setHasCommentDraft(true)}
-                  leftSection={<IconPlus />}
-                  disabled={hasCommentDraft}
-                  color="dark"
-                >
-                  Add Comment
-                </Button>
-                <Menu withinPortal>
-                  <Menu.Target>
-                    <Button leftSection={<IconDots />} color="dark">More</Button>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    {answer.flagged === 0 && (
+                <Button.Group>
+                  <Button
+                    size="sm"
+                    onClick={() => setHasCommentDraft(true)}
+                    leftSection={<IconPlus />}
+                    disabled={hasCommentDraft}
+                    color="dark"
+                  >
+                    Add Comment
+                  </Button>
+                  <Menu withinPortal>
+                    <Menu.Target>
+                      <Button leftSection={<IconDots />} color="dark">More</Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {answer.flagged === 0 && (
+                        <Menu.Item
+                          leftSection={<IconFlag />}
+                          onClick={() => setFlagged(answer.oid, true)}
+                        >
+                          Flag as Inappropriate
+                        </Menu.Item>
+                      )}
                       <Menu.Item
-                        leftSection={<IconFlag />}
-                        onClick={() => setFlagged(answer.oid, true)}
+                        leftSection={<IconLink />}
+                        onClick={() =>
+                          copy(
+                            `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
+                          )
+                        }
                       >
-                        Flag as Inappropriate
+                        Copy Permalink
                       </Menu.Item>
-                    )}
-                    <Menu.Item
-                      leftSection={<IconLink />}
-                      onClick={() =>
-                        copy(
-                          `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
-                        )
-                      }
-                    >
-                      Copy Permalink
-                    </Menu.Item>
-                    {isAdmin && answer.flagged > 0 && (
+                      {isAdmin && answer.flagged > 0 && (
+                        <Menu.Item
+                          leftSection={<IconFlag />}
+                          onClick={() => resetFlagged(answer.oid)}
+                        >
+                          Remove all inappropriate flags
+                        </Menu.Item>
+                      )}
+                      {!editing && canEdit && (
+                        <Menu.Item
+                          leftSection={<IconEdit />}
+                          onClick={startEdit}
+                        >
+                          Edit
+                        </Menu.Item>
+                      )}
+                      {answer && canRemove && (
+                        <Menu.Item leftSection={<IconTrash />} onClick={remove}>
+                          Delete
+                        </Menu.Item>
+                      )}
                       <Menu.Item
-                        leftSection={<IconFlag />}
-                        onClick={() => resetFlagged(answer.oid)}
+                        leftSection={<IconCode />}
+                        onClick={toggleViewSource}
                       >
-                        Remove all inappropriate flags
+                        Toggle Source Code Mode
                       </Menu.Item>
-                    )}
-                    {!editing && canEdit && (
-                      <Menu.Item
-                        leftSection={<IconEdit />}
-                        onClick={startEdit}
-                      >
-                        Edit
-                      </Menu.Item>
-                    )}
-                    {answer && canRemove && (
-                      <Menu.Item leftSection={<IconTrash />} onClick={remove}>
-                        Delete
-                      </Menu.Item>
-                    )}
-                    <Menu.Item
-                      leftSection={<IconCode />}
-                      onClick={toggleViewSource}
-                    >
-                      Toggle Source Code Mode
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-            </Button.Group>
+                    </Menu.Dropdown>
+                  </Menu>
+                </Button.Group>
               )}
             </Flex>
           )}
