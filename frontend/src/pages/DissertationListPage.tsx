@@ -49,7 +49,7 @@ const DissertationListPage: React.FC = () => {
 
         const [response] = await Promise.all([
           fetchGet(url),
-          minLoadTimePromise
+          minLoadTimePromise,
         ]);
 
         if (response.value) {

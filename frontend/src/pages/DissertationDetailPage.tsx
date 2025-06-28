@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Title, Text, LoadingOverlay, Notification, Paper, Group, Stack, Anchor, Badge } from '@mantine/core';
+import { Container, Title, Text, LoadingOverlay, Notification, Paper, Group, Stack, Badge } from '@mantine/core';
 import { fetchGet } from '../api/fetch-utils';
 import { IconBook, IconUsers, IconCalendar, IconFileDescription } from '@tabler/icons-react';
 
@@ -125,6 +125,7 @@ const DissertationDetailPage: React.FC = () => {
         </Stack>
       </Paper>
 
+      <Title order={3} ta="center" mb="md">PDF Viewer</Title>
       <Paper shadow="sm" p="sm" withBorder style={{ height: '80vh' }}>
         {pdfUrl ? (
           <iframe
@@ -133,7 +134,7 @@ const DissertationDetailPage: React.FC = () => {
             height="100%"
             style={{ border: 'none' }}
             title={dissertation.title}
-          ></iframe>
+          />
         ) : (
           <Text ta="center" c="red">Failed to load PDF.</Text>
         )}

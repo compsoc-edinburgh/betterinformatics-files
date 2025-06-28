@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Container, Title, TextInput, Textarea, Button, FileInput, Notification, TagsInput, Select, CloseButton } from '@mantine/core';
+import { Container, Title, TextInput, Textarea, Button, FileInput, Notification, TagsInput, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { fetchPost } from '../api/fetch-utils';
 

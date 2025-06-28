@@ -11,7 +11,7 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
-import { Anchor, Button, Flex, Group, Paper, Text } from "@mantine/core";
+import { Anchor, Button, Group, Paper, Text } from "@mantine/core";
 import {
   IconCode,
   IconDeviceFloppy,
