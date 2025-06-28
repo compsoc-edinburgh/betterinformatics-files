@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Title, Text, LoadingOverlay, Notification, Button, TextInput, Select, Group, Table, Anchor, Badge } from '@mantine/core';
+import { Container, Title, Text, LoadingOverlay, Notification, Button, TextInput, Select, Group, Table, Anchor, Badge, CloseButton } from '@mantine/core';
 import { fetchGet } from '../api/fetch-utils';
 import { Link } from 'react-router-dom';
 import { IconUpload, IconSearch } from '@tabler/icons-react';
@@ -75,7 +75,7 @@ const DissertationListPage: React.FC = () => {
         </Anchor>
       </Table.Td>
       <Table.Td>
-        <Group spacing={4}>
+        <Group gap={4}>
           {dissertation.field_of_study.split(',').map((field, index) => (
             <Badge key={index} variant="light">
               {field.trim()}
@@ -91,19 +91,19 @@ const DissertationListPage: React.FC = () => {
 
   return (
     <Container size="xl" mt="xl" style={{ position: 'relative' }}>
-      <LoadingOverlay visible={loading} transition="fade" transitionDuration={200} />
-      <Title order={2} align="center" mb="xl">Dissertation Archive</Title>
+      <LoadingOverlay visible={loading} transitionProps={{ transition: "fade", duration: 200 }} />
+      <Title order={2} ta="center" mb="xl">Dissertation Archive</Title>
       <Button component={Link} to="/upload-dissertation" style={{ marginBottom: '20px' }} leftSection={<IconUpload size={14} />}>
         Upload New Dissertation
       </Button>
 
-      <Group grow mb="md">
+      <Group grow gap="md">
         <TextInput
           placeholder="Search dissertations..."
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.currentTarget.value)}
           leftSection={<IconSearch size={16} />}
-          clearable
+          rightSection={<CloseButton onClick={() => setSearchQuery('')} style={{ display: searchQuery ? 'block' : 'none' }} />}
         />
         <Select
           placeholder="Search by..."
@@ -125,7 +125,7 @@ const DissertationListPage: React.FC = () => {
       )}
 
       {dissertations.length === 0 && !loading && !error ? (
-        <Text align="center">No dissertations found. Be the first to upload one!</Text>
+        <Text ta="center">No dissertations found. Be the first to upload one!</Text>
       ) : (
         <Table striped highlightOnHover withTableBorder withColumnBorders>
           <Table.Thead>

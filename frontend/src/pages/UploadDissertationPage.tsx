@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Container, Title, TextInput, Textarea, Button, FileInput, Notification, TagsInput, Select } from '@mantine/core';
+import { Container, Title, TextInput, Textarea, Button, FileInput, Notification, TagsInput, Select, CloseButton } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { fetchPost } from '../api/fetch-utils';
 
@@ -20,11 +20,11 @@ const UploadDissertationPage: React.FC = () => {
     },
 
     validate: {
-      title: (value) => (value ? null : 'Title is required'),
-      field_of_study: (value) => (value.length > 0 ? null : 'At least one field of study is required'), // Validate array length
-      supervisors: (value) => (value ? null : 'Supervisors are required'),
-      pdf_file: (value) => (value ? null : 'PDF file is required'),
-      study_level: (value) => (value ? null : 'Study level is required'),
+      title: (value: string) => (value ? null : 'Title is required'),
+      field_of_study: (value: string[]) => (value.length > 0 ? null : 'At least one field of study is required'),
+      supervisors: (value: string) => (value ? null : 'Supervisors are required'),
+      pdf_file: (value: File | null) => (value ? null : 'PDF file is required'),
+      study_level: (value: string) => (value ? null : 'Study level is required'),
     },
   });
 
@@ -58,7 +58,7 @@ const UploadDissertationPage: React.FC = () => {
 
   return (
     <Container size="sm" mt="xl">
-      <Title order={2} align="center" mb="xl">Upload Dissertation</Title>
+      <Title order={2} ta="center" mb="xl">Upload Dissertation</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
           label="Title"

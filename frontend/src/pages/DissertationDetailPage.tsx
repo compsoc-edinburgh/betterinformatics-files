@@ -81,14 +81,14 @@ const DissertationDetailPage: React.FC = () => {
 
   return (
     <Container size="xl" mt="xl">
-      <Title order={2} align="center" mb="xl">{dissertation.title}</Title>
+      <Title order={2} ta="center" mb="xl">{dissertation.title}</Title>
 
       <Paper shadow="sm" p="lg" mb="xl" withBorder>
         <Stack gap="sm">
           <Group align="center">
             <IconBook size={20} />
             <Text fw={500}>Field of Study:</Text>
-            <Group spacing={4}>
+            <Group gap={4}>
               {dissertation.field_of_study.split(',').map((field, index) => (
                 <Badge key={index} variant="light">
                   {field.trim()}
@@ -135,7 +135,7 @@ const DissertationDetailPage: React.FC = () => {
             title={dissertation.title}
           ></iframe>
         ) : (
-          <Text align="center" c="red">Failed to load PDF.</Text>
+          <Text ta="center" c="red">Failed to load PDF.</Text>
         )}
       </Paper>
     </Container>
