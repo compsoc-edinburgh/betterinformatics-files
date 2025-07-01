@@ -49,6 +49,7 @@ import {
   defaultConfigOptions,
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
+import TestimonialsPage from "./pages/testimonials-page";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -187,6 +188,7 @@ const App: React.FC<{}> = () => {
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
     { title: "Search", href: "/search" },
+    { title: "Testimonials", href:"/testimonials"},
     { title: "Dissertations", href: "/dissertations" },
     {
       title: "More",
@@ -269,6 +271,11 @@ const App: React.FC<{}> = () => {
                       exact
                       path="/dissertations"
                       component={DissertationListPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/testimonials"
+                      component={TestimonialsPage}
                     />
                     <UserRoute
                       exact

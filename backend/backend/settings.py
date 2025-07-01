@@ -231,6 +231,7 @@ INSTALLED_APPS = [
     "testing.apps.TestingConfig",
     "django_probes",
     "dissertations.apps.DissertationsConfig",
+    "testimonials.apps.TestimonialsConfig"
 ] + (["django_gsuite_email"] if "django_gsuite_email" in EMAIL_BACKEND else [])
 
 MIDDLEWARE = [
