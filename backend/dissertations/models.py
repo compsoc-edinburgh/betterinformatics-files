@@ -26,6 +26,7 @@ class Dissertation(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
     study_level = models.CharField(max_length=3, choices=STUDY_LEVEL_CHOICES, default='UG4')
     grade_band = models.CharField(max_length=6, choices=GRADE_BAND_CHOICES, blank=True, null=True)
+    year = models.IntegerField(default=2025) # New field for dissertation year
 
     def __str__(self):
         return self.title
