@@ -1,7 +1,9 @@
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 // import 'mantine-react-table/styles.css';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useRequest } from "@umijs/hooks";
+import dayjs from 'dayjs';
 import { useMemo, useEffect, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
 //import mantine-datatable clsx
@@ -68,8 +70,8 @@ function getTableData(courses: any, testimonials: any) : CourseWithTestimonial[]
   let tableData = new Array<CourseWithTestimonial>(1);
 
   if (courses && testimonials){
-    console.log("Courses loaded in effect:", courses);
-    console.log("Testimonials loaded in effect:", testimonials);
+    // console.log("Courses loaded in effect:", courses);
+    // console.log("Testimonials loaded in effect:", testimonials);
     tableData = new Array<CourseWithTestimonial>(courses['value'].length);
     for (let i = 0; i < courses['value'].length; i++){
       let course = courses['value'][i];
@@ -242,6 +244,9 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
   //   [],
   // );
   const computedColorScheme = useComputedColorScheme("light");
+  const [parent] = useAutoAnimate();
+  const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
+  //const [bodyRef] = useAutoAnimate<HTMLTableSectionElement>();
   
   // const table = useMantineReactTable({
   //   columns,
@@ -310,85 +315,112 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
         <Input placeholder = "review.."></Input>
       </Modal>
       <DataTable
-      withTableBorder
-      withColumnBorders
-      columns = {[
-        {
-          accessor: 'course_code',
-          title: 'Course Code',
-        },
-        {
-          accessor: 'course_name',
-          title: 'Course Name',
-          // minSize:100,
-          // maxSize:450,
-          width:350
-        },
-        {
-          accessor: 'course_delivery',
-          title: 'Delivery',
-        },
-        {
-          accessor: 'course_credits',
-          title: 'Credits',
-        },
-        {
-          accessor: 'course_work_exam_ratio',
-          title: 'Work%/Exam%',
-        },
-        {
-          accessor: 'course_level',
-          title: 'Level',
-        },
-        {
-          accessor: 'course_overall_rating',
-          // header: 'Overall',
-          // Cell: ({ renderedCellValue, row }) => (
-          //   getRatingBox(renderedCellValue)
-          // ),
-          // size:50
-        },
-        {
-          accessor: 'course_recommendability_rating',
-          title: 'Recommendability',
-          //width:50
-        },
-        {
-          accessor: 'course_workload_rating',
-          title: 'Workload',
-          //width:50
-        },
-        {
-          accessor: 'course_difficulty_rating',
-          title: 'Difficulty',
-          //width:50
-        }
-      ]}
-      records ={data}
-      />
-
-      {/* <DataTable
         withTableBorder
         withColumnBorders
-        columns={[{ accessor: 'name' }, { accessor: 'city' }, { accessor: 'state' }]}
-        records={records}
+        textSelectionDisabled
+        highlightOnHover
+        noRecordsIcon={data?.length === 0 ? <></> : <></> }
+        noRecordsText={data?.length === 0 ? "No records to show" : ""}
+        scrollAreaProps={{ type: 'never' }}
+        columns = {[
+          {
+            accessor: 'course_code',
+            title: 'Course Code',
+          },
+          {
+            accessor: 'course_name',
+            title: 'Course Name',
+            // minSize:100,
+            // maxSize:450,
+            width:350
+          },
+          // {
+          //   accessor: 'course_delivery',
+          //   title: 'Delivery',
+          // },
+          // {
+          //   accessor: 'course_credits',
+          //   title: 'Credits',
+          // },
+          // {
+          //   accessor: 'course_work_exam_ratio',
+          //   title: 'Work%/Exam%',
+          // },
+          // {
+          //   accessor: 'course_level',
+          //   title: 'Level',
+          // },
+          {
+            accessor: 'course_overall_rating',
+            title: 'Overall',
+            // Cell: ({ renderedCellValue, row }) => (
+            //   getRatingBox(renderedCellValue)
+            // ),
+            // size:50
+          },
+          {
+            accessor: 'course_recommendability_rating',
+            title: 'Recommendability',
+            //width:50
+          },
+          {
+            accessor: 'course_workload_rating',
+            title: 'Workload',
+            //width:50
+          },
+          {
+            accessor: 'course_difficulty_rating',
+            title: 'Difficulty',
+            //width:50
+          }
+        ]}
+        records ={data}
+        idAccessor="course_code"
+        rowStyle={() => ({
+          cursor: 'pointer',
+          '&:hover': {
+            backgroundColor: computedColorScheme === 'dark' ? 'gray' : 'gray',
+          },
+        })}
         rowExpansion={{
+          // expanded: {
+          //   recordIds: expandedRecordIds,
+          //   onRecordIdsChange: setExpandedRecordIds,
+          // },
+          collapseProps: {
+            transitionDuration: 150,
+            animateOpacity: false,
+            transitionTimingFunction: 'ease-out',
+          },
+          allowMultiple: true,
           content: ({ record }) => (
-            <Stack className={classes.details} p="xs" gap={6}>
-              <Group gap={6}>
-                <div className={classes.label}>Postal address:</div>
-                <div>
-                  {record.streetAddress}, {record.city}, {record.state}
-                </div>
-              </Group>
-              <Group gap={6}>
-                <div className={classes.label}>Mission statement:</div>
-                <Box fs="italic">“{record.missionStatement}”</Box>
-              </Group>
+            <Stack ref ={parent} p={5}>
+              <Flex direction="row" justify="space-between" align="center">
+                <Text><strong>Overall Recommendation:</strong> {String(record.course_overall_rating)}/5</Text> 
+                <ShimmerButton
+                  onClick={() => open()}
+                  leftSection={<IconPlus />}
+                  color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
+                  variant="outline"
+                >
+                  Add new testimonial
+                </ShimmerButton>
+              </Flex>
+              {
+                record.testimonials.map((testimonial) => //add a key to the testimonial
+                  <ReviewCard key="" typeOfStudent={""} yearTaken={String(testimonial.year_taken)} recommendabilityRating={String(testimonial.recommendability_rating)} workloadRating={String(testimonial.workload_rating)} difficultyRating={String(testimonial.difficulty_rating)} testimonial={String(testimonial.testimonial)}></ReviewCard>
+                )
+              }
             </Stack>
           ),
         }}
-      /> */}
+        //bodyRef={bodyRef}
+        // fetching={data.length == 0}
+        // loaderType={"oval"}
+        // loaderSize={"lg"}
+        // loaderColor={"blue"}
+        // loaderBackgroundBlur={1}
+    />
     </>;
 };
 
