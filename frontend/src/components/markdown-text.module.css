@@ -12,6 +12,14 @@
 .wrapper-style {
   overflow-x: auto;
   overflow-y: hidden;
+
+  /* Workaround for the fact that numbered (aligned) KaTeX equations have a -2px
+    margin that needs to be overridden until upstream is fixed:
+    Tracking issue: https://github.com/KaTeX/KaTeX/issues/3254 */
+  & :global(.katex .tag .vlist-t2) {
+    margin-right: 0;
+  }
+
   & p:first-child {
     margin-block-start: 0;
   }
@@ -27,8 +35,8 @@
       margin-block-end: 0.5em;
     }
   }
-  & .katex {
-    font-size: 1rem;
+  & :global(.katex) {
+    font-size: 1em;
   }
   /* Undo effect of .overlay class defined in the theme css */
   & .overlay {

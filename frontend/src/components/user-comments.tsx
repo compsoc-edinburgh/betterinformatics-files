@@ -9,7 +9,7 @@ import classes from "./user-comments.module.css";
 // with multiple columns. This is a quick-fix as pointed out on the
 // webkit bug reporting platform.
 // Example: https://codepen.io/lukasmoeller/pen/JjGyJXY (rel is hidden)
-// Issue: https://gitlab.ethz.ch/vis/cat/community-solutions/-/issues/147
+// Issue: https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/-/issues/147
 // Webkit Bug: https://bugs.webkit.org/show_bug.cgi?id=209681
 // It seems like there is a fix live in Safari Technology Preview
 // This fix should be left in here until the fix is published for
