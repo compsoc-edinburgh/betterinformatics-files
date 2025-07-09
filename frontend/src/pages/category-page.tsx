@@ -14,7 +14,7 @@ import {
   Title,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -95,14 +95,17 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       <Switch>
         <Route path={`${path}/edit`}>
           {offeredIn && (
-            <CategoryMetaDataEditor
-              onMetaDataChange={editorOnMetaDataChange}
-              close={() => history.push(`/category/${metaData.slug}`)}
-              currentMetaData={metaData}
-              offeredIn={offeredIn.flatMap(b =>
+            <>
+              {!user.isCategoryAdmin && <Redirect to={`${url}`} />}
+              <CategoryMetaDataEditor
+                onMetaDataChange={editorOnMetaDataChange}
+                close={() => history.push(`/category/${metaData.slug}`)}
+                currentMetaData={metaData}
+                offeredIn={offeredIn.flatMap(b =>
                 b.meta2.map(d => [b.displayname, d.displayname] as const),
               )}
-            />
+              />
+            </>
           )}
         </Route>
         <Route path={`${path}`} exact>
