@@ -15,8 +15,8 @@ import {
   Tooltip,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
-import { Link, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import React, { useCallback, useMemo } from "react";
+import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -103,8 +103,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       data ? getMetaCategoriesForCategory(data, metaData.slug) : undefined,
     [data, metaData],
   );
-  const [editing, setEditing] = useState(false);
-  const toggle = useCallback(() => setEditing(a => !a), []);
   const user = useUser()!;
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
@@ -149,6 +147,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
   // defining Routes, we use `path`, but for Link/navigation we use `url`.
   const { path, url } = useRouteMatch();
+
   return (
     <>
       {modals}
@@ -166,6 +165,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       </Breadcrumbs>
       <Switch>
         <Route path={`${path}/edit`}>
+          {!user.isCategoryAdmin && <Redirect to={url} />}
           {offeredIn && (
             <CategoryMetaDataEditor
               onMetaDataChange={editorOnMetaDataChange}
