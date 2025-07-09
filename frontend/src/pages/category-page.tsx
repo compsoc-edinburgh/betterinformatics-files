@@ -173,7 +173,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         </Anchor>
       </Breadcrumbs>
       <Switch>
-        <Route path={`${path}/edit`}>
+        <Route path={`${path}/edit` /* this route is listed above the main route so a potential tab with id edit can never take priority over the edit page */}>
           {!user.isCategoryAdmin && <Redirect to={url} />}
           {offeredIn && (
             <CategoryMetaDataEditor
