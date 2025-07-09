@@ -2,7 +2,6 @@ import { useRequest } from "@umijs/hooks";
 import {
   Breadcrumbs,
   Alert,
-  Badge,
   Container,
   Anchor,
   Flex,
@@ -13,9 +12,6 @@ import {
   Skeleton,
   Text,
   Title,
-  HoverCardDropdown,
-  HoverCardTarget,
-  HoverCard,
   Tooltip,
   useComputedColorScheme,
 } from "@mantine/core";
@@ -48,6 +44,7 @@ import {
   IconTrash,
   IconUserStar,
 } from "@tabler/icons-react";
+import { EuclidCodeBadge } from "../components/euclid-code-badge";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -119,22 +116,33 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
   const [bi_courses_error, bi_courses_loading, bi_courses_data] =
     useBICourseList();
-  const asynchronously_updated_euclid_codes = useMemo(() => {
+  const badges_data = useMemo(() => {
     // While the BI course JSON is loading, it is just a list of codes with
     // no BI course data
     if (bi_courses_loading || !bi_courses_data) {
-      return metaData.euclid_codes.map(c => [c, undefined, undefined] as const);
+      return metaData.euclid_codes.map(() => undefined);
     }
 
-    // Once data is ready, it becomes a list of codes and BI course data
+    // Once data is ready, we turn it into a list of useful info to pass to
+    // generate badges.
     return metaData.euclid_codes.map(
       c =>
-        [
-          c,
-          Object.values(bi_courses_data).find(d => d.euclid_code === c),
-          Object.values(bi_courses_data).find(d => d.euclid_code_shadow === c),
-        ] as const,
-    );
+        Object.values(bi_courses_data).flatMap(course => {
+          if (course.euclid_code === c || course.euclid_code_shadow === c) {
+            return [{
+              code: c,
+              name: course.name,
+              level: course.level,
+              delivery_ordinal: course.delivery_ordinal,
+              course_url: course.course_url,
+              euclid_url: course.euclid_url,
+              // Set the shadow property to the main course code if this is a shadow
+              shadow: course.euclid_code_shadow === c ? course.euclid_code : undefined,
+            }];
+          }
+          return [];
+        }),
+    ).flat();
   }, [metaData, bi_courses_loading, bi_courses_data]);
   return (
     <>
@@ -166,49 +174,15 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       ) : (
         <>
           <Group gap="xs" mt="lg">
-            {asynchronously_updated_euclid_codes.map(
-              ([code, bi_data, shadow_data]) => (
-                <HoverCard shadow="md" styles={{ dropdown: { maxWidth: 300 } }}>
-                  <HoverCardTarget>
-                    <Badge
-                      // Will show red if data isn't available or still loading
-                      color={bi_data || shadow_data ? "violet" : "red"}
-                      radius="xs"
-                      component="a"
-                      // Choose course URL over EUCLID URL
-                      href={
-                        bi_data?.course_url ??
-                        bi_data?.euclid_url ??
-                        shadow_data?.course_url ??
-                        shadow_data?.euclid_url_shadow
-                      }
-                      // Badges don't look clickable by default, use pointer
-                      styles={{
-                        root: {
-                          cursor:
-                            bi_data || shadow_data ? "pointer" : "default",
-                        },
-                      }}
-                    >
-                      {code}
-                    </Badge>
-                  </HoverCardTarget>
-                  {(bi_data || shadow_data || !bi_courses_loading) && (
-                    <HoverCardDropdown>
-                      <Text size="sm">
-                        {bi_data &&
-                          `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`}
-                        {shadow_data &&
-                          `${shadow_data.name} (Shadow of ${shadow_data.euclid_code})`}
-                        {!bi_courses_loading &&
-                          !bi_data &&
-                          !shadow_data &&
-                          "Not Running"}
-                        {bi_courses_error && bi_courses_error.message}
-                      </Text>
-                    </HoverCardDropdown>
-                  )}
-                </HoverCard>
+            {metaData.euclid_codes.map(
+              (code, i) => (
+                <EuclidCodeBadge
+                  key={code}
+                  code={code}
+                  badge_data={badges_data[i]}
+                  loading={bi_courses_loading}
+                  error={bi_courses_error}
+                />
               ),
             )}
           </Group>
