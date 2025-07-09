@@ -101,8 +101,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               close={() => history.push(`/category/${metaData.slug}`)}
               currentMetaData={metaData}
               offeredIn={offeredIn.flatMap(b =>
-              b.meta2.map(d => [b.displayname, d.displayname] as const),
-            )}
+                b.meta2.map(d => [b.displayname, d.displayname] as const),
+              )}
             />
           )}
         </Route>
