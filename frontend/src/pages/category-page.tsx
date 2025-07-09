@@ -13,8 +13,16 @@ import {
   Box,
   Title,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
-import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import React, { useCallback, useMemo } from "react";
+import {
+  Link,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -94,7 +102,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       </Breadcrumbs>
       <Switch>
         <Route path={`${path}/edit`}>
-          {!user.isCategoryAdmin && <Redirect to={`${url}`} />}
+          {!user.isCategoryAdmin && <Redirect to={url} />}
           {offeredIn && (
             <CategoryMetaDataEditor
               onMetaDataChange={editorOnMetaDataChange}
