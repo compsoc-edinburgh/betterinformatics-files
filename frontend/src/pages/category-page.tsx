@@ -14,6 +14,8 @@ import {
   Title,
   Tooltip,
   useComputedColorScheme,
+  Card,
+  Paper,
 } from "@mantine/core";
 import React, { useCallback, useMemo } from "react";
 import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
@@ -45,6 +47,7 @@ import {
   IconUserStar,
 } from "@tabler/icons-react";
 import { EuclidCodeBadge } from "../components/euclid-code-badge";
+import { useCategoryTabs } from "../hooks/useCategoryTabs";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -148,6 +151,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   // defining Routes, we use `path`, but for Link/navigation we use `url`.
   const { path, url } = useRouteMatch();
 
+  const tabs = useCategoryTabs([
+    { name: "Resources", id: "resources" },
+    { name: "Testimonials", id: "testimonials", count: 3 },
+    { name: "Grade Stats", id: "statistics" },
+  ]);
+
   return (
     <>
       {modals}
@@ -178,158 +187,162 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           )}
         </Route>
         <Route path={`${path}`} exact>
-          <Group gap="xs" mt="lg">
-            {metaData.euclid_codes.map(
-              (code, i) => (
-                <EuclidCodeBadge
-                  key={code}
-                  code={code}
-                  badge_data={badges_data[i]}
-                  loading={bi_courses_loading}
-                  error={bi_courses_error}
-                />
-              ),
-            )}
-          </Group>
-
-          <Flex
-            direction={{ base: "column", sm: "row" }}
-            justify="space-between"
-          >
-            <Title order={1} mb="md">
-              {metaData.displayname}
-            </Title>
-            {user.isCategoryAdmin && (
-              <Group justify="flex-end">
-                <Button
-                  leftSection={<IconEdit />}
-                  component={Link}
-                  to={`${url}/edit`}
-                  color="dark"
-                >
-                  Edit
-                </Button>
-                <Button
-                  color="red"
-                  loading={removeLoading}
-                  disabled={metaData.slug === "default"}
-                  leftSection={<IconTrash />}
-                  onClick={onRemove}
-                >
-                  Delete
-                </Button>
-              </Group>
-            )}
-          </Flex>
-
-          {(metaData.more_exams_link || metaData.remark) && (
-            <Grid mb="xs">
-              {metaData.more_exams_link && (
-                <Grid.Col span="content">
-                  <Anchor
-                    href={metaData.more_exams_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    c="blue"
+          <Card withBorder mt="sm">
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              justify="space-between"
+            >
+              <Title order={1} mb="md">
+                {metaData.displayname}
+              </Title>
+              {user.isCategoryAdmin && (
+                <Group justify="flex-end">
+                  <Button
+                    leftSection={<IconEdit />}
+                    component={Link}
+                    to={`${url}/edit`}
+                    color="dark"
                   >
-                    Additional Exams
-                  </Anchor>
-                </Grid.Col>
+                    Edit
+                  </Button>
+                  <Button
+                    color="red"
+                    loading={removeLoading}
+                    disabled={metaData.slug === "default"}
+                    leftSection={<IconTrash />}
+                    onClick={onRemove}
+                  >
+                    Delete
+                  </Button>
+                </Group>
               )}
-              {metaData.remark && (
-                <Grid.Col>Remark: {metaData.remark}</Grid.Col>
+            </Flex>
+            <Group gap="xs">
+              {metaData.euclid_codes.map(
+                (code, i) => (
+                  <EuclidCodeBadge
+                    key={code}
+                    code={code}
+                    badge_data={badges_data[i]}
+                    loading={bi_courses_loading}
+                    error={bi_courses_error}
+                  />
+                ),
               )}
-            </Grid>
-          )}
+            </Group>
+            {metaData.remark && (
+              <>Remark: {metaData.remark}</>
+            )}
+            {metaData.more_exams_link && (
+              <Anchor
+                href={metaData.more_exams_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                c="blue"
+              >
+                Additional Exams
+              </Anchor>
+            )}
+            <Card.Section bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))" mt="xs">
+              {tabs.Component}
+            </Card.Section>
+          </Card>
 
           <Grid my="sm">
-            {metaData.experts.includes(user.username) && (
-              <Grid.Col span="auto">
+            <Grid.Col span={8}>
+              <Paper withBorder p="md">
+                <ExamList metaData={metaData} />
+
+                <DocumentList slug={metaData.slug} />
+
+                {metaData.attachments.length > 0 && (
+                  <>
+                    <Title order={2} mt="xl" mb="lg">
+                      Attachments
+                    </Title>
+                    <List>
+                      {metaData.attachments.map(att => (
+                        <List.Item key={att.filename}>
+                          <Anchor
+                            href={`/api/filestore/get/${att.filename}/`}
+                            color="blue"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {att.displayname}
+                          </Anchor>
+                        </List.Item>
+                      ))}
+                    </List>
+                  </>
+                )}
+              </Paper>
+            </Grid.Col>
+            <Grid.Col span={4}>
+              {metaData.experts.includes(user.username) && (
                 <Alert
                   color="yellow"
                   title="Category expert"
                   icon={<IconStar />}
+                  mb="md"
                 >
                   You are an expert for this category. You can endorse correct
                   answers, which will be visible to other users.
                 </Alert>
-              </Grid.Col>
-            )}
-            {metaData.catadmin && (
-              <Grid.Col span="auto">
+              )}
+              {metaData.catadmin && (
                 <Alert
                   variant="light"
                   color="blue"
                   title="Category admin"
                   icon={<IconUserStar />}
+                  mb="md"
                 >
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
-              </Grid.Col>
-            )}
+              )}
+
+              <Paper withBorder p="md">
+                {metaData.more_markdown_link && (
+                  <>
+                    <Group align="baseline" justify="space-between" mb="sm">
+                      <Title order={2}>Useful Links</Title>
+                      {md_editable && (
+                        <Tooltip label="Edit this page on GitHub">
+                          <Button
+                            size="compact-sm"
+                            variant="light"
+                            component="a"
+                            target="_blank"
+                            href={md_edit_link}
+                            visibleFrom="md"
+                          >
+                            Edit
+                          </Button>
+                        </Tooltip>
+                      )}
+                    </Group>
+                    {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
+                    {md_error && (
+                      <Alert color="red">
+                        Failed to render additional info: {md_error.message}
+                      </Alert>
+                    )}
+                    {raw_md_contents !== undefined && (
+                      <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
+                        <MarkdownText
+                          value={raw_md_contents}
+                          localLinkBase="https://betterinformatics.com"
+                          ignoreHtml={true}
+                        />
+                      </Text>
+                    )}
+                  </>
+                )}
+              </Paper>
+            </Grid.Col>
           </Grid>
 
-          {metaData.more_markdown_link && (
-            <>
-              <Group align="baseline" justify="space-between" mt="sm" mb="sm">
-                <Title order={2}>Community Knowledgebase</Title>
-                {md_editable && (
-                  <Tooltip label="Edit this page on GitHub">
-                    <Button
-                      size="compact-sm"
-                      variant="light"
-                      component="a"
-                      target="_blank"
-                      href={md_edit_link}
-                      visibleFrom="md"
-                    >
-                      Edit (anyone welcome!)
-                    </Button>
-                  </Tooltip>
-                )}
-              </Group>
-              {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
-              {md_error && (
-                <Alert color="red">
-                  Failed to render additional info: {md_error.message}
-                </Alert>
-              )}
-              {raw_md_contents !== undefined && (
-                <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
-                  <MarkdownText
-                    value={raw_md_contents}
-                    localLinkBase="https://betterinformatics.com"
-                    ignoreHtml={true}
-                  />
-                </Text>
-              )}
-            </>
-          )}
-          <ExamList metaData={metaData} />
-
-          <DocumentList slug={metaData.slug} />
-
-          {metaData.attachments.length > 0 && (
-            <>
-              <Title order={2} mt="xl" mb="lg">
-                Attachments
-              </Title>
-              <List>
-                {metaData.attachments.map(att => (
-                  <List.Item key={att.filename}>
-                    <Anchor
-                      href={`/api/filestore/get/${att.filename}/`}
-                      color="blue"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {att.displayname}
-                    </Anchor>
-                  </List.Item>
-                ))}
-              </List>
-            </>
-          )}
         </Route>
       </Switch>
     </>
