@@ -94,18 +94,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       </Breadcrumbs>
       <Switch>
         <Route path={`${path}/edit`}>
+          {!user.isCategoryAdmin && <Redirect to={`${url}`} />}
           {offeredIn && (
-            <>
-              {!user.isCategoryAdmin && <Redirect to={`${url}`} />}
-              <CategoryMetaDataEditor
-                onMetaDataChange={editorOnMetaDataChange}
-                close={() => history.push(`/category/${metaData.slug}`)}
-                currentMetaData={metaData}
-                offeredIn={offeredIn.flatMap(b =>
-                b.meta2.map(d => [b.displayname, d.displayname] as const),
-              )}
-              />
-            </>
+            <CategoryMetaDataEditor
+              onMetaDataChange={editorOnMetaDataChange}
+              close={() => history.push(`/category/${metaData.slug}`)}
+              currentMetaData={metaData}
+              offeredIn={offeredIn.flatMap(b =>
+              b.meta2.map(d => [b.displayname, d.displayname] as const),
+            )}
+            />
           )}
         </Route>
         <Route path={`${path}`} exact>
