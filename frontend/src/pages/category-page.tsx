@@ -16,7 +16,7 @@ import {
   useComputedColorScheme,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { Link, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -144,6 +144,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         }),
     ).flat();
   }, [metaData, bi_courses_loading, bi_courses_data]);
+
+  // `path` is the path structure, e.g. the literal string "/category/:slug"
+  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
+  // defining Routes, we use `path`, but for Link/navigation we use `url`.
+  const { path, url } = useRouteMatch();
   return (
     <>
       {modals}
@@ -159,20 +164,20 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
-      {editing ? (
-        offeredIn && (
-          <CategoryMetaDataEditor
-            onMetaDataChange={editorOnMetaDataChange}
-            isOpen={editing}
-            toggle={toggle}
-            currentMetaData={metaData}
-            offeredIn={offeredIn.flatMap(b =>
-              b.meta2.map(d => [b.displayname, d.displayname] as const),
-            )}
-          />
-        )
-      ) : (
-        <>
+      <Switch>
+        <Route path={`${path}/edit`}>
+          {offeredIn && (
+            <CategoryMetaDataEditor
+              onMetaDataChange={editorOnMetaDataChange}
+              close={() => history.push(`/category/${metaData.slug}`)}
+              currentMetaData={metaData}
+              offeredIn={offeredIn.flatMap(b =>
+                b.meta2.map(d => [b.displayname, d.displayname] as const),
+              )}
+            />
+          )}
+        </Route>
+        <Route path={`${path}`} exact>
           <Group gap="xs" mt="lg">
             {metaData.euclid_codes.map(
               (code, i) => (
@@ -198,7 +203,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <Group justify="flex-end">
                 <Button
                   leftSection={<IconEdit />}
-                  onClick={() => setEditing(true)}
+                  component={Link}
+                  to={`${url}/edit`}
                   color="dark"
                 >
                   Edit
@@ -324,8 +330,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </List>
             </>
           )}
-        </>
-      )}
+        </Route>
+      </Switch>
     </>
   );
 };
