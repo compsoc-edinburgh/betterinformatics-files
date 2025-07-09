@@ -186,7 +186,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             />
           )}
         </Route>
-        <Route path={`${path}`} exact>
+        <Route path={path} exact={false /*because useCategoryTabs needs non-exact match*/}>
           <Card withBorder mt="sm">
             <Flex
               direction={{ base: "column", sm: "row" }}
