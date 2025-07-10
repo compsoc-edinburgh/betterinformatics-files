@@ -253,7 +253,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 Additional Exams
               </Anchor>
             )}
-            <Card.Section bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))" mt="xs">
+            <Card.Section
+              bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))"
+              mt="xs"
+              style={{ overflowX: "auto" /* Allow scrolling tabs if they overflow */ }}
+            >
               {tabs.Component}
             </Card.Section>
           </Card>

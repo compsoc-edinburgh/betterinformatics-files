@@ -33,7 +33,7 @@ export const useCategoryTabs = (tabs: { name: string; id: string, count?: number
   // Create the tab items
   const Component = useMemo(
     () => (
-      <Group gap={0} ml="xs" align="stretch">
+      <Group gap={0} ml="xs" align="stretch" display="inline-flex" wrap="nowrap">
         {tabs.map((tab, i) => (
           <Tooltip label={"This feature is currently unavailable"} disabled={!tab.disabled} key={tab.id} openDelay={500}>
             <Button
