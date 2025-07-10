@@ -118,9 +118,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const [bi_courses_error, bi_courses_loading, bi_courses_data] =
     useBICourseList();
   const badges_data = useMemo(() => {
-    // While the BI course JSON is loading, it is just a list of codes with
-    // no BI course data
-    if (bi_courses_loading || !bi_courses_data) {
+    // While the BI course JSON is loading, it is just a list of undefineds
+    if (!bi_courses_data) {
       return metaData.euclid_codes.map(() => undefined);
     }
 
@@ -144,7 +143,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           return [];
         }),
     ).flat();
-  }, [metaData, bi_courses_loading, bi_courses_data]);
+  }, [metaData, bi_courses_data]);
 
   // `path` is the path structure, e.g. the literal string "/category/:slug"
   // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
