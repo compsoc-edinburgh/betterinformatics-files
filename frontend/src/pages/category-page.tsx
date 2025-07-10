@@ -157,8 +157,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
   const tabs = useCategoryTabs([
     { name: "Resources", id: "resources" },
-    { name: "Testimonials", id: "testimonials", count: 3 },
-    { name: "Grade Stats", id: "statistics" },
+    { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
+    { name: "Grade Stats", id: "statistics", disabled: true },
   ]);
 
   // TODO: switch to betterinformatics.com/courses.json "session" field once that's live
