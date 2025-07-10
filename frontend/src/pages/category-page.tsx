@@ -262,9 +262,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             </Card.Section>
           </Card>
 
-          <Grid my="sm">
+          <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
             <Grid.Col span={{ base: 12, md: 8 }}>
-              <Paper withBorder p="md">
+              <Paper withBorder p={{ base: "sm", sm: "md" }}>
                 <ExamList metaData={metaData} />
 
                 <DocumentList slug={metaData.slug} />
@@ -316,7 +316,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Alert>
               )}
 
-              <Paper withBorder p="md" mb="md">
+              <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
                 <Title order={2} mb="lg">Info for {thisYear}/{nextYearSuffix} run</Title>
                 {quickinfo_data.length === 0 && (
                   <Text c="dimmed" size="sm">
@@ -394,7 +394,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </Paper>
 
               {metaData.more_markdown_link && (
-                <Paper withBorder p="md">
+                <Paper withBorder p={{ base: "sm", sm: "md" }}>
                   <Group align="baseline" justify="space-between" mb="sm">
                     <Title order={2}>Useful Links</Title>
                     {md_editable && (
@@ -457,7 +457,7 @@ const CategoryPage: React.FC<{}> = () => {
   useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
-    <Container size="xl" mb="xl">
+    <Container size="xl" mb="xl" p={{ base: "xs", sm: "md" }}>
       {error && <Alert color="red">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay visible={loading} />}
       {data && (
