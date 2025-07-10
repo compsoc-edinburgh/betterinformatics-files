@@ -161,6 +161,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     { name: "Grade Stats", id: "statistics" },
   ]);
 
+  // TODO: switch to betterinformatics.com/courses.json "session" field once that's live
+  const { thisYear, nextYearSuffix } = useMemo(() => {
+    const year = new Date().getFullYear();
+    return { thisYear: year.toString(), nextYearSuffix: (year + 1).toString().slice(2) };
+  }, []);
+
   return (
     <>
       {modals}
@@ -307,7 +313,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               )}
 
               <Paper withBorder p="md" mb="md">
-                <Title order={2} mb="lg">Info for 2024/25 run</Title>
+                <Title order={2} mb="lg">Info for {thisYear}/{nextYearSuffix} run</Title>
                 {quickinfo_data.length === 0 && (
                   <Text c="dimmed" size="sm">
                     This course is either not running this year or is not an Informatics course.
