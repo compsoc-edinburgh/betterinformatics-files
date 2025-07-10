@@ -259,7 +259,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Card>
 
           <Grid my="sm">
-            <Grid.Col span={8}>
+            <Grid.Col span={{ base: 12, md: 8 }}>
               <Paper withBorder p="md">
                 <ExamList metaData={metaData} />
 
@@ -288,7 +288,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 )}
               </Paper>
             </Grid.Col>
-            <Grid.Col span={4}>
+            <Grid.Col span={{ base: 12, md: 4 }}>
               {metaData.experts.includes(user.username) && (
                 <Alert
                   color="yellow"
