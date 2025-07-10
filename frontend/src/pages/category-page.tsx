@@ -16,6 +16,7 @@ import {
   useComputedColorScheme,
   Card,
   Paper,
+  Stack,
 } from "@mantine/core";
 import React, { useCallback, useMemo } from "react";
 import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
@@ -48,6 +49,7 @@ import {
 } from "@tabler/icons-react";
 import { EuclidCodeBadge } from "../components/euclid-code-badge";
 import { useCategoryTabs } from "../hooks/useCategoryTabs";
+import { PieChart } from "@mantine/charts";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -117,7 +119,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
   const [bi_courses_error, bi_courses_loading, bi_courses_data] =
     useBICourseList();
-  const badges_data = useMemo(() => {
+  const quickinfo_data = useMemo(() => {
     // While the BI course JSON is loading, it is just a list of undefineds
     if (!bi_courses_data) {
       return metaData.euclid_codes.map(() => undefined);
@@ -131,9 +133,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           if (course.euclid_code === c || course.euclid_code_shadow === c) {
             return [{
               code: c,
+              acronym: course.acronym,
               name: course.name,
               level: course.level,
               delivery_ordinal: course.delivery_ordinal,
+              credits: course.credits,
+              cw_exam_ratio: course.cw_exam_ratio,
               course_url: course.course_url,
               euclid_url: course.euclid_url,
               // Set the shadow property to the main course code if this is a shadow
@@ -222,7 +227,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   <EuclidCodeBadge
                     key={code}
                     code={code}
-                    badge_data={badges_data[i]}
+                    badge_data={quickinfo_data[i]}
                     loading={bi_courses_loading}
                     error={bi_courses_error}
                   />
@@ -300,6 +305,83 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
               )}
+
+              <Paper withBorder p="md" mb="md">
+                <Title order={2} mb="lg">Info for 2024/25 run</Title>
+                {quickinfo_data.length === 0 && (
+                  <Text c="dimmed" size="sm">
+                    This course is either not running this year or is not an Informatics course.
+                  </Text>
+                )}
+                {quickinfo_data.map((course, i) => (
+                  <Stack key={metaData.euclid_codes[i]} mb="sm" gap={0}>
+                    <Text>
+                      <Text span fw="bold">{metaData.euclid_codes[i]}</Text>
+                      {" - "}
+                      {course?.course_url && (
+                        <>
+                          <Anchor
+                            href={course.course_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            c="blue"
+                          >
+                            Course Page
+                          </Anchor>
+                          {", "}
+                        </>
+                      )}
+                      {course?.euclid_url && (
+                        <Anchor
+                          href={course.euclid_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          c="blue"
+                        >
+                          DRPS
+                        </Anchor>
+                      )}
+                    </Text>
+                    {course && (
+                      <>
+                        <Text>
+                          {course.name} ({course.acronym})<br />
+                          SCQF {course.level} / {course.credits} Credits / Semester {course.delivery_ordinal}
+                        </Text>
+                        <Group gap="xs">
+                          <PieChart
+                            size={20}
+                            startAngle={90}
+                            endAngle={-270}
+                            data={[
+                              {
+                                name: "Coursework",
+                                value: course.cw_exam_ratio[0],
+                                color: "var(--mantine-primary-color-6)",
+                              },
+                              {
+                                name: "Exam",
+                                value: course.cw_exam_ratio[1],
+                                color: "var(--mantine-primary-color-8)",
+                              },
+                            ]}
+                          />
+                          <Text>
+                            {course.cw_exam_ratio[0] > 0 && `${course.cw_exam_ratio[0]}% Coursework`}
+                            {course.cw_exam_ratio[0] > 0 && course.cw_exam_ratio[1] > 0 && " + "}
+                            {course.cw_exam_ratio[1] > 0 && `${course.cw_exam_ratio[1]}% Exam`}
+                          </Text>
+                        </Group>
+                      </>
+                    )}
+                    {!course && (
+                      <Text c="dimmed">
+                        No course information available for this code.
+                      </Text>
+                    )}
+                  </Stack>
+                ))}
+              </Paper>
 
               <Paper withBorder p="md">
                 {metaData.more_markdown_link && (
