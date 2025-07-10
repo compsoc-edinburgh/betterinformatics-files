@@ -241,7 +241,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               )}
             </Group>
             {metaData.remark && (
-              <>Remark: {metaData.remark}</>
+              <Text mt="xs">Admin Remarks: {metaData.remark}</Text>
             )}
             {metaData.more_exams_link && (
               <Anchor
