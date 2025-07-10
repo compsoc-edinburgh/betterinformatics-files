@@ -383,44 +383,42 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 ))}
               </Paper>
 
-              <Paper withBorder p="md">
-                {metaData.more_markdown_link && (
-                  <>
-                    <Group align="baseline" justify="space-between" mb="sm">
-                      <Title order={2}>Useful Links</Title>
-                      {md_editable && (
-                        <Tooltip label="Edit this page on GitHub">
-                          <Button
-                            size="compact-sm"
-                            variant="light"
-                            component="a"
-                            target="_blank"
-                            href={md_edit_link}
-                            visibleFrom="md"
-                          >
-                            Edit
-                          </Button>
-                        </Tooltip>
-                      )}
-                    </Group>
-                    {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
-                    {md_error && (
-                      <Alert color="red">
-                        Failed to render additional info: {md_error.message}
-                      </Alert>
+              {metaData.more_markdown_link && (
+                <Paper withBorder p="md">
+                  <Group align="baseline" justify="space-between" mb="sm">
+                    <Title order={2}>Useful Links</Title>
+                    {md_editable && (
+                      <Tooltip label="Edit this page on GitHub">
+                        <Button
+                          size="compact-sm"
+                          variant="light"
+                          component="a"
+                          target="_blank"
+                          href={md_edit_link}
+                          visibleFrom="md"
+                        >
+                          Edit
+                        </Button>
+                      </Tooltip>
                     )}
-                    {raw_md_contents !== undefined && (
-                      <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
-                        <MarkdownText
-                          value={raw_md_contents}
-                          localLinkBase="https://betterinformatics.com"
-                          ignoreHtml={true}
-                        />
-                      </Text>
-                    )}
-                  </>
-                )}
-              </Paper>
+                  </Group>
+                  {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
+                  {md_error && (
+                    <Alert color="red">
+                      Failed to render additional info: {md_error.message}
+                    </Alert>
+                  )}
+                  {raw_md_contents !== undefined && (
+                    <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
+                      <MarkdownText
+                        value={raw_md_contents}
+                        localLinkBase="https://betterinformatics.com"
+                        ignoreHtml={true}
+                      />
+                    </Text>
+                  )}
+                </Paper>
+              )}
             </Grid.Col>
           </Grid>
 
