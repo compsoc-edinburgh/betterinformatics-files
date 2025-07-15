@@ -145,7 +145,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                       {exam.remark}
                     </Text>
                   )}
-                  <Flex mt="0.2em" gap={4}>
+                  <Flex mt="0.2em" gap={4} wrap="wrap">
                     {catAdmin &&
                       (exam.public ? (
                         <Badge className={examTypeClasses.badge}>public</Badge>
