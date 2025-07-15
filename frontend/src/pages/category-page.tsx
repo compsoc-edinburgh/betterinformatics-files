@@ -318,7 +318,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
               <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
                 <Title order={2} mb="lg">Info for {thisYear}/{nextYearSuffix} run</Title>
-                {quickinfo_data.length === 0 && (
+                {quickinfo_data.length === 0 && /*
+                  If none of the variants of this course are running this year,
+                  we show a message to the user.
+                */ (
                   <Text c="dimmed" size="sm">
                     This course is either not running this year or is not an Informatics course.
                   </Text>
