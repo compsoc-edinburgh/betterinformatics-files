@@ -4,7 +4,7 @@ import useInitialState from "../hooks/useInitialState";
 import { useRequest } from "@umijs/hooks";
 import { useMetaCategories } from "../api/hooks";
 import { useEffect, useMemo } from "react";
-import { Button, Loader, Modal, Stack, TextInput } from "@mantine/core";
+import { Button, Flex, Loader, Modal, Stack, TextInput } from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Creatable from "./creatable";
 
@@ -28,9 +28,9 @@ interface EditMeta1Props {
   oldMeta1: string;
   onChange: () => void;
 }
-
 export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
-    const [editMeta1, {open: openEditModel, close: closeEditModal}] = useDisclosure();
+    const [editModal, {open: openEditModal, close: closeEditModal}] = useDisclosure();
+    const [deleteModal, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure();
     const [meta1, setMeta1] = useInitialState(oldMeta1);
     const [disabled, setDisabled] = useInitialState(true);
     const { loading, run } = useRequest(editMeta1Name, {
@@ -69,7 +69,34 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
     return (
       <>
         <Modal
-          opened={editMeta1}
+          opened={deleteModal}
+          onClose={closeDeleteModal}
+          title="Delete Meta Category"
+        >
+          <Stack>
+            Are you sure you want to delete this meta category?
+            <b>This is irreversible.</b>
+            Note:
+            This action will also delete the sub meta categories but won't delete the categories themselves.
+            <Flex gap={"lg"}>
+              <Button
+                flex={1}
+                onClick={onDelete}
+                color="red"
+              >
+                Delete
+              </Button>
+              <Button
+                flex={1}
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </Button>
+            </Flex>
+          </Stack>
+        </Modal>
+        <Modal
+          opened={editModal}
           onClose={closeEditModal}
           title="Edit Meta Category"
         >
@@ -90,13 +117,13 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
         </Modal>
         <Button
           leftSection={<IconEdit/>}
-          onClick={openEditModel}
+          onClick={openEditModal}
         >
           Edit
         </Button>
         <Button
           leftSection={<IconTrash/>}
-          onClick={onDelete}
+          onClick={openDeleteModal}
         >
           Delete
         </Button>
@@ -111,7 +138,8 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
   }
   
   export const EditMeta2: React.FC<EditMeta2Props> = ({oldMeta2, meta1, onChange}) => {
-    const [editMeta2, {open: openEditModel, close: closeEditModal}] = useDisclosure();
+    const [editModal, {open: openEditModal, close: closeEditModal}] = useDisclosure();
+    const [deleteModal, {open: openDeleteModal, close: closeDeleteModal}] = useDisclosure();
     const [disabled, setDisabled] = useInitialState(true);
     const { loading, run } = useRequest(editMeta2Name, {
       manual: true,
@@ -177,7 +205,34 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
     return (
       <>
         <Modal
-          opened={editMeta2}
+          opened={deleteModal}
+          onClose={closeDeleteModal}
+          title="Delete Meta Category"
+        >
+          <Stack>
+            Are you sure you want to delete this meta category?
+            <b>This is irreversible.</b>
+            Note:
+            This action won't delete the categories themselves.
+            <Flex gap={"lg"}>
+              <Button
+                flex={1}
+                onClick={onDelete}
+                color="red"
+              >
+                Delete
+              </Button>
+              <Button
+                flex={1}
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </Button>
+            </Flex>
+          </Stack>
+        </Modal>
+        <Modal
+          opened={editModal}
           onClose={closeEditModal}
           title="Edit Meta Category"
           size="md"
@@ -210,13 +265,13 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
         </Modal>
         <Button
           leftSection={<IconEdit/>}
-          onClick={openEditModel}
+          onClick={openEditModal}
         >
           Edit
         </Button>
         <Button
           leftSection={<IconTrash/>}
-          onClick={onDelete}
+          onClick={openDeleteModal}
         >
           Delete
         </Button>
