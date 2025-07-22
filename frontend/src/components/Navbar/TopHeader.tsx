@@ -1,7 +1,5 @@
 import * as React from "react";
-import {
-  Container,
-} from "@mantine/core";
+import { Container } from "@mantine/core";
 import classes from "./TopHeader.module.css";
 import type { MantineSize } from "@mantine/core";
 

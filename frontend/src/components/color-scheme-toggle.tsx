@@ -1,18 +1,14 @@
-import { ActionIcon, useMantineColorScheme } from "@mantine/core";
+import { useMantineColorScheme } from "@mantine/core";
 import { IconMoon, IconSun } from "@tabler/icons-react";
+import { Button } from "@mantine/core";
 
 const ColorSchemeToggle = () => {
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-  const dark = colorScheme === "dark";
+  const { setColorScheme } = useMantineColorScheme();
   return (
-    <ActionIcon
-      color={dark ? "white" : "black"}
-      onClick={() => toggleColorScheme()}
-      title="Toggle color scheme"
-      variant="transparent"
-    >
-      {dark ? <IconSun /> : <IconMoon />}
-    </ActionIcon>
+    <>
+      <Button darkHidden variant="transparent" leftSection={<IconMoon />} onClick={() => { setColorScheme("dark") }} />
+      <Button lightHidden variant="transparent" leftSection={<IconSun />} onClick={() => { setColorScheme("light") }} />
+    </>
   );
 };
 
