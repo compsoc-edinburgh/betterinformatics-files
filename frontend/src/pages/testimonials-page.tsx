@@ -1,17 +1,12 @@
-// import '@mantine/core/styles.layer.css';
-// import 'mantine-datatable/styles.layer.css';
-// import { Table } from '@mantine/core';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useRequest } from "@umijs/hooks";
 import dayjs from 'dayjs';
 import { useMemo, useEffect, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
-//import mantine-datatable clsx
-//why does it work for mantine core but not for anything else?
 import useTitle from '../hooks/useTitle';
 import { useDisclosure } from '@mantine/hooks';
 import { useLocalStorageState } from '@umijs/hooks';
-import { Container, Text, Title, Modal, NumberInput, Button, Rating, Input, Flex, Center, Box, Card, Stack, useComputedColorScheme} from '@mantine/core';
+import { Container, Text, Title, Textarea, Modal, Group, NumberInput, Button, Rating, TextInput, Input, Flex, Center, Box, Card, Stack, useComputedColorScheme} from '@mantine/core';
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 import ShimmerButton from '../components/shimmer-button';
 import {
@@ -184,170 +179,92 @@ function getRatingBox(rating: any) : JSX.Element{
   </Center>);
 }
 
+function addTestimonial(testimonial: CourseTestimonial) {
+  console.log(testimonial)
+}
+
 const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
   const [opened, { open, close }] = useDisclosure(false);
-  const [yearValue, setYearValue] = useState<string | number>(2025);
-  // const columns = useMemo<MRT_ColumnDef<CourseWithTestimonial>[]>(
-  //   () => [
-  //     {
-  //       accessorKey: 'course_code',
-  //       header: 'Course Code',
-  //     },
-  //     {
-  //       accessorKey: 'course_name',
-  //       header: 'Course Name',
-  //       minSize:100,
-  //       maxSize:450,
-  //       size:350
-  //     },
-  //     {
-  //       accessorKey: 'course_delivery',
-  //       header: 'Delivery',
-  //     },
-  //     {
-  //       accessorKey: 'course_credits',
-  //       header: 'Credits',
-  //     },
-  //     {
-  //       accessorKey: 'course_work_exam_ratio',
-  //       header: 'Work%/Exam%',
-  //     },
-  //     {
-  //       accessorKey: 'course_level',
-  //       header: 'Level',
-  //     },
-  //     {
-  //       accessorKey: 'course_overall_rating',
-  //       header: 'Overall',
-  //       Cell: ({ renderedCellValue, row }) => (
-  //         getRatingBox(renderedCellValue)
-  //       ),
-  //       size:50
-  //     },
-  //     {
-  //       accessorKey: 'course_recommendability_rating',
-  //       header: 'Recommendability',
-  //       size:50
-  //     },
-  //     {
-  //       accessorKey: 'course_workload_rating',
-  //       header: 'Workload',
-  //       size:50
-  //     },
-  //     {
-  //       accessorKey: 'course_difficulty_rating',
-  //       header: 'Difficulty',
-  //       size:50
-  //     }
-  //   ],
-  //   [],
-  // );
+
+  //Inputs
+  const [courseName, setCourseName] = useState<string>("");
+  const [yearTakenValue, setYearTakenValue] = useState<string | number>(2025); //convert to this year
+  const [difficultyRating, setDifficultyRating] = useState<number>(0);
+  const [workloadRating, setWorkloadRating] = useState<number>(0);
+  const [recommendabilityRating, setRecommendabilityRating] = useState<number>(0);
+  const [testimonialString, setTestimonialString] = useState<string>("");
+
   const computedColorScheme = useComputedColorScheme("light");
   const [parent] = useAutoAnimate();
-  const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
-  //const [bodyRef] = useAutoAnimate<HTMLTableSectionElement>();
-  
-  // const table = useMantineReactTable({
-  //   columns,
-  //   data,
-  //   initialState: {
-  //     columnVisibility: {
-  //       course_delivery: false,
-  //       course_credits: false,
-  //       course_work_exam_ratio: false,
-  //       course_level: false
-  //     },
-  //   },
-  //   renderDetailPanel: ({ row }) => 
-  //     row.original.testimonials?.length === 0 ? (
-  //       <Flex direction="row" justify="space-between" align="center" style={{ margin: "0 5%" }}>
-  //         <Text>No testimonials yet :(</Text> 
-  //         <ShimmerButton
-  //           onClick={() => open()}
-  //           leftSection={<IconPlus />}
-  //           color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
-  //           variant="outline"
-  //         >
-  //           Add first testimonial
-  //         </ShimmerButton>
-  //       </Flex>
-  //     ) : (
-  //       <>
-  //         {row.original.testimonials.map((testimonial: CourseTestimonial) => 
-  //           <>
-  //             <Stack p={5}>
-  //               <Flex direction="row" justify="space-between" align="center">
-  //                 <Text><strong>Overall Recommendation:</strong> {String(testimonial.difficulty_rating)}/5</Text> 
-  //                 <ShimmerButton
-  //                   onClick={() => open()}
-  //                   leftSection={<IconPlus />}
-  //                   color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
-  //                   variant="outline"
-  //                 >
-  //                   Add new testimonial
-  //                 </ShimmerButton>
-  //               </Flex>
-  //               <ReviewCard typeOfStudent={""} yearTaken={String(testimonial.year_taken)} recommendabilityRating={String(testimonial.recommendability_rating)} workloadRating={String(testimonial.workload_rating)} difficultyRating={String(testimonial.difficulty_rating)} testimonial={String(testimonial.testimonial)}></ReviewCard>
-  //             </Stack>
-  //           </>
-  //         )}
-  //     </>
-  //     )
-  //     });
-  // return (
-  //   <DataTable
-  //     withTableBorder
-  //     borderRadius="sm"
-  //     withColumnBorders
-  //     striped
-  //     highlightOnHover
-  //     // 👇 provide data
-  //     records={[
-  //       { id: 1, name: 'Joe Biden', bornIn: 1942, party: 'Democratic' },
-  //       // more records...
-  //     ]}
-  //     // 👇 define columns
-  //     columns={[
-  //       {
-  //         accessor: 'id',
-  //         // 👇 this column has a custom title
-  //         title: '#',
-  //         // 👇 right-align column
-  //         textAlign: 'right',
-  //       },
-  //       { accessor: 'name' },
-  //       {
-  //         accessor: 'party',
-  //         // 👇 this column has custom cell data rendering
-  //         render: ({ party }) => (
-  //           <Box fw={700} c={party === 'Democratic' ? 'blue' : 'red'}>
-  //             {party.slice(0, 3).toUpperCase()}
-  //           </Box>
-  //         ),
-  //       },
-  //       { accessor: 'bornIn' },
-  //     ]}
-  //     // 👇 execute this callback when a row is clicked
-  //   />
-  // );
+
+  // type CourseTestimonial = {
+  //   author: string,
+  //   course: string,
+  //   difficulty_rating: number,
+  //   workload_rating: number,
+  //   recommendability_rating: number,
+  //   testimonial: string,
+  //   year_taken: number
+  // }
   return <>
-      <Modal opened={opened} onClose={close} title="Write a Testimonial" centered>
-        <Input placeholder = "Course Name"></Input>
-        <NumberInput
-          leftSection = {<IconCalendarFilled></IconCalendarFilled>}
-          value={yearValue}
-          onChange={setYearValue}
-          label="When did you take this course?"
-          placeholder="Year"
-        />
-        <Text>On a scale of 1-5, how likely are you to recommend this course?</Text>
-        <Rating fractions={2} style={{border:"solid 1px", borderRadius:"5px"}}></Rating>
-        <Text>On a scale of 1-5, how balanced was the workload of the course?</Text>
-        <Rating fractions={2}></Rating>
-        <Text>On a scale of 1-5, how manageable did you find the course?</Text>
-        <Rating fractions={2}></Rating>
-        <Text>Testimonial (Experience, Advice, Study Tips)</Text>
-        <Input placeholder = "review.."></Input>
+      <Modal opened={opened} onClose={close} title="Write a Testimonial" centered p={5} size={"50%"} style={{itle: {fontWeight: "bold", fontSize: "large"}}}>
+        <Stack gap={10} p={5}>
+          <TextInput size={"md"} label="Course Name" styles={{ label: {fontSize:"medium"} }} placeholder = "Course Name" value={courseName} onChange={(event) => (setCourseName(event.target.value))} required withAsterisk></TextInput>
+          <NumberInput
+            size={"md"}
+            styles={{ label: { fontSize:"medium"} }}
+            leftSection = {<IconCalendarFilled></IconCalendarFilled>}
+            value={yearTakenValue}
+            onChange={setYearTakenValue}
+            label="When did you take this course?"
+            placeholder="Year"
+            required withAsterisk
+          />
+          <Text style={{fontSize:"medium"}}>Ratings</Text>
+          <Stack style={{border : "solid 1px", borderRadius: 5, borderColor: "lightgray", padding:10}}>
+            <Flex>
+              <Group gap={3}>
+                <Text>Recommendability</Text> <Text style={{color: "red"}}>*</Text>
+                {/* On a scale of 1-5, how likely are you to recommend this course? */}
+              </Group>
+              <Rating style={{ marginLeft: 'auto' }} fractions={2} value={recommendabilityRating} onChange={setRecommendabilityRating} size={"lg"}></Rating>
+            </Flex>
+            <Flex>
+              <Group gap={3}>
+                <Text>Workload</Text> <Text style={{color: "red"}}>*</Text>
+                {/* On a scale of 1-5, how much workload was involved in the course? */}
+              </Group>
+              <Rating style={{ marginLeft: 'auto' }} fractions={2} value={workloadRating} onChange={setWorkloadRating} size={"lg"}></Rating>
+            </Flex>
+            <Flex>
+              <Group gap={3}> 
+                <Text>Difficulty</Text> <Text style={{color: "red"}}>*</Text> 
+                {/* On a scale of 1-5, how difficult did you find the course? */}
+              </Group>
+              <Rating style={{ marginLeft: 'auto' }} fractions={2} value={difficultyRating} onChange={setDifficultyRating} size={"lg"}></Rating>
+            </Flex>
+
+          </Stack>
+          
+          
+          <Text style={{fontSize:"medium"}}>Testimonial (Experience, Advice, Study Tips)</Text>
+          
+          <Textarea size={"md"} placeholder = "review.." value={testimonialString} onChange={(event) => (setTestimonialString(event.target.value))}></Textarea> 
+          {/* text area */}
+          <Button onClick={() => 
+          {
+            addTestimonial(
+              {author: "s2236467",
+              course: courseName,
+              difficulty_rating: difficultyRating,
+              workload_rating: workloadRating,
+              recommendability_rating: recommendabilityRating,
+              testimonial: testimonialString,
+              year_taken: Number(yearTakenValue)
+            }
+            )
+          }}>Add Review</Button>
+        </Stack>
       </Modal>
       <DataTable
         withTableBorder
