@@ -1378,20 +1378,20 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@mantine/charts@^7.0.0":
-  version "7.8.1"
-  resolved "https://registry.yarnpkg.com/@mantine/charts/-/charts-7.8.1.tgz#fef57f32201dba04f91c481ad240ebd292309ba7"
-  integrity sha512-ZMUQPin8ILv3ruRelOycXvex3PW87+QrPWHKEUUTUqp8RANLuz7dYnmeGaemG91ymsd2kHxzFlGYX96Yc/tCdQ==
+"@mantine/charts@^8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@mantine/charts/-/charts-8.2.1.tgz#df136fd9341644d1300b3d10cd6c7234944bbeb3"
+  integrity sha512-ZtVilizgZkX1PyT4lxZqbjI7hf26IYQ1vqTxIGiBZhg7JyI5b5f0/4cA3XgakAdqNY0MOuZL6BKlcDvYG0PRIQ==
 
 "@mantine/colors-generator@^7.7.0":
   version "7.7.2"
   resolved "https://registry.yarnpkg.com/@mantine/colors-generator/-/colors-generator-7.7.2.tgz#fbac1e60da7d3925df5a79af5d1194627093a0fd"
   integrity sha512-ZVLYmZmITiqlOXF2zw9NGDth1P4hNDOisQJOjmIL68uPGaDqaW+0HcZzKWtl4xQWXjfnbuaaFW9m7ip1UvJYCw==
 
-"@mantine/core@^8.1.2":
-  version "8.1.2"
-  resolved "https://registry.yarnpkg.com/@mantine/core/-/core-8.1.2.tgz#ae4460b4a954981417f83644a917d140794343f4"
-  integrity sha512-+maX0a1+fxh6Lvnzi0qb0AZsCnnHlIiTE/hFC+dd3eRfUW2PEKJ5/wTpmrX8IGyxa+NS+fXjZD/cU4Yt9xNjdg==
+"@mantine/core@^8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@mantine/core/-/core-8.2.1.tgz#149b3f09c6b67833cb4b6d3eca1c5e7a966b7ca2"
+  integrity sha512-KxvydotyFRdrRbqULUX2G35/GddPFju9XQUv/vdDWu1ytIWZViTguc+WSj1aBd0DtfRrSaofU5ezZISEXVrPBA==
   dependencies:
     "@floating-ui/react" "^0.26.28"
     clsx "^2.1.1"
@@ -1400,10 +1400,10 @@
     react-textarea-autosize "8.5.9"
     type-fest "^4.27.0"
 
-"@mantine/dates@^8.1.2":
-  version "8.1.2"
-  resolved "https://registry.yarnpkg.com/@mantine/dates/-/dates-8.1.2.tgz#f78cb75d8b155b648bc013d7d2a717c0b0c01620"
-  integrity sha512-cq2Sp8g8KIYWIg9Yh4yCuHBEMQRCAAe0LhzPfQnNAJ2DtgW0qlszgWUu62WiPs8T5TU1bBgC4NHXGUM0w6Ef4A==
+"@mantine/dates@^8.2.1":
+  version "8.2.1"
+  resolved "https://registry.yarnpkg.com/@mantine/dates/-/dates-8.2.1.tgz#b50febeb0c7248673b57826374514104901b628d"
+  integrity sha512-xNeI+Jw7p9UYEsLbg+QKny4NZ1O3bL6rlrtJKGqOm3HQoATpbRTrdunmY2sIOYXcPEasSCe+y2Ye0fORUcMUEA==
   dependencies:
     clsx "^2.1.1"
 
@@ -4210,10 +4210,10 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-mantine-datatable@^8.1.2:
-  version "8.1.2"
-  resolved "https://registry.yarnpkg.com/mantine-datatable/-/mantine-datatable-8.1.2.tgz#6b77b0ca3c469279518e61cf7ecaebc14d1717a7"
-  integrity sha512-3Q7aGQJTSck5yqtjOsZqCqD0fu8D+CVgUSB9I1fGjwueWRYo7KSIBQI4/OBxkdzwOk65MPHtRX9jDo1JsfD58A==
+mantine-datatable@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/mantine-datatable/-/mantine-datatable-8.2.0.tgz#05ee4f8ed59a0138bff2b9aee8ecc36fbb34f448"
+  integrity sha512-dkdOnDw1DF9t5kxl4VEPM0baubNW2Tc+lvbc0bkVU1bNaDpXphSeoTGU6lai0sQ21hrKSMbfiK0ACczdrSOKyg==
 
 markdown-table@^3.0.0:
   version "3.0.4"

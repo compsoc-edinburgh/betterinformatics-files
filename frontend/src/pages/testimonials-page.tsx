@@ -1,12 +1,13 @@
-import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css';
-// import 'mantine-react-table/styles.css';
+// import '@mantine/core/styles.layer.css';
+// import 'mantine-datatable/styles.layer.css';
+// import { Table } from '@mantine/core';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useRequest } from "@umijs/hooks";
 import dayjs from 'dayjs';
 import { useMemo, useEffect, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
 //import mantine-datatable clsx
+//why does it work for mantine core but not for anything else?
 import useTitle from '../hooks/useTitle';
 import { useDisclosure } from '@mantine/hooks';
 import { useLocalStorageState } from '@umijs/hooks';
@@ -158,7 +159,6 @@ const TestimonialsPage: React.FC<{}> = () => {
 }
 
 function getRatingBox(rating: any) : JSX.Element{
-
   let ratingsBoxColor = "#A0AEC0"
     if (rating==-1){
       ratingsBoxColor = "#A0AEC0"
@@ -174,7 +174,6 @@ function getRatingBox(rating: any) : JSX.Element{
 
   return (
   <Center style={{
-    display: 'flex',
     alignContent: 'center',
     padding: '4px',
     backgroundColor: ratingsBoxColor,
@@ -295,6 +294,42 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
   //     </>
   //     )
   //     });
+  // return (
+  //   <DataTable
+  //     withTableBorder
+  //     borderRadius="sm"
+  //     withColumnBorders
+  //     striped
+  //     highlightOnHover
+  //     // 👇 provide data
+  //     records={[
+  //       { id: 1, name: 'Joe Biden', bornIn: 1942, party: 'Democratic' },
+  //       // more records...
+  //     ]}
+  //     // 👇 define columns
+  //     columns={[
+  //       {
+  //         accessor: 'id',
+  //         // 👇 this column has a custom title
+  //         title: '#',
+  //         // 👇 right-align column
+  //         textAlign: 'right',
+  //       },
+  //       { accessor: 'name' },
+  //       {
+  //         accessor: 'party',
+  //         // 👇 this column has custom cell data rendering
+  //         render: ({ party }) => (
+  //           <Box fw={700} c={party === 'Democratic' ? 'blue' : 'red'}>
+  //             {party.slice(0, 3).toUpperCase()}
+  //           </Box>
+  //         ),
+  //       },
+  //       { accessor: 'bornIn' },
+  //     ]}
+  //     // 👇 execute this callback when a row is clicked
+  //   />
+  // );
   return <>
       <Modal opened={opened} onClose={close} title="Write a Testimonial" centered>
         <Input placeholder = "Course Name"></Input>
@@ -317,22 +352,23 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
       <DataTable
         withTableBorder
         withColumnBorders
-        textSelectionDisabled
+        striped
         highlightOnHover
+        textSelectionDisabled
         noRecordsIcon={data?.length === 0 ? <></> : <></> }
         noRecordsText={data?.length === 0 ? "No records to show" : ""}
-        scrollAreaProps={{ type: 'never' }}
+        //scrollAreaProps={{ type: 'never' }}
         columns = {[
           {
             accessor: 'course_code',
             title: 'Course Code',
+            width: "12%",
           },
           {
             accessor: 'course_name',
             title: 'Course Name',
             // minSize:100,
             // maxSize:450,
-            width:350
           },
           // {
           //   accessor: 'course_delivery',
@@ -353,6 +389,8 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
           {
             accessor: 'course_overall_rating',
             title: 'Overall',
+            render: ({course_overall_rating}) => (getRatingBox(course_overall_rating)),
+            width: "12%",
             // Cell: ({ renderedCellValue, row }) => (
             //   getRatingBox(renderedCellValue)
             // ),
@@ -361,27 +399,27 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
           {
             accessor: 'course_recommendability_rating',
             title: 'Recommendability',
+            width: "12%",
+            render: ({course_recommendability_rating}) => (getRatingBox(course_recommendability_rating))
             //width:50
           },
           {
             accessor: 'course_workload_rating',
             title: 'Workload',
+            render: ({course_workload_rating}) => (getRatingBox(course_workload_rating)),
+            width: "12%"
             //width:50
           },
           {
             accessor: 'course_difficulty_rating',
             title: 'Difficulty',
+            render: ({course_difficulty_rating}) => (getRatingBox(course_difficulty_rating)),
+            width: "12%"
             //width:50
           }
         ]}
         records ={data}
         idAccessor="course_code"
-        rowStyle={() => ({
-          cursor: 'pointer',
-          '&:hover': {
-            backgroundColor: computedColorScheme === 'dark' ? 'gray' : 'gray',
-          },
-        })}
         rowExpansion={{
           // expanded: {
           //   recordIds: expandedRecordIds,
@@ -395,8 +433,8 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
           allowMultiple: true,
           content: ({ record }) => (
             <Stack ref ={parent} p={5}>
-              <Flex direction="row" justify="space-between" align="center">
-                <Text><strong>Overall Recommendation:</strong> {String(record.course_overall_rating)}/5</Text> 
+              <Flex direction="row" justify="space-between" align="center" p={10}>
+                <Text><strong>Overall Recommendation:</strong> {record.course_overall_rating == -1? "N/A" : String(record.course_overall_rating)+"/5"}</Text> 
                 <ShimmerButton
                   onClick={() => open()}
                   leftSection={<IconPlus />}

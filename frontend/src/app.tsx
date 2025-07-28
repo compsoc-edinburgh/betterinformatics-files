@@ -10,7 +10,10 @@ import {
   CSSVariablesResolver,
   SegmentedControl,
 } from "@mantine/core";
-import "@mantine/core/styles.css";
+import "@mantine/hooks";
+import '@mantine/core/styles.layer.css';
+import 'mantine-datatable/styles.layer.css';
+import './layout.css';
 import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
@@ -233,7 +236,7 @@ const App: React.FC<{}> = () => {
   });
 
   return (
-    <MantineProvider theme={compsocTheme} cssVariablesResolver={resolver}>
+    <MantineProvider theme={compsocTheme} cssVariablesResolver={resolver} withCssVariables={true} withGlobalClasses={true}>
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
