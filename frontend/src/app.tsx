@@ -53,6 +53,7 @@ import {
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
 import TestimonialsPage from "./pages/testimonials-page";
+import AddTestimonialsPage from "./pages/add-testimonials-page";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -279,6 +280,11 @@ const App: React.FC<{}> = () => {
                       exact
                       path="/testimonials"
                       component={TestimonialsPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/addtestimonials"
+                      component={AddTestimonialsPage}
                     />
                     <UserRoute
                       exact

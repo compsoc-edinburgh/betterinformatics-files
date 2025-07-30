@@ -47,6 +47,7 @@ export const useUserInfo = (username: string) => {
   );
   return [error, loading, data, run] as const;
 };
+
 const setUserDisplayUsername = async (displayUsername: string) => {
   await fetchPost("/api/auth/update_name/", {
     display_username: displayUsername,

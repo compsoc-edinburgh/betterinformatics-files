@@ -3,6 +3,7 @@ from ediauth import auth_check
 from testimonials.models import Course, Testimonial
 from django.shortcuts import get_object_or_404
 from datetime import timedelta
+from django.http import JsonResponse
 
 @response.request_get()
 @auth_check.require_login
@@ -39,3 +40,51 @@ def testimonial_metadata(request):
         for testimonial in testimonials
     ]
     return response.success(value=res)
+
+@response.request_post("course", "year_taken", optional=True)
+@auth_check.require_login
+def add_testimonial(request):
+    author = request.user
+
+    course_code = request.POST.get('course') #course code instead of course name
+    course = Course.objects.get(code=course_code)
+    year_taken = request.POST.get('year_taken')
+    recommendability_rating = float(request.POST.get('recommendability_rating'))
+    workload_rating = request.POST.get('workload_rating') # notes is optional
+    difficulty_rating = request.POST.get('difficulty_rating')
+    testimonial = request.POST.get('testimonial')
+    #grade_band = request.POST.get('grade_band', None) # Added grade_band, optional
+    if not author:
+        return response.not_possible("Missing argument: author")
+    if not course:
+        return response.not_possible("Missing argument: course")
+    if not year_taken:
+        return response.not_possible("Missing argument: year_taken")
+    if not recommendability_rating:
+        return response.not_possible("Missing argument: recommendability_rating")
+    if not workload_rating:
+        return response.not_possible("Missing argument: workload_rating")
+    if not difficulty_rating:
+        return response.not_possible("Missing argument: difficulty_rating")
+    if not testimonial:
+        return response.not_possible("Missing argument: testimonial")
+
+    # Create Dissertation entry in DB
+
+    testimonials = Testimonial.objects.all()
+
+    for t in testimonials:
+        if t.author == author and t.course.code == course_code:
+            return response.not_possible("You can only add 1 testimonial for each course.")
+        
+    testimonial = Testimonial.objects.create(
+        author=author,
+        course=course,
+        year_taken=year_taken,
+        recommendability_rating=recommendability_rating,
+        workload_rating=workload_rating,
+        difficulty_rating=difficulty_rating,
+        testimonial=testimonial,
+    )
+
+    return response.success(value=testimonial.id)

@@ -1,12 +1,14 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useRequest } from "@umijs/hooks";
+import {useHistory} from 'react-router-dom'
+import { fetchPost, fetchGet } from '../api/fetch-utils';
 import dayjs from 'dayjs';
-import { useMemo, useEffect, useState } from 'react';
+import {useEffect, useState } from 'react';
 import { DataTable } from 'mantine-datatable';
 import useTitle from '../hooks/useTitle';
 import { useDisclosure } from '@mantine/hooks';
 import { useLocalStorageState } from '@umijs/hooks';
-import { Container, Text, Title, Textarea, Modal, Group, NumberInput, Button, Rating, TextInput, Input, Flex, Center, Box, Card, Stack, useComputedColorScheme} from '@mantine/core';
+import { Container, Text, Title, Autocomplete, Textarea, Notification, Modal, Group, NumberInput, Button, Rating, TextInput, Input, Flex, Center, Box, Card, Stack, useComputedColorScheme} from '@mantine/core';
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 import ShimmerButton from '../components/shimmer-button';
 import {
@@ -58,7 +60,7 @@ type CourseWithTestimonial = { //there is repetition here
 }
 
 
-interface ReviewTableProps{
+export interface ReviewTableProps{
   data: CourseWithTestimonial[]
 }
 
@@ -103,7 +105,7 @@ function getTableData(courses: any, testimonials: any) : CourseWithTestimonial[]
         course_work_exam_ratio: course.course_work_exam_ratio,
         course_level: course.course_level,
         course_dpmt_link: course.course_dpmt_link,
-        course_overall_rating: (average_course_recommendability + average_course_difficulty + average_course_workload)/3,
+        course_overall_rating: parseFloat(((average_course_recommendability + average_course_difficulty + average_course_workload)/3).toFixed(2)),
         course_recommendability_rating: average_course_recommendability,
         course_difficulty_rating: average_course_difficulty,
         course_workload_rating: average_course_workload,
@@ -181,99 +183,52 @@ function getRatingBox(rating: any) : JSX.Element{
 
 function addTestimonial(testimonial: CourseTestimonial) {
   console.log(testimonial)
+
 }
 
 const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
+
+  const [allData, setAllData] = useState<CourseWithTestimonial[]>();
+  useEffect(() => {
+    setAllData(data);
+  }, [data]);
   const [opened, { open, close }] = useDisclosure(false);
 
   //Inputs
-  const [courseName, setCourseName] = useState<string>("");
-  const [yearTakenValue, setYearTakenValue] = useState<string | number>(2025); //convert to this year
-  const [difficultyRating, setDifficultyRating] = useState<number>(0);
-  const [workloadRating, setWorkloadRating] = useState<number>(0);
-  const [recommendabilityRating, setRecommendabilityRating] = useState<number>(0);
-  const [testimonialString, setTestimonialString] = useState<string>("");
+  // const [courseName, setCourseName] = useState<string>("");
+  // const [yearTakenValue, setYearTakenValue] = useState<string | number>(2025); //convert to this year
+  // const [difficultyRating, setDifficultyRating] = useState<number>(0);
+  // const [workloadRating, setWorkloadRating] = useState<number>(0);
+  // const [recommendabilityRating, setRecommendabilityRating] = useState<number>(0);
+  // const [testimonialString, setTestimonialString] = useState<string>("");
+
+  const {
+    data: courses,
+    loading: loadingCourses,
+    error: errorCourses,
+    refresh: refetchCourses,
+  } = useRequest(() => loadCourses());
+  
+  const {
+    data: testimonials,
+    loading: loadingTestimonials,
+    error: errorTestimonials,
+    refresh: refetchTestimonials,
+  } = useRequest(() => loadTestimonials());
 
   const computedColorScheme = useComputedColorScheme("light");
   const [parent] = useAutoAnimate();
 
-  // type CourseTestimonial = {
-  //   author: string,
-  //   course: string,
-  //   difficulty_rating: number,
-  //   workload_rating: number,
-  //   recommendability_rating: number,
-  //   testimonial: string,
-  //   year_taken: number
-  // }
+  const history = useHistory();
   return <>
-      <Modal opened={opened} onClose={close} title="Write a Testimonial" centered p={5} size={"50%"} style={{itle: {fontWeight: "bold", fontSize: "large"}}}>
-        <Stack gap={10} p={5}>
-          <TextInput size={"md"} label="Course Name" styles={{ label: {fontSize:"medium"} }} placeholder = "Course Name" value={courseName} onChange={(event) => (setCourseName(event.target.value))} required withAsterisk></TextInput>
-          <NumberInput
-            size={"md"}
-            styles={{ label: { fontSize:"medium"} }}
-            leftSection = {<IconCalendarFilled></IconCalendarFilled>}
-            value={yearTakenValue}
-            onChange={setYearTakenValue}
-            label="When did you take this course?"
-            placeholder="Year"
-            required withAsterisk
-          />
-          <Text style={{fontSize:"medium"}}>Ratings</Text>
-          <Stack style={{border : "solid 1px", borderRadius: 5, borderColor: "lightgray", padding:10}}>
-            <Flex>
-              <Group gap={3}>
-                <Text>Recommendability</Text> <Text style={{color: "red"}}>*</Text>
-                {/* On a scale of 1-5, how likely are you to recommend this course? */}
-              </Group>
-              <Rating style={{ marginLeft: 'auto' }} fractions={2} value={recommendabilityRating} onChange={setRecommendabilityRating} size={"lg"}></Rating>
-            </Flex>
-            <Flex>
-              <Group gap={3}>
-                <Text>Workload</Text> <Text style={{color: "red"}}>*</Text>
-                {/* On a scale of 1-5, how much workload was involved in the course? */}
-              </Group>
-              <Rating style={{ marginLeft: 'auto' }} fractions={2} value={workloadRating} onChange={setWorkloadRating} size={"lg"}></Rating>
-            </Flex>
-            <Flex>
-              <Group gap={3}> 
-                <Text>Difficulty</Text> <Text style={{color: "red"}}>*</Text> 
-                {/* On a scale of 1-5, how difficult did you find the course? */}
-              </Group>
-              <Rating style={{ marginLeft: 'auto' }} fractions={2} value={difficultyRating} onChange={setDifficultyRating} size={"lg"}></Rating>
-            </Flex>
-
-          </Stack>
-          
-          
-          <Text style={{fontSize:"medium"}}>Testimonial (Experience, Advice, Study Tips)</Text>
-          
-          <Textarea size={"md"} placeholder = "review.." value={testimonialString} onChange={(event) => (setTestimonialString(event.target.value))}></Textarea> 
-          {/* text area */}
-          <Button onClick={() => 
-          {
-            addTestimonial(
-              {author: "s2236467",
-              course: courseName,
-              difficulty_rating: difficultyRating,
-              workload_rating: workloadRating,
-              recommendability_rating: recommendabilityRating,
-              testimonial: testimonialString,
-              year_taken: Number(yearTakenValue)
-            }
-            )
-          }}>Add Review</Button>
-        </Stack>
-      </Modal>
       <DataTable
         withTableBorder
         withColumnBorders
         striped
         highlightOnHover
         textSelectionDisabled
-        noRecordsIcon={data?.length === 0 ? <></> : <></> }
-        noRecordsText={data?.length === 0 ? "No records to show" : ""}
+        noRecordsIcon={allData?.length === 0 ? <></> : <></> }
+        noRecordsText={allData?.length === 0 ? "No records to show" : ""}
         //scrollAreaProps={{ type: 'never' }}
         columns = {[
           {
@@ -335,7 +290,7 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
             //width:50
           }
         ]}
-        records ={data}
+        records ={allData}
         idAccessor="course_code"
         rowExpansion={{
           // expanded: {
@@ -353,7 +308,7 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
               <Flex direction="row" justify="space-between" align="center" p={10}>
                 <Text><strong>Overall Recommendation:</strong> {record.course_overall_rating == -1? "N/A" : String(record.course_overall_rating)+"/5"}</Text> 
                 <ShimmerButton
-                  onClick={() => open()}
+                  onClick={() => history.push('/addtestimonials')}
                   leftSection={<IconPlus />}
                   color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
                   variant="outline"
@@ -370,7 +325,7 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data}) => {
           ),
         }}
         //bodyRef={bodyRef}
-        // fetching={data.length == 0}
+        fetching={allData? allData.length == 0 : false}
         // loaderType={"oval"}
         // loaderSize={"lg"}
         // loaderColor={"blue"}

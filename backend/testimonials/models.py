@@ -23,9 +23,9 @@ class Testimonial(models.Model):
     ) #Course_id, author_id, id (testimonial_id)
     testimonial = models.TextField()
     year_taken = models.IntegerField()
-    recommendability_rating = models.IntegerField() #min=1 max=5
-    workload_rating = models.IntegerField() #min=1 max=5
-    difficulty_rating = models.IntegerField() #min=1 max=5
+    recommendability_rating = models.FloatField() #min=1 max=5
+    workload_rating = models.FloatField() #min=1 max=5
+    difficulty_rating = models.FloatField() #min=1 max=5
 
     class Meta:
         # Enforce uniqueness across `student_number` and `course`
