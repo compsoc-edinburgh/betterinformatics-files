@@ -179,7 +179,9 @@ ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS.append("localhost")
+    ALLOWED_HOSTS.append("community-solutions")
     REAL_ALLOWED_HOSTS.append("localhost")
+    REAL_ALLOWED_HOSTS.append("community-solutions")
 else:
     # ALLOWED_HOSTS.append(os.environ['SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN'])
     # USE_X_FORWARDED_HOST = True

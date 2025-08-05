@@ -1,0 +1,37 @@
+faro.receiver "faro" {
+	extra_log_labels = {
+		app  = "Frontend Observability",
+		kind = "",
+	}
+
+	server {
+		listen_address           = "0.0.0.0"
+		listen_port              = "12347"
+		cors_allowed_origins     = ["*"]
+		max_allowed_payload_size = "10MiB"
+
+		rate_limiting {
+			rate = 50
+		}
+	}
+
+	sourcemaps { }
+
+	output {
+		logs   = [loki.write.default.receiver]
+		traces = [otelcol.exporter.otlp.default.input]
+	}
+}
+
+
+otelcol.exporter.otlp "default" {
+    client {
+      endpoint = "tempo:4317"
+    }
+}
+
+loki.write "default" {
+    endpoint {
+        url = "http://loki:3100/loki/api/v1/push"
+    }
+}

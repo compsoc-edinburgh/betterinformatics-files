@@ -5,6 +5,7 @@ interface IServerData {
   imprint: string;
   privacy_policy: string;
   unlock_deposit_notice: string;
+  faro_url: string?;
   announcements: [{
     id: string,
     variant: string | undefined,

@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
-import { Route, Switch, useLocation } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import {
   authenticationStatus,
   fetchGet,
@@ -54,6 +54,7 @@ import {
 import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
+import { FaroRoute } from '@grafana/faro-react';
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -267,7 +268,7 @@ const App: React.FC<{}> = () => {
                     data.externalNav ?? defaultConfigOptions.externalNav
                   }
                   selectedLanguage={"en"}
-                  onLanguageSelect={() => {}}
+                  onLanguageSelect={() => { }}
                 />
                 <BottomHeader
                   lang={"en"}
@@ -284,52 +285,54 @@ const App: React.FC<{}> = () => {
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
                   <Switch>
-                    <UserRoute exact path="/" component={HomePage} />
+                    <FaroRoute path="/">
+                      <UserRoute exact path="/" component={HomePage} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        component={UploadPdfPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/submittranscript"
+                        component={UploadTranscriptPage}
+                      />
+                      <UserRoute exact path="/faq" component={FAQ} />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        component={FeedbackPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/category/:slug"
+                        component={CategoryPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:author/document/:slug"
+                        component={DocumentPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/exams/:filename"
+                        component={ExamPage}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        component={UserPage}
+                      />
+                      <UserRoute exact path="/user/" component={UserPage} />
+                      <UserRoute exact path="/search/" component={SearchPage} />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        component={Scoreboard}
+                      />
+                      <UserRoute exact path="/modqueue" component={ModQueue} />
+                    </FaroRoute>
                     <Route exact path="/login" component={LoginPage} />
-                    <UserRoute
-                      exact
-                      path="/uploadpdf"
-                      component={UploadPdfPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/submittranscript"
-                      component={UploadTranscriptPage}
-                    />
-                    <UserRoute exact path="/faq" component={FAQ} />
-                    <UserRoute
-                      exact
-                      path="/feedback"
-                      component={FeedbackPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/category/:slug"
-                      component={CategoryPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/user/:author/document/:slug"
-                      component={DocumentPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/exams/:filename"
-                      component={ExamPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/user/:username"
-                      component={UserPage}
-                    />
-                    <UserRoute exact path="/user/" component={UserPage} />
-                    <UserRoute exact path="/search/" component={SearchPage} />
-                    <UserRoute
-                      exact
-                      path="/scoreboard"
-                      component={Scoreboard}
-                    />
-                    <UserRoute exact path="/modqueue" component={ModQueue} />
                     <Route component={NotFoundPage} />
                   </Switch>
                 </Box>
