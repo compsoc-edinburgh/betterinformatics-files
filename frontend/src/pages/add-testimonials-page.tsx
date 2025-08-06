@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import { Container, Alert, Text, Title, Autocomplete, Textarea, Notification, Modal, Group, NumberInput, Button, Rating, TextInput, Input, Flex, Center, Box, Card, Stack, useComputedColorScheme} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { fetchPost } from '../api/fetch-utils';
@@ -10,7 +10,7 @@ import {
   } from "@tabler/icons-react";
 import {
 loadCourses,
-} from "../api/hooks";
+} from "../api/testimonials";
 import { useRequest } from "@umijs/hooks";
 
 type Course = {
@@ -23,28 +23,24 @@ type Course = {
     course_dpmt_link: string
   }
 const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
+    const { course_code, course_name } = useParams<{ course_code?: string; course_name?: string }>();
     const history = useHistory();
     const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const initialCourse = course_code? `${course_code} - ${course_name}` : ''
     const { data : courses, loading: loading_courses, error: error_courses} = useRequest(
         () => loadCourses()
       );
     const form = useForm({
       initialValues: {
-        courseName: '',
+        courseName: initialCourse,
         yearTakenValue: 2025,
-        difficultyRating: 0,
-        workloadRating: 0,
-        recommendabilityRating: 0,
         testimonialString: '', 
       },
   
       validate: {
         courseName: (value: string) => (value ? null : 'Course Name is required'),
         yearTakenValue: (value: number) => (value ? null : 'Year Taken is required'),
-        difficultyRating: (value: number) => (value ? null : 'Supervisors are required'),
-        workloadRating: (value: number) => (value ? null : 'PDF file is required'),
-        recommendabilityRating: (value: number) => (value ? null : 'Study level is required'),
         testimonialString: (value: string) => (value ? null : "Testimonial is required")
       },
     });
@@ -54,26 +50,30 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
       setErrorMessage(null);
   
       // fetchPost expects a plain object, and it will construct FormData internally
-      console.log(values.courseName.split(" - ")[0])
       const dataToSend = {
         course: values.courseName.split(" - ")[0],
         year_taken: values.yearTakenValue,
-        difficulty_rating: values.difficultyRating,
-        workload_rating: values.workloadRating,
-        recommendability_rating: values.recommendabilityRating,
         testimonial: values.testimonialString, 
       };
-  
+      //understand thens and comments
       try {
         const response = await fetchPost('/api/testimonials/addtestimonial/', dataToSend);
         console.log("Response Add Testimonial")
         console.log(response.value)
-        if (response.value) {
+
+        if (response.value && response.value["approved"] == true) {
           setUploadSuccess(true);
+          form.setInitialValues({
+            courseName: '',
+            yearTakenValue: 2025,
+            testimonialString: '', 
+          })
           form.reset();
-          //history.push('/testimonials'); // Redirect to testimonials page on success
-          //reload the table
-        } else {
+        } else if (response.value && response.value["approved"] == false) {
+            setUploadSuccess(true);
+            setErrorMessage("Thank you for submitting your testimonial! We appreciate your feedback. However, we've detected some potentially inappropriate content, so your message will be reviewed by a moderator before it can be published.");
+        }
+        else {
           setUploadSuccess(false);
           setErrorMessage(response.error || 'Unknown error during upload.');
         }
@@ -89,7 +89,6 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
       <Title order={2} ta="center" mb="xl">Add a Course Testimonial</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap={10} p={5}>
-          
           <Autocomplete data={courses == undefined? []: courses["value"].map((course : Course) => course.course_code + " - " + course.course_name)} size={"md"} {...form.getInputProps('courseName')} label="Course Name" styles={{ label: {fontSize:"medium"} }} placeholder = "Course Name" required withAsterisk />
           <NumberInput
             size={"md"}
@@ -100,40 +99,22 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
             placeholder="Year"
             required withAsterisk
           />
-          <Text style={{fontSize:"medium"}}>Ratings</Text>
-          <Stack style={{border : "solid 1px", borderRadius: 5, borderColor: "lightgray", padding:10}}>
-            <Flex>
-              <Group gap={3}>
-                <Text>Recommendability</Text> <Text style={{color: "red"}}>*</Text>
-                {/* On a scale of 1-5, how likely are you to recommend this course? */}
-              </Group>
-              <Rating style={{ marginLeft: 'auto' }} fractions={2} {...form.getInputProps('recommendabilityRating')} size={"lg"}></Rating>
-            </Flex>
-            <Flex>
-              <Group gap={3}>
-                <Text>Workload</Text> <Text style={{color: "red"}}>*</Text>
-                {/* On a scale of 1-5, how much workload was involved in the course? */}
-              </Group>
-              <Rating style={{ marginLeft: 'auto' }} fractions={2} {...form.getInputProps('workloadRating')} size={"lg"}></Rating>
-            </Flex>
-            <Flex>
-              <Group gap={3}> 
-                <Text>Difficulty</Text> <Text style={{color: "red"}}>*</Text> 
-                {/* On a scale of 1-5, how difficult did you find the course? */}
-              </Group>
-              <Rating style={{ marginLeft: 'auto' }} fractions={2} {...form.getInputProps('difficultyRating')} size={"lg"}></Rating>
-            </Flex>
-
-          </Stack>
           
-          
-          <Text style={{fontSize:"medium"}}>Testimonial (Experience, Advice, Study Tips)</Text>
+          <Group gap={3}> 
+            <Text style={{fontSize:"medium"}}>Testimonial (Experience, Advice, Study Tips)</Text> <Text style={{color: "red"}}>*</Text> 
+          </Group>
           
           <Textarea size={"md"} placeholder = "testimonial.." {...form.getInputProps('testimonialString')}></Textarea> 
           {/* text area */}
-            {uploadSuccess === true && (
+            {uploadSuccess === true && errorMessage == null && (
             <Alert title="Successfully added testimonial" variant="light" withCloseButton color="teal" mt="md" onClose={() => setUploadSuccess(null)} icon={<IconInfoCircle />}>
               Thanks for submitting your review, your knowledge will be much appreciated by future UoE students.
+            </Alert>
+          )}
+
+            {uploadSuccess === true && errorMessage && (
+            <Alert title="Testimonial needs a review" variant="light" withCloseButton color="cream" mt="md" onClose={() => setUploadSuccess(null)} icon={<IconInfoCircle />}>
+              {errorMessage}
             </Alert>
           )}
 

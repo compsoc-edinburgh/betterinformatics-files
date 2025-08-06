@@ -8,6 +8,7 @@ class NotificationType(enum.Enum):
     NEW_COMMENT_TO_COMMENT = 2
     NEW_ANSWER_TO_ANSWER = 3
     NEW_COMMENT_TO_DOCUMENT = 4
+    UPDATE_TO_TESTIMONIAL_APPROVAL_STATUS = 5
 
 
 class Notification(models.Model):

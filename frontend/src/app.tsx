@@ -283,7 +283,7 @@ const App: React.FC<{}> = () => {
                     />
                     <UserRoute
                       exact
-                      path="/addtestimonials"
+                      path="/addtestimonials/:course_code?/:course_name?"
                       component={AddTestimonialsPage}
                     />
                     <UserRoute

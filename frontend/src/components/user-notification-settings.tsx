@@ -19,6 +19,8 @@ const mapTypeToString = (type: number) => {
       return "Other answer to same question";
     case 4:
       return "Comment to my document";
+    case 5:
+      return "Update to my testimonial status";
     default:
       return "Unknown";
   }
@@ -46,7 +48,7 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {[1, 2, 3, 4].map(type => (
+          {[1, 2, 3, 4, 5].map(type => (
             <Table.Tr key={type}>
               <Table.Td>{mapTypeToString(type)}</Table.Td>
               <Table.Td>

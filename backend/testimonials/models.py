@@ -13,6 +13,7 @@ class Course(models.Model):
         return self.code  # Use only a field of the model
     #add a testimonial data type to courses
 
+
 class Testimonial(models.Model):
     #Link this to models.py ediauth username
     id = models.AutoField(primary_key=True)
@@ -23,9 +24,7 @@ class Testimonial(models.Model):
     ) #Course_id, author_id, id (testimonial_id)
     testimonial = models.TextField()
     year_taken = models.IntegerField()
-    recommendability_rating = models.FloatField() #min=1 max=5
-    workload_rating = models.FloatField() #min=1 max=5
-    difficulty_rating = models.FloatField() #min=1 max=5
+    approved = models.BooleanField(default=False)
 
     class Meta:
         # Enforce uniqueness across `student_number` and `course`

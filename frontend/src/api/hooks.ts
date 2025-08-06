@@ -591,11 +591,3 @@ export const useRegenerateDocumentAPIKey = (
   documentSlug: string,
   onSuccess?: (res: Document) => void,
 ) => useMutation(() => regenerateDocumentAPIKey(documentSlug), onSuccess);
-
-export const loadCourses = async () => {
-  return (await fetchGet("/api/testimonials/listcourses"))
-};
-
-export const loadTestimonials = async () => {
-  return (await fetchGet("/api/testimonials/listtestimonials"))
-};
