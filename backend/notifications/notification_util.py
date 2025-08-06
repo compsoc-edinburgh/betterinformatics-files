@@ -33,6 +33,18 @@ def send_notification(
     associated_data: Answer,
 ) -> None: ...
 
+@overload
+def send_notification(
+    sender: User,
+    receiver: User,
+    type_: Literal[
+        NotificationType.UPDATE_TO_TESTIMONIAL_APPROVAL_STATUS
+    ],
+    title: str,
+    message: str,
+    associated_data: str, #Update to Testimonial
+) -> None: ...
+
 
 @overload
 def send_notification(
@@ -51,10 +63,11 @@ def send_notification(
     type_: NotificationType,
     title: str,
     message: str,
-    associated_data: Union[Answer, Document],
+    associated_data: Union[Answer, Document, str],
 ):
     if sender == receiver:
         return
+    
     if is_notification_enabled(receiver, type_):
         send_inapp_notification(
             sender, receiver, type_, title, message, associated_data
@@ -97,7 +110,7 @@ def send_email_notification(
     type_: NotificationType,
     title: str,
     message: str,
-    data: Union[Document, Answer],
+    data: Union[Document, Answer, str],
 ):
     """If the user has email notifications enabled, send an email notification.
 
@@ -114,9 +127,17 @@ def send_email_notification(
         )
     ):
         return
+    
+    dataOnMail = None
+    if isinstance(data, Document):
+        dataOnMail = data.display_name
+    elif isinstance(data, str):
+        dataOnMail = data
+    else:
+        dataOnMail = data.answer_section.exam.displayname
 
     send_mail(
-        f"BetterInformatics: {title} / {data.display_name if isinstance(data, Document) else data.answer_section.exam.displayname}",
+        f"BetterInformatics: {title} / {dataOnMail}",
         (
             f"Hello {receiver.profile.display_username}!\n"
             f"{message}\n\n"
@@ -199,4 +220,14 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
         "New comment",
         "A new comment was added to your document.\n\n{}".format(new_comment.text),
         document,
+    )
+
+def update_to_testimonial_status(sender, receiver, title, message):
+    send_notification(
+        sender, #Admin
+        receiver,
+        NotificationType.UPDATE_TO_TESTIMONIAL_APPROVAL_STATUS,
+        title,
+        message,
+        ""
     )
