@@ -24,14 +24,18 @@ logging.basicConfig(level=logging.DEBUG)
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
-    DjangoInstrumentor().instrument()
+    otlp_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
+    if otlp_endpoint:
+        DjangoInstrumentor().instrument()
 
-    resource = Resource.create(attributes={"service.name": "api-service"})
+        resource = Resource.create(attributes={"service.name": "api-service"})
 
-    trace.set_tracer_provider(TracerProvider(resource=resource))
-    span_processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://alloy:4317"))
-    trace.get_tracer_provider().add_span_processor(span_processor)
-    Psycopg2Instrumentor().instrument()
+        trace.set_tracer_provider(TracerProvider(resource=resource))
+        span_processor = BatchSpanProcessor(
+            OTLPSpanExporter(endpoint="http://alloy:4317")
+        )  # otlp_endpoint))
+        trace.get_tracer_provider().add_span_processor(span_processor)
+        Psycopg2Instrumentor().instrument()
 
     try:
         from django.core.management import execute_from_command_line
