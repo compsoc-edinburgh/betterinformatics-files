@@ -77,8 +77,9 @@ programs:
     capabilities:
       - CAP_NET_BIND_SERVICE
   - name: gunicorn
-    path: /usr/local/bin/gunicorn
+    path: /usr/local/bin/opentelemetry-instrument
     args:
+      - /usr/local/bin/gunicorn
       - "backend.wsgi"
       - "-b"
       - "0.0.0.0:80"
@@ -143,6 +144,9 @@ programs:
       - FRONTEND_IMPRINT:
       - FRONTEND_PRIVACY_POLICY:
       - FRONTEND_ANNOUNCEMENTS:
+
+      - OTEL_EXPORTER_OTLP_PROTOCOL:
+      - OTEL_EXPORTER_OTLP_ENDPOINT:
 
       - PDEP_IS_PREVIEW:
       - IS_DEBUG: "{{ get_env(name='SIP_POSTGRES_DB_USER', default='prod') == 'docker' }}"

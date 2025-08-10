@@ -18,24 +18,33 @@ faro.receiver "faro" {
 	sourcemaps { }
 
 	output {
-		logs   = [loki.write.default.receiver]
+    logs   = [loki.write.default.receiver]
 		traces = [otelcol.exporter.otlp.default.input]
 	}
 }
 
-
 otelcol.exporter.otlp "default" {
-    client {
-      endpoint = "tempo:4317"
-      tls {
-          insecure = true
-          insecure_skip_verify = true
-      }
+  client {
+    endpoint = "tempo:4317"
+    tls {
+      insecure = true
+      insecure_skip_verify = true
     }
+  }
+}
+
+otelcol.receiver.otlp "default" {
+  grpc { }
+
+  output {
+    metrics = [otelcol.exporter.otlp.default.input]
+    traces = [otelcol.exporter.otlp.default.input]
+    logs = [otelcol.exporter.otlp.default.input]
+  }
 }
 
 loki.write "default" {
-    endpoint {
-        url = "http://loki:3100/loki/api/v1/push"
-    }
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
 }

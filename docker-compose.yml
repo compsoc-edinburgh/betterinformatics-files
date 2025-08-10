@@ -90,6 +90,15 @@ services:
       - SIP_AUTH_OIDC_AUTH_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/auth
       - SIP_AUTH_OIDC_TOKEN_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/token
 
+      - OTEL_EXPORTER_OTLP_ENDPOINT="alloy:4317"
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_INSECURE=true
+      - OTEL_TRACES_EXPORTER=console
+      - OTEL_SERVICE_NAME=backend
+      - OTEL_SERVICE_VERSION=local-dev
+      - OTEL_LOG_LEVEL=debug
+      - DJANGO_SETTINGS_MODULE=backend.settings
+
       - PDEP_IS_PREVIEW=TRUE
     depends_on:
       postgres:
@@ -127,6 +136,8 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-remote-write-receiver"
+      - "--enable-feature=native-histograms"
     ports:
       - 9090:9090
     user: ":"
