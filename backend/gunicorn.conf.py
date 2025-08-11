@@ -16,7 +16,7 @@ def post_fork(server, worker):
     otlp_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
     if otlp_endpoint:
         DjangoInstrumentor().instrument()
-        resource = Resource.create(attributes={"service.name": "api-service"})
+        resource = Resource.create(attributes={"service.name": "community-solutions-backend"})
 
         trace.set_tracer_provider(TracerProvider(resource=resource))
         span_processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=otlp_endpoint))
