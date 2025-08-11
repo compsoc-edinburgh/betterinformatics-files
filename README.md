@@ -166,6 +166,8 @@ Now you can access:
 - Community solutions frontend on [locahost:3000](http://localhost:3000)
 - Grafana / Monitoring data on [locahost:3001](http://localhost:3001)
 
+For Grafana, look at the sidebar, search for "Explore" and "Drilldown" and "Traces". There, you can have a quick overview. You can select appropriate traces, which usually start in the browser of the user, then to the backend where multiple DB queries are started. There are many other things you can do with the data and other ways to query for it, familiarize yourself with Grafana, Prometheus, Tempo, Loki, (Pyroscope)... if interested:)
+
 ---
 
 ## Troubleshooting
