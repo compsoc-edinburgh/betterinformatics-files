@@ -24,7 +24,7 @@ if (import.meta.env.VITE_FARO_DISABLE !== "true" && serverData.faro_url) {
 
     // Mandatory, the identification label of your application
     app: {
-      name: 'my-react-app',
+      name: 'community-solutions-frontend',
     },
 
     instrumentations: [
