@@ -11,3 +11,8 @@ django-probes==1.7.0
 boto3==1.17.112
 requests==2.25.1
 PyYAML==6.0.2
+
+opentelemetry-sdk==1.36.0
+opentelemetry-exporter-otlp==1.36.0
+opentelemetry-instrumentation-django==0.57b0
+opentelemetry-instrumentation-psycopg2==0.57b0
