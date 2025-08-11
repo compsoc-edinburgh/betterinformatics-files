@@ -30,5 +30,5 @@ const content = (
 root.render(
   (import.meta.env.VITE_FARO_DISABLE !== "true" && serverData.faro_url)
     ? <FaroErrorBoundary>{content}</FaroErrorBoundary>
-    : content
+    : content,
 );

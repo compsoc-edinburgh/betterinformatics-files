@@ -1,5 +1,7 @@
 # Community Solutions
 
+[[_TOC_]]
+
 ## Assumptions and Note
 
 This guide is based on Ubuntu 20.04 LTS, but should work on anything similar.
@@ -158,7 +160,12 @@ Interesting Grafana dashboard should also be shipped in `./contrib` to allow fai
 To try, run
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile frontend up --build
+# For running frontend in docker:
+docker compose -f docker-compose.yml -f docker-compose.Observability.yml --profile frontend up --build
+
+# For running frontend locally:
+docker compose -f docker-compose.yml -f docker-compose.observability.yml up --build
+yarn start-with-faro
 ```
 
 Now you can access:
@@ -167,6 +174,17 @@ Now you can access:
 - Grafana / Monitoring data on [locahost:3001](http://localhost:3001)
 
 For Grafana, look at the sidebar, search for "Explore" and "Drilldown" and "Traces". There, you can have a quick overview. You can select appropriate traces, which usually start in the browser of the user, then to the backend where multiple DB queries are started. There are many other things you can do with the data and other ways to query for it, familiarize yourself with Grafana, Prometheus, Tempo, Loki, (Pyroscope)... if interested:)
+
+In short, there are 3 important kinds of data that we focus on: logs, metrics and traces. Logs are simply error (warning, info, ...) logs that you usually see in the console. Metrics are usually just numbers in a time interval, such as number of get requests in the last minute, and so on. Traces are more involved, and they focus on interactions between microservices, requests, queries and so on. They contain start and end times, but also additional information (such as an exact query or URL).
+
+Behind the scenes, the following components are used:
+
+- Faro: SDK used by frontend for collecting traces (e.g. browser stats, client fetch, console logs etc)
+- Alloy: A component that exposes an endpoint that Faro can push its data to. While unused, it also has builtin exporters, receivers, processors for many kinds of data.
+- Tempo: "Database" storing traces, which Alloy will forward received traces to. They can be received via the TraceQL query language.
+- Loki: "Database" storing logs, which Alloy will forward logs to. They can be received via the LogQL query language.
+- Prometheus: "Database" storing metrics. It too can either receive data from Alloy, or scrape data itself. The metrics can be received via the PromQL query language.
+- Grafana: Visualization of all data, can be used to build dashboards to view applications status at a glance or in great detail.
 
 ---
 

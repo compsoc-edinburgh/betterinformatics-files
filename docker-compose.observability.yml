@@ -37,6 +37,7 @@ services:
     volumes:
       - ./data/grafana:/var/lib/grafana
       - ./contrib/local-observability/grafana:/etc/grafana/provisioning
+      - ./contrib/dashboards:/etc/grafana/dashboardFiles
     user: ":"
 
   alloy:

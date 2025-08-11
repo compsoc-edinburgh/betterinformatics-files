@@ -10,7 +10,7 @@ import {
   initializeFaro,
   ReactIntegration,
   faro,
-  ReactRouterHistory
+  ReactRouterHistory,
 } from '@grafana/faro-react';
 import serverData from './server-data';
 
