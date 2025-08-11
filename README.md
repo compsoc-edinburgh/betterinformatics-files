@@ -158,7 +158,7 @@ Interesting Grafana dashboard should also be shipped in `./contrib` to allow fai
 To try, run
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.Observability.yml --profile frontend up --build
+docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile frontend up --build
 ```
 
 Now you can access:
