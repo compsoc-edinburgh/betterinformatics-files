@@ -149,6 +149,25 @@ This will result in a null pointer exception. It's best to simply stop the front
 
 ---
 
+## Observability
+
+Sometimes, it is helpful to have just a little bit more data at disposal, to monitor applications or to debug performance issues.
+We provide a "simple" setup that automatically gathers all information (traces, metrics & logs) for local setup, including Grafana.
+Interesting Grafana dashboard should also be shipped in `./contrib` to allow fairly easy deployments of such advanced features.
+
+To try, run
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.Observability.yml --profile frontend up --build
+```
+
+Now you can access:
+
+- Community solutions frontend on [locahost:3000](http://localhost:3000)
+- Grafana / Monitoring data on [locahost:3001](http://localhost:3001)
+
+---
+
 ## Troubleshooting
 
 If something doesn't work, it's time to figure out what broke. The following points
@@ -166,7 +185,7 @@ make sure you're on the latest commit of the branch with `git pull`.
   This means your frontend can't communicate with the backend.
   Is the backend running without errors? The backend docker-compose file
   is configured to listen on port 8081. You should be able to see something
-  on http://localhost:8081/ (no HTTP**S**). If not, something is wrong with
+  on <http://localhost:8081/> (no HTTP**S**). If not, something is wrong with
   the backend.
 
 - **Backend doesn't work:** The logs from the docker-compose are formatted so

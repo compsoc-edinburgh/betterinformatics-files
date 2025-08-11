@@ -9,21 +9,26 @@ import App from "./app";
 import { parse, stringify } from "query-string";
 import { MantineProvider } from "@mantine/core";
 import { FaroErrorBoundary } from "@grafana/faro-react";
+import serverData from "./utils/server-data";
 
 const container = document.getElementById("root") as HTMLElement;
 const root = createRoot(container);
 
+const content = (
+  <BrowserRouter>
+    <QueryParamProvider
+      adapter={ReactRouter5Adapter}
+      options={{ searchStringToObject: parse, objectToSearchString: stringify }}
+    >
+      <MantineProvider defaultColorScheme="auto">
+        <App />
+      </MantineProvider>
+    </QueryParamProvider>
+  </BrowserRouter>
+);
+
 root.render(
-  <FaroErrorBoundary>
-    <BrowserRouter>
-      <QueryParamProvider
-        adapter={ReactRouter5Adapter}
-        options={{ searchStringToObject: parse, objectToSearchString: stringify }}
-      >
-        <MantineProvider defaultColorScheme="auto">
-          <App />
-        </MantineProvider>
-      </QueryParamProvider>
-    </BrowserRouter>
-  </FaroErrorBoundary>,
+  (import.meta.env.VITE_FARO_DISABLE !== "true" && serverData.faro_url)
+    ? <FaroErrorBoundary>{content}</FaroErrorBoundary>
+    : content
 );

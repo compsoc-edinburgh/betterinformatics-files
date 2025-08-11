@@ -16,7 +16,8 @@ import serverData from './server-data';
 
 const history = createBrowserHistory();
 
-if (serverData.faro_url) {
+// Allow compile time disabling faro -- for local dev
+if (import.meta.env.VITE_FARO_DISABLE !== "true" && serverData.faro_url) {
   initializeFaro({
     // Mandatory, the URL of the Grafana collector
     url: serverData.faro_url,

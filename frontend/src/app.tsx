@@ -55,6 +55,7 @@ import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import { FaroRoute } from '@grafana/faro-react';
+import serverData from "./utils/server-data";
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -234,6 +235,55 @@ const App: React.FC<{}> = () => {
     },
   });
 
+  const userRoutes = (<>
+    <UserRoute exact path="/" component={HomePage} />
+    <UserRoute
+      exact
+      path="/uploadpdf"
+      component={UploadPdfPage}
+    />
+    <UserRoute
+      exact
+      path="/submittranscript"
+      component={UploadTranscriptPage}
+    />
+    <UserRoute exact path="/faq" component={FAQ} />
+    <UserRoute
+      exact
+      path="/feedback"
+      component={FeedbackPage}
+    />
+    <UserRoute
+      exact
+      path="/category/:slug"
+      component={CategoryPage}
+    />
+    <UserRoute
+      exact
+      path="/user/:author/document/:slug"
+      component={DocumentPage}
+    />
+    <UserRoute
+      exact
+      path="/exams/:filename"
+      component={ExamPage}
+    />
+    <UserRoute
+      exact
+      path="/user/:username"
+      component={UserPage}
+    />
+    <UserRoute exact path="/user/" component={UserPage} />
+    <UserRoute exact path="/search/" component={SearchPage} />
+    <UserRoute
+      exact
+      path="/scoreboard"
+      component={Scoreboard}
+    />
+    <UserRoute exact path="/modqueue" component={ModQueue} />
+  </>
+  );
+
   return (
     <MantineProvider theme={fvTheme} cssVariablesResolver={resolver}>
       <Modal
@@ -285,53 +335,12 @@ const App: React.FC<{}> = () => {
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
                   <Switch>
-                    <FaroRoute path="/">
-                      <UserRoute exact path="/" component={HomePage} />
-                      <UserRoute
-                        exact
-                        path="/uploadpdf"
-                        component={UploadPdfPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/submittranscript"
-                        component={UploadTranscriptPage}
-                      />
-                      <UserRoute exact path="/faq" component={FAQ} />
-                      <UserRoute
-                        exact
-                        path="/feedback"
-                        component={FeedbackPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/category/:slug"
-                        component={CategoryPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:author/document/:slug"
-                        component={DocumentPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/exams/:filename"
-                        component={ExamPage}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:username"
-                        component={UserPage}
-                      />
-                      <UserRoute exact path="/user/" component={UserPage} />
-                      <UserRoute exact path="/search/" component={SearchPage} />
-                      <UserRoute
-                        exact
-                        path="/scoreboard"
-                        component={Scoreboard}
-                      />
-                      <UserRoute exact path="/modqueue" component={ModQueue} />
-                    </FaroRoute>
+                    {(import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url)
+                      ? userRoutes
+                      : <FaroRoute path="/">
+                        {userRoutes}
+                      </FaroRoute>
+                    }
                     <Route exact path="/login" component={LoginPage} />
                     <Route component={NotFoundPage} />
                   </Switch>
