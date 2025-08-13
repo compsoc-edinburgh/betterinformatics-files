@@ -8,17 +8,10 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from util import instrumentation
 
 
 def post_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
 
-    otlp_endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT")
-    if otlp_endpoint:
-        DjangoInstrumentor().instrument()
-        resource = Resource.create(attributes={"service.name": "community-solutions-backend"})
-
-        trace.set_tracer_provider(TracerProvider(resource=resource))
-        span_processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=otlp_endpoint))
-        trace.get_tracer_provider().add_span_processor(span_processor)
-        Psycopg2Instrumentor().instrument()
+    instrumentation.initialize()

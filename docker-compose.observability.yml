@@ -7,6 +7,7 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy:4317
       - OTEL_SERVICE_VERSION=local-dev
       - OTEL_LOG_LEVEL=debug
+      - PYROSCOPE_ENDPOINT=http://pyroscope:4040
       - DJANGO_SETTINGS_MODULE=backend.settings
 
   react-frontend:
@@ -65,3 +66,8 @@ services:
     command: -config.file=/etc/tempo/tempo.yml
     volumes:
       - ./contrib/local-observability/tempo.yml:/etc/tempo/tempo.yml
+
+  pyroscope:
+    image: grafana/pyroscope:latest
+    ports:
+      - "4040:4040"

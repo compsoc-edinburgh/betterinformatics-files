@@ -153,6 +153,8 @@ This will result in a null pointer exception. It's best to simply stop the front
 
 ## Observability
 
+### Start showcase infrastructure
+
 Sometimes, it is helpful to have just a little bit more data at disposal, to monitor applications or to debug performance issues.
 We provide a "simple" setup that automatically gathers all information (traces, metrics & logs) for local setup, including Grafana.
 Interesting Grafana dashboard should also be shipped in `./contrib` to allow fairly easy deployments of such advanced features.
@@ -175,7 +177,13 @@ Now you can access:
 
 For Grafana, look at the sidebar, search for "Explore" and "Drilldown" and "Traces". There, you can have a quick overview. You can select appropriate traces, which usually start in the browser of the user, then to the backend where multiple DB queries are started. There are many other things you can do with the data and other ways to query for it, familiarize yourself with Grafana, Prometheus, Tempo, Loki, (Pyroscope)... if interested:)
 
+### What is observability
+
 In short, there are 3 important kinds of data that we focus on: logs, metrics and traces. Logs are simply error (warning, info, ...) logs that you usually see in the console. Metrics are usually just numbers in a time interval, such as number of get requests in the last minute, and so on. Traces are more involved, and they focus on interactions between microservices, requests, queries and so on. They contain start and end times, but also additional information (such as an exact query or URL).
+
+There are also profiles, however these are more familiar from local debugging and performance testing and have been rarer to find in production at scale. Hence, while not as integrated as other data, it too can be measured and provide valuable insights.
+
+### Used components
 
 Behind the scenes, the following components are used:
 
@@ -184,6 +192,7 @@ Behind the scenes, the following components are used:
 - Tempo: "Database" storing traces, which Alloy will forward received traces to. They can be received via the TraceQL query language.
 - Loki: "Database" storing logs, which Alloy will forward logs to. They can be received via the LogQL query language.
 - Prometheus: "Database" storing metrics. It too can either receive data from Alloy, or scrape data itself. The metrics can be received via the PromQL query language.
+- Pyroscope: "Database" storing profiles at scale. The Django backend directly pushes its generated profiles to Pyroscope.
 - Grafana: Visualization of all data, can be used to build dashboards to view applications status at a glance or in great detail.
 
 ---
