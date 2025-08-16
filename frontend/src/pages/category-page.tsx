@@ -170,14 +170,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   return (
     <>
       {modals}
-      <Breadcrumbs separator={<IconChevronRight />}>
+      <Breadcrumbs separator={<IconChevronRight />} styles={{ breadcrumb: { minWidth: 0, textOverflow: "ellipsis", overflow: "hidden"   }}}>
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
         <Anchor
           tt="uppercase"
           size="xs"
-          style={{ wordBreak: "break-word", textWrap: "pretty" }}
         >
           {metaData.displayname}
         </Anchor>
