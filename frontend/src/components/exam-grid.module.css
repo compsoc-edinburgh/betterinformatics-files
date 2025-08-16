@@ -5,7 +5,9 @@
   }
 
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  /* minimum 320px, max 1fr, but if the viewport < 320px then use 100% */
+  /* trick from https://ishadeed.com/article/css-grid-minmax/#cards-grid */
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   grid-column-gap: 16px;
   grid-row-gap: 16px;
 }

@@ -1,6 +1,8 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* minimum 280px, max 1fr, but if the viewport < 280px then use 100% */
+  /* trick from https://ishadeed.com/article/css-grid-minmax/#cards-grid */
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   grid-column-gap: 18px;
   grid-row-gap: 15px;
 }
