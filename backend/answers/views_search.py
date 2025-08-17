@@ -1,5 +1,6 @@
 import re
 import random
+from unicodedata import category
 from django.db.models.functions import Concat
 from django.db.models import Q, F, When, Case, Value as V, Func, TextField
 from myauth import auth_check
@@ -174,7 +175,9 @@ def headline(
     )
 
 
-def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
+def search_exams(
+    term, has_payed, is_admin, category_filter, user_admin_categories, amount
+):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -204,6 +207,9 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     )
     if not is_admin:
         exams = exams.filter(can_view)
+    if category_filter:
+        # Filter by slug
+        exams = exams.filter(category__slug=category_filter)
     exams = exams.only("filename")[:amount]
 
     exam_pages_query = (
@@ -259,7 +265,9 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     ]
 
 
-def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
+def search_answers(
+    term, has_payed, is_admin, category_filter, user_admin_categories, amount
+):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -276,6 +284,9 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
     answers = Answer.objects
     if not is_admin:
         answers = answers.filter(answer_section_exam_can_view)
+    if category_filter:
+        # Filter by slug
+        answers = answers.filter(answer_section__exam__category__slug=category_filter)
     answers = (
         answers.filter(search_vector=term)
         .annotate(
@@ -330,7 +341,9 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
     return answers
 
 
-def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
+def search_comments(
+    term, has_payed, is_admin, category_filter, user_admin_categories, amount
+):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -347,6 +360,11 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
     comments = Comment.objects
     if not is_admin:
         comments = comments.filter(answer_answer_section_exam_can_view)
+    if category_filter:
+        # Filter by slug
+        comments = comments.filter(
+            answer__answer_section__exam__category__slug=category_filter
+        )
     comments = (
         comments.filter(search_vector=term)
         .annotate(
@@ -411,6 +429,9 @@ def search(request):
     include_exams = request.POST.get("include_exams", "true") == "true"
     include_answers = request.POST.get("include_answers", "true") == "true"
     include_comments = request.POST.get("include_comments", "true") == "true"
+    # Category slug to limit results to (ID is more efficient, but current
+    # client side has no access to ID and uses slugs for everything)
+    category_filter = request.POST.get("category", "")
 
     user = request.user
     user_admin_categories = user.category_admin_set.values_list("id", flat=True)
@@ -418,19 +439,25 @@ def search(request):
     is_admin = has_admin_rights(request)
     exams_start = time.time()
     exams = (
-        search_exams(term, has_payed, is_admin, user_admin_categories, amount)
+        search_exams(
+            term, has_payed, is_admin, category_filter, user_admin_categories, amount
+        )
         if include_exams
         else []
     )
     answers_start = time.time()
     answers = (
-        search_answers(term, has_payed, is_admin, user_admin_categories, amount)
+        search_answers(
+            term, has_payed, is_admin, category_filter, user_admin_categories, amount
+        )
         if include_answers
         else []
     )
     comments_start = time.time()
     comments = (
-        search_comments(term, has_payed, is_admin, user_admin_categories, amount)
+        search_comments(
+            term, has_payed, is_admin, category_filter, user_admin_categories, amount
+        )
         if include_comments
         else []
     )
