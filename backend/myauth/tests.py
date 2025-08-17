@@ -54,28 +54,28 @@ class TestJWT(ComsolTest):
 
     def test_no_token(self):
         response = self.client.get("/api/notification/unreadcount/")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_empty_auth_header(self):
         token = ""
         response = self.client.get(
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_non_bearer_token(self):
         token = "Basic QWxhZGRpbjpPcGVuU2VzYW1l"
         response = self.client.get(
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_incorrectly_formatted_token(self):
         token = "Bearer 42 42 12"
         response = self.client.get(
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_token_with_wrong_key(self):
         user = self.loginUsers[0]
@@ -104,7 +104,7 @@ class TestJWT(ComsolTest):
         response = self.client.get(
             "/api/notification/unreadcount/", HTTP_AUTHORIZATION=token_str
         )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_token_with_wrong_algorithm(self):
         user = self.loginUsers[0]
