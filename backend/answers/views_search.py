@@ -55,7 +55,7 @@ def parse_recursive(text, start_re, end_re, i, start_len, end_len):
     can be used to remove the separators. `i` is the index from which the function starts
     matching. The function assumes that the string is well formed. In the case that `end_re`
     occurs more times then `end_re` the returned `i` can be used to include the rest
-    of `text`. 
+    of `text`.
 
     Returns:
         `list, number`: The parsing result and the index where parsing stopped
@@ -103,8 +103,8 @@ def parse_nested(text, start_re, end_re, start_len, end_len):
 
 def parse_headline(text, start, end, frag):
     """
-    Returns the parsed result of a psql headline function where `start`, `end`and
-    `frag` are the psql parameters and `text` is the text result. 
+    Returns the parsed result of a psql headline function where `start`, `end` and
+    `frag` are the psql parameters and `text` is the text result.
     """
     start_re = re.compile(".*?(" + re.escape(str(start)) + ")", flags=re.DOTALL)
     end_re = re.compile(".*?(" + re.escape(str(end)) + ")", flags=re.DOTALL)
@@ -118,7 +118,7 @@ def parse_headline(text, start, end, frag):
 def generate_boundary():
     """
     Generates a random boundary that can be used for finding matches using psql
-    headline 
+    headline
     """
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"
     res = ""
@@ -138,7 +138,7 @@ def headline(
 ):
     """A function that can be used in django queries to call the psql ts_headline
     function. Given a text field and  a full text search query it returns a string
-    that contains the highlighted matches that should be shown as search results. 
+    that contains the highlighted matches that should be shown as search results.
 
     Args:
         text (F): F object of the column / expression that should be highlighted
@@ -193,7 +193,11 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     ).annotate(
         rank=SearchRank(F("search_vector"), query),
         headline=headline(
-            F("displayname"), query, start_boundary, end_boundary, fragment_delimeter,
+            F("displayname"),
+            query,
+            start_boundary,
+            end_boundary,
+            fragment_delimeter,
         ),
         category_displayname=F("category__displayname"),
         category_slug=F("category__slug"),
@@ -209,7 +213,11 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
         .annotate(
             rank=SearchRank(F("search_vector"), query),
             headline=headline(
-                F("text"), query, start_boundary, end_boundary, fragment_delimeter,
+                F("text"),
+                query,
+                start_boundary,
+                end_boundary,
+                fragment_delimeter,
             ),
         )
         .order_by("page_number")
@@ -274,7 +282,10 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
             rank=SearchRank(F("search_vector"), query),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__last_name",),
+                When(
+                    Q(author__first_name__isnull=True),
+                    "author__last_name",
+                ),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
@@ -342,7 +353,10 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
             rank=SearchRank(F("search_vector"), query),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__last_name",),
+                When(
+                    Q(author__first_name__isnull=True),
+                    "author__last_name",
+                ),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
