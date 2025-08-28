@@ -102,6 +102,7 @@ export const SearchBar: React.FC = () => {
           />
         </Group>
         <Stack my="xs">
+          {!searchResults.loading && searchResults.error && <Text c="dimmed" mx="auto">{String(searchResults.error)}</Text>}
           {searchQuery.length === 0 && <Text c="dimmed" mx="auto">Start typing to search...</Text>}
           {searchQuery.length > 0 && categoryResults.length > 0 && (
             <>
