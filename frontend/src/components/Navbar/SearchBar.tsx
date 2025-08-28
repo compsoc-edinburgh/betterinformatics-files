@@ -6,6 +6,7 @@ import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import useSearch from "../../hooks/useSearch";
 import { useState } from "react";
 import { highlight } from "../../utils/search-utils";
+import { HighlightedContent } from "../HighlightSearchHeadline";
 
 export const SearchBar: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -118,7 +119,7 @@ export const SearchBar: React.FC = () => {
               {exams.slice(0, 4).map((exam) => (
                 <Text key={exam.filename}>
                   {exam.headline.map((part, i) => (
-                    <mark key={i}>{part} {part.toString()}</mark>
+                    <HighlightedContent content={part} key={i} />
                   ))}
                 </Text>
               ))}
