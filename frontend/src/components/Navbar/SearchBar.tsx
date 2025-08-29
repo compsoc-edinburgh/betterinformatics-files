@@ -7,6 +7,23 @@ import useSearch from "../../hooks/useSearch";
 import { useState } from "react";
 import { highlight } from "../../utils/search-utils";
 import { HighlightedContent } from "../HighlightSearchHeadline";
+import MarkdownText from "../markdown-text";
+import { escapeRegExp } from "lodash-es";
+
+/**
+ * Return the max depth of an array.
+ * maxdepth(["a"]) === 1
+ * maxdepth([]) === 1
+ * maxdepth([["a", ["b"]]]) === 3
+ * @param nested_array Arrays with children of arbitrary array depth
+ * @returns Max depth
+ */
+const maxdepth = (nested_array: any): number => {
+  if (nested_array instanceof Array) {
+    return Math.max(...nested_array.map(maxdepth)) + 1;
+  }
+  return 0;
+}
 
 export const SearchBar: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -27,14 +44,25 @@ export const SearchBar: React.FC = () => {
     // please amend this comment!
     4,
     (data) => data.displayname,
-  );
+  ).slice(0, 4);
 
   const searchResults = useRequest(() => loadSearch(searchQuery, undefined, true), {
     refreshDeps: [searchQuery],
   });
+
   const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
-  const answers = searchResults.data?.filter((result) => result.type === "answer") ?? [];
-  const comments = searchResults.data?.filter((result) => result.type === "comment") ?? [];
+  // Results on exam names will have a depth 3 match somewhere in the headline
+  const examNames = exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
+  // Results for exam pages will have non-zero page array
+  const examPages = exams.filter(result => result.pages.length > 0).slice(0, 4) ?? [];
+  // We might miss some exam results if postgres found a match in the exam name
+  // but ts_headline for some reason didn't decide to highlight it. But that is
+  // really an edge case so we ignore and won't show it to the user.
+
+  // We'll also limit the number of answers and comments. Lead them to the full
+  // search page for more results.
+  const answers = searchResults.data?.filter((result) => result.type === "answer").slice(0, 4) ?? [];
+  const comments = searchResults.data?.filter((result) => result.type === "comment").slice(0, 4) ?? [];
 
   const combobox = useCombobox();
 
@@ -113,20 +141,52 @@ export const SearchBar: React.FC = () => {
           {searchQuery.length > 0 && categoryResults.length > 0 && (
             <>
               <Divider variant="dashed" />
-              {categoryResults.slice(0, 4).map((category) => (
+              {categoryResults.map((category) => (
                 <Text key={category.slug}>{highlight(category.displayname, category.match)}</Text>
               ))}
             </>
           )}
-          {searchQuery.length > 0 && exams.length > 0 && (
+          {searchQuery.length > 0 && examNames.length > 0 && (
             <>
               <Divider variant="dashed" />
-              {exams.slice(0, 4).map((exam) => (
+              {examNames.map((exam) => (
                 <Text key={exam.filename}>
                   {exam.headline.map((part, i) => (
                     <HighlightedContent content={part} key={i} />
                   ))}
                 </Text>
+              ))}
+            </>
+          )}
+          {searchQuery.length > 0 && examPages.length > 0 && (
+            <>
+              <Divider variant="dashed" />
+              {examPages.map((exam) => (
+                <Text key={exam.filename}>
+                  {exam.headline.map((part, i) => (
+                    <HighlightedContent content={part} key={i} />
+                  ))}
+                </Text>
+              ))}
+            </>
+          )}
+          {searchQuery.length > 0 && answers.length > 0 && (
+            <>
+              <Divider variant="dashed" />
+              {answers.map((answer) => (
+                <div key={answer.long_id} style={{ maxHeight: "150px", overflowY: "hidden", WebkitMaskImage: "linear-gradient(180deg, #000 60%, transparent)" }}>
+                  <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                </div>
+              ))}
+            </>
+          )}
+          {searchQuery.length > 0 && comments.length > 0 && (
+            <>
+              <Divider variant="dashed" />
+              {comments.map((comment) => (
+                <div key={comment.long_id} style={{ maxHeight: "150px", overflowY: "hidden", WebkitMaskImage: "linear-gradient(180deg, #000 60%, transparent)" }}>
+                  <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                </div>
               ))}
             </>
           )}
