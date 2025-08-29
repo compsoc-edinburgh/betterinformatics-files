@@ -11,6 +11,7 @@ import MarkdownText from "../markdown-text";
 import { escapeRegExp } from "lodash-es";
 import classes from "./SearchBar.module.css";
 import clsx from "clsx";
+import { ExamSearchResult } from "../../interfaces";
 
 /**
  * Return the max depth of an array.
@@ -55,8 +56,27 @@ export const SearchBar: React.FC = () => {
   const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
   // Results on exam names will have a depth 3 match somewhere in the headline
   const examNames = exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
-  // Results for exam pages will have non-zero page array
-  const examPages = exams.filter(result => result.pages.length > 0).slice(0, 4) ?? [];
+  // Results for exam pages will have non-zero page array.
+  // We limit the "number of pages" to 4 (instead of the number of exams, which
+  // may each have arbitrary matching result pages). To do this, we use .reduce()
+  // and keep adding to a list a copy of the exam with just 1 page, until the
+  // total reaches 4.
+  const examPages = exams.filter(result => result.pages.length > 0)
+    .reduce((accum, exam) => {
+      exam.pages.forEach(page => {
+        if (accum.totalPages >= 4) return;
+        // Clone exam, and set the pages array to just this page/
+        // structuredClone is deep-clone and is widely available in modern browsers
+        const copyExam = structuredClone(exam);
+        copyExam.pages = [page];
+        accum.exams.push(copyExam);
+        accum.totalPages += 1;
+      });
+      return accum;
+    }, {
+      totalPages: 0,
+      exams: [] as ExamSearchResult[],
+    }).exams ?? [];
   // We might miss some exam results if postgres found a match in the exam name
   // but ts_headline for some reason didn't decide to highlight it. But that is
   // really an edge case so we ignore and won't show it to the user.
@@ -170,14 +190,23 @@ export const SearchBar: React.FC = () => {
             <>
               <Divider variant="dashed" />
               {examPages.map((exam) => (
-                <Group className={classes.searchResult} key={exam.filename}>
+                <Stack>
+                  <Group className={classes.searchResult} key={exam.filename}>
+                    <Text>
+                      {exam.headline.map((part, i) => (
+                        <HighlightedContent content={part} key={i} />
+                      ))} - Page {exam.pages[0][0]}
+                    </Text>
+                    <Badge variant="outline" className={classes.badge}>Exam Page</Badge>
+                  </Group>
                   <Text>
-                    {exam.headline.map((part, i) => (
+                    ...
+                    {exam.pages[0][2].map((part, i) => (
                       <HighlightedContent content={part} key={i} />
                     ))}
+                    ...
                   </Text>
-                  <Badge variant="outline" className={classes.badge}>Exam Page</Badge>
-                </Group>
+                </Stack>
               ))}
             </>
           )}
