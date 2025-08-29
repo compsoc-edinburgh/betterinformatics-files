@@ -176,7 +176,13 @@ def headline(
 
 
 def search_exams(
-    term, has_payed, is_admin, category_filter, user_admin_categories, amount
+    term,
+    has_payed,
+    is_admin,
+    category_filter,
+    user_admin_categories,
+    amount,
+    with_category_displayname=False,
 ):
     query = SearchQuery(term)
 
@@ -192,11 +198,42 @@ def search_exams(
         Exam.objects.filter(
             id__in=ExamPage.objects.filter(search_vector=term).values("exam_id")
         )
-        | Exam.objects.filter(search_vector=term)
+        | (
+            # Two cases: if we want category displayname, it'll be slow but we
+            # do a runtime non-vector based full text search. otherwise, we just
+            # search by precalculated vectors of just exam displayname.
+            Exam.objects.annotate(
+                displayname_with_category=Concat(
+                    "displayname", V(" - "), "category__displayname"
+                )
+            ).filter(
+                # Slow! Ideally we want to use search_vector=term with a pre-indexed
+                # vector column of "displayname - category__displayname". But it's
+                # nontrivial to create such a column, since the number of triggers
+                # will exponentially grow to make every category's row update trigger
+                # all relevant exams' vectors to update.
+                # So we do runtime on-the-fly full text search on a Concat result.
+                # The default search_vector of an Exam model is only based on the
+                # exam displayname (no category part), and that's kind of useless to
+                # search with since FS22 can match so many different exams.
+                # We want to enable queries like "FS22 Graphics" to find the computer
+                # graphics exam in FS22 as the top result.
+                displayname_with_category__search=term
+            )
+            if with_category_displayname
+            else Exam.objects.filter(search_vector=term)
+        )
     ).annotate(
         rank=SearchRank(F("search_vector"), query),
         headline=headline(
-            F("displayname"),
+            # ts_headline requires a full scan and is slow, but at this point
+            # we've already narrowed down the results with the above .filter()s
+            (
+                # Highlight results in the concat if we need category name too
+                Concat(F("displayname"), V(" - "), F("category__displayname"))
+                if with_category_displayname
+                else F("displayname")
+            ),
             query,
             start_boundary,
             end_boundary,
