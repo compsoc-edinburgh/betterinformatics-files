@@ -20,7 +20,12 @@ export const SearchBar: React.FC = () => {
   const categoryResults = useSearch(
     categories.data ?? [],
     searchQuery,
-    Math.min(searchQuery.length * 2, 12),
+    // We only really want to show almost-perfect matches for this component.
+    // So the max error score we allow is 4 -- this value was found by trial and
+    // error, I'm not sure I understand the exact meaning of this value. - yuto
+    // It doesn't seem to be levenstein distance. If anyone figures it out,
+    // please amend this comment!
+    4,
     (data) => data.displayname,
   );
 
