@@ -1,0 +1,19 @@
+.searchResult {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-md);
+}
+
+.badge {
+  flex-shrink: 0;
+}
+
+.fadeHeightLimited {
+  max-height: 150px;
+  overflow-y: hidden;
+  mask-image: linear-gradient(180deg, #000 60%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
+}

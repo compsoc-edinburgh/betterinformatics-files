@@ -1,5 +1,5 @@
 import { useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
-import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
+import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack, Badge } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import { loadCategories, loadSearch } from "../../api/hooks";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
@@ -9,6 +9,8 @@ import { highlight } from "../../utils/search-utils";
 import { HighlightedContent } from "../HighlightSearchHeadline";
 import MarkdownText from "../markdown-text";
 import { escapeRegExp } from "lodash-es";
+import classes from "./SearchBar.module.css";
+import clsx from "clsx";
 
 /**
  * Return the max depth of an array.
@@ -142,7 +144,10 @@ export const SearchBar: React.FC = () => {
             <>
               <Divider variant="dashed" />
               {categoryResults.map((category) => (
-                <Text key={category.slug}>{highlight(category.displayname, category.match)}</Text>
+                <Group className={classes.searchResult} key={category.slug}>
+                  <Text>{highlight(category.displayname, category.match)}</Text>
+                  <Badge variant="outline" className={classes.badge}>Category</Badge>
+                </Group>
               ))}
             </>
           )}
@@ -150,11 +155,14 @@ export const SearchBar: React.FC = () => {
             <>
               <Divider variant="dashed" />
               {examNames.map((exam) => (
-                <Text key={exam.filename}>
-                  {exam.headline.map((part, i) => (
-                    <HighlightedContent content={part} key={i} />
-                  ))}
-                </Text>
+                <Group className={classes.searchResult} key={exam.filename}>
+                  <Text>
+                    {exam.headline.map((part, i) => (
+                      <HighlightedContent content={part} key={i} />
+                    ))}
+                  </Text>
+                  <Badge variant="outline" className={classes.badge}>Exam</Badge>
+                </Group>
               ))}
             </>
           )}
@@ -162,11 +170,14 @@ export const SearchBar: React.FC = () => {
             <>
               <Divider variant="dashed" />
               {examPages.map((exam) => (
-                <Text key={exam.filename}>
-                  {exam.headline.map((part, i) => (
-                    <HighlightedContent content={part} key={i} />
-                  ))}
-                </Text>
+                <Group className={classes.searchResult} key={exam.filename}>
+                  <Text>
+                    {exam.headline.map((part, i) => (
+                      <HighlightedContent content={part} key={i} />
+                    ))}
+                  </Text>
+                  <Badge variant="outline" className={classes.badge}>Exam Page</Badge>
+                </Group>
               ))}
             </>
           )}
@@ -174,9 +185,10 @@ export const SearchBar: React.FC = () => {
             <>
               <Divider variant="dashed" />
               {answers.map((answer) => (
-                <div key={answer.long_id} style={{ maxHeight: "150px", overflowY: "hidden", WebkitMaskImage: "linear-gradient(180deg, #000 60%, transparent)" }}>
+                <Group className={clsx(classes.searchResult, classes.fadeHeightLimited)} key={answer.long_id}>
                   <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
-                </div>
+                  <Badge variant="outline" className={classes.badge}>Answer</Badge>
+                </Group>
               ))}
             </>
           )}
@@ -184,9 +196,10 @@ export const SearchBar: React.FC = () => {
             <>
               <Divider variant="dashed" />
               {comments.map((comment) => (
-                <div key={comment.long_id} style={{ maxHeight: "150px", overflowY: "hidden", WebkitMaskImage: "linear-gradient(180deg, #000 60%, transparent)" }}>
+                <Group className={clsx(classes.searchResult, classes.fadeHeightLimited)} key={comment.long_id}>
                   <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
-                </div>
+                  <Badge variant="outline" className={classes.badge}>Comment</Badge>
+                </Group>
               ))}
             </>
           )}
