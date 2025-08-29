@@ -97,7 +97,7 @@ export const SearchBar: React.FC = () => {
 
   // Category filter, set by pages like ExamPage or CategoryPage through the
   // global context (in App). Undefined if there is no filter.
-  const { filter } = useContext(QuickSearchFilterContext) ?? {};
+  const { filter: contextFilter } = useContext(QuickSearchFilterContext) ?? {};
 
   return (
     <>
@@ -142,7 +142,12 @@ export const SearchBar: React.FC = () => {
             <Combobox.Dropdown>
               <Combobox.Options>
                 <Combobox.Option value="global">Everywhere</Combobox.Option>
-                {filter && <Combobox.Option value="local">{filter.displayname}</Combobox.Option>}
+                {/*Display the category-based filter only if there is one defined
+                   by the page (via the React context)*/ contextFilter && (
+                  <Combobox.Option value="local">
+                    {contextFilter.displayname}
+                  </Combobox.Option>
+                )}
               </Combobox.Options>
             </Combobox.Dropdown>
           </Combobox>
