@@ -1,6 +1,6 @@
 import { useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack, Badge } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadCategories, loadSearch } from "../../api/hooks";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import useSearch from "../../hooks/useSearch";
@@ -36,6 +36,7 @@ export const SearchBar: React.FC = () => {
   const isMobile = useMediaQuery('(max-width: 50em)');
 
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 150);
 
   const categoryResults = useSearch(
     categories.data ?? [],
@@ -49,8 +50,8 @@ export const SearchBar: React.FC = () => {
     (data) => data.displayname,
   ).slice(0, 4);
 
-  const searchResults = useRequest(() => loadSearch(searchQuery, undefined, true), {
-    refreshDeps: [searchQuery],
+  const searchResults = useRequest(() => loadSearch(debouncedSearchQuery, undefined, true), {
+    refreshDeps: [debouncedSearchQuery],
   });
 
   const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
