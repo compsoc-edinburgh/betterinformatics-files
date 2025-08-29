@@ -4,7 +4,7 @@ import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadCategories, loadSearch } from "../../api/hooks";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import useSearch from "../../hooks/useSearch";
-import { useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { highlight } from "../../utils/search-utils";
 import { HighlightedContent } from "../HighlightSearchHeadline";
 import MarkdownText from "../markdown-text";
@@ -87,13 +87,17 @@ export const SearchBar: React.FC = () => {
   const answers = searchResults.data?.filter((result) => result.type === "answer").slice(0, 4) ?? [];
   const comments = searchResults.data?.filter((result) => result.type === "comment").slice(0, 4) ?? [];
 
-  const combobox = useCombobox();
-
   useHotkeys([
     // Slash to open wherever this component is mounted (i.e. everywhere if searchbar is in nav bar)
     ['/', open],
     // Modal component has built-in support for esc to close
   ]);
+
+  const combobox = useCombobox();
+
+  // Category filter, set by pages like ExamPage or CategoryPage through the
+  // global context (in App). Undefined if there is no filter.
+  const { filter } = useContext(QuickSearchFilterContext) ?? {};
 
   return (
     <>
@@ -132,13 +136,13 @@ export const SearchBar: React.FC = () => {
                 size="md"
                 styles={{input: { textOverflow: "ellipsis", textWrap: "nowrap", overflow: "hidden", borderStartEndRadius: 0, borderEndEndRadius: 0, background: "var(--mantine-color-gray-2)", borderColor: "var(--mantine-color-gray-2)" } }}
               >
-                Foundations of Algorithmic Data Science
+                Everywhere
               </InputBase>
             </Combobox.Target>
             <Combobox.Dropdown>
               <Combobox.Options>
                 <Combobox.Option value="global">Everywhere</Combobox.Option>
-                <Combobox.Option value="local">Foundations of Algorithmic Data Science</Combobox.Option>
+                {filter && <Combobox.Option value="local">{filter.displayname}</Combobox.Option>}
               </Combobox.Options>
             </Combobox.Dropdown>
           </Combobox>
@@ -254,3 +258,40 @@ export const SearchBar: React.FC = () => {
     </>
   );
 };
+
+export interface QuickSearchFilter {
+  slug: string, // Category slug
+  displayname: string; // Category display name
+};
+
+// Provide React Contexts so components across the app can call
+// useSetSearchBarCategoryFilter(slug, "name");
+export const QuickSearchFilterContext = createContext<{
+  filter?: QuickSearchFilter,
+  setFilter: (filter?: QuickSearchFilter) => void,
+} | undefined>(undefined);
+
+/**
+ * Set the category filter for the site-wide quick search bar.
+ * When the component that calls the hook gets unloaded, the filter is reverted
+ * back to undefined, regardless of whatever value it was set to by any parent
+ * before you called the hook.
+ * @param slug Must be a valid category slug, passed to the backend to filter
+ * quick-search results
+ * @param displayname Used in UI to show the dropdown text in the quick-search bar
+ */
+export const useQuickSearchFilter = (filter?: QuickSearchFilter) => {
+  const context = useContext(QuickSearchFilterContext);
+  useEffect(() => {
+    // Context may be undefined if there is no SearchBarCategoryFilterContext in
+    // the parent tree. If so, we won't do anything nor return cleanups.
+    if (!context) return;
+
+    context.setFilter(filter);
+    return () => {
+      // Cleanup function that runs whenever deps list changes or component
+      // unloads
+      context.setFilter(undefined);
+    }
+  }, [filter, context]);
+}

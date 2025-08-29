@@ -47,6 +47,7 @@ import {
   IconTrash,
   IconUserStar,
 } from "@tabler/icons-react";
+import { useQuickSearchFilter } from "../components/Navbar/SearchBar";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -281,6 +282,7 @@ const CategoryPage: React.FC<{}> = () => {
     [mutate, history, slug],
   );
   useTitle(data?.displayname ?? slug);
+  useQuickSearchFilter(data && { slug: data.slug, displayname: data.displayname });
   const user = useUser();
   return (
     <Container size="xl" mb="xl">

@@ -59,6 +59,7 @@ import {
   IconLink,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import { useQuickSearchFilter } from "../components/Navbar/SearchBar";
 
 const addCut = async (
   filename: string,
@@ -432,6 +433,7 @@ const ExamPage: React.FC<{}> = () => {
     cacheKey: `exam-metaData-${filename}`,
   });
   useTitle(metaData?.displayname ?? filename);
+  useQuickSearchFilter(metaData && { slug: metaData.category, displayname: metaData.category_displayname });
   const {
     error: cutsError,
     loading: cutsLoading,

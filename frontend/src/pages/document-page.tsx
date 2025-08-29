@@ -41,6 +41,7 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import PermaLinkHandler from "../components/permalink-handler";
+import { useQuickSearchFilter } from "../components/Navbar/SearchBar";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -85,6 +86,8 @@ const DocumentPage: React.FC<Props> = () => {
   const [error, _, data, mutate, reload] = useDocument(author, slug, document => {
     if (document.files.length > 0) setTab(document.files[0].oid.toString());
   });
+
+  useQuickSearchFilter(data && { slug: data.category, displayname: data.category_display_name });
 
   const [tab, setTab] = useState<string | null>("none");
   const activeFile = !Number.isNaN(Number(tab))
