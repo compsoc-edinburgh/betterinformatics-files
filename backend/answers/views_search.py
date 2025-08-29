@@ -466,6 +466,15 @@ def search(request):
     include_exams = request.POST.get("include_exams", "true") == "true"
     include_answers = request.POST.get("include_answers", "true") == "true"
     include_comments = request.POST.get("include_comments", "true") == "true"
+
+    # Whether include_exams should search and return the exam's category name
+    # too. Has no effect is include_exams is false. Is also much slower if set
+    # to true since we have to do a full-text-search on concatednated columns at
+    # runtime instead of using pre-calculated vectors.
+    exams_with_category_name = (
+        request.POST.get("exams_with_category_name", "false") == "true"
+    )
+
     # Category slug to limit results to (ID is more efficient, but current
     # client side has no access to ID and uses slugs for everything)
     category_filter = request.POST.get("category", "")
@@ -477,7 +486,13 @@ def search(request):
     exams_start = time.time()
     exams = (
         search_exams(
-            term, has_payed, is_admin, category_filter, user_admin_categories, amount
+            term,
+            has_payed,
+            is_admin,
+            category_filter,
+            user_admin_categories,
+            amount,
+            exams_with_category_name,
         )
         if include_exams
         else []

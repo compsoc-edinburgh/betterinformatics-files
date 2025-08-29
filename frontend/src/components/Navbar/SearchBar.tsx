@@ -24,7 +24,7 @@ export const SearchBar: React.FC = () => {
     (data) => data.displayname,
   );
 
-  const searchResults = useRequest(() => loadSearch(searchQuery), {
+  const searchResults = useRequest(() => loadSearch(searchQuery, undefined, true), {
     refreshDeps: [searchQuery],
   });
   const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
