@@ -41,7 +41,7 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import PermaLinkHandler from "../components/permalink-handler";
-import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchBox";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>

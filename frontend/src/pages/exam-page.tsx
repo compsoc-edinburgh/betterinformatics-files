@@ -59,7 +59,7 @@ import {
   IconLink,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchBox";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 const addCut = async (
   filename: string,
