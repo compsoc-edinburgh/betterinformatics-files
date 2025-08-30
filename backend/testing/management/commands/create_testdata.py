@@ -17,6 +17,8 @@ from payments.models import Payment
 import os
 from answers import pdf_utils
 
+# Pool of words to choose category names from. Prefixes are chosen infrequently to
+# prefix a guaranteed combination of Adjective + Noun.
 category_prefixes = [
     "Introduction to",
     "Advanced",
@@ -25,10 +27,8 @@ category_prefixes = [
     "Principles of",
 ]
 
-# Exactly 5 different (5*14=70 categories)
 category_adjectives = ["Formal", "Distributed", "Parallel", "Rigorous", "Applied"]
 
-# Exactly 14 different (5*14=70 categories)
 category_nouns = [
     "Analysis",
     "Computing",
@@ -99,14 +99,14 @@ class Command(BaseCommand):
     def create_categories(self):
         self.stdout.write("Create categories")
         Category(displayname="default", slug="default").save()
-        for i in range(70):
+        for i in range(len(category_adjectives) * len(category_nouns)):
             self.stdout.write("Creating category " + str(i + 1))
             category = Category(
                 # Intelligent! Makes plausible category names
                 displayname=(category_prefixes[i % 5] + " " if i % 3 == 0 else "")
-                + category_adjectives[i // 14]
+                + category_adjectives[i // len(category_nouns)]
                 + " "
-                + category_nouns[i % 14],
+                + category_nouns[i % len(category_nouns)],
                 slug="category" + str(i + 1),
                 form=(["written"] * 5 + ["oral"])[i % 6],
                 remark=[
