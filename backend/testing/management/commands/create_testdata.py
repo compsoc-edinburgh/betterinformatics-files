@@ -17,6 +17,35 @@ from payments.models import Payment
 import os
 from answers import pdf_utils
 
+category_prefixes = [
+    "Introduction to",
+    "Advanced",
+    "Mathematical Foundations of",
+    "Numerical Methods for",
+    "Principles of",
+]
+
+# Exactly 5 different (5*14=70 categories)
+category_adjectives = ["Formal", "Distributed", "Parallel", "Rigorous", "Applied"]
+
+# Exactly 14 different (5*14=70 categories)
+category_nouns = [
+    "Analysis",
+    "Computing",
+    "Cryptography",
+    "Computer Vision",
+    "Databases",
+    "Data Modeling",
+    "Data Structures",
+    "Machine Learning",
+    "Machine Perception",
+    "Methods",
+    "Operating Systems",
+    "Systems Theory",
+    "Statistics",
+    "Wireless Networks",
+]
+
 
 class Command(BaseCommand):
     help = "Creates some testdata"
@@ -30,7 +59,7 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for (first_name, last_name, username) in [
+        for first_name, last_name, username in [
             ("Zoe", "Fletcher", "fletchz"),
             ("Ernst", "Meyer", "meyee"),
             ("Jonas", "Schneider", "schneij"),
@@ -73,7 +102,11 @@ class Command(BaseCommand):
         for i in range(70):
             self.stdout.write("Creating category " + str(i + 1))
             category = Category(
-                displayname="Category " + str(i + 1),
+                # Intelligent! Makes plausible category names
+                displayname=(category_prefixes[i % 5] + " " if i % 3 == 0 else "")
+                + category_adjectives[i // 14]
+                + " "
+                + category_nouns[i % 14],
                 slug="category" + str(i + 1),
                 form=(["written"] * 5 + ["oral"])[i % 6],
                 remark=[
@@ -125,7 +158,7 @@ class Command(BaseCommand):
                     )
                 exam = Exam(
                     filename=filename,
-                    displayname="Exam {} in {}".format(i + 1, category.displayname),
+                    displayname="{}2{}".format("HS" if i % 2 else "FS", i + 1),
                     exam_type=exam_type,
                     category=category,
                     resolve_alias="resolve_" + filename,
@@ -159,13 +192,15 @@ class Command(BaseCommand):
         for exam in Exam.objects.all():
             for page in range(3):
                 for i in range(4):
-                    objs.append(AnswerSection(
-                        exam=exam,
-                        author=users[(exam.id + page + i) % len(users)],
-                        page_num=page,
-                        rel_height=0.2 + 0.15 * i,
-                        name="Aufgabe " + str(i),
-                    ))
+                    objs.append(
+                        AnswerSection(
+                            exam=exam,
+                            author=users[(exam.id + page + i) % len(users)],
+                            page_num=page,
+                            rel_height=0.2 + 0.15 * i,
+                            name="Aufgabe " + str(i),
+                        )
+                    )
         AnswerSection.objects.bulk_create(objs)
 
     def create_answers(self):
@@ -190,7 +225,7 @@ class Command(BaseCommand):
                     answer.is_legacy_answer = True
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
-        
+
         for answer in Answer.objects.all():
             i = answer.answer_section.id
             for user in users:
@@ -226,13 +261,15 @@ class Command(BaseCommand):
     def create_feedback(self):
         self.stdout.write("Create feedback")
         users = MyUser.objects.all()
-        objs = [Feedback(
+        objs = [
+            Feedback(
                 text="Feedback " + str(i + 1),
                 author=users[i % len(users)],
                 read=i % 7 == 0,
                 done=i % 17 == 0,
             )
-         for i in range(122)]
+            for i in range(122)
+        ]
         Feedback.objects.bulk_create(objs)
 
     def create_attachments(self):
@@ -376,4 +413,3 @@ class Command(BaseCommand):
         self.create_payments()
         self.create_document_types()
         self.create_documents()
-        
