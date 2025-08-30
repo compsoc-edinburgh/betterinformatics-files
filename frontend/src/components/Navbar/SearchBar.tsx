@@ -1,10 +1,10 @@
-import { useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
+import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack, Badge } from "@mantine/core";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadCategories, loadSearch } from "../../api/hooks";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import useSearch from "../../hooks/useSearch";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { highlight } from "../../utils/search-utils";
 import { HighlightedContent } from "../HighlightSearchHeadline";
 import MarkdownText from "../markdown-text";
@@ -12,6 +12,7 @@ import { escapeRegExp } from "lodash-es";
 import classes from "./SearchBar.module.css";
 import clsx from "clsx";
 import { ExamSearchResult } from "../../interfaces";
+import useCategorisedNavigation from "../../hooks/useCategorisedNavigation";
 
 /**
  * Return the max depth of an array.
@@ -27,6 +28,8 @@ const maxdepth = (nested_array: any): number => {
   }
   return 0;
 }
+
+const displayOrder = ["categories", "examNames", "examPages", "answers", "comments"] as const;
 
 export const SearchBar: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -96,12 +99,21 @@ export const SearchBar: React.FC = () => {
   // search page for more results.
   const answers = searchResults.data?.filter((result) => result.type === "answer").slice(0, 4) ?? [];
   const comments = searchResults.data?.filter((result) => result.type === "comment").slice(0, 4) ?? [];
+  const results = {
+    categories: categoryResults,
+    examNames,
+    examPages,
+    answers,
+    comments,
+  };
+
+  const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(results, displayOrder);
 
   useHotkeys([
     // Slash to open wherever this component is mounted (i.e. everywhere if searchbar is in nav bar)
     ['/', open],
     // Modal component has built-in support for esc to close
-  ]);
+  ], []);
 
   // Everywhere vs category-local dropdown store
   const combobox = useCombobox();
@@ -176,81 +188,100 @@ export const SearchBar: React.FC = () => {
             size="md"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.currentTarget.value)}
+            onKeyDown={getHotkeyHandler([
+              ["ArrowUp", moveUp],
+              ["ArrowDown", moveDown],
+            ])}
           />
         </Group>
-        <Stack my="xs">
+        <Stack my="xs" gap="xs">
           {searchQuery.length === 0 && <Text c="dimmed" mx="auto">Start typing to search...</Text>}
           {searchQuery.length > 0 && categoryResults.length > 0 && (
             <>
               <Divider variant="dashed" />
-              {categoryResults.map((category) => (
-                <Group className={classes.searchResult} key={category.slug}>
-                  <Text>{highlight(category.displayname, category.match)}</Text>
-                  <Badge variant="outline" className={classes.badge}>Category</Badge>
-                </Group>
-              ))}
+              {categoryResults.map((category, i) => {
+                const isSelected = currentSelection.type === "categories" && currentSelection.index === i;
+                return (
+                  <Group className={clsx(classes.searchResult, isSelected && classes.selected)} key={category.slug}>
+                    <Text>{highlight(category.displayname, category.match)}</Text>
+                    <Badge variant="outline" className={classes.badge}>Category</Badge>
+                  </Group>
+                )
+              })}
             </>
           )}
           {!searchResults.loading && searchResults.error && <Text c="dimmed" mx="auto">{String(searchResults.error)}</Text>}
           {searchQuery.length > 0 && examNames.length > 0 && (
             <>
               <Divider variant="dashed" />
-              {examNames.map((exam) => (
-                <Group className={classes.searchResult} key={exam.filename}>
-                  <Text>
-                    {exam.headline.map((part, i) => (
-                      <HighlightedContent content={part} key={i} />
-                    ))}
-                  </Text>
-                  <Badge variant="outline" className={classes.badge}>Exam</Badge>
-                </Group>
-              ))}
+              {examNames.map((exam, i) => {
+                const isSelected = currentSelection.type === "examNames" && currentSelection.index === i;
+                return (
+                  <Group className={clsx(classes.searchResult, isSelected && classes.selected)} key={exam.filename}>
+                    <Text>
+                      {exam.headline.map((part, i) => (
+                        <HighlightedContent content={part} key={i} />
+                      ))}
+                    </Text>
+                    <Badge variant="outline" className={classes.badge}>Exam</Badge>
+                  </Group>
+                )
+              })}
             </>
           )}
           {searchQuery.length > 0 && examPages.length > 0 && (
             <>
               <Divider variant="dashed" />
-              {examPages.map((exam) => (
-                <Stack>
-                  <Group className={classes.searchResult} key={exam.filename}>
-                    <Text>
-                      {exam.headline.map((part, i) => (
+              {examPages.map((exam, i) => {
+                const isSelected = currentSelection.type === "examPages" && currentSelection.index === i;
+                return (
+                  <Stack>
+                    <Group className={clsx(classes.searchResult, isSelected && classes.selected)} key={exam.filename}>
+                      <Text>
+                        {exam.headline.map((part, i) => (
+                          <HighlightedContent content={part} key={i} />
+                        ))} - Page {exam.pages[0][0]}
+                      </Text>
+                      <Badge variant="outline" className={classes.badge}>Exam Page</Badge>
+                    </Group>
+                    <Text c="gray">
+                      ...
+                      {exam.pages[0][2].map((part, i) => (
                         <HighlightedContent content={part} key={i} />
-                      ))} - Page {exam.pages[0][0]}
+                      ))}
+                      ...
                     </Text>
-                    <Badge variant="outline" className={classes.badge}>Exam Page</Badge>
-                  </Group>
-                  <Text>
-                    ...
-                    {exam.pages[0][2].map((part, i) => (
-                      <HighlightedContent content={part} key={i} />
-                    ))}
-                    ...
-                  </Text>
-                </Stack>
-              ))}
+                  </Stack>
+                )
+              })}
             </>
           )}
           {searchQuery.length > 0 && answers.length > 0 && (
             <>
               <Divider variant="dashed" />
-              {answers.map((answer) => (
-                <Group className={clsx(classes.searchResult, classes.fadeHeightLimited)} key={answer.long_id}>
-                  <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
-                  <Badge variant="outline" className={classes.badge}>Answer</Badge>
-                </Group>
-              ))}
+              {answers.map((answer, i) => {
+                const isSelected = currentSelection.type === "answers" && currentSelection.index === i;
+                return (
+                  <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)} key={answer.long_id}>
+                    <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                    <Badge variant="outline" className={classes.badge}>Answer</Badge>
+                  </Group>
+                )
+              })}
             </>
           )}
           {searchQuery.length > 0 && comments.length > 0 && (
             <>
               <Divider variant="dashed" />
-              {comments.map((comment) => (
-                <Group className={clsx(classes.searchResult, classes.fadeHeightLimited)} key={comment.long_id}>
-                  <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
-                  <Badge variant="outline" className={classes.badge}>Comment</Badge>
-                </Group>
-              ))}
+              {comments.map((comment, i) => {
+                const isSelected = currentSelection.type === "comments" && currentSelection.index === i;
+                return (
+                  <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)} key={comment.long_id}>
+                    <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                    <Badge variant="outline" className={classes.badge}>Comment</Badge>
+                  </Group>
+                )
+              })}
             </>
           )}
         </Stack>
