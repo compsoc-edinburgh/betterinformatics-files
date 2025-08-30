@@ -61,7 +61,7 @@ export const SearchBar: React.FC = () => {
   ).slice(0, 4);
 
   const searchResults = useRequest(() => loadSearch(debouncedSearchQuery, isGlobal ? undefined : contextFilter?.slug, true), {
-    refreshDeps: [debouncedSearchQuery],
+    refreshDeps: [debouncedSearchQuery, isGlobal],
   });
 
   const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
