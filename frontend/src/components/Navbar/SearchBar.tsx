@@ -197,7 +197,7 @@ export const SearchBar: React.FC = () => {
         </Group>
         {searchQuery.length === 0 && <Text c="dimmed" my="xs" ta="center">Start typing to search...</Text>}
         {searchQuery.length > 0 && (
-          <Stack my="xs" gap="xs">
+          <Stack my="xs" gap={0}>
             {results.categories.length > 0 && (
               <>
                 <Divider variant="dashed" />

@@ -2,9 +2,14 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  align-items: flex-start;
   justify-content: space-between;
   gap: var(--mantine-spacing-md);
+  /* half of xs padding vertically = practically an xxs. The aim is to get a
+  compact results view to fit as many results as possible on the screen, since
+  the quick search menu is for advanced users and advanced users would want
+  more results usually. But 0 padding is awful so we give it tiny padding. */
+  padding: 0.3125rem var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-sm);
 }
 
 .badge {
@@ -19,5 +24,11 @@
 }
 
 .selected {
-  background: red;
+  background: var(--mantine-primary-color-filled);
+  color: var(--mantine-primary-color-contrast);
+}
+
+.selected .badge {
+  border-color: var(--mantine-primary-color-contrast);
+  color: var(--mantine-primary-color-contrast);
 }
