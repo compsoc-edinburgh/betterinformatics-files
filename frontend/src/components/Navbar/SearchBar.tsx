@@ -121,7 +121,7 @@ export const SearchBar: React.FC = () => {
 
   return (
     <>
-      <Button bg="gray.3" style={{ overflow: "visible" }} px="md" onClick={open}>
+      <Button className={classes.navButton} px="md" onClick={open}>
         <Group wrap="nowrap">
           <IconSearch />
           <span>Search</span>
@@ -147,6 +147,9 @@ export const SearchBar: React.FC = () => {
               setIsGlobal(val === "global");
               combobox.closeDropdown();
             }}
+            classNames={{
+              option: classes.dropdownOption,
+            }}
           >
             <Combobox.Target>
               <InputBase
@@ -156,9 +159,8 @@ export const SearchBar: React.FC = () => {
                 rightSection={<IconChevronDown />}
                 rightSectionPointerEvents="none"
                 onClick={() => combobox.toggleDropdown()}
-                maw={300}
                 size="md"
-                styles={{input: { textOverflow: "ellipsis", textWrap: "nowrap", overflow: "hidden", borderStartEndRadius: 0, borderEndEndRadius: 0, background: "var(--mantine-color-gray-2)", borderColor: "var(--mantine-color-gray-2)" } }}
+                classNames={{ input: classes.dropdownInput }}
               >
                 {isGlobal ? "Everywhere" : contextFilter?.displayname}
               </InputBase>
@@ -176,14 +178,10 @@ export const SearchBar: React.FC = () => {
             </Combobox.Dropdown>
           </Combobox>
           <TextInput
-            styles={{ input: {
-              borderStartStartRadius: 0,
-              borderEndStartRadius: 0,
-              borderLeft: 0,
-              background: "var(--mantine-color-gray-3)",
-              borderColor: "var(--mantine-color-gray-3)",
-            } }}
-            style={{ flexGrow: 1 }}
+            classNames={{
+              root: classes.searchInputWrapper,
+              input: classes.searchInput,
+            }}
             data-autofocus
             placeholder="Search..."
             size="md"
