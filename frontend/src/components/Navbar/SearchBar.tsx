@@ -13,6 +13,7 @@ import classes from "./SearchBar.module.css";
 import clsx from "clsx";
 import { ExamSearchResult } from "../../interfaces";
 import useCategorisedNavigation from "../../hooks/useCategorisedNavigation";
+import { QuickSearchResult } from "./QuickSearch/QuickSearchResult";
 
 /**
  * Return the max depth of an array.
@@ -194,97 +195,94 @@ export const SearchBar: React.FC = () => {
             ])}
           />
         </Group>
-        <Stack my="xs" gap="xs">
-          {searchQuery.length === 0 && <Text c="dimmed" mx="auto">Start typing to search...</Text>}
-          {searchQuery.length > 0 && categoryResults.length > 0 && (
-            <>
-              <Divider variant="dashed" />
-              {categoryResults.map((category, i) => {
-                const isSelected = currentSelection.type === "categories" && currentSelection.index === i;
-                return (
-                  <Group className={clsx(classes.searchResult, isSelected && classes.selected)} key={category.slug}>
-                    <Text>{highlight(category.displayname, category.match)}</Text>
-                    <Badge variant="outline" className={classes.badge}>Category</Badge>
-                  </Group>
-                )
-              })}
-            </>
-          )}
-          {!searchResults.loading && searchResults.error && <Text c="dimmed" mx="auto">{String(searchResults.error)}</Text>}
-          {searchQuery.length > 0 && examNames.length > 0 && (
-            <>
-              <Divider variant="dashed" />
-              {examNames.map((exam, i) => {
-                const isSelected = currentSelection.type === "examNames" && currentSelection.index === i;
-                return (
-                  <Group className={clsx(classes.searchResult, isSelected && classes.selected)} key={exam.filename}>
-                    <Text>
-                      {exam.headline.map((part, i) => (
-                        <HighlightedContent content={part} key={i} />
-                      ))}
-                    </Text>
-                    <Badge variant="outline" className={classes.badge}>Exam</Badge>
-                  </Group>
-                )
-              })}
-            </>
-          )}
-          {searchQuery.length > 0 && examPages.length > 0 && (
-            <>
-              <Divider variant="dashed" />
-              {examPages.map((exam, i) => {
-                const isSelected = currentSelection.type === "examPages" && currentSelection.index === i;
-                return (
-                  <Stack>
-                    <Group className={clsx(classes.searchResult, isSelected && classes.selected)} key={exam.filename}>
+        {searchQuery.length === 0 && <Text c="dimmed" my="xs" ta="center">Start typing to search...</Text>}
+        {searchQuery.length > 0 && (
+          <Stack my="xs" gap="xs">
+            {results.categories.length > 0 && (
+              <>
+                <Divider variant="dashed" />
+                {results.categories.map((category, i) => {
+                  const isSelected = currentSelection.type === "categories" && currentSelection.index === i;
+                  return (
+                    <QuickSearchResult badge="Category" isSelected={isSelected} key={category.slug}>
+                      <Text>{highlight(category.displayname, category.match)}</Text>
+                    </QuickSearchResult>
+                  )
+                })}
+              </>
+            )}
+            {!searchResults.loading && searchResults.error && <Text c="dimmed" mx="auto">{String(searchResults.error)}</Text>}
+            {results.examNames.length > 0 && (
+              <>
+                <Divider variant="dashed" />
+                {results.examNames.map((exam, i) => {
+                  const isSelected = currentSelection.type === "examNames" && currentSelection.index === i;
+                  return (
+                    <QuickSearchResult badge="Exam" isSelected={isSelected} key={exam.filename}>
                       <Text>
                         {exam.headline.map((part, i) => (
                           <HighlightedContent content={part} key={i} />
-                        ))} - Page {exam.pages[0][0]}
+                        ))}
                       </Text>
-                      <Badge variant="outline" className={classes.badge}>Exam Page</Badge>
-                    </Group>
-                    <Text c="gray">
-                      ...
-                      {exam.pages[0][2].map((part, i) => (
-                        <HighlightedContent content={part} key={i} />
-                      ))}
-                      ...
-                    </Text>
-                  </Stack>
-                )
-              })}
-            </>
-          )}
-          {searchQuery.length > 0 && answers.length > 0 && (
-            <>
-              <Divider variant="dashed" />
-              {answers.map((answer, i) => {
-                const isSelected = currentSelection.type === "answers" && currentSelection.index === i;
-                return (
-                  <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)} key={answer.long_id}>
-                    <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
-                    <Badge variant="outline" className={classes.badge}>Answer</Badge>
-                  </Group>
-                )
-              })}
-            </>
-          )}
-          {searchQuery.length > 0 && comments.length > 0 && (
-            <>
-              <Divider variant="dashed" />
-              {comments.map((comment, i) => {
-                const isSelected = currentSelection.type === "comments" && currentSelection.index === i;
-                return (
-                  <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)} key={comment.long_id}>
-                    <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
-                    <Badge variant="outline" className={classes.badge}>Comment</Badge>
-                  </Group>
-                )
-              })}
-            </>
-          )}
-        </Stack>
+                    </QuickSearchResult>
+                  )
+                })}
+              </>
+            )}
+            {results.examPages.length > 0 && (
+              <>
+                <Divider variant="dashed" />
+                {results.examPages.map((exam, i) => {
+                  const isSelected = currentSelection.type === "examPages" && currentSelection.index === i;
+                  return (
+                    <QuickSearchResult badge="Exam Page" isSelected={isSelected} key={exam.filename}>
+                      <Stack>
+                        <Text>
+                          {exam.headline.map((part, i) => (
+                            <HighlightedContent content={part} key={i} />
+                          ))} - Page {exam.pages[0][0]}
+                        </Text>
+                        <Text c="gray">
+                          ...
+                          {exam.pages[0][2].map((part, i) => (
+                            <HighlightedContent content={part} key={i} />
+                          ))}
+                          ...
+                        </Text>
+                      </Stack>
+                    </QuickSearchResult>
+                  )
+                })}
+              </>
+            )}
+            {results.answers.length > 0 && (
+              <>
+                <Divider variant="dashed" />
+                {results.answers.map((answer, i) => {
+                  const isSelected = currentSelection.type === "answers" && currentSelection.index === i;
+                  return (
+                    <QuickSearchResult badge="Answer" isSelected={isSelected} key={answer.long_id}>
+                      <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                    </QuickSearchResult>
+                  )
+                })}
+              </>
+            )}
+            {results.comments.length > 0 && (
+              <>
+                <Divider variant="dashed" />
+                {results.comments.map((comment, i) => {
+                  const isSelected = currentSelection.type === "comments" && currentSelection.index === i;
+                  return (
+                    <QuickSearchResult badge="Comment" isSelected={isSelected} key={comment.long_id}>
+                      <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                    </QuickSearchResult>
+                  )
+                })}
+              </>
+            )}
+          </Stack>
+        )}
         <Divider style={{ marginInline: 'calc(-1 * var(--mb-padding))' }} my="xs" />
         <Group justify="flex-end">
           <Group gap="xs">
