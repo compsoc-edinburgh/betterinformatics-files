@@ -35,8 +35,18 @@ export const SearchBar: React.FC = () => {
   });
   const isMobile = useMediaQuery('(max-width: 50em)');
 
+  // Search query and its debounced version (to save network requests while typing)
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 150);
+
+  // Category filter, set by pages like ExamPage or CategoryPage through the
+  // global context (in App). Undefined if there is no filter.
+  const { filter: contextFilter } = useContext(QuickSearchFilterContext) ?? {};
+
+  // Whether we use global search or category search. If using category search,
+  // we'll use contextFilter for the slug and display name. isGlobal should
+  // never be set to false if contextFilter is undefined.
+  const [isGlobal, setIsGlobal] = useState<boolean>(contextFilter === undefined);
 
   const categoryResults = useSearch(
     categories.data ?? [],
@@ -50,7 +60,7 @@ export const SearchBar: React.FC = () => {
     (data) => data.displayname,
   ).slice(0, 4);
 
-  const searchResults = useRequest(() => loadSearch(debouncedSearchQuery, undefined, true), {
+  const searchResults = useRequest(() => loadSearch(debouncedSearchQuery, isGlobal ? undefined : contextFilter?.slug, true), {
     refreshDeps: [debouncedSearchQuery],
   });
 
@@ -95,10 +105,6 @@ export const SearchBar: React.FC = () => {
 
   const combobox = useCombobox();
 
-  // Category filter, set by pages like ExamPage or CategoryPage through the
-  // global context (in App). Undefined if there is no filter.
-  const { filter: contextFilter } = useContext(QuickSearchFilterContext) ?? {};
-
   return (
     <>
       <Button bg="gray.3" style={{ overflow: "visible" }} px="md" onClick={open}>
@@ -123,6 +129,10 @@ export const SearchBar: React.FC = () => {
           <Combobox
             store={combobox}
             offset={0}
+            onOptionSubmit={(val) => {
+              setIsGlobal(val === "global");
+              combobox.closeDropdown();
+            }}
           >
             <Combobox.Target>
               <InputBase
@@ -136,7 +146,7 @@ export const SearchBar: React.FC = () => {
                 size="md"
                 styles={{input: { textOverflow: "ellipsis", textWrap: "nowrap", overflow: "hidden", borderStartEndRadius: 0, borderEndEndRadius: 0, background: "var(--mantine-color-gray-2)", borderColor: "var(--mantine-color-gray-2)" } }}
               >
-                Everywhere
+                {isGlobal ? "Everywhere" : contextFilter?.displayname}
               </InputBase>
             </Combobox.Target>
             <Combobox.Dropdown>
