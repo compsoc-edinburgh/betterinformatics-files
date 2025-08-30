@@ -200,7 +200,7 @@ export const SearchBar: React.FC = () => {
           <Stack my="xs" gap={0}>
             {results.categories.length > 0 && (
               <>
-                <Divider variant="dashed" />
+                <Divider variant="dashed" label="Categories" labelPosition="left"/>
                 {results.categories.map((category, i) => {
                   const isSelected = currentSelection.type === "categories" && currentSelection.index === i;
                   return (
@@ -214,7 +214,7 @@ export const SearchBar: React.FC = () => {
             {!searchResults.loading && searchResults.error && <Text c="dimmed" mx="auto">{String(searchResults.error)}</Text>}
             {results.examNames.length > 0 && (
               <>
-                <Divider variant="dashed" />
+                <Divider variant="dashed" label="Exams" labelPosition="left" />
                 {results.examNames.map((exam, i) => {
                   const isSelected = currentSelection.type === "examNames" && currentSelection.index === i;
                   return (
@@ -231,7 +231,7 @@ export const SearchBar: React.FC = () => {
             )}
             {results.examPages.length > 0 && (
               <>
-                <Divider variant="dashed" />
+                <Divider variant="dashed" label="Exam Pages" labelPosition="left" />
                 {results.examPages.map((exam, i) => {
                   const isSelected = currentSelection.type === "examPages" && currentSelection.index === i;
                   return (
@@ -257,7 +257,7 @@ export const SearchBar: React.FC = () => {
             )}
             {results.answers.length > 0 && (
               <>
-                <Divider variant="dashed" />
+                <Divider variant="dashed" label="Answers" labelPosition="left" />
                 {results.answers.map((answer, i) => {
                   const isSelected = currentSelection.type === "answers" && currentSelection.index === i;
                   return (
@@ -270,7 +270,7 @@ export const SearchBar: React.FC = () => {
             )}
             {results.comments.length > 0 && (
               <>
-                <Divider variant="dashed" />
+                <Divider variant="dashed" label="Comments" labelPosition="left" />
                 {results.comments.map((comment, i) => {
                   const isSelected = currentSelection.type === "comments" && currentSelection.index === i;
                   return (
