@@ -1,18 +1,17 @@
+import { useContext, useState } from "react";
+import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
 import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
-import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack, Badge } from "@mantine/core";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadCategories, loadSearch } from "../../../api/hooks";
-import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import useSearch from "../../../hooks/useSearch";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { ExamSearchResult } from "../../../interfaces";
+import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
+import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import { highlight } from "../../../utils/search-utils";
 import { HighlightedContent } from "../../HighlightSearchHeadline";
 import MarkdownText from "../../markdown-text";
 import { escapeRegExp } from "lodash-es";
 import classes from "./QuickSearchBox.module.css";
-import clsx from "clsx";
-import { ExamSearchResult } from "../../../interfaces";
-import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
 import { QuickSearchResult } from "./QuickSearchResult";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
 
