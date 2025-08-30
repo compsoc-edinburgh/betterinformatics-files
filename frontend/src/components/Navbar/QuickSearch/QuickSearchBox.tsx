@@ -1,19 +1,19 @@
 import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack, Badge } from "@mantine/core";
 import { useDebounce, useRequest } from "@umijs/hooks";
-import { loadCategories, loadSearch } from "../../api/hooks";
+import { loadCategories, loadSearch } from "../../../api/hooks";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
-import useSearch from "../../hooks/useSearch";
+import useSearch from "../../../hooks/useSearch";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { highlight } from "../../utils/search-utils";
-import { HighlightedContent } from "../HighlightSearchHeadline";
-import MarkdownText from "../markdown-text";
+import { highlight } from "../../../utils/search-utils";
+import { HighlightedContent } from "../../HighlightSearchHeadline";
+import MarkdownText from "../../markdown-text";
 import { escapeRegExp } from "lodash-es";
-import classes from "./SearchBar.module.css";
+import classes from "./QuickSearchBox.module.css";
 import clsx from "clsx";
-import { ExamSearchResult } from "../../interfaces";
-import useCategorisedNavigation from "../../hooks/useCategorisedNavigation";
-import { QuickSearchResult } from "./QuickSearch/QuickSearchResult";
+import { ExamSearchResult } from "../../../interfaces";
+import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
+import { QuickSearchResult } from "./QuickSearchResult";
 
 /**
  * Return the max depth of an array.
@@ -32,7 +32,7 @@ const maxdepth = (nested_array: any): number => {
 
 const displayOrder = ["categories", "examNames", "examPages", "answers", "comments"] as const;
 
-export const SearchBar: React.FC = () => {
+export const QuickSearchBox: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const categories = useRequest(loadCategories, {
     cacheKey: "categories",
@@ -111,7 +111,7 @@ export const SearchBar: React.FC = () => {
   const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(results, displayOrder);
 
   useHotkeys([
-    // Slash to open wherever this component is mounted (i.e. everywhere if searchbar is in nav bar)
+    // Slash to open wherever this component is mounted (i.e. everywhere if QuickSearchBox is in nav bar)
     ['/', open],
     // Modal component has built-in support for esc to close
   ], []);
@@ -308,7 +308,7 @@ export interface QuickSearchFilter {
 };
 
 // Provide React Contexts so components across the app can call
-// useSetSearchBarCategoryFilter(slug, "name");
+// useQuickSearchFilter({slug, displayname});
 export const QuickSearchFilterContext = createContext<{
   filter?: QuickSearchFilter,
   setFilter: (filter?: QuickSearchFilter) => void,
@@ -326,7 +326,7 @@ export const QuickSearchFilterContext = createContext<{
 export const useQuickSearchFilter = (filter?: QuickSearchFilter) => {
   const { filter: currentFilter, setFilter } = useContext(QuickSearchFilterContext) ?? {};
   useEffect(() => {
-    // Context may be undefined if there is no SearchBarCategoryFilterContext in
+    // Context may be undefined if there is no QuickSearchFilterContext in
     // the parent tree. If so, we won't do anything nor return cleanups.
     if (!setFilter) return;
 

@@ -47,7 +47,7 @@ import {
   IconTrash,
   IconUserStar,
 } from "@tabler/icons-react";
-import { useQuickSearchFilter } from "../components/Navbar/SearchBar";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchBox";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;

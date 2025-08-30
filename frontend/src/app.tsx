@@ -57,7 +57,7 @@ import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
 import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
-import { QuickSearchFilter, QuickSearchFilterContext } from "./components/Navbar/SearchBar";
+import { QuickSearchFilter, QuickSearchFilterContext } from "./components/Navbar/QuickSearch/QuickSearchBox";
 
 /**
  * To be used as a wrapper for <Route>s at the top level, and adds Faro

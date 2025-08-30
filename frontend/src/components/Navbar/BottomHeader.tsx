@@ -3,7 +3,7 @@ import { Container, Group } from "@mantine/core";
 import type { MantineSize } from "@mantine/core";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
-import { SearchBar } from "./SearchBar";
+import { QuickSearchBox } from "./QuickSearch/QuickSearchBox";
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import classes from "./BottomHeader.module.css";
@@ -36,7 +36,7 @@ const BottomHeader: React.FC<Props> = ({
           wrap="nowrap"
           gap="2.75rem"
         >
-          <SearchBar />
+          <QuickSearchBox />
           {translate(appNav, lang).map((item, i) => {
             return (
               <ExternalNavElement
