@@ -103,6 +103,7 @@ export const SearchBar: React.FC = () => {
     // Modal component has built-in support for esc to close
   ]);
 
+  // Everywhere vs category-local dropdown store
   const combobox = useCombobox();
 
   return (
