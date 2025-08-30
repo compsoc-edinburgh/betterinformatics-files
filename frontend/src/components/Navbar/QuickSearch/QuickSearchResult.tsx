@@ -11,7 +11,7 @@ interface Props {
 
 export const QuickSearchResult: React.FC<Props> = ({ isSelected, badge, children }) => {
   return (
-    <Group className={clsx(classes.searchResult, isSelected && classes.selected)}>
+    <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)}>
       <>
         {children}
       </>
