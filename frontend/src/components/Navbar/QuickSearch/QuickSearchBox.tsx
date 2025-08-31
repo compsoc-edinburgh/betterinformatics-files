@@ -137,9 +137,9 @@ export const QuickSearchBox: React.FC = () => {
   // Create callback for pressing "Enter" and navigating to the highlighted result
   const history = useHistory();
   const confirmSelection = useCallback(() => {
-    if (!currentSelection.type) return;
-    const path = itemToPath(results[currentSelection.type][currentSelection.index]);
-    history.push(path);
+    if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
+
+    history.push(itemToPath(results[currentSelection.type][currentSelection.index]));
     close();
   }, [currentSelection, history, results, close]);
 
@@ -241,6 +241,7 @@ export const QuickSearchBox: React.FC = () => {
                       isSelected={isSelected}
                       key={category.slug}
                       link={itemToPath(category)}
+                      onClick={close}
                     >
                       <Text>{highlight(category.displayname, category.match)}</Text>
                     </QuickSearchResult>
@@ -260,6 +261,7 @@ export const QuickSearchBox: React.FC = () => {
                       isSelected={isSelected}
                       key={exam.filename}
                       link={itemToPath(exam)}
+                      onClick={close}
                     >
                       <Text>
                         {exam.headline.map((part, i) => (
@@ -282,6 +284,7 @@ export const QuickSearchBox: React.FC = () => {
                       isSelected={isSelected}
                       key={exam.filename}
                       link={itemToPath(exam)}
+                      onClick={close}
                     >
                       <Stack>
                         <Text>
@@ -313,6 +316,7 @@ export const QuickSearchBox: React.FC = () => {
                       isSelected={isSelected}
                       key={answer.long_id}
                       link={itemToPath(answer)}
+                      onClick={close}
                     >
                       <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
                     </QuickSearchResult>
@@ -331,6 +335,7 @@ export const QuickSearchBox: React.FC = () => {
                       isSelected={isSelected}
                       key={comment.long_id}
                       link={itemToPath(comment)}
+                      onClick={close}
                     >
                       <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
                     </QuickSearchResult>

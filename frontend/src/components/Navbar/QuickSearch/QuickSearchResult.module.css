@@ -18,6 +18,20 @@
   more results usually. But 0 padding is awful so we give it tiny padding. */
   padding: 0.3125rem var(--mantine-spacing-xs);
   border-radius: var(--mantine-radius-sm);
+
+  /* Prioritise keyboard-based selection over any mouse-based hover effects, by
+  using :not() to do hover effects only on non-keyboard-selected items. */
+  &:not(.selected):hover {
+    background: var(--mantine-primary-color-light);
+    color: var(--mantine-color-text);
+  }
+
+  /* The :not() for the hover case has higher specificity than plain :active, so
+  override it with an equally high specificity selector. */
+  &:active, &:not(.selected):active {
+    background: var(--mantine-primary-color-filled);
+    color: var(--mantine-primary-color-contrast);
+  }
 }
 
 .badge {

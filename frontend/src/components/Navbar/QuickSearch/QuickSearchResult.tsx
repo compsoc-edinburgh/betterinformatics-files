@@ -1,5 +1,5 @@
 import { Badge, Group } from "@mantine/core"
-import React from "react"
+import React, { MouseEventHandler } from "react"
 import classes from "./QuickSearchResult.module.css";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
@@ -8,12 +8,13 @@ interface Props {
   isSelected: boolean,
   badge: string,
   link: string,
+  onClick?: MouseEventHandler<HTMLAnchorElement>,
   children?: React.ReactElement,
 }
 
-export const QuickSearchResult: React.FC<Props> = ({ isSelected, link, badge, children }) => {
+export const QuickSearchResult: React.FC<Props> = ({ isSelected, link, onClick, badge, children }) => {
   return (
-    <Link to={link} className={classes.searchResultLink}>
+    <Link to={link} className={classes.searchResultLink} onClick={onClick}>
       <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)}>
         <>
           {children}
