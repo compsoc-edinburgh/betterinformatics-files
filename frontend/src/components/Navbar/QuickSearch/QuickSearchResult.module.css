@@ -4,15 +4,7 @@
   will not get respected by browsers once a parent sets an underline decoration.*/
   text-decoration: none;
   color: inherit;
-}
 
-.searchResult {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  gap: var(--mantine-spacing-md);
-  align-items: flex-start;
   /* half of xs padding vertically = practically an xxs. The aim is to get a
   compact results view to fit as many results as possible on the screen, since
   the quick search menu is for advanced users and advanced users would want
@@ -33,6 +25,15 @@
     background: var(--mantine-primary-color-filled);
     color: var(--mantine-primary-color-contrast);
   }
+}
+
+.searchResult {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-md);
+  align-items: flex-start;
 }
 
 .badge {

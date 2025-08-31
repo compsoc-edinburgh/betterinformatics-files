@@ -16,12 +16,12 @@ export const QuickSearchResult: React.FC<Props> = ({ isSelected, link, onClick, 
   return (
     <Link
       to={link}
-      className={classes.searchResultLink}
+      className={clsx(classes.searchResultLink, isSelected && classes.selected)}
       onClick={onClick}
       // Set a HTML attribute that can be queried for scrolling to a selection
       data-quicksearch-selected={isSelected}
     >
-      <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)}>
+      <Group className={clsx(classes.searchResult, classes.fadeHeightLimited)}>
         <>
           {children}
         </>
