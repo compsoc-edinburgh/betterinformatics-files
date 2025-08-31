@@ -269,7 +269,7 @@ const CategoryPage: React.FC<{}> = () => {
   const { slug } = useParams() as { slug: string };
   const { data, loading, error, mutate } = useRequest(
     () => loadCategoryMetaData(slug),
-    { cacheKey: `category-${slug}` },
+    { cacheKey: `category-${slug}`, refreshDeps: [slug] },
   );
   const history = useHistory();
   const onMetaDataChange = useCallback(
@@ -285,7 +285,7 @@ const CategoryPage: React.FC<{}> = () => {
   useQuickSearchFilter(data && { slug: data.slug, displayname: data.displayname });
   const user = useUser();
   return (
-    <Container size="xl" mb="xl">
+    <Container size="xl" mb="xl" key={slug} /* we need key to make sure all state is reset when slug changes due to navigation */>
       {error && <Alert color="red">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay visible={loading} />}
       {data && (

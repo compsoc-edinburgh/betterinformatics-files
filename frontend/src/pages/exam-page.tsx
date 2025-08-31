@@ -431,6 +431,7 @@ const ExamPage: React.FC<{}> = () => {
     mutate: setMetaData,
   } = useRequest(() => loadExamMetaData(filename), {
     cacheKey: `exam-metaData-${filename}`,
+    refreshDeps: [filename],
   });
   useTitle(metaData?.displayname ?? filename);
   useQuickSearchFilter(metaData && { slug: metaData.category, displayname: metaData.category_displayname });
@@ -442,6 +443,7 @@ const ExamPage: React.FC<{}> = () => {
     mutate: mutateCuts,
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
+    refreshDeps: [filename],
   });
   const {
     error: pdfError,
@@ -471,7 +473,7 @@ const ExamPage: React.FC<{}> = () => {
   const history = useHistory();
 
   return (
-    <div>
+    <div key={filename}>
       <Container size="xl">
         <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor component={Link} tt="uppercase" size="xs" to="/">
