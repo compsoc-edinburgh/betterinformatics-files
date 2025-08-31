@@ -242,9 +242,14 @@ export const QuickSearchBox: React.FC = () => {
             ])}
           />
         </Group>
-        {searchQuery.length === 0 && <Text c="dimmed" my="xs" ta="center">Start typing to search...</Text>}
+        {searchQuery.length === 0 && (
+          <Text c="dimmed" my="xs" ta="center">Start typing to search...</Text>
+        )}
         {searchQuery.length > 0 && (
           <Stack my="xs" gap={0}>
+            {Object.values(results).every(k => k.length === 0) && (
+              <Text c="dimmed" ta="center">No Results :'(</Text>
+            )}
             {results.categories.length > 0 && (
               <>
                 <Divider variant="dashed" label="Categories" labelPosition="left"/>
