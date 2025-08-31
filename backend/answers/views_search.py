@@ -208,7 +208,7 @@ def search_exams(
             # search by precalculated vectors of just exam displayname.
             Exam.objects.annotate(
                 displayname_with_category=Concat(
-                    "displayname", V(" - "), "category__displayname"
+                    "category__displayname", V(" - "), "displayname"
                 )
             ).filter(
                 # Slow! Ideally we want to use search_vector=term with a pre-indexed
@@ -234,7 +234,7 @@ def search_exams(
             # we've already narrowed down the results with the above .filter()s
             (
                 # Highlight results in the concat if we need category name too
-                Concat(F("displayname"), V(" - "), F("category__displayname"))
+                Concat(F("category__displayname"), V(" - "), F("displayname"))
                 if with_category_displayname
                 else F("displayname")
             ),
