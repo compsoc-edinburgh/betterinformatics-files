@@ -266,7 +266,6 @@ const App: React.FC<{}> = () => {
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
-    { title: "Search", href: "/search" },
     {
       title: (
         <Group wrap="nowrap" gap="xs">
