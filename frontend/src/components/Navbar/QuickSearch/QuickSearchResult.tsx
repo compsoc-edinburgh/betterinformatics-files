@@ -20,7 +20,7 @@ export const QuickSearchResult: React.FC<Props> = ({ isSelected, link, onClick, 
           {children}
         </>
         {badge && (
-          <Badge variant="outline" className={classes.badge}>{badge}</Badge>
+          <Badge variant="outline" className={classes.badge} my="auto">{badge}</Badge>
         )}
       </Group>
     </Link>
