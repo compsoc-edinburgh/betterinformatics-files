@@ -162,7 +162,7 @@ export const QuickSearchBox: React.FC = () => {
     // Slash to open wherever this component is mounted (i.e. everywhere if QuickSearchBox is in nav bar)
     ['/', openWithHighlight],
     // Modal component has built-in support for esc to close
-  ], []);
+  ]); // By default, ignores on INPUT, TEXTAREA, SELECT elements
 
   // Everywhere vs category-local dropdown store
   const combobox = useCombobox();
