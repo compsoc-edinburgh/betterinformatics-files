@@ -134,6 +134,7 @@ def headline(
     start_boundary,
     end_boundary,
     fragment_delimeter,
+    max_fragments=5,
     min_words=15,
     max_words=35,
 ):
@@ -147,6 +148,8 @@ def headline(
         start_boundary (str): string that should be inserted at the beginning of a match
         end_boundary (str): string that should be inserted at the end of a match
         fragment_delimeter (str): string that is inserted between two fragments by psql
+        max_fragments (int, optional): number of fragments to collect. Defaults to 5.
+          Set to 0 to make psql use a non-fragment based matching algorithm.
         min_words (int, optional): minimum number of words per fragment. Defaults to 15.
         max_words (int, optional): maximum number of words per fragment. Defaults to 35.
 
@@ -160,12 +163,13 @@ def headline(
             'StartSel="{start_sel}", '
             'StopSel="{stop_sel}", '
             'FragmentDelimiter="{fragment_delimeter}", '
-            "MaxFragments=5, "
+            "MaxFragments={max_fragments}, "
             "MinWords={min_words}, "
             "MaxWords={max_words}".format(
                 start_sel=start_boundary,
                 stop_sel=end_boundary,
                 fragment_delimeter=fragment_delimeter,
+                max_fragments=max_fragments,
                 min_words=min_words,
                 max_words=max_words,
             )
@@ -238,6 +242,7 @@ def search_exams(
             start_boundary,
             end_boundary,
             fragment_delimeter,
+            max_fragments=0,  # Disable fragment-based matching to get the whole result back
         ),
         category_displayname=F("category__displayname"),
         category_slug=F("category__slug"),
