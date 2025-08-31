@@ -125,7 +125,7 @@ FRONTEND_SERVER_DATA = {
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
-IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE"
+IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE" and not TESTING
 
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
