@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
 import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
@@ -157,6 +157,15 @@ export const QuickSearchBox: React.FC = () => {
     history.push(itemToPath(results[currentSelection.type][currentSelection.index]));
     close();
   }, [currentSelection, history, results, close]);
+
+  useEffect(() => {
+    // Do some raw-JS scrollIntoView so that moving up/down via keyboard scrolls
+    // items into view if there are many many results. This useEffect handler is
+    // triggered right after rendering with the new currentSelection value, so
+    // we're guaranteed to have the correct [data-quicksearch-selected]
+    // already in the DOM (or not if there is no result).
+    document.querySelector("[data-quicksearch-selected=true]")?.scrollIntoView({ block: "center", behavior: "instant" });
+  }, [currentSelection]);
 
   useHotkeys([
     // Slash to open wherever this component is mounted (i.e. everywhere if QuickSearchBox is in nav bar)

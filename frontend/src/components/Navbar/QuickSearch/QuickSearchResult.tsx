@@ -14,7 +14,13 @@ interface Props {
 
 export const QuickSearchResult: React.FC<Props> = ({ isSelected, link, onClick, badge, children }) => {
   return (
-    <Link to={link} className={classes.searchResultLink} onClick={onClick}>
+    <Link
+      to={link}
+      className={classes.searchResultLink}
+      onClick={onClick}
+      // Set a HTML attribute that can be queried for scrolling to a selection
+      data-quicksearch-selected={isSelected}
+    >
       <Group className={clsx(classes.searchResult, classes.fadeHeightLimited, isSelected && classes.selected)}>
         <>
           {children}
