@@ -306,7 +306,7 @@ export const QuickSearchBox: React.FC = () => {
                       link={itemToPath(exam)}
                       onClick={close}
                     >
-                      <Stack>
+                      <Stack gap={0}>
                         <Text>
                           {exam.headline.map((part, i) => (
                             <HighlightedContent content={part} key={i} />
@@ -338,7 +338,17 @@ export const QuickSearchBox: React.FC = () => {
                       link={itemToPath(answer)}
                       onClick={close}
                     >
-                      <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                      <Stack gap={0}>
+                        <Text>
+                          {answer.author_displayname} on {answer.exam_displayname} - {answer.category_displayname}
+                        </Text>
+                        <Text c="gray">
+                          <MarkdownText
+                            value={answer.text}
+                            regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)}
+                          />
+                        </Text>
+                      </Stack>
                     </QuickSearchResult>
                   )
                 })}
@@ -357,7 +367,17 @@ export const QuickSearchBox: React.FC = () => {
                       link={itemToPath(comment)}
                       onClick={close}
                     >
-                      <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
+                      <Stack gap={0}>
+                        <Text>
+                          {comment.author_displayname} on {comment.exam_displayname} - {comment.category_displayname}
+                        </Text>
+                        <Text c="gray">
+                          <MarkdownText
+                            value={comment.text}
+                            regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)}
+                          />
+                        </Text>
+                      </Stack>
                     </QuickSearchResult>
                   )
                 })}
