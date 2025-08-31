@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 interface Props {
   isSelected: boolean,
-  badge: string,
+  badge?: string,
   link: string,
   onClick?: MouseEventHandler<HTMLAnchorElement>,
   children?: React.ReactElement,
@@ -19,7 +19,9 @@ export const QuickSearchResult: React.FC<Props> = ({ isSelected, link, onClick, 
         <>
           {children}
         </>
-        <Badge variant="outline" className={classes.badge}>{badge}</Badge>
+        {badge && (
+          <Badge variant="outline" className={classes.badge}>{badge}</Badge>
+        )}
       </Group>
     </Link>
   )
