@@ -282,7 +282,7 @@ export const QuickSearchBox: React.FC = () => {
                     <QuickSearchResult
                       badge="Exam Page"
                       isSelected={isSelected}
-                      key={exam.filename}
+                      key={`${exam.filename}-page-${exam.pages[0][0]}`}
                       link={itemToPath(exam)}
                       onClick={close}
                     >
