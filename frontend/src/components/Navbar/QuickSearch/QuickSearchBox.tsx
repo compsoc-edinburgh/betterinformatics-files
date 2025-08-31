@@ -326,7 +326,7 @@ export const QuickSearchBox: React.FC = () => {
                             <HighlightedContent content={part} key={i} />
                           ))} - Page {exam.pages[0][0]}
                         </Text>
-                        <Text c="gray">
+                        <Text opacity={0.5}>
                           ...
                           {exam.pages[0][2].map((part, i) => (
                             <HighlightedContent content={part} key={i} />
@@ -356,7 +356,7 @@ export const QuickSearchBox: React.FC = () => {
                         <Text>
                           {answer.author_displayname} on {answer.exam_displayname} - {answer.category_displayname}
                         </Text>
-                        <Text c="gray">
+                        <Text opacity={0.5}>
                           <MarkdownText
                             value={answer.text}
                             regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)}
@@ -385,7 +385,7 @@ export const QuickSearchBox: React.FC = () => {
                         <Text>
                           {comment.author_displayname} on {comment.exam_displayname} - {comment.category_displayname}
                         </Text>
-                        <Text c="gray">
+                        <Text opacity={0.5}>
                           <MarkdownText
                             value={comment.text}
                             regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)}
