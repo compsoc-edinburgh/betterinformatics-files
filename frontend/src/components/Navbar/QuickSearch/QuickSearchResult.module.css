@@ -1,3 +1,11 @@
+.searchResultLink {
+  /* Negate default styles set by using Link. We have to apply this style
+  directly on the <a> element. Setting text-decoration on the child .searchResult
+  will not get respected by browsers once a parent sets an underline decoration.*/
+  text-decoration: none;
+  color: inherit;
+}
+
 .searchResult {
   display: flex;
   flex-direction: row;

@@ -1,10 +1,10 @@
-import { useContext, useState } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
 import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadCategories, loadSearch } from "../../../api/hooks";
-import useSearch from "../../../hooks/useSearch";
-import { ExamSearchResult } from "../../../interfaces";
+import useSearch, { SearchResult as LocalSearchResult } from "../../../hooks/useSearch";
+import { CategoryMetaDataMinimal, ExamSearchResult, SearchResult } from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import { highlight } from "../../../utils/search-utils";
@@ -14,6 +14,7 @@ import { escapeRegExp } from "lodash-es";
 import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
+import { useHistory } from "react-router-dom";
 
 /**
  * Return the max depth of an array.
@@ -28,6 +29,24 @@ const maxdepth = (nested_array: any): number => {
     return Math.max(...nested_array.map(maxdepth)) + 1;
   }
   return 0;
+}
+
+/**
+ * Determine the path for a search result item so we can navigate to it.
+ *
+ * @param item A valid search result item from the API, or a locally found category search result.
+ * @returns The path to provide to history.push()
+ */
+const itemToPath = (item: LocalSearchResult<CategoryMetaDataMinimal> | SearchResult) => {
+  if ("slug" in item) {
+    return `/category/${item.slug}`;
+  } else if (item.type === "exam" && item.pages.length > 0) {
+    return `/exams/${item.filename}/#page-${item.pages[0][0]}`;
+  } else if (item.type === "exam") {
+    return `/exams/${item.filename}`;
+  } else {
+    return `/exams/${item.filename}/#${item.long_id}`;
+  }
 }
 
 const displayOrder = ["categories", "examNames", "examPages", "answers", "comments"] as const;
@@ -68,47 +87,61 @@ export const QuickSearchBox: React.FC = () => {
     refreshDeps: [debouncedSearchQuery, isGlobal],
   });
 
-  const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
-  // Results on exam names will have a depth 3 match somewhere in the headline
-  const examNames = exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
-  // Results for exam pages will have non-zero page array.
-  // We limit the "number of pages" to 4 (instead of the number of exams, which
-  // may each have arbitrary matching result pages). To do this, we use .reduce()
-  // and keep adding to a list a copy of the exam with just 1 page, until the
-  // total reaches 4.
-  const examPages = exams.filter(result => result.pages.length > 0)
-    .reduce((accum, exam) => {
-      exam.pages.forEach(page => {
-        if (accum.totalPages >= 4) return;
-        // Clone exam, and set the pages array to just this page/
-        // structuredClone is deep-clone and is widely available in modern browsers
-        const copyExam = structuredClone(exam);
-        copyExam.pages = [page];
-        accum.exams.push(copyExam);
-        accum.totalPages += 1;
-      });
-      return accum;
-    }, {
-      totalPages: 0,
-      exams: [] as ExamSearchResult[],
-    }).exams ?? [];
-  // We might miss some exam results if postgres found a match in the exam name
-  // but ts_headline for some reason didn't decide to highlight it. But that is
-  // really an edge case so we ignore and won't show it to the user.
+  // Create a results object, memoised so we don't recreate the same object
+  // on every render
+  const results = useMemo(() => {
+    const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
+    // Results on exam names will have a depth 3 match somewhere in the headline
+    const examNames = exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
+    // Results for exam pages will have non-zero page array.
+    // We limit the "number of pages" to 4 (instead of the number of exams, which
+    // may each have arbitrary matching result pages). To do this, we use .reduce()
+    // and keep adding to a list a copy of the exam with just 1 page, until the
+    // total reaches 4.
+    const examPages = exams.filter(result => result.pages.length > 0)
+      .reduce((accum, exam) => {
+        exam.pages.forEach(page => {
+          if (accum.totalPages >= 4) return;
+          // Clone exam, and set the pages array to just this page/
+          // structuredClone is deep-clone and is widely available in modern browsers
+          const copyExam = structuredClone(exam);
+          copyExam.pages = [page];
+          accum.exams.push(copyExam);
+          accum.totalPages += 1;
+        });
+        return accum;
+      }, {
+        totalPages: 0,
+        exams: [] as ExamSearchResult[],
+      }).exams ?? [];
+    // We might miss some exam results if postgres found a match in the exam name
+    // but ts_headline for some reason didn't decide to highlight it. But that is
+    // really an edge case so we ignore and won't show it to the user.
 
-  // We'll also limit the number of answers and comments. Lead them to the full
-  // search page for more results.
-  const answers = searchResults.data?.filter((result) => result.type === "answer").slice(0, 4) ?? [];
-  const comments = searchResults.data?.filter((result) => result.type === "comment").slice(0, 4) ?? [];
-  const results = {
-    categories: categoryResults,
-    examNames,
-    examPages,
-    answers,
-    comments,
-  };
+    // We'll also limit the number of answers and comments. Lead them to the full
+    // search page for more results.
+    const answers = searchResults.data?.filter((result) => result.type === "answer").slice(0, 4) ?? [];
+    const comments = searchResults.data?.filter((result) => result.type === "comment").slice(0, 4) ?? [];
+
+    return {
+      categories: categoryResults,
+      examNames,
+      examPages,
+      answers,
+      comments,
+    }
+  }, [categoryResults, searchResults.data]);
 
   const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(results, displayOrder);
+
+  // Create callback for pressing "Enter" and navigating to the highlighted result
+  const history = useHistory();
+  const confirmSelection = useCallback(() => {
+    if (!currentSelection.type) return;
+    const path = itemToPath(results[currentSelection.type][currentSelection.index]);
+    history.push(path);
+    close();
+  }, [currentSelection, history, results, close]);
 
   useHotkeys([
     // Slash to open wherever this component is mounted (i.e. everywhere if QuickSearchBox is in nav bar)
@@ -190,6 +223,7 @@ export const QuickSearchBox: React.FC = () => {
             onKeyDown={getHotkeyHandler([
               ["ArrowUp", moveUp],
               ["ArrowDown", moveDown],
+              ["Enter", confirmSelection],
             ])}
           />
         </Group>
@@ -202,7 +236,12 @@ export const QuickSearchBox: React.FC = () => {
                 {results.categories.map((category, i) => {
                   const isSelected = currentSelection.type === "categories" && currentSelection.index === i;
                   return (
-                    <QuickSearchResult badge="Category" isSelected={isSelected} key={category.slug}>
+                    <QuickSearchResult
+                      badge="Category"
+                      isSelected={isSelected}
+                      key={category.slug}
+                      link={itemToPath(category)}
+                    >
                       <Text>{highlight(category.displayname, category.match)}</Text>
                     </QuickSearchResult>
                   )
@@ -216,7 +255,12 @@ export const QuickSearchBox: React.FC = () => {
                 {results.examNames.map((exam, i) => {
                   const isSelected = currentSelection.type === "examNames" && currentSelection.index === i;
                   return (
-                    <QuickSearchResult badge="Exam" isSelected={isSelected} key={exam.filename}>
+                    <QuickSearchResult
+                      badge="Exam"
+                      isSelected={isSelected}
+                      key={exam.filename}
+                      link={itemToPath(exam)}
+                    >
                       <Text>
                         {exam.headline.map((part, i) => (
                           <HighlightedContent content={part} key={i} />
@@ -233,7 +277,12 @@ export const QuickSearchBox: React.FC = () => {
                 {results.examPages.map((exam, i) => {
                   const isSelected = currentSelection.type === "examPages" && currentSelection.index === i;
                   return (
-                    <QuickSearchResult badge="Exam Page" isSelected={isSelected} key={exam.filename}>
+                    <QuickSearchResult
+                      badge="Exam Page"
+                      isSelected={isSelected}
+                      key={exam.filename}
+                      link={itemToPath(exam)}
+                    >
                       <Stack>
                         <Text>
                           {exam.headline.map((part, i) => (
@@ -259,7 +308,12 @@ export const QuickSearchBox: React.FC = () => {
                 {results.answers.map((answer, i) => {
                   const isSelected = currentSelection.type === "answers" && currentSelection.index === i;
                   return (
-                    <QuickSearchResult badge="Answer" isSelected={isSelected} key={answer.long_id}>
+                    <QuickSearchResult
+                      badge="Answer"
+                      isSelected={isSelected}
+                      key={answer.long_id}
+                      link={itemToPath(answer)}
+                    >
                       <MarkdownText value={answer.text} regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)} />
                     </QuickSearchResult>
                   )
@@ -272,7 +326,12 @@ export const QuickSearchBox: React.FC = () => {
                 {results.comments.map((comment, i) => {
                   const isSelected = currentSelection.type === "comments" && currentSelection.index === i;
                   return (
-                    <QuickSearchResult badge="Comment" isSelected={isSelected} key={comment.long_id}>
+                    <QuickSearchResult
+                      badge="Comment"
+                      isSelected={isSelected}
+                      key={comment.long_id}
+                      link={itemToPath(comment)}
+                    >
                       <MarkdownText value={comment.text} regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)} />
                     </QuickSearchResult>
                   )
