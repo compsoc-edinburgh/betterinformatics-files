@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useMemo, useRef, useState } from "react";
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
 import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
@@ -53,6 +53,16 @@ const displayOrder = ["categories", "examNames", "examPages", "answers", "commen
 
 export const QuickSearchBox: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
+
+  // Reference to the input element so that we can select all text upon modal open
+  const ref = useRef<HTMLInputElement>(null);
+  // Variant of `open` that also selects the existing text. Prefer this where
+  // possible, it's better UX.
+  const openWithHighlight = useCallback(() => {
+    open();
+    ref.current?.select();
+  }, [ref, open]);
+
   const categories = useRequest(loadCategories, {
     cacheKey: "categories",
   });
@@ -145,7 +155,7 @@ export const QuickSearchBox: React.FC = () => {
 
   useHotkeys([
     // Slash to open wherever this component is mounted (i.e. everywhere if QuickSearchBox is in nav bar)
-    ['/', open],
+    ['/', openWithHighlight],
     // Modal component has built-in support for esc to close
   ], []);
 
@@ -154,7 +164,7 @@ export const QuickSearchBox: React.FC = () => {
 
   return (
     <>
-      <Button className={classes.navButton} px="md" onClick={open}>
+      <Button className={classes.navButton} px="md" onClick={openWithHighlight}>
         <Group wrap="nowrap">
           <IconSearch />
           <span>Search</span>
@@ -171,6 +181,9 @@ export const QuickSearchBox: React.FC = () => {
         // The height of top nav
         yOffset="3.5rem"
         padding="xs"
+        // Modal contents must be kept mounted, for we need a stable ref to the
+        // TextInput in order to select the contents when the modal opens.
+        keepMounted
       >
         <Group wrap="nowrap" gap={0} preventGrowOverflow={false}>
           <Combobox
@@ -216,6 +229,8 @@ export const QuickSearchBox: React.FC = () => {
               input: classes.searchInput,
             }}
             data-autofocus
+            // Set ref to this input so we can select text programatically
+            ref={ref}
             placeholder="Search..."
             size="md"
             value={searchQuery}
