@@ -84,7 +84,7 @@ export const QuickSearchBox: React.FC = () => {
   const [isGlobal, setIsGlobal] = useState<boolean>(contextFilter === undefined);
 
   const categoryResults = useSearch(
-    categories.data ?? [],
+    (isGlobal && categories.data) || [],
     searchQuery,
     // We only really want to show almost-perfect matches for this component.
     // So the max error score we allow is 4 -- this value was found by trial and
