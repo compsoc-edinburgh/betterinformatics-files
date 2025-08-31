@@ -458,7 +458,7 @@ const ExamPage: React.FC<{}> = () => {
     },
     { refreshDeps: [metaData === undefined, metaData?.exam_file] },
   );
-  const [pdf, renderer] = data ? data : [];
+  const [pdf, renderer] = (!pdfLoading && data) ? data : [];
   const sections = useMemo(
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
@@ -503,7 +503,7 @@ const ExamPage: React.FC<{}> = () => {
             <Loader />
           </Container>
         )}
-        {metaData && (
+        {!metaDataLoading && metaData && (
           <Switch>
             <Route path={`${path}/edit`}>
               {!user.isAdmin && !metaData.canEdit && <Redirect to={url} />}

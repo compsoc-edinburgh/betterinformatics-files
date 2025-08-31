@@ -287,7 +287,7 @@ const CategoryPage: React.FC<{}> = () => {
   return (
     <Container size="xl" mb="xl" key={slug} /* we need key to make sure all state is reset when slug changes due to navigation */>
       {error && <Alert color="red">{error.message}</Alert>}
-      {data === undefined && <LoadingOverlay visible={loading} />}
+      {loading && <LoadingOverlay visible={loading} />}
       {data && (
         <UserContext.Provider
           value={
