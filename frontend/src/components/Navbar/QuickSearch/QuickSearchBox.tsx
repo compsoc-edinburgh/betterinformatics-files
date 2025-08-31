@@ -37,9 +37,11 @@ const maxdepth = (nested_array: any): number => {
  * @param item A valid search result item from the API, or a locally found category search result.
  * @returns The path to provide to history.push()
  */
-const itemToPath = (item: LocalSearchResult<CategoryMetaDataMinimal> | SearchResult) => {
+const itemToPath = (item: LocalSearchResult<CategoryMetaDataMinimal> | SearchResult | { "searchQuery": string }) => {
   if ("slug" in item) {
     return `/category/${item.slug}`;
+  } else if ("searchQuery" in item) {
+    return `/search?q=${item.searchQuery}`;
   } else if (item.type === "exam" && item.pages.length > 0) {
     return `/exams/${item.filename}/#page-${item.pages[0][0]}`;
   } else if (item.type === "exam") {
@@ -49,7 +51,7 @@ const itemToPath = (item: LocalSearchResult<CategoryMetaDataMinimal> | SearchRes
   }
 }
 
-const displayOrder = ["categories", "examNames", "examPages", "answers", "comments"] as const;
+const displayOrder = ["categories", "examNames", "examPages", "answers", "comments", "more"] as const;
 
 export const QuickSearchBox: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -139,8 +141,11 @@ export const QuickSearchBox: React.FC = () => {
       examPages,
       answers,
       comments,
+      more: [{
+        searchQuery: debouncedSearchQuery,
+      }],
     }
-  }, [categoryResults, searchResults.data]);
+  }, [categoryResults, searchResults.data, debouncedSearchQuery]);
 
   const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(results, displayOrder);
 
@@ -383,6 +388,16 @@ export const QuickSearchBox: React.FC = () => {
                 })}
               </>
             )}
+            <Divider variant="dashed" label="More" labelPosition="left" />
+            <QuickSearchResult
+              isSelected={currentSelection.type === "more"}
+              link={itemToPath(results.more[0])}
+              onClick={close}
+            >
+              <Text>
+                Show all results...
+              </Text>
+            </QuickSearchResult>
           </Stack>
         )}
         <Divider style={{ marginInline: 'calc(-1 * var(--mb-padding))' }} my="xs" />
