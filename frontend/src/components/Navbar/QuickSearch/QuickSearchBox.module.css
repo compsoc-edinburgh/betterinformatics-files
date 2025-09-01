@@ -36,7 +36,7 @@
 
 .dropdownOption[data-combobox-selected] {
   background-color: var(--mantine-primary-color-filled);
-  color: var(--mantine-color-black);
+  color: var(--mantine-primary-color-contrast);
 }
 
 .searchInputWrapper {
