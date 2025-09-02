@@ -4,7 +4,7 @@ import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@man
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadCategories, loadSearch } from "../../../api/hooks";
 import useSearch, { SearchResult as LocalSearchResult } from "../../../hooks/useSearch";
-import { CategoryMetaDataMinimal, ExamSearchResult, SearchResult } from "../../../interfaces";
+import { AnswerSearchResult, CategoryMetaDataMinimal, CommentSearchResult, ExamSearchResult, SearchResult } from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import { highlight } from "../../../utils/search-utils";
@@ -102,7 +102,7 @@ export const QuickSearchBox: React.FC = () => {
   // Create a results object, memoised so we don't recreate the same object
   // on every render
   const results = useMemo(() => {
-    const exams = searchResults.data?.filter((result) => result.type === "exam") ?? [];
+    const exams = searchResults.data?.filter((result): result is ExamSearchResult => result.type === "exam") ?? [];
     // Results on exam names will have a depth 3 match somewhere in the headline
     const examNames = exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
     // Results for exam pages will have non-zero page array.
@@ -132,8 +132,8 @@ export const QuickSearchBox: React.FC = () => {
 
     // We'll also limit the number of answers and comments. Lead them to the full
     // search page for more results.
-    const answers = searchResults.data?.filter((result) => result.type === "answer").slice(0, 4) ?? [];
-    const comments = searchResults.data?.filter((result) => result.type === "comment").slice(0, 4) ?? [];
+    const answers = searchResults.data?.filter((result): result is AnswerSearchResult => result.type === "answer").slice(0, 4) ?? [];
+    const comments = searchResults.data?.filter((result): result is CommentSearchResult => result.type === "comment").slice(0, 4) ?? [];
 
     return {
       categories: categoryResults,
