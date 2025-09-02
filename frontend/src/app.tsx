@@ -54,6 +54,7 @@ import {
 import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
+import FlaggedContent from "./pages/flagged-content";
 import { FaroRoute } from '@grafana/faro-react';
 import serverData from "./utils/server-data";
 
@@ -187,6 +188,7 @@ const App: React.FC<{}> = () => {
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
+    { title: "Flagged Content", href: "/flagged"},
   ];
 
   const bottomHeaderNav = [
@@ -281,6 +283,7 @@ const App: React.FC<{}> = () => {
       component={Scoreboard}
     />
     <UserRoute exact path="/modqueue" component={ModQueue} />
+    <UserRoute exact path="/flagged" component={FlaggedContent} />
   </>
   );
 
