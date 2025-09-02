@@ -11,6 +11,7 @@ urlpatterns = [
     path("faq/", views.index, name="faq"),
     path("scoreboard/", views.index, name="scoreboard"),
     path("modqueue/", views.index, name="modqueue"),
+    path("flagged/", views.index, name="flagged"),
     re_path("^exams/.*$", views.index, name="exams"),
     re_path("^user/.*$", views.index, name="user"),
     re_path("^category/.*$", views.index, name="category"),
