@@ -37,6 +37,12 @@ export type Course = {
   course_dpmt_link: string
 }
 
+export enum ApprovalStatus {
+  APPROVED = 0,
+  PENDING = 1,
+  REJECTED = 2,
+}
+
 export type CourseTestimonial = {
   authorId: string,
   authorDisplayName: string,
@@ -44,7 +50,7 @@ export type CourseTestimonial = {
   course_name: string,
   testimonial: string,
   year_taken: number
-  approved: boolean,
+  approval_status: number,
 }
 
 export type CourseWithTestimonial = {
@@ -75,7 +81,7 @@ export function getTableData(courses: any, testimonials: any) : CourseWithTestim
       let course = courses['value'][i];
       console.log(testimonials)
       let currentCourseTestimonials : CourseTestimonial[] = testimonials['value'].filter(
-        (testimonial: CourseTestimonial) => (testimonial.course_code == course.course_code && testimonial.approved == true
+        (testimonial: CourseTestimonial) => (testimonial.course_code == course.course_code && testimonial.approval_status == ApprovalStatus.APPROVED
       ));
 
       //average of testimonials and etc! 

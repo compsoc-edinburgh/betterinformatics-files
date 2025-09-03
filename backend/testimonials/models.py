@@ -14,8 +14,12 @@ class Course(models.Model):
     #add a testimonial data type to courses
 
 
+class ApprovalStatus(models.IntegerChoices):
+    APPROVED = 0, "Approved"
+    PENDING = 1, "Pending"
+    REJECTED = 2, "Rejected"
+
 class Testimonial(models.Model):
-    #Link this to models.py ediauth username
     id = models.AutoField(primary_key=True)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE, default="")
     course = models.ForeignKey(  # Link Testimonial to a Course
@@ -24,11 +28,11 @@ class Testimonial(models.Model):
     ) #Course_id, author_id, id (testimonial_id)
     testimonial = models.TextField()
     year_taken = models.IntegerField()
-    approved = models.BooleanField(default=False)
+    approval_status = models.IntegerField(
+        choices=ApprovalStatus.choices,
+        default=ApprovalStatus.PENDING,
+    )
 
     class Meta:
         # Enforce uniqueness across `student_number` and `course`
         unique_together = ("author", "course")
-
-
-

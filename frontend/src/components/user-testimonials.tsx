@@ -5,7 +5,7 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import {
     loadTestimonials
   } from "../api/testimonials";
-import { CourseTestimonial, Course, CourseWithTestimonial, getTableData } from "../pages/testimonials-page"
+import { CourseTestimonial, ApprovalStatus, Course, CourseWithTestimonial, getTableData } from "../pages/testimonials-page"
 import { useRequest } from "@umijs/hooks";
 import { useDisclosure } from '@mantine/hooks';
 import {useState } from 'react';
@@ -26,10 +26,10 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin, test
     return (
     <>
     <Stack>
-        {isAdmin? testimonials.map((testimonial, index)  => 
+        {isAdmin? testimonials.filter((testimonial) => testimonial.approval_status == ApprovalStatus.PENDING).map((testimonial, index)  => 
             <AdminTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)}></AdminTestimonialCard>
         ) : testimonials.filter((testimonial) => testimonial.authorId=currentUserId).map((testimonial, index)  => 
-        <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approved={testimonial.approved}></UserTestimonialCard>
+        <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
         )}
     </Stack>
     </>);
@@ -42,22 +42,22 @@ interface AdminTestimonialCardProps{
 
 
   interface UserTestimonialCardProps{
-    username: String, displayName: String, course_code: String, course_name:String, yearTaken: String, testimonial:String, testimonial_approved:boolean
+    username: String, displayName: String, course_code: String, course_name:String, yearTaken: String, testimonial:String, testimonial_approval_status:Number
   }
   
-const UserTestimonialCard: React.FC<UserTestimonialCardProps> = ({course_code, course_name, username, displayName, yearTaken, testimonial, testimonial_approved}) => {
+const UserTestimonialCard: React.FC<UserTestimonialCardProps> = ({course_code, course_name, username, displayName, yearTaken, testimonial, testimonial_approval_status}) => {
 
     return(
         <>
             <Card withBorder={true} radius="md" p={"lg"}>
             <Flex gap={3} justify='flex-end'>
                     <Text style={{
-                        backgroundColor: testimonial_approved ? "teal" : "orange",
+                        backgroundColor: testimonial_approval_status==ApprovalStatus.APPROVED ? "teal" : testimonial_approval_status==ApprovalStatus.REJECTED ? "red" : "orange",
                         color: "white",
                         borderRadius: "8px",
                         padding: "8px",
                         display: "inline-block",
-                    }}>{testimonial_approved? " Approved ": " Pending "}</Text>
+                    }}>{testimonial_approval_status==ApprovalStatus.APPROVED ? "Approved" : testimonial_approval_status==ApprovalStatus.REJECTED ? "Rejected" : "Pending"}</Text>
             </Flex> 
             <Flex flex='1' gap='4' align='center' wrap={'wrap'}>
                     <Text component="span" >
@@ -122,7 +122,7 @@ const AdminTestimonialCard: React.FC<AdminTestimonialCardProps> = ({course_code,
             course_code: course_code,
             title: "Testimonial not Approved",
             message: values.message,
-            approval_status: true
+            approval_status: ApprovalStatus.REJECTED
         };
         try {
         console.log(dataToSend)
@@ -143,7 +143,6 @@ const AdminTestimonialCard: React.FC<AdminTestimonialCardProps> = ({course_code,
         }
     }
 
-
     const approveTestimonial = async () => {
         setSuccess(null);
         setErrorMessage(null);
@@ -153,7 +152,7 @@ const AdminTestimonialCard: React.FC<AdminTestimonialCardProps> = ({course_code,
             course_code: course_code,
             title: "Testimonial Approved",
             message: "Your testimonial has been approved.",
-            approval_status: true
+            approval_status: ApprovalStatus.APPROVED
         };
         try {
         console.log(dataToSend)

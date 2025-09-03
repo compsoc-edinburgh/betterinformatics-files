@@ -224,7 +224,7 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
 
 def update_to_testimonial_status(sender, receiver, title, message):
     send_notification(
-        sender, #Admin
+        sender,
         receiver,
         NotificationType.UPDATE_TO_TESTIMONIAL_APPROVAL_STATUS,
         title,
