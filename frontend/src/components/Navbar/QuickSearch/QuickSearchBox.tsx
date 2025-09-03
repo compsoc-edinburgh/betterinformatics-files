@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "r
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
 import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
-import { loadCategories, loadSearch } from "../../../api/hooks";
+import { loadAllCategories, loadSearch } from "../../../api/hooks";
 import useSearch, { SearchResult as LocalSearchResult } from "../../../hooks/useSearch";
 import { AnswerSearchResult, CategoryMetaDataMinimal, CommentSearchResult, ExamSearchResult, SearchResult } from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
@@ -65,7 +65,7 @@ export const QuickSearchBox: React.FC = () => {
     ref.current?.select();
   }, [ref, open]);
 
-  const categories = useRequest(loadCategories, {
+  const categories = useRequest(loadAllCategories, {
     cacheKey: "categories",
   });
   const isMobile = useMediaQuery('(max-width: 50em)');
