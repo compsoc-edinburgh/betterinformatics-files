@@ -210,14 +210,20 @@ class Command(BaseCommand):
         for section in AnswerSection.objects.all():
             for i in range(section.id % 7):
                 author = users[(section.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 answer = Answer(
                     answer_section=section,
                     author=author,
                     text=[
                         "This is a test answer.\n\nIt has multiple lines.",
                         "This is maths: $\pi = 3$\n\nHowever, it is wrong.",
-                        "This is an image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is an image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(section.id + i) % 3],
                 )
@@ -245,13 +251,19 @@ class Command(BaseCommand):
         for answer in Answer.objects.all():
             for i in range(answer.id % 17):
                 author = users[(answer.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 comment = Comment(
                     answer=answer,
                     author=author,
                     text=[
                         "This is a comment ({}).".format(i + 1),
-                        "This is a test image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is a test image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(answer.id + i) % 2],
                 )
