@@ -208,7 +208,7 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         objs = []
         for section in AnswerSection.objects.all():
-            for i in range(section.id % 7):
+            for i in range(section.id % 5):
                 author = users[(section.id + i) % len(users)]
 
                 # Warning: owned_image may be none if there was a user who
@@ -249,7 +249,7 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         objs = []
         for answer in Answer.objects.all():
-            for i in range(answer.id % 17):
+            for i in range(answer.id % 10):
                 author = users[(answer.id + i) % len(users)]
 
                 # Warning: owned_image may be none if there was a user who
