@@ -46,12 +46,29 @@ category_nouns = [
     "Wireless Networks",
 ]
 
+users = [
+    ("Zoe", "Fletcher", "fletchz"),
+    ("Ernst", "Meyer", "meyee"),
+    ("Jonas", "Schneider", "schneij"),
+    ("Julia", "Keller", "kellerju"),
+    ("Sophie", "Baumann", "baumanso"),
+    ("Hans", "Brunner", "brunh"),
+    ("Carla", "Morin", "morica"),
+    ("Paul", "Moser", "mosep"),
+    ("Josef", "Widmer", "widmjo"),
+    ("Werner", "Steiner", "steinewe"),
+]
+
 
 class Command(BaseCommand):
     help = "Creates some testdata"
 
     def add_arguments(self, parser):
-        pass
+        parser.add_argument(
+            "--skip-if-exists",
+            action="store_true",
+            help="Skip creating testdata if all users already exist.",
+        )
 
     def flush_db(self):
         self.stdout.write("Drop old tables")
@@ -59,18 +76,7 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for first_name, last_name, username in [
-            ("Zoe", "Fletcher", "fletchz"),
-            ("Ernst", "Meyer", "meyee"),
-            ("Jonas", "Schneider", "schneij"),
-            ("Julia", "Keller", "kellerju"),
-            ("Sophie", "Baumann", "baumanso"),
-            ("Hans", "Brunner", "brunh"),
-            ("Carla", "Morin", "morica"),
-            ("Paul", "Moser", "mosep"),
-            ("Josef", "Widmer", "widmjo"),
-            ("Werner", "Steiner", "steinewe"),
-        ]:
+        for first_name, last_name, username in users:
             MyUser(first_name=first_name, last_name=last_name, username=username).save()
 
     def create_images(self):
@@ -411,6 +417,13 @@ class Command(BaseCommand):
                         document.likes.add(user)
 
     def handle(self, *args, **options):
+        if options.get("skip_if_exists"):
+            # Assume if users okay, all testdata is okay
+            usernames = set(u[2] for u in users)
+            if MyUser.objects.filter(username__in=usernames).count() == len(users):
+                self.stdout.write("All test users already exist. Skipping creation.")
+                return
+
         self.flush_db()
         self.create_users()
         self.create_images()
