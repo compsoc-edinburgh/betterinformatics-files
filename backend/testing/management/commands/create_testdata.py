@@ -232,6 +232,8 @@ class Command(BaseCommand):
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
 
+        self.stdout.write("Create upvote/downvote/flags on answers")
+
         for answer in Answer.objects.all():
             i = answer.answer_section.id
             for user in users:
