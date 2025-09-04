@@ -4,7 +4,7 @@ from typing import Union
 
 from categories.models import Category
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Exists, OuterRef, Prefetch
 from django.http import HttpRequest
 from django.http.response import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -27,6 +27,13 @@ def list_document_types(request):
         value=list(DocumentType.objects.values_list("display_name", flat=True).order_by("order"))
     )
 
+def prep_comment_obj(comment: Comment, request: HttpRequest):
+    # Don't use this for lists of comments
+    # Use prefetch and annotate for that
+    comment.flagged_count = comment.flagged.count()
+    comment.is_flagged = comment.flagged.filter(id=request.user.id).exists()
+    return comment
+
 def get_comment_obj(comment: Comment, request: HttpRequest):
     return {
         "oid": comment.pk,
@@ -36,6 +43,8 @@ def get_comment_obj(comment: Comment, request: HttpRequest):
         "canEdit": comment.current_user_can_edit(request),
         "time": comment.time,
         "edittime": comment.edittime,
+        "isFlagged": comment.is_flagged,
+        "flaggedCount": comment.flagged_count,
     }
 
 
@@ -140,7 +149,15 @@ class DocumentRootView(View):
 
         include_comments = "include_comments" in request.GET
         if include_comments:
-            objects = objects.prefetch_related("comments", "comments__author")
+            comments_query = Comment.objects.annotate(
+                flagged_count=Count("flagged", distinct=True),
+                is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
+                )
+            objects = objects.prefetch_related(
+                Prefetch(
+                    "comments",
+                    queryset=comments_query,
+                ))
 
         include_files = "include_files" in request.GET
         if include_files:
@@ -185,7 +202,15 @@ class DocumentElementView(View):
         )
         include_comments = "include_comments" in request.GET
         if include_comments:
-            objects = objects.prefetch_related("comments", "comments__author")
+            comments_query = Comment.objects.annotate(
+                flagged_count=Count("flagged", distinct=True),
+                is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
+                )
+            objects = objects.prefetch_related(
+                Prefetch(
+                    "comments",
+                    queryset=comments_query,
+                ))
 
         include_files = "include_files" in request.GET
         if include_files:
@@ -270,7 +295,10 @@ class DocumentCommentRootView(View):
         document = get_object_or_404(
             Document, author__username=username, slug=document_slug
         )
-        objects = Comment.objects.filter(document=document).all()
+        objects = Comment.objects.filter(document=document).all().annotate(
+                flagged_count=Count("flagged", distinct=True),
+                is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
+        )
         return response.success(
             value=[get_comment_obj(comment, request) for comment in objects]
         )
@@ -286,6 +314,8 @@ class DocumentCommentRootView(View):
         )
         comment.save()
         notification_util.new_comment_to_document(document, comment)
+
+        comment = prep_comment_obj(comment, request)
         return response.success(value=get_comment_obj(comment, request))
 
 
@@ -300,6 +330,7 @@ class DocumentCommentElementView(View):
             document__author__username=username,
             document__slug=document_slug,
         )
+        comment = prep_comment_obj(comment, request)
         return get_comment_obj(comment, request)
 
     @auth_check.require_login
@@ -317,6 +348,7 @@ class DocumentCommentElementView(View):
         if "text" in request.DATA:
             comment.text = request.DATA["text"]
         comment.save()
+        comment = prep_comment_obj(comment, request)
         return response.success(value=get_comment_obj(comment, request))
 
     @auth_check.require_login
@@ -468,6 +500,30 @@ class DocumentFileElementView(View):
         document.save()
 
         return response.success(value=success)
+
+
+@response.request_post("flagged")
+@auth_check.require_login
+def set_flagged(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    flagged = request.POST["flagged"] != "false"
+    old_flagged = comment.flagged.filter(pk=request.user.pk).exists()
+    if flagged != old_flagged:
+        if old_flagged:
+            comment.flagged.remove(request.user)
+        else:
+            comment.flagged.add(request.user)
+        comment.save()
+    return response.success()
+
+
+@response.request_post()
+@auth_check.require_admin
+def reset_flagged(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    comment.flagged.clear()
+    comment.save()
+    return response.success()
 
 
 @response.request_post()

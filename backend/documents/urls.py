@@ -42,4 +42,6 @@ urlpatterns = [
         name="files_element",
     ),
     path('listdocumenttypes/', views.list_document_types, name='listdocumenttypes'),
+    path("setflaggedcomment/<int:oid>", views.set_flagged, name="setcommentflagged"),
+    path("resetflaggedcomment/<int:oid>", views.reset_flagged, name="resetcommentflagged"),
 ]

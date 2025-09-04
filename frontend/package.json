@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "dependencies": {
+    "@grafana/faro-react": "^1.19.0",
     "@mantine/colors-generator": "^8.0.0",
     "@mantine/core": "^8.0.0",
     "@mantine/hooks": "^8.0.0",
@@ -38,6 +39,7 @@
   "scripts": {
     "start-docker": "vite --no-open --host 0.0.0.0",
     "start": "vite",
+    "start-with-faro": "VITE_FARO_DISABLE=false vite",
     "build": "tsc && vite build",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css}",
     "check-format": "prettier --list-different src/**/*.{js,jsx,ts,tsx,json,css}",
