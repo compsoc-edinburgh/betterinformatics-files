@@ -208,16 +208,22 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         objs = []
         for section in AnswerSection.objects.all():
-            for i in range(section.id % 7):
+            for i in range(section.id % 5):
                 author = users[(section.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 answer = Answer(
                     answer_section=section,
                     author=author,
                     text=[
                         "This is a test answer.\n\nIt has multiple lines.",
                         "This is maths: $\pi = 3$\n\nHowever, it is wrong.",
-                        "This is an image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is an image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(section.id + i) % 3],
                 )
@@ -225,6 +231,8 @@ class Command(BaseCommand):
                     answer.is_legacy_answer = True
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
+
+        self.stdout.write("Create upvote/downvote/flags on answers")
 
         for answer in Answer.objects.all():
             i = answer.answer_section.id
@@ -243,15 +251,21 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         objs = []
         for answer in Answer.objects.all():
-            for i in range(answer.id % 17):
+            for i in range(answer.id % 10):
                 author = users[(answer.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 comment = Comment(
                     answer=answer,
                     author=author,
                     text=[
                         "This is a comment ({}).".format(i + 1),
-                        "This is a test image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is a test image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(answer.id + i) % 2],
                 )
