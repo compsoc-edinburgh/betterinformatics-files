@@ -31,7 +31,6 @@ const PermaLinkHandler: React.FC = () => {
     const observer = new MutationObserver(tryScroll);
     disconnect = () => observer.disconnect();
     observer.observe(document, {
-      attributes: true,
       childList: true,
       subtree: true,
     });
