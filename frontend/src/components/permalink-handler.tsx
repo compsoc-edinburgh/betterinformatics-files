@@ -3,8 +3,6 @@ import { useLocation } from "react-router-dom";
 // Time after which we stop searching for the target element
 const JUMP_TIMEOUT = 40_000;
 
-// This is based on hash-location-handler.tsx
-
 const PermaLinkHandler: React.FC = () => {
   const {search} = useLocation();
   const searchParams = new URLSearchParams(search);
@@ -24,7 +22,19 @@ const PermaLinkHandler: React.FC = () => {
 
       element.scrollIntoView();
 
-      // We found the element - previous refers to current element in this case
+      // Highlight the background for a split second.
+      const oldColor = element.style.backgroundColor;
+      element.style.backgroundColor = "color-mix(in srgb, var(--mantine-primary-color-filled) 30%, transparent)";
+
+      // Request the browser to render the color at least one frame before
+      // we apply the normal background color, otherwise we won't see it
+      requestAnimationFrame(() => {
+        element.style.transition = "background-color 300ms linear 1s";
+        element.style.backgroundColor = oldColor;
+      });
+
+      // We found the element and drew attention, now disconnect so we don't
+      // lock scroll
       if (disconnect) disconnect();
     };
 
