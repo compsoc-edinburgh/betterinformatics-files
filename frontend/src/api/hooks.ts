@@ -178,6 +178,10 @@ export const loadAdminCategories = async () => {
   return (await fetchGet("/api/category/listonlyadmin/"))
     .value as CategoryMetaDataMinimal[];
 };
+export const loadAllCategories = async () => {
+  return (await fetchGet("/api/category/listwithmeta/"))
+    .value as CategoryMetaDataMinimal[];
+};
 export const loadExamTypes = async () => {
   return (await fetchGet("/api/exam/listexamtypes/")).value as string[];
 };
