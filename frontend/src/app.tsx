@@ -298,7 +298,7 @@ const App: React.FC<{}> = () => {
           Your session has expired due to inactivity, you have to log in again
           to continue.
         </Text>
-        <Button size="lg" variant="outline" onClick={() => login()}>
+        <Button size="lg" onClick={() => login()}>
           Sign in with AAI
         </Button>
       </Modal>
