@@ -46,7 +46,7 @@ const PermaLinkHandler: React.FC = () => {
       window.clearTimeout(timeout);
       disconnect?.();
     };
-  }, [search]);
+  }, [answer, comment]);
   return null;
 };
 export default PermaLinkHandler;
