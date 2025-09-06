@@ -3,7 +3,13 @@ import { useLocation } from "react-router-dom";
 // Time after which we stop searching for the target element
 const JUMP_TIMEOUT = 40_000;
 
-const PermaLinkHandler: React.FC = () => {
+/**
+ * Sets up a MutationObserver for `document` to scroll to either a comment or
+ * answer when it is found in the DOM, based on the respective URL parameters.
+ *
+ * **Should only be used once in the whole render tree.**
+ */
+export const useScrollToPermalink = () => {
   const {search} = useLocation();
   const searchParams = new URLSearchParams(search);
   const answer = searchParams.get("answer");
@@ -57,6 +63,4 @@ const PermaLinkHandler: React.FC = () => {
       disconnect?.();
     };
   }, [answer, comment]);
-  return null;
 };
-export default PermaLinkHandler;

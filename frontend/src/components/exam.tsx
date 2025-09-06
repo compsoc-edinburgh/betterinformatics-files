@@ -17,7 +17,7 @@ import PDF from "../pdf/pdf-renderer";
 import { fetchGet } from "../api/fetch-utils";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import { useLocation } from "react-router-dom";
-import PermaLinkHandler from "./permalink-handler";
+import { useScrollToPermalink } from "../hooks/useScrollToPermalink";
 
 interface Props {
   metaData: ExamMetaData;
@@ -85,6 +85,8 @@ const Exam: React.FC<Props> = React.memo(
     onExpandSections,
     onCollapseSections,
   }) => {
+    useScrollToPermalink();
+
     const getAddCutHandler = useCallback(
       (section: PdfSection) => {
         return (height: number) => {
@@ -168,7 +170,6 @@ const Exam: React.FC<Props> = React.memo(
     );
     return (
       <>
-        <PermaLinkHandler/>
         {sections.map(section => {
           if (section.kind === SectionKind.Answer) {
             if (displayHiddenAnswerSections || section.has_answers) {

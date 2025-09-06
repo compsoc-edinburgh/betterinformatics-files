@@ -3,19 +3,17 @@ import { useLocation } from "react-router-dom";
 // Time after which we stop searching for the target element
 const JUMP_TIMEOUT = 40_000;
 
-// Currently there is no typescript type for react router dom exposed - we only need the hash attribute of location
-// This element has to be the component of a route where the effect should be applied
 /**
- * A component that can be used as a component of a route, that manages hash location jumps.
- * Should only exist once. Multiple instances will interfere with each other.
+ * A hook that manages hash location jumps. Should only exist once in the
+ * render tree. Multiple instances will interfere with each other.
  * Is based on: https://gist.github.com/gajus/0bbc78135d88a02c18366f12237011a5
  */
-const HashLocationHandler: React.FC<{}> = () => {
+export const useScrollToHash = () => {
   const { hash } = useLocation();
 
   // Remove # by using substr. Will result in empty string if hash === ""
   // Chrome doesn't decodeURIComponent hash whereas Safari does - this could cause problems when hash contains uri-decodable data after uri-decoding it.
-  const hashLocation = decodeURIComponent(hash.substr(1));
+  const hashLocation = decodeURIComponent(hash.substring(1));
   React.useEffect(() => {
     // Stop searching for the element we were previously searching for
     let disconnect: (() => void) | undefined = undefined;
@@ -55,4 +53,3 @@ const HashLocationHandler: React.FC<{}> = () => {
   }, [hashLocation]);
   return null;
 };
-export default HashLocationHandler;
