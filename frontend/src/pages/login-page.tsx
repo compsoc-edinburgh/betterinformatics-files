@@ -4,7 +4,7 @@ import LoginOverlay from "../components/login-overlay";
 import useTitle from "../hooks/useTitle";
 import { CategoryList } from "./home-page";
 
-const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
+const LoginPage: React.FC<{ isHome?: boolean }> = ({ isHome = false }) => {
   useTitle("Login");
   return (
     <>

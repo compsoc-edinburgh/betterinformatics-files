@@ -238,52 +238,52 @@ const App: React.FC<{}> = () => {
   });
 
   const userRoutes = (<>
-    <UserRoute exact path="/" component={HomePage} />
+    <UserRoute exact path="/" children={<HomePage />} />
     <UserRoute
       exact
       path="/uploadpdf"
-      component={UploadPdfPage}
+      children={<UploadPdfPage />}
     />
     <UserRoute
       exact
       path="/submittranscript"
-      component={UploadTranscriptPage}
+      children={<UploadTranscriptPage />}
     />
-    <UserRoute exact path="/faq" component={FAQ} />
+    <UserRoute exact path="/faq" children={<FAQ />} />
     <UserRoute
       exact
       path="/feedback"
-      component={FeedbackPage}
+      children={<FeedbackPage />}
     />
     <UserRoute
       exact
       path="/category/:slug"
-      component={CategoryPage}
+      children={<CategoryPage />}
     />
     <UserRoute
       exact
       path="/user/:author/document/:slug"
-      component={DocumentPage}
+      children={<DocumentPage />}
     />
     <UserRoute
       exact
       path="/exams/:filename"
-      component={ExamPage}
+      children={<ExamPage />}
     />
     <UserRoute
       exact
       path="/user/:username"
-      component={UserPage}
+      children={<UserPage />}
     />
-    <UserRoute exact path="/user/" component={UserPage} />
-    <UserRoute exact path="/search/" component={SearchPage} />
+    <UserRoute exact path="/user/" children={<UserPage />} />
+    <UserRoute exact path="/search/" children={<SearchPage />} />
     <UserRoute
       exact
       path="/scoreboard"
-      component={Scoreboard}
+      children={<Scoreboard />}
     />
-    <UserRoute exact path="/modqueue" component={ModQueue} />
-    <UserRoute exact path="/flagged" component={FlaggedContent} />
+    <UserRoute exact path="/modqueue" children={<ModQueue />} />
+    <UserRoute exact path="/flagged" children={<FlaggedContent />} />
   </>
   );
 
@@ -302,7 +302,7 @@ const App: React.FC<{}> = () => {
           Sign in with AAI
         </Button>
       </Modal>
-      <Route component={HashLocationHandler} />
+      <Route children={<HashLocationHandler />} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
@@ -344,8 +344,8 @@ const App: React.FC<{}> = () => {
                         {userRoutes}
                       </FaroRoute>
                     }
-                    <Route exact path="/login" component={LoginPage} />
-                    <Route component={NotFoundPage} />
+                    <Route exact path="/login" children={<LoginPage />} />
+                    <Route children={<NotFoundPage />} />
                   </Switch>
                 </Box>
               </div>
