@@ -40,6 +40,7 @@ def testimonial_metadata(request):
             "course_code": testimonial.course.code,
             "course_name": testimonial.course.name,
             "testimonial": testimonial.testimonial,
+            "id": testimonial.id,
             "year_taken": testimonial.year_taken,
             "approval_status": testimonial.approval_status,
         }
@@ -70,8 +71,10 @@ def add_testimonial(request):
     testimonials = Testimonial.objects.all()
 
     for t in testimonials:
-        if t.author == author and t.course.code == course_code:
-            return response.not_possible("You can only add 1 testimonial for each course.")
+        if t.author == author and t.course.code == course_code and (t.approval_status == ApprovalStatus.APPROVED):
+            return response.not_possible("You have written a testimonial for this course that has been approved.")
+        elif t.author == author and t.course.code == course_code and (t.approval_status == ApprovalStatus.PENDING):
+            return response.not_possible("You have written a testimonial for this course that is currently pending approval.")
     
     testimonial = Testimonial.objects.create(
         author=author,
@@ -83,24 +86,19 @@ def add_testimonial(request):
 
     return response.success(value={"testimonial_id" : testimonial.id, "approved" : False})
 
-@response.request_post("username", "course_code", optional=True)
+@response.request_post("username", "course_code", 'testimonial_id', optional=True)
 @auth_check.require_login
 def remove_testimonial(request):
     username = request.POST.get('username')
     course_code = request.POST.get('course_code')
+    testimonial_id = request.POST.get('testimonial_id')
 
-    testimonials = Testimonial.objects.all()
+    testimonial = Testimonial.objects.filter(id=testimonial_id) #Since id is primary key, always returns 1 or none.
 
-    testimonial = None
-
-    for t in testimonials:
-        if t.author.username == username and t.course.code == course_code:
-            testimonial = t
-    
     if not testimonial:
         return response.not_possible("Testimonial not found for author: " + username + " and course: " + course_code)
 
-    if not (testimonial.author == request.user or auth_check.has_admin_rights(request)):
+    if not (testimonial[0].author == request.user or auth_check.has_admin_rights(request)):
         return response.not_possible("No permission to delete this.")
     
     testimonial.delete()
@@ -114,38 +112,28 @@ def update_testimonial_approval_status(request):
     testimonial_author = request.POST.get('author')
     receiver = get_object_or_404(User, username=testimonial_author)    
     course_code = request.POST.get('course_code')
+    testimonial_id = request.POST.get('testimonial_id')
     title = request.POST.get('title')
     message = request.POST.get('message')
     approval_status = request.POST.get('approval_status')
     course = get_object_or_404(Course, code=course_code)
 
-    testimonial = Testimonial.objects.filter(author=receiver, course=course)
+    testimonial = Testimonial.objects.filter(id=testimonial_id)
 
     final_message = ""
-    print("TESTING===========")
-    print(has_admin_rights)
-    print(approval_status)
-    print(sender)
-    print(receiver)
     if has_admin_rights:
         testimonial.update(approval_status=approval_status)
-        print("test")
         if approval_status == str(ApprovalStatus.APPROVED.value):
-            print("test2")
-            final_message = "Your Testimonial has been Accepted, it is now available to see in the Testimonials tab."
+            final_message = f'Your Testimonial to {course_code} - {course.name}: \n"{testimonial[0].testimonial}" has been Accepted, it is now available to see in the Testimonials tab.'
             if (sender != receiver):
-                print("test3")
-                print("========USERNAME===========")
-                print(sender.username)
-                print(receiver.username)
                 update_to_testimonial_status(sender, receiver, title, final_message) #notification
             return response.success(value="Testimonial Accepted and the notification has been sent to " + str(receiver) + ".")
         elif approval_status == str(ApprovalStatus.REJECTED.value):
-            print("test4")
-            final_message = f'Your Testimonial to {course_code} - {course.name}: \n"{testimonial}." has not been accepted due to: {message}'
+            final_message = f'Your Testimonial to {course_code} - {course.name}: \n"{testimonial[0].testimonial}." has not been accepted due to: {message}'
             if (sender != receiver):
-                print("test5")
                 update_to_testimonial_status(sender, receiver, title, final_message) #notification
             return response.success(value="Testimonial Not Accepted " + "and the notification has been sent to " + str(receiver) + ".")
+        else:
+            return response.not_possible("Cannot Update the Testimonial to approval_status: " + str(approval_status))
     else:
         return response.not_possible("No permission to approve/disapprove this testimonial.")

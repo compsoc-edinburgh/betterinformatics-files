@@ -22,15 +22,18 @@ type Course = {
     course_level: number,
     course_dpmt_link: string
   }
+  
 const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
     const { course_code, course_name } = useParams<{ course_code?: string; course_name?: string }>();
     const history = useHistory();
     const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const initialCourse = course_code? `${course_code} - ${course_name}` : ''
+    
     const { data : courses, loading: loading_courses, error: error_courses} = useRequest(
         () => loadCourses()
       );
+
     const form = useForm({
       initialValues: {
         courseName: initialCourse,
@@ -71,7 +74,7 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
           form.reset();
         } else if (response.value && response.value["approved"] == false) {
             setUploadSuccess(true);
-            setErrorMessage("Thank you for submitting your testimonial! We appreciate your feedback. However, we've detected some potentially inappropriate content, so your message will be reviewed by a moderator before it can be published.");
+            setErrorMessage("Thank you for submitting your testimonial! We appreciate your feedback. Your message will be reviewed by a moderator before it is published, we will notify you in your Account Page when it has been reviewed.");
         }
         else {
           setUploadSuccess(false);

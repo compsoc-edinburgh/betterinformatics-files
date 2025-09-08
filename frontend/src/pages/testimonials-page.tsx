@@ -4,7 +4,6 @@ import sortBy from 'lodash/sortBy';
 import {useHistory} from 'react-router-dom'
 import { useDisclosure } from '@mantine/hooks';
 import { fetchPost, fetchGet } from '../api/fetch-utils';
-import dayjs from 'dayjs';
 import { notLoggedIn, SetUserContext, User, UserContext } from "../auth";
 import {useEffect, useState } from 'react';
 import { DataTable, type DataTableSortStatus } from 'mantine-datatable';
@@ -49,6 +48,7 @@ export type CourseTestimonial = {
   course_code: string,
   course_name: string,
   testimonial: string,
+  id: string,
   year_taken: number
   approval_status: number,
 }
@@ -296,7 +296,7 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data, user}) => {
               </Flex>
               {
                 record.testimonials.map((testimonial, index) => //add a key to the testimonial
-                  <ReviewCard key={index} currentUser = {String(user == undefined? "" : user.username)} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)}></ReviewCard>
+                  <ReviewCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.id)}></ReviewCard>
                 )
               }
             </Stack>
@@ -326,11 +326,11 @@ const RatingBox: React.FC<ratingProps> = ({ratingType, ratingLevel}) => {
 }
 
 interface reviewProps{
-  currentUser:String, username: String, displayName: String, course_code: String, yearTaken: String, testimonial:String
+  currentUserUsername: String, isAdmin:boolean, username: String, displayName: String, course_code: String, yearTaken: String, testimonial:String, testimonial_id:String
 }
 
 
-const ReviewCard: React.FC<reviewProps> = ({currentUser, course_code, username, displayName, yearTaken, testimonial}) => {
+const ReviewCard: React.FC<reviewProps> = ({currentUserUsername, isAdmin, username, displayName, course_code, yearTaken, testimonial, testimonial_id}) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [deleteSuccess, setDeleteSuccess] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -342,6 +342,7 @@ const ReviewCard: React.FC<reviewProps> = ({currentUser, course_code, username, 
     const dataToSend = {
       username: username,
       course_code: course_code,
+      testimonial_id: testimonial_id,
     };
     try {
       console.log(dataToSend)
@@ -395,7 +396,7 @@ const ReviewCard: React.FC<reviewProps> = ({currentUser, course_code, username, 
             <Flex flex='1' gap='4' align='center' wrap={'wrap'}>
                 <Text fw={700} component="span">
                   {displayName}
-                  {currentUser==username && " (you)"}
+                  {currentUserUsername==username && " (you)"}
                 </Text>
                 <Text ml="0.3em" color="dimmed" component="span">
                   @{username}
@@ -405,7 +406,7 @@ const ReviewCard: React.FC<reviewProps> = ({currentUser, course_code, username, 
                 </Text>
                 <Text color="dimmed">took the course in {yearTaken}</Text>
             </Flex>
-            {currentUser==username && <CloseButton p ={0} m={0} onClick={open}></CloseButton>}
+            {(currentUserUsername==username || isAdmin) && <CloseButton p ={0} m={0} onClick={open}></CloseButton>}
             </Flex>
             <Text>
             {testimonial}

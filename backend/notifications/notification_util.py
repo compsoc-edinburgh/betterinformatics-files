@@ -128,21 +128,30 @@ def send_email_notification(
     ):
         return
     
-    dataOnMail = None
+    email_body = ""
     if isinstance(data, Document):
-        dataOnMail = data.display_name
-    elif isinstance(data, str):
-        dataOnMail = data
-    else:
-        dataOnMail = data.answer_section.exam.displayname
-
-    send_mail(
-        f"BetterInformatics: {title} / {dataOnMail}",
+        email_body = f"BetterInformatics: {title} / {data.display_name}",
         (
             f"Hello {receiver.profile.display_username}!\n"
             f"{message}\n\n"
             f"View it in context here: {get_absolute_notification_url(data)}"
-        ),
+        )
+    elif isinstance(data, str):
+        email_body = f"BetterInformatics: {title} / {data.display_name}",
+        (
+            f"Hello {receiver.profile.display_username}!\n"
+            f"{message}\n\n"
+        )
+    else:
+        email_body = f"BetterInformatics: {title} / {data.answer_section.exam.displayname}",
+        (
+            f"Hello {receiver.profile.display_username}!\n"
+            f"{message}\n\n"
+            f"View it in context here: {get_absolute_notification_url(data)}"
+        )
+
+    send_mail(
+        email_body,
         f'"{sender.username} (via BetterInformatics)" <{settings.VERIF_CODE_FROM_EMAIL_ADDRESS}>',
         [receiver.email],
         fail_silently=False,

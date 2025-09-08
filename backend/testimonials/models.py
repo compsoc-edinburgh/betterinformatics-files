@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q, UniqueConstraint
 
 class Course(models.Model):
     name = models.TextField()
@@ -34,5 +35,12 @@ class Testimonial(models.Model):
     )
 
     class Meta:
-        # Enforce uniqueness across `student_number` and `course`
-        unique_together = ("author", "course")
+        #Only one row with (author, course) where approval_status is APPROVED or PENDING can exist.
+        #Multiple rejected rows can exist for (author, course) combination.
+        constraints = [
+            UniqueConstraint(
+                fields=["author", "course"],
+                condition=Q(approval_status__in=[ApprovalStatus.APPROVED, ApprovalStatus.PENDING]),
+                name="unique_approved_or_pending_per_author_course",
+            ),
+        ]
