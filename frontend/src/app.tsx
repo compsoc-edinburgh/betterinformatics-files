@@ -54,6 +54,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import TestimonialsPage from "./pages/testimonials-page";
 import AddTestimonialsPage from "./pages/add-testimonials-page";
+import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -257,6 +258,7 @@ const App: React.FC<{}> = () => {
                   appNav={bottomHeaderNav}
                   title={"File Collection"}
                 />
+                <AnnouncementHeader />
                 <Box component="main" mt="2em">
                   <Switch>
                     <UserRoute exact path="/" component={HomePage} />
@@ -308,7 +310,6 @@ const App: React.FC<{}> = () => {
                       component={FeedbackPage}
                     />
                     <UserRoute
-                      exact
                       path="/category/:slug"
                       component={CategoryPage}
                     />

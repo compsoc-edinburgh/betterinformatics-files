@@ -4,6 +4,14 @@ interface IServerData {
   email_address: string;
   imprint: string;
   privacy_policy: string;
+  announcements: [{
+    id: string,
+    variant: string | undefined,
+    color: string,
+    title: string,
+    content: string,
+    icon: string | undefined,
+  }]
 }
 const getServerData = () => {
   const element = document.getElementById("server-data");

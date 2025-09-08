@@ -2,7 +2,6 @@ import { useRequest } from "@umijs/hooks";
 import {
   Breadcrumbs,
   Alert,
-  Badge,
   Container,
   Anchor,
   Flex,
@@ -13,14 +12,14 @@ import {
   Skeleton,
   Text,
   Title,
-  HoverCardDropdown,
-  HoverCardTarget,
-  HoverCard,
   Tooltip,
   useComputedColorScheme,
+  Card,
+  Paper,
+  Stack,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import React, { useCallback, useMemo } from "react";
+import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -48,6 +47,9 @@ import {
   IconTrash,
   IconUserStar,
 } from "@tabler/icons-react";
+import { EuclidCodeBadge } from "../components/euclid-code-badge";
+import { useCategoryTabs } from "../hooks/useCategoryTabs";
+import { PieChart } from "@mantine/charts";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -106,8 +108,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       data ? getMetaCategoriesForCategory(data, metaData.slug) : undefined,
     [data, metaData],
   );
-  const [editing, setEditing] = useState(false);
-  const toggle = useCallback(() => setEditing(a => !a), []);
   const user = useUser()!;
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
@@ -119,239 +119,323 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
   const [bi_courses_error, bi_courses_loading, bi_courses_data] =
     useBICourseList();
-  const asynchronously_updated_euclid_codes = useMemo(() => {
-    // While the BI course JSON is loading, it is just a list of codes with
-    // no BI course data
-    if (bi_courses_loading || !bi_courses_data) {
-      return metaData.euclid_codes.map(c => [c, undefined, undefined] as const);
+  const quickinfo_data = useMemo(() => {
+    // While the BI course JSON is loading, it is just a list of undefineds
+    if (!bi_courses_data) {
+      return metaData.euclid_codes.map(() => undefined);
     }
 
-    // Once data is ready, it becomes a list of codes and BI course data
+    // Once data is ready, we turn it into a list of useful info to pass to
+    // generate badges.
     return metaData.euclid_codes.map(
       c =>
-        [
-          c,
-          Object.values(bi_courses_data).find(d => d.euclid_code === c),
-          Object.values(bi_courses_data).find(d => d.euclid_code_shadow === c),
-        ] as const,
-    );
-  }, [metaData, bi_courses_loading, bi_courses_data]);
+        Object.values(bi_courses_data).flatMap(course => {
+          if (course.euclid_code === c || course.euclid_code_shadow === c) {
+            return [{
+              code: c,
+              acronym: course.acronym,
+              name: course.name,
+              level: course.level,
+              delivery_ordinal: course.delivery_ordinal,
+              credits: course.credits,
+              cw_exam_ratio: course.cw_exam_ratio,
+              course_url: course.course_url,
+              euclid_url: course.euclid_url,
+              // Set the shadow property to the main course code if this is a shadow
+              shadow: course.euclid_code_shadow === c ? course.euclid_code : undefined,
+            }];
+          }
+          return [];
+        }),
+    ).flat();
+  }, [metaData, bi_courses_data]);
+
+  // `path` is the path structure, e.g. the literal string "/category/:slug"
+  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
+  // defining Routes, we use `path`, but for Link/navigation we use `url`.
+  const { path, url } = useRouteMatch();
+
+  const tabs = useCategoryTabs([
+    { name: "Resources", id: "resources" },
+    { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
+    { name: "Grade Stats", id: "statistics", disabled: true },
+  ]);
+
+  // TODO: switch to betterinformatics.com/courses.json "session" field once that's live
+  const { thisYear, nextYearSuffix } = useMemo(() => {
+    const year = new Date().getFullYear();
+    return { thisYear: year.toString(), nextYearSuffix: (year + 1).toString().slice(2) };
+  }, []);
+
   return (
     <>
       {modals}
-      <Breadcrumbs separator={<IconChevronRight />}>
+      <Breadcrumbs separator={<IconChevronRight />} styles={{ breadcrumb: { minWidth: 0, textOverflow: "ellipsis", overflow: "hidden"   }}}>
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
         <Anchor
           tt="uppercase"
           size="xs"
-          style={{ wordBreak: "break-word", textWrap: "pretty" }}
         >
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
-      {editing ? (
-        offeredIn && (
-          <CategoryMetaDataEditor
-            onMetaDataChange={editorOnMetaDataChange}
-            isOpen={editing}
-            toggle={toggle}
-            currentMetaData={metaData}
-            offeredIn={offeredIn.flatMap(b =>
-              b.meta2.map(d => [b.displayname, d.displayname] as const),
-            )}
-          />
-        )
-      ) : (
-        <>
-          <Group gap="xs" mt="lg">
-            {asynchronously_updated_euclid_codes.map(
-              ([code, bi_data, shadow_data]) => (
-                <HoverCard shadow="md" styles={{ dropdown: { maxWidth: 300 } }}>
-                  <HoverCardTarget>
-                    <Badge
-                      // Will show red if data isn't available or still loading
-                      color={bi_data || shadow_data ? "violet" : "red"}
-                      radius="xs"
-                      component="a"
-                      // Choose course URL over EUCLID URL
-                      href={
-                        bi_data?.course_url ??
-                        bi_data?.euclid_url ??
-                        shadow_data?.course_url ??
-                        shadow_data?.euclid_url_shadow
-                      }
-                      // Badges don't look clickable by default, use pointer
-                      styles={{
-                        root: {
-                          cursor:
-                            bi_data || shadow_data ? "pointer" : "default",
-                        },
-                      }}
-                    >
-                      {code}
-                    </Badge>
-                  </HoverCardTarget>
-                  {(bi_data || shadow_data || !bi_courses_loading) && (
-                    <HoverCardDropdown>
-                      <Text size="sm">
-                        {bi_data &&
-                          `${bi_data.name} (SCQF ${bi_data.level}, Semester ${bi_data.delivery_ordinal})`}
-                        {shadow_data &&
-                          `${shadow_data.name} (Shadow of ${shadow_data.euclid_code})`}
-                        {!bi_courses_loading &&
-                          !bi_data &&
-                          !shadow_data &&
-                          "Not Running"}
-                        {bi_courses_error && bi_courses_error.message}
-                      </Text>
-                    </HoverCardDropdown>
-                  )}
-                </HoverCard>
-              ),
-            )}
-          </Group>
-
-          <Flex
-            direction={{ base: "column", sm: "row" }}
-            justify="space-between"
-          >
-            <Title order={1} mb="md">
-              {metaData.displayname}
-            </Title>
-            {user.isCategoryAdmin && (
-              <Group justify="flex-end">
-                <Button
-                  leftSection={<IconEdit />}
-                  onClick={() => setEditing(true)}
-                  color="dark"
-                >
-                  Edit
-                </Button>
-                <Button
-                  color="red"
-                  loading={removeLoading}
-                  disabled={metaData.slug === "default"}
-                  leftSection={<IconTrash />}
-                  onClick={onRemove}
-                >
-                  Delete
-                </Button>
-              </Group>
-            )}
-          </Flex>
-
-          {(metaData.more_exams_link || metaData.remark) && (
-            <Grid mb="xs">
-              {metaData.more_exams_link && (
-                <Grid.Col span="content">
-                  <Anchor
-                    href={metaData.more_exams_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    c="blue"
-                  >
-                    Additional Exams
-                  </Anchor>
-                </Grid.Col>
+      <Switch>
+        <Route path={`${path}/edit` /* this route is listed above the main route so a potential tab with id edit can never take priority over the edit page */}>
+          {!user.isCategoryAdmin && <Redirect to={url} />}
+          {offeredIn && (
+            <CategoryMetaDataEditor
+              onMetaDataChange={editorOnMetaDataChange}
+              close={() => history.push(`/category/${metaData.slug}`)}
+              currentMetaData={metaData}
+              offeredIn={offeredIn.flatMap(b =>
+                b.meta2.map(d => [b.displayname, d.displayname] as const),
               )}
-              {metaData.remark && (
-                <Grid.Col>Remark: {metaData.remark}</Grid.Col>
-              )}
-            </Grid>
+            />
           )}
+        </Route>
+        <Route path={path} exact={false /*because useCategoryTabs needs non-exact match*/}>
+          <Card withBorder mt="sm">
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              justify="space-between"
+            >
+              <Title order={1} mb="md">
+                {metaData.displayname}
+              </Title>
+              {user.isCategoryAdmin && (
+                <Group justify="flex-end">
+                  <Button
+                    leftSection={<IconEdit />}
+                    component={Link}
+                    to={`${url}/edit`}
+                    color="dark"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    color="red"
+                    loading={removeLoading}
+                    disabled={metaData.slug === "default"}
+                    leftSection={<IconTrash />}
+                    onClick={onRemove}
+                  >
+                    Delete
+                  </Button>
+                </Group>
+              )}
+            </Flex>
+            <Group gap="xs">
+              {metaData.euclid_codes.map(
+                (code, i) => (
+                  <EuclidCodeBadge
+                    key={code}
+                    code={code}
+                    badge_data={quickinfo_data[i]}
+                    loading={bi_courses_loading}
+                    error={bi_courses_error}
+                  />
+                ),
+              )}
+            </Group>
+            {metaData.remark && (
+              <Text mt="xs">Admin Remarks: {metaData.remark}</Text>
+            )}
+            {metaData.more_exams_link && (
+              <Anchor
+                href={metaData.more_exams_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                c="blue"
+              >
+                Additional Exams
+              </Anchor>
+            )}
+            <Card.Section
+              bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))"
+              mt="xs"
+              style={{ overflowX: "auto" /* Allow scrolling tabs if they overflow */ }}
+            >
+              {tabs.Component}
+            </Card.Section>
+          </Card>
 
-          <Grid my="sm">
-            {metaData.experts.includes(user.username) && (
-              <Grid.Col span="auto">
+          <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
+            <Grid.Col span={{ base: 12, md: 8 }}>
+              <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                <ExamList metaData={metaData} />
+
+                <DocumentList slug={metaData.slug} />
+
+                {metaData.attachments.length > 0 && (
+                  <>
+                    <Title order={2} mt="xl" mb="lg">
+                      Attachments
+                    </Title>
+                    <List>
+                      {metaData.attachments.map(att => (
+                        <List.Item key={att.filename}>
+                          <Anchor
+                            href={`/api/filestore/get/${att.filename}/`}
+                            color="blue"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {att.displayname}
+                          </Anchor>
+                        </List.Item>
+                      ))}
+                    </List>
+                  </>
+                )}
+              </Paper>
+            </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 4 }}>
+              {metaData.experts.includes(user.username) && (
                 <Alert
                   color="yellow"
                   title="Category expert"
                   icon={<IconStar />}
+                  mb="md"
                 >
                   You are an expert for this category. You can endorse correct
                   answers, which will be visible to other users.
                 </Alert>
-              </Grid.Col>
-            )}
-            {metaData.catadmin && (
-              <Grid.Col span="auto">
+              )}
+              {metaData.catadmin && (
                 <Alert
                   variant="light"
                   color="blue"
                   title="Category admin"
                   icon={<IconUserStar />}
+                  mb="md"
                 >
                   You can edit exams in this category. Please do so responsibly.
                 </Alert>
-              </Grid.Col>
-            )}
+              )}
+
+              <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
+                <Title order={2} mb="lg">Info for {thisYear}/{nextYearSuffix} run</Title>
+                {quickinfo_data.length === 0 && /*
+                  If none of the variants of this course are running this year,
+                  we show a message to the user.
+                */ (
+                  <Text c="dimmed" size="sm">
+                    This course is either not running this year or is not an Informatics course.
+                  </Text>
+                )}
+                {quickinfo_data.map((course, i) => (
+                  <Stack key={metaData.euclid_codes[i]} mb="sm" gap={0}>
+                    <Text>
+                      <Text span fw="bold">{metaData.euclid_codes[i]}</Text>
+                      {" - "}
+                      {course?.course_url && (
+                        <>
+                          <Anchor
+                            href={course.course_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            c="blue"
+                          >
+                            Course Page
+                          </Anchor>
+                          {", "}
+                        </>
+                      )}
+                      {course?.euclid_url && (
+                        <Anchor
+                          href={course.euclid_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          c="blue"
+                        >
+                          DRPS
+                        </Anchor>
+                      )}
+                    </Text>
+                    {course && (
+                      <>
+                        <Text>
+                          {course.name} ({course.acronym})<br />
+                          SCQF {course.level} / {course.credits} Credits / Semester {course.delivery_ordinal}
+                        </Text>
+                        <Group gap="xs">
+                          <PieChart
+                            size={20}
+                            startAngle={90}
+                            endAngle={-270}
+                            data={[
+                              {
+                                name: "Coursework",
+                                value: course.cw_exam_ratio[0],
+                                color: "var(--mantine-primary-color-6)",
+                              },
+                              {
+                                name: "Exam",
+                                value: course.cw_exam_ratio[1],
+                                color: "var(--mantine-primary-color-8)",
+                              },
+                            ]}
+                          />
+                          <Text>
+                            {course.cw_exam_ratio[0] > 0 && `${course.cw_exam_ratio[0]}% Coursework`}
+                            {course.cw_exam_ratio[0] > 0 && course.cw_exam_ratio[1] > 0 && " + "}
+                            {course.cw_exam_ratio[1] > 0 && `${course.cw_exam_ratio[1]}% Exam`}
+                          </Text>
+                        </Group>
+                      </>
+                    )}
+                    {!course && (
+                      <Text c="dimmed">
+                        No course information available for this code.
+                      </Text>
+                    )}
+                  </Stack>
+                ))}
+              </Paper>
+
+              {metaData.more_markdown_link && (
+                <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                  <Group align="baseline" justify="space-between" mb="sm">
+                    <Title order={2}>Useful Links</Title>
+                    {md_editable && (
+                      <Tooltip label="Edit this page on GitHub">
+                        <Button
+                          size="compact-sm"
+                          variant="light"
+                          component="a"
+                          target="_blank"
+                          href={md_edit_link}
+                          visibleFrom="md"
+                        >
+                          Edit
+                        </Button>
+                      </Tooltip>
+                    )}
+                  </Group>
+                  {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
+                  {md_error && (
+                    <Alert color="red">
+                      Failed to render additional info: {md_error.message}
+                    </Alert>
+                  )}
+                  {raw_md_contents !== undefined && (
+                    <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
+                      <MarkdownText
+                        value={raw_md_contents}
+                        localLinkBase="https://betterinformatics.com"
+                        ignoreHtml={true}
+                      />
+                    </Text>
+                  )}
+                </Paper>
+              )}
+            </Grid.Col>
           </Grid>
 
-          {metaData.more_markdown_link && (
-            <>
-              <Group align="baseline" justify="space-between" mt="sm" mb="sm">
-                <Title order={2}>Community Knowledgebase</Title>
-                {md_editable && (
-                  <Tooltip label="Edit this page on GitHub">
-                    <Button
-                      size="compact-sm"
-                      variant="light"
-                      component="a"
-                      target="_blank"
-                      href={md_edit_link}
-                      visibleFrom="md"
-                    >
-                      Edit (anyone welcome!)
-                    </Button>
-                  </Tooltip>
-                )}
-              </Group>
-              {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
-              {md_error && (
-                <Alert color="red">
-                  Failed to render additional info: {md_error.message}
-                </Alert>
-              )}
-              {raw_md_contents !== undefined && (
-                <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
-                  <MarkdownText
-                    value={raw_md_contents}
-                    localLinkBase="https://betterinformatics.com"
-                    ignoreHtml={true}
-                  />
-                </Text>
-              )}
-            </>
-          )}
-          <ExamList metaData={metaData} />
-
-          <DocumentList slug={metaData.slug} />
-
-          {metaData.attachments.length > 0 && (
-            <>
-              <Title order={2} mt="xl" mb="lg">
-                Attachments
-              </Title>
-              <List>
-                {metaData.attachments.map(att => (
-                  <List.Item key={att.filename}>
-                    <Anchor
-                      href={`/api/filestore/get/${att.filename}/`}
-                      color="blue"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {att.displayname}
-                    </Anchor>
-                  </List.Item>
-                ))}
-              </List>
-            </>
-          )}
-        </>
-      )}
+        </Route>
+      </Switch>
     </>
   );
 };
@@ -375,7 +459,7 @@ const CategoryPage: React.FC<{}> = () => {
   useTitle(data?.displayname ?? slug);
   const user = useUser();
   return (
-    <Container size="xl" mb="xl">
+    <Container size="xl" mb="xl" p={{ base: "xs", sm: "md" }}>
       {error && <Alert color="red">{error.message}</Alert>}
       {data === undefined && <LoadingOverlay visible={loading} />}
       {data && (
