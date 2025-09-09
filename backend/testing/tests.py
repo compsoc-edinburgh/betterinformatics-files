@@ -13,7 +13,6 @@ key = JWK()
 key.import_from_pem(private_key_data)
 
 
-
 def get_token(user):
     sub = user["sub"]
     username = user["username"]
@@ -29,6 +28,7 @@ def get_token(user):
             "resource_access": {"group": {"roles": roles}},
             "scope": "openid profile",
             "website": "https://www.vis.ethz.ch",
+            "home_organization": "ethz.ch",
             "name": given_name + " " + family_name,
             "preferred_username": username,
             "given_name": given_name,

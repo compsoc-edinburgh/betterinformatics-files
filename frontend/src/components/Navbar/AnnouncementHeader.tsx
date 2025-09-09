@@ -31,10 +31,10 @@ const AnnouncementHeader: React.FC = () => {
     if (currentDismissed.length < dismissed.size)
       setDismissed(new Set(currentDismissed));
 
-  }, [dismissed, serverData.announcements]);
+  }, [dismissed, setDismissed]);
 
   const announcements = serverData.announcements.map(it =>
-    (!(dismissed.has(it.id))) && (< Alert
+    (!(dismissed.has(it.id))) && (<Alert
       icon={
         it.icon === "info" ? (<IconInfoCircle />) :
           it.icon === "alert" ? (<IconAlertCircle />) :
@@ -54,7 +54,7 @@ const AnnouncementHeader: React.FC = () => {
       m="md"
     >
       <Text>{it.content}</Text>
-    </Alert>)
+    </Alert>),
   );
 
   return (
