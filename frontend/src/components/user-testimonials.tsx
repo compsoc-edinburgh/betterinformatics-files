@@ -103,13 +103,11 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
                 testimonial_id: testimonial_id,
                 title: "Testimonial Approved",
                 message: "Your testimonial has been approved.",
-                approval_status: ApprovalStatus.APPROVED
+                approval_status: ApprovalStatus.APPROVED,
+                course_name: course_name
             };
             try {
-            console.log(dataToSend)
             const response = await fetchPost('/api/testimonials/updatetestimonialapproval/', dataToSend);
-            console.log("Response Approve Testimonial")
-            console.log(response.value)
     
             if (response.value) {
                 setSuccess(true);
@@ -223,12 +221,12 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
             updatedTestimonials && 
             (isAdmin? 
                 updatedTestimonials.filter((testimonial) => testimonial.approval_status === ApprovalStatus.PENDING).map((testimonial, index)  => 
-                <AdminTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.id)}></AdminTestimonialCard>
+                <AdminTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.euclid_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.id)}></AdminTestimonialCard>
                 ) : 
                 (approvalStatusFilter== "All"? updatedTestimonials.filter((testimonial) => testimonial.authorId===currentUserId).map((testimonial, index)  => 
-                <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
+                <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.euclid_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
                 ) : updatedTestimonials.filter((testimonial) => testimonial.authorId===currentUserId && testimonial.approval_status===approvalStatusMap.get(approvalStatusFilter)).map((testimonial, index)  => 
-                <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
+                <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.euclid_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
                 ))
             )
         }

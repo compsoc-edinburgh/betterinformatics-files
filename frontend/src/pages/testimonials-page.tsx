@@ -5,7 +5,7 @@ import {useHistory} from 'react-router-dom'
 import { useDisclosure } from '@mantine/hooks';
 import { fetchPost, fetchGet } from '../api/fetch-utils';
 import { notLoggedIn, SetUserContext, User, UserContext } from "../auth";
-import {useEffect, useState } from 'react';
+import {useEffect, useState, useMemo } from 'react';
 import { DataTable, type DataTableSortStatus } from 'mantine-datatable';
 import useTitle from '../hooks/useTitle';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -18,11 +18,15 @@ import {
 } from "@tabler/icons-react";
 
 import {
-  loadCourses,
+  loadEuclidList,
   loadTestimonials
 } from "../api/testimonials";
 import ContentContainer from '../components/secondary-container';
-import { table } from 'console';
+import { BICourseDict } from "../interfaces";
+import { EuclidCodeBadge } from "../components/euclid-code-badge";
+import {
+  useBICourseList,
+} from "../api/hooks";
 
 
 //mock data
@@ -45,7 +49,7 @@ export enum ApprovalStatus {
 export type CourseTestimonial = {
   authorId: string,
   authorDisplayName: string,
-  course_code: string,
+  euclid_code: string,
   course_name: string,
   testimonial: string,
   id: string,
@@ -70,29 +74,53 @@ export interface ReviewTableProps{
   user: User | undefined
 }
 
-export function getTableData(courses: any, testimonials: any) : CourseWithTestimonial[] {
+export function getTableData(courses: any, testimonials: any, bi_courses_data: BICourseDict) : CourseWithTestimonial[] {
   let tableData = new Array<CourseWithTestimonial>(1);
-
   if (courses && testimonials){
     // console.log("Courses loaded in effect:", courses);
     // console.log("Testimonials loaded in effect:", testimonials);
-    tableData = new Array<CourseWithTestimonial>(courses['value'].length);
-    for (let i = 0; i < courses['value'].length; i++){
-      let course = courses['value'][i];
-      console.log(testimonials)
+    tableData = new Array<CourseWithTestimonial>(courses.length);
+    for (let i = 0; i < courses.length; i++){
+      let course = courses[i];
       let currentCourseTestimonials : CourseTestimonial[] = testimonials['value'].filter(
-        (testimonial: CourseTestimonial) => (testimonial.course_code == course.course_code && testimonial.approval_status == ApprovalStatus.APPROVED
+        (testimonial: CourseTestimonial) => (testimonial.euclid_code == course.code && testimonial.approval_status == ApprovalStatus.APPROVED
       ));
 
       //average of testimonials and etc! 
+      let currentCourse = undefined
+
+      for (let key in bi_courses_data) {
+        // Ensure the property belongs to the object itself, not its prototype chain
+        if (Object.prototype.hasOwnProperty.call(bi_courses_data, key)) {
+            const value = bi_courses_data[key];
+            //console.log(`${key}: ${value.euclid_code}`);
+            //console.log(`${String(value.euclid_code)}: ${course.course_code}`)
+            if (String(value.euclid_code) === String(course.code) || String(value.euclid_code_shadow) === String(course.code)) {
+              currentCourse = {
+                code: course.code,
+                acronym: value.acronym,
+                name: value.name,
+                level: value.level,
+                delivery_ordinal: value.delivery_ordinal,
+                credits: value.credits,
+                cw_exam_ratio: value.cw_exam_ratio,
+                course_url: value.course_url,
+                euclid_url: value.euclid_url,
+                // Set the shadow property to the main course code if this is a shadow
+                shadow: value.euclid_code_shadow === course.code ? course.euclid_code : undefined,
+              }
+          }
+        }
+      }
+
       tableData[i] = {
-        course_code: course.course_code,
-        course_name: course.course_name,
-        course_delivery: course.course_delivery,
-        course_credits: course.course_credits,
-        course_work_exam_ratio: course.course_work_exam_ratio,
-        course_level: course.course_level,
-        course_dpmt_link: course.course_dpmt_link,
+        course_code: course.code,
+        course_name: currentCourse? currentCourse.name : "undefined",
+        course_delivery: currentCourse? String(currentCourse.delivery_ordinal) : "undefined",
+        course_credits: currentCourse? Number(currentCourse.credits) : -1,
+        course_work_exam_ratio: currentCourse? String(currentCourse.cw_exam_ratio) : "undefined",
+        course_level: currentCourse? Number(currentCourse.level) : -1,
+        course_dpmt_link: currentCourse? currentCourse.course_url : "undefined",
         testimonials: currentCourseTestimonials
       }
     }
@@ -123,19 +151,20 @@ const TestimonialsPage: React.FC<{}> = () => {
           },
         );
       }
-      console.log(user)
       return () => {
         cancelled = true;
       };
     }, [user]);
 
-    const [uwu, _] = useLocalStorageState("uwu", false);
-    const { data : courses, loading: loading_courses, error: error_courses} = useRequest(
-      () => loadCourses()
-    );
-    const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
-      () => loadTestimonials()
-    );
+  const [uwu, _] = useLocalStorageState("uwu", false);
+  const { data : courses, loading: loading_courses, error: error_courses} = useRequest(
+    () => loadEuclidList()
+  );
+  const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
+    () => loadTestimonials()
+  );
+
+  const [bi_courses_error, bi_courses_loading, bi_courses_data] = useBICourseList();
     return (
       <>
         <Container size="xl" mb="sm">
@@ -156,8 +185,8 @@ const TestimonialsPage: React.FC<{}> = () => {
         </Container>
         <ContentContainer>
           <Container size="xl" mb="sm">
-            {(courses && testimonials && <ReviewsTable data={getTableData(courses, testimonials)} user={user}/>)||
-              ((loading_courses || error_courses || loading_testimonials || error_testimonials) && <ReviewsTable data={[]} user={user}/>)
+            {(courses && testimonials && bi_courses_data && <ReviewsTable data={getTableData(courses, testimonials, bi_courses_data)} user={user}/>)||
+              ((loading_courses || error_courses || loading_testimonials || error_testimonials || bi_courses_loading || bi_courses_error) && <ReviewsTable data={[]} user={user}/>)
               }
           </Container>
         </ContentContainer>
@@ -296,7 +325,7 @@ const ReviewsTable: React.FC<ReviewTableProps> = ({data, user}) => {
               </Flex>
               {
                 record.testimonials.map((testimonial, index) => //add a key to the testimonial
-                  <ReviewCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.course_code} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.id)}></ReviewCard>
+                  <ReviewCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.euclid_code} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.id)}></ReviewCard>
                 )
               }
             </Stack>

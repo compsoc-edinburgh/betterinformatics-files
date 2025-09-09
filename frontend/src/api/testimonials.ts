@@ -1,10 +1,11 @@
 import { fetchGet, fetchPost } from "./fetch-utils";
-import { useRequest } from "@umijs/hooks";
-import { remove } from "lodash-es";
 
-export const loadCourses = async () => {
-    return (await fetchGet("/api/testimonials/listcourses"))
-};
+export const loadEuclidList = async () => {
+    return (await fetchGet("/api/category/listeuclidcodes/")).value as {
+      code: string;
+      category: string;
+    }[];
+  };
 
 export const loadTestimonials = async () => {
     return (await fetchGet("/api/testimonials/listtestimonials"))

@@ -8,11 +8,15 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import {
     IconPlus,IconCalendarFilled,
   } from "@tabler/icons-react";
-import {
-loadCourses,
-} from "../api/testimonials";
+import { CategoryMetaData } from "../interfaces";
 import { useRequest } from "@umijs/hooks";
-
+import {
+  loadEuclidList, loadTestimonials,
+} from "../api/testimonials";
+import {
+  useBICourseList,
+} from "../api/hooks";
+import { getTableData } from './testimonials-page';
 type Course = {
     course_code: string,
     course_name: string,
@@ -22,7 +26,7 @@ type Course = {
     course_level: number,
     course_dpmt_link: string
   }
-  
+
 const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
     const { course_code, course_name } = useParams<{ course_code?: string; course_name?: string }>();
     const history = useHistory();
@@ -31,8 +35,14 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
     const initialCourse = course_code? `${course_code} - ${course_name}` : ''
     
     const { data : courses, loading: loading_courses, error: error_courses} = useRequest(
-        () => loadCourses()
-      );
+      () => loadEuclidList()
+    );
+    const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
+      () => loadTestimonials()
+    );
+  
+    const [bi_courses_error, bi_courses_loading, bi_courses_data] = useBICourseList();
+    //also load the courses!
 
     const form = useForm({
       initialValues: {
@@ -54,7 +64,7 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
   
       // fetchPost expects a plain object, and it will construct FormData internally
       const dataToSend = {
-        course: values.courseName.split(" - ")[0],
+        course_code: values.courseName.split(" - ")[0],
         year_taken: values.yearTakenValue,
         testimonial: values.testimonialString, 
       };
@@ -92,7 +102,7 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
       <Title order={2} ta="center" mb="xl">Add a Course Testimonial</Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap={10} p={5}>
-          <Autocomplete data={courses == undefined? []: courses["value"].map((course : Course) => course.course_code + " - " + course.course_name)} size={"md"} {...form.getInputProps('courseName')} label="Course Name" styles={{ label: {fontSize:"medium"} }} placeholder = "Course Name" required withAsterisk />
+          <Autocomplete data={(courses == undefined || testimonials == undefined || bi_courses_data == undefined)? []: getTableData(courses, testimonials, bi_courses_data).map((course : Course) => course.course_code + " - " + course.course_name)} size={"md"} {...form.getInputProps('courseName')} label="Course Name" styles={{ label: {fontSize:"medium"} }} placeholder = "Course Name" required withAsterisk />
           <NumberInput
             size={"md"}
             styles={{ label: { fontSize:"medium"} }}

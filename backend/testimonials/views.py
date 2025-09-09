@@ -1,33 +1,14 @@
 from util import response
 from ediauth import auth_check
-from testimonials.models import Course, Testimonial, ApprovalStatus
+from testimonials.models import Testimonial, ApprovalStatus
+from categories.models import EuclidCode
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from datetime import timedelta
 from django.http import JsonResponse
-import requests
 from django.views.decorators.csrf import csrf_exempt
 from notifications.notification_util import update_to_testimonial_status
 import ediauth.auth_check as auth_check
-import os
-
-@response.request_get()
-@auth_check.require_login
-def course_metadata(request):
-    courses = Course.objects.all()
-    res = [
-        {
-            "course_code": course.code,
-            "course_name": course.name,
-            "course_delivery": course.delivery,
-            "course_credits": course.credits,
-            "course_work_exam_ratio": course.work_exam_ratio,
-            "course_level": course.level,
-            "course_dpmt_link": course.dpmt_link
-        }
-        for course in courses
-    ]
-    return response.success(value=res)
 
 @response.request_get()
 @auth_check.require_login
@@ -37,8 +18,8 @@ def testimonial_metadata(request):
         {
             "authorId": testimonial.author.username,
             "authorDisplayName": testimonial.author.profile.display_username,
-            "course_code": testimonial.course.code,
-            "course_name": testimonial.course.name,
+            "euclid_code": testimonial.euclid_code.code,
+            "course_name": testimonial.euclid_code.category.displayname,
             "testimonial": testimonial.testimonial,
             "id": testimonial.id,
             "year_taken": testimonial.year_taken,
@@ -48,37 +29,33 @@ def testimonial_metadata(request):
     ]
     return response.success(value=res)
 
-@response.request_post("course", "year_taken", optional=True)
+@response.request_post("course_code", "year_taken", optional=True)
 @auth_check.require_login
 def add_testimonial(request):
     author = request.user
-    course_code = request.POST.get('course') #course code instead of course name
-    course = Course.objects.get(code=course_code)
+    course_code = request.POST.get('course_code') #course code instead of course name
     year_taken = request.POST.get('year_taken')
     testimonial = request.POST.get('testimonial')
 
     if not author:
         return response.not_possible("Missing argument: author")
-    if not course:
-        return response.not_possible("Missing argument: course")
     if not year_taken:
         return response.not_possible("Missing argument: year_taken")
     if not testimonial:
         return response.not_possible("Missing argument: testimonial")
 
-    # Create Dissertation entry in DB
-
     testimonials = Testimonial.objects.all()
+    euclid_code_obj = EuclidCode.objects.filter(code=course_code)
 
     for t in testimonials:
-        if t.author == author and t.course.code == course_code and (t.approval_status == ApprovalStatus.APPROVED):
+        if t.author == author and t.euclid_code.code == course_code and (t.approval_status == ApprovalStatus.APPROVED):
             return response.not_possible("You have written a testimonial for this course that has been approved.")
-        elif t.author == author and t.course.code == course_code and (t.approval_status == ApprovalStatus.PENDING):
+        elif t.author == author and t.euclid_code.code  == course_code and (t.approval_status == ApprovalStatus.PENDING):
             return response.not_possible("You have written a testimonial for this course that is currently pending approval.")
     
     testimonial = Testimonial.objects.create(
         author=author,
-        course=course,
+        euclid_code=euclid_code_obj[0],
         year_taken=year_taken,
         approval_status= ApprovalStatus.PENDING,
         testimonial=testimonial,
@@ -116,7 +93,7 @@ def update_testimonial_approval_status(request):
     title = request.POST.get('title')
     message = request.POST.get('message')
     approval_status = request.POST.get('approval_status')
-    course = get_object_or_404(Course, code=course_code)
+    course_name = request.POST.get('course_name')
 
     testimonial = Testimonial.objects.filter(id=testimonial_id)
 
@@ -124,12 +101,12 @@ def update_testimonial_approval_status(request):
     if has_admin_rights:
         testimonial.update(approval_status=approval_status)
         if approval_status == str(ApprovalStatus.APPROVED.value):
-            final_message = f'Your Testimonial to {course_code} - {course.name}: \n"{testimonial[0].testimonial}" has been Accepted, it is now available to see in the Testimonials tab.'
+            final_message = f'Your Testimonial to {course_code} - {course_name}: \n"{testimonial[0].testimonial}" has been Accepted, it is now available to see in the Testimonials tab.'
             if (sender != receiver):
                 update_to_testimonial_status(sender, receiver, title, final_message) #notification
             return response.success(value="Testimonial Accepted and the notification has been sent to " + str(receiver) + ".")
         elif approval_status == str(ApprovalStatus.REJECTED.value):
-            final_message = f'Your Testimonial to {course_code} - {course.name}: \n"{testimonial[0].testimonial}." has not been accepted due to: {message}'
+            final_message = f'Your Testimonial to {course_code} - {course_name}: \n"{testimonial[0].testimonial}." has not been accepted due to: {message}'
             if (sender != receiver):
                 update_to_testimonial_status(sender, receiver, title, final_message) #notification
             return response.success(value="Testimonial Not Accepted " + "and the notification has been sent to " + str(receiver) + ".")
