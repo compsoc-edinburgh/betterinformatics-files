@@ -9,9 +9,9 @@ import {
   Anchor,
   Box,
   Paper,
-  Tooltip
+  Tooltip,
 } from "@mantine/core";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
@@ -43,7 +43,6 @@ import {
   IconFlag,
   IconLink,
   IconArrowLeft,
-  IconFileArrowLeft,
   IconFileText,
   IconPencilCancel,
   IconPlus,
@@ -75,7 +74,7 @@ const AnswerComponent: React.FC<Props> = ({
   isLegacyAnswer,
   hasId = true,
 }) => {
-  const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
+  const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
   const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetFlagged] =
     useResetFlaggedVote(onSectionChanged);
@@ -125,24 +124,27 @@ const AnswerComponent: React.FC<Props> = ({
       >
         <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">
-            <div >
+            <div>
               {!hasId && (
                 <Tooltip label="View Answer in Exam">
-                <Link
-                  to={
-                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
-                  }
-                  style={{textDecoration: "none", color:"black"}}
-                >
-                  <Text mr={8} component="span" >
-                      <IconArrowLeft style={{ height: "21px", verticalAlign:"top"}}/>
-                      <IconFileText style={{ height: "21px", width: "21px", verticalAlign: "top"}} />
-                  </Text>
-                </Link>
+                  <Link
+                    to={
+                      answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                    }
+                  >
+                    <Text mr={8} component="span">
+                      <IconArrowLeft
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                      <IconFileText
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                    </Text>
+                  </Link>
                 </Tooltip>
               )}
               {isLegacyAnswer ? (
-                answer?.authorDisplayName ?? "(Legacy Draft)"
+                (answer?.authorDisplayName ?? "(Legacy Draft)")
               ) : (
                 <Anchor
                   component={Link}
@@ -159,9 +161,7 @@ const AnswerComponent: React.FC<Props> = ({
               <Text c="dimmed" mx={6} component="span">
                 ·
               </Text>
-              {answer && (
-                <TimeText time={answer.time} suffix="ago" />
-              )}
+              {answer && <TimeText time={answer.time} suffix="ago" />}
               {answer &&
                 differenceInSeconds(
                   new Date(answer.edittime),
@@ -171,7 +171,11 @@ const AnswerComponent: React.FC<Props> = ({
                     <Text color="dimmed" mx={6} component="span">
                       ·
                     </Text>
-                    <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
+                    <TimeText
+                      time={answer.edittime}
+                      prefix="edited"
+                      suffix="ago"
+                    />
                   </>
                 )}
             </div>
