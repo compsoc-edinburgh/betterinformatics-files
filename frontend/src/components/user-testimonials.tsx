@@ -8,7 +8,7 @@ import {
 import { CourseTestimonial, ApprovalStatus, Course, CourseWithTestimonial, getTableData } from "../pages/testimonials-page"
 import { useRequest } from "@umijs/hooks";
 import { useDisclosure } from '@mantine/hooks';
-import {useState,useEffect } from 'react';
+import { useState,useEffect } from 'react';
 import { fetchPost, fetchGet } from '../api/fetch-utils';
 import { useForm } from '@mantine/form';
 
@@ -40,7 +40,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
         }
     }, [testimonials]);
 
-    const AdminTestimonialCard: React.FC<AdminTestimonialCardProps> = ({course_code, course_name, username, displayName, yearTaken, testimonial, testimonial_id}) => {
+    const AdminTestimonialCard: React.FC<AdminTestimonialCardProps> = ({category_id, course_name, username, displayName, yearTaken, testimonial, testimonial_id, testimonial_approval_status}) => {
         const [opened, { open, close }] = useDisclosure(false);
         const [success, setSuccess] = useState<boolean | null>(null);
         const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -65,18 +65,16 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
     
             const dataToSend = {
                 author: username,
-                course_code: course_code,
+                category_id: category_id,
                 testimonial_id: testimonial_id,
+                course_name: course_name,
                 title: "Testimonial not Approved",
                 message: values.message,
                 approval_status: ApprovalStatus.REJECTED
             };
             try {
     
-            console.log(dataToSend)
             const response = await fetchPost('/api/testimonials/updatetestimonialapproval/', dataToSend);
-            console.log("Response Disapprove Testimonial")
-            console.log(response.value)
     
             if (response.value) {
                 setSuccess(true);
@@ -99,7 +97,7 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
     
             const dataToSend = {
                 author: username,
-                course_code: course_code,
+                category_id: category_id,
                 testimonial_id: testimonial_id,
                 title: "Testimonial Approved",
                 message: "Your testimonial has been approved.",
@@ -151,9 +149,18 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
                 </Modal>
     
                 <Card withBorder={true} radius="md" p={"lg"}>
+                <Flex gap={3} justify='flex-end'>
+                    <Text style={{
+                        backgroundColor: testimonial_approval_status==ApprovalStatus.APPROVED ? "teal" : testimonial_approval_status==ApprovalStatus.REJECTED ? "red" : "orange",
+                        color: "white",
+                        borderRadius: "8px",
+                        padding: "8px",
+                        display: "inline-block",
+                    }}>{testimonial_approval_status==ApprovalStatus.APPROVED ? "Approved" : testimonial_approval_status==ApprovalStatus.REJECTED ? "Rejected" : "Pending"}</Text>
+                </Flex> 
                 <Flex flex='1' gap='4' align='center' wrap={'wrap'}>
                         <Text component="span" >
-                            <strong>Course:</strong> {course_code} - {course_name}
+                            <strong>Course:</strong> {course_name}
                         </Text>
                 </Flex>
                 <Stack style={{
@@ -199,9 +206,6 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
             </>
             )
     }
-    console.log("UPDATED TESTIMONIALS")
-    console.log(updatedTestimonials);
-    console.log(loadingTestimonials)
 
     let approvalStatusMap = new Map<string, number>([
         ["Approved", ApprovalStatus.APPROVED],
@@ -220,13 +224,15 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
         {errorTestimonials? <Text>There has been an error with loading the testimonials.</Text> : 
             updatedTestimonials && 
             (isAdmin? 
-                updatedTestimonials.filter((testimonial) => testimonial.approval_status === ApprovalStatus.PENDING).map((testimonial, index)  => 
-                <AdminTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.euclid_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.id)}></AdminTestimonialCard>
-                ) : 
-                (approvalStatusFilter== "All"? updatedTestimonials.filter((testimonial) => testimonial.authorId===currentUserId).map((testimonial, index)  => 
-                <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.euclid_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
-                ) : updatedTestimonials.filter((testimonial) => testimonial.authorId===currentUserId && testimonial.approval_status===approvalStatusMap.get(approvalStatusFilter)).map((testimonial, index)  => 
-                <UserTestimonialCard key={index} username={String(testimonial.authorId)} displayName={String(testimonial.authorDisplayName)} course_code={testimonial.euclid_code} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
+                (approvalStatusFilter== "All"? updatedTestimonials.map((testimonial, index)  => 
+                <AdminTestimonialCard key={index} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} category_id={testimonial.category_id} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.testimonial_id)} testimonial_approval_status={testimonial.approval_status}></AdminTestimonialCard>
+                ) : updatedTestimonials.filter((testimonial) => testimonial.approval_status === approvalStatusMap.get(approvalStatusFilter)).map((testimonial, index)  => 
+                <AdminTestimonialCard key={index} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} category_id={testimonial.category_id} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.testimonial_id)} testimonial_approval_status={testimonial.approval_status}></AdminTestimonialCard>
+                )): 
+                (approvalStatusFilter== "All"? updatedTestimonials.filter((testimonial) => testimonial.author_id===currentUserId).map((testimonial, index)  => 
+                <UserTestimonialCard key={index} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} category_id={testimonial.category_id} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
+                ) : updatedTestimonials.filter((testimonial) => testimonial.author_id===currentUserId && testimonial.approval_status===approvalStatusMap.get(approvalStatusFilter)).map((testimonial, index)  => 
+                <UserTestimonialCard key={index} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} category_id={testimonial.category_id} course_name={testimonial.course_name} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_approval_status={testimonial.approval_status}></UserTestimonialCard>
                 ))
             )
         }
@@ -236,15 +242,15 @@ const Testimonials: React.FC<TestimonialsProps> = ({currentUserId, isAdmin}) => 
 
 
 interface AdminTestimonialCardProps{
-    username: String, displayName: String, course_code: String, course_name:String, yearTaken: String, testimonial:String, testimonial_id:String
+    username: String, displayName: String, category_id: String, course_name:String, yearTaken: String, testimonial:String, testimonial_id:String, testimonial_approval_status:Number
   }
 
 
   interface UserTestimonialCardProps{
-    username: String, displayName: String, course_code: String, course_name:String, yearTaken: String, testimonial:String, testimonial_approval_status:Number
+    username: String, displayName: String, category_id: String, course_name:String, yearTaken: String, testimonial:String, testimonial_approval_status:Number
   }
   
-const UserTestimonialCard: React.FC<UserTestimonialCardProps> = ({course_code, course_name, username, displayName, yearTaken, testimonial, testimonial_approval_status}) => {
+const UserTestimonialCard: React.FC<UserTestimonialCardProps> = ({category_id, course_name, username, displayName, yearTaken, testimonial, testimonial_approval_status}) => {
 
     return(
         <>
@@ -260,7 +266,7 @@ const UserTestimonialCard: React.FC<UserTestimonialCardProps> = ({course_code, c
             </Flex> 
             <Flex flex='1' gap='4' align='center' wrap={'wrap'}>
                     <Text component="span" >
-                        <strong>Course:</strong> {course_code} - {course_name}
+                        <strong>Course:</strong> {course_name}
                     </Text>
             </Flex>
             <Stack style={{

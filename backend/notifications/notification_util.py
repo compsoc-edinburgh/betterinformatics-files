@@ -137,7 +137,7 @@ def send_email_notification(
             f"View it in context here: {get_absolute_notification_url(data)}"
         )
     elif isinstance(data, str):
-        email_body = f"BetterInformatics: {title} / {data.display_name}",
+        email_body = f"BetterInformatics: {title}",
         (
             f"Hello {receiver.profile.display_username}!\n"
             f"{message}\n\n"
@@ -153,7 +153,8 @@ def send_email_notification(
     send_mail(
         email_body,
         f'"{sender.username} (via BetterInformatics)" <{settings.VERIF_CODE_FROM_EMAIL_ADDRESS}>',
-        [receiver.email],
+        from_email=[sender.email],
+        recipient_list=[receiver.email],
         fail_silently=False,
     )
 

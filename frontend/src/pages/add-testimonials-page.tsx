@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { Container, Alert, Text, Title, Autocomplete, Textarea, Notification, Modal, Group, NumberInput, Button, Rating, TextInput, Input, Flex, Center, Box, Card, Stack, useComputedColorScheme} from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { useEffect } from 'react';
 import { fetchPost } from '../api/fetch-utils';
-import {ReviewTableProps} from "./testimonials-page"
+import {TestimonialsTableProps, CourseWithTestimonial} from "./testimonials-page"
 import { IconInfoCircle } from '@tabler/icons-react';
 import {
     IconPlus,IconCalendarFilled,
@@ -11,31 +12,26 @@ import {
 import { CategoryMetaData } from "../interfaces";
 import { useRequest } from "@umijs/hooks";
 import {
-  loadEuclidList, loadTestimonials,
+  listCategories, loadTestimonials,
 } from "../api/testimonials";
 import {
   useBICourseList,
 } from "../api/hooks";
 import { getTableData } from './testimonials-page';
-type Course = {
-    course_code: string,
-    course_name: string,
-    course_delivery: string,
-    course_credits: number,
-    course_work_exam_ratio: string,
-    course_level: number,
-    course_dpmt_link: string
-  }
 
-const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
-    const { course_code, course_name } = useParams<{ course_code?: string; course_name?: string }>();
-    const history = useHistory();
+interface CourseNameCategoryLabel {
+  value: string; 
+  label: string;
+}
+const AddTestimonialsPage: React.FC<TestimonialsTableProps> = ({data}) => {
+    const { category_id, course_name } = useParams<{ category_id?: string; course_name?: string }>();
     const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const initialCourse = course_code? `${course_code} - ${course_name}` : ''
+    const [listCoursesData, setListCoursesData] = useState<CourseNameCategoryLabel[]>([]);
+    const initialCourse = course_name? `${course_name}` : ''
     
     const { data : courses, loading: loading_courses, error: error_courses} = useRequest(
-      () => loadEuclidList()
+      () => listCategories()
     );
     const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
       () => loadTestimonials()
@@ -43,6 +39,27 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
   
     const [bi_courses_error, bi_courses_loading, bi_courses_data] = useBICourseList();
     //also load the courses!
+
+
+
+    useEffect(() => {
+      if (course_name && category_id && courses && testimonials && bi_courses_data) {
+        setListCoursesData(getTableData(courses, testimonials, bi_courses_data).map((course : CourseWithTestimonial) => ({
+          value: `${course.course_name} - ${course.category_id}`, 
+          label: course.course_name, 
+        })))
+      }
+      }
+        // const found = tableData.find(
+        //   (course: CourseWithTestimonial) =>
+        //     course.course_name === course_name &&
+        //     course.category_id === category_id
+        // );
+    
+        // if (found) {
+        //   form.setFieldValue('courseName', `${found.course_name} - ${found.category_id}`);
+        // }
+      , [course_name, category_id, courses, testimonials, bi_courses_data]);
 
     const form = useForm({
       initialValues: {
@@ -63,16 +80,15 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
       setErrorMessage(null);
   
       // fetchPost expects a plain object, and it will construct FormData internally
+      const selectedCategoryId = listCoursesData.find(item => item.label === values.courseName)?.value.split(" - ")[1];
       const dataToSend = {
-        course_code: values.courseName.split(" - ")[0],
+        category_id: selectedCategoryId,
         year_taken: values.yearTakenValue,
         testimonial: values.testimonialString, 
       };
       //understand thens and comments
       try {
         const response = await fetchPost('/api/testimonials/addtestimonial/', dataToSend);
-        console.log("Response Add Testimonial")
-        console.log(response.value)
 
         if (response.value && response.value["approved"] == true) {
           setUploadSuccess(true);
@@ -92,7 +108,6 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
         }
       } catch (error: any) {
         setUploadSuccess(false);
-        console.log(error)
         setErrorMessage(error || 'Network error during upload.');
       }
     };
@@ -100,9 +115,9 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
   return (
     <Container size="sm" mt="xl">
       <Title order={2} ta="center" mb="xl">Add a Course Testimonial</Title>
-      <form onSubmit={form.onSubmit(handleSubmit)}>
+      {listCoursesData.length > 0 && <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap={10} p={5}>
-          <Autocomplete data={(courses == undefined || testimonials == undefined || bi_courses_data == undefined)? []: getTableData(courses, testimonials, bi_courses_data).map((course : Course) => course.course_code + " - " + course.course_name)} size={"md"} {...form.getInputProps('courseName')} label="Course Name" styles={{ label: {fontSize:"medium"} }} placeholder = "Course Name" required withAsterisk />
+          <Autocomplete data={listCoursesData} size={"md"} {...form.getInputProps('courseName')} label="Course Name" styles={{ label: {fontSize:"medium"} }} placeholder = "Course Name" required withAsterisk />
           <NumberInput
             size={"md"}
             styles={{ label: { fontSize:"medium"} }}
@@ -139,7 +154,7 @@ const AddTestimonialsPage: React.FC<ReviewTableProps> = ({data}) => {
 
           <Button type="submit">Add Testimonial</Button>
         </Stack>
-        </form>
+        </form>}
     </Container>
   );
 };

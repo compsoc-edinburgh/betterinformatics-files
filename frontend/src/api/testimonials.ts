@@ -1,9 +1,11 @@
 import { fetchGet, fetchPost } from "./fetch-utils";
 
-export const loadEuclidList = async () => {
-    return (await fetchGet("/api/category/listeuclidcodes/")).value as {
-      code: string;
-      category: string;
+export const listCategories = async () => {
+    return (await fetchGet("/api/category/listwithid")).value as {
+      category_id: string;
+      displayname: string;
+      slug: string;
+      euclid_codes: string[];
     }[];
   };
 

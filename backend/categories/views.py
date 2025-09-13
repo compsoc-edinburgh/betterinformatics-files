@@ -10,6 +10,20 @@ from util import response, func_cache
 
 
 @response.request_get()
+def list_categories_with_id(request):
+    categories = Category.objects.order_by("displayname").all()
+    res = [
+        {   
+            "category_id": cat.id,
+            "displayname": cat.displayname,
+            "slug": cat.slug,
+            "euclid_codes": [euclidcode.code for euclidcode in cat.euclid_codes.all()]
+        }
+        for cat in categories
+    ]
+    return response.success(value=res)
+
+@response.request_get()
 def list_categories(request):
     categories = Category.objects.order_by("displayname").all()
     res = [
@@ -27,6 +41,7 @@ def list_categories_with_meta(request):
     categories = Category.objects.select_related("meta").order_by("displayname").all()
     res = [
         {
+            "category_id": cat.id,
             "displayname": cat.displayname,
             "slug": cat.slug,
             "examcountpublic": cat.meta.examcount_public,
@@ -153,6 +168,7 @@ def list_exams(request, slug):
 
 def get_category_data(request, cat):
     res = {
+        "category_id": cat.id,
         "displayname": cat.displayname,
         "slug": cat.slug,
         "admins": [],
