@@ -20,7 +20,6 @@ import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
-import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
@@ -249,8 +248,8 @@ export const CategoryList: React.FC<{}> = () => {
         </Flex>
       </Container>
       <ContentContainer>
-        <LoadingOverlay visible={loading} />
-        <Container size="xl" py="md">
+        <Container size="xl" py="md" pos="relative">
+          {loading && !error && <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />}
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (
