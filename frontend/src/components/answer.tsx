@@ -9,8 +9,9 @@ import {
   Anchor,
   Box,
   Paper,
+  Tooltip,
 } from "@mantine/core";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
@@ -41,6 +42,8 @@ import {
   IconEdit,
   IconFlag,
   IconLink,
+  IconArrowLeft,
+  IconFileText,
   IconPencilCancel,
   IconPlus,
   IconStarFilled,
@@ -121,20 +124,27 @@ const AnswerComponent: React.FC<Props> = ({
       >
         <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">
-            <div>
+            <div >
               {!hasId && (
-                <Link
-                  to={
-                    answer ? `/exams/${answer.filename}?answer=${answer.longId}` : ""
-                  }
-                >
-                  <Text mr={8} component="span">
-                    <IconLink style={{ height: "13px", width: "13px" }} />
-                  </Text>
-                </Link>
+                <Tooltip label="View Answer in Exam">
+                  <Link
+                    to={
+                      answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                    }
+                  >
+                    <Text mr={8} component="span">
+                      <IconArrowLeft
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                      <IconFileText
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                    </Text>
+                  </Link>
+                </Tooltip>
               )}
               {isLegacyAnswer ? (
-                answer?.authorDisplayName ?? "(Legacy Draft)"
+                (answer?.authorDisplayName ?? "(Legacy Draft)")
               ) : (
                 <Anchor
                   component={Link}
@@ -151,9 +161,7 @@ const AnswerComponent: React.FC<Props> = ({
               <Text c="dimmed" mx={6} component="span">
                 ·
               </Text>
-              {answer && (
-                <TimeText time={answer.time} suffix="ago" />
-              )}
+              {answer && <TimeText time={answer.time} suffix="ago" />}
               {answer &&
                 differenceInSeconds(
                   new Date(answer.edittime),
@@ -163,7 +171,11 @@ const AnswerComponent: React.FC<Props> = ({
                     <Text color="dimmed" mx={6} component="span">
                       ·
                     </Text>
-                    <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
+                    <TimeText
+                      time={answer.edittime}
+                      prefix="edited"
+                      suffix="ago"
+                    />
                   </>
                 )}
             </div>
