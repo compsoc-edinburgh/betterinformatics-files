@@ -62,40 +62,50 @@ const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
     let cancel = false;
-    // How often refreshing failed
-    let counter = 0;
-    let counterExp = getCookie("token_expires");
+    // Keep track of consecutive failed token refreshes (per token expiry), so
+    // we don't infinitely try refreshing access token if it doesn't work
+    let failedCount = 0;
+    // Keep track of the expiry of the token if it failed to refresh -- this is
+    // used to so we can reset the consecutive-retry-limit if the token was
+    // refreshed by another tab.
+    let failedTokenExpiry: string | null = null;
 
     let handle: ReturnType<typeof setTimeout> | undefined = undefined;
     const startTimer = () => {
       // Check whether we have a token and when it will expire;
       const exp = authenticationStatus();
       if (
+        // Token is nearly expiring or is expired
         isTokenExpired(exp) &&
-        !(counterExp === getCookie("token_expires") && counter > 5)
+        // AND we haven't hit the retry limit yet (or ignore the limit if expiry
+        // is different to any previously failed expiry)
+        (failedTokenExpiry !== getCookie("token_expires") || failedCount <= 5)
       ) {
         refreshToken().then(r => {
           if (cancel) return;
+
           // If the refresh was successful we are happy
           if (r.status >= 200 && r.status < 400) {
             setLoggedOut(false);
-            counter = 0;
+            // Reset the counter, there is a new token
+            failedCount = 0;
             return;
           }
 
-          // Otherwise it probably failed
+          // Refresh failed, maybe because refresh token has expired or
+          // the OAuth provider gave an error;
+          // We'll retry up to a limit.
           setLoggedOut(true);
-          if (counter === 0) {
-            counterExp = getCookie("token_expires");
-          }
-          counter++;
+          failedTokenExpiry = getCookie("token_expires");
+          failedCount++;
           return;
         });
       }
       // When we are authenticated (`exp !== undefined`) we want to refresh the token
       // `minValidity` seconds before it expires. If there's no token we recheck this
-      // condition every 10 seconds.
-      // `Math.max` ensures that we don't call startTimer too often.
+      // condition every 60 seconds.
+      // `Math.max` ensures that we don't call startTimer too often even when the
+      // token needs to be refreshed.
       const delay =
         exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 60_000;
       handle = setTimeout(() => {
