@@ -12,7 +12,15 @@ import {
   Button,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import {
+  Link,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
 import {
@@ -148,8 +156,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
-  const [inViewSplits, addInViewSplit, removeInViewSplit] = useSet<PdfSection>();
-  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
+  const [inViewSplits, addInViewSplit, removeInViewSplit] =
+    useSet<PdfSection>();
+  const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
   const [editState, setEditState] = useState<EditState>({
     mode: EditMode.None,
   });
@@ -180,7 +189,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     const s = new Set<number>();
     if (!sections) return undefined;
     for (const section of sections) {
-      if (section.kind === SectionKind.Pdf && (!section.hidden || displayOptions.displayHiddenPdfSections)) {
+      if (
+        section.kind === SectionKind.Pdf &&
+        (!section.hidden || displayOptions.displayHiddenPdfSections)
+      ) {
         s.add(section.start.page);
       }
     }
