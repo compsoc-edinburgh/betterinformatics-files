@@ -3,9 +3,8 @@ enum ZIndex {
   panel = 101,
 }
 export default class GlobalConsts {
-  static readonly momentParseString = "YYYY-MM-DDTHH:mm:ss.SSSSSSZZ";
-  static readonly momentFormatString = "DD.MM.YYYY HH:mm";
-  static readonly momentFormatStringDate = "DD.MM.YYYY";
+  static readonly dateFNSFormatString = "dd.MM.yyyy HH:mm";
+  static readonly dateFNSFormatStringDate = "dd.MM.yyyy";
   static readonly mediaSmall = "@media (max-width: 599px)";
   static readonly mediaMedium = "@media (max-width: 799px)";
   static readonly zIndex = ZIndex;
