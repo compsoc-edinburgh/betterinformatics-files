@@ -165,10 +165,36 @@ export const CategoryList: React.FC<{}> = () => {
     string[]
   >("collapsedCategories", []);
   const [filter, setFilter] = useState("");
+
+  // Check for local storage cache of category data and use that as a backup
+  // while the actual request is loading
+  const [localStorageCategoryData, setLocalStorageCategoryData] =
+    useLocalStorageState<[CategoryMetaData[]?, MetaCategory[]?]>(
+      "category-data",
+      [undefined, undefined],
+    );
+
+  // Run the promise to get the various category data
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
+    onSuccess: data => {
+      // Update the cache with the new data. In total this is about 25-35 kB
+      // with 100-150 courses, which we deem as acceptable. Browser limits are
+      // 5-10 MB. Also, if the user disables localStorage or has a lower limit,
+      // our website won't break -- it's just a cache to speed up perceived load.
+      setLocalStorageCategoryData(
+        // onSuccess gives us a readonly array, so cast it to a mutable array
+        data as [CategoryMetaData[], MetaCategory[]],
+      );
+    },
   });
-  const [categoriesWithDefault, metaCategories] = data ? data : [];
+
+  // Combine the data from the request with the local storage cache, preferring
+  // the actual data. Each of the two elements in the array can be 'undefined'
+  // when neither the cache or the request have been loaded yet. This is
+  // different from an empty array which implies the loaded data is empty.
+  const [categoriesWithDefault, metaCategories] =
+    data ?? localStorageCategoryData;
 
   const categories = useMemo(
     () =>
