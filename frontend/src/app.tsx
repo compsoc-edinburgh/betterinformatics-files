@@ -15,7 +15,7 @@ import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import {
-  authenticationStatus,
+  getAuthenticationExpiry,
   fetchGet,
   getCookie,
   isTokenExpired,
@@ -73,10 +73,12 @@ const App: React.FC<{}> = () => {
     let handle: ReturnType<typeof setTimeout> | undefined = undefined;
     const startTimer = () => {
       // Check whether we have a token and when it will expire;
-      const exp = authenticationStatus();
+      const { token: exp, refresh: refresh_exp } = getAuthenticationExpiry();
       if (
         // Token is nearly expiring or is expired
         isTokenExpired(exp) &&
+        // Refresh token isn't expired
+        !isTokenExpired(refresh_exp) &&
         // AND we haven't hit the retry limit yet (or ignore the limit if expiry
         // is different to any previously failed expiry)
         (failedTokenExpiry !== getCookie("token_expires") || failedCount <= 5)
@@ -105,7 +107,10 @@ const App: React.FC<{}> = () => {
       // `minValidity` seconds before it expires. If there's no token we recheck this
       // condition every 60 seconds.
       // `Math.max` ensures that we don't call startTimer too often even when the
-      // token needs to be refreshed.
+      // token needs to be refreshed, for example during a retry loop after a
+      // failed token refresh, or when the refresh token is expired. In both
+      // cases we don't want to stop the timer forever, since another tab may
+      // revalidate the tokens.
       const delay =
         exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 60_000;
       handle = setTimeout(() => {
