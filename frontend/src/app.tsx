@@ -77,25 +77,26 @@ const App: React.FC<{}> = () => {
       if (
         // Token is nearly expiring or is expired
         isTokenExpired(exp) &&
-        // Refresh token isn't expired
-        !isTokenExpired(refresh_exp) &&
         // AND we haven't hit the retry limit yet (or ignore the limit if expiry
         // is different to any previously failed expiry)
         (exp !== failedTokenExpiry || failedCount <= 5)
       ) {
-        refreshToken().then(r => {
+        // Only refresh if refresh token isn't expired. We resolve a void promise
+        // if the refresh token is expired, so we can use the same handling code
+        // to increment counter & show the modal.
+        (isTokenExpired(refresh_exp) ? Promise.resolve() : refreshToken()).then(r => {
           if (cancel) return;
 
           // If the refresh was successful we are happy
-          if (r.status >= 200 && r.status < 400) {
+          if (r && r.status >= 200 && r.status < 400) {
             setLoggedOut(false);
             // Reset the counter, there is a new token
             failedCount = 0;
             return;
           }
 
-          // Refresh failed, maybe because refresh token has expired or the OAuth
-          // provider gave an error; We should retry a few times to a limit.
+          // Refresh failed, or we didn't refresh (due to expired refresh token)
+          // We should retry a few times to a limit, but we'll show a modal already.
           setLoggedOut(true);
           failedTokenExpiry = exp;
           failedCount++;
