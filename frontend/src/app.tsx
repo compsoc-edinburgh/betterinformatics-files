@@ -163,7 +163,21 @@ const App: React.FC<{}> = () => {
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
 
   const loadUnreadCount = async () => {
-    return (await fetchGet("/api/notification/unreadcount/")).value as number;
+    // Notifications will be polled at regular intervals. When the auth token
+    // nears expiry, the auth timer should refresh it automatically. But while
+    // the refresh is taking place, or if refresh failed, or if the user isn't
+    // logged in at all, we don't want to poll notifications -- without a valid
+    // token it'll 100% fail. So we don't fire a request in that case.
+    // Technically this kind of check would be useful to have for every authed
+    // API endpoint, but it requires a lot of coordination with the backend
+    // (e.g. category list fetch should go ahead without auth, but exam list
+    // should not). This unreadcount request in particular is polled quite
+    // frequently by every page, and has previously caused lots of unnecessary
+    // requests to fire while the user was idle. So we pick on it in particular.
+    const { token: exp } = getAuthenticationExpiry();
+    if (exp && !isTokenExpired(exp))
+      return (await fetchGet("/api/notification/unreadcount/")).value as number;
+    return undefined;
   };
   const { data: unreadCount } = useRequest(loadUnreadCount, {
     pollingInterval: 300_000,
