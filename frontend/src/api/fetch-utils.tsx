@@ -88,7 +88,16 @@ async function performDataRequest<T>(
   url: string,
   data: { [key: string]: any },
 ) {
-  if (isTokenExpired()) await refreshToken();
+  // Refresh token if needed.
+  // If refresh fails or if the refresh token is expired too, we won't outright
+  // reject the network request. This is because some endpoints don't need auth,
+  // like the category list. Since we don't know which backend routes need auth
+  // and which don't, we let the backend deal with any auth failures.
+  const { token: exp, refresh: refresh_exp } = getAuthenticationExpiry();
+  if (isTokenExpired(exp) && !isTokenExpired(refresh_exp)) {
+    await refreshToken();
+  }
+
 
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
@@ -126,7 +135,16 @@ async function performDataRequest<T>(
 }
 
 async function performRequest<T>(method: string, url: string) {
-  if (isTokenExpired()) await refreshToken();
+  // Refresh token if needed.
+  // If refresh fails or if the refresh token is expired too, we won't outright
+  // reject the network request. This is because some endpoints don't need auth,
+  // like the category list. Since we don't know which backend routes need auth
+  // and which don't, we let the backend deal with any auth failures.
+  const { token: exp, refresh: refresh_exp } = getAuthenticationExpiry();
+  if (isTokenExpired(exp) && !isTokenExpired(refresh_exp)) {
+    await refreshToken();
+  }
+
 
   const response = await fetch(url, {
     credentials: "include",
