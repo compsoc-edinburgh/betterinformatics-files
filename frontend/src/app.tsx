@@ -68,7 +68,7 @@ const App: React.FC<{}> = () => {
     // Keep track of the expiry of the token if it failed to refresh -- this is
     // used to so we can reset the consecutive-retry-limit if the token was
     // refreshed by another tab.
-    let failedTokenExpiry: string | null = null;
+    let failedTokenExpiry: number | undefined = undefined;
 
     let handle: ReturnType<typeof setTimeout> | undefined = undefined;
     const startTimer = () => {
@@ -81,7 +81,7 @@ const App: React.FC<{}> = () => {
         !isTokenExpired(refresh_exp) &&
         // AND we haven't hit the retry limit yet (or ignore the limit if expiry
         // is different to any previously failed expiry)
-        (failedTokenExpiry !== getCookie("token_expires") || failedCount <= 5)
+        (exp !== failedTokenExpiry || failedCount <= 5)
       ) {
         refreshToken().then(r => {
           if (cancel) return;
@@ -94,11 +94,10 @@ const App: React.FC<{}> = () => {
             return;
           }
 
-          // Refresh failed, maybe because refresh token has expired or
-          // the OAuth provider gave an error;
-          // We'll retry up to a limit.
+          // Refresh failed, maybe because refresh token has expired or the OAuth
+          // provider gave an error; We should retry a few times to a limit.
           setLoggedOut(true);
-          failedTokenExpiry = getCookie("token_expires");
+          failedTokenExpiry = exp;
           failedCount++;
           return;
         });
