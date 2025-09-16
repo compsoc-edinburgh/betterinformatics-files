@@ -24,12 +24,13 @@ import { addNewFavourite, removeFavourite } from "../api/favourite";
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
   onFavouriteToggle: () => void;
+  className?: string
 }
 
 const pluralize = (count: number, noun: string) =>
   `${count} ${noun}${count !== 1 ? "s" : ""}`;
 
-const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh }) => {
+const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle: refresh }) => {
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
@@ -83,7 +84,7 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
       withBorder
       px="lg"
       py="md"
-      className={clsx(classes.focusOutline, classes.hoverShadow)}
+      className={clsx(classes.focusOutline, classes.hoverShadow, className)}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >
