@@ -12,9 +12,13 @@ export function getAuthenticationExpiry() {
   const refresh_expires = getCookie("refresh_expires");
   const now = new Date().getTime();
   return {
-    "token": token_expires ? new Date(parseFloat(token_expires) * 1000).getTime() - now : undefined,
-    "refresh": refresh_expires ? new Date(parseFloat(refresh_expires) * 1000).getTime() - now : undefined,
-  }
+    token: token_expires
+      ? new Date(parseFloat(token_expires) * 1000).getTime() - now
+      : undefined,
+    refresh: refresh_expires
+      ? new Date(parseFloat(refresh_expires) * 1000).getTime() - now
+      : undefined,
+  };
 }
 
 /**
@@ -98,7 +102,6 @@ async function performDataRequest<T>(
     await refreshToken();
   }
 
-
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
   // through the keys and appending the (key, value) pair to the FormData
@@ -144,7 +147,6 @@ async function performRequest<T>(method: string, url: string) {
   if (isTokenExpired(exp) && !isTokenExpired(refresh_exp)) {
     await refreshToken();
   }
-
 
   const response = await fetch(url, {
     credentials: "include",
