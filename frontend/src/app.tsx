@@ -102,6 +102,10 @@ const App: React.FC<{}> = () => {
           failedCount++;
           return;
         });
+      } else if (!isTokenExpired(exp)) {
+        // Access token is not expired yet. If any modal is currently visible,
+        // hide it
+        setLoggedOut(false);
       }
       // When we are authenticated (`exp !== undefined`) we want to refresh the token
       // `minValidity` seconds before it expires. If there's no token we recheck this
