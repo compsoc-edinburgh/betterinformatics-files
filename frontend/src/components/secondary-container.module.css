@@ -1,4 +1,10 @@
-.contentContainer {
+.unOffsetFullWidth {
+  /* Use to reverse the margin-left applied on <main> to counter scroll bar */
+  margin-left: calc(100% - 100vw);
+  padding-left: calc(100vw - 100%);
+}
+
+.fullWidthContentContainer {
   @mixin light {
     background-color: var(--mantine-color-gray-0);
     box-shadow: inset var(--mantine-color-gray-2) 0px 0px 10px;

@@ -14,11 +14,10 @@ const ContentContainer: React.FC<ContentContainerProps> = ({
 }) => {
   return (
     <>
-      <Divider mt="lg" {...others} />
+      <Divider mt="lg" className={classes.unOffsetFullWidth} {...others} />
       <Box
         py="md"
-        px={0}
-        className={`${classes.contentContainer} ${
+        className={`${classes.fullWidthContentContainer} ${classes.unOffsetFullWidth} ${
           className ? ` ${className}` : ""
         }`}
       >
