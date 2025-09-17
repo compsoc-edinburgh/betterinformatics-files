@@ -2,3 +2,9 @@
   width: 18px;
   height: 18px;
 }
+
+main {
+  /* Add a margin left equal to the width of the scorllbar, so the content doesn't
+  shift around depending on page length. A similar style is applied to the navbar.*/
+  margin-left: calc(100vw - 100%);
+}
