@@ -305,7 +305,7 @@ export const CategoryList: React.FC<{}> = () => {
                   <CategoryCard
                     category={category}
                     key={category.slug}
-                    className={classes.fadeInOrder}
+                    className={filter.length === 0 && classes.fadeInOrder}
                     onFavouriteToggle={onFavouriteToggle}
                   />
                 ))}
