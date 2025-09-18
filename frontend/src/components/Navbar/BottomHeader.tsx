@@ -31,7 +31,7 @@ const BottomHeader: React.FC<Props> = ({
   return (
     <>
       <Box visibleFrom="md" className={classes.placeholder} />
-      <Container visibleFrom="md" className={classes.navbar} fluid={true}>
+      <Box visibleFrom="md" className={classes.navbar}>
         <Container size={size ? size : "md"} className={classes.container}>
           <Link to={""} className={classes.title}>
             {uwu ? (
@@ -63,7 +63,7 @@ const BottomHeader: React.FC<Props> = ({
             <ColorSchemeToggle/>
           </Group>
         </Container>
-      </Container>
+      </Box>
     </>
   );
 };
