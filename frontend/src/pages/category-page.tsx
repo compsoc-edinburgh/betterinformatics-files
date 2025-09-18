@@ -26,6 +26,9 @@ import {
   useRemoveCategory,
   useBICourseList,
 } from "../api/hooks";
+import {
+  loadTestimonials
+} from "../api/testimonials";
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
@@ -50,17 +53,22 @@ import {
 import { EuclidCodeBadge } from "../components/euclid-code-badge";
 import { useCategoryTabs } from "../hooks/useCategoryTabs";
 import { PieChart } from "@mantine/charts";
+import { CourseTestimonial, TestimonialCard, ApprovalStatus } from "./testimonials-page";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
+  testimonials: CourseTestimonial[]; 
   metaData: CategoryMetaData;
 }
+
+
 const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   onMetaDataChange,
+  testimonials,
   metaData,
 }) => {
   const computedColorScheme = useComputedColorScheme("light");
-
+  console.log(testimonials)
   const {
     data,
     loading: _,
@@ -155,11 +163,18 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   // defining Routes, we use `path`, but for Link/navigation we use `url`.
   const { path, url } = useRouteMatch();
 
+  //get testimonial count
+  
+  // let currentCourseTestimonials : CourseTestimonial[] = quickinfo_data.map((c) => c?.code).testimonials['value'].filter(
+  //   (testimonial: CourseTestimonial) => (testimonial.euclid_code == c && testimonial.approval_status == ApprovalStatus.APPROVED
+  // ));
+
+  let courseTestimonials = testimonials.filter((testimonial) => (testimonial.category_id === metaData.category_id && testimonial.approval_status == ApprovalStatus.APPROVED)) //filter based on approval status
   const tabs = useCategoryTabs([
     { name: "Resources", id: "resources" },
-    { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
+    { name: "Testimonials", id: "testimonials", count: courseTestimonials? courseTestimonials.length: 0}, //okay haven't finished.
     { name: "Grade Stats", id: "statistics", disabled: true },
-  ]);
+  ]); //get testimonial with a specific id
 
   // TODO: switch to betterinformatics.com/courses.json "session" field once that's live
   const { thisYear, nextYearSuffix } = useMemo(() => {
@@ -260,7 +275,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               {tabs.Component}
             </Card.Section>
           </Card>
-
+          {tabs.currentTabId == "resources" && 
           <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
             <Grid.Col span={{ base: 12, md: 8 }}>
               <Paper withBorder p={{ base: "sm", sm: "md" }}>
@@ -433,6 +448,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               )}
             </Grid.Col>
           </Grid>
+        }
+        <Stack p={10}>
+          {
+            tabs.currentTabId=="testimonials" && courseTestimonials.map((testimonial, index) => //add a key to the testimonial
+              <TestimonialCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} category_id={testimonial.category_id} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.testimonial_id)}></TestimonialCard>)
+          }
+        </Stack>
 
         </Route>
       </Switch>
@@ -458,11 +480,16 @@ const CategoryPage: React.FC<{}> = () => {
   );
   useTitle(data?.displayname ?? slug);
   const user = useUser();
+  const { data : testimonials, loading: loading_testimonials, error: error_testimonials, refresh } = useRequest(
+    () => loadTestimonials()
+  );
   return (
     <Container size="xl" mb="xl" p={{ base: "xs", sm: "md" }}>
       {error && <Alert color="red">{error.message}</Alert>}
-      {data === undefined && <LoadingOverlay visible={loading} />}
-      {data && (
+      {(data === undefined && testimonials == undefined) && <LoadingOverlay visible={loading} />}
+      {console.log("DATA UPDATE")}
+      {console.log(data)}
+      {data && testimonials && (
         <UserContext.Provider
           value={
             user
@@ -475,6 +502,7 @@ const CategoryPage: React.FC<{}> = () => {
         >
           <CategoryPageContent
             metaData={data}
+            testimonials = {testimonials["value"]}
             onMetaDataChange={onMetaDataChange}
           />
         </UserContext.Provider>

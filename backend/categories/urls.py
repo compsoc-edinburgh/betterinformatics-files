@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path("list/", views.list_categories, name="list"),
+    path("listwithid/", views.list_categories_with_id, name="listwithid"),
     path("listwithmeta/", views.list_categories_with_meta, name="listwithmeta"),
     path("listonlyadmin/", views.list_categories_only_admin, name="listonlyadmin"),
     path("add/", views.add_category, name="add"),

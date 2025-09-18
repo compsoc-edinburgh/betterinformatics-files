@@ -1,0 +1,3 @@
+/* layout.css */
+/* 👇 Apply Mantine core styles first, DataTable styles second */
+@layer mantine, mantine-datatable;

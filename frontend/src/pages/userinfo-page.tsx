@@ -1,4 +1,4 @@
-import { Container, Alert, Tabs, LoadingOverlay, Space } from "@mantine/core";
+import { Container, Text, Alert, Tabs, LoadingOverlay, Space } from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useUserInfo } from "../api/hooks";
@@ -10,6 +10,7 @@ import UserNotificationsSettings from "../components/user-notification-settings"
 import UserDisplayNameSettings from "../components/user-displayname-settings";
 import UserDocuments from "../components/user-documents";
 import UserScoreCard from "../components/user-score-card";
+import UserTestimonials from "../components/user-testimonials"
 import useTitle from "../hooks/useTitle";
 
 const UserPage: React.FC<{}> = () => {
@@ -38,6 +39,7 @@ const UserPage: React.FC<{}> = () => {
             <Tabs.Tab value="answers">Answers</Tabs.Tab>
             <Tabs.Tab value="comments">Comments</Tabs.Tab>
             <Tabs.Tab value="documents">Documents</Tabs.Tab>
+            <Tabs.Tab value="testimonials">Testimonials</Tabs.Tab>
             {isMyself && <Tabs.Tab value="settings">Settings</Tabs.Tab>}
           </Tabs.List>
           <Tabs.Panel value="overview" pt="sm">
@@ -54,6 +56,9 @@ const UserPage: React.FC<{}> = () => {
           </Tabs.Panel>
           <Tabs.Panel value="documents" pt="sm">
             <UserDocuments username={username} userInfo={userInfo} />
+          </Tabs.Panel>
+          <Tabs.Panel value="testimonials" pt="sm">
+            <UserTestimonials username={username} />
           </Tabs.Panel>
           <Tabs.Panel value="settings" pt="sm">
             {isMyself && (

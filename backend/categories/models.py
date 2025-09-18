@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Category(models.Model):
+    id = models.AutoField(primary_key=True)
     displayname = models.CharField(max_length=256)
     slug = models.CharField(max_length=256, unique=True)
     form = models.CharField(
