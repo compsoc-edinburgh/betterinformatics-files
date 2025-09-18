@@ -201,6 +201,7 @@ else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
+    "https://analytics.betterinformatics.com/api/",
     *allowed_script_sources,
 )
 CSP_STYLE_SRC = (
