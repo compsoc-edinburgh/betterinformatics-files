@@ -22,7 +22,7 @@ if "SIP_S3_FILES_HOST" in os.environ:
         "endpoint_url": endpoint,
         "aws_access_key_id": os.environ["SIP_S3_FILES_ACCESS_KEY"],
         "aws_secret_access_key": os.environ["SIP_S3_FILES_SECRET_KEY"],
-        "config": Config(signature_version="s3v4"),
+        "config": Config(signature_version="s3v4", s3={"addressing_style": "path"}),
         "region_name": "vis-is-great-1",
     }
     s3 = boto3.resource("s3", **options)
