@@ -223,6 +223,8 @@ CSP_CONNECT_SRC = (
     # the Markdown renderer should prevent it from being executed)
     "https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/_sections/",
     "https://betterinformatics.com/courses.json",
+    # Allow self hosted tracking
+    "https://analytics.betterinformatics.com/api/",
 )
 CSP_IMG_SRC = (
     "'self'",
