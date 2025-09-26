@@ -33,6 +33,18 @@ def send_notification(
     associated_data: Answer,
 ) -> None: ...
 
+@overload
+def send_notification(
+    sender: User,
+    receiver: User,
+    type_: Literal[
+        NotificationType.UPDATE_TO_TESTIMONIAL_APPROVAL_STATUS
+    ],
+    title: str,
+    message: str,
+    associated_data: str, #Update to Testimonial
+) -> None: ...
+
 
 @overload
 def send_notification(
@@ -51,10 +63,11 @@ def send_notification(
     type_: NotificationType,
     title: str,
     message: str,
-    associated_data: Union[Answer, Document],
+    associated_data: Union[Answer, Document, str],
 ):
     if sender == receiver:
         return
+    
     if is_notification_enabled(receiver, type_):
         send_inapp_notification(
             sender, receiver, type_, title, message, associated_data
@@ -97,7 +110,7 @@ def send_email_notification(
     type_: NotificationType,
     title: str,
     message: str,
-    data: Union[Document, Answer],
+    data: Union[Document, Answer, str],
 ):
     """If the user has email notifications enabled, send an email notification.
 
@@ -114,16 +127,34 @@ def send_email_notification(
         )
     ):
         return
-
-    send_mail(
-        f"BetterInformatics: {title} / {data.display_name if isinstance(data, Document) else data.answer_section.exam.displayname}",
+    
+    email_body = ""
+    if isinstance(data, Document):
+        email_body = f"BetterInformatics: {title} / {data.display_name}",
         (
             f"Hello {receiver.profile.display_username}!\n"
             f"{message}\n\n"
             f"View it in context here: {get_absolute_notification_url(data)}"
-        ),
+        )
+    elif isinstance(data, str):
+        email_body = f"BetterInformatics: {title}",
+        (
+            f"Hello {receiver.profile.display_username}!\n"
+            f"{message}\n\n"
+        )
+    else:
+        email_body = f"BetterInformatics: {title} / {data.answer_section.exam.displayname}",
+        (
+            f"Hello {receiver.profile.display_username}!\n"
+            f"{message}\n\n"
+            f"View it in context here: {get_absolute_notification_url(data)}"
+        )
+
+    send_mail(
+        email_body,
         f'"{sender.username} (via BetterInformatics)" <{settings.VERIF_CODE_FROM_EMAIL_ADDRESS}>',
-        [receiver.email],
+        from_email=[sender.email],
+        recipient_list=[receiver.email],
         fail_silently=False,
     )
 
@@ -199,4 +230,14 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
         "New comment",
         "A new comment was added to your document.\n\n{}".format(new_comment.text),
         document,
+    )
+
+def update_to_testimonial_status(sender, receiver, title, message):
+    send_notification(
+        sender,
+        receiver,
+        NotificationType.UPDATE_TO_TESTIMONIAL_APPROVAL_STATUS,
+        title,
+        message,
+        ""
     )

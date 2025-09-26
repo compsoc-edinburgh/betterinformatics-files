@@ -10,7 +10,10 @@ import {
   CSSVariablesResolver,
   SegmentedControl,
 } from "@mantine/core";
-import "@mantine/core/styles.css";
+import "@mantine/hooks";
+import '@mantine/core/styles.layer.css';
+import 'mantine-datatable/styles.layer.css';
+import './layout.css';
 import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
@@ -49,6 +52,8 @@ import {
   defaultConfigOptions,
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
+import TestimonialsPage from "./pages/testimonials-page";
+import AddTestimonialsPage from "./pages/add-testimonials-page";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
@@ -188,6 +193,7 @@ const App: React.FC<{}> = () => {
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
     { title: "Search", href: "/search" },
+    { title: "Testimonials", href:"/testimonials"},
     { title: "Dissertations", href: "/dissertations" },
     {
       title: "More",
@@ -232,7 +238,7 @@ const App: React.FC<{}> = () => {
   });
 
   return (
-    <MantineProvider theme={compsocTheme} cssVariablesResolver={resolver}>
+    <MantineProvider theme={compsocTheme} cssVariablesResolver={resolver} withCssVariables={true} withGlobalClasses={true}>
       <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
@@ -271,6 +277,16 @@ const App: React.FC<{}> = () => {
                       exact
                       path="/dissertations"
                       component={DissertationListPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/testimonials"
+                      component={TestimonialsPage}
+                    />
+                    <UserRoute
+                      exact
+                      path="/addtestimonials/:category_id?/:course_name?"
+                      component={AddTestimonialsPage}
                     />
                     <UserRoute
                       exact
