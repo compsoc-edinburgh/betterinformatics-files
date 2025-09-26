@@ -4,7 +4,7 @@ from django.db.models import Count, Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 
 from answers.models import Answer
-from categories.models import Category, MetaCategory, EuclidCode
+from categories.models import Category, MetaCategory, EuclidCode, CourseStats
 from ediauth import auth_check
 from util import response, func_cache
 
@@ -415,4 +415,32 @@ def list_euclid_codes(request):
         }
         for code in codes
     ]
+    return response.success(value=res)
+
+
+@response.request_get()
+@auth_check.require_login
+def get_course_stats(request, slug):
+    cat = get_object_or_404(Category, slug=slug)
+    
+    # Get all Euclid codes for this category
+    euclid_codes = list(cat.euclid_codes.all().values_list("code", flat=True))
+    
+    if not euclid_codes:
+        return response.success(value=[])
+    
+    # Get course stats for all Euclid codes associated with this category
+    stats = CourseStats.objects.filter(course_code__in=euclid_codes).order_by('course_code', 'academic_year')
+    
+    res = [
+        {
+            "course_name": stat.course_name,
+            "course_code": stat.course_code,
+            "mean_mark": stat.mean_mark,
+            "std_deviation": stat.std_deviation,
+            "academic_year": stat.academic_year,
+        }
+        for stat in stats
+    ]
+    
     return response.success(value=res)
