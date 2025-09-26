@@ -86,20 +86,3 @@ class EuclidCode(models.Model):
     category = models.ForeignKey(
         "Category", related_name="euclid_codes", on_delete=models.CASCADE
     )
-
-
-class CourseStats(models.Model):
-    course_name = models.CharField(max_length=256)
-    course_code = models.CharField(max_length=12, db_index=True)
-    mean_mark = models.FloatField(null=True, blank=True)  # Can be null for N/A values
-    std_deviation = models.FloatField(
-        null=True, blank=True
-    )  # Can be null for N/A values
-    academic_year = models.CharField(max_length=10)  # e.g. "2023-24"
-
-    class Meta:
-        unique_together = ["course_code", "academic_year"]
-        ordering = ["course_code", "academic_year"]
-
-    def __str__(self):
-        return f"{self.course_code} ({self.academic_year}): {self.mean_mark}"

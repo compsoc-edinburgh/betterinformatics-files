@@ -50,7 +50,6 @@ import {
 import { EuclidCodeBadge } from "../components/euclid-code-badge";
 import { useCategoryTabs } from "../hooks/useCategoryTabs";
 import { PieChart } from "@mantine/charts";
-import CategoryStatsComponent from "../components/category-stats";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -159,7 +158,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const tabs = useCategoryTabs([
     { name: "Resources", id: "resources" },
     { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
-    { name: "Grade Stats", id: "statistics" },
+    { name: "Grade Stats", id: "statistics", disabled: true },
   ]);
 
   // TODO: switch to betterinformatics.com/courses.json "session" field once that's live
@@ -263,43 +262,35 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           </Card>
 
           <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
-            {tabs.currentTabId === "statistics" ? (
-              <Grid.Col span={12}>
-                <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                  <CategoryStatsComponent slug={metaData.slug} />
-                </Paper>
-              </Grid.Col>
-            ) : (
-              <>
-                <Grid.Col span={{ base: 12, md: 8 }}>
-                  <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                    <ExamList metaData={metaData} />
+            <Grid.Col span={{ base: 12, md: 8 }}>
+              <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                <ExamList metaData={metaData} />
 
-                    <DocumentList slug={metaData.slug} />
+                <DocumentList slug={metaData.slug} />
 
-                    {metaData.attachments.length > 0 && (
-                      <>
-                        <Title order={2} mt="xl" mb="lg">
-                          Attachments
-                        </Title>
-                        <List>
-                          {metaData.attachments.map(att => (
-                            <List.Item key={att.filename}>
-                              <Anchor
-                                href={`/api/filestore/get/${att.filename}/`}
-                                color="blue"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {att.displayname}
-                              </Anchor>
-                            </List.Item>
-                          ))}
-                        </List>
-                      </>
-                    )}
-                  </Paper>
-                </Grid.Col>
+                {metaData.attachments.length > 0 && (
+                  <>
+                    <Title order={2} mt="xl" mb="lg">
+                      Attachments
+                    </Title>
+                    <List>
+                      {metaData.attachments.map(att => (
+                        <List.Item key={att.filename}>
+                          <Anchor
+                            href={`/api/filestore/get/${att.filename}/`}
+                            color="blue"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {att.displayname}
+                          </Anchor>
+                        </List.Item>
+                      ))}
+                    </List>
+                  </>
+                )}
+              </Paper>
+            </Grid.Col>
             <Grid.Col span={{ base: 12, md: 4 }}>
               {metaData.experts.includes(user.username) && (
                 <Alert
@@ -441,8 +432,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Paper>
               )}
             </Grid.Col>
-              </>
-            )}
           </Grid>
 
         </Route>

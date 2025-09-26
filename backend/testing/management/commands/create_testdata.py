@@ -8,13 +8,12 @@ from django.contrib.auth.models import User
 from ediauth.models import Profile
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
 from documents.models import DocumentType, Document, DocumentFile
-from categories.models import Category, MetaCategory, EuclidCode, CourseStats
+from categories.models import Category, MetaCategory, EuclidCode
 from feedback.models import Feedback
 from filestore.models import Attachment
 from images.models import Image
 from notifications.models import Notification, NotificationSetting, NotificationType
 import os
-import random
 from answers import pdf_utils
 
 
@@ -330,87 +329,12 @@ class Command(BaseCommand):
                     if (i + user.id) % 4 == 0:
                         document.likes.add(user)
 
-    def create_course_stats(self):
-        self.stdout.write("Create course statistics")
-
-        # Generate realistic course names for Informatics courses
-        course_name_patterns = [
-            "Algorithms and Data Structures",
-            "Secure Programming",
-            "Machine Learning",
-            "Software Engineering and Professional Practice",
-            "Introduction to Databases",
-            "Systems Design Project",
-            "Operating Systems",
-            "Human-Computer Interaction",
-            "Reasoning and Agents",
-            "Cyber Security",
-            "Applied Cloud Programming",
-            "Distributed Systems",
-            "Computer Vision",
-        ]
-
-        # Academic years from 2017-18 to 2024-25
-        academic_years = [
-            "2017-18",
-            "2018-19",
-            "2019-20",
-            "2020-21",
-            "2021-22",
-            "2022-23",
-            "2023-24",
-            "2024-25",
-        ]
-
-        objs = []
-
-        # Get all Euclid codes from categories
-        euclid_codes = EuclidCode.objects.all()
-
-        for euclid_code in euclid_codes:
-            # Pick a random course name pattern
-            base_course_name = random.choice(course_name_patterns)
-            course_name = f"{base_course_name} ({euclid_code.category.displayname})"
-
-            # Generate stats for each academic year
-            for year in academic_years:
-                # Generate realistic grade statistics
-                # Mean marks typically range from 45-85, with most courses 55-75
-                base_mean = random.uniform(55, 75)
-
-                # Add some year-to-year variation (-5 to +5)
-                year_variation = random.uniform(-5, 5)
-                mean_mark = max(45, min(85, base_mean + year_variation))
-
-                # Standard deviation typically 10-25, with most 12-20
-                std_deviation = random.uniform(12, 20)
-
-                # Some years might have missing data (simulate N/A values)
-                if random.random() < 0.05:  # 5% chance of missing data
-                    mean_mark = None
-                    std_deviation = None
-
-                objs.append(
-                    CourseStats(
-                        course_name=course_name,
-                        course_code=euclid_code.code,
-                        mean_mark=mean_mark,
-                        std_deviation=std_deviation,
-                        academic_year=year,
-                    )
-                )
-
-        # Bulk create all course stats
-        CourseStats.objects.bulk_create(objs, ignore_conflicts=True)
-        self.stdout.write(f"Created {len(objs)} course statistics entries")
-
     def handle(self, *args, **options):
         self.flush_db()
         self.create_users()
         self.create_images()
         self.create_meta_categories()
         self.create_categories()
-        self.create_course_stats()
         self.create_exam_types()
         self.create_exams()
         self.create_answer_sections()
