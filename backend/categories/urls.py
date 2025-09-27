@@ -37,4 +37,5 @@ urlpatterns = [
         name="slugfromeuclidcode",
     ),
     path("listeuclidcodes/", views.list_euclid_codes, name="listeuclidcodes"),
+    path("stats/<slug:slug>/", views.get_course_stats, name="course_stats"),
 ]

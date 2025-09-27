@@ -7,6 +7,7 @@ import {
   CategoryExam,
   CategoryMetaData,
   CategoryMetaDataMinimal,
+  CourseStats,
   CutVersions,
   ExamMetaData,
   FeedbackEntry,
@@ -594,3 +595,16 @@ export const useRegenerateDocumentAPIKey = (
   documentSlug: string,
   onSuccess?: (res: Document) => void,
 ) => useMutation(() => regenerateDocumentAPIKey(documentSlug), onSuccess);
+
+// Course Stats
+export const loadCourseStats = async (slug: string) => {
+  return (await fetchGet(`/api/category/stats/${slug}/`)).value as CourseStats[];
+};
+
+export const useCourseStats = (slug: string) => {
+  const { error, loading, data } = useRequest(() => loadCourseStats(slug), {
+    cacheKey: `course-stats-${slug}`,
+    refreshDeps: [slug],
+  });
+  return [error, loading, data] as const;
+};
