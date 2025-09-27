@@ -105,10 +105,15 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             ? courseOrganiserColors[stat.course_organiser || ''].replace('0.3', '0.8')
             : 'gray.6';
 
+          // For the last year, position the label to the left to avoid overflow
+          const isLastYear = index === courseStats.length - 1;
+          const labelPosition = isLastYear ? 'left' : 'right';
+
           refLines.push({
             x: stat.academic_year,
             label: changeLabel,
             color: changeColor,
+            labelPosition: labelPosition,
           });
         }
         previousOrganiser = stat.course_organiser;
