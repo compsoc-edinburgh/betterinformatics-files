@@ -179,6 +179,7 @@ export interface CourseStats {
   mean_mark: number | null;
   std_deviation: number | null;
   academic_year: string;
+  course_organiser: string | null;
 }
 
 export type CategoryMetaDataAny =

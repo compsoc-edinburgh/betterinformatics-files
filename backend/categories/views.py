@@ -439,6 +439,7 @@ def get_course_stats(request, slug):
             "mean_mark": stat.mean_mark,
             "std_deviation": stat.std_deviation,
             "academic_year": stat.academic_year,
+            "course_organiser": stat.course_organiser,
         }
         for stat in stats
     ]

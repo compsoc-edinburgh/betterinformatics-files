@@ -350,6 +350,15 @@ class Command(BaseCommand):
             "Computer Vision",
         ]
 
+        # Mock Course Organisers with some generic and funny names
+        course_organisers = [
+            "Dr. John Smith",
+            "Prof. Mary Johnson", 
+            "Dr. Bob Wilson",
+            "Prof. Alice Brown",
+            "Dr. Gandalf McTeachface"
+        ]
+
         # Academic years from 2017-18 to 2024-25
         academic_years = [
             "2017-18",
@@ -372,8 +381,18 @@ class Command(BaseCommand):
             base_course_name = random.choice(course_name_patterns)
             course_name = f"{base_course_name} ({euclid_code.category.displayname})"
 
+            # Pick a random course organiser (could change over years)
+            # Some courses might change organiser, others might stay the same
+            base_organiser = random.choice(course_organisers)
+
             # Generate stats for each academic year
             for year in academic_years:
+                # Organiser might change sometimes (20% chance per year)
+                current_organiser = base_organiser
+                if random.random() < 0.2:  # 20% chance of organiser change
+                    current_organiser = random.choice(course_organisers)
+                    base_organiser = current_organiser  # Update for future years
+
                 # Generate realistic grade statistics
                 # Mean marks typically range from 45-85, with most courses 55-75
                 base_mean = random.uniform(55, 75)
@@ -397,6 +416,7 @@ class Command(BaseCommand):
                         mean_mark=mean_mark,
                         std_deviation=std_deviation,
                         academic_year=year,
+                        course_organiser=current_organiser,
                     )
                 )
 
