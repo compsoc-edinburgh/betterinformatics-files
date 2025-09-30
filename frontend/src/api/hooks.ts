@@ -434,7 +434,7 @@ export const useMutation = <B, T extends any[]>(
   service: (...args: T) => Promise<B>,
   onSuccess?: (res: B, params: T) => void,
 ) => {
-  const { loading, run } = useRequest(service, { manual: true, onSuccess });
+  const {loading, run } = useRequest(service, { manual: true, onSuccess });
   return [loading, run] as const;
 };
 
@@ -462,8 +462,10 @@ export const createDocument = async (
     })
   ).value as Document;
 };
-export const useCreateDocument = (onSuccess?: (document: Document) => void) =>
-  useMutation(createDocument, onSuccess);
+export const useCreateDocument = (onSuccess?: (document: Document) => void) => {
+  const { error, loading, run } = useRequest(createDocument, { manual: true, onSuccess });
+  return {error, loading, run} as const;
+}
 
 export const loadDocuments = async (categorySlug: string) => {
   return (await fetchGet(`/api/document/?category=${categorySlug}`))

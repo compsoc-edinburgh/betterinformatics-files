@@ -1,4 +1,4 @@
-import { Button, TextInput, Modal, Stack } from "@mantine/core";
+import { Button, TextInput, Modal, Stack, Text } from "@mantine/core";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useCreateDocument } from "../api/hooks";
@@ -19,13 +19,19 @@ const CreateDocumentForm: React.FC<Props> = ({
   const { username } = useUser()!;
   const [displayName, setDisplayName] = useState("");
   const history = useHistory();
-  const [loading, run] = useCreateDocument(({ slug }) => {
+  const {error, loading, run} = useCreateDocument(({ slug }) => {
     history.push(`/user/${username}/document/${slug}/`);
   });
   return (
     <Modal opened={isOpen} title="Add Document" onClose={onClose}>
       <Modal.Body>
         <Stack>
+          {error !== undefined &&
+          <Text
+            c="red"
+          >
+            This is an invalid display name.
+          </Text>}
           <TextInput
             label="Display Name"
             placeholder="My wonderful summary"

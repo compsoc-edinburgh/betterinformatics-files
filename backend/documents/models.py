@@ -34,10 +34,7 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
 
     def save(self, *args, **kwargs):
         # makes sure slugs are always unique and get incremented
-        oslug = slugify(parse.quote(self.display_name))
-
-        if len(oslug.strip()) == 0:
-            oslug = "invalid_name"
+        oslug = slugify(parse.quote(self.display_name, " "))
 
         def exists(aslug):
             objects = Document.objects.filter(slug=aslug)

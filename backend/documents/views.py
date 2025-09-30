@@ -2,6 +2,8 @@ import logging
 import os.path
 from typing import Union
 
+from urllib import parse
+
 from categories.models import Category
 from django.conf import settings
 from django.db.models import Count, Q, Exists, OuterRef, Prefetch
@@ -11,6 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.text import slugify
 from myauth import auth_check
 from myauth.models import MyUser, get_my_user
 from util import s3_util, response
@@ -174,7 +177,7 @@ class DocumentRootView(View):
     @auth_check.require_login
     def post(self, request: HttpRequest):
         category = get_object_or_404(Category, slug=request.POST["category"])
-        if request.POST["display_name"].strip() == "":
+        if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
             return response.not_possible("Invalid displayname")
         display_name = request.POST["display_name"]
         # description is optional
@@ -245,7 +248,7 @@ class DocumentElementView(View):
             if not can_edit:
                 return response.not_allowed()
             # avoids empty or whitespaced displaynames
-            if request.DATA["display_name"].strip() == "":
+            if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
                 return response.not_possible("Invalid displayname")
             document.display_name = request.DATA["display_name"]
             edited = True
@@ -389,7 +392,7 @@ class DocumentFileRootView(View):
             return response.not_allowed()
         
 
-        if request.DATA["display_name"].strip() == "":
+        if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
             return response.not_possible("Invalid displayname")
 
         err, file, ext = prepare_document_file(request)
@@ -445,7 +448,7 @@ class DocumentFileElementView(View):
         )
 
         if "display_name" in request.DATA:
-            if request.DATA["display_name"].strip() == "":
+            if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
                 return response.not_possible("Invalid displayname")
             document_file.display_name = request.DATA["display_name"]
 
