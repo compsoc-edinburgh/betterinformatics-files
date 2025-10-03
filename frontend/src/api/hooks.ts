@@ -231,6 +231,10 @@ export const claimExam = async (filename: string, claim: boolean) => {
     claim,
   });
 };
+export const loadExamAdminStatus = async (filename: string) => {
+  return (await fetchGet(`/api/exam/status/${filename}/`))
+    .value as CategoryExam;
+};
 export const loadExamMetaData = async (filename: string) => {
   return (await fetchGet(`/api/exam/metadata/${filename}/`))
     .value as ExamMetaData;
