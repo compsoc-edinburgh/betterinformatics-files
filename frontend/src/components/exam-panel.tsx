@@ -94,12 +94,13 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     name: T,
     value: DisplayOptions[T],
   ) => setDisplayOptions({ ...displayOptions, [name]: value });
+  const user = useUser();
+
   const {
     error: examError,
-    loading: examLoading,
     data: exam,
     run: reloadExam,
-  } = useRequest(() => loadExamAdminStatus(metaData.filename));
+  } = useRequest(() => user?.isAdmin ? loadExamAdminStatus(metaData.filename) : Promise.resolve(undefined));
 
   return (
     <PdfPanelBase
@@ -136,6 +137,9 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     >
       {canEdit && (
         <>
+          {examError && (
+            <Text>Could not load admin info: {examError.message}</Text>
+          )}
           {exam && !exam.finished_cuts && 
           (<>
             <Title order={6}>Edit Mode</Title>
@@ -144,7 +148,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
                 <ClaimButton exam={exam} reloadExams={reloadExam}/>
               </Grid.Col>
               {hasValidClaim(exam) &&
-                    exam.import_claim === useUser()?.username && 
+                    exam.import_claim === user?.username && 
               (<>
                 {editState.mode !== EditMode.None && (
                   <Grid.Col span={{ xs: "auto" }}>
