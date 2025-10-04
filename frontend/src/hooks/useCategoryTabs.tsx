@@ -2,7 +2,9 @@ import { Badge, Button, Group, Tooltip } from "@mantine/core";
 import { useEffect, useMemo } from "react";
 import { Link, useHistory, useRouteMatch } from "react-router-dom";
 
-export const useCategoryTabs = (tabs: { name: string; id: string, count?: number, disabled?: boolean }[]) => {
+export const useCategoryTabs = (
+  tabs: { name: string; id: string; count?: number; disabled?: boolean }[],
+) => {
   // Get tab ID from URL query parameters if it exists.
   // We have to use `useRouteMatch` instead of the typical `useParams`, and have
   // to explicitly pass the path to match, because `useCategoryTabs` is to be
@@ -33,26 +35,55 @@ export const useCategoryTabs = (tabs: { name: string; id: string, count?: number
   // Create the tab items
   const Component = useMemo(
     () => (
-      <Group gap={0} ml="xs" align="stretch" display="inline-flex" wrap="nowrap">
+      <Group
+        gap={0}
+        ml="xs"
+        align="stretch"
+        display="inline-flex"
+        wrap="nowrap"
+      >
         {tabs.map((tab, i) => (
-          <Tooltip label={"This feature is currently unavailable"} disabled={!tab.disabled} key={tab.id} openDelay={500}>
+          <Tooltip
+            label={"This feature is currently unavailable"}
+            disabled={!tab.disabled}
+            key={tab.id}
+            openDelay={200}
+          >
             <Button
               variant="transparent"
               px="md"
               py="sm"
-              style={{
-                borderTop: "3px solid transparent", // to even out the height
-                borderBottom: `3px solid ${currentTabId === tab.id ? "var(--mantine-primary-color-filled)" : "transparent"}`,
-                height: "auto",
-                backgroundColor: "transparent",
+              styles={{
+                root: {
+                  borderTop: "3px solid transparent", // to even out the height
+                  borderBottom: `3px solid ${currentTabId === tab.id ? "var(--mantine-primary-color-filled)" : "transparent"}`,
+                  height: "auto",
+                  backgroundColor: "transparent",
+                  opacity: tab.id === currentTabId ? 1 : 0.75,
+                },
+                label: {
+                  textDecoration: tab.disabled ? "line-through" : "inherit",
+                },
               }}
-              color={currentTabId === tab.id ? "var(--mantine-color-text)" : "var(--mantine-color-dimmed)"}
+              color={
+                !tab.disabled
+                  ? "var(--mantine-color-text)"
+                  : "var(--mantine-color-dimmed)"
+              }
               radius={0}
               component={Link}
               to={i > 0 ? `${url}/${tab.id}` : url} // If it's the first tab, hide ID for cleaner URL
               data-disabled={tab.disabled}
-              onClick={tab.disabled ? (event) => event.preventDefault() : undefined}
-              rightSection={tab.count !== undefined ? <Badge size="sm" fz="sm">{tab.count}</Badge> : null}
+              onClick={
+                tab.disabled ? event => event.preventDefault() : undefined
+              }
+              rightSection={
+                tab.count !== undefined ? (
+                  <Badge size="sm" fz="sm">
+                    {tab.count}
+                  </Badge>
+                ) : null
+              }
             >
               {tab.name}
             </Button>
@@ -64,4 +95,4 @@ export const useCategoryTabs = (tabs: { name: string; id: string, count?: number
   );
 
   return { currentTabId, Component };
-}
+};
