@@ -173,6 +173,15 @@ export interface CategoryMetaData {
   favourite: boolean;
 }
 
+export interface CourseStats {
+  course_name: string;
+  course_code: string;
+  mean_mark: number | null;
+  std_deviation: number | null;
+  academic_year: string;
+  course_organiser: string | null;
+}
+
 export type CategoryMetaDataAny =
   | CategoryMetaData
   | CategoryMetaDataOverview
