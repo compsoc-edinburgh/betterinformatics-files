@@ -53,8 +53,10 @@ export const useCategoryTabs = (
               variant="transparent"
               px="md"
               py="sm"
+              tabIndex={tab.disabled ? -1 : 0}
               styles={{
                 root: {
+                  outlineOffset: -5,
                   borderTop: "3px solid transparent", // to even out the height
                   borderBottom: `3px solid ${currentTabId === tab.id ? "var(--mantine-primary-color-filled)" : "transparent"}`,
                   height: "auto",
