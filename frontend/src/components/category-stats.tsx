@@ -16,15 +16,15 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
   const courseOrganiserColors = useMemo(() => {
     if (!stats) return {};
     
-    const uniqueOrganisers = [...new Set(stats.map(s => s.course_organiser).filter(Boolean))];
+    const uniqueOrganisers = [...new Set(stats.map(s => s.course_organiser).filter((o): o is string => Boolean(o)))];
     const colors = [
       "rgba(34, 139, 34, 0.3)",   // Forest Green
-      "rgba(30, 144, 255, 0.3)",  // Dodger Blue  
+      "rgba(30, 144, 255, 0.3)",  // Dodger Blue
       "rgba(255, 140, 0, 0.3)",   // Dark Orange
       "rgba(147, 112, 219, 0.3)", // Medium Slate Blue
       "rgba(220, 20, 60, 0.3)",   // Crimson
     ];
-    
+
     const mapping: { [key: string]: string } = {};
     uniqueOrganisers.forEach((organiser, index) => {
       mapping[organiser] = colors[index % colors.length];
