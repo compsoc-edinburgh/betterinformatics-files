@@ -96,10 +96,11 @@ class CourseStats(models.Model):
         null=True, blank=True
     )  # Can be null for N/A values
     academic_year = models.CharField(max_length=10)  # e.g. "2023-24"
-    course_organiser = models.CharField(max_length=256, null=True, blank=True)  # Course Organiser name
+    course_organiser = models.CharField(
+        max_length=256, null=True, blank=True
+    )  # Course Organiser name
 
     class Meta:
-        unique_together = ["course_code", "academic_year"]
         ordering = ["course_code", "academic_year"]
 
     def __str__(self):

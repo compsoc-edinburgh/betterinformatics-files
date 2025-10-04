@@ -353,10 +353,10 @@ class Command(BaseCommand):
         # Mock Course Organisers with some generic and funny names
         course_organisers = [
             "Dr. John Smith",
-            "Prof. Mary Johnson", 
+            "Prof. Mary Johnson",
             "Dr. Bob Wilson",
             "Prof. Alice Brown",
-            "Dr. Gandalf McTeachface"
+            "Dr. Gandalf McTeachface",
         ]
 
         # Academic years from 2017-18 to 2024-25
@@ -377,6 +377,9 @@ class Command(BaseCommand):
         euclid_codes = EuclidCode.objects.all()
 
         for euclid_code in euclid_codes:
+            # Seed random number generator based on euclid code for reproducible data
+            random.seed(hash(euclid_code.code))
+
             # Pick a random course name pattern
             base_course_name = random.choice(course_name_patterns)
             course_name = f"{base_course_name} ({euclid_code.category.displayname})"

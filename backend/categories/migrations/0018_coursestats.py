@@ -4,25 +4,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('categories', '0017_2040413_merge_upstream'),
+        ("categories", "0017_2040413_merge_upstream"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CourseStats',
+            name="CourseStats",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('course_name', models.CharField(max_length=256)),
-                ('course_code', models.CharField(db_index=True, max_length=12)),
-                ('mean_mark', models.FloatField(blank=True, null=True)),
-                ('std_deviation', models.FloatField(blank=True, null=True)),
-                ('academic_year', models.CharField(max_length=10)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("course_name", models.CharField(max_length=256)),
+                ("course_code", models.CharField(db_index=True, max_length=12)),
+                ("mean_mark", models.FloatField(blank=True, null=True)),
+                ("std_deviation", models.FloatField(blank=True, null=True)),
+                ("academic_year", models.CharField(max_length=10)),
             ],
             options={
-                'ordering': ['course_code', 'academic_year'],
-                'unique_together': {('course_code', 'academic_year')},
+                "ordering": ["course_code", "academic_year"],
             },
         ),
     ]

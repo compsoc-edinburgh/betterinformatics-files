@@ -27,9 +27,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     
     const mapping: { [key: string]: string } = {};
     uniqueOrganisers.forEach((organiser, index) => {
-      if (organiser) {
-        mapping[organiser] = colors[index % colors.length];
-      }
+      mapping[organiser] = colors[index % colors.length];
     });
     return mapping;
   }, [stats]);
@@ -101,8 +99,8 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         if (index > 0 && stat.course_organiser !== previousOrganiser) {
           // Course organiser changed in this year
           const changeLabel = `${code}: ${stat.course_organiser}`;
-          const changeColor = courseOrganiserColors[stat.course_organiser || ''] 
-            ? courseOrganiserColors[stat.course_organiser || ''].replace('0.3', '0.8')
+          const changeColor = courseOrganiserColors[stat.course_organiser!]
+            ? courseOrganiserColors[stat.course_organiser!].replace('0.3', '0.8')
             : 'gray.6';
 
           // For the last year, position the label to the left to avoid overflow
@@ -138,7 +136,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     "var(--mantine-color-teal-6)",
   ];
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <Stack gap="md">
         <Skeleton height={300} />
@@ -203,7 +201,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
                 if (active && payload && payload.length) {
                   return (
                     <Paper p="sm" withBorder shadow="md">
-                      <Text size="sm" fw={600} mb="xs">{label}</Text>
+                      <Text size="md" fw={600} mb="xs">{label}</Text>
                       {payload.map((entry: any, index: number) => {
                         const courseCode = entry.dataKey;
                         const meanMark = entry.value;
@@ -215,7 +213,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
                         
                         return (
                           <Box key={index}>
-                            <Text size="sm" style={{ color: entry.color }}>
+                            <Text size="sm" fw={500} style={{ color: entry.color }}>
                               {courseCode}: {Number(meanMark).toFixed(1)}%
                             </Text>
                             {organiser && (
@@ -262,7 +260,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
               ))}
             </Group>
             <Text size="xs" c="dimmed" mt="xs">
-              All course organisers found in the data. Hover on different chart points to see which organiser ran each course in specific years - organisers change over time!
+              Course organisers found in the data. Hover over chart points to see which organiser ran each course in specific years.
             </Text>
           </Box>
         )}
@@ -274,7 +272,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             Course Overview
           </Title>
           <Group gap="md">
-            {[...new Set(stats.map(s => s.course_code))].sort().map(code => {
+            {courseCodes.map(code => {
               const courseStats = stats.filter(s => s.course_code === code);
               const latestStat = courseStats
                 .sort((a, b) => a.academic_year.localeCompare(b.academic_year))
@@ -282,16 +280,16 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
               
               return (
                 <Paper key={code} withBorder p="md" style={{ minWidth: 200 }}>
-                  <Stack gap="xs">
-                    <Text fw={600} size="sm">{code}</Text>
-                    <Text size="xs" c="dimmed">{latestStat?.course_name}</Text>
+                  <Stack gap={0}>
+                    <Text fw={600} size="lg">{code}</Text>
+                    <Text size="sm" c="dimmed">{latestStat?.course_name}</Text>
                     {latestStat?.course_organiser && (
-                      <Text size="xs" c="dimmed">
+                      <Text size="sm" c="dimmed" mt="xs">
                         CO: {latestStat.course_organiser}
                       </Text>
                     )}
                     {latestStat?.mean_mark && (
-                      <Text size="sm">
+                      <Text size="md" mt="xs">
                         Latest Mean: <Text span fw={500}>{latestStat.mean_mark.toFixed(1)}%</Text>
                       </Text>
                     )}
@@ -300,7 +298,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
                         Std Dev: ±{latestStat.std_deviation.toFixed(1)}%
                       </Text>
                     )}
-                    <Text size="xs" c="dimmed">
+                    <Text size="xs" c="dimmed" mt="xs">
                       {courseStats.length} year{courseStats.length !== 1 ? 's' : ''} of data
                     </Text>
                   </Stack>

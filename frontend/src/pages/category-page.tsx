@@ -19,7 +19,15 @@ import {
   Stack,
 } from "@mantine/core";
 import React, { useCallback, useMemo } from "react";
-import { Link, Redirect, Route, Switch, useHistory, useParams, useRouteMatch } from "react-router-dom";
+import {
+  Link,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -128,27 +136,33 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
     // Once data is ready, we turn it into a list of useful info to pass to
     // generate badges.
-    return metaData.euclid_codes.map(
-      c =>
+    return metaData.euclid_codes
+      .map(c =>
         Object.values(bi_courses_data).flatMap(course => {
           if (course.euclid_code === c || course.euclid_code_shadow === c) {
-            return [{
-              code: c,
-              acronym: course.acronym,
-              name: course.name,
-              level: course.level,
-              delivery_ordinal: course.delivery_ordinal,
-              credits: course.credits,
-              cw_exam_ratio: course.cw_exam_ratio,
-              course_url: course.course_url,
-              euclid_url: course.euclid_url,
-              // Set the shadow property to the main course code if this is a shadow
-              shadow: course.euclid_code_shadow === c ? course.euclid_code : undefined,
-            }];
+            return [
+              {
+                code: c,
+                acronym: course.acronym,
+                name: course.name,
+                level: course.level,
+                delivery_ordinal: course.delivery_ordinal,
+                credits: course.credits,
+                cw_exam_ratio: course.cw_exam_ratio,
+                course_url: course.course_url,
+                euclid_url: course.euclid_url,
+                // Set the shadow property to the main course code if this is a shadow
+                shadow:
+                  course.euclid_code_shadow === c
+                    ? course.euclid_code
+                    : undefined,
+              },
+            ];
           }
           return [];
         }),
-    ).flat();
+      )
+      .flat();
   }, [metaData, bi_courses_data]);
 
   // `path` is the path structure, e.g. the literal string "/category/:slug"
@@ -165,25 +179,38 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   // TODO: switch to betterinformatics.com/courses.json "session" field once that's live
   const { thisYear, nextYearSuffix } = useMemo(() => {
     const year = new Date().getFullYear();
-    return { thisYear: year.toString(), nextYearSuffix: (year + 1).toString().slice(2) };
+    return {
+      thisYear: year.toString(),
+      nextYearSuffix: (year + 1).toString().slice(2),
+    };
   }, []);
 
   return (
     <>
       {modals}
-      <Breadcrumbs separator={<IconChevronRight />} styles={{ breadcrumb: { minWidth: 0, textOverflow: "ellipsis", overflow: "hidden"   }}}>
+      <Breadcrumbs
+        separator={<IconChevronRight />}
+        styles={{
+          breadcrumb: {
+            minWidth: 0,
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          },
+        }}
+      >
         <Anchor tt="uppercase" size="xs" component={Link} to="/">
           Home
         </Anchor>
-        <Anchor
-          tt="uppercase"
-          size="xs"
-        >
+        <Anchor tt="uppercase" size="xs">
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
       <Switch>
-        <Route path={`${path}/edit` /* this route is listed above the main route so a potential tab with id edit can never take priority over the edit page */}>
+        <Route
+          path={
+            `${path}/edit` /* this route is listed above the main route so a potential tab with id edit can never take priority over the edit page */
+          }
+        >
           {!user.isCategoryAdmin && <Redirect to={url} />}
           {offeredIn && (
             <CategoryMetaDataEditor
@@ -196,7 +223,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             />
           )}
         </Route>
-        <Route path={path} exact={false /*because useCategoryTabs needs non-exact match*/}>
+        <Route
+          path={path}
+          exact={false /*because useCategoryTabs needs non-exact match*/}
+        >
           <Card withBorder mt="sm">
             <Flex
               direction={{ base: "column", sm: "row" }}
@@ -228,17 +258,15 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               )}
             </Flex>
             <Group gap="xs">
-              {metaData.euclid_codes.map(
-                (code, i) => (
-                  <EuclidCodeBadge
-                    key={code}
-                    code={code}
-                    badge_data={quickinfo_data[i]}
-                    loading={bi_courses_loading}
-                    error={bi_courses_error}
-                  />
-                ),
-              )}
+              {metaData.euclid_codes.map((code, i) => (
+                <EuclidCodeBadge
+                  key={code}
+                  code={code}
+                  badge_data={quickinfo_data[i]}
+                  loading={bi_courses_loading}
+                  error={bi_courses_error}
+                />
+              ))}
             </Group>
             {metaData.remark && (
               <Text mt="xs">Admin Remarks: {metaData.remark}</Text>
@@ -256,50 +284,50 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             <Card.Section
               bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))"
               mt="xs"
-              style={{ overflowX: "auto" /* Allow scrolling tabs if they overflow */ }}
+              style={{
+                overflowX: "auto" /* Allow scrolling tabs if they overflow */,
+              }}
             >
               {tabs.Component}
             </Card.Section>
           </Card>
 
           <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
-            {tabs.currentTabId === "statistics" ? (
-              <Grid.Col span={12}>
+            <Grid.Col span={{ base: 12, md: 8 }}>
+              {tabs.currentTabId === "statistics" ? (
                 <Paper withBorder p={{ base: "sm", sm: "md" }}>
                   <CategoryStatsComponent slug={metaData.slug} />
                 </Paper>
-              </Grid.Col>
-            ) : (
-              <>
-                <Grid.Col span={{ base: 12, md: 8 }}>
-                  <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                    <ExamList metaData={metaData} />
+              ) : tabs.currentTabId === "resources" ? (
+                <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                  <ExamList metaData={metaData} />
 
-                    <DocumentList slug={metaData.slug} />
+                  <DocumentList slug={metaData.slug} />
 
-                    {metaData.attachments.length > 0 && (
-                      <>
-                        <Title order={2} mt="xl" mb="lg">
-                          Attachments
-                        </Title>
-                        <List>
-                          {metaData.attachments.map(att => (
-                            <List.Item key={att.filename}>
-                              <Anchor
-                                href={`/api/filestore/get/${att.filename}/`}
-                                color="blue"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                {att.displayname}
-                              </Anchor>
-                            </List.Item>
-                          ))}
-                        </List>
-                      </>
-                    )}
-                  </Paper>
-                </Grid.Col>
+                  {metaData.attachments.length > 0 && (
+                    <>
+                      <Title order={2} mt="xl" mb="lg">
+                        Attachments
+                      </Title>
+                      <List>
+                        {metaData.attachments.map(att => (
+                          <List.Item key={att.filename}>
+                            <Anchor
+                              href={`/api/filestore/get/${att.filename}/`}
+                              color="blue"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {att.displayname}
+                            </Anchor>
+                          </List.Item>
+                        ))}
+                      </List>
+                    </>
+                  )}
+                </Paper>
+              ) : null}
+            </Grid.Col>
             <Grid.Col span={{ base: 12, md: 4 }}>
               {metaData.experts.includes(user.username) && (
                 <Alert
@@ -325,19 +353,24 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               )}
 
               <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
-                <Title order={2} mb="lg">Info for {thisYear}/{nextYearSuffix} run</Title>
-                {quickinfo_data.length === 0 && /*
+                <Title order={2} mb="lg">
+                  Info for {thisYear}/{nextYearSuffix} run
+                </Title>
+                {quickinfo_data.length === 0 && (
+                  /*
                   If none of the variants of this course are running this year,
                   we show a message to the user.
-                */ (
-                  <Text c="dimmed" size="sm">
-                    This course is either not running this year or is not an Informatics course.
+                */ <Text c="dimmed" size="sm">
+                    This course is either not running this year or is not an
+                    Informatics course.
                   </Text>
                 )}
                 {quickinfo_data.map((course, i) => (
                   <Stack key={metaData.euclid_codes[i]} mb="sm" gap={0}>
                     <Text>
-                      <Text span fw="bold">{metaData.euclid_codes[i]}</Text>
+                      <Text span fw="bold">
+                        {metaData.euclid_codes[i]}
+                      </Text>
                       {" - "}
                       {course?.course_url && (
                         <>
@@ -367,7 +400,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       <>
                         <Text>
                           {course.name} ({course.acronym})<br />
-                          SCQF {course.level} / {course.credits} Credits / Semester {course.delivery_ordinal}
+                          SCQF {course.level} / {course.credits} Credits /
+                          Semester {course.delivery_ordinal}
                         </Text>
                         <Group gap="xs">
                           <PieChart
@@ -388,9 +422,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                             ]}
                           />
                           <Text>
-                            {course.cw_exam_ratio[0] > 0 && `${course.cw_exam_ratio[0]}% Coursework`}
-                            {course.cw_exam_ratio[0] > 0 && course.cw_exam_ratio[1] > 0 && " + "}
-                            {course.cw_exam_ratio[1] > 0 && `${course.cw_exam_ratio[1]}% Exam`}
+                            {course.cw_exam_ratio[0] > 0 &&
+                              `${course.cw_exam_ratio[0]}% Coursework`}
+                            {course.cw_exam_ratio[0] > 0 &&
+                              course.cw_exam_ratio[1] > 0 &&
+                              " + "}
+                            {course.cw_exam_ratio[1] > 0 &&
+                              `${course.cw_exam_ratio[1]}% Exam`}
                           </Text>
                         </Group>
                       </>
@@ -430,7 +468,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                     </Alert>
                   )}
                   {raw_md_contents !== undefined && (
-                    <Text c={computedColorScheme === "light" ? "gray.7" : "gray.4"}>
+                    <Text
+                      c={computedColorScheme === "light" ? "gray.7" : "gray.4"}
+                    >
                       <MarkdownText
                         value={raw_md_contents}
                         localLinkBase="https://betterinformatics.com"
@@ -441,10 +481,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Paper>
               )}
             </Grid.Col>
-              </>
-            )}
           </Grid>
-
         </Route>
       </Switch>
     </>
@@ -478,9 +515,9 @@ const CategoryPage: React.FC<{}> = () => {
           value={
             user
               ? {
-                ...user,
-                isCategoryAdmin: user.isAdmin || data.catadmin,
-              }
+                  ...user,
+                  isCategoryAdmin: user.isAdmin || data.catadmin,
+                }
               : undefined
           }
         >
