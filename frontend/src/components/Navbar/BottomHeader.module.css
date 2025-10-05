@@ -9,11 +9,13 @@
   background: var(--mantine-color-body);
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
   width: 100%;
   z-index: var(--mantine-z-index-app);
   /* box-shadow: var(--mantine-shadow-xs); */
+
+  /* Add a margin left equal to the width of the scorllbar, so the navbar doesn't
+  shift around depending on page length. A similar style is applied to the body.*/
+  padding-left: calc(100vw - 100%);
 
   @mixin dark {
     border-bottom: 2px solid var(--mantine-color-dark-6);
