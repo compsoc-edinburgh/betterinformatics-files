@@ -211,6 +211,8 @@ def callback(request: HttpRequest):
         response = HttpResponse()
         response.status_code = 500
         response.content = res["error"]
+        if "error_description" in res:
+            response.content += ": " + res["error_description"]
         return response
 
     response = HttpResponse()
@@ -258,6 +260,8 @@ def refresh(request: HttpRequest):
         response = HttpResponse()
         response.status_code = 500
         response.content = res["error"]
+        if "error_description" in res:
+            response.content += ": " + res["error_description"]
         return response
 
     response = HttpResponse()
