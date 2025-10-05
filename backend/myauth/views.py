@@ -211,7 +211,7 @@ def callback(request: HttpRequest):
         response = HttpResponse()
         response.status_code = 500
         response.content = res["error"]
-        return
+        return response
 
     response = HttpResponse()
     response.status_code = 302
@@ -258,7 +258,7 @@ def refresh(request: HttpRequest):
         response = HttpResponse()
         response.status_code = 500
         response.content = res["error"]
-        return
+        return response
 
     response = HttpResponse()
     set_token_cookies(response, res)
