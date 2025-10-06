@@ -2,7 +2,7 @@
   * Class to add focus outline to an element. This is useful for accessibility.
   */
 .focusOutline {
-  &:focus {
+  &:focus-visible {
     outline-width: 2px;
     outline-style: solid;
     outline-color: var(--mantine-color-gray-9);
