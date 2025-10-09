@@ -1,8 +1,10 @@
 import {
   Alert,
   Button,
+  Collapse,
   Container,
   Flex,
+  Group,
   Loader,
   Modal,
   Paper,
@@ -25,9 +27,10 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconPlus, IconSearch} from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconPlus, IconSearch} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
+import TooltipButton from "../components/TooltipButton";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -152,6 +155,7 @@ const HomePage: React.FC<{}> = () => {
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState("mode", "alphabetical");
+  const [collapsedCategories, setCollapsedCategories] = useLocalStorageState<string[]>("collapsedCategories", []);
   const [filter, setFilter] = useState("");
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
@@ -193,6 +197,18 @@ export const CategoryList: React.FC<{}> = () => {
       .replace(/[^\w\s-]/g, "")
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
+
+  const is_collapsed = (category: string): boolean => {
+    return collapsedCategories.includes(slugify(category));
+  }
+
+  const collapse_expand = (category: string): void => {
+    if (is_collapsed(category)) {
+      setCollapsedCategories(collapsedCategories.filter(a => a !== slugify(category)));
+    } else {
+      setCollapsedCategories([...collapsedCategories, slugify(category)]);
+    }
+  }
 
   return (
     <>
@@ -239,43 +255,67 @@ export const CategoryList: React.FC<{}> = () => {
             <>
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
-                  <div key={meta1display} id={slugify(meta1display)}>
-                    <Title order={2} my="sm">
-                      <Flex
-                        gap="md"
-                        direction={{base: "row"}}
-                        justify="start"
-                      >
-                        {meta1display}
-                        {isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}
-                      </Flex>
-                    </Title>
-                    {meta2.map(([meta2display, categories]) => (
-                      <div
-                        key={meta2display}
-                        id={slugify(meta1display) + slugify(meta2display)}
-                      >
-                        <Title order={3} my="md">
-                          <Flex
+                    <div key={meta1display} id={slugify(meta1display)}>
+                      <Title order={2} my="sm">
+                        <Group
                           gap="md"
-                          direction={{base: "row"}}
-                          justify="start"
-                          >
-                            {meta2display}
-                            {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}
-                          </Flex>
-                        </Title>
-                        <Grid>
-                          {categories.map(category => (
-                            <CategoryCard
-                              category={category}
-                              key={category.slug}
-                            />
-                          ))}
-                        </Grid>
-                      </div>
-                    ))}
-                  </div>
+                          justify="space-between"
+                        >
+                          <Group>
+                            {meta1display}
+                            <TooltipButton
+                              variant={is_collapsed(meta1display) ? "filled" : "default"}
+                              tooltip={`${is_collapsed(meta1display) ? "Expand" : "Collapse"}`}
+                              color={is_collapsed(meta1display) ? "brand" : "brand.7"}
+                              onClick={() => {collapse_expand(meta1display)}}>
+                              {is_collapsed(meta1display) ? <IconChevronDown/> : <IconChevronUp/>}
+                            </TooltipButton>
+                          </Group>
+                          <Group>
+                            {isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}
+                          </Group>
+                        </Group>
+                      </Title>
+                      <Collapse in={!is_collapsed(meta1display)}>
+                      {meta2.map(([meta2display, categories]) => (
+                        <div
+                          key={meta2display}
+                          id={slugify(meta1display) + slugify(meta2display)}
+                        >
+                          <Title order={3} my="md">
+                            <Group
+                              gap="md"
+                              justify="space-between"
+                            >
+                              <Group>
+                                {meta2display}
+                                <TooltipButton
+                                  variant={is_collapsed(meta1display+meta2display) ? "filled" : "default"}
+                                  tooltip={`${is_collapsed(meta1display+meta2display) ? "Expand" : "Collapse"}`}
+                                  color={is_collapsed(meta1display+meta2display) ? "brand" : "brand.7"}
+                                  onClick={() => {collapse_expand(meta1display+meta2display)}}>
+                                  {is_collapsed(meta1display+meta2display) ? <IconChevronDown/> : <IconChevronUp/>}
+                                </TooltipButton>
+                              </Group>
+                              <Group>
+                                {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}
+                              </Group>
+                            </Group>
+                          </Title>
+                          <Collapse in={!is_collapsed(meta1display+meta2display)}>
+                            <Grid>
+                              {categories.map(category => (
+                                <CategoryCard
+                                  category={category}
+                                  key={category.slug}
+                                />
+                              ))}
+                            </Grid>
+                          </Collapse>
+                        </div>
+                      ))}
+                      </Collapse>
+                    </div>
                 ))}
               {unassignedList && unassignedList.length > 0 && (
                 <>
