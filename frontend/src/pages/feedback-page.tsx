@@ -3,9 +3,11 @@ import {
   Alert,
   Anchor,
   Button,
+  Collapse,
   Container,
   Divider,
   Grid,
+  Group,
   Stack,
   Tabs,
   Text,
@@ -20,6 +22,9 @@ import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
 import { FeedbackEntry } from "../interfaces";
+import { useDisclosure } from "@mantine/hooks";
+import TooltipButton from "../components/TooltipButton";
+import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -95,6 +100,8 @@ const FeedbackReader: React.FC<{}> = () => {
     run: reload,
   } = useRequest(loadFeedback);
 
+  const [opened, { toggle }] = useDisclosure(false);
+
   const mapEntries = (feedback : FeedbackEntry[]) => {
     return (
       <Grid>
@@ -111,12 +118,15 @@ const FeedbackReader: React.FC<{}> = () => {
     waiting_action: [] as FeedbackEntry[],
     done: [] as FeedbackEntry[],
     read: [] as FeedbackEntry[],
+    read_and_done: [] as FeedbackEntry[],
   };
 
   if (feedback) {
     feedback.forEach(fb => {
       if (!fb.read && !fb.done) {
         categorized.waiting_action.push(fb);
+      } else if (fb.read && fb.done) {
+        categorized.read_and_done.push(fb);
       } else {
         if (fb.done) {
           categorized.done.push(fb);
@@ -140,6 +150,20 @@ const FeedbackReader: React.FC<{}> = () => {
           <Divider my="xl"/>
           <Title order={2}>Read</Title>
           {mapEntries(categorized.read)}
+          <Divider my="xl"/>
+          <Group>
+            <Title order={2}>Read and Done</Title>
+            <TooltipButton
+              variant={opened ? "default" : "filled"}
+              tooltip={`${opened ? "Collapse" : "Expand"}`}
+              color={opened ? "brand.7" : "brand"}
+              onClick={toggle}>
+              {opened ? <IconChevronUp/> : <IconChevronDown/>}
+            </TooltipButton>
+          </Group>
+          <Collapse in={opened}>
+            {mapEntries(categorized.read_and_done)}
+          </Collapse>
         </>
       )}
       {loading && <Loader />}
