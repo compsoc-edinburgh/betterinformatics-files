@@ -85,7 +85,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
               onClick={open}
               leftSection={<IconPlus />}
             >
-              Add new document
+              Add Document Bundle
             </Button>
           </Tooltip>
         </Paper>
