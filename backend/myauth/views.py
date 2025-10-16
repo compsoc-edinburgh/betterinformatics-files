@@ -12,6 +12,7 @@ from django.http.response import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseNotAllowed,
+    HttpResponseServerError,
 )
 from util import response
 from myauth import auth_check
@@ -57,6 +58,7 @@ def base64url_encode(data: bytes):
 
 
 state_delimeter = ":"
+
 
 # We encode our state params as b64(nonce):rd_url
 def encode_state(nonce: bytes, redirect_url: str):
@@ -208,12 +210,10 @@ def callback(request: HttpRequest):
 
     if "error" in res:
         logger.error("Unable to request token: %s", res["error"])
-        response = HttpResponse()
-        response.status_code = 500
-        response.content = res["error"]
-        if "error_description" in res:
-            response.content += ": " + res["error_description"]
-        return response
+        return HttpResponseServerError(
+            res["error"]
+            + (": " + res["error_description"] if "error_description" in res else "")
+        )
 
     response = HttpResponse()
     response.status_code = 302
@@ -257,12 +257,10 @@ def refresh(request: HttpRequest):
 
     if "error" in res:
         logger.error("Unable to request token: %s", res["error"])
-        response = HttpResponse()
-        response.status_code = 500
-        response.content = res["error"]
-        if "error_description" in res:
-            response.content += ": " + res["error_description"]
-        return response
+        return HttpResponseServerError(
+            res["error"]
+            + (": " + res["error_description"] if "error_description" in res else "")
+        )
 
     response = HttpResponse()
     set_token_cookies(response, res)
