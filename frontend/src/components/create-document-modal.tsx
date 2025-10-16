@@ -23,7 +23,7 @@ const CreateDocumentForm: React.FC<Props> = ({
     history.push(`/user/${username}/document/${slug}/`);
   });
   return (
-    <Modal opened={isOpen} title="Add Document" onClose={onClose}>
+    <Modal opened={isOpen} title="Add Document Bundle" onClose={onClose}>
       <Modal.Body>
         <Stack>
           {error !== undefined &&
@@ -40,8 +40,8 @@ const CreateDocumentForm: React.FC<Props> = ({
           />
 
           <div>
-            An empty new document will be created. One or more files can be
-            added to the document in the settings tab.
+            An empty new document bundle will be created. One or more files can be
+            added to the document bundle in the settings tab.
           </div>
           <Button
             disabled={loading || displayName.trim() === ""}
