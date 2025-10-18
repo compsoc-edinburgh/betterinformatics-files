@@ -73,12 +73,9 @@ def save_uploaded_file_to_s3(
     if content_type is None:
         content_type = uploaded_file.content_type
     with open(temp_file_path, "rb") as temp_file:
-        try:
-            s3_bucket.put_object(
-                Body=temp_file, Key=directory + filename, ContentType=content_type
-            )
-        except Exception as e:
-            raise e
+        s3_bucket.put_object(
+            Body=temp_file, Key=directory + filename, ContentType=content_type
+        )
 
 
 def save_file_to_s3(
