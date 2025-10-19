@@ -66,6 +66,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     exam: CategoryExam,
   ) => {
     e.stopPropagation();
+    e.preventDefault();
     confirm(
       `Remove the exam named ${exam.displayname}? This will remove all answers and can not be undone!`,
       () => runRemoveExam(exam.filename),
@@ -88,14 +89,10 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
           <Card
             withBorder
             className={clsx(classes.focusOutline, classes.hoverShadow)}
-            onKeyDown={e => {
-              if (e.code === "Enter" && exam.canView) {
-                history.push(`/exams/${exam.filename}`);
-              }
-            }}
-            tabIndex={0}
             key={exam.filename}
             fw={600}
+            component={Link}
+            to={`/exams/${exam.filename}`}
           >
             <Grid>
               <Grid.Col span="content">
@@ -113,15 +110,9 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               </Grid.Col>
               <Grid.Col span="auto">
                 {exam.canView ? (
-                  <Anchor
-                    component={Link}
-                    to={`/exams/${exam.filename}`}
-                    size="lg"
-                    fw={600}
-                    mb="sm"
-                  >
-                    <Text fw={600}>{exam.displayname}</Text>
-                  </Anchor>
+                  <Text size="lg" fw={600} mb="sm">
+                    {exam.displayname}
+                  </Text>
                 ) : (
                   exam.displayname
                 )}
