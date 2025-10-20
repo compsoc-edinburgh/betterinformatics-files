@@ -115,12 +115,14 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
       setMaxWidth={setMaxWidth}
       additionalActions={[
         <IconButton
+          key="report-problem"
           tooltip="Report problem"
           icon={<IconMessageBolt />}
           onClick={reportProblem}
         />,
         !allSectionsExpanded && (
           <IconButton
+            key="expand-all"
             tooltip="Expand all answers"
             icon={<IconArrowsMaximize />}
             onClick={onExpandAllSections}
@@ -128,6 +130,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         ),
         !allSectionsCollapsed && (
           <IconButton
+            key="collapse-all"
             tooltip="Collapse all answers"
             icon={<IconArrowsMinimize />}
             onClick={onCollapseAllSections}
