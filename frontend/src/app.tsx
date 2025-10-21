@@ -256,7 +256,6 @@ const App: React.FC<{}> = () => {
       children={<FeedbackPage />}
     />
     <UserRoute
-      exact
       path="/category/:slug"
       children={<CategoryPage />}
     />
