@@ -256,6 +256,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             </>
           )}
         </Route>
+        <Route path={`${path}/*`}>
+          <Redirect to={url} />
+        </Route>
       </Switch>
     </>
   );
