@@ -58,6 +58,29 @@ import FlaggedContent from "./pages/flagged-content";
 import { FaroRoute } from '@grafana/faro-react';
 import serverData from "./utils/server-data";
 
+/**
+ * To be used as a wrapper for <Route>s at the top level, and adds Faro
+ * support to all child routes.
+ *
+ * Note: This creates a catch-all routing context. Any wildcard routes defined
+ * after a Router as a sibling will never be matched. Define all routes within
+ * the element instead.
+ *
+ * Behaves as a no-op if either of the following is true:
+ * - Faro is disabled via the VITE_FARO_DISABLE frontend environment variable
+ * - Faro URL doesn't exist in the VITE_SERVER_DATA frontend environment variable
+ *
+ * By default, if ran with `yarn start`, Faro URL exists but the DISABLE flag is
+ * true (see `.env.development`). Use `VITE_FARO_DISABLE=false yarn start` to
+ * enable Faro support in development.
+ *
+ * In production builds, observability is disabled (see `.env.production`).
+ */
+const Router: React.FC<{ children?: React.ReactElement }> = ({ children }) =>
+  (import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url)
+  ? <>{children}</>
+  : <FaroRoute path="/">{children}</FaroRoute>
+
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
@@ -336,16 +359,13 @@ const App: React.FC<{}> = () => {
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
-                  <Switch>
-                    {(import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url)
-                      ? userRoutes
-                      : <FaroRoute path="/">
-                        {userRoutes}
-                      </FaroRoute>
-                    }
-                    <Route exact path="/login" children={<LoginPage />} />
-                    <Route children={<NotFoundPage />} />
-                  </Switch>
+                  <Router>
+                    <Switch>
+                      {userRoutes}
+                      <Route exact path="/login" children={<LoginPage />} />
+                      <Route children={<NotFoundPage />} />
+                    </Switch>
+                  </Router>
                 </Box>
               </div>
               <Footer
