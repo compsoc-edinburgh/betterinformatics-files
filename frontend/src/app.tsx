@@ -260,55 +260,6 @@ const App: React.FC<{}> = () => {
     },
   });
 
-  const userRoutes = (<>
-    <UserRoute exact path="/" children={<HomePage />} />
-    <UserRoute
-      exact
-      path="/uploadpdf"
-      children={<UploadPdfPage />}
-    />
-    <UserRoute
-      exact
-      path="/submittranscript"
-      children={<UploadTranscriptPage />}
-    />
-    <UserRoute exact path="/faq" children={<FAQ />} />
-    <UserRoute
-      exact
-      path="/feedback"
-      children={<FeedbackPage />}
-    />
-    <UserRoute
-      path="/category/:slug"
-      children={<CategoryPage />}
-    />
-    <UserRoute
-      exact
-      path="/user/:author/document/:slug"
-      children={<DocumentPage />}
-    />
-    <UserRoute
-      exact
-      path="/exams/:filename"
-      children={<ExamPage />}
-    />
-    <UserRoute
-      exact
-      path="/user/:username"
-      children={<UserPage />}
-    />
-    <UserRoute exact path="/user/" children={<UserPage />} />
-    <UserRoute exact path="/search/" children={<SearchPage />} />
-    <UserRoute
-      exact
-      path="/scoreboard"
-      children={<Scoreboard />}
-    />
-    <UserRoute exact path="/modqueue" children={<ModQueue />} />
-    <UserRoute exact path="/flagged" children={<FlaggedContent />} />
-  </>
-  );
-
   return (
     <MantineProvider theme={fvTheme} cssVariablesResolver={resolver}>
       <Modal
@@ -361,7 +312,63 @@ const App: React.FC<{}> = () => {
                 <Box component="main" mt="2em">
                   <Router>
                     <Switch>
-                      {userRoutes}
+                      <UserRoute exact path="/" children={<HomePage />} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        children={<UploadPdfPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/submittranscript"
+                        children={<UploadTranscriptPage />}
+                      />
+                      <UserRoute exact path="/faq" children={<FAQ />} />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        children={<FeedbackPage />}
+                      />
+                      <UserRoute
+                        path="/category/:slug"
+                        children={<CategoryPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:author/document/:slug"
+                        children={<DocumentPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/exams/:filename"
+                        children={<ExamPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        children={<UserPage />}
+                      />
+                      <UserRoute exact path="/user/" children={<UserPage />} />
+                      <UserRoute
+                        exact
+                        path="/search/"
+                        children={<SearchPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        children={<Scoreboard />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/modqueue"
+                        children={<ModQueue />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/flagged"
+                        children={<FlaggedContent />}
+                      />
                       <Route exact path="/login" children={<LoginPage />} />
                       <Route children={<NotFoundPage />} />
                     </Switch>
