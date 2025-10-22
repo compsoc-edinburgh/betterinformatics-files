@@ -31,7 +31,7 @@ jobs:
   tests:
     name: Run Django Unit Tests
     runs-on: ubuntu-latest
-    container: python:3.8  # version when installing python3 from apt (same as Dockerfile)
+    container: python:3.9  # version when installing python3 from apt (same as Dockerfile)
     needs: determine-changes
     if: ${{ needs.determine-changes.outputs.backend == 'true' }}
     services:
