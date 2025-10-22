@@ -483,6 +483,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             </Grid.Col>
           </Grid>
         </Route>
+        <Route path={`${path}/*`}>
+          <Redirect to={url} />
+        </Route>
       </Switch>
     </>
   );

@@ -8,7 +8,7 @@ import { useUser } from "../auth";
 import { CategoryList } from "./home-page";
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 
-const LoginPage: React.FC<{ isHome: boolean }> = ({ isHome = false }) => {
+const LoginPage: React.FC<{ isHome?: boolean }> = ({ isHome = false }) => {
   useTitle("Login");
   const user = useUser();
   const rd = new URLSearchParams(useLocation().search).get("rd");

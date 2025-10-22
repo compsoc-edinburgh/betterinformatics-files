@@ -1,9 +1,11 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from answers import section_util
 from answers.models import Answer, Comment, Exam, ExamPage, ExamType
+from documents.models import Comment as DocumentComment
 from ediauth import auth_check
 from ediauth.auth_check import has_admin_rights
 from util import response
+from django.db.models import Count, Exists, OuterRef
 
 
 @response.request_get()
@@ -64,12 +66,57 @@ def list_import_exams(request):
 @response.request_get()
 @auth_check.require_admin
 def list_flagged(request):
-    answers = Answer.objects.exclude(flagged=None)
+    answers = Answer.objects.exclude(flagged=None).select_related(
+        "author", "answer_section__exam"
+    ).annotate(
+        flagged_count=Count("flagged", distinct=True)
+    )
+
+    exam_comments = Comment.objects.exclude(flagged=None).select_related(
+        "author", "answer__answer_section__exam"
+    ).annotate(
+        flagged_count=Count("flagged", distinct=True)
+    )
+
+    document_comments = DocumentComment.objects.exclude(flagged=None).select_related(
+        "author", "document__author"
+    ).annotate(
+        flagged_count=Count("flagged", distinct=True)
+    )
+
+    answer_list = [
+        {
+            "link": "/exams/" + answer.answer_section.exam.filename + "?answer=" + answer.long_id,
+            "flaggedCount": answer.flagged_count,
+            "author": answer.author.username,
+            "flagType": False
+        }
+        for answer in answers
+    ]
+
+    exam_comment_list = [
+        {
+            "link": "/exams/" + comment.answer.answer_section.exam.filename + "?comment=" + comment.long_id + "&answer=" + comment.answer.long_id,
+            "flaggedCount": comment.flagged_count,
+            "author": comment.author.username,
+            "flagType": True
+        }
+        for comment in exam_comments
+    ]
+
+    document_comment_list = [
+        {
+            "link": "/user/" + comment.document.author.username + "/document/"  + comment.document.display_name.lower().replace(' ', '-') + "?comment=" + str(comment.id),
+            "flaggedCount": comment.flagged_count,
+            "author": comment.author.username,
+            "flagType": True
+        }
+        for comment in document_comments
+    ]
+
+    combined = answer_list + exam_comment_list + document_comment_list
     return response.success(
-        value=[
-            "/exams/" + answer.answer_section.exam.filename + "#" + answer.long_id
-            for answer in answers
-        ]
+        value=combined
     )
 
 
@@ -111,9 +158,13 @@ def get_by_user(request, username, page=-1):
 @auth_check.require_login
 def get_comments_by_user(request, username, page=-1):
     sorted_comments = (
-        Comment.objects.filter(author__username=username)
-        .select_related(*section_util.get_comment_fields_to_preselect())
-        .prefetch_related(*section_util.get_comment_fields_to_prefetch())
+        Comment.objects.filter(author__username=username) \
+        .select_related(*section_util.get_comment_fields_to_preselect()) \
+        .prefetch_related(*section_util.get_comment_fields_to_prefetch()) \
+        .annotate(
+            flagged_count=Count("flagged", distinct=True),
+            is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
+        ) \
         .order_by("-time", "id")
     )
 

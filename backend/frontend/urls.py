@@ -15,6 +15,7 @@ urlpatterns = [
     path("stats/", views.index, name="stats"),
     path("login/", views.index, name="login"),
     path("modqueue/", views.index, name="modqueue"),
+    path("flagged/", views.index, name="flagged"),
     path("upload-dissertation/", views.index, name="upload_dissertation"),
     path("dissertations/", views.index, name="dissertations_list"),
     re_path("^dissertations/.*$", views.index, name="dissertations_detail"),

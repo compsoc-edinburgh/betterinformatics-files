@@ -4,6 +4,7 @@ interface IServerData {
   email_address: string;
   imprint: string;
   privacy_policy: string;
+  faro_url?: string;
   announcements: [{
     id: string,
     variant: string | undefined,

@@ -5,6 +5,13 @@ export enum SectionKind {
   Pdf,
 }
 
+export interface FlaggedStatus {
+  link: string; // link to the flagged comment or answer
+  flaggedCount: number; // how many time it was flagger
+  author: string;
+  flagType: boolean; // true if this is a comment false if it is an answer
+}
+
 export interface AnswerSection {
   oid: string; // unique id within answer sections
   kind: SectionKind.Answer;
@@ -29,7 +36,7 @@ export interface Answer {
   isDownvoted: boolean; // whether the current user downvoted the answer
   isExpertVoted: boolean; // whether the current user expert upvoted the answer
   isFlagged: boolean; // whether the current user flagged the answer
-  flagged: number; // number of flaggings
+  flaggedCount: number; // number of flaggings
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time
@@ -48,6 +55,8 @@ export interface Comment {
   authorDisplayName: string; // display name of author
   canEdit: boolean; // whether the current user can edit the comment
   time: string; // ISO 8601, creation time
+  isFlagged: boolean; // whether the current user flagged the comment
+  flaggedCount: number; // number of flaggings
   edittime: string; // ISO 8601, last edit time
 }
 
@@ -66,6 +75,9 @@ export interface SingleComment {
 
   category_displayname: string;
   category_slug: string;
+
+  isFlagged: boolean; // whether the current user flagged the answer
+  flaggedCount: number; // number of flaggings
 }
 
 export interface PdfSection {

@@ -171,7 +171,7 @@ FRONTEND_SERVER_DATA = {
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
-IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE"
+IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE" and not TESTING
 
 DEPLOYMENT_DOMAINS = os.environ.get("DEPLOYMENT_DOMAINS", "").split(",")
 
@@ -179,7 +179,9 @@ ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS.append("localhost")
+    ALLOWED_HOSTS.append("community-solutions")
     REAL_ALLOWED_HOSTS.append("localhost")
+    REAL_ALLOWED_HOSTS.append("community-solutions")
 else:
     # USE_X_FORWARDED_HOST = True
     # In K8s, the host is the IP of the pod and can thus change

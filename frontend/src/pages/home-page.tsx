@@ -25,10 +25,11 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconPlus, IconSearch} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 import { getFavourites } from "../api/favourite";
+import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -235,7 +236,7 @@ export const CategoryList: React.FC<{}> = () => {
     [categories, metaCategories],
   );
 
-  const onAddCategory = useCallback(() => {
+  const onChange = useCallback(() => {
     run();
   }, [run]);
 
@@ -307,7 +308,7 @@ export const CategoryList: React.FC<{}> = () => {
                     onFavouriteToggle={onFavouriteToggle}
                   />
                 ))}
-                {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
+                {isAdmin && <AddCategory onAddCategory={onChange} />}
               </Grid>
             </>
           ) : mode === "bySCQF" ? (
@@ -316,7 +317,14 @@ export const CategoryList: React.FC<{}> = () => {
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display} id={slugify(meta1display)}>
                     <Title order={2} my="sm">
-                      {meta1display}
+                      <Flex
+                        gap="md"
+                        direction={{base: "row"}}
+                        justify="start"
+                      >
+                        {meta1display}
+                        {isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}
+                      </Flex>
                     </Title>
                     {meta2.map(([meta2display, categories]) => (
                       <div
@@ -324,7 +332,14 @@ export const CategoryList: React.FC<{}> = () => {
                         id={slugify(meta1display) + slugify(meta2display)}
                       >
                         <Title order={3} my="md">
-                          {meta2display}
+                          <Flex
+                          gap="md"
+                          direction={{base: "row"}}
+                          justify="start"
+                          >
+                            {meta2display}
+                            {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}
+                          </Flex>
                         </Title>
                         <Grid>
                           {categories.map(category => (
@@ -361,7 +376,7 @@ export const CategoryList: React.FC<{}> = () => {
                     New Category
                   </Title>
                   <Grid>
-                    <AddCategory onAddCategory={onAddCategory} />
+                    <AddCategory onAddCategory={onChange} />
                   </Grid>
                 </>
               )}

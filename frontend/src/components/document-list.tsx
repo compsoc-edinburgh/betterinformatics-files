@@ -70,14 +70,14 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         justify="space-between"
       >
         <Group>
-          <Tooltip label="Upload a new document to share">
+          <Tooltip label="Upload a new document bundle to share">
             <ShimmerButton
               onClick={open}
               leftSection={<IconPlus />}
               color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
               variant="outline"
             >
-              Add document
+              Add Document Bundle
             </ShimmerButton>
           </Tooltip>
         </Group>

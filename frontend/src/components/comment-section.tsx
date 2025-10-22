@@ -1,8 +1,9 @@
 import { Stack, Text } from "@mantine/core";
 import classes from "./comment-section.module.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentComponent from "./comment";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   hasDraft: boolean;
@@ -17,6 +18,14 @@ const CommentSectionComponent: React.FC<Props> = ({
   onDraftDelete,
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const {search: searchParams} = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    const id = params.get("comment");
+    if (id && answer.comments.map((item) => item.longId).includes(id)) {
+      setExpanded(true);
+    }
+  }, [searchParams]);
   return (
     <>
       <Stack gap="0" className={classes.listGroup}>
