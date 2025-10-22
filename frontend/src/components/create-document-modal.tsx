@@ -1,4 +1,4 @@
-import { Button, TextInput, Modal, Stack } from "@mantine/core";
+import { Button, TextInput, Modal, Stack, Text } from "@mantine/core";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useCreateDocument } from "../api/hooks";
@@ -17,13 +17,19 @@ const CreateDocumentForm: React.FC<Props> = ({
 }) => {
   const [displayName, setDisplayName] = useState("");
   const history = useHistory();
-  const [loading, run] = useCreateDocument(({ slug }) => {
+  const {error, loading, run} = useCreateDocument(({ slug }) => {
     history.push(`/document/${slug}/`);
   });
   return (
-    <Modal opened={isOpen} title="Add Document" onClose={onClose}>
+    <Modal opened={isOpen} title="Add Document Bundle" onClose={onClose}>
       <Modal.Body>
         <Stack>
+          {error !== undefined &&
+          <Text
+            c="red"
+          >
+            This is an invalid display name.
+          </Text>}
           <TextInput
             label="Display Name"
             placeholder="My wonderful summary"
@@ -32,8 +38,8 @@ const CreateDocumentForm: React.FC<Props> = ({
           />
 
           <div>
-            An empty new document will be created. One or more files can be
-            added to the document in the settings tab.
+            An empty new document bundle will be created. One or more files can be
+            added to the document bundle in the settings tab.
           </div>
           <Button
             disabled={loading || displayName.trim() === ""}

@@ -18,9 +18,9 @@ import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
-  useResetFlaggedVote,
+  useResetAnswerFlaggedVote,
   useSetExpertVote,
-  useSetFlagged,
+  useSetAnswerFlagged,
   useUpdateAnswer,
 } from "../api/hooks";
 import { useUser } from "../auth";
@@ -45,6 +45,8 @@ import {
   IconEdit,
   IconFlag,
   IconLink,
+  IconArrowLeft,
+  IconFileText,
   IconPencilCancel,
   IconPlus,
   IconStarFilled,
@@ -75,9 +77,9 @@ const AnswerComponent: React.FC<Props> = ({
   hasId = true,
 }) => {
   const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
-  const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
-  const [resetFlaggedLoading, resetFlagged] =
-    useResetFlaggedVote(onSectionChanged);
+  const [setFlaggedLoading, setAnswerFlagged] = useSetAnswerFlagged(onSectionChanged);
+  const [resetFlaggedLoading, resetAnswerFlagged] =
+    useResetAnswerFlaggedVote(onSectionChanged);
   const [setExpertVoteLoading, setExpertVote] =
     useSetExpertVote(onSectionChanged);
   const removeAnswer = useRemoveAnswer(onSectionChanged);
@@ -131,15 +133,22 @@ const AnswerComponent: React.FC<Props> = ({
         <Card.Section px="md" py="md" withBorder>
           <Group gap={0}>
             {!hasId && (
-              <Link
-                to={
-                  answer ? `/exams/${answer.filename}#${answer.longId}` : ""
-                }
-              >
-                <Text mr={8} component="span">
-                  <IconLink style={{ height: "13px", width: "13px" }} />
-                </Text>
-              </Link>
+              <Tooltip label="View Answer in Exam">
+                <Link
+                  to={
+                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                  }
+                >
+                  <Text mr={8} component="span">
+                    <IconArrowLeft
+                      style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                    />
+                    <IconFileText
+                      style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                    />
+                  </Text>
+                </Link>
+              </Tooltip>
             )}
             {answer?.isAnonymous ? (
               isAdmin ? (
@@ -245,7 +254,7 @@ const AnswerComponent: React.FC<Props> = ({
                 )}
               {answer &&
                 (answer.isFlagged ||
-                  (answer.flagged > 0 && isAdmin) ||
+                  (answer.flaggedCount > 0 && isAdmin) ||
                   flaggedLoading) && (
                   <Paper shadow="xs">
                     <Button.Group>
@@ -260,9 +269,9 @@ const AnswerComponent: React.FC<Props> = ({
                       <TooltipButton
                         color="red"
                         miw={30}
-                        tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                        tooltip={`${answer.flaggedCount} users consider this answer inappropriate.`}
                       >
-                        {answer.flagged}
+                        {answer.flaggedCount}
                       </TooltipButton>
                       <TooltipButton
                         px={8}
@@ -275,7 +284,7 @@ const AnswerComponent: React.FC<Props> = ({
                         loading={flaggedLoading}
                         style={{ borderLeftWidth: 0 }}
                         onClick={() =>
-                          setFlagged(answer.oid, !answer.isFlagged)
+                          setAnswerFlagged(answer.oid, !answer.isFlagged)
                         }
                       >
                         {answer.isFlagged ? <IconX /> : <IconChevronUp />}
@@ -393,10 +402,10 @@ const AnswerComponent: React.FC<Props> = ({
                       <Button leftSection={<IconDots />} color="dark">More</Button>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      {answer.flagged === 0 && (
+                      {answer.flaggedCount === 0 && (
                         <Menu.Item
                           leftSection={<IconFlag />}
-                          onClick={() => setFlagged(answer.oid, true)}
+                          onClick={() => setAnswerFlagged(answer.oid, true)}
                         >
                           Flag as Inappropriate
                         </Menu.Item>
@@ -405,16 +414,16 @@ const AnswerComponent: React.FC<Props> = ({
                         leftSection={<IconLink />}
                         onClick={() =>
                           copy(
-                            `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
+                            `${document.location.origin}/exams/${answer.filename}?answer=${answer.longId}`,
                           )
                         }
                       >
                         Copy Permalink
                       </Menu.Item>
-                      {isAdmin && answer.flagged > 0 && (
+                      {isAdmin && answer.flaggedCount > 0 && (
                         <Menu.Item
                           leftSection={<IconFlag />}
-                          onClick={() => resetFlagged(answer.oid)}
+                          onClick={() => resetAnswerFlagged(answer.oid)}
                         >
                           Remove all inappropriate flags
                         </Menu.Item>

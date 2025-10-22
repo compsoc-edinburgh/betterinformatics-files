@@ -21,7 +21,7 @@ interface UserCommentsProps {
 
 const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
-  const [error, loading, data] = useUserComments(username, -1);
+  const [error, loading, data, reload] = useUserComments(username, -1);
   const [comments, setComments] = useState(data);
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
 
@@ -70,7 +70,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
         {comments &&
           comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
             <div key={comment.oid}>
-              <SingleCommentComponent comment={comment} />
+              <SingleCommentComponent comment={comment} reload={reload}/>
             </div>
           ))}
         <div ref={elem => setLastElement(elem)} />

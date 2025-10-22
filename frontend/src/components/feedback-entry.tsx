@@ -6,6 +6,8 @@ import { fetchPost } from "../api/fetch-utils";
 import GlobalConsts from "../globalconsts";
 import { FeedbackEntry } from "../interfaces";
 import displayNameClasses from "../utils/display-name.module.css";
+import TooltipButton from "./TooltipButton";
+import { IconCheckbox, IconMail, IconMailOpened, IconSquare } from "@tabler/icons-react";
 
 const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
   await fetchPost(`/api/feedback/flags/${oid}/`, {
@@ -41,12 +43,19 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
             )}
           </Title>
           <Button.Group>
-            <Button onClick={() => runSetFlag("done", !entry.done)}>
-              {entry.done ? "Set Undone" : "Set Done"}
-            </Button>
-            <Button onClick={() => runSetFlag("read", !entry.read)}>
-              {entry.read ? "Set Unread" : "Set Read"}
-            </Button>
+            <TooltipButton
+              variant={entry.done ? "default" : "filled"}
+              tooltip={`Mark as ${entry.done ? "Not Done" : "Done"}`}
+              onClick={() => runSetFlag("done", !entry.done)}>
+              {entry.done ? <IconCheckbox /> : <IconSquare />}
+            </TooltipButton>
+            <TooltipButton
+              variant={entry.read ? "default" : "filled"}
+              tooltip={`Mark as ${entry.read ? "Unread" : "Read"}`}
+              color={entry.read ? "brand.7" : "brand"}
+              onClick={() => runSetFlag("read", !entry.read)}>
+              {entry.read ? <IconMail /> :  <IconMailOpened />}
+            </TooltipButton>
           </Button.Group>
         </Group>
       </Card.Section>

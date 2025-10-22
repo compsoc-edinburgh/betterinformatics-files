@@ -15,16 +15,23 @@ class TestListings(ComsolTestExamsData):
         self.assertEqual(len(res), 3)
 
     def test_list_import_exams(self):
+        # If all exams are public and cut, they should not show up as requiring action
         res = self.get("/api/exam/listimportexams/")["value"]
         self.assertEqual(len(res), 0)
+
+        # Test uncut exams show up in action list
         self.exams[0].finished_cuts = False
         self.exams[0].save()
         res = self.get("/api/exam/listimportexams/")["value"]
         self.assertEqual(len(res), 1)
+
+        # Test hidden exams don't show up as requiring action
         self.exams[1].public = False
         self.exams[1].save()
         res = self.get("/api/exam/listimportexams/")["value"]
         self.assertEqual(len(res), 1)
+
+        # Test hidden exams do show up if you explicitly request itZZ
         res = self.get("/api/exam/listimportexams/?includehidden=true")["value"]
         self.assertEqual(len(res), 2)
 
