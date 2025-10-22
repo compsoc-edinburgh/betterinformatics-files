@@ -44,7 +44,7 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
       manual: true,
       onSuccess: () => {
         onChange();
-      }
+      },
     });
     const onSubmit = () => {
       run(oldMeta1, meta1);
@@ -153,7 +153,7 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({oldMeta1, onChange}) => {
       manual: true,
       onSuccess: () => {
         onChange();
-      }
+      },
     });
   
     const [newMeta1, setNewMeta1] = useInitialState(meta1);

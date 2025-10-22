@@ -314,7 +314,7 @@ const resetExamCommentFlagged = async (oid: string) => {
 const setDocumentCommentFlagged = async (oid: number, flagged: boolean) => {
   return (
     await fetchPost(`/api/document/setflaggedcomment/${oid}`, {
-      flagged
+      flagged,
     })
   );
 }
