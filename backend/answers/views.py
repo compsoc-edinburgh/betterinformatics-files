@@ -10,6 +10,31 @@ import answers.views_files as files
 
 @response.request_get()
 @auth_check.require_login
+def get_exam_admin_status(request, filename):
+    exam = get_object_or_404(Exam, filename=filename)
+    if not (
+        auth_check.has_admin_rights(request)
+        or auth_check.has_admin_rights_for_exam(request, exam)
+    ):
+        return response.not_allowed()
+    res = {
+        "filename": exam.filename,
+        "displayname": exam.displayname,
+        "category_displayname": exam.category.displayname,
+        "remark": exam.remark,
+        "import_claim": exam.import_claim.username if exam.import_claim else None,
+        "import_claim_displayname": (
+            exam.import_claim.profile.display_username if exam.import_claim else None
+        ),
+        "import_claim_time": exam.import_claim_time,
+        "public": exam.public,
+        "finished_cuts": exam.finished_cuts,
+    }
+    return response.success(value=res)
+
+
+@response.request_get()
+@auth_check.require_login
 def exam_metadata(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
     admin_rights = auth_check.has_admin_rights_for_exam(request, exam)

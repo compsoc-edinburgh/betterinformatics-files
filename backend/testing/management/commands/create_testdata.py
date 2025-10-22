@@ -8,20 +8,67 @@ from django.contrib.auth.models import User
 from ediauth.models import Profile
 from answers.models import Answer, AnswerSection, Comment, Exam, ExamType
 from documents.models import DocumentType, Document, DocumentFile
-from categories.models import Category, MetaCategory, EuclidCode
+from categories.models import Category, MetaCategory, EuclidCode, CourseStats
 from feedback.models import Feedback
 from filestore.models import Attachment
 from images.models import Image
 from notifications.models import Notification, NotificationSetting, NotificationType
 import os
+import random
 from answers import pdf_utils
+
+# Pool of words to choose category names from. Prefixes are chosen infrequently to
+# prefix a guaranteed combination of Adjective + Noun.
+category_prefixes = [
+    "Introduction to",
+    "Advanced",
+    "Mathematical Foundations of",
+    "Numerical Methods for",
+    "Principles of",
+]
+
+category_adjectives = ["Formal", "Distributed", "Parallel", "Rigorous", "Applied"]
+
+category_nouns = [
+    "Analysis",
+    "Computing",
+    "Cryptography",
+    "Computer Vision",
+    "Databases",
+    "Data Modeling",
+    "Data Structures",
+    "Machine Learning",
+    "Machine Perception",
+    "Methods",
+    "Operating Systems",
+    "Systems Theory",
+    "Statistics",
+    "Wireless Networks",
+]
+
+users = [
+    ("Zoe", "Fletcher", "s1111111"),
+    ("Ernst", "Meyer", "s2222232"),
+    ("Jonas", "Schneider", "s3333433"),
+    ("Julia", "Keller", "s4444444"),
+    ("Sophie", "Baumann", "s5555555"),
+    ("Hans", "Brunner", "s6666666"),
+    ("Carla", "Morin", "s7777777"),
+    ("Paul", "Moser", "s8888888"),
+    ("Josef", "Widmer", "s9999999"),
+    ("Werner", "Steiner", "s0000000"),
+]
 
 
 class Command(BaseCommand):
     help = "Creates some testdata"
 
     def add_arguments(self, parser):
-        pass
+        parser.add_argument(
+            "--skip-if-exists",
+            action="store_true",
+            help="Skip creating testdata if all users already exist.",
+        )
 
     def flush_db(self):
         self.stdout.write("Drop old tables")
@@ -29,18 +76,7 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for first_name, last_name, uun in [
-            ("Zoe", "Fletcher", "s1111111"),
-            ("Ernst", "Meyer", "s2222232"),
-            ("Jonas", "Schneider", "s3333433"),
-            ("Julia", "Keller", "s4444444"),
-            ("Sophie", "Baumann", "s5555555"),
-            ("Hans", "Brunner", "s6666666"),
-            ("Carla", "Morin", "s7777777"),
-            ("Paul", "Moser", "s8888888"),
-            ("Josef", "Widmer", "s9999999"),
-            ("Werner", "Steiner", "s0000000"),
-        ]:
+        for first_name, last_name, uun in users:
             User(
                 first_name=first_name,
                 last_name=last_name,
@@ -78,10 +114,14 @@ class Command(BaseCommand):
     def create_categories(self):
         self.stdout.write("Create categories")
         Category(displayname="default", slug="default").save()
-        for i in range(70):
+        for i in range(len(category_adjectives) * len(category_nouns)):
             self.stdout.write("Creating category " + str(i + 1))
             category = Category(
-                displayname="Category " + str(i + 1),
+                # Intelligent! Makes plausible category names
+                displayname=(category_prefixes[i % 5] + " " if i % 3 == 0 else "")
+                + category_adjectives[i // len(category_nouns)]
+                + " "
+                + category_nouns[i % len(category_nouns)],
                 slug="category" + str(i + 1),
                 form=(["written"] * 5 + ["oral"])[i % 6],
                 remark=[
@@ -133,7 +173,7 @@ class Command(BaseCommand):
                 )
                 exam = Exam(
                     filename=filename,
-                    displayname="Exam {} in {}".format(i + 1, category.displayname),
+                    displayname="{}2{}".format("HS" if i % 2 else "FS", i + 1),
                     exam_type=exam_type,
                     category=category,
                     resolve_alias="resolve_" + filename,
@@ -150,6 +190,11 @@ class Command(BaseCommand):
                     s3_util.save_file_to_s3(
                         settings.COMSOL_SOLUTION_DIR, filename, "exam10.pdf"
                     )
+                    exam.save()
+
+                if i + category.id % 10 == 0:
+                    exam.import_claim = User.objects.get(username=users[0][2])
+                    exam.import_claim_time = timezone.now() - timedelta(hours=1)
                     exam.save()
 
     def create_answer_sections(self):
@@ -175,21 +220,29 @@ class Command(BaseCommand):
         users = User.objects.all()
         objs = []
         for section in AnswerSection.objects.all():
-            for i in range(section.id % 7):
+            for i in range(section.id % 5):
                 author = users[(section.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 answer = Answer(
                     answer_section=section,
                     author=author,
                     text=[
                         "This is a test answer.\n\nIt has multiple lines.",
                         "This is maths: $\pi = 3$\n\nHowever, it is wrong.",
-                        "This is an image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is an image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(section.id + i) % 3],
                 )
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
+
+        self.stdout.write("Create upvote/downvote/flags on answers")
 
         for answer in Answer.objects.all():
             i = answer.answer_section.id
@@ -208,15 +261,21 @@ class Command(BaseCommand):
         users = User.objects.all()
         objs = []
         for answer in Answer.objects.all():
-            for i in range(answer.id % 17):
+            for i in range(answer.id % 10):
                 author = users[(answer.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 comment = Comment(
                     answer=answer,
                     author=author,
                     text=[
                         "This is a comment ({}).".format(i + 1),
-                        "This is a test image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is a test image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(answer.id + i) % 2],
                 )
@@ -329,12 +388,117 @@ class Command(BaseCommand):
                     if (i + user.id) % 4 == 0:
                         document.likes.add(user)
 
+    def create_course_stats(self):
+        self.stdout.write("Create course statistics")
+
+        # Generate realistic course names for Informatics courses
+        course_name_patterns = [
+            "Algorithms and Data Structures",
+            "Secure Programming",
+            "Machine Learning",
+            "Software Engineering and Professional Practice",
+            "Introduction to Databases",
+            "Systems Design Project",
+            "Operating Systems",
+            "Human-Computer Interaction",
+            "Reasoning and Agents",
+            "Cyber Security",
+            "Applied Cloud Programming",
+            "Distributed Systems",
+            "Computer Vision",
+        ]
+
+        # Mock Course Organisers with some generic and funny names
+        course_organisers = [
+            "Dr. John Smith",
+            "Prof. Mary Johnson",
+            "Dr. Bob Wilson",
+            "Prof. Alice Brown",
+            "Dr. Gandalf McTeachface",
+        ]
+
+        # Academic years from 2017-18 to 2024-25
+        academic_years = [
+            "2017-18",
+            "2018-19",
+            "2019-20",
+            "2020-21",
+            "2021-22",
+            "2022-23",
+            "2023-24",
+            "2024-25",
+        ]
+
+        objs = []
+
+        # Get all Euclid codes from categories
+        euclid_codes = EuclidCode.objects.all()
+
+        for euclid_code in euclid_codes:
+            # Seed random number generator based on euclid code for reproducible data
+            random.seed(hash(euclid_code.code))
+
+            # Pick a random course name pattern
+            base_course_name = random.choice(course_name_patterns)
+            course_name = f"{base_course_name} ({euclid_code.category.displayname})"
+
+            # Pick a random course organiser (could change over years)
+            # Some courses might change organiser, others might stay the same
+            base_organiser = random.choice(course_organisers)
+
+            # Generate stats for each academic year
+            for year in academic_years:
+                # Organiser might change sometimes (20% chance per year)
+                current_organiser = base_organiser
+                if random.random() < 0.2:  # 20% chance of organiser change
+                    current_organiser = random.choice(course_organisers)
+                    base_organiser = current_organiser  # Update for future years
+
+                # Generate realistic grade statistics
+                # Mean marks typically range from 45-85, with most courses 55-75
+                base_mean = random.uniform(55, 75)
+
+                # Add some year-to-year variation (-5 to +5)
+                year_variation = random.uniform(-5, 5)
+                mean_mark = max(45, min(85, base_mean + year_variation))
+
+                # Standard deviation typically 10-25, with most 12-20
+                std_deviation = random.uniform(12, 20)
+
+                # Some years might have missing data (simulate N/A values)
+                if random.random() < 0.05:  # 5% chance of missing data
+                    mean_mark = None
+                    std_deviation = None
+
+                objs.append(
+                    CourseStats(
+                        course_name=course_name,
+                        course_code=euclid_code.code,
+                        mean_mark=mean_mark,
+                        std_deviation=std_deviation,
+                        academic_year=year,
+                        course_organiser=current_organiser,
+                    )
+                )
+
+        # Bulk create all course stats
+        CourseStats.objects.bulk_create(objs, ignore_conflicts=True)
+        self.stdout.write(f"Created {len(objs)} course statistics entries")
+
     def handle(self, *args, **options):
+        if options.get("skip_if_exists"):
+            # Assume if users okay, all testdata is okay
+            usernames = set(u[2] for u in users)
+            if User.objects.filter(username__in=usernames).count() == len(users):
+                self.stdout.write("All test users already exist. Skipping creation.")
+                return
+
         self.flush_db()
         self.create_users()
         self.create_images()
         self.create_meta_categories()
         self.create_categories()
+        self.create_course_stats()
         self.create_exam_types()
         self.create_exams()
         self.create_answer_sections()

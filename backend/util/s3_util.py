@@ -11,6 +11,28 @@ from django.http import FileResponse
 
 from util import response
 
+
+def _patch_headers(request, **kwargs):
+    """Function to remove the "Expect: 100-continue" HTTP request header that
+    boto3 adds to its requests. Otherwise, object upload (bucket.put_object) can
+    hang due to a request timeout.
+
+    It /seems/ to be that if there is a 100 Continue header, boto3 sends out a
+    request split in 2 steps: first with just the headers (incl. "Expect"). And
+    upon receiving 100 Continue from the server, then the actual file body.
+
+    But somewhere in the chain of Ceph/RGW/MinIO, the response to the first
+    request is not 100 Continue, which causes boto3 to wait forever to send the
+    second part.
+
+    By removing the "Expect" header, we can make boto3 send the file contents in
+    one request. The only reason one might want to use "Expect" is if the S3
+    service might reject your request for some reason; we assume this isn't a
+    common case.
+    """
+    request.headers.pop("Expect", None)
+
+
 if "SIP_S3_FILES_HOST" in os.environ:
     endpoint = (
         ("https://" if os.environ["SIP_S3_FILES_USE_SSL"] == "true" else "http://")
@@ -22,13 +44,16 @@ if "SIP_S3_FILES_HOST" in os.environ:
         "endpoint_url": endpoint,
         "aws_access_key_id": os.environ["SIP_S3_FILES_ACCESS_KEY"],
         "aws_secret_access_key": os.environ["SIP_S3_FILES_SECRET_KEY"],
-        "config": Config(signature_version="s3v4"),
+        "config": Config(signature_version="s3v4", s3={"addressing_style": "path"}),
         "region_name": "vis-is-great-1",
     }
     s3 = boto3.resource("s3", **options)
     s3_client = boto3.client("s3", **options)
     s3_bucket_name = os.environ["SIP_S3_FILES_BUCKET"]
     s3_bucket = s3.Bucket(s3_bucket_name)
+
+    # Remove the "Expect: 100-continue" HTTP request header that Boto adds
+    s3_bucket.meta.client.meta.events.register("before-send.s3.*", _patch_headers)
 
 
 def save_uploaded_file_to_disk(dest: str, uploaded_file: UploadedFile):

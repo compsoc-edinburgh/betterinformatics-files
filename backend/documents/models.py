@@ -5,6 +5,7 @@ from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
 from ediauth import auth_check
 from util.models import CommentMixin
+from urllib import parse
 
 
 def generate_api_key():
@@ -38,10 +39,7 @@ class Document(ExportModelOperationsMixin("document"), models.Model):
 
     def save(self, *args, **kwargs):
         # makes sure slugs are always unique and get incremented
-        oslug = slugify(self.display_name)
-
-        if len(oslug.strip()) == 0:
-            oslug = "invalid_name"
+        oslug = slugify(parse.quote(self.display_name, " "))
 
         def exists(aslug):
             objects = Document.objects.filter(slug=aslug)

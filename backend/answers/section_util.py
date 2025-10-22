@@ -7,7 +7,16 @@ def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]
     # Important optimization. Prevents amount of queries from
     # increasing quadratically ((N+1 problem)^2) and instead
     # results in a constant amount of queries.
-    comments_query = Comment.objects.select_related("author").order_by("time", "id")
+    comments_query = (
+        Comment.objects.select_related("author")
+        .annotate(
+            flagged_count=Count("flagged", distinct=True),
+            is_flagged=Exists(
+                Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+            ),
+        )
+        .order_by("time", "id")
+    )
     return (
         objects.annotate(
             expert_count=Count("expertvotes", distinct=True),
@@ -61,14 +70,18 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
                 "canEdit": comment.author == request.user,
                 "time": comment.time,
                 "edittime": comment.edittime,
+                "isFlagged": comment.is_flagged,
+                "flaggedCount": comment.flagged_count,
             }
             for comment in answer.all_comments
         ]
-        
+
         # Handle anonymous answers
         # Check if user is an admin (either exam admin or global admin)
-        is_admin = (ignore_exam_admin is False and exam_admin) or auth_check.has_admin_rights(request)
-        
+        is_admin = (
+            ignore_exam_admin is False and exam_admin
+        ) or auth_check.has_admin_rights(request)
+
         if answer.is_anonymous:
             if is_admin:
                 # Admins see the real username but with an indication it's anonymous
@@ -81,7 +94,7 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
         else:
             author_id = answer.author.username
             author_display_name = answer.author.profile.display_username
-        
+
         return {
             "oid": answer.id,
             "longId": answer.long_id,
@@ -94,7 +107,7 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             "isDownvoted": answer.is_downvoted,
             "isExpertVoted": answer.is_expertvoted,
             "isFlagged": answer.is_flagged,
-            "flagged": answer.flagged_count,
+            "flaggedCount": answer.flagged_count,
             "comments": comments,
             "text": answer.text,
             "time": answer.time,
@@ -110,20 +123,30 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
 
 
 def get_comment_response(request, comment: Comment):
-    return {
-        "oid": comment.id,
-        "longId": comment.long_id,
-        "answerId": comment.answer.long_id,
-        "text": comment.text,
-        "authorId": comment.author.username,
-        "authorDisplayName": comment.author.profile.display_username,
-        "time": comment.time,
-        "edittime": comment.edittime,
-        "exam_displayname": comment.answer.answer_section.exam.displayname,
-        "filename": comment.answer.answer_section.exam.filename,
-        "category_displayname": comment.answer.answer_section.exam.category.displayname,
-        "category_slug": comment.answer.answer_section.exam.category.slug,
-    }
+    """
+    This function will fail if called on a normal comment object
+    You have to either pass the prefetched comments from prepare_answer_objects to here or
+    add is_flagged and flagged_count fields yourself before calling this function
+    """
+    try:
+        return {
+            "oid": comment.id,
+            "longId": comment.long_id,
+            "answerId": comment.answer.long_id,
+            "text": comment.text,
+            "authorId": comment.author.username,
+            "authorDisplayName": comment.author.profile.display_username,
+            "time": comment.time,
+            "edittime": comment.edittime,
+            "exam_displayname": comment.answer.answer_section.exam.displayname,
+            "filename": comment.answer.answer_section.exam.filename,
+            "category_displayname": comment.answer.answer_section.exam.category.displayname,
+            "category_slug": comment.answer.answer_section.exam.category.slug,
+            "isFlagged": comment.is_flagged,
+            "flaggedCount": comment.flagged_count,
+        }
+    except AttributeError:
+        raise ValueError("The object is missing the required annotations.")
 
 
 def get_answersection_response(request, section):

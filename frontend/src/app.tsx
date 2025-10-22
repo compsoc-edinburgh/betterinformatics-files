@@ -15,7 +15,7 @@ import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import tinycolor from "tinycolor2";
-import { fetchGet, getCookie } from "./api/fetch-utils";
+import { authenticated, fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
@@ -50,6 +50,9 @@ import {
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
+import FlaggedContent from "./pages/flagged-content";
+import { FaroRoute } from "@grafana/faro-react";
+import serverData from "./utils/server-data";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -75,6 +78,33 @@ function calculateShades(primaryColor: string): MantineColorsTuple {
   }).toString("hex6");
   return shadesArray as unknown as MantineColorsTuple;
 }
+
+
+/**
+ * To be used as a wrapper for <Route>s at the top level, and adds Faro
+ * support to all child routes.
+ *
+ * Note: This creates a catch-all routing context. Any wildcard routes defined
+ * after a Router as a sibling will never be matched. Define all routes within
+ * the element instead.
+ *
+ * Behaves as a no-op if either of the following is true:
+ * - Faro is disabled via the VITE_FARO_DISABLE frontend environment variable
+ * - Faro URL doesn't exist in the VITE_SERVER_DATA frontend environment variable
+ *
+ * By default, if ran with `yarn start`, Faro URL exists but the DISABLE flag is
+ * true (see `.env.development`). Use `VITE_FARO_DISABLE=false yarn start` to
+ * enable Faro support in development.
+ *
+ * In production builds, observability is controlled via the FRONTEND_SERVER_DATA
+ * backend setting.
+ */
+const Router = ({ children }: { children?: React.ReactNode }) =>
+  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
+    children
+  ) : (
+    <FaroRoute path="/">{children}</FaroRoute>
+  );
 
 const App: React.FC<{}> = () => {
   useEffect(() => {
@@ -115,7 +145,9 @@ const App: React.FC<{}> = () => {
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
 
   const loadUnreadCount = async () => {
-    return (await fetchGet("/api/notification/unreadcount/")).value as number;
+    if (authenticated())
+      return (await fetchGet("/api/notification/unreadcount/")).value as number;
+    return undefined;
   };
   const { data: unreadCount } = useRequest(loadUnreadCount, {
     pollingInterval: 300_000,
@@ -183,6 +215,7 @@ const App: React.FC<{}> = () => {
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Upload Dissertation", href: "/upload-dissertation" },
     { title: "Mod Queue", href: "/modqueue" },
+    { title: "Flagged Content", href: "/flagged"},
   ];
 
   const bottomHeaderNav = [
@@ -254,79 +287,89 @@ const App: React.FC<{}> = () => {
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
-                  <Switch>
-                    <UserRoute exact path="/" component={HomePage} />
-                    <Route exact path="/login" component={LoginPage} />
-                    <UserRoute
-                      exact
-                      path="/uploadpdf"
-                      component={UploadPdfPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/upload-dissertation"
-                      component={UploadDissertationPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/dissertations"
-                      component={DissertationListPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/dissertations/:id"
-                      component={DissertationDetailPage}
-                    />
-                    <UserRoute exact path="/faq" component={FAQ} />
-                    <Route
-                      exact
-                      path="/disclaimer"
-                      component={DisclaimerPage}
-                    />
-                    <Route
-                      exact
-                      path="/privacy"
-                      component={PrivacyPolicyPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/feedback"
-                      component={FeedbackPage}
-                    />
-                    <UserRoute
-                      path="/category/:slug"
-                      component={CategoryPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/document/:slug"
-                      component={DocumentPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/exams/:filename"
-                      component={ExamPage}
-                    />
-                    <UserRoute
-                      exact
-                      path="/user/:username"
-                      component={UserPage}
-                    />
-                    <UserRoute exact path="/user/" component={UserPage} />
-                    <UserRoute exact path="/search/" component={SearchPage} />
-                    <UserRoute
-                      exact
-                      path="/scoreboard"
-                      component={Scoreboard}
-                    />
-                    <UserRoute
-                      exact
-                      path="/stats"
-                      render={() => <Redirect to="/scoreboard" />}
-                    />
-                    <UserRoute exact path="/modqueue" component={ModQueue} />
-                    <Route component={NotFoundPage} />
-                  </Switch>
+                  <Router>
+                    <Switch>
+                      <UserRoute exact path="/" children={<HomePage />} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        children={<UploadPdfPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/upload-dissertation"
+                        children={<UploadDissertationPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/dissertations"
+                        children={<DissertationListPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/dissertations/:id"
+                        children={<DissertationDetailPage />}
+                      />
+                      <UserRoute exact path="/faq" children={<FAQ />} />
+                      <Route
+                        exact
+                        path="/disclaimer"
+                        children={<DisclaimerPage />}
+                      />
+                      <Route
+                        exact
+                        path="/privacy"
+                        children={<PrivacyPolicyPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        children={<FeedbackPage />}
+                      />
+                      <UserRoute
+                        path="/category/:slug"
+                        children={<CategoryPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/document/:slug"
+                        children={<DocumentPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/exams/:filename"
+                        children={<ExamPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        children={<UserPage />}
+                      />
+                      <UserRoute exact path="/user/" children={<UserPage />} />
+                      <UserRoute exact path="/search/" children={<SearchPage />} />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        children={<Scoreboard />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/stats"
+                        render={() => <Redirect to="/scoreboard" />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/modqueue"
+                        children={<ModQueue />} />
+                      <UserRoute
+                        exact
+                        path="/flagged"
+                        children={<FlaggedContent />}
+                      />
+                      <Route exact path="/login" children={<LoginPage />} />
+                      <Route children={<NotFoundPage />} />
+                    </Switch>
+                  </Router>
                 </Box>
               </div>
               <Footer

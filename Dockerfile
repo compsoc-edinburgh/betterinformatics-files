@@ -45,8 +45,8 @@ FROM node:20-alpine AS frontend-base
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json \
-     ./frontend/yarn.lock \
-     ./frontend/index.html .
+  ./frontend/yarn.lock \
+  ./frontend/index.html .
 
 RUN yarn --ignore-engines
 
@@ -56,11 +56,11 @@ ARG git_branch
 ARG git_commit
 
 COPY ./frontend/tsconfig.json \
-     ./frontend/postcss.config.cjs \
-     ./frontend/vite.config.ts \
-     ./frontend/.eslintrc.json \
-     ./frontend/.env.production \
-     ./frontend/.prettierrc.json .
+  ./frontend/postcss.config.cjs \
+  ./frontend/vite.config.ts \
+  ./frontend/.eslintrc.json \
+  ./frontend/.env.production \
+  ./frontend/.prettierrc.json .
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
 ENV VITE_GIT_BRANCH=${git_branch}
@@ -70,7 +70,7 @@ RUN yarn run build
 FROM backend AS combined
 
 COPY --from=frontend-build /usr/src/app/build/manifest.json \
-     /usr/src/app/build/favicon.ico .
+  /usr/src/app/build/favicon.ico .
 COPY --from=frontend-build /usr/src/app/build/index.html ./templates/index.html
 COPY --from=frontend-build /usr/src/app/build/static ./static
 

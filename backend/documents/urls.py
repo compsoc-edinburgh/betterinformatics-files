@@ -42,4 +42,8 @@ urlpatterns = [
         views.DocumentFileElementView.as_view(),
         name="files_element",
     ),
+    path("setflaggedcomment/<int:oid>", views.set_flagged, name="setcommentflagged"),
+    path(
+        "resetflaggedcomment/<int:oid>", views.reset_flagged, name="resetcommentflagged"
+    ),
 ]

@@ -51,11 +51,11 @@ class TestExistingAnswer(ComsolTestExamData):
     def test_flag(self):
         answer = self.answers[1]
         self.assertEqual(answer.flagged.count(), 0)
-        self.post("/api/exam/setflagged/{}/".format(answer.id), {"flagged": False})
-        self.post("/api/exam/setflagged/{}/".format(answer.id), {"flagged": True})
+        self.post("/api/exam/setanswerflagged/{}/".format(answer.id), {"flagged": False})
+        self.post("/api/exam/setanswerflagged/{}/".format(answer.id), {"flagged": True})
         answer.refresh_from_db()
         self.assertEqual(answer.flagged.count(), 1)
-        self.post("/api/exam/setflagged/{}/".format(answer.id), {"flagged": False})
+        self.post("/api/exam/setanswerflagged/{}/".format(answer.id), {"flagged": False})
         answer.refresh_from_db()
         self.assertEqual(answer.flagged.count(), 0)
 

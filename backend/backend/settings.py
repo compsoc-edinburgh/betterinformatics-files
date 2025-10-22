@@ -171,7 +171,7 @@ FRONTEND_SERVER_DATA = {
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
-IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE"
+IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE" and not TESTING
 
 DEPLOYMENT_DOMAINS = os.environ.get("DEPLOYMENT_DOMAINS", "").split(",")
 
@@ -179,7 +179,9 @@ ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS.append("localhost")
+    ALLOWED_HOSTS.append("community-solutions")
     REAL_ALLOWED_HOSTS.append("localhost")
+    REAL_ALLOWED_HOSTS.append("community-solutions")
 else:
     # USE_X_FORWARDED_HOST = True
     # In K8s, the host is the IP of the pod and can thus change
@@ -201,6 +203,7 @@ else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
+    "https://analytics.betterinformatics.com/api/",
     *allowed_script_sources,
 )
 CSP_STYLE_SRC = (
@@ -222,6 +225,8 @@ CSP_CONNECT_SRC = (
     # the Markdown renderer should prevent it from being executed)
     "https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/_sections/",
     "https://betterinformatics.com/courses.json",
+    # Allow self hosted tracking
+    "https://analytics.betterinformatics.com/api/",
 )
 CSP_IMG_SRC = (
     "'self'",

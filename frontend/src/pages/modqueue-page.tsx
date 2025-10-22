@@ -31,9 +31,6 @@ const loadExams = async (includeHidden: boolean) => {
 const removeExam = async (filename: string) => {
   await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
-const loadFlagged = async () => {
-  return (await fetchGet("/api/exam/listflagged/")).value as string[];
-};
 
 const ModQueue: React.FC = () => {
   useTitle("Import Queue");
@@ -46,9 +43,7 @@ const ModQueue: React.FC = () => {
   } = useRequest(() => loadExams(includeHidden), {
     refreshDeps: [includeHidden],
   });
-  const { error: flaggedError, data: flaggedAnswers } = useRequest(loadFlagged);
-
-  const error = examsError || flaggedError;
+  const error = examsError;
 
   const [confirm, modals] = useConfirm();
   const { run: runRemoveExam } = useRequest(removeExam, {
@@ -68,20 +63,6 @@ const ModQueue: React.FC = () => {
 
   return (
     <Container size="xl">
-      {flaggedAnswers && flaggedAnswers.length > 0 && (
-        <div>
-          <Title order={2} mb="md">
-            Flagged Answers
-          </Title>
-          {flaggedAnswers.map(answer => (
-            <div key={answer}>
-              <Link to={answer} target="_blank" rel="noopener noreferrer">
-                {answer}
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
       <Title my="sm" order={2}>
         Import Queue
       </Title>

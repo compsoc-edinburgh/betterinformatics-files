@@ -2,15 +2,18 @@ import logging
 import os.path
 from typing import Union
 
+from urllib import parse
+
 from categories.models import Category
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Exists, OuterRef, Prefetch
 from django.http import HttpRequest
 from django.http.response import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.text import slugify
 from ediauth import auth_check
 from util import s3_util, response
 
@@ -38,6 +41,14 @@ def list_document_types(request):
     )
 
 
+def prep_comment_obj(comment: Comment, request: HttpRequest):
+    # Don't use this for lists of comments
+    # Use prefetch and annotate for that
+    comment.flagged_count = comment.flagged.count()
+    comment.is_flagged = comment.flagged.filter(id=request.user.id).exists()
+    return comment
+
+
 def get_comment_obj(comment: Comment, request: HttpRequest):
     return {
         "oid": comment.pk,
@@ -47,6 +58,8 @@ def get_comment_obj(comment: Comment, request: HttpRequest):
         "canEdit": comment.current_user_can_edit(request),
         "time": comment.time,
         "edittime": comment.edittime,
+        "isFlagged": comment.is_flagged,
+        "flaggedCount": comment.flagged_count,
     }
 
 
@@ -163,7 +176,18 @@ class DocumentRootView(View):
 
         include_comments = "include_comments" in request.GET
         if include_comments:
-            objects = objects.prefetch_related("comments", "comments__author")
+            comments_query = Comment.objects.annotate(
+                flagged_count=Count("flagged", distinct=True),
+                is_flagged=Exists(
+                    Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+                ),
+            )
+            objects = objects.prefetch_related(
+                Prefetch(
+                    "comments",
+                    queryset=comments_query,
+                )
+            )
 
         include_files = "include_files" in request.GET
         if include_files:
@@ -179,7 +203,7 @@ class DocumentRootView(View):
     @auth_check.require_login
     def post(self, request: HttpRequest):
         category = get_object_or_404(Category, slug=request.POST["category"])
-        if request.POST["display_name"].strip() == "":
+        if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
             return response.not_possible("Invalid displayname")
         display_name = request.POST["display_name"]
         # description is optional
@@ -209,7 +233,18 @@ class DocumentElementView(View):
         )
         include_comments = "include_comments" in request.GET
         if include_comments:
-            objects = objects.prefetch_related("comments", "comments__author")
+            comments_query = Comment.objects.annotate(
+                flagged_count=Count("flagged", distinct=True),
+                is_flagged=Exists(
+                    Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+                ),
+            )
+            objects = objects.prefetch_related(
+                Prefetch(
+                    "comments",
+                    queryset=comments_query,
+                )
+            )
 
         include_files = "include_files" in request.GET
         if include_files:
@@ -241,7 +276,7 @@ class DocumentElementView(View):
             if not can_edit:
                 return response.not_allowed()
             # avoids empty or whitespaced displaynames
-            if request.DATA["display_name"].strip() == "":
+            if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
                 return response.not_possible("Invalid displayname")
             document.display_name = request.DATA["display_name"]
             edited = True
@@ -293,7 +328,16 @@ class DocumentCommentRootView(View):
     @auth_check.require_login
     def get(self, request: HttpRequest, document_slug: str):
         document = get_object_or_404(Document, slug=document_slug)
-        objects = Comment.objects.filter(document=document).all()
+        objects = (
+            Comment.objects.filter(document=document)
+            .all()
+            .annotate(
+                flagged_count=Count("flagged", distinct=True),
+                is_flagged=Exists(
+                    Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+                ),
+            )
+        )
         return response.success(
             value=[get_comment_obj(comment, request) for comment in objects]
         )
@@ -307,6 +351,8 @@ class DocumentCommentRootView(View):
         )
         comment.save()
         notification_util.new_comment_to_document(document, comment)
+
+        comment = prep_comment_obj(comment, request)
         return response.success(value=get_comment_obj(comment, request))
 
 
@@ -320,6 +366,7 @@ class DocumentCommentElementView(View):
             pk=id,
             document__slug=document_slug,
         )
+        comment = prep_comment_obj(comment, request)
         return get_comment_obj(comment, request)
 
     @auth_check.require_login
@@ -336,6 +383,7 @@ class DocumentCommentElementView(View):
         if "text" in request.DATA:
             comment.text = request.DATA["text"]
         comment.save()
+        comment = prep_comment_obj(comment, request)
         return response.success(value=get_comment_obj(comment, request))
 
     @auth_check.require_login
@@ -370,7 +418,7 @@ class DocumentFileRootView(View):
         if not document.current_user_can_edit(request):
             return response.not_allowed()
 
-        if request.DATA["display_name"].strip() == "":
+        if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
             return response.not_possible("Invalid displayname")
 
         err, file, ext = prepare_document_file(request)
@@ -422,7 +470,7 @@ class DocumentFileElementView(View):
         )
 
         if "display_name" in request.DATA:
-            if request.DATA["display_name"].strip() == "":
+            if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
                 return response.not_possible("Invalid displayname")
             document_file.display_name = request.DATA["display_name"]
 
@@ -475,6 +523,30 @@ class DocumentFileElementView(View):
         document.save()
 
         return response.success(value=success)
+
+
+@response.request_post("flagged")
+@auth_check.require_login
+def set_flagged(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    flagged = request.POST["flagged"] != "false"
+    old_flagged = comment.flagged.filter(pk=request.user.pk).exists()
+    if flagged != old_flagged:
+        if old_flagged:
+            comment.flagged.remove(request.user)
+        else:
+            comment.flagged.add(request.user)
+        comment.save()
+    return response.success()
+
+
+@response.request_post()
+@auth_check.require_admin
+def reset_flagged(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    comment.flagged.clear()
+    comment.save()
+    return response.success()
 
 
 @response.request_post()

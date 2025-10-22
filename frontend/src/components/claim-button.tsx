@@ -31,9 +31,8 @@ const ClaimButton: React.FC<Props> = ({
     hasValidClaim(exam) ? (
       exam.import_claim === username ? (
         <Button
-          mt="xs"
           size="sm"
-          color="dark"
+          color="gray"
           variant="outline"
           onClick={e => {
             e.stopPropagation();
@@ -57,7 +56,7 @@ const ClaimButton: React.FC<Props> = ({
     ) : (
       <Button
         size="sm"
-        variant="default"
+        variant="filled"
         onClick={e => {
           e.stopPropagation();
           runSetClaim(exam.filename, true);

@@ -11,6 +11,8 @@ class CommentMixin(models.Model):
     text = models.TextField()
     time = models.DateTimeField(default=timezone.now)
     edittime = models.DateTimeField(default=timezone.now)
+    flagged = models.ManyToManyField(
+        'auth.User', related_name="flagged_%(app_label)s_comments_set")
 
     search_vector = SearchVectorField()
 

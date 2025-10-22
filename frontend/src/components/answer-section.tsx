@@ -11,7 +11,7 @@ import {
   Text,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
@@ -36,6 +36,7 @@ import {
 import classes from "./answer-section.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import ShimmerButton from "./shimmer-button";
+import { useLocation } from "react-router-dom";
 
 interface NameCardProps {
   id: string;

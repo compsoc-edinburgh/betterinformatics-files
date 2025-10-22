@@ -42,3 +42,29 @@ def remove_comment(request, oid):
     comment.delete()
     section_util.increase_section_version(comment.answer.answer_section)
     return response.success(value=section_util.get_answersection_response(request, section))
+
+
+@response.request_post("flagged")
+@auth_check.require_login
+def set_flagged(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    flagged = request.POST["flagged"] != "false"
+    old_flagged = comment.flagged.filter(pk=request.user.pk).exists()
+    if flagged != old_flagged:
+        if old_flagged:
+            comment.flagged.remove(request.user)
+        else:
+            comment.flagged.add(request.user)
+        comment.save()
+    section_util.increase_section_version(comment.answer.answer_section)
+    return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))
+
+
+@response.request_post()
+@auth_check.require_admin
+def reset_flagged(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    comment.flagged.clear()
+    comment.save()
+    section_util.increase_section_version(comment.answer.answer_section)
+    return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))

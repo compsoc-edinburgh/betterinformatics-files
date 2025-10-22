@@ -6,8 +6,8 @@ import {
   Title,
   Text,
 } from "@mantine/core";
-import { useDebounceFn } from "@umijs/hooks";
 import React, { useCallback, useMemo, useState } from "react";
+import { useThrottledCallback } from "@mantine/hooks";
 import PDF from "../pdf/pdf-renderer";
 import IconButton from "./icon-button";
 import Panel from "./panel";
@@ -74,13 +74,17 @@ const PdfPanelBase: React.FC<PdfPanelBaseProps> = ({
   // Keep track of the current width value represented by the slider
   const [widthValue, setWidthValue] = useState(maxWidth);
 
-  // Create a wrapper function that debounces the document width change
-  const { run: changeWidth } = useDebounceFn(
+  // Create a wrapper function that throttles the document width change
+  // As setMaxWidth directly changes local storage, and causes a re-render of
+  // ExamPageContent in its entirety, we don't want to do it *too* often.
+  // Throttle is better than debounce in this context, since we want immediate
+  // feedback if we can.
+  const changeWidth = useThrottledCallback(
     (val: number) => setMaxWidth(val),
-    500,
+    50, // just enough to feel kinda responsive but still better than no throttle
   );
   const handler = (val: number) => {
-    // On slider change, update the state and call the debounced function
+    // On slider change, update the state and call the throttled function
     setWidthValue(val);
     changeWidth(val);
   };

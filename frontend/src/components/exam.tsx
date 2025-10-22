@@ -16,6 +16,8 @@ import { loadCutVersions } from "../api/hooks";
 import PDF from "../pdf/pdf-renderer";
 import { fetchGet } from "../api/fetch-utils";
 import { getAnswerSectionId } from "../utils/exam-utils";
+import { useLocation } from "react-router-dom";
+import PermaLinkHandler from "./permalink-handler";
 
 interface Props {
   metaData: ExamMetaData;
@@ -118,11 +120,16 @@ const Exam: React.FC<Props> = React.memo(
         : editState.mode === EditMode.Move
           ? "Move Cut"
           : undefined;
-    const hash = document.location.hash.substr(1);
+    // We retain legacy support for linking to answers by hashes for any old links
+    const answerIdHash = document.location.hash.substr(1);
+    const location = useLocation();
+    const answerIdParam = new URLSearchParams(location.search).get("answer");
+    const answerId = answerIdParam || answerIdHash; // Prioritise query param over legacy hash support
+
     useEffect(() => {
       let cancelled = false;
-      if (hash.length > 0) {
-        fetchGet(`/api/exam/answer/${hash}/`)
+      if (answerId && answerId.length > 0) {
+        fetchGet(`/api/exam/answer/${answerId}/`)
           .then(res => {
             if (cancelled) return;
             const sectionId = res.value.sectionId;
@@ -133,7 +140,7 @@ const Exam: React.FC<Props> = React.memo(
       return () => {
         cancelled = true;
       };
-    }, [hash, onExpandSections]);
+    }, [answerId, onExpandSections]);
     const onChangeListeners = useObjectFromMap(
       sections,
       section => {
@@ -161,6 +168,7 @@ const Exam: React.FC<Props> = React.memo(
     );
     return (
       <>
+        <PermaLinkHandler/>
         {sections.map(section => {
           if (section.kind === SectionKind.Answer) {
             if (displayHiddenAnswerSections || section.has_answers) {
