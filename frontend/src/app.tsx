@@ -55,8 +55,34 @@ import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute } from '@grafana/faro-react';
+import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
+
+/**
+ * To be used as a wrapper for <Route>s at the top level, and adds Faro
+ * support to all child routes.
+ *
+ * Note: This creates a catch-all routing context. Any wildcard routes defined
+ * after a Router as a sibling will never be matched. Define all routes within
+ * the element instead.
+ *
+ * Behaves as a no-op if either of the following is true:
+ * - Faro is disabled via the VITE_FARO_DISABLE frontend environment variable
+ * - Faro URL doesn't exist in the VITE_SERVER_DATA frontend environment variable
+ *
+ * By default, if ran with `yarn start`, Faro URL exists but the DISABLE flag is
+ * true (see `.env.development`). Use `VITE_FARO_DISABLE=false yarn start` to
+ * enable Faro support in development.
+ *
+ * In production builds, observability is controlled via the FRONTEND_SERVER_DATA
+ * backend setting.
+ */
+const Router = ({ children }: { children?: React.ReactNode }) =>
+  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
+    children
+  ) : (
+    <FaroRoute path="/">{children}</FaroRoute>
+  );
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -272,55 +298,6 @@ const App: React.FC<{}> = () => {
     },
   });
 
-  const userRoutes = (<>
-    <UserRoute exact path="/" children={<HomePage />} />
-    <UserRoute
-      exact
-      path="/uploadpdf"
-      children={<UploadPdfPage />}
-    />
-    <UserRoute
-      exact
-      path="/submittranscript"
-      children={<UploadTranscriptPage />}
-    />
-    <UserRoute exact path="/faq" children={<FAQ />} />
-    <UserRoute
-      exact
-      path="/feedback"
-      children={<FeedbackPage />}
-    />
-    <UserRoute
-      path="/category/:slug"
-      children={<CategoryPage />}
-    />
-    <UserRoute
-      exact
-      path="/user/:author/document/:slug"
-      children={<DocumentPage />}
-    />
-    <UserRoute
-      exact
-      path="/exams/:filename"
-      children={<ExamPage />}
-    />
-    <UserRoute
-      exact
-      path="/user/:username"
-      children={<UserPage />}
-    />
-    <UserRoute exact path="/user/" children={<UserPage />} />
-    <UserRoute exact path="/search/" children={<SearchPage />} />
-    <UserRoute
-      exact
-      path="/scoreboard"
-      children={<Scoreboard />}
-    />
-    <UserRoute exact path="/modqueue" children={<ModQueue />} />
-    <UserRoute exact path="/flagged" children={<FlaggedContent />} />
-  </>
-  );
-
   return (
     <MantineProvider theme={fvTheme} cssVariablesResolver={resolver}>
       <Modal
@@ -371,16 +348,69 @@ const App: React.FC<{}> = () => {
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
-                  <Switch>
-                    {(import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url)
-                      ? userRoutes
-                      : <FaroRoute path="/">
-                        {userRoutes}
-                      </FaroRoute>
-                    }
-                    <Route exact path="/login" children={<LoginPage />} />
-                    <Route children={<NotFoundPage />} />
-                  </Switch>
+                  <Router>
+                    <Switch>
+                      <UserRoute exact path="/" children={<HomePage />} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        children={<UploadPdfPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/submittranscript"
+                        children={<UploadTranscriptPage />}
+                      />
+                      <UserRoute exact path="/faq" children={<FAQ />} />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        children={<FeedbackPage />}
+                      />
+                      <UserRoute
+                        path="/category/:slug"
+                        children={<CategoryPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:author/document/:slug"
+                        children={<DocumentPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/exams/:filename"
+                        children={<ExamPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        children={<UserPage />}
+                      />
+                      <UserRoute exact path="/user/" children={<UserPage />} />
+                      <UserRoute
+                        exact
+                        path="/search/"
+                        children={<SearchPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        children={<Scoreboard />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/modqueue"
+                        children={<ModQueue />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/flagged"
+                        children={<FlaggedContent />}
+                      />
+                      <Route exact path="/login" children={<LoginPage />} />
+                      <Route children={<NotFoundPage />} />
+                    </Switch>
+                  </Router>
                 </Box>
               </div>
               <Footer
