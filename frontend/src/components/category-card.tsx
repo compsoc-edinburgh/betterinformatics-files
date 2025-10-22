@@ -16,7 +16,7 @@ import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
 import { highlight } from "../utils/search-utils";
-import clsx from "clsx";
+import clsx, { ClassValue } from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import { useMutation } from "../api/hooks";
 import { addNewFavourite, removeFavourite } from "../api/favourite";
@@ -24,12 +24,13 @@ import { addNewFavourite, removeFavourite } from "../api/favourite";
 interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
   onFavouriteToggle: () => void;
+  className?: ClassValue;
 }
 
 const pluralize = (count: number, noun: string) =>
   `${count} ${noun}${count !== 1 ? "s" : ""}`;
 
-const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh }) => {
+const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle: refresh }) => {
   const history = useHistory();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
@@ -83,7 +84,7 @@ const CategoryCard: React.FC<Props> = ({ category, onFavouriteToggle: refresh })
       withBorder
       px="lg"
       py="md"
-      className={clsx(classes.focusOutline, classes.hoverShadow)}
+      className={clsx(classes.focusOutline, classes.hoverShadow, className)}
       tabIndex={0}
       onKeyDown={handleKeyDown}
     >

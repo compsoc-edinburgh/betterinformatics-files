@@ -29,6 +29,7 @@ import { IconPlus, IconSearch} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 import { getFavourites } from "../api/favourite";
+import classes from "../utils/fade-in-order.module.css";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
@@ -305,6 +306,7 @@ export const CategoryList: React.FC<{}> = () => {
                   <CategoryCard
                     category={category}
                     key={category.slug}
+                    className={filter.length === 0 && classes.fadeInOrder}
                     onFavouriteToggle={onFavouriteToggle}
                   />
                 ))}
@@ -346,6 +348,7 @@ export const CategoryList: React.FC<{}> = () => {
                             <CategoryCard
                               category={category}
                               key={category.slug}
+                              className={classes.fadeInOrder}
                               onFavouriteToggle={onFavouriteToggle}
                             />
                           ))}
@@ -364,6 +367,7 @@ export const CategoryList: React.FC<{}> = () => {
                       <CategoryCard
                         category={category}
                         key={category.slug}
+                        className={classes.fadeInOrder}
                         onFavouriteToggle={onFavouriteToggle}
                       />
                     ))}
@@ -390,6 +394,7 @@ export const CategoryList: React.FC<{}> = () => {
                     <CategoryCard
                       category={category}
                       key={category.slug}
+                      className={classes.fadeInOrder}
                       onFavouriteToggle={onFavouriteToggle}
                     />
                   ))

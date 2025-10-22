@@ -1,0 +1,21 @@
+
+.fadeInOrder {
+  /* Browser support for sibling-index is limited, only try staggering fade-in
+  if the browser says it supports it. */
+  @supports (animation-delay: calc(sibling-index() * 25ms)) {
+    /* Stagger animation should only be used if the user hasn't preferred a
+    reduced-motion version of the page and they're not printing it */
+    @media screen and (prefers-reduced-motion: no-preference) {
+      opacity: 0;
+      transform: translateY(5px);
+      animation: fade-in-below 100ms linear calc(sibling-index() * 25ms) forwards;
+    }
+
+    @keyframes fade-in-below {
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  }
+}
