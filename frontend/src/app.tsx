@@ -74,7 +74,8 @@ import serverData from "./utils/server-data";
  * true (see `.env.development`). Use `VITE_FARO_DISABLE=false yarn start` to
  * enable Faro support in development.
  *
- * In production builds, observability is disabled (see `.env.production`).
+ * In production builds, observability is controlled via the FRONTEND_SERVER_DATA
+ * backend setting.
  */
 const Router = ({ children }: { children?: React.ReactNode }) =>
   import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
