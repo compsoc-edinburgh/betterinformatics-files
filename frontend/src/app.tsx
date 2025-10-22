@@ -55,7 +55,7 @@ import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute } from '@grafana/faro-react';
+import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 
 /**
@@ -76,10 +76,12 @@ import serverData from "./utils/server-data";
  *
  * In production builds, observability is disabled (see `.env.production`).
  */
-const Router: React.FC<{ children?: React.ReactElement }> = ({ children }) =>
-  (import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url)
-  ? <>{children}</>
-  : <FaroRoute path="/">{children}</FaroRoute>
+const Router = ({ children }: { children?: React.ReactNode }) =>
+  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
+    children
+  ) : (
+    <FaroRoute path="/">{children}</FaroRoute>
+  );
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
