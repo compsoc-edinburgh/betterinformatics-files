@@ -53,14 +53,16 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
         )
 
     def sort_key(self):
+        month_val = next((val for month, val in {"december": 0.4, "august": 0.3, "may": 0.2, "april": 0.1}.items() 
+                        if month in self.displayname.lower()), 0)
         end = 0
         while (
             end + 1 < len(self.displayname) and self.displayname[-end - 1 :].isdigit()
         ):
             end += 1
         if end == 0:
-            return 0, self.displayname
-        return int(self.displayname[-end:]), self.displayname
+            return month_val, self.displayname
+        return int(self.displayname[-end:])+month_val, self.displayname
 
     def count_answered(self):
         return self.answersection_set.filter(
