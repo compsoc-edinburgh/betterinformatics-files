@@ -136,11 +136,12 @@ def set_token_cookies(response: HttpResponse, token_response):
     if token_type.lower() != "bearer":
         return ValueError("OP returned unexpected token_type")
 
+    now = datetime.datetime.now()
+
     # Extract expiration time without decoding the token - this is only used by the
     # client and thus isn't relevant for security
     if "expires_in" in token_response:
         expires_in: str = token_response["expires_in"]
-        now = datetime.datetime.now()
         expires = now + datetime.timedelta(seconds=expires_in)
         response.set_cookie(
             "token_expires", expires.timestamp(), httponly=False, samesite="Lax"
@@ -163,6 +164,21 @@ def set_token_cookies(response: HttpResponse, token_response):
             "refresh_token",
             refresh_token,
             httponly=True,
+            samesite="Strict",
+            secure=settings.SECURE,
+        )
+
+    # Keycloak in particular may send us a refresh_expires_in number, which is
+    # the session expiry for the refresh token (it's longer than expires_in).
+    # Handling it is optional, but we prefer to store and use it so we don't
+    # spam-request refreshing when our refresh token is already expired.
+    if "refresh_expires_in" in token_response:
+        refresh_expires_in: str = token_response["refresh_expires_in"]
+        refresh_expires = now + datetime.timedelta(seconds=refresh_expires_in)
+        response.set_cookie(
+            "refresh_expires",
+            refresh_expires.timestamp(),
+            httponly=False,  # Client side JS will need to read it
             samesite="Strict",
             secure=settings.SECURE,
         )
@@ -231,9 +247,18 @@ def refresh(request: HttpRequest):
         return HttpResponseNotAllowed(["GET"])
 
     refresh_token = request.COOKIES.get("refresh_token")
+    refresh_expires = request.COOKIES.get("refresh_expires")
     scope = request.GET.get("scope", "")
     if refresh_token is None:
         return HttpResponseBadRequest("refresh_token not found")
+
+    if refresh_expires:
+        now = datetime.datetime.now()
+        if float(refresh_expires) < now.timestamp():
+            # Don't try to refresh if the refresh token is no longer valid
+            response = HttpResponse("Refresh token is no longer valid")
+            response.status_code = 400
+            return response
 
     # Get new tokens
     r = requests.post(
@@ -285,6 +310,7 @@ def logout(request: HttpRequest):
     response.delete_cookie("access_token")
     response.delete_cookie("refresh_token")
     response.delete_cookie("token_expires")
+    response.delete_cookie("refresh_expires")
 
     # redirect back to the location that was used in login
     response.headers["Location"] = redirect_url
