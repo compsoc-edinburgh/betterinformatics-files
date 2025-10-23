@@ -31,6 +31,7 @@ import { IconChevronDown, IconChevronUp, IconPlus, IconSearch} from "@tabler/ico
 import { useDisclosure } from "@mantine/hooks";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
 import TooltipButton from "../components/TooltipButton";
+import CollapseWrapper from "../components/collapse-wrapper";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -256,67 +257,37 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
                     <div key={meta1display} id={slugify(meta1display)}>
-                      <Title order={2} my="sm">
-                        <Group
-                          gap="md"
-                          justify="space-between"
-                        >
-                          <Group>
-                            {meta1display}
-                            <TooltipButton
-                              variant={is_collapsed(meta1display) ? "filled" : "default"}
-                              tooltip={`${is_collapsed(meta1display) ? "Expand" : "Collapse"}`}
-                              color={is_collapsed(meta1display) ? "brand" : "brand.7"}
-                              onClick={() => {collapse_expand(meta1display)}}>
-                              {is_collapsed(meta1display) ? <IconChevronDown/> : <IconChevronUp/>}
-                            </TooltipButton>
-                          </Group>
-                          <Group>
-                            {isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}
-                          </Group>
-                        </Group>
-                      </Title>
-                      <Collapse in={!is_collapsed(meta1display)}>
-                      {meta2.map(([meta2display, categories]) => (
-                        <div
-                          key={meta2display}
-                          id={slugify(meta1display) + slugify(meta2display)}
-                        >
-                          <Title order={3} my="md">
-                            <Group
-                              gap="md"
-                              justify="space-between"
-                            >
-                              <Group>
-                                {meta2display}
-                                <TooltipButton
-                                  variant={is_collapsed(meta1display+meta2display) ? "filled" : "default"}
-                                  tooltip={`${is_collapsed(meta1display+meta2display) ? "Expand" : "Collapse"}`}
-                                  color={is_collapsed(meta1display+meta2display) ? "brand" : "brand.7"}
-                                  onClick={() => {collapse_expand(meta1display+meta2display)}}>
-                                  {is_collapsed(meta1display+meta2display) ? <IconChevronDown/> : <IconChevronUp/>}
-                                </TooltipButton>
-                              </Group>
-                              <Group>
-                                {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}
-                              </Group>
-                            </Group>
-                          </Title>
-                          <Collapse in={!is_collapsed(meta1display+meta2display)}>
-                            <Grid>
-                              {categories.map(category => (
-                                <CategoryCard
-                                  category={category}
-                                  key={category.slug}
+                      <CollapseWrapper
+                        title={<Title order={2} my="sm">{meta1display}</Title>}
+                        contentOutsideCollapse={<Group>{isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}</Group>}
+                        contentInsideCollapse={ 
+                          meta2.map(([meta2display, categories]) => (
+                            <div key={meta2display} id={slugify(meta1display+meta2display)}>
+                              <CollapseWrapper
+                                title={<Title order={3} my="sm">{meta2display}</Title>}
+                                contentOutsideCollapse={<Group>{isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}</Group>}
+                                contentInsideCollapse={
+                                  <Grid>
+                                    {categories.map(category => (
+                                      <CategoryCard
+                                        category={category}
+                                        key={category.slug}
+                                      />))
+                                    }
+                                  </Grid>
+                                }
+                                is_collapsed={() => is_collapsed(meta1display+meta2display)}
+                                collapse_expand={() => collapse_expand(meta1display+meta2display)}
                                 />
-                              ))}
-                            </Grid>
-                          </Collapse>
-                        </div>
-                      ))}
-                      </Collapse>
+                            </div>
+                          ))
+                        }
+                        is_collapsed={() => is_collapsed(meta1display)}
+                        collapse_expand={() => collapse_expand(meta1display)}
+                        />
                     </div>
-                ))}
+                ))
+              }
               {unassignedList && unassignedList.length > 0 && (
                 <>
                   <Title order={3} my="md">
