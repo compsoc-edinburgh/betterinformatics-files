@@ -25,6 +25,7 @@ import { FeedbackEntry } from "../interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import TooltipButton from "../components/TooltipButton";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import CollapseWrapper from "../components/collapse-wrapper";
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -151,19 +152,13 @@ const FeedbackReader: React.FC<{}> = () => {
           <Title order={2}>Read</Title>
           {mapEntries(categorized.read)}
           <Divider my="xl"/>
-          <Group>
-            <Title order={2}>Read and Done</Title>
-            <TooltipButton
-              variant={opened ? "default" : "filled"}
-              tooltip={`${opened ? "Collapse" : "Expand"}`}
-              color={opened ? "brand.7" : "brand"}
-              onClick={toggle}>
-              {opened ? <IconChevronUp/> : <IconChevronDown/>}
-            </TooltipButton>
-          </Group>
-          <Collapse in={opened}>
-            {mapEntries(categorized.read_and_done)}
-          </Collapse>
+          <CollapseWrapper
+            title={<Title order={2}>Read and Done</Title>}
+            contentOutsideCollapse={<></>}
+            contentInsideCollapse={<>{mapEntries(categorized.read_and_done)}</>}
+            is_collapsed={() => opened}
+            collapse_expand={() => toggle()}
+          />
         </>
       )}
       {loading && <Loader />}
