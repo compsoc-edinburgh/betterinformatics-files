@@ -27,7 +27,12 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconChevronDown, IconChevronUp, IconPlus, IconSearch} from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconChevronUp,
+  IconPlus,
+  IconSearch,
+} from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
 import TooltipButton from "../components/TooltipButton";
@@ -90,7 +95,10 @@ const mapToCategories = (
 const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   onAddCategory,
 }) => {
-  const [addCategoryModalIsOpen, {open: openAddCategoryModal, close: closeAddCategoryModal}] = useDisclosure();
+  const [
+    addCategoryModalIsOpen,
+    { open: openAddCategoryModal, close: closeAddCategoryModal },
+  ] = useDisclosure();
   const { loading, run } = useRequest(addCategory, {
     manual: true,
     onSuccess: () => {
@@ -156,7 +164,9 @@ const HomePage: React.FC<{}> = () => {
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState("mode", "alphabetical");
-  const [collapsedCategories, setCollapsedCategories] = useLocalStorageState<string[]>("collapsedCategories", []);
+  const [collapsedCategories, setCollapsedCategories] = useLocalStorageState<
+    string[]
+  >("collapsedCategories", []);
   const [filter, setFilter] = useState("");
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
@@ -189,7 +199,7 @@ export const CategoryList: React.FC<{}> = () => {
   const onChange = useCallback(() => {
     run();
   }, [run]);
-  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
+  const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
 
   const slugify = (str: string): string =>
     str
@@ -201,15 +211,17 @@ export const CategoryList: React.FC<{}> = () => {
 
   const is_collapsed = (category: string): boolean => {
     return collapsedCategories.includes(slugify(category));
-  }
+  };
 
   const collapse_expand = (category: string): void => {
     if (is_collapsed(category)) {
-      setCollapsedCategories(collapsedCategories.filter(a => a !== slugify(category)));
+      setCollapsedCategories(
+        collapsedCategories.filter(a => a !== slugify(category)),
+      );
     } else {
       setCollapsedCategories([...collapsedCategories, slugify(category)]);
     }
-  }
+  };
 
   return (
     <>
@@ -256,38 +268,71 @@ export const CategoryList: React.FC<{}> = () => {
             <>
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
-                    <div key={meta1display} id={slugify(meta1display)}>
-                      <CollapseWrapper
-                        title={<Title order={2} my="sm">{meta1display}</Title>}
-                        contentOutsideCollapse={<Group>{isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}</Group>}
-                        contentInsideCollapse={ 
-                          meta2.map(([meta2display, categories]) => (
-                            <div key={meta2display} id={slugify(meta1display+meta2display)}>
-                              <CollapseWrapper
-                                title={<Title order={3} my="sm">{meta2display}</Title>}
-                                contentOutsideCollapse={<Group>{isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}</Group>}
-                                contentInsideCollapse={
-                                  <Grid>
-                                    {categories.map(category => (
-                                      <CategoryCard
-                                        category={category}
-                                        key={category.slug}
-                                      />))
-                                    }
-                                  </Grid>
-                                }
-                                is_collapsed={() => is_collapsed(meta1display+meta2display)}
-                                collapse_expand={() => collapse_expand(meta1display+meta2display)}
-                                />
-                            </div>
-                          ))
-                        }
-                        is_collapsed={() => is_collapsed(meta1display)}
-                        collapse_expand={() => collapse_expand(meta1display)}
-                        />
-                    </div>
-                ))
-              }
+                  <div key={meta1display} id={slugify(meta1display)}>
+                    <CollapseWrapper
+                      title={
+                        <Title order={2} my="sm">
+                          {meta1display}
+                        </Title>
+                      }
+                      contentOutsideCollapse={
+                        <Group>
+                          {isAdmin && (
+                            <EditMeta1
+                              oldMeta1={meta1display}
+                              onChange={onChange}
+                            />
+                          )}
+                        </Group>
+                      }
+                      contentInsideCollapse={meta2.map(
+                        ([meta2display, categories]) => (
+                          <div
+                            key={meta2display}
+                            id={slugify(meta1display + meta2display)}
+                          >
+                            <CollapseWrapper
+                              title={
+                                <Title order={3} my="sm">
+                                  {meta2display}
+                                </Title>
+                              }
+                              contentOutsideCollapse={
+                                <Group>
+                                  {isAdmin && (
+                                    <EditMeta2
+                                      oldMeta2={meta2display}
+                                      meta1={meta1display}
+                                      onChange={onChange}
+                                    />
+                                  )}
+                                </Group>
+                              }
+                              contentInsideCollapse={
+                                <Grid>
+                                  {categories.map(category => (
+                                    <CategoryCard
+                                      category={category}
+                                      key={category.slug}
+                                    />
+                                  ))}
+                                </Grid>
+                              }
+                              is_collapsed={() =>
+                                is_collapsed(meta1display + meta2display)
+                              }
+                              collapse_expand={() =>
+                                collapse_expand(meta1display + meta2display)
+                              }
+                            />
+                          </div>
+                        ),
+                      )}
+                      is_collapsed={() => is_collapsed(meta1display)}
+                      collapse_expand={() => collapse_expand(meta1display)}
+                    />
+                  </div>
+                ))}
               {unassignedList && unassignedList.length > 0 && (
                 <>
                   <Title order={3} my="md">

@@ -10,29 +10,34 @@ interface Props {
   collapse_expand: () => void;
 }
 
-const CollapseWrapper: React.FC<Props> = ({title, contentInsideCollapse, contentOutsideCollapse, is_collapsed, collapse_expand}) => {
+const CollapseWrapper: React.FC<Props> = ({
+  title,
+  contentInsideCollapse,
+  contentOutsideCollapse,
+  is_collapsed,
+  collapse_expand,
+}) => {
   return (
-  <>
-    <Group
-      gap="md"
-      justify="space-between"
-    >
-      <Group>
+    <>
+      <Group gap="md" justify="space-between">
+        <Group>
           {title}
           <TooltipButton
             variant={"transparent"}
             size={"compact-sm"}
             color={"text"}
             tooltip={`${is_collapsed() ? "Expand" : "Collapse"}`}
-            onClick={() => {collapse_expand()}}>
-            {is_collapsed() ? <IconChevronDown/> : <IconChevronUp/>}
+            onClick={() => {
+              collapse_expand();
+            }}
+          >
+            {is_collapsed() ? <IconChevronDown /> : <IconChevronUp />}
           </TooltipButton>
+        </Group>
+        {contentOutsideCollapse}
       </Group>
-          {contentOutsideCollapse}
-    </Group>
-    <Collapse in={!is_collapsed()}>
-      {contentInsideCollapse}
-    </Collapse>
-  </>);
-} 
+      <Collapse in={!is_collapsed()}>{contentInsideCollapse}</Collapse>
+    </>
+  );
+};
 export default CollapseWrapper;

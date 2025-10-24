@@ -103,7 +103,7 @@ const FeedbackReader: React.FC<{}> = () => {
 
   const [opened, { toggle }] = useDisclosure(false);
 
-  const mapEntries = (feedback : FeedbackEntry[]) => {
+  const mapEntries = (feedback: FeedbackEntry[]) => {
     return (
       <Grid>
         {feedback.map(fb => (
@@ -113,7 +113,7 @@ const FeedbackReader: React.FC<{}> = () => {
         ))}
       </Grid>
     );
-  }
+  };
 
   const categorized = {
     waiting_action: [] as FeedbackEntry[],
@@ -145,13 +145,13 @@ const FeedbackReader: React.FC<{}> = () => {
       {feedback && (
         <>
           {mapEntries(categorized.waiting_action)}
-          <Divider my="xl"/>
+          <Divider my="xl" />
           <Title order={2}>Done</Title>
           {mapEntries(categorized.done)}
-          <Divider my="xl"/>
+          <Divider my="xl" />
           <Title order={2}>Read</Title>
           {mapEntries(categorized.read)}
-          <Divider my="xl"/>
+          <Divider my="xl" />
           <CollapseWrapper
             title={<Title order={2}>Read and Done</Title>}
             contentOutsideCollapse={<></>}
