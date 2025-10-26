@@ -530,7 +530,7 @@ const ExamPage: React.FC<{}> = () => {
                 />
               </UserContext.Provider>
             </Route>
-            <Route>
+            <Route path={`${path}/*`}>
               <Redirect to={url} />
             </Route>
           </Switch>
