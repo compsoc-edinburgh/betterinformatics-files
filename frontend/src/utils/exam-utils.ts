@@ -1,15 +1,9 @@
-import moment from "moment";
-import GlobalConsts from "../globalconsts";
+import { differenceInHours, parseISO } from "date-fns";
 import { CategoryExam } from "../interfaces";
 
 export const hasValidClaim = (exam: CategoryExam) => {
   if (exam.import_claim !== null && exam.import_claim_time !== null) {
-    if (
-      moment().diff(
-        moment(exam.import_claim_time, GlobalConsts.momentParseString),
-      ) <
-      4 * 60 * 60 * 1000
-    ) {
+    if (differenceInHours(new Date(), parseISO(exam.import_claim_time)) < 4) {
       return true;
     }
   }
