@@ -377,7 +377,6 @@ const App: React.FC<{}> = () => {
                         children={<DocumentPage />}
                       />
                       <UserRoute
-                        exact
                         path="/exams/:filename"
                         children={<ExamPage />}
                       />

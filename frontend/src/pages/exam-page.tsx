@@ -12,7 +12,15 @@ import {
   Button,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import {
+  Link,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
 import {
@@ -81,7 +89,7 @@ interface ExamPageContentProps {
   mutateMetaData: (
     x: ExamMetaData | undefined | ((data: ExamMetaData) => ExamMetaData),
   ) => void;
-  toggleEditing: () => void;
+  goToEditPage: () => void;
 }
 const ExamPageContent: React.FC<ExamPageContentProps> = ({
   metaData,
@@ -90,7 +98,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   reloadCuts,
   mutateCuts,
   mutateMetaData,
-  toggleEditing,
+  goToEditPage,
 }) => {
   const { run: runMarkChecked } = useRequest(markAsChecked, {
     manual: true,
@@ -148,8 +156,9 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   const [size, sizeRef] = useSize<HTMLDivElement>();
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
-  const [inViewSplits, addInViewSplit, removeInViewSplit] = useSet<PdfSection>();
-  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
+  const [inViewSplits, addInViewSplit, removeInViewSplit] =
+    useSet<PdfSection>();
+  const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
   const [editState, setEditState] = useState<EditState>({
     mode: EditMode.None,
   });
@@ -180,7 +189,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     const s = new Set<number>();
     if (!sections) return undefined;
     for (const section of sections) {
-      if (section.kind === SectionKind.Pdf && (!section.hidden || displayOptions.displayHiddenPdfSections)) {
+      if (
+        section.kind === SectionKind.Pdf &&
+        (!section.hidden || displayOptions.displayHiddenPdfSections)
+      ) {
         s.add(section.start.page);
       }
     }
@@ -261,7 +273,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
                   color="gray"
                   icon={<IconEdit />}
                   tooltip="Edit"
-                  onClick={() => toggleEditing()}
+                  onClick={() => goToEditPage()}
                 />
               </>
             )}
@@ -447,9 +459,15 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  const [editing, {toggle: toggleEditing}] = useDisclosure();
   const error = metaDataError || cutsError || pdfError;
   const user = useUser()!;
+
+  // `path` is the path structure, e.g. the literal string "/category/:slug"
+  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
+  // defining Routes, we use `path`, but for Link/navigation we use `url`.
+  const { path, url } = useRouteMatch();
+  const history = useHistory();
+
   return (
     <div>
       <Container size="xl">
@@ -481,34 +499,42 @@ const ExamPage: React.FC<{}> = () => {
             <Loader />
           </Container>
         )}
-        {metaData &&
-          (editing ? (
-            <Container size="xl">
-              <ExamMetadataEditor
-                currentMetaData={metaData}
-                toggle={toggleEditing}
-                onMetaDataChange={setMetaData}
-              />
-            </Container>
-          ) : (
-            <UserContext.Provider
-              value={{
-                ...user,
-                isExpert: user.isExpert || metaData.isExpert,
-                isCategoryAdmin: user.isAdmin || metaData.canEdit,
-              }}
-            >
-              <ExamPageContent
-                metaData={metaData}
-                sections={sections}
-                renderer={renderer}
-                reloadCuts={reloadCuts}
-                mutateCuts={mutateCuts}
-                mutateMetaData={setMetaData}
-                toggleEditing={toggleEditing}
-              />
-            </UserContext.Provider>
-          ))}
+        {metaData && (
+          <Switch>
+            <Route path={`${path}/edit`}>
+              {!user.isAdmin && !metaData.canEdit && <Redirect to={url} />}
+              <Container size="xl">
+                <ExamMetadataEditor
+                  currentMetaData={metaData}
+                  closeEditPage={() => history.push(url)}
+                  onMetaDataChange={setMetaData}
+                />
+              </Container>
+            </Route>
+            <Route path={path} exact>
+              <UserContext.Provider
+                value={{
+                  ...user,
+                  isExpert: user.isExpert || metaData.isExpert,
+                  isCategoryAdmin: user.isAdmin || metaData.canEdit,
+                }}
+              >
+                <ExamPageContent
+                  metaData={metaData}
+                  sections={sections}
+                  renderer={renderer}
+                  reloadCuts={reloadCuts}
+                  mutateCuts={mutateCuts}
+                  mutateMetaData={setMetaData}
+                  goToEditPage={() => history.push(`${url}/edit`)}
+                />
+              </UserContext.Provider>
+            </Route>
+            <Route path={`${path}/*`}>
+              <Redirect to={url} />
+            </Route>
+          </Switch>
+        )}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>
             <Loader />

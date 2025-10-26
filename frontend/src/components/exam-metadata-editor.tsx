@@ -154,12 +154,12 @@ const applyChanges = async (
 
 interface Props {
   currentMetaData: ExamMetaData;
-  toggle: () => void;
+  closeEditPage: () => void;
   onMetaDataChange: (newMetaData: ExamMetaData) => void;
 }
 const ExamMetadataEditor: React.FC<Props> = ({
   currentMetaData,
-  toggle,
+  closeEditPage,
   onMetaDataChange,
 }) => {
   const { data: categories } = useRequest(loadCategories);
@@ -186,7 +186,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
   } = useRequest(applyChanges, {
     manual: true,
     onSuccess: newMetaData => {
-      toggle();
+      closeEditPage();
       onMetaDataChange(newMetaData);
     },
   });
@@ -216,7 +216,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
     <Stack mb="xl">
       <Group justify="space-between" pt="sm">
         <Title order={2}>Edit Exam</Title>
-        <CloseButton onClick={toggle} />
+        <CloseButton onClick={closeEditPage} />
       </Group>
       {error && <Alert color="red">{error.toString()}</Alert>}
       <Title order={5}>Metadata</Title>
@@ -350,7 +350,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         setAttachments={a => setFormValue("attachments", a)}
       />
       <Group justify="right">
-        <Button leftSection={<IconX />} onClick={toggle}>
+        <Button leftSection={<IconX />} onClick={closeEditPage}>
           Cancel
         </Button>
         <Button
