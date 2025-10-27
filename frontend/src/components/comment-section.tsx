@@ -78,9 +78,10 @@ const CommentSectionComponent: React.FC<Props> = ({
       <Group justify="space-between">
         {answer.comments.length > 0 && !hasDraft && (
           <Button
+            size="compact-sm"
             variant="transparent"
             c="currentColor"
-            pt="xs"
+            mt="xs"
             leftSection={<IconMessageCirclePlus />}
             onClick={onChainReply}
             className={classes.chainReply}
