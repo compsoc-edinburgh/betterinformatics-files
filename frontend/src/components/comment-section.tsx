@@ -1,5 +1,6 @@
-import { Stack, Text } from "@mantine/core";
+import { Button, Flex, Group, Paper, Stack } from "@mantine/core";
 import classes from "./comment-section.module.css";
+import { IconMessageCirclePlus } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentComponent from "./comment";
@@ -9,12 +10,17 @@ interface Props {
   hasDraft: boolean;
   answer: Answer;
   onSectionChanged: (newSection: AnswerSection) => void;
+  // Called when the user click on the reply button at the bottom of the comment section.
+  // Note: This is not the same as the comment button in the answer itself,
+  // although the behaviour may be identical depending on what the callback does.
+  onChainReply: () => void;
   onDraftDelete: () => void;
 }
 const CommentSectionComponent: React.FC<Props> = ({
   hasDraft,
   answer,
   onSectionChanged,
+  onChainReply,
   onDraftDelete,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -39,6 +45,27 @@ const CommentSectionComponent: React.FC<Props> = ({
             />
           ),
         )}
+        {answer.comments.length > 3 && !expanded && (
+          <Paper
+            radius={0}
+            withBorder
+            shadow="none"
+            px="sm"
+            style={{ marginBottom: "-1px" }}
+          >
+            <Flex justify="center" align="center">
+              <Button
+                size="compact-sm"
+                variant="transparent"
+                c="currentColor"
+                onClick={() => setExpanded(true)}
+              >
+                Load {(answer.comments.length - 3).toString()} more comment
+                {answer.comments.length > 4 && "s"}
+              </Button>
+            </Flex>
+          </Paper>
+        )}
         {hasDraft && (
           <CommentComponent
             answer={answer}
@@ -48,18 +75,18 @@ const CommentSectionComponent: React.FC<Props> = ({
           />
         )}
       </Stack>
-      {answer.comments.length > 3 && !expanded && (
-        <Text
-          pt="xs"
-          onClick={() => setExpanded(true)}
-          className={classes.showMore}
+      {answer.comments.length > 0 && !hasDraft && (
+        <Button
+          size="compact-sm"
+          variant="transparent"
+          c="currentColor"
+          mt="xs"
+          leftSection={<IconMessageCirclePlus />}
+          onClick={onChainReply}
+          className={classes.chainReply}
         >
-          {answer.comments.length === 4 ? (
-            "Show 1 more comment..."
-          ) : (
-            <>Show {answer.comments.length - 3} more comments...</>
-          )}
-        </Text>
+          Add Comment
+        </Button>
       )}
     </>
   );

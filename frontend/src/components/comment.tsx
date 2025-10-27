@@ -245,19 +245,21 @@ const CommentComponent: React.FC<Props> = ({
           <Group justify="flex-end" mt="sm">
             <Button
               size="sm"
+              color="red"
+              variant="subtle"
+              onClick={onCancel}
+              leftSection={<IconPencilCancel />}
+            >
+              {comment === undefined ? "Delete Draft" : "Cancel"}
+            </Button>
+            <Button
+              size="sm"
               loading={loading}
               disabled={draftText.trim().length === 0}
               onClick={onSave}
               leftSection={<IconDeviceFloppy />}
             >
               Save
-            </Button>
-            <Button
-              size="sm"
-              onClick={onCancel}
-              leftSection={<IconPencilCancel />}
-            >
-              {comment === undefined ? "Delete Draft" : "Cancel"}
             </Button>
           </Group>
         </>
