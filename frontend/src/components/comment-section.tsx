@@ -1,4 +1,4 @@
-import { Button, Group, Stack } from "@mantine/core";
+import { Button, Flex, Group, Paper, Stack } from "@mantine/core";
 import classes from "./comment-section.module.css";
 import { IconMessageCirclePlus } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
@@ -45,6 +45,27 @@ const CommentSectionComponent: React.FC<Props> = ({
             />
           ),
         )}
+        {answer.comments.length > 3 && !expanded && (
+          <Paper
+            radius={0}
+            withBorder
+            shadow="none"
+            px="sm"
+            style={{ marginBottom: "-1px" }}
+          >
+            <Flex justify="center" align="center">
+              <Button
+                size="compact-sm"
+                variant="transparent"
+                c="currentColor"
+                onClick={() => setExpanded(true)}
+              >
+                Load {(answer.comments.length - 3).toString()} more comment
+                {answer.comments.length > 4 && "s"}
+              </Button>
+            </Flex>
+          </Paper>
+        )}
         {hasDraft && (
           <CommentComponent
             answer={answer}
@@ -55,20 +76,6 @@ const CommentSectionComponent: React.FC<Props> = ({
         )}
       </Stack>
       <Group justify="space-between">
-        {answer.comments.length > 3 && !expanded && (
-          <Button
-            variant="transparent"
-            c="currentColor"
-            pt="xs"
-            onClick={() => setExpanded(true)}
-          >
-            {answer.comments.length === 4 ? (
-              "Show 1 more comment..."
-            ) : (
-              <>Show {answer.comments.length - 3} more comments...</>
-            )}
-          </Button>
-        )}
         {answer.comments.length > 0 && !hasDraft && (
           <Button
             variant="transparent"
