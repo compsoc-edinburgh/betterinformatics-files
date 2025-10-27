@@ -75,21 +75,19 @@ const CommentSectionComponent: React.FC<Props> = ({
           />
         )}
       </Stack>
-      <Group justify="space-between">
-        {answer.comments.length > 0 && !hasDraft && (
-          <Button
-            size="compact-sm"
-            variant="transparent"
-            c="currentColor"
-            mt="xs"
-            leftSection={<IconMessageCirclePlus />}
-            onClick={onChainReply}
-            className={classes.chainReply}
-          >
-            Add Comment
-          </Button>
-        )}
-      </Group>
+      {answer.comments.length > 0 && !hasDraft && (
+        <Button
+          size="compact-sm"
+          variant="transparent"
+          c="currentColor"
+          mt="xs"
+          leftSection={<IconMessageCirclePlus />}
+          onClick={onChainReply}
+          className={classes.chainReply}
+        >
+          Add Comment
+        </Button>
+      )}
     </>
   );
 };
