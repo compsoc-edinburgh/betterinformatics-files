@@ -379,7 +379,10 @@ const Editor: React.FC<Props> = ({
           withBorder={!isDragHovered}
           p="sm"
           my="sm"
-          className={clsx(isDragHovered && classes.borderStyle, classes.shadowOnFocus)}
+          className={clsx(
+            isDragHovered && classes.borderStyle,
+            classes.shadowOnFocus,
+          )}
         >
           {main}
         </Paper>
