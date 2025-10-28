@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
-import { getHotkeyHandler, useDisclosure, useHotkeys, useMediaQuery } from "@mantine/hooks";
+import { getHotkeyHandler, useDisclosure, useHotkeys, useLocalStorage, useMediaQuery } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
 import useSearch, { SearchResult as LocalSearchResult } from "../../../hooks/useSearch";
@@ -167,11 +167,31 @@ export const QuickSearchBox: React.FC = () => {
     document.querySelector("[data-quicksearch-selected=true]")?.scrollIntoView({ block: "center", behavior: "instant" });
   }, [currentSelection]);
 
+const [quickSearchCtrlKEnabled] = useLocalStorage({
+  key: "quicksearch-ctrl-k-enabled",
+  defaultValue: true,
+  getInitialValueInEffect: false,
+});
+
+  // Slash to open wherever this component is mounted (i.e. every page if
+  // QuickSearchBox is in nav bar). By default, ignores on INPUT, TEXTAREA,
+  // SELECT elements, as we don't supply a second argument.
   useHotkeys([
-    // Slash to open wherever this component is mounted (i.e. everywhere if QuickSearchBox is in nav bar)
     ['/', openWithHighlight],
-    // Modal component has built-in support for esc to close
-  ]); // By default, ignores on INPUT, TEXTAREA, SELECT elements
+    // Modal component has built-in support for esc to close, so no hotkey
+    // declaration is needed for that.
+  ]);
+
+  // Second useHotkeys for Ctrl + K, which has an explicit list of no ignored
+  // tags. This means the hotkey is available globally. This shortcut is for
+  // compatibility with users who are more used to Ctrl + K to trigger a palette,
+  // and can be turned off via local storage setting if it causes problems with
+  // overriding default browser shortcuts.
+  useHotkeys([
+    // Cmd + K as fallback for users who prefer that -- although only if they
+    // haven't turned it off in their local settings.
+    ["mod+K", quickSearchCtrlKEnabled ? openWithHighlight : () => void 0 ],
+  ], []);
 
   // Everywhere vs category-local dropdown store
   const combobox = useCombobox();
