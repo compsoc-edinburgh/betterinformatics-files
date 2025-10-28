@@ -1,0 +1,7 @@
+stages:
+  - lint
+
+lint-frontend:
+  stage: lint
+  script:
+    - apt update
