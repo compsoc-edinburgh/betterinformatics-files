@@ -18,14 +18,14 @@ stages:
   services:
     # Run required services to test Django
     - postgres:16
-    - name: minio/minio:RELEASE.2023-10-24T21-42-22Z
+    - name: minio/minio:RELEASE.2023-10-25T06-33-25Z
       command: ['server', '/minio']
       alias: minio
   before_script:
     # Install mc so that we can create the community-solutions bucket in minio
     - curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
     - chmod +x ./mc
-    - ./mc config host add myminio http://minio:9000 minio minio123
+    - ./mc alias set myminio http://minio:9000 minio minio123
     - ./mc mb myminio/community-solutions
     # Install poppler to get pdftotext binary
     - apt update && apt install -y --no-install-recommends poppler-utils
