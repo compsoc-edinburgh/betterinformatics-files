@@ -4,4 +4,4 @@ stages:
 lint-frontend:
   stage: lint
   script:
-    - apt update
+    - sudo apt update
