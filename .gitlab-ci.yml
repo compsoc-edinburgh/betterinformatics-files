@@ -123,8 +123,12 @@ stages:
     - echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
     - echo 'yarn-offline-mirror-pruning true' >> .yarnrc
 
-    # Fetch the merge target branch so we can compare and find the diff
-    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    # Fetch the merge target branch so we can compare and find the diff (only
+    # for merge requests)
+    - |
+      if [[ -n $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ]]; then
+        git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
+      fi
   cache:
     key:
       files:
@@ -138,15 +142,20 @@ stages:
     - yarn run tsc
     - echo 'Checking linter errors...'
     - yarn lint
-    - echo 'Checking formatting errors on modified files...'
-    - yarn run prettier --check $(
-        git diff --name-only --relative $CI_COMMIT_SHA origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --
-          "src/**/*.js"
-          "src/**/*.jsx"
-          "src/**/*.ts"
-          "src/**/*.tsx"
-          "src/**/*.json"
-          "src/**/*.css"
-      )
+
+    # Check formatting errors only for merge requests
+    - |
+      if [[ -n $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ]]; then
+        echo 'Checking formatting errors on modified files...'
+        yarn run prettier --check $( \
+          git diff --name-only --relative $CI_COMMIT_SHA origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- \
+            "src/**/*.js" \
+            "src/**/*.jsx" \
+            "src/**/*.ts" \
+            "src/**/*.tsx" \
+            "src/**/*.json" \
+            "src/**/*.css" \
+        )
+      fi
 
 
