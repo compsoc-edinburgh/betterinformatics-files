@@ -32,7 +32,7 @@ const Creatable: React.FC<CreatableProps> = ({
   value,
   onChange,
   getCreateLabel,
-  withinPortal
+  withinPortal,
 }) => {
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
