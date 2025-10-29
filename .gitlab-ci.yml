@@ -1,7 +1,102 @@
+# List of stages for jobs, which is executed in order. To define dependencies
+# between jobs in the same stage, use the 'needs' keyword.
 stages:
-  - lint
+  - Lint and Test
 
-lint-frontend:
-  stage: lint
+"Django Unit Tests":
+  stage: Lint and Test
+  rules:
+    # This job runs on protected branches and on merge requests to master.
+    # Both should be done because the branch state within the MR and the
+    # merged result can and often is different if there are other commits
+    # merged between the executions.
+    - if: $CI_COMMIT_BRANCH == "master" # Run on master, or
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
+      changes:
+        - backend/**/*
+  image: python:3.9 # version when installing python3 from apt (same as Dockerfile)
+  services:
+    # Run required services to test Django
+    - postgres:16
+    - name: minio/minio:RELEASE.2023-10-25T06-33-25Z
+      command: ['server', '/minio']
+      alias: minio
+  before_script:
+    # Install mc so that we can create the community-solutions bucket in minio
+    - curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
+    - chmod +x ./mc
+    - ./mc alias set myminio http://minio:9000 minio minio123
+    - ./mc mb myminio/community-solutions
+    # Install poppler to get pdftotext binary
+    - apt update && apt install -y --no-install-recommends poppler-utils
+    - pip3 install -r backend/requirements.txt
+    - pip3 install tblib
+    # Make/copy files (same as Dockerfile definition) to make resources availabe to tests
+    - mkdir backend/intermediate_pdf_storage
+    - mv ./frontend/public/exam10.pdf backend
+    - mv ./frontend/public/static backend
+  cache:
+    key:
+      files:
+        - backend/requirements.txt
+    paths:
+      - backend/.cache/pip
   script:
-    - sudo apt update
+    - export SIP_POSTGRES_DB_NAME=$POSTGRES_DB
+    - export SIP_POSTGRES_DB_USER=$POSTGRES_USER
+    - export SIP_POSTGRES_DB_PW=$POSTGRES_PASSWORD
+    - export SIP_POSTGRES_DB_SERVER=postgres
+    - export SIP_POSTGRES_DB_PORT=5432
+    - export SIP_S3_FILES_HOST=minio
+    - export SIP_S3_FILES_PORT=9000
+    - export SIP_S3_FILES_ACCESS_KEY=minio
+    - export SIP_S3_FILES_SECRET_KEY=minio123
+    - export SIP_S3_FILES_BUCKET=community-solutions
+    - export SIP_S3_FILES_USE_SSL=false
+    - cd backend
+    - python3 manage.py test --parallel # parallel speeds up by approx 4x.
+  variables:
+    # Set the pip cache directory to a directory that we can access and cache
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/backend/.cache/pip"
+
+    POSTGRES_DB: testdb
+    POSTGRES_USER: testuser
+    POSTGRES_PASSWORD: testpw
+    POSTGRES_HOST_AUTH_METHOD: trust
+    MINIO_ACCESS_KEY: minio
+    MINIO_SECRET_KEY: minio123
+    MINIO_DOMAIN: localhost
+
+
+"Frontend Typecheck & Lint":
+  stage: Lint and Test
+  rules:
+    # This job runs on protected branches and on merge requests to master.
+    # Both should be done because the branch state within the MR and the
+    # merged result can and often is different if there are other commits
+    # merged between the executions.
+    - if: $CI_COMMIT_BRANCH == "master" # Run on master, or
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
+      changes:
+        - frontend/**/*
+  image: node:20-alpine # same as Dockerfile
+  before_script:
+    - cd frontend
+    - echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
+    - echo 'yarn-offline-mirror-pruning true' >> .yarnrc
+  cache:
+    key:
+      files:
+        - frontend/yarn.lock
+    paths:
+      - frontend/.yarn-cache/
+  script:
+    - yarn --ignore-engines
+    - echo 'Typechecking...'
+    - yarn run tsc
+    - echo 'Checking linter errors...'
+    - yarn lint
+    - echo 'Checking formatting errors...'
+    - yarn check-format
+
+
