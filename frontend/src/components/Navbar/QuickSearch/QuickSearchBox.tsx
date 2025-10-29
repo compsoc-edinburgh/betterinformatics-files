@@ -213,7 +213,11 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
         onClose={close}
         withCloseButton={isMobile}
         fullScreen={isMobile}
-        transitionProps={{ transition: "pop", duration: 50 }}
+        transitionProps={{
+          transition: "pop",
+          duration: 100,
+          timingFunction: "cubic-bezier(0.5, 1, 0.89, 1)", // easeOutQuad
+        }}
         // The height of top nav
         yOffset="3.5rem"
         padding="xs"
