@@ -46,8 +46,10 @@ const itemToPath = (item: LocalSearchResult<CategoryMetaDataMinimal> | SearchRes
     return `/exams/${item.filename}/#page-${item.pages[0][0]}`;
   } else if (item.type === "exam") {
     return `/exams/${item.filename}`;
+  } else if (item.type === "answer") {
+    return `/exams/${item.filename}?answer=${item.long_id}`;
   } else {
-    return `/exams/${item.filename}/#${item.long_id}`;
+    return `/exams/${item.filename}?comment=${item.long_id}&answer=${item.answer_long_id}`;
   }
 }
 

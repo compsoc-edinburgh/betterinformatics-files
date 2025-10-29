@@ -422,6 +422,8 @@ def search_comments(
             highlighted_words=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter, 1, 2
             ),
+            # Answer
+            answer_long_id=F("answer__long_id"),
             # Exam
             exam_displayname=F("answer__answer_section__exam__displayname"),
             filename=F("answer__answer_section__exam__filename"),
@@ -438,6 +440,8 @@ def search_comments(
             "highlighted_words",
             "rank",
             "long_id",
+            # Answer
+            "answer_long_id",
             # Exam
             "exam_displayname",
             "filename",
