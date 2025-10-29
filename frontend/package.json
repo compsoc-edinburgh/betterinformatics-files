@@ -40,8 +40,8 @@
     "start": "vite",
     "start-with-faro": "VITE_FARO_DISABLE=false vite",
     "build": "tsc && vite build",
-    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css}",
-    "check-format": "prettier --list-different src/**/*.{js,jsx,ts,tsx,json,css}",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
+    "check-format": "prettier --list-different \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
     "lint": "yarn run eslint \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "browserslist": {

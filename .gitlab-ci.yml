@@ -3,7 +3,7 @@
 stages:
   - Lint and Test
 
-"Django Unit Tests":
+"Backend Check":
   stage: Lint and Test
   rules:
     # This job runs on protected branches and on merge requests to master.
@@ -14,23 +14,61 @@ stages:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
       changes:
         - backend/**/*
-  image: python:3.9 # version when installing python3 from apt (same as Dockerfile)
-  services:
-    # Run required services to test Django
-    - postgres:16
-    - name: minio/minio:RELEASE.2023-10-25T06-33-25Z
-      command: ['server', '/minio']
-      alias: minio
+  variables:
+    # Set the pip cache directory to a directory that we can access and cache
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/backend/.cache/pip"
+
+    POSTGRES_DB: testdb
+    POSTGRES_USER: testuser
+    POSTGRES_PASSWORD: testpw
+    POSTGRES_HOST_AUTH_METHOD: trust
+    MINIO_ACCESS_KEY: minio
+    MINIO_SECRET_KEY: minio123
+    MINIO_DOMAIN: localhost
   before_script:
+    - set -euo pipefail
+    # Run postgres and minio services as Docker containers.
+    # The KubeVirt CI executor has rootless docker.
+    - docker run
+      --network=host
+      --name postgres
+      -e POSTGRES_DB=$POSTGRES_DB
+      -e POSTGRES_USER=$POSTGRES_USER
+      -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      -e POSTGRES_HOST_AUTH_METHOD=$POSTGRES_HOST_AUTH_METHOD
+      -d
+      postgres:16
+    - docker run
+      --network=host
+      --name minio
+      -e MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY
+      -e MINIO_SECRET_KEY=$MINIO_SECRET_KEY
+      -e MINIO_DOMAIN=$MINIO_DOMAIN
+      -d
+      minio/minio:RELEASE.2023-10-25T06-33-25Z
+      server /minio
+
+    # The Django backend will be run bare-metal on the VM, so that we can
+    # cache the Python dependencies etc.
+    # KubeVirt CI executor runs on Debian 13 "Trixie" which comes with Python
+    # 3.13, but our production image is built with Python 3.9 so we install that.
+    - sudo apt-get update
+    - sudo apt-get install -y pyenv
+    - eval "$(pyenv init -)"
+    - pyenv install 3.9
+    - pyenv local 3.9
+
     # Install mc so that we can create the community-solutions bucket in minio
     - curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
     - chmod +x ./mc
-    - ./mc alias set myminio http://minio:9000 minio minio123
+    - ./mc alias set myminio http://localhost:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
     - ./mc mb myminio/community-solutions
+
     # Install poppler to get pdftotext binary
-    - apt update && apt install -y --no-install-recommends poppler-utils
-    - pip3 install -r backend/requirements.txt
-    - pip3 install tblib
+    - sudo apt-get install -y poppler-utils
+    - pip install -r backend/requirements.txt
+    - pip install tblib
+
     # Make/copy files (same as Dockerfile definition) to make resources availabe to tests
     - mkdir backend/intermediate_pdf_storage
     - mv ./frontend/public/exam10.pdf backend
@@ -45,9 +83,9 @@ stages:
     - export SIP_POSTGRES_DB_NAME=$POSTGRES_DB
     - export SIP_POSTGRES_DB_USER=$POSTGRES_USER
     - export SIP_POSTGRES_DB_PW=$POSTGRES_PASSWORD
-    - export SIP_POSTGRES_DB_SERVER=postgres
+    - export SIP_POSTGRES_DB_SERVER=localhost
     - export SIP_POSTGRES_DB_PORT=5432
-    - export SIP_S3_FILES_HOST=minio
+    - export SIP_S3_FILES_HOST=localhost
     - export SIP_S3_FILES_PORT=9000
     - export SIP_S3_FILES_ACCESS_KEY=minio
     - export SIP_S3_FILES_SECRET_KEY=minio123
@@ -55,20 +93,9 @@ stages:
     - export SIP_S3_FILES_USE_SSL=false
     - cd backend
     - python3 manage.py test --parallel # parallel speeds up by approx 4x.
-  variables:
-    # Set the pip cache directory to a directory that we can access and cache
-    PIP_CACHE_DIR: "$CI_PROJECT_DIR/backend/.cache/pip"
-
-    POSTGRES_DB: testdb
-    POSTGRES_USER: testuser
-    POSTGRES_PASSWORD: testpw
-    POSTGRES_HOST_AUTH_METHOD: trust
-    MINIO_ACCESS_KEY: minio
-    MINIO_SECRET_KEY: minio123
-    MINIO_DOMAIN: localhost
 
 
-"Frontend Typecheck & Lint":
+"Frontend Check":
   stage: Lint and Test
   rules:
     # This job runs on protected branches and on merge requests to master.
@@ -79,24 +106,47 @@ stages:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master" # Run on merge requests to master
       changes:
         - frontend/**/*
-  image: node:20-alpine # same as Dockerfile
   before_script:
+    - set -euo pipefail
+    # Install Node Version Manager
+    - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    - export NVM_DIR=/home/debian/.nvm
+
+    # Install Node 20 (same as Dockerfile)
+    - source $NVM_DIR/nvm.sh
+    - nvm install 20
+    - nvm use 20
+    - npm install --global yarn
+
+    # Prepare Yarn to save its store at a known location so it's cachable
     - cd frontend
     - echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
     - echo 'yarn-offline-mirror-pruning true' >> .yarnrc
+
+    # Fetch the merge target branch so we can compare and find the diff
+    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
   cache:
     key:
       files:
         - frontend/yarn.lock
     paths:
       - frontend/.yarn-cache/
+      - /home/debian/.nvm
   script:
     - yarn --ignore-engines
     - echo 'Typechecking...'
     - yarn run tsc
     - echo 'Checking linter errors...'
     - yarn lint
-    - echo 'Checking formatting errors...'
-    - yarn check-format
+    - echo 'Checking formatting errors on modified files...'
+    - yarn run prettier --check $(
+        git diff --name-only --relative $CI_COMMIT_SHA origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --
+          "src/**/*.js"
+          "src/**/*.jsx"
+          "src/**/*.ts"
+          "src/**/*.tsx"
+          "src/**/*.json"
+          "src/**/*.css"
+      )
 
 

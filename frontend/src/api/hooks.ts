@@ -335,17 +335,13 @@ const resetExamCommentFlagged = async (oid: string) => {
     .value as AnswerSection;
 };
 const setDocumentCommentFlagged = async (oid: number, flagged: boolean) => {
-  return (
-    await fetchPost(`/api/document/setflaggedcomment/${oid}`, {
-      flagged
-    })
-  );
-}
+  return await fetchPost(`/api/document/setflaggedcomment/${oid}`, {
+    flagged,
+  });
+};
 const resetDocumentCommentFlagged = async (oid: number) => {
-  return (
-    await fetchPost(`/api/document/resetflaggedcomment/${oid}`, {})
-  );
-}
+  return await fetchPost(`/api/document/resetflaggedcomment/${oid}`, {});
+};
 const setExpertVote = async (oid: string, vote: boolean) => {
   return (
     await fetchPost(`/api/exam/setexpertvote/${oid}/`, {
@@ -357,10 +353,8 @@ const setExpertVote = async (oid: string, vote: boolean) => {
 export const useSetAnswerFlagged = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const { loading: setAnswerFlaggedLoading, run: runSetAnswerFlagged } = useRequest(
-    setAnswerFlagged,
-    { manual: true, onSuccess: onSectionChanged },
-  );
+  const { loading: setAnswerFlaggedLoading, run: runSetAnswerFlagged } =
+    useRequest(setAnswerFlagged, { manual: true, onSuccess: onSectionChanged });
   return [setAnswerFlaggedLoading, runSetAnswerFlagged] as const;
 };
 export const useSetExpertVote = (
@@ -375,47 +369,62 @@ export const useSetExpertVote = (
 export const useResetAnswerFlaggedVote = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const { loading: resetAnswerFlaggedLoading, run: runResetAnswerFlagged } = useRequest(
-    resetAnswerFlagged,
-    { manual: true, onSuccess: onSectionChanged },
-  );
+  const { loading: resetAnswerFlaggedLoading, run: runResetAnswerFlagged } =
+    useRequest(resetAnswerFlagged, {
+      manual: true,
+      onSuccess: onSectionChanged,
+    });
   return [resetAnswerFlaggedLoading, runResetAnswerFlagged] as const;
 };
 export const useSetExamCommentFlagged = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const { loading: setExamCommentFlaggedLoading, run: runSetExamCommentFlagged } = useRequest(
-    setExamCommentFlagged,
-    { manual: true, onSuccess: onSectionChanged },
-  );
+  const {
+    loading: setExamCommentFlaggedLoading,
+    run: runSetExamCommentFlagged,
+  } = useRequest(setExamCommentFlagged, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
   return [setExamCommentFlaggedLoading, runSetExamCommentFlagged] as const;
 };
 export const useResetExamCommentFlaggedVote = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const { loading: resetExamCommentFlaggedLoading, run: runResetExamCommentFlagged } = useRequest(
-    resetExamCommentFlagged,
-    { manual: true, onSuccess: onSectionChanged },
-  );
+  const {
+    loading: resetExamCommentFlaggedLoading,
+    run: runResetExamCommentFlagged,
+  } = useRequest(resetExamCommentFlagged, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
   return [resetExamCommentFlaggedLoading, runResetExamCommentFlagged] as const;
 };
-export const useSetDocumentCommentFlagged = (
-  reload?: () => void,
-) => {
-  const { loading: setDocumentCommentFlaggedLoading, run: runSetDocumentCommentFlagged } = useRequest(
-    setDocumentCommentFlagged,
-    { manual: true, onSuccess: reload },
-  );
-  return [setDocumentCommentFlaggedLoading, runSetDocumentCommentFlagged] as const;
+export const useSetDocumentCommentFlagged = (reload?: () => void) => {
+  const {
+    loading: setDocumentCommentFlaggedLoading,
+    run: runSetDocumentCommentFlagged,
+  } = useRequest(setDocumentCommentFlagged, {
+    manual: true,
+    onSuccess: reload,
+  });
+  return [
+    setDocumentCommentFlaggedLoading,
+    runSetDocumentCommentFlagged,
+  ] as const;
 };
-export const useResetDocumentCommentFlaggedVote = (
-  reload?: () => void,
-) => {
-  const { loading: resetDocumentCommentFlaggedLoading, run: runResetDocumentCommentFlagged } = useRequest(
-    resetDocumentCommentFlagged,
-    { manual: true, onSuccess: reload },
-  );
-  return [resetDocumentCommentFlaggedLoading, runResetDocumentCommentFlagged] as const;
+export const useResetDocumentCommentFlaggedVote = (reload?: () => void) => {
+  const {
+    loading: resetDocumentCommentFlaggedLoading,
+    run: runResetDocumentCommentFlagged,
+  } = useRequest(resetDocumentCommentFlagged, {
+    manual: true,
+    onSuccess: reload,
+  });
+  return [
+    resetDocumentCommentFlaggedLoading,
+    runResetDocumentCommentFlagged,
+  ] as const;
 };
 export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
   const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
@@ -438,7 +447,7 @@ export const useMutation = <B, T extends any[]>(
   service: (...args: T) => Promise<B>,
   onSuccess?: (res: B, params: T) => void,
 ) => {
-  const {loading, run } = useRequest(service, { manual: true, onSuccess });
+  const { loading, run } = useRequest(service, { manual: true, onSuccess });
   return [loading, run] as const;
 };
 
@@ -467,9 +476,12 @@ export const createDocument = async (
   ).value as Document;
 };
 export const useCreateDocument = (onSuccess?: (document: Document) => void) => {
-  const { error, loading, run } = useRequest(createDocument, { manual: true, onSuccess });
-  return {error, loading, run} as const;
-}
+  const { error, loading, run } = useRequest(createDocument, {
+    manual: true,
+    onSuccess,
+  });
+  return { error, loading, run } as const;
+};
 
 export const loadDocuments = async (categorySlug: string) => {
   return (await fetchGet(`/api/document/?category=${categorySlug}`))
@@ -530,13 +542,16 @@ export const useDocument = (
   documentSlug: string,
   onSuccess?: (document: Document) => void,
 ) => {
-  const { error, loading, data, mutate, run:reload } = useRequest(
-    () => loadDocument(author, documentSlug),
-    {
-      cacheKey: `document-${documentSlug}`,
-      onSuccess,
-    },
-  );
+  const {
+    error,
+    loading,
+    data,
+    mutate,
+    run: reload,
+  } = useRequest(() => loadDocument(author, documentSlug), {
+    cacheKey: `document-${documentSlug}`,
+    onSuccess,
+  });
   return [error, loading, data, mutate, reload] as const;
 };
 
@@ -661,8 +676,11 @@ export const useCreateDocumentFile = (
   documentSlug: string,
   onSuccess?: (res: DocumentFile) => void,
 ) =>
-  useRequest((display_name: string, file: NamedBlob | File) =>
-    createDocumentFile(author, documentSlug, display_name, file), { manual: true, onSuccess });
+  useRequest(
+    (display_name: string, file: NamedBlob | File) =>
+      createDocumentFile(author, documentSlug, display_name, file),
+    { manual: true, onSuccess },
+  );
 
 export const deleteDocumentFile = async (
   author: string,
