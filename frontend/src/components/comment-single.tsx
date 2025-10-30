@@ -133,7 +133,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
           {comment && (
             <Menu withinPortal>
               <Menu.Target>
-                <Button size="xs" variant="light" color="black" mr="md"><IconDots/></Button>
+                <Button size="xs" variant="light" color="gray" mr="md"><IconDots/></Button>
               </Menu.Target>
               <Menu.Dropdown>
                 {comment.flaggedCount === 0 && (
