@@ -15,6 +15,8 @@
   transition: linear 100ms box-shadow, linear 50ms background;
   border-radius: var(--mantine-radius-sm);
 
+  position: relative;
+
   &:hover, &:focus-within {
     background: var(--mantine-color-gray-light-hover);
     box-shadow: var(--mantine-shadow-xs);
@@ -70,4 +72,10 @@
   &::placeholder {
     color: var(--mantine-color-dark-2)
   }
+}
+
+.searchLoader {
+  position: absolute;
+  right: 0;
+  margin-right: var(--mantine-spacing-xs);
 }

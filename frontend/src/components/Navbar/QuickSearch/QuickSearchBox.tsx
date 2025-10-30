@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack } from "@mantine/core";
+import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack, Loader } from "@mantine/core";
 import { getHotkeyHandler, useDisclosure, useHotkeys, useLocalStorage, useMediaQuery } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
@@ -280,6 +280,11 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
               ["ArrowDown", moveDown],
               ["Enter", confirmSelection],
             ])}
+          />
+          <Loader
+            size="sm"
+            className={classes.searchLoader}
+            display={searchResults.loading ? "block" : "none"}
           />
         </Group>
         {searchQuery.length === 0 && (
