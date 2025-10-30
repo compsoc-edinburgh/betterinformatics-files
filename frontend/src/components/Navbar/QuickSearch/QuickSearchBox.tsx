@@ -225,7 +225,7 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
         // TextInput in order to select the contents when the modal opens.
         keepMounted
       >
-        <Group wrap="nowrap" gap={0} preventGrowOverflow={false}>
+        <Group wrap="nowrap" gap={0} preventGrowOverflow={false} className={classes.searchBackground}>
           <Combobox
             store={combobox}
             offset={0}
