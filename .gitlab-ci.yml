@@ -126,7 +126,7 @@ stages:
     # Fetch the merge target branch so we can compare and find the diff (only
     # for merge requests)
     - |
-      if [[ -n $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ]]; then
+      if [[ -n ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME-} ]]; then
         git fetch origin "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME"
       fi
   cache:
@@ -145,7 +145,7 @@ stages:
 
     # Check formatting errors only for merge requests
     - |
-      if [[ -n $CI_MERGE_REQUEST_TARGET_BRANCH_NAME ]]; then
+      if [[ -n ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME-} ]]; then
         echo 'Checking formatting errors on modified files...'
         yarn run prettier --check $( \
           git diff --name-only --relative $CI_COMMIT_SHA origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- \
