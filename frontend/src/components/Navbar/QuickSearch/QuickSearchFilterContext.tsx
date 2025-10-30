@@ -1,16 +1,19 @@
 import { createContext, useContext, useEffect } from "react";
 
 export interface QuickSearchFilter {
-  slug: string, // Category slug
+  slug: string; // Category slug
   displayname: string; // Category display name
-};
+}
 
 // Provide React Contexts so components across the app can call
 // useQuickSearchFilter({slug, displayname});
-export const QuickSearchFilterContext = createContext<{
-  filter?: QuickSearchFilter,
-  setFilter: (filter?: QuickSearchFilter) => void,
-} | undefined>(undefined);
+export const QuickSearchFilterContext = createContext<
+  | {
+      filter?: QuickSearchFilter;
+      setFilter: (filter?: QuickSearchFilter) => void;
+    }
+  | undefined
+>(undefined);
 
 /**
  * Set the category filter for the site-wide quick search bar.
@@ -22,7 +25,8 @@ export const QuickSearchFilterContext = createContext<{
  * @param displayname Used in UI to show the dropdown text in the quick-search bar
  */
 export const useQuickSearchFilter = (filter?: QuickSearchFilter) => {
-  const { filter: currentFilter, setFilter } = useContext(QuickSearchFilterContext) ?? {};
+  const { filter: currentFilter, setFilter } =
+    useContext(QuickSearchFilterContext) ?? {};
   useEffect(() => {
     // Context may be undefined if there is no QuickSearchFilterContext in
     // the parent tree. If so, we won't do anything nor return cleanups.
@@ -45,6 +49,6 @@ export const useQuickSearchFilter = (filter?: QuickSearchFilter) => {
       // the hook to be unloaded, which calls useEffect's return callback, which
       // sets setFilter(undefined) again.
       if (currentFilter !== undefined) setFilter(undefined);
-    }
+    };
   }, [currentFilter, filter, setFilter]);
-}
+};

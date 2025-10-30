@@ -21,7 +21,8 @@
 
   /* The :not() for the hover case has higher specificity than plain :active, so
   override it with an equally high specificity selector. */
-  &:active, &:not(.selected):active {
+  &:active,
+  &:not(.selected):active {
     background: var(--mantine-primary-color-filled);
     color: var(--mantine-primary-color-contrast);
   }

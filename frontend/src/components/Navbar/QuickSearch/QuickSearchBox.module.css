@@ -12,12 +12,15 @@
 .searchBackground {
   background: var(--mantine-color-gray-light);
   /* border: 2px solid var(--mantine-primary-color-fille); */
-  transition: linear 100ms box-shadow, linear 50ms background;
+  transition:
+    linear 100ms box-shadow,
+    linear 50ms background;
   border-radius: var(--mantine-radius-sm);
 
   position: relative;
 
-  &:hover, &:focus-within {
+  &:hover,
+  &:focus-within {
     background: var(--mantine-color-gray-light-hover);
     box-shadow: var(--mantine-shadow-xs);
   }
@@ -36,7 +39,8 @@
   background: var(--mantine-color-gray-light);
   max-width: 300px;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     background: var(--mantine-color-gray-light-hover);
     border-color: var(--mantine-color-gray-outline);
   }
@@ -70,7 +74,7 @@
   border: 0 none;
 
   &::placeholder {
-    color: var(--mantine-color-dark-2)
+    color: var(--mantine-color-dark-2);
   }
 }
 

@@ -1,10 +1,44 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Modal, Button, Group, Text, TextInput, Combobox, InputBase, useCombobox, Kbd, Divider, Stack, Loader } from "@mantine/core";
-import { getHotkeyHandler, useDisclosure, useHotkeys, useLocalStorage, useMediaQuery } from "@mantine/hooks";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  Modal,
+  Button,
+  Group,
+  Text,
+  TextInput,
+  Combobox,
+  InputBase,
+  useCombobox,
+  Kbd,
+  Divider,
+  Stack,
+  Loader,
+} from "@mantine/core";
+import {
+  getHotkeyHandler,
+  useDisclosure,
+  useHotkeys,
+  useLocalStorage,
+  useMediaQuery,
+} from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
-import useSearch, { SearchResult as LocalSearchResult } from "../../../hooks/useSearch";
-import { AnswerSearchResult, CategoryMetaDataMinimal, CommentSearchResult, ExamSearchResult, SearchResult } from "../../../interfaces";
+import useSearch, {
+  SearchResult as LocalSearchResult,
+} from "../../../hooks/useSearch";
+import {
+  AnswerSearchResult,
+  CategoryMetaDataMinimal,
+  CommentSearchResult,
+  ExamSearchResult,
+  SearchResult,
+} from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import { highlight } from "../../../utils/search-utils";
@@ -29,7 +63,7 @@ const maxdepth = (nested_array: any): number => {
     return Math.max(...nested_array.map(maxdepth)) + 1;
   }
   return 0;
-}
+};
 
 /**
  * Determine the path for a search result item so we can navigate to it.
@@ -37,7 +71,12 @@ const maxdepth = (nested_array: any): number => {
  * @param item A valid search result item from the API, or a locally found category search result.
  * @returns The path to provide to history.push()
  */
-const itemToPath = (item: LocalSearchResult<CategoryMetaDataMinimal> | SearchResult | { "searchQuery": string }) => {
+const itemToPath = (
+  item:
+    | LocalSearchResult<CategoryMetaDataMinimal>
+    | SearchResult
+    | { searchQuery: string },
+) => {
   if ("slug" in item) {
     return `/category/${item.slug}`;
   } else if ("searchQuery" in item) {
@@ -51,9 +90,16 @@ const itemToPath = (item: LocalSearchResult<CategoryMetaDataMinimal> | SearchRes
   } else {
     return `/exams/${item.filename}?comment=${item.long_id}&answer=${item.answer_long_id}`;
   }
-}
+};
 
-const displayOrder = ["categories", "examNames", "examPages", "answers", "comments", "more"] as const;
+const displayOrder = [
+  "categories",
+  "examNames",
+  "examPages",
+  "answers",
+  "comments",
+  "more",
+] as const;
 
 export const QuickSearchBox: React.FC = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -70,7 +116,7 @@ export const QuickSearchBox: React.FC = () => {
   const categories = useRequest(loadAllCategories, {
     cacheKey: "categories",
   });
-  const isMobile = useMediaQuery('(max-width: 50em)');
+  const isMobile = useMediaQuery("(max-width: 50em)");
 
   // Search query and its debounced version (to save network requests while typing)
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,7 +129,9 @@ export const QuickSearchBox: React.FC = () => {
   // Whether we use global search or category search. If using category search,
   // we'll use contextFilter for the slug and display name. isGlobal should
   // never be set to false if contextFilter is undefined.
-  const [isGlobal, setIsGlobal] = useState<boolean>(contextFilter === undefined);
+  const [isGlobal, setIsGlobal] = useState<boolean>(
+    contextFilter === undefined,
+  );
 
   const categoryResults = useSearch(
     (isGlobal && categories.data) || [],
@@ -94,48 +142,75 @@ export const QuickSearchBox: React.FC = () => {
     // It doesn't seem to be levenstein distance. If anyone figures it out,
     // please amend this comment!
     4,
-    (data) => data.displayname,
+    data => data.displayname,
   ).slice(0, 4);
 
-  const searchResults = useRequest(() => loadSearch(debouncedSearchQuery, isGlobal ? undefined : contextFilter?.slug, true), {
-    refreshDeps: [debouncedSearchQuery, isGlobal],
-  });
+  const searchResults = useRequest(
+    () =>
+      loadSearch(
+        debouncedSearchQuery,
+        isGlobal ? undefined : contextFilter?.slug,
+        true,
+      ),
+    {
+      refreshDeps: [debouncedSearchQuery, isGlobal],
+    },
+  );
 
   // Create a results object, memoised so we don't recreate the same object
   // on every render
   const results = useMemo(() => {
-    const exams = searchResults.data?.filter((result): result is ExamSearchResult => result.type === "exam") ?? [];
+    const exams =
+      searchResults.data?.filter(
+        (result): result is ExamSearchResult => result.type === "exam",
+      ) ?? [];
     // Results on exam names will have a depth 3 match somewhere in the headline
-    const examNames = exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
+    const examNames =
+      exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
     // Results for exam pages will have non-zero page array.
     // We limit the "number of pages" to 4 (instead of the number of exams, which
     // may each have arbitrary matching result pages). To do this, we use .reduce()
     // and keep adding to a list a copy of the exam with just 1 page, until the
     // total reaches 4.
-    const examPages = exams.filter(result => result.pages.length > 0)
-      .reduce((accum, exam) => {
-        exam.pages.forEach(page => {
-          if (accum.totalPages >= 4) return;
-          // Clone exam, and set the pages array to just this page/
-          // structuredClone is deep-clone and is widely available in modern browsers
-          const copyExam = structuredClone(exam);
-          copyExam.pages = [page];
-          accum.exams.push(copyExam);
-          accum.totalPages += 1;
-        });
-        return accum;
-      }, {
-        totalPages: 0,
-        exams: [] as ExamSearchResult[],
-      }).exams ?? [];
+    const examPages =
+      exams
+        .filter(result => result.pages.length > 0)
+        .reduce(
+          (accum, exam) => {
+            exam.pages.forEach(page => {
+              if (accum.totalPages >= 4) return;
+              // Clone exam, and set the pages array to just this page/
+              // structuredClone is deep-clone and is widely available in modern browsers
+              const copyExam = structuredClone(exam);
+              copyExam.pages = [page];
+              accum.exams.push(copyExam);
+              accum.totalPages += 1;
+            });
+            return accum;
+          },
+          {
+            totalPages: 0,
+            exams: [] as ExamSearchResult[],
+          },
+        ).exams ?? [];
     // We might miss some exam results if postgres found a match in the exam name
     // but ts_headline for some reason didn't decide to highlight it. But that is
     // really an edge case so we ignore and won't show it to the user.
 
     // We'll also limit the number of answers and comments. Lead them to the full
     // search page for more results.
-    const answers = searchResults.data?.filter((result): result is AnswerSearchResult => result.type === "answer").slice(0, 4) ?? [];
-    const comments = searchResults.data?.filter((result): result is CommentSearchResult => result.type === "comment").slice(0, 4) ?? [];
+    const answers =
+      searchResults.data
+        ?.filter(
+          (result): result is AnswerSearchResult => result.type === "answer",
+        )
+        .slice(0, 4) ?? [];
+    const comments =
+      searchResults.data
+        ?.filter(
+          (result): result is CommentSearchResult => result.type === "comment",
+        )
+        .slice(0, 4) ?? [];
 
     return {
       categories: categoryResults,
@@ -143,20 +218,27 @@ export const QuickSearchBox: React.FC = () => {
       examPages,
       answers,
       comments,
-      more: [{
-        searchQuery: debouncedSearchQuery,
-      }],
-    }
+      more: [
+        {
+          searchQuery: debouncedSearchQuery,
+        },
+      ],
+    };
   }, [categoryResults, searchResults.data, debouncedSearchQuery]);
 
-  const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(results, displayOrder);
+  const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(
+    results,
+    displayOrder,
+  );
 
   // Create callback for pressing "Enter" and navigating to the highlighted result
   const history = useHistory();
   const confirmSelection = useCallback(() => {
     if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
 
-    history.push(itemToPath(results[currentSelection.type][currentSelection.index]));
+    history.push(
+      itemToPath(results[currentSelection.type][currentSelection.index]),
+    );
     close();
   }, [currentSelection, history, results, close]);
 
@@ -166,20 +248,22 @@ export const QuickSearchBox: React.FC = () => {
     // triggered right after rendering with the new currentSelection value, so
     // we're guaranteed to have the correct [data-quicksearch-selected]
     // already in the DOM (or not if there is no result).
-    document.querySelector("[data-quicksearch-selected=true]")?.scrollIntoView({ block: "center", behavior: "instant" });
+    document
+      .querySelector("[data-quicksearch-selected=true]")
+      ?.scrollIntoView({ block: "center", behavior: "instant" });
   }, [currentSelection]);
 
-const [quickSearchCtrlKEnabled] = useLocalStorage({
-  key: "quicksearch-ctrl-k-enabled",
-  defaultValue: true,
-  getInitialValueInEffect: false,
-});
+  const [quickSearchCtrlKEnabled] = useLocalStorage({
+    key: "quicksearch-ctrl-k-enabled",
+    defaultValue: true,
+    getInitialValueInEffect: false,
+  });
 
   // Slash to open wherever this component is mounted (i.e. every page if
   // QuickSearchBox is in nav bar). By default, ignores on INPUT, TEXTAREA,
   // SELECT elements, as we don't supply a second argument.
   useHotkeys([
-    ['/', openWithHighlight],
+    ["/", openWithHighlight],
     // Modal component has built-in support for esc to close, so no hotkey
     // declaration is needed for that.
   ]);
@@ -189,11 +273,14 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
   // compatibility with users who are more used to Ctrl + K to trigger a palette,
   // and can be turned off via local storage setting if it causes problems with
   // overriding default browser shortcuts.
-  useHotkeys([
-    // Cmd + K as fallback for users who prefer that -- although only if they
-    // haven't turned it off in their local settings.
-    ["mod+K", quickSearchCtrlKEnabled ? openWithHighlight : () => void 0 ],
-  ], []);
+  useHotkeys(
+    [
+      // Cmd + K as fallback for users who prefer that -- although only if they
+      // haven't turned it off in their local settings.
+      ["mod+K", quickSearchCtrlKEnabled ? openWithHighlight : () => void 0],
+    ],
+    [],
+  );
 
   // Everywhere vs category-local dropdown store
   const combobox = useCombobox();
@@ -225,11 +312,16 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
         // TextInput in order to select the contents when the modal opens.
         keepMounted
       >
-        <Group wrap="nowrap" gap={0} preventGrowOverflow={false} className={classes.searchBackground}>
+        <Group
+          wrap="nowrap"
+          gap={0}
+          preventGrowOverflow={false}
+          className={classes.searchBackground}
+        >
           <Combobox
             store={combobox}
             offset={0}
-            onOptionSubmit={(val) => {
+            onOptionSubmit={val => {
               setIsGlobal(val === "global");
               combobox.closeDropdown();
             }}
@@ -254,12 +346,14 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
             <Combobox.Dropdown>
               <Combobox.Options>
                 <Combobox.Option value="global">Everywhere</Combobox.Option>
-                {/*Display the category-based filter only if there is one defined
+                {
+                  /*Display the category-based filter only if there is one defined
                    by the page (via the React context)*/ contextFilter && (
-                  <Combobox.Option value="local">
-                    {contextFilter.displayname}
-                  </Combobox.Option>
-                )}
+                    <Combobox.Option value="local">
+                      {contextFilter.displayname}
+                    </Combobox.Option>
+                  )
+                }
               </Combobox.Options>
             </Combobox.Dropdown>
           </Combobox>
@@ -274,7 +368,7 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
             placeholder="Search..."
             size="md"
             value={searchQuery}
-            onChange={(event) => setSearchQuery(event.currentTarget.value)}
+            onChange={event => setSearchQuery(event.currentTarget.value)}
             onKeyDown={getHotkeyHandler([
               ["ArrowUp", moveUp],
               ["ArrowDown", moveDown],
@@ -288,18 +382,28 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
           />
         </Group>
         {searchQuery.length === 0 && (
-          <Text c="dimmed" my="xs" ta="center">Start typing to search...</Text>
+          <Text c="dimmed" my="xs" ta="center">
+            Start typing to search...
+          </Text>
         )}
         {searchQuery.length > 0 && (
           <Stack my="xs" gap={0}>
             {Object.values(results).every(k => k.length === 0) && (
-              <Text c="dimmed" ta="center">No Results :'(</Text>
+              <Text c="dimmed" ta="center">
+                No Results :'(
+              </Text>
             )}
             {results.categories.length > 0 && (
               <>
-                <Divider variant="dashed" label="Categories" labelPosition="left"/>
+                <Divider
+                  variant="dashed"
+                  label="Categories"
+                  labelPosition="left"
+                />
                 {results.categories.map((category, i) => {
-                  const isSelected = currentSelection.type === "categories" && currentSelection.index === i;
+                  const isSelected =
+                    currentSelection.type === "categories" &&
+                    currentSelection.index === i;
                   return (
                     <QuickSearchResult
                       badge="Category"
@@ -308,18 +412,26 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
                       link={itemToPath(category)}
                       onClick={close}
                     >
-                      <Text>{highlight(category.displayname, category.match)}</Text>
+                      <Text>
+                        {highlight(category.displayname, category.match)}
+                      </Text>
                     </QuickSearchResult>
-                  )
+                  );
                 })}
               </>
             )}
-            {!searchResults.loading && searchResults.error && <Text c="dimmed" mx="auto">{String(searchResults.error)}</Text>}
+            {!searchResults.loading && searchResults.error && (
+              <Text c="dimmed" mx="auto">
+                {String(searchResults.error)}
+              </Text>
+            )}
             {results.examNames.length > 0 && (
               <>
                 <Divider variant="dashed" label="Exams" labelPosition="left" />
                 {results.examNames.map((exam, i) => {
-                  const isSelected = currentSelection.type === "examNames" && currentSelection.index === i;
+                  const isSelected =
+                    currentSelection.type === "examNames" &&
+                    currentSelection.index === i;
                   return (
                     <QuickSearchResult
                       badge="Exam"
@@ -334,15 +446,21 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
                         ))}
                       </Text>
                     </QuickSearchResult>
-                  )
+                  );
                 })}
               </>
             )}
             {results.examPages.length > 0 && (
               <>
-                <Divider variant="dashed" label="Exam Pages" labelPosition="left" />
+                <Divider
+                  variant="dashed"
+                  label="Exam Pages"
+                  labelPosition="left"
+                />
                 {results.examPages.map((exam, i) => {
-                  const isSelected = currentSelection.type === "examPages" && currentSelection.index === i;
+                  const isSelected =
+                    currentSelection.type === "examPages" &&
+                    currentSelection.index === i;
                   return (
                     <QuickSearchResult
                       badge="Exam Page"
@@ -355,7 +473,8 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
                         <Text>
                           {exam.headline.map((part, i) => (
                             <HighlightedContent content={part} key={i} />
-                          ))} - Page {exam.pages[0][0]}
+                          ))}{" "}
+                          - Page {exam.pages[0][0]}
                         </Text>
                         <Text opacity={0.7}>
                           ...
@@ -366,15 +485,21 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
                         </Text>
                       </Stack>
                     </QuickSearchResult>
-                  )
+                  );
                 })}
               </>
             )}
             {results.answers.length > 0 && (
               <>
-                <Divider variant="dashed" label="Answers" labelPosition="left" />
+                <Divider
+                  variant="dashed"
+                  label="Answers"
+                  labelPosition="left"
+                />
                 {results.answers.map((answer, i) => {
-                  const isSelected = currentSelection.type === "answers" && currentSelection.index === i;
+                  const isSelected =
+                    currentSelection.type === "answers" &&
+                    currentSelection.index === i;
                   return (
                     <QuickSearchResult
                       badge="Answer"
@@ -385,25 +510,37 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
                     >
                       <Stack gap={0}>
                         <Text>
-                          {answer.author_displayname} on {answer.exam_displayname} - {answer.category_displayname}
+                          {answer.author_displayname} on{" "}
+                          {answer.exam_displayname} -{" "}
+                          {answer.category_displayname}
                         </Text>
                         <Text opacity={0.7}>
                           <MarkdownText
                             value={answer.text}
-                            regex={new RegExp(`${answer.highlighted_words.map(escapeRegExp).join("|")}`)}
+                            regex={
+                              new RegExp(
+                                `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
+                              )
+                            }
                           />
                         </Text>
                       </Stack>
                     </QuickSearchResult>
-                  )
+                  );
                 })}
               </>
             )}
             {results.comments.length > 0 && (
               <>
-                <Divider variant="dashed" label="Comments" labelPosition="left" />
+                <Divider
+                  variant="dashed"
+                  label="Comments"
+                  labelPosition="left"
+                />
                 {results.comments.map((comment, i) => {
-                  const isSelected = currentSelection.type === "comments" && currentSelection.index === i;
+                  const isSelected =
+                    currentSelection.type === "comments" &&
+                    currentSelection.index === i;
                   return (
                     <QuickSearchResult
                       badge="Comment"
@@ -414,17 +551,23 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
                     >
                       <Stack gap={0}>
                         <Text>
-                          {comment.author_displayname} on {comment.exam_displayname} - {comment.category_displayname}
+                          {comment.author_displayname} on{" "}
+                          {comment.exam_displayname} -{" "}
+                          {comment.category_displayname}
                         </Text>
                         <Text opacity={0.7}>
                           <MarkdownText
                             value={comment.text}
-                            regex={new RegExp(`${comment.highlighted_words.map(escapeRegExp).join("|")}`)}
+                            regex={
+                              new RegExp(
+                                `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
+                              )
+                            }
                           />
                         </Text>
                       </Stack>
                     </QuickSearchResult>
-                  )
+                  );
                 })}
               </>
             )}
@@ -434,13 +577,14 @@ const [quickSearchCtrlKEnabled] = useLocalStorage({
               link={itemToPath(results.more[0])}
               onClick={close}
             >
-              <Text>
-                Show all results...
-              </Text>
+              <Text>Show all results...</Text>
             </QuickSearchResult>
           </Stack>
         )}
-        <Divider style={{ marginInline: 'calc(-1 * var(--mb-padding))' }} my="xs" />
+        <Divider
+          style={{ marginInline: "calc(-1 * var(--mb-padding))" }}
+          my="xs"
+        />
         <Group justify="flex-end">
           <Group gap="xs">
             <Kbd size="xs">↑</Kbd>
