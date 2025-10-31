@@ -277,7 +277,14 @@ export const QuickSearchBox: React.FC = () => {
     [
       // Cmd + K as fallback for users who prefer that -- although only if they
       // haven't turned it off in their local settings.
-      ["mod+K", quickSearchCtrlKEnabled ? openWithHighlight : () => void 0],
+      [
+        "mod+K",
+        quickSearchCtrlKEnabled
+          ? opened
+            ? close
+            : openWithHighlight
+          : () => void 0,
+      ],
     ],
     [],
   );
