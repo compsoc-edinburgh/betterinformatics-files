@@ -6,7 +6,7 @@ from urllib import parse
 
 from categories.models import Category
 from django.conf import settings
-from django.db.models import Count, Q, Exists, OuterRef, Prefetch
+from django.db.models import Count, Q, Exists, OuterRef, Prefetch, Max
 from django.http import HttpRequest
 from django.http.response import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
@@ -57,6 +57,7 @@ def get_file_obj(file: DocumentFile):
         "display_name": file.display_name,
         "filename": file.filename,
         "mime_type": file.mime_type,
+        "order": file.order,
     }
 
 
@@ -399,6 +400,9 @@ class DocumentFileRootView(View):
         if err is not None:
             return err
 
+        max_order = DocumentFile.objects.filter(document=document).all().aggregate(max_order=Max('order'))['max_order']
+        new_order = 0 if DocumentFile.objects.filter(document=document).count() == 0 else max_order + 1
+
         filename = s3_util.generate_filename(
             16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
@@ -406,6 +410,7 @@ class DocumentFileRootView(View):
             document=document,
             filename=filename,
             mime_type=file.content_type,
+            order=new_order,
         )
         document_file.save()
 
@@ -603,3 +608,24 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
     document.save()
 
     return HttpResponse("updated")
+
+
+@response.request_post()
+@auth_check.require_login
+def move_file(request: HttpRequest, username:str, document_slug:str, filename: str, direction: int):
+    if not direction in [0, 1]:
+        return response.not_possible("Invalid direction value")
+    elif direction == 0:
+        direction = -1
+    document = get_object_or_404(
+        Document, author__username=username, slug=document_slug
+    )
+    if not document.current_user_can_edit(request):
+        return response.not_allowed()
+    file = get_object_or_404(DocumentFile, filename=filename)
+    moved_file = get_object_or_404(DocumentFile, document=document, order=file.order + direction)
+    file.order += direction
+    moved_file.order -= direction
+    file.save()
+    moved_file.save()
+    return response.success()
