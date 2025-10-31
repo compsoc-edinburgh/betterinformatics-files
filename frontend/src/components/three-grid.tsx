@@ -1,4 +1,4 @@
-import { Container, em, Group, SimpleGrid} from "@mantine/core";
+import { Box, Container, em, Flex, Group, SimpleGrid } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import React from "react";
 
@@ -6,7 +6,7 @@ const ThreeGrid: React.FC<{
   first?: React.ReactNode;
   second?: React.ReactNode;
   third?: React.ReactNode;
-}> = ({ first, second, third}) => {
+}> = ({ first, second, third }) => {
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
   const variant = isMobile ? "rows" : "cols";
   return variant === "cols" ? (
@@ -17,13 +17,16 @@ const ThreeGrid: React.FC<{
         <Group justify="right">{third}</Group>
       </SimpleGrid>
     </Container>
-  ) : 
-  (
+  ) : (
     <Container fluid px={0}>
       <SimpleGrid cols={1}>
-        {[first, second, third].filter((elem) => elem).map((elem, index) => (
-          <Group grow key={index}>{elem}</Group>
-        ))}
+        {[first, second, third]
+          .filter(elem => elem)
+          .map((elem, index) => (
+            <Group grow key={index}>
+              {elem}
+            </Group>
+          ))}
       </SimpleGrid>
     </Container>
   );
