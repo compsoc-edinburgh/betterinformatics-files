@@ -83,3 +83,24 @@
   right: 0;
   margin-right: var(--mantine-spacing-xs);
 }
+
+.searchResults {
+  max-height: calc(
+    min(
+      600px,
+      var(
+        --modal-content-max-height,
+        calc(100dvh - var(--modal-y-offset) * 2) - 108px
+      )
+    )
+  );
+  overflow: hidden auto;
+
+  /* Undo the modal padding to make the scroll bar reach the very edge of the modal*/
+  margin-inline: calc(-1 * var(--mb-padding));
+
+  /* Apply same amount padding as modal padding, so content is aligned with other
+  things that haven't received a margin undo */
+  padding-inline: var(--mb-padding);
+  scrollbar-color: inherit transparent;
+}

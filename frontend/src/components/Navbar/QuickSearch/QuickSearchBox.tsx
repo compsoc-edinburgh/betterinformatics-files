@@ -388,209 +388,219 @@ export const QuickSearchBox: React.FC = () => {
             display={searchResults.loading ? "block" : "none"}
           />
         </Group>
-        {searchQuery.length === 0 && (
-          <Text c="dimmed" my="xs" ta="center">
-            Start typing to search...
-          </Text>
-        )}
-        {searchQuery.length > 0 && (
-          <Stack my="xs" gap={0}>
-            {Object.values(results).every(k => k.length === 0) && (
-              <Text c="dimmed" ta="center">
-                No Results :'(
-              </Text>
-            )}
-            {results.categories.length > 0 && (
-              <>
-                <Divider
-                  variant="dashed"
-                  label="Categories"
-                  labelPosition="left"
-                />
-                {results.categories.map((category, i) => {
-                  const isSelected =
-                    currentSelection.type === "categories" &&
-                    currentSelection.index === i;
-                  return (
-                    <QuickSearchResult
-                      badge="Category"
-                      isSelected={isSelected}
-                      key={category.slug}
-                      link={itemToPath(category)}
-                      onClick={close}
-                    >
-                      <Text>
-                        {highlight(category.displayname, category.match)}
-                      </Text>
-                    </QuickSearchResult>
-                  );
-                })}
-              </>
-            )}
-            {!searchResults.loading && searchResults.error && (
-              <Text c="dimmed" mx="auto">
-                {String(searchResults.error)}
-              </Text>
-            )}
-            {results.examNames.length > 0 && (
-              <>
-                <Divider variant="dashed" label="Exams" labelPosition="left" />
-                {results.examNames.map((exam, i) => {
-                  const isSelected =
-                    currentSelection.type === "examNames" &&
-                    currentSelection.index === i;
-                  return (
-                    <QuickSearchResult
-                      badge="Exam"
-                      isSelected={isSelected}
-                      key={exam.filename}
-                      link={itemToPath(exam)}
-                      onClick={close}
-                    >
-                      <Text>
-                        {exam.headline.map((part, i) => (
-                          <HighlightedContent content={part} key={i} />
-                        ))}
-                      </Text>
-                    </QuickSearchResult>
-                  );
-                })}
-              </>
-            )}
-            {results.examPages.length > 0 && (
-              <>
-                <Divider
-                  variant="dashed"
-                  label="Exam Pages"
-                  labelPosition="left"
-                />
-                {results.examPages.map((exam, i) => {
-                  const isSelected =
-                    currentSelection.type === "examPages" &&
-                    currentSelection.index === i;
-                  return (
-                    <QuickSearchResult
-                      badge="Exam Page"
-                      isSelected={isSelected}
-                      key={`${exam.filename}-page-${exam.pages[0][0]}`}
-                      link={itemToPath(exam)}
-                      onClick={close}
-                    >
-                      <Stack gap={0}>
+        <Divider
+          style={{ marginInline: "calc(-1 * var(--mb-padding))" }}
+          mt="xs"
+        />
+        <div className={classes.searchResults}>
+          {searchQuery.length === 0 && (
+            <Text c="dimmed" my="xs" ta="center">
+              Start typing to search...
+            </Text>
+          )}
+          {searchQuery.length > 0 && (
+            <Stack my="xs" gap={0}>
+              {Object.values(results).every(k => k.length === 0) && (
+                <Text c="dimmed" ta="center">
+                  No Results :'(
+                </Text>
+              )}
+              {results.categories.length > 0 && (
+                <>
+                  <Divider
+                    variant="dashed"
+                    label="Categories"
+                    labelPosition="left"
+                  />
+                  {results.categories.map((category, i) => {
+                    const isSelected =
+                      currentSelection.type === "categories" &&
+                      currentSelection.index === i;
+                    return (
+                      <QuickSearchResult
+                        badge="Category"
+                        isSelected={isSelected}
+                        key={category.slug}
+                        link={itemToPath(category)}
+                        onClick={close}
+                      >
+                        <Text>
+                          {highlight(category.displayname, category.match)}
+                        </Text>
+                      </QuickSearchResult>
+                    );
+                  })}
+                </>
+              )}
+              {!searchResults.loading && searchResults.error && (
+                <Text c="dimmed" mx="auto">
+                  {String(searchResults.error)}
+                </Text>
+              )}
+              {results.examNames.length > 0 && (
+                <>
+                  <Divider
+                    variant="dashed"
+                    label="Exams"
+                    labelPosition="left"
+                  />
+                  {results.examNames.map((exam, i) => {
+                    const isSelected =
+                      currentSelection.type === "examNames" &&
+                      currentSelection.index === i;
+                    return (
+                      <QuickSearchResult
+                        badge="Exam"
+                        isSelected={isSelected}
+                        key={exam.filename}
+                        link={itemToPath(exam)}
+                        onClick={close}
+                      >
                         <Text>
                           {exam.headline.map((part, i) => (
                             <HighlightedContent content={part} key={i} />
-                          ))}{" "}
-                          - Page {exam.pages[0][0]}
-                        </Text>
-                        <Text opacity={0.7}>
-                          ...
-                          {exam.pages[0][2].map((part, i) => (
-                            <HighlightedContent content={part} key={i} />
                           ))}
-                          ...
                         </Text>
-                      </Stack>
-                    </QuickSearchResult>
-                  );
-                })}
-              </>
-            )}
-            {results.answers.length > 0 && (
-              <>
-                <Divider
-                  variant="dashed"
-                  label="Answers"
-                  labelPosition="left"
-                />
-                {results.answers.map((answer, i) => {
-                  const isSelected =
-                    currentSelection.type === "answers" &&
-                    currentSelection.index === i;
-                  return (
-                    <QuickSearchResult
-                      badge="Answer"
-                      isSelected={isSelected}
-                      key={answer.long_id}
-                      link={itemToPath(answer)}
-                      onClick={close}
-                    >
-                      <Stack gap={0}>
-                        <Text>
-                          {answer.author_displayname} on{" "}
-                          {answer.exam_displayname} -{" "}
-                          {answer.category_displayname}
-                        </Text>
-                        <Text opacity={0.7}>
-                          <MarkdownText
-                            value={answer.text}
-                            regex={
-                              new RegExp(
-                                `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
-                              )
-                            }
-                          />
-                        </Text>
-                      </Stack>
-                    </QuickSearchResult>
-                  );
-                })}
-              </>
-            )}
-            {results.comments.length > 0 && (
-              <>
-                <Divider
-                  variant="dashed"
-                  label="Comments"
-                  labelPosition="left"
-                />
-                {results.comments.map((comment, i) => {
-                  const isSelected =
-                    currentSelection.type === "comments" &&
-                    currentSelection.index === i;
-                  return (
-                    <QuickSearchResult
-                      badge="Comment"
-                      isSelected={isSelected}
-                      key={comment.long_id}
-                      link={itemToPath(comment)}
-                      onClick={close}
-                    >
-                      <Stack gap={0}>
-                        <Text>
-                          {comment.author_displayname} on{" "}
-                          {comment.exam_displayname} -{" "}
-                          {comment.category_displayname}
-                        </Text>
-                        <Text opacity={0.7}>
-                          <MarkdownText
-                            value={comment.text}
-                            regex={
-                              new RegExp(
-                                `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
-                              )
-                            }
-                          />
-                        </Text>
-                      </Stack>
-                    </QuickSearchResult>
-                  );
-                })}
-              </>
-            )}
-            <Divider variant="dashed" label="More" labelPosition="left" />
-            <QuickSearchResult
-              isSelected={currentSelection.type === "more"}
-              link={itemToPath(results.more[0])}
-              onClick={close}
-            >
-              <Text>Show all results...</Text>
-            </QuickSearchResult>
-          </Stack>
-        )}
+                      </QuickSearchResult>
+                    );
+                  })}
+                </>
+              )}
+              {results.examPages.length > 0 && (
+                <>
+                  <Divider
+                    variant="dashed"
+                    label="Exam Pages"
+                    labelPosition="left"
+                  />
+                  {results.examPages.map((exam, i) => {
+                    const isSelected =
+                      currentSelection.type === "examPages" &&
+                      currentSelection.index === i;
+                    return (
+                      <QuickSearchResult
+                        badge="Exam Page"
+                        isSelected={isSelected}
+                        key={`${exam.filename}-page-${exam.pages[0][0]}`}
+                        link={itemToPath(exam)}
+                        onClick={close}
+                      >
+                        <Stack gap={0}>
+                          <Text>
+                            {exam.headline.map((part, i) => (
+                              <HighlightedContent content={part} key={i} />
+                            ))}{" "}
+                            - Page {exam.pages[0][0]}
+                          </Text>
+                          <Text opacity={0.7}>
+                            ...
+                            {exam.pages[0][2].map((part, i) => (
+                              <HighlightedContent content={part} key={i} />
+                            ))}
+                            ...
+                          </Text>
+                        </Stack>
+                      </QuickSearchResult>
+                    );
+                  })}
+                </>
+              )}
+              {results.answers.length > 0 && (
+                <>
+                  <Divider
+                    variant="dashed"
+                    label="Answers"
+                    labelPosition="left"
+                  />
+                  {results.answers.map((answer, i) => {
+                    const isSelected =
+                      currentSelection.type === "answers" &&
+                      currentSelection.index === i;
+                    return (
+                      <QuickSearchResult
+                        badge="Answer"
+                        isSelected={isSelected}
+                        key={answer.long_id}
+                        link={itemToPath(answer)}
+                        onClick={close}
+                      >
+                        <Stack gap={0}>
+                          <Text>
+                            {answer.author_displayname} on{" "}
+                            {answer.exam_displayname} -{" "}
+                            {answer.category_displayname}
+                          </Text>
+                          <Text opacity={0.7}>
+                            <MarkdownText
+                              value={answer.text}
+                              regex={
+                                new RegExp(
+                                  `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
+                                )
+                              }
+                            />
+                          </Text>
+                        </Stack>
+                      </QuickSearchResult>
+                    );
+                  })}
+                </>
+              )}
+              {results.comments.length > 0 && (
+                <>
+                  <Divider
+                    variant="dashed"
+                    label="Comments"
+                    labelPosition="left"
+                  />
+                  {results.comments.map((comment, i) => {
+                    const isSelected =
+                      currentSelection.type === "comments" &&
+                      currentSelection.index === i;
+                    return (
+                      <QuickSearchResult
+                        badge="Comment"
+                        isSelected={isSelected}
+                        key={comment.long_id}
+                        link={itemToPath(comment)}
+                        onClick={close}
+                      >
+                        <Stack gap={0}>
+                          <Text>
+                            {comment.author_displayname} on{" "}
+                            {comment.exam_displayname} -{" "}
+                            {comment.category_displayname}
+                          </Text>
+                          <Text opacity={0.7}>
+                            <MarkdownText
+                              value={comment.text}
+                              regex={
+                                new RegExp(
+                                  `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
+                                )
+                              }
+                            />
+                          </Text>
+                        </Stack>
+                      </QuickSearchResult>
+                    );
+                  })}
+                </>
+              )}
+              <Divider variant="dashed" label="More" labelPosition="left" />
+              <QuickSearchResult
+                isSelected={currentSelection.type === "more"}
+                link={itemToPath(results.more[0])}
+                onClick={close}
+              >
+                <Text>Show all results...</Text>
+              </QuickSearchResult>
+            </Stack>
+          )}
+        </div>
         <Divider
           style={{ marginInline: "calc(-1 * var(--mb-padding))" }}
-          my="xs"
+          mb="xs"
         />
         <Group justify="flex-end">
           <Group gap="xs">
