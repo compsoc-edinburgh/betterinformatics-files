@@ -4,8 +4,6 @@ import {
   Tabs,
   SimpleGrid,
   LoadingOverlay,
-  Checkbox,
-  Stack,
 } from "@mantine/core";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -19,7 +17,6 @@ import UserDocuments from "../components/user-documents";
 import UserPayments from "../components/user-payments";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
-import { useLocalStorage } from "@mantine/hooks";
 
 const UserPage: React.FC<{}> = () => {
   const user = useUser()!;
@@ -31,11 +28,6 @@ const UserPage: React.FC<{}> = () => {
   const loading = userInfoLoading;
   const [activeTab, setActiveTab] = useState<string | null>("overview");
 
-  const [quickSearchCtrlKEnabled, setQuickSearchCtrlKEnabled] = useLocalStorage({
-    key: "quicksearch-ctrl-k-enabled",
-    defaultValue: true,
-    getInitialValueInEffect: false,
-  });
   return (
     <>
       <Container size="xl">
@@ -76,14 +68,6 @@ const UserPage: React.FC<{}> = () => {
           </Tabs.Panel>
           <Tabs.Panel value="settings" pt="sm">
             {isMyself && <UserNotificationsSettings username={username} />}
-            <h3>Shortcuts</h3>
-            <Stack gap="sm">
-              <Checkbox
-                label="Enable alternative Ctrl/Cmd + K shortcut to open command palette in addition to the slash (this setting is local to your browser)"
-                checked={quickSearchCtrlKEnabled}
-                onChange={e => setQuickSearchCtrlKEnabled(e.currentTarget.checked)}
-              />
-            </Stack>
           </Tabs.Panel>
         </Tabs>
       </Container>

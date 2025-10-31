@@ -24,7 +24,6 @@ import {
   getHotkeyHandler,
   useDisclosure,
   useHotkeys,
-  useLocalStorage,
   useMediaQuery,
   useOs,
 } from "@mantine/hooks";
@@ -254,12 +253,6 @@ export const QuickSearchBox: React.FC = () => {
       ?.scrollIntoView({ block: "center", behavior: "instant" });
   }, [currentSelection]);
 
-  const [quickSearchCtrlKEnabled] = useLocalStorage({
-    key: "quicksearch-ctrl-k-enabled",
-    defaultValue: true,
-    getInitialValueInEffect: false,
-  });
-
   // Slash to open wherever this component is mounted (i.e. every page if
   // QuickSearchBox is in nav bar). By default, ignores on INPUT, TEXTAREA,
   // SELECT elements, as we don't supply a second argument.
@@ -278,14 +271,7 @@ export const QuickSearchBox: React.FC = () => {
     [
       // Cmd + K as fallback for users who prefer that -- although only if they
       // haven't turned it off in their local settings.
-      [
-        "mod+K",
-        quickSearchCtrlKEnabled
-          ? opened
-            ? close
-            : openWithHighlight
-          : () => void 0,
-      ],
+      ["mod+K", opened ? close : openWithHighlight],
     ],
     [],
   );
