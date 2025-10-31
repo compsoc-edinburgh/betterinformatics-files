@@ -26,6 +26,7 @@ import {
   useHotkeys,
   useLocalStorage,
   useMediaQuery,
+  useOs,
 } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
@@ -289,6 +290,8 @@ export const QuickSearchBox: React.FC = () => {
     [],
   );
 
+  const os = useOs();
+
   // Everywhere vs category-local dropdown store
   const combobox = useCombobox();
 
@@ -298,7 +301,7 @@ export const QuickSearchBox: React.FC = () => {
         <Group wrap="nowrap">
           <IconSearch />
           <span>Search</span>
-          <Kbd>/</Kbd>
+          <Kbd>{os === "macos" ? "⌘" : "Ctrl +"} K</Kbd>
         </Group>
       </Button>
       <Modal
