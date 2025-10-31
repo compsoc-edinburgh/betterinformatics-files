@@ -116,7 +116,13 @@ export const QuickSearchBox: React.FC = () => {
   const categories = useRequest(loadAllCategories, {
     cacheKey: "categories",
   });
+
+  // QuickSearch should only be shown with a close button if it's ever shown
+  // there
   const isMobile = useMediaQuery("(max-width: 50em)");
+
+  // Use the OS to show OS-dependent shortcut icons
+  const os = useOs();
 
   // Search query and its debounced version (to save network requests while typing)
   const [searchQuery, setSearchQuery] = useState("");
@@ -275,8 +281,6 @@ export const QuickSearchBox: React.FC = () => {
     ],
     [],
   );
-
-  const os = useOs();
 
   // Everywhere vs category-local dropdown store
   const combobox = useCombobox();
