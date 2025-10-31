@@ -100,7 +100,11 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
     error: examError,
     data: exam,
     run: reloadExam,
-  } = useRequest(() => user?.isAdmin ? loadExamAdminStatus(metaData.filename) : Promise.resolve(undefined));
+  } = useRequest(() =>
+    user?.isAdmin
+      ? loadExamAdminStatus(metaData.filename)
+      : Promise.resolve(undefined),
+  );
 
   return (
     <PdfPanelBase
@@ -115,12 +119,14 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
       setMaxWidth={setMaxWidth}
       additionalActions={[
         <IconButton
+          key="report-problem"
           tooltip="Report problem"
           icon={<IconMessageBolt />}
           onClick={reportProblem}
         />,
         !allSectionsExpanded && (
           <IconButton
+            key="expand-all"
             tooltip="Expand all answers"
             icon={<IconArrowsMaximize />}
             onClick={onExpandAllSections}
@@ -128,6 +134,7 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
         ),
         !allSectionsCollapsed && (
           <IconButton
+            key="collapse-all"
             tooltip="Collapse all answers"
             icon={<IconArrowsMinimize />}
             onClick={onCollapseAllSections}
@@ -140,46 +147,50 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           {examError && (
             <Text>Could not load admin info: {examError.message}</Text>
           )}
-          {exam && !exam.finished_cuts && 
-          (<>
-            <Title order={6}>Edit Mode</Title>
-            <Grid>
-              <Grid.Col>
-                <ClaimButton exam={exam} reloadExams={reloadExam}/>
-              </Grid.Col>
-              {hasValidClaim(exam) &&
-                    exam.import_claim === user?.username && 
-              (<>
-                {editState.mode !== EditMode.None && (
-                  <Grid.Col span={{ xs: "auto" }}>
-                    <Button
-                      size="sm"
-                      onClick={() => setEditState({ mode: EditMode.None })}
-                      leftSection={<IconX />}
-                    >
-                      Stop Editing
-                    </Button>
-                  </Grid.Col>
-                )}
-                {editState.mode !== EditMode.Add && (
-                  <Grid.Col span={{ xs: "auto" }}>
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        setEditState({
-                          mode: EditMode.Add,
-                          snap,
-                        })
-                      }
-                      leftSection={<IconPlus />}
-                    >
-                      Add Cuts
-                    </Button>
-                  </Grid.Col>
-                )}
-              </>)}
-            </Grid>
-          </>)}
+          {exam && !exam.finished_cuts && (
+            <>
+              <Title order={6}>Edit Mode</Title>
+              <Grid>
+                <Grid.Col>
+                  <ClaimButton exam={exam} reloadExams={reloadExam} />
+                </Grid.Col>
+                {hasValidClaim(exam) &&
+                  exam.import_claim === user?.username && (
+                    <>
+                      {editState.mode !== EditMode.None && (
+                        <Grid.Col span={{ xs: "auto" }}>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              setEditState({ mode: EditMode.None })
+                            }
+                            leftSection={<IconX />}
+                          >
+                            Stop Editing
+                          </Button>
+                        </Grid.Col>
+                      )}
+                      {editState.mode !== EditMode.Add && (
+                        <Grid.Col span={{ xs: "auto" }}>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              setEditState({
+                                mode: EditMode.Add,
+                                snap,
+                              })
+                            }
+                            leftSection={<IconPlus />}
+                          >
+                            Add Cuts
+                          </Button>
+                        </Grid.Col>
+                      )}
+                    </>
+                  )}
+              </Grid>
+            </>
+          )}
           <div>
             {editState.mode !== EditMode.None && (
               <Checkbox
