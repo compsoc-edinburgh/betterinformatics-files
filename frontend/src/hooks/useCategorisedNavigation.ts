@@ -15,12 +15,15 @@ import { useCallback, useState } from "react";
  * should be navigated, top to bottom
  * @returns Handlers to move selection up/down, and the current selection
  */
-const useCategorisedNavigation = <T extends { [key: string]: any[] }>(items: T, displayOrder: readonly (keyof T)[]) => {
+const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
+  items: T,
+  displayOrder: readonly (keyof T)[],
+) => {
   const [currentSelection, setCurrentSelection] = useState({
     // Type will be one of the values of displayOrder (and a valid item key)
     // or undefined if there are no items at all to start with.
-    "type": displayOrder.at(0) ?? undefined,
-    "index": 0,
+    type: displayOrder.at(0) ?? undefined,
+    index: 0,
   });
 
   // Reset selection to default (topmost valid item) when items object changes.
@@ -45,7 +48,7 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(items: T, 
     setCurrentSelection({
       type: displayOrder.find(k => items[k].length > 0),
       index: 0,
-    })
+    });
   }
 
   // Callback function to move selection upwards
@@ -55,8 +58,8 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(items: T, 
       // for any type), check if we have anything new again
       if (displayOrder.length > 0) {
         setCurrentSelection({
-          "type": displayOrder[0] ?? undefined,
-          "index": 0,
+          type: displayOrder[0] ?? undefined,
+          index: 0,
         });
       }
       return;
@@ -65,19 +68,22 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(items: T, 
     // Move index to a higher item, or, to a previous category until the very top.
     if (currentSelection.index > 0) {
       return setCurrentSelection({
-        "type": currentSelection.type,
-        "index": currentSelection.index - 1,
+        type: currentSelection.type,
+        index: currentSelection.index - 1,
       });
     }
 
     let prevTypeIndex = displayOrder.indexOf(currentSelection.type) - 1;
-    while (prevTypeIndex >= 0 && items[displayOrder[prevTypeIndex]].length === 0) prevTypeIndex--;
+    while (
+      prevTypeIndex >= 0 &&
+      items[displayOrder[prevTypeIndex]].length === 0
+    )
+      prevTypeIndex--;
     if (prevTypeIndex < 0) return;
     return setCurrentSelection({
-      "type": displayOrder[prevTypeIndex],
-      "index": items[displayOrder[prevTypeIndex]].length - 1,
+      type: displayOrder[prevTypeIndex],
+      index: items[displayOrder[prevTypeIndex]].length - 1,
     });
-
   }, [currentSelection, setCurrentSelection, displayOrder, items]);
 
   // Callback function to move selection downwards
@@ -86,8 +92,8 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(items: T, 
       // If previously no selection, check if we have anything new and default to top item
       if (displayOrder.length > 0) {
         setCurrentSelection({
-          "type": displayOrder[0] ?? undefined,
-          "index": 0,
+          type: displayOrder[0] ?? undefined,
+          index: 0,
         });
       }
       return;
@@ -96,26 +102,29 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(items: T, 
     // Move index to a lower item, or, to a subsequent category until the very bottom.
     if (currentSelection.index < items[currentSelection.type].length - 1) {
       return setCurrentSelection({
-        "type": currentSelection.type,
-        "index": currentSelection.index + 1,
+        type: currentSelection.type,
+        index: currentSelection.index + 1,
       });
     }
 
     let nextTypeIndex = displayOrder.indexOf(currentSelection.type) + 1;
-    while (nextTypeIndex < displayOrder.length && items[displayOrder[nextTypeIndex]].length === 0) nextTypeIndex++;
+    while (
+      nextTypeIndex < displayOrder.length &&
+      items[displayOrder[nextTypeIndex]].length === 0
+    )
+      nextTypeIndex++;
     if (nextTypeIndex >= displayOrder.length) return;
     return setCurrentSelection({
-      "type": displayOrder[nextTypeIndex],
-      "index": 0,
+      type: displayOrder[nextTypeIndex],
+      index: 0,
     });
-
   }, [currentSelection, setCurrentSelection, displayOrder, items]);
 
   return {
     moveUp,
     moveDown,
     currentSelection,
-  }
-}
+  };
+};
 
 export default useCategorisedNavigation;

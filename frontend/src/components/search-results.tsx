@@ -27,7 +27,7 @@ const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
     const regex = new RegExp(`${matches.map(escapeRegExp).join("|")}`);
     return <MarkdownText value={content} regex={regex} />;
   }
-  return <MarkdownText value={content}/>;
+  return <MarkdownText value={content} />;
 };
 
 interface Props {

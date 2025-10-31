@@ -282,10 +282,18 @@ const CategoryPage: React.FC<{}> = () => {
     [mutate, history, slug],
   );
   useTitle(data?.displayname ?? slug);
-  useQuickSearchFilter(data && { slug: data.slug, displayname: data.displayname });
+  useQuickSearchFilter(
+    data && { slug: data.slug, displayname: data.displayname },
+  );
   const user = useUser();
   return (
-    <Container size="xl" mb="xl" key={slug} /* we need key to make sure all state is reset when slug changes due to navigation */>
+    <Container
+      size="xl"
+      mb="xl"
+      key={
+        slug
+      } /* we need key to make sure all state is reset when slug changes due to navigation */
+    >
       {error && <Alert color="red">{error.message}</Alert>}
       {loading && <LoadingOverlay visible={loading} />}
       {data && (

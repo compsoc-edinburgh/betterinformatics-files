@@ -434,7 +434,12 @@ const ExamPage: React.FC<{}> = () => {
     refreshDeps: [filename],
   });
   useTitle(metaData?.displayname ?? filename);
-  useQuickSearchFilter(metaData && { slug: metaData.category, displayname: metaData.category_displayname });
+  useQuickSearchFilter(
+    metaData && {
+      slug: metaData.category,
+      displayname: metaData.category_displayname,
+    },
+  );
   const {
     error: cutsError,
     loading: cutsLoading,
@@ -458,7 +463,7 @@ const ExamPage: React.FC<{}> = () => {
     },
     { refreshDeps: [metaData === undefined, metaData?.exam_file] },
   );
-  const [pdf, renderer] = (!pdfLoading && data) ? data : [];
+  const [pdf, renderer] = !pdfLoading && data ? data : [];
   const sections = useMemo(
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
