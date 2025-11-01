@@ -18,7 +18,6 @@ import HideAnswerSectionModal from "../components/hide-answer-section-overlay";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
-import ThreeButtons from "./three-columns";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import {
@@ -34,6 +33,7 @@ import {
 import classes from "./answer-section.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { useLocation } from "react-router-dom";
+import AnswerSectionButtons from "./answer-section-buttons";
 
 interface NameCardProps {
   id: string;
@@ -41,12 +41,7 @@ interface NameCardProps {
 }
 
 const NameCard = (props: NameCardProps) => (
-  <Card
-    className={classes.nameCard}
-    {...props}
-    shadow="md"
-    id={props.id}
-  />
+  <Card className={classes.nameCard} {...props} shadow="md" id={props.id} />
 );
 
 const AnswerSectionButtonWrapper = (props: CardProps) => (
@@ -94,7 +89,7 @@ const AddButton: React.FC<AddButtonProps> = ({
     );
   } else {
     return (
-      <div>
+      <Group grow>
         {allowAnswer && (
           <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
             Add Answer
@@ -109,7 +104,7 @@ const AddButton: React.FC<AddButtonProps> = ({
             Add Legacy Answer
           </Button>
         )}
-      </div>
+      </Group>
     );
   }
 };
@@ -197,7 +192,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
-    const [deleteWarningIsOpen, {open: openDeleteWarning, close: closeDeleteWarning}] = useDisclosure();
+    const [
+      deleteWarningIsOpen,
+      { open: openDeleteWarning, close: closeDeleteWarning },
+    ] = useDisclosure();
     const hideAnswerSection = async () => {
       await onHasAnswersChange();
       closeDeleteWarning();
@@ -301,56 +299,53 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           >
             <div>
               {data === undefined ? (
-                <ThreeButtons center={<Loader />} />
+                <AnswerSectionButtons show_hide={<Loader />} />
               ) : (
                 <>
-                  <ThreeButtons
-                    left={
-                      <>
-                        {displayHideShowButtons ? (
-                          <IconButton
-                            size="sm"
-                            icon={has_answers ? <IconEyeOff /> : <IconEye />}
-                            tooltip="Toggle visibility"
-                            onClick={hideAnswerSectionWithWarning}
-                          />
-                        ) : null}
-
-                        {isBeingMoved ? (
-                          <Button size="sm" onClick={onCancelMove}>
-                            Cancel
-                          </Button>
-                        ) : (
-                          (data.answers.length === 0 || !hidden) &&
-                          has_answers &&
-                          data &&
-                          (data.allow_new_answer ||
-                            (data.allow_new_legacy_answer && isCatAdmin)) && (
-                            <AddButton
-                              allowAnswer={data.allow_new_answer}
-                              allowLegacyAnswer={
-                                data.allow_new_legacy_answer && isCatAdmin
-                              }
-                              hasAnswerDraft={hasDraft}
-                              hasLegacyAnswerDraft={hasLegacyDraft}
-                              onAnswer={onAddAnswer}
-                              onLegacyAnswer={onAddLegacyAnswer}
-                            />
-                          )
-                        )}
-                      </>
+                  <AnswerSectionButtons
+                    visibility={
+                      displayHideShowButtons ? (
+                        <IconButton
+                          size="sm"
+                          icon={has_answers ? <IconEyeOff /> : <IconEye />}
+                          tooltip="Toggle visibility"
+                          onClick={hideAnswerSectionWithWarning}
+                        />
+                      ) : null
                     }
-                    center={
-                      !isBeingMoved &&
-                      data.answers.length > 0 && (
-                        <>
-                          <Button onClick={onToggleHidden}>
-                            {hidden ? "Show Answers" : "Hide Answers"}
-                          </Button>
-                        </>
+                    cancel_add={
+                      isBeingMoved ? (
+                        <Button size="sm" onClick={onCancelMove}>
+                          Cancel
+                        </Button>
+                      ) : (
+                        (data.answers.length === 0 || !hidden) &&
+                        has_answers &&
+                        data &&
+                        (data.allow_new_answer ||
+                          (data.allow_new_legacy_answer && isCatAdmin)) && (
+                          <AddButton
+                            allowAnswer={data.allow_new_answer}
+                            allowLegacyAnswer={
+                              data.allow_new_legacy_answer && isCatAdmin
+                            }
+                            hasAnswerDraft={hasDraft}
+                            hasLegacyAnswerDraft={hasLegacyDraft}
+                            onAnswer={onAddAnswer}
+                            onLegacyAnswer={onAddLegacyAnswer}
+                          />
+                        )
                       )
                     }
-                    right={
+                    show_hide={
+                      !isBeingMoved &&
+                      data.answers.length > 0 && (
+                        <Button onClick={onToggleHidden}>
+                          {hidden ? "Show Answers" : "Hide Answers"}
+                        </Button>
+                      )
+                    }
+                    move={
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
