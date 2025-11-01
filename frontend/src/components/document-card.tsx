@@ -21,7 +21,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
         size="lg"
         fw={600}
       >
-        <Text>{document.display_name}</Text>
+        <Text lineClamp={3}>{document.display_name}</Text>
       </Anchor>
       <Group justify="space-between" mt="sm">
         <Anchor component={Link} to={`/user/${document.author}`}>
