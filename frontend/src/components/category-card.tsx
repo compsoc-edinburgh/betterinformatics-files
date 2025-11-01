@@ -45,19 +45,18 @@ const CategoryCard: React.FC<Props> = ({ category }) => {
             tabIndex={-1}
             mb={0}
             lh={1.25}
+            lineClamp={3}
           >
             {"match" in category
               ? highlight(category.displayname, category.match)
               : category.displayname}
           </Anchor>
-          <Text mt={4}>
-            {`Exams: ${category.examcountpublic}`}
-          </Text>
-          <Text mb={4}>
-            {`Documents: ${category.documentcount}`}
-          </Text>
+          <Text mt={4}>{`Exams: ${category.examcountpublic}`}</Text>
+          <Text mb={4}>{`Documents: ${category.documentcount}`}</Text>
         </div>
-        <Tooltip label={`Answers: ${((category.answerprogress * 100) | 0).toString()} %`}>
+        <Tooltip
+          label={`Answers: ${((category.answerprogress * 100) | 0).toString()} %`}
+        >
           <Progress radius={0} value={category.answerprogress * 100} />
         </Tooltip>
       </Stack>
