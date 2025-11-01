@@ -9,6 +9,15 @@
   }
 }
 
+.modalContent {
+  overflow-y: hidden;
+}
+
+.escapeModalMargin {
+  /* Undo the modal padding to make the scroll bar reach the very edge of the modal*/
+  margin-inline: calc(-1 * var(--mb-padding));
+}
+
 .searchBackground {
   background: var(--mantine-color-gray-light);
   /* border: 2px solid var(--mantine-primary-color-fille); */
@@ -94,10 +103,8 @@
       )
     )
   );
+  box-sizing: content-box;
   overflow: hidden auto;
-
-  /* Undo the modal padding to make the scroll bar reach the very edge of the modal*/
-  margin-inline: calc(-1 * var(--mb-padding));
 
   /* Apply same amount padding as modal padding, so content is aligned with other
   things that haven't received a margin undo */

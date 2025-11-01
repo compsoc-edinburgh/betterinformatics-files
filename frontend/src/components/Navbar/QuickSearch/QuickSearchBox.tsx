@@ -49,6 +49,7 @@ import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
 import { useHistory } from "react-router-dom";
+import clsx from "clsx";
 
 /**
  * Return the max depth of an array.
@@ -126,7 +127,7 @@ export const QuickSearchBox: React.FC = () => {
 
   // Search query and its debounced version (to save network requests while typing)
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchQuery = useDebounce(searchQuery, 150);
+  const debouncedSearchQuery = useDebounce(searchQuery, 100);
 
   // Category filter, set by pages like ExamPage or CategoryPage through the
   // global context (in App). Undefined if there is no filter.
@@ -311,6 +312,12 @@ export const QuickSearchBox: React.FC = () => {
         // Modal contents must be kept mounted, for we need a stable ref to the
         // TextInput in order to select the contents when the modal opens.
         keepMounted
+        // Disable overflow on modal container, since we set an overflow on the
+        // results list only (this is so the input box and the shortcuts list
+        // are fixed and always visible)
+        classNames={{
+          content: classes.modalContent,
+        }}
       >
         <Group
           wrap="nowrap"
@@ -381,11 +388,8 @@ export const QuickSearchBox: React.FC = () => {
             display={searchResults.loading ? "block" : "none"}
           />
         </Group>
-        <Divider
-          style={{ marginInline: "calc(-1 * var(--mb-padding))" }}
-          mt="xs"
-        />
-        <div className={classes.searchResults}>
+        <Divider className={classes.escapeModalMargin} mt="xs" />
+        <div className={clsx(classes.escapeModalMargin, classes.searchResults)}>
           {searchQuery.length === 0 && (
             <Text c="dimmed" my="xs" ta="center">
               Start typing to search...
@@ -591,10 +595,7 @@ export const QuickSearchBox: React.FC = () => {
             </Stack>
           )}
         </div>
-        <Divider
-          style={{ marginInline: "calc(-1 * var(--mb-padding))" }}
-          mb="xs"
-        />
+        <Divider className={classes.escapeModalMargin} mb="xs" />
         <Group justify="flex-end">
           <Group gap="xs">
             <Kbd size="xs">↑</Kbd>
