@@ -1,4 +1,4 @@
-import { Alert, Button, Flex, Loader, TextInput } from "@mantine/core";
+import { Alert, alpha, Button, Flex, Loader, Popover, TextInput } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
@@ -11,7 +11,7 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
-import { IconDownload, IconSearch , IconMessage} from "@tabler/icons-react";
+import { IconDownload, IconSearch , IconMessage, IconQuestionMark} from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 interface ExamListProps {
@@ -67,8 +67,10 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         mt="sm"
         mb="lg"
         justify="space-between"
+        align="center"
       >
-        <div>
+        {/* Left group: Download + Missing Exams */}
+        <Flex gap="sm" align="center">
           <Button
             disabled={selected.size === 0}
             onClick={() => dlSelectedExams(getSelectedExams(selected))}
@@ -76,13 +78,39 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           >
             Download selected exams
           </Button>
-        </div>
+
+          {(examTypeMap &&
+            examTypeMap.reduce((acc, [_examtype, exams]) => acc + exams.length, 0) <=
+              3 && (
+              <Popover width={300} position="bottom" withArrow shadow="md">
+                <Popover.Target>
+                  <Button
+                    onClick={() => {
+                      return;
+                    }}
+                    color={"gray"}
+                    variant="subtle"
+                  >
+                    Missing Exams?
+                  </Button>
+                </Popover.Target>
+                <Popover.Dropdown>
+                  This category has very few exams. If you would like to request an exam to be added to the collection,{' '}
+                  <Link to="/feedback" style={{ textDecoration: 'none', color: 'yellow' }}>
+                    send us feedback!
+                  </Link>
+                </Popover.Dropdown>
+              </Popover>
+            ))}
+        </Flex>
+
+        {/* Right: Filter */}
         <TextInput
           placeholder="Filter..."
           value={filter}
           autoFocus
           onChange={e => setFilter(e.currentTarget.value)}
-          leftSection={<IconSearch style={{ height: "15px", width: "15px" }} />}
+          leftSection={<IconSearch style={{ height: '15px', width: '15px' }} />}
         />
       </Flex>
 
@@ -102,29 +130,6 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
             ),
         )
       }
-       
-      <Flex
-        direction={{ base: "row", sm:"row"}}
-        gap="sm"
-        mt="lg"
-        mb="lg"
-        justify="start"
-      >
-        <Link
-          to="/feedback"
-          style={{textDecoration:"none"}}  
-          >
-          { (examTypeMap !== undefined && examTypeMap.length < 10) &&
-          <Alert
-            color="yellow"
-            icon={<IconMessage/>}
-            flex="1"
-          >
-            If you have any suggestions or want more exams, click here to give us a heads up!
-            <br />
-          </Alert> }
-        </Link>
-      </Flex>
     </>
   );
 };
