@@ -103,8 +103,8 @@
       )
     )
   );
-  box-sizing: content-box;
   overflow: hidden auto;
+  position: relative;
 
   /* Apply same amount padding as modal padding, so content is aligned with other
   things that haven't received a margin undo */
