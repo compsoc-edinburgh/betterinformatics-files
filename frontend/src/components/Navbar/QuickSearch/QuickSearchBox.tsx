@@ -127,7 +127,7 @@ export const QuickSearchBox: React.FC = () => {
 
   // Search query and its debounced version (to save network requests while typing)
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchQuery = useDebounce(searchQuery, 150);
+  const debouncedSearchQuery = useDebounce(searchQuery, 100);
 
   // Category filter, set by pages like ExamPage or CategoryPage through the
   // global context (in App). Undefined if there is no filter.
