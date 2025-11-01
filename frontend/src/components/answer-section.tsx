@@ -18,7 +18,6 @@ import HideAnswerSectionModal from "../components/hide-answer-section-overlay";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
-import ThreeButtons from "./three-grid";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import {
@@ -34,6 +33,7 @@ import {
 import classes from "./answer-section.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { useLocation } from "react-router-dom";
+import AnswerSectionButtons from "./answer-section-buttons";
 
 interface NameCardProps {
   id: string;
@@ -299,21 +299,22 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           >
             <div>
               {data === undefined ? (
-                <ThreeButtons second={<Loader />} />
+                <AnswerSectionButtons show_hide={<Loader />} />
               ) : (
                 <>
-                  <ThreeButtons
-                    first=<>
-                      {displayHideShowButtons ? (
+                  <AnswerSectionButtons
+                    visibility={
+                      displayHideShowButtons ? (
                         <IconButton
                           size="sm"
                           icon={has_answers ? <IconEyeOff /> : <IconEye />}
                           tooltip="Toggle visibility"
                           onClick={hideAnswerSectionWithWarning}
                         />
-                      ) : null}
-
-                      {isBeingMoved ? (
+                      ) : null
+                    }
+                    cancel_add={
+                      isBeingMoved ? (
                         <Button size="sm" onClick={onCancelMove}>
                           Cancel
                         </Button>
@@ -334,9 +335,9 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             onLegacyAnswer={onAddLegacyAnswer}
                           />
                         )
-                      )}
-                    </>
-                    second={
+                      )
+                    }
+                    show_hide={
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <Button onClick={onToggleHidden}>
@@ -344,7 +345,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         </Button>
                       )
                     }
-                    third={
+                    move={
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
