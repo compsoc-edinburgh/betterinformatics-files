@@ -59,6 +59,7 @@ import {
   IconLink,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 const addCut = async (
   filename: string,
@@ -430,8 +431,15 @@ const ExamPage: React.FC<{}> = () => {
     mutate: setMetaData,
   } = useRequest(() => loadExamMetaData(filename), {
     cacheKey: `exam-metaData-${filename}`,
+    refreshDeps: [filename],
   });
   useTitle(metaData?.displayname ?? filename);
+  useQuickSearchFilter(
+    metaData && {
+      slug: metaData.category,
+      displayname: metaData.category_displayname,
+    },
+  );
   const {
     error: cutsError,
     loading: cutsLoading,
@@ -440,6 +448,7 @@ const ExamPage: React.FC<{}> = () => {
     mutate: mutateCuts,
   } = useRequest(() => loadCuts(filename), {
     cacheKey: `exam-cuts-${filename}`,
+    refreshDeps: [filename],
   });
   const {
     error: pdfError,
@@ -454,7 +463,7 @@ const ExamPage: React.FC<{}> = () => {
     },
     { refreshDeps: [metaData === undefined, metaData?.exam_file] },
   );
-  const [pdf, renderer] = data ? data : [];
+  const [pdf, renderer] = !pdfLoading && data ? data : [];
   const sections = useMemo(
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
@@ -469,7 +478,7 @@ const ExamPage: React.FC<{}> = () => {
   const history = useHistory();
 
   return (
-    <div>
+    <div key={filename}>
       <Container size="xl">
         <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor component={Link} tt="uppercase" size="xs" to="/">
@@ -499,7 +508,7 @@ const ExamPage: React.FC<{}> = () => {
             <Loader />
           </Container>
         )}
-        {metaData && (
+        {!metaDataLoading && metaData && (
           <Switch>
             <Route path={`${path}/edit`}>
               {!user.isAdmin && !metaData.canEdit && <Redirect to={url} />}

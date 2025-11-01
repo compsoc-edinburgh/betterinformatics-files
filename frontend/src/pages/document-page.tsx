@@ -41,6 +41,7 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import PermaLinkHandler from "../components/permalink-handler";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -82,32 +83,40 @@ const getFile = (document: Document | undefined, oid: number) =>
 interface Props {}
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
-  const [error, _, data, mutate, reload] = useDocument(author, slug, document => {
-    if (document.files.length > 0) setTab(document.files[0].oid.toString());
-  });
+  const [error, _, data, mutate, reload] = useDocument(
+    author,
+    slug,
+    document => {
+      if (document.files.length > 0) setTab(document.files[0].oid.toString());
+    },
+  );
+
+  useQuickSearchFilter(
+    data && { slug: data.category, displayname: data.category_display_name },
+  );
 
   const [tab, setTab] = useState<string | null>("none");
   const activeFile = !Number.isNaN(Number(tab))
     ? getFile(data, Number(tab))
     : undefined;
   const Components = getComponents(activeFile);
-  const [editing, {toggle: toggleEditing}] = useDisclosure();
+  const [editing, { toggle: toggleEditing }] = useDisclosure();
   const [loadingDownload, startDownload] = useDocumentDownload(data);
   const reloadComments = async () => {
     await reload();
     setTab("comments");
-  }
-  const {search: searchParams} = useLocation();
+  };
+  const { search: searchParams } = useLocation();
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     const id = params.get("comment");
-    if (id && data?.comments.map((item) => String(item.oid)).includes(id)) {
+    if (id && data?.comments.map(item => String(item.oid)).includes(id)) {
       setTab("comments");
     }
   }, [searchParams, data]);
   return (
     <>
-      <PermaLinkHandler/>
+      <PermaLinkHandler />
       <Container size="xl">
         <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">

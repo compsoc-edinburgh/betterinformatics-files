@@ -57,6 +57,7 @@ import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
 import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
+import { QuickSearchFilter, QuickSearchFilterContext } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 /**
  * To be used as a wrapper for <Route>s at the top level, and adds Faro
@@ -194,6 +195,7 @@ const App: React.FC<{}> = () => {
   const [debugPanel, { toggle: toggleDebugPanel, close: closeDebugPanel }] =
     useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
+  const [quickSearchFilter, setQuickSearchFilter] = useState<QuickSearchFilter|undefined>(undefined);
 
   const loadUnreadCount = async () => {
     // Notifications will be polled at regular intervals. When the auth token
@@ -264,7 +266,6 @@ const App: React.FC<{}> = () => {
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
-    { title: "Search", href: "/search" },
     {
       title: (
         <Group wrap="nowrap" gap="xs">
@@ -317,7 +318,7 @@ const App: React.FC<{}> = () => {
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
-            <div>
+            <QuickSearchFilterContext.Provider value={{ filter: quickSearchFilter, setFilter: setQuickSearchFilter }}>
               <div>
                 <TopHeader
                   logo={data.logo ?? defaultConfigOptions.logo}
@@ -423,7 +424,7 @@ const App: React.FC<{}> = () => {
                   data.homepage ?? "/"
                 }
               />
-            </div>
+            </QuickSearchFilterContext.Provider>
           </SetUserContext.Provider>
         </UserContext.Provider>
       </DebugContext.Provider>

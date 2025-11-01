@@ -18,6 +18,7 @@ import {
   DocumentFile,
   SingleComment,
   UserInfo,
+  SearchResponse,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -196,6 +197,19 @@ export const loadAllCategories = async () => {
 };
 export const loadExamTypes = async () => {
   return (await fetchGet("/api/exam/listexamtypes/")).value as string[];
+};
+export const loadSearch = async (
+  term: string,
+  category_slug?: string,
+  exams_with_category_name?: boolean,
+) => {
+  return (
+    await fetchPost("/api/exam/search/", {
+      term,
+      category: category_slug,
+      exams_with_category_name,
+    })
+  ).value as SearchResponse;
 };
 export const uploadPdf = async (
   file: Blob,

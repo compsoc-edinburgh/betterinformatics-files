@@ -346,6 +346,8 @@ export interface CommentSearchResult {
   author_displayname: string;
   long_id: string;
 
+  answer_long_id: string;
+
   exam_displayname: string;
   filename: string;
 
