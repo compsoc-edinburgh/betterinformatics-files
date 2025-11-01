@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  Collapse,
   Container,
   Flex,
   Group,
@@ -27,15 +26,9 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import {
-  IconChevronDown,
-  IconChevronUp,
-  IconPlus,
-  IconSearch,
-} from "@tabler/icons-react";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
-import TooltipButton from "../components/TooltipButton";
 import CollapseWrapper from "../components/collapse-wrapper";
 import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
