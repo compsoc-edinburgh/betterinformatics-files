@@ -6,6 +6,7 @@ from urllib import parse
 
 from categories.models import Category
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Count, Q, Exists, OuterRef, Prefetch, Max
 from django.http import HttpRequest
 from django.http.response import HttpResponse, HttpResponseForbidden
@@ -612,11 +613,11 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
 
 @response.request_post()
 @auth_check.require_login
-def move_file(request: HttpRequest, username:str, document_slug:str, filename: str, direction: int):
-    if not direction in [0, 1]:
-        return response.not_possible("Invalid direction value")
-    elif direction == 0:
-        direction = -1
+def move_file(request: HttpRequest, username:str, document_slug:str, filename: str):
+    direction = request.POST["direction"]
+    if not direction:
+        return response.missing_argument()
+    direction = int(direction)
     document = get_object_or_404(
         Document, author__username=username, slug=document_slug
     )
@@ -626,6 +627,7 @@ def move_file(request: HttpRequest, username:str, document_slug:str, filename: s
     moved_file = get_object_or_404(DocumentFile, document=document, order=file.order + direction)
     file.order += direction
     moved_file.order -= direction
-    file.save()
-    moved_file.save()
+    with transaction.atomic():
+        file.save()
+        moved_file.save()
     return response.success()

@@ -51,7 +51,7 @@ const DocumentFileItem: React.FC<Props> = ({
     document.author,
     document.slug,
     file.filename,
-    0,
+    -1,
     reload,
   );
   const [errorMoveDown, loadingMoveDown, moveDown] = useMoveDocumentFile(

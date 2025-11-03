@@ -4,9 +4,9 @@ from . import views
 
 
 urlpatterns = [
-    path("<str:username>/<str:document_slug>/files/<str:filename>/<int:direction>/move/",
+    path("<str:username>/<str:document_slug>/files/<str:filename>/move/",
         views.move_file,
-        name="move_files"
+        name="move_file"
     ),
     path(
         "<str:username>/<str:document_slug>/files/<int:id>/update/",

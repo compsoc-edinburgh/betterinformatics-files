@@ -771,8 +771,8 @@ export const moveDocumentFile = async (
   direction: number,
 ) => {
   return await fetchPost(
-    `/api/document/${author}/${documentSlug}/files/${fileName}/${direction}/move/`,
-    {},
+    `/api/document/${author}/${documentSlug}/files/${fileName}/move/`,
+    { direction },
   );
 };
 
