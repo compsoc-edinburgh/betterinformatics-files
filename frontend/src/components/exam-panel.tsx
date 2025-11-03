@@ -6,6 +6,7 @@ import {
   Text,
   Title,
   Anchor,
+  Group,
 } from "@mantine/core";
 import React, { useCallback } from "react";
 import { EditMode, EditState, ExamMetaData } from "../interfaces";
@@ -147,62 +148,57 @@ const ExamPanel: React.FC<ExamPanelProps> = ({
           {examError && (
             <Text>Could not load admin info: {examError.message}</Text>
           )}
-          {exam && !exam.finished_cuts && (
+          {exam && (
             <>
               <Title order={6}>Edit Mode</Title>
-              <Grid>
-                <Grid.Col>
-                  <ClaimButton exam={exam} reloadExams={reloadExam} />
-                </Grid.Col>
+              <Group>
                 {hasValidClaim(exam) &&
                   exam.import_claim === user?.username && (
                     <>
-                      {editState.mode !== EditMode.None && (
-                        <Grid.Col span={{ xs: "auto" }}>
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              setEditState({ mode: EditMode.None })
-                            }
-                            leftSection={<IconX />}
-                          >
-                            Stop Editing
-                          </Button>
-                        </Grid.Col>
-                      )}
                       {editState.mode !== EditMode.Add && (
-                        <Grid.Col span={{ xs: "auto" }}>
-                          <Button
-                            size="sm"
-                            onClick={() =>
-                              setEditState({
-                                mode: EditMode.Add,
-                                snap,
-                              })
-                            }
-                            leftSection={<IconPlus />}
-                          >
-                            Add Cuts
-                          </Button>
-                        </Grid.Col>
+                        <Button
+                          size="sm"
+                          onClick={() =>
+                            setEditState({
+                              mode: EditMode.Add,
+                              snap,
+                            })
+                          }
+                          leftSection={<IconPlus />}
+                        >
+                          Add Cuts
+                        </Button>
+                      )}
+                      {editState.mode !== EditMode.None && (
+                        <Button
+                          size="sm"
+                          onClick={() => setEditState({ mode: EditMode.None })}
+                          leftSection={<IconX />}
+                        >
+                          Stop Editing
+                        </Button>
                       )}
                     </>
                   )}
-              </Grid>
+                <ClaimButton exam={exam} reloadExams={reloadExam} />
+              </Group>
             </>
           )}
-          <div>
-            {editState.mode !== EditMode.None && (
-              <Checkbox
-                name="check"
-                label="Snap"
-                checked={editState.snap}
-                onChange={e =>
-                  setEditState({ ...editState, snap: e.target.checked })
-                }
-              />
+          {exam &&
+            hasValidClaim(exam) &&
+            exam.import_claim === user?.username &&
+            editState.mode !== EditMode.None && (
+              <div>
+                <Checkbox
+                  name="check"
+                  label="Snap"
+                  checked={editState.snap}
+                  onChange={e =>
+                    setEditState({ ...editState, snap: e.target.checked })
+                  }
+                />
+              </div>
             )}
-          </div>
           <Title order={6}>Display Options</Title>
           <Stack gap="xs">
             <Checkbox
