@@ -46,6 +46,7 @@
   overflow-y: hidden;
   mask-image: linear-gradient(180deg, #000 80px, transparent);
   -webkit-mask-image: linear-gradient(180deg, #000 80px, transparent);
+  position: relative;
 }
 
 .selected {
