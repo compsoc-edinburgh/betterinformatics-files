@@ -763,3 +763,29 @@ export const useRegenerateDocumentAPIKey = (
   onSuccess?: (res: Document) => void,
 ) =>
   useMutation(() => regenerateDocumentAPIKey(author, documentSlug), onSuccess);
+
+export const moveDocumentFile = async (
+  author: string,
+  documentSlug: string,
+  fileName: string,
+  direction: number,
+) => {
+  return await fetchPost(
+    `/api/document/${author}/${documentSlug}/files/${fileName}/move/`,
+    { direction },
+  );
+};
+
+export const useMoveDocumentFile = (
+  author: string,
+  documentSlug: string,
+  fileName: string,
+  direction: number,
+  onSuccess?: (res: DocumentFile) => void,
+) => {
+  const { error, loading, run } = useRequest(
+    () => moveDocumentFile(author, documentSlug, fileName, direction),
+    { manual: true, onSuccess },
+  );
+  return [error, loading, run] as const;
+};

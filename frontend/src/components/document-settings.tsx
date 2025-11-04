@@ -43,9 +43,10 @@ import { useDisclosure } from "@mantine/hooks";
 interface Props {
   data: Document;
   mutate: Mutate<Document>;
+  reload: () => Promise<void>;
 }
 
-const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
+const DocumentSettings: React.FC<Props> = ({ data, mutate, reload }) => {
   const history = useHistory();
   const { data: categories } = useRequest(loadAllCategories);
   const categoryOptions =
@@ -88,7 +89,10 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     data.slug,
     () => data && history.push(`/category/${data.category}`),
   );
-  const [deleteModalIsOpen, {toggle: toggleDeleteModalIsOpen, close: closeDeleteModal}] = useDisclosure();
+  const [
+    deleteModalIsOpen,
+    { toggle: toggleDeleteModalIsOpen, close: closeDeleteModal },
+  ] = useDisclosure();
 
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [category, setCategory] = useState<string | undefined>();
@@ -101,14 +105,13 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
     next: [],
   });
 
-  const [addModalIsOpen, {toggle: toggleAddModalIsOpen, open: openAddModal, close: closeAddModal}] = useDisclosure();
+  const [
+    addModalIsOpen,
+    { toggle: toggleAddModalIsOpen, open: openAddModal, close: closeAddModal },
+  ] = useDisclosure();
   return (
     <>
-      <Modal
-        title="Add File"
-        opened={addModalIsOpen}
-        onClose={closeAddModal}
-      >
+      <Modal title="Add File" opened={addModalIsOpen} onClose={closeAddModal}>
         <CreateDocumentFileModal
           onClose={openAddModal}
           document={data}
@@ -202,14 +205,18 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate }) => {
         </Flex>
       )}
       <List mb="md">
-        {data.files.map(file => (
-          <DocumentFileItem
-            key={file.oid}
-            document={data}
-            file={file}
-            mutate={mutate}
-          />
-        ))}
+        {data.files
+          .sort((a, b) => a.order - b.order)
+          .map(file => (
+            <DocumentFileItem
+              max_order={data.files.length - 1}
+              key={file.oid}
+              document={data}
+              file={file}
+              mutate={mutate}
+              reload={reload}
+            />
+          ))}
       </List>
       <Flex justify="end">
         <Button leftSection={<IconPlus />} onClick={toggleAddModalIsOpen}>

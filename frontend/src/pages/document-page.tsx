@@ -106,6 +106,10 @@ const DocumentPage: React.FC<Props> = () => {
     await reload();
     setTab("comments");
   };
+  const reloadSettings = async () => {
+    await reload();
+    setTab("settings");
+  };
   const { search: searchParams } = useLocation();
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -188,15 +192,17 @@ const DocumentPage: React.FC<Props> = () => {
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
             {data &&
-              data.files.map(file => (
-                <Tabs.Tab
-                  key={file.oid}
-                  value={file.oid.toString()}
-                  leftSection={<IconFile />}
-                >
-                  {file.display_name}
-                </Tabs.Tab>
-              ))}
+              data.files
+                .sort((a, b) => a.order - b.order)
+                .map(file => (
+                  <Tabs.Tab
+                    key={file.oid}
+                    value={file.oid.toString()}
+                    leftSection={<IconFile />}
+                  >
+                    {file.display_name}
+                  </Tabs.Tab>
+                ))}
             <Tabs.Tab value="comments" leftSection={<IconMessage />}>
               Comments
             </Tabs.Tab>
@@ -292,7 +298,11 @@ const DocumentPage: React.FC<Props> = () => {
       {tab === "settings" && data && (
         <ContentContainer mt="-2px">
           <Container size="xl">
-            <DocumentSettings data={data} mutate={mutate} />
+            <DocumentSettings
+              data={data}
+              mutate={mutate}
+              reload={reloadSettings}
+            />
           </Container>
         </ContentContainer>
       )}
