@@ -3,8 +3,11 @@ import {
   Alert,
   Anchor,
   Button,
+  Collapse,
   Container,
+  Divider,
   Grid,
+  Group,
   Stack,
   Tabs,
   Text,
@@ -18,6 +21,11 @@ import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
+import { FeedbackEntry } from "../interfaces";
+import { useDisclosure } from "@mantine/hooks";
+import TooltipButton from "../components/TooltipButton";
+import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import CollapseWrapper from "../components/collapse-wrapper";
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -93,17 +101,65 @@ const FeedbackReader: React.FC<{}> = () => {
     run: reload,
   } = useRequest(loadFeedback);
 
+  const [opened, { toggle }] = useDisclosure(false);
+
+  const mapEntries = (feedback: FeedbackEntry[]) => {
+    return (
+      <Grid>
+        {feedback.map(fb => (
+          <Grid.Col span={{ lg: 6 }} key={fb.oid}>
+            <FeedbackEntryComponent entry={fb} entryChanged={reload} />
+          </Grid.Col>
+        ))}
+      </Grid>
+    );
+  };
+
+  const categorized = {
+    waiting_action: [] as FeedbackEntry[],
+    done: [] as FeedbackEntry[],
+    read: [] as FeedbackEntry[],
+    read_and_done: [] as FeedbackEntry[],
+  };
+
+  if (feedback) {
+    feedback.forEach(fb => {
+      if (!fb.read && !fb.done) {
+        categorized.waiting_action.push(fb);
+      } else if (fb.read && fb.done) {
+        categorized.read_and_done.push(fb);
+      } else {
+        if (fb.done) {
+          categorized.done.push(fb);
+        }
+        if (fb.read) {
+          categorized.read.push(fb);
+        }
+      }
+    });
+  }
+
   return (
     <>
       {error && <Alert color="red">{error.message}</Alert>}
       {feedback && (
-        <Grid>
-          {feedback.map(fb => (
-            <Grid.Col span={{ lg: 6 }} key={fb.oid}>
-              <FeedbackEntryComponent entry={fb} entryChanged={reload} />
-            </Grid.Col>
-          ))}
-        </Grid>
+        <>
+          {mapEntries(categorized.waiting_action)}
+          <Divider my="xl" />
+          <Title order={2}>Done</Title>
+          {mapEntries(categorized.done)}
+          <Divider my="xl" />
+          <Title order={2}>Read</Title>
+          {mapEntries(categorized.read)}
+          <Divider my="xl" />
+          <CollapseWrapper
+            title={<Title order={2}>Read and Done</Title>}
+            contentOutsideCollapse={<></>}
+            contentInsideCollapse={<>{mapEntries(categorized.read_and_done)}</>}
+            is_collapsed={() => opened}
+            collapse_expand={() => toggle()}
+          />
+        </>
       )}
       {loading && <Loader />}
     </>

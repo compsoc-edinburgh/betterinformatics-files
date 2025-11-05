@@ -10,6 +10,7 @@ urlpatterns = [
     path("feedback/", views.index, name="feedback"),
     path("faq/", views.index, name="faq"),
     path("scoreboard/", views.index, name="scoreboard"),
+    path("login/", views.index, name="login"),
     path("modqueue/", views.index, name="modqueue"),
     path("flagged/", views.index, name="flagged"),
     re_path("^exams/.*$", views.index, name="exams"),

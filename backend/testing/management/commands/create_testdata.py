@@ -46,12 +46,29 @@ category_nouns = [
     "Wireless Networks",
 ]
 
+users = [
+    ("Zoe", "Fletcher", "fletchz"),
+    ("Ernst", "Meyer", "meyee"),
+    ("Jonas", "Schneider", "schneij"),
+    ("Julia", "Keller", "kellerju"),
+    ("Sophie", "Baumann", "baumanso"),
+    ("Hans", "Brunner", "brunh"),
+    ("Carla", "Morin", "morica"),
+    ("Paul", "Moser", "mosep"),
+    ("Josef", "Widmer", "widmjo"),
+    ("Werner", "Steiner", "steinewe"),
+]
+
 
 class Command(BaseCommand):
     help = "Creates some testdata"
 
     def add_arguments(self, parser):
-        pass
+        parser.add_argument(
+            "--skip-if-exists",
+            action="store_true",
+            help="Skip creating testdata if all users already exist.",
+        )
 
     def flush_db(self):
         self.stdout.write("Drop old tables")
@@ -59,18 +76,7 @@ class Command(BaseCommand):
 
     def create_users(self):
         self.stdout.write("Create users")
-        for first_name, last_name, username in [
-            ("Zoe", "Fletcher", "fletchz"),
-            ("Ernst", "Meyer", "meyee"),
-            ("Jonas", "Schneider", "schneij"),
-            ("Julia", "Keller", "kellerju"),
-            ("Sophie", "Baumann", "baumanso"),
-            ("Hans", "Brunner", "brunh"),
-            ("Carla", "Morin", "morica"),
-            ("Paul", "Moser", "mosep"),
-            ("Josef", "Widmer", "widmjo"),
-            ("Werner", "Steiner", "steinewe"),
-        ]:
+        for first_name, last_name, username in users:
             MyUser(first_name=first_name, last_name=last_name, username=username).save()
 
     def create_images(self):
@@ -185,6 +191,11 @@ class Command(BaseCommand):
                     )
                     exam.save()
 
+                if i + category.id % 10 == 0:
+                    exam.import_claim = MyUser.objects.get(username="fletchz")
+                    exam.import_claim_time = timezone.now() - timedelta(hours=1)
+                    exam.save()
+
     def create_answer_sections(self):
         self.stdout.write("Create answer sections")
         users = MyUser.objects.all()
@@ -208,16 +219,22 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         objs = []
         for section in AnswerSection.objects.all():
-            for i in range(section.id % 7):
+            for i in range(section.id % 5):
                 author = users[(section.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 answer = Answer(
                     answer_section=section,
                     author=author,
                     text=[
                         "This is a test answer.\n\nIt has multiple lines.",
                         "This is maths: $\pi = 3$\n\nHowever, it is wrong.",
-                        "This is an image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is an image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(section.id + i) % 3],
                 )
@@ -225,6 +242,8 @@ class Command(BaseCommand):
                     answer.is_legacy_answer = True
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
+
+        self.stdout.write("Create upvote/downvote/flags on answers")
 
         for answer in Answer.objects.all():
             i = answer.answer_section.id
@@ -243,15 +262,21 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         objs = []
         for answer in Answer.objects.all():
-            for i in range(answer.id % 17):
+            for i in range(answer.id % 10):
                 author = users[(answer.id + i) % len(users)]
+
+                # Warning: owned_image may be none if there was a user who
+                # logged in during this command's execution
+                owned_image = Image.objects.filter(owner=author).first()
                 comment = Comment(
                     answer=answer,
                     author=author,
                     text=[
                         "This is a comment ({}).".format(i + 1),
-                        "This is a test image: ![Testimage]({})".format(
-                            Image.objects.filter(owner=author).first().filename
+                        (
+                            f"This is a test image: ![Testimage]({owned_image.filename})"
+                            if owned_image
+                            else ""
                         ),
                     ][(answer.id + i) % 2],
                 )
@@ -389,6 +414,7 @@ class Command(BaseCommand):
                         document=document,
                         filename=filename,
                         mime_type="application/pdf",
+                        order=j
                     ).save()
 
                 # Make users like it
@@ -397,6 +423,13 @@ class Command(BaseCommand):
                         document.likes.add(user)
 
     def handle(self, *args, **options):
+        if options.get("skip_if_exists"):
+            # Assume if users okay, all testdata is okay
+            usernames = set(u[2] for u in users)
+            if MyUser.objects.filter(username__in=usernames).count() == len(users):
+                self.stdout.write("All test users already exist. Skipping creation.")
+                return
+
         self.flush_db()
         self.create_users()
         self.create_images()

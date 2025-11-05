@@ -12,11 +12,10 @@
     "@umijs/hooks": "1.9.3",
     "chroma-js": "^2.4.2",
     "clsx": "^2.1.0",
-    "date-fns": "^3.3.0",
+    "date-fns": "^4.0.0",
     "jszip": "^3.10.0",
     "katex": "^0.16.9",
     "lodash-es": "^4.17.21",
-    "moment": "^2.29.1",
     "pdfjs-dist": "^4.0.0",
     "query-string": "^7.1.0",
     "react": "18.2.0",
@@ -41,8 +40,8 @@
     "start": "vite",
     "start-with-faro": "VITE_FARO_DISABLE=false vite",
     "build": "tsc && vite build",
-    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css}",
-    "check-format": "prettier --list-different src/**/*.{js,jsx,ts,tsx,json,css}",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
+    "check-format": "prettier --list-different \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
     "lint": "yarn run eslint \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "browserslist": {
@@ -59,6 +58,7 @@
   },
   "devDependencies": {
     "@babel/runtime": "^7.20.0",
+    "@eslint/js": "^9.38.0",
     "@types/katex": "^0.16.6",
     "@types/lodash-es": "^4.17.5",
     "@types/node": "^20.10.5",
@@ -68,13 +68,17 @@
     "@types/react-syntax-highlighter": "^15.0.0",
     "@types/react-transition-group": "^4.4.1",
     "@vitejs/plugin-react": "^4.2.1",
-    "eslint": "^8.56.0",
-    "eslint-config-react-app": "^7.0.1",
+    "eslint": "^9.38.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "globals": "^16.4.0",
     "postcss": "^8.4.35",
     "postcss-preset-mantine": "^1.13.0",
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^3.1.0",
     "typescript": "^5.2.0",
-    "vite-tsconfig-paths": "^4.3.1"
+    "typescript-eslint": "^8.46.1",
+    "vite-tsconfig-paths": "^5.0.0"
   }
 }

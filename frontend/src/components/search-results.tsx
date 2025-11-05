@@ -17,26 +17,7 @@ import MarkdownText from "../components/markdown-text";
 import { HighlightedMatch, SearchResponse } from "../interfaces";
 import { IconChevronRight } from "@tabler/icons-react";
 import classes from "./search-results.module.css";
-
-const HighlightedContent: React.FC<{
-  content: HighlightedMatch;
-  level?: number;
-}> = ({ content, level = 0 }) => {
-  if (typeof content === "string") {
-    if (level > 1) {
-      return <mark>{content}</mark>;
-    }
-    return <span>{content}</span>;
-  } else {
-    return (
-      <>
-        {content.map((child, i) => (
-          <HighlightedContent key={i} content={child} level={level + 1} />
-        ))}
-      </>
-    );
-  }
-};
+import { HighlightedContent } from "./HighlightSearchHeadline";
 
 const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
   content,
@@ -46,7 +27,7 @@ const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
     const regex = new RegExp(`${matches.map(escapeRegExp).join("|")}`);
     return <MarkdownText value={content} regex={regex} />;
   }
-  return <MarkdownText value={content}/>;
+  return <MarkdownText value={content} />;
 };
 
 interface Props {

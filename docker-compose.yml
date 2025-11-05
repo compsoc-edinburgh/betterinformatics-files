@@ -80,7 +80,7 @@ services:
       - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
 
       - SIP_AUTH_OIDC_CLIENT_ID=vis_cat_staging_community_solutions_oidc
-      - SIP_AUTH_OIDC_CLIENT_SECRET=AWrTAardsNOxlCAzekwWXuARD
+      - SIP_AUTH_OIDC_CLIENT_SECRET=wvmiAYdKVQjYbcFCxkRBegLZi
 
       - FRONTEND_TITLE_PREFIX=prefix
       - FRONTEND_TITLE_SUFFIX=suffix

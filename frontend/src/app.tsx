@@ -15,7 +15,7 @@ import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
 import { Route, Switch } from "react-router-dom";
 import {
-  authenticationStatus,
+  getAuthenticationExpiry,
   fetchGet,
   getCookie,
   isTokenExpired,
@@ -55,47 +55,95 @@ import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute } from '@grafana/faro-react';
+import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
+import { QuickSearchFilter, QuickSearchFilterContext } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
+
+/**
+ * To be used as a wrapper for <Route>s at the top level, and adds Faro
+ * support to all child routes.
+ *
+ * Note: This creates a catch-all routing context. Any wildcard routes defined
+ * after a Router as a sibling will never be matched. Define all routes within
+ * the element instead.
+ *
+ * Behaves as a no-op if either of the following is true:
+ * - Faro is disabled via the VITE_FARO_DISABLE frontend environment variable
+ * - Faro URL doesn't exist in the VITE_SERVER_DATA frontend environment variable
+ *
+ * By default, if ran with `yarn start`, Faro URL exists but the DISABLE flag is
+ * true (see `.env.development`). Use `VITE_FARO_DISABLE=false yarn start` to
+ * enable Faro support in development.
+ *
+ * In production builds, observability is controlled via the FRONTEND_SERVER_DATA
+ * backend setting.
+ */
+const Router = ({ children }: { children?: React.ReactNode }) =>
+  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
+    children
+  ) : (
+    <FaroRoute path="/">{children}</FaroRoute>
+  );
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
     let cancel = false;
-    // How often refreshing failed
-    let counter = 0;
-    let counterExp = getCookie("token_expires");
+    // Keep track of consecutive failed token refreshes (per token expiry), so
+    // we don't infinitely try refreshing access token if it doesn't work
+    let failedCount = 0;
+    // Keep track of the expiry of the token if it failed to refresh -- this is
+    // used to so we can reset the consecutive-retry-limit if the token was
+    // refreshed by another tab.
+    let failedTokenExpiry: number | undefined = undefined;
 
     let handle: ReturnType<typeof setTimeout> | undefined = undefined;
     const startTimer = () => {
       // Check whether we have a token and when it will expire;
-      const exp = authenticationStatus();
+      const { token: exp, refresh: refresh_exp } = getAuthenticationExpiry();
       if (
+        // Token is nearly expiring or is expired
         isTokenExpired(exp) &&
-        !(counterExp === getCookie("token_expires") && counter > 5)
+        // AND we haven't hit the retry limit yet (or ignore the limit if expiry
+        // is different to any previously failed expiry)
+        (exp !== failedTokenExpiry || failedCount <= 5)
       ) {
-        refreshToken().then(r => {
-          if (cancel) return;
-          // If the refresh was successful we are happy
-          if (r.status >= 200 && r.status < 400) {
-            setLoggedOut(false);
-            counter = 0;
-            return;
-          }
+        // Only refresh if refresh token isn't expired. We resolve a void promise
+        // if the refresh token is expired, so we can use the same handling code
+        // to increment counter & show the modal.
+        (isTokenExpired(refresh_exp) ? Promise.resolve() : refreshToken()).then(
+          r => {
+            if (cancel) return;
 
-          // Otherwise it probably failed
-          setLoggedOut(true);
-          if (counter === 0) {
-            counterExp = getCookie("token_expires");
-          }
-          counter++;
-          return;
-        });
+            // If the refresh was successful we are happy
+            if (r && r.status >= 200 && r.status < 400) {
+              setLoggedOut(false);
+              // Reset the counter, there is a new token
+              failedCount = 0;
+              return;
+            }
+
+            // Refresh failed, or we didn't refresh (due to expired refresh token)
+            // We should retry a few times to a limit, but we'll show a modal already.
+            setLoggedOut(true);
+            failedTokenExpiry = exp;
+            failedCount++;
+            return;
+          },
+        );
+      } else if (!isTokenExpired(exp)) {
+        // Access token is not expired yet. If any modal is currently visible,
+        // hide it
+        setLoggedOut(false);
       }
       // When we are authenticated (`exp !== undefined`) we want to refresh the token
       // `minValidity` seconds before it expires. If there's no token we recheck this
-      // condition every 10 seconds.
-      // `Math.max` ensures that we don't call startTimer too often.
+      // condition every 60 seconds.
+      // `Math.max` ensures that we don't call startTimer too often even when the
+      // token needs to be refreshed, for example during a retry loop after a
+      // failed token refresh, or when the refresh token is expired. In both
+      // cases we don't want to stop the timer forever, since another tab may
+      // revalidate the tokens.
       const delay =
         exp !== undefined ? Math.max(3_000, exp - 1000 * minValidity) : 60_000;
       handle = setTimeout(() => {
@@ -147,9 +195,24 @@ const App: React.FC<{}> = () => {
   const [debugPanel, { toggle: toggleDebugPanel, close: closeDebugPanel }] =
     useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
+  const [quickSearchFilter, setQuickSearchFilter] = useState<QuickSearchFilter|undefined>(undefined);
 
   const loadUnreadCount = async () => {
-    return (await fetchGet("/api/notification/unreadcount/")).value as number;
+    // Notifications will be polled at regular intervals. When the auth token
+    // nears expiry, the auth timer should refresh it automatically. But while
+    // the refresh is taking place, or if refresh failed, or if the user isn't
+    // logged in at all, we don't want to poll notifications -- without a valid
+    // token it'll 100% fail. So we don't fire a request in that case.
+    // Technically this kind of check would be useful to have for every authed
+    // API endpoint, but it requires a lot of coordination with the backend
+    // (e.g. category list fetch should go ahead without auth, but exam list
+    // should not). This unreadcount request in particular is polled quite
+    // frequently by every page, and has previously caused lots of unnecessary
+    // requests to fire while the user was idle. So we pick on it in particular.
+    const { token: exp } = getAuthenticationExpiry();
+    if (exp && !isTokenExpired(exp))
+      return (await fetchGet("/api/notification/unreadcount/")).value as number;
+    return undefined;
   };
   const { data: unreadCount } = useRequest(loadUnreadCount, {
     pollingInterval: 300_000,
@@ -203,7 +266,6 @@ const App: React.FC<{}> = () => {
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
-    { title: "Search", href: "/search" },
     {
       title: (
         <Group wrap="nowrap" gap="xs">
@@ -237,56 +299,6 @@ const App: React.FC<{}> = () => {
     },
   });
 
-  const userRoutes = (<>
-    <UserRoute exact path="/" component={HomePage} />
-    <UserRoute
-      exact
-      path="/uploadpdf"
-      component={UploadPdfPage}
-    />
-    <UserRoute
-      exact
-      path="/submittranscript"
-      component={UploadTranscriptPage}
-    />
-    <UserRoute exact path="/faq" component={FAQ} />
-    <UserRoute
-      exact
-      path="/feedback"
-      component={FeedbackPage}
-    />
-    <UserRoute
-      exact
-      path="/category/:slug"
-      component={CategoryPage}
-    />
-    <UserRoute
-      exact
-      path="/user/:author/document/:slug"
-      component={DocumentPage}
-    />
-    <UserRoute
-      exact
-      path="/exams/:filename"
-      component={ExamPage}
-    />
-    <UserRoute
-      exact
-      path="/user/:username"
-      component={UserPage}
-    />
-    <UserRoute exact path="/user/" component={UserPage} />
-    <UserRoute exact path="/search/" component={SearchPage} />
-    <UserRoute
-      exact
-      path="/scoreboard"
-      component={Scoreboard}
-    />
-    <UserRoute exact path="/modqueue" component={ModQueue} />
-    <UserRoute exact path="/flagged" component={FlaggedContent} />
-  </>
-  );
-
   return (
     <MantineProvider theme={fvTheme} cssVariablesResolver={resolver}>
       <Modal
@@ -298,15 +310,15 @@ const App: React.FC<{}> = () => {
           Your session has expired due to inactivity, you have to log in again
           to continue.
         </Text>
-        <Button size="lg" variant="outline" onClick={() => login()}>
+        <Button size="lg" onClick={() => login()}>
           Sign in with AAI
         </Button>
       </Modal>
-      <Route component={HashLocationHandler} />
+      <Route children={<HashLocationHandler />} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
-            <div>
+            <QuickSearchFilterContext.Provider value={{ filter: quickSearchFilter, setFilter: setQuickSearchFilter }}>
               <div>
                 <TopHeader
                   logo={data.logo ?? defaultConfigOptions.logo}
@@ -337,16 +349,68 @@ const App: React.FC<{}> = () => {
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
-                  <Switch>
-                    {(import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url)
-                      ? userRoutes
-                      : <FaroRoute path="/">
-                        {userRoutes}
-                      </FaroRoute>
-                    }
-                    <Route exact path="/login" component={LoginPage} />
-                    <Route component={NotFoundPage} />
-                  </Switch>
+                  <Router>
+                    <Switch>
+                      <UserRoute exact path="/" children={<HomePage />} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        children={<UploadPdfPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/submittranscript"
+                        children={<UploadTranscriptPage />}
+                      />
+                      <UserRoute exact path="/faq" children={<FAQ />} />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        children={<FeedbackPage />}
+                      />
+                      <UserRoute
+                        path="/category/:slug"
+                        children={<CategoryPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:author/document/:slug"
+                        children={<DocumentPage />}
+                      />
+                      <UserRoute
+                        path="/exams/:filename"
+                        children={<ExamPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        children={<UserPage />}
+                      />
+                      <UserRoute exact path="/user/" children={<UserPage />} />
+                      <UserRoute
+                        exact
+                        path="/search/"
+                        children={<SearchPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        children={<Scoreboard />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/modqueue"
+                        children={<ModQueue />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/flagged"
+                        children={<FlaggedContent />}
+                      />
+                      <Route exact path="/login" children={<LoginPage />} />
+                      <Route children={<NotFoundPage />} />
+                    </Switch>
+                  </Router>
                 </Box>
               </div>
               <Footer
@@ -360,7 +424,7 @@ const App: React.FC<{}> = () => {
                   data.homepage ?? "/"
                 }
               />
-            </div>
+            </QuickSearchFilterContext.Provider>
           </SetUserContext.Provider>
         </UserContext.Provider>
       </DebugContext.Provider>

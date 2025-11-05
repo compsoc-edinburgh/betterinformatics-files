@@ -198,15 +198,13 @@ const permissionOptions = createOptions({
 interface CategoryMetaDataEditorProps {
   currentMetaData: CategoryMetaData;
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
-  isOpen: boolean;
-  toggle: () => void;
+  close: () => void;
   offeredIn: Array<readonly [string, string]>;
 }
 const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   onMetaDataChange,
   currentMetaData,
-  isOpen,
-  toggle,
+  close,
   offeredIn: propOfferedIn,
 }) => {
   const {
@@ -216,7 +214,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
   } = useRequest(applyChanges, {
     manual: true,
     onSuccess: newMetaData => {
-      toggle();
+      close();
       onMetaDataChange(newMetaData);
     },
   });
@@ -242,7 +240,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
     <>
       <Group justify="space-between">
         <h2>Edit Category</h2>
-        <CloseButton onClick={toggle} />
+        <CloseButton onClick={close} />
       </Group>
       {error && <Alert color="red">{error.toString()}</Alert>}
       <Title order={4} mb="xs">
@@ -342,7 +340,7 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
           leftSection={<IconX />}
           onClick={() => {
             reset();
-            toggle();
+            close();
           }}
         >
           Cancel

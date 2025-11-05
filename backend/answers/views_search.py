@@ -1,5 +1,6 @@
 import re
 import random
+from unicodedata import category
 from django.db.models.functions import Concat
 from django.db.models import Q, F, When, Case, Value as V, Func, TextField
 from myauth import auth_check
@@ -55,7 +56,7 @@ def parse_recursive(text, start_re, end_re, i, start_len, end_len):
     can be used to remove the separators. `i` is the index from which the function starts
     matching. The function assumes that the string is well formed. In the case that `end_re`
     occurs more times then `end_re` the returned `i` can be used to include the rest
-    of `text`. 
+    of `text`.
 
     Returns:
         `list, number`: The parsing result and the index where parsing stopped
@@ -103,8 +104,8 @@ def parse_nested(text, start_re, end_re, start_len, end_len):
 
 def parse_headline(text, start, end, frag):
     """
-    Returns the parsed result of a psql headline function where `start`, `end`and
-    `frag` are the psql parameters and `text` is the text result. 
+    Returns the parsed result of a psql headline function where `start`, `end` and
+    `frag` are the psql parameters and `text` is the text result.
     """
     start_re = re.compile(".*?(" + re.escape(str(start)) + ")", flags=re.DOTALL)
     end_re = re.compile(".*?(" + re.escape(str(end)) + ")", flags=re.DOTALL)
@@ -118,7 +119,7 @@ def parse_headline(text, start, end, frag):
 def generate_boundary():
     """
     Generates a random boundary that can be used for finding matches using psql
-    headline 
+    headline
     """
     chars = "abcdefghijklmnopqrstuvwxyz0123456789"
     res = ""
@@ -133,12 +134,13 @@ def headline(
     start_boundary,
     end_boundary,
     fragment_delimeter,
+    max_fragments=5,
     min_words=15,
     max_words=35,
 ):
     """A function that can be used in django queries to call the psql ts_headline
     function. Given a text field and  a full text search query it returns a string
-    that contains the highlighted matches that should be shown as search results. 
+    that contains the highlighted matches that should be shown as search results.
 
     Args:
         text (F): F object of the column / expression that should be highlighted
@@ -146,6 +148,8 @@ def headline(
         start_boundary (str): string that should be inserted at the beginning of a match
         end_boundary (str): string that should be inserted at the end of a match
         fragment_delimeter (str): string that is inserted between two fragments by psql
+        max_fragments (int, optional): number of fragments to collect. Defaults to 5.
+          Set to 0 to make psql use a non-fragment based matching algorithm.
         min_words (int, optional): minimum number of words per fragment. Defaults to 15.
         max_words (int, optional): maximum number of words per fragment. Defaults to 35.
 
@@ -159,12 +163,13 @@ def headline(
             'StartSel="{start_sel}", '
             'StopSel="{stop_sel}", '
             'FragmentDelimiter="{fragment_delimeter}", '
-            "MaxFragments=5, "
+            "MaxFragments={max_fragments}, "
             "MinWords={min_words}, "
             "MaxWords={max_words}".format(
                 start_sel=start_boundary,
                 stop_sel=end_boundary,
                 fragment_delimeter=fragment_delimeter,
+                max_fragments=max_fragments,
                 min_words=min_words,
                 max_words=max_words,
             )
@@ -174,7 +179,15 @@ def headline(
     )
 
 
-def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
+def search_exams(
+    term,
+    has_payed,
+    is_admin,
+    category_filter,
+    user_admin_categories,
+    amount,
+    with_category_displayname=False,
+):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -189,17 +202,56 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
         Exam.objects.filter(
             id__in=ExamPage.objects.filter(search_vector=term).values("exam_id")
         )
-        | Exam.objects.filter(search_vector=term)
+        | (
+            # Two cases: if we want category displayname, it'll be slow but we
+            # do a runtime non-vector based full text search. otherwise, we just
+            # search by precalculated vectors of just exam displayname.
+            Exam.objects.annotate(
+                displayname_with_category=Concat(
+                    "category__displayname", V(" - "), "displayname"
+                )
+            ).filter(
+                # Slow! Ideally we want to use search_vector=term with a pre-indexed
+                # vector column of "displayname - category__displayname". But it's
+                # nontrivial to create such a column, since the number of triggers
+                # will exponentially grow to make every category's row update trigger
+                # all relevant exams' vectors to update.
+                # So we do runtime on-the-fly full text search on a Concat result.
+                # The default search_vector of an Exam model is only based on the
+                # exam displayname (no category part), and that's kind of useless to
+                # search with since FS22 can match so many different exams.
+                # We want to enable queries like "FS22 Graphics" to find the computer
+                # graphics exam in FS22 as the top result.
+                displayname_with_category__search=term
+            )
+            if with_category_displayname
+            else Exam.objects.filter(search_vector=term)
+        )
     ).annotate(
         rank=SearchRank(F("search_vector"), query),
         headline=headline(
-            F("displayname"), query, start_boundary, end_boundary, fragment_delimeter,
+            # ts_headline requires a full scan and is slow, but at this point
+            # we've already narrowed down the results with the above .filter()s
+            (
+                # Highlight results in the concat if we need category name too
+                Concat(F("category__displayname"), V(" - "), F("displayname"))
+                if with_category_displayname
+                else F("displayname")
+            ),
+            query,
+            start_boundary,
+            end_boundary,
+            fragment_delimeter,
+            max_fragments=0,  # Disable fragment-based matching to get the whole result back
         ),
         category_displayname=F("category__displayname"),
         category_slug=F("category__slug"),
     )
     if not is_admin:
         exams = exams.filter(can_view)
+    if category_filter:
+        # Filter by slug
+        exams = exams.filter(category__slug=category_filter)
     exams = exams.only("filename")[:amount]
 
     exam_pages_query = (
@@ -209,7 +261,11 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
         .annotate(
             rank=SearchRank(F("search_vector"), query),
             headline=headline(
-                F("text"), query, start_boundary, end_boundary, fragment_delimeter,
+                F("text"),
+                query,
+                start_boundary,
+                end_boundary,
+                fragment_delimeter,
             ),
         )
         .order_by("page_number")
@@ -251,7 +307,9 @@ def search_exams(term, has_payed, is_admin, user_admin_categories, amount):
     ]
 
 
-def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
+def search_answers(
+    term, has_payed, is_admin, category_filter, user_admin_categories, amount
+):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -268,13 +326,19 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
     answers = Answer.objects
     if not is_admin:
         answers = answers.filter(answer_section_exam_can_view)
+    if category_filter:
+        # Filter by slug
+        answers = answers.filter(answer_section__exam__category__slug=category_filter)
     answers = (
         answers.filter(search_vector=term)
         .annotate(
             rank=SearchRank(F("search_vector"), query),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__last_name",),
+                When(
+                    Q(author__first_name__isnull=True),
+                    "author__last_name",
+                ),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
@@ -319,7 +383,9 @@ def search_answers(term, has_payed, is_admin, user_admin_categories, amount):
     return answers
 
 
-def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
+def search_comments(
+    term, has_payed, is_admin, category_filter, user_admin_categories, amount
+):
     query = SearchQuery(term)
 
     start_boundary = generate_boundary()
@@ -336,18 +402,28 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
     comments = Comment.objects
     if not is_admin:
         comments = comments.filter(answer_answer_section_exam_can_view)
+    if category_filter:
+        # Filter by slug
+        comments = comments.filter(
+            answer__answer_section__exam__category__slug=category_filter
+        )
     comments = (
         comments.filter(search_vector=term)
         .annotate(
             rank=SearchRank(F("search_vector"), query),
             author_username=F("author__username"),
             author_displayname=Case(
-                When(Q(author__first_name__isnull=True), "author__last_name",),
+                When(
+                    Q(author__first_name__isnull=True),
+                    "author__last_name",
+                ),
                 default=Concat("author__first_name", V(" "), "author__last_name"),
             ),
             highlighted_words=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter, 1, 2
             ),
+            # Answer
+            answer_long_id=F("answer__long_id"),
             # Exam
             exam_displayname=F("answer__answer_section__exam__displayname"),
             filename=F("answer__answer_section__exam__filename"),
@@ -364,6 +440,8 @@ def search_comments(term, has_payed, is_admin, user_admin_categories, amount):
             "highlighted_words",
             "rank",
             "long_id",
+            # Answer
+            "answer_long_id",
             # Exam
             "exam_displayname",
             "filename",
@@ -398,25 +476,49 @@ def search(request):
     include_answers = request.POST.get("include_answers", "true") == "true"
     include_comments = request.POST.get("include_comments", "true") == "true"
 
+    # Whether include_exams should search and return the exam's category name
+    # too. Has no effect is include_exams is false. Is also much slower if set
+    # to true since we have to do a full-text-search on concatednated columns at
+    # runtime instead of using pre-calculated vectors.
+    exams_with_category_name = (
+        request.POST.get("exams_with_category_name", "false") == "true"
+    )
+
+    # Category slug to limit results to (ID is more efficient, but current
+    # client side has no access to ID and uses slugs for everything)
+    category_filter = request.POST.get("category", "")
+
     user = request.user
     user_admin_categories = user.category_admin_set.values_list("id", flat=True)
     has_payed = user.has_payed()
     is_admin = has_admin_rights(request)
     exams_start = time.time()
     exams = (
-        search_exams(term, has_payed, is_admin, user_admin_categories, amount)
+        search_exams(
+            term,
+            has_payed,
+            is_admin,
+            category_filter,
+            user_admin_categories,
+            amount,
+            exams_with_category_name,
+        )
         if include_exams
         else []
     )
     answers_start = time.time()
     answers = (
-        search_answers(term, has_payed, is_admin, user_admin_categories, amount)
+        search_answers(
+            term, has_payed, is_admin, category_filter, user_admin_categories, amount
+        )
         if include_answers
         else []
     )
     comments_start = time.time()
     comments = (
-        search_comments(term, has_payed, is_admin, user_admin_categories, amount)
+        search_comments(
+            term, has_payed, is_admin, category_filter, user_admin_categories, amount
+        )
         if include_comments
         else []
     )

@@ -57,7 +57,7 @@ ARG git_commit
 COPY ./frontend/tsconfig.json \
   ./frontend/postcss.config.cjs \
   ./frontend/vite.config.ts \
-  ./frontend/.eslintrc.json \
+  ./frontend/eslint.config.mjs \
   ./frontend/.env.production \
   ./frontend/.prettierrc.json .
 COPY ./frontend/public ./public

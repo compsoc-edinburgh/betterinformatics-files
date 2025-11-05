@@ -13,8 +13,16 @@ import {
   Box,
   Title,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
-import { Link, useHistory, useParams } from "react-router-dom";
+import React, { useCallback, useMemo } from "react";
+import {
+  Link,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import {
   loadCategoryMetaData,
   loadMetaCategories,
@@ -39,6 +47,7 @@ import {
   IconTrash,
   IconUserStar,
 } from "@tabler/icons-react";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -67,8 +76,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       data ? getMetaCategoriesForCategory(data, metaData.slug) : undefined,
     [data, metaData],
   );
-  const [editing, setEditing] = useState(false);
-  const toggle = useCallback(() => setEditing(a => !a), []);
   const user = useUser()!;
   const editorOnMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
@@ -77,6 +84,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     },
     [run, onMetaDataChange],
   );
+
+  // `path` is the path structure, e.g. the literal string "/category/:slug"
+  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
+  // defining Routes, we use `path`, but for Link/navigation we use `url`.
+  const { path, url } = useRouteMatch();
+
   return (
     <>
       {modals}
@@ -88,20 +101,21 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
-      {editing ? (
-        offeredIn && (
-          <CategoryMetaDataEditor
-            onMetaDataChange={editorOnMetaDataChange}
-            isOpen={editing}
-            toggle={toggle}
-            currentMetaData={metaData}
-            offeredIn={offeredIn.flatMap(b =>
-              b.meta2.map(d => [b.displayname, d.displayname] as const),
-            )}
-          />
-        )
-      ) : (
-        <>
+      <Switch>
+        <Route path={`${path}/edit`}>
+          {!user.isCategoryAdmin && <Redirect to={url} />}
+          {offeredIn && (
+            <CategoryMetaDataEditor
+              onMetaDataChange={editorOnMetaDataChange}
+              close={() => history.push(`/category/${metaData.slug}`)}
+              currentMetaData={metaData}
+              offeredIn={offeredIn.flatMap(b =>
+                b.meta2.map(d => [b.displayname, d.displayname] as const),
+              )}
+            />
+          )}
+        </Route>
+        <Route path={`${path}`} exact>
           <Flex
             direction={{ base: "column", sm: "row" }}
             justify="space-between"
@@ -114,7 +128,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               <Group>
                 <Button
                   leftSection={<IconEdit />}
-                  onClick={() => setEditing(true)}
+                  component={Link}
+                  to={`${url}/edit`}
                 >
                   Edit
                 </Button>
@@ -241,8 +256,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
               </List>
             </>
           )}
-        </>
-      )}
+        </Route>
+        <Route path={`${path}/*`}>
+          <Redirect to={url} />
+        </Route>
+      </Switch>
     </>
   );
 };
@@ -251,7 +269,7 @@ const CategoryPage: React.FC<{}> = () => {
   const { slug } = useParams() as { slug: string };
   const { data, loading, error, mutate } = useRequest(
     () => loadCategoryMetaData(slug),
-    { cacheKey: `category-${slug}` },
+    { cacheKey: `category-${slug}`, refreshDeps: [slug] },
   );
   const history = useHistory();
   const onMetaDataChange = useCallback(
@@ -264,11 +282,20 @@ const CategoryPage: React.FC<{}> = () => {
     [mutate, history, slug],
   );
   useTitle(data?.displayname ?? slug);
+  useQuickSearchFilter(
+    data && { slug: data.slug, displayname: data.displayname },
+  );
   const user = useUser();
   return (
-    <Container size="xl" mb="xl">
+    <Container
+      size="xl"
+      mb="xl"
+      key={
+        slug
+      } /* we need key to make sure all state is reset when slug changes due to navigation */
+    >
       {error && <Alert color="red">{error.message}</Alert>}
-      {data === undefined && <LoadingOverlay visible={loading} />}
+      {loading && <LoadingOverlay visible={loading} />}
       {data && (
         <UserContext.Provider
           value={

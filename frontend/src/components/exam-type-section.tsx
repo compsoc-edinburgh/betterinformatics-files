@@ -175,7 +175,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     )}
                   </Flex>
                 </div>
-                {catAdmin && (
+                {catAdmin && !exam.finished_cuts && (
                   <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
                 )}
               </Grid.Col>

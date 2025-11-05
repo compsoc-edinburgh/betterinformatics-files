@@ -2,15 +2,19 @@ import logging
 import os.path
 from typing import Union
 
+from urllib import parse
+
 from categories.models import Category
 from django.conf import settings
-from django.db.models import Count, Q, Exists, OuterRef, Prefetch
+from django.db import transaction
+from django.db.models import Count, Q, Exists, OuterRef, Prefetch, Max
 from django.http import HttpRequest
 from django.http.response import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.text import slugify
 from myauth import auth_check
 from myauth.models import MyUser, get_my_user
 from util import s3_util, response
@@ -54,6 +58,7 @@ def get_file_obj(file: DocumentFile):
         "display_name": file.display_name,
         "filename": file.filename,
         "mime_type": file.mime_type,
+        "order": file.order,
     }
 
 
@@ -174,7 +179,7 @@ class DocumentRootView(View):
     @auth_check.require_login
     def post(self, request: HttpRequest):
         category = get_object_or_404(Category, slug=request.POST["category"])
-        if request.POST["display_name"].strip() == "":
+        if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
             return response.not_possible("Invalid displayname")
         display_name = request.POST["display_name"]
         # description is optional
@@ -245,7 +250,7 @@ class DocumentElementView(View):
             if not can_edit:
                 return response.not_allowed()
             # avoids empty or whitespaced displaynames
-            if request.DATA["display_name"].strip() == "":
+            if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
                 return response.not_possible("Invalid displayname")
             document.display_name = request.DATA["display_name"]
             edited = True
@@ -389,12 +394,15 @@ class DocumentFileRootView(View):
             return response.not_allowed()
         
 
-        if request.DATA["display_name"].strip() == "":
+        if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
             return response.not_possible("Invalid displayname")
 
         err, file, ext = prepare_document_file(request)
         if err is not None:
             return err
+
+        max_order = DocumentFile.objects.filter(document=document).all().aggregate(max_order=Max('order'))['max_order']
+        new_order = 0 if DocumentFile.objects.filter(document=document).count() == 0 else max_order + 1
 
         filename = s3_util.generate_filename(
             16, settings.COMSOL_DOCUMENT_DIR, ext)
@@ -403,6 +411,7 @@ class DocumentFileRootView(View):
             document=document,
             filename=filename,
             mime_type=file.content_type,
+            order=new_order,
         )
         document_file.save()
 
@@ -445,7 +454,7 @@ class DocumentFileElementView(View):
         )
 
         if "display_name" in request.DATA:
-            if request.DATA["display_name"].strip() == "":
+            if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
                 return response.not_possible("Invalid displayname")
             document_file.display_name = request.DATA["display_name"]
 
@@ -600,3 +609,25 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
     document.save()
 
     return HttpResponse("updated")
+
+
+@response.request_post()
+@auth_check.require_login
+def move_file(request: HttpRequest, username:str, document_slug:str, filename: str):
+    direction = request.POST["direction"]
+    if not direction:
+        return response.missing_argument()
+    direction = int(direction)
+    document = get_object_or_404(
+        Document, author__username=username, slug=document_slug
+    )
+    if not document.current_user_can_edit(request):
+        return response.not_allowed()
+    file = get_object_or_404(DocumentFile, filename=filename)
+    moved_file = get_object_or_404(DocumentFile, document=document, order=file.order + direction)
+    file.order += direction
+    moved_file.order -= direction
+    with transaction.atomic():
+        file.save()
+        moved_file.save()
+    return response.success()
