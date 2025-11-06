@@ -12,12 +12,12 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import base64
 import hashlib
-import json
-import yaml
 import os
-from base64 import b64encode
 import sys
-from jwcrypto.jwk import JWKSet, JWK
+from base64 import b64encode
+
+import yaml
+from jwcrypto.jwk import JWK, JWKSet
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,16 +31,10 @@ SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
 
-SECRET_KEY = (
-    "VERY SAFE SECRET KEY"
-    if DEBUG
-    else os.environ.get(
-        "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET", "VERY SAFE SECRET KEY"
-    )
+SECRET_KEY = os.environ.get(
+    "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET", "VERY SAFE SECRET KEY"
 )
-API_KEY = (
-    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
-)
+API_KEY = os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
@@ -191,7 +185,7 @@ CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
     allowed_script_sources = [
-        f"http://{host}:8080/static/" for host in REAL_ALLOWED_HOSTS
+        f"http://{host}:8081/static/" for host in REAL_ALLOWED_HOSTS
     ]
 else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]

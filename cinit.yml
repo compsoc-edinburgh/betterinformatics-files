@@ -1,7 +1,8 @@
 programs:
   - name: wait-for-db
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "manage.py"
       - "wait_for_database"
     workdir: /app
@@ -16,8 +17,9 @@ programs:
       - SIP_POSTGRES_DB_USER:
       - SIP_POSTGRES_DB_PW:
   - name: migrate
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "manage.py"
       - "migrate"
     workdir: /app
@@ -32,8 +34,9 @@ programs:
       - SIP_POSTGRES_DB_USER: pgbouncer-community-solutions
       - SIP_POSTGRES_DB_PW: ""
   - name: configure-cors
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "manage.py"
       - "configure_cors"
     workdir: /app
@@ -52,8 +55,9 @@ programs:
       - SIP_S3_FILES_BUCKET:
       - SIP_S3_FILES_USE_SSL:
   - name: pgbouncer-generate-ini
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "generate_ini.py"
     workdir: /app/pgbouncer
     user: app-user
