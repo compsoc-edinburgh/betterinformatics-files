@@ -299,14 +299,15 @@ export const CategoryList: React.FC<{}> = () => {
                         <Title order={2} my="sm">
                           {meta1display}
                         </Title>
-                        {isAdmin &&
+                        {isAdmin && (
                           <EditMeta1
                             oldMeta1={meta1display}
                             onChange={onChange}
                           />
-                        }
+                        )}
                       </>
                     }
+                    contentOutsideCollapse={<></>}
                     contentInsideCollapse={meta2.map(
                       ([meta2display, categories]) =>
                         meta2display === "" ? (
@@ -339,6 +340,7 @@ export const CategoryList: React.FC<{}> = () => {
                                   )}
                                 </>
                               }
+                              contentOutsideCollapse={<></>}
                               contentInsideCollapse={
                                 <Grid>
                                   {categories.map(category => (
