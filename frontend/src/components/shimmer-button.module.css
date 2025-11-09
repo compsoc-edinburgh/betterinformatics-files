@@ -3,18 +3,20 @@
   position: absolute;
   opacity: 0.5;
 
-  animation: shimmer 3s infinite;
-  animation-delay: 0.5s;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: shimmer 10s infinite;
+    animation-delay: 0.5s;
+  }
 }
 
 @keyframes shimmer {
-  0% {
+  0%,
+  85% {
     transform: translateX(-150%) scale(1);
   }
-  25% {
+  92% {
     transform: translateX(150%) scale(1.5);
   }
-  50%,
   100% {
     transform: translateX(150%) scale(1);
   }
@@ -90,11 +92,13 @@
 }
 
 .button:hover .star {
-  animation-name: sparkle;
-  animation-duration: 3s;
-  animation-delay: calc((var(--delay-step) * var(--d)) * 1s);
-  animation-fill-mode: both;
-  animation-iteration-count: infinite;
+  @media (prefers-reduced-motion: no-preference) {
+    animation-name: sparkle;
+    animation-duration: 3s;
+    animation-delay: calc((var(--delay-step) * var(--d)) * 1s);
+    animation-fill-mode: both;
+    animation-iteration-count: infinite;
+  }
 }
 
 @keyframes sparkle {
