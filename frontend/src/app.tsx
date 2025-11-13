@@ -414,6 +414,7 @@ const App: React.FC<{}> = () => {
                           path="/flagged"
                           children={<FlaggedContent />}
                         />
+                        <Route children={<NotFoundPage />} />
                       </AuthenticatedRoutes>
                       <Route exact path="/login" children={<LoginPage />} />
                       <Route children={<NotFoundPage />} />
