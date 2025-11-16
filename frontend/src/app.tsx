@@ -24,7 +24,7 @@ import {
   refreshToken,
 } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
-import { AuthenticatedRoutes } from "./auth/AuthenticatedRoutes";
+import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
 import HashLocationHandler from "./components/hash-location-handler";
@@ -57,10 +57,7 @@ import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
 import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
-import {
-  QuickSearchFilter,
-  QuickSearchFilterContext,
-} from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
+import { QuickSearchFilter, QuickSearchFilterContext } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 /**
  * To be used as a wrapper for <Route>s at the top level, and adds Faro
@@ -198,9 +195,7 @@ const App: React.FC<{}> = () => {
   const [debugPanel, { toggle: toggleDebugPanel, close: closeDebugPanel }] =
     useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
-  const [quickSearchFilter, setQuickSearchFilter] = useState<
-    QuickSearchFilter | undefined
-  >(undefined);
+  const [quickSearchFilter, setQuickSearchFilter] = useState<QuickSearchFilter|undefined>(undefined);
 
   const loadUnreadCount = async () => {
     // Notifications will be polled at regular intervals. When the auth token
@@ -256,7 +251,7 @@ const App: React.FC<{}> = () => {
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
-    { title: "Flagged Content", href: "/flagged" },
+    { title: "Flagged Content", href: "/flagged"},
   ];
 
   const bottomHeaderNav = [
@@ -323,12 +318,7 @@ const App: React.FC<{}> = () => {
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
-            <QuickSearchFilterContext.Provider
-              value={{
-                filter: quickSearchFilter,
-                setFilter: setQuickSearchFilter,
-              }}
-            >
+            <QuickSearchFilterContext.Provider value={{ filter: quickSearchFilter, setFilter: setQuickSearchFilter }}>
               <div>
                 <TopHeader
                   logo={data.logo ?? defaultConfigOptions.logo}
@@ -343,7 +333,7 @@ const App: React.FC<{}> = () => {
                     data.externalNav ?? defaultConfigOptions.externalNav
                   }
                   selectedLanguage={"en"}
-                  onLanguageSelect={() => {}}
+                  onLanguageSelect={() => { }}
                 />
                 <BottomHeader
                   lang={"en"}
@@ -361,61 +351,62 @@ const App: React.FC<{}> = () => {
                 <Box component="main" mt="2em">
                   <Router>
                     <Switch>
-                      <AuthenticatedRoutes>
-                        <Route exact path="/" children={<HomePage />} />
-                        <Route
-                          exact
-                          path="/uploadpdf"
-                          children={<UploadPdfPage />}
-                        />
-                        <Route
-                          exact
-                          path="/submittranscript"
-                          children={<UploadTranscriptPage />}
-                        />
-                        <Route exact path="/faq" children={<FAQ />} />
-                        <Route
-                          exact
-                          path="/feedback"
-                          children={<FeedbackPage />}
-                        />
-                        <Route
-                          path="/category/:slug"
-                          children={<CategoryPage />}
-                        />
-                        <Route
-                          exact
-                          path="/user/:author/document/:slug"
-                          children={<DocumentPage />}
-                        />
-                        <Route
-                          path="/exams/:filename"
-                          children={<ExamPage />}
-                        />
-                        <Route
-                          exact
-                          path="/user/:username"
-                          children={<UserPage />}
-                        />
-                        <Route exact path="/user/" children={<UserPage />} />
-                        <Route
-                          exact
-                          path="/search/"
-                          children={<SearchPage />}
-                        />
-                        <Route
-                          exact
-                          path="/scoreboard"
-                          children={<Scoreboard />}
-                        />
-                        <Route exact path="/modqueue" children={<ModQueue />} />
-                        <Route
-                          exact
-                          path="/flagged"
-                          children={<FlaggedContent />}
-                        />
-                        <Route children={<NotFoundPage />} />
-                      </AuthenticatedRoutes>
+                      <UserRoute exact path="/" children={<HomePage />} />
+                      <UserRoute
+                        exact
+                        path="/uploadpdf"
+                        children={<UploadPdfPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/submittranscript"
+                        children={<UploadTranscriptPage />}
+                      />
+                      <UserRoute exact path="/faq" children={<FAQ />} />
+                      <UserRoute
+                        exact
+                        path="/feedback"
+                        children={<FeedbackPage />}
+                      />
+                      <UserRoute
+                        path="/category/:slug"
+                        children={<CategoryPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:author/document/:slug"
+                        children={<DocumentPage />}
+                      />
+                      <UserRoute
+                        path="/exams/:filename"
+                        children={<ExamPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/user/:username"
+                        children={<UserPage />}
+                      />
+                      <UserRoute exact path="/user/" children={<UserPage />} />
+                      <UserRoute
+                        exact
+                        path="/search/"
+                        children={<SearchPage />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/scoreboard"
+                        children={<Scoreboard />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/modqueue"
+                        children={<ModQueue />}
+                      />
+                      <UserRoute
+                        exact
+                        path="/flagged"
+                        children={<FlaggedContent />}
+                      />
                       <Route exact path="/login" children={<LoginPage />} />
                       <Route children={<NotFoundPage />} />
                     </Switch>
