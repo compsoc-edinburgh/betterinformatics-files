@@ -3,8 +3,10 @@ import { useUser } from ".";
 import LoadingOverlay from "../components/loading-overlay";
 import LoginOverlay from "../pages/login-page";
 
-export const AuthenticatedRoutes = ({ children }: {
-  children: React.ReactElement[],
+export const AuthenticatedRoutes = ({
+  children,
+}: {
+  children: React.ReactNode;
 }) => {
   const user = useUser();
   const { pathname } = useLocation();
@@ -19,6 +21,5 @@ export const AuthenticatedRoutes = ({ children }: {
       </>
     );
   }
-
-}
+};
 export default AuthenticatedRoutes;

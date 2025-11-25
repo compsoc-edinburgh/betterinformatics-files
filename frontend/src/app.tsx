@@ -362,63 +362,68 @@ const App: React.FC<{}> = () => {
                 <Box component="main" mt="2em">
                   <Router>
                     <Switch>
-                      <AuthenticatedRoutes>
-                        <Route exact path="/" children={<HomePage />} />
-                        <Route
-                          exact
-                          path="/uploadpdf"
-                          children={<UploadPdfPage />}
-                        />
-                        <Route
-                          exact
-                          path="/submittranscript"
-                          children={<UploadTranscriptPage />}
-                        />
-                        <Route exact path="/faq" children={<FAQ />} />
-                        <Route
-                          exact
-                          path="/feedback"
-                          children={<FeedbackPage />}
-                        />
-                        <Route
-                          path="/category/:slug"
-                          children={<CategoryPage />}
-                        />
-                        <Route
-                          exact
-                          path="/user/:author/document/:slug"
-                          children={<DocumentPage />}
-                        />
-                        <Route
-                          path="/exams/:filename"
-                          children={<ExamPage />}
-                        />
-                        <Route
-                          exact
-                          path="/user/:username"
-                          children={<UserPage />}
-                        />
-                        <Route exact path="/user/" children={<UserPage />} />
-                        <Route
-                          exact
-                          path="/search/"
-                          children={<SearchPage />}
-                        />
-                        <Route
-                          exact
-                          path="/scoreboard"
-                          children={<Scoreboard />}
-                        />
-                        <Route exact path="/modqueue" children={<ModQueue />} />
-                        <Route
-                          exact
-                          path="/flagged"
-                          children={<FlaggedContent />}
-                        />
-                        <Route children={<NotFoundPage />} />
-                      </AuthenticatedRoutes>
                       <Route exact path="/login" children={<LoginPage />} />
-                      <Route children={<NotFoundPage />} />
+                      <AuthenticatedRoutes>
+                        <Switch>
+                          <Route exact path="/" children={<HomePage />} />
+                          <Route
+                            exact
+                            path="/uploadpdf"
+                            children={<UploadPdfPage />}
+                          />
+                          <Route
+                            exact
+                            path="/submittranscript"
+                            children={<UploadTranscriptPage />}
+                          />
+                          <Route exact path="/faq" children={<FAQ />} />
+                          <Route
+                            exact
+                            path="/feedback"
+                            children={<FeedbackPage />}
+                          />
+                          <Route
+                            path="/category/:slug"
+                            children={<CategoryPage />}
+                          />
+                          <Route
+                            exact
+                            path="/user/:author/document/:slug"
+                            children={<DocumentPage />}
+                          />
+                          <Route
+                            path="/exams/:filename"
+                            children={<ExamPage />}
+                          />
+                          <Route
+                            exact
+                            path="/user/:username"
+                            children={<UserPage />}
+                          />
+                          <Route exact path="/user/" children={<UserPage />} />
+                          <Route
+                            exact
+                            path="/search/"
+                            children={<SearchPage />}
+                          />
+                          <Route
+                            exact
+                            path="/scoreboard"
+                            children={<Scoreboard />}
+                          />
+                          <Route
+                            exact
+                            path="/modqueue"
+                            children={<ModQueue />}
+                          />
+                          <Route
+                            exact
+                            path="/flagged"
+                            children={<FlaggedContent />}
+                          />
+                          <Route children={<NotFoundPage />} />
+                        </Switch>
+                      </AuthenticatedRoutes>
                     </Switch>
                   </Router>
                 </Box>
