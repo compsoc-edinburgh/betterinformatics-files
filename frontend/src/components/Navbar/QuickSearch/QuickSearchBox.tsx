@@ -29,24 +29,18 @@ import {
 } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
-import useSearch, {
-  SearchResult as LocalSearchResult,
-} from "../../../hooks/useSearch";
 import {
   AnswerSearchResult,
-  CategoryMetaDataMinimal,
   CommentSearchResult,
   ExamSearchResult,
-  SearchResult,
 } from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
+import { itemToPath } from "../../../utils/search-utils";
+import useSearch from "../../../hooks/useSearch";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
-import { highlight } from "../../../utils/search-utils";
-import { HighlightedContent } from "../../HighlightSearchHeadline";
-import MarkdownText from "../../markdown-text";
-import { escapeRegExp } from "lodash-es";
 import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
+import { QuickSearchResults } from "./QuickSearchResults";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
 import { useHistory } from "react-router-dom";
 import clsx from "clsx";
@@ -59,38 +53,11 @@ import clsx from "clsx";
  * @param nested_array Arrays with children of arbitrary array depth
  * @returns Max depth
  */
-const maxdepth = (nested_array: any): number => {
+const maxdepth = (nested_array: unknown): number => {
   if (nested_array instanceof Array) {
     return Math.max(...nested_array.map(maxdepth)) + 1;
   }
   return 0;
-};
-
-/**
- * Determine the path for a search result item so we can navigate to it.
- *
- * @param item A valid search result item from the API, or a locally found category search result.
- * @returns The path to provide to history.push()
- */
-const itemToPath = (
-  item:
-    | LocalSearchResult<CategoryMetaDataMinimal>
-    | SearchResult
-    | { searchQuery: string },
-) => {
-  if ("slug" in item) {
-    return `/category/${item.slug}`;
-  } else if ("searchQuery" in item) {
-    return `/search?q=${item.searchQuery}`;
-  } else if (item.type === "exam" && item.pages.length > 0) {
-    return `/exams/${item.filename}/#page-${item.pages[0][0]}`;
-  } else if (item.type === "exam") {
-    return `/exams/${item.filename}`;
-  } else if (item.type === "answer") {
-    return `/exams/${item.filename}?answer=${item.long_id}`;
-  } else {
-    return `/exams/${item.filename}?comment=${item.long_id}&answer=${item.answer_long_id}`;
-  }
 };
 
 const displayOrder = [
@@ -141,7 +108,9 @@ export const QuickSearchBox: React.FC = () => {
   );
 
   const categoryResults = useSearch(
-    (isGlobal && categories.data) || [],
+    // Disable category results (with an empty data list) if we're already
+    // searching in a single category
+    isGlobal ? categories.data ?? [] : [],
     searchQuery,
     // We only really want to show almost-perfect matches for this component.
     // So the max error score we allow is 4 -- this value was found by trial and
@@ -166,40 +135,40 @@ export const QuickSearchBox: React.FC = () => {
 
   // Create a results object, memoised so we don't recreate the same object
   // on every render
-  const results = useMemo(() => {
+  const networkResults = useMemo(() => {
     const exams =
       searchResults.data?.filter(
         (result): result is ExamSearchResult => result.type === "exam",
       ) ?? [];
     // Results on exam names will have a depth 3 match somewhere in the headline
-    const examNames =
-      exams.filter(result => maxdepth(result.headline) !== 2).slice(0, 4) ?? [];
+    const examNames = exams
+      .filter(result => maxdepth(result.headline) !== 2)
+      .slice(0, 4);
     // Results for exam pages will have non-zero page array.
     // We limit the "number of pages" to 4 (instead of the number of exams, which
     // may each have arbitrary matching result pages). To do this, we use .reduce()
     // and keep adding to a list a copy of the exam with just 1 page, until the
     // total reaches 4.
-    const examPages =
-      exams
-        .filter(result => result.pages.length > 0)
-        .reduce(
-          (accum, exam) => {
-            exam.pages.forEach(page => {
-              if (accum.totalPages >= 4) return;
-              // Clone exam, and set the pages array to just this page/
-              // structuredClone is deep-clone and is widely available in modern browsers
-              const copyExam = structuredClone(exam);
-              copyExam.pages = [page];
-              accum.exams.push(copyExam);
-              accum.totalPages += 1;
-            });
-            return accum;
-          },
-          {
-            totalPages: 0,
-            exams: [] as ExamSearchResult[],
-          },
-        ).exams ?? [];
+    const examPages = exams
+      .filter(result => result.pages.length > 0)
+      .reduce(
+        (accum, exam) => {
+          exam.pages.forEach(page => {
+            if (accum.totalPages >= 4) return;
+            // Clone exam, and set the pages array to just this page/
+            // structuredClone is deep-clone and is widely available in modern browsers
+            const copyExam = structuredClone(exam);
+            copyExam.pages = [page];
+            accum.exams.push(copyExam);
+            accum.totalPages += 1;
+          });
+          return accum;
+        },
+        {
+          totalPages: 0,
+          exams: [] as ExamSearchResult[],
+        },
+      ).exams;
     // We might miss some exam results if postgres found a match in the exam name
     // but ts_headline for some reason didn't decide to highlight it. But that is
     // really an edge case so we ignore and won't show it to the user.
@@ -220,18 +189,27 @@ export const QuickSearchBox: React.FC = () => {
         .slice(0, 4) ?? [];
 
     return {
-      categories: categoryResults,
       examNames,
       examPages,
       answers,
       comments,
+    };
+  }, [searchResults.data]);
+
+  // Wrap up all the results (local, network, "more") into one memoised object
+  // that won't change while selection is being changed (i.e. only depends on
+  // textbox input and its results)
+  const results = useMemo(() => {
+    return {
+      categories: categoryResults,
       more: [
         {
           searchQuery: debouncedSearchQuery,
         },
       ],
+      ...networkResults,
     };
-  }, [categoryResults, searchResults.data, debouncedSearchQuery]);
+  }, [networkResults, categoryResults, debouncedSearchQuery]);
 
   const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(
     results,
@@ -244,6 +222,8 @@ export const QuickSearchBox: React.FC = () => {
     if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
 
     history.push(
+      // TODO: fix duplicate logic here to get the path for an item; we already
+      // do that in QuickSearchResults to create the link href prop of results
       itemToPath(results[currentSelection.type][currentSelection.index]),
     );
     close();
@@ -251,10 +231,11 @@ export const QuickSearchBox: React.FC = () => {
 
   useEffect(() => {
     // Do some raw-JS scrollIntoView so that moving up/down via keyboard scrolls
-    // items into view if there are many many results. This useEffect handler is
-    // triggered right after rendering with the new currentSelection value, so
-    // we're guaranteed to have the correct [data-quicksearch-selected]
-    // already in the DOM (or not if there is no result).
+    // items into view if there are many many results. The data attribute is set
+    // in QuickSearchResult. This useEffect handler is triggered right after
+    // rendering with the new currentSelection value, so we're guaranteed to
+    // have the correct [data-quicksearch-selected] already in the DOM (and if
+    // there is no result, none).
     document
       .querySelector("[data-quicksearch-selected=true]")
       ?.scrollIntoView({ block: "center", behavior: "instant" });
@@ -402,188 +383,36 @@ export const QuickSearchBox: React.FC = () => {
                   No Results :'(
                 </Text>
               )}
-              {results.categories.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Categories"
-                    labelPosition="left"
-                  />
-                  {results.categories.map((category, i) => {
-                    const isSelected =
-                      currentSelection.type === "categories" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Category"
-                        isSelected={isSelected}
-                        key={category.slug}
-                        link={itemToPath(category)}
-                        onClick={close}
-                      >
-                        <Text>
-                          {highlight(category.displayname, category.match)}
-                        </Text>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
+              <QuickSearchResults
+                type="categories"
+                results={categoryResults}
+                currentSelection={currentSelection}
+              />
               {!searchResults.loading && searchResults.error && (
                 <Text c="dimmed" mx="auto">
                   {String(searchResults.error)}
                 </Text>
               )}
-              {results.examNames.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Exams"
-                    labelPosition="left"
-                  />
-                  {results.examNames.map((exam, i) => {
-                    const isSelected =
-                      currentSelection.type === "examNames" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Exam"
-                        isSelected={isSelected}
-                        key={exam.filename}
-                        link={itemToPath(exam)}
-                        onClick={close}
-                      >
-                        <Text>
-                          {exam.headline.map((part, i) => (
-                            <HighlightedContent content={part} key={i} />
-                          ))}
-                        </Text>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
-              {results.examPages.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Exam Pages"
-                    labelPosition="left"
-                  />
-                  {results.examPages.map((exam, i) => {
-                    const isSelected =
-                      currentSelection.type === "examPages" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Exam Page"
-                        isSelected={isSelected}
-                        key={`${exam.filename}-page-${exam.pages[0][0]}`}
-                        link={itemToPath(exam)}
-                        onClick={close}
-                      >
-                        <Stack gap={0}>
-                          <Text>
-                            {exam.headline.map((part, i) => (
-                              <HighlightedContent content={part} key={i} />
-                            ))}{" "}
-                            - Page {exam.pages[0][0]}
-                          </Text>
-                          <Text opacity={0.7}>
-                            ...
-                            {exam.pages[0][2].map((part, i) => (
-                              <HighlightedContent content={part} key={i} />
-                            ))}
-                            ...
-                          </Text>
-                        </Stack>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
-              {results.answers.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Answers"
-                    labelPosition="left"
-                  />
-                  {results.answers.map((answer, i) => {
-                    const isSelected =
-                      currentSelection.type === "answers" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Answer"
-                        isSelected={isSelected}
-                        key={answer.long_id}
-                        link={itemToPath(answer)}
-                        onClick={close}
-                      >
-                        <Stack gap={0}>
-                          <Text>
-                            {answer.author_displayname} on{" "}
-                            {answer.exam_displayname} -{" "}
-                            {answer.category_displayname}
-                          </Text>
-                          <Text opacity={0.7}>
-                            <MarkdownText
-                              value={answer.text}
-                              regex={
-                                new RegExp(
-                                  `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
-                                )
-                              }
-                            />
-                          </Text>
-                        </Stack>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
-              {results.comments.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Comments"
-                    labelPosition="left"
-                  />
-                  {results.comments.map((comment, i) => {
-                    const isSelected =
-                      currentSelection.type === "comments" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Comment"
-                        isSelected={isSelected}
-                        key={comment.long_id}
-                        link={itemToPath(comment)}
-                        onClick={close}
-                      >
-                        <Stack gap={0}>
-                          <Text>
-                            {comment.author_displayname} on{" "}
-                            {comment.exam_displayname} -{" "}
-                            {comment.category_displayname}
-                          </Text>
-                          <Text opacity={0.7}>
-                            <MarkdownText
-                              value={comment.text}
-                              regex={
-                                new RegExp(
-                                  `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
-                                )
-                              }
-                            />
-                          </Text>
-                        </Stack>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
+              <QuickSearchResults
+                type="examNames"
+                results={networkResults.examNames}
+                currentSelection={currentSelection}
+              />
+              <QuickSearchResults
+                type="examPages"
+                results={networkResults.examPages}
+                currentSelection={currentSelection}
+              />
+              <QuickSearchResults
+                type="answers"
+                results={networkResults.answers}
+                currentSelection={currentSelection}
+              />
+              <QuickSearchResults
+                type="comments"
+                results={networkResults.comments}
+                currentSelection={currentSelection}
+              />
               <Divider variant="dashed" label="More" labelPosition="left" />
               <QuickSearchResult
                 isSelected={currentSelection.type === "more"}

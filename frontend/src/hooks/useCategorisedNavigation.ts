@@ -15,7 +15,7 @@ import { useCallback, useState } from "react";
  * should be navigated, top to bottom
  * @returns Handlers to move selection up/down, and the current selection
  */
-const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
+const useCategorisedNavigation = <T extends Record<string, unknown[]>>(
   items: T,
   displayOrder: readonly (keyof T)[],
 ) => {
@@ -31,7 +31,8 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
   //
   // useEffect <<< compare with prev state & re-render once < completely stateless
   //
-  // Ours is the middle solution in the ranking above.
+  // Ours is the middle solution in the ranking above, because I can't think of
+  // any way to do it statelessly.
   //
   // We store the previous value of items and compare on every render. If they
   // are different, it will cause an immediate re-render when the containing
@@ -45,10 +46,17 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
   const [prevItems, setPrevItems] = useState(items);
   if (JSON.stringify(prevItems) !== JSON.stringify(items)) {
     setPrevItems(items);
-    setCurrentSelection({
-      type: displayOrder.find(k => items[k].length > 0),
-      index: 0,
-    });
+    // Only update currentSelection if content is different to prevent
+    // unnecessary re-renders of every component that takes currentSelection as
+    // props
+    const newType = displayOrder.find(k => items[k].length > 0);
+    const newIndex = 0;
+    if (currentSelection.type !== newType || currentSelection.index !== newIndex) {
+      setCurrentSelection({
+        type: displayOrder.find(k => items[k].length > 0),
+        index: 0,
+      });
+    }
   }
 
   // Callback function to move selection upwards
@@ -67,10 +75,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
 
     // Move index to a higher item, or, to a previous category until the very top.
     if (currentSelection.index > 0) {
-      return setCurrentSelection({
+      setCurrentSelection({
         type: currentSelection.type,
         index: currentSelection.index - 1,
       });
+      return;
     }
 
     let prevTypeIndex = displayOrder.indexOf(currentSelection.type) - 1;
@@ -80,10 +89,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
     )
       prevTypeIndex--;
     if (prevTypeIndex < 0) return;
-    return setCurrentSelection({
+    setCurrentSelection({
       type: displayOrder[prevTypeIndex],
       index: items[displayOrder[prevTypeIndex]].length - 1,
     });
+    return;
   }, [currentSelection, setCurrentSelection, displayOrder, items]);
 
   // Callback function to move selection downwards
@@ -101,10 +111,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
 
     // Move index to a lower item, or, to a subsequent category until the very bottom.
     if (currentSelection.index < items[currentSelection.type].length - 1) {
-      return setCurrentSelection({
+      setCurrentSelection({
         type: currentSelection.type,
         index: currentSelection.index + 1,
       });
+      return;
     }
 
     let nextTypeIndex = displayOrder.indexOf(currentSelection.type) + 1;
@@ -114,10 +125,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
     )
       nextTypeIndex++;
     if (nextTypeIndex >= displayOrder.length) return;
-    return setCurrentSelection({
+    setCurrentSelection({
       type: displayOrder[nextTypeIndex],
       index: 0,
     });
+    return;
   }, [currentSelection, setCurrentSelection, displayOrder, items]);
 
   return {

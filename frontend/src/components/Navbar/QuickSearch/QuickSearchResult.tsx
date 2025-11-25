@@ -12,6 +12,15 @@ interface Props {
   children?: React.ReactElement;
 }
 
+/**
+ * QuickSearchResult is a single quick search result. The rendering of its
+ * children is entirely offloaded to the parent; this component is only for
+ * styling.
+ *
+ * If the parent makes sure that the children isn't freshly re-created on every
+ * render (e.g. with useMemo) then modifying other props like isSelected will
+ * not incur a re-render of the children.
+ */
 export const QuickSearchResult: React.FC<Props> = ({
   isSelected,
   link,
@@ -25,6 +34,7 @@ export const QuickSearchResult: React.FC<Props> = ({
       className={clsx(classes.searchResultLink, isSelected && classes.selected)}
       onClick={onClick}
       // Set a HTML attribute that can be queried for scrolling to a selection
+      // Needed by QuickSearchBox
       data-quicksearch-selected={isSelected}
     >
       <Group className={clsx(classes.searchResult, classes.fadeHeightLimited)}>
