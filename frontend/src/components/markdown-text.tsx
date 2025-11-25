@@ -29,6 +29,7 @@ const addMarks = (
   index: number = 0,
 ): React.ReactNode => {
   if (regex === undefined) return obj;
+  if (regex.toString() === "/(?:)/") return obj; // if regex matches all strings, this function will loop forever
   if (isNaN(index)) index = 0;
   if (obj && typeof obj === "string") {
     const value = obj;

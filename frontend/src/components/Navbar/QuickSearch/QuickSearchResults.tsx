@@ -120,9 +120,11 @@ export const QuickSearchResults = ({
               <MarkdownText
                 value={answer.text}
                 regex={
-                  new RegExp(
-                    `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
-                  )
+                  answer.highlighted_words.length > 0
+                    ? new RegExp(
+                        `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
+                      )
+                    : undefined
                 }
               />
             </Text>
@@ -144,9 +146,11 @@ export const QuickSearchResults = ({
               <MarkdownText
                 value={comment.text}
                 regex={
-                  new RegExp(
-                    `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
-                  )
+                  comment.highlighted_words.length > 0
+                    ? new RegExp(
+                        `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
+                      )
+                    : undefined
                 }
               />
             </Text>
