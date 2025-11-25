@@ -56,7 +56,7 @@ import clsx from "clsx";
  * @param nested_array Arrays with children of arbitrary array depth
  * @returns Max depth
  */
-const maxdepth = (nested_array: any): number => {
+const maxdepth = (nested_array: unknown): number => {
   if (nested_array instanceof Array) {
     return Math.max(...nested_array.map(maxdepth)) + 1;
   }
