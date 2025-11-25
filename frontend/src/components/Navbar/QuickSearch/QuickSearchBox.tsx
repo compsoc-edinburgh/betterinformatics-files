@@ -36,6 +36,7 @@ import {
 } from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
 import { itemToPath } from "../../../utils/search-utils";
+import useSearch from "../../../hooks/useSearch";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
