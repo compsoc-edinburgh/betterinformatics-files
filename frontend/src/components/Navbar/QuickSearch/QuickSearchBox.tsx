@@ -221,6 +221,8 @@ export const QuickSearchBox: React.FC = () => {
     if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
 
     history.push(
+      // TODO: fix duplicate logic here to get the path for an item; we already
+      // do that in QuickSearchResults to create the link href prop of results
       itemToPath(results[currentSelection.type][currentSelection.index]),
     );
     close();
