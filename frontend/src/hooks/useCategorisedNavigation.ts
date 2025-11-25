@@ -31,7 +31,8 @@ const useCategorisedNavigation = <T extends Record<string, unknown[]>>(
   //
   // useEffect <<< compare with prev state & re-render once < completely stateless
   //
-  // Ours is the middle solution in the ranking above.
+  // Ours is the middle solution in the ranking above, because I can't think of
+  // any way to do it statelessly.
   //
   // We store the previous value of items and compare on every render. If they
   // are different, it will cause an immediate re-render when the containing
@@ -45,10 +46,17 @@ const useCategorisedNavigation = <T extends Record<string, unknown[]>>(
   const [prevItems, setPrevItems] = useState(items);
   if (JSON.stringify(prevItems) !== JSON.stringify(items)) {
     setPrevItems(items);
-    setCurrentSelection({
-      type: displayOrder.find(k => items[k].length > 0),
-      index: 0,
-    });
+    // Only update currentSelection if content is different to prevent
+    // unnecessary re-renders of every component that takes currentSelection as
+    // props
+    const newType = displayOrder.find(k => items[k].length > 0);
+    const newIndex = 0;
+    if (currentSelection.type !== newType || currentSelection.index !== newIndex) {
+      setCurrentSelection({
+        type: displayOrder.find(k => items[k].length > 0),
+        index: 0,
+      });
+    }
   }
 
   // Callback function to move selection upwards
