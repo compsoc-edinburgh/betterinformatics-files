@@ -119,13 +119,7 @@ export const QuickSearchResults = ({
             <Text opacity={0.7}>
               <MarkdownText
                 value={answer.text}
-                regex={
-                  answer.highlighted_words.length > 0
-                    ? new RegExp(
-                        `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
-                      )
-                    : undefined
-                }
+                highlight_matches={answer.highlighted_words}
               />
             </Text>
           </Stack>
@@ -145,13 +139,7 @@ export const QuickSearchResults = ({
             <Text opacity={0.7}>
               <MarkdownText
                 value={comment.text}
-                regex={
-                  comment.highlighted_words.length > 0
-                    ? new RegExp(
-                        `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
-                      )
-                    : undefined
-                }
+                highlight_matches={comment.highlighted_words}
               />
             </Text>
           </Stack>

@@ -9,6 +9,7 @@ import "katex/contrib/mhchem/mhchem";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
+import { escapeRegExp } from "lodash-es";
 import CodeBlock from "./code-block";
 import { Alert, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
@@ -29,7 +30,7 @@ const addMarks = (
   index: number = 0,
 ): React.ReactNode => {
   if (regex === undefined) return obj;
-  if (regex.toString() === "/(?:)/") return obj; // if regex matches all strings, this function will loop forever
+  if (regex.toString() === "/(?:)/") return obj; // if regex matches all strings (including the empty one), this function will loop forever
   if (isNaN(index)) index = 0;
   if (obj && typeof obj === "string") {
     const value = obj;
@@ -139,10 +140,10 @@ interface Props {
    */
   value: string;
   /**
-   * A regex which should be used for highlighting. If undefined no text will
-   * be highlighted.
+   * An array of strings which should be highlighted. If empty or undefined, no
+   * text will be highlighted.
    */
-  regex?: RegExp;
+  highlight_matches?: string[];
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -153,8 +154,20 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, regex }) => {
+const MarkdownText: React.FC<Props> = ({ value, highlight_matches }) => {
+  // Make sure we don't generate a RegExp with empty text, as that will match
+  // everything (including the empty string) and can cause mayhem with
+  // highlighting.
+  const regex = useMemo(
+    () =>
+      highlight_matches && highlight_matches.length > 0
+        ? new RegExp(`${highlight_matches.map(escapeRegExp).join("|")}`)
+        : undefined,
+    [highlight_matches],
+  );
+
   const renderers = useMemo(() => createComponents(regex), [regex]);
+
   return useMemo(() => {
     const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
 
