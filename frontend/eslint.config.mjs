@@ -47,6 +47,11 @@ export default defineConfig(
             // We use redundant types to document potential common values, like
             // "en" | "de" | string for the menu.
             "@typescript-eslint/no-redundant-type-constituents": "off",
+            // We prefer writing callback props (that don't handle the event) as:
+            //     onClick={() => doSomething()}
+            // while the below rule enforces the (more uglier):
+            //     onClick={() => { doSomething(); }}
+            "@typescript-eslint/no-confusing-void-expression": "off",
 
             // TODO: Change the rules from here on below to errors.
             // They have been set to "warn" during the eslint 9 and flat config
@@ -66,7 +71,6 @@ export default defineConfig(
             "@typescript-eslint/consistent-type-definitions": "warn",
             "@typescript-eslint/dot-notation": "warn",
             "@typescript-eslint/no-base-to-string": "warn",
-            "@typescript-eslint/no-confusing-void-expression": "warn",
             "@typescript-eslint/no-deprecated": "warn",
             "@typescript-eslint/no-duplicate-type-constituents": "warn",
             "@typescript-eslint/no-empty-function": "warn",
