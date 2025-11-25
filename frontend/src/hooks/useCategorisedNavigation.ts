@@ -15,7 +15,7 @@ import { useCallback, useState } from "react";
  * should be navigated, top to bottom
  * @returns Handlers to move selection up/down, and the current selection
  */
-const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
+const useCategorisedNavigation = <T extends Record<string, unknown[]>>(
   items: T,
   displayOrder: readonly (keyof T)[],
 ) => {
@@ -67,10 +67,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
 
     // Move index to a higher item, or, to a previous category until the very top.
     if (currentSelection.index > 0) {
-      return setCurrentSelection({
+      setCurrentSelection({
         type: currentSelection.type,
         index: currentSelection.index - 1,
       });
+      return;
     }
 
     let prevTypeIndex = displayOrder.indexOf(currentSelection.type) - 1;
@@ -80,10 +81,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
     )
       prevTypeIndex--;
     if (prevTypeIndex < 0) return;
-    return setCurrentSelection({
+    setCurrentSelection({
       type: displayOrder[prevTypeIndex],
       index: items[displayOrder[prevTypeIndex]].length - 1,
     });
+    return;
   }, [currentSelection, setCurrentSelection, displayOrder, items]);
 
   // Callback function to move selection downwards
@@ -101,10 +103,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
 
     // Move index to a lower item, or, to a subsequent category until the very bottom.
     if (currentSelection.index < items[currentSelection.type].length - 1) {
-      return setCurrentSelection({
+      setCurrentSelection({
         type: currentSelection.type,
         index: currentSelection.index + 1,
       });
+      return;
     }
 
     let nextTypeIndex = displayOrder.indexOf(currentSelection.type) + 1;
@@ -114,10 +117,11 @@ const useCategorisedNavigation = <T extends { [key: string]: any[] }>(
     )
       nextTypeIndex++;
     if (nextTypeIndex >= displayOrder.length) return;
-    return setCurrentSelection({
+    setCurrentSelection({
       type: displayOrder[nextTypeIndex],
       index: 0,
     });
+    return;
   }, [currentSelection, setCurrentSelection, displayOrder, items]);
 
   return {
