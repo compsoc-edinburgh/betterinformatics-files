@@ -41,12 +41,9 @@ import {
 } from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
-import { highlight } from "../../../utils/search-utils";
-import { HighlightedContent } from "../../HighlightSearchHeadline";
-import MarkdownText from "../../markdown-text";
-import { escapeRegExp } from "lodash-es";
 import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
+import { QuickSearchResults } from "./QuickSearchResults";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
 import { useHistory } from "react-router-dom";
 import clsx from "clsx";
@@ -166,7 +163,7 @@ export const QuickSearchBox: React.FC = () => {
 
   // Create a results object, memoised so we don't recreate the same object
   // on every render
-  const results = useMemo(() => {
+  const networkResults = useMemo(() => {
     const exams =
       searchResults.data?.filter(
         (result): result is ExamSearchResult => result.type === "exam",
@@ -220,18 +217,27 @@ export const QuickSearchBox: React.FC = () => {
         .slice(0, 4) ?? [];
 
     return {
-      categories: categoryResults,
       examNames,
       examPages,
       answers,
       comments,
+    };
+  }, [searchResults.data]);
+
+  // Wrap up all the results (local, network, "more") into one memoised object
+  // that won't change while selection is being changed (i.e. only depends on
+  // textbox input and its results)
+  const results = useMemo(() => {
+    return {
+      categories: categoryResults,
       more: [
         {
           searchQuery: debouncedSearchQuery,
         },
       ],
+      ...networkResults,
     };
-  }, [categoryResults, searchResults.data, debouncedSearchQuery]);
+  }, [networkResults, categoryResults, debouncedSearchQuery]);
 
   const { moveUp, moveDown, currentSelection } = useCategorisedNavigation(
     results,
@@ -251,10 +257,11 @@ export const QuickSearchBox: React.FC = () => {
 
   useEffect(() => {
     // Do some raw-JS scrollIntoView so that moving up/down via keyboard scrolls
-    // items into view if there are many many results. This useEffect handler is
-    // triggered right after rendering with the new currentSelection value, so
-    // we're guaranteed to have the correct [data-quicksearch-selected]
-    // already in the DOM (or not if there is no result).
+    // items into view if there are many many results. The data attribute is set
+    // in QuickSearchResult. This useEffect handler is triggered right after
+    // rendering with the new currentSelection value, so we're guaranteed to
+    // have the correct [data-quicksearch-selected] already in the DOM (and if
+    // there is no result, none).
     document
       .querySelector("[data-quicksearch-selected=true]")
       ?.scrollIntoView({ block: "center", behavior: "instant" });
@@ -402,188 +409,36 @@ export const QuickSearchBox: React.FC = () => {
                   No Results :'(
                 </Text>
               )}
-              {results.categories.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Categories"
-                    labelPosition="left"
-                  />
-                  {results.categories.map((category, i) => {
-                    const isSelected =
-                      currentSelection.type === "categories" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Category"
-                        isSelected={isSelected}
-                        key={category.slug}
-                        link={itemToPath(category)}
-                        onClick={close}
-                      >
-                        <Text>
-                          {highlight(category.displayname, category.match)}
-                        </Text>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
+              <QuickSearchResults
+                type="categories"
+                results={categoryResults}
+                currentSelection={currentSelection}
+              />
               {!searchResults.loading && searchResults.error && (
                 <Text c="dimmed" mx="auto">
                   {String(searchResults.error)}
                 </Text>
               )}
-              {results.examNames.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Exams"
-                    labelPosition="left"
-                  />
-                  {results.examNames.map((exam, i) => {
-                    const isSelected =
-                      currentSelection.type === "examNames" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Exam"
-                        isSelected={isSelected}
-                        key={exam.filename}
-                        link={itemToPath(exam)}
-                        onClick={close}
-                      >
-                        <Text>
-                          {exam.headline.map((part, i) => (
-                            <HighlightedContent content={part} key={i} />
-                          ))}
-                        </Text>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
-              {results.examPages.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Exam Pages"
-                    labelPosition="left"
-                  />
-                  {results.examPages.map((exam, i) => {
-                    const isSelected =
-                      currentSelection.type === "examPages" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Exam Page"
-                        isSelected={isSelected}
-                        key={`${exam.filename}-page-${exam.pages[0][0]}`}
-                        link={itemToPath(exam)}
-                        onClick={close}
-                      >
-                        <Stack gap={0}>
-                          <Text>
-                            {exam.headline.map((part, i) => (
-                              <HighlightedContent content={part} key={i} />
-                            ))}{" "}
-                            - Page {exam.pages[0][0]}
-                          </Text>
-                          <Text opacity={0.7}>
-                            ...
-                            {exam.pages[0][2].map((part, i) => (
-                              <HighlightedContent content={part} key={i} />
-                            ))}
-                            ...
-                          </Text>
-                        </Stack>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
-              {results.answers.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Answers"
-                    labelPosition="left"
-                  />
-                  {results.answers.map((answer, i) => {
-                    const isSelected =
-                      currentSelection.type === "answers" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Answer"
-                        isSelected={isSelected}
-                        key={answer.long_id}
-                        link={itemToPath(answer)}
-                        onClick={close}
-                      >
-                        <Stack gap={0}>
-                          <Text>
-                            {answer.author_displayname} on{" "}
-                            {answer.exam_displayname} -{" "}
-                            {answer.category_displayname}
-                          </Text>
-                          <Text opacity={0.7}>
-                            <MarkdownText
-                              value={answer.text}
-                              regex={
-                                new RegExp(
-                                  `${answer.highlighted_words.map(escapeRegExp).join("|")}`,
-                                )
-                              }
-                            />
-                          </Text>
-                        </Stack>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
-              {results.comments.length > 0 && (
-                <>
-                  <Divider
-                    variant="dashed"
-                    label="Comments"
-                    labelPosition="left"
-                  />
-                  {results.comments.map((comment, i) => {
-                    const isSelected =
-                      currentSelection.type === "comments" &&
-                      currentSelection.index === i;
-                    return (
-                      <QuickSearchResult
-                        badge="Comment"
-                        isSelected={isSelected}
-                        key={comment.long_id}
-                        link={itemToPath(comment)}
-                        onClick={close}
-                      >
-                        <Stack gap={0}>
-                          <Text>
-                            {comment.author_displayname} on{" "}
-                            {comment.exam_displayname} -{" "}
-                            {comment.category_displayname}
-                          </Text>
-                          <Text opacity={0.7}>
-                            <MarkdownText
-                              value={comment.text}
-                              regex={
-                                new RegExp(
-                                  `${comment.highlighted_words.map(escapeRegExp).join("|")}`,
-                                )
-                              }
-                            />
-                          </Text>
-                        </Stack>
-                      </QuickSearchResult>
-                    );
-                  })}
-                </>
-              )}
+              <QuickSearchResults
+                type="examNames"
+                results={networkResults.examNames}
+                currentSelection={currentSelection}
+              />
+              <QuickSearchResults
+                type="examPages"
+                results={networkResults.examPages}
+                currentSelection={currentSelection}
+              />
+              <QuickSearchResults
+                type="answers"
+                results={networkResults.answers}
+                currentSelection={currentSelection}
+              />
+              <QuickSearchResults
+                type="comments"
+                results={networkResults.comments}
+                currentSelection={currentSelection}
+              />
               <Divider variant="dashed" label="More" labelPosition="left" />
               <QuickSearchResult
                 isSelected={currentSelection.type === "more"}
