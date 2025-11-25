@@ -29,17 +29,13 @@ import {
 } from "@mantine/hooks";
 import { useDebounce, useRequest } from "@umijs/hooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
-import useSearch, {
-  SearchResult as LocalSearchResult,
-} from "../../../hooks/useSearch";
 import {
   AnswerSearchResult,
-  CategoryMetaDataMinimal,
   CommentSearchResult,
   ExamSearchResult,
-  SearchResult,
 } from "../../../interfaces";
 import useCategorisedNavigation from "../../../hooks/useCategorisedNavigation";
+import { itemToPath } from "../../../utils/search-utils";
 import { IconChevronDown, IconSearch } from "@tabler/icons-react";
 import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
@@ -61,33 +57,6 @@ const maxdepth = (nested_array: unknown): number => {
     return Math.max(...nested_array.map(maxdepth)) + 1;
   }
   return 0;
-};
-
-/**
- * Determine the path for a search result item so we can navigate to it.
- *
- * @param item A valid search result item from the API, or a locally found category search result.
- * @returns The path to provide to history.push()
- */
-const itemToPath = (
-  item:
-    | LocalSearchResult<CategoryMetaDataMinimal>
-    | SearchResult
-    | { searchQuery: string },
-) => {
-  if ("slug" in item) {
-    return `/category/${item.slug}`;
-  } else if ("searchQuery" in item) {
-    return `/search?q=${item.searchQuery}`;
-  } else if (item.type === "exam" && item.pages.length > 0) {
-    return `/exams/${item.filename}/#page-${item.pages[0][0]}`;
-  } else if (item.type === "exam") {
-    return `/exams/${item.filename}`;
-  } else if (item.type === "answer") {
-    return `/exams/${item.filename}?answer=${item.long_id}`;
-  } else {
-    return `/exams/${item.filename}?comment=${item.long_id}&answer=${item.answer_long_id}`;
-  }
 };
 
 const displayOrder = [

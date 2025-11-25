@@ -5,10 +5,9 @@ import {
   CategoryMetaDataMinimal,
   CommentSearchResult,
   ExamSearchResult,
-  SearchResult,
 } from "../../../interfaces";
 import { QuickSearchResult } from "./QuickSearchResult";
-import { highlight } from "../../../utils/search-utils";
+import { highlight, itemToPath } from "../../../utils/search-utils";
 import { HighlightedContent } from "../../HighlightSearchHeadline";
 import MarkdownText from "../../markdown-text";
 import { escapeRegExp } from "lodash-es";
@@ -52,33 +51,6 @@ type QuickSeachResultsProps = {
       results: { searchQuery: string }[];
     }
 );
-
-/**
- * Determine the path for a search result item so we can navigate to it.
- *
- * @param item A valid search result item from the API, or a locally found category search result.
- * @returns The path to provide to history.push()
- */
-const itemToPath = (
-  item:
-    | LocalSearchResult<CategoryMetaDataMinimal>
-    | SearchResult
-    | { searchQuery: string },
-) => {
-  if ("slug" in item) {
-    return `/category/${item.slug}`;
-  } else if ("searchQuery" in item) {
-    return `/search?q=${item.searchQuery}`;
-  } else if (item.type === "exam" && item.pages.length > 0) {
-    return `/exams/${item.filename}/#page-${item.pages[0][0]}`;
-  } else if (item.type === "exam") {
-    return `/exams/${item.filename}`;
-  } else if (item.type === "answer") {
-    return `/exams/${item.filename}?answer=${item.long_id}`;
-  } else {
-    return `/exams/${item.filename}?comment=${item.long_id}&answer=${item.answer_long_id}`;
-  }
-};
 
 /**
  * QuickSearchResults is used to show the results for a single type of quick
