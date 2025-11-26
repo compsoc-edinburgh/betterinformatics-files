@@ -25,6 +25,7 @@ import { FeedbackEntry } from "../interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import TooltipButton from "../components/TooltipButton";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import CollapseWrapper from "../components/collapse-wrapper";
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -102,7 +103,7 @@ const FeedbackReader: React.FC<{}> = () => {
 
   const [opened, { toggle }] = useDisclosure(false);
 
-  const mapEntries = (feedback : FeedbackEntry[]) => {
+  const mapEntries = (feedback: FeedbackEntry[]) => {
     return (
       <Grid>
         {feedback.map(fb => (
@@ -112,7 +113,7 @@ const FeedbackReader: React.FC<{}> = () => {
         ))}
       </Grid>
     );
-  }
+  };
 
   const categorized = {
     waiting_action: [] as FeedbackEntry[],
@@ -144,26 +145,20 @@ const FeedbackReader: React.FC<{}> = () => {
       {feedback && (
         <>
           {mapEntries(categorized.waiting_action)}
-          <Divider my="xl"/>
+          <Divider my="xl" />
           <Title order={2}>Done</Title>
           {mapEntries(categorized.done)}
-          <Divider my="xl"/>
+          <Divider my="xl" />
           <Title order={2}>Read</Title>
           {mapEntries(categorized.read)}
-          <Divider my="xl"/>
-          <Group>
-            <Title order={2}>Read and Done</Title>
-            <TooltipButton
-              variant={opened ? "default" : "filled"}
-              tooltip={`${opened ? "Collapse" : "Expand"}`}
-              color={opened ? "brand.7" : "brand"}
-              onClick={toggle}>
-              {opened ? <IconChevronUp/> : <IconChevronDown/>}
-            </TooltipButton>
-          </Group>
-          <Collapse in={opened}>
-            {mapEntries(categorized.read_and_done)}
-          </Collapse>
+          <Divider my="xl" />
+          <CollapseWrapper
+            title={<Title order={2}>Read and Done</Title>}
+            contentOutsideCollapse={<></>}
+            contentInsideCollapse={<>{mapEntries(categorized.read_and_done)}</>}
+            is_collapsed={() => opened}
+            collapse_expand={() => toggle()}
+          />
         </>
       )}
       {loading && <Loader />}

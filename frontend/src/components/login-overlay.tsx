@@ -34,7 +34,7 @@ const LoginOverlay: React.FC<{}> = () => {
 
   const [loginState, setLoginState] = useState(LoginState.AWAITING_UUN_INPUT);
 
-  const handleSubmitUUN: FormEventHandler<HTMLFormElement> = async e => {
+  const handleSubmitUUN: FormEventHandler<HTMLFormElement> = e => {
     e.preventDefault();
     setError("");
     setLoginState(LoginState.PROCESSING);
@@ -63,7 +63,7 @@ const LoginOverlay: React.FC<{}> = () => {
 
   const handleProcessingAgreement: FormEventHandler<
     HTMLFormElement
-  > = async e => {
+  > = e => {
     e.preventDefault();
     if (!processingAgreement) {
       setLoginState(LoginState.AWAITING_UUN_INPUT);

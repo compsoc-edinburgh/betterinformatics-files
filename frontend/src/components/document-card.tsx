@@ -1,10 +1,10 @@
 import React from "react";
 import { Document } from "../interfaces";
 import { Link } from "react-router-dom";
-import { Anchor, Badge, Flex, Group, Card, Text } from "@mantine/core";
+import { Anchor, Badge, Card, Flex, Group, Text } from "@mantine/core";
+import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
-import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 
 interface DocumentCardProps {
   document: Document;
@@ -26,7 +26,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
       to={`/document/${document.slug}`}
       fw={600}
     >
-      <Text size="lg">{document.display_name}</Text>
+      <Text size="lg" lineClamp={3}>{document.display_name}</Text>
       <Group justify="space-between" mt="sm">
         {document.anonymised ? (
           <Text c="dimmed">Anonymous</Text>

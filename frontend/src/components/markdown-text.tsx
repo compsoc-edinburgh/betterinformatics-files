@@ -9,6 +9,7 @@ import "katex/contrib/mhchem/mhchem";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
+import { escapeRegExp } from "lodash-es";
 import CodeBlock from "./code-block";
 import { Alert, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
@@ -23,11 +24,15 @@ const transformImageUri = (uri: string) => {
   }
 };
 
-const addMarks = (obj: any, regex: RegExp | undefined, index: number = 0): React.ReactNode => {
+const addMarks = (
+  obj: any,
+  regex: RegExp | undefined,
+  index: number = 0,
+): React.ReactNode => {
   if (regex === undefined) return obj;
-  if (isNaN(index))
-    index = 0;
-  if (obj && typeof obj === 'string') {
+  if (regex.toString() === "/(?:)/") return obj; // if regex matches all strings (including the empty one), this function will loop forever
+  if (isNaN(index)) index = 0;
+  if (obj && typeof obj === "string") {
     const value = obj;
     const m = regex.test(value);
     if (!m) return obj;
@@ -50,18 +55,16 @@ const addMarks = (obj: any, regex: RegExp | undefined, index: number = 0): React
     return <React.Fragment key={index}>{arr}</React.Fragment>;
   }
   if (obj && obj instanceof Array) {
-    const newArr = []
+    const newArr = [];
     for (let index = 0; index < obj.length; index++) {
       newArr.push(addMarks(obj[index], regex, index));
     }
-    return newArr
+    return newArr;
   }
   if (obj && obj.props && obj.props.children) {
-    if (obj.props.className === 'katex')
-      return obj;
+    if (obj.props.className === "katex") return obj;
     let arr = obj.props.children;
-    if (!(arr instanceof Array))
-      arr = [arr];
+    if (!(arr instanceof Array)) arr = [arr];
     const newArr = Array<any>();
     for (let index = 0; index < arr.length; index++) {
       newArr.push(addMarks(arr[index], regex, index));
@@ -73,7 +76,11 @@ const addMarks = (obj: any, regex: RegExp | undefined, index: number = 0): React
 
 const createComponents = (regex: RegExp | undefined): Components => ({
   table: ({ children }) => {
-    return <Table style={{ width: "auto" }} withColumnBorders={true}>{children}</Table>;
+    return (
+      <Table style={{ width: "auto" }} withColumnBorders={true}>
+        {children}
+      </Table>
+    );
   },
   tbody: ({ children }) => {
     return <Table.Tbody>{children}</Table.Tbody>;
@@ -133,10 +140,10 @@ interface Props {
    */
   value: string;
   /**
-   * A regex which should be used for highlighting. If undefined no text will
-   * be highlighted.
+   * An array of strings which should be highlighted. If empty or undefined, no
+   * text will be highlighted.
    */
-  regex?: RegExp;
+  highlight_matches?: string[];
   /**
    * If defined, local links will be prefixed with this string. Use for showing
    * Markdown from a different domain.
@@ -156,33 +163,48 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, regex, localLinkBase, ignoreHtml }) => {
-  const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
-  const renderers = useMemo(() => createComponents(regex), [regex]);
-  if (value.length === 0) {
-    return <div />;
-  }
-  return (
-    <div className={clsx(classes.wrapperStyle, classes.blockquoteStyle)}>
-      <ErrorBoundary fallback={errorMessage}>
-        <ReactMarkdown
-          children={value}
-          urlTransform={(uri: string, key, node) => {
-            if (node.tagName === "img") {
-              return transformImageUri(uri);
-            } else if (localLinkBase && uri.startsWith("/")) {
-              return localLinkBase + defaultUrlTransform(uri);
-            }
-            return defaultUrlTransform(uri);
-          }}
-          skipHtml={!!ignoreHtml}
-          remarkPlugins={[remarkMath, remarkGfm]}
-          rehypePlugins={[[rehypeKatex, { macros }]]}
-          components={renderers}
-        />
-      </ErrorBoundary>
-    </div>
+const MarkdownText: React.FC<Props> = ({ value, highlight_matches, localLinkBase, ignoreHtml }) => {
+  // Make sure we don't generate a RegExp with empty text, as that will match
+  // everything (including the empty string) and can cause mayhem with
+  // highlighting.
+  const regex = useMemo(
+    () =>
+      highlight_matches && highlight_matches.length > 0
+        ? new RegExp(`${highlight_matches.map(escapeRegExp).join("|")}`)
+        : undefined,
+    [highlight_matches],
   );
+
+  const renderers = useMemo(() => createComponents(regex), [regex]);
+
+  return useMemo(() => {
+    const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
+
+    if (value.length === 0) {
+      return <div />;
+    }
+    return (
+      <div className={clsx(classes.wrapperStyle, classes.blockquoteStyle)}>
+        <ErrorBoundary fallback={errorMessage}>
+          <ReactMarkdown
+            children={value}
+            urlTransform={(uri: string, key, node) => {
+              if (node.tagName === "img") {
+                return transformImageUri(uri);
+              } else if (localLinkBase && uri.startsWith("/")) {
+                return localLinkBase + defaultUrlTransform(uri);
+              }
+              return defaultUrlTransform(uri);
+            }}
+            skipHtml={!!ignoreHtml}
+            remarkPlugins={[remarkMath, remarkGfm]}
+            rehypePlugins={[[rehypeKatex, { macros }]]}
+            components={renderers}
+          />
+        </ErrorBoundary>
+      </div>
+    );
+  }, [value, renderers, ignoreHtml, localLinkBase]);
 };
 
 export default MarkdownText;

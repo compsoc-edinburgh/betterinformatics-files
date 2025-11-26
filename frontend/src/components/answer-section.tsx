@@ -15,11 +15,9 @@ import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
-import HideAnswerSectionModal from "../components/hide-answer-section-overlay";
 import { AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
-import ThreeButtons from "./three-columns";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import useAlmostInViewport from "../hooks/useAlmostInViewport";
 import {
@@ -37,6 +35,8 @@ import classes from "./answer-section.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import ShimmerButton from "./shimmer-button";
 import { useLocation } from "react-router-dom";
+import AnswerSectionButtons from "./answer-section-buttons";
+import AnswerSectionModal from "./answer-section-overlay";
 
 interface NameCardProps {
   id: string;
@@ -44,12 +44,7 @@ interface NameCardProps {
 }
 
 const NameCard = (props: NameCardProps) => (
-  <Card
-    className={classes.nameCard}
-    {...props}
-    shadow="md"
-    id={props.id}
-  />
+  <Card className={classes.nameCard} {...props} shadow="md" id={props.id} />
 );
 
 const AnswerSectionButtonWrapper = (props: CardProps) => (
@@ -74,13 +69,13 @@ const AddButton: React.FC<AddButtonProps> = ({
 }) => {
   if (allowAnswer) {
     return (
-      <div>
+      <Group grow>
         {allowAnswer && (
           <ShimmerButton size="sm" onClick={onAnswer} disabled={hasAnswerDraft} color="dark">
             Add Answer
           </ShimmerButton>
         )}
-      </div>
+      </Group>
     );
   }
 };
@@ -135,6 +130,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       setData(data);
       setCutVersion(data.cutVersion);
     });
+    const [
+      deleteWarningIsOpen,
+      { open: openDeleteWarning, close: closeDeleteWarning },
+    ] = useDisclosure();
     const runRemoveSplit = useRemoveSplit(oid, () => {
       if (isBeingMoved) onCancelMove();
       onSectionChange();
@@ -165,10 +164,13 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const user = useUser()!;
     const isCatAdmin = user.isCategoryAdmin;
 
-    const [deleteWarningIsOpen, { open: openDeleteWarning, close: closeDeleteWarning }] = useDisclosure();
+    const [
+      hideWarningIsOpen,
+      { open: openHideWarning, close: closeHideWarning },
+    ] = useDisclosure();
     const hideAnswerSection = async () => {
       await onHasAnswersChange();
-      closeDeleteWarning();
+      closeHideWarning();
       run(); // updates data when setting visibility to hidden
     };
     const hideAnswerSectionWithWarning = () => {
@@ -176,7 +178,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         if (data.answers.length === 0 || !has_answers) {
           hideAnswerSection();
         } else {
-          openDeleteWarning();
+          openHideWarning();
         }
       }
     };
@@ -192,10 +194,21 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     return (
       <div ref={containerElement}>
-        <HideAnswerSectionModal
+        <AnswerSectionModal
+          isOpen={hideWarningIsOpen}
+          onClose={closeHideWarning}
+          setHidden={hideAnswerSection}
+          title="Hide section?"
+          text="This only hides the section without deleting the answers. Use delete if you want to remove them."
+          button="Hide Answer Section"
+        />
+        <AnswerSectionModal
           isOpen={deleteWarningIsOpen}
           onClose={closeDeleteWarning}
-          setHidden={hideAnswerSection}
+          setHidden={runRemoveSplit}
+          title="Delete section?"
+          text="This deletes the section and the answers contained in it. This cannot be undone."
+          button="Delete Answer Section"
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
@@ -271,40 +284,39 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           >
             <div>
               {data === undefined ? (
-                <ThreeButtons center={<Loader />} />
+                <AnswerSectionButtons show_hide={<Loader />} />
               ) : (
                 <>
-                  <ThreeButtons
-                    left={
-                      <>
-                        {displayHideShowButtons ? (
-                          <IconButton
-                            size="sm"
-                            icon={has_answers ? <IconEyeOff /> : <IconEye />}
-                            tooltip="Toggle visibility"
-                            onClick={hideAnswerSectionWithWarning}
-                          />
-                        ) : null}
-
-                        {isBeingMoved ? (
-                          <Button size="sm" onClick={onCancelMove} color="red" variant="outline">
-                            Cancel Move
-                          </Button>
-                        ) : (
-                          (data.answers.length === 0 || !hidden) &&
-                          has_answers &&
-                          data &&
-                          data.allow_new_answer && (
-                            <AddButton
-                              allowAnswer={data.allow_new_answer}
-                              hasAnswerDraft={hasDraft}
-                              onAnswer={onAddAnswer}
-                            />
-                          )
-                        )}
-                      </>
+                  <AnswerSectionButtons
+                    visibility={
+                      displayHideShowButtons ? (
+                        <IconButton
+                          size="sm"
+                          icon={has_answers ? <IconEyeOff /> : <IconEye />}
+                          tooltip="Toggle visibility"
+                          onClick={hideAnswerSectionWithWarning}
+                        />
+                      ) : null
                     }
-                    center={
+                    cancel_add={
+                      isBeingMoved ? (
+                        <Button size="sm" onClick={onCancelMove} color="red" variant="outline">
+                          Cancel
+                        </Button>
+                      ) : (
+                        (data.answers.length === 0 || !hidden) &&
+                        has_answers &&
+                        data &&
+                        data.allow_new_answer && (
+                          <AddButton
+                            allowAnswer={data.allow_new_answer}
+                            hasAnswerDraft={hasDraft}
+                            onAnswer={onAddAnswer}
+                          />
+                        )
+                      )
+                    }
+                    show_hide={
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <>
@@ -314,7 +326,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         </>
                       )
                     }
-                    right={
+                    move={
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
@@ -325,7 +337,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                           <Menu.Dropdown>
                             <Menu.Item
                               leftSection={<IconTrash />}
-                              onClick={runRemoveSplit}
+                              onClick={openDeleteWarning}
                             >
                               Delete
                             </Menu.Item>

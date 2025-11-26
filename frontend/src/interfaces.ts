@@ -335,6 +335,8 @@ export interface CommentSearchResult {
   author_displayname: string;
   long_id: string;
 
+  answer_long_id: string;
+
   exam_displayname: string;
   filename: string;
 
@@ -374,6 +376,7 @@ export interface DocumentFile {
   display_name: string;
   filename: string;
   mime_type: string;
+  order: number;
 }
 
 export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {

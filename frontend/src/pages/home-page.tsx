@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Flex,
+  Group,
   Loader,
   Modal,
   Paper,
@@ -25,12 +26,15 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconPlus, IconSearch} from "@tabler/icons-react";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import KawaiiBetterInformatics from "../assets/kawaii-betterinformatics.svg?react";
 import { getFavourites } from "../api/favourite";
-import classes from "../utils/fade-in-order.module.css";
+import fadeClasses from "../utils/fade-in-order.module.css";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
+import CollapseWrapper from "../components/collapse-wrapper";
+import clsx from "clsx";
+import classes from "../utils/focus-outline.module.css";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -130,7 +134,10 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           </Button>
         </Stack>
       </Modal>
-      <Paper withBorder shadow="md" style={{ minHeight: "10em" }}>
+      <Paper
+        className={clsx(classes.focusOutline, classes.hoverShadow)}
+        style={{ minHeight: "10em" }}
+      >
         <Tooltip label="Add a new category" withinPortal>
           <Button
             color="dark"
@@ -182,7 +189,11 @@ export const CategoryList: React.FC<{}> = () => {
     "category-list-mode",
     "alphabetical",
   ); // default to alphabetical
+  const [collapsedCategories, setCollapsedCategories] = useLocalStorageState<
+    string[]
+  >("collapsedCategories", []);
   const [filter, setFilter] = useState("");
+
   // Check for local storage cache of category data and use that as a backup
   // while the actual request is loading
   const [localStorageCategoryData, setLocalStorageCategoryData] =
@@ -190,13 +201,17 @@ export const CategoryList: React.FC<{}> = () => {
       "category-data",
       [undefined, undefined, undefined],
     );
+
   // Run the promise to get the various category data
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
     onSuccess: data => {
-      // Update the cache with the new data.
-      // onSuccess gives us a readonly array, so cast it to a mutable array
+      // Update the cache with the new data. In total this is about 25-35 kB
+      // with 100-150 courses, which we deem as acceptable. Browser limits are
+      // 5-10 MB. Also, if the user disables localStorage or has a lower limit,
+      // our website won't break -- it's just a cache to speed up perceived load.
       setLocalStorageCategoryData(
+        // onSuccess gives us a readonly array, so cast it to a mutable array
         data as [CategoryMetaData[], MetaCategory[], string[]],
       );
     },
@@ -259,6 +274,20 @@ export const CategoryList: React.FC<{}> = () => {
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
+  const is_collapsed = (category: string): boolean => {
+    return collapsedCategories.includes(slugify(category));
+  };
+
+  const collapse_expand = (category: string): void => {
+    if (is_collapsed(category)) {
+      setCollapsedCategories(
+        collapsedCategories.filter(a => a !== slugify(category)),
+      );
+    } else {
+      setCollapsedCategories([...collapsedCategories, slugify(category)]);
+    }
+  };
+
   return (
     <>
       <Container size="xl">
@@ -275,11 +304,15 @@ export const CategoryList: React.FC<{}> = () => {
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By SCQF", value: "bySCQF" },
-              ...(user?.loggedin ? [{
-                label: "Favourites",
-                value: "favourites",
-                disabled: !favourites,
-              }] : []),
+              ...(user?.loggedin
+                ? [
+                    {
+                      label: "Favourites",
+                      value: "favourites",
+                      disabled: !favourites,
+                    },
+                  ]
+                : []),
             ]}
           />
           <TextInput
@@ -306,7 +339,7 @@ export const CategoryList: React.FC<{}> = () => {
                   <CategoryCard
                     category={category}
                     key={category.slug}
-                    className={filter.length === 0 && classes.fadeInOrder}
+                    className={filter.length === 0 && fadeClasses.fadeInOrder}
                     onFavouriteToggle={onFavouriteToggle}
                   />
                 ))}
@@ -318,43 +351,70 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display} id={slugify(meta1display)}>
-                    <Title order={2} my="sm">
-                      <Flex
-                        gap="md"
-                        direction={{base: "row"}}
-                        justify="start"
-                      >
-                        {meta1display}
-                        {isAdmin && <EditMeta1 oldMeta1={meta1display} onChange={onChange}/>}
-                      </Flex>
-                    </Title>
-                    {meta2.map(([meta2display, categories]) => (
-                      <div
-                        key={meta2display}
-                        id={slugify(meta1display) + slugify(meta2display)}
-                      >
-                        <Title order={3} my="md">
-                          <Flex
-                          gap="md"
-                          direction={{base: "row"}}
-                          justify="start"
-                          >
-                            {meta2display}
-                            {isAdmin && <EditMeta2 oldMeta2={meta2display}  meta1={meta1display} onChange={onChange}/>}
-                          </Flex>
+                    <CollapseWrapper
+                      title={
+                        <Title order={2} my="sm">
+                          {meta1display}
                         </Title>
-                        <Grid>
-                          {categories.map(category => (
-                            <CategoryCard
-                              category={category}
-                              key={category.slug}
-                              className={classes.fadeInOrder}
-                              onFavouriteToggle={onFavouriteToggle}
+                      }
+                      contentOutsideCollapse={
+                        <Group>
+                          {isAdmin && (
+                            <EditMeta1
+                              oldMeta1={meta1display}
+                              onChange={onChange}
                             />
-                          ))}
-                        </Grid>
-                      </div>
-                    ))}
+                          )}
+                        </Group>
+                      }
+                      contentInsideCollapse={meta2.map(
+                        ([meta2display, categories]) => (
+                          <div
+                            key={meta2display}
+                            id={slugify(meta1display + meta2display)}
+                          >
+                            <CollapseWrapper
+                              title={
+                                <Title order={3} my="sm">
+                                  {meta2display}
+                                </Title>
+                              }
+                              contentOutsideCollapse={
+                                <Group>
+                                  {isAdmin && (
+                                    <EditMeta2
+                                      oldMeta2={meta2display}
+                                      meta1={meta1display}
+                                      onChange={onChange}
+                                    />
+                                  )}
+                                </Group>
+                              }
+                              contentInsideCollapse={
+                                <Grid>
+                                  {categories.map(category => (
+                                    <CategoryCard
+                                      category={category}
+                                      key={category.slug}
+                                      className={fadeClasses.fadeInOrder}
+                                      onFavouriteToggle={onFavouriteToggle}
+                                    />
+                                  ))}
+                                </Grid>
+                              }
+                              is_collapsed={() =>
+                                is_collapsed(meta1display + meta2display)
+                              }
+                              collapse_expand={() =>
+                                collapse_expand(meta1display + meta2display)
+                              }
+                            />
+                          </div>
+                        ),
+                      )}
+                      is_collapsed={() => is_collapsed(meta1display)}
+                      collapse_expand={() => collapse_expand(meta1display)}
+                    />
                   </div>
                 ))}
               {unassignedList && unassignedList.length > 0 && (

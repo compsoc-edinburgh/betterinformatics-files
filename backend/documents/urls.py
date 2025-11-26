@@ -5,6 +5,10 @@ from . import views
 
 urlpatterns = [
     path("listdocumenttypes/", views.list_document_types, name="listdocumenttypes"),
+    path("<str:username>/<str:document_slug>/files/<str:filename>/move/",
+        views.move_file,
+        name="move_file"
+    ),
     path(
         "<str:document_slug>/files/<int:id>/update/",
         views.update_file,

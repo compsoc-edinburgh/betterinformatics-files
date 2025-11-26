@@ -60,9 +60,6 @@ def edit_cut(request, oid):
         section.hidden = request.POST['hidden'] == 'true'
     if 'has_answers' in request.POST:
         section.has_answers = request.POST['has_answers'] == 'true'
-        if not section.has_answers:
-            answers = Answer.objects.filter(answer_section=oid)
-            answers.delete()
 
     section.cut_version += 1
     section.save()

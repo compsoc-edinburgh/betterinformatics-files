@@ -4,6 +4,7 @@ import type { MantineSize } from "@mantine/core";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
 import ColorSchemeToggle from "../color-scheme-toggle";
+import { QuickSearchBox } from "./QuickSearch/QuickSearchBox";
 import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import classes from "./BottomHeader.module.css";
@@ -49,6 +50,7 @@ const BottomHeader: React.FC<Props> = ({
           </Link>
 
           <Group justify="flex-end" wrap="nowrap" gap="2.75rem">
+            <QuickSearchBox />
             {translate(appNav, lang).map((item, i) => {
               return (
                 <ExternalNavElement

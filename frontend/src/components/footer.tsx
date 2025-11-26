@@ -103,7 +103,7 @@ const Footer: React.FC<FooterProps> = ({
               organizationNav ? organizationNav : globalNav,
               "en",
             ).map((item, i) => (
-              <Flex justify="flex-start" direction="column" style={{ width: rem(160) }}>
+              <Flex justify="flex-start" direction="column" style={{ width: rem(160) }} key={i}>
                 <Title order={4} c="gray">{item.title as ReactNode}</Title>
                 <Space h="xs" />
                 {item.childItems?.map((childItem, i) => (

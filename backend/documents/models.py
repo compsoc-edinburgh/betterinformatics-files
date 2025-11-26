@@ -87,3 +87,4 @@ class DocumentFile(ExportModelOperationsMixin("document_file"), models.Model):
     filename = models.CharField(max_length=256, unique=True)
     # Can be changed
     mime_type = models.CharField(max_length=256)
+    order = models.IntegerField(default=0)

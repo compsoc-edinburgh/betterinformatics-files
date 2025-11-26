@@ -1,0 +1,112 @@
+.navButton {
+  background: var(--mantine-color-gray-light);
+  overflow: visible;
+  color: var(--mantine-color-text);
+
+  &:hover {
+    background: var(--mantine-color-gray-light-hover);
+    color: var(--mantine-color-text);
+  }
+}
+
+.modalContent {
+  overflow-y: hidden;
+}
+
+.escapeModalMargin {
+  /* Undo the modal padding to make the scroll bar reach the very edge of the modal*/
+  margin-inline: calc(-1 * var(--mb-padding));
+}
+
+.searchBackground {
+  background: var(--mantine-color-gray-light);
+  /* border: 2px solid var(--mantine-primary-color-fille); */
+  transition:
+    linear 100ms box-shadow,
+    linear 50ms background;
+  border-radius: var(--mantine-radius-sm);
+
+  position: relative;
+
+  &:hover,
+  &:focus-within {
+    background: var(--mantine-color-gray-light-hover);
+    box-shadow: var(--mantine-shadow-xs);
+  }
+
+  &:has(input:focus) {
+    background: var(--mantine-color-gray-light-hover);
+    outline: 2px solid var(--mantine-color-bright);
+    outline-offset: calc(0.125rem * var(--mantine-scale));
+  }
+}
+
+.dropdownInput {
+  text-overflow: ellipsis;
+  text-wrap: nowrap;
+  overflow: hidden;
+  background: var(--mantine-color-gray-light);
+  max-width: 300px;
+
+  &:hover,
+  &:focus {
+    background: var(--mantine-color-gray-light-hover);
+    border-color: var(--mantine-color-gray-outline);
+  }
+
+  &:focus-visible {
+    position: relative;
+    z-index: 3000;
+
+    outline: 2px solid var(--mantine-color-bright);
+    outline-offset: calc(0.125rem * var(--mantine-scale));
+  }
+
+  &:active {
+    background: var(--mantine-color-default-border);
+  }
+}
+
+.dropdownOption[data-combobox-selected] {
+  background-color: var(--mantine-primary-color-filled);
+  color: var(--mantine-primary-color-contrast);
+}
+
+.searchInputWrapper {
+  flex-grow: 1;
+}
+
+.searchInput {
+  background: transparent;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  border: 0 none;
+
+  &::placeholder {
+    color: var(--mantine-color-dark-2);
+  }
+}
+
+.searchLoader {
+  position: absolute;
+  right: 0;
+  margin-right: var(--mantine-spacing-xs);
+}
+
+.searchResults {
+  max-height: calc(
+    min(
+      600px,
+      var(
+        --modal-content-max-height,
+        calc(100dvh - var(--modal-y-offset) * 2) - 108px
+      )
+    )
+  );
+  overflow: hidden auto;
+
+  /* Apply same amount padding as modal padding, so content is aligned with other
+  things that haven't received a margin undo */
+  padding-inline: var(--mb-padding);
+  scrollbar-color: inherit transparent;
+}

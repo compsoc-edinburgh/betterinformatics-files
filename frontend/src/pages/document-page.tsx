@@ -42,6 +42,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import displayNameClasses from "../utils/display-name.module.css";
 import PermaLinkHandler from "../components/permalink-handler";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -87,6 +88,10 @@ const DocumentPage: React.FC<Props> = () => {
     if (document.files.length > 0) setTab(document.files[0].oid.toString());
   });
 
+  useQuickSearchFilter(
+    data && { slug: data.category, displayname: data.category_display_name },
+  );
+
   const [tab, setTab] = useState<string | null>("none");
   const activeFile = !Number.isNaN(Number(tab))
     ? getFile(data, Number(tab))
@@ -97,18 +102,22 @@ const DocumentPage: React.FC<Props> = () => {
   const reloadComments = async () => {
     await reload();
     setTab("comments");
-  }
-  const {search: searchParams} = useLocation();
+  };
+  const reloadSettings = async () => {
+    await reload();
+    setTab("settings");
+  };
+  const { search: searchParams } = useLocation();
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
     const id = params.get("comment");
-    if (id && data?.comments.map((item) => String(item.oid)).includes(id)) {
+    if (id && data?.comments.map(item => String(item.oid)).includes(id)) {
       setTab("comments");
     }
   }, [searchParams, data]);
   return (
     <>
-      <PermaLinkHandler/>
+      <PermaLinkHandler />
       <Container size="xl">
         <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">
@@ -223,15 +232,17 @@ const DocumentPage: React.FC<Props> = () => {
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
             {data &&
-              data.files.map(file => (
-                <Tabs.Tab
-                  key={file.oid}
-                  value={file.oid.toString()}
-                  leftSection={<IconFile />}
-                >
-                  {file.display_name}
-                </Tabs.Tab>
-              ))}
+              data.files
+                .sort((a, b) => a.order - b.order)
+                .map(file => (
+                  <Tabs.Tab
+                    key={file.oid}
+                    value={file.oid.toString()}
+                    leftSection={<IconFile />}
+                  >
+                    {file.display_name}
+                  </Tabs.Tab>
+                ))}
             <Tabs.Tab value="comments" leftSection={<IconMessage />}>
               Comments
             </Tabs.Tab>
@@ -322,7 +333,11 @@ const DocumentPage: React.FC<Props> = () => {
       {tab === "settings" && data && (
         <ContentContainer mt="-2px">
           <Container size="xl">
-            <DocumentSettings data={data} mutate={mutate} />
+            <DocumentSettings
+              data={data}
+              mutate={mutate}
+              reload={reloadSettings}
+            />
           </Container>
         </ContentContainer>
       )}

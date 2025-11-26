@@ -381,6 +381,7 @@ class Command(BaseCommand):
                         document=document,
                         filename=filename,
                         mime_type="application/pdf",
+                        order=j
                     ).save()
 
                 # Make users like it

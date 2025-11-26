@@ -110,7 +110,9 @@ const ModQueue: React.FC = () => {
                     {exam.finished_cuts ? "All done" : "Needs Cuts"}
                   </Table.Td>
                   <Table.Td>
-                    <ClaimButton exam={exam} reloadExams={reloadExams} />
+                    {!exam.finished_cuts && (
+                      <ClaimButton exam={exam} reloadExams={reloadExams} />
+                    )}
                   </Table.Td>
                   <Table.Td>
                     <IconButton
