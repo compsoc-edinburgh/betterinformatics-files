@@ -105,30 +105,6 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           >
             Download selected exams
           </Button>
-
-          {(examTypeMap &&
-            examTypeMap.reduce((acc, [_examtype, exams]) => acc + exams.length, 0) <=
-              3 && (
-              <Popover width={300} position="bottom" withArrow shadow="md">
-                <Popover.Target>
-                  <Button
-                    onClick={() => {
-                      return;
-                    }}
-                    color={"gray"}
-                    variant="subtle"
-                  >
-                    Missing Exams?
-                  </Button>
-                </Popover.Target>
-                <Popover.Dropdown>
-                  This category has very few exams. If you would like to request an exam to be added to the collection,{' '}
-                  <Link to="/feedback" style={{ textDecoration: 'none'}}>
-                    send us feedback!
-                  </Link>
-                </Popover.Dropdown>
-              </Popover>
-            ))}
         </Flex>
 
         {/* Right: Filter */}
