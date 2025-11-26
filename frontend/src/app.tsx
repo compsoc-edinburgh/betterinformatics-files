@@ -59,10 +59,10 @@ import {
 } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
-  var baseHSLcolor = tinycolor(primaryColor).toHsl();
-  var darkerRatio = (0.95 - baseHSLcolor.l) / 7.0;
-  var shadesArray = new Array(10);
-  for (var i = 0; i < 7; i++) {
+  const baseHSLcolor = tinycolor(primaryColor).toHsl();
+  const darkerRatio = (0.95 - baseHSLcolor.l) / 7.0;
+  const shadesArray = new Array(10);
+  for (let i = 0; i < 7; i++) {
     shadesArray[i] = tinycolor({
       h: baseHSLcolor.h,
       s: baseHSLcolor.s,
@@ -171,7 +171,7 @@ const App: React.FC<{}> = () => {
   const configOptions = (window as any).configOptions as ConfigOptions;
 
   // CompSoc theme
-  var compsocTheme = createTheme({
+  const compsocTheme = createTheme({
     colors: {
       // A brown-like color for the primary color
       compsocMain: calculateShades("#b89c7c"),
