@@ -1,13 +1,9 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, Outlet } from "react-router-dom";
 import { useUser } from ".";
 import LoadingOverlay from "../components/loading-overlay";
 import LoginOverlay from "../pages/login-page";
 
-export const AuthenticatedRoutes = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const AuthenticatedRoutes = () => {
   const user = useUser();
   const { pathname } = useLocation();
 
@@ -17,7 +13,7 @@ export const AuthenticatedRoutes = ({
     return (
       <>
         <LoadingOverlay visible={user === undefined} />
-        {user !== undefined && children}
+        {user !== undefined && <Outlet />}
       </>
     );
   }

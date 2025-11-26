@@ -14,12 +14,11 @@ import {
 import React, { useCallback, useMemo, useState } from "react";
 import {
   Link,
-  Redirect,
+  Navigate,
   Route,
-  Switch,
-  useHistory,
+  Routes,
+  useNavigate,
   useParams,
-  useRouteMatch,
 } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
@@ -471,11 +470,7 @@ const ExamPage: React.FC<{}> = () => {
   const error = metaDataError || cutsError || pdfError;
   const user = useUser()!;
 
-  // `path` is the path structure, e.g. the literal string "/category/:slug"
-  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
-  // defining Routes, we use `path`, but for Link/navigation we use `url`.
-  const { path, url } = useRouteMatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <div key={filename}>
@@ -509,40 +504,47 @@ const ExamPage: React.FC<{}> = () => {
           </Container>
         )}
         {!metaDataLoading && metaData && (
-          <Switch>
-            <Route path={`${path}/edit`}>
-              {!user.isAdmin && !metaData.canEdit && <Redirect to={url} />}
-              <Container size="xl">
-                <ExamMetadataEditor
-                  currentMetaData={metaData}
-                  closeEditPage={() => history.push(url)}
-                  onMetaDataChange={setMetaData}
-                />
-              </Container>
-            </Route>
-            <Route path={path} exact>
-              <UserContext.Provider
-                value={{
-                  ...user,
-                  isExpert: user.isExpert || metaData.isExpert,
-                  isCategoryAdmin: user.isAdmin || metaData.canEdit,
-                }}
-              >
-                <ExamPageContent
-                  metaData={metaData}
-                  sections={sections}
-                  renderer={renderer}
-                  reloadCuts={reloadCuts}
-                  mutateCuts={mutateCuts}
-                  mutateMetaData={setMetaData}
-                  goToEditPage={() => history.push(`${url}/edit`)}
-                />
-              </UserContext.Provider>
-            </Route>
-            <Route path={`${path}/*`}>
-              <Redirect to={url} />
-            </Route>
-          </Switch>
+          <Routes>
+            <Route
+              path="edit"
+              element={
+                !user.isAdmin && !metaData.canEdit ? (
+                  <Navigate to="." replace />
+                ) : (
+                  <Container size="xl">
+                    <ExamMetadataEditor
+                      currentMetaData={metaData}
+                      closeEditPage={() => navigate(".")}
+                      onMetaDataChange={setMetaData}
+                    />
+                  </Container>
+                )
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <UserContext.Provider
+                  value={{
+                    ...user,
+                    isExpert: user.isExpert || metaData.isExpert,
+                    isCategoryAdmin: user.isAdmin || metaData.canEdit,
+                  }}
+                >
+                  <ExamPageContent
+                    metaData={metaData}
+                    sections={sections}
+                    renderer={renderer}
+                    reloadCuts={reloadCuts}
+                    mutateCuts={mutateCuts}
+                    mutateMetaData={setMetaData}
+                    goToEditPage={() => navigate("edit")}
+                  />
+                </UserContext.Provider>
+              }
+            />
+            <Route path="*" element={<Navigate to="." replace />} />
+          </Routes>
         )}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (
           <Container>

@@ -1,6 +1,6 @@
 import { Card, Text, Progress, Anchor, Stack, Tooltip, useComputedColorScheme, useMantineTheme } from "@mantine/core";
 import React from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authenticated, login } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
@@ -12,11 +12,11 @@ interface Props {
   category: SearchResult<CategoryMetaData> | CategoryMetaData;
 }
 const CategoryCard: React.FC<Props> = ({ category }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
       if (!authenticated()) login(`/category/${category.slug}`);
-      else history.push(`/category/${category.slug}`);
+      else navigate(`/category/${category.slug}`);
     }
   };
   return (

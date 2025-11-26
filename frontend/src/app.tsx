@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import {
   getAuthenticationExpiry,
   fetchGet,
@@ -54,7 +54,7 @@ import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute } from "@grafana/faro-react";
+import { FaroRoute, FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import {
   QuickSearchFilter,
@@ -81,12 +81,10 @@ import { useScrollToHash } from "./hooks/useScrollToHash";
  * In production builds, observability is controlled via the FRONTEND_SERVER_DATA
  * backend setting.
  */
-const Router = ({ children }: { children?: React.ReactNode }) =>
-  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
-    children
-  ) : (
-    <FaroRoute path="/">{children}</FaroRoute>
-  );
+const TelemetryRoutes =
+  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url
+    ? Routes
+    : FaroRoutes;
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -360,72 +358,35 @@ const App: React.FC<{}> = () => {
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
-                  <Router>
-                    <Switch>
-                      <Route exact path="/login" children={<LoginPage />} />
-                      <AuthenticatedRoutes>
-                        <Switch>
-                          <Route exact path="/" children={<HomePage />} />
-                          <Route
-                            exact
-                            path="/uploadpdf"
-                            children={<UploadPdfPage />}
-                          />
-                          <Route
-                            exact
-                            path="/submittranscript"
-                            children={<UploadTranscriptPage />}
-                          />
-                          <Route exact path="/faq" children={<FAQ />} />
-                          <Route
-                            exact
-                            path="/feedback"
-                            children={<FeedbackPage />}
-                          />
-                          <Route
-                            path="/category/:slug"
-                            children={<CategoryPage />}
-                          />
-                          <Route
-                            exact
-                            path="/user/:author/document/:slug"
-                            children={<DocumentPage />}
-                          />
-                          <Route
-                            path="/exams/:filename"
-                            children={<ExamPage />}
-                          />
-                          <Route
-                            exact
-                            path="/user/:username"
-                            children={<UserPage />}
-                          />
-                          <Route exact path="/user/" children={<UserPage />} />
-                          <Route
-                            exact
-                            path="/search/"
-                            children={<SearchPage />}
-                          />
-                          <Route
-                            exact
-                            path="/scoreboard"
-                            children={<Scoreboard />}
-                          />
-                          <Route
-                            exact
-                            path="/modqueue"
-                            children={<ModQueue />}
-                          />
-                          <Route
-                            exact
-                            path="/flagged"
-                            children={<FlaggedContent />}
-                          />
-                          <Route children={<NotFoundPage />} />
-                        </Switch>
-                      </AuthenticatedRoutes>
-                    </Switch>
-                  </Router>
+                  <TelemetryRoutes>
+                    <Route path="*" element={<NotFoundPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route element={<AuthenticatedRoutes />}>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/uploadpdf" element={<UploadPdfPage />} />
+                      <Route
+                        path="/submittranscript"
+                        element={<UploadTranscriptPage />}
+                      />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/feedback" element={<FeedbackPage />} />
+                      <Route
+                        path="/category/:slug/*"
+                        element={<CategoryPage />}
+                      />
+                      <Route
+                        path="/user/:author/document/:slug"
+                        element={<DocumentPage />}
+                      />
+                      <Route path="/exams/:filename/*" element={<ExamPage />} />
+                      <Route path="/user/:username" element={<UserPage />} />
+                      <Route path="/user/" element={<UserPage />} />
+                      <Route path="/search/" element={<SearchPage />} />
+                      <Route path="/scoreboard" element={<Scoreboard />} />
+                      <Route path="/modqueue" element={<ModQueue />} />
+                      <Route path="/flagged" element={<FlaggedContent />} />
+                    </Route>
+                  </TelemetryRoutes>
                 </Box>
               </div>
               <Footer

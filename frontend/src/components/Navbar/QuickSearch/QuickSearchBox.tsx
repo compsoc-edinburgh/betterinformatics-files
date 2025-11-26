@@ -42,7 +42,7 @@ import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
 import { QuickSearchResults } from "./QuickSearchResults";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
 /**
@@ -217,11 +217,11 @@ export const QuickSearchBox: React.FC = () => {
   );
 
   // Create callback for pressing "Enter" and navigating to the highlighted result
-  const history = useHistory();
+  const navigate = useNavigate();
   const confirmSelection = useCallback(() => {
     if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
 
-    history.push(
+    navigate(
       // TODO: fix duplicate logic here to get the path for an item; we already
       // do that in QuickSearchResults to create the link href prop of results
       itemToPath(results[currentSelection.type][currentSelection.index]),
