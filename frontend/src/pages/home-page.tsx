@@ -275,7 +275,9 @@ export const CategoryList: React.FC<{}> = () => {
       </Container>
       <ContentContainer>
         <Container size="xl" py="md" pos="relative">
-          {loading && !error && <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />}
+          {loading && !error && (
+            <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />
+          )}
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (
