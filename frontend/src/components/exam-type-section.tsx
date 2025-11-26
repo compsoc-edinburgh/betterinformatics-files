@@ -135,7 +135,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               </Grid.Col>
               <Grid.Col span="auto">
                 {exam.canView ? (
-                  <Text fw={600} size="lg">{exam.displayname}</Text>
+                  <Text size="lg" fw={600} mb="sm">{exam.displayname}</Text>
                 ) : (
                   exam.displayname
                 )}
@@ -176,7 +176,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                     )}
                   </Flex>
                 </div>
-                {catAdmin && (
+                {catAdmin && !exam.finished_cuts && (
                   <ClaimButton exam={exam} reloadExams={reload} mt="sm" />
                 )}
               </Grid.Col>

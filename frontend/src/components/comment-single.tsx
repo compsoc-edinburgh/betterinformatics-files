@@ -4,13 +4,24 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { SingleComment } from "../interfaces";
 import MarkdownText from "./markdown-text";
-import { IconChevronRight, IconChevronUp, IconCode, IconDots, IconFlag, IconLink, IconX } from "@tabler/icons-react";
+import {
+  IconChevronRight,
+  IconChevronUp,
+  IconCode,
+  IconDots,
+  IconFlag,
+  IconLink,
+  IconX,
+} from "@tabler/icons-react";
 import TimeText from "./time-text";
 import classes from "./comment-single.module.css";
 import displayNameClasses from "../utils/display-name.module.css";
 import TooltipButton from "./TooltipButton";
 import { useUser } from "../auth";
-import { useResetExamCommentFlaggedVote, useSetExamCommentFlagged } from "../api/hooks";
+import {
+  useResetExamCommentFlaggedVote,
+  useSetExamCommentFlagged,
+} from "../api/hooks";
 import { useDisclosure } from "@mantine/hooks";
 import CodeBlock from "./code-block";
 import { copy } from "../utils/clipboard";
@@ -21,13 +32,15 @@ interface Props {
 }
 
 const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
-  const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
-  const [setFlaggedLoading, setExamCommentFlagged] = useSetExamCommentFlagged(reload);
-  const [resetFlaggedLoading, resetExamCommentFlagged] = useResetExamCommentFlaggedVote(reload);
+  const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
+  const [setFlaggedLoading, setExamCommentFlagged] =
+    useSetExamCommentFlagged(reload);
+  const [resetFlaggedLoading, resetExamCommentFlagged] =
+    useResetExamCommentFlaggedVote(reload);
   const { isAdmin, username } = useUser()!;
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
-  
+
   return (
     <Card withBorder shadow="md" mb="md">
       <Card.Section mb="md">
@@ -97,49 +110,51 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
             )}
           </Group>
           {comment &&
-          (comment.isFlagged ||
-            (comment.flaggedCount > 0 && isAdmin) ||
-            flaggedLoading) && (
-            <Paper shadow="xs" mr="md">
-              <Button.Group>
-                <TooltipButton
-                  tooltip="Flagged as Inappropriate"
-                  color="red"
-                  px={12}
-                  variant="filled"
-                >
-                  <IconFlag />
-                </TooltipButton>
-                <TooltipButton
-                  color="red"
-                  miw={30}
-                  tooltip={`${comment.flaggedCount} users consider this answer inappropriate.`}
-                >
-                  {comment.flaggedCount}
-                </TooltipButton>
-                <TooltipButton
-                  px={8}
-                  tooltip={
-                    comment.isFlagged
-                      ? "Remove inappropriate flag"
-                      : "Add inappropriate flag"
-                  }
-                  size="sm"
-                  loading={flaggedLoading}
-                  style={{ borderLeftWidth: 0 }}
-                  onClick={() =>
-                    setExamCommentFlagged(comment.oid, !comment.isFlagged)
-                  }
-                >
-                  {comment.isFlagged ? <IconX /> : <IconChevronUp />}
-                </TooltipButton>
-              </Button.Group>
-            </Paper>
-          )}
+            (comment.isFlagged ||
+              (comment.flaggedCount > 0 && isAdmin) ||
+              flaggedLoading) && (
+              <Paper shadow="xs" mr="md">
+                <Button.Group>
+                  <TooltipButton
+                    tooltip="Flagged as Inappropriate"
+                    color="red"
+                    px={12}
+                    variant="filled"
+                  >
+                    <IconFlag />
+                  </TooltipButton>
+                  <TooltipButton
+                    color="red"
+                    miw={30}
+                    tooltip={`${comment.flaggedCount} users consider this answer inappropriate.`}
+                  >
+                    {comment.flaggedCount}
+                  </TooltipButton>
+                  <TooltipButton
+                    px={8}
+                    tooltip={
+                      comment.isFlagged
+                        ? "Remove inappropriate flag"
+                        : "Add inappropriate flag"
+                    }
+                    size="sm"
+                    loading={flaggedLoading}
+                    style={{ borderLeftWidth: 0 }}
+                    onClick={() =>
+                      setExamCommentFlagged(comment.oid, !comment.isFlagged)
+                    }
+                  >
+                    {comment.isFlagged ? <IconX /> : <IconChevronUp />}
+                  </TooltipButton>
+                </Button.Group>
+              </Paper>
+            )}
           {comment && (
             <Menu withinPortal>
               <Menu.Target>
-                <Button size="xs" variant="light" color="black" mr="md"><IconDots/></Button>
+                <Button size="xs" variant="light" color="gray" mr="md">
+                  <IconDots />
+                </Button>
               </Menu.Target>
               <Menu.Dropdown>
                 {comment.flaggedCount === 0 && (
@@ -151,14 +166,14 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
                   </Menu.Item>
                 )}
                 <Menu.Item
-                        leftSection={<IconLink />}
-                        onClick={() =>
-                          copy(
-                            `${document.location.origin}/exams/${comment.filename}?comment=${comment.longId}&answer=${comment.answerId}`,
-                          )
-                        }
-                      >
-                        Copy Permalink
+                  leftSection={<IconLink />}
+                  onClick={() =>
+                    copy(
+                      `${document.location.origin}/exams/${comment.filename}?comment=${comment.longId}&answer=${comment.answerId}`,
+                    )
+                  }
+                >
+                  Copy Permalink
                 </Menu.Item>
                 {isAdmin && comment.flaggedCount > 0 && (
                   <Menu.Item
@@ -182,10 +197,10 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
       </Card.Section>
       <div>
         {viewSource ? (
-            <CodeBlock value={comment.text} language="markdown" />
-          ) : (
-            <MarkdownText value={comment.text} />
-          )}
+          <CodeBlock value={comment.text} language="markdown" />
+        ) : (
+          <MarkdownText value={comment.text} />
+        )}
       </div>
     </Card>
   );

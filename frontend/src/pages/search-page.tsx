@@ -20,7 +20,24 @@ const SearchPage: React.FC<{}> = () => {
   const [optionalTerm, setTerm] = useState(query);
   const term = optionalTerm || "";
   const debouncedTerm = useDebounce(term, 300);
+
+  // Store previous query param so we can use it to check if params changed.
+  // If params did change, our useEffect will create one extra re-render to
+  // update the text input field retroactively if it isn't already matching.
+  const [prevQuery, setPrevQuery] = useState(query);
   useEffect(() => {
+    if (query === prevQuery) return; // Make sure we don't enter infinite loop
+    setPrevQuery(query);
+
+    // We have a new query param that's different from last render. If this is
+    // caused by something other than our user changing the term (for example,
+    // by quick search bar navigation), then update the input box.
+    if (query === term) return;
+    setTerm(query);
+  }, [query, prevQuery, term]);
+
+  useEffect(() => {
+    // Update the query param on user input change
     setQuery(debouncedTerm);
   }, [setQuery, debouncedTerm]);
   const { data, error, loading } = useRequest(

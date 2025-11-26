@@ -1,6 +1,5 @@
 import { useRequest } from "@umijs/hooks";
 import { Button, Card, Group, Title, Text } from "@mantine/core";
-import moment from "moment";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import GlobalConsts from "../globalconsts";
@@ -8,6 +7,7 @@ import { FeedbackEntry } from "../interfaces";
 import displayNameClasses from "../utils/display-name.module.css";
 import TooltipButton from "./TooltipButton";
 import { IconCheckbox, IconMail, IconMailOpened, IconSquare } from "@tabler/icons-react";
+import { lightFormat, parseISO } from "date-fns";
 
 const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
   await fetchPost(`/api/feedback/flags/${oid}/`, {
@@ -38,8 +38,9 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
         <Group py="md" justify="space-between">
           <Title order={4} className={displayNameClasses.shrinkableDisplayName}>
             {entry.authorDisplayName} •{" "}
-            {moment(entry.time, GlobalConsts.momentParseString).format(
-              GlobalConsts.momentFormatString,
+            {lightFormat(
+              parseISO(entry.time),
+              GlobalConsts.dateFNSFormatString,
             )}
           </Title>
           <Button.Group>

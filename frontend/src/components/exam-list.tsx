@@ -8,6 +8,7 @@ import {
   Modal,
   TextInput,
   Title,
+  Popover,
   useComputedColorScheme,
 } from "@mantine/core";
 import { useRequest } from "@umijs/hooks";
@@ -25,6 +26,7 @@ import ExamTypeSection from "./exam-type-section";
 import UploadPdfCard from "./upload-pdf-card";
 import { IconDownload, IconPlus, IconSearch } from "@tabler/icons-react";
 import ShimmerButton from "./shimmer-button";
+import { Link } from "react-router-dom";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -84,8 +86,10 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         mt="sm"
         mb="lg"
         justify="space-between"
+        align="center"
       >
-        <Group>
+        {/* Left group: Download + Missing Exams */}
+        <Flex gap="sm" align="center">
           <ShimmerButton
             onClick={() => setFormIsOpen(true)}
             leftSection={<IconPlus />}
@@ -101,12 +105,38 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           >
             Download selected exams
           </Button>
-        </Group>
+
+          {(examTypeMap &&
+            examTypeMap.reduce((acc, [_examtype, exams]) => acc + exams.length, 0) <=
+              3 && (
+              <Popover width={300} position="bottom" withArrow shadow="md">
+                <Popover.Target>
+                  <Button
+                    onClick={() => {
+                      return;
+                    }}
+                    color={"gray"}
+                    variant="subtle"
+                  >
+                    Missing Exams?
+                  </Button>
+                </Popover.Target>
+                <Popover.Dropdown>
+                  This category has very few exams. If you would like to request an exam to be added to the collection,{' '}
+                  <Link to="/feedback" style={{ textDecoration: 'none'}}>
+                    send us feedback!
+                  </Link>
+                </Popover.Dropdown>
+              </Popover>
+            ))}
+        </Flex>
+
+        {/* Right: Filter */}
         <TextInput
           placeholder="Filter..."
           value={filter}
           onChange={e => setFilter(e.currentTarget.value)}
-          leftSection={<IconSearch style={{ height: "15px", width: "15px" }} />}
+          leftSection={<IconSearch style={{ height: '15px', width: '15px' }} />}
         />
       </Flex>
       {error && <Alert color="red">{error.message}</Alert>}
@@ -128,7 +158,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
                 reload={reload}
               />
             ),
-        )}
+        )
+      }
       {viewableExams && viewableExams.length === 0 && (
         <Alert variant="light" color="orange">
           No exams available to view.

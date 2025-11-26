@@ -34,6 +34,23 @@
   flex: 1 1 0;
 }
 
+.shadowOnFocus {
+  transition: linear 100ms box-shadow, linear 50ms outline-width;
+  outline-width: 0;
+  outline-style: solid;
+  outline-color: var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+
+  &:hover, &:focus-within {
+    box-shadow: var(--mantine-shadow-xs);
+  }
+
+  &:has(textarea:focus) {
+    outline-width: 2px;
+  }
+}
+
+
 .borderStyle {
   border-width: 0.1em;
   border-color: var(--mantine-color-gray-9);

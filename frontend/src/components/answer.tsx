@@ -48,7 +48,7 @@ import {
   IconArrowLeft,
   IconFileText,
   IconPencilCancel,
-  IconPlus,
+  IconMessageCirclePlus,
   IconStarFilled,
   IconTrash,
   IconX,
@@ -77,7 +77,8 @@ const AnswerComponent: React.FC<Props> = ({
   hasId = true,
 }) => {
   const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
-  const [setFlaggedLoading, setAnswerFlagged] = useSetAnswerFlagged(onSectionChanged);
+  const [setFlaggedLoading, setAnswerFlagged] =
+    useSetAnswerFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetAnswerFlagged] =
     useResetAnswerFlaggedVote(onSectionChanged);
   const [setExpertVoteLoading, setExpertVote] =
@@ -159,13 +160,19 @@ const AnswerComponent: React.FC<Props> = ({
                   className={displayNameClasses.shrinkableDisplayName}
                 >
                   <Text fw={700} component="span">
-                    {answer.authorDisplayName} <Text c="dimmed" component="span">(Posted anonymously)</Text>
+                    {answer.authorDisplayName}{" "}
+                    <Text c="dimmed" component="span">
+                      (Posted anonymously)
+                    </Text>
                   </Text>
                 </Anchor>
               ) : answer?.canEdit ? (
                 // User's own anonymous post
                 <Text fw={700} component="span">
-                  {answer.authorDisplayName} <Text c="dimmed" component="span">(Your anonymous post)</Text>
+                  {answer.authorDisplayName}{" "}
+                  <Text c="dimmed" component="span">
+                    (Your anonymous post)
+                  </Text>
                 </Text>
               ) : (
                 // Regular user view of anonymous posts - not clickable
@@ -191,9 +198,7 @@ const AnswerComponent: React.FC<Props> = ({
             <Text c="dimmed" mx={6} component="span">
               ·
             </Text>
-            {answer && (
-              <TimeText time={answer.time} suffix="ago" />
-            )}
+            {answer && <TimeText time={answer.time} suffix="ago" />}
             {answer &&
               differenceInSeconds(
                 new Date(answer.edittime),
@@ -203,7 +208,11 @@ const AnswerComponent: React.FC<Props> = ({
                   <Text color="dimmed" mx={6} component="span">
                     ·
                   </Text>
-                  <TimeText time={answer.edittime} prefix="edited" suffix="ago" />
+                  <TimeText
+                    time={answer.edittime}
+                    prefix="edited"
+                    suffix="ago"
+                  />
                 </>
               )}
             <AnswerToolbar ml="auto">
@@ -297,9 +306,7 @@ const AnswerComponent: React.FC<Props> = ({
                   oid={answer.oid}
                   upvotes={answer.upvotes}
                   expertUpvotes={answer.expertvotes}
-                  userVote={
-                    answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0
-                  }
+                  userVote={answer.isUpvoted ? 1 : answer.isDownvoted ? -1 : 0}
                   onSectionChanged={onSectionChanged}
                 />
               )}
@@ -343,115 +350,112 @@ const AnswerComponent: React.FC<Props> = ({
         )}
         <Group justify="right">
           {(answer === undefined || editing) && (
-            <Tooltip
-              label="Your answer will appear as 'Anonymous' to regular users, but admins will still be able to see your username. Anonymous answers won't appear on your public profile."
-              multiline
-              maw={300}
-              withArrow
-              withinPortal
-            >
-              <div>
-                <Switch
-                  label={answer?.isAnonymous ? "Post Anonymously (currently anonymous)" : "Post Anonymously"}
-                  onChange={() => {
-                    console.log("Toggling anonymity");
-                    toggleAnonymity();
-                  }}
-                  checked={answerIsAnonymous}
-                />
-              </div>
-            </Tooltip>
+            <>
+              <Tooltip
+                label="Your answer will appear as 'Anonymous' to regular users, but admins will still be able to see your username. Anonymous answers won't appear on your public profile."
+                multiline
+                maw={300}
+                withArrow
+                withinPortal
+              >
+                <div>
+                  <Switch
+                    label={
+                      answer?.isAnonymous
+                        ? "Post Anonymously (currently anonymous)"
+                        : "Post Anonymously"
+                    }
+                    onChange={() => {
+                      console.log("Toggling anonymity");
+                      toggleAnonymity();
+                    }}
+                    checked={answerIsAnonymous}
+                  />
+                </div>
+              </Tooltip>
+              <Button
+                size="sm"
+                color="red"
+                variant="subtle"
+                onClick={onCancel}
+                leftSection={<IconPencilCancel />}
+              >
+                {editing ? "Cancel" : "Delete Draft"}
+              </Button>
+              <Button
+                size="sm"
+                onClick={save}
+                loading={updating}
+                disabled={draftText.trim().length === 0}
+                leftSection={<IconDeviceFloppy />}
+              >
+                Save
+              </Button>
+            </>
           )}
-          {(answer === undefined || editing) && (
-            <Button
-              size="sm"
-              color="red"
-              variant="subtle"
-              onClick={onCancel}
-              leftSection={<IconPencilCancel />}
-            >
-              {editing ? "Cancel" : "Delete Draft"}
-            </Button>
-          )}
-          {(answer === undefined || editing) && (
-            <Button
-              size="sm"
-              onClick={save}
-              loading={updating}
-              disabled={draftText.trim().length === 0}
-              leftSection={<IconDeviceFloppy />}
-            >
-              Save
-            </Button>
-          )}
-          {onSectionChanged && !editing && (
-            <Flex align="center">
-              {answer !== undefined && (
-                <Button.Group>
-                  <Button
-                    size="sm"
-                    onClick={() => setHasCommentDraft(true)}
-                    leftSection={<IconPlus />}
-                    disabled={hasCommentDraft}
-                    color="dark"
-                  >
-                    Add Comment
+          {onSectionChanged && !editing && answer !== undefined && (
+            <Button.Group>
+              <Button
+                size="sm"
+                onClick={() => setHasCommentDraft(true)}
+                leftSection={<IconMessageCirclePlus />}
+                disabled={hasCommentDraft}
+                color="dark"
+              >
+                Add Comment
+              </Button>
+              <Menu withinPortal>
+                <Menu.Target>
+                  <Button leftSection={<IconDots />} color="dark">
+                    More
                   </Button>
-                  <Menu withinPortal>
-                    <Menu.Target>
-                      <Button leftSection={<IconDots />} color="dark">More</Button>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                      {answer.flaggedCount === 0 && (
-                        <Menu.Item
-                          leftSection={<IconFlag />}
-                          onClick={() => setAnswerFlagged(answer.oid, true)}
-                        >
-                          Flag as Inappropriate
-                        </Menu.Item>
-                      )}
-                      <Menu.Item
-                        leftSection={<IconLink />}
-                        onClick={() =>
-                          copy(
-                            `${document.location.origin}/exams/${answer.filename}?answer=${answer.longId}`,
-                          )
-                        }
-                      >
-                        Copy Permalink
-                      </Menu.Item>
-                      {isAdmin && answer.flaggedCount > 0 && (
-                        <Menu.Item
-                          leftSection={<IconFlag />}
-                          onClick={() => resetAnswerFlagged(answer.oid)}
-                        >
-                          Remove all inappropriate flags
-                        </Menu.Item>
-                      )}
-                      {!editing && canEdit && (
-                        <Menu.Item
-                          leftSection={<IconEdit />}
-                          onClick={startEdit}
-                        >
-                          Edit
-                        </Menu.Item>
-                      )}
-                      {answer && canRemove && (
-                        <Menu.Item leftSection={<IconTrash />} onClick={remove}>
-                          Delete
-                        </Menu.Item>
-                      )}
-                      <Menu.Item
-                        leftSection={<IconCode />}
-                        onClick={toggleViewSource}
-                      >
-                        Toggle Source Code Mode
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                </Button.Group>
-              )}
-            </Flex>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {answer.flaggedCount === 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => setAnswerFlagged(answer.oid, true)}
+                    >
+                      Flag as Inappropriate
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    leftSection={<IconLink />}
+                    onClick={() =>
+                      copy(
+                        `${document.location.origin}/exams/${answer.filename}?answer=${answer.longId}`,
+                      )
+                    }
+                  >
+                    Copy Permalink
+                  </Menu.Item>
+                  {isAdmin && answer.flaggedCount > 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => resetAnswerFlagged(answer.oid)}
+                    >
+                      Remove all inappropriate flags
+                    </Menu.Item>
+                  )}
+                  {!editing && canEdit && (
+                    <Menu.Item leftSection={<IconEdit />} onClick={startEdit}>
+                      Edit
+                    </Menu.Item>
+                  )}
+                  {answer && canRemove && (
+                    <Menu.Item leftSection={<IconTrash />} onClick={remove}>
+                      Delete
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    leftSection={<IconCode />}
+                    onClick={toggleViewSource}
+                  >
+                    Toggle Source Code Mode
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Button.Group>
           )}
         </Group>
 
@@ -462,6 +466,7 @@ const AnswerComponent: React.FC<Props> = ({
               hasDraft={hasCommentDraft}
               answer={answer}
               onSectionChanged={onSectionChanged}
+              onChainReply={() => setHasCommentDraft(true)}
               onDraftDelete={() => setHasCommentDraft(false)}
             />
           )}

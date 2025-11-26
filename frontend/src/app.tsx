@@ -53,6 +53,10 @@ import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
 import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
+import {
+  QuickSearchFilter,
+  QuickSearchFilterContext,
+} from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   var baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -78,7 +82,6 @@ function calculateShades(primaryColor: string): MantineColorsTuple {
   }).toString("hex6");
   return shadesArray as unknown as MantineColorsTuple;
 }
-
 
 /**
  * To be used as a wrapper for <Route>s at the top level, and adds Faro
@@ -143,6 +146,9 @@ const App: React.FC<{}> = () => {
   const [debugPanel, { toggle: toggleDebugPanel, close: closeDebugPanel }] =
     useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
+  const [quickSearchFilter, setQuickSearchFilter] = useState<
+    QuickSearchFilter | undefined
+  >(undefined);
 
   const loadUnreadCount = async () => {
     if (authenticated())
@@ -215,12 +221,11 @@ const App: React.FC<{}> = () => {
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Upload Dissertation", href: "/upload-dissertation" },
     { title: "Mod Queue", href: "/modqueue" },
-    { title: "Flagged Content", href: "/flagged"},
+    { title: "Flagged Content", href: "/flagged" },
   ];
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
-    { title: "Search", href: "/search" },
     { title: "Dissertations", href: "/dissertations" },
     {
       title: "More",
@@ -270,7 +275,12 @@ const App: React.FC<{}> = () => {
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
-            <div>
+            <QuickSearchFilterContext.Provider
+              value={{
+                filter: quickSearchFilter,
+                setFilter: setQuickSearchFilter,
+              }}
+            >
               <div>
                 <BottomHeader
                   lang={"en"}
@@ -336,7 +346,6 @@ const App: React.FC<{}> = () => {
                         children={<DocumentPage />}
                       />
                       <UserRoute
-                        exact
                         path="/exams/:filename"
                         children={<ExamPage />}
                       />
@@ -346,7 +355,11 @@ const App: React.FC<{}> = () => {
                         children={<UserPage />}
                       />
                       <UserRoute exact path="/user/" children={<UserPage />} />
-                      <UserRoute exact path="/search/" children={<SearchPage />} />
+                      <UserRoute
+                        exact
+                        path="/search/"
+                        children={<SearchPage />}
+                      />
                       <UserRoute
                         exact
                         path="/scoreboard"
@@ -360,7 +373,8 @@ const App: React.FC<{}> = () => {
                       <UserRoute
                         exact
                         path="/modqueue"
-                        children={<ModQueue />} />
+                        children={<ModQueue />}
+                      />
                       <UserRoute
                         exact
                         path="/flagged"
@@ -388,7 +402,7 @@ const App: React.FC<{}> = () => {
                   configOptions.homepage ?? "/"
                 }
               />
-            </div>
+            </QuickSearchFilterContext.Provider>
           </SetUserContext.Provider>
         </UserContext.Provider>
       </DebugContext.Provider>
