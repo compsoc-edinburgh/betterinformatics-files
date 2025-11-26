@@ -291,27 +291,36 @@ export const CategoryList: React.FC<{}> = () => {
             </>
           ) : (
             <>
-              {metaList &&
-                metaList.map(([meta1display, meta2]) => (
-                  <div key={meta1display} id={slugify(meta1display)}>
-                    <CollapseWrapper
-                      title={
-                        <Title order={2} my="sm">
-                          {meta1display}
-                        </Title>
-                      }
-                      contentOutsideCollapse={
-                        <Group>
-                          {isAdmin && (
-                            <EditMeta1
-                              oldMeta1={meta1display}
-                              onChange={onChange}
-                            />
-                          )}
-                        </Group>
-                      }
-                      contentInsideCollapse={meta2.map(
-                        ([meta2display, categories]) => (
+              {metaList?.map(([meta1display, meta2]) => (
+                <div key={meta1display} id={slugify(meta1display)}>
+                  <CollapseWrapper
+                    title={
+                      <Title order={2} my="sm">
+                        {meta1display}
+                      </Title>
+                    }
+                    contentOutsideCollapse={
+                      <Group>
+                        {isAdmin && (
+                          <EditMeta1
+                            oldMeta1={meta1display}
+                            onChange={onChange}
+                          />
+                        )}
+                      </Group>
+                    }
+                    contentInsideCollapse={meta2.map(
+                      ([meta2display, categories]) =>
+                        meta2display === "" ? (
+                          <Grid key={meta2display}>
+                            {categories.map(category => (
+                              <CategoryCard
+                                category={category}
+                                key={category.slug}
+                              />
+                            ))}
+                          </Grid>
+                        ) : (
                           <div
                             key={meta2display}
                             id={slugify(meta1display + meta2display)}
@@ -352,12 +361,12 @@ export const CategoryList: React.FC<{}> = () => {
                             />
                           </div>
                         ),
-                      )}
-                      is_collapsed={() => is_collapsed(meta1display)}
-                      collapse_expand={() => collapse_expand(meta1display)}
-                    />
-                  </div>
-                ))}
+                    )}
+                    is_collapsed={() => is_collapsed(meta1display)}
+                    collapse_expand={() => collapse_expand(meta1display)}
+                  />
+                </div>
+              ))}
               {unassignedList && unassignedList.length > 0 && (
                 <>
                   <Title order={3} my="md">
