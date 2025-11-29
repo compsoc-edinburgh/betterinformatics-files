@@ -34,6 +34,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TooltipButton from "./TooltipButton";
+import { useOfficialSolutionLanguage } from "./official-solution";
 import {
   IconChevronDown,
   IconChevronUp,
@@ -54,7 +55,6 @@ import {
 import classes from "./answer.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
-import { officialSolutionLanguage } from "./official-solution";
 
 const AnswerToolbar = (props: GroupProps) => (
   <Group className={classes.answerToolbarStyle} {...props} />
@@ -114,6 +114,7 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
+  const languages = useOfficialSolutionLanguage(solutionFile, targetWidth);
 
   const isDraft = !answer;
 
@@ -310,10 +311,7 @@ const AnswerComponent: React.FC<Props> = ({
                 preview={value => (
                   <MarkdownText
                     value={value}
-                    languages={officialSolutionLanguage(
-                      solutionFile,
-                      targetWidth,
-                    )}
+                    languages={languages}
                   />
                 )}
                 undoStack={undoStack}
@@ -344,9 +342,7 @@ const AnswerComponent: React.FC<Props> = ({
                     If section is undefined then answer is being displayed on users profile and we can not access solutionFile,
                     instead of rendering the solution pdf we will instead just render a skeleton and link to the answer
                   */
-                  languages={ officialSolutionLanguage(solutionFile, targetWidth)
-                      
-                  }
+                  languages={languages}
                 />
               )}
             </Box>

@@ -1,222 +1,192 @@
 // import { pdfjs } from 'pdfjs-dist';
 import { PDFDocumentLoadingTask } from "pdfjs-dist";
 import { getDocument } from "../pdf/pdfjs";
-import React, { useMemo, useRef, useEffect, ReactElement, useState } from "react";
+import React, { useMemo, useRef, useEffect, useState } from "react";
 import { ComponentRenderer } from "./markdown-text";
 import { Tooltip } from "@mantine/core";
 import { fetchGet } from "../api/fetch-utils";
 
-interface PdfCoordinates {
-  ref_page: number;
-  p1: [number, number];
-  p2: [number, number];
+interface PProps {
+  url: string;
+  refPage: number;
+  p1X: number;
+  p1Y: number;
+  p2X: number;
+  p2Y: number;
+  targetWidth?: number;
 }
 
- 
-interface PProps{
-  url: string,
-  pdfCoordinates: PdfCoordinates,
+const PdfRenderer: React.FC<PProps> = React.memo(({
+  url,
+  refPage,
+  p1X,
+  p1Y,
+  p2X,
+  p2Y,
+  targetWidth = 500,
+}) => {
+  const myCanvas = useRef<HTMLCanvasElement>(null);
+  const isRendered = useRef(false);
+  const [finalurl, setFinalurl] = useState<string>();
 
-  targetWidth?: number,
-}
-const PdfRenderer : React.FC<PProps> = (
-  {url,
-    pdfCoordinates,
-    targetWidth
-  }
-
-) =>{
-  const myCanvas: React.RefObject<HTMLCanvasElement> = useRef(null);
-  const cachedCanvas = useRef<HTMLCanvasElement | null>(null);
-
-  const renderCanvas = async (solutionFile: string) => {
-    
-    const loadingTask: PDFDocumentLoadingTask = getDocument(solutionFile);
-    const pdf = await loadingTask.promise;
-    const page = await pdf.getPage(Math.min(pdfCoordinates.ref_page, pdf.numPages));
-    
-
-    const [x1, y1] = pdfCoordinates.p1;
-    const [x2, y2] = pdfCoordinates.p2;
-
-    const unscaledViewport = page.getViewport({ scale: 1 }); // Get viewport at scale 1 to calculate dimensions
-    targetWidth = targetWidth ? targetWidth : 500;
-    const scale = Math.min(2.5,
-      (0.8 * targetWidth) / (unscaledViewport.width * Math.abs(x1 - x2)));
-    const offsetX = -unscaledViewport.width * scale * x1;
-    const offsetY = -unscaledViewport.height * scale * y1;
-    const viewport = page.getViewport({
-      scale: scale,
-      offsetX: offsetX,
-      offsetY: offsetY,
-    });
-    console.log(myCanvas)
-
-    if (myCanvas.current) {
-      const context = myCanvas.current.getContext('2d');
-      if (context) {
-        page.render({ canvasContext: context, viewport: viewport });
-        myCanvas.current.height = viewport.height * Math.abs(y1 - y2);
-        myCanvas.current.width = viewport.width * Math.abs(x1 - x2);
-        cachedCanvas.current = myCanvas.current;
-      }
-    }
-     
-    return  <div> <>Invalid Syntax 5</>
-    
-  </div>// !context</> // !myCanvas.current
-
-  };
-
-
-
-
-
-  // Render function
-  const [finalurl, setFinalurl] = useState<string>()
-
-
-  useEffect(()=>{
+  useEffect(() => {
     getUrl(url).then((res) => {
-      setFinalurl(res.value)
-  })
-  
-  }, [url])
+      if (res?.value) {
+        setFinalurl(res.value);
+      }
+    });
+  }, [url]);
 
-
-
-
-
-
-  console.log(finalurl)
-  useEffect(()=>{
-
-    if (finalurl && !cachedCanvas.current) {
-      renderCanvas(finalurl);
+  useEffect(() => {
+    if (!finalurl || isRendered.current || !myCanvas.current) {
+      return;
     }
-  },[finalurl])
+
+    const renderCanvas = async () => {
+      const loadingTask: PDFDocumentLoadingTask = getDocument(finalurl);
+      const pdf = await loadingTask.promise;
+      const page = await pdf.getPage(Math.min(refPage, pdf.numPages));
+
+      const unscaledViewport = page.getViewport({ scale: 1 });
+      const scale = Math.min(
+        2.5,
+        (0.8 * targetWidth) / (unscaledViewport.width * Math.abs(p1X - p2X))
+      );
+      const offsetX = -unscaledViewport.width * scale * p1X;
+      const offsetY = -unscaledViewport.height * scale * p1Y;
+      const viewport = page.getViewport({
+        scale: scale,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      });
+
+      if (myCanvas.current) {
+        const context = myCanvas.current.getContext("2d");
+        if (context) {
+          myCanvas.current.height = viewport.height * Math.abs(p1Y - p2Y);
+          myCanvas.current.width = viewport.width * Math.abs(p1X - p2X);
+          page.render({ canvasContext: context, viewport: viewport });
+          isRendered.current = true;
+        }
+      }
+    };
+
+    renderCanvas();
+  }, [finalurl, refPage, p1X, p1Y, p2X, p2Y, targetWidth]);
+
   return (
     <div>
-            <canvas ref={myCanvas} />
-          </div> 
-    
+      <canvas ref={myCanvas} />
+    </div>
   );
+});
 
+PdfRenderer.displayName = "PdfRenderer";
 
+async function getUrl(url: string) {
+  const parts = url.split("/");
+  const type = parts[0]?.toLowerCase();
+  const filename = parts[1];
+
+  switch (type) {
+    case "solution":
+      return (await fetchGet(`/api/exam/pdf/solution/${filename}/`)) || null;
+    case "exam":
+      return (await fetchGet(`/api/exam/pdf/exam/${filename}/`)) || null;
+    case "document":
+      return null; // Not yet implemented
+    default:
+      return null;
+  }
 }
 
-
-export const officialSolutionLanguage = (
+/**
+ * Hook that returns a memoized languages object for official solutions.
+ * This prevents unnecessary re-renders by maintaining referential equality.
+ */
+export const useOfficialSolutionLanguage = (
   solutionFile?: string,
-  targetWidth?: number,
+  targetWidth?: number
 ): { [key: string]: ComponentRenderer } => {
-  console.log("dfasdg")
-  return {
-    official: ({ children }) => {
-
-
-
-      return (
+  return useMemo(
+    () => ({
+      official: ({ children }) => (
         <OfficialSolution
-          // solutionFile={solutionFile}
           value={String(children).replace(/\n$/, "")}
           targetWidth={targetWidth}
         />
-      );
+      ),
+    }),
+    [targetWidth]
+  );
+};
 
-    },
+/**
+ * @deprecated Use useOfficialSolutionLanguage hook instead to prevent re-renders
+ */
+export const officialSolutionLanguage = (
+  solutionFile?: string,
+  targetWidth?: number
+): { [key: string]: ComponentRenderer } => {
+  return {
+    official: ({ children }) => (
+      <OfficialSolution
+        value={String(children).replace(/\n$/, "")}
+        targetWidth={targetWidth}
+      />
+    ),
   };
-}
-
-async function getUrl(
-  url: string
-) {
-  switch (url.split("/")[0].toLowerCase()) {
-    case 'solution':
-      return await fetchGet(`/api/exam/pdf/solution/${url.split("/")[1]}/`) || null;
-      break;
-
-    case 'exam':
-      return await fetchGet(`/api/exam/pdf/exam/${url.split("/")[1]}/`) || null;
-      break;
-
-    case 'document':
-      return null // Not yet implemented, The api directly returns the file, while the other apis return a link to the file.
-      // return  new Promise<string>((resolve, reject) => {
-      //   return `/api/document/file/${url.split("/")[1]}`;   
-      // });         
-      break;
-
-    default:
-      return null;
-      break;
-  }
-}
+};
 
 interface Props {
   value?: string | null;
   targetWidth?: number;
 }
 
-const OfficialSolution: React.FC<Props> = ({
-  value,
-  targetWidth,
-}) => {
+const REGEX = /page: (\d+)\r?\nfrom-relative-coords: \((0.\d+|1), (0.\d+|1)\)\r?\nto-relative-coords: \((0.\d+|1), (0.\d+|1)\)\r?\nurl: (\S+)/;
 
-  const regx = new RegExp(
-    /page: (\d+)\r?\nfrom-relative-coords: \((0.\d+|1), (0.\d+|1)\)\r?\nto-relative-coords: \((0.\d+|1), (0.\d+|1)\)\r?\nurl: (\S+)/,
-  );
-  // let renderedPDF: null | ReactElement = null
+const OfficialSolution: React.FC<Props> = React.memo(({ value, targetWidth }) => {
   const renderedPDF = useMemo(() => {
-    if (value) {
-      const match = value.match(regx);
-      if (match) {
-        const page = parseInt(match[1]); // Extract page number and convert it to integer
-        if (page < 1) { return <>Invalid Page</>; }
-        const p1: [number, number] = [
-          parseFloat(match[2]),
-          parseFloat(match[3]),
-        ];
-        const p2: [number, number] = [
-          parseFloat(match[4]),
-          parseFloat(match[5]),
-        ];
-        const url: string = match[6]
-
-        // const [renderedPDF , changeRender] =  useState(null) 
-
-        console.log([url, page, p1, p2, targetWidth])
-
-        return (
-          <Tooltip label="Official Solution">
-            <div>
-            <PdfRenderer
-            url={url}
-            pdfCoordinates={{
-              ref_page: page,
-              p1,
-              p2,}}
-            targetWidth={targetWidth}
-            
-            
-            />
-             
-            </div>
-          </Tooltip>
-        )
-
-
-
-
-      }
-      return <>Invalid Syntax 3</>
+    if (!value) {
+      return <>Invalid Syntax 1</>;
     }
 
-  }, [value]);
-  return (
-    renderedPDF ? renderedPDF : (<>Invalid Syntax 1</>)
+    const match = value.match(REGEX);
+    if (!match) {
+      return <>Invalid Syntax 3</>;
+    }
 
-  );
-};
+    const page = parseInt(match[1], 10);
+    if (page < 1) {
+      return <>Invalid Page</>;
+    }
+
+    const p1X = parseFloat(match[2]);
+    const p1Y = parseFloat(match[3]);
+    const p2X = parseFloat(match[4]);
+    const p2Y = parseFloat(match[5]);
+    const url = match[6];
+
+    return (
+      <Tooltip label="Official Solution">
+        <div>
+          <PdfRenderer
+            url={url}
+            refPage={page}
+            p1X={p1X}
+            p1Y={p1Y}
+            p2X={p2X}
+            p2Y={p2Y}
+            targetWidth={targetWidth}
+          />
+        </div>
+      </Tooltip>
+    );
+  }, [value, targetWidth]);
+
+  return renderedPDF;
+});
+
+OfficialSolution.displayName = "OfficialSolution";
 
 export default OfficialSolution;

@@ -12,6 +12,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
+import { useOfficialSolutionLanguage } from "./official-solution";
 import { Anchor, Button, Flex, Group, Menu, Paper, Text } from "@mantine/core";
 import {
   IconChevronUp,
@@ -29,7 +30,6 @@ import { useDisclosure } from "@mantine/hooks";
 import TooltipButton from "./TooltipButton";
 import TimeText from "./time-text";
 import { copy } from "../utils/clipboard";
-import { officialSolutionLanguage } from "./official-solution";
 
 interface Props {
   answer: Answer;
@@ -68,6 +68,7 @@ const CommentComponent: React.FC<Props> = ({
     onSectionChanged,
   );
   const loading = addNewLoading || updateLoading || removeLoading;
+  const languages = useOfficialSolutionLanguage(solutionFile, targetWidth);
 
   const onSave = () => {
     if (comment === undefined) {
@@ -244,9 +245,9 @@ const CommentComponent: React.FC<Props> = ({
             onChange={setDraftText}
             imageHandler={imageHandler}
             preview={value => (
-              <MarkdownText 
-                value={value} 
-                languages={officialSolutionLanguage(solutionFile, targetWidth)}
+              <MarkdownText
+                value={value}
+                languages={languages}
               />
             )}
             undoStack={undoStack}
@@ -278,9 +279,19 @@ const CommentComponent: React.FC<Props> = ({
           {viewSource ? (
             <CodeBlock value={comment.text} language="markdown" />
           ) : (
+<<<<<<< HEAD
             <MarkdownText 
               value={comment.text} 
               languages={officialSolutionLanguage(solutionFile, targetWidth)}
+||||||| parent of ebbd9f9d (fix rerender issue)
+            <MarkdownText
+              value={comment.text}
+              languages={officialSolutionLanguage(solutionFile, targetWidth)}
+=======
+            <MarkdownText
+              value={comment.text}
+              languages={languages}
+>>>>>>> ebbd9f9d (fix rerender issue)
             />
           )}
         </div>

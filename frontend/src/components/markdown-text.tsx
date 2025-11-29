@@ -131,15 +131,10 @@ const createComponents = (
     const match = /language-(\w+)/.exec(className || "");
     const language = match ? match[1] : undefined;
     if (language && languages && languages[language]) {
-      // console.log(language);
-      return useMemo(
-        () => languages[language]({
-          ...{ node, className, children, ...props },
-        }),
-        [node, className, children])
-      // return  languages[language]({
-      //   ...{ node, className, children, ...props },
-      // });
+      // Custom language renderer (e.g., for official solutions)
+      return languages[language]({
+        ...{ node, className, children, ...props },
+      });
     }
     return match ? (
       <CodeBlock
