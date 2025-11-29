@@ -36,16 +36,12 @@ interface Props {
   comment?: Comment;
   onSectionChanged: (newSection: AnswerSection) => void;
   onDelete?: () => void;
-  solutionFile?: string;
-  targetWidth?: number
 }
 const CommentComponent: React.FC<Props> = ({
   answer,
   comment,
   onSectionChanged,
   onDelete,
-  solutionFile,
-  targetWidth,
 }) => {
   const [setFlaggedLoading, setExamCommentFlagged] = useSetExamCommentFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetExamCommentFlagged] = useResetExamCommentFlaggedVote(onSectionChanged);
@@ -68,7 +64,7 @@ const CommentComponent: React.FC<Props> = ({
     onSectionChanged,
   );
   const loading = addNewLoading || updateLoading || removeLoading;
-  const languages = useOfficialSolutionLanguage(solutionFile, targetWidth);
+  const languages = useOfficialSolutionLanguage();
 
   const onSave = () => {
     if (comment === undefined) {
@@ -279,19 +275,9 @@ const CommentComponent: React.FC<Props> = ({
           {viewSource ? (
             <CodeBlock value={comment.text} language="markdown" />
           ) : (
-<<<<<<< HEAD
-            <MarkdownText 
-              value={comment.text} 
-              languages={officialSolutionLanguage(solutionFile, targetWidth)}
-||||||| parent of ebbd9f9d (fix rerender issue)
-            <MarkdownText
-              value={comment.text}
-              languages={officialSolutionLanguage(solutionFile, targetWidth)}
-=======
             <MarkdownText
               value={comment.text}
               languages={languages}
->>>>>>> ebbd9f9d (fix rerender issue)
             />
           )}
         </div>

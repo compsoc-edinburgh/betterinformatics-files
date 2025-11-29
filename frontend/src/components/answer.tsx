@@ -10,7 +10,6 @@ import {
   Box,
   Paper,
   Tooltip,
-  Skeleton,
 } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
@@ -67,8 +66,6 @@ interface Props {
   onDelete?: () => void;
   answerKind: AnswerKind;
   hasId?: boolean;
-  solutionFile?: string;
-  targetWidth?: number;
 }
 const AnswerComponent: React.FC<Props> = ({
   section,
@@ -77,8 +74,6 @@ const AnswerComponent: React.FC<Props> = ({
   onSectionChanged,
   answerKind,
   hasId = true,
-  solutionFile,
-  targetWidth,
 }) => {
   const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
   const [setFlaggedLoading, setAnswerFlagged] =
@@ -114,7 +109,7 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
-  const languages = useOfficialSolutionLanguage(solutionFile, targetWidth);
+  const languages = useOfficialSolutionLanguage();
 
   const isDraft = !answer;
 
@@ -338,10 +333,6 @@ const AnswerComponent: React.FC<Props> = ({
               ) : (
                 <MarkdownText
                   value={answer?.text ?? ""}
-                  /*
-                    If section is undefined then answer is being displayed on users profile and we can not access solutionFile,
-                    instead of rendering the solution pdf we will instead just render a skeleton and link to the answer
-                  */
                   languages={languages}
                 />
               )}
@@ -443,8 +434,6 @@ const AnswerComponent: React.FC<Props> = ({
               onSectionChanged={onSectionChanged}
               onChainReply={() => setHasCommentDraft(true)}
               onDraftDelete={() => setHasCommentDraft(false)}
-              solutionFile={solutionFile}
-              targetWidth={targetWidth}
             />
           )}
       </Card>
