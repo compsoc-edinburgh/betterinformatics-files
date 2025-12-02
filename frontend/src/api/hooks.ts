@@ -233,7 +233,9 @@ export const loadMetaCategories = async () => {
     .value as MetaCategory[];
 };
 export const useMetaCategories = () => {
-  const { error, loading, data, mutate } = useRequest(loadMetaCategories);
+  const { error, loading, data, mutate } = useRequest(loadMetaCategories, {
+    cacheKey: "listmetacategories",
+  });
   return [error, loading, data, mutate] as const;
 };
 export const loadList = async (slug: string) => {
