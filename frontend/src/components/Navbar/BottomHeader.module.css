@@ -1,6 +1,7 @@
 .navbar {
   height: 3.5rem;
   box-shadow: var(--mantine-shadow-sm);
+  color: var(--mantine-color-anchor);
 }
 
 .container {
@@ -14,11 +15,7 @@
 .title {
   text-decoration: none;
   width: 12.5rem;
-  color: rgba(51, 51, 51, 1);
   font-weight: 400;
   font-size: 1.25rem;
-
-  @mixin dark {
-    color: rgba(255, 255, 255, 0.8);
-  }
+  color: inherit; /* don't try to apply default mantine link styles */
 }
