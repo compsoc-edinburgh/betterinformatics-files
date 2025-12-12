@@ -6,6 +6,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from util.models import CommentMixin
 from django_prometheus.models import ExportModelOperationsMixin
+import datetime
 
 import random
 
@@ -52,17 +53,50 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
             " ", "_"
         )
 
-    def sort_key(self):
-        month_val = next((val for month, val in {"december": 0.4, "august": 0.3, "may": 0.2, "april": 0.1}.items() 
-                        if month in self.displayname.lower()), 0)
+    def sort_key_number(self):
+        # original sort key function
         end = 0
         while (
             end + 1 < len(self.displayname) and self.displayname[-end - 1 :].isdigit()
         ):
             end += 1
         if end == 0:
-            return month_val, self.displayname
-        return int(self.displayname[-end:])+month_val, self.displayname
+            return 0, self.displayname
+        return int(self.displayname[-end:])
+    
+    def try_parse_exam_date(self):
+        exam_name = self.displayname
+        parts_of_name = exam_name.strip().split()
+        month = None
+        year = None
+        for part in parts_of_name:
+            try:
+                month = datetime.datetime.strptime(part, "%B")
+            except ValueError:
+                pass
+            try:
+                year = datetime.datetime.strptime(part, "%Y")
+            except ValueError:
+                pass
+            if month and year:
+                break
+        if not(year):
+            return datetime.datetime(1984, 1, 1)
+            # in a one or two courses, there are 'Exams' with no year and no month. this puts them at the end
+            # i haven't seen an exam with just a month.
+        if year and month: return datetime.datetime(year.year, month.month, 1)
+        if year and not(month): return year
+
+    def sort_key(self):
+        if self.exam_type.displayname in ["Exams", "Mock Exams"]:
+            try:
+                val = datetime.datetime.strptime(self.displayname.strip(), "%B %Y")
+            except ValueError:
+                val = self.try_parse_exam_date()    
+        else:
+            val = self.sort_key_number() 
+
+        return val, self.displayname
 
     def count_answered(self):
         return self.answersection_set.filter(
