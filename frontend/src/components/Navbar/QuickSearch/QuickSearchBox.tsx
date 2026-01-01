@@ -387,6 +387,7 @@ export const QuickSearchBox: React.FC = () => {
                 type="categories"
                 results={categoryResults}
                 currentSelection={currentSelection}
+                onClick={close}
               />
               {!searchResults.loading && searchResults.error && (
                 <Text c="dimmed" mx="auto">
@@ -397,21 +398,25 @@ export const QuickSearchBox: React.FC = () => {
                 type="examNames"
                 results={networkResults.examNames}
                 currentSelection={currentSelection}
+                onClick={close}
               />
               <QuickSearchResults
                 type="examPages"
                 results={networkResults.examPages}
                 currentSelection={currentSelection}
+                onClick={close}
               />
               <QuickSearchResults
                 type="answers"
                 results={networkResults.answers}
                 currentSelection={currentSelection}
+                onClick={close}
               />
               <QuickSearchResults
                 type="comments"
                 results={networkResults.comments}
                 currentSelection={currentSelection}
+                onClick={close}
               />
               <Divider variant="dashed" label="More" labelPosition="left" />
               <QuickSearchResult
