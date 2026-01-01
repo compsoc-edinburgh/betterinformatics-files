@@ -33,6 +33,10 @@ def upload_image(request):
 @auth_check.require_login
 def remove_image(request, filename):
     image = get_object_or_404(Image, filename=filename)
+
+    if not (image.owner == request.user or auth_check.has_admin_rights(request)):
+        return response.not_allowed()
+
     s3_util.delete_file(settings.COMSOL_IMAGE_DIR, filename)
     image.delete()
     return response.success()
