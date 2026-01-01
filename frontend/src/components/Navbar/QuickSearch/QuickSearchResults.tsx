@@ -25,6 +25,7 @@ type QuickSeachResultsProps = {
       | undefined;
     index: number;
   };
+  onClick: () => void;
 } & (
   | {
       type: "categories";
@@ -61,6 +62,7 @@ export const QuickSearchResults = ({
   type,
   results,
   currentSelection,
+  onClick,
 }: QuickSeachResultsProps) => {
   // Memoize the expensive rendering of result content so we don't try to
   // re-render the content if only the current selection index changes
@@ -166,7 +168,7 @@ export const QuickSearchResults = ({
                 isSelected={isSelected}
                 key={key}
                 link={link}
-                onClick={close}
+                onClick={onClick}
               >
                 {element}
               </QuickSearchResult>
@@ -189,7 +191,7 @@ export const QuickSearchResults = ({
                 isSelected={isSelected}
                 key={key}
                 link={link}
-                onClick={close}
+                onClick={onClick}
               >
                 {element}
               </QuickSearchResult>
@@ -212,7 +214,7 @@ export const QuickSearchResults = ({
                 isSelected={isSelected}
                 key={key}
                 link={link}
-                onClick={close}
+                onClick={onClick}
               >
                 {element}
               </QuickSearchResult>
@@ -235,7 +237,7 @@ export const QuickSearchResults = ({
                 isSelected={isSelected}
                 key={key}
                 link={link}
-                onClick={close}
+                onClick={onClick}
               >
                 {element}
               </QuickSearchResult>
@@ -258,7 +260,7 @@ export const QuickSearchResults = ({
                 isSelected={isSelected}
                 key={key}
                 link={link}
-                onClick={close}
+                onClick={onClick}
               >
                 {element}
               </QuickSearchResult>
@@ -268,5 +270,5 @@ export const QuickSearchResults = ({
       );
 
     return <></>;
-  }, [results.length, type, contents, currentSelection]);
+  }, [results.length, type, contents, currentSelection, onClick]);
 };
