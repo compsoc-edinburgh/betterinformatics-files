@@ -1,13 +1,19 @@
 .navItem {
-  padding-left: 0rem;
-  padding-right: 0rem;
+  padding-left: 0;
+  padding-right: 0;
   text-align: right;
   display: initial;
   cursor: pointer;
   font-size: 1.125rem;
   line-height: 1.75rem;
   text-transform: uppercase;
+  white-space: nowrap;
   font-weight: 500;
+  /* don't use mantine-color-anchor (applied to all Anchor elements) but instead
+   * use any color set by parent. This is a fix for text becoming black on light
+   * mode even on dark background
+   */
+  color: inherit;
 
   @media (max-width: $mantine-breakpoint-md) {
     text-align: left;

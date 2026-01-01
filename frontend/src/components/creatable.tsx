@@ -19,6 +19,7 @@ interface CreatableProps {
   value: string;
   onChange: (value: string) => void;
   getCreateLabel: (query: string) => ReactNode;
+  withinPortal?: boolean;
 }
 
 const Creatable: React.FC<CreatableProps> = ({
@@ -31,6 +32,7 @@ const Creatable: React.FC<CreatableProps> = ({
   value,
   onChange,
   getCreateLabel,
+  withinPortal,
 }) => {
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
@@ -64,7 +66,7 @@ const Creatable: React.FC<CreatableProps> = ({
   return (
     <Combobox
       store={combobox}
-      withinPortal={false}
+      withinPortal={withinPortal === undefined ? false : withinPortal}
       onOptionSubmit={val => {
         if (val === "$create") {
           onCreate(search);

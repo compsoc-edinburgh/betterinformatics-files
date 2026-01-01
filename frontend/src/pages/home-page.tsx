@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Flex,
+  Group,
   Loader,
   Modal,
   Paper,
@@ -19,7 +20,6 @@ import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
 import Grid from "../components/grid";
-import LoadingOverlay from "../components/loading-overlay";
 import ContentContainer from "../components/secondary-container";
 import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
@@ -27,6 +27,10 @@ import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
+import CollapseWrapper from "../components/collapse-wrapper";
+import clsx from "clsx";
+import classes from "../utils/focus-outline.module.css";
 
 const displayNameGetter = (data: CategoryMetaData) => data.displayname;
 
@@ -85,7 +89,10 @@ const mapToCategories = (
 const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   onAddCategory,
 }) => {
-  const [addCategoryModalIsOpen, {open: openAddCategoryModal, close: closeAddCategoryModal}] = useDisclosure();
+  const [
+    addCategoryModalIsOpen,
+    { open: openAddCategoryModal, close: closeAddCategoryModal },
+  ] = useDisclosure();
   const { loading, run } = useRequest(addCategory, {
     manual: true,
     onSuccess: () => {
@@ -121,7 +128,10 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
           </Button>
         </Stack>
       </Modal>
-      <Paper withBorder shadow="md" style={{ minHeight: "10em" }}>
+      <Paper
+        className={clsx(classes.focusOutline, classes.hoverShadow)}
+        style={{ minHeight: "10em" }}
+      >
         <Tooltip label="Add a new category" withinPortal>
           <Button
             color="dark"
@@ -151,11 +161,40 @@ const HomePage: React.FC<{}> = () => {
 export const CategoryList: React.FC<{}> = () => {
   const { isAdmin } = useUser() as User;
   const [mode, setMode] = useLocalStorageState("mode", "alphabetical");
+  const [collapsedCategories, setCollapsedCategories] = useLocalStorageState<
+    string[]
+  >("collapsedCategories", []);
   const [filter, setFilter] = useState("");
+
+  // Check for local storage cache of category data and use that as a backup
+  // while the actual request is loading
+  const [localStorageCategoryData, setLocalStorageCategoryData] =
+    useLocalStorageState<[CategoryMetaData[]?, MetaCategory[]?]>(
+      "category-data",
+      [undefined, undefined],
+    );
+
+  // Run the promise to get the various category data
   const { data, error, loading, run } = useRequest(loadCategoryData, {
     cacheKey: "category-data",
+    onSuccess: data => {
+      // Update the cache with the new data. In total this is about 25-35 kB
+      // with 100-150 courses, which we deem as acceptable. Browser limits are
+      // 5-10 MB. Also, if the user disables localStorage or has a lower limit,
+      // our website won't break -- it's just a cache to speed up perceived load.
+      setLocalStorageCategoryData(
+        // onSuccess gives us a readonly array, so cast it to a mutable array
+        data as [CategoryMetaData[], MetaCategory[]],
+      );
+    },
   });
-  const [categoriesWithDefault, metaCategories] = data ? data : [];
+
+  // Combine the data from the request with the local storage cache, preferring
+  // the actual data. Each of the two elements in the array can be 'undefined'
+  // when neither the cache or the request have been loaded yet. This is
+  // different from an empty array which implies the loaded data is empty.
+  const [categoriesWithDefault, metaCategories] =
+    data ?? localStorageCategoryData;
 
   const categories = useMemo(
     () =>
@@ -180,10 +219,10 @@ export const CategoryList: React.FC<{}> = () => {
     [categories, metaCategories],
   );
 
-  const onAddCategory = useCallback(() => {
+  const onChange = useCallback(() => {
     run();
   }, [run]);
-  const [panelIsOpen, {toggle: togglePanel}] = useDisclosure();
+  const [panelIsOpen, { toggle: togglePanel }] = useDisclosure();
 
   const slugify = (str: string): string =>
     str
@@ -192,6 +231,20 @@ export const CategoryList: React.FC<{}> = () => {
       .replace(/[^\w\s-]/g, "")
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "");
+
+  const is_collapsed = (category: string): boolean => {
+    return collapsedCategories.includes(slugify(category));
+  };
+
+  const collapse_expand = (category: string): void => {
+    if (is_collapsed(category)) {
+      setCollapsedCategories(
+        collapsedCategories.filter(a => a !== slugify(category)),
+      );
+    } else {
+      setCollapsedCategories([...collapsedCategories, slugify(category)]);
+    }
+  };
 
   return (
     <>
@@ -221,8 +274,10 @@ export const CategoryList: React.FC<{}> = () => {
         </Flex>
       </Container>
       <ContentContainer>
-        <LoadingOverlay visible={loading} />
-        <Container size="xl" py="md">
+        <Container size="xl" py="md" pos="relative">
+          {loading && !error && (
+            <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />
+          )}
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
           ) : mode === "alphabetical" || filter.length > 0 ? (
@@ -231,7 +286,7 @@ export const CategoryList: React.FC<{}> = () => {
                 {searchResult.map(category => (
                   <CategoryCard category={category} key={category.slug} />
                 ))}
-                {isAdmin && <AddCategory onAddCategory={onAddCategory} />}
+                {isAdmin && <AddCategory onAddCategory={onChange} />}
               </Grid>
             </>
           ) : (
@@ -239,27 +294,68 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList &&
                 metaList.map(([meta1display, meta2]) => (
                   <div key={meta1display} id={slugify(meta1display)}>
-                    <Title order={2} my="sm">
-                      {meta1display}
-                    </Title>
-                    {meta2.map(([meta2display, categories]) => (
-                      <div
-                        key={meta2display}
-                        id={slugify(meta1display) + slugify(meta2display)}
-                      >
-                        <Title order={3} my="md">
-                          {meta2display}
+                    <CollapseWrapper
+                      title={
+                        <Title order={2} my="sm">
+                          {meta1display}
                         </Title>
-                        <Grid>
-                          {categories.map(category => (
-                            <CategoryCard
-                              category={category}
-                              key={category.slug}
+                      }
+                      contentOutsideCollapse={
+                        <Group>
+                          {isAdmin && (
+                            <EditMeta1
+                              oldMeta1={meta1display}
+                              onChange={onChange}
                             />
-                          ))}
-                        </Grid>
-                      </div>
-                    ))}
+                          )}
+                        </Group>
+                      }
+                      contentInsideCollapse={meta2.map(
+                        ([meta2display, categories]) => (
+                          <div
+                            key={meta2display}
+                            id={slugify(meta1display + meta2display)}
+                          >
+                            <CollapseWrapper
+                              title={
+                                <Title order={3} my="sm">
+                                  {meta2display}
+                                </Title>
+                              }
+                              contentOutsideCollapse={
+                                <Group>
+                                  {isAdmin && (
+                                    <EditMeta2
+                                      oldMeta2={meta2display}
+                                      meta1={meta1display}
+                                      onChange={onChange}
+                                    />
+                                  )}
+                                </Group>
+                              }
+                              contentInsideCollapse={
+                                <Grid>
+                                  {categories.map(category => (
+                                    <CategoryCard
+                                      category={category}
+                                      key={category.slug}
+                                    />
+                                  ))}
+                                </Grid>
+                              }
+                              is_collapsed={() =>
+                                is_collapsed(meta1display + meta2display)
+                              }
+                              collapse_expand={() =>
+                                collapse_expand(meta1display + meta2display)
+                              }
+                            />
+                          </div>
+                        ),
+                      )}
+                      is_collapsed={() => is_collapsed(meta1display)}
+                      collapse_expand={() => collapse_expand(meta1display)}
+                    />
                   </div>
                 ))}
               {unassignedList && unassignedList.length > 0 && (
@@ -280,7 +376,7 @@ export const CategoryList: React.FC<{}> = () => {
                     New Category
                   </Title>
                   <Grid>
-                    <AddCategory onAddCategory={onAddCategory} />
+                    <AddCategory onAddCategory={onChange} />
                   </Grid>
                 </>
               )}

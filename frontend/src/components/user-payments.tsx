@@ -1,5 +1,4 @@
 import { Alert, Button, List, Loader } from "@mantine/core";
-import moment from "moment";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "../auth";
@@ -11,6 +10,7 @@ import {
   useRemovePayment,
 } from "../api/hooks";
 import Grid from "./grid";
+import { lightFormat, parseISO } from "date-fns";
 
 interface UserPaymentsProps {
   username: string;
@@ -39,10 +39,10 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
             .map(payment => (
               <Alert mb="xs" key={payment.oid}>
                 You have paid for all oral exams until{" "}
-                {moment(
-                  payment.valid_until,
-                  GlobalConsts.momentParseString,
-                ).format(GlobalConsts.momentFormatStringDate)}
+                {lightFormat(
+                  parseISO(payment.valid_until),
+                  GlobalConsts.dateFNSFormatStringDate,
+                )}
                 .
               </Alert>
             ))}
@@ -52,25 +52,25 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                 <List key={payment.oid} onClick={() => setOpenPayment("")}>
                   <div>
                     Payment Time:{" "}
-                    {moment(
-                      payment.payment_time,
-                      GlobalConsts.momentParseString,
-                    ).format(GlobalConsts.momentFormatString)}
+                    {lightFormat(
+                      parseISO(payment.payment_time),
+                      GlobalConsts.dateFNSFormatString,
+                    )}
                   </div>
                   <div>
                     Valid Until:{" "}
-                    {moment(
-                      payment.valid_until,
-                      GlobalConsts.momentParseString,
-                    ).format(GlobalConsts.momentFormatStringDate)}
+                    {lightFormat(
+                      parseISO(payment.valid_until),
+                      GlobalConsts.dateFNSFormatStringDate,
+                    )}
                   </div>
                   {payment.refund_time && (
                     <div>
                       Refund Time:{" "}
-                      {moment(
-                        payment.refund_time,
-                        GlobalConsts.momentParseString,
-                      ).format(GlobalConsts.momentFormatString)}
+                      {lightFormat(
+                        parseISO(payment.refund_time),
+                        GlobalConsts.dateFNSFormatString,
+                      )}
                     </div>
                   )}
                   {payment.uploaded_filename && (
@@ -103,10 +103,10 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
                 >
                   <div>
                     Payment Time:{" "}
-                    {moment(
-                      payment.payment_time,
-                      GlobalConsts.momentParseString,
-                    ).format(GlobalConsts.momentFormatString)}
+                    {lightFormat(
+                      parseISO(payment.payment_time),
+                      GlobalConsts.dateFNSFormatString,
+                    )}
                   </div>
                 </List>
               ),

@@ -1,0 +1,60 @@
+.searchResultLink {
+  /* Negate default styles set by using Link. We have to apply this style
+  directly on the <a> element. Setting text-decoration on the child .searchResult
+  will not get respected by browsers once a parent sets an underline decoration.*/
+  text-decoration: none;
+  color: inherit;
+
+  /* half of xs padding vertically = practically an xxs. The aim is to get a
+  compact results view to fit as many results as possible on the screen, since
+  the quick search menu is for advanced users and advanced users would want
+  more results usually. But 0 padding is awful so we give it tiny padding. */
+  padding: 0.3125rem var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-sm);
+
+  /* Prioritise keyboard-based selection over any mouse-based hover effects, by
+  using :not() to do hover effects only on non-keyboard-selected items. */
+  &:not(.selected):hover {
+    background: var(--mantine-primary-color-light);
+    color: var(--mantine-color-text);
+  }
+
+  /* The :not() for the hover case has higher specificity than plain :active, so
+  override it with an equally high specificity selector. */
+  &:active,
+  &:not(.selected):active {
+    background: var(--mantine-primary-color-filled);
+    color: var(--mantine-primary-color-contrast);
+  }
+}
+
+.searchResult {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-md);
+  align-items: flex-start;
+}
+
+.badge {
+  flex-shrink: 0;
+}
+
+.fadeHeightLimited {
+  max-height: 100px;
+  overflow-y: hidden;
+  mask-image: linear-gradient(180deg, #000 80px, transparent);
+  -webkit-mask-image: linear-gradient(180deg, #000 80px, transparent);
+  position: relative;
+}
+
+.selected {
+  background: var(--mantine-primary-color-filled);
+  color: var(--mantine-primary-color-contrast);
+}
+
+.selected .badge {
+  border-color: var(--mantine-primary-color-contrast);
+  color: var(--mantine-primary-color-contrast);
+}

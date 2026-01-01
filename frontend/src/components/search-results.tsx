@@ -10,41 +10,13 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { escapeRegExp } from "lodash-es";
 import React from "react";
 import { Link } from "react-router-dom";
-import MarkdownText from "../components/markdown-text";
-import { HighlightedMatch, SearchResponse } from "../interfaces";
+import MarkdownText from "./markdown-text";
+import { SearchResponse } from "../interfaces";
 import { IconChevronRight } from "@tabler/icons-react";
 import classes from "./search-results.module.css";
-
-const HighlightedContent: React.FC<{
-  content: HighlightedMatch;
-  level?: number;
-}> = ({ content, level = 0 }) => {
-  if (typeof content === "string") {
-    if (level > 1) {
-      return <mark>{content}</mark>;
-    }
-    return <span>{content}</span>;
-  } else {
-    return (
-      <>
-        {content.map((child, i) => (
-          <HighlightedContent key={i} content={child} level={level + 1} />
-        ))}
-      </>
-    );
-  }
-};
-
-const HighlightedMarkdown: React.FC<{ content: string; matches: string[] }> = ({
-  content,
-  matches,
-}) => {
-  const regex = new RegExp(`${matches.map(escapeRegExp).join("|")}`);
-  return <MarkdownText value={content} regex={regex} />;
-};
+import { HighlightedContent } from "./HighlightSearchHeadline";
 
 interface Props {
   data: SearchResponse;
@@ -153,9 +125,9 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       {result.author_displayname}
                     </Title>
                   </Anchor>
-                  <HighlightedMarkdown
-                    content={result.text}
-                    matches={result.highlighted_words}
+                  <MarkdownText
+                    value={result.text}
+                    highlight_matches={result.highlighted_words}
                   />
                 </div>
               </Card>
@@ -198,9 +170,9 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                       {result.author_displayname}
                     </Title>
                   </Anchor>
-                  <HighlightedMarkdown
-                    content={result.text}
-                    matches={result.highlighted_words}
+                  <MarkdownText
+                    value={result.text}
+                    highlight_matches={result.highlighted_words}
                   />
                 </div>
               </Card>

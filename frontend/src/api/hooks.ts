@@ -18,6 +18,7 @@ import {
   DocumentFile,
   SingleComment,
   UserInfo,
+  SearchResponse,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -185,12 +186,30 @@ export const useUserComments = (username: string, page: number = -1) => {
   );
   return [error, loading, data, run] as const;
 };
+
 export const loadCategories = async () => {
   return (await fetchGet("/api/category/listonlyadmin/"))
     .value as CategoryMetaDataMinimal[];
 };
+export const loadAllCategories = async () => {
+  return (await fetchGet("/api/category/listwithmeta/"))
+    .value as CategoryMetaDataMinimal[];
+};
 export const loadExamTypes = async () => {
   return (await fetchGet("/api/exam/listexamtypes/")).value as string[];
+};
+export const loadSearch = async (
+  term: string,
+  category_slug?: string,
+  exams_with_category_name?: boolean,
+) => {
+  return (
+    await fetchPost("/api/exam/search/", {
+      term,
+      category: category_slug,
+      exams_with_category_name,
+    })
+  ).value as SearchResponse;
 };
 export const uploadPdf = async (
   file: Blob,
@@ -214,7 +233,9 @@ export const loadMetaCategories = async () => {
     .value as MetaCategory[];
 };
 export const useMetaCategories = () => {
-  const { error, loading, data, mutate } = useRequest(loadMetaCategories);
+  const { error, loading, data, mutate } = useRequest(loadMetaCategories, {
+    cacheKey: "listmetacategories",
+  });
   return [error, loading, data, mutate] as const;
 };
 export const loadList = async (slug: string) => {
@@ -225,6 +246,10 @@ export const claimExam = async (filename: string, claim: boolean) => {
   await fetchPost(`/api/exam/claimexam/${filename}/`, {
     claim,
   });
+};
+export const loadExamAdminStatus = async (filename: string) => {
+  return (await fetchGet(`/api/exam/status/${filename}/`))
+    .value as CategoryExam;
 };
 export const loadExamMetaData = async (filename: string) => {
   return (await fetchGet(`/api/exam/metadata/${filename}/`))
@@ -303,16 +328,35 @@ const removeAnswer = async (answerId: string) => {
   return (await fetchPost(`/api/exam/removeanswer/${answerId}/`, {}))
     .value as AnswerSection;
 };
-const setFlagged = async (oid: string, flagged: boolean) => {
+const setAnswerFlagged = async (oid: string, flagged: boolean) => {
   return (
-    await fetchPost(`/api/exam/setflagged/${oid}/`, {
+    await fetchPost(`/api/exam/setanswerflagged/${oid}/`, {
       flagged,
     })
   ).value as AnswerSection;
 };
-const resetFlagged = async (oid: string) => {
-  return (await fetchPost(`/api/exam/resetflagged/${oid}/`, {}))
+const resetAnswerFlagged = async (oid: string) => {
+  return (await fetchPost(`/api/exam/resetanswerflagged/${oid}/`, {}))
     .value as AnswerSection;
+};
+const setExamCommentFlagged = async (oid: string, flagged: boolean) => {
+  return (
+    await fetchPost(`/api/exam/setcommentflagged/${oid}/`, {
+      flagged,
+    })
+  ).value as AnswerSection;
+};
+const resetExamCommentFlagged = async (oid: string) => {
+  return (await fetchPost(`/api/exam/resetcommentflagged/${oid}/`, {}))
+    .value as AnswerSection;
+};
+const setDocumentCommentFlagged = async (oid: number, flagged: boolean) => {
+  return await fetchPost(`/api/document/setflaggedcomment/${oid}`, {
+    flagged,
+  });
+};
+const resetDocumentCommentFlagged = async (oid: number) => {
+  return await fetchPost(`/api/document/resetflaggedcomment/${oid}`, {});
 };
 const setExpertVote = async (oid: string, vote: boolean) => {
   return (
@@ -322,14 +366,12 @@ const setExpertVote = async (oid: string, vote: boolean) => {
   ).value as AnswerSection;
 };
 
-export const useSetFlagged = (
+export const useSetAnswerFlagged = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const { loading: setFlaggedLoading, run: runSetFlagged } = useRequest(
-    setFlagged,
-    { manual: true, onSuccess: onSectionChanged },
-  );
-  return [setFlaggedLoading, runSetFlagged] as const;
+  const { loading: setAnswerFlaggedLoading, run: runSetAnswerFlagged } =
+    useRequest(setAnswerFlagged, { manual: true, onSuccess: onSectionChanged });
+  return [setAnswerFlaggedLoading, runSetAnswerFlagged] as const;
 };
 export const useSetExpertVote = (
   onSectionChanged?: (data: AnswerSection) => void,
@@ -340,14 +382,65 @@ export const useSetExpertVote = (
   );
   return [setExpertVoteLoading, runSetExpertVote] as const;
 };
-export const useResetFlaggedVote = (
+export const useResetAnswerFlaggedVote = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
-  const { loading: resetFlaggedLoading, run: runResetFlagged } = useRequest(
-    resetFlagged,
-    { manual: true, onSuccess: onSectionChanged },
-  );
-  return [resetFlaggedLoading, runResetFlagged] as const;
+  const { loading: resetAnswerFlaggedLoading, run: runResetAnswerFlagged } =
+    useRequest(resetAnswerFlagged, {
+      manual: true,
+      onSuccess: onSectionChanged,
+    });
+  return [resetAnswerFlaggedLoading, runResetAnswerFlagged] as const;
+};
+export const useSetExamCommentFlagged = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: setExamCommentFlaggedLoading,
+    run: runSetExamCommentFlagged,
+  } = useRequest(setExamCommentFlagged, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
+  return [setExamCommentFlaggedLoading, runSetExamCommentFlagged] as const;
+};
+export const useResetExamCommentFlaggedVote = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: resetExamCommentFlaggedLoading,
+    run: runResetExamCommentFlagged,
+  } = useRequest(resetExamCommentFlagged, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
+  return [resetExamCommentFlaggedLoading, runResetExamCommentFlagged] as const;
+};
+export const useSetDocumentCommentFlagged = (reload?: () => void) => {
+  const {
+    loading: setDocumentCommentFlaggedLoading,
+    run: runSetDocumentCommentFlagged,
+  } = useRequest(setDocumentCommentFlagged, {
+    manual: true,
+    onSuccess: reload,
+  });
+  return [
+    setDocumentCommentFlaggedLoading,
+    runSetDocumentCommentFlagged,
+  ] as const;
+};
+export const useResetDocumentCommentFlaggedVote = (reload?: () => void) => {
+  const {
+    loading: resetDocumentCommentFlaggedLoading,
+    run: runResetDocumentCommentFlagged,
+  } = useRequest(resetDocumentCommentFlagged, {
+    manual: true,
+    onSuccess: reload,
+  });
+  return [
+    resetDocumentCommentFlaggedLoading,
+    runResetDocumentCommentFlagged,
+  ] as const;
 };
 export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
   const { loading: updating, run: runUpdateAnswer } = useRequest(updateAnswer, {
@@ -398,8 +491,13 @@ export const createDocument = async (
     })
   ).value as Document;
 };
-export const useCreateDocument = (onSuccess?: (document: Document) => void) =>
-  useMutation(createDocument, onSuccess);
+export const useCreateDocument = (onSuccess?: (document: Document) => void) => {
+  const { error, loading, run } = useRequest(createDocument, {
+    manual: true,
+    onSuccess,
+  });
+  return { error, loading, run } as const;
+};
 
 export const loadDocuments = async (categorySlug: string) => {
   return (await fetchGet(`/api/document/?category=${categorySlug}`))
@@ -460,14 +558,17 @@ export const useDocument = (
   documentSlug: string,
   onSuccess?: (document: Document) => void,
 ) => {
-  const { error, loading, data, mutate } = useRequest(
-    () => loadDocument(author, documentSlug),
-    {
-      cacheKey: `document-${documentSlug}`,
-      onSuccess,
-    },
-  );
-  return [error, loading, data, mutate] as const;
+  const {
+    error,
+    loading,
+    data,
+    mutate,
+    run: reload,
+  } = useRequest(() => loadDocument(author, documentSlug), {
+    cacheKey: `document-${documentSlug}`,
+    onSuccess,
+  });
+  return [error, loading, data, mutate, reload] as const;
 };
 
 export const deleteDocument = async (author: string, documentSlug: string) => {
@@ -591,8 +692,11 @@ export const useCreateDocumentFile = (
   documentSlug: string,
   onSuccess?: (res: DocumentFile) => void,
 ) =>
-  useRequest((display_name: string, file: NamedBlob | File) =>
-    createDocumentFile(author, documentSlug, display_name, file), { manual: true, onSuccess });
+  useRequest(
+    (display_name: string, file: NamedBlob | File) =>
+      createDocumentFile(author, documentSlug, display_name, file),
+    { manual: true, onSuccess },
+  );
 
 export const deleteDocumentFile = async (
   author: string,
@@ -661,3 +765,29 @@ export const useRegenerateDocumentAPIKey = (
   onSuccess?: (res: Document) => void,
 ) =>
   useMutation(() => regenerateDocumentAPIKey(author, documentSlug), onSuccess);
+
+export const moveDocumentFile = async (
+  author: string,
+  documentSlug: string,
+  fileName: string,
+  direction: number,
+) => {
+  return await fetchPost(
+    `/api/document/${author}/${documentSlug}/files/${fileName}/move/`,
+    { direction },
+  );
+};
+
+export const useMoveDocumentFile = (
+  author: string,
+  documentSlug: string,
+  fileName: string,
+  direction: number,
+  onSuccess?: (res: DocumentFile) => void,
+) => {
+  const { error, loading, run } = useRequest(
+    () => moveDocumentFile(author, documentSlug, fileName, direction),
+    { manual: true, onSuccess },
+  );
+  return [error, loading, run] as const;
+};

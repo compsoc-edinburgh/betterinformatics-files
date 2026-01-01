@@ -9,7 +9,7 @@ import classes from "./user-comments.module.css";
 // with multiple columns. This is a quick-fix as pointed out on the
 // webkit bug reporting platform.
 // Example: https://codepen.io/lukasmoeller/pen/JjGyJXY (rel is hidden)
-// Issue: https://gitlab.ethz.ch/vis/cat/community-solutions/-/issues/147
+// Issue: https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/-/issues/147
 // Webkit Bug: https://bugs.webkit.org/show_bug.cgi?id=209681
 // It seems like there is a fix live in Safari Technology Preview
 // This fix should be left in here until the fix is published for
@@ -21,7 +21,7 @@ interface UserCommentsProps {
 
 const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   const [page, setPage] = useState(0); // to indicate what page of answers should be loaded
-  const [error, loading, data] = useUserComments(username, -1);
+  const [error, loading, data, reload] = useUserComments(username, -1);
   const [comments, setComments] = useState(data);
   const [lastElement, setLastElement] = useState<HTMLDivElement | null>(null);
 
@@ -70,7 +70,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
         {comments &&
           comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
             <div key={comment.oid}>
-              <SingleCommentComponent comment={comment} />
+              <SingleCommentComponent comment={comment} reload={reload}/>
             </div>
           ))}
         <div ref={elem => setLastElement(elem)} />

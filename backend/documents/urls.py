@@ -4,6 +4,10 @@ from . import views
 
 
 urlpatterns = [
+    path("<str:username>/<str:document_slug>/files/<str:filename>/move/",
+        views.move_file,
+        name="move_file"
+    ),
     path(
         "<str:username>/<str:document_slug>/files/<int:id>/update/",
         views.update_file,
@@ -42,4 +46,6 @@ urlpatterns = [
         name="files_element",
     ),
     path('listdocumenttypes/', views.list_document_types, name='listdocumenttypes'),
+    path("setflaggedcomment/<int:oid>", views.set_flagged, name="setcommentflagged"),
+    path("resetflaggedcomment/<int:oid>", views.reset_flagged, name="resetcommentflagged"),
 ]

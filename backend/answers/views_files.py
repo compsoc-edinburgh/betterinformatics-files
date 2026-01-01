@@ -55,6 +55,13 @@ def upload_transcript(request):
     category = get_object_or_404(Category, slug=request.POST.get("category", "default"))
     if not category.has_payments:
         return response.not_possible("Category is not valid")
+    try:
+        s3_util.save_uploaded_file_to_s3(
+            settings.COMSOL_EXAM_DIR, filename, file, "application/pdf"
+        )
+    except Exception as e:
+        return response.internal_error(str(e))
+    
     exam = Exam(
         filename=filename,
         displayname=request.POST.get("displayname", file.name),
@@ -66,9 +73,7 @@ def upload_transcript(request):
         oral_transcript_uploader=request.user,
     )
     exam.save()
-    s3_util.save_uploaded_file_to_s3(
-        settings.COMSOL_EXAM_DIR, filename, file, "application/pdf"
-    )
+    
     pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     return response.success(filename=filename)
 

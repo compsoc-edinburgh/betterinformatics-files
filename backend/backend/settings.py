@@ -9,6 +9,11 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
+
+import base64
+import hashlib
+import json
+import yaml
 import os
 from base64 import b64encode
 import sys
@@ -34,8 +39,7 @@ SECRET_KEY = (
     )
 )
 API_KEY = (
-    "API_KEY" if DEBUG else os.environ.get(
-        "RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
+    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 )
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -63,8 +67,7 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".apkg", "application/octet-stream"),  # anki
     (".colpkg", "application/octet-stream"),  # anki collection
 }
-COMSOL_IMAGE_ALLOWED_EXTENSIONS = {
-    "jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
+COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -73,19 +76,43 @@ COMSOL_DOCUMENT_SLUG_CHARS = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 )
 
-COMSOL_FRONTEND_GLOB_ID = os.environ.get(
-    "FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
+COMSOL_FRONTEND_GLOB_ID = os.environ.get("FRONTEND_GLOB_ID", "") or "vseth-1116-vis"
 
 # The following config settings configure the config with which a keycloak js client instance is
 # constructed in the React frontend.
 COMSOL_FRONTEND_KEYCLOAK_URL = os.environ.get(
     "FRONTEND_KEYCLOAK_URL", "https://auth.vseth.ethz.ch/auth"
 )
-COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get(
-    "FRONTEND_KEYCLOAK_REALM", "VSETH")
+COMSOL_FRONTEND_KEYCLOAK_REALM = os.environ.get("FRONTEND_KEYCLOAK_REALM", "VSETH")
 COMSOL_FRONTEND_KEYCLOAK_CLIENT_ID = os.environ.get(
     "SIP_AUTH_OIDC_CLIENT_ID", "vis-community-solutions"
 )
+
+# Things can go wrong here, but server should crash
+announcements = yaml.safe_load(os.environ.get("FRONTEND_ANNOUNCEMENTS", "")) or []
+announcements = announcements if isinstance(announcements, list) else [announcements]
+for announcement in announcements:
+    allowed_keys = {"variant", "color", "title", "icon", "content", "id"}
+    mandatory_keys = allowed_keys - {"id", "icon", "variant"}
+    assert isinstance(announcement, dict), "An announcement was parsed incorrectly!"
+    assert announcement.keys() <= allowed_keys, (
+        f"Announcement has at least one invalid key {announcement.keys() - allowed_keys}"
+    )
+    assert announcement.keys() >= mandatory_keys, (
+        f"Announcement has at least one missing key {mandatory_keys - announcement.keys()}"
+    )
+
+announcements = [
+    {
+        "id": announcement.get("id")
+        or base64.b64encode(
+            hashlib.sha256(yaml.safe_dump(announcement, encoding="utf-8")).digest()
+        ).decode(),
+        **announcement,
+    }
+    for announcement in announcements
+]
+
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
@@ -94,10 +121,11 @@ FRONTEND_SERVER_DATA = {
     "unlock_deposit_notice": os.environ.get("FRONTEND_UNLOCK_DEPOSIT_NOTICE", ""),
     "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", "")
     or "https://account.vseth.ethz.ch/privacy",
+    "announcements": announcements,
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
-IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE"
+IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE" and not TESTING
 
 
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
@@ -126,8 +154,7 @@ OIDC_JWKS_URL = (
 )
 
 JWT_VERIFY_SIGNATURE = (
-    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE",
-                   "TRUE") != "FALSE" or not DEBUG
+    os.environ.get("RUNTIME_JWT_VERIFY_SIGNATURE", "TRUE") != "FALSE" or not DEBUG
 )
 JWT_RESOURCE_GROUP = (
     "group" if TESTING else os.environ.get("SIP_AUTH_OIDC_CLIENT_ID", "")
@@ -147,7 +174,9 @@ ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
 if DEBUG:
     ALLOWED_HOSTS.append("localhost")
+    ALLOWED_HOSTS.append("community-solutions")
     REAL_ALLOWED_HOSTS.append("localhost")
+    REAL_ALLOWED_HOSTS.append("community-solutions")
 else:
     # ALLOWED_HOSTS.append(os.environ['SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN'])
     # USE_X_FORWARDED_HOST = True
@@ -161,15 +190,15 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
-    allowed_script_sources = [f"http://{host}:8080/static/"
-               for host in REAL_ALLOWED_HOSTS]
+    allowed_script_sources = [
+        f"http://{host}:8080/static/" for host in REAL_ALLOWED_HOSTS
+    ]
 else:
-    allowed_script_sources = [f"https://{host}/static/"
-               for host in REAL_ALLOWED_HOSTS]
+    allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
     "'unsafe-eval'",
     "https://static.vseth.ethz.ch",
-    *allowed_script_sources
+    *allowed_script_sources,
 )
 CSP_STYLE_SRC = (
     "'self'",
@@ -189,9 +218,9 @@ CSP_CONNECT_SRC = (
     "http://" + s3_host + ":" + s3_port,
 )
 CSP_IMG_SRC = (
-    "'self'", 
-    "data:", 
-    "https://static.vseth.ethz.ch", 
+    "'self'",
+    "data:",
+    "https://static.vseth.ethz.ch",
     "https://fe.vseth.ethz.ch",
 )
 

@@ -1,6 +1,6 @@
-.show-more {
-  text-decoration: underline;
-  cursor: pointer;
+.chain-reply {
+  /* The chain reply button should be on the bottom right */
+  margin-left: auto;
 }
 
 .list-group {

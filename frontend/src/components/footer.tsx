@@ -14,9 +14,15 @@ interface FooterProps {
   logo: string;
   disclaimer: string;
   privacy: string;
+  orgHomepage: string;
 }
 
-const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
+const Footer: React.FC<FooterProps> = ({
+  logo,
+  disclaimer,
+  privacy,
+  orgHomepage,
+}) => {
   return (
     <Box pt="md" pb="lg">
       <Container size="xl">
@@ -60,12 +66,14 @@ const Footer: React.FC<FooterProps> = ({ logo, disclaimer, privacy }) => {
               VIS
             </Anchor>
           </Text>
-          <img
-            height={32}
-            src={logo}
-            style={{ filter: "brightness(0)" }}
-            alt="Logo of the student organization"
-          />
+          <a href={orgHomepage}>
+            <img
+              height={32}
+              src={logo}
+              style={{ filter: "brightness(0)" }}
+              alt="Logo of the student organization"
+            />
+          </a>
           <Group
             style={{
               flex: 1,

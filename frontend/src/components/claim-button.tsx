@@ -1,6 +1,6 @@
 import { CategoryExam } from "../interfaces";
 import { useUser } from "../auth";
-import { hasValidClaim } from "../utils/exam-utils";
+import { claimExpiryRelative, hasValidClaim } from "../utils/exam-utils";
 import { Button, ButtonProps } from "@mantine/core";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -27,47 +27,45 @@ const ClaimButton: React.FC<Props> = ({
     manual: true,
     onSuccess: reloadExams,
   });
-  return !exam.finished_cuts ? (
-    hasValidClaim(exam) ? (
-      exam.import_claim === username ? (
-        <Button
-          mt="xs"
-          size="sm"
-          color="dark"
-          variant="outline"
-          onClick={e => {
-            e.stopPropagation();
-            runSetClaim(exam.filename, false);
-          }}
-          disabled={loading}
-          {...buttonProps}
-        >
-          Release Claim
-        </Button>
-      ) : (
-        <TooltipButton
-          size="sm"
-          color="white"
-          tooltip={`Claimed by ${exam.import_claim_displayname}`}
-          {...buttonProps}
-        >
-          Claimed
-        </TooltipButton>
-      )
-    ) : (
+  return hasValidClaim(exam) ? (
+    exam.import_claim === username ? (
       <Button
         size="sm"
-        variant="default"
+        color="gray"
+        variant="outline"
         onClick={e => {
           e.stopPropagation();
-          runSetClaim(exam.filename, true);
+          runSetClaim(exam.filename, false);
         }}
         disabled={loading}
         {...buttonProps}
       >
-        Claim Exam
+        Release Claim
       </Button>
+    ) : (
+      <TooltipButton
+        size="sm"
+        color="white"
+        tooltip={`Expires ${claimExpiryRelative(exam.import_claim_time)}`}
+        disabled
+        {...buttonProps}
+      >
+        Claimed by {exam.import_claim_displayname}
+      </TooltipButton>
     )
-  ) : null;
+  ) : (
+    <Button
+      size="sm"
+      variant="filled"
+      onClick={e => {
+        e.stopPropagation();
+        runSetClaim(exam.filename, true);
+      }}
+      disabled={loading}
+      {...buttonProps}
+    >
+      Claim Exam
+    </Button>
+  );
 };
 export default ClaimButton;

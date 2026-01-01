@@ -27,9 +27,6 @@ const loadPaymentExams = async () => {
   return (await fetchGet("/api/exam/listpaymentcheckexams/"))
     .value as CategoryPaymentExam[];
 };
-const loadFlagged = async () => {
-  return (await fetchGet("/api/exam/listflagged/")).value as string[];
-};
 
 const ModQueue: React.FC = () => {
   useTitle("Import Queue");
@@ -42,31 +39,16 @@ const ModQueue: React.FC = () => {
   } = useRequest(() => loadExams(includeHidden), {
     refreshDeps: [includeHidden],
   });
-  const { error: flaggedError, data: flaggedAnswers } = useRequest(loadFlagged);
   const {
     error: payError,
     loading: payLoading,
     data: paymentExams,
   } = useRequest(loadPaymentExams);
 
-  const error = examsError || flaggedError || payError;
+  const error = examsError || payError;
 
   return (
     <Container size="xl">
-      {flaggedAnswers && flaggedAnswers.length > 0 && (
-        <div>
-          <Title order={2} mb="md">
-            Flagged Answers
-          </Title>
-          {flaggedAnswers.map(answer => (
-            <div key={answer}>
-              <Link to={answer} target="_blank" rel="noopener noreferrer">
-                {answer}
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
       {paymentExams && paymentExams.length > 0 && (
         <div>
           <Title my="sm" order={2}>
@@ -142,7 +124,9 @@ const ModQueue: React.FC = () => {
                     {exam.finished_cuts ? "All done" : "Needs Cuts"}
                   </Table.Td>
                   <Table.Td>
-                    <ClaimButton exam={exam} reloadExams={reloadExams} />
+                    {!exam.finished_cuts && (
+                      <ClaimButton exam={exam} reloadExams={reloadExams} />
+                    )}
                   </Table.Td>
                 </Table.Tr>
               ))}

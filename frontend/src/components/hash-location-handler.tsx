@@ -1,5 +1,5 @@
 import * as React from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 // Time after which we stop searching for the target element
 const JUMP_TIMEOUT = 40_000;
 
@@ -10,9 +10,9 @@ const JUMP_TIMEOUT = 40_000;
  * Should only exist once. Multiple instances will interfere with each other.
  * Is based on: https://gist.github.com/gajus/0bbc78135d88a02c18366f12237011a5
  */
-const HashLocationHandler: React.FC<RouteComponentProps> = ({
-  location: { hash },
-}) => {
+const HashLocationHandler: React.FC<{}> = () => {
+  const { hash } = useLocation();
+
   // Remove # by using substr. Will result in empty string if hash === ""
   // Chrome doesn't decodeURIComponent hash whereas Safari does - this could cause problems when hash contains uri-decodable data after uri-decoding it.
   const hashLocation = decodeURIComponent(hash.substr(1));

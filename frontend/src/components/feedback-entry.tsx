@@ -1,10 +1,12 @@
 import { useRequest } from "@umijs/hooks";
 import { Button, Card, Group, Title, Text } from "@mantine/core";
-import moment from "moment";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import GlobalConsts from "../globalconsts";
 import { FeedbackEntry } from "../interfaces";
+import TooltipButton from "./TooltipButton";
+import { IconCheckbox, IconMail, IconMailOpened, IconSquare } from "@tabler/icons-react";
+import { lightFormat, parseISO } from "date-fns";
 
 const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
   await fetchPost(`/api/feedback/flags/${oid}/`, {
@@ -35,17 +37,25 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
         <Group py="md" justify="space-between">
           <Title order={4}>
             {entry.authorDisplayName} •{" "}
-            {moment(entry.time, GlobalConsts.momentParseString).format(
-              GlobalConsts.momentFormatString,
+            {lightFormat(
+              parseISO(entry.time),
+              GlobalConsts.dateFNSFormatString,
             )}
           </Title>
           <Button.Group>
-            <Button onClick={() => runSetFlag("done", !entry.done)}>
-              {entry.done ? "Set Undone" : "Set Done"}
-            </Button>
-            <Button onClick={() => runSetFlag("read", !entry.read)}>
-              {entry.read ? "Set Unread" : "Set Read"}
-            </Button>
+            <TooltipButton
+              variant={entry.done ? "default" : "filled"}
+              tooltip={`Mark as ${entry.done ? "Not Done" : "Done"}`}
+              onClick={() => runSetFlag("done", !entry.done)}>
+              {entry.done ? <IconCheckbox /> : <IconSquare />}
+            </TooltipButton>
+            <TooltipButton
+              variant={entry.read ? "default" : "filled"}
+              tooltip={`Mark as ${entry.read ? "Unread" : "Read"}`}
+              color={entry.read ? "brand.7" : "brand"}
+              onClick={() => runSetFlag("read", !entry.read)}>
+              {entry.read ? <IconMail /> :  <IconMailOpened />}
+            </TooltipButton>
           </Button.Group>
         </Group>
       </Card.Section>

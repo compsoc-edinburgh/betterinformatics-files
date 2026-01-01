@@ -11,6 +11,7 @@ import {
 } from "@mantine/core";
 import React, { useState } from "react";
 import {
+  useMoveDocumentFile,
   Mutate,
   useDeleteDocumentFile,
   useUpdateDocumentFile,
@@ -19,6 +20,8 @@ import { Document, DocumentFile } from "../interfaces";
 import FileInput from "./file-input";
 import IconButton from "./icon-button";
 import {
+  IconChevronDown,
+  IconChevronUp,
   IconDeviceFloppy,
   IconEdit,
   IconKey,
@@ -27,16 +30,38 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
+  max_order: number;
   document: Document;
   file: DocumentFile;
   mutate: Mutate<Document>;
+  reload: () => Promise<void>;
 }
 
-const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
+const DocumentFileItem: React.FC<Props> = ({
+  max_order,
+  file,
+  document,
+  mutate,
+  reload,
+}) => {
   const [displayName, setDisplayName] = useState<string | undefined>();
   const [replaceFile, setFile] = useState<File | undefined>(undefined);
 
-  const [deleteLoading, deleteFile] = useDeleteDocumentFile(
+  const [errorMoveUp, loadingMoveUp, moveUp] = useMoveDocumentFile(
+    document.author,
+    document.slug,
+    file.filename,
+    -1,
+    reload,
+  );
+  const [errorMoveDown, loadingMoveDown, moveDown] = useMoveDocumentFile(
+    document.author,
+    document.slug,
+    file.filename,
+    1,
+    reload,
+  );
+  const [_, deleteFile] = useDeleteDocumentFile(
     document.author,
     document.slug,
     file.oid,
@@ -61,12 +86,18 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
       closeEditModal();
     },
   );
-  const [editIsOpen, {toggle: toggleEditIsOpen, close: closeEditModal}] = useDisclosure();
-  const [keyIsOpen, {toggle: toggleKeyIsOpen, close: closeKeyModal}] = useDisclosure();
+  const [editIsOpen, { toggle: toggleEditIsOpen, close: closeEditModal }] =
+    useDisclosure();
+  const [keyIsOpen, { toggle: toggleKeyIsOpen, close: closeKeyModal }] =
+    useDisclosure();
+  const [
+    deleteModalIsOpen,
+    { toggle: toggleDeleteModalIsOpen, close: closeDeleteModal },
+  ] = useDisclosure();
   return (
     <>
       <Modal
-        title="Edit {file.display_name}"
+        title={`Edit ${file.display_name}`}
         onClose={closeEditModal}
         opened={editIsOpen}
       >
@@ -141,6 +172,21 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
           </pre>
         </Modal.Body>
       </Modal>
+      <Modal
+        title={`Do you really want to delete the file named ${file.display_name}?`}
+        onClose={closeDeleteModal}
+        opened={deleteModalIsOpen}
+      >
+        <Modal.Body>
+          <b>This cannot be undone.</b>
+          <Group justify="right" mt="md">
+            <Button onClick={toggleDeleteModalIsOpen}>Not really</Button>
+            <Button onClick={deleteFile} color="red">
+              Delete this file
+            </Button>
+          </Group>
+        </Modal.Body>
+      </Modal>
       <Card withBorder my="xs">
         <Flex justify="space-between" align="center">
           <Flex direction="column" gap="xs">
@@ -151,6 +197,24 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
             </Group>
           </Flex>
           <Grid>
+            {file.order > 0 && (
+              <Grid.Col span={{ xs: "auto" }}>
+                <IconButton
+                  icon={<IconChevronUp />}
+                  onClick={moveUp}
+                  tooltip="Move the file up in the list"
+                />
+              </Grid.Col>
+            )}
+            {file.order < max_order && (
+              <Grid.Col span={{ xs: "auto" }}>
+                <IconButton
+                  icon={<IconChevronDown />}
+                  onClick={moveDown}
+                  tooltip="Move the file down in the list"
+                />
+              </Grid.Col>
+            )}
             <Grid.Col span={{ xs: "auto" }}>
               <IconButton
                 icon={<IconKey />}
@@ -169,8 +233,7 @@ const DocumentFileItem: React.FC<Props> = ({ file, document, mutate }) => {
               <IconButton
                 icon={<IconTrash />}
                 color="red"
-                onClick={deleteFile}
-                loading={deleteLoading}
+                onClick={toggleDeleteModalIsOpen}
                 tooltip="Delete file"
               />
             </Grid.Col>

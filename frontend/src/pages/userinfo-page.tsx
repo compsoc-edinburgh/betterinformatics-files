@@ -27,6 +27,7 @@ const UserPage: React.FC<{}> = () => {
   const error = userInfoError;
   const loading = userInfoLoading;
   const [activeTab, setActiveTab] = useState<string | null>("overview");
+
   return (
     <>
       <Container size="xl">

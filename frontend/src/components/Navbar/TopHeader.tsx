@@ -1,7 +1,5 @@
 import * as React from "react";
-import {
-  Container
-} from "@mantine/core";
+import { Container } from "@mantine/core";
 import classes from "./TopHeader.module.css";
 import type { MantineSize } from "@mantine/core";
 
@@ -14,6 +12,7 @@ interface Props {
   languages?: { key: string; label: string }[];
   onLanguageSelect: (language: string) => void;
   organizationNav?: NavItem[];
+  orgHomepage: string;
   logo: string | undefined;
   size: MantineSize | undefined;
 }
@@ -22,6 +21,7 @@ const TopHeader: React.FC<Props> = ({
   selectedLanguage,
   languages,
   organizationNav,
+  orgHomepage,
   logo,
   onLanguageSelect,
   size,
@@ -34,15 +34,17 @@ const TopHeader: React.FC<Props> = ({
       style={{ backgroundColor: "var(--mantine-color-dark-6)" }}
     >
       <Container size={size ? size : "xl"} className={classes.container}>
-        <img
-          src={
-            logo
+        <a href={orgHomepage}>
+          <img
+            src={
+              logo
               ? logo
               : "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg"
-          }
-          className={classes.logo}
-          alt="Logo of the student organization"
-        />
+            }
+            className={classes.logo}
+            alt="Logo of the student organization"
+          />
+        </a>
         <div className={classes.items}>
           {translate(
             organizationNav ? organizationNav : globalNav,

@@ -7,6 +7,8 @@ import DocumentCard from "./document-card";
 import { Document } from "../interfaces";
 import { IconPlus } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import classes from "../utils/focus-outline.module.css";
+import clsx from "clsx";
 
 interface Props {
   slug: string;
@@ -78,14 +80,17 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
         Add Documents
       </Title>
       <Grid>
-        <Paper withBorder shadow="md" style={{ minHeight: "6em" }}>
-          <Tooltip label="Add a new document">
+        <Paper
+          className={clsx(classes.focusOutline, classes.hoverShadow)}
+          style={{ minHeight: "6em" }}
+        >
+          <Tooltip label="Add Document Bundle">
             <Button
               style={{ width: "100%", height: "100%" }}
               onClick={open}
               leftSection={<IconPlus />}
             >
-              Add new document
+              Add Document Bundle
             </Button>
           </Tooltip>
         </Paper>

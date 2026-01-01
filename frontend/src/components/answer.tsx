@@ -9,16 +9,17 @@ import {
   Anchor,
   Box,
   Paper,
+  Tooltip,
 } from "@mantine/core";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
-  useResetFlaggedVote,
+  useResetAnswerFlaggedVote,
   useSetExpertVote,
-  useSetFlagged,
+  useSetAnswerFlagged,
   useUpdateAnswer,
 } from "../api/hooks";
 import { useUser } from "../auth";
@@ -41,14 +42,17 @@ import {
   IconEdit,
   IconFlag,
   IconLink,
+  IconArrowLeft,
+  IconFileText,
   IconPencilCancel,
-  IconPlus,
+  IconMessageCirclePlus,
   IconStarFilled,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
 import classes from "./answer.module.css";
 import { useDisclosure } from "@mantine/hooks";
+import TimeText from "./time-text";
 
 const AnswerToolbar = (props: GroupProps) => (
   <Group className={classes.answerToolbarStyle} {...props} />
@@ -70,10 +74,10 @@ const AnswerComponent: React.FC<Props> = ({
   isLegacyAnswer,
   hasId = true,
 }) => {
-  const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
-  const [setFlaggedLoading, setFlagged] = useSetFlagged(onSectionChanged);
-  const [resetFlaggedLoading, resetFlagged] =
-    useResetFlaggedVote(onSectionChanged);
+  const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
+  const [setFlaggedLoading, setAnswerFlagged] = useSetAnswerFlagged(onSectionChanged);
+  const [resetFlaggedLoading, resetAnswerFlagged] =
+    useResetAnswerFlaggedVote(onSectionChanged);
   const [setExpertVoteLoading, setExpertVote] =
     useSetExpertVote(onSectionChanged);
   const removeAnswer = useRemoveAnswer(onSectionChanged);
@@ -120,20 +124,27 @@ const AnswerComponent: React.FC<Props> = ({
       >
         <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">
-            <div>
+            <div >
               {!hasId && (
-                <Link
-                  to={
-                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
-                  }
-                >
-                  <Text mr={8} component="span">
-                    <IconLink style={{ height: "13px", width: "13px" }} />
-                  </Text>
-                </Link>
+                <Tooltip label="View Answer in Exam">
+                  <Link
+                    to={
+                      answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                    }
+                  >
+                    <Text mr={8} component="span">
+                      <IconArrowLeft
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                      <IconFileText
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                    </Text>
+                  </Link>
+                </Tooltip>
               )}
               {isLegacyAnswer ? (
-                answer?.authorDisplayName ?? "(Legacy Draft)"
+                (answer?.authorDisplayName ?? "(Legacy Draft)")
               ) : (
                 <Anchor
                   component={Link}
@@ -150,11 +161,7 @@ const AnswerComponent: React.FC<Props> = ({
               <Text c="dimmed" mx={6} component="span">
                 ·
               </Text>
-              {answer && (
-                <Text c="dimmed" component="span" title={answer.time}>
-                  {formatDistanceToNow(new Date(answer.time))} ago
-                </Text>
-              )}
+              {answer && <TimeText time={answer.time} suffix="ago" />}
               {answer &&
                 differenceInSeconds(
                   new Date(answer.edittime),
@@ -164,14 +171,11 @@ const AnswerComponent: React.FC<Props> = ({
                     <Text color="dimmed" mx={6} component="span">
                       ·
                     </Text>
-                    <Text
-                      color="dimmed"
-                      component="span"
-                      title={answer.edittime}
-                    >
-                      edited {formatDistanceToNow(new Date(answer.edittime))}{" "}
-                      ago
-                    </Text>
+                    <TimeText
+                      time={answer.edittime}
+                      prefix="edited"
+                      suffix="ago"
+                    />
                   </>
                 )}
             </div>
@@ -224,7 +228,7 @@ const AnswerComponent: React.FC<Props> = ({
                   )}
                 {answer &&
                   (answer.isFlagged ||
-                    (answer.flagged > 0 && isAdmin) ||
+                    (answer.flaggedCount > 0 && isAdmin) ||
                     flaggedLoading) && (
                     <Paper shadow="xs">
                       <Button.Group>
@@ -239,9 +243,9 @@ const AnswerComponent: React.FC<Props> = ({
                         <TooltipButton
                           color="red"
                           miw={30}
-                          tooltip={`${answer.flagged} users consider this answer inappropriate.`}
+                          tooltip={`${answer.flaggedCount} users consider this answer inappropriate.`}
                         >
-                          {answer.flagged}
+                          {answer.flaggedCount}
                         </TooltipButton>
                         <TooltipButton
                           px={8}
@@ -254,7 +258,7 @@ const AnswerComponent: React.FC<Props> = ({
                           loading={flaggedLoading}
                           style={{ borderLeftWidth: 0 }}
                           onClick={() =>
-                            setFlagged(answer.oid, !answer.isFlagged)
+                            setAnswerFlagged(answer.oid, !answer.isFlagged)
                           }
                         >
                           {answer.isFlagged ? <IconX /> : <IconChevronUp />}
@@ -314,95 +318,90 @@ const AnswerComponent: React.FC<Props> = ({
         )}
         <Group justify="right">
           {(answer === undefined || editing) && (
-            <Button
-              size="sm"
-              onClick={save}
-              loading={updating}
-              disabled={draftText.trim().length === 0}
-              leftSection={<IconDeviceFloppy />}
-            >
-              Save
-            </Button>
+            <>
+              <Button
+                size="sm"
+                color="red"
+                variant="subtle"
+                onClick={onCancel}
+                leftSection={<IconPencilCancel />}
+              >
+                {editing ? "Cancel" : "Delete Draft"}
+              </Button>
+              <Button
+                size="sm"
+                onClick={save}
+                loading={updating}
+                disabled={draftText.trim().length === 0}
+                leftSection={<IconDeviceFloppy />}
+              >
+                Save
+              </Button>
+            </>
           )}
-          {onSectionChanged && (
-            <Flex align="center">
-              {(answer === undefined || editing) && (
-                <Button
-                  size="sm"
-                  color="red"
-                  onClick={onCancel}
-                  leftSection={<IconPencilCancel />}
-                >
-                  {editing ? "Cancel" : "Delete Draft"}
-                </Button>
-              )}
-              <Button.Group ml="md">
-                {answer !== undefined && (
-                  <Button
-                    size="sm"
-                    onClick={() => setHasCommentDraft(true)}
-                    leftSection={<IconPlus />}
-                    disabled={hasCommentDraft}
+          {onSectionChanged && !editing && answer !== undefined && (
+            <Button.Group>
+              <Button
+                size="sm"
+                onClick={() => setHasCommentDraft(true)}
+                leftSection={<IconMessageCirclePlus />}
+                disabled={hasCommentDraft}
+              >
+                Add Comment
+              </Button>
+              <Menu withinPortal>
+                <Menu.Target>
+                  <Button leftSection={<IconDots />}>More</Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {answer.flaggedCount === 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => setAnswerFlagged(answer.oid, true)}
+                    >
+                      Flag as Inappropriate
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    leftSection={<IconLink />}
+                    onClick={() =>
+                      copy(
+                        `${document.location.origin}/exams/${answer.filename}?answer=${answer.longId}`,
+                      )
+                    }
                   >
-                    Add Comment
-                  </Button>
-                )}
-                {answer !== undefined && (
-                  <Menu withinPortal>
-                    <Menu.Target>
-                      <Button leftSection={<IconDots />}>More</Button>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                      {answer.flagged === 0 && (
-                        <Menu.Item
-                          leftSection={<IconFlag />}
-                          onClick={() => setFlagged(answer.oid, true)}
-                        >
-                          Flag as Inappropriate
-                        </Menu.Item>
-                      )}
-                      <Menu.Item
-                        leftSection={<IconLink />}
-                        onClick={() =>
-                          copy(
-                            `${document.location.origin}/exams/${answer.filename}#${answer.longId}`,
-                          )
-                        }
-                      >
-                        Copy Permalink
-                      </Menu.Item>
-                      {isAdmin && answer.flagged > 0 && (
-                        <Menu.Item
-                          leftSection={<IconFlag />}
-                          onClick={() => resetFlagged(answer.oid)}
-                        >
-                          Remove all inappropriate flags
-                        </Menu.Item>
-                      )}
-                      {!editing && canEdit && (
-                        <Menu.Item
-                          leftSection={<IconEdit />}
-                          onClick={startEdit}
-                        >
-                          Edit
-                        </Menu.Item>
-                      )}
-                      {answer && canRemove && (
-                        <Menu.Item leftSection={<IconTrash />} onClick={remove}>
-                          Delete
-                        </Menu.Item>
-                      )}
-                      <Menu.Item
-                        leftSection={<IconCode />}
-                        onClick={toggleViewSource}
-                      >
-                        Toggle Source Code Mode
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                )}
-              </Button.Group>
-            </Flex>
+                    Copy Permalink
+                  </Menu.Item>
+                  {isAdmin && answer.flaggedCount > 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => resetAnswerFlagged(answer.oid)}
+                    >
+                      Remove all inappropriate flags
+                    </Menu.Item>
+                  )}
+                  {!editing && canEdit && (
+                    <Menu.Item
+                      leftSection={<IconEdit />}
+                      onClick={startEdit}
+                    >
+                      Edit
+                    </Menu.Item>
+                  )}
+                  {answer && canRemove && (
+                    <Menu.Item leftSection={<IconTrash />} onClick={remove}>
+                      Delete
+                    </Menu.Item>
+                  )}
+                  <Menu.Item
+                    leftSection={<IconCode />}
+                    onClick={toggleViewSource}
+                  >
+                    Toggle Source Code Mode
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Button.Group>
           )}
         </Group>
 
@@ -413,6 +412,7 @@ const AnswerComponent: React.FC<Props> = ({
               hasDraft={hasCommentDraft}
               answer={answer}
               onSectionChanged={onSectionChanged}
+              onChainReply={() => setHasCommentDraft(true)}
               onDraftDelete={() => setHasCommentDraft(false)}
             />
           )}

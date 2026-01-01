@@ -7,21 +7,25 @@ export const minValidity = 10;
 
 let refreshRequest: Promise<Response> | undefined = undefined;
 
-export function authenticationStatus() {
-  const expires = getCookie("token_expires");
-  if (expires === null) {
-    return undefined;
-  }
+export function getAuthenticationExpiry() {
+  const token_expires = getCookie("token_expires");
+  const refresh_expires = getCookie("refresh_expires");
   const now = new Date().getTime();
-  const time = new Date(parseFloat(expires) * 1000).getTime();
-  return time - now;
+  return {
+    token: token_expires
+      ? new Date(parseFloat(token_expires) * 1000).getTime() - now
+      : undefined,
+    refresh: refresh_expires
+      ? new Date(parseFloat(refresh_expires) * 1000).getTime() - now
+      : undefined,
+  };
 }
 
 /**
  * Checks whether it would make sense to call `refreshToken()`
  * @returns Returns `true` iff. there is a token and it is expired.
  */
-export function isTokenExpired(expires = authenticationStatus()) {
+export function isTokenExpired(expires = getAuthenticationExpiry()["token"]) {
   if (expires === undefined) return false;
   return expires < minValidity * 1000;
 }
@@ -30,7 +34,7 @@ export function isTokenExpired(expires = authenticationStatus()) {
  * Checks whether it makes sense to
  * @returns
  */
-export function authenticated(expires = authenticationStatus()) {
+export function authenticated(expires = getAuthenticationExpiry()["token"]) {
   return expires !== undefined;
 }
 
@@ -88,7 +92,15 @@ async function performDataRequest<T>(
   url: string,
   data: { [key: string]: any },
 ) {
-  if (isTokenExpired()) await refreshToken();
+  // Refresh token if needed.
+  // If refresh fails or if the refresh token is expired too, we won't outright
+  // reject the network request. This is because some endpoints don't need auth,
+  // like the category list. Since we don't know which backend routes need auth
+  // and which don't, we let the backend deal with any auth failures.
+  const { token: exp, refresh: refresh_exp } = getAuthenticationExpiry();
+  if (isTokenExpired(exp) && !isTokenExpired(refresh_exp)) {
+    await refreshToken();
+  }
 
   const formData = new FormData();
   // Convert the `data` object into a `formData` object by iterating
@@ -126,7 +138,15 @@ async function performDataRequest<T>(
 }
 
 async function performRequest<T>(method: string, url: string) {
-  if (isTokenExpired()) await refreshToken();
+  // Refresh token if needed.
+  // If refresh fails or if the refresh token is expired too, we won't outright
+  // reject the network request. This is because some endpoints don't need auth,
+  // like the category list. Since we don't know which backend routes need auth
+  // and which don't, we let the backend deal with any auth failures.
+  const { token: exp, refresh: refresh_exp } = getAuthenticationExpiry();
+  if (isTokenExpired(exp) && !isTokenExpired(refresh_exp)) {
+    await refreshToken();
+  }
 
   const response = await fetch(url, {
     credentials: "include",

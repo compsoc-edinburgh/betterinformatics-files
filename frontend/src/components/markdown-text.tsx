@@ -9,6 +9,7 @@ import "katex/contrib/mhchem/mhchem";
 import "katex/dist/katex.min.css";
 import * as React from "react";
 import { useMemo } from "react";
+import { escapeRegExp } from "lodash-es";
 import CodeBlock from "./code-block";
 import { Alert, Table } from "@mantine/core";
 import ErrorBoundary from "./error-boundary";
@@ -23,9 +24,63 @@ const transformImageUri = (uri: string) => {
   }
 };
 
+const addMarks = (
+  obj: any,
+  regex: RegExp | undefined,
+  index: number = 0,
+): React.ReactNode => {
+  if (regex === undefined) return obj;
+  if (regex.toString() === "/(?:)/") return obj; // if regex matches all strings (including the empty one), this function will loop forever
+  if (isNaN(index)) index = 0;
+  if (obj && typeof obj === "string") {
+    const value = obj;
+    const m = regex.test(value);
+    if (!m) return obj;
+    let i = 0;
+    const arr = [];
+    while (i < value.length) {
+      const rest = value.substring(i);
+      const m = rest.match(regex);
+      if (m) {
+        const start = m.index || 0;
+        arr.push(<span key={`s${start}`}>{rest.substring(0, start)}</span>);
+        arr.push(<mark key={`s${start}match`}>{m[0]}</mark>);
+
+        i += start + m[0].length;
+      } else {
+        arr.push(<span key={`rest`}>{rest}</span>);
+        break;
+      }
+    }
+    return <React.Fragment key={index}>{arr}</React.Fragment>;
+  }
+  if (obj && obj instanceof Array) {
+    const newArr = [];
+    for (let index = 0; index < obj.length; index++) {
+      newArr.push(addMarks(obj[index], regex, index));
+    }
+    return newArr;
+  }
+  if (obj && obj.props && obj.props.children) {
+    if (obj.props.className === "katex") return obj;
+    let arr = obj.props.children;
+    if (!(arr instanceof Array)) arr = [arr];
+    const newArr = Array<any>();
+    for (let index = 0; index < arr.length; index++) {
+      newArr.push(addMarks(arr[index], regex, index));
+    }
+    return React.cloneElement(obj, obj.props, newArr);
+  }
+  return obj;
+};
+
 const createComponents = (regex: RegExp | undefined): Components => ({
   table: ({ children }) => {
-    return <Table style={{ width: "auto" }} withColumnBorders={true}>{children}</Table>;
+    return (
+      <Table style={{ width: "auto" }} withColumnBorders={true}>
+        {children}
+      </Table>
+    );
   },
   tbody: ({ children }) => {
     return <Table.Tbody>{children}</Table.Tbody>;
@@ -43,27 +98,25 @@ const createComponents = (regex: RegExp | undefined): Components => ({
     return <Table.Tr>{children}</Table.Tr>;
   },
   p: ({ children }) => {
-    if (regex === undefined) return <p>{children}</p>;
-    const arr = [];
-    const value = String(children);
-    const m = regex.test(value);
-    if (!m) return <p>{children}</p>;
-    let i = 0;
-    while (i < value.length) {
-      const rest = value.substring(i);
-      const m = rest.match(regex);
-      if (m) {
-        const start = m.index || 0;
-        arr.push(<span key={start}>{rest.substring(0, start)}</span>);
-        arr.push(<mark key={`${start}match`}>{m[0]}</mark>);
-
-        i += start + m[0].length;
-      } else {
-        arr.push(<span key="rest">{rest}</span>);
-        break;
-      }
-    }
-    return <>{arr}</>;
+    return <p>{addMarks(children, regex)}</p>;
+  },
+  h1: ({ children }) => {
+    return <h1>{addMarks(children, regex)}</h1>;
+  },
+  h2: ({ children }) => {
+    return <h2>{addMarks(children, regex)}</h2>;
+  },
+  h3: ({ children }) => {
+    return <h3>{addMarks(children, regex)}</h3>;
+  },
+  h4: ({ children }) => {
+    return <h4>{addMarks(children, regex)}</h4>;
+  },
+  h5: ({ children }) => {
+    return <h5>{addMarks(children, regex)}</h5>;
+  },
+  h6: ({ children }) => {
+    return <h6>{addMarks(children, regex)}</h6>;
   },
   code({ node, className, children, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
@@ -87,10 +140,10 @@ interface Props {
    */
   value: string;
   /**
-   * A regex which should be used for highlighting. If undefined no text will
-   * be highlighted.
+   * An array of strings which should be highlighted. If empty or undefined, no
+   * text will be highlighted.
    */
-  regex?: RegExp;
+  highlight_matches?: string[];
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -101,30 +154,45 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, regex }) => {
-  const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
-  const renderers = useMemo(() => createComponents(regex), [regex]);
-  if (value.length === 0) {
-    return <div />;
-  }
-  return (
-    <div className={clsx(classes.wrapperStyle, classes.blockquoteStyle)}>
-      <ErrorBoundary fallback={errorMessage}>
-        <ReactMarkdown
-          children={value}
-          urlTransform={(uri: string, key, node) => {
-            if (node.tagName === "img") {
-              return transformImageUri(uri);
-            }
-            return defaultUrlTransform(uri);
-          }}
-          remarkPlugins={[remarkMath, remarkGfm]}
-          rehypePlugins={[[rehypeKatex, { macros }]]}
-          components={renderers}
-        />
-      </ErrorBoundary>
-    </div>
+const MarkdownText: React.FC<Props> = ({ value, highlight_matches }) => {
+  // Make sure we don't generate a RegExp with empty text, as that will match
+  // everything (including the empty string) and can cause mayhem with
+  // highlighting.
+  const regex = useMemo(
+    () =>
+      highlight_matches && highlight_matches.length > 0
+        ? new RegExp(`${highlight_matches.map(escapeRegExp).join("|")}`)
+        : undefined,
+    [highlight_matches],
   );
+
+  const renderers = useMemo(() => createComponents(regex), [regex]);
+
+  return useMemo(() => {
+    const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
+
+    if (value.length === 0) {
+      return <div />;
+    }
+    return (
+      <div className={clsx(classes.wrapperStyle, classes.blockquoteStyle)}>
+        <ErrorBoundary fallback={errorMessage}>
+          <ReactMarkdown
+            children={value}
+            urlTransform={(uri: string, key, node) => {
+              if (node.tagName === "img") {
+                return transformImageUri(uri);
+              }
+              return defaultUrlTransform(uri);
+            }}
+            remarkPlugins={[remarkMath, remarkGfm]}
+            rehypePlugins={[[rehypeKatex, { macros }]]}
+            components={renderers}
+          />
+        </ErrorBoundary>
+      </div>
+    );
+  }, [value, renderers]);
 };
 
 export default MarkdownText;

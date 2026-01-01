@@ -8,7 +8,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import moment from "moment";
+import { lightFormat, parseISO } from "date-fns";
 import * as React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -48,10 +48,10 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
                   •
                 </Text>
                 <Text>
-                  {moment(
-                    notification.time,
-                    GlobalConsts.momentParseString,
-                  ).format(GlobalConsts.momentFormatString)}
+                  {lightFormat(
+                    parseISO(notification.time),
+                    GlobalConsts.dateFNSFormatString,
+                  )}
                 </Text>
                 {!notification.read && (
                   <Badge ml="sm" component="span" color="red">

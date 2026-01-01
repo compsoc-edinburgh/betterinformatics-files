@@ -12,8 +12,8 @@ import {
   Box,
   Tooltip,
 } from "@mantine/core";
-import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { download } from "../api/fetch-utils";
 import { useDocument } from "../api/hooks";
 import IconButton from "../components/icon-button";
@@ -40,6 +40,8 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
+import PermaLinkHandler from "../components/permalink-handler";
+import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -81,19 +83,44 @@ const getFile = (document: Document | undefined, oid: number) =>
 interface Props {}
 const DocumentPage: React.FC<Props> = () => {
   const { author, slug } = useParams() as { slug: string; author: string };
-  const [error, _, data, mutate] = useDocument(author, slug, document => {
-    if (document.files.length > 0) setTab(document.files[0].oid.toString());
-  });
+  const [error, _, data, mutate, reload] = useDocument(
+    author,
+    slug,
+    document => {
+      if (document.files.length > 0) setTab(document.files[0].oid.toString());
+    },
+  );
+
+  useQuickSearchFilter(
+    data && { slug: data.category, displayname: data.category_display_name },
+  );
 
   const [tab, setTab] = useState<string | null>("none");
   const activeFile = !Number.isNaN(Number(tab))
     ? getFile(data, Number(tab))
     : undefined;
   const Components = getComponents(activeFile);
-  const [editing, {toggle: toggleEditing}] = useDisclosure();
+  const [editing, { toggle: toggleEditing }] = useDisclosure();
   const [loadingDownload, startDownload] = useDocumentDownload(data);
+  const reloadComments = async () => {
+    await reload();
+    setTab("comments");
+  };
+  const reloadSettings = async () => {
+    await reload();
+    setTab("settings");
+  };
+  const { search: searchParams } = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    const id = params.get("comment");
+    if (id && data?.comments.map(item => String(item.oid)).includes(id)) {
+      setTab("comments");
+    }
+  }, [searchParams, data]);
   return (
     <>
+      <PermaLinkHandler />
       <Container size="xl">
         <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">
@@ -165,15 +192,17 @@ const DocumentPage: React.FC<Props> = () => {
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
             {data &&
-              data.files.map(file => (
-                <Tabs.Tab
-                  key={file.oid}
-                  value={file.oid.toString()}
-                  leftSection={<IconFile />}
-                >
-                  {file.display_name}
-                </Tabs.Tab>
-              ))}
+              data.files
+                .sort((a, b) => a.order - b.order)
+                .map(file => (
+                  <Tabs.Tab
+                    key={file.oid}
+                    value={file.oid.toString()}
+                    leftSection={<IconFile />}
+                  >
+                    {file.display_name}
+                  </Tabs.Tab>
+                ))}
             <Tabs.Tab value="comments" leftSection={<IconMessage />}>
               Comments
             </Tabs.Tab>
@@ -252,6 +281,7 @@ const DocumentPage: React.FC<Props> = () => {
                 comment={comment}
                 key={comment.oid}
                 mutate={mutate}
+                reload={reloadComments}
               />
             ))}
             <Card shadow="md" withBorder>
@@ -268,7 +298,11 @@ const DocumentPage: React.FC<Props> = () => {
       {tab === "settings" && data && (
         <ContentContainer mt="-2px">
           <Container size="xl">
-            <DocumentSettings data={data} mutate={mutate} />
+            <DocumentSettings
+              data={data}
+              mutate={mutate}
+              reload={reloadSettings}
+            />
           </Container>
         </ContentContainer>
       )}
