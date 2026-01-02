@@ -506,6 +506,7 @@ export const loadDocuments = async (categorySlug: string) => {
 export const useDocuments = (categorySlug: string) => {
   const { data } = useRequest(() => loadDocuments(categorySlug), {
     cacheKey: `documents-${categorySlug}`,
+    refreshDeps: [categorySlug],
   });
   return [data] as const;
 };
