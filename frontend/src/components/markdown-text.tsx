@@ -1,4 +1,4 @@
-import ReactMarkdown, { Components } from "react-markdown";
+import ReactMarkdown, { Components, defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -179,7 +179,12 @@ const MarkdownText: React.FC<Props> = ({ value, highlight_matches }) => {
         <ErrorBoundary fallback={errorMessage}>
           <ReactMarkdown
             children={value}
-            urlTransform={transformImageUri}
+            urlTransform={(uri: string, key, node) => {
+              if (node.tagName === "img") {
+                return transformImageUri(uri);
+              }
+              return defaultUrlTransform(uri);
+            }}
             remarkPlugins={[remarkMath, remarkGfm]}
             rehypePlugins={[[rehypeKatex, { macros }]]}
             components={renderers}
