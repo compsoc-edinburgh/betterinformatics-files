@@ -4,6 +4,7 @@ import { Alert, Container, Text } from "@mantine/core";
 import serverData from "../../utils/server-data";
 import { IconAlertCircle, IconBell, IconCheck, IconConfetti, IconInfoCircle } from "@tabler/icons-react";
 import { useLocalStorage } from "@mantine/hooks";
+import MarkdownText from "../markdown-text";
 
 
 const AnnouncementHeader: React.FC = () => {
@@ -53,7 +54,7 @@ const AnnouncementHeader: React.FC = () => {
       key={it.id}
       m="md"
     >
-      <Text>{it.content}</Text>
+      <MarkdownText value={it.content} />
     </Alert>),
   );
 
