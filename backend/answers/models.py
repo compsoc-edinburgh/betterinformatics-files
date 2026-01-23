@@ -7,7 +7,7 @@ from django.contrib.postgres.indexes import GinIndex
 from util.models import CommentMixin
 from django_prometheus.models import ExportModelOperationsMixin
 import datetime
-
+from typing import Optional, Tuple, Union
 import random
 
 
@@ -64,7 +64,7 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
             return 0
         return int(self.displayname[-end:])
 
-    def try_parse_exam_date(self) -> timezone.datetime | None:
+    def try_parse_exam_date(self) -> Optional[timezone.datetime]:
         exam_name = self.displayname
         parts_of_name = exam_name.strip().split()
         month = None
@@ -89,7 +89,7 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
         if year and not (month):
             return year
 
-    def sort_key(self) -> tuple[datetime, str] | tuple[int, str]:
+    def sort_key(self) -> Union[Tuple[datetime.datetime, str], Tuple[int, str]]:
         if self.exam_type.displayname in ["Exams", "Mock Exams"]:
             try:
                 val = datetime.datetime.strptime(self.displayname.strip(), "%B %Y")
