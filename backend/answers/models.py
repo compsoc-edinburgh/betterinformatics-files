@@ -61,7 +61,7 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
         ):
             end += 1
         if end == 0:
-            return 0, self.displayname
+            return 0
         return int(self.displayname[-end:])
     
     def try_parse_exam_date(self):
