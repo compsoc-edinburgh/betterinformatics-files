@@ -7,7 +7,7 @@ from django.contrib.postgres.indexes import GinIndex
 from util.models import CommentMixin
 from django_prometheus.models import ExportModelOperationsMixin
 import datetime
-
+from typing import Optional, Tuple, Union
 import random
 
 
@@ -53,7 +53,7 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
             " ", "_"
         )
 
-    def sort_key_number(self):
+    def sort_key_number(self) -> int:
         # original sort key function
         end = 0
         while (
@@ -61,10 +61,10 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
         ):
             end += 1
         if end == 0:
-            return 0, self.displayname
+            return 0
         return int(self.displayname[-end:])
-    
-    def try_parse_exam_date(self):
+
+    def try_parse_exam_date(self) -> Optional[timezone.datetime]:
         exam_name = self.displayname
         parts_of_name = exam_name.strip().split()
         month = None
@@ -80,21 +80,23 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
                 pass
             if month and year:
                 break
-        if not(year):
+        if not (year):
             return datetime.datetime(1984, 1, 1)
             # in a one or two courses, there are 'Exams' with no year and no month. this puts them at the end
             # i haven't seen an exam with just a month.
-        if year and month: return datetime.datetime(year.year, month.month, 1)
-        if year and not(month): return year
+        if year and month:
+            return datetime.datetime(year.year, month.month, 1)
+        if year and not (month):
+            return year
 
-    def sort_key(self):
+    def sort_key(self) -> Union[Tuple[datetime.datetime, str], Tuple[int, str]]:
         if self.exam_type.displayname in ["Exams", "Mock Exams"]:
             try:
                 val = datetime.datetime.strptime(self.displayname.strip(), "%B %Y")
             except ValueError:
-                val = self.try_parse_exam_date()    
+                val = self.try_parse_exam_date()
         else:
-            val = self.sort_key_number() 
+            val = self.sort_key_number()
 
         return val, self.displayname
 
