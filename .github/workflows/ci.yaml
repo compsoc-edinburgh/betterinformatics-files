@@ -208,9 +208,12 @@ jobs:
       # Fetch the current commit SHA from the production site to include in
       # the Discord notification later.
       - name: Retrieve current production commit SHA
-        id: get-sha
         run: |
           echo "PROD_SHA=$(curl --silent https://files.betterinformatics.com | grep -oE '[a-f0-9]{40}' | head -n 1)" >> $GITHUB_ENV
+      - uses: benjlevesque/short-sha@v2.1
+        id: short-sha
+        with:
+          length: 7
       - name: Rolling out to Production Kubernetes
       # The service account token should have the permissions for deployment and
       # replicaset get and patch.
@@ -280,4 +283,4 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_AVATAR: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
-          DISCORD_EMBEDS: '[{"author": {"icon_url": "https://avatars.githubusercontent.com/${{ github.actor }}", "name": "${{ github.actor }}",  "url": "https://github.com/${{ github.actor }}" }, "title": "Deployment Succeeded", "url": "https://files.betterinformatics.com", "description": "Production traffic is now served by [`${{ github.sha }}`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n\n[See diff](https://github.com/${{ github.repository }}/compare/${{ env.PROD_SHA }})..${{ github.sha }})", "color": 4495147, "timestamp": "${{ github.event.head_commit.timestamp }}", "footer": {"text": "${{ github.event.head_commit.timestamp }}"}}]'
+          DISCORD_EMBEDS: '[{"title": "Deployment Succeeded", "url": "https://files.betterinformatics.com", "description": "Production traffic is now served by [`${{ steps.short-sha.outputs.sha }}`](https://github.com/${{ github.repository }}/commit/${{ github.sha }})\n\n[See diff](https://github.com/${{ github.repository }}/compare/${{ env.PROD_SHA }}..${{ github.sha }})", "color": 4495147, "timestamp": "${{ github.event.head_commit.timestamp }}", "footer": {"text": "${{ github.event.head_commit.timestamp }}"}}]'
