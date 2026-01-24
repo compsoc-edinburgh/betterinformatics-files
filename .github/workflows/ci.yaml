@@ -252,4 +252,19 @@ jobs:
                     }
                 }
             }"
-          echo "Rollout complete."
+          echo "Rollout triggered."
+      - name: Wait for production traffic to roll over
+        run: |
+          # Look for the git commit hash in the production site to verify that the
+          # deployment is live.
+          set -euo pipefail
+          while true; do
+            page_source=$(curl --silent https://files.betterinformatics.com)
+            if echo "$page_source" | grep -q "${{ github.sha }}"; then
+              echo "Production deployment is live."
+              break
+            else
+              echo "Waiting for production deployment to go live..."
+              sleep 10
+            fi
+          done
