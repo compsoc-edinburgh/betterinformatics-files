@@ -89,16 +89,20 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
         if year and not (month):
             return year
 
-    def sort_key(self) -> Union[Tuple[datetime.datetime, str], Tuple[int, str]]:
+    def sort_key(self) -> Tuple[int, str]:
+        val_ts: Optional[datetime.datetime] = None
         if self.exam_type.displayname in ["Exams", "Mock Exams"]:
             try:
-                val = datetime.datetime.strptime(self.displayname.strip(), "%B %Y")
+                val_ts = datetime.datetime.strptime(self.displayname.strip(), "%B %Y")
             except ValueError:
-                val = self.try_parse_exam_date()
-        else:
-            val = self.sort_key_number()
+                val_ts = self.try_parse_exam_date()
 
-        return val, self.displayname
+        # Make sure final return type is consistent by converting both to int
+        # This ensures that sorting comparisons work correctly
+        if val_ts is None:
+            return self.sort_key_number(), self.displayname
+        else:
+            return int(val_ts.timestamp()), self.displayname
 
     def count_answered(self):
         return self.answersection_set.filter(
