@@ -219,7 +219,9 @@ export const loadMetaCategories = async () => {
     .value as MetaCategory[];
 };
 export const useMetaCategories = () => {
-  const { error, loading, data, mutate } = useRequest(loadMetaCategories);
+  const { error, loading, data, mutate } = useRequest(loadMetaCategories, {
+    cacheKey: "listmetacategories",
+  });
   return [error, loading, data, mutate] as const;
 };
 export const loadList = async (slug: string) => {
@@ -477,6 +479,7 @@ export const loadDocuments = async (categorySlug: string) => {
 export const useDocuments = (categorySlug: string) => {
   const { data } = useRequest(() => loadDocuments(categorySlug), {
     cacheKey: `documents-${categorySlug}`,
+    refreshDeps: [categorySlug],
   });
   return [data] as const;
 };
