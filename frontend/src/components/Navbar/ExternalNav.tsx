@@ -46,8 +46,8 @@ const ExternalNavElement: React.FC<Props> = ({
             component="div"
             size="lg"
             className={clsx(classes.navItem, classes.link, textClassName)}
+            display="flex"
             style={{
-              display: "flex",
               padding: 0,
               cursor: "pointer",
             }}

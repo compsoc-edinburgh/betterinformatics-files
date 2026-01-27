@@ -1,4 +1,4 @@
-import ReactMarkdown, { Components, defaultUrlTransform }  from "react-markdown";
+import ReactMarkdown, { Components, defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -163,7 +163,12 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, highlight_matches, localLinkBase, ignoreHtml }) => {
+const MarkdownText: React.FC<Props> = ({
+  value,
+  highlight_matches,
+  localLinkBase,
+  ignoreHtml,
+}) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
   // highlighting.

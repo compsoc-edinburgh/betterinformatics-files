@@ -348,87 +348,86 @@ export const CategoryList: React.FC<{}> = () => {
             </>
           ) : mode === "bySCQF" ? (
             <>
-              {metaList &&
-                metaList.map(([meta1display, meta2]) => (
-                  <div key={meta1display} id={slugify(meta1display)}>
-                    <CollapseWrapper
-                      title={
-                        <Title order={2} my="sm">
-                          {meta1display}
-                        </Title>
-                      }
-                      contentOutsideCollapse={
-                        <Group>
-                          {isAdmin && (
-                            <EditMeta1
-                              oldMeta1={meta1display}
-                              onChange={onChange}
-                            />
-                          )}
-                        </Group>
-                      }
-                      contentInsideCollapse={meta2.map(
-                        ([meta2display, categories]) =>
-                          meta2display === "" ? (
-                            <Grid key={meta2display}>
-                              {categories.map(category => (
-                                <CategoryCard
-                                  category={category}
-                                  key={category.slug}
-                                  className={fadeClasses.fadeInOrder}
-                                  onFavouriteToggle={onFavouriteToggle}
-                                />
-                              ))}
-                            </Grid>
-                          ) : (
-                            <div
-                              key={meta2display}
-                              id={slugify(meta1display + meta2display)}
-                            >
-                              <CollapseWrapper
-                                title={
-                                  <Title order={3} my="sm">
-                                    {meta2display}
-                                  </Title>
-                                }
-                                contentOutsideCollapse={
-                                  <Group>
-                                    {isAdmin && (
-                                      <EditMeta2
-                                        oldMeta2={meta2display}
-                                        meta1={meta1display}
-                                        onChange={onChange}
-                                      />
-                                    )}
-                                  </Group>
-                                }
-                                contentInsideCollapse={
-                                  <Grid>
-                                    {categories.map(category => (
-                                      <CategoryCard
-                                        category={category}
-                                        key={category.slug}
-                                        className={fadeClasses.fadeInOrder}
-                                        onFavouriteToggle={onFavouriteToggle}
-                                      />
-                                    ))}
-                                  </Grid>
-                                }
-                                is_collapsed={() =>
-                                  is_collapsed(meta1display + meta2display)
-                                }
-                                collapse_expand={() =>
-                                  collapse_expand(meta1display + meta2display)
-                                }
+              {metaList?.map(([meta1display, meta2]) => (
+                <div key={meta1display} id={slugify(meta1display)}>
+                  <CollapseWrapper
+                    title={
+                      <Title order={2} my="sm">
+                        {meta1display}
+                      </Title>
+                    }
+                    contentOutsideCollapse={
+                      <Group>
+                        {isAdmin && (
+                          <EditMeta1
+                            oldMeta1={meta1display}
+                            onChange={onChange}
+                          />
+                        )}
+                      </Group>
+                    }
+                    contentInsideCollapse={meta2.map(
+                      ([meta2display, categories]) =>
+                        meta2display === "" ? (
+                          <Grid key={meta2display}>
+                            {categories.map(category => (
+                              <CategoryCard
+                                category={category}
+                                key={category.slug}
+                                className={fadeClasses.fadeInOrder}
+                                onFavouriteToggle={onFavouriteToggle}
                               />
-                            </div>
-                          ),
-                      )}
-                      is_collapsed={() => is_collapsed(meta1display)}
-                      collapse_expand={() => collapse_expand(meta1display)}
-                    />
-                  </div>
-                ))}
+                            ))}
+                          </Grid>
+                        ) : (
+                          <div
+                            key={meta2display}
+                            id={slugify(meta1display + meta2display)}
+                          >
+                            <CollapseWrapper
+                              title={
+                                <Title order={3} my="sm">
+                                  {meta2display}
+                                </Title>
+                              }
+                              contentOutsideCollapse={
+                                <Group>
+                                  {isAdmin && (
+                                    <EditMeta2
+                                      oldMeta2={meta2display}
+                                      meta1={meta1display}
+                                      onChange={onChange}
+                                    />
+                                  )}
+                                </Group>
+                              }
+                              contentInsideCollapse={
+                                <Grid>
+                                  {categories.map(category => (
+                                    <CategoryCard
+                                      category={category}
+                                      key={category.slug}
+                                      className={fadeClasses.fadeInOrder}
+                                      onFavouriteToggle={onFavouriteToggle}
+                                    />
+                                  ))}
+                                </Grid>
+                              }
+                              is_collapsed={() =>
+                                is_collapsed(meta1display + meta2display)
+                              }
+                              collapse_expand={() =>
+                                collapse_expand(meta1display + meta2display)
+                              }
+                            />
+                          </div>
+                        ),
+                    )}
+                    is_collapsed={() => is_collapsed(meta1display)}
+                    collapse_expand={() => collapse_expand(meta1display)}
+                  />
+                </div>
+              ))}
               {unassignedList && unassignedList.length > 0 && (
                 <>
                   <Title order={3} my="md">

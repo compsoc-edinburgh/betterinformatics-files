@@ -6,12 +6,12 @@
   height: 3.5rem;
   box-sizing: border-box;
   border-bottom: 2px solid var(--mantine-color-gray-2);
+  color: var(--mantine-color-anchor);
   background: var(--mantine-color-body);
   position: fixed;
   top: 0;
   width: 100%;
   z-index: var(--mantine-z-index-app);
-  /* box-shadow: var(--mantine-shadow-xs); */
 
   /* Add a margin left equal to the width of the scorllbar, so the navbar doesn't
   shift around depending on page length. A similar style is applied to the body.*/
@@ -38,11 +38,7 @@
 .title {
   display: flex;
   text-decoration: none;
-  color: rgba(51, 51, 51, 1);
   font-weight: 400;
   font-size: 1.25rem;
-
-  @mixin dark {
-    color: rgba(255, 255, 255, 0.8);
-  }
+  color: inherit; /* don't try to apply default mantine link styles */
 }
