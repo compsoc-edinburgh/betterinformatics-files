@@ -295,19 +295,17 @@ export const CategoryList: React.FC<{}> = () => {
                 <div key={meta1display} id={slugify(meta1display)}>
                   <CollapseWrapper
                     title={
-                      <Title order={2} my="sm">
-                        {meta1display}
-                      </Title>
-                    }
-                    contentOutsideCollapse={
-                      <Group>
-                        {isAdmin && (
+                      <>
+                        <Title order={2} my="sm">
+                          {meta1display}
+                        </Title>
+                        {isAdmin &&
                           <EditMeta1
                             oldMeta1={meta1display}
                             onChange={onChange}
                           />
-                        )}
-                      </Group>
+                        }
+                      </>
                     }
                     contentInsideCollapse={meta2.map(
                       ([meta2display, categories]) =>
@@ -327,12 +325,11 @@ export const CategoryList: React.FC<{}> = () => {
                           >
                             <CollapseWrapper
                               title={
-                                <Title order={3} my="sm">
-                                  {meta2display}
-                                </Title>
-                              }
-                              contentOutsideCollapse={
-                                <Group>
+                                <>
+                                  <Title order={3} my="sm">
+                                    {meta2display}
+                                  </Title>
+
                                   {isAdmin && (
                                     <EditMeta2
                                       oldMeta2={meta2display}
@@ -340,7 +337,7 @@ export const CategoryList: React.FC<{}> = () => {
                                       onChange={onChange}
                                     />
                                   )}
-                                </Group>
+                                </>
                               }
                               contentInsideCollapse={
                                 <Grid>
