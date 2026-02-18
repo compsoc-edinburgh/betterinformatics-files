@@ -16,7 +16,6 @@ import ErrorBoundary from "./error-boundary";
 import clsx from "clsx";
 import classes from "./markdown-text.module.css";
 
-
 const transformImageUri = (uri: string) => {
   if (uri.includes("/")) {
     return uri;
@@ -26,7 +25,10 @@ const transformImageUri = (uri: string) => {
 };
 
 export type ComponentRenderer = (
-  props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>,
+  props: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLElement>,
+    HTMLElement
+  >,
 ) => React.ReactElement;
 
 const addMarks = (
@@ -127,7 +129,7 @@ const createComponents = (
   h6: ({ children }) => {
     return <h6>{addMarks(children, regex)}</h6>;
   },
-  code({node, className, children, ...props}) {
+  code({ node, className, children, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
     const language = match ? match[1] : undefined;
     if (language && languages && languages[language]) {
@@ -172,7 +174,12 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, highlight_matches, languages, targetWidth }) => {
+const MarkdownText: React.FC<Props> = ({
+  value,
+  highlight_matches,
+  languages,
+  targetWidth,
+}) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
   // highlighting.
@@ -184,7 +191,10 @@ const MarkdownText: React.FC<Props> = ({ value, highlight_matches, languages, ta
     [highlight_matches],
   );
 
-  const renderers = useMemo(() => createComponents(regex, languages, targetWidth), [regex, languages, targetWidth]);
+  const renderers = useMemo(
+    () => createComponents(regex, languages, targetWidth),
+    [regex, languages, targetWidth],
+  );
 
   return useMemo(() => {
     const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!

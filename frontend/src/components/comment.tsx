@@ -241,10 +241,7 @@ const CommentComponent: React.FC<Props> = ({
             onChange={setDraftText}
             imageHandler={imageHandler}
             preview={value => (
-              <MarkdownText
-                value={value}
-                languages={languages}
-              />
+              <MarkdownText value={value} languages={languages} />
             )}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
@@ -275,10 +272,7 @@ const CommentComponent: React.FC<Props> = ({
           {viewSource ? (
             <CodeBlock value={comment.text} language="markdown" />
           ) : (
-            <MarkdownText
-              value={comment.text}
-              languages={languages}
-            />
+            <MarkdownText value={comment.text} languages={languages} />
           )}
         </div>
       )}

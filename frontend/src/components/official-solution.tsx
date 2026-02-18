@@ -166,8 +166,6 @@ export const useOfficialSolutionLanguage = (): {
   );
 };
 
-
-
 interface Props {
   value?: string | null;
 }
@@ -183,7 +181,12 @@ const OfficialSolution: React.FC<Props> = React.memo(({ value }) => {
 
     const match = value.match(REGEX);
     if (!match) {
-      return <>Invalid syntax: the official solution snippet does match the RegEx (${REGEX.toString()})</>;
+      return (
+        <>
+          Invalid syntax: the official solution snippet does match the RegEx ($
+          {REGEX.toString()})
+        </>
+      );
     }
 
     const page = parseInt(match[1], 10);

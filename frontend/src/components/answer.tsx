@@ -304,10 +304,7 @@ const AnswerComponent: React.FC<Props> = ({
                 onChange={setDraftText}
                 imageHandler={imageHandler}
                 preview={value => (
-                  <MarkdownText
-                    value={value}
-                    languages={languages}
-                  />
+                  <MarkdownText value={value} languages={languages} />
                 )}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
