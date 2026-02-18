@@ -101,16 +101,16 @@ const PdfRenderer: React.FC<PProps> = React.memo(
         const offsetX = -unscaledViewport.width * scale * p1X;
         const offsetY = -unscaledViewport.height * scale * p1Y;
         const viewport = page.getViewport({
-          scale: scale,
-          offsetX: offsetX,
-          offsetY: offsetY,
+          scale,
+          offsetX,
+          offsetY,
         });
 
         const context = myCanvas.current?.getContext("2d");
         if (context && myCanvas.current) {
           myCanvas.current.height = viewport.height * Math.abs(p1Y - p2Y);
           myCanvas.current.width = viewport.width * Math.abs(p1X - p2X);
-          page.render({ canvasContext: context, viewport: viewport });
+          page.render({ canvasContext: context, viewport });
         }
       };
 
