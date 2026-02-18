@@ -200,8 +200,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-            ({ slug }) => slug !== "default" || isAdmin,
-          )
+          ({ slug }) => slug !== "default" || isAdmin,
+        )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -294,6 +294,7 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList?.map(([meta1display, meta2]) => (
                 <div key={meta1display} id={slugify(meta1display)}>
                   <CollapseWrapper
+                    contentOutsideCollapse={<></>}
                     title={
                       <>
                         <Title order={2} my="sm">
@@ -324,6 +325,7 @@ export const CategoryList: React.FC<{}> = () => {
                             id={slugify(meta1display + meta2display)}
                           >
                             <CollapseWrapper
+                              contentOutsideCollapse={<></>}
                               title={
                                 <>
                                   <Title order={3} my="sm">
