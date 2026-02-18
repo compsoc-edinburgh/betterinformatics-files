@@ -60,9 +60,9 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             'longId': answer.long_id,
             'upvotes': answer.delta_votes,
             'expertvotes': answer.expert_count,
-            'authorId': '' if answer.is_legacy_answer else answer.author.username,
-            'authorDisplayName': 'Old VISki Solution' if answer.is_legacy_answer else get_my_user(answer.author).displayname(),
-            'canEdit': answer.author == request.user or (answer.is_legacy_answer and exam_admin),
+            'authorId': answer.author.username if answer.kind == Answer.Kind.PERSONAL else '',
+            'authorDisplayName': get_my_user(answer.author).displayname() if answer.kind == Answer.Kind.PERSONAL else '',
+            'canEdit': answer.author == request.user or (answer.kind != Answer.Kind.PERSONAL and exam_admin),
             'isUpvoted': answer.is_upvoted,
             'isDownvoted': answer.is_downvoted,
             'isExpertVoted': answer.is_expertvoted,
@@ -74,7 +74,7 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             'edittime': answer.edittime,
             'filename': answer.answer_section.exam.filename,
             'sectionId': answer.answer_section.id,
-            'isLegacyAnswer': answer.is_legacy_answer,
+            'kind': answer.kind,
         }
     except AttributeError:
         raise ValueError("The given answer has not been prepared with 'prepare_answer_objects'")
@@ -119,8 +119,9 @@ def get_answersection_response(request, section):
     return {
         'oid': section.id,
         'answers': answers,
-        'allow_new_answer': not prepared_query.filter(author=request.user, is_legacy_answer=False).exists(),
-        'allow_new_legacy_answer': not prepared_query.filter(is_legacy_answer=True).exists(),
+        'allow_new_answer': not prepared_query.filter(author=request.user, kind=Answer.Kind.PERSONAL).exists(),
+        'allow_new_legacy_answer': not prepared_query.filter(kind=Answer.Kind.LEGACY).exists(),
+        'allow_new_official_answer': not prepared_query.filter(kind=Answer.Kind.OFFICIAL).exists(),
         'cutVersion': section.cut_version,
         'has_answers': section.has_answers,
     }

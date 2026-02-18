@@ -8,5 +8,6 @@ __pycache__
 temp-gen
 data
 .envrc
+.env
 shell.nix
 .direnv

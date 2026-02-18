@@ -63,6 +63,7 @@ export function loadSections(
           answers: [],
           allow_new_answer: true,
           allow_new_legacy_answer: false,
+          allow_new_official_answer: false,
           hidden: true,
           has_answers,
           cutHidden: hidden,

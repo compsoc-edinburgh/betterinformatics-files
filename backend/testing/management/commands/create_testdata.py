@@ -239,7 +239,7 @@ class Command(BaseCommand):
                     ][(section.id + i) % 3],
                 )
                 if i == 6:
-                    answer.is_legacy_answer = True
+                    answer.kind = Answer.Kind.LEGACY
                 objs.append(answer)
         Answer.objects.bulk_create(objs)
 

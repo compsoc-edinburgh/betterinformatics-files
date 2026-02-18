@@ -12,12 +12,20 @@ export interface FlaggedStatus {
   flagType: boolean; // true if this is a comment false if it is an answer
 }
 
+export enum AnswerKind {
+  Personal = "personal",
+  Legacy = "legacy",
+  Official = "official",
+}
+
+
 export interface AnswerSection {
   oid: string; // unique id within answer sections
   kind: SectionKind.Answer;
   answers: Answer[];
   allow_new_answer: boolean; // whether the current user can add an answer
   allow_new_legacy_answer: boolean; // whether a legacy answer can be posted
+  allow_new_official_answer: boolean; // whether an official answer can be posted
   cutHidden: boolean;
   has_answers: boolean;
   hidden: boolean; // whether the element is currently hidden
@@ -44,7 +52,7 @@ export interface Answer {
   edittime: string; // ISO 8601, last edit time
   filename: string; // filename of the corresponding exam
   sectionId: string; // id of section containing answer
-  isLegacyAnswer: boolean; // whether this is a legacy answer
+  kind: AnswerKind; // whether this is a personal, legacy or official answer
   divRef?: HTMLDivElement; // root div element for scroll jumping
 }
 
@@ -254,6 +262,7 @@ export interface UserInfo {
   score_comments: number;
   score_cuts: number;
   score_legacy: number;
+  score_official: number;
   score_documents: number;
 }
 
