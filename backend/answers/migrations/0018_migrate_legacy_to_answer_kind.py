@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('scoreboard', '0004_add_answer_scores'),
-        ('answers', '0016_remove_exam_finished_wiki_transfer_and_more'),
+        ('answers', '0017_comment_flagged'),
     ]
 
     scoreboard_sql = """
