@@ -25,15 +25,15 @@ services:
   postgres:
     image: postgres:16
     environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
     volumes:
       - ./data/sql:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d docker -U docker"]
+      test: ["CMD-SHELL", "pg_isready -d postgres -U postgres"]
       interval: 1s
       timeout: 1s
       retries: 50
