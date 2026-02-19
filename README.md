@@ -26,6 +26,8 @@ Once Mise is installed:
 Finally, run `mise install` in the Community Solutions source directory to
 install the required tools.
 
+_NOTE: Non-essential tools you need can be added to `mise.local.toml`._
+
 ## Terminal Setup
 
 The main way to develop is to have three separate terminals:
