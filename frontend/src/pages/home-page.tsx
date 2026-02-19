@@ -200,8 +200,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-          ({ slug }) => slug !== "default" || isAdmin,
-        )
+            ({ slug }) => slug !== "default" || isAdmin,
+          )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -300,12 +300,12 @@ export const CategoryList: React.FC<{}> = () => {
                         <Title order={2} my="sm">
                           {meta1display}
                         </Title>
-                        {isAdmin &&
+                        {isAdmin && (
                           <EditMeta1
                             oldMeta1={meta1display}
                             onChange={onChange}
                           />
-                        }
+                        )}
                       </>
                     }
                     contentInsideCollapse={meta2.map(

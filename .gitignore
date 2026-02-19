@@ -11,3 +11,4 @@ data
 .env
 shell.nix
 .direnv
+mise.local.toml

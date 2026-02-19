@@ -2,131 +2,170 @@
 
 [[_TOC_]]
 
-## Assumptions and Note
+---
 
-This guide is based on Ubuntu 20.04 LTS, but should work on anything similar.
+# Local Development
+
+## Mise
+
+We heavily recommend [Mise](https://mise.jdx.dev/installing-mise.html) for
+toolchain management. Mise allows you to easily download all the correctly
+versioned tools into the project directory (no need to worry about it cluttering
+your system or messing up other paths).
+
+- On MacOS, `brew install mise`
+- On Windows, `winget install mise`
+- On other systems, follow the installation guide linked above.
+
+Once Mise is installed:
+
+- On MacOS/Linux, add the `eval "$(mise activate <shell>)` line to your shell
+  config
+- On Windows, add `%localappdata%\mise\shims` to your PATH
+
+Finally, run `mise install` in the Community Solutions source directory to
+install the required tools.
+
+_NOTE: Non-essential tools you need can be added to `mise.local.toml`._
+
+## Terminal Setup
+
+The main way to develop is to have three separate terminals:
+
+- One for the frontend using node (yarn) with hot-reload
+- One for the backend using python (uv) with hot-reload
+- One for running the remaining services like PostgreSQL/Minio with docker-compose
+
+Start the terminals in the following order to ensure a correct startup.
+
+#### Terminal 1 : Services
+
+You will need **Docker Compose** to start up any extra services. See the
+[official install instructions](https://docs.docker.com/compose/install/) for
+detailed explanation of how to install Docker.
+
+This will start up required services, like a local postgres and minio. The first
+time around this can take a while to start up.
+
+```sh
+docker compose up postgres minio createbuckets
+```
+
+Key things to look for:
+
+- Is postgres running successfully? Look for the following lines:
+  ```sh
+  postgres  | 2026-02-18 11:03:51.926 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+  ...
+  postgres  | 2026-02-18 11:03:51.936 UTC [1] LOG:  database system is ready to accept connections
+  ```
+- Is minio running successfully?
+  ```sh
+  minio     | Status:         1 Online, 0 Offline.
+  minio     | S3-API: http://172.19.0.2:9000  http://127.0.0.1:9000
+  minio     | Console: http://172.19.0.2:9001 http://127.0.0.1:9001
+  ```
+- Did the `createbuckets` script successfully create a bucket in minio?
+  ```sh
+  createbuckets-1  | Added `myminio` successfully.
+  createbuckets-1  | Bucket created successfully `myminio/community-solutions`.
+  createbuckets-1 exited with code 0
+  ```
+
+#### Terminal 2 : Backend
+
+The backend is a django python app. You have to enter the `backend` directory to
+work on it. We use `uv` for Python package management (which should be installed
+by Mise automatically).
+
+By using `uv run manage.py` (instead of just `python manage.py`) it ensures that
+you always have the correct (versioned) dependencies installed locally.
+
+The `migrate` command runs the required database migrations. It is only required
+on first launch or if you there are any database schema changes.
+
+The `runserver` command starts up the django app with hot-reload. Saving a file
+will restart the server automatically without you having to rerun the command.
+
+```sh
+cd backend
+mkdir -p intermediate_pdf_storage
+uv run manage.py migrate # only on first run, or if DB schema changed
+uv run manage.py runserver 127.0.0.1:8081
+```
+
+The backend now runs locally on port `8081`.
+
+#### Terminal 3 : Frontend
+
+The frontend is a react app. You have to enter the `frontend` directory to work
+on it. We use `yarn` for Node package management (which should be installed by
+Mise automatically).
+
+The `yarn` command only needs to be rerun if any dependencies change or are updated.
+
+```sh
+cd frontend
+yarn # only if any Node dependencies changed
+yarn start --host
+```
+
+Website is now accessible at https://localhost:3000
 
 ---
 
-# Installation
+## Alternative Docker-Compose Setup
+
+If desired, the backend (`Terminal 2`) and frontend (`Terminal 3`) can be launched using docker-compose.
+
+This method is less flexible than running it fully locally, so prefer the above setup.
+
+> ## IMPORTANT
+>
+> When running the backend with docker-compose, you **HAVE** to add `minio` to your `/etc/hosts` or else documents won't work on the frontend (this is not required if fully using mise)!
+>
+> - Edit your host file at `/etc/hosts` to include the line `127.0.0.1 minio`.
+>   This will allow your browser to get documents directly from minio.
+> - Go to `localhost:9001` and login to the minio console with the username: minio and
+>   password: minio123. There should be a bucket called `community-solutions`. That is where
+>   all the documents are stored. If it's not there, create it manually.
+
+If you want to run the _backend_ in docker-compose, remove the targets for the docker compose command for `Terminal 1` and simply run:
+
+```sh
+docker compose up
+```
+
+If you want to additionally run the _frontend_ in docker-compose, add the `--profile frontend` flag to the docker-compose command from `Terminal 1` (the flag **HAS** to come before the `up`).
+
+```sh
+docker compose --profile frontend up
+# or if you ONLY want the frontend without backend:
+# docker compose up react-frontend postgres minio createbuckets
+```
+
+If you are too lazy to type it everytime, create a `.env` file in this directory and add the the line `COMPOSE_PROFILES=frontend`.
+
+---
+
+# Additional Information and Resources
+
+This section is not directly relevant for getting the local development setup running, but can be beneficial to read into to learn more about the tools used and further resources to look into.
 
 ## Frontend
-
-There are 2 ways to start the frontend:
-
-1. Using [Yarn](#install-yarn) which requires [Node.js](#install-nodejs)
-2. Using [Docker](#running-the-frontend-with-docker)
-
-### Install Node.js
-
-Node.js is an execution environment for standalone Javascript programs (it's
-something like the Python interpreter).
-
-You can install it [directly](https://nodejs.org/en/download/) or with a
-[version manager](https://github.com/tj/n) (recommended). To install with
-the version manager n simply do:
-
-```bash
-curl -L https://git.io/n-install | bash
-```
-
-n should install npm as well.
-It is recommended to use **Node.js 20**, since the Dockerfile also uses v20. Newer versions of Node.js have been reported to not work correctly.
-
-### Install Yarn
-
-Yarn is a dependency management tool (like npm or pip). Install it
-like this:
-
-```bash
-npm install --global yarn
-```
-
-### Install frontend dependencies
-
-This installs things like React which the frontend needs. You usually only need
-to do this once after cloning the repo.
-
-```bash
-cd frontend
-yarn
-```
-
-If everything worked, you'll see a `node_modules` directory, where the
-dependencies were installed to.
-
-### Start the frontend
 
 The frontend is built using
 [Vite](https://vitejs.dev/). This is like a
 compiler toolchain, which combines Javascript files and provides a server with
-special development features. Start the dev server with:
+special development features. Start the dev server with.
 
-```bash
-cd frontend
-yarn start
-```
-
-## Running the frontend with Docker
-
-This method is less flexible than running it fully locally, so prefer the above setup.
-You will need to install [Docker](#install-docker).
-
-Just like [starting the backend](#start-the-backend), you'll want to execute
-docker compose but with the `--profile frontend` flag:
-
-```bash
-docker compose watch --no-up &\
-    docker compose --profile frontend up --build
-```
-
-> If you do work on the frontend with Docker, or are simply too lazy to always start both individually, create a `.env` file in this directory and add the the line `COMPOSE_PROFILES=frontend`.
-
-## Editing frontend code
+### Editing frontend code
 
 There is an autoformatter for the frontend code
 ([prettier](https://prettier.io/)). It can be run once using `yarn run format`.
 Some aspects of code quality and coding style are checked automatically using
 [eslint](https://eslint.org). You can run eslint using `yarn run lint`. There are plugins
 for most editors so that you can see warnings and errors as you type.
-
----
-
-## Backend
-
-Backend is built with Django. It can be run using Docker.
-
-### Install Docker
-
-- You will need to have Docker installed. Install it [like this](https://docs.docker.com/engine/install/ubuntu/). You might find the convenience script useful!
-
-- Non-macOS users need to install Docker-Compose separately [like this](https://docs.docker.com/compose/install/).
-
-### Start the backend
-
-The backend can be started with the following command:
-
-```bash
-docker compose watch --no-up &\
-    docker compose up --build
-```
-
-The `--build` is important so that the images are rebuilt in case of changes.
-
-> Note: The `watch` command allows for hot-reloading. If you have an older version of
-> docker you might have to execute `docker-compose` with a hyphen (if that is the case,
-> please update docker) and/or leave out the watch line completely.
-> You might also have to execute docker using `sudo`
-> permissions if your docker isn't installed rootless.
-
-### Post-Setup for backend (needed for documents to work)
-
-- Edit your host file at `/etc/hosts` to include the line `127.0.0.1 minio`.
-  This will allow your browser to get documents directly from minio.
-
-- Go to `localhost:9001` and login to the minio console with the username: minio and
-  password: minio123. There should be a bucket called `community-solutions`. That is where
-  all the documents are stored. If it's not there, create it manually.
 
 ---
 
@@ -214,7 +253,7 @@ make sure you're on the latest commit of the branch with `git pull`.
 
 - **The homepage works, but I get errors of type `ECONNREFUSED` or `ENOTFOUND`:**
   This means your frontend can't communicate with the backend.
-  Is the backend running without errors? The backend docker-compose file
+  Is the backend running without errors? The backend
   is configured to listen on port 8081. You should be able to see something
   on <http://localhost:8081/> (no HTTP**S**). If not, something is wrong with
   the backend.

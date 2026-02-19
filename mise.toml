@@ -1,0 +1,13 @@
+[tools]
+node = "20.20.0"
+uv = "0.10.4"
+# yarn "classic". Newer v3/v4 yarn is not compatible as of now
+yarn = "1.22.22"
+
+[env]
+_.file = "backend/.env.development"
+# overwrite relevant env.development envs for non-docker-compose execution
+SIP_POSTGRES_DB_SERVER = "localhost"
+SIP_S3_FILES_HOST = "localhost"
+
+IS_DEBUG = "true"

@@ -1,7 +1,6 @@
 services:
   minio:
     image: minio/minio:RELEASE.2023-10-25T06-33-25Z
-    container_name: minio
     environment:
       - MINIO_ACCESS_KEY=minio
       - MINIO_SECRET_KEY=minio123
@@ -25,7 +24,6 @@ services:
       /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 minio minio123; /usr/bin/mc mb myminio/community-solutions; "
   postgres:
     image: postgres:16
-    container_name: postgres
     environment:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_USER=docker
@@ -39,6 +37,7 @@ services:
       timeout: 1s
       retries: 50
   community-solutions:
+    platform: linux/amd64 # Required since vseth base image is only available in amd64
     build:
       target: backend-hotreload
       args:
@@ -56,41 +55,8 @@ services:
     container_name: community-solutions
     ports:
       - "8081:8081"
-    environment:
-      - SIP_INGRESS_HTTP_DEFAULT_DEPLOYMENT_DOMAIN=localhost
-      - SIP_INGRESS_HTTP_DEFAULT_CNAMES=
-
-      - SIP_POSTGRES_DB_SERVER=postgres
-      - SIP_POSTGRES_DB_PORT=5432
-      - SIP_POSTGRES_DB_NAME=postgres
-      - SIP_POSTGRES_DB_USER=docker
-      - SIP_POSTGRES_DB_PW=docker
-
-      - SIP_S3_FILES_HOST=minio
-      - SIP_S3_FILES_PORT=9000
-      - SIP_S3_FILES_ACCESS_KEY=minio
-      - SIP_S3_FILES_SECRET_KEY=minio123
-      - SIP_S3_FILES_BUCKET=community-solutions
-      - SIP_S3_FILES_USE_SSL=false
-
-      - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
-      - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
-
-      - RUNTIME_FRONTEND_KEYCLOAK_URL=https://auth.vseth.ethz.ch/auth
-      - RUNTIME_FRONTEND_KEYCLOAK_REALM=VSETH
-
-      - SIP_AUTH_OIDC_CLIENT_ID=vis_cat_staging_community_solutions_oidc
-      - SIP_AUTH_OIDC_CLIENT_SECRET=wvmiAYdKVQjYbcFCxkRBegLZi
-
-      - FRONTEND_TITLE_PREFIX=prefix
-      - FRONTEND_TITLE_SUFFIX=suffix
-      - FRONTEND_FAVICON_URL=favicon
-      - FRONTEND_EMAIL_ADDRESS=nothing@localhost
-
-      - SIP_AUTH_OIDC_AUTH_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/auth
-      - SIP_AUTH_OIDC_TOKEN_ENDPOINT=https://auth.vseth.ethz.ch/auth/realms/VSETH/protocol/openid-connect/token
-
-      - PDEP_IS_PREVIEW=TRUE
+    env_file:
+      - backend/.env.development
     depends_on:
       postgres:
         condition: service_healthy
