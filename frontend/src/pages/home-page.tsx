@@ -200,8 +200,8 @@ export const CategoryList: React.FC<{}> = () => {
     () =>
       categoriesWithDefault
         ? categoriesWithDefault.filter(
-          ({ slug }) => slug !== "default" || isAdmin,
-        )
+            ({ slug }) => slug !== "default" || isAdmin,
+          )
         : undefined,
     [categoriesWithDefault, isAdmin],
   );
@@ -308,7 +308,6 @@ export const CategoryList: React.FC<{}> = () => {
                         )}
                       </>
                     }
-                    contentOutsideCollapse={<></>}
                     contentInsideCollapse={meta2.map(
                       ([meta2display, categories]) =>
                         meta2display === "" ? (
@@ -342,7 +341,6 @@ export const CategoryList: React.FC<{}> = () => {
                                   )}
                                 </>
                               }
-                              contentOutsideCollapse={<></>}
                               contentInsideCollapse={
                                 <Grid>
                                   {categories.map(category => (
