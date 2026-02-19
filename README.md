@@ -116,6 +116,8 @@ Website is now accessible at https://localhost:3000
 
 If desired, the backend (`Terminal 2`) and frontend (`Terminal 3`) can be launched using docker-compose.
 
+This method is less flexible than running it fully locally, so prefer the above setup.
+
 > ## IMPORTANT
 >
 > When running the backend with docker-compose, you **HAVE** to add `minio` to your `/etc/hosts` or else documents won't work on the frontend (this is not required if fully using mise)!
@@ -132,13 +134,15 @@ If you want to run the _backend_ in docker-compose, remove the targets for the d
 docker compose up
 ```
 
-If you want to additionally run the _frontend_ in docker-compose, add the `--profile frontend` flag to the docker-compose command from `Terminal 1` (the flag **HAS** to come before the `up`):
+If you want to additionally run the _frontend_ in docker-compose, add the `--profile frontend` flag to the docker-compose command from `Terminal 1` (the flag **HAS** to come before the `up`).
 
 ```sh
 docker compose --profile frontend up
-# or if you ONLY want the frontend without backend
-docker compose up react-frontend postgres minio createbuckets
+# or if you ONLY want the frontend without backend:
+# docker compose up react-frontend postgres minio createbuckets
 ```
+
+If you are too lazy to type it everytime, create a `.env` file in this directory and add the the line `COMPOSE_PROFILES=frontend`.
 
 ---
 

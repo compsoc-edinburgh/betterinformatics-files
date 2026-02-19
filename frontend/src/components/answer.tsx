@@ -24,7 +24,7 @@ import {
 } from "../api/hooks";
 import { useUser } from "../auth";
 import useConfirm from "../hooks/useConfirm";
-import { Answer, AnswerSection } from "../interfaces";
+import { Answer, AnswerKind, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
 import CodeBlock from "./code-block";
 import CommentSectionComponent from "./comment-section";
@@ -33,6 +33,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TooltipButton from "./TooltipButton";
+import { useOfficialSolutionLanguage } from "./official-solution";
 import {
   IconChevronDown,
   IconChevronUp,
@@ -63,7 +64,7 @@ interface Props {
   answer?: Answer;
   onSectionChanged?: (newSection: AnswerSection) => void;
   onDelete?: () => void;
-  isLegacyAnswer: boolean;
+  answerKind: AnswerKind;
   hasId?: boolean;
 }
 const AnswerComponent: React.FC<Props> = ({
@@ -71,11 +72,12 @@ const AnswerComponent: React.FC<Props> = ({
   answer,
   onDelete,
   onSectionChanged,
-  isLegacyAnswer,
+  answerKind,
   hasId = true,
 }) => {
   const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
-  const [setFlaggedLoading, setAnswerFlagged] = useSetAnswerFlagged(onSectionChanged);
+  const [setFlaggedLoading, setAnswerFlagged] =
+    useSetAnswerFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetAnswerFlagged] =
     useResetAnswerFlaggedVote(onSectionChanged);
   const [setExpertVoteLoading, setExpertVote] =
@@ -101,12 +103,15 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText, isLegacyAnswer);
-  }, [section, draftText, update, isLegacyAnswer]);
+    if (section) update(section.oid, draftText, answerKind);
+  }, [section, draftText, update, answerKind]);
   const remove = useCallback(() => {
     if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
+  const languages = useOfficialSolutionLanguage();
+
+  const isDraft = !answer;
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const canEdit = section && onSectionChanged && (answer?.canEdit || false);
@@ -124,7 +129,7 @@ const AnswerComponent: React.FC<Props> = ({
       >
         <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">
-            <div >
+            <div>
               {!hasId && (
                 <Tooltip label="View Answer in Exam">
                   <Link
@@ -143,8 +148,18 @@ const AnswerComponent: React.FC<Props> = ({
                   </Link>
                 </Tooltip>
               )}
-              {isLegacyAnswer ? (
-                (answer?.authorDisplayName ?? "(Legacy Draft)")
+              {answerKind != AnswerKind.Personal ? (
+                answerKind == AnswerKind.Legacy ? (
+                  isDraft ? (
+                    "Legacy (Draft)"
+                  ) : (
+                    "Legacy Answer"
+                  )
+                ) : isDraft ? (
+                  "Official (Draft)"
+                ) : (
+                  "Official Answer"
+                )
               ) : (
                 <Anchor
                   component={Link}
@@ -288,7 +303,9 @@ const AnswerComponent: React.FC<Props> = ({
                 value={draftText}
                 onChange={setDraftText}
                 imageHandler={imageHandler}
-                preview={value => <MarkdownText value={value} />}
+                preview={value => (
+                  <MarkdownText value={value} languages={languages} />
+                )}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />
@@ -311,7 +328,10 @@ const AnswerComponent: React.FC<Props> = ({
               {viewSource ? (
                 <CodeBlock value={answer?.text ?? ""} language="markdown" />
               ) : (
-                <MarkdownText value={answer?.text ?? ""} />
+                <MarkdownText
+                  value={answer?.text ?? ""}
+                  languages={languages}
+                />
               )}
             </Box>
           </Card.Section>
@@ -381,10 +401,7 @@ const AnswerComponent: React.FC<Props> = ({
                     </Menu.Item>
                   )}
                   {!editing && canEdit && (
-                    <Menu.Item
-                      leftSection={<IconEdit />}
-                      onClick={startEdit}
-                    >
+                    <Menu.Item leftSection={<IconEdit />} onClick={startEdit}>
                       Edit
                     </Menu.Item>
                   )}

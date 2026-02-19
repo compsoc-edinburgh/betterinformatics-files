@@ -24,6 +24,13 @@ const transformImageUri = (uri: string) => {
   }
 };
 
+export type ComponentRenderer = (
+  props: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLElement>,
+    HTMLElement
+  >,
+) => React.ReactElement;
+
 const addMarks = (
   obj: any,
   regex: RegExp | undefined,
@@ -74,7 +81,11 @@ const addMarks = (
   return obj;
 };
 
-const createComponents = (regex: RegExp | undefined): Components => ({
+const createComponents = (
+  regex: RegExp | undefined,
+  languages?: { [key: string]: ComponentRenderer },
+  targetWidth?: number,
+): Components => ({
   table: ({ children }) => {
     return (
       <Table style={{ width: "auto" }} withColumnBorders={true}>
@@ -120,6 +131,13 @@ const createComponents = (regex: RegExp | undefined): Components => ({
   },
   code({ node, className, children, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
+    const language = match ? match[1] : undefined;
+    if (language && languages && languages[language]) {
+      // Custom language renderer (e.g., for official solutions)
+      return languages[language]({
+        ...{ node, className, children, ...props },
+      });
+    }
     return match ? (
       <CodeBlock
         language={match ? match[1] : undefined}
@@ -144,6 +162,8 @@ interface Props {
    * text will be highlighted.
    */
   highlight_matches?: string[];
+  languages?: { [key: string]: ComponentRenderer };
+  targetWidth?: number;
 }
 
 // Example that triggers the error: $\begin{\pmatrix}$
@@ -154,7 +174,12 @@ const errorMessage = (
   </Alert>
 );
 
-const MarkdownText: React.FC<Props> = ({ value, highlight_matches }) => {
+const MarkdownText: React.FC<Props> = ({
+  value,
+  highlight_matches,
+  languages,
+  targetWidth,
+}) => {
   // Make sure we don't generate a RegExp with empty text, as that will match
   // everything (including the empty string) and can cause mayhem with
   // highlighting.
@@ -166,7 +191,10 @@ const MarkdownText: React.FC<Props> = ({ value, highlight_matches }) => {
     [highlight_matches],
   );
 
-  const renderers = useMemo(() => createComponents(regex), [regex]);
+  const renderers = useMemo(
+    () => createComponents(regex, languages, targetWidth),
+    [regex, languages, targetWidth],
+  );
 
   return useMemo(() => {
     const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!

@@ -19,6 +19,7 @@ import {
   SingleComment,
   UserInfo,
   SearchResponse,
+  AnswerKind,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -318,10 +319,10 @@ export const useRemoveSplit = (oid: string, onSuccess: () => void) => {
 const updateAnswer = async (
   answerId: string,
   text: string,
-  legacy_answer: boolean,
+  kind: AnswerKind,
 ) => {
   return (
-    await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, legacy_answer })
+    await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, kind })
   ).value as AnswerSection;
 };
 const removeAnswer = async (answerId: string) => {

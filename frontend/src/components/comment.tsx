@@ -12,6 +12,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
+import { useOfficialSolutionLanguage } from "./official-solution";
 import { Anchor, Button, Flex, Group, Menu, Paper, Text } from "@mantine/core";
 import {
   IconChevronUp,
@@ -63,6 +64,7 @@ const CommentComponent: React.FC<Props> = ({
     onSectionChanged,
   );
   const loading = addNewLoading || updateLoading || removeLoading;
+  const languages = useOfficialSolutionLanguage();
 
   const onSave = () => {
     if (comment === undefined) {
@@ -238,7 +240,9 @@ const CommentComponent: React.FC<Props> = ({
             value={draftText}
             onChange={setDraftText}
             imageHandler={imageHandler}
-            preview={value => <MarkdownText value={value} />}
+            preview={value => (
+              <MarkdownText value={value} languages={languages} />
+            )}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
@@ -268,7 +272,7 @@ const CommentComponent: React.FC<Props> = ({
           {viewSource ? (
             <CodeBlock value={comment.text} language="markdown" />
           ) : (
-            <MarkdownText value={comment.text} />
+            <MarkdownText value={comment.text} languages={languages} />
           )}
         </div>
       )}
