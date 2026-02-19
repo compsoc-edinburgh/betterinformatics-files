@@ -11,7 +11,7 @@ dependencies = [
     "django-csp==3.7",
     "django-probes==1.7.0",
     "django-prometheus==2.2.0",
-    "gevent==23.7.0",
+    "gevent==23.9.1",
     "gunicorn==20.1.0",
     "jwcrypto==1.4.2",
     "opentelemetry-exporter-otlp==1.36.0",
