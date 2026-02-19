@@ -152,6 +152,13 @@ If you are too lazy to type it everytime, create a `.env` file in this directory
 
 This section is not directly relevant for getting the local development setup running, but can be beneficial to read into to learn more about the tools used and further resources to look into.
 
+## Pre-commit hooks
+
+There are pre-commit hooks for the frontend and backend for formatting code.
+If you have run `mise install` already, then running `prek install` will setup
+your local `.git/hooks/pre-commit` to automatically perform formatting when
+committing code.
+
 ## Frontend
 
 The frontend is built using
