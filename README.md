@@ -19,7 +19,7 @@ your system or messing up other paths).
 
 Once Mise is installed:
 
-- On MacOS/Linux, add the `eval "$(mise activate <shell>)` line to your shell
+- On MacOS/Linux, add the `eval "$(mise activate <shell>)"` line to your shell
   config
 - On Windows, add `%localappdata%\mise\shims` to your PATH
 
@@ -82,7 +82,7 @@ By using `uv run manage.py` (instead of just `python manage.py`) it ensures that
 you always have the correct (versioned) dependencies installed locally.
 
 The `migrate` command runs the required database migrations. It is only required
-on first launch or if you there are any database schema changes.
+on first launch or if there are any database schema changes.
 
 The `runserver` command starts up the django app with hot-reload. Saving a file
 will restart the server automatically without you having to rerun the command.
@@ -110,7 +110,7 @@ yarn # only if any Node dependencies changed
 yarn start --host
 ```
 
-Website is now accessible at https://localhost:3000
+Website is now accessible at http://localhost:3000
 
 ---
 
@@ -144,7 +144,7 @@ docker compose --profile frontend up
 # docker compose up react-frontend postgres minio createbuckets
 ```
 
-If you are too lazy to type it everytime, create a `.env` file in this directory and add the the line `COMPOSE_PROFILES=frontend`.
+If you are too lazy to type it every time, create a `.env` file in this directory and add the line `COMPOSE_PROFILES=frontend`.
 
 ---
 
@@ -175,7 +175,7 @@ To fill the website with users, exams and documents, you would run the following
 
 ```bash
 cd backend
-python3 manage.py create_testdata
+uv run manage.py create_testdata
 ```
 
 This requires you to have all the Python libraries like Django installed. To circumvent
@@ -185,7 +185,7 @@ all the required packages installed.
 
 1. Start your backend as noted above.
 2. Execute `docker exec -it community-solutions /bin/bash` to access the container.
-3. Enter the app directory (`cd /app`) and execute `python3 manage.py create_testdata`
+3. Enter the app directory (`cd /app`) and execute `uv run manage.py create_testdata`
 
 **Note:** It is normal for this to take some time (~10 mins). Do **not** open your frontend when running this command.
 This will result in a null pointer exception. It's best to simply stop the frontend process while the test data is being added.
@@ -204,7 +204,7 @@ To try, run
 
 ```bash
 # For running frontend in docker:
-docker compose -f docker-compose.yml -f docker-compose.Observability.yml --profile frontend up --build
+docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile frontend up --build
 
 # For running frontend locally:
 docker compose -f docker-compose.yml -f docker-compose.observability.yml up --build
@@ -213,8 +213,8 @@ yarn start-with-faro
 
 Now you can access:
 
-- Community solutions frontend on [locahost:3000](http://localhost:3000)
-- Grafana / Monitoring data on [locahost:3001](http://localhost:3001)
+- Community solutions frontend on [localhost:3000](http://localhost:3000)
+- Grafana / Monitoring data on [localhost:3001](http://localhost:3001)
 
 For Grafana, look at the sidebar, search for "Explore" and "Drilldown" and "Traces". There, you can have a quick overview. You can select appropriate traces, which usually start in the browser of the user, then to the backend where multiple DB queries are started. There are many other things you can do with the data and other ways to query for it, familiarize yourself with Grafana, Prometheus, Tempo, Loki, (Pyroscope)... if interested:)
 
@@ -268,7 +268,7 @@ make sure you're on the latest commit of the branch with `git pull`.
   For a "turn it off and on again" solution you can often simply type
   `docker compose down -v` to make sure all the services are shut down
   before starting it again with `docker compose up --build`. If that doesn't
-  the problem, you can also delete the Postgres folder `data/sql` which will
+  fix the problem, you can also delete the Postgres folder `data/sql` which will
   force the Postgres service to completely build the database from scratch.
 
 - **`UnknownErrorException` when accessing exams/documents:** This is very likely
