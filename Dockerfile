@@ -26,9 +26,14 @@ RUN	rm -rf /var/lib/apt/lists/*
 # install python dependencies
 COPY --from=astral/uv:0.10 /uv /bin/
 COPY ./backend/pyproject.toml ./backend/uv.lock ./backend/.python-version ./
-RUN uv sync --locked --no-dev
 
-RUN mkdir intermediate_pdf_storage && chown app-user:app-user intermediate_pdf_storage
+# Temporarily switch to non-root user to install deps and temp write dirs, since
+# cinit will run the final process as app-user and won't be able to access
+# files created by root. Easiser than chowning files after creation.
+USER app-user
+RUN uv sync --locked --no-dev
+RUN mkdir intermediate_pdf_storage
+USER root
 
 COPY ./backend/ ./
 COPY ./frontend/public/exam10.pdf ./exam10.pdf
