@@ -8,9 +8,23 @@
 
 ## Mise
 
-[Mise](https://mise.jdx.dev/installing-mise.html) allows you to easily download all the correctly versioned tools into the project directory (no need to worry about it cluttering your system or messing up other paths).
+We heavily recommend [Mise](https://mise.jdx.dev/installing-mise.html) for
+toolchain management. Mise allows you to easily download all the correctly
+versioned tools into the project directory (no need to worry about it cluttering
+your system or messing up other paths).
 
-Either add the `mise activate` script to your shell config or use `mise install` inside the project directory to install the required tool versions. Read up more on the previously linked Mise website.
+- On MacOS, `brew install mise`
+- On Windows, `winget install mise`
+- On other systems, follow the installation guide linked above.
+
+Once Mise is installed:
+
+- On MacOS/Linux, add the `eval "$(mise activate <shell>)` line to your shell
+  config
+- On Windows, add `%localappdata%\mise\shims` to your PATH
+
+Finally, run `mise install` in the Community Solutions source directory to
+install the required tools.
 
 ## Terminal Setup
 
@@ -18,15 +32,18 @@ The main way to develop is to have three separate terminals:
 
 - One for the frontend using node (yarn) with hot-reload
 - One for the backend using python (uv) with hot-reload
-- One for running the remaining required services like PostgreSQL/Minio with docker-compose
+- One for running the remaining services like PostgreSQL/Minio with docker-compose
 
 Start the terminals in the following order to ensure a correct startup.
 
 #### Terminal 1 : Services
 
-You will need **Docker Compose** to start up any extra services. See the [official install instructions](https://docs.docker.com/compose/install/) for detailed explanation of how to install Docker.
+You will need **Docker Compose** to start up any extra services. See the
+[official install instructions](https://docs.docker.com/compose/install/) for
+detailed explanation of how to install Docker.
 
-This will start up required services, like a local postgres and minio. The first time around this can take a while to start up.
+This will start up required services, like a local postgres and minio. The first
+time around this can take a while to start up.
 
 ```sh
 docker compose up postgres minio createbuckets
@@ -55,18 +72,23 @@ Key things to look for:
 
 #### Terminal 2 : Backend
 
-The backend is a django python app. You have to enter the `backend` directory to work on it.
+The backend is a django python app. You have to enter the `backend` directory to
+work on it. We use `uv` for Python package management (which should be installed
+by Mise automatically).
 
-By using `uv run manage.py` (instead of just `python manage.py`) it ensures that you always have the correct (versioned) dependencies installed locally.
+By using `uv run manage.py` (instead of just `python manage.py`) it ensures that
+you always have the correct (versioned) dependencies installed locally.
 
-The `migrate` command runs the required database migrations. It is usually not required to be executed every time you start the database if there've not been any database schema changes.
+The `migrate` command runs the required database migrations. It is only required
+on first launch or if you there are any database schema changes.
 
-The `runserver` command starts up the django app with hot-reload. Saving a file will restart the server automatically without you having to rerun the command.
+The `runserver` command starts up the django app with hot-reload. Saving a file
+will restart the server automatically without you having to rerun the command.
 
 ```sh
 cd backend
 mkdir -p intermediate_pdf_storage
-uv run manage.py migrate
+uv run manage.py migrate # only on first run, or if DB schema changed
 uv run manage.py runserver 127.0.0.1:8081
 ```
 
@@ -74,14 +96,16 @@ The backend now runs locally on port `8081`.
 
 #### Terminal 3 : Frontend
 
-The frontend is a react app. You need node and yarn to run it (both supplied in the `mise.toml`).
+The frontend is a react app. You have to enter the `frontend` directory to work
+on it. We use `yarn` for Node package management (which should be installed by
+Mise automatically).
 
-The `yarn`/`yarn install` command only needs to be rerun if any dependencies change or are updated.
+The `yarn` command only needs to be rerun if any dependencies change or are updated.
 
 ```sh
 cd frontend
-yarn # installs node modules
-yarn start --host # start the frontend
+yarn # only if any Node dependencies changed
+yarn start --host
 ```
 
 Website is now accessible at https://localhost:3000
