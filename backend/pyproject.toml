@@ -20,8 +20,8 @@ dependencies = [
     "opentelemetry-sdk==1.36.0",
     "psycogreen==1.0.2",
     "psycopg2-binary==2.8.6",
-    "pyroscope-io==0.8.11",
-    "pyroscope-otel==0.4.1",
+    "pyroscope-io==0.8.11 ; sys_platform != 'win32'",
+    "pyroscope-otel==0.4.1 ; sys_platform != 'win32'",
     "pyyaml==6.0.2",
     "requests==2.25.1",
 ]

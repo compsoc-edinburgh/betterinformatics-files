@@ -193,8 +193,8 @@ dependencies = [
     { name = "opentelemetry-sdk" },
     { name = "psycogreen" },
     { name = "psycopg2-binary" },
-    { name = "pyroscope-io" },
-    { name = "pyroscope-otel" },
+    { name = "pyroscope-io", marker = "sys_platform != 'win32'" },
+    { name = "pyroscope-otel", marker = "sys_platform != 'win32'" },
     { name = "pyyaml" },
     { name = "requests" },
 ]
@@ -216,8 +216,8 @@ requires-dist = [
     { name = "opentelemetry-sdk", specifier = "==1.36.0" },
     { name = "psycogreen", specifier = "==1.0.2" },
     { name = "psycopg2-binary", specifier = "==2.8.6" },
-    { name = "pyroscope-io", specifier = "==0.8.11" },
-    { name = "pyroscope-otel", specifier = "==0.4.1" },
+    { name = "pyroscope-io", marker = "sys_platform != 'win32'", specifier = "==0.8.11" },
+    { name = "pyroscope-otel", marker = "sys_platform != 'win32'", specifier = "==0.4.1" },
     { name = "pyyaml", specifier = "==6.0.2" },
     { name = "requests", specifier = "==2.25.1" },
 ]
