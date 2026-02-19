@@ -201,7 +201,7 @@ class Command(BaseCommand):
         users = MyUser.objects.all()
         objs = []
         for exam in Exam.objects.all():
-            for page in range(3):
+            for page in range(1, 3):
                 for i in range(4):
                     objs.append(
                         AnswerSection(
