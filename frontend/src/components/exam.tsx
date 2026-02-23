@@ -17,7 +17,7 @@ import PDF from "../pdf/pdf-renderer";
 import { fetchGet } from "../api/fetch-utils";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import { useLocation } from "react-router-dom";
-import PermaLinkHandler from "./permalink-handler";
+import { useScrollToPermalink } from "../hooks/useScrollToPermalink";
 
 interface Props {
   metaData: ExamMetaData;
@@ -85,6 +85,8 @@ const Exam: React.FC<Props> = React.memo(
     onExpandSections,
     onCollapseSections,
   }) => {
+    useScrollToPermalink();
+
     const getAddCutHandler = useCallback(
       (section: PdfSection) => {
         return (height: number) => {
@@ -120,12 +122,21 @@ const Exam: React.FC<Props> = React.memo(
         : editState.mode === EditMode.Move
           ? "Move Cut"
           : undefined;
-    // We retain legacy support for linking to answers by hashes for any old links
-    const answerIdHash = document.location.hash.substr(1);
+
+    // Permalink handling.
     const location = useLocation();
     const answerIdParam = new URLSearchParams(location.search).get("answer");
-    const answerId = answerIdParam || answerIdHash; // Prioritise query param over legacy hash support
 
+    // We retain legacy support for linking to answers by hashes for any old links
+    const answerIdHash = document.location.hash.substring(1);
+    // Prioritise query param over legacy hash support
+    const answerId = answerIdParam || answerIdHash;
+
+    // We need to ask the API what section ID the permalinked answer is in. Then,
+    // we re-render this component with the new set of expanded states. We have
+    // to modify the parent's expandedSections set (and to do so, useEffect is
+    // unavoidable), so users can collapse it just like any manually-expanded
+    // sections.
     useEffect(() => {
       let cancelled = false;
       if (answerId && answerId.length > 0) {
@@ -168,7 +179,6 @@ const Exam: React.FC<Props> = React.memo(
     );
     return (
       <>
-        <PermaLinkHandler/>
         {sections.map(section => {
           if (section.kind === SectionKind.Answer) {
             if (displayHiddenAnswerSections || section.has_answers) {

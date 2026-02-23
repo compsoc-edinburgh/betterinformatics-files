@@ -27,7 +27,6 @@ import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
 import UserRoute from "./auth/UserRoute";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
-import HashLocationHandler from "./components/hash-location-handler";
 import CategoryPage from "./pages/category-page";
 import DocumentPage from "./pages/document-page";
 import ExamPage from "./pages/exam-page";
@@ -58,6 +57,7 @@ import FlaggedContent from "./pages/flagged-content";
 import { FaroRoute } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import { QuickSearchFilter, QuickSearchFilterContext } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
+import { useScrollToHash } from "./hooks/useScrollToHash";
 
 /**
  * To be used as a wrapper for <Route>s at the top level, and adds Faro
@@ -197,6 +197,8 @@ const App: React.FC<{}> = () => {
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
   const [quickSearchFilter, setQuickSearchFilter] = useState<QuickSearchFilter|undefined>(undefined);
 
+  useScrollToHash();
+
   const loadUnreadCount = async () => {
     // Notifications will be polled at regular intervals. When the auth token
     // nears expiry, the auth timer should refresh it automatically. But while
@@ -314,7 +316,6 @@ const App: React.FC<{}> = () => {
           Sign in with AAI
         </Button>
       </Modal>
-      <Route children={<HashLocationHandler />} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
