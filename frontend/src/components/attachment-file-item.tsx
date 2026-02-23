@@ -5,6 +5,7 @@ import {
   Group,
   Modal,
   Paper,
+  Stack,
   Text,
   TextInput,
 } from "@mantine/core";
@@ -42,22 +43,36 @@ const AttachmentFileItem: React.FC<AttachmentFileItemProps> = ({
         title="Edit Attachment"
         opened={editModalIsOpen}
         onClose={closeEditModal}
+        size="lg"
       >
+        <Stack gap="sm">
+          <Text size="sm" c="dimmed">
+            Current file: {toKey(filename)}
+          </Text>
           <TextInput
-            label="Display name:"
+            label="Display name"
             placeholder="Display name"
             value={draftDisplayname}
             onChange={e => setDraftDisplayname(e.currentTarget.value)}
             autoFocus
           />
-          <FileInput
-            placeholder={toKey(filename)}
-            accept=".pdf,.zip,.tar.gz,.tar.xz"
-            value={file}
-            onChange={setFile}
-          />
-          <Group justify="right" mt="md">
+          <div>
+            <Text size="sm" mb={4}>
+              Replace file (optional)
+            </Text>
+            <FileInput
+              placeholder={toKey(filename)}
+              accept=".pdf,.zip,.tar.gz,.tar.xz"
+              value={file}
+              onChange={setFile}
+            />
+          </div>
+          <Group justify="right" mt="xs">
+            <Button variant="default" onClick={closeEditModal}>
+              Cancel
+            </Button>
             <Button
+              disabled={draftDisplayname.trim() === ""}
               onClick={() => {
                 if (file !== undefined) {
                   edit(draftDisplayname, file);
@@ -67,9 +82,10 @@ const AttachmentFileItem: React.FC<AttachmentFileItemProps> = ({
                 toggleEditModalIsOpen();
               }}
             >
-              Edit
+              Save
             </Button>
           </Group>
+        </Stack>
       </Modal>
       <Paper withBorder p="xs" key={toKey(filename)}>
         <Group>
