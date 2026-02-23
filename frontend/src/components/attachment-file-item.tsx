@@ -92,7 +92,7 @@ const AttachmentFileItem: React.FC<AttachmentFileItemProps> = ({
           <CloseButton onClick={remove} />
           <IconButton
             variant="filled"
-            tooltip="Edit attachment name"
+            tooltip="Edit attachment"
             icon={<IconEdit />}
             onClick={toggleEditModalIsOpen}
           />
