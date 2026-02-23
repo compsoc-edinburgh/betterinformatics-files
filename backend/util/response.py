@@ -34,6 +34,20 @@ def request_put(*req_args, optional=False):
         return wrapper
     return wrap_func
 
+def request_patch(*req_args, optional=False):
+    def wrap_func(f):
+        @wraps(f)
+        def wrapper(request, *args, **kwargs):
+            if request.method != 'PATCH':
+                return HttpResponseNotAllowed(['PATCH'])
+            if not optional:
+                for arg in req_args:
+                    if arg not in request.DATA:
+                        return missing_argument()
+            return f(request, *args, **kwargs)
+        return wrapper
+    return wrap_func
+
 def request_get(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)

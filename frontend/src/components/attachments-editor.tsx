@@ -1,9 +1,4 @@
-import {
-  Button,
-  Flex,
-  Stack,
-  TextInput,
-} from "@mantine/core";
+import { Button, Flex, Stack, TextInput } from "@mantine/core";
 import React, { useState } from "react";
 import FileInput from "./file-input";
 import AttachmentFileItem from "./attachment-file-item";
@@ -24,21 +19,60 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
 }) => {
   const [file, setFile] = useState<File | undefined>();
   const [displayName, setDisplayName] = useState("");
+
+  const withIndexedFilename = (
+    candidateDisplayName: string,
+    candidateFile: File | string,
+    items: EditorAttachment[],
+  ) => {
+    const createIndexedFilename = (index: number) =>
+      `${index}_${toKey(candidateFile)}`;
+    let nextFilenameKey = toKey(candidateFile);
+    let index = 0;
+
+    while (
+      items.some(
+        item =>
+          candidateDisplayName === item.displayname &&
+          nextFilenameKey === toKey(item.filename),
+      )
+    ) {
+      nextFilenameKey = createIndexedFilename(index);
+      index += 1;
+    }
+
+    if (candidateFile instanceof File) {
+      return new File([candidateFile], nextFilenameKey, {
+        type: candidateFile.type,
+        lastModified: candidateFile.lastModified,
+      });
+    }
+
+    return nextFilenameKey;
+  };
+
   const onAdd = () => {
-    if (file === undefined 
-      || attachments.filter((item) => 
-        displayName === item.displayname && toKey(file) === toKey(item.filename)).length !== 0) 
+    if (file === undefined) {
       return;
+    }
+
+    const nextFilename = withIndexedFilename(displayName, file, attachments);
+
     setAttachments([
       ...attachments,
-      { displayname: displayName, filename: file },
+      { displayname: displayName, filename: nextFilename },
     ]);
     setFile(undefined);
     setDisplayName("");
   };
   const onRemove = (displayname: string, filename: File | string) => {
-    setAttachments(attachments.filter((item) => 
-      displayname !== item.displayname || toKey(filename) !== toKey(item.filename)));
+    setAttachments(
+      attachments.filter(
+        item =>
+          displayname !== item.displayname ||
+          toKey(filename) !== toKey(item.filename),
+      ),
+    );
   };
 
   return (
@@ -48,18 +82,25 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
           <AttachmentFileItem
             displayname={displayname}
             filename={filename}
-            remove={() => {onRemove(displayname, filename)}}
-            allow={(newDisplayname, newFilename) => {
-              let editedFilename = filename;
-              if (newFilename !== null) editedFilename = newFilename;
-              return attachments.filter((item) => 
-                newDisplayname === item.displayname && toKey(editedFilename) === toKey(item.filename)).length === 0
+            remove={() => {
+              onRemove(displayname, filename);
             }}
             edit={(newDisplayname, newFilename) => {
+              const remainingAttachments = attachments.filter(
+                item =>
+                  displayname !== item.displayname ||
+                  toKey(filename) !== toKey(item.filename),
+              );
+
+              const nextFilename = withIndexedFilename(
+                newDisplayname,
+                newFilename,
+                remainingAttachments,
+              );
+
               setAttachments([
-                ...attachments.filter((item) => 
-                  displayname !== item.displayname || toKey(filename) !== toKey(item.filename)),
-                {displayname: newDisplayname, filename: newFilename},
+                ...remainingAttachments,
+                { displayname: newDisplayname, filename: nextFilename },
               ]);
             }}
           />
@@ -78,7 +119,9 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
           value={displayName}
           onChange={e => setDisplayName(e.currentTarget.value)}
         />
-        <Button onClick={onAdd}>Add</Button>
+        <Button onClick={onAdd}>
+          Add
+        </Button>
       </Flex>
     </div>
   );

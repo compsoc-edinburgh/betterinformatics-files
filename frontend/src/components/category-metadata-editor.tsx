@@ -13,7 +13,7 @@ import {
   Title,
 } from "@mantine/core";
 import React from "react";
-import { fetchPost, fetchPut } from "../api/fetch-utils";
+import { fetchPost, fetchPatch } from "../api/fetch-utils";
 import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
@@ -75,7 +75,7 @@ const addAttachment = async (
   ).filename as string;
 };
 const editAttachment = async (filename: string, newdisplayname: string) => {
-  await fetchPut(`/api/filestore/edit/${filename}/`, {newdisplayname});
+  await fetchPatch(`/api/filestore/edit/${filename}/`, {newdisplayname});
 };
 const removeAttachment = async (filename: string) => {
   await fetchPost(`/api/filestore/remove/${filename}/`, {});

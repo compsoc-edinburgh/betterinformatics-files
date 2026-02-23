@@ -109,6 +109,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate, reload }) => {
     addModalIsOpen,
     { toggle: toggleAddModalIsOpen, open: openAddModal, close: closeAddModal },
   ] = useDisclosure();
+
   return (
     <>
       <Modal title="Add File" opened={addModalIsOpen} onClose={closeAddModal}>
