@@ -9,36 +9,33 @@ from answers.models import (
     ExamWord as ExamWordModel,
 )
 import logging
+import pypdfium2 as pdfium
 
 logger = logging.getLogger(__name__)
 
 
 def get_page_text(path_to_pdf, page, tmpdirname):
-    text_path = os.path.join(tmpdirname, "temp.txt")
-    DEVNULL = open(os.devnull, "w")
-    return_code = subprocess.call(
-        [
-            "pdftotext",
-            "-f",
-            str(page),
-            "-l",
-            str(page),
-            u"{pdf_path}".format(pdf_path=path_to_pdf),
-            u"{text_path}".format(text_path=text_path),
-        ],
-        stdout=DEVNULL,
-        stderr=subprocess.STDOUT,
-        close_fds=True,
-    )
-    if return_code:
-        logger.warning(
-            "Failed reading PDF text: {path_to_pdf} page {page}".format(
-                path_to_pdf=path_to_pdf, page=page
+    with pdfium.PdfDocument(path_to_pdf) as pdf:
+        if page > len(pdf):
+            logger.warning(
+                "Page number out of range when reading PDF text: {path_to_pdf} page {page}".format(
+                    path_to_pdf=path_to_pdf, page=page
+                )
             )
-        )
-        return ""
-    with open(text_path, "r") as file:
-        return file.read()
+            return ""
+
+        if page == 0:
+            # Have a way to extract text from the entire PDF
+            return "\n".join(
+                page.get_textpage().get_text_bounded().replace("\r\n", "\n")
+                for page in pdf
+            )
+
+        page = pdf[page - 1]
+
+        # PDFium generates text with \r\n line breaks, but we want to use \n for
+        # consistency with pdftotext and general text handling in Python
+        return page.get_textpage().get_text_bounded().replace("\r\n", "\n")
 
 
 def analyze_pdf(
