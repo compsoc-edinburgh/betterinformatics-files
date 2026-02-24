@@ -1,4 +1,5 @@
 from testing.tests import ComsolTest
+from django.conf import settings
 
 
 class TestUploadRemove(ComsolTest):
@@ -6,7 +7,7 @@ class TestUploadRemove(ComsolTest):
     def test_upload_and_remove(self):
         images = self.get('/api/image/list/')['value']
         self.assertEqual(len(images), 0)
-        with open('static/test_uploadrm.svg', 'rb') as f:
+        with open(f"{settings.COMSOL_ASSETS_FOLDER}/static/test_uploadrm.svg", 'rb') as f:
             res = self.post('/api/image/upload/', {
                 'file': f,
             })
@@ -18,7 +19,7 @@ class TestUploadRemove(ComsolTest):
         self.assertEqual(len(images), 0)
 
     def test_wrong_file_extension(self):
-        with open('exam10.pdf', 'rb') as f:
+        with open(f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf", 'rb') as f:
             res = self.post('/api/image/upload/', {
                 'file': f,
             }, status_code=400)
@@ -30,7 +31,7 @@ class TestRemoveImage(ComsolTest):
     def mySetUp(self):
         # Upload an image as user 0
         self.user = self.loginUsers[0]
-        with open("static/test_uploadrm.svg", "rb") as f:
+        with open(f"{settings.COMSOL_ASSETS_FOLDER}/static/test_uploadrm.svg", "rb") as f:
             res = self.post(
                 "/api/image/upload/",
                 {

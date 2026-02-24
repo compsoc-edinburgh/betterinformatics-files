@@ -12,3 +12,4 @@ SIP_POSTGRES_DB_SERVER = "localhost"
 SIP_S3_FILES_HOST = "localhost"
 
 IS_DEBUG = "true"
+COMSOL_ASSETS_FOLDER = "../frontend/public/"

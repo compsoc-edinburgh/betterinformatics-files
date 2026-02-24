@@ -38,6 +38,7 @@ API_KEY = os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
+COMSOL_ASSETS_FOLDER = os.environ.get("COMSOL_ASSETS_FOLDER", BASE_DIR)
 COMSOL_EXAM_DIR = "exams/"
 COMSOL_PRINTONLY_DIR = "printonly/"
 COMSOL_SOLUTION_DIR = "solutions/"
