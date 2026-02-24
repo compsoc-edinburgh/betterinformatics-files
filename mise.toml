@@ -1,5 +1,6 @@
 [tools]
 node = "20.20.0"
+prek = "0.3.3"
 uv = "0.10.4"
 # yarn "classic". Newer v3/v4 yarn is not compatible as of now
 yarn = "1.22.22"

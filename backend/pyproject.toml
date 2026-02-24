@@ -23,3 +23,8 @@ dependencies = [
     "pyyaml==6.0.2",
     "requests==2.25.1",
 ]
+
+[dependency-groups]
+dev = [
+    "black==24.8.0",
+]
