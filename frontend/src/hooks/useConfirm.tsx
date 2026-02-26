@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Modal, Button, Group, ButtonProps } from "@mantine/core";
 
 interface ButtonPropsOverride {
@@ -9,7 +9,7 @@ interface ButtonPropsOverride {
 type CB = () => void;
 const useConfirm = () => {
   const [stack, setStack] = useState<
-    Array<[string, CB, CB, ButtonPropsOverride, ButtonPropsOverride]>
+    [string, CB, CB, ButtonPropsOverride, ButtonPropsOverride][]
   >([]);
   const push = useCallback(
     (
@@ -24,12 +24,12 @@ const useConfirm = () => {
         [
           message,
           yes,
-          no || (() => {}),
-          yesButtonOverrride || {
+          no ?? (() => {}),
+          yesButtonOverrride ?? {
             label: "Okay",
             propsDict: { variant: "outline" },
           },
-          noButtonOverride || { label: "Cancel", propsDict: {} },
+          noButtonOverride ?? { label: "Cancel", propsDict: {} },
         ],
       ]);
     },
@@ -44,7 +44,7 @@ const useConfirm = () => {
         opened={true}
         withCloseButton={false}
         onClose={() => {}}
-        key={i + message}
+        key={`${i} message`}
       >
         <Modal.Body mt="sm">{message}</Modal.Body>
 
