@@ -106,7 +106,13 @@ const AnswerComponent: React.FC<Props> = ({
     if (section) update(section.oid, draftText, answerKind);
   }, [section, draftText, update, answerKind]);
   const remove = useCallback(() => {
-    if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
+    if (answer)
+      confirm(
+        "Remove answer?",
+        () => removeAnswer(answer.oid),
+        () => {},
+        { label: "Yes, delete", propsDict: { color: "red" } },
+      );
   }, [confirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
   const languages = useOfficialSolutionLanguage();
