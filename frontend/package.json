@@ -27,7 +27,7 @@
     "rehype-katex": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
-    "use-query-params": "2.2.1",
+    "use-query-params": "2.2.2",
     "vite": "^5.1.0",
     "vite-plugin-svgr": "^4.2.0"
   },
