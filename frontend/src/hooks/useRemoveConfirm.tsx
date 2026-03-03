@@ -7,7 +7,7 @@ interface ButtonPropsOverride {
 }
 
 type CB = () => void;
-const useConfirm = () => {
+const useRemoveConfirm = () => {
   const [stack, setStack] = useState<
     [string, CB, CB, ButtonPropsOverride, ButtonPropsOverride][]
   >([]);
@@ -26,8 +26,8 @@ const useConfirm = () => {
           yes,
           no ?? (() => {}),
           yesButtonOverrride ?? {
-            label: "Okay",
-            propsDict: { variant: "outline" },
+            label: "Remove",
+            propsDict: { color: "red" },
           },
           noButtonOverride ?? { label: "Cancel", propsDict: {} },
         ],
@@ -73,4 +73,4 @@ const useConfirm = () => {
   );
   return [push, modals] as const;
 };
-export default useConfirm;
+export default useRemoveConfirm;

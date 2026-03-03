@@ -33,7 +33,7 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
@@ -62,14 +62,14 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   });
   const history = useHistory();
   const [removeLoading, remove] = useRemoveCategory(() => history.push("/"));
-  const [confirm, modals] = useConfirm();
+  const [removeConfirm, modals] = useRemoveConfirm();
   const onRemove = useCallback(
     () =>
-      confirm(
+      removeConfirm(
         `Do you really want to remove the category "${metaData.displayname}"?`,
         () => remove(metaData.slug),
       ),
-    [confirm, remove, metaData],
+    [removeConfirm, remove, metaData],
   );
   const offeredIn = useMemo(
     () =>
