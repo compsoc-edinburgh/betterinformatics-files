@@ -112,6 +112,7 @@ const AnswerComponent: React.FC<Props> = ({
         () => removeAnswer(answer.oid),
         () => {},
         { label: "Yes, delete", propsDict: { color: "red" } },
+        { label: "No", propsDict: {} }
       );
   }, [confirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
