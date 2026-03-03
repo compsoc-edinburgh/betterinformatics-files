@@ -18,7 +18,6 @@ export enum AnswerKind {
   Official = "official",
 }
 
-
 export interface AnswerSection {
   oid: string; // unique id within answer sections
   kind: SectionKind.Answer;
@@ -227,6 +226,7 @@ export interface ExamMetaData {
   solution_printonly: boolean;
   is_oral_transcript: boolean;
   oral_transcript_checked: boolean;
+  dark_mode_warning: boolean;
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];

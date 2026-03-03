@@ -10,12 +10,13 @@ from django_prometheus.models import ExportModelOperationsMixin
 import random
 
 
-class Exam(ExportModelOperationsMixin('exam'), models.Model):
+class Exam(ExportModelOperationsMixin("exam"), models.Model):
     filename = models.CharField(max_length=256, unique=True)
     displayname = models.CharField(max_length=256)
     category = models.ForeignKey(
-        'categories.Category', null=True, on_delete=models.SET_NULL)
-    exam_type = models.ForeignKey('ExamType', on_delete=models.PROTECT)
+        "categories.Category", null=True, on_delete=models.SET_NULL
+    )
+    exam_type = models.ForeignKey("ExamType", on_delete=models.PROTECT)
     remark = models.TextField()
     resolve_alias = models.CharField(max_length=256)
 
@@ -24,7 +25,11 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
     needs_payment = models.BooleanField(default=False)
 
     import_claim = models.ForeignKey(
-        'auth.User', related_name='import_claim_set', null=True, on_delete=models.SET_NULL)
+        "auth.User",
+        related_name="import_claim_set",
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     import_claim_time = models.DateTimeField(null=True)
 
     is_printonly = models.BooleanField(default=False)
@@ -35,8 +40,14 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
 
     is_oral_transcript = models.BooleanField(default=False)
     oral_transcript_uploader = models.ForeignKey(
-        'auth.User', related_name='oral_transcript_set', null=True, on_delete=models.SET_NULL)
+        "auth.User",
+        related_name="oral_transcript_set",
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     oral_transcript_checked = models.BooleanField(default=False)
+
+    dark_mode_warning = models.BooleanField(default=False)
 
     search_vector = SearchVectorField()
 
@@ -59,11 +70,15 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
         return True
 
     def attachment_name(self):
-        return (self.category.displayname + '__' + self.displayname + '.pdf').replace(' ', '_')
+        return (self.category.displayname + "__" + self.displayname + ".pdf").replace(
+            " ", "_"
+        )
 
     def sort_key(self):
         end = 0
-        while end + 1 < len(self.displayname) and self.displayname[-end-1:].isdigit():
+        while (
+            end + 1 < len(self.displayname) and self.displayname[-end - 1 :].isdigit()
+        ):
             end += 1
         if end == 0:
             return 0, self.displayname
@@ -71,13 +86,12 @@ class Exam(ExportModelOperationsMixin('exam'), models.Model):
 
     def count_answered(self):
         return self.answersection_set.filter(
-            Exists(Answer.objects.filter(answer_section=OuterRef('pk')))
+            Exists(Answer.objects.filter(answer_section=OuterRef("pk")))
         ).count()
 
 
 class ExamPage(models.Model):
-    exam = models.ForeignKey(
-        'Exam', on_delete=models.CASCADE, related_name='pages')
+    exam = models.ForeignKey("Exam", on_delete=models.CASCADE, related_name="pages")
     page_number = models.IntegerField()
     width = models.FloatField()
     height = models.FloatField()
@@ -95,9 +109,8 @@ class ExamType(models.Model):
 
 
 class AnswerSection(models.Model):
-    exam = models.ForeignKey('Exam', on_delete=models.CASCADE)
-    author = models.ForeignKey(
-        'auth.User', null=True, on_delete=models.SET_NULL)
+    exam = models.ForeignKey("Exam", on_delete=models.CASCADE)
+    author = models.ForeignKey("auth.User", null=True, on_delete=models.SET_NULL)
     page_num = models.IntegerField()
     rel_height = models.FloatField()
     cut_version = models.IntegerField(default=1)
@@ -116,36 +129,34 @@ def generate_long_id():
     return res
 
 
-class Answer(ExportModelOperationsMixin('answer'), models.Model):
+class Answer(ExportModelOperationsMixin("answer"), models.Model):
     class Kind(models.TextChoices):
         PERSONAL = "personal"
         LEGACY = "legacy"
         OFFICIAL = "official"
 
-    answer_section = models.ForeignKey(
-        'AnswerSection', on_delete=models.CASCADE)
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    answer_section = models.ForeignKey("AnswerSection", on_delete=models.CASCADE)
+    author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     text = models.TextField()
     time = models.DateTimeField(default=timezone.now)
     edittime = models.DateTimeField(default=timezone.now)
-    upvotes = models.ManyToManyField(
-        'auth.User', related_name='upvoted_answer_set')
-    downvotes = models.ManyToManyField(
-        'auth.User', related_name='downvoted_answer_set')
+    upvotes = models.ManyToManyField("auth.User", related_name="upvoted_answer_set")
+    downvotes = models.ManyToManyField("auth.User", related_name="downvoted_answer_set")
     expertvotes = models.ManyToManyField(
-        'auth.User', related_name='expertvote_answer_set')
-    flagged = models.ManyToManyField(
-        'auth.User', related_name='flagged_answer_set')
+        "auth.User", related_name="expertvote_answer_set"
+    )
+    flagged = models.ManyToManyField("auth.User", related_name="flagged_answer_set")
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.PERSONAL)
-    long_id = models.CharField(
-        max_length=256, default=generate_long_id, unique=True)
+    long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
 
     search_vector = SearchVectorField()
 
     class Meta:
         indexes = [GinIndex(fields=["search_vector"])]
 
-class Comment(ExportModelOperationsMixin('comment'), CommentMixin):
-    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name="comments")
-    long_id = models.CharField(
-        max_length=256, default=generate_long_id, unique=True)
+
+class Comment(ExportModelOperationsMixin("comment"), CommentMixin):
+    answer = models.ForeignKey(
+        "Answer", on_delete=models.CASCADE, related_name="comments"
+    )
+    long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)

@@ -10,6 +10,7 @@ import {
   Flex,
   Group,
   Button,
+  useComputedColorScheme,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import {
@@ -101,6 +102,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   mutateMetaData,
   goToEditPage,
 }) => {
+  const computedColorScheme = useComputedColorScheme();
   const { run: runMarkChecked } = useRequest(markAsChecked, {
     manual: true,
     onSuccess() {
@@ -280,6 +282,13 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             )}
           </Group>
         </Flex>
+        {metaData.dark_mode_warning && computedColorScheme === "dark" && (
+          <Alert color="yellow" title="Dark mode warning" mb="md">
+            Images are inverted in dark mode. This exam is marked as
+            particularly affected, so please switch to light mode for correct
+            rendering.
+          </Alert>
+        )}
         <Grid>
           {!metaData.canView && (
             <Grid.Col span={{ md: 6, lg: 4 }}>
