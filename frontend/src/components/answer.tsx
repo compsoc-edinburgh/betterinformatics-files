@@ -23,7 +23,7 @@ import {
   useUpdateAnswer,
 } from "../api/hooks";
 import { useUser } from "../auth";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { Answer, AnswerKind, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
 import CodeBlock from "./code-block";
@@ -89,7 +89,7 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   });
   const { isAdmin, isExpert } = useUser()!;
-  const [confirm, modals] = useConfirm();
+  const [removeConfirm, modals] = useRemoveConfirm();
   const [editing, setEditing] = useState(false);
 
   const [draftText, setDraftText] = useState("");
@@ -106,8 +106,12 @@ const AnswerComponent: React.FC<Props> = ({
     if (section) update(section.oid, draftText, answerKind);
   }, [section, draftText, update, answerKind]);
   const remove = useCallback(() => {
-    if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
-  }, [confirm, removeAnswer, answer]);
+    if (answer)
+      removeConfirm(
+        "Remove answer?",
+        () => removeAnswer(answer.oid)
+      );
+  }, [removeConfirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
   const languages = useOfficialSolutionLanguage();
 
