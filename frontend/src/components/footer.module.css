@@ -1,0 +1,5 @@
+.visLogo {
+  @mixin light {
+    filter: invert(1);
+  }
+}

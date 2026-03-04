@@ -129,7 +129,10 @@ const AnswerComponent: React.FC<Props> = ({
         mb="md"
         shadow="md"
         id={hasId ? answer?.longId : undefined}
-        className={classes.answerWrapperStyle}
+        classNames={{ 
+          root: classes.answerWrapperStyle,
+          section: classes.answerSectionStyle, 
+        }}
       >
         <Card.Section px="md" py="md" withBorder>
           <Flex justify="space-between" align="center">

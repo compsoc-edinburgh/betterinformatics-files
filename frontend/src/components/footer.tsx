@@ -1,4 +1,5 @@
 import React from "react";
+import classes from "./footer.module.css";
 import {
   Anchor,
   Box,
@@ -69,8 +70,8 @@ const Footer: React.FC<FooterProps> = ({
           <a href={orgHomepage}>
             <img
               height={32}
+              className={classes.visLogo}
               src={logo}
-              style={{ filter: "brightness(0)" }}
               alt="Logo of the student organization"
             />
           </a>
