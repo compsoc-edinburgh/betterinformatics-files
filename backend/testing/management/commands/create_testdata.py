@@ -87,7 +87,7 @@ class Command(BaseCommand):
                     16, settings.COMSOL_IMAGE_DIR, ".svg"
                 )
                 s3_util.save_file_to_s3(
-                    settings.COMSOL_IMAGE_DIR, filename, "static/test_image.svg"
+                    settings.COMSOL_IMAGE_DIR, filename, f"{settings.COMSOL_ASSETS_FOLDER}/static/test_image.svg"
                 )
                 Image(filename=filename, owner=user).save()
 
@@ -151,7 +151,9 @@ class Command(BaseCommand):
                     8, settings.COMSOL_EXAM_DIR, ".pdf"
                 )
                 s3_util.save_file_to_s3(
-                    settings.COMSOL_EXAM_DIR, filename, "exam10.pdf"
+                    settings.COMSOL_EXAM_DIR,
+                    filename,
+                    f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
                 )
                 needs_payment = category.has_payments and (i + category.id % 3 == 0)
                 if needs_payment:
@@ -174,20 +176,20 @@ class Command(BaseCommand):
                 )
                 exam.save()
                 pdf_utils.analyze_pdf(
-                    exam, os.path.join(settings.COMSOL_EXAM_DIR, "exam10.pdf")
+                    exam, os.path.join(settings.COMSOL_EXAM_DIR, f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf")
                 )
 
                 if i + category.id % 3 == 0:
                     exam.has_solution = True
                     s3_util.save_file_to_s3(
-                        settings.COMSOL_SOLUTION_DIR, filename, "exam10.pdf"
+                        settings.COMSOL_SOLUTION_DIR, filename, f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf"
                     )
                     exam.save()
 
                 if i + category.id % 5 == 0:
                     exam.is_printonly = True
                     s3_util.save_file_to_s3(
-                        settings.COMSOL_PRINTONLY_DIR, filename, "exam10.pdf"
+                        settings.COMSOL_PRINTONLY_DIR, filename, f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf"
                     )
                     exam.save()
 
@@ -305,7 +307,9 @@ class Command(BaseCommand):
                     16, settings.COMSOL_FILESTORE_DIR, ".pdf"
                 )
                 s3_util.save_file_to_s3(
-                    settings.COMSOL_FILESTORE_DIR, filename, "exam10.pdf"
+                    settings.COMSOL_FILESTORE_DIR,
+                    filename,
+                    f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
                 )
                 Attachment(
                     displayname="Attachment " + str(exam.id),
@@ -318,7 +322,9 @@ class Command(BaseCommand):
                     16, settings.COMSOL_FILESTORE_DIR, ".pdf"
                 )
                 s3_util.save_file_to_s3(
-                    settings.COMSOL_FILESTORE_DIR, filename, "exam10.pdf"
+                    settings.COMSOL_FILESTORE_DIR,
+                    filename,
+                    f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
                 )
                 Attachment(
                     displayname="Attachment " + str(category.id),
@@ -356,7 +362,9 @@ class Command(BaseCommand):
                         8, settings.COMSOL_EXAM_DIR, ".pdf"
                     )
                     s3_util.save_file_to_s3(
-                        settings.COMSOL_EXAM_DIR, filename, "exam10.pdf"
+                        settings.COMSOL_EXAM_DIR,
+                        filename,
+                        f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
                     )
                     exam_type = ExamType.objects.get(displayname="Transcripts")
                     exam = Exam(
@@ -407,7 +415,9 @@ class Command(BaseCommand):
                         16, settings.COMSOL_DOCUMENT_DIR, ".pdf"
                     )
                     s3_util.save_file_to_s3(
-                        settings.COMSOL_DOCUMENT_DIR, filename, "exam10.pdf"
+                        settings.COMSOL_DOCUMENT_DIR,
+                        filename,
+                        f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
                     )
                     DocumentFile(
                         display_name="File " + str(j + 1),

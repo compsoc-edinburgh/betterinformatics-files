@@ -89,23 +89,6 @@ class ExamPage(models.Model):
         indexes = [GinIndex(fields=["search_vector"])]
 
 
-class ExamPageFlow(models.Model):
-    page = models.ForeignKey(
-        'ExamPage', on_delete=models.CASCADE, related_name='flows')
-    order = models.IntegerField(default=0)
-
-
-class ExamWord(models.Model):
-    flow = models.ForeignKey(
-        'ExamPageFlow', on_delete=models.CASCADE, related_name='words')
-    order = models.IntegerField(default=0)
-    content = models.TextField()
-    x_min = models.FloatField()
-    y_min = models.FloatField()
-    x_max = models.FloatField()
-    y_max = models.FloatField()
-
-
 class ExamType(models.Model):
     displayname = models.CharField(max_length=256)
     order = models.IntegerField(default=0)
