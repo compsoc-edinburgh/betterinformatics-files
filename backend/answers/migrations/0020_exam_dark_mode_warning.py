@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("answers", "0018_migrate_legacy_to_answer_kind"),
+        ("answers", "0019_remove_examword_flow_delete_exampageflow_and_more"),
     ]
 
     operations = [
