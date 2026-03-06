@@ -19,17 +19,29 @@ from myauth import auth_check
 from myauth.models import MyUser, get_my_user
 from util import s3_util, response
 
-from documents.models import Comment, Document, DocumentType, DocumentFile, generate_api_key
+from documents.models import (
+    Comment,
+    Document,
+    DocumentType,
+    DocumentFile,
+    generate_api_key,
+)
 from notifications import notification_util
 
 logger = logging.getLogger(__name__)
+
 
 @response.request_get()
 @auth_check.require_login
 def list_document_types(request):
     return response.success(
-        value=list(DocumentType.objects.values_list("display_name", flat=True).order_by("order"))
+        value=list(
+            DocumentType.objects.values_list("display_name", flat=True).order_by(
+                "order"
+            )
+        )
     )
+
 
 def prep_comment_obj(comment: Comment, request: HttpRequest):
     # Don't use this for lists of comments
@@ -37,6 +49,7 @@ def prep_comment_obj(comment: Comment, request: HttpRequest):
     comment.flagged_count = comment.flagged.count()
     comment.is_flagged = comment.flagged.filter(id=request.user.id).exists()
     return comment
+
 
 def get_comment_obj(comment: Comment, request: HttpRequest):
     return {
@@ -156,21 +169,23 @@ class DocumentRootView(View):
         if include_comments:
             comments_query = Comment.objects.annotate(
                 flagged_count=Count("flagged", distinct=True),
-                is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
-                )
+                is_flagged=Exists(
+                    Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+                ),
+            )
             objects = objects.prefetch_related(
                 Prefetch(
                     "comments",
                     queryset=comments_query,
-                ))
+                )
+            )
 
         include_files = "include_files" in request.GET
         if include_files:
             objects = objects.prefetch_related("files")
 
         res = [
-            get_document_obj(document, request,
-                             include_comments, include_files)
+            get_document_obj(document, request, include_comments, include_files)
             for document in objects.all()
         ]
         return response.success(value=res)
@@ -189,7 +204,7 @@ class DocumentRootView(View):
             description=description,
             category=category,
             author=request.user,
-            document_type=DocumentType.objects.get(display_name="Documents")
+            document_type=DocumentType.objects.get(display_name="Documents"),
         )
         document.save()
 
@@ -209,30 +224,30 @@ class DocumentElementView(View):
         if include_comments:
             comments_query = Comment.objects.annotate(
                 flagged_count=Count("flagged", distinct=True),
-                is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
-                )
+                is_flagged=Exists(
+                    Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+                ),
+            )
             objects = objects.prefetch_related(
                 Prefetch(
                     "comments",
                     queryset=comments_query,
-                ))
+                )
+            )
 
         include_files = "include_files" in request.GET
         if include_files:
             objects = objects.prefetch_related("files")
 
-        document = get_object_or_404(
-            objects, author__username=username, slug=slug)
+        document = get_object_or_404(objects, author__username=username, slug=slug)
 
         return response.success(
-            value=get_document_obj(
-                document, request, include_comments, include_files)
+            value=get_document_obj(document, request, include_comments, include_files)
         )
 
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, slug: str):
-        document = get_object_or_404(
-            Document, author__username=username, slug=slug)
+        document = get_object_or_404(Document, author__username=username, slug=slug)
         if "liked" in request.DATA:
             if request.DATA["liked"] == "true":
                 document.likes.add(request.user)
@@ -257,36 +272,35 @@ class DocumentElementView(View):
         if "category" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
-            category = get_object_or_404(
-                Category, slug=request.DATA["category"])
+            category = get_object_or_404(Category, slug=request.DATA["category"])
             document.category = category
             edited = True
         if "document_type" in request.DATA:
             if not can_edit:
                 return response.not_allowed()
             old_document_type = document.document_type
-            document.document_type, _ = DocumentType.objects.get_or_create(display_name=request.DATA['document_type'])
+            document.document_type, _ = DocumentType.objects.get_or_create(
+                display_name=request.DATA["document_type"]
+            )
             document.save()
             if old_document_type.id > 4 and not old_document_type.type_set.exists():
                 old_document_type.delete()
             edited = True
-        
+
         if edited:
             document.edittime = timezone.now()
             document.save()
-            
+
         return response.success(value=get_document_obj(document, request))
 
     @auth_check.require_login
     def delete(self, request: HttpRequest, username: str, slug: str):
         objects = Document.objects.prefetch_related("author")
-        document = get_object_or_404(
-            objects, author__username=username, slug=slug)
+        document = get_object_or_404(objects, author__username=username, slug=slug)
         if not document.current_user_can_delete(request):
             return response.not_allowed()
 
-        filenames = [
-            document_file.filename for document_file in document.files.all()]
+        filenames = [document_file.filename for document_file in document.files.all()]
         success = s3_util.delete_files(settings.COMSOL_DOCUMENT_DIR, filenames)
         document.delete()
         return response.success(value=success)
@@ -300,9 +314,15 @@ class DocumentCommentRootView(View):
         document = get_object_or_404(
             Document, author__username=username, slug=document_slug
         )
-        objects = Comment.objects.filter(document=document).all().annotate(
+        objects = (
+            Comment.objects.filter(document=document)
+            .all()
+            .annotate(
                 flagged_count=Count("flagged", distinct=True),
-                is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
+                is_flagged=Exists(
+                    Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+                ),
+            )
         )
         return response.success(
             value=[get_comment_obj(comment, request) for comment in objects]
@@ -390,7 +410,6 @@ class DocumentFileRootView(View):
         )
         if not document.current_user_can_edit(request):
             return response.not_allowed()
-        
 
         if slugify(parse.quote(request.DATA["display_name"], " ")).strip() == "":
             return response.not_possible("Invalid displayname")
@@ -399,11 +418,18 @@ class DocumentFileRootView(View):
         if err is not None:
             return err
 
-        max_order = DocumentFile.objects.filter(document=document).all().aggregate(max_order=Max('order'))['max_order']
-        new_order = 0 if DocumentFile.objects.filter(document=document).count() == 0 else max_order + 1
+        max_order = (
+            DocumentFile.objects.filter(document=document)
+            .all()
+            .aggregate(max_order=Max("order"))["max_order"]
+        )
+        new_order = (
+            0
+            if DocumentFile.objects.filter(document=document).count() == 0
+            else max_order + 1
+        )
 
-        filename = s3_util.generate_filename(
-            16, settings.COMSOL_DOCUMENT_DIR, ext)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
             display_name=request.POST["display_name"],
             document=document,
@@ -586,10 +612,8 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
         changed = True
 
     if not document_file.filename.endswith(ext):
-        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR,
-                            document_file.filename)
-        filename = s3_util.generate_filename(
-            16, settings.COMSOL_DOCUMENT_DIR, ext)
+        s3_util.delete_file(settings.COMSOL_DOCUMENT_DIR, document_file.filename)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file.filename = filename
         changed = True
 
@@ -611,7 +635,7 @@ def update_file(request: HttpRequest, username: str, document_slug: str, id: int
 
 @response.request_post()
 @auth_check.require_login
-def move_file(request: HttpRequest, username:str, document_slug:str, filename: str):
+def move_file(request: HttpRequest, username: str, document_slug: str, filename: str):
     direction = request.POST["direction"]
     if not direction:
         return response.missing_argument()
@@ -622,7 +646,9 @@ def move_file(request: HttpRequest, username:str, document_slug:str, filename: s
     if not document.current_user_can_edit(request):
         return response.not_allowed()
     file = get_object_or_404(DocumentFile, filename=filename)
-    moved_file = get_object_or_404(DocumentFile, document=document, order=file.order + direction)
+    moved_file = get_object_or_404(
+        DocumentFile, document=document, order=file.order + direction
+    )
     file.order += direction
     moved_file.order -= direction
     with transaction.atomic():
