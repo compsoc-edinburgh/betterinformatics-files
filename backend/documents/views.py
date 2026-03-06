@@ -461,7 +461,7 @@ class DocumentFileElementView(View):
             document__author__username=username,
             document__slug=document_slug,
         )
-        return get_file_obj(document_file)
+        return response.success(value=get_file_obj(document_file))
 
     @auth_check.require_login
     def put(self, request: HttpRequest, username: str, document_slug: str, id: int):
