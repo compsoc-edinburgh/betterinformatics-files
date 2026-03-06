@@ -380,9 +380,7 @@ class DocumentFileRootView(View):
             Document, author__username=username, slug=document_slug
         )
         objects = DocumentFile.objects.filter(document=document).all()
-        return response.success(
-            value=[get_document_file(file, request) for file in objects]
-        )
+        return response.success(value=[get_file_obj(file) for file in objects])
 
     @response.required_args("display_name")
     @auth_check.require_login
