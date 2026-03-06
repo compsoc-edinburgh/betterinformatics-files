@@ -87,7 +87,9 @@ class Command(BaseCommand):
                     16, settings.COMSOL_IMAGE_DIR, ".svg"
                 )
                 s3_util.save_file_to_s3(
-                    settings.COMSOL_IMAGE_DIR, filename, f"{settings.COMSOL_ASSETS_FOLDER}/static/test_image.svg"
+                    settings.COMSOL_IMAGE_DIR,
+                    filename,
+                    f"{settings.COMSOL_ASSETS_FOLDER}/static/test_image.svg",
                 )
                 Image(filename=filename, owner=user).save()
 
@@ -176,20 +178,28 @@ class Command(BaseCommand):
                 )
                 exam.save()
                 pdf_utils.analyze_pdf(
-                    exam, os.path.join(settings.COMSOL_EXAM_DIR, f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf")
+                    exam,
+                    os.path.join(
+                        settings.COMSOL_EXAM_DIR,
+                        f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
+                    ),
                 )
 
                 if i + category.id % 3 == 0:
                     exam.has_solution = True
                     s3_util.save_file_to_s3(
-                        settings.COMSOL_SOLUTION_DIR, filename, f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf"
+                        settings.COMSOL_SOLUTION_DIR,
+                        filename,
+                        f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
                     )
                     exam.save()
 
                 if i + category.id % 5 == 0:
                     exam.is_printonly = True
                     s3_util.save_file_to_s3(
-                        settings.COMSOL_PRINTONLY_DIR, filename, f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf"
+                        settings.COMSOL_PRINTONLY_DIR,
+                        filename,
+                        f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf",
                     )
                     exam.save()
 
@@ -283,7 +293,19 @@ class Command(BaseCommand):
                     ][(answer.id + i) % 2],
                 )
                 objs.append(comment)
+
         Comment.objects.bulk_create(objs)
+
+        # Need to first commit the comments before we can add reports
+        # Because otherwise the comments don't have ids
+        # which it needs to associate a report to a comment
+        comments = Comment.objects.all()
+
+        for comment in comments[::23]:
+            # Create 1-4 (incl.) flags for this comment
+            for i in range(comment.id % 5):
+                reporter = users[(comment.id + i) % len(users)]
+                comment.flagged.add(reporter)
 
     def create_feedback(self):
         self.stdout.write("Create feedback")
@@ -424,7 +446,7 @@ class Command(BaseCommand):
                         document=document,
                         filename=filename,
                         mime_type="application/pdf",
-                        order=j
+                        order=j,
                     ).save()
 
                 # Make users like it
