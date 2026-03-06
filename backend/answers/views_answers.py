@@ -42,9 +42,9 @@ def set_answer(request, oid):
         "legacy": Answer.Kind.LEGACY,
         "official": Answer.Kind.OFFICIAL,
     }
-    
+
     if request.POST["kind"] not in kind:
-        return response.not_possible(f"kind must be one of {kind.keys.join(',')}")
+        return response.not_possible(f"kind must be one of {','.join(kind)}")
 
     kind = kind[request.POST["kind"]]
 
