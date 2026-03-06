@@ -283,7 +283,19 @@ class Command(BaseCommand):
                     ][(answer.id + i) % 2],
                 )
                 objs.append(comment)
+
         Comment.objects.bulk_create(objs)
+
+        # Need to first commit the comments before we can add reports
+        # Because otherwise the comments don't have ids
+        # which it needs to associate a report to a comment
+        comments = Comment.objects.all()
+
+        for comment in comments[::23]:
+            # Create 1-4 (incl.) flags for this comment
+            for i in range(comment.id % 5):
+                reporter = users[(comment.id + i) % len(users)]
+                comment.flagged.add(reporter)
 
     def create_feedback(self):
         self.stdout.write("Create feedback")
