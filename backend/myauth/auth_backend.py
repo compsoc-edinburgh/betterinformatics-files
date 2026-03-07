@@ -90,7 +90,9 @@ def add_auth(request: HttpRequest):
 
         request.claims = claims
 
-        now = datetime.now().replace(tzinfo=timezone.utc).timestamp()
+        # Keycloak hands us the exp timestamp in UTC. So we should also get our
+        # local time in UTC here.
+        now = datetime.now(timezone.utc).timestamp()
         # Validate "nbf" (Not Before) Claim if present
         if "exp" in claims and claims["exp"] < now:
             raise PermissionDenied("Expired")
