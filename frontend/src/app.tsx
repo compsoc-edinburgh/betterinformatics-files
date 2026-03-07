@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React, { useEffect, useState } from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import {
   getAuthenticationExpiry,
   fetchGet,
@@ -24,7 +24,7 @@ import {
   refreshToken,
 } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
-import UserRoute from "./auth/UserRoute";
+import { AuthenticatedRoutes } from "./auth/AuthenticatedRoutes";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
 import CategoryPage from "./pages/category-page";
@@ -54,9 +54,12 @@ import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute } from "@grafana/faro-react";
+import { FaroRoute, FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
-import { QuickSearchFilter, QuickSearchFilterContext } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
+import {
+  QuickSearchFilter,
+  QuickSearchFilterContext,
+} from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { useScrollToHash } from "./hooks/useScrollToHash";
 
 /**
@@ -78,12 +81,10 @@ import { useScrollToHash } from "./hooks/useScrollToHash";
  * In production builds, observability is controlled via the FRONTEND_SERVER_DATA
  * backend setting.
  */
-const Router = ({ children }: { children?: React.ReactNode }) =>
-  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
-    children
-  ) : (
-    <FaroRoute path="/">{children}</FaroRoute>
-  );
+const TelemetryRoutes =
+  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url
+    ? Routes
+    : FaroRoutes;
 
 const App: React.FC<{}> = () => {
   const [loggedOut, setLoggedOut] = useState(false);
@@ -195,7 +196,9 @@ const App: React.FC<{}> = () => {
   const [debugPanel, { toggle: toggleDebugPanel, close: closeDebugPanel }] =
     useDisclosure();
   const [debugOptions, setDebugOptions] = useState(defaultDebugOptions);
-  const [quickSearchFilter, setQuickSearchFilter] = useState<QuickSearchFilter|undefined>(undefined);
+  const [quickSearchFilter, setQuickSearchFilter] = useState<
+    QuickSearchFilter | undefined
+  >(undefined);
 
   useScrollToHash();
 
@@ -253,7 +256,7 @@ const App: React.FC<{}> = () => {
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
-    { title: "Flagged Content", href: "/flagged"},
+    { title: "Flagged Content", href: "/flagged" },
   ];
 
   const bottomHeaderNav = [
@@ -319,7 +322,12 @@ const App: React.FC<{}> = () => {
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
-            <QuickSearchFilterContext.Provider value={{ filter: quickSearchFilter, setFilter: setQuickSearchFilter }}>
+            <QuickSearchFilterContext.Provider
+              value={{
+                filter: quickSearchFilter,
+                setFilter: setQuickSearchFilter,
+              }}
+            >
               <div>
                 <TopHeader
                   logo={data.logo ?? defaultConfigOptions.logo}
@@ -334,7 +342,7 @@ const App: React.FC<{}> = () => {
                     data.externalNav ?? defaultConfigOptions.externalNav
                   }
                   selectedLanguage={"en"}
-                  onLanguageSelect={() => { }}
+                  onLanguageSelect={() => {}}
                 />
                 <BottomHeader
                   lang={"en"}
@@ -350,68 +358,35 @@ const App: React.FC<{}> = () => {
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
-                  <Router>
-                    <Switch>
-                      <UserRoute exact path="/" children={<HomePage />} />
-                      <UserRoute
-                        exact
-                        path="/uploadpdf"
-                        children={<UploadPdfPage />}
-                      />
-                      <UserRoute
-                        exact
+                  <TelemetryRoutes>
+                    <Route path="*" element={<NotFoundPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route element={<AuthenticatedRoutes />}>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/uploadpdf" element={<UploadPdfPage />} />
+                      <Route
                         path="/submittranscript"
-                        children={<UploadTranscriptPage />}
+                        element={<UploadTranscriptPage />}
                       />
-                      <UserRoute exact path="/faq" children={<FAQ />} />
-                      <UserRoute
-                        exact
-                        path="/feedback"
-                        children={<FeedbackPage />}
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/feedback" element={<FeedbackPage />} />
+                      <Route
+                        path="/category/:slug/*"
+                        element={<CategoryPage />}
                       />
-                      <UserRoute
-                        path="/category/:slug"
-                        children={<CategoryPage />}
-                      />
-                      <UserRoute
-                        exact
+                      <Route
                         path="/user/:author/document/:slug"
-                        children={<DocumentPage />}
+                        element={<DocumentPage />}
                       />
-                      <UserRoute
-                        path="/exams/:filename"
-                        children={<ExamPage />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:username"
-                        children={<UserPage />}
-                      />
-                      <UserRoute exact path="/user/" children={<UserPage />} />
-                      <UserRoute
-                        exact
-                        path="/search/"
-                        children={<SearchPage />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/scoreboard"
-                        children={<Scoreboard />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/modqueue"
-                        children={<ModQueue />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/flagged"
-                        children={<FlaggedContent />}
-                      />
-                      <Route exact path="/login" children={<LoginPage />} />
-                      <Route children={<NotFoundPage />} />
-                    </Switch>
-                  </Router>
+                      <Route path="/exams/:filename/*" element={<ExamPage />} />
+                      <Route path="/user/:username" element={<UserPage />} />
+                      <Route path="/user/" element={<UserPage />} />
+                      <Route path="/search/" element={<SearchPage />} />
+                      <Route path="/scoreboard" element={<Scoreboard />} />
+                      <Route path="/modqueue" element={<ModQueue />} />
+                      <Route path="/flagged" element={<FlaggedContent />} />
+                    </Route>
+                  </TelemetryRoutes>
                 </Box>
               </div>
               <Footer
