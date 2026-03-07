@@ -1,7 +1,8 @@
-import ReactMarkdown, { Components, defaultUrlTransform } from "react-markdown";
+import {MarkdownHooks, Components, defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeMermaid from 'rehype-mermaid';
 // Import mchem plugin to register macros for chemical equations in katex.
 // The plugin registers macros when it is imported. We do this after we import "rehype-katex"
 // which transitively imports katex such that the global variables which katex uses are set up.
@@ -174,6 +175,14 @@ const errorMessage = (
   </Alert>
 );
 
+//to avoid the plugin obj changing on re-renders
+//see https://github.com/remarkjs/react-markdown/pull/890#discussion_r1959688258
+const remarkPlugins = [remarkMath, remarkGfm];
+const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
+const rehypePlugins = [
+  [rehypeKatex, { macros }],
+  [rehypeMermaid, { strategy: 'inline-svg'}]];
+
 const MarkdownText: React.FC<Props> = ({
   value,
   highlight_matches,
@@ -197,7 +206,6 @@ const MarkdownText: React.FC<Props> = ({
   );
 
   return useMemo(() => {
-    const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
 
     if (value.length === 0) {
       return <div />;
@@ -205,18 +213,17 @@ const MarkdownText: React.FC<Props> = ({
     return (
       <div className={clsx(classes.wrapperStyle, classes.blockquoteStyle)}>
         <ErrorBoundary fallback={errorMessage}>
-          <ReactMarkdown
-            children={value}
+          <MarkdownHooks
             urlTransform={(uri: string, key, node) => {
               if (node.tagName === "img") {
                 return transformImageUri(uri);
               }
               return defaultUrlTransform(uri);
             }}
-            remarkPlugins={[remarkMath, remarkGfm]}
-            rehypePlugins={[[rehypeKatex, { macros }]]}
+            remarkPlugins={remarkPlugins}
+            rehypePlugins={rehypePlugins}
             components={renderers}
-          />
+          >{value}</MarkdownHooks>
         </ErrorBoundary>
       </div>
     );
