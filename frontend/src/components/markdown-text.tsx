@@ -1,4 +1,5 @@
 import { MarkdownHooks, Components, defaultUrlTransform } from "react-markdown";
+import type { PluggableList } from 'unified';
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -177,9 +178,9 @@ const errorMessage = (
 
 //to avoid the plugin obj changing on re-renders
 //see https://github.com/remarkjs/react-markdown/pull/890#discussion_r1959688258
-const remarkPlugins = [remarkMath, remarkGfm];
+const remarkPlugins: PluggableList = [remarkMath, remarkGfm];
 const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
-const rehypePlugins = [
+const rehypePlugins: PluggableList = [
   [rehypeKatex, { macros }],
   [rehypeMermaid, { strategy: "inline-svg" }],
 ];
