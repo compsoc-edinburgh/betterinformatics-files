@@ -191,6 +191,7 @@ if DEBUG:
 else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
+    "'self'",
     "'unsafe-eval'",
     "https://static.vseth.ethz.ch",
     *allowed_script_sources,
