@@ -18,7 +18,7 @@ const EditorFooter: React.FC<Props> = ({
 }) => {
   const [isHelpOpen, {toggle: toggleHelpModal, close: closeHelpModal}] = useDisclosure();
   return (
-    <div>
+    <div onClick={(e) => e.stopPropagation()}>  //to prevent a bug where users are unable to select the text in the "supported function popup" (see issue #368). This propagation stop prevents the click event from reaching [this line](https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/-/blob/7a13163c85174e1cecc48e4689dc9301ba0197ab/frontend/src/components/Editor/index.tsx#L361) which is probably responsible.
       <Group justify="right" className={classes.row}>
         <Button.Group>
           <Button variant="default" size="sm" onClick={toggleHelpModal}>
