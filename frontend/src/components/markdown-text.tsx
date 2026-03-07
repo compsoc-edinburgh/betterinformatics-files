@@ -1,8 +1,8 @@
-import {MarkdownHooks, Components, defaultUrlTransform } from "react-markdown";
+import { MarkdownHooks, Components, defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import rehypeMermaid from 'rehype-mermaid';
+import rehypeMermaid from "rehype-mermaid";
 // Import mchem plugin to register macros for chemical equations in katex.
 // The plugin registers macros when it is imported. We do this after we import "rehype-katex"
 // which transitively imports katex such that the global variables which katex uses are set up.
@@ -50,7 +50,7 @@ const addMarks = (
       const rest = value.substring(i);
       const m = rest.match(regex);
       if (m) {
-        const start = m.index || 0;
+        const start = m.index ?? 0;
         arr.push(<span key={`s${start}`}>{rest.substring(0, start)}</span>);
         arr.push(<mark key={`s${start}match`}>{m[0]}</mark>);
 
@@ -69,7 +69,7 @@ const addMarks = (
     }
     return newArr;
   }
-  if (obj && obj.props && obj.props.children) {
+  if (obj?.props?.children) {
     if (obj.props.className === "katex") return obj;
     let arr = obj.props.children;
     if (!(arr instanceof Array)) arr = [arr];
@@ -84,7 +84,7 @@ const addMarks = (
 
 const createComponents = (
   regex: RegExp | undefined,
-  languages?: { [key: string]: ComponentRenderer },
+  languages?: Record<string, ComponentRenderer>,
   targetWidth?: number,
 ): Components => ({
   table: ({ children }) => {
@@ -131,9 +131,9 @@ const createComponents = (
     return <h6>{addMarks(children, regex)}</h6>;
   },
   code({ node, className, children, ...props }) {
-    const match = /language-(\w+)/.exec(className || "");
+    const match = /language-(\w+)/.exec(className ?? "");
     const language = match ? match[1] : undefined;
-    if (language && languages && languages[language]) {
+    if (language && languages?.[language]) {
       // Custom language renderer (e.g., for official solutions)
       return languages[language]({
         ...{ node, className, children, ...props },
@@ -141,7 +141,7 @@ const createComponents = (
     }
     return match ? (
       <CodeBlock
-        language={match ? match[1] : undefined}
+        language={match[1]}
         value={String(children).replace(/\n$/, "")}
         {...props}
       />
@@ -163,7 +163,7 @@ interface Props {
    * text will be highlighted.
    */
   highlight_matches?: string[];
-  languages?: { [key: string]: ComponentRenderer };
+  languages?: Record<string, ComponentRenderer>;
   targetWidth?: number;
 }
 
@@ -181,7 +181,8 @@ const remarkPlugins = [remarkMath, remarkGfm];
 const macros = {}; // Predefined macros. Will be edited by KaTex while rendering!
 const rehypePlugins = [
   [rehypeKatex, { macros }],
-  [rehypeMermaid, { strategy: 'inline-svg'}]];
+  [rehypeMermaid, { strategy: "inline-svg" }],
+];
 
 const MarkdownText: React.FC<Props> = ({
   value,
@@ -195,7 +196,7 @@ const MarkdownText: React.FC<Props> = ({
   const regex = useMemo(
     () =>
       highlight_matches && highlight_matches.length > 0
-        ? new RegExp(`${highlight_matches.map(escapeRegExp).join("|")}`)
+        ? new RegExp(highlight_matches.map(escapeRegExp).join("|"))
         : undefined,
     [highlight_matches],
   );
@@ -206,7 +207,6 @@ const MarkdownText: React.FC<Props> = ({
   );
 
   return useMemo(() => {
-
     if (value.length === 0) {
       return <div />;
     }
@@ -223,7 +223,9 @@ const MarkdownText: React.FC<Props> = ({
             remarkPlugins={remarkPlugins}
             rehypePlugins={rehypePlugins}
             components={renderers}
-          >{value}</MarkdownHooks>
+          >
+            {value}
+          </MarkdownHooks>
         </ErrorBoundary>
       </div>
     );
