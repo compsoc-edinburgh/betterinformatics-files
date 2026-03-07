@@ -11,7 +11,7 @@ import {
   Select,
   Grid,
 } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";

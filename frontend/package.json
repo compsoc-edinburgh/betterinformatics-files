@@ -9,7 +9,7 @@
     "@mantine/core": "^8.0.0",
     "@mantine/hooks": "^8.0.0",
     "@tabler/icons-react": "^3.0.0",
-    "@umijs/hooks": "1.9.3",
+    "ahooks": "^2.10.14",
     "chroma-js": "^2.4.2",
     "clsx": "^2.1.0",
     "date-fns": "^4.0.0",

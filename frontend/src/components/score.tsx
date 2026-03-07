@@ -1,5 +1,5 @@
 import { Button, Paper } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
 import { AnswerSection } from "../interfaces";

@@ -4,7 +4,7 @@ import { claimExpiryRelative, hasValidClaim } from "../utils/exam-utils";
 import { Button, ButtonProps } from "@mantine/core";
 import React from "react";
 import { fetchPost } from "../api/fetch-utils";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import TooltipButton from "./TooltipButton";
 
 const setClaim = async (filename: string, claim: boolean) => {

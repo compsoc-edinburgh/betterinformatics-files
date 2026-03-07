@@ -11,7 +11,7 @@ import {
 } from "../interfaces";
 import AnswerSectionComponent from "./answer-section";
 import PdfSectionCanvas from "../pdf/pdf-section-canvas";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { loadCutVersions } from "../api/hooks";
 import PDF from "../pdf/pdf-renderer";
 import { fetchGet } from "../api/fetch-utils";
