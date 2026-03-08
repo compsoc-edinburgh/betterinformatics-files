@@ -140,9 +140,9 @@ const createComponents = (
         ...{ node, className, children, ...props },
       });
     }
-    return match ? (
+    return language ? (
       <CodeBlock
-        language={match[1]}
+        language={language[1]}
         value={String(children).replace(/\n$/, "")}
         {...props}
       />
