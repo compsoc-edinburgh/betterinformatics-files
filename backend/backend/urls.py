@@ -15,11 +15,10 @@ Including another URLconf
 """
 
 from django.urls import path, re_path, include
-from django.views.static import serve
 from functools import wraps
 from util import response
 from django_prometheus import exports
-from backend.settings import DEBUG
+from backend.settings import DEBUG, STATIC_ROOT
 
 from ninja import NinjaAPI
 
@@ -61,7 +60,7 @@ urlpatterns = [
         r"^static/(?P<path>.*)$",
         views.cached_serve,
         {
-            "document_root": "static",
+            "document_root": STATIC_ROOT,
         },
     ),
     path("metrics/", restrict_proxied(exports.ExportToDjangoView)),
