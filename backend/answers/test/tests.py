@@ -16,6 +16,7 @@ class TestMetadata(ComsolTestExamData):
         self.assertEqual(res["public"], self.exam.public)
         self.assertEqual(res["finished_cuts"], self.exam.finished_cuts)
         self.assertEqual(res["needs_payment"], self.exam.needs_payment)
+        self.assertEqual(res["dark_mode_warning"], self.exam.dark_mode_warning)
 
     def test_set_metadata(self):
         self.post(
@@ -30,13 +31,16 @@ class TestMetadata(ComsolTestExamData):
                 "finished_cuts": False,
                 "needs_payment": True,
                 "solution_printonly": True,
+                "dark_mode_warning": True,
             },
         )
         self.exam.refresh_from_db()
         self.test_metadata()
         self.post(
             "/api/exam/setmetadata/{}/".format(self.exam.filename),
-            {"filename": "cannotchange.pdf",},
+            {
+                "filename": "cannotchange.pdf",
+            },
         )
         res = self.get("/api/exam/metadata/{}/".format(self.exam.filename))["value"]
         self.assertNotEqual(res["filename"], "cannotchange.pdf")

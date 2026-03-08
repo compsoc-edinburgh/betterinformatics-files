@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import {
   Alert,
   Button,
@@ -38,6 +38,7 @@ const booleanKeys = [
   "finished_cuts",
   "needs_payment",
   "solution_printonly",
+  "dark_mode_warning",
 ] as const;
 
 const setMetaData = async (
@@ -291,6 +292,14 @@ const ExamMetadataEditor: React.FC<Props> = ({
             name="check"
             label="Finished Cuts"
             {...registerCheckbox("finished_cuts")}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ md: 6 }}>
+          <Checkbox
+            name="check"
+            id="darkModeWarning"
+            label="Warn users against using dark mode with this exam"
+            {...registerCheckbox("dark_mode_warning")}
           />
         </Grid.Col>
       </Grid>

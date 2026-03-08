@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { Button, Card, Group, Title, Text } from "@mantine/core";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";

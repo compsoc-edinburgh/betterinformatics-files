@@ -1,6 +1,5 @@
 import { Button, Group, Modal } from "@mantine/core";
 import * as React from "react";
-import { useCallback, useState } from "react";
 import { ImageHandle } from "./utils/types";
 import EditorHelp from "./EditorHelp";
 import classes from "./EditorFooter.module.css";
@@ -16,9 +15,15 @@ const EditorFooter: React.FC<Props> = ({
   onDelete,
   onOpenOverlay,
 }) => {
-  const [isHelpOpen, {toggle: toggleHelpModal, close: closeHelpModal}] = useDisclosure();
+  const [isHelpOpen, { toggle: toggleHelpModal, close: closeHelpModal }] =
+    useDisclosure();
   return (
-    <div>
+    //onClick handler to prevent a bug where users are unable to select the text in the
+    //"supported function popup" (see issue #368). This propagation stop prevents the
+    //click event from reaching
+    //[this line](https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/-/blob/7a13163c85174e1cecc48e4689dc9301ba0197ab/frontend/src/components/Editor/index.tsx#L361)
+    //which is probably responsible.
+    <div onClick={e => e.stopPropagation()}>
       <Group justify="right" className={classes.row}>
         <Button.Group>
           <Button variant="default" size="sm" onClick={toggleHelpModal}>

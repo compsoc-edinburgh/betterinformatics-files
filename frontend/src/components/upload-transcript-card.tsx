@@ -7,15 +7,15 @@ import {
   Title,
   Select,
 } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
 import { IconCloudUpload, IconDownload } from "@tabler/icons-react";
 
 const UploadTranscriptCard: React.FC<{}> = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const {
     error: categoriesError,
     loading: categoriesLoading,
@@ -27,7 +27,7 @@ const UploadTranscriptCard: React.FC<{}> = () => {
     run: upload,
   } = useRequest(uploadTranscript, {
     manual: true,
-    onSuccess: filename => history.push(`/exams/${filename}`),
+    onSuccess: filename => navigate(`/exams/${filename}`),
   });
   const [validationError, setValidationError] = useState("");
   const error = categoriesError || uploadError || validationError;

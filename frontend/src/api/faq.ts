@@ -1,6 +1,6 @@
 import { fetchGet, fetchPost, fetchPut, fetchDelete } from "./fetch-utils";
 import { FAQEntry } from "../interfaces";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { useMutation } from "./hooks";
 
 const loadFAQs = async () => {

@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import {
   Breadcrumbs,
   Alert,
@@ -16,12 +16,12 @@ import {
 import React, { useCallback, useMemo } from "react";
 import {
   Link,
-  Redirect,
+  Navigate,
   Route,
-  Switch,
-  useHistory,
+  Routes,
+  useNavigate,
   useParams,
-  useRouteMatch,
+  useMatch,
 } from "react-router-dom";
 import {
   loadCategoryMetaData,
@@ -60,8 +60,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   const { data, loading, run } = useRequest(loadMetaCategories, {
     cacheKey: "meta-categories",
   });
-  const history = useHistory();
-  const [removeLoading, remove] = useRemoveCategory(() => history.push("/"));
+  const navigate = useNavigate();
+  const [removeLoading, remove] = useRemoveCategory(() => navigate("/"));
   const [removeConfirm, modals] = useRemoveConfirm();
   const onRemove = useCallback(
     () =>
@@ -85,11 +85,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     [run, onMetaDataChange],
   );
 
-  // `path` is the path structure, e.g. the literal string "/category/:slug"
-  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
-  // defining Routes, we use `path`, but for Link/navigation we use `url`.
-  const { path, url } = useRouteMatch();
-
   return (
     <>
       {modals}
@@ -101,166 +96,180 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
-      <Switch>
-        <Route path={`${path}/edit`}>
-          {!user.isCategoryAdmin && <Redirect to={url} />}
-          {offeredIn && (
-            <CategoryMetaDataEditor
-              onMetaDataChange={editorOnMetaDataChange}
-              close={() => history.push(`/category/${metaData.slug}`)}
-              currentMetaData={metaData}
-              offeredIn={offeredIn.flatMap(b =>
-                b.meta2.map(d => [b.displayname, d.displayname] as const),
-              )}
-            />
-          )}
-        </Route>
-        <Route path={`${path}`} exact>
-          <Flex
-            direction={{ base: "column", sm: "row" }}
-            justify="space-between"
-            mb="sm"
-          >
-            <Title order={1} my="md">
-              {metaData.displayname}
-            </Title>
-            {user.isCategoryAdmin && (
-              <Group>
-                <Button
-                  leftSection={<IconEdit />}
-                  component={Link}
-                  to={`${url}/edit`}
-                >
-                  Edit
-                </Button>
-                <Button
-                  color="red"
-                  loading={removeLoading}
-                  disabled={metaData.slug === "default"}
-                  leftSection={<IconTrash />}
-                  onClick={onRemove}
-                >
-                  Delete
-                </Button>
-              </Group>
-            )}
-          </Flex>
-
-          <Grid mb="xs">
-            {metaData.semester && (
-              <Grid.Col span="content">
-                Semester: <Badge>{metaData.semester}</Badge>
-              </Grid.Col>
-            )}
-            {metaData.form && (
-              <Grid.Col span="content">
-                Form: <Badge>{metaData.form}</Badge>
-              </Grid.Col>
-            )}
-            {metaData.more_exams_link && (
-              <Grid.Col span="content">
-                <Anchor
-                  href={metaData.more_exams_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  c="blue"
-                >
-                  Additional Exams
-                </Anchor>
-              </Grid.Col>
-            )}
-            {metaData.remark && <Grid.Col>Remark: {metaData.remark}</Grid.Col>}
-          </Grid>
-          {(offeredIn === undefined || offeredIn.length > 0) && (
-            <Box mb="sm">
-              Offered in:
-              {loading ? (
-                <Loader />
-              ) : (
-                <List>
-                  {offeredIn?.map(meta1 =>
-                    meta1.meta2.map(meta2 => (
-                      <List.Item key={meta1.displayname + meta2.displayname}>
-                        {meta2.displayname} in {meta1.displayname}
-                      </List.Item>
-                    )),
+      <Routes>
+        <Route
+          path="edit"
+          element={
+            !user.isCategoryAdmin ? (
+              <Navigate to="." replace />
+            ) : (
+              offeredIn && (
+                <CategoryMetaDataEditor
+                  onMetaDataChange={editorOnMetaDataChange}
+                  close={() => navigate(".")}
+                  currentMetaData={metaData}
+                  offeredIn={offeredIn.flatMap(b =>
+                    b.meta2.map(d => [b.displayname, d.displayname] as const),
                   )}
-                </List>
-              )}
-            </Box>
-          )}
-          <Grid my="sm">
-            {metaData.experts.includes(user.username) && (
-              <Grid.Col span="auto">
-                <Alert
-                  color="yellow"
-                  title="Category expert"
-                  icon={<IconStar />}
-                >
-                  You are an expert for this category. You can endorse correct
-                  answers, which will be visible to other users.
-                </Alert>
-              </Grid.Col>
-            )}
-            {metaData.has_payments && (
-              <Grid.Col span="auto">
-                <Alert color="gray" icon={<IconInfoCircle />}>
-                  You have to pay a deposit in order to see oral exams.
-                  {serverData.unlock_deposit_notice ? (
-                    <>
-                      <br />
-                      {serverData.unlock_deposit_notice}
-                    </>
-                  ) : null}
-                  <br />
-                  After submitting a report of your own oral exam you can get
-                  your deposit back.
-                </Alert>
-              </Grid.Col>
-            )}
-            {metaData.catadmin && (
-              <Grid.Col span="auto">
-                <Alert
-                  variant="light"
-                  color="blue"
-                  title="Category admin"
-                  icon={<IconUserStar />}
-                >
-                  You can edit exams in this category. Please do so responsibly.
-                </Alert>
-              </Grid.Col>
-            )}
-          </Grid>
-          <ExamList metaData={metaData} />
-
-          <DocumentList slug={metaData.slug} />
-
-          {metaData.attachments.length > 0 && (
+                />
+              )
+            )
+          }
+        />
+        <Route
+          path="/"
+          element={
             <>
-              <Title order={2} mt="xl" mb="lg">
-                Attachments
-              </Title>
-              <List>
-                {metaData.attachments.map(att => (
-                  <List.Item key={att.filename}>
+              <Flex
+                direction={{ base: "column", sm: "row" }}
+                justify="space-between"
+                mb="sm"
+              >
+                <Title order={1} my="md">
+                  {metaData.displayname}
+                </Title>
+                {user.isCategoryAdmin && (
+                  <Group>
+                    <Button
+                      leftSection={<IconEdit />}
+                      component={Link}
+                      to="edit"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      color="red"
+                      loading={removeLoading}
+                      disabled={metaData.slug === "default"}
+                      leftSection={<IconTrash />}
+                      onClick={onRemove}
+                    >
+                      Delete
+                    </Button>
+                  </Group>
+                )}
+              </Flex>
+
+              <Grid mb="xs">
+                {metaData.semester && (
+                  <Grid.Col span="content">
+                    Semester: <Badge>{metaData.semester}</Badge>
+                  </Grid.Col>
+                )}
+                {metaData.form && (
+                  <Grid.Col span="content">
+                    Form: <Badge>{metaData.form}</Badge>
+                  </Grid.Col>
+                )}
+                {metaData.more_exams_link && (
+                  <Grid.Col span="content">
                     <Anchor
-                      href={`/api/filestore/get/${att.filename}/`}
-                      color="blue"
+                      href={metaData.more_exams_link}
                       target="_blank"
                       rel="noopener noreferrer"
+                      c="blue"
                     >
-                      {att.displayname}
+                      Additional Exams
                     </Anchor>
-                  </List.Item>
-                ))}
-              </List>
+                  </Grid.Col>
+                )}
+                {metaData.remark && (
+                  <Grid.Col>Remark: {metaData.remark}</Grid.Col>
+                )}
+              </Grid>
+              {(offeredIn === undefined || offeredIn.length > 0) && (
+                <Box mb="sm">
+                  Offered in:
+                  {loading ? (
+                    <Loader />
+                  ) : (
+                    <List>
+                      {offeredIn?.map(meta1 =>
+                        meta1.meta2.map(meta2 => (
+                          <List.Item
+                            key={meta1.displayname + meta2.displayname}
+                          >
+                            {meta2.displayname} in {meta1.displayname}
+                          </List.Item>
+                        )),
+                      )}
+                    </List>
+                  )}
+                </Box>
+              )}
+              <Grid my="sm">
+                {metaData.experts.includes(user.username) && (
+                  <Grid.Col span="auto">
+                    <Alert
+                      color="yellow"
+                      title="Category expert"
+                      icon={<IconStar />}
+                    >
+                      You are an expert for this category. You can endorse
+                      correct answers, which will be visible to other users.
+                    </Alert>
+                  </Grid.Col>
+                )}
+                {metaData.has_payments && (
+                  <Grid.Col span="auto">
+                    <Alert color="gray" icon={<IconInfoCircle />}>
+                      You have to pay a deposit in order to see oral exams.
+                      {serverData.unlock_deposit_notice ? (
+                        <>
+                          <br />
+                          {serverData.unlock_deposit_notice}
+                        </>
+                      ) : null}
+                      <br />
+                      After submitting a report of your own oral exam you can
+                      get your deposit back.
+                    </Alert>
+                  </Grid.Col>
+                )}
+                {metaData.catadmin && (
+                  <Grid.Col span="auto">
+                    <Alert
+                      variant="light"
+                      color="blue"
+                      title="Category admin"
+                      icon={<IconUserStar />}
+                    >
+                      You can edit exams in this category. Please do so
+                      responsibly.
+                    </Alert>
+                  </Grid.Col>
+                )}
+              </Grid>
+              <ExamList metaData={metaData} />
+
+              <DocumentList slug={metaData.slug} />
+
+              {metaData.attachments.length > 0 && (
+                <>
+                  <Title order={2} mt="xl" mb="lg">
+                    Attachments
+                  </Title>
+                  <List>
+                    {metaData.attachments.map(att => (
+                      <List.Item key={att.filename}>
+                        <Anchor
+                          href={`/api/filestore/get/${att.filename}/`}
+                          color="blue"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {att.displayname}
+                        </Anchor>
+                      </List.Item>
+                    ))}
+                  </List>
+                </>
+              )}
             </>
-          )}
-        </Route>
-        <Route path={`${path}/*`}>
-          <Redirect to={url} />
-        </Route>
-      </Switch>
+          }
+        />
+        <Route path="*" element={<Navigate to="." replace />} />
+      </Routes>
     </>
   );
 };
@@ -271,15 +280,15 @@ const CategoryPage: React.FC<{}> = () => {
     () => loadCategoryMetaData(slug),
     { cacheKey: `category-${slug}`, refreshDeps: [slug] },
   );
-  const history = useHistory();
+  const navigate = useNavigate();
   const onMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
       mutate(newMetaData);
       if (slug !== newMetaData.slug) {
-        history.push(`/category/${newMetaData.slug}`);
+        navigate(`/category/${newMetaData.slug}`);
       }
     },
-    [mutate, history, slug],
+    [mutate, navigate, slug],
   );
   useTitle(data?.displayname ?? slug);
   useQuickSearchFilter(

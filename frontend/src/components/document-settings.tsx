@@ -11,9 +11,9 @@ import {
   Select,
   Grid,
 } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
 import {
   loadAllCategories,
@@ -47,7 +47,7 @@ interface Props {
 }
 
 const DocumentSettings: React.FC<Props> = ({ data, mutate, reload }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { data: categories } = useRequest(loadAllCategories);
   const categoryOptions =
     categories &&
@@ -75,7 +75,9 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate, reload }) => {
       setCategory(undefined);
       setDocumentType(undefined);
       if (result.slug !== data.slug) {
-        history.replace(`/user/${result.author}/document/${result.slug}`);
+        navigate(`/user/${result.author}/document/${result.slug}`, {
+          replace: true,
+        });
       }
     },
   );
@@ -87,7 +89,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate, reload }) => {
   const [_, deleteDocument] = useDeleteDocument(
     data.author,
     data.slug,
-    () => data && history.push(`/category/${data.category}`),
+    () => data && navigate(`/category/${data.category}`),
   );
   const [
     deleteModalIsOpen,

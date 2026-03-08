@@ -5,7 +5,7 @@ import React, { useMemo, useRef, useEffect, useState } from "react";
 import { ComponentRenderer } from "./markdown-text";
 import { Tooltip } from "@mantine/core";
 import { fetchGet } from "../api/fetch-utils";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 
 interface PProps {
   url: string;

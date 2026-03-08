@@ -1,5 +1,5 @@
 import { fetchGet, fetchPost } from "./fetch-utils";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { remove } from "lodash-es";
 
 export const loadImage = async () => {
