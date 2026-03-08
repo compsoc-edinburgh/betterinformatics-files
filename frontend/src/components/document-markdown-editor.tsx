@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import React, { useState } from "react";
 import { imageHandler, NamedBlob } from "../api/fetch-utils";
 import { useUpdateDocumentFile } from "../api/hooks";

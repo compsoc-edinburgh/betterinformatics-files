@@ -1,5 +1,5 @@
 import { FileInput, Select, Stack, TextInput, Title } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { Alert, Button, Card } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";

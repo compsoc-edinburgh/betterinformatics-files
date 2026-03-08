@@ -22,7 +22,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import ClaimButton from "./claim-button";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { useUser } from "../auth";
 import { hasValidClaim } from "../utils/exam-utils";
 import { loadExamAdminStatus } from "../api/hooks";

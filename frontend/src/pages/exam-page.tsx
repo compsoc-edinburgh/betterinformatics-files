@@ -1,4 +1,4 @@
-import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
+import { useLocalStorageState, useRequest, useSize } from "ahooks";
 import {
   Card,
   Breadcrumbs,
@@ -12,7 +12,7 @@ import {
   Button,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Link,
   Navigate,
@@ -155,7 +155,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     [runAddCut, metaData, runUpdate],
   );
 
-  const [size, sizeRef] = useSize<HTMLDivElement>();
+  const sizeRef = useRef<HTMLDivElement>(null);
+  const size = useSize(sizeRef);
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
   const [inViewSplits, addInViewSplit, removeInViewSplit] =

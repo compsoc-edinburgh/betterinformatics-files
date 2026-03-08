@@ -41,7 +41,7 @@ import SearchPage from "./pages/search-page";
 import UploadTranscriptPage from "./pages/submittranscript-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import TopHeader from "./components/Navbar/TopHeader";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";

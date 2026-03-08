@@ -13,7 +13,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { useLocalStorageState, useRequest } from "@umijs/hooks";
+import { useLocalStorageState, useRequest } from "ahooks";
 import React, { useCallback, useMemo, useState } from "react";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
