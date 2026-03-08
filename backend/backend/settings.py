@@ -90,12 +90,12 @@ for announcement in announcements:
     allowed_keys = {"variant", "color", "title", "icon", "content", "id"}
     mandatory_keys = allowed_keys - {"id", "icon", "variant"}
     assert isinstance(announcement, dict), "An announcement was parsed incorrectly!"
-    assert announcement.keys() <= allowed_keys, (
-        f"Announcement has at least one invalid key {announcement.keys() - allowed_keys}"
-    )
-    assert announcement.keys() >= mandatory_keys, (
-        f"Announcement has at least one missing key {mandatory_keys - announcement.keys()}"
-    )
+    assert (
+        announcement.keys() <= allowed_keys
+    ), f"Announcement has at least one invalid key {announcement.keys() - allowed_keys}"
+    assert (
+        announcement.keys() >= mandatory_keys
+    ), f"Announcement has at least one missing key {mandatory_keys - announcement.keys()}"
 
 announcements = [
     {
@@ -191,6 +191,7 @@ if DEBUG:
 else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
+    "'self'",
     "'unsafe-eval'",
     "https://static.vseth.ethz.ch",
     *allowed_script_sources,
@@ -245,6 +246,7 @@ INSTALLED_APPS = [
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
     "django_probes",
+    "ninja",
 ]
 
 MIDDLEWARE = [
@@ -354,3 +356,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")

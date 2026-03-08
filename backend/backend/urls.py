@@ -13,12 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.urls import path, re_path, include
-from django.views.static import serve
 from functools import wraps
 from util import response
 from django_prometheus import exports
-from backend.settings import DEBUG
+from backend.settings import DEBUG, STATIC_ROOT
+
+from ninja import NinjaAPI
 
 from . import views
 
@@ -33,13 +35,20 @@ def restrict_proxied(f):
     return wrapper
 
 
+# Gradually migrate to using Django-Ninja for all APIs so we can get automatic
+# documentation generation and type-validated API inputs.
+api = NinjaAPI()
+api.add_router("feedback/", "feedback.api.router")
+
 urlpatterns = [
     path("", include("health.urls")),
     path("", include("frontend.urls")),
+    # Any endpoints defined by Ninja
+    path("api/", api.urls),
+    # Any endpoints defined by the old style of Django views
     path("api/exam/", include("answers.urls")),
     path("api/faq/", include("faq.urls")),
     path("api/category/", include("categories.urls")),
-    path("api/feedback/", include("feedback.urls")),
     path("api/filestore/", include("filestore.urls")),
     path("api/image/", include("images.urls")),
     path("api/auth/", include("myauth.urls")),
@@ -51,14 +60,14 @@ urlpatterns = [
         r"^static/(?P<path>.*)$",
         views.cached_serve,
         {
-            "document_root": "static",
+            "document_root": STATIC_ROOT,
         },
     ),
     path("metrics/", restrict_proxied(exports.ExportToDjangoView)),
 ]
 
 if DEBUG:
-    urlpatterns += [path("api/debug/", include('testing.urls'))]
+    urlpatterns += [path("api/debug/", include("testing.urls"))]
 
 handler400 = views.handler400
 handler403 = views.handler403

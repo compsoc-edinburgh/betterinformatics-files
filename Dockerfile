@@ -82,6 +82,10 @@ COPY --from=frontend-build /usr/src/app/build/manifest.json \
 COPY --from=frontend-build /usr/src/app/build/index.html ./templates/index.html
 COPY --from=frontend-build /usr/src/app/build/static ./static
 
+# Bundle Django/app package static assets (e.g. Django Ninja docs UI files)
+# into STATIC_ROOT for production serving.
+RUN uv run manage.py collectstatic --noinput
+
 EXPOSE 80
 
 # -------------------------------
