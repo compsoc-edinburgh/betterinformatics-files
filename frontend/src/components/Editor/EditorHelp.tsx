@@ -89,21 +89,13 @@ class Main {
 \`\`\`
 
 #### Diagrams (Mermaid)
-
 You can render diagrams natively using Mermaid syntax within a standard code block:
-
 \`\`\`mermaid
-
 graph TD
-
     A[Input] --> C(Processing)
-
     C -->|Yes| D[Output]
-
     C -->|No| E[Error]
-
 \`\`\`
-
 Check out the [official Mermaid documentation](https://mermaid.js.org/intro/syntax-reference.html) for a full list of supported charts & diagrams.
 
 Toggle source code mode to see how to do this! It makes it much more pleasant for any reader to read your code, so please use it.
