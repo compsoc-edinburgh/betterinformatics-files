@@ -100,6 +100,7 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
               <AnswerComponent
                 hasId={false}
                 answer={answer}
+                answerKind={answer.kind}
                 onSectionChanged={reload}
               />
             </div>

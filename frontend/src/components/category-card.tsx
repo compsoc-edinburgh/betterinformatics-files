@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import React, { useMemo } from "react";
 import { IconHeart, IconHeartFilled, IconLock } from "@tabler/icons-react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authenticated } from "../api/fetch-utils";
 import { SearchResult } from "../hooks/useSearch";
 import { CategoryMetaData } from "../interfaces";
@@ -31,12 +31,12 @@ const pluralize = (count: number, noun: string) =>
   `${count} ${noun}${count !== 1 ? "s" : ""}`;
 
 const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle: refresh }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
       if (!authenticated())
-        history.push(`/login/?rd=/category/${category.slug}`);
-      else history.push(`/category/${category.slug}`);
+        navigate(`/login/?rd=/category/${category.slug}`);
+      else navigate(`/category/${category.slug}`);
     }
   };
 
@@ -78,7 +78,7 @@ const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle:
       onClick={e => {
         if (!authenticated()) {
           e.preventDefault();
-          history.push(`/login/?rd=${encodeURIComponent(`/category/${category.slug}`)}`);
+          navigate(`/login/?rd=${encodeURIComponent(`/category/${category.slug}`)}`);
         }
       }}
       withBorder

@@ -27,7 +27,7 @@ import {
   useMediaQuery,
   useOs,
 } from "@mantine/hooks";
-import { useDebounce, useRequest } from "@umijs/hooks";
+import { useDebounce, useRequest } from "ahooks";
 import { loadAllCategories, loadSearch } from "../../../api/hooks";
 import {
   AnswerSearchResult,
@@ -42,7 +42,7 @@ import classes from "./QuickSearchBox.module.css";
 import { QuickSearchResult } from "./QuickSearchResult";
 import { QuickSearchResults } from "./QuickSearchResults";
 import { QuickSearchFilterContext } from "./QuickSearchFilterContext";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 
 /**
@@ -94,7 +94,7 @@ export const QuickSearchBox: React.FC = () => {
 
   // Search query and its debounced version (to save network requests while typing)
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchQuery = useDebounce(searchQuery, 100);
+  const debouncedSearchQuery = useDebounce(searchQuery, { wait: 100 });
 
   // Category filter, set by pages like ExamPage or CategoryPage through the
   // global context (in App). Undefined if there is no filter.
@@ -217,11 +217,11 @@ export const QuickSearchBox: React.FC = () => {
   );
 
   // Create callback for pressing "Enter" and navigating to the highlighted result
-  const history = useHistory();
+  const navigate = useNavigate();
   const confirmSelection = useCallback(() => {
     if (!currentSelection.type) return; // Make sure we don't navivate to invalid selections
 
-    history.push(
+    navigate(
       // TODO: fix duplicate logic here to get the path for an item; we already
       // do that in QuickSearchResults to create the link href prop of results
       itemToPath(results[currentSelection.type][currentSelection.index]),

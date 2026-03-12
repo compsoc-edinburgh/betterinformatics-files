@@ -6,6 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
     dependencies = [
         ("scoreboard", "0002_add_user_score"),
+        ("documents", "0003_document_likes"),
     ]
 
     sql = """

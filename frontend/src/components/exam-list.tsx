@@ -11,7 +11,7 @@ import {
   Popover,
   useComputedColorScheme,
 } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
 import { useUser } from "../auth";

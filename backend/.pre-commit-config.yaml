@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        language: system
+        entry: uv run --no-sync black
+        pass_filenames: true
+        files: "\\.py$"

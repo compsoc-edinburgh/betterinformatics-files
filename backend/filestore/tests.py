@@ -1,5 +1,6 @@
 from categories.models import Category
 from testing.tests import ComsolTest
+from django.conf import settings
 
 
 class TestUploadDownload(ComsolTest):
@@ -10,7 +11,7 @@ class TestUploadDownload(ComsolTest):
             slug='TestCategory',
         )
         category.save()
-        with open('exam10.pdf', 'rb') as f:
+        with open(f'{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf', 'rb') as f:
             res = self.post('/api/filestore/upload/', {
                 'displayname': 'Test',
                 'category': category.slug,

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Title, TextInput, Textarea, Button, FileInput, Notification, TagsInput, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { fetchPost } from '../api/fetch-utils';
 
 const UploadDissertationPage: React.FC = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -50,7 +50,7 @@ const UploadDissertationPage: React.FC = () => {
     try {
       const response = await fetchPost('/api/dissertations/upload/', dataToSend);
       if (response.value) {
-        history.push('/dissertations'); // Redirect to list page on success
+        navigate('/dissertations'); // Redirect to list page on success
       } else {
         setUploadSuccess(false);
         setErrorMessage(response.error || 'Unknown error during upload.');

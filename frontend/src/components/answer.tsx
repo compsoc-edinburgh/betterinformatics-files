@@ -24,10 +24,10 @@ import {
   useUpdateAnswer,
 } from "../api/hooks";
 import { useUser } from "../auth";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import useToggle from "../hooks/useToggle";
 
-import { Answer, AnswerSection } from "../interfaces";
+import { Answer, AnswerKind, AnswerSection } from "../interfaces";
 import { copy } from "../utils/clipboard";
 import CodeBlock from "./code-block";
 import CommentSectionComponent from "./comment-section";
@@ -36,6 +36,7 @@ import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import Score from "./score";
 import TooltipButton from "./TooltipButton";
+import { useOfficialSolutionLanguage } from "./official-solution";
 import {
   IconChevronDown,
   IconChevronUp,
@@ -67,6 +68,7 @@ interface Props {
   answer?: Answer;
   onSectionChanged?: (newSection: AnswerSection) => void;
   onDelete?: () => void;
+  answerKind: AnswerKind;
   hasId?: boolean; // whether the answer is displayed inside an exam page
 }
 const AnswerComponent: React.FC<Props> = ({
@@ -74,6 +76,7 @@ const AnswerComponent: React.FC<Props> = ({
   answer,
   onDelete,
   onSectionChanged,
+  answerKind,
   hasId = true,
 }) => {
   const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
@@ -90,7 +93,7 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   });
   const { isAdmin, isExpert } = useUser()!;
-  const [confirm, modals] = useConfirm();
+  const [removeConfirm, modals] = useRemoveConfirm();
   const [editing, setEditing] = useState(false);
 
   const [draftText, setDraftText] = useState("");
@@ -110,11 +113,14 @@ const AnswerComponent: React.FC<Props> = ({
     if (answer === undefined && onDelete) onDelete();
   }, [onDelete, answer]);
   const save = useCallback(() => {
-    if (section) update(section.oid, draftText, answerIsAnonymous);
-  }, [section, draftText, update, answerIsAnonymous]);
+    if (section) update(section.oid, draftText, answerKind, answerIsAnonymous);
+  }, [section, draftText, update, answerKind, answerIsAnonymous]);
   const remove = useCallback(() => {
-    if (answer) confirm("Remove answer?", () => removeAnswer(answer.oid));
+    if (answer) removeConfirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [confirm, removeAnswer, answer]);
+  const languages = useOfficialSolutionLanguage();
+
+  const isDraft = !answer;
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const canEdit = section && onSectionChanged && (answer?.canEdit || false);
@@ -130,6 +136,9 @@ const AnswerComponent: React.FC<Props> = ({
         shadow="none"
         withBorder
         id={hasId ? answer?.longId : undefined}
+        classNames={{
+          section: classes.answerSectionStyle,
+        }}
       >
         <Card.Section px="md" py="md" withBorder>
           <Group gap={0}>
@@ -151,7 +160,13 @@ const AnswerComponent: React.FC<Props> = ({
                 </Link>
               </Tooltip>
             )}
-            {answer?.isAnonymous ? (
+            {answerKind != AnswerKind.Personal ? (
+              isDraft ? (
+                "Official (Draft)"
+              ) : (
+                "Official Answer"
+              )
+            ) : answer?.isAnonymous ? (
               isAdmin ? (
                 // Admin view of anonymous posts - clickable
                 <Anchor
@@ -320,7 +335,9 @@ const AnswerComponent: React.FC<Props> = ({
                 value={draftText}
                 onChange={setDraftText}
                 imageHandler={imageHandler}
-                preview={value => <MarkdownText value={value} />}
+                preview={value => (
+                  <MarkdownText value={value} languages={languages} />
+                )}
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />
@@ -343,7 +360,10 @@ const AnswerComponent: React.FC<Props> = ({
               {viewSource ? (
                 <CodeBlock value={answer?.text ?? ""} language="markdown" />
               ) : (
-                <MarkdownText value={answer?.text ?? ""} />
+                <MarkdownText
+                  value={answer?.text ?? ""}
+                  languages={languages}
+                />
               )}
             </Box>
           </Card.Section>

@@ -15,7 +15,7 @@ import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
-import { AnswerSection } from "../interfaces";
+import { AnswerKind, AnswerSection } from "../interfaces";
 import AnswerComponent from "./answer";
 import IconButton from "./icon-button";
 import { getAnswerSectionId } from "../utils/exam-utils";
@@ -71,7 +71,12 @@ const AddButton: React.FC<AddButtonProps> = ({
     return (
       <Group grow>
         {allowAnswer && (
-          <ShimmerButton size="sm" onClick={onAnswer} disabled={hasAnswerDraft} color="dark">
+          <ShimmerButton
+            size="sm"
+            onClick={onAnswer}
+            disabled={hasAnswerDraft}
+            color="dark"
+          >
             Add Answer
           </ShimmerButton>
         )}
@@ -212,41 +217,41 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
         />
         {((cutName && cutName.length > 0) ||
           (isCatAdmin && displayEmptyCutLabels)) && (
-            <NameCard id={id}>
-              {isEditingName ? (
-                <Group>
-                  <TextInput
-                    value={draftName}
-                    placeholder="Name"
-                    onChange={e => setDraftName(e.target.value)}
-                  />
+          <NameCard id={id}>
+            {isEditingName ? (
+              <Group>
+                <TextInput
+                  value={draftName}
+                  placeholder="Name"
+                  onChange={e => setDraftName(e.target.value)}
+                />
+                <IconButton
+                  variant="filled"
+                  tooltip="Save PDF section name"
+                  icon={<IconDeviceFloppy />}
+                  onClick={() => {
+                    setIsEditingName(false);
+                    onCutNameChange(draftName);
+                  }}
+                />
+              </Group>
+            ) : (
+              <Flex justify="space-between" align="center">
+                <Text fw={700} m={0}>
+                  {cutName}
+                </Text>
+                {isCatAdmin && (
                   <IconButton
                     variant="filled"
-                    tooltip="Save PDF section name"
-                    icon={<IconDeviceFloppy />}
-                    onClick={() => {
-                      setIsEditingName(false);
-                      onCutNameChange(draftName);
-                    }}
+                    tooltip="Edit PDF section name"
+                    icon={<IconEdit />}
+                    onClick={() => setIsEditingName(true)}
                   />
-                </Group>
-              ) : (
-                <Flex justify="space-between" align="center">
-                  <Text fw={700} m={0}>
-                    {cutName}
-                  </Text>
-                  {isCatAdmin && (
-                    <IconButton
-                      variant="filled"
-                      tooltip="Edit PDF section name"
-                      icon={<IconEdit />}
-                      onClick={() => setIsEditingName(true)}
-                    />
-                  )}
-                </Flex>
-              )}
-            </NameCard>
-          )}
+                )}
+              </Flex>
+            )}
+          </NameCard>
+        )}
         <Container fluid pb="md" px="md">
           {/* Show answer background only if not hidden, and either answers
           exist or there is a draft. Careful with the conditionals here because
@@ -267,6 +272,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   section={data}
                   answer={answer}
                   onSectionChanged={setAnswerSection}
+                  answerKind={answer.kind}
                 />
               ))}
               {hasDraft && (
@@ -274,13 +280,14 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   section={data}
                   onSectionChanged={setAnswerSection}
                   onDelete={() => setHasDraft(false)}
+                  answerKind={AnswerKind.Personal}
                 />
               )}
             </Card>
           )}
           <AnswerSectionButtonWrapper
             bg={computedColorScheme === "light" ? "gray.0" : "dark.7"}
-          // color={isBeingMoved || !has_answers ? "primary" : undefined}
+            // color={isBeingMoved || !has_answers ? "primary" : undefined}
           >
             <div>
               {data === undefined ? (
@@ -300,7 +307,12 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                     }
                     cancel_add={
                       isBeingMoved ? (
-                        <Button size="sm" onClick={onCancelMove} color="red" variant="outline">
+                        <Button
+                          size="sm"
+                          onClick={onCancelMove}
+                          color="red"
+                          variant="outline"
+                        >
                           Cancel
                         </Button>
                       ) : (
@@ -320,7 +332,13 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       !isBeingMoved &&
                       data.answers.length > 0 && (
                         <>
-                          <Button onClick={onToggleHidden} variant={hidden ? "filled" : "outline"} leftSection={hidden ? <IconChevronDown /> : <IconChevronUp />}>
+                          <Button
+                            onClick={onToggleHidden}
+                            variant={hidden ? "filled" : "outline"}
+                            leftSection={
+                              hidden ? <IconChevronDown /> : <IconChevronUp />
+                            }
+                          >
                             {hidden ? "Show Answers" : "Hide Answers"}
                           </Button>
                         </>
@@ -330,7 +348,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                       isCatAdmin && (
                         <Menu withinPortal>
                           <Menu.Target>
-                            <Button rightSection={<IconChevronDown />} color="dark">
+                            <Button
+                              rightSection={<IconChevronDown />}
+                              color="dark"
+                            >
                               <IconDots />
                             </Button>
                           </Menu.Target>

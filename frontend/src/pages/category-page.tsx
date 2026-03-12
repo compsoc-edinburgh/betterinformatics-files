@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import {
   Breadcrumbs,
   Alert,
@@ -21,12 +21,12 @@ import {
 import React, { useCallback, useMemo } from "react";
 import {
   Link,
-  Redirect,
+  Navigate,
   Route,
-  Switch,
-  useHistory,
+  Routes,
+  useNavigate,
   useParams,
-  useRouteMatch,
+  useMatch,
 } from "react-router-dom";
 import {
   loadCategoryMetaData,
@@ -39,7 +39,7 @@ import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import useTitle from "../hooks/useTitle";
 import MarkdownText from "../components/markdown-text";
 import { CategoryMetaData } from "../interfaces";
@@ -102,16 +102,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     metaData.more_markdown_link,
   );
 
-  const history = useHistory();
-  const [removeLoading, remove] = useRemoveCategory(() => history.push("/"));
-  const [confirm, modals] = useConfirm();
+  const navigate = useNavigate();
+  const [removeLoading, remove] = useRemoveCategory(() => navigate("/"));
+  const [removeConfirm, modals] = useRemoveConfirm();
   const onRemove = useCallback(
     () =>
-      confirm(
+      removeConfirm(
         `Do you really want to remove the category "${metaData.displayname}"?`,
         () => remove(metaData.slug),
       ),
-    [confirm, remove, metaData],
+    [removeConfirm, remove, metaData],
   );
   const offeredIn = useMemo(
     () =>
@@ -166,11 +166,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
       .flat();
   }, [metaData, bi_courses_data]);
 
-  // `path` is the path structure, e.g. the literal string "/category/:slug"
-  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
-  // defining Routes, we use `path`, but for Link/navigation we use `url`.
-  const { path, url } = useRouteMatch();
-
   const tabs = useCategoryTabs([
     { name: "Resources", id: "resources" },
     { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
@@ -206,288 +201,292 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           {metaData.displayname}
         </Anchor>
       </Breadcrumbs>
-      <Switch>
+      <Routes>
         <Route
           path={
-            `${path}/edit` /* this route is listed above the main route so a potential tab with id edit can never take priority over the edit page */
+            "edit" /* this route is listed above the main route so a potential tab with id edit can never take priority over the edit page */
           }
-        >
-          {!user.isCategoryAdmin && <Redirect to={url} />}
-          {offeredIn && (
-            <CategoryMetaDataEditor
-              onMetaDataChange={editorOnMetaDataChange}
-              close={() => history.push(`/category/${metaData.slug}`)}
-              currentMetaData={metaData}
-              offeredIn={offeredIn.flatMap(b =>
-                b.meta2.map(d => [b.displayname, d.displayname] as const),
-              )}
-            />
-          )}
-        </Route>
-        <Route
-          path={path}
-          exact={false /*because useCategoryTabs needs non-exact match*/}
-        >
-          <Card withBorder mt="sm">
-            <Flex
-              direction={{ base: "column", sm: "row" }}
-              justify="space-between"
-            >
-              <Title order={1} mb="md">
-                {metaData.displayname}
-              </Title>
-              {user.isCategoryAdmin && (
-                <Group justify="flex-end">
-                  <Button
-                    leftSection={<IconEdit />}
-                    component={Link}
-                    to={`${url}/edit`}
-                    color="dark"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    color="red"
-                    loading={removeLoading}
-                    disabled={metaData.slug === "default"}
-                    leftSection={<IconTrash />}
-                    onClick={onRemove}
-                  >
-                    Delete
-                  </Button>
-                </Group>
-              )}
-            </Flex>
-            <Group gap="xs">
-              {metaData.euclid_codes.map((code, i) => (
-                <EuclidCodeBadge
-                  key={code}
-                  code={code}
-                  badge_data={quickinfo_data[i]}
-                  loading={bi_courses_loading}
-                  error={bi_courses_error}
-                />
-              ))}
-            </Group>
-            {metaData.remark && (
-              <Text mt="xs">Admin Remarks: {metaData.remark}</Text>
-            )}
-            {metaData.more_exams_link && (
-              <Anchor
-                href={metaData.more_exams_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                c="blue"
-              >
-                Additional Exams
-              </Anchor>
-            )}
-            <Card.Section
-              bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))"
-              mt="xs"
-              style={{
-                overflowX: "auto" /* Allow scrolling tabs if they overflow */,
-              }}
-            >
-              {tabs.Component}
-            </Card.Section>
-          </Card>
-
-          <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
-            <Grid.Col span={{ base: 12, md: 8 }}>
-              {tabs.currentTabId === "statistics" ? (
-                <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                  <CategoryStatsComponent slug={metaData.slug} />
-                </Paper>
-              ) : tabs.currentTabId === "resources" ? (
-                <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                  <ExamList metaData={metaData} />
-
-                  <DocumentList slug={metaData.slug} />
-
-                  {metaData.attachments.length > 0 && (
-                    <>
-                      <Title order={2} mt="xl" mb="lg">
-                        Attachments
-                      </Title>
-                      <List>
-                        {metaData.attachments.map(att => (
-                          <List.Item key={att.filename}>
-                            <Anchor
-                              href={`/api/filestore/get/${att.filename}/`}
-                              color="blue"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {att.displayname}
-                            </Anchor>
-                          </List.Item>
-                        ))}
-                      </List>
-                    </>
+          element={
+            !user.isCategoryAdmin ? (
+              <Navigate to="." replace />
+            ) : (
+              offeredIn && (
+                <CategoryMetaDataEditor
+                  onMetaDataChange={editorOnMetaDataChange}
+                  close={() => navigate(".")}
+                  currentMetaData={metaData}
+                  offeredIn={offeredIn.flatMap(b =>
+                    b.meta2.map(d => [b.displayname, d.displayname] as const),
                   )}
-                </Paper>
-              ) : null}
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 4 }}>
-              {metaData.experts.includes(user.username) && (
-                <Alert
-                  color="yellow"
-                  title="Category expert"
-                  icon={<IconStar />}
-                  mb="md"
+                />
+              )
+            )
+          }
+        />
+        <Route
+          path={"/*"  /*because useCategoryTabs needs non-exact match*/}
+          element={
+            <>
+              <Card withBorder mt="sm">
+                <Flex
+                  direction={{ base: "column", sm: "row" }}
+                  justify="space-between"
                 >
-                  You are an expert for this category. You can endorse correct
-                  answers, which will be visible to other users.
-                </Alert>
-              )}
-              {metaData.catadmin && (
-                <Alert
-                  variant="light"
-                  color="blue"
-                  title="Category admin"
-                  icon={<IconUserStar />}
-                  mb="md"
-                >
-                  You can edit exams in this category. Please do so responsibly.
-                </Alert>
-              )}
-
-              <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
-                <Title order={2} mb="lg">
-                  Info for {thisYear}/{nextYearSuffix} run
-                </Title>
-                {quickinfo_data.length === 0 && (
-                  /*
-                  If none of the variants of this course are running this year,
-                  we show a message to the user.
-                */ <Text c="dimmed" size="sm">
-                    This course is either not running this year or is not an
-                    Informatics course.
-                  </Text>
+                  <Title order={1} mb="md">
+                    {metaData.displayname}
+                  </Title>
+                  {user.isCategoryAdmin && (
+                    <Group justify="flex-end">
+                      <Button
+                        leftSection={<IconEdit />}
+                        component={Link}
+                        to={"edit"}
+                        color="dark"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        color="red"
+                        loading={removeLoading}
+                        disabled={metaData.slug === "default"}
+                        leftSection={<IconTrash />}
+                        onClick={onRemove}
+                      >
+                        Delete
+                      </Button>
+                    </Group>
+                  )}
+                </Flex>
+                <Group gap="xs">
+                  {metaData.euclid_codes.map((code, i) => (
+                    <EuclidCodeBadge
+                      key={code}
+                      code={code}
+                      badge_data={quickinfo_data[i]}
+                      loading={bi_courses_loading}
+                      error={bi_courses_error}
+                    />
+                  ))}
+                </Group>
+                {metaData.remark && (
+                  <Text mt="xs">Admin Remarks: {metaData.remark}</Text>
                 )}
-                {quickinfo_data.map((course, i) => (
-                  <Stack key={metaData.euclid_codes[i]} mb="sm" gap={0}>
-                    <Text>
-                      <Text span fw="bold">
-                        {metaData.euclid_codes[i]}
-                      </Text>
-                      {" - "}
-                      {course?.course_url && (
+                {metaData.more_exams_link && (
+                  <Anchor
+                    href={metaData.more_exams_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    c="blue"
+                  >
+                    Additional Exams
+                  </Anchor>
+                )}
+                <Card.Section
+                  bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))"
+                  mt="xs"
+                  style={{
+                    overflowX: "auto" /* Allow scrolling tabs if they overflow */,
+                  }}
+                >
+                  {tabs.Component}
+                </Card.Section>
+              </Card>
+
+              <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
+                <Grid.Col span={{ base: 12, md: 8 }}>
+                  {tabs.currentTabId === "statistics" ? (
+                    <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                      <CategoryStatsComponent slug={metaData.slug} />
+                    </Paper>
+                  ) : tabs.currentTabId === "resources" ? (
+                    <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                      <ExamList metaData={metaData} />
+
+                      <DocumentList slug={metaData.slug} />
+
+                      {metaData.attachments.length > 0 && (
                         <>
-                          <Anchor
-                            href={course.course_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            c="blue"
-                          >
-                            Course Page
-                          </Anchor>
-                          {", "}
+                          <Title order={2} mt="xl" mb="lg">
+                            Attachments
+                          </Title>
+                          <List>
+                            {metaData.attachments.map(att => (
+                              <List.Item key={att.filename}>
+                                <Anchor
+                                  href={`/api/filestore/get/${att.filename}/`}
+                                  color="blue"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {att.displayname}
+                                </Anchor>
+                              </List.Item>
+                            ))}
+                          </List>
                         </>
                       )}
-                      {course?.euclid_url && (
-                        <Anchor
-                          href={course.euclid_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          c="blue"
-                        >
-                          DRPS
-                        </Anchor>
-                      )}
-                    </Text>
-                    {course && (
-                      <>
-                        <Text>
-                          {course.name} ({course.acronym})<br />
-                          SCQF {course.level} / {course.credits} Credits /
-                          Semester {course.delivery_ordinal}
-                        </Text>
-                        <Group gap="xs">
-                          <PieChart
-                            size={20}
-                            startAngle={90}
-                            endAngle={-270}
-                            data={[
-                              {
-                                name: "Coursework",
-                                value: course.cw_exam_ratio[0],
-                                color: "var(--mantine-primary-color-6)",
-                              },
-                              {
-                                name: "Exam",
-                                value: course.cw_exam_ratio[1],
-                                color: "var(--mantine-primary-color-8)",
-                              },
-                            ]}
-                          />
-                          <Text>
-                            {course.cw_exam_ratio[0] > 0 &&
-                              `${course.cw_exam_ratio[0]}% Coursework`}
-                            {course.cw_exam_ratio[0] > 0 &&
-                              course.cw_exam_ratio[1] > 0 &&
-                              " + "}
-                            {course.cw_exam_ratio[1] > 0 &&
-                              `${course.cw_exam_ratio[1]}% Exam`}
-                          </Text>
-                        </Group>
-                      </>
-                    )}
-                    {!course && (
-                      <Text c="dimmed">
-                        No course information available for this code.
-                      </Text>
-                    )}
-                  </Stack>
-                ))}
-              </Paper>
-
-              {metaData.more_markdown_link && (
-                <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                  <Group align="baseline" justify="space-between" mb="sm">
-                    <Title order={2}>Useful Links</Title>
-                    {md_editable && (
-                      <Tooltip label="Edit this page on GitHub">
-                        <Button
-                          size="compact-sm"
-                          variant="light"
-                          component="a"
-                          target="_blank"
-                          href={md_edit_link}
-                          visibleFrom="md"
-                        >
-                          Edit
-                        </Button>
-                      </Tooltip>
-                    )}
-                  </Group>
-                  {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
-                  {md_error && (
-                    <Alert color="red">
-                      Failed to render additional info: {md_error.message}
+                    </Paper>
+                  ) : null}
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, md: 4 }}>
+                  {metaData.experts.includes(user.username) && (
+                    <Alert
+                      color="yellow"
+                      title="Category expert"
+                      icon={<IconStar />}
+                      mb="md"
+                    >
+                      You are an expert for this category. You can endorse correct
+                      answers, which will be visible to other users.
                     </Alert>
                   )}
-                  {raw_md_contents !== undefined && (
-                    <Text
-                      c={computedColorScheme === "light" ? "gray.7" : "gray.4"}
+                  {metaData.catadmin && (
+                    <Alert
+                      variant="light"
+                      color="blue"
+                      title="Category admin"
+                      icon={<IconUserStar />}
+                      mb="md"
                     >
-                      <MarkdownText
-                        value={raw_md_contents}
-                        localLinkBase="https://betterinformatics.com"
-                        ignoreHtml={true}
-                      />
-                    </Text>
+                      You can edit exams in this category. Please do so responsibly.
+                    </Alert>
                   )}
-                </Paper>
-              )}
-            </Grid.Col>
-          </Grid>
-        </Route>
-        <Route path={`${path}/*`}>
-          <Redirect to={url} />
-        </Route>
-      </Switch>
+
+                  <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
+                    <Title order={2} mb="lg">
+                      Info for {thisYear}/{nextYearSuffix} run
+                    </Title>
+                    {quickinfo_data.length === 0 && (
+                      /*
+                      If none of the variants of this course are running this year,
+                      we show a message to the user.
+                    */ <Text c="dimmed" size="sm">
+                        This course is either not running this year or is not an
+                        Informatics course.
+                      </Text>
+                    )}
+                    {quickinfo_data.map((course, i) => (
+                      <Stack key={metaData.euclid_codes[i]} mb="sm" gap={0}>
+                        <Text>
+                          <Text span fw="bold">
+                            {metaData.euclid_codes[i]}
+                          </Text>
+                          {" - "}
+                          {course?.course_url && (
+                            <>
+                              <Anchor
+                                href={course.course_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                c="blue"
+                              >
+                                Course Page
+                              </Anchor>
+                              {", "}
+                            </>
+                          )}
+                          {course?.euclid_url && (
+                            <Anchor
+                              href={course.euclid_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              c="blue"
+                            >
+                              DRPS
+                            </Anchor>
+                          )}
+                        </Text>
+                        {course && (
+                          <>
+                            <Text>
+                              {course.name} ({course.acronym})<br />
+                              SCQF {course.level} / {course.credits} Credits /
+                              Semester {course.delivery_ordinal}
+                            </Text>
+                            <Group gap="xs">
+                              <PieChart
+                                size={20}
+                                startAngle={90}
+                                endAngle={-270}
+                                data={[
+                                  {
+                                    name: "Coursework",
+                                    value: course.cw_exam_ratio[0],
+                                    color: "var(--mantine-primary-color-6)",
+                                  },
+                                  {
+                                    name: "Exam",
+                                    value: course.cw_exam_ratio[1],
+                                    color: "var(--mantine-primary-color-8)",
+                                  },
+                                ]}
+                              />
+                              <Text>
+                                {course.cw_exam_ratio[0] > 0 &&
+                                  `${course.cw_exam_ratio[0]}% Coursework`}
+                                {course.cw_exam_ratio[0] > 0 &&
+                                  course.cw_exam_ratio[1] > 0 &&
+                                  " + "}
+                                {course.cw_exam_ratio[1] > 0 &&
+                                  `${course.cw_exam_ratio[1]}% Exam`}
+                              </Text>
+                            </Group>
+                          </>
+                        )}
+                        {!course && (
+                          <Text c="dimmed">
+                            No course information available for this code.
+                          </Text>
+                        )}
+                      </Stack>
+                    ))}
+                  </Paper>
+
+                  {metaData.more_markdown_link && (
+                    <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                      <Group align="baseline" justify="space-between" mb="sm">
+                        <Title order={2}>Useful Links</Title>
+                        {md_editable && (
+                          <Tooltip label="Edit this page on GitHub">
+                            <Button
+                              size="compact-sm"
+                              variant="light"
+                              component="a"
+                              target="_blank"
+                              href={md_edit_link}
+                              visibleFrom="md"
+                            >
+                              Edit
+                            </Button>
+                          </Tooltip>
+                        )}
+                      </Group>
+                      {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
+                      {md_error && (
+                        <Alert color="red">
+                          Failed to render additional info: {md_error.message}
+                        </Alert>
+                      )}
+                      {raw_md_contents !== undefined && (
+                        <Text
+                          c={computedColorScheme === "light" ? "gray.7" : "gray.4"}
+                        >
+                          <MarkdownText
+                            value={raw_md_contents}
+                            localLinkBase="https://betterinformatics.com"
+                            ignoreHtml={true}
+                          />
+                        </Text>
+                      )}
+                    </Paper>
+                  )}
+                </Grid.Col>
+              </Grid>
+            </>
+          }
+        />
+        <Route path="*" element={<Navigate to="." replace />} />
+      </Routes>
     </>
   );
 };
@@ -498,15 +497,15 @@ const CategoryPage: React.FC<{}> = () => {
     () => loadCategoryMetaData(slug),
     { cacheKey: `category-${slug}`, refreshDeps: [slug] },
   );
-  const history = useHistory();
+  const navigate = useNavigate();
   const onMetaDataChange = useCallback(
     (newMetaData: CategoryMetaData) => {
       mutate(newMetaData);
       if (slug !== newMetaData.slug) {
-        history.push(`/category/${newMetaData.slug}`);
+        navigate(`/category/${newMetaData.slug}`);
       }
     },
-    [mutate, history, slug],
+    [mutate, navigate, slug],
   );
   useTitle(data?.displayname ?? slug);
   useQuickSearchFilter(

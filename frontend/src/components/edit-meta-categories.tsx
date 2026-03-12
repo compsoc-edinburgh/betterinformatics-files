@@ -1,10 +1,10 @@
 import { useDisclosure } from "@mantine/hooks";
 import { fetchPost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { useMetaCategories } from "../api/hooks";
 import { useEffect, useMemo } from "react";
-import { Button, Flex, Loader, Modal, Stack, TextInput } from "@mantine/core";
+import { ActionIcon, Button, Flex, Loader, Modal, Stack, TextInput } from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Creatable from "./creatable";
 
@@ -122,12 +122,13 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({ oldMeta1, onChange }) => {
           </Button>
         </Stack>
       </Modal>
-      <Button leftSection={<IconEdit />} onClick={openEditModal}>
-        Edit
-      </Button>
-      <Button leftSection={<IconTrash />} onClick={openDeleteModal}>
-        Delete
-      </Button>
+
+      <ActionIcon onClick={openEditModal}>
+        <IconEdit />
+      </ActionIcon>
+      <ActionIcon onClick={openDeleteModal}>
+        <IconTrash />
+      </ActionIcon>
     </>
   );
 };
@@ -262,12 +263,13 @@ export const EditMeta2: React.FC<EditMeta2Props> = ({
           </Button>
         </Stack>
       </Modal>
-      <Button leftSection={<IconEdit />} onClick={openEditModal}>
-        Edit
-      </Button>
-      <Button leftSection={<IconTrash />} onClick={openDeleteModal}>
-        Delete
-      </Button>
+
+      <ActionIcon onClick={openEditModal}>
+        <IconEdit />
+      </ActionIcon>
+      <ActionIcon onClick={openDeleteModal}>
+        <IconTrash />
+      </ActionIcon>
     </>
   );
 };

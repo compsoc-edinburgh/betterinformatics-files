@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { Button, Card, Group, Title, Text } from "@mantine/core";
 import * as React from "react";
 import { fetchPost } from "../api/fetch-utils";
@@ -53,7 +53,6 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
             <TooltipButton
               variant={entry.read ? "default" : "filled"}
               tooltip={`Mark as ${entry.read ? "Unread" : "Read"}`}
-              color={entry.read ? "brand.7" : "brand"}
               onClick={() => runSetFlag("read", !entry.read)}>
               {entry.read ? <IconMail /> :  <IconMailOpened />}
             </TooltipButton>

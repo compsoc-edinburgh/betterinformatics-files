@@ -1,13 +1,11 @@
-import { useLocalStorageState, useRequest } from "@umijs/hooks";
+import { useLocalStorageState, useRequest } from "ahooks";
 import {
   Alert,
   Anchor,
   Button,
-  Collapse,
   Container,
   Divider,
   Grid,
-  Group,
   Stack,
   Tabs,
   Text,
@@ -23,9 +21,8 @@ import serverData from "../utils/server-data";
 import { Loader } from "@mantine/core";
 import { FeedbackEntry } from "../interfaces";
 import { useDisclosure } from "@mantine/hooks";
-import TooltipButton from "../components/TooltipButton";
-import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import CollapseWrapper from "../components/collapse-wrapper";
+import { parseISO, isValid } from "date-fns";
 
 const FeedbackForm: React.FC<{}> = () => {
   const [success, setSuccess] = useState(false);
@@ -123,20 +120,29 @@ const FeedbackReader: React.FC<{}> = () => {
   };
 
   if (feedback) {
-    feedback.forEach(fb => {
-      if (!fb.read && !fb.done) {
-        categorized.waiting_action.push(fb);
-      } else if (fb.read && fb.done) {
-        categorized.read_and_done.push(fb);
-      } else {
-        if (fb.done) {
-          categorized.done.push(fb);
+    feedback
+      .map(fb => {
+        const date = parseISO(fb.time);
+        return {
+          ...fb,
+          date: isValid(date) ? date : new Date(0),
+        };
+      })
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .forEach(fb => {
+        if (!fb.read && !fb.done) {
+          categorized.waiting_action.push(fb);
+        } else if (fb.read && fb.done) {
+          categorized.read_and_done.push(fb);
+        } else {
+          if (fb.done) {
+            categorized.done.push(fb);
+          }
+          if (fb.read) {
+            categorized.read.push(fb);
+          }
         }
-        if (fb.read) {
-          categorized.read.push(fb);
-        }
-      }
-    });
+      });
   }
 
   return (

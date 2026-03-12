@@ -1,7 +1,8 @@
 programs:
   - name: wait-for-db
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "manage.py"
       - "wait_for_database"
     workdir: /app
@@ -18,8 +19,9 @@ programs:
 
       - GSUITE_CREDENTIALS_FILE:
   - name: migrate
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "manage.py"
       - "migrate"
     workdir: /app
@@ -36,8 +38,9 @@ programs:
 
       - GSUITE_CREDENTIALS_FILE:
   - name: configure-cors
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "manage.py"
       - "configure_cors"
     workdir: /app
@@ -55,8 +58,9 @@ programs:
 
       - GSUITE_CREDENTIALS_FILE:
   - name: pgbouncer-generate-ini
-    path: /usr/bin/python3
+    path: /bin/uv
     args:
+      - "run"
       - "generate_ini.py"
     workdir: /app/pgbouncer
     user: app-user
@@ -80,8 +84,10 @@ programs:
     capabilities:
       - CAP_NET_BIND_SERVICE
   - name: gunicorn
-    path: /usr/local/bin/gunicorn
+    path: /bin/uv
     args:
+      - "run"
+      - "gunicorn"
       - "backend.wsgi"
       - "-b"
       - "0.0.0.0:80"

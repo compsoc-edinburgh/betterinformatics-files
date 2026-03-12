@@ -12,6 +12,7 @@ class UserScore(models.Model):
     comments = models.IntegerField()
     documents = models.IntegerField()
     cuts = models.IntegerField()
+    official = models.IntegerField()
 
     class Meta:
         managed = False

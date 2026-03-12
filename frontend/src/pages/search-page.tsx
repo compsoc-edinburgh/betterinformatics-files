@@ -1,4 +1,4 @@
-import { useDebounce, useRequest } from "@umijs/hooks";
+import { useDebounce, useRequest } from "ahooks";
 import { Container, TextInput } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { StringParam, useQueryParam } from "use-query-params";
@@ -19,7 +19,7 @@ const SearchPage: React.FC<{}> = () => {
   const [query, setQuery] = useQueryParam("q", StringParam);
   const [optionalTerm, setTerm] = useState(query);
   const term = optionalTerm || "";
-  const debouncedTerm = useDebounce(term, 300);
+  const debouncedTerm = useDebounce(term, { wait: 300 });
 
   // Store previous query param so we can use it to check if params changed.
   // If params did change, our useEffect will create one extra re-render to

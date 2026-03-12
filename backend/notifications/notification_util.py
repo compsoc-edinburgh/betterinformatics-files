@@ -143,6 +143,8 @@ def get_relative_notification_url(data: Union[Document, Answer]):
 
 
 def new_comment_to_answer(answer: Answer, new_comment: AnswerComment):
+    if answer.kind != Answer.Kind.PERSONAL:
+        return
     send_notification(
         new_comment.author,
         answer.author,
@@ -175,6 +177,8 @@ def new_comment_to_comment(answer: Answer, new_comment: AnswerComment):
 
 
 def _new_answer_to_answer(old_answer: Answer, new_answer: Answer):
+    if old_answer.kind != Answer.Kind.PERSONAL:
+        return
     send_notification(
         new_answer.author,
         old_answer.author,
@@ -186,7 +190,10 @@ def _new_answer_to_answer(old_answer: Answer, new_answer: Answer):
 
 
 def new_answer_to_answer(new_answer: Answer):
-    for other_answer in Answer.objects.filter(answer_section=new_answer.answer_section):
+    for other_answer in Answer.objects.filter(
+        answer_section=new_answer.answer_section,
+        kind=Answer.Kind.PERSONAL,
+    ):
         if other_answer != new_answer:
             _new_answer_to_answer(other_answer, new_answer)
 

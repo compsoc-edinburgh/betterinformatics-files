@@ -41,8 +41,8 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import displayNameClasses from "../utils/display-name.module.css";
-import PermaLinkHandler from "../components/permalink-handler";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
+import { useScrollToPermalink } from "../hooks/useScrollToPermalink";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
@@ -115,9 +115,10 @@ const DocumentPage: React.FC<Props> = () => {
       setTab("comments");
     }
   }, [searchParams, data]);
+  useScrollToPermalink();
+
   return (
     <>
-      <PermaLinkHandler />
       <Container size="xl">
         <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">

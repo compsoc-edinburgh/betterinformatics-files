@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import {
   Alert,
   Button,
@@ -15,7 +15,7 @@ import {
   Title,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { downloadIndirect, fetchGet, fetchPost } from "../api/fetch-utils";
+import { downloadIndirect, fetchGet, fetchPost, fetchPut } from "../api/fetch-utils";
 import { loadAdminCategories, loadExamTypes } from "../api/hooks";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, ExamMetaData } from "../interfaces";
@@ -33,7 +33,7 @@ const stringKeys = [
   "resolve_alias",
   "remark",
 ] as const;
-const booleanKeys = ["public", "finished_cuts"] as const;
+const booleanKeys = ["public", "finished_cuts", "dark_mode_warning"] as const;
 
 const setMetaData = async (
   filename: string,
@@ -50,6 +50,9 @@ const addAttachment = async (exam: string, displayname: string, file: File) => {
       file,
     })
   ).filename as string;
+};
+const editAttachment = async (filename: string, newdisplayname: string) => {
+  await fetchPut(`/api/filestore/edit/${filename}/`, {newdisplayname});
 };
 const removeAttachment = async (filename: string) => {
   await fetchPost(`/api/filestore/remove/${filename}/`, {});
@@ -97,14 +100,16 @@ const applyChanges = async (
     }
   }
   for (const attachment of oldMetaData.attachments) {
-    if (
-      newMetaData.attachments.find(
-        otherAttachment => otherAttachment.filename === attachment.filename,
-      )
-    ) {
+    const foundAttachment = newMetaData.attachments.find(otherAttachment => otherAttachment.filename === attachment.filename);
+    if (!foundAttachment) {
+      await removeAttachment(attachment.filename);
+      continue;
+    }
+    if (foundAttachment.displayname === attachment.displayname) {
       newAttachments.push(attachment);
     } else {
-      await removeAttachment(attachment.filename);
+      await editAttachment(attachment.filename, foundAttachment.displayname);
+      newAttachments.push({ displayname: foundAttachment.displayname, filename: attachment.filename});
     }
   }
 
@@ -248,6 +253,14 @@ const ExamMetadataEditor: React.FC<Props> = ({
             name="check"
             label="Finished Cuts"
             {...registerCheckbox("finished_cuts")}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ md: 6 }}>
+          <Checkbox
+            name="check"
+            id="darkModeWarning"
+            label="Warn users against using dark mode with this exam"
+            {...registerCheckbox("dark_mode_warning")}
           />
         </Grid.Col>
       </Grid>

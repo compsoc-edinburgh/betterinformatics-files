@@ -115,6 +115,7 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             "filename": answer.answer_section.exam.filename,
             "sectionId": answer.answer_section.id,
             "isAnonymous": answer.is_anonymous,
+            "kind": answer.kind,
         }
     except AttributeError:
         raise ValueError(
@@ -162,6 +163,7 @@ def get_answersection_response(request, section):
         "oid": section.id,
         "answers": answers,
         "allow_new_answer": not prepared_query.filter(author=request.user).exists(),
+        "allow_new_official_answer": not prepared_query.filter(kind=Answer.Kind.OFFICIAL).exists(),
         "cutVersion": section.cut_version,
         "has_answers": section.has_answers,
     }

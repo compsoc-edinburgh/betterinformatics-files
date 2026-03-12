@@ -1,7 +1,7 @@
-import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
+import { useLocalStorageState, useRequest, useSize } from "ahooks";
 import { Container } from "@mantine/core";
 import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { getHeaders } from "../api/fetch-utils";
 import PDF from "../pdf/pdf-renderer";
 import PdfSectionCanvas from "../pdf/pdf-section-canvas";
@@ -40,7 +40,8 @@ const DocumentPdf: React.FC<DocumentPdfProps> = ({ url }) => {
       refreshDeps: [url],
     },
   );
-  const [size, sizeRef] = useSize<HTMLDivElement>();
+  const sizeRef = useRef<HTMLDivElement>(null);
+  const size = useSize(sizeRef);
   const renderer = data ? data[1] : undefined;
 
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);

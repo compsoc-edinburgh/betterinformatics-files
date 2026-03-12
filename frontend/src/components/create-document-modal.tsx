@@ -1,6 +1,6 @@
 import { Button, TextInput, Modal, Stack, Text } from "@mantine/core";
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCreateDocument } from "../api/hooks";
 import { IconPlus } from "@tabler/icons-react";
 
@@ -16,9 +16,9 @@ const CreateDocumentForm: React.FC<Props> = ({
   onClose,
 }) => {
   const [displayName, setDisplayName] = useState("");
-  const history = useHistory();
+  const navigate = useNavigate();
   const {error, loading, run} = useCreateDocument(({ slug }) => {
-    history.push(`/document/${slug}/`);
+    navigate(`/document/${slug}/`);
   });
   return (
     <Modal opened={isOpen} title="Add Document Bundle" onClose={onClose}>

@@ -6,7 +6,7 @@ import {
   Group,
   Stack,
 } from "@mantine/core";
-import { useLocalStorageState } from "@umijs/hooks";
+import { useLocalStorageState } from "ahooks";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
 import KawaiiBetterInformatics from "../../assets/kawaii-betterinformatics.svg?react";

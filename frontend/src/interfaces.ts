@@ -12,11 +12,17 @@ export interface FlaggedStatus {
   flagType: boolean; // true if this is a comment false if it is an answer
 }
 
+export enum AnswerKind {
+  Personal = "personal",
+  Official = "official",
+}
+
 export interface AnswerSection {
   oid: string; // unique id within answer sections
   kind: SectionKind.Answer;
   answers: Answer[];
   allow_new_answer: boolean; // whether the current user can add an answer
+  allow_new_official_answer: boolean; // whether an official answer can be posted
   cutHidden: boolean;
   has_answers: boolean;
   hidden: boolean; // whether the element is currently hidden
@@ -43,6 +49,7 @@ export interface Answer {
   edittime: string; // ISO 8601, last edit time
   filename: string; // filename of the corresponding exam
   sectionId: string; // id of section containing answer
+  kind: AnswerKind; // whether this is a personal or official answer
   divRef?: HTMLDivElement; // root div element for scroll jumping
   isAnonymous?: boolean; // whether the answer is posted anonymously
 }
@@ -214,6 +221,7 @@ export interface ExamMetaData {
   public: boolean;
   finished_cuts: boolean;
   has_solution: boolean;
+  dark_mode_warning: boolean;
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];
@@ -253,6 +261,7 @@ export interface UserInfo {
   score_answers: number;
   score_comments: number;
   score_cuts: number;
+  score_official: number;
   score_documents: number;
 }
 

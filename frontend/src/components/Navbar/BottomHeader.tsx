@@ -9,7 +9,7 @@ import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import classes from "./BottomHeader.module.css";
 import KawaiiBetterInformatics from "../../assets/kawaii-betterinformatics.svg?react";
-import { useLocalStorageState } from "@umijs/hooks";
+import { useLocalStorageState } from "ahooks";
 
 interface Props {
   lang: "en" | "de" | string;
@@ -62,7 +62,7 @@ const BottomHeader: React.FC<Props> = ({
               );
             })}
             {loginButton}
-            <ColorSchemeToggle/>
+            <ColorSchemeToggle />
           </Group>
         </Container>
       </Box>

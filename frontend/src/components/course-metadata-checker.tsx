@@ -7,7 +7,7 @@ import {
   Select,
   Table,
 } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { loadCategories, useBICourseList } from "../api/hooks";
 import { BICourse, CategoryMetaDataMinimal } from "../interfaces";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
@@ -66,7 +66,7 @@ const CourseEuclidAssociateButton: React.FC<
             data={options}
             onChange={(value: string | null) => value && setCategorySlug(value)}
             required
-            style={{ flexGrow: 1}}
+            style={{ flexGrow: 1 }}
           />
           <Button variant="outline" type="submit" color="dark">
             Associate
