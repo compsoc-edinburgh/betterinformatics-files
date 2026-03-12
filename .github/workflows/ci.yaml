@@ -54,11 +54,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
         with:
-          path: backend/.cache/pip
-          key: ${{ runner.os }}-pip-dependencies-${{ hashFiles('backend/requirements.txt') }}
+          version: "0.10.7"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
 
       - name: Install mc
         # Install mc so that we can create the community-solutions bucket in minio
@@ -73,10 +74,10 @@ jobs:
         run: |
           apt update && apt install -y --no-install-recommends poppler-utils
 
-      - name: Install pip dependencies
+      - name: Install Python dependencies
         run: |
-          pip3 install -r backend/requirements.txt
-          pip3 install tblib
+          cd backend
+          uv sync --locked
 
       - name: Make/copy files
         # Make/copy files (same as Dockerfile definition) to make resources availabe to tests
@@ -100,7 +101,7 @@ jobs:
           SIP_S3_FILES_USE_SSL: false
         run: |
           cd backend
-          python3 manage.py test --parallel # parallel speeds up by approx 4x.
+          uv run manage.py test --parallel # parallel speeds up by approx 4x.
 
   typecheck-lint:
     name: Frontend Typecheck & Lint
