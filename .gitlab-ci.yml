@@ -114,10 +114,10 @@ stages:
     - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
     - export NVM_DIR=/home/debian/.nvm
 
-    # Install Node 20 (same as Dockerfile)
+    # Install Node 24 (same as Dockerfile)
     - source $NVM_DIR/nvm.sh
-    - nvm install 20
-    - nvm use 20
+    - nvm install 24
+    - nvm use 24
     - npm install --global yarn
 
     # Prepare Yarn to save its store at a known location so it's cachable
@@ -159,5 +159,3 @@ stages:
             "src/**/*.css" \
         )
       fi
-
-

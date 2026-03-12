@@ -47,7 +47,7 @@ COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
 # -------------------------------
 
-FROM node:20-alpine AS frontend-base
+FROM node:24-alpine AS frontend-base
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json \
