@@ -1,21 +1,19 @@
 import { Badge, Button, Group, Tooltip } from "@mantine/core";
 import { useEffect, useMemo } from "react";
-import { Link, useHistory, useRouteMatch } from "react-router-dom";
+import { Link, useNavigate, useMatch } from "react-router-dom";
 
 export const useCategoryTabs = (
   tabs: { name: string; id: string; count?: number; disabled?: boolean }[],
 ) => {
   // Get tab ID from URL query parameters if it exists.
-  // We have to use `useRouteMatch` instead of the typical `useParams`, and have
+  // We have to use `useMatch` instead of the typical `useParams`, and have
   // to explicitly pass the path to match, because `useCategoryTabs` is to be
   // used outside of the matching route component in CategoryPage.
-  const match = useRouteMatch<{ tab?: string }>("/category/:slug/:tab?");
+  const match = useMatch("/category/:slug/:tab?");
 
-  const currentTab = tabs.find(tab => tab.id === match?.params?.tab) || tabs[0];
+  const currentTab = tabs.find(tab => tab.id === match?.params.tab) || tabs[0];
 
-  // Current base URL is used for constructing links to other tabs
-  const { url } = useRouteMatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // If the current tab is disabled, we redirect to the first enabled tab
@@ -23,10 +21,10 @@ export const useCategoryTabs = (
       const i = tabs.findIndex((tab, i) => !tab.disabled);
       if (i !== -1) {
         // Redirect to the first enabled tab (if first, don't append ID to URL)
-        history.push(i > 0 ? `${url}/${tabs[i].id}` : url);
+        navigate(i > 0 ? tabs[i].id : ".");
       }
     }
-  }, [currentTab, tabs, history, url]);
+  }, [currentTab, tabs, navigate]);
 
   // If tab is disabled or undefined (not found), default to the first enabled tab
   // If no tabs are enabled, default to the first tab in the list
@@ -74,7 +72,7 @@ export const useCategoryTabs = (
               }
               radius={0}
               component={Link}
-              to={i > 0 ? `${url}/${tab.id}` : url} // If it's the first tab, hide ID for cleaner URL
+              to={i > 0 ? tab.id : "."} // If it's the first tab, hide ID for cleaner URL
               data-disabled={tab.disabled}
               onClick={
                 tab.disabled ? event => event.preventDefault() : undefined
@@ -93,7 +91,7 @@ export const useCategoryTabs = (
         ))}
       </Group>
     ),
-    [tabs, currentTabId, url],
+    [tabs, currentTabId],
   );
 
   return { currentTabId, Component };

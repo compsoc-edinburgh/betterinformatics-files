@@ -62,6 +62,7 @@ export function loadSections(
           kind: SectionKind.Answer,
           answers: [],
           allow_new_answer: true,
+          allow_new_official_answer: false,
           hidden: true,
           has_answers,
           cutHidden: hidden,
@@ -70,6 +71,9 @@ export function loadSections(
         });
       }
     }
+    // Create a 'fake' PDF section for the remaining part of the page from
+    // lastPos to 1.0. If there were no sections on this page at all, this will
+    // represent the full page. Otherwise, it'll be the part after the last cut.
     if (lastpos < 1) {
       const key = `${akey}-${lastpos}-${1}`;
       sections.push(createPdfSection(key, undefined, i, lastpos, 1, false));

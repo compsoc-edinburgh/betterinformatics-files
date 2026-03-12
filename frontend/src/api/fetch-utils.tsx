@@ -145,6 +145,10 @@ export function fetchPut<T = any>(url: string, data: { [key: string]: any }) {
   return performDataRequest<T>("PUT", url, data);
 }
 
+export function fetchPatch<T = any>(url: string, data: { [key: string]: any }) {
+  return performDataRequest<T>("PATCH", url, data);
+}
+
 export function fetchDelete<T = any>(url: string) {
   return performRequest<T>("DELETE", url);
 }

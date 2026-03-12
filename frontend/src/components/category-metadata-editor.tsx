@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import {
   Alert,
   Button,
@@ -13,7 +13,7 @@ import {
   Title,
 } from "@mantine/core";
 import React from "react";
-import { fetchPost } from "../api/fetch-utils";
+import { fetchPost, fetchPatch } from "../api/fetch-utils";
 import useForm from "../hooks/useForm";
 import useInitialState from "../hooks/useInitialState";
 import { Attachment, CategoryMetaData } from "../interfaces";
@@ -84,6 +84,9 @@ const addAttachment = async (
     })
   ).filename as string;
 };
+const editAttachment = async (filename: string, newdisplayname: string) => {
+  await fetchPatch(`/api/filestore/edit/${filename}/`, {newdisplayname});
+};
 const removeAttachment = async (filename: string) => {
   await fetchPost(`/api/filestore/remove/${filename}/`, {});
 };
@@ -131,14 +134,16 @@ const applyChanges = async (
     }
   }
   for (const attachment of oldMetaData.attachments) {
-    if (
-      newMetaData.attachments.find(
-        otherAttachment => otherAttachment.filename === attachment.filename,
-      )
-    ) {
+    const foundAttachment = newMetaData.attachments.find(otherAttachment => otherAttachment.filename === attachment.filename);
+    if (!foundAttachment) {
+      await removeAttachment(attachment.filename);
+      continue;
+    }
+    if (foundAttachment.displayname === attachment.displayname) {
       newAttachments.push(attachment);
     } else {
-      await removeAttachment(attachment.filename);
+      await editAttachment(attachment.filename, foundAttachment.displayname);
+      newAttachments.push({ displayname: foundAttachment.displayname, filename: attachment.filename});
     }
   }
   for (const [newMeta1, newMeta2] of newOfferedIn) {

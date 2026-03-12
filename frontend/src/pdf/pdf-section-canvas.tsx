@@ -1,7 +1,7 @@
-import { useInViewport } from "@umijs/hooks";
+import { useInViewport } from "ahooks";
 import { Card } from "@mantine/core";
 import * as React from "react";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { DebugContext } from "../components/Debug";
 import IconButton from "../components/icon-button";
 import PdfSectionCanvasOverlay from "../components/pdf-section-canvas-overlay";
@@ -137,7 +137,8 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       end,
       almostInView ? (currentScale ? currentScale * dpr : undefined) : undefined,
     );
-    const [inViewport, inViewportRef] = useInViewport<HTMLDivElement>();
+    const inViewportRef = useRef<HTMLDivElement>(null);
+    const inViewport = useInViewport(inViewportRef);
     const v = inViewport || false;
     useEffect(() => {
       if (onInViewChange) onInViewChange(v);

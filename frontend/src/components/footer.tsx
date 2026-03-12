@@ -11,7 +11,7 @@ import {
   Title,
   rem,
 } from "@mantine/core";
-import { useLocalStorageState } from "@umijs/hooks";
+import { useLocalStorageState } from "ahooks";
 import { IconHeartFilled } from "@tabler/icons-react";
 import { NavItem, globalNav, translate } from "./Navbar/GlobalNav";
 

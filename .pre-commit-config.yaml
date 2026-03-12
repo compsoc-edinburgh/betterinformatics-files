@@ -1,0 +1,4 @@
+# Any repo-wide pre-commit hooks go here.
+# Otherwise, backend- and frontend-specific hooks are in their
+# respective configs in each directory.
+repos: []

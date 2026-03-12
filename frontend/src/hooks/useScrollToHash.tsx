@@ -3,26 +3,29 @@ import { useLocation } from "react-router-dom";
 // Time after which we stop searching for the target element
 const JUMP_TIMEOUT = 40_000;
 
-// This is based on hash-location-handler.tsx
+/**
+ * A hook that manages hash location jumps. Should only exist once in the
+ * render tree. Multiple instances will interfere with each other.
+ * Is based on: https://gist.github.com/gajus/0bbc78135d88a02c18366f12237011a5
+ */
+export const useScrollToHash = () => {
+  const { hash } = useLocation();
 
-const PermaLinkHandler: React.FC = () => {
-  const {search} = useLocation();
-  const searchParams = new URLSearchParams(search);
-  const answer = searchParams.get("answer");
-  const comment = searchParams.get("comment");
+  // Remove # by using substr. Will result in empty string if hash === ""
+  // Chrome doesn't decodeURIComponent hash whereas Safari does - this could cause problems when hash contains uri-decodable data after uri-decoding it.
+  const hashLocation = decodeURIComponent(hash.substring(1));
   React.useEffect(() => {
     // Stop searching for the element we were previously searching for
     let disconnect: (() => void) | undefined = undefined;
 
-    const location = comment || answer || null;
-
-    if (!location) return;
+    // An empty hash location will reset state (See above) but will not search for any element
+    if (hashLocation === "") return;
 
     const tryScroll = () => {
-      const element = document.getElementById(location);
+      const element = document.getElementById(hashLocation);
       if (element === null) return;
 
-      element.scrollIntoView();
+      element.scrollIntoView({ behavior: "smooth" });
 
       // We found the element - previous refers to current element in this case
       if (disconnect) disconnect();
@@ -47,7 +50,6 @@ const PermaLinkHandler: React.FC = () => {
       window.clearTimeout(timeout);
       disconnect?.();
     };
-  }, [search]);
+  }, [hashLocation]);
   return null;
 };
-export default PermaLinkHandler;

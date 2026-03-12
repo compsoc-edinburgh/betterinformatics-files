@@ -1,6 +1,6 @@
 import { Container, Flex, Grid, Paper, Text } from "@mantine/core";
 import React from "react";
-import { useLocalStorageState } from "@umijs/hooks";
+import { useLocalStorageState } from "ahooks";
 import { useLocation } from "react-router-dom";
 import LoginOverlay from "../components/login-overlay";
 import useTitle from "../hooks/useTitle";

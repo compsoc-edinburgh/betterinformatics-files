@@ -26,20 +26,20 @@ or [CompSoc IRC](https://comp-soc.com/irc). Alternatively, write a GitHub issue!
 
 - [How do I contribute?](#how-do-i-contribute)
 - [Tech Stack Overview](#tech-stack-overview)
-- [Getting Started (Frontend)](#getting-started-frontend)
-  - [Install Node.js](#install-nodejs)
-  - [Install Yarn](#install-yarn)
-  - [Run the frontend](#run-the-frontend)
-  - [Running the frontend with Docker](#running-the-frontend-with-docker)
+- [Getting Started Locally](#getting-started-locally)
+  - [Mise](#mise)
+  - [Terminal Setup](#terminal-setup)
+    - [Terminal 1 : Services](#terminal-1--services)
+    - [Terminal 2 : Backend](#terminal-2--backend)
+    - [Terminal 3 : Frontend](#terminal-3--frontend)
+  - [Alternative Docker-Compose Setup](#alternative-docker-compose-setup)
+  - [Troubleshooting](#troubleshooting)
+- [Additional Information and Resources](#additional-information-and-resources)
+  - [Pre-commit hooks](#pre-commit-hooks)
   - [Editing frontend code](#editing-frontend-code)
-- [Getting Started (Backend)](#getting-started-backend)
-  - [Install Docker](#install-docker)
-  - [Start the backend](#start-the-backend)
-  - [Setup the backend (needed for documents to work)](#setup-the-backend-needed-for-documents-to-work)
   - [Editing the backend code](#editing-the-backend-code)
-- [Filling with test data](#filling-with-test-data)
-- [Sending a Pull Request](#sending-a-pull-request)
-- [Troubleshooting](#troubleshooting)
+  - [Testing](#testing)
+  - [Sending a Pull Request](#sending-a-pull-request)
 - [Observability](#observability)
   - [Start showcase infrastructure](#start-showcase-infrastructure)
   - [What is observability](#what-is-observability)
@@ -66,217 +66,169 @@ TypeScript with React and is a single-page app. While the production instance
 packages both into one Docker image, **it is recommended that you launch the**
 **two parts separately** when developing locally.
 
-Thus, to develop locally, you will need:
-- Frontend: [Yarn](#install-yarn), which requires [Node.js](#install-nodejs)
-- Backend: [Docker](#install-docker)
+To develop locally, you will need:
+- [Mise](https://mise.jdx.dev/installing-mise.html) for toolchain management
+- [Docker Compose](https://docs.docker.com/compose/install/) for extra services
 
-These work across all major OSes: Windows, macOS, Linux are all supported.
+This works across all major OSes: Windows, macOS, Linux are all supported.
 
-Advanced users who don't want to install Node.js/Yarn locally can also try
-launching the frontend with Docker (described [here](#running-the-frontend-with-docker)).
-There are drawbacks like larger overhead and less snappy dev cycles.
+Advanced users who don't want to install Mise can also try using Docker for all
+components (as described [here](#alternative-docker-compose-setup)). However,
+there are many drawbacks like larger overhead and less snappy dev cycles.
 
-## Getting Started (Frontend)
+## Getting Started Locally
 
 <details>
-<summary>Install Node.js (skip if you have <code>npm</code> available)</summary>
+<summary>Install Mise (skip if you have <code>mise</code> available)</summary>
 
-### Install Node.js
+### Mise
 
-Node.js is an execution environment for standalone Javascript programs (it's
-something like the Python interpreter).
+Mise allows you to easily download all the correctly versioned tools into the
+project directory (no need to worry about it cluttering your system or messing
+up other paths).
 
-You can install it [directly](https://nodejs.org/en/download/) or with your
-favourite Node version manager software (e.g. nvm, nvm-win, n, etc).
+- On MacOS, `brew install mise`
+- On Windows, `winget install mise`
+- On other systems, follow the installation guide linked above.
 
-We recommend **Node.js 20**, since the Dockerfile also uses v20. Newer versions
-of Node.js have been reported to not work correctly.
+Once Mise is installed:
+
+- On MacOS/Linux, add the `eval "$(mise activate <shell>)"` line to your shell
+  config
+- On Windows, add `%localappdata%\mise\shims` to your PATH
+
+Finally, run `mise install` in the Community Solutions source directory to
+install the required tools.
+
+_NOTE: Non-essential tools you need can be added to `mise.local.toml`._
 
 </details>
-<details>
-<summary>Install Yarn (skip if you have <code>yarn</code> available)</summary>
 
-### Install Yarn
+### Terminal Setup
 
-Yarn is a dependency management tool (like npm or pip). Install it like this:
+The main way to develop is to have three separate terminals:
 
-```bash
-npm install --global yarn
+- One for the frontend using node (yarn) with hot-reload
+- One for the backend using python (uv) with hot-reload
+- One for running the remaining services like PostgreSQL/Minio with docker-compose
+
+Start the terminals in the following order to ensure a correct startup.
+
+#### Terminal 1 : Services
+
+You will need **Docker Compose** to start up any extra services. See the
+[official install instructions](https://docs.docker.com/compose/install/) for
+detailed explanation of how to install Docker.
+
+This will start up required services, like a local postgres and minio. The first
+time around this can take a while to start up.
+
+```sh
+docker compose up postgres minio createbuckets
 ```
 
+<details>
+<summary>How to check everything is running fine?</summary>
+
+Key things to look for:
+
+- Is postgres running successfully? Look for the following lines:
+  ```sh
+  postgres  | 2026-02-18 11:03:51.926 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+  ...
+  postgres  | 2026-02-18 11:03:51.936 UTC [1] LOG:  database system is ready to accept connections
+  ```
+- Is minio running successfully?
+  ```sh
+  minio     | Status:         1 Online, 0 Offline.
+  minio     | S3-API: http://172.19.0.2:9000  http://127.0.0.1:9000
+  minio     | Console: http://172.19.0.2:9001 http://127.0.0.1:9001
+  ```
+- Did the `createbuckets` script successfully create a bucket in minio?
+  ```sh
+  createbuckets-1  | Added `myminio` successfully.
+  createbuckets-1  | Bucket created successfully `myminio/community-solutions`.
+  createbuckets-1 exited with code 0
+  ```
+
 </details>
 
-### Run the frontend
+#### Terminal 2 : Backend
 
-First, install the frontend dependencies:
+The backend is a django python app. You have to enter the `backend` directory to
+work on it. We use `uv` for Python package management (which should be installed
+by Mise automatically).
 
-```bash
+By using `uv run manage.py` (instead of just `python manage.py`) it ensures that
+you always have the correct (versioned) dependencies installed locally.
+
+The `migrate` command runs the required database migrations. It is only required
+on first launch or if there are any database schema changes.
+
+The `runserver` command starts up the django app with hot-reload. Saving a file
+will restart the server automatically without you having to rerun the command.
+
+```sh
+cd backend
+mkdir -p intermediate_pdf_storage
+uv run manage.py migrate # only on first run, or if DB schema changed
+uv run manage.py runserver 127.0.0.1:8081
+```
+
+The backend now runs locally on port `8081`.
+
+#### Terminal 3 : Frontend
+
+The frontend is a React app. You have to enter the `frontend` directory to work
+on it. We use `yarn` for Node package management (which should be installed by
+Mise automatically), and specifically we use [Vite](https://vite.dev) as the
+development/build toolchain.
+
+The `yarn` command only needs to be rerun if any dependencies change or are updated.
+
+```sh
 cd frontend
-yarn
+yarn # only if any Node dependencies changed
+yarn start --host
 ```
 
-You usually only need to do this once after cloning the repo, or any time after
-you update the `frontend/package.json` file.
+Website is now accessible at http://localhost:3000
 
-The frontend is built using [Vite](https://vitejs.dev/). This is like a
-compiler toolchain, which combines Javascript files and provides a server with
-special development features. You can run the dev server with:
+### Alternative Docker-Compose Setup
 
-```bash
-cd frontend
-yarn start
+If desired, the backend (`Terminal 2`) and frontend (`Terminal 3`) can be launched using docker-compose.
+
+This method is less flexible than running it fully locally, so prefer the above setup.
+
+> Important!
+>
+> When running the backend with docker-compose, you **HAVE** to add `minio` to
+> your `/etc/hosts` or else documents won't work on the frontend (this is not
+> required if fully using Mise)!
+>
+> - Edit your host file at `/etc/hosts` to include the line `127.0.0.1 minio`.
+>   This will allow your browser to get documents directly from minio.
+> - Go to `localhost:9001` and login to the minio console with the username: minio and
+>   password: minio123. There should be a bucket called `community-solutions`. That is where
+>   all the documents are stored. If it's not there, create it manually.
+
+If you want to run the _backend_ in docker-compose, remove the targets for the docker compose command for `Terminal 1` and simply run:
+
+```sh
+docker compose up
 ```
 
-### Running the frontend with Docker
+If you want to additionally run the _frontend_ in docker-compose, add the `--profile frontend` flag to the docker-compose command from `Terminal 1` (the flag **HAS** to come before the `up`).
 
-**This should be a last resort method** because there's high overhead and
-hot module reload latency. It can also trigger issues with file-watching on
-Windows OSes.
-
-You will need to install [Docker](#install-docker).
-
-Just like [starting the backend](#start-the-backend), you'll want to execute
-docker compose but with the `--profile frontend` flag:
-
-```bash
-docker compose watch --no-up &\
-    docker compose --profile frontend up --build
+```sh
+docker compose --profile frontend up
+# or if you ONLY want the frontend without backend:
+# docker compose up react-frontend postgres minio createbuckets
 ```
 
-### Editing frontend code
+If you are too lazy to type it every time, create a `.env` file in this directory and add the line `COMPOSE_PROFILES=frontend`.
 
-`frontend/app.tsx` is the entrypoint for the frontend. We use `react-router` as
-the routing library.
-
-Most editors have plugins/extensions that you can optionally install to get
-real-time linter feedback from [eslint](https://eslint.org) while you edit.
-You can also run the linter manually with `yarn run lint`.
-
-After editing files, it's time to send in a pull request!
-
-Before creating a pull request, it would be nice if you autoformat your code to
-clean up bad indentation and the like. We use prettier for this, and it can be
-run using `yarn run format` if you use Yarn locally, or
-`cd frontend; docker compose run --rm react-frontend yarn run format` to run it
-within the frontend Docker container.
-
-## Getting Started (Backend)
-
-The backend is built with Django and should be run with Docker.
-
-<details>
-<summary>Install Docker and Docker-Compose (skip if you have <code>docker</code> available)</summary>
-
-### Install Docker
-
-On Ubuntu, follow Docker's official guide to installing Docker. We recommend the
-[convenience script](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script)
-which installs Docker CLI, Docker Engine, Docker Compose etc.
-
-Other operating systems (Windows, Mac) should [install Docker Desktop](https://docs.docker.com/desktop/),
-which packages the various Docker components with a GUI.
-
-</details>
-
-### Start the backend
-
-The backend can be started with the following command:
-
-```bash
-docker compose watch --no-up &\
-    docker compose up --build
-```
-
-The `--build` is important so that the images are rebuilt in case of changes.
-
-> Note: The `watch` command allows for hot-reloading. If you don't particularly
-> need hot-reloading capabilities, `docker compose up --build` is enough. If
-> you have an older version of Docker, this command may not be supported -- just
-> skip it in that case.
-
-> Note: If you have an older version of docker, you might have to execute
-> `docker-compose` with a hyphen (if that is the case, please update docker).
-
-> Note: You might have to execute docker using `sudo` permissions if your Docker
-> isn't installed rootless.
-
-### Setup the backend (needed for documents to work)
-
-Once you have started the backend:
-
-1. Edit your computer's host file, (e.g. `/etc/hosts` on Mac/Linux) to include
-   the line `127.0.0.1 minio`. This will allow your browser to get documents
-   directly from minio.
-
-2. Go to `localhost:9001` and login to the minio console with the username:
-   minio and password: minio123. There should be a bucket called
-   `community-solutions`. That is where all the documents are stored. If it's
-   not there, create it manually.
-
-### Editing the backend code
-
-Django separates logical components into "apps". You can see this separation in
-the directory structure within `/backend`. To see the list of all apps loaded,
-check `/backend/backend/settings.py`.
-
-Each app directory has a `urls.py` file describing the backend API routes. This
-file references functions in `views.py` to handle the requests. Data structures
-are in `models.py` and unit tests in `tests.py`.
-
-Each model class **directly corresponds** to a database schema. Thus, you should
-edit these with care. When modifying an existing model, or when creating new
-models/apps, run
-
-```bash
-docker compose exec -it community-solutions python3 manage.py makemigrations
-```
-
-to create "migration files", so that the database will know how to migrate data
-from the previous schema to the new one. You may also want to apply this
-migration.
-
-```bash
-docker compose exec -it community-solutions python3 manage.py migrate
-```
-
-You should unapply this migration before switching to a branch that doesn't have
-your code, to prevent database corruption.
-
-Migrations are a common source of headache when applied wrongly, so be careful
-when switching between Git branches with different schemas! For example, running
-upstream Community Solutions code locally with an Edinburgh-schema database will
-corrupt it entirely. If you frequently switch wildly different schemas (like
-upstream and our fork), it might be worth having multiple `data/sql-...` copies
-that you simlink to `data/sql` when switching.
-
-But, sometimes, sadly, nuking your `data/sql` directory and restarting your
-Docker backend to rebuild it is the best.
-
-## Filling with test data
-
-To fill the website with users, exams and documents, there is a command to fill
-your local instance with a bunch of test data. This process can take up to 10
-minutes because it generates a lot of data. Accessing the frontend during this
-time can corrupt the database, so **we recommend stopping the frontend process**.
-
-```bash
-# Stop your frontend before running this!!!
-docker compose exec -it community-solutions python3 manage.py create_testdata
-```
-
-## Sending a Pull Request
-
-After you make your edits and verified it works with test data, you have to send
-our repository a pull request.
-
-1. First, fork this GitHub repository to your own account with a browser.
-2. Then, create a new branch in your fork for your feature/bug-fix.
-3. Push your changes to this branch in your fork.
-4. Finally, open a Pull Request from your fork to our `master` branch.
-
----
-
-## Troubleshooting
+### Troubleshooting
 
 If something doesn't work, it's time to figure out what broke. The following
 points serve as a starting point to figure out what went wrong. It is usually
@@ -293,8 +245,7 @@ always good to make sure you're on the latest commit of the branch with
 
 - **The homepage works, but I get errors of type `ECONNREFUSED` or `ENOTFOUND`:**
   This means your frontend can't communicate with the backend.
-  Is the backend running without errors? The backend docker-compose file
-  is configured to listen on port 8081. You should be able to see something
+  Is the backend running without errors? You should be able to see something
   on <http://localhost:8081/> (no HTTP**S**). If not, something is wrong with
   the backend.
 
@@ -316,7 +267,97 @@ always good to make sure you're on the latest commit of the branch with
   with minio as the host, but if minio is not in your hosts file, it won't be
   redirected correctly.
 
---
+## Additional Information and Resources
+
+This section is not directly relevant for getting the local development setup
+running, but can be beneficial to read into to learn more about the tools used
+and further resources to look into.
+
+### Pre-commit hooks
+
+There are pre-commit hooks for the frontend and backend for formatting code.
+If you have run `mise install` already, then running `prek install` will setup
+your local `.git/hooks/pre-commit` to automatically perform formatting when
+committing code.
+
+### Editing frontend code
+
+`frontend/app.tsx` is the entrypoint for the frontend. We use `react-router` as
+the routing library.
+
+Most editors have plugins/extensions that you can optionally install to get
+real-time linter feedback from [eslint](https://eslint.org) while you edit.
+You can also run the linter manually with `yarn run lint`.
+
+After editing files, it's time to send in a pull request!
+
+Before creating a pull request, it would be nice if you autoformat your code to
+clean up bad indentation and the like. We use prettier for this, and it can be
+run using `yarn run format` if you use Yarn locally. The pre-commit hook (if you
+chose to install it) takes care of this.
+
+### Editing the backend code
+
+Django separates logical components into "apps". You can see this separation in
+the directory structure within `/backend`. To see the list of all apps loaded,
+check `/backend/backend/settings.py`.
+
+Each app directory has a `urls.py` file describing the backend API routes. This
+file references functions in `views.py` to handle the requests. Data structures
+are in `models.py` and unit tests in `tests.py`.
+
+Each model class **directly corresponds** to a database schema. Thus, you should
+edit these with care. When modifying an existing model, or when creating new
+models/apps, run
+
+```bash
+cd backend
+uv run manage.py makemigrations
+```
+
+to create "migration files", so that the database will know how to migrate data
+from the previous schema to the new one. You may also want to apply this
+migration.
+
+```bash
+cd backend
+uv run manage.py migrate
+```
+
+You should unapply this migration before switching to a branch that doesn't have
+your code, to prevent database corruption.
+
+Migrations are a common source of headache when applied wrongly, so be careful
+when switching between Git branches with different schemas! For example, running
+upstream Community Solutions code locally with an Edinburgh-schema database will
+corrupt it entirely. If you frequently switch wildly different schemas (like
+upstream and our fork), it might be worth having multiple `data/sql-...` copies
+that you simlink to `data/sql` when switching.
+
+But, sometimes, sadly, nuking your `data/sql` directory and restarting your
+Docker backend to rebuild it is the best.
+
+### Testing
+
+To fill the website with users, exams and documents, there is a command to fill
+your local instance with a bunch of test data. This process can take up to 10
+minutes because it generates a lot of data. Accessing the frontend during this
+time can corrupt the database, so **we recommend stopping the frontend process**.
+
+```bash
+cd backend
+uv run manage.py create_testdata
+```
+
+### Sending a Pull Request
+
+After you make your edits and verified it works with test data, you have to send
+our repository a pull request.
+
+1. First, fork this GitHub repository to your own account with a browser.
+2. Then, create a new branch in your fork for your feature/bug-fix.
+3. Push your changes to this branch in your fork.
+4. Finally, open a Pull Request from your fork to our `master` branch.
 
 ## Observability
 
@@ -326,21 +367,22 @@ Sometimes, it is helpful to have just a little bit more data at disposal, to mon
 We provide a "simple" setup that automatically gathers all information (traces, metrics & logs) for local setup, including Grafana.
 Interesting Grafana dashboard should also be shipped in `./contrib` to allow fairly easy deployments of such advanced features.
 
-To try, run
+To try, run:
 
 ```bash
-# For running frontend in docker:
-docker compose -f docker-compose.yml -f docker-compose.Observability.yml --profile frontend up --build
-
 # For running frontend locally:
 docker compose -f docker-compose.yml -f docker-compose.observability.yml up --build
+cd frontend
 yarn start-with-faro
+
+# For running frontend in docker:
+docker compose -f docker-compose.yml -f docker-compose.observability.yml --profile frontend up --build
 ```
 
 Now you can access:
 
-- Community solutions frontend on [locahost:3000](http://localhost:3000)
-- Grafana / Monitoring data on [locahost:3001](http://localhost:3001)
+- Community solutions frontend on [localhost:3000](http://localhost:3000)
+- Grafana / Monitoring data on [localhost:3001](http://localhost:3001)
 
 For Grafana, look at the sidebar, search for "Explore" and "Drilldown" and "Traces". There, you can have a quick overview. You can select appropriate traces, which usually start in the browser of the user, then to the backend where multiple DB queries are started. There are many other things you can do with the data and other ways to query for it, familiarize yourself with Grafana, Prometheus, Tempo, Loki, (Pyroscope)... if interested:)
 
@@ -417,8 +459,6 @@ you are trying to run Community Solutions on your own server, follow these steps
    keypair procedure), so that it can send email verification emails as a GSuite
    user. This can also be left empty during local development, which will make
    emails display to console instead.
-
----
 
 ## License
 

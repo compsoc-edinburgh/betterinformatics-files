@@ -13,14 +13,13 @@ import {
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
-import { Redirect, Route, Switch } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import tinycolor from "tinycolor2";
 import { authenticated, fetchGet, getCookie } from "./api/fetch-utils";
 import { notLoggedIn, SetUserContext, User, UserContext } from "./auth";
-import UserRoute from "./auth/UserRoute";
+import { AuthenticatedRoutes } from "./auth/AuthenticatedRoutes";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
-import HashLocationHandler from "./components/hash-location-handler";
 import CategoryPage from "./pages/category-page";
 import DisclaimerPage from "./pages/disclaimer-page";
 import DocumentPage from "./pages/document-page";
@@ -39,7 +38,7 @@ import Scoreboard from "./pages/scoreboard-page";
 import SearchPage from "./pages/search-page";
 import UploadPdfPage from "./pages/uploadpdf-page";
 import UserPage from "./pages/userinfo-page";
-import { useLocalStorageState, useRequest } from "@umijs/hooks";
+import { useLocalStorageState, useRequest } from "ahooks";
 import { BooleanParam, useQueryParam } from "use-query-params";
 import BottomHeader from "./components/Navbar/BottomHeader";
 import MobileHeader from "./components/Navbar/MobileHeader";
@@ -51,12 +50,13 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute } from "@grafana/faro-react";
+import { FaroRoute, FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import {
   QuickSearchFilter,
   QuickSearchFilterContext,
 } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
+import { useScrollToHash } from "./hooks/useScrollToHash";
 
 function calculateShades(primaryColor: string): MantineColorsTuple {
   const baseHSLcolor = tinycolor(primaryColor).toHsl();
@@ -102,12 +102,10 @@ function calculateShades(primaryColor: string): MantineColorsTuple {
  * In production builds, observability is controlled via the FRONTEND_SERVER_DATA
  * backend setting.
  */
-const Router = ({ children }: { children?: React.ReactNode }) =>
-  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url ? (
-    children
-  ) : (
-    <FaroRoute path="/">{children}</FaroRoute>
-  );
+const TelemetryRoutes =
+  import.meta.env.VITE_FARO_DISABLE === "true" || !serverData.faro_url
+    ? Routes
+    : FaroRoutes;
 
 const App: React.FC<{}> = () => {
   useEffect(() => {
@@ -149,6 +147,8 @@ const App: React.FC<{}> = () => {
   const [quickSearchFilter, setQuickSearchFilter] = useState<
     QuickSearchFilter | undefined
   >(undefined);
+
+  useScrollToHash();
 
   const loadUnreadCount = async () => {
     if (authenticated())
@@ -271,7 +271,6 @@ const App: React.FC<{}> = () => {
 
   return (
     <MantineProvider theme={compsocTheme} cssVariablesResolver={resolver}>
-      <Route component={HashLocationHandler} />
       <DebugContext.Provider value={debugOptions}>
         <UserContext.Provider value={user}>
           <SetUserContext.Provider value={setUser}>
@@ -297,93 +296,49 @@ const App: React.FC<{}> = () => {
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">
-                  <Router>
-                    <Switch>
-                      <UserRoute exact path="/" children={<HomePage />} />
-                      <UserRoute
-                        exact
-                        path="/uploadpdf"
-                        children={<UploadPdfPage />}
-                      />
-                      <UserRoute
-                        exact
+                  <TelemetryRoutes>
+                    <Route path="*" element={<NotFoundPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/disclaimer" element={<DisclaimerPage />} />
+                    <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                    <Route element={<AuthenticatedRoutes />}>
+                      <Route path="/" element={<HomePage />} />
+                      <Route path="/uploadpdf" element={<UploadPdfPage />} />
+                      <Route
                         path="/upload-dissertation"
-                        children={<UploadDissertationPage />}
+                        element={<UploadDissertationPage />}
                       />
-                      <UserRoute
-                        exact
+                      <Route
                         path="/dissertations"
-                        children={<DissertationListPage />}
+                        element={<DissertationListPage />}
                       />
-                      <UserRoute
-                        exact
+                      <Route
                         path="/dissertations/:id"
-                        children={<DissertationDetailPage />}
+                        element={<DissertationDetailPage />}
                       />
-                      <UserRoute exact path="/faq" children={<FAQ />} />
+                      <Route path="/faq" element={<FAQ />} />
+                      <Route path="/feedback" element={<FeedbackPage />} />
                       <Route
-                        exact
-                        path="/disclaimer"
-                        children={<DisclaimerPage />}
+                        path="/category/:slug/*"
+                        element={<CategoryPage />}
                       />
                       <Route
-                        exact
-                        path="/privacy"
-                        children={<PrivacyPolicyPage />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/feedback"
-                        children={<FeedbackPage />}
-                      />
-                      <UserRoute
-                        path="/category/:slug"
-                        children={<CategoryPage />}
-                      />
-                      <UserRoute
-                        exact
                         path="/document/:slug"
-                        children={<DocumentPage />}
+                        element={<DocumentPage />}
                       />
-                      <UserRoute
-                        path="/exams/:filename"
-                        children={<ExamPage />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/user/:username"
-                        children={<UserPage />}
-                      />
-                      <UserRoute exact path="/user/" children={<UserPage />} />
-                      <UserRoute
-                        exact
-                        path="/search/"
-                        children={<SearchPage />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/scoreboard"
-                        children={<Scoreboard />}
-                      />
-                      <UserRoute
-                        exact
+                      <Route path="/exams/:filename/*" element={<ExamPage />} />
+                      <Route path="/user/:username" element={<UserPage />} />
+                      <Route path="/user/" element={<UserPage />} />
+                      <Route path="/search/" element={<SearchPage />} />
+                      <Route path="/scoreboard" element={<Scoreboard />} />
+                      <Route
                         path="/stats"
-                        render={() => <Redirect to="/scoreboard" />}
+                        element={<Navigate to="/scoreboard" replace />}
                       />
-                      <UserRoute
-                        exact
-                        path="/modqueue"
-                        children={<ModQueue />}
-                      />
-                      <UserRoute
-                        exact
-                        path="/flagged"
-                        children={<FlaggedContent />}
-                      />
-                      <Route exact path="/login" children={<LoginPage />} />
-                      <Route children={<NotFoundPage />} />
-                    </Switch>
-                  </Router>
+                      <Route path="/modqueue" element={<ModQueue />} />
+                      <Route path="/flagged" element={<FlaggedContent />} />
+                    </Route>
+                  </TelemetryRoutes>
                 </Box>
               </div>
               <Footer

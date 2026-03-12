@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import {
   Badge,
   Card,
@@ -14,7 +14,7 @@ import examTypeClasses from "./exam-type-section.module.css";
 import { Link } from "react-router-dom";
 import { fetchPost } from "../api/fetch-utils";
 import { useUser } from "../auth";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
@@ -54,7 +54,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     if (newValue) onSelect(...exams.map(exam => exam.filename));
     else onDeselect(...exams.map(exam => exam.filename));
   };
-  const [confirm, modals] = useConfirm();
+  const [removeConfirm, modals] = useRemoveConfirm();
   const { run: runRemoveExam } = useRequest(removeExam, {
     manual: true,
     onSuccess: reload,
@@ -66,7 +66,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
     // Prevent the click event from propagating to the containing card.
     e.stopPropagation();
     e.preventDefault();
-    confirm(
+    removeConfirm(
       `Remove the exam named ${exam.displayname}? This will remove all answers and can not be undone!`,
       () => runRemoveExam(exam.filename),
     );

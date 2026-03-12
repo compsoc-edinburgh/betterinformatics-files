@@ -5,13 +5,14 @@ import { addNewComment, removeComment, updateComment } from "../api/comment";
 import { imageHandler } from "../api/fetch-utils";
 import { useMutation, useResetExamCommentFlaggedVote, useSetExamCommentFlagged } from "../api/hooks";
 import { useUser } from "../auth";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { Answer, AnswerSection, Comment } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
 import SmallButton from "./small-button";
+import { useOfficialSolutionLanguage } from "./official-solution";
 import { Anchor, Button, Flex, Group, Menu, Paper, Text } from "@mantine/core";
 import {
   IconChevronUp,
@@ -47,7 +48,7 @@ const CommentComponent: React.FC<Props> = ({
   const [resetFlaggedLoading, resetExamCommentFlagged] = useResetExamCommentFlaggedVote(onSectionChanged);
   const [viewSource, { toggle: toggleViewSource }] = useDisclosure();
   const { isAdmin, username } = useUser()!;
-  const [confirm, modals] = useConfirm();
+  const [removeConfirm, modals] = useRemoveConfirm();
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
@@ -64,6 +65,7 @@ const CommentComponent: React.FC<Props> = ({
     onSectionChanged,
   );
   const loading = addNewLoading || updateLoading || removeLoading;
+  const languages = useOfficialSolutionLanguage();
 
   const onSave = () => {
     if (comment === undefined) {
@@ -86,7 +88,7 @@ const CommentComponent: React.FC<Props> = ({
   };
   const remove = () => {
     if (comment)
-      confirm("Remove comment?", () => runRemoveComment(comment.oid));
+      removeConfirm("Remove comment?", () => runRemoveComment(comment.oid));
   };
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
 
@@ -240,7 +242,9 @@ const CommentComponent: React.FC<Props> = ({
             value={draftText}
             onChange={setDraftText}
             imageHandler={imageHandler}
-            preview={value => <MarkdownText value={value} />}
+            preview={value => (
+              <MarkdownText value={value} languages={languages} />
+            )}
             undoStack={undoStack}
             setUndoStack={setUndoStack}
           />
@@ -270,7 +274,7 @@ const CommentComponent: React.FC<Props> = ({
           {viewSource ? (
             <CodeBlock value={comment.text} language="markdown" />
           ) : (
-            <MarkdownText value={comment.text} />
+            <MarkdownText value={comment.text} languages={languages} />
           )}
         </div>
       )}

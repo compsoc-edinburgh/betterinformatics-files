@@ -2,7 +2,7 @@ import { Button, Card, Flex, Group, TextInput, Title } from "@mantine/core";
 import React, { useCallback, useState } from "react";
 import { imageHandler } from "../api/fetch-utils";
 import { useUser } from "../auth";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { FAQEntry } from "../interfaces";
 import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
@@ -34,7 +34,7 @@ const FAQEntryComponent: React.FC<Props> = ({
   onRemove,
 }) => {
   const [editing, setEditing] = useState(false);
-  const [confirm, modals] = useConfirm();
+  const [removeConfirm, modals] = useRemoveConfirm();
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
@@ -116,8 +116,8 @@ const FAQEntryComponent: React.FC<Props> = ({
                   tooltip="Delete FAQ entry"
                   icon={<IconTrash />}
                   onClick={() =>
-                    confirm(
-                      "Are you sure that you want to remove this?",
+                    removeConfirm(
+                      "Are you sure that you want to remove this FAQ entry?",
                       onRemove,
                     )
                   }

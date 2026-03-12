@@ -23,15 +23,12 @@ const CommentSectionComponent: React.FC<Props> = ({
   onChainReply,
   onDraftDelete,
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expandedByUser, setExpandedByUser] = useState(false);
   const {search: searchParams} = useLocation();
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const id = params.get("comment");
-    if (id && answer.comments.map((item) => item.longId).includes(id)) {
-      setExpanded(true);
-    }
-  }, [searchParams]);
+  const paramCommentId = new URLSearchParams(searchParams).get("comment");
+  const expandedByURL = paramCommentId && answer.comments.map((item) => item.longId).includes(paramCommentId);
+  const expanded = expandedByUser || expandedByURL;
+
   return (
     <>
       <Stack gap="0" className={classes.listGroup}>
@@ -58,7 +55,7 @@ const CommentSectionComponent: React.FC<Props> = ({
                 size="compact-sm"
                 variant="transparent"
                 c="currentColor"
-                onClick={() => setExpanded(true)}
+                onClick={() => setExpandedByUser(true)}
               >
                 Load {(answer.comments.length - 3).toString()} more comment
                 {answer.comments.length > 4 && "s"}

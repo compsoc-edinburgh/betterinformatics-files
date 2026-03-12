@@ -19,7 +19,7 @@ def get_answer(request, long_id):
         raise Http404()
 
 
-@response.request_post("text", "is_anonymous", optional=True)
+@response.request_post("text", "kind", "is_anonymous", optional=True)
 @auth_check.require_login
 def set_answer(request, oid):
     section = get_object_or_404(
@@ -37,10 +37,27 @@ def set_answer(request, oid):
     if not section.has_answers:
         return response.not_allowed()
 
+    kind = {
+        "personal": Answer.Kind.PERSONAL,
+        "official": Answer.Kind.OFFICIAL,
+    }
+
+    if "kind" in request.POST and request.POST["kind"] not in kind:
+        return response.not_possible(f"kind must be one of {','.join(kind)}")
+
+    kind = kind[request.POST.get("kind", "personal")]
+
     text = request.POST["text"]
     is_anonymous = request.POST.get("is_anonymous", "false") != "false"
 
-    where = {"answer_section": section, "author": request.user}
+    if kind != Answer.Kind.PERSONAL and not auth_check.has_admin_rights_for_exam(
+        request, section.exam
+    ):
+        return response.not_allowed()
+    where = {"answer_section": section, "kind": kind}
+
+    if kind == Answer.Kind.PERSONAL:
+        where["author"] = request.user
 
     answer, created = None, False
     if not text:
@@ -53,7 +70,7 @@ def set_answer(request, oid):
             "is_anonymous": is_anonymous,
         }
         answer, created = Answer.objects.update_or_create(**where, defaults=defaults)
-    if created:
+    if created and kind == Answer.Kind.PERSONAL:
         answer.upvotes.add(request.user)
         notification_util.new_answer_to_answer(answer)
 

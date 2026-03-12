@@ -12,10 +12,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import base64
 import hashlib
-import json
-import yaml
 import os
 import sys
+
+import yaml
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -29,19 +29,14 @@ SECURE = not DEBUG
 IN_ENVIRON = "SIP_POSTGRES_DB_SERVER" in os.environ
 TESTING = sys.argv[1:2] == ["test"]
 
-SECRET_KEY = (
-    "VERY SAFE SECRET KEY"
-    if DEBUG
-    else os.environ.get(
-        "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET", "VERY SAFE SECRET KEY"
-    )
+SECRET_KEY = os.environ.get(
+    "RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET", "VERY SAFE SECRET KEY"
 )
-API_KEY = (
-    "API_KEY" if DEBUG else os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
-)
+API_KEY = os.environ.get("RUNTIME_COMMUNITY_SOLUTIONS_API_KEY", "")
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 COMSOL_UPLOAD_FOLDER = "intermediate_pdf_storage"
+COMSOL_ASSETS_FOLDER = os.environ.get("COMSOL_ASSETS_FOLDER", BASE_DIR)
 COMSOL_EXAM_DIR = "exams/"
 COMSOL_SOLUTION_DIR = "solutions/"
 COMSOL_DOCUMENT_DIR = "documents/"
@@ -197,11 +192,12 @@ CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
     allowed_script_sources = [
-        f"http://{host}:8080/static/" for host in REAL_ALLOWED_HOSTS
+        f"http://{host}:8081/static/" for host in REAL_ALLOWED_HOSTS
     ]
 else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
 CSP_SCRIPT_SRC = (
+    "'self'",
     "'unsafe-eval'",
     "https://analytics.betterinformatics.com/api/",
     *allowed_script_sources,
@@ -263,6 +259,7 @@ INSTALLED_APPS = [
     "testing.apps.TestingConfig",
     "django_probes",
     "dissertations.apps.DissertationsConfig",
+    "ninja",
 ] + (["django_gsuite_email"] if "django_gsuite_email" in EMAIL_BACKEND else [])
 
 MIDDLEWARE = [
@@ -375,3 +372,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")

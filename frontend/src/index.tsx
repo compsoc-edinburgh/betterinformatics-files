@@ -1,9 +1,9 @@
-import "./utils/faro-intialize"
+import "./utils/faro-intialize";
 
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
-import { ReactRouter5Adapter } from "use-query-params/adapters/react-router-5";
+import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 import { QueryParamProvider } from "use-query-params";
 import App from "./app";
 import { parse, stringify } from "query-string";
@@ -17,7 +17,7 @@ const root = createRoot(container);
 const content = (
   <BrowserRouter>
     <QueryParamProvider
-      adapter={ReactRouter5Adapter}
+      adapter={ReactRouter6Adapter}
       options={{ searchStringToObject: parse, objectToSearchString: stringify }}
     >
       <MantineProvider defaultColorScheme="auto">
@@ -28,7 +28,9 @@ const content = (
 );
 
 root.render(
-  (import.meta.env.VITE_FARO_DISABLE !== "true" && serverData.faro_url)
-    ? <FaroErrorBoundary>{content}</FaroErrorBoundary>
-    : content,
+  import.meta.env.VITE_FARO_DISABLE !== "true" && serverData.faro_url ? (
+    <FaroErrorBoundary>{content}</FaroErrorBoundary>
+  ) : (
+    content
+  ),
 );

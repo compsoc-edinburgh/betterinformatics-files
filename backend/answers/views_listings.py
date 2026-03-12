@@ -128,7 +128,7 @@ def get_by_user(request, username, page=-1):
     is_admin = has_admin_rights(request)
     
     # Base query to get answers by the user
-    query = Answer.objects.filter(author__username=username)
+    query = Answer.objects.filter(author__username=username, kind=Answer.Kind.PERSONAL)
     
     # If not viewing own profile and not an admin, exclude anonymous answers
     if not is_own_profile and not is_admin:

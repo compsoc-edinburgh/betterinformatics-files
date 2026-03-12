@@ -51,6 +51,7 @@ def exam_metadata(request, filename):
         "public": exam.public,
         "finished_cuts": exam.finished_cuts,
         "has_solution": exam.has_solution,
+        "dark_mode_warning": exam.dark_mode_warning,
         "attachments": [
             {
                 "displayname": att.displayname,
@@ -81,6 +82,7 @@ def exam_metadata(request, filename):
     "remark",
     "public",
     "finished_cuts",
+    "dark_mode_warning",
     optional=True,
 )
 @auth_check.require_exam_admin
@@ -99,6 +101,7 @@ def exam_set_metadata(request, filename, exam):
     for key in [
         "public",
         "finished_cuts",
+        "dark_mode_warning",
     ]:
         if key in request.POST:
             setattr(exam, key, request.POST[key] != "false")

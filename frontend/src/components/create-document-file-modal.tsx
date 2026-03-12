@@ -20,15 +20,16 @@ const CreateDocumentFileModal: React.FC<Props> = ({
   const [displayName, setDisplayName] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
-  const {loading, error, run: createDocumentFile} = useCreateDocumentFile(
-    document.slug,
-    f => {
-      onClose();
-      mutate(s => ({ ...s, files: [...s.files, f] }));
-      setDisplayName("");
-      setFile(null);
-    },
-  );
+  const {
+    loading,
+    error,
+    run: createDocumentFile,
+  } = useCreateDocumentFile(document.slug, f => {
+    onClose();
+    mutate(s => ({ ...s, files: [...s.files, f] }));
+    setDisplayName("");
+    setFile(null);
+  });
 
   return (
     <>
@@ -56,7 +57,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           loading={loading}
           leftSection={<IconPlus />}
           disabled={loading || displayName.trim() === ""}
-          onClick={() =>
+          onClick={() => {
             createDocumentFile(
               displayName.trim(),
               file ??
@@ -64,8 +65,8 @@ const CreateDocumentFileModal: React.FC<Props> = ({
                   new Blob([], { type: "application/octet-stream" }),
                   "document.md",
                 ),
-            )
-          }
+            );
+          }}
         >
           Add
         </Button>

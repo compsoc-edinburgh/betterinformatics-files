@@ -1,7 +1,6 @@
 services:
   minio:
     image: minio/minio:RELEASE.2023-10-25T06-33-25Z
-    container_name: minio
     environment:
       - MINIO_ACCESS_KEY=minio
       - MINIO_SECRET_KEY=minio123
@@ -25,20 +24,21 @@ services:
       /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 minio minio123; /usr/bin/mc mb myminio/community-solutions; "
   postgres:
     image: postgres:16
-    container_name: postgres
     environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
     volumes:
       - ./data/sql:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d docker -U docker"]
+      test: ["CMD-SHELL", "pg_isready -d postgres -U postgres"]
       interval: 1s
       timeout: 1s
       retries: 50
   community-solutions:
+    platform: linux/amd64 # Required since vseth base image is only available in amd64
     build:
       target: backend-hotreload
       args:
@@ -58,44 +58,8 @@ services:
       - ./keys:/app/config
     ports:
       - "8081:8081"
-    environment:
-      # The following environment variables are used by the backend for local
-      # development.
-
-      - DEPLOYMENT_DOMAINS=localhost
-
-      - SIP_POSTGRES_DB_SERVER=postgres
-      - SIP_POSTGRES_DB_PORT=5432
-      - SIP_POSTGRES_DB_NAME=postgres
-      - SIP_POSTGRES_DB_USER=docker
-      - SIP_POSTGRES_DB_PW=docker
-
-      - SIP_S3_FILES_HOST=minio
-      - SIP_S3_FILES_PORT=9000
-      - SIP_S3_FILES_ACCESS_KEY=minio
-      - SIP_S3_FILES_SECRET_KEY=minio123
-      - SIP_S3_FILES_BUCKET=community-solutions
-      - SIP_S3_FILES_USE_SSL=false
-
-      - GSUITE_CREDENTIALS_FILE=
-      - VERIF_CODE_FROM_EMAIL_ADDRESS=no-reply@betterinformatics.com
-
-      - RUNTIME_COMMUNITY_SOLUTIONS_SESSION_SECRET=42
-      - RUNTIME_COMMUNITY_SOLUTIONS_API_KEY=42
-
-      - RUNTIME_JWT_PRIVATE_KEY_PATH=
-      - RUNTIME_JWT_PUBLIC_KEY_PATH=
-
-      - SIP_AUTH_OIDC_CLIENT_ID=vis_cat_staging_community_solutions_oidc
-      - SIP_AUTH_OIDC_CLIENT_SECRET=wvmiAYdKVQjYbcFCxkRBegLZi
-
-      - FRONTEND_TITLE_PREFIX=
-      - FRONTEND_TITLE_SUFFIX=- Debug
-      - FRONTEND_FAVICON_URL=https://files.betterinformatics.com/static/img/favicon.ico
-      - FRONTEND_EMAIL_ADDRESS=nothing@localhost
-
-      # In preview mode, every user is an admin.
-      - PDEP_IS_PREVIEW=TRUE
+    env_file:
+      - backend/.env.development
     depends_on:
       postgres:
         condition: service_healthy

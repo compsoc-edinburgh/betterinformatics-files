@@ -1,4 +1,4 @@
-import { useLocalStorageState, useRequest, useSize } from "@umijs/hooks";
+import { useLocalStorageState, useRequest, useSize } from "ahooks";
 import {
   Card,
   Breadcrumbs,
@@ -11,16 +11,16 @@ import {
   Flex,
   Group,
   Button,
+  useComputedColorScheme,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Link,
-  Redirect,
+  Navigate,
   Route,
-  Switch,
-  useHistory,
+  Routes,
+  useNavigate,
   useParams,
-  useRouteMatch,
 } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
@@ -95,6 +95,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   mutateMetaData,
   goToEditPage,
 }) => {
+  const computedColorScheme = useComputedColorScheme();
   const user = useUser()!;
   const { run: runAddCut } = useRequest(addCut, {
     manual: true,
@@ -139,7 +140,8 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     [runAddCut, metaData, runUpdate],
   );
 
-  const [size, sizeRef] = useSize<HTMLDivElement>();
+  const sizeRef = useRef<HTMLDivElement>(null);
+  const size = useSize(sizeRef);
   const [maxWidth, setMaxWidth] = useLocalStorageState("max-width", 1000);
 
   const [inViewSplits, addInViewSplit, removeInViewSplit] =
@@ -255,6 +257,13 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
             )}
           </Group>
         </Flex>
+        {metaData.dark_mode_warning && computedColorScheme === "dark" && (
+          <Alert color="yellow" title="Dark mode warning" mb="md">
+            Images are inverted in dark mode. This exam is marked as
+            particularly affected, so please switch to light mode for correct
+            rendering.
+          </Alert>
+        )}
         <Grid>
           {!metaData.canView && (
             <Grid.Col span={{ md: 6, lg: 4 }}>
@@ -420,11 +429,7 @@ const ExamPage: React.FC<{}> = () => {
   const error = metaDataError || cutsError || pdfError;
   const user = useUser()!;
 
-  // `path` is the path structure, e.g. the literal string "/category/:slug"
-  // whereas `url` is the actual URL, e.g. "/category/algorithms". Thus, for
-  // defining Routes, we use `path`, but for Link/navigation we use `url`.
-  const { path, url } = useRouteMatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return (
     <div key={filename}>
@@ -458,40 +463,47 @@ const ExamPage: React.FC<{}> = () => {
           </Container>
         )}
         {!metaDataLoading && metaData && (
-          <Switch>
-            <Route path={`${path}/edit`}>
-              {!user.isAdmin && !metaData.canEdit && <Redirect to={url} />}
-              <Container size="xl">
-                <ExamMetadataEditor
-                  currentMetaData={metaData}
-                  closeEditPage={() => history.push(url)}
-                  onMetaDataChange={setMetaData}
-                />
-              </Container>
-            </Route>
-            <Route path={path} exact>
-              <UserContext.Provider
-                value={{
-                  ...user,
-                  isExpert: user.isExpert || metaData.isExpert,
-                  isCategoryAdmin: user.isAdmin || metaData.canEdit,
-                }}
-              >
-                <ExamPageContent
-                  metaData={metaData}
-                  sections={sections}
-                  renderer={renderer}
-                  reloadCuts={reloadCuts}
-                  mutateCuts={mutateCuts}
-                  mutateMetaData={setMetaData}
-                  goToEditPage={() => history.push(`${url}/edit`)}
-                />
-              </UserContext.Provider>
-            </Route>
-            <Route path={`${path}/*`}>
-              <Redirect to={url} />
-            </Route>
-          </Switch>
+          <Routes>
+            <Route
+              path="edit"
+              element={
+                !user.isAdmin && !metaData.canEdit ? (
+                  <Navigate to="." replace />
+                ) : (
+                  <Container size="xl">
+                    <ExamMetadataEditor
+                      currentMetaData={metaData}
+                      closeEditPage={() => navigate(".")}
+                      onMetaDataChange={setMetaData}
+                    />
+                  </Container>
+                )
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <UserContext.Provider
+                  value={{
+                    ...user,
+                    isExpert: user.isExpert || metaData.isExpert,
+                    isCategoryAdmin: user.isAdmin || metaData.canEdit,
+                  }}
+                >
+                  <ExamPageContent
+                    metaData={metaData}
+                    sections={sections}
+                    renderer={renderer}
+                    reloadCuts={reloadCuts}
+                    mutateCuts={mutateCuts}
+                    mutateMetaData={setMetaData}
+                    goToEditPage={() => navigate("edit")}
+                  />
+                </UserContext.Provider>
+              }
+            />
+            <Route path="*" element={<Navigate to="." replace />} />
+          </Routes>
         )}
         {(metaDataLoading ||
           ((cutsLoading || pdfLoading) && !metaDataLoading)) && (

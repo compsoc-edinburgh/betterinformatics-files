@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import {
   Anchor,
   Badge,
@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import { CategoryExam } from "../interfaces";
 import { fetchGet, fetchPost } from "../api/fetch-utils";
 import useTitle from "../hooks/useTitle";
-import useConfirm from "../hooks/useConfirm";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import ClaimButton from "../components/claim-button";
 import CourseMetadataChecker from "../components/course-metadata-checker";
 import IconButton from "../components/icon-button";
@@ -45,7 +45,7 @@ const ModQueue: React.FC = () => {
   });
   const error = examsError;
 
-  const [confirm, modals] = useConfirm();
+  const [confirm, modals] = useRemoveConfirm();
   const { run: runRemoveExam } = useRequest(removeExam, {
     manual: true,
     onSuccess: reloadExams,

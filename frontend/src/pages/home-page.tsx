@@ -14,7 +14,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import { useLocalStorageState, useRequest } from "@umijs/hooks";
+import { useLocalStorageState, useRequest } from "ahooks";
 import React, { useCallback, useMemo, useState } from "react";
 import { authenticated, fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
@@ -351,20 +351,19 @@ export const CategoryList: React.FC<{}> = () => {
               {metaList?.map(([meta1display, meta2]) => (
                 <div key={meta1display} id={slugify(meta1display)}>
                   <CollapseWrapper
+                    contentOutsideCollapse={<></>}
                     title={
-                      <Title order={2} my="sm">
-                        {meta1display}
-                      </Title>
-                    }
-                    contentOutsideCollapse={
-                      <Group>
+                      <>
+                        <Title order={2} my="sm">
+                          {meta1display}
+                        </Title>
                         {isAdmin && (
                           <EditMeta1
                             oldMeta1={meta1display}
                             onChange={onChange}
                           />
                         )}
-                      </Group>
+                      </>
                     }
                     contentInsideCollapse={meta2.map(
                       ([meta2display, categories]) =>
@@ -385,13 +384,13 @@ export const CategoryList: React.FC<{}> = () => {
                             id={slugify(meta1display + meta2display)}
                           >
                             <CollapseWrapper
+                              contentOutsideCollapse={<></>}
                               title={
-                                <Title order={3} my="sm">
-                                  {meta2display}
-                                </Title>
-                              }
-                              contentOutsideCollapse={
-                                <Group>
+                                <>
+                                  <Title order={3} my="sm">
+                                    {meta2display}
+                                  </Title>
+
                                   {isAdmin && (
                                     <EditMeta2
                                       oldMeta2={meta2display}
@@ -399,7 +398,7 @@ export const CategoryList: React.FC<{}> = () => {
                                       onChange={onChange}
                                     />
                                   )}
-                                </Group>
+                                </>
                               }
                               contentInsideCollapse={
                                 <Grid>

@@ -1,0 +1,36 @@
+[project]
+name = "community-solutions"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "beautifulsoup4==4.9.3",
+    "boto3==1.17.112",
+    "django==4.1.13",
+    "django-csp==3.7",
+    "django-ninja>=1.5.3",
+    "django-probes==1.7.0",
+    "django-prometheus==2.2.0",
+    "gevent==23.9.1",
+    "gunicorn==20.1.0",
+    "pyjwt[crypto]==2.8.0",
+    "email-validator==2.0.0.post2",
+    "djau-gsuite-email==0.1.4",
+    "python-ipware==1.0.5",
+    "opentelemetry-exporter-otlp==1.36.0",
+    "opentelemetry-instrumentation-django==0.57b0",
+    "opentelemetry-instrumentation-psycopg2==0.57b0",
+    "opentelemetry-sdk==1.36.0",
+    "psycogreen==1.0.2",
+    "psycopg2-binary==2.9.11",
+    "pypdfium2>=5.5.0",
+    "pyroscope-io==0.8.16; sys_platform != 'win32'",
+    "pyroscope-otel==0.4.1 ; sys_platform != 'win32'",
+    "pyyaml==6.0.3",
+    "requests==2.25.1",
+]
+
+[dependency-groups]
+dev = [
+    "black==24.8.0",
+    "tblib>=3.2.2",
+]

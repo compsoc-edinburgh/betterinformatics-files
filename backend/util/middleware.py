@@ -35,7 +35,7 @@ def last_user_activity_middleware(get_response):
 
 def parse_request_middleware(get_response):
     def middleware(request):
-        if request.method == "PUT":
+        if request.method == "PUT" or request.method == "PATCH":
             try:
                 parser = MultiPartParser(
                     request.META, BytesIO(request.body), request.upload_handlers

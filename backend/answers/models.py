@@ -35,6 +35,7 @@ class Exam(ExportModelOperationsMixin("exam"), models.Model):
     has_solution = models.BooleanField(default=False)
     master_solution = models.CharField(max_length=512)
 
+    dark_mode_warning = models.BooleanField(default=False)
     search_vector = SearchVectorField()
 
     class Meta:
@@ -123,23 +124,6 @@ class ExamPage(models.Model):
         indexes = [GinIndex(fields=["search_vector"])]
 
 
-class ExamPageFlow(models.Model):
-    page = models.ForeignKey("ExamPage", on_delete=models.CASCADE, related_name="flows")
-    order = models.IntegerField(default=0)
-
-
-class ExamWord(models.Model):
-    flow = models.ForeignKey(
-        "ExamPageFlow", on_delete=models.CASCADE, related_name="words"
-    )
-    order = models.IntegerField(default=0)
-    content = models.TextField()
-    x_min = models.FloatField()
-    y_min = models.FloatField()
-    x_max = models.FloatField()
-    y_max = models.FloatField()
-
-
 class ExamType(models.Model):
     displayname = models.CharField(max_length=256)
     order = models.IntegerField(default=0)
@@ -167,6 +151,10 @@ def generate_long_id():
 
 
 class Answer(ExportModelOperationsMixin("answer"), models.Model):
+    class Kind(models.TextChoices):
+        PERSONAL = "personal"
+        OFFICIAL = "official"
+
     answer_section = models.ForeignKey("AnswerSection", on_delete=models.CASCADE)
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     text = models.TextField()
@@ -178,6 +166,7 @@ class Answer(ExportModelOperationsMixin("answer"), models.Model):
         "auth.User", related_name="expertvote_answer_set"
     )
     flagged = models.ManyToManyField("auth.User", related_name="flagged_answer_set")
+    kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.PERSONAL)
     long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
     is_anonymous = models.BooleanField(default=False)
 

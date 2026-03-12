@@ -409,9 +409,7 @@ class DocumentFileRootView(View):
     def get(self, request: HttpRequest, document_slug: str):
         document = get_object_or_404(Document, slug=document_slug)
         objects = DocumentFile.objects.filter(document=document).all()
-        return response.success(
-            value=[get_document_file(file, request) for file in objects]
-        )
+        return response.success(value=[get_file_obj(file) for file in objects])
 
     @response.required_args("display_name")
     @auth_check.require_login
@@ -427,11 +425,18 @@ class DocumentFileRootView(View):
         if err is not None:
             return err
 
-        max_order = DocumentFile.objects.filter(document=document).all().aggregate(max_order=Max('order'))['max_order']
-        new_order = 0 if DocumentFile.objects.filter(document=document).count() == 0 else max_order + 1
+        max_order = (
+            DocumentFile.objects.filter(document=document)
+            .all()
+            .aggregate(max_order=Max("order"))["max_order"]
+        )
+        new_order = (
+            0
+            if DocumentFile.objects.filter(document=document).count() == 0
+            else max_order + 1
+        )
 
-        filename = s3_util.generate_filename(
-            16, settings.COMSOL_DOCUMENT_DIR, ext)
+        filename = s3_util.generate_filename(16, settings.COMSOL_DOCUMENT_DIR, ext)
         document_file = DocumentFile(
             display_name=request.POST["display_name"],
             document=document,
@@ -462,7 +467,7 @@ class DocumentFileElementView(View):
             pk=id,
             document__slug=document_slug,
         )
-        return get_file_obj(document_file)
+        return response.success(value=get_file_obj(document_file))
 
     @auth_check.require_login
     def put(self, request: HttpRequest, document_slug: str, id: int):
@@ -630,7 +635,7 @@ def update_file(request: HttpRequest, document_slug: str, id: int):
 
 @response.request_post()
 @auth_check.require_login
-def move_file(request: HttpRequest, username:str, document_slug:str, filename: str):
+def move_file(request: HttpRequest, username: str, document_slug: str, filename: str):
     direction = request.POST["direction"]
     if not direction:
         return response.missing_argument()
@@ -641,7 +646,9 @@ def move_file(request: HttpRequest, username:str, document_slug:str, filename: s
     if not document.current_user_can_edit(request):
         return response.not_allowed()
     file = get_object_or_404(DocumentFile, filename=filename)
-    moved_file = get_object_or_404(DocumentFile, document=document, order=file.order + direction)
+    moved_file = get_object_or_404(
+        DocumentFile, document=document, order=file.order + direction
+    )
     file.order += direction
     moved_file.order -= direction
     with transaction.atomic():

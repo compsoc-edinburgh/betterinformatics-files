@@ -7,9 +7,9 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import React, { useMemo, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
 import { useUser } from "../auth";
 import { IconCloudUpload } from "@tabler/icons-react";
@@ -17,7 +17,7 @@ import { IconCloudUpload } from "@tabler/icons-react";
 const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
   preChosenCategory,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const { isCategoryAdmin } = useUser()!;
 
@@ -35,7 +35,7 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
     onSuccess: filename => {
       if (isCategoryAdmin) {
         // Admins will be able to view the uploaded file but not regular users,
-        history.push(`/exams/${filename}`);
+        navigate(`/exams/${filename}`);
       } else {
         // Reset file input and show success message
         setFile(undefined);

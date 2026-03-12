@@ -1,4 +1,4 @@
-import { useRequest } from "@umijs/hooks";
+import { useRequest } from "ahooks";
 import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import {
   Answer,
@@ -21,6 +21,7 @@ import {
   SingleComment,
   UserInfo,
   SearchResponse,
+  AnswerKind,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -297,8 +298,13 @@ export const useRemoveSplit = (oid: string, onSuccess: () => void) => {
   return runRemoveSplit;
 };
 
-const updateAnswer = async (answerId: string, text: string, isAnonymous: boolean = false) => {
-  return (await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, is_anonymous: isAnonymous }))
+const updateAnswer = async (
+  answerId: string,
+  text: string,
+  kind: AnswerKind,
+  isAnonymous: boolean = false,
+) => {
+  return (await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, kind, is_anonymous: isAnonymous }))
     .value as AnswerSection;
 };
 const removeAnswer = async (answerId: string) => {

@@ -4,13 +4,19 @@
 import os
 import sys
 
-from util import instrumentation
-
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
-    instrumentation.initialize()
+    # Only import instrumentation if we have pyroscope installed.
+    # Pyroscope is not available on Windows, so this workaround is necessary
+    # to be able to develop ComSol on Windows.
+    try:
+        from util import instrumentation  # type: ignore
+
+        instrumentation.initialize()
+    except ImportError:
+        pass
 
     try:
         from django.core.management import execute_from_command_line
