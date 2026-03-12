@@ -179,7 +179,7 @@ const OfficialSolution: React.FC<Props> = React.memo(({ value }) => {
       return <>Invalid Official Solution Syntax: Missing content</>;
     }
 
-    const match = value.match(REGEX);
+    const match = REGEX.exec(value);
     if (!match) {
       return (
         <>

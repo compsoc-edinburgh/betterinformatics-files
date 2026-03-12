@@ -78,8 +78,9 @@ const AttachmentsEditor: React.FC<AttachmentsEditorProps> = ({
   return (
     <div>
       <Stack gap="xs" mb="xs">
-        {attachments.map(({ displayname, filename }) => (
+        {attachments.map(({ displayname, filename }, i) => (
           <AttachmentFileItem
+            key={i}
             displayname={displayname}
             filename={filename}
             remove={() => {
