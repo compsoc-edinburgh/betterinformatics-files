@@ -50,6 +50,7 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".pdf", "application/pdf"),
     (".tex", "application/x-tex"),
     (".tex", "text/x-tex"),
+    (".tex", "application/octet-stream"),
     (".md", "application/octet-stream"),
     (".md", "text/markdown"),
     (".md", "text/x-markdown"),
