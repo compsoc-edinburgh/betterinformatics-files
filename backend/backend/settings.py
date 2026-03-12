@@ -48,14 +48,8 @@ COMSOL_FILESTORE_DIR = "files/"
 COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
 COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".pdf", "application/pdf"),
-    (".tex", "application/x-tex"),
-    (".tex", "text/x-tex"),
     (".tex", "application/octet-stream"),
     (".md", "application/octet-stream"),
-    (".md", "text/markdown"),
-    (".md", "text/x-markdown"),
-    (".typ", "text/x-typst"),
-    (".typ", "text/vnd.typst"),
     (".typ", "application/octet-stream"),
     (".txt", "text/plain"),
     (".zip", "application/zip"),
