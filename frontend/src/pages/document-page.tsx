@@ -52,6 +52,8 @@ const isMarkdown = (file: DocumentFile) =>
 
 const isTex = (file: DocumentFile) => file.mime_type === "application/x-tex";
 
+const isTypst = (file: DocumentFile) => file.filename.toLowerCase().endsWith('.typ');
+
 const getComponents = (
   file: DocumentFile | undefined,
 ):
@@ -70,7 +72,7 @@ const getComponents = (
   if (isMarkdown(file)) {
     return { Viewer: DocumentMarkdown, Editor: DocumentMarkdownEditor };
   }
-  if (isTex(file)) {
+  if (isTex(file) || isTypst(file)) {
     return { Viewer: DocumentCode, Editor: undefined };
   }
 
