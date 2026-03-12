@@ -44,9 +44,12 @@ import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSear
 import { useScrollToPermalink } from "../hooks/useScrollToPermalink";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
-const isMarkdown = (file: DocumentFile) => file.filename.toLowerCase().endsWith(".md");
-const isTex = (file: DocumentFile) => file.filename.toLowerCase().endsWith('.tex');
-const isTypst = (file: DocumentFile) => file.filename.toLowerCase().endsWith('.typ');
+const isMarkdown = (file: DocumentFile) =>
+  file.filename.toLowerCase().endsWith(".md");
+const isTex = (file: DocumentFile) =>
+  file.filename.toLowerCase().endsWith(".tex");
+const isTypst = (file: DocumentFile) =>
+  file.filename.toLowerCase().endsWith(".typ");
 
 const getComponents = (
   file: DocumentFile | undefined,
