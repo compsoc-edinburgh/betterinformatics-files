@@ -45,12 +45,11 @@ import { useScrollToPermalink } from "../hooks/useScrollToPermalink";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
-  file.filename.endsWith(".md") &&
-  (file.mime_type === "application/octet-stream" ||
-    file.mime_type === "text/x-markdown" ||
-    file.mime_type === "text/markdown");
-
-const isTex = (file: DocumentFile) => file.mime_type === "application/x-tex";
+  file.filename.toLowerCase().endsWith(".md");
+const isTex = (file: DocumentFile) =>
+  file.filename.toLowerCase().endsWith(".tex");
+const isTypst = (file: DocumentFile) =>
+  file.filename.toLowerCase().endsWith(".typ");
 
 const getComponents = (
   file: DocumentFile | undefined,
@@ -70,7 +69,7 @@ const getComponents = (
   if (isMarkdown(file)) {
     return { Viewer: DocumentMarkdown, Editor: DocumentMarkdownEditor };
   }
-  if (isTex(file)) {
+  if (isTex(file) || isTypst(file)) {
     return { Viewer: DocumentCode, Editor: undefined };
   }
 
