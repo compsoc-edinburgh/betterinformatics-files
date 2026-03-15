@@ -58,7 +58,7 @@ export function refreshToken() {
   if (refreshRequest !== undefined) {
     return refreshRequest;
   }
-  refreshRequest = fetch("/api/auth/refresh", {
+  refreshRequest = fetch(`/api/auth/refresh?scope=${scopes}`, {
     headers: getHeaders(),
   }).then(req => {
     refreshRequest = undefined;
