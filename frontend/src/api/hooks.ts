@@ -31,6 +31,9 @@ import {
   NamedBlob,
 } from "./fetch-utils";
 
+// Interval to consider "close succession" to de-dupe requests
+const RAPID_SUCCESSIVE_REQUESTS_DEDUPE_INTERVAL = 300; // milliseconds
+
 export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;
 
 const loadUserInfo = async (username: string) => {
@@ -236,6 +239,7 @@ export const loadMetaCategories = async () => {
 export const useMetaCategories = () => {
   const { error, loading, data, mutate } = useRequest(loadMetaCategories, {
     cacheKey: "listmetacategories",
+    staleTime: RAPID_SUCCESSIVE_REQUESTS_DEDUPE_INTERVAL,
   });
   return [error, loading, data, mutate] as const;
 };
