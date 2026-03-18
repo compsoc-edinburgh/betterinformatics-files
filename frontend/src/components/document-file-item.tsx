@@ -111,7 +111,7 @@ const DocumentFileItem: React.FC<Props> = ({
           <FileInput
             value={replaceFile}
             onChange={setFile}
-            accept=".pdf,.tex,.md,.typ,.txt,.zip,.apkg,.colpkg" // apkg=anki
+            accept=".pdf,.tex,.md,.typ,.txt,.zip,.apkg,.colpkg,.csv,.xlsx,.xls,.ods" // apkg=anki
           />
           <Button
             disabled={displayName?.trim() === ""}
