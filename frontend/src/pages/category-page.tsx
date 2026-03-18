@@ -254,7 +254,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       <List.Item key={att.filename}>
                         <Anchor
                           href={`/api/filestore/get/${att.filename}/`}
-                          color="blue"
+                          c="blue"
                           target="_blank"
                           rel="noopener noreferrer"
                         >

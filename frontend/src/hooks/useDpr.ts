@@ -7,9 +7,9 @@ const useDpr = () => {
       setDpr(window.devicePixelRatio);
     };
     const media = matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-    media.addListener(listener);
+    media.addEventListener("change", listener);
     return () => {
-      media.removeListener(listener);
+      media.removeEventListener("change", listener);
     };
   }, [dpr]);
   return dpr;

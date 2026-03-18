@@ -91,10 +91,10 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
               <Text fw={700} component="span">
                 {comment.authorDisplayName}
               </Text>
-              <Text ml="0.3em" color="dimmed" component="span">
+              <Text ml="0.3em" c="dimmed" component="span">
                 @{comment.authorId}
               </Text>
-              <Text color="dimmed" mx={6} component="span">
+              <Text c="dimmed" mx={6} component="span">
                 ·
               </Text>
             </Anchor>
@@ -105,7 +105,7 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
                 new Date(comment.time),
               ) > 1 && (
                 <>
-                  <Text color="dimmed" mx={6} component="span">
+                  <Text c="dimmed" mx={6} component="span">
                     ·
                   </Text>
                   <TimeText

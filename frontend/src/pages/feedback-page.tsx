@@ -54,7 +54,7 @@ const FeedbackForm: React.FC<{}> = () => {
         <Anchor
           component="a"
           href={`mailto:${serverData.email_address}`}
-          color="blue"
+          c="blue"
         >
           {serverData.email_address}
         </Anchor>
@@ -64,7 +64,7 @@ const FeedbackForm: React.FC<{}> = () => {
         To report issues with the platform you can open an issue in our{" "}
         <Anchor
           component="a"
-          color="blue"
+          c="blue"
           href="https://gitlab.ethz.ch/vseth/sip-com-apps/community-solutions/issues"
           target="_blank"
           rel="noopener noreferrer"

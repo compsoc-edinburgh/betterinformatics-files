@@ -157,14 +157,14 @@ const DocumentPage: React.FC<Props> = () => {
               <Text fw={700} component="span">
                 {data.author_displayname}
               </Text>
-              <Text ml="0.3em" color="dimmed" component="span">
+              <Text ml="0.3em" c="dimmed" component="span">
                 @{data.author}
               </Text>
             </Anchor>
             {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
               1 && (
               <>
-                <Text color="dimmed" mx={6} component="span">
+                <Text c="dimmed" mx={6} component="span">
                   ·
                 </Text>
                 <Tooltip
@@ -173,7 +173,7 @@ const DocumentPage: React.FC<Props> = () => {
                   label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
                   disabled={data.time === null}
                 >
-                  <Text color="dimmed" component="span">
+                  <Text c="dimmed" component="span">
                     updated {formatDistanceToNow(new Date(data.edittime))} ago
                   </Text>
                 </Tooltip>

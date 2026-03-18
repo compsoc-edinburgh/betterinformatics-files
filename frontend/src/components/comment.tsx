@@ -110,11 +110,11 @@ const CommentComponent: React.FC<Props> = ({
             <Text fw={700} component="span">
               {comment?.authorDisplayName ?? "(Draft)"}
             </Text>
-            <Text ml="0.25em" color="dimmed" component="span">
+            <Text ml="0.25em" c="dimmed" component="span">
               @{comment?.authorId ?? username}
             </Text>
           </Anchor>
-          <Text component="span" mx={6} color="dimmed">
+          <Text component="span" mx={6} c="dimmed">
             ·
           </Text>
           {comment && (
@@ -126,7 +126,7 @@ const CommentComponent: React.FC<Props> = ({
               new Date(comment.time),
             ) > 1 && (
               <>
-                <Text component="span" mx={6} color="dimmed">
+                <Text component="span" mx={6} c="dimmed">
                   ·
                 </Text>
                 <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
