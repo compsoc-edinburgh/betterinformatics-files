@@ -190,7 +190,7 @@ const AnswerComponent: React.FC<Props> = ({
                   new Date(answer.time),
                 ) > 1 && (
                   <>
-                    <Text color="dimmed" mx={6} component="span">
+                    <Text c="dimmed" mx={6} component="span">
                       ·
                     </Text>
                     <TimeText
@@ -316,7 +316,7 @@ const AnswerComponent: React.FC<Props> = ({
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />
-              <Text mt="xs" color="dimmed">
+              <Text mt="xs" c="dimmed">
                 Your answer will be licensed as{" "}
                 <Anchor
                   c="blue"

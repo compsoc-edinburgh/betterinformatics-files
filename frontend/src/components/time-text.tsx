@@ -11,7 +11,7 @@ export interface TimeTextProps extends TextProps {
 const TimeText: React.FC<TimeTextProps> = ({ time, prefix, suffix, ...textProps }) => {
     return (
         <Tooltip withArrow withinPortal label={format(new Date(time), "PPp")} >
-            <Text color="dimmed" component="span">
+            <Text c="dimmed" component="span">
                 {prefix} {formatDistanceToNow(new Date(time))} {suffix}
             </Text>
         </Tooltip>

@@ -29,12 +29,12 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
       <Text lineClamp={3}>{document.display_name}</Text>
       <Group justify="space-between" mt="sm">
         <Anchor component={Link} to={`/user/${document.author}`}>
-          <Text color="dimmed">@{document.author}</Text>
+          <Text c="dimmed">@{document.author}</Text>
         </Anchor>
         {document.liked ? (
           <Flex align="center" color="red">
             <IconHeartFilled color="red" />
-            <Text fw={700} color="red" ml="0.3em">
+            <Text fw={700} c="red" ml="0.3em">
               {document.like_count}
             </Text>
           </Flex>
@@ -50,7 +50,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
           <Badge ml="xs">
             <Anchor
               component={Link}
-              color="blue"
+              c="blue"
               to={`/category/${document.category}`}
             >
               {document.category_display_name}

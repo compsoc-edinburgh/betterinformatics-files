@@ -55,7 +55,7 @@ export const useDocumentDownload = (doc: Document | undefined) => {
             });
           if (cancel) return;
           if (responseFile === undefined) return;
-          const ext = file.filename.substr(file.filename.lastIndexOf("."));
+          const ext = file.filename.slice(file.filename.lastIndexOf("."));
           zip.file(file.display_name + ext, responseFile);
         }),
       );

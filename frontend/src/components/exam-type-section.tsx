@@ -117,7 +117,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 )}
                 <div>
                   {exam.remark && (
-                    <Text color="dimmed" size="sm" mb="0.15em">
+                    <Text c="dimmed" size="sm" mb="0.15em">
                       {exam.remark}
                     </Text>
                   )}

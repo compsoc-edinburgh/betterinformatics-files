@@ -123,7 +123,7 @@ export const dlSelectedExams = async (
       );
       // @gkhromov: There could be collisions if several files have the same display name.
       // Add "(n)" to duplicates.
-      const ext = exam.filename.substr(exam.filename.lastIndexOf("."));
+      const ext = exam.filename.slice(exam.filename.lastIndexOf("."));
       const repNum = fileNames.get(exam.displayname);
       if (repNum !== undefined) {
         fileNames.set(exam.displayname, repNum + 1);
