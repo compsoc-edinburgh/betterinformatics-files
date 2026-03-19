@@ -18,7 +18,7 @@ const SearchPage: React.FC<{}> = () => {
   useTitle("Search");
   const [query, setQuery] = useQueryParam("q", StringParam);
   const [optionalTerm, setTerm] = useState(query);
-  const term = optionalTerm || "";
+  const term = optionalTerm ?? "";
   const debouncedTerm = useDebounce(term, { wait: 300 });
 
   // Store previous query param so we can use it to check if params changed.

@@ -30,7 +30,7 @@ export const FAQPage: React.FC = () => {
     add(
       question,
       answer,
-      (faqs || []).reduce((old, value) => Math.max(old, value.order + 1), 0),
+      (faqs ?? []).reduce((old, value) => Math.max(old, value.order + 1), 0),
     );
     handleDeleteDraft();
   };

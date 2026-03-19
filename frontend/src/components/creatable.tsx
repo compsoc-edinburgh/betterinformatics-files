@@ -37,7 +37,7 @@ const Creatable: React.FC<CreatableProps> = ({
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
   });
-  const [search, setSearch] = useState(value === undefined ? "" : value);
+  const [search, setSearch] = useState(value ?? "");
 
   const exactOptionMatch = data.some(item => {
     return typeof item === "string" ? item === search : item.value === search;
@@ -66,7 +66,7 @@ const Creatable: React.FC<CreatableProps> = ({
   return (
     <Combobox
       store={combobox}
-      withinPortal={withinPortal === undefined ? false : withinPortal}
+      withinPortal={withinPortal ?? false}
       onOptionSubmit={val => {
         if (val === "$create") {
           onCreate(search);

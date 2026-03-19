@@ -477,7 +477,7 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  const error = metaDataError || cutsError || pdfError;
+  const error = metaDataError ?? cutsError ?? pdfError;
   const user = useUser()!;
 
   const navigate = useNavigate();
@@ -537,7 +537,7 @@ const ExamPage: React.FC<{}> = () => {
                 <UserContext.Provider
                   value={{
                     ...user,
-                    isExpert: user.isExpert || metaData.isExpert,
+                    isExpert: user.isExpert ?? metaData.isExpert,
                     isCategoryAdmin: user.isAdmin || metaData.canEdit,
                   }}
                 >

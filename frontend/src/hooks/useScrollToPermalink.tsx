@@ -18,7 +18,7 @@ export const useScrollToPermalink = () => {
     // Stop searching for the element we were previously searching for
     let disconnect: (() => void) | undefined = undefined;
 
-    const location = comment || answer || null;
+    const location = comment ?? answer;
 
     if (!location) return;
 

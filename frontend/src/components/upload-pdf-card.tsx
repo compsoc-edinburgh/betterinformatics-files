@@ -22,7 +22,7 @@ const UploadPdfCard: React.FC<{}> = () => {
     onSuccess: filename => navigate(`/exams/${filename}`),
   });
   const [validationError, setValidationError] = useState("");
-  const error = categoriesError || uploadError || validationError;
+  const error = categoriesError ?? uploadError ?? validationError;
   const loading = categoriesLoading || uploadLoading;
   const options = useMemo(
     () =>

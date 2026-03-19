@@ -24,7 +24,7 @@ const BottomHeader: React.FC<Props> = ({
 }) => {
   return (
     <Container visibleFrom="md" className={classes.navbar} fluid={true}>
-      <Container size={size ? size : "md"} className={classes.container}>
+      <Container size={size ?? "md"} className={classes.container}>
         <Link to={""} className={classes.title}>
           {title}
         </Link>

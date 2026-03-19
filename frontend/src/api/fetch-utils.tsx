@@ -69,7 +69,7 @@ export function refreshToken() {
 
 export function getHeaders() {
   const headers: Record<string, string> = {
-    "X-CSRFToken": getCookie("csrftoken") || "",
+    "X-CSRFToken": getCookie("csrftoken") ?? "",
   };
   if (localStorage.getItem("simulate_nonadmin")) {
     headers["SimulateNonAdmin"] = "true";

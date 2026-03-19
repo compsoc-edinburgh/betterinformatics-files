@@ -24,7 +24,7 @@ const UserPayments: React.FC<UserPaymentsProps> = ({ username }) => {
   const [refundError, refundLoading, refund] = useRefundPayment(reloadPayments);
   const [removeError, removeLoading, remove] = useRemovePayment(reloadPayments);
   const [addError, addLoading, add] = useAddPayments(reloadPayments);
-  const error = paymentsError || refundError || removeError || addError;
+  const error = paymentsError ?? refundError ?? removeError ?? addError;
   const loading =
     paymentsLoading || refundLoading || removeLoading || addLoading;
   const [openPayment, setOpenPayment] = useState("");

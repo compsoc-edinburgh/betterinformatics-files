@@ -122,7 +122,7 @@ const PdfPanelBase: React.FC<PdfPanelBaseProps> = ({
         {!!renderer && (
           <Pagination
             value={inViewPage}
-            total={visiblePages?.size || renderer.document.numPages}
+            total={visiblePages?.size ?? renderer.document.numPages}
             getItemProps={page => ({
               component: "a",
               // #page-n will be the nth page that is shown in the screen, not

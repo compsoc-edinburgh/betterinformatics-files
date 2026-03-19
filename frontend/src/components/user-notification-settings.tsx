@@ -15,7 +15,7 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
     useEnabledNotifications(true);
   const [setEnabledError, setEnabledLoading, setEnabled] =
     useSetEnabledNotifications(reloadEnabled);
-  const error = enabledError || setEnabledError;
+  const error = enabledError ?? setEnabledError;
   const checkboxLoading = enabledLoading || setEnabledLoading;
   return (
     <>

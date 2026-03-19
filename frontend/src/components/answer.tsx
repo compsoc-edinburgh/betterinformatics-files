@@ -118,9 +118,9 @@ const AnswerComponent: React.FC<Props> = ({
   const isDraft = !answer;
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
-  const canEdit = section && onSectionChanged && (answer?.canEdit || false);
+  const canEdit = section && onSectionChanged && answer?.canEdit;
   const canRemove =
-    section && onSectionChanged && (isAdmin || answer?.canEdit || false);
+    section && onSectionChanged && (isAdmin || answer?.canEdit);
   const { username } = useUser()!;
   return (
     <>

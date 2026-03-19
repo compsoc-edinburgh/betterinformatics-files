@@ -24,7 +24,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     <Tooltip
       withinPortal
       label={tooltip}
-      disabled={disabled || loading}
+      disabled={disabled ?? loading}
       className={clsx(classes.button, className && className)}
     >
       <ActionIcon variant="light" loading={loading} size={size} {...props}>
@@ -35,7 +35,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     <ActionIcon
       variant="light"
       {...props}
-      disabled={disabled || loading}
+      disabled={disabled ?? loading}
       className={clsx(classes.button, className && className)}
       size={size}
       loading={loading}
