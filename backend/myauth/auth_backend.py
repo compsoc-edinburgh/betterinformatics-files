@@ -110,7 +110,7 @@ def add_auth(request: HttpRequest):
         if preferred_username in settings.BANNED_USERS:
             raise PermissionDenied("User is banned")
         home_organization = claims["home_organization"]
-        if home_organization != "ethz.ch":
+        if settings.ALLOWED_HOMEORGS and home_organization not in settings.ALLOWED_HOMEORGS:
             raise InvalidHomeOrganizationException()
         roles = (
             claims["resource_access"][settings.JWT_RESOURCE_GROUP]["roles"]

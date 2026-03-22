@@ -135,6 +135,7 @@ programs:
       - FRONTEND_UNLOCK_DEPOSIT_NOTICE:
 
       - BANNED_USERS:
+      - ALLOWED_HOMEORGS: ethz.ch
 
       - RUNTIME_JWT_PUBLIC_KEY:
       - prometheus_multiproc_dir: /dev/shm

@@ -166,6 +166,9 @@ DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
 )
 
 BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+ALLOWED_HOMEORGS = [
+    org for org in os.environ.get("ALLOWED_HOMEORGS", "").split(",") if org
+]
 
 ALLOWED_HOSTS = []
 REAL_ALLOWED_HOSTS = []
