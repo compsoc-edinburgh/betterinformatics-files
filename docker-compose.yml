@@ -1,27 +1,29 @@
 services:
-  minio:
-    image: minio/minio:RELEASE.2023-10-25T06-33-25Z
+  rclone-create-bucket:
+    image: busybox
+    command: mkdir -p /data/s3/community-solutions
+    volumes:
+      - ./data:/data
+
+  rclone:
+    image: rclone/rclone
     environment:
-      - MINIO_ACCESS_KEY=minio
-      - MINIO_SECRET_KEY=minio123
+      RCLONE_AUTH_KEY: '"rclone,rclone123"'
     ports:
       - "9000:9000"
-      - "9001:9001"
     volumes:
-      - ./data/minio:/export
-    command: server /export --console-address ":9001"
+      - ./data/s3:/data
+      - ./util/rclone.conf:/config/rclone/rclone.conf
+    command: serve s3 local:/data --addr 0.0.0.0:9000 --allow-origin '*'
     healthcheck:
-      test: ["CMD", "curl", "-I", "localhost:9000/minio/health/live"]
+      test: ["CMD", "rclone", "ls", "serves3:/"]
       interval: 1s
       timeout: 1s
-      retries: 20
-  createbuckets:
-    image: minio/mc:RELEASE.2023-10-24T21-42-22Z
+      retries: 60
     depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint: >
-      /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 minio minio123; /usr/bin/mc mb myminio/community-solutions; "
+      rclone-create-bucket:
+        condition: service_completed_successfully
+
   postgres:
     image: postgres:16
     environment:
@@ -61,7 +63,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
+      rclone:
         condition: service_healthy
 
   react-frontend:
@@ -81,6 +83,6 @@ services:
     ports:
       - "3000:3000"
     extra_hosts:
-      - "minio:127.0.0.1"
+      - "rclone:127.0.0.1"
     environment:
       - BACKEND_HOST=community-solutions
