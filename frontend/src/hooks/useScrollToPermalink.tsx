@@ -18,7 +18,8 @@ export const useScrollToPermalink = () => {
     // Stop searching for the element we were previously searching for
     let disconnect: (() => void) | undefined = undefined;
 
-    const location = comment ?? answer;
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    const location = comment || answer;
 
     if (!location) return;
 
