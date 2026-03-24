@@ -166,6 +166,8 @@ DEPLOYMENT_DOMAINS = [PRIMARY_DEPLOYMENT_DOMAIN] + (
 )
 
 BANNED_USERS = os.environ.get("BANNED_USERS", "").split(",")
+# Keep only non-empty values so that if env var is "", we should allow
+# any homeorg ([]), not restrict access to the empty string org ([""]).
 ALLOWED_HOMEORGS = [
     org for org in os.environ.get("ALLOWED_HOMEORGS", "").split(",") if org
 ]
