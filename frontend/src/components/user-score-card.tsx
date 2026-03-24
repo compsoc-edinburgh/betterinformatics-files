@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Container,
   SimpleGrid,
@@ -88,10 +89,15 @@ function rankCard(
           }}
         />
       </Group>
-      <Group>
+      <Group align="center">
         <Text lh={1} fz="xl" fw={600}>
           {userInfo ? ordinal(userInfo.rank) : "-"} out of {userInfo ? userInfo.total_users : "-"} Students
         </Text>
+        {userInfo && (
+          <Badge variant="light" color="blue" size="lg">
+            Top {(Math.round((userInfo.rank / userInfo.total_users) * 1000) / 10).toFixed(1)}%
+          </Badge>
+        )}
       </Group>
     </Paper>
   );
