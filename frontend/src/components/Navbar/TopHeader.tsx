@@ -13,7 +13,7 @@ interface Props {
   onLanguageSelect: (language: string) => void;
   organizationNav?: NavItem[];
   orgHomepage: string;
-  logo: string | undefined;
+  logo: string;
   size: MantineSize | undefined;
 }
 
@@ -33,21 +33,17 @@ const TopHeader: React.FC<Props> = ({
       fluid={true}
       style={{ backgroundColor: "var(--mantine-color-dark-6)" }}
     >
-      <Container size={size ? size : "xl"} className={classes.container}>
+      <Container size={size ?? "xl"} className={classes.container}>
         <a href={orgHomepage}>
           <img
-            src={
-              logo
-              ? logo
-              : "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg"
-            }
+            src={logo}
             className={classes.logo}
             alt="Logo of the student organization"
           />
         </a>
         <div className={classes.items}>
           {translate(
-            organizationNav ? organizationNav : globalNav,
+            organizationNav ?? globalNav,
             selectedLanguage,
           ).map((item, i) => (
             <ExternalNavElement

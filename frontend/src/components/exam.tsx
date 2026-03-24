@@ -130,7 +130,7 @@ const Exam: React.FC<Props> = React.memo(
     // We retain legacy support for linking to answers by hashes for any old links
     const answerIdHash = document.location.hash.substring(1);
     // Prioritise query param over legacy hash support
-    const answerId = answerIdParam || answerIdHash;
+    const answerId = answerIdParam ?? answerIdHash;
 
     // We need to ask the API what section ID the permalinked answer is in. Then,
     // we re-render this component with the new set of expanded states. We have

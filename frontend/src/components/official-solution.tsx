@@ -30,9 +30,9 @@ function usePdfUrl(url: string): string | undefined {
 
     switch (type) {
       case "solution":
-        return (await fetchGet(`/api/exam/pdf/solution/${filename}/`)) || null;
+        return fetchGet(`/api/exam/pdf/solution/${filename}/`);
       case "exam":
-        return (await fetchGet(`/api/exam/pdf/exam/${filename}/`)) || null;
+        return fetchGet(`/api/exam/pdf/exam/${filename}/`);
       case "document":
         return null; // Not yet implemented
       default:

@@ -116,9 +116,7 @@ export const determineOptimalCutPositions = (
       }
     }
     if (clean) {
-      if (sectionStart === undefined) {
-        sectionStart = y / imageData.height;
-      }
+      sectionStart ??= y / imageData.height;
     } else {
       if (sectionStart !== undefined) {
         handler(sectionStart, y / imageData.height);

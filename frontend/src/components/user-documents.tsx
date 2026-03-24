@@ -38,7 +38,7 @@ const UserDocuments: React.FC<UserDocumentsProps> = ({
   return (
     <>
       <h3>
-        {isMyself ? "Your" : `${userInfo?.displayName || `@${username}`}'s`}{" "}
+        {isMyself ? "Your" : `${userInfo?.displayName ?? `@${username}`}'s`}{" "}
         Documents
       </h3>
       {documentsError && <Alert color="red">{documentsError.toString()}</Alert>}

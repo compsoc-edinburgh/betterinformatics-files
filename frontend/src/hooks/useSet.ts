@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
 const useSet = <T>(defaultValue?: Set<T>) => {
-  const [value, setValue] = useState(() => defaultValue || new Set<T>());
+  const [value, setValue] = useState(() => defaultValue ?? new Set<T>());
 
   const addEntries = useCallback((...entries: T[]) => {
     setValue(prevSelected => {

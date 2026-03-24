@@ -70,7 +70,7 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   return (
     <>
       <Group justify="space-between" my="lg">
-        <Title order={1}>{userInfo?.displayName || username}</Title>
+        <Title order={1}>{userInfo?.displayName ?? username}</Title>
 
         {isMyself && (
           <Group>

@@ -19,7 +19,7 @@ interface Props {
   appNav: NavItem[];
   title: string;
   loginButton?: ReactNode;
-  signet?: string;
+  signet: string;
 }
 const BottomHeader: React.FC<Props> = ({
   selectedLanguage,
@@ -45,11 +45,7 @@ const BottomHeader: React.FC<Props> = ({
       >
         <div style={{ display: "flex" }}>
           <img
-            src={
-              signet
-                ? signet
-                : "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/signet-mono.svg"
-            }
+            src={signet}
             alt="Signet of the student organization"
             className={classes.logo}
           />

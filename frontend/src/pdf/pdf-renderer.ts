@@ -200,7 +200,7 @@ export default class PDF {
     // Add the mainCanvas to the correct set
     const existingSet = this.mainCanvasMap.get(pageNumber);
     const newSet = new Set([mainCanvas]);
-    const mainCanvasSet = existingSet || newSet;
+    const mainCanvasSet = existingSet ?? newSet;
     if (existingSet) {
       existingSet.add(mainCanvas);
     } else {

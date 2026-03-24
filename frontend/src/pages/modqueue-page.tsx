@@ -45,7 +45,7 @@ const ModQueue: React.FC = () => {
     data: paymentExams,
   } = useRequest(loadPaymentExams);
 
-  const error = examsError || payError;
+  const error = examsError ?? payError;
 
   return (
     <Container size="xl">
