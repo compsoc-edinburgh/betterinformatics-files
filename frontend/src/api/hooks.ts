@@ -3,7 +3,6 @@ import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import {
   Answer,
   AnswerSection,
-  BICourseDict,
   CategoryExam,
   CategoryMetaData,
   CategoryMetaDataMinimal,
@@ -22,6 +21,7 @@ import {
   UserInfo,
   SearchResponse,
   AnswerKind,
+  BICourseList,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -67,8 +67,7 @@ const loadBICourseList = async () => {
   // Use normal fetch() instead of fetchGet as the latter is for internal API
   // and sends some credential cookies
   return fetch("https://betterinformatics.com/courses.json")
-    .then(r => r.json())
-    .then(r => r?.list) as Promise<BICourseDict>;
+    .then(r => r.json()) as Promise<BICourseList>;
 };
 
 export const useBICourseList = () => {

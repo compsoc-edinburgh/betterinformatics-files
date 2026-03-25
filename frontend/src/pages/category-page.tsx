@@ -139,7 +139,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     // generate badges.
     return metaData.euclid_codes
       .map(c =>
-        Object.values(bi_courses_data).flatMap(course => {
+        Object.values(bi_courses_data.list).flatMap(course => {
           if (course.euclid_code === c || course.euclid_code_shadow === c) {
             return [
               {
@@ -172,14 +172,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     { name: "Grade Stats", id: "statistics" },
   ]);
 
-  // TODO: switch to betterinformatics.com/courses.json "session" field once that's live
-  const { thisYear, nextYearSuffix } = useMemo(() => {
-    const year = new Date().getFullYear();
-    return {
-      thisYear: year.toString(),
-      nextYearSuffix: (year + 1).toString().slice(2),
-    };
-  }, []);
+  const sessionString = bi_courses_data
+    ? bi_courses_data.session.replace("-", "/")
+    : "this year's";
 
   return (
     <>
@@ -224,7 +219,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           }
         />
         <Route
-          path={"/*"  /*because useCategoryTabs needs non-exact match*/}
+          path={"/*" /*because useCategoryTabs needs non-exact match*/}
           element={
             <>
               <Card withBorder mt="sm">
@@ -285,7 +280,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   bg="light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-7))"
                   mt="xs"
                   style={{
-                    overflowX: "auto" /* Allow scrolling tabs if they overflow */,
+                    overflowX:
+                      "auto" /* Allow scrolling tabs if they overflow */,
                   }}
                 >
                   {tabs.Component}
@@ -336,8 +332,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       icon={<IconStar />}
                       mb="md"
                     >
-                      You are an expert for this category. You can endorse correct
-                      answers, which will be visible to other users.
+                      You are an expert for this category. You can endorse
+                      correct answers, which will be visible to other users.
                     </Alert>
                   )}
                   {metaData.catadmin && (
@@ -348,13 +344,14 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       icon={<IconUserStar />}
                       mb="md"
                     >
-                      You can edit exams in this category. Please do so responsibly.
+                      You can edit exams in this category. Please do so
+                      responsibly.
                     </Alert>
                   )}
 
                   <Paper withBorder p={{ base: "sm", sm: "md" }} mb="md">
                     <Title order={2} mb="lg">
-                      Info for {thisYear}/{nextYearSuffix} run
+                      Info for {sessionString} run
                     </Title>
                     {quickinfo_data.length === 0 && (
                       /*
@@ -461,7 +458,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           </Tooltip>
                         )}
                       </Group>
-                      {md_loading && !raw_md_contents && <Skeleton height="2rem" />}
+                      {md_loading && !raw_md_contents && (
+                        <Skeleton height="2rem" />
+                      )}
                       {md_error && (
                         <Alert color="red">
                           Failed to render additional info: {md_error.message}
@@ -469,7 +468,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       )}
                       {raw_md_contents !== undefined && (
                         <Text
-                          c={computedColorScheme === "light" ? "gray.7" : "gray.4"}
+                          c={
+                            computedColorScheme === "light"
+                              ? "gray.7"
+                              : "gray.4"
+                          }
                         >
                           <MarkdownText
                             value={raw_md_contents}
