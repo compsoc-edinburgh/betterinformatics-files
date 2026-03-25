@@ -13,3 +13,4 @@ shell.nix
 .direnv
 keys
 mise.local.toml
+*.dump
