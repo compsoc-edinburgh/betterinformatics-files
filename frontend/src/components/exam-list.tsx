@@ -1,4 +1,4 @@
-import { Alert, alpha, Button, Flex, Loader, Popover, TextInput } from "@mantine/core";
+import { Alert, Button, Flex, Loader, Popover, TextInput } from "@mantine/core";
 import { useRequest } from "ahooks";
 import React, { useMemo, useState } from "react";
 import { loadList } from "../api/hooks";
@@ -11,7 +11,7 @@ import {
   mapExamsToExamType,
 } from "../utils/category-utils";
 import ExamTypeSection from "./exam-type-section";
-import { IconDownload, IconSearch , IconMessage, IconQuestionMark} from "@tabler/icons-react";
+import { IconDownload, IconSearch } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 interface ExamListProps {

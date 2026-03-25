@@ -1,4 +1,4 @@
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
@@ -11,7 +11,6 @@ import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import CodeBlock from "./code-block";
 import MarkdownText from "./markdown-text";
-import SmallButton from "./small-button";
 import { useOfficialSolutionLanguage } from "./official-solution";
 import { Anchor, Button, Flex, Group, Menu, Paper, Text } from "@mantine/core";
 import {

@@ -21,7 +21,6 @@ import {
   Routes,
   useNavigate,
   useParams,
-  useMatch,
 } from "react-router-dom";
 import {
   loadCategoryMetaData,
