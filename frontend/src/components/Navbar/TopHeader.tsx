@@ -2,6 +2,7 @@ import * as React from "react";
 import { Container } from "@mantine/core";
 import classes from "./TopHeader.module.css";
 import type { MantineSize } from "@mantine/core";
+import { Link } from "react-router-dom";
 
 import { globalNav, translate, NavItem } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
@@ -34,13 +35,13 @@ const TopHeader: React.FC<Props> = ({
       style={{ backgroundColor: "var(--mantine-color-dark-6)" }}
     >
       <Container size={size ?? "xl"} className={classes.container}>
-        <a href={orgHomepage}>
+        <Link to={orgHomepage}>
           <img
             src={logo}
             className={classes.logo}
             alt="Logo of the student organization"
           />
-        </a>
+        </Link>
         <div className={classes.items}>
           {translate(
             organizationNav ?? globalNav,
