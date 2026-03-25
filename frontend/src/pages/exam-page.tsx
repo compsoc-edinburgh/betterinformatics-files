@@ -519,12 +519,12 @@ const ExamPage: React.FC<{}> = () => {
               path="edit"
               element={
                 !user.isAdmin && !metaData.canEdit ? (
-                  <Navigate to="." replace />
+                  <Navigate to="./.." replace />
                 ) : (
                   <Container size="xl">
                     <ExamMetadataEditor
                       currentMetaData={metaData}
-                      closeEditPage={() => navigate(".")}
+                      closeEditPage={() => navigate("./..")}
                       onMetaDataChange={setMetaData}
                     />
                   </Container>
@@ -548,12 +548,12 @@ const ExamPage: React.FC<{}> = () => {
                     reloadCuts={reloadCuts}
                     mutateCuts={mutateCuts}
                     mutateMetaData={setMetaData}
-                    goToEditPage={() => navigate("edit")}
+                    goToEditPage={() => navigate("./edit")}
                   />
                 </UserContext.Provider>
               }
             />
-            <Route path="*" element={<Navigate to="." replace />} />
+            <Route path="*" element={<Navigate to="./.." replace />} />
           </Routes>
         )}
         {(cutsLoading || pdfLoading) && !metaDataLoading && (

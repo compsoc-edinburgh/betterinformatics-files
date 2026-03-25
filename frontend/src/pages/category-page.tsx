@@ -101,12 +101,12 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           path="edit"
           element={
             !user.isCategoryAdmin ? (
-              <Navigate to="." replace />
+              <Navigate to="./.." replace />
             ) : (
               offeredIn && (
                 <CategoryMetaDataEditor
                   onMetaDataChange={editorOnMetaDataChange}
-                  close={() => navigate(".")}
+                  close={() => {navigate("./..")}}
                   currentMetaData={metaData}
                   offeredIn={offeredIn.flatMap(b =>
                     b.meta2.map(d => [b.displayname, d.displayname] as const),
@@ -268,7 +268,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             </>
           }
         />
-        <Route path="*" element={<Navigate to="." replace />} />
+        <Route path="*" element={<Navigate to="./.." replace />} />
       </Routes>
     </>
   );
