@@ -107,7 +107,7 @@ const CourseMetadataChecker: React.FC = () => {
     // track of those missing a corresponding category
     const missingMapping: { code: string; data: BICourse; loading: boolean }[] =
       [];
-    for (const biCourse of Object.values(biData)) {
+    for (const biCourse of Object.values(biData.list)) {
       // Check if the euclid code exists in the categories data
       const euclid = biCourse.euclid_code;
       const euclid_shadow = biCourse.euclid_code_shadow;

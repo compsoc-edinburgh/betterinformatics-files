@@ -423,6 +423,7 @@ export interface DocumentStat {
 export interface BICourseList {
   last_update: string;
   list: BICourseDict;
+  session: string;
 }
 
 export interface BICourseDict {
