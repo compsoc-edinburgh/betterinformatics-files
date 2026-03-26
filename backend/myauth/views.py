@@ -210,7 +210,7 @@ def callback(request: HttpRequest):
         return HttpResponseBadRequest("nonce didn't match")
 
     # Use the code + client_secret to get our tokens
-    r = requests.post(
+    with requests.post(
         settings.OAUTH2_TOKEN_URL,
         data={
             "client_id": settings.OAUTH2_CLIENT_ID,
@@ -220,9 +220,8 @@ def callback(request: HttpRequest):
             "client_secret": settings.OAUTH2_CLIENT_SECRET,
         },
         headers={"Accept": "application/json"},
-    )
-
-    res = r.json()
+    ) as r:
+        res = r.json()
 
     if "error" in res:
         logger.error("Unable to request token: %s", res["error"])
@@ -261,7 +260,7 @@ def refresh(request: HttpRequest):
             return response
 
     # Get new tokens
-    r = requests.post(
+    with requests.post(
         settings.OAUTH2_TOKEN_URL,
         data={
             "client_id": settings.OAUTH2_CLIENT_ID,
@@ -271,14 +270,14 @@ def refresh(request: HttpRequest):
             "scope": scope,
         },
         headers={"Accept": "application/json"},
-    )
-    # A non 200 status code implies that the request was not successful
-    if r.status_code != 200:
-        response = HttpResponse("refresh failed")
-        response.status_code = 403
-        return response
+    ) as r:
+        # A non 200 status code implies that the request was not successful
+        if r.status_code != 200:
+            response = HttpResponse("refresh failed")
+            response.status_code = 403
+            return response
 
-    res = r.json()
+        res = r.json()
 
     if "error" in res:
         logger.error("Unable to request token: %s", res["error"])

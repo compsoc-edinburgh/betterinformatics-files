@@ -8,7 +8,8 @@ from jwcrypto.jwk import JWK
 from jwcrypto.jwt import JWT
 
 
-private_key_data = open("testing/jwtRS256.key", "rb").read()
+with open("testing/jwtRS256.key", "rb") as f:
+    private_key_data = f.read()
 key = JWK()
 key.import_from_pem(private_key_data)
 
