@@ -128,7 +128,8 @@ IS_PREVIEW = os.environ.get("PDEP_IS_PREVIEW", "") == "TRUE" and not TESTING
 # The public / private key path in the testing directory should only be used for unit testing and nothing else
 # During testing we use the public / private key pair located in the testing directory
 # We convert it from pem to a data_url so that even while testing the jwk is loaded from an url
-test_pub_key_data = open("testing/jwtRS256.key.pub", "rb").read()
+with open("testing/jwtRS256.key.pub", "rb") as f:
+    test_pub_key_data = f.read()
 test_key = JWK()
 test_key.import_from_pem(test_pub_key_data)
 key_data = JWKSet(keys=test_key).export(private_keys=False)

@@ -3,11 +3,14 @@ from testing.tests import ComsolTest, get_token
 from jwcrypto.jwt import JWT
 from jwcrypto.jwk import JWK
 
-private_key_data = open("testing/jwtRS256.key", "rb").read()
+with open("testing/jwtRS256.key", "rb") as f:
+    private_key_data = f.read()
 key = JWK()
 key.import_from_pem(private_key_data)
 
-invalid_private_key_data = open("myauth/invalid.key", "rb").read()
+
+with open("myauth/invalid.key", "rb") as f:
+    invalid_private_key_data = f.read()
 invalid_key = JWK()
 invalid_key.import_from_pem(invalid_private_key_data)
 

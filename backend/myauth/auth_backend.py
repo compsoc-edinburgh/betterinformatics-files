@@ -27,7 +27,8 @@ def get_key_set():
     Returns:
         JWKSet: Cached JWK set
     """
-    json_data = urllib.request.urlopen(settings.OIDC_JWKS_URL).read()
+    with urllib.request.urlopen(settings.OIDC_JWKS_URL) as res:
+        json_data = res.read()
     key_set = JWKSet.from_json(json_data)
 
     return key_set

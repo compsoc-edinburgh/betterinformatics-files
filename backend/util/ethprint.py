@@ -50,7 +50,6 @@ def _check_smb_connection(username, password):
     The return code is 0 if the user passes authentication, 1 otherwise.
     """
 
-    DEVNULL = open(os.devnull, 'w')
     return subprocess.call([
         'smbclient',
         u'{smb_server}'.format(smb_server=SMB_SERVER),
@@ -72,14 +71,14 @@ def _print_pdf(username, password, exam, pdf_path):
         return 1
 
     # Send the PS file to the smb print queue
-    DEVNULL = open(os.devnull, 'w')
-    proc = subprocess.Popen([
-        'smbclient',
-        u'{smb_server}'.format(smb_server=SMB_SERVER),
-        '-c',
-        u'print "{ps_path}"'.format(ps_path=ps_path),
-        u'--user={username}%{password}'.format(username=username, password=password),
-    ], stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
+    with open(os.devnull, 'w') as DEVNULL:
+        proc = subprocess.Popen([
+            'smbclient',
+            u'{smb_server}'.format(smb_server=SMB_SERVER),
+            '-c',
+            u'print "{ps_path}"'.format(ps_path=ps_path),
+            u'--user={username}%{password}'.format(username=username, password=password),
+        ], stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
 
     # Start timer to monitor the process
     timer = Timer(MAX_JOB_TIME, proc.kill)
@@ -112,15 +111,15 @@ def _generate_ps(exam, pdf_path):
         return ps_path
 
     # Convert the PDF file into a PS file
-    DEVNULL = open(os.devnull, 'w')
-    return_code = subprocess.call([
-        'pdftops',
-        '-paper',
-        'A4',
-        '-duplex',
-        u'{pdf_path}'.format(pdf_path=pdf_path),
-        u'{ps_path}'.format(ps_path=ps_path),
-    ], stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
+    with open(os.devnull, 'w') as DEVNULL:
+        return_code = subprocess.call([
+            'pdftops',
+            '-paper',
+            'A4',
+            '-duplex',
+            u'{pdf_path}'.format(pdf_path=pdf_path),
+            u'{ps_path}'.format(ps_path=ps_path),
+        ], stdout=DEVNULL, stderr=subprocess.STDOUT, close_fds=True)
     if return_code:
         # Error occured during pdftops command
         return None
