@@ -49,8 +49,11 @@ COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
 COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".pdf", "application/pdf"),
     (".tex", "application/octet-stream"),
+    (".tex", "text/x-tex"),
     (".md", "application/octet-stream"),
+    (".md", "text/markdown"),
     (".typ", "application/octet-stream"),
+    (".typ", "text/x-typst"),
     (".txt", "text/plain"),
     (".zip", "application/zip"),
     (".zip", "application/octet-stream"),
