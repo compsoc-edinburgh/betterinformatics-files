@@ -63,7 +63,7 @@ const EditorHeader: React.FC<Props> = ({
         ref={fileInputRef}
         onChange={onChangeHandler}
       />
-      <Group justify="space-between">
+      <Group>
         <Tabs
           value={activeMode}
           onChange={onActiveModeChange}
@@ -75,9 +75,8 @@ const EditorHeader: React.FC<Props> = ({
             {isFullscreen && <Tabs.Tab value="split">Split</Tabs.Tab>}
           </Tabs.List>
         </Tabs>
-        <Flex>
           {activeMode !== "preview" && (
-            <Button.Group>
+            <Button.Group className={classes.toolBelt}>
               <TooltipButton
                 className={classes.iconButton}
                 onClick={() => fileInputRef.current?.click()}
@@ -138,16 +137,14 @@ const EditorHeader: React.FC<Props> = ({
               </TooltipButton>
             </Button.Group>
           )}
-          <TooltipButton
-            ml="sm"
-            className={classes.iconButton}
+        <TooltipButton
+            className={classes.iconButton + " " + classes.fullscreenButton}
             onClick={handlers.toggleFullscreen}
             size="sm"
             tooltip="Toggle fullscreen"
-          >
+        >
             {isFullscreen ? <IconMinimize /> : <IconMaximize />}
-          </TooltipButton>
-        </Flex>
+        </TooltipButton>
       </Group>
     </div>
   );

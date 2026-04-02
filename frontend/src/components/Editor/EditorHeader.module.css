@@ -15,7 +15,6 @@
 
 .nav {
   display: flex;
-  justify-content: space-between;
 }
 
 .header {
@@ -25,4 +24,26 @@
 .file-input {
   visibility: hidden;
   display: none;
+}
+
+.toolBelt {
+  order:1;
+  margin-left:auto;
+}
+
+.fullscreenButton {
+  order: 2;
+  margin: 0;
+  padding: 0 0.875rem;
+}
+
+@media (max-width: 620px) {
+  .toolBelt {
+    order: 2;
+    width: 100%;
+  }
+  .fullscreenButton {
+    order: 1;
+    margin-left: auto;
+  }
 }
