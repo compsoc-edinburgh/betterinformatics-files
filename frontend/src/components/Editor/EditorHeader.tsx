@@ -1,7 +1,7 @@
 import * as React from "react";
 import TooltipButton from "../TooltipButton";
 import { useCallback, useRef } from "react";
-import { Button, Flex, Group, Stack, Tabs } from "@mantine/core";
+import { Button, Group, Stack, Tabs } from "@mantine/core";
 import {
   IconBold,
   IconCode,
@@ -75,75 +75,75 @@ const EditorHeader: React.FC<Props> = ({
             {isFullscreen && <Tabs.Tab value="split">Split</Tabs.Tab>}
           </Tabs.List>
         </Tabs>
-          {activeMode !== "preview" && (
-            <Button.Group className={classes.toolBelt}>
-              <TooltipButton
-                className={classes.iconButton}
-                onClick={() => fileInputRef.current?.click()}
-                size="sm"
-                tooltip="Insert Image"
-              >
-                <IconPhoto />
-              </TooltipButton>
-              <TooltipButton
-                className={classes.iconButton}
-                onClick={handlers.onMathClick}
-                size="sm"
-                tooltip="Inline Math"
-              >
-                <IconMath />
-              </TooltipButton>
-              <TooltipButton
-                className={classes.iconButton}
-                onClick={handlers.onCodeClick}
-                size="sm"
-                tooltip="Code Block"
-              >
-                <IconCode />
-              </TooltipButton>
-              <TooltipButton
-                className={classes.iconButton}
-                onClick={handlers.onLinkClick}
-                size="sm"
-                tooltip="Hyperlink"
-              >
-                <IconLink />
-              </TooltipButton>
-              <TooltipButton
-                className={classes.iconButton}
-                onClick={handlers.onItalicClick}
-                size="sm"
-                tooltip={
-                  <Stack gap="0.4em">
-                    Italic
-                    <kbd>Ctrl + I</kbd>
-                  </Stack>
-                }
-              >
-                <IconItalic />
-              </TooltipButton>
-              <TooltipButton
-                className={classes.iconButton}
-                onClick={handlers.onBoldClick}
-                size="sm"
-                tooltip={
-                  <Stack gap="0.4em">
-                    Bold
-                    <kbd>Ctrl + B</kbd>
-                  </Stack>
-                }
-              >
-                <IconBold />
-              </TooltipButton>
-            </Button.Group>
-          )}
+        {activeMode !== "preview" && (
+          <Button.Group className={classes.toolBelt}>
+            <TooltipButton
+              className={classes.iconButton}
+              onClick={() => fileInputRef.current?.click()}
+              size="sm"
+              tooltip="Insert Image"
+            >
+              <IconPhoto />
+            </TooltipButton>
+            <TooltipButton
+              className={classes.iconButton}
+              onClick={handlers.onMathClick}
+              size="sm"
+              tooltip="Inline Math"
+            >
+              <IconMath />
+            </TooltipButton>
+            <TooltipButton
+              className={classes.iconButton}
+              onClick={handlers.onCodeClick}
+              size="sm"
+              tooltip="Code Block"
+            >
+              <IconCode />
+            </TooltipButton>
+            <TooltipButton
+              className={classes.iconButton}
+              onClick={handlers.onLinkClick}
+              size="sm"
+              tooltip="Hyperlink"
+            >
+              <IconLink />
+            </TooltipButton>
+            <TooltipButton
+              className={classes.iconButton}
+              onClick={handlers.onItalicClick}
+              size="sm"
+              tooltip={
+                <Stack gap="0.4em">
+                  Italic
+                  <kbd>Ctrl + I</kbd>
+                </Stack>
+              }
+            >
+              <IconItalic />
+            </TooltipButton>
+            <TooltipButton
+              className={classes.iconButton}
+              onClick={handlers.onBoldClick}
+              size="sm"
+              tooltip={
+                <Stack gap="0.4em">
+                  Bold
+                  <kbd>Ctrl + B</kbd>
+                </Stack>
+              }
+            >
+              <IconBold />
+            </TooltipButton>
+          </Button.Group>
+        )}
         <TooltipButton
-            className={classes.iconButton + " " + classes.fullscreenButton}
-            onClick={handlers.toggleFullscreen}
-            size="sm"
-            tooltip="Toggle fullscreen"
+          className={`${classes.iconButton  } ${  classes.fullscreenButton}`}
+          onClick={handlers.toggleFullscreen}
+          size="sm"
+          tooltip="Toggle fullscreen"
         >
-            {isFullscreen ? <IconMinimize /> : <IconMaximize />}
+          {isFullscreen ? <IconMinimize /> : <IconMaximize />}
         </TooltipButton>
       </Group>
     </div>
