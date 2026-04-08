@@ -106,7 +106,8 @@ const Scoreboard: React.FC<{}> = () => {
       {statsError && <Alert color="red">{String(statsError)}</Alert>}
 
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)} User Stats
+        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
+        User Stats
       </Title>
       <Container size="md">
         <LineChart
@@ -118,7 +119,8 @@ const Scoreboard: React.FC<{}> = () => {
         />
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)} Answered Questions Stats
+        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
+        Answered Questions Stats
       </Title>
       <Container size="md">
         <LineChart
@@ -141,7 +143,8 @@ const Scoreboard: React.FC<{}> = () => {
         />
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)} Document Stats
+        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
+        Document Stats
       </Title>
       <Container size="md">
         <LineChart
@@ -209,7 +212,9 @@ const Scoreboard: React.FC<{}> = () => {
                   <Table.Td>{idx + 1}</Table.Td>
                   <Table.Td>
                     <Anchor component={Link} to={`/user/${board.username}`}>
-                      {board.username}
+                      {board.username}{" "}
+                      {board.displayName != board.username &&
+                        `(${board.displayName})`}
                     </Anchor>
                   </Table.Td>
                   <Table.Td>{board.score}</Table.Td>
