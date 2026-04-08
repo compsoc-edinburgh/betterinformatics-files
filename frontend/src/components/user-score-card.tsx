@@ -1,7 +1,5 @@
 import {
-  Badge,
   Button,
-  Container,
   SimpleGrid,
   Text,
   Group,
@@ -79,7 +77,7 @@ function rankCard(
       <LoadingOverlay visible={!userInfo} />
       <Group justify="space-between" mb="xs">
         <Text inline size="xs" tt="uppercase" component="p" c="dimmed">
-          Score Ranking
+          Score Percentile
         </Text>
         <Icon
           style={{
@@ -89,15 +87,9 @@ function rankCard(
           }}
         />
       </Group>
-      <Group align="center">
-        {userInfo ? (
-          <Badge variant="light" color="blue" size="lg">
-            Top {(Math.round((userInfo.rank / userInfo.total_users) * 1000) / 10).toFixed(1)}%
-          </Badge>
-        ) : (
-          <Text lh={1} fz="xl" fw={600}>-</Text>
-        )}
-      </Group>
+      <Text lh={1} fz="xl" fw={600}>
+        {userInfo ? `Top ${(Math.round((userInfo.rank / userInfo.total_users) * 1000) / 10).toFixed(1)}%` : "-"}
+      </Text>
     </Paper>
   );
 }
