@@ -322,13 +322,19 @@ def search_answers(term, is_admin, category_filter, user_admin_categories, amoun
         answers.filter(search_vector=term)
         .annotate(
             rank=SearchRank(F("search_vector"), query),
-            author_username=F("author__username"),
+            author_username=Case(
+                When(
+                    condition=Q(is_anonymous=True),
+                    then=V("anonymous"),
+                ),
+                default=F("author__username"),
+            ),
             author_displayname=Case(
                 When(
-                    Q(author__first_name__isnull=True),
-                    "author__last_name",
+                    condition=Q(is_anonymous=True),
+                    then=V("Anonymous"),
                 ),
-                default=Concat("author__first_name", V(" "), "author__last_name"),
+                default=F("author__profile__display_username"),
             ),
             highlighted_words=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter, 1, 2
@@ -395,13 +401,7 @@ def search_comments(term, is_admin, category_filter, user_admin_categories, amou
         .annotate(
             rank=SearchRank(F("search_vector"), query),
             author_username=F("author__username"),
-            author_displayname=Case(
-                When(
-                    Q(author__first_name__isnull=True),
-                    "author__last_name",
-                ),
-                default=Concat("author__first_name", V(" "), "author__last_name"),
-            ),
+            author_displayname=F("author__profile__display_username"),
             highlighted_words=headline(
                 F("text"), query, start_boundary, end_boundary, fragment_delimeter, 1, 2
             ),
