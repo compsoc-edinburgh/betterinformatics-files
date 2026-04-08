@@ -27,13 +27,7 @@ def get_user_scores(user, res):
 @func_cache.cache(600)
 def get_scoreboard_top(scoretype, limit):
     users = User.objects.annotate(
-        displayName=Case(
-            When(
-                Q(first_name__isnull=True),
-                "last_name",
-            ),
-            default=Concat("first_name", V(" "), "last_name"),
-        ),
+        displayName=F("profile__display_username"),
         score=F("scores__document_likes")
         + F("scores__upvotes")
         - F("scores__downvotes"),
