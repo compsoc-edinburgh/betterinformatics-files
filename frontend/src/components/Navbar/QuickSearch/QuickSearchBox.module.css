@@ -36,7 +36,7 @@
 
   &:has(input:focus) {
     background: var(--mantine-color-gray-light-hover);
-    outline: 2px solid var(--mantine-color-bright);
+    outline: 2px solid var(--mantine-primary-color-filled);
     outline-offset: calc(0.125rem * var(--mantine-scale));
   }
 }
