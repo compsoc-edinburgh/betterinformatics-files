@@ -1,5 +1,5 @@
 [tools]
-node = "24.14.0"
+node = "24.14.1"
 prek = "0.3.3"
 uv = "0.10.12"
 # yarn "classic". Newer v3/v4 yarn is not compatible as of now
