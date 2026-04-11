@@ -1,15 +1,21 @@
 <p align="center">
-  <img src="./logo.png" alt="Logo Image of Better Informatics File Collection" align="center" />
+  <img src="./logo.png" alt="Logo Image of Better Informatics File Collection" align="center" height="80" />
+
+  <p align="center">Platform for crowdsourcing Informatics study materials.<br />Passionately built by students, for students.</p>
+
+  <p align="center">
+    <strong><a href="https://files.betterinformatics.com">files.betterinformatics.com</a></strong>
+  </p>
+
+  <img alt="Screenshot of Better Informatics File Collection" src="./screenshot.png">
 </p>
 
-# Better Informatics File Collection
+## Project Overview
 
 This is the codebase of Better Informatics File Collection serving University of
 Edinburgh Informatics students! The service is a customised/vendored fork of a
 GPL-licensed software called "Community Solutions", developed originally by
 students at ETH Zurich for their own exam collection.
-
-The live instance is at https://files.betterinformatics.com.
 
 Our fork contains many original features, like support for passwordless auth,
 Euclid Course Codes, email notifications, knowledgebase, etc. At the same time,
@@ -24,6 +30,7 @@ or [CompSoc IRC](https://comp-soc.com/irc). Alternatively, write a GitHub issue!
 
 ## Table of Contents
 
+- [Project Overview](#project-overview)
 - [How do I contribute?](#how-do-i-contribute)
 - [Tech Stack Overview](#tech-stack-overview)
 - [Getting Started Locally](#getting-started-locally)
@@ -48,6 +55,7 @@ or [CompSoc IRC](https://comp-soc.com/irc). Alternatively, write a GitHub issue!
   - [About the Dockerfile](#about-the-dockerfile)
   - [About cinit](#about-cinit)
   - [About the production instance](#about-the-production-instance)
+- [2026 Plans](#2026-plans)
 - [License](#license)
 
 ## How do I contribute?
@@ -459,6 +467,35 @@ you are trying to run Community Solutions on your own server, follow these steps
    keypair procedure), so that it can send email verification emails as a GSuite
    user. This can also be left empty during local development, which will make
    emails display to console instead.
+
+## 2026 Plans
+
+```mermaid
+---
+displayMode: compact
+config:
+  gantt:
+    numberSectionStyles: 2
+---
+gantt
+    dateFormat YYYY-MM-DD
+    tickInterval 1month
+    axisFormat %b
+    section New Features
+        Course Reviews  :reviews, 2026-01-01, 2026-09-01
+        Inline-editable knowledgebase  : 2026-05-30, 2026-09-01
+        Overhaul dissertation feature  : 2026-04-01, 2026-06-01
+    section Maintenance
+        Merge upstream features (monthly) : 2026-01-01, 2026-12-31
+        Improve deployment infrastructure     : 2026-07-01, 2026-12-31
+        Bugfixes as appropriate  : 2026-01-01, 2026-12-31
+        Swap BI and BI Files  : 2026-06-01, 2026-09-01
+    section Semester Dates
+        Semester 2 : 2026-01-12, 2026-04-03
+        Exams : 2026-04-27, 2026-05-22
+        Semester 1 : 2026-09-14, 2026-12-04
+        Exams : 2026-12-14, 2026-12-23
+```
 
 ## License
 
