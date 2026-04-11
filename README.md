@@ -1,15 +1,21 @@
 <p align="center">
-  <img src="./logo.png" alt="Logo Image of Better Informatics File Collection" align="center" />
+  <img src="./logo.png" alt="Logo Image of Better Informatics File Collection" align="center" height="80" />
+
+  <p align="center">Platform for crowdsourcing Informatics study materials.<br />Passionately built by students, for students.</p>
+
+  <p align="center">
+    <strong><a href="https://files.betterinformatics.com">files.betterinformatics.com</a></strong>
+  </p>
+
+  <img alt="Screenshot of Better Informatics File Collection" src="./screenshot.png">
 </p>
 
-# Better Informatics File Collection
+## Project Overview
 
 This is the codebase of Better Informatics File Collection serving University of
 Edinburgh Informatics students! The service is a customised/vendored fork of a
 GPL-licensed software called "Community Solutions", developed originally by
 students at ETH Zurich for their own exam collection.
-
-The live instance is at https://files.betterinformatics.com.
 
 Our fork contains many original features, like support for passwordless auth,
 Euclid Course Codes, email notifications, knowledgebase, etc. At the same time,
@@ -24,6 +30,7 @@ or [CompSoc IRC](https://comp-soc.com/irc). Alternatively, write a GitHub issue!
 
 ## Table of Contents
 
+- [Project Overview](#project-overview)
 - [How do I contribute?](#how-do-i-contribute)
 - [Tech Stack Overview](#tech-stack-overview)
 - [Getting Started Locally](#getting-started-locally)
