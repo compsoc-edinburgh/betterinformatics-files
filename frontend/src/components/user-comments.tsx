@@ -73,7 +73,9 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
               <SingleCommentComponent comment={comment} reload={reload}/>
             </div>
           ))}
-        <div ref={elem => setLastElement(elem)} />
+        <div ref={elem => {
+          setLastElement(elem);
+        }} />
       </div>
       {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>
