@@ -8,8 +8,8 @@ interface Props {
   value: string;
   onChange: (newValue: string) => void;
 
-  getSelectionRangeRef: React.RefObject<() => Range | undefined>;
-  setSelectionRangeRef: React.RefObject<(newSelection: Range) => void>;
+  getSelectionRangeRef: React.RefObject<() => Range | undefined | null>;
+  setSelectionRangeRef: React.RefObject<(newSelection: Range) => void | null>;
 
   textareaElRef: React.MutableRefObject<HTMLTextAreaElement>;
 

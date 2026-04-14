@@ -23,9 +23,9 @@ const useLongPress = <T>(
   longPressTime: number = 500,
   longPressDistanceSq: number = 20,
 ) => {
-  const timer = useRef<number | undefined>();
+  const timer = useRef<number | undefined>(undefined);
   const pos = useRef<Point>([0, 0]);
-  const style = useRef<HTMLStyleElement | undefined>();
+  const style = useRef<HTMLStyleElement | undefined>(undefined);
   const handler = useCallback(() => {
     timer.current = undefined;
     onHold();

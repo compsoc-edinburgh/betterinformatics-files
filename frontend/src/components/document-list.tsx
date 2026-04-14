@@ -1,5 +1,5 @@
 import { Button, Paper, Tooltip, Title } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { loadDocumentTypes, useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
@@ -62,7 +62,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
       </Title>
       {sortedDocs &&
         sortedDocs.map(obj => (
-          <>
+          <Fragment key={obj.type}>
             {obj.type !== "Documents" && (
               <Title order={3} mt="xl" mb="lg">
                 {obj.type}
@@ -74,7 +74,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
                   <DocumentCard key={document.slug} document={document} />
                 ))}
             </Grid>
-          </>
+          </Fragment>
         ))}
       <Title order={3} mt="xl" mb="lg">
         Add Documents

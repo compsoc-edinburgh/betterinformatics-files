@@ -77,7 +77,9 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
               />
             </div>
           ))}
-        <div ref={elem => setLastElement(elem)} />
+        <div ref={elem => {
+          setLastElement(elem);
+        }} />
       </div>
       {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>
