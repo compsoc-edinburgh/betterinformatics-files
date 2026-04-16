@@ -61,7 +61,7 @@ def upload_transcript(request):
         )
     except Exception as e:
         return response.internal_error(str(e))
-    
+
     exam = Exam(
         filename=filename,
         displayname=request.POST.get("displayname", file.name),
@@ -73,7 +73,7 @@ def upload_transcript(request):
         oral_transcript_uploader=request.user,
     )
     exam.save()
-    
+
     pdf_utils.analyze_pdf(exam, os.path.join(settings.COMSOL_UPLOAD_FOLDER, filename))
     return response.success(filename=filename)
 
@@ -142,12 +142,16 @@ def remove_solution(request, filename, exam):
     return response.success()
 
 
+def _format_exam_display_name(exam: Exam) -> str:
+    return exam.category.displayname + " " + exam.displayname + ".pdf"
+
+
 def get_presigned_url_exam(exam: Exam):
     return s3_util.presigned_get_object(
         settings.COMSOL_EXAM_DIR,
         exam.filename,
         content_type="application/pdf",
-        display_name=exam.category.displayname + " " + exam.displayname + ".pdf",
+        display_name=_format_exam_display_name(exam),
     )
 
 
@@ -157,7 +161,13 @@ def get_exam_pdf(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
     if not exam.current_user_can_view(request):
         return response.not_allowed()
-    return response.success(value=get_presigned_url_exam(exam))
+    return response.success(
+        value=get_presigned_url_exam(exam), display_name=_format_exam_display_name(exam)
+    )
+
+
+def _format_solution_display_name(exam: Exam) -> str:
+    return exam.category.displayname + " " + exam.displayname + " (Solution).pdf"
 
 
 def get_presigned_url_solution(exam: Exam):
@@ -165,10 +175,7 @@ def get_presigned_url_solution(exam: Exam):
         settings.COMSOL_SOLUTION_DIR,
         exam.filename,
         content_type="application/pdf",
-        display_name=exam.category.displayname
-        + " "
-        + exam.displayname
-        + " (Solution).pdf",
+        display_name=_format_solution_display_name(exam),
     )
 
 
@@ -180,7 +187,10 @@ def get_solution_pdf(request, filename):
         return response.not_allowed()
     if not exam.has_solution:
         return response.not_found()
-    return response.success(value=get_presigned_url_solution(exam))
+    return response.success(
+        value=get_presigned_url_solution(exam),
+        display_name=_format_solution_display_name(exam),
+    )
 
 
 def get_presigned_url_printonly(exam: Exam):
@@ -190,6 +200,7 @@ def get_presigned_url_printonly(exam: Exam):
         content_type="application/pdf",
         display_name=exam.category.displayname + " " + exam.displayname + ".pdf",
     )
+
 
 @response.request_get()
 @auth_check.require_login

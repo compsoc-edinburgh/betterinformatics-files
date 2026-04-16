@@ -1,7 +1,13 @@
-// import { pdfjs } from 'pdfjs-dist';
 import { PDFDocumentLoadingTask } from "pdfjs-dist";
 import { getDocument } from "../pdf/pdfjs";
-import React, { useMemo, useRef, useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  memo,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from "react";
 import { ComponentRenderer } from "./markdown-text";
 import { Tooltip } from "@mantine/core";
 import { fetchGet } from "../api/fetch-utils";
@@ -22,7 +28,11 @@ const DEFAULT_WIDTH = 500;
  * Fetches the actual PDF URL from the API based on the url type (solution/exam/document).
  * Uses useRequest with caching to prevent duplicate network requests on re-renders.
  */
-function usePdfUrl(url: string): string | undefined {
+export function usePdfUrl(url: string): {
+  loading: boolean;
+  url: string | undefined;
+  display_name: string | undefined;
+} {
   const fetchPdfUrl = async () => {
     const parts = url.split("/");
     const type = parts[0]?.toLowerCase();
@@ -40,20 +50,29 @@ function usePdfUrl(url: string): string | undefined {
     }
   };
 
-  const { data } = useRequest(fetchPdfUrl, {
+  const { loading, data } = useRequest(fetchPdfUrl, {
     cacheKey: `pdf-url-${url}`,
     refreshDeps: [url],
   });
 
-  return data?.value;
+  return {
+    loading,
+    url: data?.value,
+    display_name: data?.display_name,
+  };
 }
 
-const PdfRenderer: React.FC<PProps> = React.memo(
+const PdfRenderer: React.FC<PProps> = memo(
   ({ url, refPage, p1X, p1Y, p2X, p2Y }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const myCanvas = useRef<HTMLCanvasElement>(null);
     const [containerWidth, setContainerWidth] = useState<number>(DEFAULT_WIDTH);
-    const pdfUrl = usePdfUrl(url);
+    const { url: pdfUrl, display_name: pdfDisplayName } = usePdfUrl(url);
+
+    const pdfDeepLink = pdfUrl ? new URL(pdfUrl) : undefined;
+    if (pdfDeepLink) {
+      pdfDeepLink.hash = `page=${refPage}`;
+    }
 
     // Measure container width using ResizeObserver
     useEffect(() => {
@@ -107,11 +126,10 @@ const PdfRenderer: React.FC<PProps> = React.memo(
         });
 
         const canvas = myCanvas.current;
-        const context = canvas?.getContext("2d");
-        if (canvas && context) {
+        if (canvas) {
           canvas.height = viewport.height * Math.abs(p1Y - p2Y);
           canvas.width = viewport.width * Math.abs(p1X - p2X);
-          page.render({ canvasContext: context, canvas, viewport });
+          page.render({ canvas, viewport });
         }
       };
 
@@ -122,10 +140,28 @@ const PdfRenderer: React.FC<PProps> = React.memo(
       };
     }, [pdfUrl, refPage, p1X, p1Y, p2X, p2Y, containerWidth]);
 
+    const tooltipLabel = (
+      <>
+        Click to view{" "}
+        <span
+          style={{
+            fontStyle: "italic",
+          }}
+        >
+          {pdfDisplayName}
+        </span>
+      </>
+    );
+
     return (
-      <div ref={containerRef} style={{ width: "100%" }}>
-        <canvas ref={myCanvas} />
-      </div>
+      <>
+        <Tooltip target={myCanvas} label={tooltipLabel} />
+        <div ref={containerRef} style={{ width: "100%" }}>
+          <a href={pdfDeepLink?.href}>
+            <canvas ref={myCanvas} />
+          </a>
+        </div>
+      </>
     );
   },
 );
@@ -172,7 +208,7 @@ interface Props {
 }
 
 const REGEX =
-  /page: (\d+)\r?\nfrom-relative-coords: \((0.\d+|1), (0.\d+|1)\)\r?\nto-relative-coords: \((0.\d+|1), (0.\d+|1)\)\r?\nurl: (\S+)/;
+  /page: (\d+)\r?\nfrom-relative-coords: \((0.\d+|1|0), (0.\d+|1|0)\)\r?\nto-relative-coords: \((0.\d+|1|0), (0.\d+|1|0)\)\r?\nurl: (\S+)/;
 
 const OfficialSolution: React.FC<Props> = React.memo(({ value }) => {
   const renderedPDF = useMemo(() => {
@@ -202,16 +238,14 @@ const OfficialSolution: React.FC<Props> = React.memo(({ value }) => {
     const url = match[6];
 
     return (
-      <Tooltip label="Official Solution">
-        <PdfRenderer
-          url={url}
-          refPage={page}
-          p1X={p1X}
-          p1Y={p1Y}
-          p2X={p2X}
-          p2Y={p2Y}
-        />
-      </Tooltip>
+      <PdfRenderer
+        url={url}
+        refPage={page}
+        p1X={p1X}
+        p1Y={p1Y}
+        p2X={p2X}
+        p2Y={p2Y}
+      />
     );
   }, [value]);
 
