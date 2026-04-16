@@ -1,27 +1,28 @@
 import {
+  Anchor,
+  Box,
   Button,
   Card,
   Flex,
   Group,
   GroupProps,
-  Text,
   Menu,
-  Anchor,
-  Box,
   Paper,
+  Text,
   Tooltip,
 } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
   useResetAnswerFlaggedVote,
   useResetAnswerMarkedAsAi,
-  useSetExpertVote,
   useSetAnswerFlagged,
   useSetAnswerMarkedAsAi,
+  useSetExpertVote,
   useUpdateAnswer,
 } from "../api/hooks";
 import { useUser } from "../auth";
@@ -37,18 +38,18 @@ import Score from "./score";
 import TooltipButton from "./TooltipButton";
 import { useOfficialSolutionLanguage } from "./official-solution";
 import {
+  IconArrowLeft,
   IconChevronDown,
   IconChevronUp,
   IconCode,
   IconDeviceFloppy,
   IconDots,
   IconEdit,
+  IconFileText,
   IconFlag,
   IconLink,
-  IconArrowLeft,
-  IconFileText,
-  IconPencilCancel,
   IconMessageCirclePlus,
+  IconPencilCancel,
   IconRobot,
   IconRobotOff,
   IconStarFilled,
@@ -132,7 +133,11 @@ const AnswerComponent: React.FC<Props> = ({
         shadow="md"
         id={hasId ? answer?.longId : undefined}
         classNames={{
-          root: classes.answerWrapperStyle,
+          root: clsx(
+            classes.answerWrapperStyle,
+            answerKind === AnswerKind.Official &&
+              classes.answerWrapperOfficialAnswer,
+          ),
           section: classes.answerSectionStyle,
         }}
       >

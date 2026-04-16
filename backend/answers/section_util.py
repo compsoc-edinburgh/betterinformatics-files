@@ -126,14 +126,24 @@ def get_answersection_response(request, section):
             key=lambda x: (-x.expert_count, -x.delta_votes, x.time)
         )
     ]
+
+    has_permission_official_answers = auth_check.has_admin_rights_for_exam(
+        request, section.exam
+    )
+
     return {
-        'oid': section.id,
-        'answers': answers,
-        'allow_new_answer': not prepared_query.filter(author=request.user, kind=Answer.Kind.PERSONAL).exists(),
-        'allow_new_legacy_answer': not prepared_query.filter(kind=Answer.Kind.LEGACY).exists(),
-        'allow_new_official_answer': not prepared_query.filter(kind=Answer.Kind.OFFICIAL).exists(),
-        'cutVersion': section.cut_version,
-        'has_answers': section.has_answers,
+        "oid": section.id,
+        "answers": answers,
+        "allow_new_answer": not prepared_query.filter(
+            author=request.user, kind=Answer.Kind.PERSONAL
+        ).exists(),
+        "allow_new_legacy_answer": not prepared_query.filter(
+            kind=Answer.Kind.LEGACY
+        ).exists(),
+        "allow_new_official_answer": has_permission_official_answers
+        and not prepared_query.filter(kind=Answer.Kind.OFFICIAL).exists(),
+        "cutVersion": section.cut_version,
+        "has_answers": section.has_answers,
     }
 
 

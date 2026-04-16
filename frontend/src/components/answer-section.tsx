@@ -10,7 +10,7 @@ import {
   Flex,
   Text,
 } from "@mantine/core";
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
@@ -31,7 +31,6 @@ import {
 } from "@tabler/icons-react";
 import classes from "./answer-section.module.css";
 import { useDisclosure } from "@mantine/hooks";
-import { useLocation } from "react-router-dom";
 import AnswerSectionButtons from "./answer-section-buttons";
 import AnswerSectionModal from "./answer-section-overlay";
 
@@ -56,34 +55,59 @@ const AnswerSectionButtonWrapper = (props: CardProps) => (
 interface AddButtonProps {
   allowAnswer: boolean;
   allowLegacyAnswer: boolean;
-  hasAnswerDraft: boolean;
-  hasLegacyAnswerDraft: boolean;
+  allowOfficialAnswer: boolean;
+  draftType: AnswerKind | null;
   onAnswer: () => void;
   onLegacyAnswer: () => void;
+  onOfficialAnswer: () => void;
 }
 const AddButton: React.FC<AddButtonProps> = ({
   allowAnswer,
   allowLegacyAnswer,
-  hasAnswerDraft,
-  hasLegacyAnswerDraft,
+  allowOfficialAnswer,
+  draftType,
   onAnswer,
   onLegacyAnswer,
+  onOfficialAnswer,
 }) => {
   const [isOpen, setOpen] = useState(false);
   const toggle = useCallback(() => setOpen(old => !old), []);
-  if (allowAnswer && allowLegacyAnswer) {
+  // Count how many types of answers are allowed.
+  // If one is allowed, we don't use a dropdown
+  const answerTypeCount =
+    +allowAnswer + +allowLegacyAnswer + +allowOfficialAnswer;
+
+  if (answerTypeCount >= 2) {
     return (
       <Menu opened={isOpen} withinPortal onChange={toggle}>
         <Menu.Target>
           <Button rightSection={<IconChevronDown />}>Add Answer</Button>
         </Menu.Target>
         <Menu.Dropdown>
-          <Menu.Item onClick={onAnswer} disabled={hasAnswerDraft}>
-            Add Answer
-          </Menu.Item>
-          <Menu.Item onClick={onLegacyAnswer} disabled={hasLegacyAnswerDraft}>
-            Add Legacy Answer
-          </Menu.Item>
+          {allowAnswer && (
+            <Menu.Item
+              onClick={onAnswer}
+              disabled={draftType === AnswerKind.Personal}
+            >
+              Add Answer
+            </Menu.Item>
+          )}
+          {allowOfficialAnswer && (
+            <Menu.Item
+              onClick={onOfficialAnswer}
+              disabled={draftType === AnswerKind.Official}
+            >
+              Add Official Answer
+            </Menu.Item>
+          )}
+          {allowLegacyAnswer && (
+            <Menu.Item
+              onClick={onLegacyAnswer}
+              disabled={draftType === AnswerKind.Legacy}
+            >
+              Add Legacy Answer
+            </Menu.Item>
+          )}
         </Menu.Dropdown>
       </Menu>
     );
@@ -91,15 +115,28 @@ const AddButton: React.FC<AddButtonProps> = ({
     return (
       <Group grow>
         {allowAnswer && (
-          <Button size="sm" onClick={onAnswer} disabled={hasAnswerDraft}>
+          <Button
+            size="sm"
+            onClick={onAnswer}
+            disabled={draftType === AnswerKind.Personal}
+          >
             Add Answer
+          </Button>
+        )}
+        {allowOfficialAnswer && (
+          <Button
+            size="sm"
+            onClick={onOfficialAnswer}
+            disabled={draftType === AnswerKind.Official}
+          >
+            Add Official Answer
           </Button>
         )}
         {allowLegacyAnswer && (
           <Button
             size="sm"
             onClick={onLegacyAnswer}
-            disabled={hasLegacyAnswerDraft}
+            disabled={draftType === AnswerKind.Legacy}
           >
             Add Legacy Answer
           </Button>
@@ -131,7 +168,9 @@ interface Props {
 }
 
 const AnswerSectionComponent: React.FC<Props> = React.memo(
-  ({
+  // See react/display-name (Named functions for display name)
+  // eslint-disable-next-line prefer-arrow-callback
+  function AnswerSectionComponent({
     oid,
     onSectionChange,
     onToggleHidden,
@@ -151,7 +190,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     onHasAnswersChange,
     has_answers,
-  }) => {
+  }) {
     const [data, setData] = useState<AnswerSection | undefined>();
     const run = useAnswers(oid, data => {
       setData(data);
@@ -183,14 +222,17 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       }
     }, [run, visible, hidden, data]);
 
-    const [hasDraft, setHasDraft] = useState(false);
-    const [hasLegacyDraft, setHasLegacyDraft] = useState(false);
+    const [draftType, setDraftType] = useState<AnswerKind | null>(null);
     const onAddAnswer = useCallback(() => {
-      setHasDraft(true);
+      setDraftType(AnswerKind.Personal);
+      if (hidden) onToggleHidden();
+    }, [hidden, onToggleHidden]);
+    const onAddOfficialAnswer = useCallback(() => {
+      setDraftType(AnswerKind.Official);
       if (hidden) onToggleHidden();
     }, [hidden, onToggleHidden]);
     const onAddLegacyAnswer = useCallback(() => {
-      setHasLegacyDraft(true);
+      setDraftType(AnswerKind.Legacy);
       if (hidden) onToggleHidden();
     }, [hidden, onToggleHidden]);
     const user = useUser()!;
@@ -291,19 +333,27 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   answerKind={answer.kind}
                 />
               ))}
-              {hasDraft && (
+              {draftType === AnswerKind.Personal && (
                 <AnswerComponent
                   section={data}
                   onSectionChanged={setAnswerSection}
-                  onDelete={() => setHasDraft(false)}
+                  onDelete={() => setDraftType(null)}
                   answerKind={AnswerKind.Personal}
                 />
               )}
-              {hasLegacyDraft && (
+              {draftType === AnswerKind.Official && (
                 <AnswerComponent
                   section={data}
                   onSectionChanged={setAnswerSection}
-                  onDelete={() => setHasLegacyDraft(false)}
+                  onDelete={() => setDraftType(null)}
+                  answerKind={AnswerKind.Official}
+                />
+              )}
+              {draftType === AnswerKind.Legacy && (
+                <AnswerComponent
+                  section={data}
+                  onSectionChanged={setAnswerSection}
+                  onDelete={() => setDraftType(null)}
                   answerKind={AnswerKind.Legacy}
                 />
               )}
@@ -344,10 +394,11 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                             allowLegacyAnswer={
                               data.allow_new_legacy_answer && isCatAdmin
                             }
-                            hasAnswerDraft={hasDraft}
-                            hasLegacyAnswerDraft={hasLegacyDraft}
+                            allowOfficialAnswer={data.allow_new_official_answer}
+                            draftType={draftType}
                             onAnswer={onAddAnswer}
                             onLegacyAnswer={onAddLegacyAnswer}
+                            onOfficialAnswer={onAddOfficialAnswer}
                           />
                         )
                       )

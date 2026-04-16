@@ -5,7 +5,7 @@ export type KeysWhereValue<T, S> = {
 interface Options {
   [a: string]: string;
 }
-type OptionsResult<T> = {
+type OptionsResult<T extends Options> = {
   [key in keyof T]: { value: key; label: T[key] };
 };
 export const fromEntries = <T extends Array<[string, unknown]>>(o: T) =>
@@ -22,5 +22,5 @@ export const createOptions = <T extends Options>(o: T) =>
     ]) as Array<[string, unknown]>,
   ) as unknown as OptionsResult<T>;
 export type SelectOption<T> = { value: keyof T; label: string };
-export const options = <T>(map: OptionsResult<T>) =>
-  Object.values(map) as Array<{ value: keyof T; label: string }>;
+export const options = <T extends Options>(map: OptionsResult<T>) =>
+  Object.values(map) as Array<{ value: (keyof T) & string; label: string }>;
