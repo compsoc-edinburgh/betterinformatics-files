@@ -281,7 +281,6 @@ const DocumentPage: React.FC<Props> = () => {
                 comment={comment}
                 key={comment.oid}
                 mutate={mutate}
-                reload={reloadComments}
               />
             ))}
             <Card shadow="md" withBorder>

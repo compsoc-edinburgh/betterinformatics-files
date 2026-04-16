@@ -66,6 +66,17 @@ class TestExistingAnswer(ComsolTestExamData):
         answer.refresh_from_db()
         self.assertEqual(answer.flagged.count(), 0)
 
+    def test_mark_as_ai(self):
+        answer = self.answers[1]
+        self.assertEqual(answer.marked_as_ai.count(), 0)
+        self.post("/api/exam/setanswermarkedasai/{}/".format(answer.id), {"marked_as_ai": False})
+        self.post("/api/exam/setanswermarkedasai/{}/".format(answer.id), {"marked_as_ai": True})
+        answer.refresh_from_db()
+        self.assertEqual(answer.marked_as_ai.count(), 1)
+        self.post("/api/exam/setanswermarkedasai/{}/".format(answer.id), {"marked_as_ai": False})
+        answer.refresh_from_db()
+        self.assertEqual(answer.marked_as_ai.count(), 0)
+
     def test_expertvote_nonexpert(self):
         answer = self.answers[1]
         self.post(

@@ -146,6 +146,8 @@ class Answer(ExportModelOperationsMixin("answer"), models.Model):
         "auth.User", related_name="expertvote_answer_set"
     )
     flagged = models.ManyToManyField("auth.User", related_name="flagged_answer_set")
+    marked_as_ai = models.ManyToManyField(
+        "auth.User", related_name="markedasai_answer_set")
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.PERSONAL)
     long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
 

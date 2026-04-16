@@ -7,34 +7,35 @@ import {
   Divider,
   Flex,
   Menu,
-  Paper,
   Text,
 } from "@mantine/core";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import React from "react";
 import { Link } from "react-router-dom";
 import { SingleComment } from "../interfaces";
 import MarkdownText from "./markdown-text";
 import {
   IconChevronRight,
-  IconChevronUp,
   IconCode,
   IconDots,
   IconFlag,
-  IconLink,
-  IconX,
+  IconRobot,
+  IconRobotOff,
 } from "@tabler/icons-react";
 import TimeText from "./time-text";
 import classes from "./comment-single.module.css";
-import TooltipButton from "./TooltipButton";
 import { useUser } from "../auth";
 import {
   useResetExamCommentFlaggedVote,
+  useResetExamCommentMarkedAsAi,
   useSetExamCommentFlagged,
+  useSetExamCommentMarkedAsAi,
 } from "../api/hooks";
 import { useDisclosure } from "@mantine/hooks";
 import CodeBlock from "./code-block";
 import { copy } from "../utils/clipboard";
+import FlaggedBadge from "./FlaggedBadge";
+import MarkedAsAiBadge from "./MarkedAsAiBadge";
 
 interface Props {
   comment: SingleComment;
@@ -47,7 +48,11 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
     useSetExamCommentFlagged(reload);
   const [resetFlaggedLoading, resetExamCommentFlagged] =
     useResetExamCommentFlaggedVote(reload);
-  const { isAdmin, username } = useUser()!;
+  const [, setExamCommentMarkedAsAi] =
+    useSetExamCommentMarkedAsAi(reload);
+  const [, resetExamCommentMarkedAsAi] =
+    useResetExamCommentMarkedAsAi(reload);
+  const { isAdmin } = useUser()!;
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
 
@@ -115,90 +120,89 @@ const SingleCommentComponent: React.FC<Props> = ({ comment, reload }) => {
                   />
                 </>
               )}
+            <MarkedAsAiBadge count={comment.markedAsAiCount} />
           </Box>
-          {comment &&
-            (comment.isFlagged ||
-              (comment.flaggedCount > 0 && isAdmin) ||
-              flaggedLoading) && (
-              <Paper shadow="xs" mr="md">
-                <Button.Group>
-                  <TooltipButton
-                    tooltip="Flagged as Inappropriate"
-                    color="red"
-                    px={12}
-                    variant="filled"
-                  >
-                    <IconFlag />
-                  </TooltipButton>
-                  <TooltipButton
-                    color="red"
-                    miw={30}
-                    tooltip={`${comment.flaggedCount} users consider this answer inappropriate.`}
-                  >
-                    {comment.flaggedCount}
-                  </TooltipButton>
-                  <TooltipButton
-                    px={8}
-                    tooltip={
-                      comment.isFlagged
-                        ? "Remove inappropriate flag"
-                        : "Add inappropriate flag"
-                    }
-                    size="sm"
-                    loading={flaggedLoading}
-                    style={{ borderLeftWidth: 0 }}
-                    onClick={() =>
-                      setExamCommentFlagged(comment.oid, !comment.isFlagged)
-                    }
-                  >
-                    {comment.isFlagged ? <IconX /> : <IconChevronUp />}
-                  </TooltipButton>
-                </Button.Group>
-              </Paper>
+          <Flex align="center">
+            {comment && (
+              <FlaggedBadge
+                count={comment.flaggedCount}
+                isFlagged={comment.isFlagged}
+                loading={flaggedLoading}
+                onToggle={() =>
+                  setExamCommentFlagged(comment.oid, !comment.isFlagged)
+                }
+              />
             )}
-          {comment && (
-            <Menu withinPortal>
-              <Menu.Target>
-                <Button size="xs" variant="light" color="gray" mr="md">
-                  <IconDots />
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                {comment.flaggedCount === 0 && (
+            {comment && (
+              <Menu withinPortal>
+                <Menu.Target>
+                  <Button size="xs" variant="light" color="gray" mr="md">
+                    <IconDots />
+                  </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {!comment.isMarkedAsAi ? (
+                    <Menu.Item
+                      leftSection={<IconRobot />}
+                      onClick={() =>
+                        setExamCommentMarkedAsAi(comment.oid, true)
+                      }
+                    >
+                      Mark as AI-generated
+                    </Menu.Item>
+                  ) : (
+                    <Menu.Item
+                      leftSection={<IconRobotOff />}
+                      onClick={() =>
+                        setExamCommentMarkedAsAi(comment.oid, false)
+                      }
+                    >
+                      Remove AI-generated mark
+                    </Menu.Item>
+                  )}
+                  {comment.flaggedCount === 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => setExamCommentFlagged(comment.oid, true)}
+                    >
+                      Flag as Inappropriate
+                    </Menu.Item>
+                  )}
                   <Menu.Item
-                    leftSection={<IconFlag />}
-                    onClick={() => setExamCommentFlagged(comment.oid, true)}
+                    onClick={() =>
+                      copy(
+                        `${document.location.origin}/exams/${comment.filename}?comment=${comment.longId}&answer=${comment.answerId}`,
+                      )
+                    }
                   >
-                    Flag as Inappropriate
+                    Copy Permalink
                   </Menu.Item>
-                )}
-                <Menu.Item
-                  leftSection={<IconLink />}
-                  onClick={() =>
-                    copy(
-                      `${document.location.origin}/exams/${comment.filename}?comment=${comment.longId}&answer=${comment.answerId}`,
-                    )
-                  }
-                >
-                  Copy Permalink
-                </Menu.Item>
-                {isAdmin && comment.flaggedCount > 0 && (
+                  {isAdmin && comment.markedAsAiCount > 0 && (
+                    <Menu.Item
+                      leftSection={<IconRobotOff />}
+                      onClick={() => resetExamCommentMarkedAsAi(comment.oid)}
+                    >
+                      Remove all AI-generated marks
+                    </Menu.Item>
+                  )}
+                  {isAdmin && comment.flaggedCount > 0 && (
+                    <Menu.Item
+                      leftSection={<IconFlag />}
+                      onClick={() => resetExamCommentFlagged(comment.oid)}
+                    >
+                      Remove all inappropriate flags
+                    </Menu.Item>
+                  )}
                   <Menu.Item
-                    leftSection={<IconFlag />}
-                    onClick={() => resetExamCommentFlagged(comment.oid)}
+                    leftSection={<IconCode />}
+                    onClick={toggleViewSource}
                   >
-                    Remove all inappropriate flags
+                    Toggle Source Code Mode
                   </Menu.Item>
-                )}
-                <Menu.Item
-                  leftSection={<IconCode />}
-                  onClick={toggleViewSource}
-                >
-                  Toggle Source Code Mode
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          )}
+                </Menu.Dropdown>
+              </Menu>
+            )}
+          </Flex>
         </Flex>
         <Divider />
       </Card.Section>

@@ -47,5 +47,7 @@ urlpatterns = [
     ),
     path('listdocumenttypes/', views.list_document_types, name='listdocumenttypes'),
     path("setflaggedcomment/<int:oid>", views.set_flagged, name="setcommentflagged"),
+    path("setmarkedasaicomment/<int:oid>", views.set_marked_as_ai, name="setcommentmarkedasai"),
     path("resetflaggedcomment/<int:oid>", views.reset_flagged, name="resetcommentflagged"),
+    path("resetmarkedasaicomment/<int:oid>", views.reset_marked_as_ai, name="resetcommentmarkedasai"),
 ]

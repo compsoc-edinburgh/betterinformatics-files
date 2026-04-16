@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { addNewComment, removeComment, updateComment } from "../api/comment";
 import { imageHandler } from "../api/fetch-utils";
-import { useMutation, useResetExamCommentFlaggedVote, useSetExamCommentFlagged } from "../api/hooks";
+import { useMutation, useResetExamCommentFlaggedVote, useResetExamCommentMarkedAsAi, useSetExamCommentFlagged, useSetExamCommentMarkedAsAi } from "../api/hooks";
 import { useUser } from "../auth";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { Answer, AnswerSection, Comment } from "../interfaces";
@@ -15,7 +15,6 @@ import SmallButton from "./small-button";
 import { useOfficialSolutionLanguage } from "./official-solution";
 import { Anchor, Button, Flex, Group, Menu, Paper, Text } from "@mantine/core";
 import {
-  IconChevronUp,
   IconCode,
   IconDeviceFloppy,
   IconDots,
@@ -23,11 +22,13 @@ import {
   IconFlag,
   IconLink,
   IconPencilCancel,
+  IconRobot,
+  IconRobotOff,
   IconTrash,
-  IconX,
 } from "@tabler/icons-react";
+import FlaggedBadge from "./FlaggedBadge";
+import MarkedAsAiBadge from "./MarkedAsAiBadge";
 import { useDisclosure } from "@mantine/hooks";
-import TooltipButton from "./TooltipButton";
 import TimeText from "./time-text";
 import { copy } from "../utils/clipboard";
 
@@ -45,6 +46,8 @@ const CommentComponent: React.FC<Props> = ({
 }) => {
   const [setFlaggedLoading, setExamCommentFlagged] = useSetExamCommentFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetExamCommentFlagged] = useResetExamCommentFlaggedVote(onSectionChanged);
+  const [, setExamCommentMarkedAsAi] = useSetExamCommentMarkedAsAi(onSectionChanged);
+  const [, resetExamCommentMarkedAsAi] = useResetExamCommentMarkedAsAi(onSectionChanged);
   const [viewSource, {toggle: toggleViewSource}] = useDisclosure();
   const { isAdmin, username } = useUser()!;
   const [removeConfirm, modals] = useRemoveConfirm();
@@ -132,56 +135,39 @@ const CommentComponent: React.FC<Props> = ({
                 <TimeText time={comment.edittime} prefix="edited" suffix="ago" />
               </>
             )}
+          {comment && <MarkedAsAiBadge count={comment.markedAsAiCount} />}
         </div>
         <Flex>
-          {comment &&
-            (comment.isFlagged ||
-              (comment.flaggedCount > 0 && isAdmin) ||
-              flaggedLoading) && (
-              <Paper shadow="xs" mr="md">
-                <Button.Group>
-                  <TooltipButton
-                    tooltip="Flagged as Inappropriate"
-                    color="red"
-                    px={12}
-                    variant="filled"
-                    size="xs"
-                  >
-                    <IconFlag />
-                  </TooltipButton>
-                  <TooltipButton
-                    color="red"
-                    miw={30}
-                    tooltip={`${comment.flaggedCount} users consider this answer inappropriate.`}
-                    size="xs"
-                  >
-                    {comment.flaggedCount}
-                  </TooltipButton>
-                  <TooltipButton
-                    px={8}
-                    tooltip={
-                      comment.isFlagged
-                        ? "Remove inappropriate flag"
-                        : "Add inappropriate flag"
-                    }
-                    size="xs"
-                    loading={flaggedLoading}
-                    style={{ borderLeftWidth: 0 }}
-                    onClick={() =>
-                      setExamCommentFlagged(comment.oid, !comment.isFlagged)
-                    }
-                  >
-                    {comment.isFlagged ? <IconX /> : <IconChevronUp />}
-                  </TooltipButton>
-                </Button.Group>
-              </Paper>
-            )}
+          {comment && (
+            <FlaggedBadge
+              count={comment.flaggedCount}
+              isFlagged={comment.isFlagged}
+              loading={flaggedLoading}
+              size="xs"
+              onToggle={() => setExamCommentFlagged(comment.oid, !comment.isFlagged)}
+            />
+          )}
           {comment && (
             <Menu withinPortal>
               <Menu.Target>
                 <Button size="xs" variant="light" color="gray" mr="md"><IconDots/></Button>
               </Menu.Target>
               <Menu.Dropdown>
+                {!comment.isMarkedAsAi ? (
+                  <Menu.Item
+                    leftSection={<IconRobot />}
+                    onClick={() => setExamCommentMarkedAsAi(comment.oid, true)}
+                  >
+                    Mark as AI-generated
+                  </Menu.Item>
+                ) : (
+                  <Menu.Item
+                    leftSection={<IconRobotOff />}
+                    onClick={() => setExamCommentMarkedAsAi(comment.oid, false)}
+                  >
+                    Remove AI-generated mark
+                  </Menu.Item>
+                )}
                 {comment.flaggedCount === 0 && (
                   <Menu.Item
                     leftSection={<IconFlag />}
@@ -200,6 +186,14 @@ const CommentComponent: React.FC<Props> = ({
                       >
                         Copy Permalink
                 </Menu.Item>
+                {isAdmin && comment.markedAsAiCount > 0 && (
+                  <Menu.Item
+                    leftSection={<IconRobotOff />}
+                    onClick={() => resetExamCommentMarkedAsAi(comment.oid)}
+                  >
+                    Remove all AI-generated marks
+                  </Menu.Item>
+                )}
                 {isAdmin && comment.flaggedCount > 0 && (
                   <Menu.Item
                     leftSection={<IconFlag />}

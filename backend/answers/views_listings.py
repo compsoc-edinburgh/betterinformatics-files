@@ -173,6 +173,8 @@ def get_comments_by_user(request, username, page=-1):
         .annotate(
             flagged_count=Count("flagged", distinct=True),
             is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
+            marked_as_ai_count=Count("marked_as_ai", distinct=True),
+            is_marked_as_ai=Exists(Comment.objects.filter(id=OuterRef("id"), marked_as_ai=request.user)),
         ) \
         .order_by("-time", "id")
 

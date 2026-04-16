@@ -18,8 +18,10 @@ import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
   useResetAnswerFlaggedVote,
+  useResetAnswerMarkedAsAi,
   useSetExpertVote,
   useSetAnswerFlagged,
+  useSetAnswerMarkedAsAi,
   useUpdateAnswer,
 } from "../api/hooks";
 import { useUser } from "../auth";
@@ -47,10 +49,13 @@ import {
   IconFileText,
   IconPencilCancel,
   IconMessageCirclePlus,
+  IconRobot,
+  IconRobotOff,
   IconStarFilled,
   IconTrash,
-  IconX,
 } from "@tabler/icons-react";
+import FlaggedBadge from "./FlaggedBadge";
+import MarkedAsAiBadge from "./MarkedAsAiBadge";
 import classes from "./answer.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import TimeText from "./time-text";
@@ -80,6 +85,8 @@ const AnswerComponent: React.FC<Props> = ({
     useSetAnswerFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetAnswerFlagged] =
     useResetAnswerFlaggedVote(onSectionChanged);
+  const [, setAnswerMarkedAsAi] = useSetAnswerMarkedAsAi(onSectionChanged);
+  const [, resetAnswerMarkedAsAi] = useResetAnswerMarkedAsAi(onSectionChanged);
   const [setExpertVoteLoading, setExpertVote] =
     useSetExpertVote(onSectionChanged);
   const removeAnswer = useRemoveAnswer(onSectionChanged);
@@ -106,11 +113,7 @@ const AnswerComponent: React.FC<Props> = ({
     if (section) update(section.oid, draftText, answerKind);
   }, [section, draftText, update, answerKind]);
   const remove = useCallback(() => {
-    if (answer)
-      removeConfirm(
-        "Remove answer?",
-        () => removeAnswer(answer.oid)
-      );
+    if (answer) removeConfirm("Remove answer?", () => removeAnswer(answer.oid));
   }, [removeConfirm, removeAnswer, answer]);
   const [hasCommentDraft, setHasCommentDraft] = useState(false);
   const languages = useOfficialSolutionLanguage();
@@ -119,8 +122,7 @@ const AnswerComponent: React.FC<Props> = ({
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
   const canEdit = section && onSectionChanged && answer?.canEdit;
-  const canRemove =
-    section && onSectionChanged && (isAdmin || answer?.canEdit);
+  const canRemove = section && onSectionChanged && (isAdmin || answer?.canEdit);
   const { username } = useUser()!;
   return (
     <>
@@ -129,9 +131,9 @@ const AnswerComponent: React.FC<Props> = ({
         mb="md"
         shadow="md"
         id={hasId ? answer?.longId : undefined}
-        classNames={{ 
+        classNames={{
           root: classes.answerWrapperStyle,
-          section: classes.answerSectionStyle, 
+          section: classes.answerSectionStyle,
         }}
       >
         <Card.Section px="md" py="md" withBorder>
@@ -200,6 +202,7 @@ const AnswerComponent: React.FC<Props> = ({
                     />
                   </>
                 )}
+              {answer && <MarkedAsAiBadge count={answer.markedAsAiCount} />}
             </div>
             <Flex>
               <AnswerToolbar>
@@ -248,46 +251,16 @@ const AnswerComponent: React.FC<Props> = ({
                       </Button.Group>
                     </Paper>
                   )}
-                {answer &&
-                  (answer.isFlagged ||
-                    (answer.flaggedCount > 0 && isAdmin) ||
-                    flaggedLoading) && (
-                    <Paper shadow="xs">
-                      <Button.Group>
-                        <TooltipButton
-                          tooltip="Flagged as Inappropriate"
-                          color="red"
-                          px={12}
-                          variant="filled"
-                        >
-                          <IconFlag />
-                        </TooltipButton>
-                        <TooltipButton
-                          color="red"
-                          miw={30}
-                          tooltip={`${answer.flaggedCount} users consider this answer inappropriate.`}
-                        >
-                          {answer.flaggedCount}
-                        </TooltipButton>
-                        <TooltipButton
-                          px={8}
-                          tooltip={
-                            answer.isFlagged
-                              ? "Remove inappropriate flag"
-                              : "Add inappropriate flag"
-                          }
-                          size="sm"
-                          loading={flaggedLoading}
-                          style={{ borderLeftWidth: 0 }}
-                          onClick={() =>
-                            setAnswerFlagged(answer.oid, !answer.isFlagged)
-                          }
-                        >
-                          {answer.isFlagged ? <IconX /> : <IconChevronUp />}
-                        </TooltipButton>
-                      </Button.Group>
-                    </Paper>
-                  )}
+                {answer && (
+                  <FlaggedBadge
+                    count={answer.flaggedCount}
+                    isFlagged={answer.isFlagged}
+                    loading={flaggedLoading}
+                    onToggle={() =>
+                      setAnswerFlagged(answer.oid, !answer.isFlagged)
+                    }
+                  />
+                )}
                 {answer && onSectionChanged && (
                   <Score
                     oid={answer.oid}
@@ -381,6 +354,21 @@ const AnswerComponent: React.FC<Props> = ({
                   <Button leftSection={<IconDots />}>More</Button>
                 </Menu.Target>
                 <Menu.Dropdown>
+                  {!answer.isMarkedAsAi ? (
+                    <Menu.Item
+                      leftSection={<IconRobot />}
+                      onClick={() => setAnswerMarkedAsAi(answer.oid, true)}
+                    >
+                      Mark as AI-generated
+                    </Menu.Item>
+                  ) : (
+                    <Menu.Item
+                      leftSection={<IconRobotOff />}
+                      onClick={() => setAnswerMarkedAsAi(answer.oid, false)}
+                    >
+                      Remove AI-generated mark
+                    </Menu.Item>
+                  )}
                   {answer.flaggedCount === 0 && (
                     <Menu.Item
                       leftSection={<IconFlag />}
@@ -399,13 +387,25 @@ const AnswerComponent: React.FC<Props> = ({
                   >
                     Copy Permalink
                   </Menu.Item>
-                  {isAdmin && answer.flaggedCount > 0 && (
-                    <Menu.Item
-                      leftSection={<IconFlag />}
-                      onClick={() => resetAnswerFlagged(answer.oid)}
-                    >
-                      Remove all inappropriate flags
-                    </Menu.Item>
+                  {isAdmin && (
+                    <>
+                      {answer.markedAsAiCount > 0 && (
+                        <Menu.Item
+                          leftSection={<IconRobotOff />}
+                          onClick={() => resetAnswerMarkedAsAi(answer.oid)}
+                        >
+                          Remove all AI-generated marks
+                        </Menu.Item>
+                      )}
+                      {answer.flaggedCount > 0 && (
+                        <Menu.Item
+                          leftSection={<IconFlag />}
+                          onClick={() => resetAnswerFlagged(answer.oid)}
+                        >
+                          Remove all inappropriate flags
+                        </Menu.Item>
+                      )}
+                    </>
                   )}
                   {!editing && canEdit && (
                     <Menu.Item leftSection={<IconEdit />} onClick={startEdit}>
