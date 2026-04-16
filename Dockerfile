@@ -52,11 +52,9 @@ FROM node:24-alpine AS frontend-base
 WORKDIR /usr/src/app
 COPY ./frontend/package.json \
     ./frontend/yarn.lock \
-    ./frontend/.yarnrc.yml \
     ./frontend/index.html ./
 
-RUN corepack enable
-RUN yarn install --immutable
+RUN yarn --ignore-engines
 
 
 FROM frontend-base AS frontend-build
@@ -103,10 +101,8 @@ CMD uv run manage.py migrate \
 # Frontend
 FROM frontend-base AS frontend-dev
 
+RUN yarn install --ignore-optional
 COPY frontend ./
-
-RUN yarn install
-
 EXPOSE 3000
 CMD ["yarn", "start-docker"]
 
