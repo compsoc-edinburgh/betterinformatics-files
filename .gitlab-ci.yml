@@ -118,12 +118,11 @@ stages:
     - source $NVM_DIR/nvm.sh
     - nvm install 24
     - nvm use 24
-    - npm install --global yarn
+    - corepack enable
 
     # Prepare Yarn to save its store at a known location so it's cachable
     - cd frontend
-    - echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
-    - echo 'yarn-offline-mirror-pruning true' >> .yarnrc
+    - yarn config set enableGlobalCache false
 
     # Fetch the merge target branch so we can compare and find the diff (only
     # for merge requests)
@@ -136,14 +135,14 @@ stages:
       files:
         - frontend/yarn.lock
     paths:
-      - frontend/.yarn-cache/
+      - frontend/.yarn/cache/
       - /home/debian/.nvm
   script:
     - yarn --ignore-engines
     - echo 'Typechecking...'
     - yarn run tsc
     - echo 'Checking linter errors...'
-    - yarn lint
+    - yarn run lint
 
     # Check formatting errors only for merge requests
     - |
