@@ -59,12 +59,36 @@ def set_flagged(request, oid):
     section_util.increase_section_version(comment.answer.answer_section)
     return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))
 
+@response.request_post("marked_as_ai")
+@auth_check.require_login
+def set_marked_as_ai(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    marked_as_ai = request.POST["marked_as_ai"] != "false"
+    old_marked_as_ai = comment.marked_as_ai.filter(pk=request.user.pk).exists()
+    if marked_as_ai != old_marked_as_ai:
+        if old_marked_as_ai:
+            comment.marked_as_ai.remove(request.user)
+        else:
+            comment.marked_as_ai.add(request.user)
+        comment.save()
+    section_util.increase_section_version(comment.answer.answer_section)
+    return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))
+
 
 @response.request_post()
 @auth_check.require_admin
 def reset_flagged(request, oid):
     comment = get_object_or_404(Comment, pk=oid)
     comment.flagged.clear()
+    comment.save()
+    section_util.increase_section_version(comment.answer.answer_section)
+    return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))
+
+@response.request_post()
+@auth_check.require_admin
+def reset_marked_as_ai(request, oid):
+    comment = get_object_or_404(Comment, pk=oid)
+    comment.marked_as_ai.clear()
     comment.save()
     section_util.increase_section_version(comment.answer.answer_section)
     return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))

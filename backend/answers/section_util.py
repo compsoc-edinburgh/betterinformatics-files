@@ -10,16 +10,20 @@ def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]
     comments_query = Comment.objects.select_related("author").annotate(
         flagged_count=Count("flagged", distinct=True),
         is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
+        marked_as_ai_count=Count("marked_as_ai", distinct=True),
+        is_marked_as_ai=Exists(Comment.objects.filter(id=OuterRef("id"), marked_as_ai=request.user)),
         ).order_by("time", "id")
     return objects.annotate(
         expert_count=Count("expertvotes", distinct=True),
         downvotes_count=Count("downvotes", distinct=True),
         upvotes_count=Count("upvotes", distinct=True),
         flagged_count=Count("flagged", distinct=True),
+        marked_as_ai_count=Count("marked_as_ai", distinct=True),
         is_upvoted=Exists(Answer.objects.filter(id=OuterRef("id"), upvotes=request.user)),
         is_downvoted=Exists(Answer.objects.filter(id=OuterRef("id"), downvotes=request.user)),
         is_expertvoted=Exists(Answer.objects.filter(id=OuterRef("id"), expertvotes=request.user)),
         is_flagged=Exists(Answer.objects.filter(id=OuterRef("id"), flagged=request.user)),
+        is_marked_as_ai=Exists(Answer.objects.filter(id=OuterRef("id"), marked_as_ai=request.user)),
         delta_votes=F("upvotes_count") - F("downvotes_count"),
     ).prefetch_related(
         Prefetch(
@@ -52,6 +56,8 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
                 'edittime': comment.edittime,
                 'isFlagged': comment.is_flagged,
                 'flaggedCount': comment.flagged_count,
+                'isMarkedAsAi': comment.is_marked_as_ai,
+                'markedAsAiCount': comment.marked_as_ai_count,
             } for comment in answer.all_comments
         ]
 
@@ -68,6 +74,8 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             'isExpertVoted': answer.is_expertvoted,
             'isFlagged': answer.is_flagged,
             'flaggedCount': answer.flagged_count,
+            'isMarkedAsAi': answer.is_marked_as_ai,
+            'markedAsAiCount': answer.marked_as_ai_count,
             'comments': comments,
             'text': answer.text,
             'time': answer.time,
@@ -102,6 +110,8 @@ def get_comment_response(request, comment: Comment):
             'category_slug': comment.answer.answer_section.exam.category.slug,
             'isFlagged': comment.is_flagged,
             'flaggedCount': comment.flagged_count,
+            'isMarkedAsAi': comment.is_marked_as_ai,
+            'markedAsAiCount': comment.marked_as_ai_count,
         }
     except AttributeError:
         raise ValueError("The object is missing the required annotations.")
@@ -142,6 +152,7 @@ def get_answer_fields_to_prefetch():
         'downvotes',
         'expertvotes',
         'flagged',
+        'marked_as_ai',
         'comments',
         'comments__author',
     ]
