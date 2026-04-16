@@ -257,6 +257,8 @@ export interface NotificationInfo {
 export interface UserInfo {
   username: string;
   displayName: string;
+  rank: number;
+  total_users: number;
   score: number;
   score_answers: number;
   score_comments: number;
