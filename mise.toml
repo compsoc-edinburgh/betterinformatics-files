@@ -2,8 +2,7 @@
 node = "24.14.1"
 prek = "0.3.3"
 uv = "0.10.12"
-# yarn "classic". Newer v3/v4 yarn is not compatible as of now
-yarn = "1.22.22"
+yarn = "4.13.0"
 
 [env]
 _.file = "backend/.env.development"
