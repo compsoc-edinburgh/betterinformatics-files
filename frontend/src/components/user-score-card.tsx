@@ -7,12 +7,11 @@ import {
   LoadingOverlay,
   Title,
 } from "@mantine/core";
-import React, { ReactNode } from "react";
+import React from "react";
 import { logout } from "../api/fetch-utils";
 import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
 import {
-  Icon,
   IconChevronUp,
   IconFile,
   IconFileUpload,
@@ -20,8 +19,8 @@ import {
   IconMessage,
   IconPencil,
   IconPencilCog,
-  IconProps,
   IconTrophy,
+  TablerIcon,
 } from "@tabler/icons-react";
 
 interface UserScoreCardProps {
@@ -34,9 +33,7 @@ function scoreCard(
   userInfo: UserInfo | undefined,
   title: string,
   key: keyof UserInfo,
-  Icon: React.ForwardRefExoticComponent<
-    Omit<IconProps, "ref"> & React.RefAttributes<Icon>
-  >,
+  Icon: TablerIcon,
 ) {
   return (
     <Paper shadow="md" withBorder px="md" py="lg" pos="relative">
@@ -60,12 +57,7 @@ function scoreCard(
   );
 }
 
-function rankCard(
-  userInfo: UserInfo | undefined,
-  Icon: React.ForwardRefExoticComponent<
-    Omit<IconProps, "ref"> & React.RefAttributes<Icon>
-  >,
-) {
+function rankCard(userInfo: UserInfo | undefined, Icon: TablerIcon) {
   return (
     <Paper shadow="md" withBorder px="md" py="lg" pos="relative">
       <LoadingOverlay visible={!userInfo} />
@@ -82,7 +74,9 @@ function rankCard(
         />
       </Group>
       <Text lh={1} fz="xl" fw={600}>
-        {userInfo ? `Top ${(Math.round((userInfo.rank / userInfo.total_users) * 1000) / 10).toFixed(1)}%` : "-"}
+        {userInfo
+          ? `Top ${(Math.round((userInfo.rank / userInfo.total_users) * 1000) / 10).toFixed(1)}%`
+          : "-"}
       </Text>
     </Paper>
   );

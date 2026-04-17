@@ -2,11 +2,11 @@ tasks:
   - name: Environment Setup (Dependency Installation, Backend Compile)
     init: |
       curl -L https://git.io/n-install | bash
-      npm install --global yarn
+      corepack enable
     command: gp sync-done setup
 
   - name: Start Backend
-    init: | 
+    init: |
       gp sync-await setup
       docker-compose build
     command: docker-compose up
