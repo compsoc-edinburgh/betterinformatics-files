@@ -39,6 +39,7 @@ def restrict_proxied(f):
 # documentation generation and type-validated API inputs.
 api = NinjaAPI()
 api.add_router("feedback/", "feedback.api.router")
+api.add_router("image/", "images.api.router")
 
 urlpatterns = [
     path("", include("health.urls")),
@@ -50,7 +51,6 @@ urlpatterns = [
     path("api/faq/", include("faq.urls")),
     path("api/category/", include("categories.urls")),
     path("api/filestore/", include("filestore.urls")),
-    path("api/image/", include("images.urls")),
     path("api/auth/", include("myauth.urls")),
     path("api/notification/", include("notifications.urls")),
     path("api/payment/", include("payments.urls")),
