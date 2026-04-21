@@ -905,3 +905,13 @@ export const uploadDissertation = async (
     ...create_data,
   })).value;
 };
+
+export const getRedactionPreview = async (
+  file: Blob,
+  words_to_redact: string,
+) => {
+  return (await fetchPost<{ value: string }>("/api/dissertations/redact/", {
+    pdf_file: file,
+    words: words_to_redact,
+  })).value;
+};
