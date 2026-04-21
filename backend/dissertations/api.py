@@ -193,3 +193,27 @@ def update_dissertation(
     dissertation.save()
 
     return {"value": dissertation}
+
+
+@router.delete("/{dissertation_id}/")
+@auth_check.require_login
+def delete_dissertation(request, dissertation_id: int):
+    dissertation = get_object_or_404(Dissertation, id=dissertation_id)
+
+    # Only allow the user who uploaded the dissertation to delete it
+    # Or admins
+    if dissertation.uploaded_by != request.user and not auth_check.has_admin_rights(
+        request
+    ):
+        return response.not_allowed()
+
+    # Delete file from Minio if it exists
+    if dissertation.file_path:
+        path_parts = dissertation.file_path.split("/")
+        bucket_name = path_parts[1]
+        file_name = "/".join(path_parts[2:])
+        s3_util.delete_file(bucket_name + "/", file_name)
+
+    dissertation.delete()
+
+    return response.success()
