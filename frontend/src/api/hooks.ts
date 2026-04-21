@@ -22,6 +22,8 @@ import {
   SearchResponse,
   AnswerKind,
   BICourseList,
+  DissertationCreate,
+  Dissertation,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -741,3 +743,13 @@ export const useMoveDocumentFile = (
   );
   return [error, loading, run] as const;
 };
+
+export const uploadDissertation = async (
+  file: Blob,
+  create_data: DissertationCreate,
+) => {
+  return (await fetchPost<{ value: Dissertation }>("/api/dissertations/", {
+    pdf_file: file,
+    ...create_data,
+  })).value;
+}
