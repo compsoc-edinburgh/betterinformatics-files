@@ -763,3 +763,22 @@ export const getRedactionPreview = async (
     words: words_to_redact,
   })).value;
 }
+
+export const loadDissertations = async (searchQuery: string, field: string) => {
+  return (
+    await fetchGet<{ value: Dissertation[] }>(
+      `/api/dissertations/?query=${encodeURIComponent(searchQuery)}&field=${encodeURIComponent(field)}`
+    )
+  ).value;
+};
+
+export const useDissertations = (searchQuery: string, field: string) => {
+  const { error, loading, data } = useRequest(
+    () => loadDissertations(searchQuery, field),
+    {
+      refreshDeps: [searchQuery, field],
+      cacheKey: `dissertations-${field}-${searchQuery}`,
+    },
+  );
+  return { error, loading, data } as const;
+};

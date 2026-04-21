@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Container,
   Title,
@@ -14,88 +14,51 @@ import {
   Badge,
   CloseButton,
 } from "@mantine/core";
-import { fetchGet } from "../api/fetch-utils";
 import { Link } from "react-router-dom";
 import { IconUpload, IconSearch } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
-import { Dissertation } from "../interfaces";
+import { useDissertations } from "../api/hooks";
 
 const DissertationListPage: React.FC = () => {
-  const [dissertations, setDissertations] = useState<Dissertation[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
   const [searchField, setSearchField] = useState<string | null>("title");
 
-  useEffect(() => {
-    const fetchDissertations = async () => {
-      setLoading(true);
-      setError(null);
+  const {
+    error,
+    loading,
+    data: dissertations,
+  } = useDissertations(debouncedSearchQuery, searchField ?? "");
 
-      try {
-        let url = "/api/dissertations/";
-        const params = new URLSearchParams();
-
-        if (debouncedSearchQuery) {
-          params.append("query", debouncedSearchQuery);
-          if (searchField) {
-            params.append("field", searchField);
-          }
-        }
-
-        if (params.toString()) {
-          url += `?${params.toString()}`;
-        }
-
-        const response: {
-          value?: Dissertation[];
-          error?: string;
-        } = await fetchGet(url);
-
-        if (response.value) {
-          setDissertations(response.value);
-        } else {
-          setError(response.error ?? "Failed to fetch dissertations.");
-        }
-      } catch (err: unknown) {
-        setError(
-          (err as Error).message ||
-            "Network error while fetching dissertations.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void fetchDissertations();
-  }, [debouncedSearchQuery, searchField]);
-
-  const rows = dissertations.map(dissertation => (
-    <Table.Tr key={dissertation.id}>
-      <Table.Td>
-        <Anchor
-          component={Link}
-          to={`/dissertations/${dissertation.id}`}
-          style={{ textDecorationLine: "underline", color: "inherit" }}
-        >
-          {dissertation.title}
-        </Anchor>
-      </Table.Td>
-      <Table.Td>
-        <Group gap={4}>
-          {dissertation.field_of_study.split(",").map((field, index) => (
-            <Badge key={index} variant="light">
-              {field.trim()}
-            </Badge>
-          ))}
-        </Group>
-      </Table.Td>
-      <Table.Td>{dissertation.supervisors}</Table.Td>
-      <Table.Td>{dissertation.year}</Table.Td>
-      <Table.Td>{dissertation.study_level}</Table.Td>
-    </Table.Tr>
-  ));
+  const rows = useMemo(() => {
+    return dissertations
+      ? dissertations.map(dissertation => (
+          <Table.Tr key={dissertation.id}>
+            <Table.Td>
+              <Anchor
+                component={Link}
+                to={`/dissertations/${dissertation.id}`}
+                style={{ textDecorationLine: "underline", color: "inherit" }}
+              >
+                {dissertation.title}
+              </Anchor>
+            </Table.Td>
+            <Table.Td>
+              <Group gap={4}>
+                {dissertation.field_of_study.split(",").map((field, index) => (
+                  <Badge key={index} variant="light">
+                    {field.trim()}
+                  </Badge>
+                ))}
+              </Group>
+            </Table.Td>
+            <Table.Td>{dissertation.supervisors}</Table.Td>
+            <Table.Td>{dissertation.year}</Table.Td>
+            <Table.Td>{dissertation.study_level}</Table.Td>
+          </Table.Tr>
+        ))
+      : [];
+  }, [dissertations]);
 
   return (
     <Container size="xl" mt="xl" style={{ position: "relative" }}>
@@ -143,12 +106,12 @@ const DissertationListPage: React.FC = () => {
       </Group>
 
       {error && (
-        <Notification title="Error" color="red" onClose={() => setError(null)}>
-          {error}
+        <Notification title="Error" color="red">
+          {String(error)}
         </Notification>
       )}
 
-      {dissertations.length === 0 && !loading && !error ? (
+      {dissertations?.length === 0 && !loading && !error ? (
         <Text ta="center">
           No dissertations found. Be the first to upload one!
         </Text>
