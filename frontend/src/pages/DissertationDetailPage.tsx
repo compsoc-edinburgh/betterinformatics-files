@@ -1,8 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Title, Text, LoadingOverlay, Notification, Paper, Group, Stack, Badge } from '@mantine/core';
-import { fetchGet } from '../api/fetch-utils';
-import { IconBook, IconUsers, IconCalendar, IconFileDescription } from '@tabler/icons-react';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  Container,
+  Title,
+  Text,
+  LoadingOverlay,
+  Notification,
+  Paper,
+  Group,
+  Stack,
+  Badge,
+} from "@mantine/core";
+import { fetchGet } from "../api/fetch-utils";
+import {
+  IconBook,
+  IconUsers,
+  IconCalendar,
+  IconFileDescription,
+} from "@tabler/icons-react";
 
 interface Dissertation {
   id: number;
@@ -30,21 +45,31 @@ const DissertationDetailPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const dissertationResponse = await fetchGet(`/api/dissertations/${id}/`);
+        const dissertationResponse = await fetchGet(
+          `/api/dissertations/${id}/`,
+        );
         if (dissertationResponse.value) {
           setDissertation(dissertationResponse.value);
 
-          const pdfResponse = await fetchGet(`/api/dissertations/${id}/download/`);
+          const pdfResponse = await fetchGet(
+            `/api/dissertations/${id}/download/`,
+          );
           if (pdfResponse.value) {
             setPdfUrl(pdfResponse.value);
           } else {
-            setError(pdfResponse.error || 'Failed to get PDF URL.');
+            setError(pdfResponse.error || "Failed to get PDF URL.");
           }
         } else {
-          setError(dissertationResponse.error || 'Failed to fetch dissertation details.');
+          setError(
+            dissertationResponse.error ||
+              "Failed to fetch dissertation details.",
+          );
         }
       } catch (err: any) {
-        setError(err.message || 'Network error while fetching dissertation details or PDF URL.');
+        setError(
+          err.message ||
+            "Network error while fetching dissertation details or PDF URL.",
+        );
       } finally {
         setLoading(false);
       }
@@ -55,7 +80,11 @@ const DissertationDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Container size="xl" mt="xl" style={{ position: 'relative', minHeight: '300px' }}>
+      <Container
+        size="xl"
+        mt="xl"
+        style={{ position: "relative", minHeight: "300px" }}
+      >
         <LoadingOverlay visible={true} />
       </Container>
     );
@@ -83,7 +112,9 @@ const DissertationDetailPage: React.FC = () => {
 
   return (
     <Container size="xl" mt="xl">
-      <Title order={2} ta="center" mb="xl">{dissertation.title}</Title>
+      <Title order={2} ta="center" mb="xl">
+        {dissertation.title}
+      </Title>
 
       <Paper shadow="sm" p="lg" mb="xl" withBorder>
         <Stack gap="sm">
@@ -91,7 +122,7 @@ const DissertationDetailPage: React.FC = () => {
             <IconBook size={20} />
             <Text fw={500}>Field of Study:</Text>
             <Group gap={4}>
-              {dissertation.field_of_study.split(',').map((field, index) => (
+              {dissertation.field_of_study.split(",").map((field, index) => (
                 <Badge key={index} variant="light">
                   {field.trim()}
                 </Badge>
@@ -134,18 +165,22 @@ const DissertationDetailPage: React.FC = () => {
         </Stack>
       </Paper>
 
-      <Title order={3} ta="center" mb="md">PDF Viewer</Title>
-      <Paper shadow="sm" p="sm" withBorder style={{ height: '80vh' }}>
+      <Title order={3} ta="center" mb="md">
+        PDF Viewer
+      </Title>
+      <Paper shadow="sm" p="sm" withBorder style={{ height: "80vh" }}>
         {pdfUrl ? (
           <iframe
             src={pdfUrl}
             width="100%"
             height="100%"
-            style={{ border: 'none' }}
+            style={{ border: "none" }}
             title={dissertation.title}
           />
         ) : (
-          <Text ta="center" c="red">Failed to load PDF.</Text>
+          <Text ta="center" c="red">
+            Failed to load PDF.
+          </Text>
         )}
       </Paper>
     </Container>
