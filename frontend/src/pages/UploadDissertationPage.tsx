@@ -48,7 +48,7 @@ const UploadDissertationPage: React.FC = () => {
     };
 
     try {
-      const response = await fetchPost('/api/dissertations/upload/', dataToSend);
+      const response = await fetchPost('/api/dissertations/', dataToSend);
       if (response.value) {
         navigate('/dissertations'); // Redirect to list page on success
       } else {
