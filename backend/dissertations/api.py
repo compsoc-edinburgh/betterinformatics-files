@@ -1,43 +1,64 @@
+from typing import Optional
+
 from django.shortcuts import get_object_or_404
-from django.conf import settings
 from util import s3_util, response
 from ediauth import auth_check
 from .models import Dissertation
-from django.http import JsonResponse
 from django.db.models import Q
+from ninja import File, Form, ModelSchema, Router, Schema, Field, UploadedFile
+
+router = Router()
 
 
-def get_dissertation_obj(dissertation: Dissertation):
-    return {
-        "id": dissertation.id,
-        "title": dissertation.title,
-        "field_of_study": dissertation.field_of_study,
-        "supervisors": dissertation.supervisors,
-        "notes": dissertation.notes,
-        "file_path": dissertation.file_path,
-        "uploaded_by": (
-            dissertation.uploaded_by.username if dissertation.uploaded_by else None
-        ),
-        "upload_date": dissertation.upload_date.isoformat(),
-        "study_level": dissertation.study_level,
-        "grade_band": dissertation.grade_band,  # Added grade_band
-        "year": dissertation.year,  # Added year
-    }
+class DissertationSchema(ModelSchema):
+    uploaded_by: Optional[str] = Field(None, alias="uploaded_by.username")
+    upload_date: str = Field(..., alias="upload_date.isoformat")
+
+    class Meta:
+        model = Dissertation
+        fields = [
+            "id",
+            "title",
+            "field_of_study",
+            "supervisors",
+            "notes",
+            "file_path",
+            "study_level",
+            "grade_band",
+            "year",
+        ]
 
 
-@response.request_post(
-    "title", "field_of_study", "supervisors", "study_level", "year", optional=True
-)
+class DissertationOut(Schema):
+    value: DissertationSchema
+
+
+class DissertationListOut(Schema):
+    value: list[DissertationSchema]
+
+
+class DissertationUploadSchema(Schema):
+    title: str
+    field_of_study: str
+    supervisors: str
+    notes: str = ""
+    study_level: str
+    grade_band: Optional[str] = None
+    year: str
+
+
+@router.post("/upload/", response=DissertationOut)
 @auth_check.require_login
-def upload_dissertation(request):
-    title = request.POST.get("title")
-    field_of_study = request.POST.get("field_of_study")
-    supervisors = request.POST.get("supervisors")
-    notes = request.POST.get("notes", "")  # notes is optional
-    pdf_file = request.FILES.get("pdf_file")
-    study_level = request.POST.get("study_level")
-    grade_band = request.POST.get("grade_band", None)  # Added grade_band, optional
-    year = request.POST.get("year")  # Added year
+def upload_dissertation(
+    request, data: Form[DissertationUploadSchema], pdf_file: File[UploadedFile]
+):
+    title = data.title
+    field_of_study = data.field_of_study
+    supervisors = data.supervisors
+    notes = data.notes
+    study_level = data.study_level
+    grade_band = data.grade_band
+    year = data.year
 
     if not pdf_file:
         return response.not_possible("Missing argument: pdf_file")
@@ -63,7 +84,7 @@ def upload_dissertation(request):
             bucket_name + "/", file_name, pdf_file, pdf_file.content_type
         )
         file_path = f"/{bucket_name}/{file_name}"
-    except Exception as e:
+    except Exception:
         # Use internal_error for server-side issues like Minio upload failure
         return response.internal_error()
 
@@ -79,54 +100,56 @@ def upload_dissertation(request):
         grade_band=grade_band,
         year=year,
     )
-    return response.success(value=get_dissertation_obj(dissertation))
+    return {"value": dissertation}
 
 
-@response.request_get()
+@router.get("/list/", response=DissertationListOut)
 @auth_check.require_login
-def list_dissertations(request):
+def list_dissertations(request, query: str = "", field: str = ""):
     dissertations = Dissertation.objects.all()
 
-    search_query = request.GET.get("query", "")
-    search_field = request.GET.get("field", "")
-
-    if search_query:
-        if search_field == "title":
-            dissertations = dissertations.filter(title__icontains=search_query)
-        elif search_field == "field_of_study":
+    if query:
+        if field == "title":
+            dissertations = dissertations.filter(title__icontains=query)
+        elif field == "field_of_study":
             # Split the search query by comma and search for each subfield
-            subfields = [s.strip() for s in search_query.split(",") if s.strip()]
+            subfields = [s.strip() for s in query.split(",") if s.strip()]
             q_objects = Q()
             for subfield in subfields:
                 q_objects |= Q(field_of_study__icontains=subfield)
             dissertations = dissertations.filter(q_objects)
-        elif search_field == "supervisors":
-            dissertations = dissertations.filter(supervisors__icontains=search_query)
-        elif search_field == "year":
-            dissertations = dissertations.filter(year=search_query)
+        elif field == "supervisors":
+            dissertations = dissertations.filter(supervisors__icontains=query)
+        elif field == "year":
+            dissertations = dissertations.filter(year=query)
         else:
             # Default to searching all fields if no specific field is provided or recognized
             dissertations = dissertations.filter(
-                Q(title__icontains=search_query)
-                | Q(field_of_study__icontains=search_query)
-                | Q(supervisors__icontains=search_query)
-                | Q(year__icontains=search_query)
+                Q(title__icontains=query)
+                | Q(field_of_study__icontains=query)
+                | Q(supervisors__icontains=query)
+                | Q(year__icontains=query)
             )
 
     dissertations = dissertations.order_by("-upload_date")
-    return response.success(value=[get_dissertation_obj(d) for d in dissertations])
+    dissertations = dissertations.prefetch_related("uploaded_by")
+    return {"value": dissertations}
 
 
-@response.request_get()
+@router.get("/{dissertation_id}/", response=DissertationOut)
 @auth_check.require_login
-def get_dissertation_detail(request, dissertation_id):
+def get_dissertation_detail(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
-    return response.success(value=get_dissertation_obj(dissertation))
+    return {"value": dissertation}
 
 
-@response.request_get()
+class DissertationDownloadOut(Schema):
+    value: str
+
+
+@router.get("/{dissertation_id}/download/", response=DissertationDownloadOut)
 @auth_check.require_login
-def download_dissertation(request, dissertation_id):
+def download_dissertation(request, dissertation_id: int):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
 
     try:
@@ -143,6 +166,6 @@ def download_dissertation(request, dissertation_id):
             content_type="application/pdf",
             display_name=f"{dissertation.title}.pdf",
         )
-        return response.success(value=presigned_url)
-    except Exception as e:
+        return {"value": presigned_url}
+    except Exception:
         return response.internal_error()
