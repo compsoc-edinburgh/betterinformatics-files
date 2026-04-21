@@ -1,7 +1,7 @@
 import datetime
 import os
 import re
-from typing import Generic, List, Optional, TypeVar
+from typing import Generic, List, Optional, TypeVar, Union
 
 from django.shortcuts import get_object_or_404
 from django.conf import settings
@@ -57,7 +57,7 @@ class DissertationUploadSchema(Schema):
     notes: str = ""
     study_level: str
     grade_band: Optional[str] = None
-    year: str
+    year: int
 
 
 @router.post("/", response=ValueWrapped[DissertationSchema])
@@ -161,22 +161,22 @@ def redact_dissertation(
 
 @router.get("/", response=ValueWrapped[List[DissertationSchema]])
 @auth_check.require_login
-def list_dissertations(request, query: str = "", field: str = ""):
+def list_dissertations(request, query: Union[str, int] = "", field: str = ""):
     dissertations = Dissertation.objects.all()
 
     if query:
-        if field == "title":
+        if field == "title" and isinstance(query, str):
             dissertations = dissertations.filter(title__icontains=query)
-        elif field == "field_of_study":
+        elif field == "field_of_study" and isinstance(query, str):
             # Split the search query by comma and search for each subfield
             subfields = [s.strip() for s in query.split(",") if s.strip()]
             q_objects = Q()
             for subfield in subfields:
                 q_objects |= Q(field_of_study__icontains=subfield)
             dissertations = dissertations.filter(q_objects)
-        elif field == "supervisors":
+        elif field == "supervisors" and isinstance(query, str):
             dissertations = dissertations.filter(supervisors__icontains=query)
-        elif field == "year":
+        elif field == "year" and isinstance(query, int):
             dissertations = dissertations.filter(year=query)
         else:
             # Default to searching all fields if no specific field is provided or recognized
