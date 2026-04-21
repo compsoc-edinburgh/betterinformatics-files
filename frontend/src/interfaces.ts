@@ -408,6 +408,7 @@ export interface Dissertation {
 }
 
 export interface DissertationCreate {
+  words_to_redact: string;
   title: string;
   field_of_study: string;
   supervisors: string;
