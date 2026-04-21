@@ -1,9 +1,14 @@
+from functools import reduce
+import os
+import re
 from typing import Generic, List, Optional, TypeVar
 
 from django.shortcuts import get_object_or_404
+from django.conf import settings
 from util import response, s3_util
 from ediauth import auth_check
 from .models import Dissertation
+from .pdf_redactor import redactor, RedactorOptions
 from django.db.models import Q
 from ninja import (
     File,
@@ -89,6 +94,60 @@ def upload_dissertation(
         year=year,
     )
     return {"value": dissertation}
+
+
+class DissertationRedactionSchema(Schema):
+    words: List[str]
+
+
+@router.post("/redact/", response=ValueWrapped[str])
+@auth_check.require_login
+def redact_dissertation(
+    request, pdf_file: File[UploadedFile], data: Form[DissertationRedactionSchema]
+):
+    temp_file_path = os.path.join(
+        settings.COMSOL_UPLOAD_FOLDER, f"redacted_{pdf_file.name}"
+    )
+
+    # Make sure all words don't have RegEx bombs
+    for word in data.words:
+        if not re.match(r"^[a-zA-Z0-9\s\-\=\.\&]+$", word):
+            return response.not_possible(
+                f"Redaction phrase has to be alphanumeric: {word}"
+            )
+
+    with open(temp_file_path, "wb") as temp_file:
+        options = RedactorOptions()
+        options.content_filters = [
+            # Replace each phrase with some periods.
+            # If the replacement character doesn't exist in the PDF's glyph
+            # table, the redaction will not look good. Periods are prooooobably
+            # guaranteed to exist in a dissertation so we use that rather than
+            # Xs, spaces, hyphens etc or words like 'Redacted'.
+            (re.compile(w, re.IGNORECASE), lambda m: "." * len(m.group()))
+            for w in data.words
+        ]
+        options.input_stream = pdf_file.file
+        options.output_stream = temp_file
+        redactor(options)
+
+    s3_util.save_file_to_s3(
+        bucket_name + "_temp_redacted/",
+        f"redacted_{pdf_file.name}",
+        temp_file_path,
+    )
+
+    os.remove(temp_file_path)
+
+    # Generate a presigned URL for direct access from Minio
+    presigned_url = s3_util.presigned_get_object(
+        bucket_name + "_temp_redacted/",
+        f"redacted_{pdf_file.name}",
+        inline=True,  # For inline viewing
+        content_type="application/pdf",
+        display_name=f"{pdf_file.name}.pdf",
+    )
+    return {"value": presigned_url}
 
 
 @router.get("/", response=ValueWrapped[List[DissertationSchema]])
