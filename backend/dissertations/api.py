@@ -1,12 +1,22 @@
 from typing import Generic, List, Optional, TypeVar
 
 from django.shortcuts import get_object_or_404
-from util import s3_util
+from util import response, s3_util
 from ediauth import auth_check
 from .models import Dissertation
 from django.db.models import Q
-from ninja import File, Form, ModelSchema, Router, Schema, Field, UploadedFile
+from ninja import (
+    File,
+    Form,
+    ModelSchema,
+    PatchDict,
+    Router,
+    Schema,
+    Field,
+    UploadedFile,
+)
 
+bucket_name = "dissertations"
 router = Router()
 
 T = TypeVar("T")
@@ -59,11 +69,8 @@ def upload_dissertation(
     year = data.year
 
     # Upload PDF to Minio
-    bucket_name = "dissertations"
     # Assuming the bucket already exists or is created by Minio setup
-    # s3_util.create_bucket_if_not_exists(bucket_name) # This function does not exist
     file_name = f"{title.replace(' ', '_')}_{pdf_file.name}"
-    # Use save_uploaded_file_to_s3 which is available in s3_util
     s3_util.save_uploaded_file_to_s3(
         bucket_name + "/", file_name, pdf_file, pdf_file.content_type
     )
@@ -143,3 +150,46 @@ def download_dissertation(request, dissertation_id: int):
         display_name=f"{dissertation.title}.pdf",
     )
     return {"value": presigned_url}
+
+
+@router.put("/{dissertation_id}/", response=ValueWrapped[DissertationSchema])
+@auth_check.require_login
+def update_dissertation(
+    request,
+    dissertation_id: int,
+    data: PatchDict[DissertationUploadSchema],
+    pdf_file: Optional[File[UploadedFile]] = None,
+):
+    dissertation = get_object_or_404(Dissertation, id=dissertation_id)
+
+    # Only allow the user who uploaded the dissertation to update it
+    # Or admins
+    if dissertation.uploaded_by != request.user and not auth_check.has_admin_rights(
+        request
+    ):
+        return response.not_allowed()
+
+    for attr, value in data.items():
+        setattr(dissertation, attr, value)
+
+    if pdf_file:
+        # Delete old file from Minio if it exists
+        if dissertation.file_path:
+            old_path_parts = dissertation.file_path.split("/")
+            old_bucket_name = old_path_parts[1]
+            old_file_name = "/".join(old_path_parts[2:])
+            s3_util.delete_file(old_bucket_name + "/", old_file_name)
+
+        # Upload PDF to Minio
+        # Assuming the bucket already exists or is created by Minio setup
+        file_name = f"{dissertation.title.replace(' ', '_')}_{pdf_file.name}"
+        s3_util.save_uploaded_file_to_s3(
+            bucket_name + "/", file_name, pdf_file, pdf_file.content_type
+        )
+        file_path = f"/{bucket_name}/{file_name}"
+
+        dissertation.file_path = file_path
+
+    dissertation.save()
+
+    return {"value": dissertation}
