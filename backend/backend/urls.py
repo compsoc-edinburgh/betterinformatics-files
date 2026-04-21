@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.http import Http404
+from django.http import Http404, JsonResponse
 
 from django.urls import path, re_path, include
 from functools import wraps
@@ -23,6 +23,7 @@ from django_prometheus import exports
 from backend.settings import DEBUG, STATIC_ROOT
 
 from ninja import NinjaAPI
+from ninja.errors import ValidationError
 
 from . import views
 
@@ -77,8 +78,27 @@ handler400 = views.handler400
 handler403 = views.handler403
 handler404 = views.handler404
 handler500 = views.handler500
+<<<<<<< HEAD
 
 
 @api.exception_handler(Http404)
 def validation_errors(request, exc):
     return views.handler404(request, exc)
+||||||| parent of 948fa2a7 (Fix Django Ninija validation errors not conforming to .err standard across ComSol)
+=======
+
+
+@api.exception_handler(ValidationError)
+def validation_errors(request, exc: ValidationError):
+    error = ""
+    for error_info in exc.errors:
+        loc = error_info["loc"][-1]
+        msg = error_info["msg"]
+        if loc == "__root__":
+            loc = ""
+        else:
+            loc = f"{loc}: "
+        error += f"{loc} {msg}. "
+
+    return JsonResponse({"err": error}, status=422)
+>>>>>>> 948fa2a7 (Fix Django Ninija validation errors not conforming to .err standard across ComSol)
