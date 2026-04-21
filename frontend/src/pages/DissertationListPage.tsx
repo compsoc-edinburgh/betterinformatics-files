@@ -46,7 +46,7 @@ const DissertationListPage: React.FC = () => {
       setError(null);
 
       try {
-        let url = "/api/dissertations/list/";
+        let url = "/api/dissertations/";
         const params = new URLSearchParams();
 
         if (debouncedSearchQuery) {

@@ -45,7 +45,7 @@ class DissertationUploadSchema(Schema):
     year: str
 
 
-@router.post("/upload/", response=ValueWrapped[DissertationSchema])
+@router.post("/", response=ValueWrapped[DissertationSchema])
 @auth_check.require_login
 def upload_dissertation(
     request, data: Form[DissertationUploadSchema], pdf_file: File[UploadedFile]
@@ -84,7 +84,7 @@ def upload_dissertation(
     return {"value": dissertation}
 
 
-@router.get("/list/", response=ValueWrapped[List[DissertationSchema]])
+@router.get("/", response=ValueWrapped[List[DissertationSchema]])
 @auth_check.require_login
 def list_dissertations(request, query: str = "", field: str = ""):
     dissertations = Dissertation.objects.all()
