@@ -45,10 +45,6 @@ const DissertationListPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const minLoadTimePromise = new Promise(resolve =>
-        setTimeout(resolve, 300),
-      ); // Minimum 300ms loading time
-
       try {
         let url = "/api/dissertations/list/";
         const params = new URLSearchParams();
@@ -64,24 +60,27 @@ const DissertationListPage: React.FC = () => {
           url += `?${params.toString()}`;
         }
 
-        const [response] = await Promise.all([
-          fetchGet(url),
-          minLoadTimePromise,
-        ]);
+        const response: {
+          value?: Dissertation[];
+          error?: string;
+        } = await fetchGet(url);
 
         if (response.value) {
           setDissertations(response.value);
         } else {
-          setError(response.error || "Failed to fetch dissertations.");
+          setError(response.error ?? "Failed to fetch dissertations.");
         }
-      } catch (err: any) {
-        setError(err.message || "Network error while fetching dissertations.");
+      } catch (err: unknown) {
+        setError(
+          (err as Error).message ||
+            "Network error while fetching dissertations.",
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDissertations();
+    void fetchDissertations();
   }, [debouncedSearchQuery, searchField]);
 
   const rows = dissertations.map(dissertation => (
