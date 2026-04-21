@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, Title, TextInput, Textarea, Button, FileInput, Notification, TagsInput, Select } from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { fetchPost } from '../api/fetch-utils';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Title,
+  TextInput,
+  Textarea,
+  Button,
+  FileInput,
+  Notification,
+  TagsInput,
+  Select,
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { fetchPost } from "../api/fetch-utils";
 
 const UploadDissertationPage: React.FC = () => {
   const navigate = useNavigate();
@@ -11,23 +21,29 @@ const UploadDissertationPage: React.FC = () => {
 
   const form = useForm({
     initialValues: {
-      title: '',
+      title: "",
       field_of_study: [] as string[], // Change to array for TagsInput
-      supervisors: '',
-      notes: '',
+      supervisors: "",
+      notes: "",
       pdf_file: null as File | null,
-      study_level: 'UG4', // Default value
+      study_level: "UG4", // Default value
       grade_band: null as string | null, // Optional grade band
       year: new Date().getFullYear().toString(), // Default to current year
     },
 
     validate: {
-      title: (value: string) => (value ? null : 'Title is required'),
-      field_of_study: (value: string[]) => (value.length > 0 ? null : 'At least one field of study is required'),
-      supervisors: (value: string) => (value ? null : 'Supervisors are required'),
-      pdf_file: (value: File | null) => (value ? null : 'PDF file is required'),
-      study_level: (value: string) => (value ? null : 'Study level is required'),
-      year: (value: string) => (value && /^[0-9]{4}$/.test(value) ? null : 'Year must be a 4-digit number'),
+      title: (value: string) => (value ? null : "Title is required"),
+      field_of_study: (value: string[]) =>
+        value.length > 0 ? null : "At least one field of study is required",
+      supervisors: (value: string) =>
+        value ? null : "Supervisors are required",
+      pdf_file: (value: File | null) => (value ? null : "PDF file is required"),
+      study_level: (value: string) =>
+        value ? null : "Study level is required",
+      year: (value: string) =>
+        value && /^[0-9]{4}$/.test(value)
+          ? null
+          : "Year must be a 4-digit number",
     },
   });
 
@@ -38,7 +54,7 @@ const UploadDissertationPage: React.FC = () => {
     // fetchPost expects a plain object, and it will construct FormData internally
     const dataToSend = {
       title: values.title,
-      field_of_study: values.field_of_study.join(','), // Join array into comma-separated string
+      field_of_study: values.field_of_study.join(","), // Join array into comma-separated string
       supervisors: values.supervisors,
       notes: values.notes,
       pdf_file: values.pdf_file, // fetch-utils will handle File/Blob instances
@@ -48,27 +64,29 @@ const UploadDissertationPage: React.FC = () => {
     };
 
     try {
-      const response = await fetchPost('/api/dissertations/', dataToSend);
+      const response = await fetchPost("/api/dissertations/", dataToSend);
       if (response.value) {
-        navigate('/dissertations'); // Redirect to list page on success
+        navigate("/dissertations"); // Redirect to list page on success
       } else {
         setUploadSuccess(false);
-        setErrorMessage(response.error || 'Unknown error during upload.');
+        setErrorMessage(response.error || "Unknown error during upload.");
       }
     } catch (error: any) {
       setUploadSuccess(false);
-      setErrorMessage(error.message || 'Network error during upload.');
+      setErrorMessage(error.message || "Network error during upload.");
     }
   };
 
   return (
     <Container size="sm" mt="xl">
-      <Title order={2} ta="center" mb="xl">Upload Dissertation</Title>
+      <Title order={2} ta="center" mb="xl">
+        Upload Dissertation
+      </Title>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
           label="Title"
           placeholder="Dissertation Title"
-          {...form.getInputProps('title')}
+          {...form.getInputProps("title")}
           required
         />
 
@@ -77,7 +95,7 @@ const UploadDissertationPage: React.FC = () => {
           placeholder="e.g., AI, Machine Learning, Computer Vision"
           mt="md"
           data={[]}
-          {...form.getInputProps('field_of_study')}
+          {...form.getInputProps("field_of_study")}
           clearable
           required
         />
@@ -86,7 +104,7 @@ const UploadDissertationPage: React.FC = () => {
           label="Supervisors"
           placeholder="Comma-separated names"
           mt="md"
-          {...form.getInputProps('supervisors')}
+          {...form.getInputProps("supervisors")}
           required
         />
 
@@ -94,8 +112,11 @@ const UploadDissertationPage: React.FC = () => {
           label="Year"
           placeholder="Select year"
           mt="md"
-          data={Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => (2010 + i).toString())}
-          {...form.getInputProps('year')}
+          data={Array.from(
+            { length: new Date().getFullYear() - 2009 },
+            (_, i) => (2010 + i).toString(),
+          )}
+          {...form.getInputProps("year")}
           required
         />
 
@@ -104,11 +125,11 @@ const UploadDissertationPage: React.FC = () => {
           placeholder="Select study level"
           mt="md"
           data={[
-            { value: 'UG4', label: 'UG4' },
-            { value: 'UG5', label: 'UG5' },
-            { value: 'MSc', label: 'MSc' },
+            { value: "UG4", label: "UG4" },
+            { value: "UG5", label: "UG5" },
+            { value: "MSc", label: "MSc" },
           ]}
-          {...form.getInputProps('study_level')}
+          {...form.getInputProps("study_level")}
           required
         />
 
@@ -117,14 +138,14 @@ const UploadDissertationPage: React.FC = () => {
           placeholder="Select grade band"
           mt="md"
           data={[
-            { value: '40-49', label: '40-49' },
-            { value: '50-59', label: '50-59' },
-            { value: '60-69', label: '60-69' },
-            { value: '70-79', label: '70-79' },
-            { value: '80-89', label: '80-89' },
-            { value: '90-100', label: '90-100' },
+            { value: "40-49", label: "40-49" },
+            { value: "50-59", label: "50-59" },
+            { value: "60-69", label: "60-69" },
+            { value: "70-79", label: "70-79" },
+            { value: "80-89", label: "80-89" },
+            { value: "90-100", label: "90-100" },
           ]}
-          {...form.getInputProps('grade_band')}
+          {...form.getInputProps("grade_band")}
           clearable
         />
 
@@ -133,25 +154,35 @@ const UploadDissertationPage: React.FC = () => {
           placeholder="Any additional notes about the dissertation"
           mt="md"
           minRows={3}
-          {...form.getInputProps('notes')}
+          {...form.getInputProps("notes")}
         />
         <FileInput
           label="Upload PDF"
           placeholder="Choose PDF file"
           accept="application/pdf"
           mt="md"
-          {...form.getInputProps('pdf_file')}
+          {...form.getInputProps("pdf_file")}
           required
         />
 
         {uploadSuccess === true && (
-          <Notification title="Success" color="teal" mt="md" onClose={() => setUploadSuccess(null)}>
+          <Notification
+            title="Success"
+            color="teal"
+            mt="md"
+            onClose={() => setUploadSuccess(null)}
+          >
             Dissertation uploaded successfully!
           </Notification>
         )}
 
         {uploadSuccess === false && errorMessage && (
-          <Notification title="Upload Failed" color="red" mt="md" onClose={() => setUploadSuccess(null)}>
+          <Notification
+            title="Upload Failed"
+            color="red"
+            mt="md"
+            onClose={() => setUploadSuccess(null)}
+          >
             {errorMessage}
           </Notification>
         )}
