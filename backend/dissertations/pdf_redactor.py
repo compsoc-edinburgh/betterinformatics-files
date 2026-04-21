@@ -10,9 +10,14 @@
 #   redactor, despite no changes being made to them. Fixed by keeping the
 #   original serialized token around and using that for unchanged tokens instead
 #   instead of re-encoding them.
+# 2026/04/21 by Yuto Takano.
+#   Removed Python2 compatibility code, and added type annotations or
+#   type:ignore comments to satisfy Pylance.
 
+import re
 import sys
 from datetime import datetime
+from typing import Any, Callable, List, Optional, Tuple, Type, IO
 
 from pdfrw import PdfDict
 
@@ -21,8 +26,8 @@ class RedactorOptions:
     """Redaction and I/O options."""
 
     # Input/Output
-    input_stream = None
-    output_stream = None
+    input_stream: Optional[IO] = None
+    output_stream: Optional[IO] = None
 
     # Metadata filters map names of entries in the PDF Document Information Dictionary
     # (e.g. "Title", "Author", "Subject", "Keywords", "Creator", "Producer", "CreationDate",
@@ -69,7 +74,7 @@ class RedactorOptions:
     #
     # Since pdfrw doesn't support content stream compression, you should use a tool like qpdf
     # to decompress the streams before using this tool (see the README).
-    content_filters = []
+    content_filters: List[Tuple[re.Pattern, Callable[[re.Match], str]]] = []
 
     # When replacement text isn't likely to have a glyph stored in the PDF's fonts,
     # replace the character with these other characters (if they don't have the same
@@ -83,27 +88,16 @@ class RedactorOptions:
     link_filters = []
 
 
-def redactor(options):
+def redactor(options: RedactorOptions):
     # This is the function that performs redaction.
-
-    if sys.version_info < (3,):
-        if options.input_stream is None:
-            options.input_stream = (
-                sys.stdin
-            )  # input stream containing the PDF to redact
-        if options.output_stream is None:
-            options.output_stream = (
-                sys.stdout
-            )  # output stream to write the new, redacted PDF to
-    else:
-        if options.input_stream is None:
-            options.input_stream = (
-                sys.stdin.buffer
-            )  # input byte stream containing the PDF to redact
-        if options.output_stream is None:
-            options.output_stream = (
-                sys.stdout.buffer
-            )  # output byte stream to write the new, redacted PDF to
+    if options.input_stream is None:
+        options.input_stream = (
+            sys.stdin.buffer
+        )  # input byte stream containing the PDF to redact
+    if options.output_stream is None:
+        options.output_stream = (
+            sys.stdout.buffer
+        )  # output byte stream to write the new, redacted PDF to
 
     from pdfrw import PdfReader, PdfWriter
 
@@ -140,7 +134,6 @@ def update_metadata(trailer, options):
     # Title, Author, Subject, Keywords, Creator, Producer, CreationDate, and ModDate
     # (the latter two containing Date values, the rest strings).
 
-    import codecs
     from pdfrw.objects import PdfString, PdfName
 
     # Create the metadata dict if it doesn't exist, since the caller may be adding fields.
@@ -165,7 +158,7 @@ def update_metadata(trailer, options):
         functions += options.metadata_filters.get("ALL", [])
 
         # Run the functions on any existing values.
-        value = trailer.Info[PdfName(key)]
+        value = trailer.Info[PdfName(key)]  # type: ignore
         for f in functions:
             # Before passing to the function, convert from a PdfString to a Python string.
             if isinstance(value, PdfString):
@@ -176,9 +169,7 @@ def update_metadata(trailer, options):
             value = f(value)
 
             # Convert Python data type to PdfString.
-            if isinstance(value, str) or (
-                sys.version_info < (3,) and isinstance(value, unicode)
-            ):
+            if isinstance(value, str):
                 # Convert string to a PdfString instance.
                 value = PdfString.from_unicode(value)
 
@@ -201,7 +192,7 @@ def update_metadata(trailer, options):
                 )
 
             # Replace value.
-            trailer.Info[PdfName(key)] = value
+            trailer.Info[PdfName(key)] = value  # type: ignore
 
 
 def update_xmp_metadata(trailer, options):
@@ -247,15 +238,13 @@ def update_xmp_metadata(trailer, options):
                     xml.etree.ElementTree.register_namespace(
                         "rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                     )
-                return xml.etree.ElementTree.tostring(
-                    xml_root, encoding="unicode" if sys.version_info >= (3, 0) else None
-                )
+                return xml.etree.ElementTree.tostring(xml_root, encoding="unicode")
 
         # Create a fresh Metadata dictionary and serialize the XML into it.
         trailer.Root.Metadata = PdfDict()
         trailer.Root.Metadata.Type = "Metadata"
         trailer.Root.Metadata.Subtype = "XML"
-        trailer.Root.Metadata.stream = serializer(value)
+        trailer.Root.Metadata.stream = serializer(value)  # type: ignore
 
 
 class InlineImage(PdfDict):
@@ -312,7 +301,7 @@ def tokenize_streams(streams):
     # token entries.
     from pdfrw import PdfTokens, PdfArray
 
-    stack = []
+    stack: List[Tuple[Type, Optional[List[Any]]]] = []
     for stream in streams:
         tokens = PdfTokens(stream)
         for token in tokens:
@@ -349,7 +338,7 @@ def tokenize_streams(streams):
                 token, _ = stack.pop(-1)
 
             # If we're inside something, add this token to that thing.
-            if len(stack) > 0:
+            if len(stack) > 0 and stack[-1][1] is not None:
                 stack[-1][1].append(token)
                 continue
 
@@ -558,8 +547,6 @@ class CMap(object):
         def code_to_int(code):
             # decode hex encoding
             code = code.to_bytes()
-            if sys.version_info < (3,):
-                code = (ord(c) for c in code)
             from functools import reduce
 
             return reduce(lambda x0, x: x0 * 256 + x, (b for b in code))
@@ -570,15 +557,9 @@ class CMap(object):
             assert len(codespacerange[1].to_bytes()) == width
             if width == 1:
                 # one-byte entry
-                if sys.version_info < (3,):
-                    code = chr(code)
-                else:
-                    code = bytes([code])
+                code = bytes([code])
             elif width == 2:
-                if sys.version_info < (3,):
-                    code = chr(code // 256) + chr(code & 255)
-                else:
-                    code = bytes([code // 256, code & 255])
+                code = bytes([code // 256, code & 255])
             else:
                 raise ValueError("Invalid code space range %s?" % repr(codespacerange))
 
@@ -590,18 +571,13 @@ class CMap(object):
             # two-byte Unicode code points.
             if isinstance(char, PdfString):
                 char = char.to_bytes()
-                if sys.version_info < (3,):
-                    char = (ord(c) for c in char)
-
                 c = ""
                 for xh, xl in chunk_pairs(list(char)):
-                    c += (chr if sys.version_info >= (3,) else unichr)(xh * 256 + xl)
+                    c += chr(xh * 256 + xl)  # type: ignore
                 char = c
 
                 if offset > 0:
-                    char = char[0:-1] + (chr if sys.version_info >= (3,) else unichr)(
-                        ord(char[-1]) + offset
-                    )
+                    char = char[0:-1] + chr(ord(char[-1]) + offset)
             else:
                 assert offset == 0
 
@@ -625,7 +601,7 @@ class CMap(object):
                 self.defns[name] = value
 
             elif token == "usecmap":
-                self.usecmap = self.pop(0)
+                self.usecmap = self.pop(0)  # type: ignore
 
             elif token == "begincodespacerange":
                 operand_stack[:] = []
@@ -642,8 +618,8 @@ class CMap(object):
                         continue
                     code1 = code_to_int(code1)
                     code2 = code_to_int(code2)
-                    for code in range(code1, code2 + 1):
-                        add_mapping(code, cid_or_name1, code - code1)
+                    for code in range(code1, code2 + 1):  # type: ignore
+                        add_mapping(code, cid_or_name1, code - code1)  # type: ignore
                 operand_stack[:] = []
 
             elif token in ("begincidchar", "beginbfchar"):
@@ -762,7 +738,7 @@ def fromUnicode(string, font, fontcache, options):
         raise ValueError("Don't know how to encode data to font %s." % font)
 
 
-def update_text_layer(options, text_tokens, page_tokens):
+def update_text_layer(options: RedactorOptions, text_tokens, page_tokens):
     if len(text_tokens) == 0:
         # No text content.
         return
@@ -828,7 +804,7 @@ def update_text_layer(options, text_tokens, page_tokens):
                     # This is the last token in which we'll replace text, so put
                     # all of the remaining replacement content here.
                     r = replacement
-                    replacement = None  # sanity
+                    replacement = ""  # sanity
 
                 # Do the replacement.
                 tok.value = (
@@ -882,7 +858,7 @@ def apply_updated_text(document, text_tokens, page_tokens):
                     "BI "
                     + " ".join(tok_str(x) + " " + tok_str(y) for x, y in tok.items())
                     + " ID "
-                    + tok.stream
+                    + tok.stream  # type: ignore
                     + " EI "
                 )
             if isinstance(tok, PdfDict):
@@ -894,7 +870,7 @@ def apply_updated_text(document, text_tokens, page_tokens):
             return str(tok)
 
         page.Contents = PdfDict()
-        page.Contents.stream = "\n".join(tok_str(tok) for tok in page_tokens[i])
+        page.Contents.stream = "\n".join(tok_str(tok) for tok in page_tokens[i])  # type: ignore
 
 
 def update_annotations(document, options):
@@ -905,7 +881,6 @@ def update_annotations(document, options):
 
 
 def update_annotation(annotation, options):
-    import re
     from pdfrw.objects import PdfString
 
     # Contents holds a plain-text representation of the annotation
