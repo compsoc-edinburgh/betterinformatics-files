@@ -12,12 +12,14 @@ import {
   Select,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { fetchPost } from "../api/fetch-utils";
+import { useRequest } from "ahooks";
+import { uploadDissertation } from "../api/hooks";
 
 const UploadDissertationPage: React.FC = () => {
   const navigate = useNavigate();
-  const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [clientValidationError, setClientValidationError] = useState<
+    string | null
+  >(null);
 
   const form = useForm({
     initialValues: {
@@ -27,8 +29,8 @@ const UploadDissertationPage: React.FC = () => {
       notes: "",
       pdf_file: null as File | null,
       study_level: "UG4", // Default value
-      grade_band: null as string | null, // Optional grade band
-      year: new Date().getFullYear().toString(), // Default to current year
+      grade_band: undefined as string | undefined, // Optional grade band
+      year: new Date().getFullYear(), // Default to current year
     },
 
     validate: {
@@ -40,41 +42,43 @@ const UploadDissertationPage: React.FC = () => {
       pdf_file: (value: File | null) => (value ? null : "PDF file is required"),
       study_level: (value: string) =>
         value ? null : "Study level is required",
-      year: (value: string) =>
-        value && /^[0-9]{4}$/.test(value)
+      year: (value: number) =>
+        value && /^[0-9]{4}$/.test(value.toString())
           ? null
           : "Year must be a 4-digit number",
     },
   });
 
-  const handleSubmit = async (values: typeof form.values) => {
-    setUploadSuccess(null);
-    setErrorMessage(null);
+  const { error: uploadError, run: runUploadDissertation } = useRequest(
+    uploadDissertation,
+    {
+      manual: true,
+      onSuccess: data => {
+        navigate(`/dissertations/${data.id}`);
+      },
+      onError: (e?: Error) => {
+        setClientValidationError(String(e));
+      },
+    },
+  );
 
-    // fetchPost expects a plain object, and it will construct FormData internally
-    const dataToSend = {
+  const handleSubmit = async (values: typeof form.values) => {
+    setClientValidationError(null);
+
+    if (!values.pdf_file) {
+      setClientValidationError("Please select a PDF file to upload.");
+      return;
+    }
+
+    await runUploadDissertation(values.pdf_file, {
       title: values.title,
-      field_of_study: values.field_of_study.join(","), // Join array into comma-separated string
+      field_of_study: values.field_of_study.join(","),
       supervisors: values.supervisors,
       notes: values.notes,
-      pdf_file: values.pdf_file, // fetch-utils will handle File/Blob instances
       study_level: values.study_level,
       grade_band: values.grade_band,
       year: values.year,
-    };
-
-    try {
-      const response = await fetchPost("/api/dissertations/", dataToSend);
-      if (response.value) {
-        navigate("/dissertations"); // Redirect to list page on success
-      } else {
-        setUploadSuccess(false);
-        setErrorMessage(response.error || "Unknown error during upload.");
-      }
-    } catch (error: any) {
-      setUploadSuccess(false);
-      setErrorMessage(error.message || "Network error during upload.");
-    }
+    });
   };
 
   return (
@@ -165,25 +169,9 @@ const UploadDissertationPage: React.FC = () => {
           required
         />
 
-        {uploadSuccess === true && (
-          <Notification
-            title="Success"
-            color="teal"
-            mt="md"
-            onClose={() => setUploadSuccess(null)}
-          >
-            Dissertation uploaded successfully!
-          </Notification>
-        )}
-
-        {uploadSuccess === false && errorMessage && (
-          <Notification
-            title="Upload Failed"
-            color="red"
-            mt="md"
-            onClose={() => setUploadSuccess(null)}
-          >
-            {errorMessage}
+        {(clientValidationError ?? uploadError?.message) && (
+          <Notification title="Upload Failed" color="red" mt="md">
+            {clientValidationError ?? uploadError?.message}
           </Notification>
         )}
 

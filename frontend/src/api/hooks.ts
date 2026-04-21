@@ -22,6 +22,8 @@ import {
   SearchResponse,
   AnswerKind,
   BICourseList,
+  DissertationCreate,
+  Dissertation,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -893,3 +895,13 @@ export const unmarkExamUserSolved = async (exam: string) => {
 };
 export const useUnmarkExamUserSolved = (exam: string) =>
   useMutation(() => unmarkExamUserSolved(exam));
+
+export const uploadDissertation = async (
+  file: Blob,
+  create_data: DissertationCreate,
+) => {
+  return (await fetchPost<{ value: Dissertation }>("/api/dissertations/", {
+    pdf_file: file,
+    ...create_data,
+  })).value;
+};
