@@ -119,7 +119,7 @@ const UploadDissertationPage: React.FC = () => {
           data={Array.from(
             { length: new Date().getFullYear() - 2009 },
             (_, i) => (2010 + i).toString(),
-          )}
+          ).reverse()}
           {...form.getInputProps("year")}
           required
         />
