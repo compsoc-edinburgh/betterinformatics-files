@@ -18,20 +18,7 @@ import {
   IconCalendar,
   IconFileDescription,
 } from "@tabler/icons-react";
-
-interface Dissertation {
-  id: number;
-  title: string;
-  field_of_study: string;
-  supervisors: string;
-  notes: string;
-  file_path: string;
-  uploaded_by: string;
-  upload_date: string;
-  study_level: string;
-  grade_band?: string; // Optional grade band
-  year: number;
-}
+import { Dissertation } from "../interfaces";
 
 const DissertationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

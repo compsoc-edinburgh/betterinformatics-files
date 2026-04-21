@@ -18,19 +18,7 @@ import { fetchGet } from "../api/fetch-utils";
 import { Link } from "react-router-dom";
 import { IconUpload, IconSearch } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
-
-interface Dissertation {
-  id: number;
-  title: string;
-  field_of_study: string;
-  supervisors: string;
-  notes: string;
-  file_path: string;
-  uploaded_by: string;
-  upload_date: string;
-  study_level: string;
-  year: number;
-}
+import { Dissertation } from "../interfaces";
 
 const DissertationListPage: React.FC = () => {
   const [dissertations, setDissertations] = useState<Dissertation[]>([]);

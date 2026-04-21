@@ -401,6 +401,32 @@ export interface DocumentComment extends Omit<Comment, "longId" | "oid"> {
   documentId: number;
 }
 
+export interface Dissertation {
+  id: number;
+  title: string;
+  field_of_study: string;
+  supervisors: string;
+  notes: string;
+  file_path: string;
+  uploaded_by: string;
+  upload_date: string;
+  study_level: string;
+  grade_band?: string;
+  year: number;
+}
+
+export interface DissertationCreate {
+  title: string;
+  field_of_study: string;
+  supervisors: string;
+  notes: string;
+  study_level: string;
+  grade_band?: string;
+  year: number;
+}
+
+export type DissertationUpdate = Partial<DissertationCreate>;
+
 export interface Stats {
   user_stats: GranularityStats<UserStat>;
   exam_stats: GranularityStats<ExamStat>;
