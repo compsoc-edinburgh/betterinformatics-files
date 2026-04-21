@@ -97,7 +97,7 @@ def upload_dissertation(
 
 
 class DissertationRedactionSchema(Schema):
-    words: List[str]
+    words: str  # comma separated, since our frontend doesn't explode arrays
 
 
 @router.post("/redact/", response=ValueWrapped[str])
@@ -110,7 +110,8 @@ def redact_dissertation(
     )
 
     # Make sure all words don't have RegEx bombs
-    for word in data.words:
+    for word in data.words.split(","):
+        word = word.strip()
         if not re.match(r"^[a-zA-Z0-9\s\-\=\.\&]+$", word):
             return response.not_possible(
                 f"Redaction phrase has to be alphanumeric: {word}"
@@ -125,7 +126,7 @@ def redact_dissertation(
             # guaranteed to exist in a dissertation so we use that rather than
             # Xs, spaces, hyphens etc or words like 'Redacted'.
             (re.compile(w, re.IGNORECASE), lambda m: "." * len(m.group()))
-            for w in data.words
+            for w in data.words.split(",")
         ]
         options.input_stream = pdf_file.file
         options.output_stream = temp_file
