@@ -23,7 +23,7 @@ services:
     entrypoint: >
       /bin/sh -c " /usr/bin/mc config host add myminio http://minio:9000 minio minio123; /usr/bin/mc mb myminio/community-solutions; "
   postgres:
-    image: postgres:16
+    image: postgres:16-bookworm
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
