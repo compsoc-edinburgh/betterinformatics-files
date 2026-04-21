@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import tempfile
 from typing import Generic, List, Optional, TypeVar, Union
 
 from django.shortcuts import get_object_or_404
@@ -60,6 +61,40 @@ class DissertationUploadSchema(Schema):
     year: int
 
 
+def redact_file(file: UploadedFile, words_to_redact: List[str]) -> str:
+    """Perform text redaction on a file and write to a temporary file in the
+    ComSol upload folder.
+
+    Parameters
+    ----------
+    file : UploadedFile
+    words_to_redact : List[str]
+        List of non-empty trimmed words to redact.
+
+    Returns
+    -------
+    str
+        Filepath of redacted file.
+    """
+    handle, temp_file_path = tempfile.mkstemp(dir=settings.COMSOL_UPLOAD_FOLDER)
+
+    options = RedactorOptions()
+    options.content_filters = [
+        # Replace each phrase with some periods.
+        # If the replacement character doesn't exist in the PDF's glyph
+        # table, the redaction will not look good. Periods are prooooobably
+        # guaranteed to exist in a dissertation so we use that rather than
+        # Xs, spaces, hyphens etc or words like 'Redacted'.
+        (re.compile(w, re.IGNORECASE), lambda m: "." * len(m.group()))
+        for w in words_to_redact
+    ]
+    options.input_stream = file.file
+    options.output_stream = handle
+    redactor(options)
+
+    return temp_file_path
+
+
 @router.post("/", response=ValueWrapped[DissertationSchema])
 @auth_check.require_login
 def upload_dissertation(
@@ -105,10 +140,6 @@ class DissertationRedactionSchema(Schema):
 def redact_dissertation(
     request, pdf_file: File[UploadedFile], data: Form[DissertationRedactionSchema]
 ):
-    temp_file_path = os.path.join(
-        settings.COMSOL_UPLOAD_FOLDER, f"redacted_{pdf_file.name}"
-    )
-
     # Make sure all words don't have RegEx bombs
     for word in data.words.split(","):
         word = word.strip()
@@ -119,21 +150,9 @@ def redact_dissertation(
                 f"Redaction phrase has to be alphanumeric: {word}"
             )
 
-    with open(temp_file_path, "wb") as temp_file:
-        options = RedactorOptions()
-        options.content_filters = [
-            # Replace each phrase with some periods.
-            # If the replacement character doesn't exist in the PDF's glyph
-            # table, the redaction will not look good. Periods are prooooobably
-            # guaranteed to exist in a dissertation so we use that rather than
-            # Xs, spaces, hyphens etc or words like 'Redacted'.
-            (re.compile(w, re.IGNORECASE), lambda m: "." * len(m.group()))
-            for w in data.words.split(",")
-            if w.strip()
-        ]
-        options.input_stream = pdf_file.file
-        options.output_stream = temp_file
-        redactor(options)
+    temp_file_path = redact_file(
+        pdf_file, [w.strip() for w in data.words.split(",") if w.strip()]
+    )
 
     s3_util.save_file_to_s3(
         bucket_name + "_temp_redacted/",
