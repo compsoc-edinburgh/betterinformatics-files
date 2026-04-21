@@ -112,6 +112,8 @@ def redact_dissertation(
     # Make sure all words don't have RegEx bombs
     for word in data.words.split(","):
         word = word.strip()
+        if not word:
+            continue
         if not re.match(r"^[a-zA-Z0-9\s\-\=\.\&]+$", word):
             return response.not_possible(
                 f"Redaction phrase has to be alphanumeric: {word}"
@@ -127,6 +129,7 @@ def redact_dissertation(
             # Xs, spaces, hyphens etc or words like 'Redacted'.
             (re.compile(w, re.IGNORECASE), lambda m: "." * len(m.group()))
             for w in data.words.split(",")
+            if w.strip()
         ]
         options.input_stream = pdf_file.file
         options.output_stream = temp_file
