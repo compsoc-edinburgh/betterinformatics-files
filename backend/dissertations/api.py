@@ -1,4 +1,4 @@
-from functools import reduce
+import datetime
 import os
 import re
 from typing import Generic, List, Optional, TypeVar
@@ -138,6 +138,15 @@ def redact_dissertation(
     )
 
     os.remove(temp_file_path)
+
+    # Delete any existing redacted files older than 5 minutes: ideally we should
+    # do this kind of churn in a scheduled celery task or something)
+    s3_util.delete_files_older_than(
+        bucket_name + "_temp_redacted/",
+        "redacted_",
+        cutoff_time=datetime.datetime.now(datetime.timezone.utc)
+        - datetime.timedelta(minutes=5),
+    )
 
     # Generate a presigned URL for direct access from Minio
     presigned_url = s3_util.presigned_get_object(
