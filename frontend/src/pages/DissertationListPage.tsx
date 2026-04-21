@@ -3,7 +3,6 @@ import {
   Container,
   Title,
   Text,
-  LoadingOverlay,
   Notification,
   Button,
   TextInput,
@@ -13,10 +12,8 @@ import {
   Anchor,
   Badge,
   CloseButton,
-  List,
   Space,
   Loader,
-  Center,
   Progress,
   Collapse,
 } from "@mantine/core";
@@ -35,6 +32,9 @@ const DissertationListPage: React.FC = () => {
     loading,
     data: dissertations,
   } = useDissertations(debouncedSearchQuery, searchField ?? "");
+  // Show larger loading indicator only if it's taking a while - otherwise it's
+  // a bit too annoying. there already is a small spinner in the search box.
+  const [loadingDebounced] = useDebouncedValue(loading, 500);
 
   const rows = useMemo(() => {
     return dissertations
@@ -145,7 +145,7 @@ const DissertationListPage: React.FC = () => {
 
       <div style={{ position: "relative" }}>
         <Collapse
-          in={loading}
+          in={loadingDebounced}
           style={{ position: "absolute", top: 0, left: 0, right: 0 }}
         >
           <Progress value={100} animated striped />
