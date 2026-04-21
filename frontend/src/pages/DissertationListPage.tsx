@@ -13,6 +13,12 @@ import {
   Anchor,
   Badge,
   CloseButton,
+  List,
+  Space,
+  Loader,
+  Center,
+  Progress,
+  Collapse,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { IconUpload, IconSearch } from "@tabler/icons-react";
@@ -62,33 +68,58 @@ const DissertationListPage: React.FC = () => {
 
   return (
     <Container size="xl" mt="xl" style={{ position: "relative" }}>
-      <LoadingOverlay
-        visible={loading}
-        transitionProps={{ transition: "fade", duration: 200 }}
-      />
-      <Title order={2} ta="center" mb="xl">
+      <Title order={2} mb="md">
         Dissertation Archive
       </Title>
+      <Text>
+        The School of Informatics officially maintains{" "}
+        <Link to="https://project-archive.inf.ed.ac.uk/">
+          an internal archive
+        </Link>{" "}
+        of all dissertations submitted by students. However, this archive is
+        only visible to staff members, and students can only see outstanding
+        dissertations of past years. This page provides an alternative public
+        archive of dissertations by students who have consented to share their
+        work. If you are a student and would like to share your dissertation,
+        please use the &ldquo;Upload New Dissertation&rdquo; button below.
+      </Text>
+      {/* <Space h="md" /><Text>
+        In addition, our dissertation archive has nifty features not present in
+        the official one, including:
+      </Text>
+      <List>
+        <List.Item>Full-text search to quickly find dissertations.</List.Item>
+        <List.Item>
+          Linking to relevant courses to encourage students to find potential
+          research areas.
+        </List.Item>
+      </List> */}
       <Button
+        mt="md"
         component={Link}
         to="/upload-dissertation"
         style={{ marginBottom: "20px" }}
         leftSection={<IconUpload size={14} />}
       >
-        Upload New Dissertation
+        Add My Dissertation
       </Button>
 
-      <Group grow gap="md">
+      <Group gap="sm">
         <TextInput
+          autoFocus
           placeholder="Search dissertations..."
           value={searchQuery}
           onChange={event => setSearchQuery(event.currentTarget.value)}
           leftSection={<IconSearch size={16} />}
           rightSection={
-            <CloseButton
-              onClick={() => setSearchQuery("")}
-              style={{ display: searchQuery ? "block" : "none" }}
-            />
+            loading ? (
+              <Loader size="xs" />
+            ) : (
+              <CloseButton
+                onClick={() => setSearchQuery("")}
+                style={{ display: searchQuery ? "block" : "none" }}
+              />
+            )
           }
         />
         <Select
@@ -104,6 +135,7 @@ const DissertationListPage: React.FC = () => {
           clearable
         />
       </Group>
+      <Space h="md" />
 
       {error && (
         <Notification title="Error" color="red">
@@ -111,24 +143,38 @@ const DissertationListPage: React.FC = () => {
         </Notification>
       )}
 
-      {dissertations?.length === 0 && !loading && !error ? (
-        <Text ta="center">
-          No dissertations found. Be the first to upload one!
-        </Text>
-      ) : (
-        <Table striped highlightOnHover withTableBorder withColumnBorders>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Title</Table.Th>
-              <Table.Th>Field of Study</Table.Th>
-              <Table.Th>Supervisors</Table.Th>
-              <Table.Th>Year</Table.Th>
-              <Table.Th>Level</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>{rows}</Table.Tbody>
-        </Table>
-      )}
+      <div style={{ position: "relative" }}>
+        <Collapse
+          in={loading}
+          style={{ position: "absolute", top: 0, left: 0, right: 0 }}
+        >
+          <Progress value={100} animated striped />
+        </Collapse>
+
+        {dissertations?.length === 0 && !loading && !error ? (
+          <Text ta="center">
+            No dissertations found. Be the first to upload one!
+          </Text>
+        ) : (
+          <Table
+            striped={false}
+            highlightOnHover={false}
+            withTableBorder
+            withColumnBorders
+          >
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Title</Table.Th>
+                <Table.Th>Field of Study</Table.Th>
+                <Table.Th>Supervisors</Table.Th>
+                <Table.Th>Year</Table.Th>
+                <Table.Th>Level</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>{rows}</Table.Tbody>
+          </Table>
+        )}
+      </div>
     </Container>
   );
 };

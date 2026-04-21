@@ -131,7 +131,7 @@ const UploadDissertationPage: React.FC = () => {
   return (
     <Container size="xl">
       <Title order={2} mb="md">
-        Upload Your Dissertation
+        Upload a new Dissertation
       </Title>
       <Text>
         If you have written your dissertation and want to share it with the
