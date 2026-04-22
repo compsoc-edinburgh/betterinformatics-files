@@ -126,7 +126,7 @@ const DissertationDetailPage: React.FC = () => {
                   </Text>
                 </Stack>
 
-                <Group>
+                <Group wrap="nowrap">
                   <IconButton
                     color="gray"
                     icon={<IconDownload />}
