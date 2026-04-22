@@ -78,7 +78,7 @@ class DissertationUploadSchema(Schema):
     study_level: str
     grade_band: Optional[str] = None
     year: int
-    relevant_categories: List[str]
+    relevant_categories: str  # comma separated list of category slugs
 
 
 def redact_file(file: UploadedFile, words_to_redact: List[str]) -> str:
@@ -157,8 +157,8 @@ def upload_dissertation(
         year=year,
     )
 
-    categories = Category.objects.filter(slug__in=data.relevant_categories)
-    if len(categories) != len(data.relevant_categories):
+    categories = Category.objects.filter(slug__in=data.relevant_categories.split(","))
+    if len(categories) != len(data.relevant_categories.split(",")):
         return response.not_possible("One or more categories not found.")
     dissertation.relevant_categories.set(categories)
 
