@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useDissertations } from "../api/hooks";
 import {
-  Title,
   Text,
   Table,
   TextInput,
@@ -145,21 +144,4 @@ export const DissertationList: React.FC<Props> = ({ slug }) => {
   );
 };
 
-export const DissertationListWrapper: React.FC<Props> = ({ slug }) => {
-  return (
-    <>
-      <Title order={2} mb="md">
-        Relevant Dissertations
-      </Title>
-      <Text opacity={0.7} mb="md" size="sm">
-        Did you enjoy the contents of this course? You can check out
-        dissertations that have worked on related topics, which might help in
-        finding a dissertation topic or understanding what kind of work is being
-        done in this area.
-      </Text>
-      <DissertationList slug={slug} />
-    </>
-  );
-};
-
-export default DissertationListWrapper;
+export default DissertationList;
