@@ -49,6 +49,7 @@ import {
   useEditableMarkdownLink,
 } from "../utils/category-utils";
 import {
+  IconArrowRight,
   IconChevronRight,
   IconEdit,
   IconStar,
@@ -334,14 +335,30 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       <Title order={2} mb="md">
                         Relevant Dissertations
                       </Title>
-                      <Text opacity={0.7} mb="md" size="sm">
-                        Did you enjoy the contents of this course? You can check
-                        out dissertations that have worked on related topics,
-                        which might help in finding a dissertation topic or
-                        understanding what kind of work is being done in this
-                        area.
+                      <Text c="gray" size="sm">
+                        Did you enjoy the contents of this course?
                       </Text>
-                      <DissertationList slug={metaData.slug} />
+                      <Text c="gray" mb="md" size="sm">
+                        You can check out dissertations that students have
+                        claimed are related to this course. These might help in
+                        finding a dissertation topic, a supervisor, or
+                        understanding what kind of novel work is being done in
+                        this area.
+                      </Text>
+                      <DissertationList slug={metaData.slug} disableSearch />
+                      <Flex justify="flex-end" mt="md">
+                        <Anchor
+                          component={Link}
+                          to="/dissertations"
+                          fz="sm"
+                          c="blue"
+                        >
+                          <Group gap="sm">
+                            View Dissertations in All Categories{" "}
+                            <IconArrowRight />
+                          </Group>
+                        </Anchor>
+                      </Flex>
                     </Paper>
                   ) : null}
                 </Grid.Col>
