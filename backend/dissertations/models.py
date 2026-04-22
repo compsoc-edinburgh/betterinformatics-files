@@ -34,6 +34,9 @@ class Dissertation(models.Model):
         max_length=6, choices=GRADE_BAND_CHOICES, blank=True, null=True
     )
     year = models.IntegerField(default=2025)  # New field for dissertation year
+    relevant_categories = models.ManyToManyField(
+        "categories.Category", related_name="relevant_dissertations"
+    )
 
     def __str__(self):
         return self.title
