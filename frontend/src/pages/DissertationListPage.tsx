@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Title, Text, Button } from "@mantine/core";
+import { Container, Title, Text, Button, Anchor } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { IconUpload } from "@tabler/icons-react";
 import { DissertationList } from "../components/dissertation-list";
@@ -12,9 +12,13 @@ const DissertationListPage: React.FC = () => {
       </Title>
       <Text>
         The School of Informatics officially maintains{" "}
-        <Link to="https://project-archive.inf.ed.ac.uk/">
+        <Anchor
+          component={Link}
+          c="blue"
+          to="https://project-archive.inf.ed.ac.uk/"
+        >
           an internal archive
-        </Link>{" "}
+        </Anchor>{" "}
         of all dissertations submitted by students. However, this archive is
         only visible to staff members, and students can only see outstanding
         dissertations of past years. This page provides an alternative public

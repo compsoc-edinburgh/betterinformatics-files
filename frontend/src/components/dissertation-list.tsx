@@ -96,7 +96,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
               onChange={setSearchField}
               data={[
                 { value: "title", label: "Title" },
-                { value: "field_of_study", label: "Field of Study" },
+                { value: "field_of_study", label: "Topic" },
                 { value: "supervisors", label: "Supervisors" },
                 { value: "year", label: "Year" },
               ]}
@@ -135,7 +135,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Title</Table.Th>
-                <Table.Th>Field of Study</Table.Th>
+                <Table.Th>Topics</Table.Th>
                 <Table.Th>Supervisors</Table.Th>
                 <Table.Th>Year</Table.Th>
                 <Table.Th>Level</Table.Th>
