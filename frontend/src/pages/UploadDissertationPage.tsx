@@ -56,7 +56,7 @@ const UploadDissertationPage: React.FC = () => {
     validate: {
       title: (value: string) => (value ? null : "Title is required"),
       field_of_study: (value: string[]) =>
-        value.length > 0 ? null : "At least one field of study is required",
+        value.length > 0 ? null : "At least one topic is required",
       supervisors: (value: string) =>
         value ? null : "Supervisors are required",
       study_level: (value: string) =>
@@ -274,8 +274,8 @@ const UploadDissertationPage: React.FC = () => {
             />
 
             <TagsInput
-              label="Field of Study (Tags)"
-              description="Free-form tags. Feel free to choose whatever feels right."
+              label="Topic Tags"
+              description="Feel free to choose whatever feels right."
               placeholder="e.g., Education, Machine Learning, Computer Vision"
               mt="md"
               data={[]}
