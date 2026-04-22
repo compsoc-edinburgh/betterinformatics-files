@@ -190,6 +190,7 @@ export interface CategoryMetaData {
   answerprogress: number;
   attachments: Attachment[];
   favourite: boolean;
+  relevant_dissertation_count: number;
 }
 
 export interface CourseStats {

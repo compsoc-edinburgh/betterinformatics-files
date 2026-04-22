@@ -37,6 +37,7 @@ import {
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
+import DissertationList from "../components/dissertation-list";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
@@ -170,6 +171,11 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     { name: "Resources", id: "resources" },
     { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
     { name: "Grade Stats", id: "statistics" },
+    {
+      name: "Dissertations",
+      id: "dissertations",
+      count: metaData.relevant_dissertation_count,
+    },
   ]);
 
   const sessionString = bi_courses_data
@@ -321,6 +327,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           </List>
                         </>
                       )}
+                    </Paper>
+                  ) : tabs.currentTabId === "dissertations" ? (
+                    <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                      <DissertationList slug={metaData.slug} />
                     </Paper>
                   ) : null}
                 </Grid.Col>
