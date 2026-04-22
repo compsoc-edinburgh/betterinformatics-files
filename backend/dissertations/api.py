@@ -218,7 +218,12 @@ def redact_dissertation(
 
 @router.get("/", response=ValueWrapped[List[DissertationSchema]])
 @auth_check.require_login
-def list_dissertations(request, query: Union[str, int] = "", field: str = ""):
+def list_dissertations(
+    request,
+    query: Union[str, int] = "",
+    field: str = "",
+    category: Optional[str] = None,
+):
     dissertations = Dissertation.objects.all()
 
     if query:
@@ -243,6 +248,9 @@ def list_dissertations(request, query: Union[str, int] = "", field: str = ""):
                 | Q(supervisors__icontains=query)
                 | Q(year__icontains=query)
             )
+
+    if category:
+        dissertations = dissertations.filter(relevant_categories__slug=category)
 
     dissertations = dissertations.order_by("-upload_date")
     dissertations = dissertations.prefetch_related("uploaded_by")

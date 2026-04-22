@@ -916,20 +916,24 @@ export const getRedactionPreview = async (
   })).value;
 };
 
-export const loadDissertations = async (searchQuery: string, field: string) => {
+export const loadDissertations = async (searchQuery: string, field: string, category?: string) => {
   return (
     await fetchGet<{ value: Dissertation[] }>(
-      `/api/dissertations/?query=${encodeURIComponent(searchQuery)}&field=${encodeURIComponent(field)}`
+      `/api/dissertations/?${new URLSearchParams({
+        query: searchQuery,
+        field,
+        ...(category ? { category } : {}),
+      }).toString()}`,
     )
   ).value;
 };
 
-export const useDissertations = (searchQuery: string, field: string) => {
+export const useDissertations = (searchQuery: string, field: string, category?: string) => {
   const { error, loading, data } = useRequest(
-    () => loadDissertations(searchQuery, field),
+    () => loadDissertations(searchQuery, field, category),
     {
-      refreshDeps: [searchQuery, field],
-      cacheKey: `dissertations-${field}-${searchQuery}`,
+      refreshDeps: [searchQuery, field, category],
+      cacheKey: `dissertations-${field}-${searchQuery}-${category}`,
     },
   );
   return { error, loading, data } as const;
