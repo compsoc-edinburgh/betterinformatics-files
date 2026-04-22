@@ -172,11 +172,6 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     { name: "Resources", id: "resources" },
     { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
     { name: "Grade Stats", id: "statistics" },
-    {
-      name: "Dissertations",
-      id: "dissertations",
-      count: metaData.relevant_dissertation_count,
-    },
   ]);
 
   const sessionString = bi_courses_data
@@ -328,10 +323,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           </List>
                         </>
                       )}
-                    </Paper>
-                  ) : tabs.currentTabId === "dissertations" ? (
-                    <Paper withBorder p={{ base: "sm", sm: "md" }}>
-                      <Title order={2} mb="md">
+
+                      <Title order={2} mt="xl" mb="sm">
                         Relevant Dissertations
                       </Title>
                       <Text c="gray" size="sm">
