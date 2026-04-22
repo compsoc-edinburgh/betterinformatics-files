@@ -331,6 +331,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                     </Paper>
                   ) : tabs.currentTabId === "dissertations" ? (
                     <Paper withBorder p={{ base: "sm", sm: "md" }}>
+                      <Title order={2} mb="md">
+                        Relevant Dissertations
+                      </Title>
+                      <Text opacity={0.7} mb="md" size="sm">
+                        Did you enjoy the contents of this course? You can check
+                        out dissertations that have worked on related topics,
+                        which might help in finding a dissertation topic or
+                        understanding what kind of work is being done in this
+                        area.
+                      </Text>
                       <DissertationList slug={metaData.slug} />
                     </Paper>
                   ) : null}
