@@ -12,6 +12,7 @@ import {
   Table,
   Anchor,
   Breadcrumbs,
+  Stack,
 } from "@mantine/core";
 import { IconChevronRight } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
@@ -122,6 +123,26 @@ const DissertationDetailPage: React.FC = () => {
                   </Badge>
                 ))}
               </Group>
+            </Table.Td>
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th style={{ verticalAlign: "top" }}>
+              Relevant Courses
+            </Table.Th>
+            <Table.Td>
+              <Stack gap={4} align="flex-start">
+                {dissertation.relevant_categories.map((category, index) => (
+                  <Anchor
+                    fz="sm"
+                    c="blue"
+                    key={index}
+                    component={Link}
+                    to={`/category/${category.slug}`}
+                  >
+                    {category.displayname}
+                  </Anchor>
+                ))}
+              </Stack>
             </Table.Td>
           </Table.Tr>
           <Table.Tr>

@@ -413,6 +413,7 @@ export interface Dissertation {
   study_level: string;
   grade_band?: string;
   year: number;
+  relevant_categories: { slug: string; displayname: string }[];
 }
 
 export interface DissertationCreate {
@@ -424,6 +425,7 @@ export interface DissertationCreate {
   study_level: string;
   grade_band?: string;
   year: number;
+  relevant_categories: string[];
 }
 
 export type DissertationUpdate = Partial<DissertationCreate>;
