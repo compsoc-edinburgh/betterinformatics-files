@@ -6,6 +6,7 @@ from typing import Generic, List, Optional, TypeVar, Union
 
 from django.shortcuts import get_object_or_404
 from django.conf import settings
+from categories.models import Category
 from util import response, s3_util
 from ediauth import auth_check
 from .models import Dissertation
@@ -35,6 +36,11 @@ class ValueWrapped(Schema, Generic[T]):
 class DissertationSchema(ModelSchema):
     uploaded_by: Optional[str] = Field(None, alias="uploaded_by.username")
     upload_date: str = Field(..., alias="upload_date.isoformat")
+    relevant_categories: List[str]
+
+    @staticmethod
+    def resolve_relevant_categories(dissertation: Dissertation) -> List[str]:
+        return list(dissertation.relevant_categories.values_list("slug", flat=True))
 
     class Meta:
         model = Dissertation
@@ -62,6 +68,7 @@ class DissertationUploadSchema(Schema):
     study_level: str
     grade_band: Optional[str] = None
     year: int
+    relevant_categories: List[str]
 
 
 def redact_file(file: UploadedFile, words_to_redact: List[str]) -> str:
@@ -139,6 +146,12 @@ def upload_dissertation(
         grade_band=grade_band,
         year=year,
     )
+
+    categories = Category.objects.filter(slug__in=data.relevant_categories)
+    if len(categories) != len(data.relevant_categories):
+        return response.not_possible("One or more categories not found.")
+    dissertation.relevant_categories.set(categories)
+
     return {"value": dissertation}
 
 
@@ -272,6 +285,12 @@ def update_dissertation(
         return response.not_allowed()
 
     for attr, value in data.items():
+        if attr == "relevant_categories":
+            categories = Category.objects.filter(slug__in=value)
+            if len(categories) != len(value):
+                return response.not_possible("One or more categories not found.")
+            dissertation.relevant_categories.set(categories)
+            continue
         setattr(dissertation, attr, value)
 
     if pdf_file:
