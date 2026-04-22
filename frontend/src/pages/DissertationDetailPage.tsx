@@ -110,7 +110,7 @@ const DissertationDetailPage: React.FC = () => {
       >
         <Table.Tbody>
           <Table.Tr>
-            <Table.Th w={160}>Topics</Table.Th>
+            <Table.Th w={160}>Topic Tags</Table.Th>
             <Table.Td>
               <Group gap={4}>
                 {dissertation.field_of_study.split(",").map((field, index) => (
