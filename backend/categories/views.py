@@ -151,7 +151,7 @@ def list_exams(request, slug):
     return response.success(value=res)
 
 
-def get_category_data(request, cat):
+def get_category_data(request, cat: Category):
     res = {
         "displayname": cat.displayname,
         "slug": cat.slug,
@@ -179,6 +179,7 @@ def get_category_data(request, cat):
             ],
             key=lambda x: x["displayname"],
         ),
+        "relevant_dissertation_count": cat.relevant_dissertations.count(),
     }
     if auth_check.has_admin_rights_for_category(request, cat):
         res["admins"] = list(cat.admins.all().values_list("username", flat=True))
@@ -487,16 +488,18 @@ def list_euclid_codes(request):
 @auth_check.require_login
 def get_course_stats(request, slug):
     cat = get_object_or_404(Category, slug=slug)
-    
+
     # Get all Euclid codes for this category
     euclid_codes = list(cat.euclid_codes.all().values_list("code", flat=True))
-    
+
     if not euclid_codes:
         return response.success(value=[])
-    
+
     # Get course stats for all Euclid codes associated with this category
-    stats = CourseStats.objects.filter(course_code__in=euclid_codes).order_by('course_code', 'academic_year')
-    
+    stats = CourseStats.objects.filter(course_code__in=euclid_codes).order_by(
+        "course_code", "academic_year"
+    )
+
     res = [
         {
             "course_name": stat.course_name,
@@ -508,5 +511,5 @@ def get_course_stats(request, slug):
         }
         for stat in stats
     ]
-    
+
     return response.success(value=res)
