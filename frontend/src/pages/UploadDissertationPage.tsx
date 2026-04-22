@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -19,10 +19,15 @@ import {
   Collapse,
   Loader,
   Divider,
+  MultiSelect,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRequest } from "ahooks";
-import { getRedactionPreview, uploadDissertation } from "../api/hooks";
+import {
+  getRedactionPreview,
+  loadCategories,
+  uploadDissertation,
+} from "../api/hooks";
 import serverData from "../utils/server-data";
 
 const UploadDissertationPage: React.FC = () => {
@@ -31,6 +36,21 @@ const UploadDissertationPage: React.FC = () => {
     string | null
   >(null);
   const [warningExpanded, setWarningExpanded] = useState(false);
+
+  const {
+    error: categoriesError,
+    loading: categoriesLoading,
+    data: categories,
+  } = useRequest(loadCategories);
+
+  const options = useMemo(
+    () =>
+      categories?.map(category => ({
+        value: category.slug,
+        label: category.displayname,
+      })) ?? [],
+    [categories],
+  );
 
   const previewForm = useForm({
     initialValues: {
@@ -51,12 +71,11 @@ const UploadDissertationPage: React.FC = () => {
       study_level: "",
       grade_band: undefined as string | undefined, // Optional grade band
       year: new Date().getFullYear(), // Default to current year
+      relevant_categories: [] as string[],
     },
 
     validate: {
       title: (value: string) => (value ? null : "Title is required"),
-      field_of_study: (value: string[]) =>
-        value.length > 0 ? null : "At least one topic is required",
       supervisors: (value: string) =>
         value ? null : "Supervisors are required",
       study_level: (value: string) =>
@@ -111,6 +130,7 @@ const UploadDissertationPage: React.FC = () => {
       study_level: values.study_level,
       grade_band: values.grade_band,
       year: values.year,
+      relevant_categories: values.relevant_categories,
     });
   };
 
@@ -273,15 +293,36 @@ const UploadDissertationPage: React.FC = () => {
               required
             />
 
+            {categoriesError ? (
+              <Notification title="Category Error" color="red" mt="md">
+                Failed to load list of categories to link to. You can do this
+                after uploading. Error details: {String(categoriesError)}
+              </Notification>
+            ) : (
+              <MultiSelect
+                label="Relevant Categories"
+                description="Select courses that you think helped you the most in this dissertation. This will help future students find relevant dissertations when browsing by course."
+                placeholder="Choose..."
+                searchable
+                mt="md"
+                nothingFoundMessage="No category found"
+                data={options}
+                {...form.getInputProps("relevant_categories")}
+                required
+                rightSection={
+                  categoriesLoading ? <Loader size="xs" /> : undefined
+                }
+              />
+            )}
+
             <TagsInput
               label="Topic Tags"
-              description="Feel free to choose whatever feels right."
+              description="OPTIONAL. Comma-separated. Feel free to write whatever feels appropriate."
               placeholder="e.g., Education, Machine Learning, Computer Vision"
               mt="md"
               data={[]}
               {...form.getInputProps("field_of_study")}
               clearable
-              required
             />
 
             <TextInput
