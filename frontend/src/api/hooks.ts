@@ -934,3 +934,11 @@ export const useDissertations = (searchQuery: string, field: string) => {
   );
   return { error, loading, data } as const;
 };
+
+export const loadDissertation = async (id: number) => {
+  return (await fetchGet<{ value: Dissertation }>(`/api/dissertations/${id}/`)).value;
+}
+
+export const loadDissertationPdf = async (id: number) => {
+  return (await fetchGet<{ value: string }>(`/api/dissertations/${id}/download/`)).value;
+}

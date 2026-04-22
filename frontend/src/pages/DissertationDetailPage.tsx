@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React from "react";
+import { Link, useParams } from "react-router-dom";
 import {
   Container,
   Title,
@@ -8,64 +8,38 @@ import {
   Notification,
   Paper,
   Group,
-  Stack,
   Badge,
+  Table,
+  Anchor,
+  Breadcrumbs,
 } from "@mantine/core";
-import { fetchGet } from "../api/fetch-utils";
-import {
-  IconBook,
-  IconUsers,
-  IconCalendar,
-  IconFileDescription,
-} from "@tabler/icons-react";
-import { Dissertation } from "../interfaces";
+import { IconChevronRight } from "@tabler/icons-react";
+import { useRequest } from "ahooks";
+import { loadDissertation, loadDissertationPdf } from "../api/hooks";
+import useTitle from "../hooks/useTitle";
 
 const DissertationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [dissertation, setDissertation] = useState<Dissertation | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchDissertationAndPdf = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const dissertationResponse = await fetchGet(
-          `/api/dissertations/${id}/`,
-        );
-        if (dissertationResponse.value) {
-          setDissertation(dissertationResponse.value);
+  const {
+    loading: dissertationLoading,
+    data: dissertation,
+    error: dissertationError,
+  } = useRequest(() => loadDissertation(Number(id)), {
+    refreshDeps: [id],
+  });
 
-          const pdfResponse = await fetchGet(
-            `/api/dissertations/${id}/download/`,
-          );
-          if (pdfResponse.value) {
-            setPdfUrl(pdfResponse.value);
-          } else {
-            setError(pdfResponse.error || "Failed to get PDF URL.");
-          }
-        } else {
-          setError(
-            dissertationResponse.error ||
-              "Failed to fetch dissertation details.",
-          );
-        }
-      } catch (err: any) {
-        setError(
-          err.message ||
-            "Network error while fetching dissertation details or PDF URL.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+  const {
+    loading: pdfLoading,
+    data: pdfUrl,
+    error: pdfError,
+  } = useRequest(() => loadDissertationPdf(Number(id)), {
+    refreshDeps: [id],
+  });
 
-    fetchDissertationAndPdf();
-  }, [id]);
+  useTitle(dissertation ? dissertation.title : `Dissertation #${id}`);
 
-  if (loading) {
+  if (dissertationLoading || pdfLoading) {
     return (
       <Container
         size="xl"
@@ -77,11 +51,11 @@ const DissertationDetailPage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (dissertationError || pdfError) {
     return (
       <Container size="xl" mt="xl">
         <Notification title="Error" color="red">
-          {error}
+          {String(dissertationError) || String(pdfError)}
         </Notification>
       </Container>
     );
@@ -98,63 +72,87 @@ const DissertationDetailPage: React.FC = () => {
   }
 
   return (
-    <Container size="xl" mt="xl">
-      <Title order={2} ta="center" mb="xl">
-        {dissertation.title}
-      </Title>
+    <Container size="xl">
+      <Breadcrumbs
+        mb="sm"
+        separator={<IconChevronRight />}
+        styles={{
+          breadcrumb: {
+            minWidth: 0,
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <Anchor tt="uppercase" size="xs" component={Link} to="/">
+          Home
+        </Anchor>
+        <Anchor tt="uppercase" size="xs" component={Link} to="/dissertations">
+          Dissertations
+        </Anchor>
+        <Anchor tt="uppercase" size="xs">
+          {dissertation.title}
+        </Anchor>
+      </Breadcrumbs>
+      <Title order={1}>{dissertation.title}</Title>
+      <Text size="lg" mb="md" c="dimmed">
+        {dissertation.uploaded_by} - {dissertation.year}{" "}
+        {dissertation.study_level} Dissertation
+      </Text>
 
-      <Paper shadow="sm" p="lg" mb="xl" withBorder>
-        <Stack gap="sm">
-          <Group align="center">
-            <IconBook size={20} />
-            <Text fw={500}>Field of Study:</Text>
-            <Group gap={4}>
-              {dissertation.field_of_study.split(",").map((field, index) => (
-                <Badge key={index} variant="light">
-                  {field.trim()}
-                </Badge>
-              ))}
-            </Group>
-          </Group>
-          <Group>
-            <IconUsers size={20} />
-            <Text fw={500}>Supervisors:</Text>
-            <Text>{dissertation.supervisors}</Text>
-          </Group>
-          <Group>
-            <IconCalendar size={20} />
-            <Text fw={500}>Year:</Text>
-            <Text>{dissertation.year}</Text>
-          </Group>
-          <Group>
-            <IconFileDescription size={20} />
-            <Text fw={500}>Uploaded By:</Text>
-            <Text>{dissertation.uploaded_by}</Text>
-          </Group>
-          <Group>
-            <IconBook size={20} />
-            <Text fw={500}>Study Level:</Text>
-            <Text>{dissertation.study_level}</Text>
-          </Group>
-          {dissertation.grade_band && (
-            <Group>
-              <IconBook size={20} />
-              <Text fw={500}>Grade Band:</Text>
-              <Text>{dissertation.grade_band}</Text>
-            </Group>
-          )}
-          {dissertation.notes && (
-            <Stack gap={4}>
-              <Text fw={500}>Notes:</Text>
-              <Text>{dissertation.notes}</Text>
-            </Stack>
-          )}
-        </Stack>
-      </Paper>
+      <Table
+        layout="fixed"
+        variant="vertical"
+        verticalSpacing="4px"
+        withTableBorder
+        mb="xs"
+      >
+        <Table.Tbody>
+          <Table.Tr>
+            <Table.Th w={160}>Topics</Table.Th>
+            <Table.Td>
+              <Group gap={4}>
+                {dissertation.field_of_study.split(",").map((field, index) => (
+                  <Badge
+                    key={index}
+                    variant="light"
+                    style={{ cursor: "pointer" }}
+                  >
+                    {field.trim()}
+                  </Badge>
+                ))}
+              </Group>
+            </Table.Td>
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th>Primary Supervisors</Table.Th>
+            <Table.Td>{dissertation.supervisors}</Table.Td>
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th>Year Written</Table.Th>
+            <Table.Td>{dissertation.year}</Table.Td>
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th>Uploaded By</Table.Th>
+            <Table.Td>{dissertation.uploaded_by}</Table.Td>
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th>Dissertation Level</Table.Th>
+            <Table.Td>{dissertation.study_level}</Table.Td>
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th>Received Grade Band</Table.Th>
+            {dissertation.grade_band && (
+              <Table.Td>{dissertation.grade_band}</Table.Td>
+            )}
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th>Additional Notes</Table.Th>
+            {dissertation.notes && <Table.Td>{dissertation.notes}</Table.Td>}
+          </Table.Tr>
+        </Table.Tbody>
+      </Table>
 
-      <Title order={3} ta="center" mb="md">
-        PDF Viewer
-      </Title>
       <Paper shadow="sm" p="sm" withBorder style={{ height: "80vh" }}>
         {pdfUrl ? (
           <iframe
