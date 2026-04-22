@@ -42,6 +42,7 @@ class DissertationSchema(ModelSchema):
     uploaded_by: Optional[str] = Field(None, alias="uploaded_by.username")
     upload_date: str = Field(..., alias="upload_date.isoformat")
     relevant_categories: List[SlugDisplayNameSchema]
+    can_edit: bool
 
     @staticmethod
     def resolve_relevant_categories(
@@ -51,6 +52,12 @@ class DissertationSchema(ModelSchema):
             SlugDisplayNameSchema(slug=category.slug, displayname=category.displayname)
             for category in dissertation.relevant_categories.all()
         ]
+
+    @staticmethod
+    def resolve_can_edit(dissertation: Dissertation, context) -> bool:
+        is_admin = auth_check.has_admin_rights(context["request"])
+        is_owner = dissertation.uploaded_by == context["request"].user
+        return is_admin or is_owner
 
     class Meta:
         model = Dissertation

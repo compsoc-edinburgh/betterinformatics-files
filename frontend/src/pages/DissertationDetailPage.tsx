@@ -111,7 +111,9 @@ const DissertationDetailPage: React.FC = () => {
       <Routes>
         <Route
           path="edit"
-          element={!user?.isAdmin ? <Navigate to="." replace /> : <h1>hi</h1>}
+          element={
+            !dissertation.can_edit ? <Navigate to="." replace /> : <h1>hi</h1>
+          }
         />
         <Route
           path="/"
@@ -133,8 +135,7 @@ const DissertationDetailPage: React.FC = () => {
                     tooltip="Download"
                     onClick={() => window.open(pdfUrl, "_blank")}
                   />
-                  {(user?.username === dissertation.uploaded_by ||
-                    user?.isAdmin) && (
+                  {dissertation.can_edit && (
                     <>
                       <IconButton
                         color="gray"

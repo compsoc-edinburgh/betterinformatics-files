@@ -407,6 +407,7 @@ export interface Dissertation {
   grade_band?: string;
   year: number;
   relevant_categories: { slug: string; displayname: string }[];
+  can_edit: boolean;
 }
 
 export interface DissertationCreate {
