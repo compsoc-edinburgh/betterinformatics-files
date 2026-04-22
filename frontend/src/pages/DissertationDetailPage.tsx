@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Title,
@@ -13,14 +13,19 @@ import {
   Anchor,
   Breadcrumbs,
   Stack,
+  Flex,
 } from "@mantine/core";
-import { IconChevronRight } from "@tabler/icons-react";
+import { IconChevronRight, IconDownload, IconEdit } from "@tabler/icons-react";
 import { useRequest } from "ahooks";
 import { loadDissertation, loadDissertationPdf } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
+import IconButton from "../components/icon-button";
+import { useUser } from "../auth";
 
 const DissertationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const user = useUser();
 
   const {
     loading: dissertationLoading,
@@ -95,11 +100,35 @@ const DissertationDetailPage: React.FC = () => {
           {dissertation.title}
         </Anchor>
       </Breadcrumbs>
-      <Title order={1}>{dissertation.title}</Title>
-      <Text size="lg" mb="md" c="dimmed">
-        {dissertation.uploaded_by} - {dissertation.year}{" "}
-        {dissertation.study_level} Dissertation
-      </Text>
+
+      <Flex justify="space-between">
+        <Stack gap={0}>
+          <Title order={1}>{dissertation.title}</Title>
+          <Text size="lg" mb="md" c="dimmed">
+            {dissertation.uploaded_by} - {dissertation.year}{" "}
+            {dissertation.study_level} Dissertation
+          </Text>
+        </Stack>
+
+        <Group>
+          <IconButton
+            color="gray"
+            icon={<IconDownload />}
+            tooltip="Download"
+            onClick={() => window.open(pdfUrl, "_blank")}
+          />
+          {(user?.username === dissertation.uploaded_by || user?.isAdmin) && (
+            <>
+              <IconButton
+                color="gray"
+                icon={<IconEdit />}
+                tooltip="Edit"
+                onClick={() => navigate("edit")}
+              />
+            </>
+          )}
+        </Group>
+      </Flex>
 
       <Table
         layout="fixed"

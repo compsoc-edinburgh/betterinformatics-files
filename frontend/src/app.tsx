@@ -331,7 +331,7 @@ const App: React.FC = () => {
                         element={<DissertationListPage />}
                       />
                       <Route
-                        path="/dissertations/:id"
+                        path="/dissertations/:id/*"
                         element={<DissertationDetailPage />}
                       />
                       <Route path="/faq" element={<FAQ />} />
