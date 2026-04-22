@@ -33,14 +33,24 @@ class ValueWrapped(Schema, Generic[T]):
     value: T
 
 
+class SlugDisplayNameSchema(Schema):
+    slug: str
+    displayname: str
+
+
 class DissertationSchema(ModelSchema):
     uploaded_by: Optional[str] = Field(None, alias="uploaded_by.username")
     upload_date: str = Field(..., alias="upload_date.isoformat")
-    relevant_categories: List[str]
+    relevant_categories: List[SlugDisplayNameSchema]
 
     @staticmethod
-    def resolve_relevant_categories(dissertation: Dissertation) -> List[str]:
-        return list(dissertation.relevant_categories.values_list("slug", flat=True))
+    def resolve_relevant_categories(
+        dissertation: Dissertation,
+    ) -> List[SlugDisplayNameSchema]:
+        return [
+            SlugDisplayNameSchema(slug=category.slug, displayname=category.displayname)
+            for category in dissertation.relevant_categories.all()
+        ]
 
     class Meta:
         model = Dissertation
