@@ -145,27 +145,27 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
           <Progress value={100} animated striped />
         </Collapse>
 
-        {dissertations?.length === 0 && !loading && !error ? (
-          <Text ta="center">
-            No dissertations found. Be the first to upload one!
-          </Text>
-        ) : (
-          <Table
-            striped={false}
-            highlightOnHover={false}
-            withTableBorder
-            withColumnBorders
-          >
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Title</Table.Th>
-                <Table.Th w="320">Relevance</Table.Th>
-                <Table.Th w="160">Supervisors</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
-        )}
+        {!loading &&
+          !error &&
+          (dissertations?.length === 0 ? (
+            <Text>No dissertations found. :(</Text>
+          ) : (
+            <Table
+              striped={false}
+              highlightOnHover={false}
+              withTableBorder
+              withColumnBorders
+            >
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Title</Table.Th>
+                  <Table.Th w="320">Relevance</Table.Th>
+                  <Table.Th w="160">Supervisors</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{rows}</Table.Tbody>
+            </Table>
+          ))}
       </div>
     </>
   );
