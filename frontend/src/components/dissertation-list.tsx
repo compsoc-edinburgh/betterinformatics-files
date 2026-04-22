@@ -14,6 +14,7 @@ import {
   Collapse,
   Progress,
   Notification,
+  Stack,
 } from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -42,27 +43,49 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
     return dissertations
       ? dissertations.map(dissertation => (
           <Table.Tr key={dissertation.id}>
-            <Table.Td>
+            <Table.Td height="1px">
               <Anchor
+                h="100%"
+                display="block"
                 component={Link}
                 to={`/dissertations/${dissertation.id}`}
-                style={{ textDecorationLine: "underline", color: "inherit" }}
               >
                 {dissertation.title}
               </Anchor>
             </Table.Td>
-            <Table.Td>
-              <Group gap={4}>
-                {dissertation.field_of_study.split(",").map((field, index) => (
-                  <Badge key={index} variant="light">
-                    {field.trim()}
-                  </Badge>
+            <Table.Td valign="top">
+              <Stack gap={0} align="flex-start">
+                {dissertation.relevant_categories.map((category, index) => (
+                  <Text fz="sm" key={index}>
+                    Course:{" "}
+                    <Anchor
+                      fz="sm"
+                      c="blue"
+                      component={Link}
+                      to={`/category/${category.slug}`}
+                    >
+                      {category.displayname}
+                    </Anchor>
+                  </Text>
                 ))}
-              </Group>
+                <Text fz="sm">
+                  Tags:{" "}
+                  {dissertation.field_of_study
+                    .split(",")
+                    .map(t => t.trim())
+                    .join(", ")}
+                </Text>
+              </Stack>
             </Table.Td>
-            <Table.Td>{dissertation.supervisors}</Table.Td>
-            <Table.Td>{dissertation.year}</Table.Td>
-            <Table.Td>{dissertation.study_level}</Table.Td>
+            <Table.Td valign="top">
+              {dissertation.supervisors.split(",").map((supervisor, index) => (
+                <Text fz="sm" key={index}>
+                  {supervisor.trim()}
+                </Text>
+              ))}
+            </Table.Td>
+            <Table.Td valign="top">{dissertation.year}</Table.Td>
+            <Table.Td valign="top">{dissertation.study_level}</Table.Td>
           </Table.Tr>
         ))
       : [];
@@ -135,8 +158,8 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Title</Table.Th>
-                <Table.Th>Topics</Table.Th>
-                <Table.Th>Supervisors</Table.Th>
+                <Table.Th w="320">Relevance</Table.Th>
+                <Table.Th w="160">Supervisors</Table.Th>
                 <Table.Th>Year</Table.Th>
                 <Table.Th>Level</Table.Th>
               </Table.Tr>
