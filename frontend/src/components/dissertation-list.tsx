@@ -151,6 +151,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
             <Text>No dissertations found. :(</Text>
           ) : (
             <Table
+              style={{ backgroundColor: "var(--mantine-color-body)" }}
               striped={false}
               highlightOnHover={false}
               withTableBorder

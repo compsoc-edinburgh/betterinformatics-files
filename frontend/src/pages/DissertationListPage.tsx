@@ -10,48 +10,50 @@ import {
 import { Link } from "react-router-dom";
 import { IconChevronRight, IconUpload } from "@tabler/icons-react";
 import { DissertationList } from "../components/dissertation-list";
+import ContentContainer from "../components/secondary-container";
 
 const DissertationListPage: React.FC = () => {
   return (
-    <Container size="xl" style={{ position: "relative" }}>
-      <Breadcrumbs
-        mb="sm"
-        separator={<IconChevronRight />}
-        styles={{
-          breadcrumb: {
-            minWidth: 0,
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-          },
-        }}
-      >
-        <Anchor tt="uppercase" size="xs" component={Link} to="/">
-          Home
-        </Anchor>
-        <Anchor tt="uppercase" size="xs" component={Link} to="/dissertations">
-          Dissertations
-        </Anchor>
-      </Breadcrumbs>
-      <Title order={2} mb="sm">
-        Dissertation Archive
-      </Title>
-      <Text>
-        The School of Informatics officially maintains{" "}
-        <Anchor
-          component={Link}
-          c="blue"
-          to="https://project-archive.inf.ed.ac.uk/"
+    <>
+      <Container size="xl" style={{ position: "relative" }}>
+        <Breadcrumbs
+          mb="sm"
+          separator={<IconChevronRight />}
+          styles={{
+            breadcrumb: {
+              minWidth: 0,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+            },
+          }}
         >
-          an internal archive
-        </Anchor>{" "}
-        of all dissertations submitted by students. However, this archive is
-        only visible to staff members, and students can only see outstanding
-        dissertations of past years. This page provides an alternative public
-        archive of dissertations by students who have consented to share their
-        work. If you are a student and would like to share your dissertation,
-        please use the &ldquo;Upload New Dissertation&rdquo; button below.
-      </Text>
-      {/* <Space h="md" /><Text>
+          <Anchor tt="uppercase" size="xs" component={Link} to="/">
+            Home
+          </Anchor>
+          <Anchor tt="uppercase" size="xs" component={Link} to="/dissertations">
+            Dissertations
+          </Anchor>
+        </Breadcrumbs>
+        <Title order={2} mb="sm">
+          Dissertation Archive
+        </Title>
+        <Text>
+          The School of Informatics officially maintains{" "}
+          <Anchor
+            component={Link}
+            c="blue"
+            to="https://project-archive.inf.ed.ac.uk/"
+          >
+            an internal archive
+          </Anchor>{" "}
+          of all dissertations submitted by students. However, this archive is
+          only visible to staff members, and students can only see outstanding
+          dissertations of past years. This page provides an alternative public
+          archive of dissertations by students who have consented to share their
+          work. If you are a student and would like to share your dissertation,
+          please use the &ldquo;Add My Dissertation&rdquo; button below.
+        </Text>
+        {/* <Space h="md" /><Text>
         In addition, our dissertation archive has nifty features not present in
         the official one, including:
       </Text>
@@ -62,18 +64,23 @@ const DissertationListPage: React.FC = () => {
           research areas.
         </List.Item>
       </List> */}
-      <Button
-        mt="md"
-        component={Link}
-        to="/upload-dissertation"
-        style={{ marginBottom: "20px" }}
-        leftSection={<IconUpload size={14} />}
-      >
-        Add My Dissertation
-      </Button>
+        <Button
+          mt="md"
+          component={Link}
+          to="/upload-dissertation"
+          style={{ marginBottom: "20px" }}
+          leftSection={<IconUpload size={14} />}
+        >
+          Add My Dissertation
+        </Button>
+      </Container>
 
-      <DissertationList />
-    </Container>
+      <ContentContainer>
+        <Container size="xl" mt="md">
+          <DissertationList />
+        </Container>
+      </ContentContainer>
+    </>
   );
 };
 
