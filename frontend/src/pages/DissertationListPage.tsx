@@ -1,13 +1,38 @@
 import React from "react";
-import { Container, Title, Text, Button, Anchor } from "@mantine/core";
+import {
+  Container,
+  Title,
+  Text,
+  Button,
+  Anchor,
+  Breadcrumbs,
+} from "@mantine/core";
 import { Link } from "react-router-dom";
-import { IconUpload } from "@tabler/icons-react";
+import { IconChevronRight, IconUpload } from "@tabler/icons-react";
 import { DissertationList } from "../components/dissertation-list";
 
 const DissertationListPage: React.FC = () => {
   return (
-    <Container size="xl" mt="xl" style={{ position: "relative" }}>
-      <Title order={2} mb="md">
+    <Container size="xl" style={{ position: "relative" }}>
+      <Breadcrumbs
+        mb="sm"
+        separator={<IconChevronRight />}
+        styles={{
+          breadcrumb: {
+            minWidth: 0,
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <Anchor tt="uppercase" size="xs" component={Link} to="/">
+          Home
+        </Anchor>
+        <Anchor tt="uppercase" size="xs" component={Link} to="/dissertations">
+          Dissertations
+        </Anchor>
+      </Breadcrumbs>
+      <Title order={2} mb="sm">
         Dissertation Archive
       </Title>
       <Text>
