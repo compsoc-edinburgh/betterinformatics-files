@@ -68,7 +68,6 @@ const DissertationListPage: React.FC = () => {
           mt="md"
           component={Link}
           to="/upload-dissertation"
-          style={{ marginBottom: "20px" }}
           leftSection={<IconUpload size={14} />}
         >
           Add My Dissertation

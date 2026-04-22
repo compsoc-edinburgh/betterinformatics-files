@@ -6,7 +6,6 @@ import {
   TextInput,
   Group,
   Anchor,
-  Badge,
   Loader,
   CloseButton,
   Select,
