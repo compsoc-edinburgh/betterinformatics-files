@@ -21,9 +21,10 @@ import { Link } from "react-router-dom";
 
 interface Props {
   slug?: string;
+  disableSearch?: boolean;
 }
 
-export const DissertationList: React.FC<Props> = ({ slug }) => {
+export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
   const [searchField, setSearchField] = useState<string | null>("title");
@@ -69,38 +70,42 @@ export const DissertationList: React.FC<Props> = ({ slug }) => {
 
   return (
     <>
-      <Group gap="sm">
-        <TextInput
-          autoFocus
-          placeholder="Search dissertations..."
-          value={searchQuery}
-          onChange={event => setSearchQuery(event.currentTarget.value)}
-          leftSection={<IconSearch size={16} />}
-          rightSection={
-            loading ? (
-              <Loader size="xs" />
-            ) : (
-              <CloseButton
-                onClick={() => setSearchQuery("")}
-                style={{ display: searchQuery ? "block" : "none" }}
-              />
-            )
-          }
-        />
-        <Select
-          placeholder="Search by..."
-          value={searchField}
-          onChange={setSearchField}
-          data={[
-            { value: "title", label: "Title" },
-            { value: "field_of_study", label: "Field of Study" },
-            { value: "supervisors", label: "Supervisors" },
-            { value: "year", label: "Year" },
-          ]}
-          clearable
-        />
-      </Group>
-      <Space h="md" />
+      {!disableSearch && (
+        <>
+          <Group gap="sm">
+            <TextInput
+              autoFocus
+              placeholder="Search dissertations..."
+              value={searchQuery}
+              onChange={event => setSearchQuery(event.currentTarget.value)}
+              leftSection={<IconSearch size={16} />}
+              rightSection={
+                loading ? (
+                  <Loader size="xs" />
+                ) : (
+                  <CloseButton
+                    onClick={() => setSearchQuery("")}
+                    style={{ display: searchQuery ? "block" : "none" }}
+                  />
+                )
+              }
+            />
+            <Select
+              placeholder="Search by..."
+              value={searchField}
+              onChange={setSearchField}
+              data={[
+                { value: "title", label: "Title" },
+                { value: "field_of_study", label: "Field of Study" },
+                { value: "supervisors", label: "Supervisors" },
+                { value: "year", label: "Year" },
+              ]}
+              clearable
+            />
+          </Group>
+          <Space h="md" />
+        </>
+      )}
 
       {error && (
         <Notification title="Error" color="red">
