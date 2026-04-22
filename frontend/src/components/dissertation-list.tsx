@@ -50,7 +50,10 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
                 component={Link}
                 to={`/dissertations/${dissertation.id}`}
               >
-                {dissertation.title}
+                <Text>{dissertation.title}</Text>
+                <Text size="sm" c="dimmed">
+                  {dissertation.year} {dissertation.study_level} Dissertation
+                </Text>
               </Anchor>
             </Table.Td>
             <Table.Td valign="top">
@@ -84,8 +87,6 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
                 </Text>
               ))}
             </Table.Td>
-            <Table.Td valign="top">{dissertation.year}</Table.Td>
-            <Table.Td valign="top">{dissertation.study_level}</Table.Td>
           </Table.Tr>
         ))
       : [];
@@ -160,8 +161,6 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
                 <Table.Th>Title</Table.Th>
                 <Table.Th w="320">Relevance</Table.Th>
                 <Table.Th w="160">Supervisors</Table.Th>
-                <Table.Th>Year</Table.Th>
-                <Table.Th>Level</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
