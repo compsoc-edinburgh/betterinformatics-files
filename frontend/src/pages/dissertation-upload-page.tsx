@@ -30,7 +30,7 @@ import {
 } from "../api/hooks";
 import serverData from "../utils/server-data";
 
-const UploadDissertationPage: React.FC = () => {
+const DissertationUploadPage: React.FC = () => {
   const navigate = useNavigate();
   const [clientValidationError, setClientValidationError] = useState<
     string | null
@@ -416,4 +416,4 @@ const UploadDissertationPage: React.FC = () => {
   );
 };
 
-export default UploadDissertationPage;
+export default DissertationUploadPage;
