@@ -26,6 +26,7 @@ const makeVsethTheme = (newPrimaryColor?: MantineColorsTuple | string) => {
       brand,
       vsethGray: new Array(10).fill("rgb(144, 146, 150)") as any,
     },
+    defaultRadius: "sm",
     primaryColor: "brand",
     autoContrast: true,
     cursorType: "pointer",

@@ -7,7 +7,7 @@ import {
   Modal,
   Text,
 } from "@mantine/core";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { imageHandler } from "../api/fetch-utils";
@@ -135,11 +135,11 @@ const DocumentCommentComponent = ({
                   <Text fw={700} component="span">
                     {comment.authorDisplayName}
                   </Text>
-                  <Text ml="0.25em" color="dimmed" component="span">
+                  <Text ml="0.25em" c="dimmed" component="span">
                     @{comment.authorId}
                   </Text>
                 </Anchor>
-                <Text component="span" mx={6} color="dimmed">
+                <Text component="span" mx={6} c="dimmed">
                   ·
                 </Text>
                 {comment && <TimeText time={comment.time} suffix="ago" />}
@@ -149,7 +149,7 @@ const DocumentCommentComponent = ({
                     new Date(comment.time),
                   ) > 1 && (
                     <>
-                      <Text component="span" color="dimmed" mx={6}>
+                      <Text component="span" c="dimmed" mx={6}>
                         ·
                       </Text>
                       <TimeText

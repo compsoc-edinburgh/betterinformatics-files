@@ -36,7 +36,7 @@ const CollapseWrapper: React.FC<Props> = ({
         </Group>
         {contentOutsideCollapse}
       </Group>
-      <Collapse in={!is_collapsed()}>{contentInsideCollapse}</Collapse>
+      <Collapse expanded={!is_collapsed()}>{contentInsideCollapse}</Collapse>
     </>
   );
 };
