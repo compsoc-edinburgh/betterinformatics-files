@@ -64,7 +64,7 @@ jobs:
       - name: Install mc
         # Install mc so that we can create the community-solutions bucket in minio
         run: |
-          curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
+          curl https://dl.min.io/aistor/mc/release/linux-amd64/mc --create-dirs -o mc
           chmod +x ./mc
           ./mc alias set myminio http://minio:9000 minio minio123
           ./mc mb myminio/community-solutions
