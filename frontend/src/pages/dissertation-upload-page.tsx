@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -25,6 +25,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useRequest } from "ahooks";
 import {
+  deleteDissertation,
   editDissertation,
   getRedactionPreview,
   loadCategories,
@@ -32,6 +33,7 @@ import {
 } from "../api/hooks";
 import serverData from "../utils/server-data";
 import { Dissertation } from "../interfaces";
+import useRemoveConfirm from "../hooks/useRemoveConfirm";
 
 interface Props {
   editing_existing?: Dissertation;
@@ -156,6 +158,23 @@ const DissertationUploadPage: React.FC<Props> = ({
       setClientValidationError(String(e));
     },
   });
+
+  const [removeConfirm, modals] = useRemoveConfirm();
+  const { run: runDeleteDissertation } = useRequest(deleteDissertation, {
+    manual: true,
+    onSuccess: () => {
+      navigate("/dissertations");
+    },
+    onError: (e?: Error) => {
+      setClientValidationError(String(e));
+    },
+  });
+  const remove = useCallback(() => {
+    removeConfirm(
+      "Are you sure you want to delete this dissertation? This action cannot be undone.",
+      () => runDeleteDissertation(editing_existing!.id),
+    );
+  }, [removeConfirm, runDeleteDissertation, editing_existing]);
 
   const handleSubmit = async (values: typeof form.values) => {
     setClientValidationError(null);
@@ -500,9 +519,20 @@ const DissertationUploadPage: React.FC<Props> = ({
             )}
 
             <Button type="submit" mt="xl" fullWidth>
-              Upload Dissertation
+              {editing_existing ? "Update" : "Upload"} Dissertation
             </Button>
           </form>
+          {editing_existing && (
+            <Button
+              mt="md"
+              onClick={remove}
+              color="red"
+              variant="outline"
+              fullWidth
+            >
+              Delete Dissertation
+            </Button>
+          )}
         </div>
         <div style={{ flex: 1 }}>
           {previewError && (
@@ -520,6 +550,7 @@ const DissertationUploadPage: React.FC<Props> = ({
           )}
         </div>
       </Flex>
+      {modals}
     </Container>
   );
 };
