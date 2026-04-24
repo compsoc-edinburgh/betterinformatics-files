@@ -38,11 +38,13 @@ def parse_request_middleware(get_response):
     def middleware(request):
         if request.method == "PUT" or request.method == "PATCH":
             try:
-                parser = MultiPartParser(
-                    request.META, BytesIO(request.body), request.upload_handlers
-                )
-                request._post, request._files = parser.parse()
-                request.FILES.update(request._files)
+                # Request.POST and FILES has been populated by Django Ninja's
+                # middleware to behave like normal POST requests:
+                # https://github.com/vitalik/django-ninja/blob/master/ninja/compatibility/files.py
+                #
+                # We copy these data into .DATA so that non-Ninja views can
+                # access them in the same way too.
+                request.DATA = request.POST
             except Exception as e:
                 import traceback
 

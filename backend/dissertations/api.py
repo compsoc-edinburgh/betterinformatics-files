@@ -314,7 +314,7 @@ def update_dissertation(
     request,
     dissertation_id: int,
     data: Form[DissertationEditSchema],
-    pdf_file: Optional[File[UploadedFile]] = None,
+    pdf_file: File[Optional[UploadedFile]] = None,
 ):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
 
