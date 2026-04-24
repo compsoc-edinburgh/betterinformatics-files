@@ -251,6 +251,13 @@ const App: React.FC<{}> = () => {
         },
       },
     }),
+    Modal: {
+      defaultProps: {
+        removeScrollProps: {
+          allowPinchZoom: true,
+        },
+      },
+    },
   };
 
   const adminItems = [
