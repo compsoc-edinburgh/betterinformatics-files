@@ -918,6 +918,10 @@ export const editDissertation = async (
   })).value;
 };
 
+export const deleteDissertation = async (id: number) => {
+  await fetchDelete(`/api/dissertations/${id}/`);
+};
+
 export const getRedactionPreview = async (
   file: Blob,
   words_to_redact: string,
