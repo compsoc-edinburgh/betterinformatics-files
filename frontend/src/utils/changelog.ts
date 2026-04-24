@@ -16,15 +16,15 @@ export const latestVersion: string | undefined = versions[0]?.version;
 
 /**
  * Returns the markdown slice covering entries newer than `sinceVersion`. If
- * `sinceVersion` is not found (or not provided), returns all entries up to the
- * oldest known version heading. The returned slice always starts at the top of
- * the file so the top-level "Changelog" heading is preserved.
+ * `sinceVersion` is not found (or not provided), returns all entries. The
+ * returned slice starts at the first version heading, omitting any top-level
+ * "Changelog" heading.
  */
 export const entriesSince = (sinceVersion: string | undefined): string => {
-  if (!latestVersion) return changelogSource;
+  if (versions.length === 0) return "";
   const match = versions.find(v => v.version === sinceVersion);
   const end = match ? match.index : changelogSource.length;
-  return changelogSource.slice(0, end).trimEnd();
+  return changelogSource.slice(versions[0].index, end).trimEnd();
 };
 
 export { changelogSource };

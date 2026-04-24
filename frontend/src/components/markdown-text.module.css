@@ -20,7 +20,7 @@
     margin-right: 0;
   }
 
-  & :is(p, h1, h2, h3, h4, h5, h6):first-child {
+  & p:first-child {
     margin-block-start: 0;
   }
   & p:last-child {

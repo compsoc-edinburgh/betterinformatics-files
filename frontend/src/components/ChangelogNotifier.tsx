@@ -35,7 +35,7 @@ const ChangelogNotifier: React.FC = () => {
   if (!latestVersion) return null;
 
   return (
-    <Modal opened={opened} onClose={dismiss} title="What's New" size="lg">
+    <Modal opened={opened} onClose={dismiss} title="What's New in Community Solutions" size="lg">
       <MarkdownText value={entriesSince(lastSeen ?? undefined)} />
       <Group justify="flex-end" mt="md">
         <Button component={Link} to="/changelog" variant="default" onClick={dismiss}>
