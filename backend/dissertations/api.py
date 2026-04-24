@@ -16,7 +16,6 @@ from ninja import (
     File,
     Form,
     ModelSchema,
-    PatchDict,
     Router,
     Schema,
     Field,
@@ -86,6 +85,20 @@ class DissertationUploadSchema(Schema):
     grade_band: Optional[str] = None
     year: int
     relevant_categories: str  # comma separated list of category slugs
+
+
+class DissertationEditSchema(Schema):
+    words_to_redact: Optional[str] = (
+        None  # comma separated, since our frontend doesn't explode arrays
+    )
+    title: Optional[str] = None
+    field_of_study: Optional[str] = None
+    supervisors: Optional[str] = None
+    notes: Optional[str] = None
+    study_level: Optional[str] = None
+    grade_band: Optional[str] = None
+    year: Optional[int] = None
+    relevant_categories: Optional[str] = None  # comma separated list of category slugs
 
 
 def redact_file(file: UploadedFile, words_to_redact: List[str]) -> str:
@@ -297,7 +310,7 @@ def download_dissertation(request, dissertation_id: int):
 def update_dissertation(
     request,
     dissertation_id: int,
-    data: PatchDict[DissertationUploadSchema],
+    data: Form[DissertationEditSchema],
     pdf_file: Optional[File[UploadedFile]] = None,
 ):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
@@ -309,10 +322,10 @@ def update_dissertation(
     ):
         return response.not_allowed()
 
-    for attr, value in data.items():
+    for attr, value in data.model_dump(exclude_unset=True).items():
         if attr == "relevant_categories":
-            categories = Category.objects.filter(slug__in=value)
-            if len(categories) != len(value):
+            categories = Category.objects.filter(slug__in=value.split(","))
+            if len(categories) != len(value.split(",")):
                 return response.not_possible("One or more categories not found.")
             dissertation.relevant_categories.set(categories)
             continue
