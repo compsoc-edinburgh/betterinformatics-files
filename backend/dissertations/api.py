@@ -88,6 +88,9 @@ class DissertationUploadSchema(Schema):
 
 
 class DissertationEditSchema(Schema):
+    """It would be nice if this could just be PatchDict[DissertationUploadSchema]
+    but that doesn't seem to work when combined with Form[]."""
+
     words_to_redact: Optional[str] = (
         None  # comma separated, since our frontend doesn't explode arrays
     )
