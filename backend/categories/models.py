@@ -1,5 +1,7 @@
 from django.db import models
 
+import dissertations.models
+
 
 class Category(models.Model):
     displayname = models.CharField(max_length=256)
@@ -30,6 +32,10 @@ class Category(models.Model):
     # useful information about the category (this will be queried by the
     # frontend to display a rendered version) -- use for BetterInformatics link
     more_markdown_link = models.CharField(max_length=512, default="")
+
+    relevant_dissertations: models.QuerySet[
+        "dissertations.models.Dissertation"
+    ]  # for typehints on the many-to-many relation
 
     def answer_progress(self):
         if self.meta.total_cuts == 0:

@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.http import JsonResponse
 from django.urls import path, re_path, include
 from functools import wraps
 from util import response
@@ -21,6 +22,7 @@ from django_prometheus import exports
 from backend.settings import DEBUG, STATIC_ROOT
 
 from ninja import NinjaAPI
+from ninja.errors import ValidationError
 
 from . import views
 
@@ -39,6 +41,7 @@ def restrict_proxied(f):
 # documentation generation and type-validated API inputs.
 api = NinjaAPI()
 api.add_router("feedback/", "feedback.api.router")
+api.add_router("dissertations/", "dissertations.api.router")
 
 urlpatterns = [
     path("", include("health.urls")),
@@ -57,7 +60,6 @@ urlpatterns = [
     path("api/scoreboard/", include("scoreboard.urls")),
     path("api/document/", include("documents.urls")),
     path("api/stats/", include("stats.urls")),
-    path("api/dissertations/", include("dissertations.urls")),
     re_path(
         r"^static/(?P<path>.*)$",
         views.cached_serve,
@@ -75,3 +77,18 @@ handler400 = views.handler400
 handler403 = views.handler403
 handler404 = views.handler404
 handler500 = views.handler500
+
+
+@api.exception_handler(ValidationError)
+def validation_errors(request, exc: ValidationError):
+    error = ""
+    for error_info in exc.errors:
+        loc = error_info["loc"][-1]
+        msg = error_info["msg"]
+        if loc == "__root__":
+            loc = ""
+        else:
+            loc = f"{loc}: "
+        error += f"{loc} {msg}. "
+
+    return JsonResponse({"err": error}, status=422)

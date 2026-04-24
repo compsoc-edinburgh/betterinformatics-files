@@ -37,6 +37,7 @@ import {
 import { UserContext, useUser } from "../auth";
 import CategoryMetaDataEditor from "../components/category-metadata-editor";
 import ExamList from "../components/exam-list";
+import DissertationList from "../components/dissertation-list";
 import LoadingOverlay from "../components/loading-overlay";
 import DocumentList from "../components/document-list";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
@@ -49,6 +50,7 @@ import {
   useEditableMarkdownLink,
 } from "../utils/category-utils";
 import {
+  IconArrowRight,
   IconChevronRight,
   IconEdit,
   IconStar,
@@ -321,6 +323,34 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                           </List>
                         </>
                       )}
+
+                      <Title order={2} mt="xl" mb="sm">
+                        Relevant Dissertations
+                      </Title>
+                      <Text c="gray" size="sm">
+                        Did you enjoy the contents of this course?
+                      </Text>
+                      <Text c="gray" mb="md" size="sm">
+                        You can check out dissertations that students have
+                        claimed are related to this course. These might help in
+                        finding a dissertation topic, a supervisor, or
+                        understanding what kind of novel work is being done in
+                        this area.
+                      </Text>
+                      <DissertationList slug={metaData.slug} disableSearch />
+                      <Flex justify="flex-end" mt="md">
+                        <Anchor
+                          component={Link}
+                          to="/dissertations"
+                          fz="sm"
+                          c="blue"
+                        >
+                          <Group gap="sm">
+                            View Dissertations in All Categories{" "}
+                            <IconArrowRight />
+                          </Group>
+                        </Anchor>
+                      </Flex>
                     </Paper>
                   ) : null}
                 </Grid.Col>

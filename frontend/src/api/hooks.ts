@@ -22,6 +22,9 @@ import {
   SearchResponse,
   AnswerKind,
   BICourseList,
+  DissertationCreate,
+  Dissertation,
+  DissertationUpdate,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -741,3 +744,69 @@ export const useMoveDocumentFile = (
   );
   return [error, loading, run] as const;
 };
+
+export const uploadDissertation = async (
+  file: Blob,
+  create_data: DissertationCreate,
+) => {
+  return (await fetchPost<{ value: Dissertation }>("/api/dissertations/", {
+    pdf_file: file,
+    ...create_data,
+  })).value;
+}
+
+export const editDissertation = async (
+  file: Blob | null,
+  id: number,
+  update_data: DissertationUpdate,
+) => {
+  return (await fetchPut<{ value: Dissertation }>(`/api/dissertations/${id}/`, {
+    ...(file ? { pdf_file: file } : {}),
+    ...update_data,
+  })).value;
+};
+
+export const deleteDissertation = async (id: number) => {
+  await fetchDelete(`/api/dissertations/${id}/`);
+};
+
+export const getRedactionPreview = async (
+  file: Blob,
+  words_to_redact: string,
+) => {
+  return (await fetchPost<{ value: string }>("/api/dissertations/redact/", {
+    pdf_file: file,
+    words: words_to_redact,
+  })).value;
+}
+
+export const loadDissertations = async (searchQuery: string, field: string, category?: string) => {
+  return (
+    await fetchGet<{ value: Dissertation[] }>(
+      `/api/dissertations/?${new URLSearchParams({
+        query: searchQuery,
+        field,
+        ...(category ? { category } : {}),
+      }).toString()}`,
+    )
+  ).value;
+};
+
+export const useDissertations = (searchQuery: string, field: string, category?: string) => {
+  const { error, loading, data } = useRequest(
+    () => loadDissertations(searchQuery, field, category),
+    {
+      refreshDeps: [searchQuery, field, category],
+      cacheKey: `dissertations-${field}-${searchQuery}-${category}`,
+    },
+  );
+  return { error, loading, data } as const;
+};
+
+export const loadDissertation = async (id: number) => {
+  return (await fetchGet<{ value: Dissertation }>(`/api/dissertations/${id}/`)).value;
+}
+
+export const loadDissertationPdf = async (id: number) => {
+  return (await fetchGet<{ value: string }>(`/api/dissertations/${id}/download/`)).value;
+}
