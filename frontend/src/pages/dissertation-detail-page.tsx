@@ -117,7 +117,7 @@ const DissertationDetailPage: React.FC = () => {
               <Navigate to="." replace />
             ) : (
               <DissertationUploadPage
-                editing_existing={dissertation}
+                editingExisting={dissertation}
                 onEdit={() => {
                   void reloadDissertation();
                   void reloadPdf();

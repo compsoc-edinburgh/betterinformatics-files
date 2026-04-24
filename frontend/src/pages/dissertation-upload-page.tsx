@@ -36,12 +36,12 @@ import { Dissertation } from "../interfaces";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 
 interface Props {
-  editing_existing?: Dissertation;
+  editingExisting?: Dissertation;
   onEdit?: () => void;
 }
 
 const DissertationUploadPage: React.FC<Props> = ({
-  editing_existing,
+  editingExisting: editing_existing,
   onEdit,
 }) => {
   const navigate = useNavigate();
