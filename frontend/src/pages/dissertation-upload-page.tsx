@@ -170,10 +170,12 @@ const DissertationUploadPage: React.FC<Props> = ({
     },
   });
   const remove = useCallback(() => {
-    removeConfirm(
-      "Are you sure you want to delete this dissertation? This action cannot be undone.",
-      () => runDeleteDissertation(editing_existing!.id),
-    );
+    if (editing_existing) {
+      removeConfirm(
+        "Are you sure you want to delete this dissertation? This action cannot be undone.",
+        () => void runDeleteDissertation(editing_existing.id),
+      );
+    }
   }, [removeConfirm, runDeleteDissertation, editing_existing]);
 
   const handleSubmit = async (values: typeof form.values) => {
