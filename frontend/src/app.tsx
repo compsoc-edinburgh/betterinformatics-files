@@ -54,7 +54,7 @@ import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute, FaroRoutes } from "@grafana/faro-react";
+import { FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import {
   QuickSearchFilter,
@@ -232,6 +232,11 @@ const App: React.FC<{}> = () => {
       defaultProps: {
         color: "gray",
         variant: "light",
+      },
+    },
+    Checkbox: {
+      defaultProps: {
+        radius: "sm",
       },
     },
     // By default, SegmentedControl on dark mode has a "light indicator on dark
