@@ -10,6 +10,7 @@ import {
   Text,
 } from "@mantine/core";
 import { IconBrandGit, IconHeartFilled } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 interface FooterProps {
   logo: string;
@@ -67,14 +68,14 @@ const Footer: React.FC<FooterProps> = ({
               VIS
             </Anchor>
           </Text>
-          <a href={orgHomepage}>
+          <Link to={orgHomepage}>
             <img
               height={32}
               className={classes.visLogo}
               src={logo}
               alt="Logo of the student organization"
             />
-          </a>
+          </Link>
           <Group
             style={{
               flex: 1,

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactNode } from "react";
-import { Anchor, Center, Container, Menu } from "@mantine/core";
+import { Anchor, Center, Menu } from "@mantine/core";
 
 import { NavItem } from "./GlobalNav";
 import clsx from "clsx";

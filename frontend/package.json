@@ -22,7 +22,7 @@
     "react-dom": "^19.2.4",
     "react-image-crop": "^11.0.10",
     "react-markdown": "^10.1.0",
-    "react-router-dom": "6.30.3",
+    "react-router-dom": "^7.13.1",
     "react-syntax-highlighter": "^15.5.0",
     "react-transition-group": "^4.4.5",
     "rehype-katex": "^7.0.0",
