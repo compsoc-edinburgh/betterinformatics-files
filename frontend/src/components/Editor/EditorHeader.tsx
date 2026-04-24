@@ -13,6 +13,7 @@ import {
   IconPhoto,
 } from "@tabler/icons-react";
 import classes from "./EditorHeader.module.css";
+import clsx from "clsx";
 
 interface Props {
   activeMode: string | null;
@@ -138,7 +139,7 @@ const EditorHeader: React.FC<Props> = ({
           </Button.Group>
         )}
         <TooltipButton
-          className={`${classes.iconButton  } ${  classes.fullscreenButton}`}
+          className={clsx(classes.iconButton, classes.fullscreenButton)}
           onClick={handlers.toggleFullscreen}
           size="sm"
           tooltip="Toggle fullscreen"
