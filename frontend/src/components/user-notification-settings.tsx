@@ -46,6 +46,12 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
           disabled={checkboxLoading}
           onChange={e => setEnabled(4, e.currentTarget.checked)}
         />
+        <Checkbox
+          label="Admin comments on my feedback"
+          checked={enabled ? enabled.has(5) : false}
+          disabled={checkboxLoading}
+          onChange={e => setEnabled(5, e.currentTarget.checked)}
+        />
       </Stack>
     </>
   );

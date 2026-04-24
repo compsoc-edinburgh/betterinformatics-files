@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from myauth import auth_check
 from myauth.models import get_my_user
 from ninja import Form, Router, Schema
@@ -37,6 +38,8 @@ def list_all(request):
                 "time": obj.time.isoformat(),
                 "read": obj.read,
                 "done": obj.done,
+                "reply": obj.reply,
+                "reply_time": obj.reply_time.isoformat() if obj.reply_time else None
             }
             for obj in objs
         ]
@@ -47,6 +50,22 @@ class FeedbackFlagsSchema(Schema):
     read: Optional[bool] = None
     done: Optional[bool] = None
 
+class FeedbackReplySchema(Schema):
+    reply: str
+
+@router.post("/reply/{feedbackid}/")
+@auth_check.require_admin
+def replies(request, feedbackid: int, data: Form[FeedbackReplySchema]):
+    feedback = get_object_or_404(Feedback, pk=feedbackid)
+    new_reply = data.reply
+    has_prev_reply = bool(feedback.reply)
+    feedback.reply = new_reply
+    feedback.reply_time = timezone.now() if new_reply else None
+    feedback.save()
+    if new_reply and not has_prev_reply:
+        from notifications.notification_util import new_feedback_reply
+        new_feedback_reply(request.user, feedback)
+    return None
 
 @router.post("/flags/{feedbackid}/")
 @auth_check.require_admin

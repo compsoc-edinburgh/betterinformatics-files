@@ -50,6 +50,22 @@ def send_doc_notification(sender, receiver, type_, title, message, document):
     )
     notification.save()
 
+def send_feedback_notification(sender, receiver, type_, title, message, feedback):
+    if sender == receiver:
+        return
+    if not is_notification_enabled(receiver, type_):
+        return
+    notification = Notification(
+        sender=sender,
+        receiver=receiver,
+        type=type_.value,
+        title=title,
+        text=message,
+        feedback=feedback,
+        answer=None,
+    )
+    notification.save()
+
 
 def new_comment_to_answer(answer, new_comment):
     if answer.kind != Answer.Kind.PERSONAL:
@@ -116,4 +132,14 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
         "A new comment was added to your document.\n\n{}".format(
             new_comment.text),
         document=document,
+    )
+
+def new_feedback_reply(admin_user, feedback):
+    send_feedback_notification(
+        admin_user,
+        feedback.author,
+        NotificationType.NEW_COMMENT_TO_FEEDBACK,
+        "Reply to your feedback",
+        "An admin has replied to your feedback.\n\n{}".format(feedback.reply),
+        feedback=feedback,
     )

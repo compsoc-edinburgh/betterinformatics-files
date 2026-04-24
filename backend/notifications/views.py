@@ -57,6 +57,7 @@ def _get_notification_link(notification):
         return f'/exams/{notification.answer.answer_section.exam.filename}#{notification.answer.long_id}'
     elif notification.document:
         return f'/user/{notification.receiver.username}/document/{notification.document.slug}'
+    # Feedback Page is admin-only, so makes no sense to link it since notification contains reply anyway. 
     return ''
 
 

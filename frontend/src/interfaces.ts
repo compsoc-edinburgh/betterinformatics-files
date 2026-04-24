@@ -292,6 +292,8 @@ export interface FeedbackEntry {
   time: string;
   read: boolean;
   done: boolean;
+  reply: string;
+  reply_time: string | null;
 }
 
 export interface FAQEntry {

@@ -911,3 +911,6 @@ export const useMoveDocumentFile = (
   );
   return [error, loading, run] as const;
 };
+
+export const setFeedbackReply = async (oid: string, reply: string) =>
+  fetchPost(`/api/feedback/reply/${oid}/`, { reply });
