@@ -582,6 +582,10 @@ export const useMutation = <B, T extends any[]>(
   return [loading, run] as const;
 };
 
+export const removeExam = async (filename: string) => {
+  await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
+};
+
 export const removeCategory = async (slug: string) => {
   await fetchPost("/api/category/remove/", { slug });
 };

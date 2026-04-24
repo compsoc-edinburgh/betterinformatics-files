@@ -12,7 +12,6 @@ import {
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
 import { Link } from "react-router-dom";
-import { fetchPost } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { CategoryExam } from "../interfaces";
@@ -22,10 +21,7 @@ import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import ExamGrid from "./exam-grid";
 import { IconTrash } from "@tabler/icons-react";
-
-const removeExam = async (filename: string) => {
-  await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
-};
+import { removeExam } from "../api/hooks";
 
 interface ExamTypeCardProps {
   examtype: string;
