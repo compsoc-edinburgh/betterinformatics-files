@@ -46,6 +46,7 @@ const DissertationDetailPage: React.FC = () => {
     loading: pdfLoading,
     data: pdfUrl,
     error: pdfError,
+    run: reloadPdf,
   } = useRequest(() => loadDissertationPdf(Number(id)), {
     refreshDeps: [id],
   });
@@ -117,7 +118,10 @@ const DissertationDetailPage: React.FC = () => {
             ) : (
               <DissertationUploadPage
                 editing_existing={dissertation}
-                onEdit={() => void reloadDissertation()}
+                onEdit={() => {
+                  void reloadDissertation();
+                  void reloadPdf();
+                }}
               />
             )
           }
