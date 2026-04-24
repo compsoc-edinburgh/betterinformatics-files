@@ -202,6 +202,7 @@ const DissertationUploadPage: React.FC<Props> = ({
         previewForm.values.pdf_file,
         editing_existing.id,
         {
+          words_to_redact: previewForm.values.words_to_redact.join(","),
           title: values.title,
           field_of_study: values.field_of_study.join(","),
           supervisors: values.supervisors,
