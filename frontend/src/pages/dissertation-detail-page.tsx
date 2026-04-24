@@ -27,17 +27,17 @@ import { useRequest } from "ahooks";
 import { loadDissertation, loadDissertationPdf } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import IconButton from "../components/icon-button";
-import { useUser } from "../auth";
+import DissertationUploadPage from "./dissertation-upload-page";
 
 const DissertationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const user = useUser();
 
   const {
     loading: dissertationLoading,
     data: dissertation,
     error: dissertationError,
+    run: reloadDissertation,
   } = useRequest(() => loadDissertation(Number(id)), {
     refreshDeps: [id],
   });
@@ -112,7 +112,14 @@ const DissertationDetailPage: React.FC = () => {
         <Route
           path="edit"
           element={
-            !dissertation.can_edit ? <Navigate to="." replace /> : <h1>hi</h1>
+            !dissertation.can_edit ? (
+              <Navigate to="." replace />
+            ) : (
+              <DissertationUploadPage
+                editing_existing={dissertation}
+                onEdit={() => void reloadDissertation()}
+              />
+            )
           }
         />
         <Route
@@ -162,6 +169,7 @@ const DissertationDetailPage: React.FC = () => {
                       <Group gap={4}>
                         {dissertation.field_of_study
                           .split(",")
+                          .filter(field => field.trim() !== "")
                           .map((field, index) => (
                             <Badge
                               key={index}

@@ -24,6 +24,7 @@ import {
   BICourseList,
   DissertationCreate,
   Dissertation,
+  DissertationUpdate,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -903,6 +904,17 @@ export const uploadDissertation = async (
   return (await fetchPost<{ value: Dissertation }>("/api/dissertations/", {
     pdf_file: file,
     ...create_data,
+  })).value;
+};
+
+export const editDissertation = async (
+  file: Blob | null,
+  id: number,
+  update_data: DissertationUpdate,
+) => {
+  return (await fetchPut<{ value: Dissertation }>(`/api/dissertations/${id}/`, {
+    ...(file ? { pdf_file: file } : {}),
+    ...update_data,
   })).value;
 };
 
