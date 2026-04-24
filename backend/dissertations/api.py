@@ -342,11 +342,18 @@ def update_dissertation(
             old_file_name = "/".join(old_path_parts[2:])
             s3_util.delete_file(old_bucket_name + "/", old_file_name)
 
+        temp_file_path = redact_file(
+            pdf_file,
+            [w.strip() for w in (data.words_to_redact or "").split(",") if w.strip()],
+        )
+
         # Upload PDF to Minio
-        # Assuming the bucket already exists or is created by Minio setup
         file_name = f"{dissertation.title.replace(' ', '_')}_{pdf_file.name}"
-        s3_util.save_uploaded_file_to_s3(
-            bucket_name + "/", file_name, pdf_file, pdf_file.content_type
+        s3_util.save_file_to_s3(
+            bucket_name + "/",
+            file_name,
+            temp_file_path,
+            pdf_file.content_type or "application/pdf",
         )
         file_path = f"/{bucket_name}/{file_name}"
 
