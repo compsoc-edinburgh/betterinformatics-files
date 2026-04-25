@@ -148,6 +148,7 @@ export interface CategoryExam {
   canView: boolean; // whether the exam can be viewed by the user
   count_cuts: number; // number of cuts in exam
   count_answered: number; // number of cuts with answers in exam
+  user_solved: boolean;
 }
 
 export interface CategoryPaymentExam {
@@ -236,6 +237,7 @@ export interface ExamMetaData {
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];
+  user_solved: boolean;
 
   exam_file?: string;
   solution_file?: string;

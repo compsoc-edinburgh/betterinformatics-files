@@ -1,86 +1,52 @@
+from ninja import Schema
 from datetime import datetime
 from functools import wraps
 
-from django.http import FileResponse, HttpResponseNotAllowed, JsonResponse
-from ninja import Schema
+from django.core.handlers.wsgi import WSGIRequest
+from django.http import (
+    FileResponse,
+    HttpResponseNotAllowed,
+    JsonResponse,
+)
 
 
-def request_post(*req_args, optional=False):
-    def wrap_func(f):
-        @wraps(f)
-        def wrapper(request, *args, **kwargs):
-            if request.method != "POST":
-                return HttpResponseNotAllowed(["POST"])
-            if not optional:
-                for arg in req_args:
-                    if arg not in request.POST:
-                        return missing_argument()
-            return f(request, *args, **kwargs)
+def request_method(methods: "tuple[str] | list[str]"):
+    def request_method(*req_args, optional=False):
+        def wrap_func(f):
+            @wraps(f)
+            def wrapper(request: WSGIRequest, *args, **kwargs):
+                if request.method not in methods:
+                    return HttpResponseNotAllowed(methods)
 
-        return wrapper
+                if not optional:
+                    for arg in req_args:
+                        if arg not in request.POST:
+                            return missing_argument()
 
-    return wrap_func
+                return f(request, *args, **kwargs)
 
+            return wrapper
 
-def request_put(*req_args, optional=False):
-    def wrap_func(f):
-        @wraps(f)
-        def wrapper(request, *args, **kwargs):
-            if request.method != "PUT":
-                return HttpResponseNotAllowed(["PUT"])
-            if not optional:
-                for arg in req_args:
-                    if arg not in request.DATA:
-                        return missing_argument()
-            return f(request, *args, **kwargs)
+        return wrap_func
 
-        return wrapper
-
-    return wrap_func
+    return request_method
 
 
-def request_patch(*req_args, optional=False):
-    def wrap_func(f):
-        @wraps(f)
-        def wrapper(request, *args, **kwargs):
-            if request.method != "PATCH":
-                return HttpResponseNotAllowed(["PATCH"])
-            if not optional:
-                for arg in req_args:
-                    if arg not in request.DATA:
-                        return missing_argument()
-            return f(request, *args, **kwargs)
-
-        return wrapper
-
-    return wrap_func
-
-
-def request_get(*req_args, optional=False):
-    def wrap_func(f):
-        @wraps(f)
-        def wrapper(request, *args, **kwargs):
-            if request.method != "GET":
-                return HttpResponseNotAllowed(["GET"])
-            if not optional:
-                for arg in req_args:
-                    if arg not in request.GET:
-                        return missing_argument()
-            return f(request, *args, **kwargs)
-
-        return wrapper
-
-    return wrap_func
+request_post = request_method(["POST"])
+request_put = request_method(["PUT"])
+request_patch = request_method(["PATCH"])
+request_delete = request_method(["DELETE"])
+request_get = request_method(["GET"])
 
 
 # Used in class based views
 def required_args(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
-        def wrapper(self, request, *args, **kwargs):
+        def wrapper(self, request: WSGIRequest, *args, **kwargs):
             if not optional:
                 for arg in req_args:
-                    if arg not in request.DATA:
+                    if arg not in request.POST:
                         return missing_argument()
             return f(self, request, *args, **kwargs)
 

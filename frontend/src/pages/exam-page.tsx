@@ -11,6 +11,7 @@ import {
   Group,
   Button,
   useComputedColorScheme,
+  Center,
 } from "@mantine/core";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -28,6 +29,8 @@ import {
   loadExamMetaData,
   loadSplitRenderer,
   markAsChecked,
+  useMarkExamUserSolved,
+  useUnmarkExamUserSolved,
 } from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import Exam from "../components/exam";
@@ -57,11 +60,13 @@ import {
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import {
+  IconCheck,
   IconChevronRight,
   IconDownload,
   IconEdit,
   IconFileCheck,
   IconLink,
+  IconX,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
@@ -128,6 +133,10 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       setEditState({ mode: EditMode.None });
     },
   });
+  const [, runMarkExamUserSolved] = useMarkExamUserSolved(metaData.filename);
+  const [, runUnmarkExamUserSolved] = useUnmarkExamUserSolved(
+    metaData.filename,
+  );
   const { run: runUpdate } = useRequest(updateCut, {
     manual: true,
     onSuccess: (_data, [oid, update]) => {
@@ -159,6 +168,17 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     },
     [runAddCut, metaData, runUpdate],
   );
+  const toggleExamUserSolved: () => void = async () => {
+    let res: { user_solved: boolean };
+    if (metaData.user_solved) {
+      res = await runUnmarkExamUserSolved();
+    } else {
+      res = await runMarkExamUserSolved();
+    }
+
+    // eslint-disable-next-line react-hooks/immutability
+    metaData.user_solved = res.user_solved;
+  };
 
   const sizeRef = useRef<HTMLDivElement>(null);
   const size = useSize(sizeRef);
@@ -260,10 +280,20 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           <h1>{metaData.displayname}</h1>
           <Group>
             <IconButton
+              color={metaData.user_solved ? "grape" : "gray"}
+              icon={<IconCheck />}
+              tooltip={
+                metaData.user_solved
+                  ? "Mark exam as unsolved"
+                  : "Mark exam as solved"
+              }
+              onClick={toggleExamUserSolved}
+            />
+            <IconButton
               color="gray"
               icon={<IconDownload />}
               tooltip="Download"
-              onClick={() => window.open(metaData.exam_file, "_blank")}
+              onClick={() => open(metaData.exam_file, "_blank")}
             />
             {user.isCategoryAdmin && (
               <>
@@ -412,6 +442,16 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               onExpandSections={expandSections}
             />
           )}
+
+          <Center>
+            <Button
+              leftSection={metaData.user_solved && <IconCheck />}
+              onClick={toggleExamUserSolved}
+              color={metaData.user_solved ? "grape" : "gray"}
+            >
+              Mark exam as solved
+            </Button>
+          </Center>
         </Container>
       </ContentContainer>
       <ExamPanel

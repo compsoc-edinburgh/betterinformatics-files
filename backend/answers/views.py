@@ -1,12 +1,15 @@
-from myauth.models import get_my_user
-from util import response
-from myauth import auth_check
-from answers.models import Exam, ExamType
-from categories.models import Category
+from datetime import timedelta
+
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from datetime import timedelta
+
 import answers.views_files as files
+from answers.models import Exam, ExamType, ExamUserSolved
+from categories.models import Category
+from myauth import auth_check
+from myauth.models import get_my_user
+from util import response
 
 
 @response.request_get()
@@ -34,12 +37,39 @@ def get_exam_admin_status(request, filename):
     return response.success(value=res)
 
 
+@response.request_method(["DELETE", "PUT", "GET"])()
+@auth_check.require_login
+def answer_section_user_solved(request, filename: str):
+    exam = get_object_or_404(Exam, filename=filename)
+
+    if request.method == "DELETE":
+        ExamUserSolved.objects.filter(user=request.user, exam=exam).delete()
+        solved = False
+    elif request.method == "PUT":
+        ExamUserSolved.objects.update_or_create(
+            user=request.user, exam=exam, defaults={}
+        )
+        solved = True
+    else:
+        solved = ExamUserSolved.objects.filter(
+            user=request.user,
+            exam=exam,
+        ).exists()
+
+    return JsonResponse({"user_solved": solved})
+
+
 @response.request_get()
 @auth_check.require_login
 def exam_metadata(request, filename):
     exam = get_object_or_404(Exam, filename=filename)
     admin_rights = auth_check.has_admin_rights_for_exam(request, exam)
     can_view = exam.current_user_can_view(request)
+    solved = ExamUserSolved.objects.filter(
+        user=request.user,
+        exam=exam,
+    ).exists()
+
     res = {
         "filename": exam.filename,
         "displayname": exam.displayname,
@@ -69,6 +99,7 @@ def exam_metadata(request, filename):
         "isExpert": auth_check.is_expert_for_exam(request, exam),
         "canView": can_view,
         "hasPayed": request.user.has_payed(),
+        "user_solved": solved,
     }
 
     if can_view:

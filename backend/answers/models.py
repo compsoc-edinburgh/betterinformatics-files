@@ -1,13 +1,14 @@
-from django.db import models
-from django.utils import timezone
-from myauth import auth_check
-from django.db.models import Exists, OuterRef
-from django.contrib.postgres.search import SearchVectorField
+import random
+
 from django.contrib.postgres.indexes import GinIndex
-from util.models import CommentMixin
+from django.contrib.postgres.search import SearchVectorField
+from django.db import models
+from django.db.models import Exists, OuterRef
+from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
 
-import random
+from myauth import auth_check
+from util.models import CommentMixin
 
 
 class Exam(ExportModelOperationsMixin("exam"), models.Model):
@@ -147,7 +148,8 @@ class Answer(ExportModelOperationsMixin("answer"), models.Model):
     )
     flagged = models.ManyToManyField("auth.User", related_name="flagged_answer_set")
     marked_as_ai = models.ManyToManyField(
-        "auth.User", related_name="markedasai_answer_set")
+        "auth.User", related_name="markedasai_answer_set"
+    )
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.PERSONAL)
     long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
 
@@ -162,3 +164,17 @@ class Comment(ExportModelOperationsMixin("comment"), CommentMixin):
         "Answer", on_delete=models.CASCADE, related_name="comments"
     )
     long_id = models.CharField(max_length=256, default=generate_long_id, unique=True)
+
+
+class ExamUserSolved(ExportModelOperationsMixin("exam_user_solved"), models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        to="auth.User", on_delete=models.CASCADE, related_name="solved_exams"
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["exam", "user"], name="unique_user_exam_solve"
+            )
+        ]

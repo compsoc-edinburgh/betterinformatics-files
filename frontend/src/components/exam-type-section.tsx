@@ -20,8 +20,12 @@ import IconButton from "./icon-button";
 import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import ExamGrid from "./exam-grid";
-import { IconTrash } from "@tabler/icons-react";
-import { removeExam } from "../api/hooks";
+import { IconCheck, IconTrash } from "@tabler/icons-react";
+import {
+  markExamUserSolved,
+  removeExam,
+  unmarkExamUserSolved,
+} from "../api/hooks";
 
 interface ExamTypeCardProps {
   examtype: string;
@@ -66,6 +70,22 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       () => runRemoveExam(exam.filename),
     );
   };
+
+  async function handleToggleUserSolved(
+    event: React.SyntheticEvent,
+    exam: CategoryExam,
+  ) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (exam.user_solved) {
+      await unmarkExamUserSolved(exam.filename);
+    } else {
+      await markExamUserSolved(exam.filename);
+    }
+
+    reload();
+  }
 
   return (
     <>
@@ -159,6 +179,11 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                         Solution
                       </Badge>
                     )}
+                    {exam.user_solved && (
+                      <Badge title="Marked as already solved" color="grape">
+                        Solved
+                      </Badge>
+                    )}
                   </Flex>
                 </div>
                 {catAdmin && !exam.finished_cuts && (
@@ -166,8 +191,22 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 )}
               </Grid.Col>
               <Grid.Col span="content">
+                <IconButton
+                  size="md"
+                  color={exam.user_solved ? "grape" : "gray"}
+                  tooltip={
+                    exam.user_solved
+                      ? "Mark exam as unsolved"
+                      : "Mark exam as solved"
+                  }
+                  icon={<IconCheck />}
+                  onClick={(event: React.SyntheticEvent) => {
+                    handleToggleUserSolved(event, exam);
+                  }}
+                />
                 {user.isAdmin && (
                   <IconButton
+                    ms="xs"
                     size="md"
                     color="red"
                     tooltip="Delete exam"
