@@ -1,0 +1,16 @@
+.links {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+.wrapper:hover .links {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
+}
+
+.wrapper:hover {
+  overflow: visible;
+}

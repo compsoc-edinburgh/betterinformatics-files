@@ -12,7 +12,7 @@ import {
   Button,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Link,
   Navigate,
@@ -39,6 +39,11 @@ import ContentContainer from "../components/secondary-container";
 import { TOC, TOCNode } from "../components/table-of-contents";
 import useSet from "../hooks/useSet";
 import useTitle from "../hooks/useTitle";
+import {
+  RECENT_EXAMS_KEY,
+  pushRecentExam,
+  RecentExam,
+} from "../utils/recently-viewed-exams";
 import {
   CutUpdate,
   EditMode,
@@ -443,6 +448,22 @@ const ExamPage: React.FC<{}> = () => {
     refreshDeps: [filename],
   });
   useTitle(metaData?.displayname ?? filename);
+  useEffect(() => {
+    if (!metaData) return;
+    try {
+      const raw = localStorage.getItem(RECENT_EXAMS_KEY);
+      const list: RecentExam[] = raw ? JSON.parse(raw) : [];
+      const updated = pushRecentExam(list, {
+        filename: metaData.filename,
+        displayname: metaData.displayname,
+        category: metaData.category,
+        category_displayname: metaData.category_displayname,
+      });
+      localStorage.setItem(RECENT_EXAMS_KEY, JSON.stringify(updated));
+    } catch {
+      // corrupted localStorage entry — silently ignore
+    }
+  }, [metaData?.filename]);
   useQuickSearchFilter(
     metaData && {
       slug: metaData.category,
