@@ -32,7 +32,7 @@ import {
 } from "./fetch-utils";
 
 // Interval to consider "close succession" to de-dupe requests
-const RAPID_SUCCESSIVE_REQUESTS_DEDUPE_INTERVAL = 300; // milliseconds
+const RAPID_SUCCESSIVE_REQUESTS_DEDUPE_INTERVAL = 500; // milliseconds
 
 export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;
 
