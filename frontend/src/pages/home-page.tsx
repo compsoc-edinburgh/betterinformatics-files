@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Button,
   Container,
   Flex,
@@ -19,6 +20,7 @@ import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
+import RecentlyViewedExams from "../components/recently-viewed-exams";
 import Grid from "../components/grid";
 import ContentContainer from "../components/secondary-container";
 import useSearch from "../hooks/useSearch";
@@ -277,7 +279,8 @@ export const CategoryList: React.FC<{}> = () => {
           />
         </Flex>
       </Container>
-      <ContentContainer>
+      <RecentlyViewedExams />
+      <ContentContainer mt="sm">
         <Container size="xl" py="md" pos="relative">
           {loading && !error && (
             <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />
