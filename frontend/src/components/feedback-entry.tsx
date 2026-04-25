@@ -1,36 +1,84 @@
 import { useRequest } from "ahooks";
-import { Button, Card, Group, Title, Text } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Group,
+  Menu,
+  Paper,
+  Text,
+  Title,
+} from "@mantine/core";
 import * as React from "react";
-import { fetchPost } from "../api/fetch-utils";
+import { useState } from "react";
+import { fetchPost, imageHandler } from "../api/fetch-utils";
+import { setFeedbackReply } from "../api/hooks";
 import GlobalConsts from "../globalconsts";
 import { FeedbackEntry } from "../interfaces";
 import TooltipButton from "./TooltipButton";
-import { IconCheckbox, IconMail, IconMailOpened, IconSquare } from "@tabler/icons-react";
+import {
+  IconCheckbox,
+  IconDeviceFloppy,
+  IconDots,
+  IconEdit,
+  IconMail,
+  IconMailOpened,
+  IconMessageCirclePlus,
+  IconPencilCancel,
+  IconSquare,
+  IconTrash,
+} from "@tabler/icons-react";
 import { lightFormat, parseISO } from "date-fns";
+import Editor from "./Editor";
+import { UndoStack } from "./Editor/utils/undo-stack";
+import MarkdownText from "./markdown-text";
+import { useOfficialSolutionLanguage } from "./official-solution";
+import TimeText from "./time-text";
 
 const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
   await fetchPost(`/api/feedback/flags/${oid}/`, {
     [flag]: value,
   });
 };
-const wrapText = (text: string) => {
-  const textSplit = text.split("\n");
-  return textSplit.map(t => (
-    <Text pt="xs" key={t}>
-      {t}
-    </Text>
-  ));
-};
 
 interface Props {
   entry: FeedbackEntry;
   entryChanged: () => void;
 }
+
 const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
   const { run: runSetFlag } = useRequest(
     (flag: "done" | "read", value: boolean) => setFlag(entry.oid, flag, value),
     { manual: true, onSuccess: entryChanged },
   );
+
+  const [editing, setEditing] = useState(false);
+  const [draftText, setDraftText] = useState("");
+  const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
+  const languages = useOfficialSolutionLanguage();
+
+  const { run: runSetReply, loading: replyLoading } = useRequest(
+    (reply: string) => setFeedbackReply(entry.oid, reply),
+    {
+      manual: true,
+      onSuccess: () => {
+        setEditing(false);
+        entryChanged();
+      },
+    },
+  );
+
+  const startEditing = () => {
+    setDraftText(entry.reply ?? "");
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditing(false);
+    setDraftText("");
+  };
+
   return (
     <Card my="xs" withBorder shadow="md">
       <Card.Section withBorder inheritPadding>
@@ -54,12 +102,95 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
               tooltip={`Mark as ${entry.read ? "Unread" : "Read"}`}
               color={entry.read ? "brand.7" : "brand"}
               onClick={() => runSetFlag("read", !entry.read)}>
-              {entry.read ? <IconMail /> :  <IconMailOpened />}
+              {entry.read ? <IconMail /> : <IconMailOpened />}
             </TooltipButton>
           </Button.Group>
         </Group>
       </Card.Section>
-      {wrapText(entry.text)}
+      <Box pt="xs">
+        <MarkdownText value={entry.text} />
+      </Box>
+      {editing ? (
+        <Paper radius="sm" withBorder shadow="none" p="sm" mt="sm">
+          <Editor
+            value={draftText}
+            onChange={setDraftText}
+            imageHandler={imageHandler}
+            preview={value => (
+              <MarkdownText value={value} languages={languages} />
+            )}
+            undoStack={undoStack}
+            setUndoStack={setUndoStack}
+          />
+          <Group justify="flex-end" mt="sm">
+            <Button
+              size="sm"
+              color="red"
+              variant="subtle"
+              onClick={cancelEditing}
+              leftSection={<IconPencilCancel />}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              loading={replyLoading}
+              disabled={draftText.trim().length === 0}
+              onClick={() => runSetReply(draftText.trim())}
+              leftSection={<IconDeviceFloppy />}
+            >
+              Save
+            </Button>
+          </Group>
+        </Paper>
+      ) : entry.reply ? (
+        <Paper radius="sm" withBorder shadow="none" p="sm" mt="sm">
+          <Flex justify="space-between" align="center" mb="xs">
+            <div>
+              <Text fw={700} component="span">
+                LUK
+              </Text>
+              {entry.reply_time && (
+                <>
+                  <Text component="span" mx={6} c="dimmed">·</Text>
+                  <TimeText time={entry.reply_time} suffix="ago" />
+                </>
+              )}
+            </div>
+            <Menu withinPortal>
+              <Menu.Target>
+                <Button size="xs" variant="light" color="gray">
+                  <IconDots />
+                </Button>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item leftSection={<IconEdit />} onClick={startEditing}>
+                  Edit
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconTrash />}
+                  color="red"
+                  onClick={() => runSetReply("")}
+                >
+                  Clear Reply
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Flex>
+          <MarkdownText value={entry.reply} languages={languages} />
+        </Paper>
+      ) : (
+        <Button
+          size="compact-sm"
+          variant="transparent"
+          c="currentColor"
+          mt="xs"
+          leftSection={<IconMessageCirclePlus />}
+          onClick={startEditing}
+        >
+          Add Reply
+        </Button>
+      )}
     </Card>
   );
 };
