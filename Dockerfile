@@ -105,6 +105,7 @@ CMD uv run manage.py migrate \
 FROM frontend-base AS frontend-dev
 
 COPY frontend ./
+COPY ./CHANGELOG.md ./CHANGELOG.md
 
 RUN yarn install
 
