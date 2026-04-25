@@ -302,6 +302,7 @@ export const CategoryList: React.FC<{}> = () => {
                         </Title>
                         {isAdmin && (
                           <EditMeta1
+                            data={metaCategories}
                             oldMeta1={meta1display}
                             onChange={onChange}
                           />
@@ -334,6 +335,7 @@ export const CategoryList: React.FC<{}> = () => {
 
                                   {isAdmin && (
                                     <EditMeta2
+                                      data={metaCategories}
                                       oldMeta2={meta2display}
                                       meta1={meta1display}
                                       onChange={onChange}
