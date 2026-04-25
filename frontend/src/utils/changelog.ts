@@ -1,6 +1,6 @@
 import changelogSource from "../../CHANGELOG.md?raw";
 
-const VERSION_HEADING = /^## (v\S+)\s*$/gm;
+const VERSION_HEADING = /^## (v\S+).*[\s]*$/gm;
 
 const parseVersions = (): { version: string; index: number }[] => {
   const matches: { version: string; index: number }[] = [];
