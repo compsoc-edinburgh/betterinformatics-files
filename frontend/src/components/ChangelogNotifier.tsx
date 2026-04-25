@@ -22,7 +22,6 @@ const ChangelogNotifier: React.FC = () => {
     if (!latestVersion || !user?.loggedin) return;
     if (lastSeen === null) {
       setLastSeen(latestVersion);
-      return;
     }
     if (lastSeen !== latestVersion) open();
   }, [lastSeen, open, setLastSeen, user?.loggedin]);
@@ -35,10 +34,20 @@ const ChangelogNotifier: React.FC = () => {
   if (!latestVersion) return null;
 
   return (
-    <Modal opened={opened} onClose={dismiss} title="What's New in Community Solutions" size="lg">
+    <Modal
+      opened={opened}
+      onClose={dismiss}
+      title="What's New in Community Solutions"
+      size="lg"
+    >
       <MarkdownText value={entriesSince(lastSeen ?? undefined)} />
       <Group justify="flex-end" mt="md">
-        <Button component={Link} to="/changelog" variant="default" onClick={dismiss}>
+        <Button
+          component={Link}
+          to="/changelog"
+          variant="default"
+          onClick={dismiss}
+        >
           Full changelog
         </Button>
         <Button onClick={dismiss}>Got it</Button>
