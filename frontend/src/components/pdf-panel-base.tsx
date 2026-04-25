@@ -5,15 +5,14 @@ import {
   Stack,
   Title,
   Text,
+  NumberInput,
 } from "@mantine/core";
 import React, { useCallback, useMemo, useState } from "react";
 import { useThrottledCallback } from "@mantine/hooks";
 import PDF from "../pdf/pdf-renderer";
 import IconButton from "./icon-button";
 import Panel from "./panel";
-import {
-  IconArrowUp,
-} from "@tabler/icons-react";
+import { IconArrowUp } from "@tabler/icons-react";
 
 interface PdfPanelBaseProps {
   isOpen: boolean;
@@ -24,7 +23,7 @@ interface PdfPanelBaseProps {
   subtitle?: string;
 
   inViewPages?: Set<number>;
-  
+
   /**
    * Use this to limit the pagination to only the specified pages.
    */
@@ -91,19 +90,29 @@ const PdfPanelBase: React.FC<PdfPanelBaseProps> = ({
   const scrollToTop = useCallback(() => {
     const c = document.documentElement.scrollTop || document.body.scrollTop;
     if (c > 0) {
-      window.requestAnimationFrame(scrollToTop);
-      window.scrollTo(0, c - c / 10 - 1);
+      requestAnimationFrame(scrollToTop);
+      scrollTo(0, c - c / 10 - 1);
     } else {
       toggle();
     }
   }, [toggle]);
 
+  const inViewPage = useMemo(() => {
+    return inViewPages ? Math.min(...Array.from(inViewPages)) : undefined;
+  }, [inViewPages]);
 
-  const inViewPage = useMemo(
-    () => {
-      return inViewPages ? Math.min(...Array.from(inViewPages)) : undefined
+  function handlePageInput(input: string) {
+    input = input.trim();
+
+    if (!/^\d+$/.test(input) || !renderer) {
+      return;
     }
-  , [inViewPages])  
+
+    const parsed = Number.parseInt(input, 10);
+    if (parsed >= 1 && parsed <= renderer.document.numPages) {
+      location.hash = `#page-${parsed}`;
+    }
+  }
 
   return (
     <Panel isOpen={isOpen} toggle={toggle}>
@@ -119,7 +128,7 @@ const PdfPanelBase: React.FC<PdfPanelBaseProps> = ({
           </div>
         )}
         <Title order={6}>Pages</Title>
-        {!!renderer && (
+        {renderer && (
           <Pagination
             value={inViewPage}
             total={visiblePages?.size ?? renderer.document.numPages}
@@ -131,6 +140,29 @@ const PdfPanelBase: React.FC<PdfPanelBaseProps> = ({
             })}
             withControls={false}
           />
+        )}
+        {renderer && (
+          <>
+            <Title order={6}>Navigate to page</Title>
+            <NumberInput
+              placeholder="20"
+              onKeyDown={event => {
+                const value = event.currentTarget.value;
+                if (event.key === "Enter") {
+                  handlePageInput(value);
+                }
+              }}
+              onInput={event => {
+                const value = event.currentTarget.value;
+                handlePageInput(value);
+              }}
+              clampBehavior="strict"
+              min={1}
+              max={renderer.document.numPages}
+              value={inViewPage}
+              hideControls
+            />
+          </>
         )}
         <Title order={6}>Size</Title>
         <Slider
