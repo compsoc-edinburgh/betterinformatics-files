@@ -1,3 +1,4 @@
+from util.schemas import ValueWrapped
 from typing import Optional
 
 from django.shortcuts import get_object_or_404
@@ -24,16 +25,12 @@ def submit(request, data: Form[FeedbackSchema]):
 
 class FeedbackOut(ModelSchema):
     oid: int = Field(..., alias="id")
-    author: str
+    author: str = Field(..., alias="author.username")
     authorDisplayName: str
 
     class Meta:
         model = Feedback
         fields = ["text", "time", "read", "done"]
-
-    @staticmethod
-    def resolve_author(obj):
-        return obj.author.username
 
     @staticmethod
     def resolve_authorDisplayName(obj):
@@ -44,11 +41,11 @@ class FeedbackOut(ModelSchema):
         return obj.time.isoformat()
 
 
-class FeedbackListOut(Schema):
-    value: list[FeedbackOut]
+class FeedbackList(ValueWrapped[list[FeedbackOut]]):
+    pass
 
 
-@router.get("/list/", response=FeedbackListOut)
+@router.get("/list/", response=FeedbackList)
 @auth_check.require_admin
 def list_all(request):
     return {"value": Feedback.objects.select_related("author").all()}

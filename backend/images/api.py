@@ -1,3 +1,4 @@
+from util.schemas import ValueWrapped
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from ninja import File, Router, Schema, UploadedFile
@@ -5,14 +6,14 @@ from ninja import File, Router, Schema, UploadedFile
 from images.models import Image
 from myauth import auth_check
 from util import s3_util
-from util.response import ErrorSchema
+from util.response import ErrorSchema, not_possible, not_allowed
 
 router = Router()
 
 
-class ImageList(Schema):
-    # For backward compat it is a list of one-length lists
-    value: list[tuple[str]]
+# For backward compat it is a list of one-length lists
+class ImageList(ValueWrapped[list[tuple[str]]]):
+    pass
 
 
 @router.get("/list/", response=ImageList)
@@ -32,13 +33,13 @@ class ImageUploadResponse(Schema):
 def upload_image(request, file: UploadedFile = File(...)):
     ext = s3_util.check_filename(file.name, settings.COMSOL_IMAGE_ALLOWED_EXTENSIONS)
     if not ext:
-        return 400, {"err": "Invalid File Extensions"}
+        return not_possible("Invalid File Extensions")
 
     filename = s3_util.generate_filename(16, settings.COMSOL_IMAGE_DIR, "." + ext)
     image = Image(filename=filename, owner=request.user, displayname=file.name)
     image.save()
     s3_util.save_uploaded_file_to_s3(settings.COMSOL_IMAGE_DIR, filename, file)
-    return 200, {"filename": filename}
+    return {"filename": filename}
 
 
 class ImageRemoveResponse(Schema):
@@ -53,11 +54,11 @@ def remove_image(request, filename: str):
     image = get_object_or_404(Image, filename=filename)
 
     if image.owner != request.user and not auth_check.has_admin_rights(request):
-        return 403, {"err": "Not allowed"}
+        return not_allowed()
 
     s3_util.delete_file(settings.COMSOL_IMAGE_DIR, filename)
     image.delete()
-    return 200, {}
+    return {}
 
 
 @router.get("/get/{filename}/")
