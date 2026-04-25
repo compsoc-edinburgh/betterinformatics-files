@@ -914,3 +914,32 @@ export const useMoveDocumentFile = (
 
 export const setFeedbackReply = async (oid: string, reply: string) =>
   fetchPost(`/api/feedback/reply/${oid}/`, { reply });
+
+export const loadExamUserSolved = async (exam: string) => {
+  return fetchGet<{ user_solved: boolean }>(`/api/exam/${exam}/usersolved`);
+};
+
+export const useLoadExamUserSolved = (exam: string) => {
+  const {
+    error,
+    loading,
+    data,
+    mutate,
+    run: reload,
+  } = useRequest(() => loadExamUserSolved(exam), {
+    cacheKey: `exam-${exam}-usersolved`,
+  });
+  return [error, loading, data, mutate, reload] as const;
+};
+
+export const markExamUserSolved = async (exam: string) => {
+  return fetchPut<{ user_solved: boolean }>(`/api/exam/${exam}/usersolved`, {});
+};
+export const useMarkExamUserSolved = (exam: string) =>
+  useMutation(() => markExamUserSolved(exam));
+
+export const unmarkExamUserSolved = async (exam: string) => {
+  return fetchDelete<{ user_solved: boolean }>(`/api/exam/${exam}/usersolved`);
+};
+export const useUnmarkExamUserSolved = (exam: string) =>
+  useMutation(() => unmarkExamUserSolved(exam));
