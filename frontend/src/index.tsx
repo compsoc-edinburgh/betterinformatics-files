@@ -11,7 +11,7 @@ import { MantineProvider } from "@mantine/core";
 import { FaroErrorBoundary } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 
-const container = document.getElementById("root") as HTMLElement;
+const container = document.getElementById("root")!;
 const root = createRoot(container);
 
 const content = (

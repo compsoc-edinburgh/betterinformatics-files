@@ -66,20 +66,21 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
         <Alert color="gray">No answers</Alert>
       )}
       <div className={classes.column}>
-        {answers &&
-          answers.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
-            <div key={answer.oid}>
-              <AnswerComponent
-                hasId={false}
-                answer={answer}
-                answerKind={answer.kind}
-                onSectionChanged={reload}
-              />
-            </div>
-          ))}
-        <div ref={elem => {
-          setLastElement(elem);
-        }} />
+        {answers?.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
+          <div key={answer.oid}>
+            <AnswerComponent
+              hasId={false}
+              answer={answer}
+              answerKind={answer.kind}
+              onSectionChanged={reload}
+            />
+          </div>
+        ))}
+        <div
+          ref={elem => {
+            setLastElement(elem);
+          }}
+        />
       </div>
       {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>

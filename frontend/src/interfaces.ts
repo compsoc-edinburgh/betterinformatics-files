@@ -301,12 +301,8 @@ export interface FAQEntry {
   order: number;
 }
 
-export interface CutVersions {
-  [oid: string]: number;
-}
-export interface ServerCutResponse {
-  [pageNumber: string]: ServerCutPosition[];
-}
+export type CutVersions = Record<string, number>;
+export type ServerCutResponse = Record<string, ServerCutPosition[]>;
 
 export enum EditMode {
   None,

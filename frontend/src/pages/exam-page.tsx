@@ -132,14 +132,14 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     manual: true,
     onSuccess: (_data, [oid, update]) => {
       mutateCuts(oldCuts =>
-        Object.keys(oldCuts).reduce((result, key) => {
+        Object.keys(oldCuts).reduce<ServerCutResponse>((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
             cutPosition.oid === oid
               ? { ...cutPosition, ...update }
               : cutPosition,
           );
           return result;
-        }, {} as ServerCutResponse),
+        }, {}),
       );
     },
   });
@@ -436,7 +436,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   );
 };
 
-const ExamPage: React.FC<{}> = () => {
+const ExamPage: React.FC = () => {
   const { filename } = useParams() as { filename: string };
   const {
     error: metaDataError,
@@ -516,10 +516,10 @@ const ExamPage: React.FC<{}> = () => {
             component={Link}
             to={`/category/${metaData ? metaData.category : ""}`}
           >
-            {metaData && metaData.category_displayname}
+            {metaData?.category_displayname}
           </Anchor>
           <Anchor tt="uppercase" size="xs">
-            {metaData && metaData.displayname}
+            {metaData?.displayname}
           </Anchor>
         </Breadcrumbs>
       </Container>

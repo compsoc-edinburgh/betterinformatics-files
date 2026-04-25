@@ -88,7 +88,7 @@ const TelemetryRoutes =
     ? Routes
     : FaroRoutes;
 
-const App: React.FC<{}> = () => {
+const App: React.FC = () => {
   const [loggedOut, setLoggedOut] = useState(false);
   useEffect(() => {
     let cancel = false;

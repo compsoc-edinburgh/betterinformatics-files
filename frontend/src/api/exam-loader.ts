@@ -28,9 +28,7 @@ function createPdfSection(
     hidden,
   };
 }
-interface ServerCutResponse {
-  [pageNumber: string]: ServerCutPosition[];
-}
+type ServerCutResponse = Record<string, ServerCutPosition[]>;
 
 export function loadSections(
   pageCount: number,
@@ -76,7 +74,7 @@ export function loadSections(
     // lastPos to 1.0. If there were no sections on this page at all, this will
     // represent the full page. Otherwise, it'll be the part after the last cut.
     if (lastpos < 1) {
-      const key = `${akey}-${lastpos}-${1}`;
+      const key = `${akey}-${lastpos}-1`;
       sections.push(createPdfSection(key, undefined, i, lastpos, 1, false));
       akey++;
     }

@@ -2,13 +2,11 @@ export type KeysWhereValue<T, S> = {
   [K in keyof T]: T[K] extends S ? K : never;
 }[keyof T];
 
-interface Options {
-  [a: string]: string;
-}
+type Options = Record<string, string>;
 type OptionsResult<T extends Options> = {
   [key in keyof T]: { value: key; label: T[key] };
 };
-export const fromEntries = <T extends Array<[string, unknown]>>(o: T) =>
+export const fromEntries = <T extends [string, unknown][]>(o: T) =>
   o.reduce((prev: any, curr) => {
     prev[curr[0]] = curr[1];
     return prev;
@@ -19,8 +17,11 @@ export const createOptions = <T extends Options>(o: T) =>
     Object.entries(o).map(([key, value]) => [
       key,
       { value: key, label: value },
-    ]) as Array<[string, unknown]>,
+    ]) as [string, unknown][],
   ) as unknown as OptionsResult<T>;
-export type SelectOption<T> = { value: keyof T; label: string };
+export interface SelectOption<T> {
+  value: keyof T;
+  label: string;
+}
 export const options = <T extends Options>(map: OptionsResult<T>) =>
-  Object.values(map) as Array<{ value: (keyof T) & string; label: string }>;
+  Object.values(map) as Array<{ value: keyof T & string; label: string }>;

@@ -177,7 +177,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
         categories.map(
           category => [category.slug, category.displayname] as const,
         ),
-      ) as { [key: string]: string },
+      ) as Record<string, string>,
     );
 
   const [examTypeOptions, setExamTypeOptions] = useState<string[]>([]);
@@ -242,7 +242,7 @@ const ExamMetadataEditor: React.FC<Props> = ({
           <NativeSelect
             label="Category"
             data={categoryOptions ? (options(categoryOptions) as any) : []}
-            value={categoryOptions && categoryOptions[formState.category].value}
+            value={categoryOptions?.[formState.category].value}
             onChange={(e: any) => {
               const value = e.currentTarget.value;
               setFormValue("category", value as string);

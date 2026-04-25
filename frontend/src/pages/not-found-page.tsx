@@ -3,7 +3,7 @@ import React from "react";
 import useTitle from "../hooks/useTitle";
 import Bjoern from "../assets/bjoern.svg?react";
 
-const NotFoundPage: React.FC<{}> = () => {
+const NotFoundPage: React.FC = () => {
   useTitle("404");
   return (
     <Container size="xl">

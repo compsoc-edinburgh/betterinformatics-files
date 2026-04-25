@@ -51,10 +51,8 @@ const useTextLayer = (
 };
 
 interface TextElementProps {
-  // tslint:disable-next-line: no-any
   item: any;
   // Style currently isn't used. Setting the font family breaks alignment
-  // tslint:disable-next-line: no-any
   styles: any;
   view: number[];
   scale: number;

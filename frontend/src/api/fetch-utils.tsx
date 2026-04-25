@@ -25,7 +25,7 @@ export function getAuthenticationExpiry() {
  * Checks whether it would make sense to call `refreshToken()`
  * @returns Returns `true` iff. there is a token and it is expired.
  */
-export function isTokenExpired(expires = getAuthenticationExpiry()["token"]) {
+export function isTokenExpired(expires = getAuthenticationExpiry().token) {
   if (expires === undefined) return false;
   return expires < minValidity * 1000;
 }
@@ -34,7 +34,7 @@ export function isTokenExpired(expires = getAuthenticationExpiry()["token"]) {
  * Checks whether it makes sense to
  * @returns
  */
-export function authenticated(expires = getAuthenticationExpiry()["token"]) {
+export function authenticated(expires = getAuthenticationExpiry().token) {
   return expires !== undefined;
 }
 
@@ -90,7 +90,7 @@ export class NamedBlob {
 async function performDataRequest<T>(
   method: string,
   url: string,
-  data: { [key: string]: any },
+  data: Record<string, any>,
 ) {
   // Refresh token if needed.
   // If refresh fails or if the refresh token is expired too, we won't outright
@@ -179,15 +179,15 @@ export function getCookie(name: string): string | null {
   }
   return cookieValue;
 }
-export function fetchPost<T = any>(url: string, data: { [key: string]: any }) {
+export function fetchPost<T = any>(url: string, data: Record<string, any>) {
   return performDataRequest<T>("POST", url, data);
 }
 
-export function fetchPut<T = any>(url: string, data: { [key: string]: any }) {
+export function fetchPut<T = any>(url: string, data: Record<string, any>) {
   return performDataRequest<T>("PUT", url, data);
 }
 
-export function fetchPatch<T = any>(url: string, data: { [key: string]: any }) {
+export function fetchPatch<T = any>(url: string, data: Record<string, any>) {
   return performDataRequest<T>("PATCH", url, data);
 }
 

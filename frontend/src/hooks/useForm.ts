@@ -3,9 +3,7 @@ import React, { useCallback, useDebugValue, useRef, useState } from "react";
 type KeysWhereValue<T, S> = {
   [K in keyof T]: T[K] extends S ? K : never;
 }[keyof T];
-interface FormData {
-  [name: string]: any;
-}
+type FormData = Record<string, any>;
 interface InputElement<T> {
   value: T;
   defaultValue: T;

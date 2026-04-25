@@ -190,9 +190,10 @@ PdfRenderer.displayName = "PdfRenderer";
  * url: solution/exam123.pdf
  * ```
  */
-export const useOfficialSolutionLanguage = (): {
-  [key: string]: ComponentRenderer;
-} => {
+export const useOfficialSolutionLanguage = (): Record<
+  string,
+  ComponentRenderer
+> => {
   return useMemo(
     () => ({
       official: ({ children }) => (
@@ -216,7 +217,7 @@ const OfficialSolution: React.FC<Props> = React.memo(({ value }) => {
       return <>Invalid Official Solution Syntax: Missing content</>;
     }
 
-    const match = value.match(REGEX);
+    const match = REGEX.exec(value);
     if (!match) {
       return (
         <>

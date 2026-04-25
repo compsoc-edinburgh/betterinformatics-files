@@ -2,7 +2,7 @@ import { Button, Flex, Text } from "@mantine/core";
 import React from "react";
 import { login } from "../api/fetch-utils";
 
-const LoginOverlay: React.FC<{}> = () => {
+const LoginOverlay: React.FC = () => {
   return (
     <Flex
       align="center"

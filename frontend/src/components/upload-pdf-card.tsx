@@ -1,12 +1,20 @@
-import { FileInput, Select, Stack, TextInput, Title } from "@mantine/core";
+import {
+  FileInput,
+  Select,
+  Stack,
+  TextInput,
+  Title,
+  Alert,
+  Button,
+  Card,
+} from "@mantine/core";
 import { useRequest } from "ahooks";
-import { Alert, Button, Card } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadCategories, uploadPdf } from "../api/hooks";
 import { IconCloudUpload } from "@tabler/icons-react";
 
-const UploadPdfCard: React.FC<{}> = () => {
+const UploadPdfCard: React.FC = () => {
   const navigate = useNavigate();
   const {
     error: categoriesError,
