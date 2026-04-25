@@ -14,6 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.http import Http404
+
 from django.urls import path, re_path, include
 from functools import wraps
 from util import response
@@ -73,3 +75,8 @@ handler400 = views.handler400
 handler403 = views.handler403
 handler404 = views.handler404
 handler500 = views.handler500
+
+
+@api.exception_handler(Http404)
+def validation_errors(request, exc):
+    return views.handler404(request, exc)
