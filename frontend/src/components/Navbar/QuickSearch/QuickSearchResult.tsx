@@ -9,7 +9,7 @@ interface Props {
   badge?: string;
   link: string;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
-  children?: React.ReactElement<unknown>;
+  children?: React.ReactElement;
 }
 
 /**

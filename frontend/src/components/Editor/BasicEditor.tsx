@@ -30,7 +30,6 @@ const BasicEditor: React.FC<Props> = ({
 }) => {
   const preElRef = useRef<HTMLPreElement>(null);
 
-  // tslint:disable-next-line: no-any
   (getSelectionRangeRef as any).current = () => {
     const textarea = textareaElRef.current;
     if (textarea === null) return;
@@ -40,7 +39,6 @@ const BasicEditor: React.FC<Props> = ({
     };
   };
 
-  // tslint:disable-next-line: no-any
   (setSelectionRangeRef as any).current = (newSelection: Range) => {
     const textarea = textareaElRef.current;
     if (textarea === null) return;
@@ -52,7 +50,7 @@ const BasicEditor: React.FC<Props> = ({
 
   const onTextareaChange = useCallback(
     (e: React.FormEvent<HTMLTextAreaElement>) => {
-      const newContent = e.currentTarget!.value;
+      const newContent = e.currentTarget.value;
       onChange(newContent);
     },
     [onChange],

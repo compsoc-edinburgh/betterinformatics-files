@@ -15,7 +15,7 @@ import MarkdownText from "../markdown-text";
 const AnnouncementHeader: React.FC = () => {
   const [dismissed, setDismissed] = useLocalStorage({
     key: "dismissed-announcements",
-    defaultValue: new Set<String>(),
+    defaultValue: new Set<string>(),
     getInitialValueInEffect: false,
     serialize: it => JSON.stringify([...it]),
     deserialize: it => {

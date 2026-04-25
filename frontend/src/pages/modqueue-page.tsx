@@ -118,45 +118,44 @@ const ModQueue: React.FC = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {exams &&
-              exams.map((exam: CategoryExam) => (
-                <Table.Tr key={exam.filename}>
-                  <Table.Td>{exam.category_displayname}</Table.Td>
-                  <Table.Td>
-                    <Group>
-                      <Anchor
-                        c="blue"
-                        component={Link}
-                        to={`/exams/${exam.filename}`}
-                        target="_blank"
-                      >
-                        {exam.displayname}
-                      </Anchor>
-                      {exam.public && <Badge color="green">public</Badge>}
-                      {!exam.public && <Badge color="orange">hidden</Badge>}
-                      <p>{exam.remark}</p>
-                    </Group>
-                  </Table.Td>
-                  <Table.Td>
-                    {exam.finished_cuts ? "All done" : "Needs Cuts"}
-                  </Table.Td>
-                  <Table.Td>
-                    {!exam.finished_cuts && (
-                      <ClaimButton exam={exam} reloadExams={reloadExams} />
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    <IconButton
-                      size="md"
-                      color="red"
-                      tooltip="Delete exam"
-                      icon={<IconTrash />}
-                      variant="outline"
-                      onClick={() => handleRemoveClick(exam)}
-                    />
-                  </Table.Td>
-                </Table.Tr>
-              ))}
+            {exams?.map((exam: CategoryExam) => (
+              <Table.Tr key={exam.filename}>
+                <Table.Td>{exam.category_displayname}</Table.Td>
+                <Table.Td>
+                  <Group>
+                    <Anchor
+                      c="blue"
+                      component={Link}
+                      to={`/exams/${exam.filename}`}
+                      target="_blank"
+                    >
+                      {exam.displayname}
+                    </Anchor>
+                    {exam.public && <Badge color="green">public</Badge>}
+                    {!exam.public && <Badge color="orange">hidden</Badge>}
+                    <p>{exam.remark}</p>
+                  </Group>
+                </Table.Td>
+                <Table.Td>
+                  {exam.finished_cuts ? "All done" : "Needs Cuts"}
+                </Table.Td>
+                <Table.Td>
+                  {!exam.finished_cuts && (
+                    <ClaimButton exam={exam} reloadExams={reloadExams} />
+                  )}
+                </Table.Td>
+                <Table.Td>
+                  <IconButton
+                    size="md"
+                    color="red"
+                    tooltip="Delete exam"
+                    icon={<IconTrash />}
+                    variant="outline"
+                    onClick={() => handleRemoveClick(exam)}
+                  />
+                </Table.Td>
+              </Table.Tr>
+            ))}
           </Table.Tbody>
         </Table>
       </div>

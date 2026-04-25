@@ -31,9 +31,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   const { isCategoryAdmin } = useUser()!;
   const viewableExams = useMemo(
     () =>
-      data &&
       data
-        .filter(exam => exam.public || isCategoryAdmin)
+        ?.filter(exam => exam.public || isCategoryAdmin)
         .filter(exam => filterMatches(filter, exam.displayname)),
     [data, isCategoryAdmin, filter],
   );
@@ -117,21 +116,20 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
         />
       </Flex>
 
-      {examTypeMap &&
-        examTypeMap.map(
-          ([examtype, exams]) =>
-            exams.length > 0 && (
-              <ExamTypeSection
-                examtype={examtype}
-                exams={exams}
-                key={examtype}
-                selected={selected}
-                onSelect={onSelect}
-                onDeselect={onDeselect}
-                reload={reload}
-              />
-            ),
-        )}
+      {examTypeMap?.map(
+        ([examtype, exams]) =>
+          exams.length > 0 && (
+            <ExamTypeSection
+              examtype={examtype}
+              exams={exams}
+              key={examtype}
+              selected={selected}
+              onSelect={onSelect}
+              onDeselect={onDeselect}
+              reload={reload}
+            />
+          ),
+      )}
     </>
   );
 };

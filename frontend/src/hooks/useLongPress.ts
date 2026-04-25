@@ -13,8 +13,7 @@ const createStyle = () => {
   return node;
 };
 const removeStyle = (node: HTMLStyleElement | undefined) => {
-  if (node && document.head === node.parentElement)
-    document.head.removeChild(node);
+  if (document.head === node?.parentElement) document.head.removeChild(node);
 };
 type Point = [number, number];
 const useLongPress = <T>(

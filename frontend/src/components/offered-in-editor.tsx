@@ -18,7 +18,7 @@ const OfferedInEditor: React.FC<OfferedInEditorProps> = ({
   const meta2Value = useMemo(() => newMeta2, [newMeta2]);
   const [error, loading, data, mutate] = useMetaCategories();
   const meta1Options: string[] = useMemo(
-    () => (data && data.map(d => d.displayname)) ?? [],
+    () => data?.map(d => d.displayname) ?? [],
     [data],
   );
   const meta2Options: string[] = useMemo(

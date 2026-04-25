@@ -153,23 +153,23 @@ const applyChanges = async (
     }
   }
   for (const admin of newMetaData.admins) {
-    if (oldMetaData.admins.indexOf(admin) === -1) {
+    if (!oldMetaData.admins.includes(admin)) {
       await addUserToSet(newSlug, "admins", admin);
     }
   }
   for (const admin of oldMetaData.admins) {
-    if (newMetaData.admins.indexOf(admin) === -1) {
+    if (!newMetaData.admins.includes(admin)) {
       await removeUserFromSet(newSlug, "admins", admin);
     }
   }
 
   for (const expert of newMetaData.experts) {
-    if (oldMetaData.experts.indexOf(expert) === -1) {
+    if (!oldMetaData.experts.includes(expert)) {
       await addUserToSet(newSlug, "experts", expert);
     }
   }
   for (const expert of oldMetaData.experts) {
-    if (newMetaData.experts.indexOf(expert) === -1) {
+    if (!newMetaData.experts.includes(expert)) {
       await removeUserFromSet(newSlug, "experts", expert);
     }
   }

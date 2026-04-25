@@ -57,7 +57,7 @@ export function fillMetaCategories(
   categories: CategoryMetaDataOverview[],
   metaCategories: MetaCategory[],
 ): MetaCategoryWithCategories[] {
-  const categoryToMeta: { [key: string]: CategoryMetaDataOverview } = {};
+  const categoryToMeta: Record<string, CategoryMetaDataOverview> = {};
   categories.forEach(cat => {
     categoryToMeta[cat.slug] = cat;
   });
@@ -84,7 +84,7 @@ export function getMetaCategoriesForCategory(
     .map(meta1 => ({
       ...meta1,
       meta2: meta1.meta2.filter(
-        meta2 => meta2.categories.indexOf(category) !== -1,
+        meta2 => meta2.categories.includes(category),
       ),
     }))
     .filter(meta1 => meta1.meta2.length > 0);

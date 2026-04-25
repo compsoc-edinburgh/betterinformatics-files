@@ -6,15 +6,15 @@ import {
   Text,
   Title,
   Select,
+  Button,
 } from "@mantine/core";
 import { useRequest } from "ahooks";
-import { Button } from "@mantine/core";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadPaymentCategories, uploadTranscript } from "../api/hooks";
 import { IconCloudUpload, IconDownload } from "@tabler/icons-react";
 
-const UploadTranscriptCard: React.FC<{}> = () => {
+const UploadTranscriptCard: React.FC = () => {
   const navigate = useNavigate();
   const {
     error: categoriesError,

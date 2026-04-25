@@ -61,9 +61,9 @@ const mapToCategories = (
   const categoryMap = new Map<string, CategoryMetaData>();
   const assignedCategories = new WeakSet<CategoryMetaData>();
   for (const category of categories) categoryMap.set(category.slug, category);
-  const meta1Map: Map<string, Array<[string, CategoryMetaData[]]>> = new Map();
+  const meta1Map = new Map<string, [string, CategoryMetaData[]][]>();
   for (const { displayname: meta1display, meta2 } of meta1) {
-    const meta2Map: Map<string, CategoryMetaData[]> = new Map();
+    const meta2Map = new Map<string, CategoryMetaData[]>();
     for (const {
       displayname: meta2display,
       categories: categoryNames,
@@ -149,7 +149,7 @@ const AddCategory: React.FC<{ onAddCategory: () => void }> = ({
   );
 };
 
-const HomePage: React.FC<{}> = () => {
+const HomePage: React.FC = () => {
   useTitle("Home");
   return (
     <>
@@ -160,8 +160,8 @@ const HomePage: React.FC<{}> = () => {
     </>
   );
 };
-export const CategoryList: React.FC<{}> = () => {
-  const { isAdmin } = useUser() as User;
+export const CategoryList: React.FC = () => {
+  const { isAdmin } = useUser()!;
   const [mode, setMode] = useLocalStorageState("mode", "alphabetical");
   const [collapsedCategories, setCollapsedCategories] = useLocalStorageState<
     string[]

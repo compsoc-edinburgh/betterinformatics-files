@@ -80,7 +80,7 @@ function useAlmostInViewport<T extends HTMLElement = HTMLElement>(
     const initDOM =
       typeof arg.current === "function" ? arg.current() : arg.current;
 
-    return isInViewPort(initDOM as HTMLElement);
+    return isInViewPort(initDOM!);
   });
 
   useLayoutEffect(() => {

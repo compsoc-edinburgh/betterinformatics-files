@@ -12,6 +12,7 @@ import {
   Button,
   Box,
   Title,
+  Loader,
 } from "@mantine/core";
 import React, { useCallback, useMemo } from "react";
 import {
@@ -37,7 +38,6 @@ import useTitle from "../hooks/useTitle";
 import { CategoryMetaData } from "../interfaces";
 import { getMetaCategoriesForCategory } from "../utils/category-utils";
 import serverData from "../utils/server-data";
-import { Loader } from "@mantine/core";
 import {
   IconChevronRight,
   IconEdit,
@@ -273,7 +273,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   );
 };
 
-const CategoryPage: React.FC<{}> = () => {
+const CategoryPage: React.FC = () => {
   const { slug } = useParams() as { slug: string };
   const { data, loading, error, mutate } = useRequest(
     () => loadCategoryMetaData(slug),

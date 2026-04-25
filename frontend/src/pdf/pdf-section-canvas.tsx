@@ -189,7 +189,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     ]);
 
     const onAddCutHandler = (pos: number) =>
-      onAddCut && onAddCut(start + (end - start) * (pos / containerHeight));
+      onAddCut?.(start + (end - start) * (pos / containerHeight));
 
     let content: React.ReactNode;
     if (canvas) {

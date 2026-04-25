@@ -61,7 +61,7 @@ function Th({ children, sorted, onSort }: ThProps) {
   );
 }
 
-const Scoreboard: React.FC<{}> = () => {
+const Scoreboard: React.FC = () => {
   useTitle("Scoreboard");
   const [mode, setMode] = useLocalStorageState<Mode>(
     "scoreboard-mode",
@@ -126,23 +126,22 @@ const Scoreboard: React.FC<{}> = () => {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {data &&
-              data.map((board, idx) => (
-                <Table.Tr key={board.username}>
-                  <Table.Td>{idx + 1}</Table.Td>
-                  <Table.Td>
-                    <Anchor component={Link} to={`/user/${board.username}`}>
-                      {board.displayName}
-                    </Anchor>
-                  </Table.Td>
-                  <Table.Td>{board.score}</Table.Td>
-                  <Table.Td>{board.score_answers}</Table.Td>
-                  <Table.Td>{board.score_comments}</Table.Td>
-                  <Table.Td>{board.score_documents}</Table.Td>
-                  <Table.Td>{board.score_cuts}</Table.Td>
-                  <Table.Td>{board.score_legacy}</Table.Td>
-                </Table.Tr>
-              ))}
+            {data?.map((board, idx) => (
+              <Table.Tr key={board.username}>
+                <Table.Td>{idx + 1}</Table.Td>
+                <Table.Td>
+                  <Anchor component={Link} to={`/user/${board.username}`}>
+                    {board.displayName}
+                  </Anchor>
+                </Table.Td>
+                <Table.Td>{board.score}</Table.Td>
+                <Table.Td>{board.score_answers}</Table.Td>
+                <Table.Td>{board.score_comments}</Table.Td>
+                <Table.Td>{board.score_documents}</Table.Td>
+                <Table.Td>{board.score_cuts}</Table.Td>
+                <Table.Td>{board.score_legacy}</Table.Td>
+              </Table.Tr>
+            ))}
           </Table.Tbody>
         </Table>
       </div>

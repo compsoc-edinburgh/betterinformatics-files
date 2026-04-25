@@ -79,7 +79,7 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({
     deleteRun(oldMeta1);
   };
   const meta1Options: string[] = useMemo(
-    () => (data && data.map(d => d.displayname)) ?? [],
+    () => data?.map(d => d.displayname) ?? [],
     [data],
   );
   const onTextChange = (input: string) => {
@@ -182,7 +182,7 @@ export const EditMeta2: React.FC<EditMeta2Props> = ({
   const [newMeta1, setNewMeta1] = useInitialState(meta1);
   const [newMeta2, setNewMeta2] = useInitialState(oldMeta2);
   const meta1Options: string[] = useMemo(
-    () => (data && data.map(d => d.displayname)) ?? [],
+    () => data?.map(d => d.displayname) ?? [],
     [data],
   );
   const meta2Options: string[] = useMemo(

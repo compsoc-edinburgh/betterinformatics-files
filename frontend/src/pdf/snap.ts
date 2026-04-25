@@ -40,7 +40,7 @@ export const determineOptimalCutPositions = (
     bigSnapRegionMinSize = 0.07,
   } = {},
 ): SnapRegion[] => {
-  const s: Array<SnapRegion> = [];
+  const s: SnapRegion[] = [];
   /**
    * @param a The start of the clean region
    * @param b Te end of the clean region

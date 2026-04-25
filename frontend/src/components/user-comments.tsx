@@ -67,15 +67,16 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
         <Alert color="gray">No comments</Alert>
       )}
       <div className={classes.column}>
-        {comments &&
-          comments.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
-            <div key={comment.oid}>
-              <SingleCommentComponent comment={comment} reload={reload}/>
-            </div>
-          ))}
-        <div ref={elem => {
-          setLastElement(elem);
-        }} />
+        {comments?.slice(0, (page + 1) * PAGE_SIZE).map(comment => (
+          <div key={comment.oid}>
+            <SingleCommentComponent comment={comment} reload={reload} />
+          </div>
+        ))}
+        <div
+          ref={elem => {
+            setLastElement(elem);
+          }}
+        />
       </div>
       {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>

@@ -31,7 +31,7 @@ export type ComponentRenderer = (
     React.HTMLAttributes<HTMLElement>,
     HTMLElement
   >,
-) => React.ReactElement<unknown>;
+) => React.ReactElement;
 
 const addMarks = (
   obj: any,

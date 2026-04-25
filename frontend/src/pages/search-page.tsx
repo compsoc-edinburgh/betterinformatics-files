@@ -14,7 +14,7 @@ const loadSearch = async (term: string) => {
     .value as SearchResponse;
 };
 
-const SearchPage: React.FC<{}> = () => {
+const SearchPage: React.FC = () => {
   useTitle("Search");
   const [query, setQuery] = useQueryParam("q", StringParam);
   const [optionalTerm, setTerm] = useState(query);
@@ -62,7 +62,7 @@ const SearchPage: React.FC<{}> = () => {
         <LoadingOverlay visible={loading} />
         <Container size="xl">
           <div>
-            {data && data.length === 0 && debouncedTerm !== "" && (
+            {data?.length === 0 && debouncedTerm !== "" && (
               <div>
                 <h4>No Result</h4>
                 <p>We couldn't find anything matching your search term.</p>

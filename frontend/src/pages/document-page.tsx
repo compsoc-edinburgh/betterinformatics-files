@@ -151,10 +151,10 @@ const DocumentPage: React.FC<Props> = () => {
             component={Link}
             to={`/category/${data ? data.category : ""}`}
           >
-            {data && data.category_display_name}
+            {data?.category_display_name}
           </Anchor>
           <Anchor size="xs" tt="uppercase">
-            {data && data.display_name}
+            {data?.display_name}
           </Anchor>
         </Breadcrumbs>
         {data && (
@@ -201,7 +201,7 @@ const DocumentPage: React.FC<Props> = () => {
           </Box>
         )}
         {error && <Alert color="red">{error.toString()}</Alert>}
-        {data && data.description && (
+        {data?.description && (
           <div>
             <MarkdownText value={data.description} />
           </div>
