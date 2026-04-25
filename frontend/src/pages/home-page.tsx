@@ -270,6 +270,10 @@ export const CategoryList: React.FC<{}> = () => {
             leftSection={
               <IconSearch style={{ height: "15px", width: "15px" }} />
             }
+            style={{
+              opacity: filter.length === 0 ? 0 : 1,
+              transition: "opacity 150ms",
+            }}
           />
         </Flex>
       </Container>
