@@ -1,11 +1,12 @@
+from util.schemas import ValueWrapped
 from typing import Optional
 
 from django.shortcuts import get_object_or_404
-from myauth import auth_check
-from myauth.models import get_my_user
-from ninja import Form, Router, Schema
+from ninja import Field, Form, ModelSchema, Router, Schema
 
 from feedback.models import Feedback
+from myauth import auth_check
+from myauth.models import get_my_user
 
 router = Router()
 
@@ -22,25 +23,32 @@ def submit(request, data: Form[FeedbackSchema]):
     return None
 
 
-@router.get("/list/")
+class FeedbackOut(ModelSchema):
+    oid: int = Field(..., alias="id")
+    author: str = Field(..., alias="author.username")
+    authorDisplayName: str
+
+    class Meta:
+        model = Feedback
+        fields = ["text", "time", "read", "done"]
+
+    @staticmethod
+    def resolve_authorDisplayName(obj):
+        return get_my_user(obj.author).displayname()
+
+    @staticmethod
+    def resolve_time(obj):
+        return obj.time.isoformat()
+
+
+class FeedbackList(ValueWrapped[list[FeedbackOut]]):
+    pass
+
+
+@router.get("/list/", response=FeedbackList)
 @auth_check.require_admin
 def list_all(request):
-    objs = Feedback.objects.select_related("author").all()
-    return {
-        # TODO: Make this a schema as well?
-        "value": [
-            {
-                "oid": obj.id,
-                "text": obj.text,
-                "author": obj.author.username,
-                "authorDisplayName": get_my_user(obj.author).displayname(),
-                "time": obj.time.isoformat(),
-                "read": obj.read,
-                "done": obj.done,
-            }
-            for obj in objs
-        ]
-    }
+    return {"value": Feedback.objects.select_related("author").all()}
 
 
 class FeedbackFlagsSchema(Schema):
