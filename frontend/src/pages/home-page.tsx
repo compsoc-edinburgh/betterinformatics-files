@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Button,
   Container,
   Flex,
@@ -19,6 +20,7 @@ import { fetchGet, fetchPost } from "../api/fetch-utils";
 import { loadMetaCategories } from "../api/hooks";
 import { User, useUser } from "../auth";
 import CategoryCard from "../components/category-card";
+import RecentlyViewedExams from "../components/recently-viewed-exams";
 import Grid from "../components/grid";
 import ContentContainer from "../components/secondary-container";
 import useSearch from "../hooks/useSearch";
@@ -270,10 +272,15 @@ export const CategoryList: React.FC<{}> = () => {
             leftSection={
               <IconSearch style={{ height: "15px", width: "15px" }} />
             }
+            style={{
+              opacity: filter.length === 0 ? 0 : 1,
+              transition: "opacity 150ms",
+            }}
           />
         </Flex>
       </Container>
-      <ContentContainer>
+      <RecentlyViewedExams />
+      <ContentContainer mt="sm">
         <Container size="xl" py="md" pos="relative">
           {loading && !error && (
             <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />
@@ -302,6 +309,7 @@ export const CategoryList: React.FC<{}> = () => {
                         </Title>
                         {isAdmin && (
                           <EditMeta1
+                            data={metaCategories}
                             oldMeta1={meta1display}
                             onChange={onChange}
                           />
@@ -334,6 +342,7 @@ export const CategoryList: React.FC<{}> = () => {
 
                                   {isAdmin && (
                                     <EditMeta2
+                                      data={metaCategories}
                                       oldMeta2={meta2display}
                                       meta1={meta1display}
                                       onChange={onChange}

@@ -4,9 +4,18 @@ import useInitialState from "../hooks/useInitialState";
 import { useRequest } from "ahooks";
 import { useMetaCategories } from "../api/hooks";
 import { useEffect, useMemo } from "react";
-import { ActionIcon, Button, Flex, Loader, Modal, Stack, TextInput } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Flex,
+  Loader,
+  Modal,
+  Stack,
+  TextInput,
+} from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Creatable from "./creatable";
+import { MetaCategory } from "../interfaces";
 
 const editMeta1Name = async (oldmeta1: string, newmeta1: string) => {
   await fetchPost("/api/category/editmeta1/", { oldmeta1, newmeta1 });
@@ -35,10 +44,15 @@ const deleteMeta2 = async (meta1: string, meta2: string) => {
 };
 
 interface EditMeta1Props {
+  data: MetaCategory[] | undefined;
   oldMeta1: string;
   onChange: () => void;
 }
-export const EditMeta1: React.FC<EditMeta1Props> = ({ oldMeta1, onChange }) => {
+export const EditMeta1: React.FC<EditMeta1Props> = ({
+  data,
+  oldMeta1,
+  onChange,
+}) => {
   const [editModal, { open: openEditModal, close: closeEditModal }] =
     useDisclosure();
   const [deleteModal, { open: openDeleteModal, close: closeDeleteModal }] =
@@ -64,7 +78,6 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({ oldMeta1, onChange }) => {
   const onDelete = () => {
     deleteRun(oldMeta1);
   };
-  const [error, metaLoading, data, mutate] = useMetaCategories();
   const meta1Options: string[] = useMemo(
     () => (data && data.map(d => d.displayname)) ?? [],
     [data],
@@ -134,12 +147,14 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({ oldMeta1, onChange }) => {
 };
 
 interface EditMeta2Props {
+  data: MetaCategory[] | undefined;
   oldMeta2: string;
   meta1: string;
   onChange: () => void;
 }
 
 export const EditMeta2: React.FC<EditMeta2Props> = ({
+  data,
   oldMeta2,
   meta1,
   onChange,
@@ -166,7 +181,6 @@ export const EditMeta2: React.FC<EditMeta2Props> = ({
 
   const [newMeta1, setNewMeta1] = useInitialState(meta1);
   const [newMeta2, setNewMeta2] = useInitialState(oldMeta2);
-  const [error, loadingMeta, data, mutate] = useMetaCategories();
   const meta1Options: string[] = useMemo(
     () => (data && data.map(d => d.displayname)) ?? [],
     [data],
@@ -174,9 +188,9 @@ export const EditMeta2: React.FC<EditMeta2Props> = ({
   const meta2Options: string[] = useMemo(
     () =>
       data && newMeta1.length > 0
-        ? data
+        ? (data
             .find(m => m.displayname === newMeta1)
-            ?.meta2.map(m => m.displayname) ?? []
+            ?.meta2.map(m => m.displayname) ?? [])
         : [],
     [data, newMeta1],
   );

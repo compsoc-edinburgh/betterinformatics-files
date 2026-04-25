@@ -71,6 +71,7 @@ COPY ./frontend/tsconfig.json \
     ./frontend/.prettierrc.json ./
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
+COPY ./CHANGELOG.md ./CHANGELOG.md
 ENV VITE_GIT_BRANCH=${git_branch}
 ENV VITE_GIT_COMMIT=${git_commit}
 RUN yarn run build

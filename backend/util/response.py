@@ -1,65 +1,75 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from functools import wraps
-from django.http import JsonResponse, FileResponse, QueryDict
-from django.http import HttpResponseNotAllowed
-from django.http.multipartparser import MultiPartParser
-from io import BytesIO
+
+from django.http import FileResponse, HttpResponseNotAllowed, JsonResponse
+from ninja import Schema
 
 
 def request_post(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
         def wrapper(request, *args, **kwargs):
-            if request.method != 'POST':
-                return HttpResponseNotAllowed(['POST'])
+            if request.method != "POST":
+                return HttpResponseNotAllowed(["POST"])
             if not optional:
                 for arg in req_args:
                     if arg not in request.POST:
                         return missing_argument()
             return f(request, *args, **kwargs)
+
         return wrapper
+
     return wrap_func
+
 
 def request_put(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
         def wrapper(request, *args, **kwargs):
-            if request.method != 'PUT':
-                return HttpResponseNotAllowed(['PUT'])
+            if request.method != "PUT":
+                return HttpResponseNotAllowed(["PUT"])
             if not optional:
                 for arg in req_args:
                     if arg not in request.DATA:
                         return missing_argument()
             return f(request, *args, **kwargs)
+
         return wrapper
+
     return wrap_func
+
 
 def request_patch(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
         def wrapper(request, *args, **kwargs):
-            if request.method != 'PATCH':
-                return HttpResponseNotAllowed(['PATCH'])
+            if request.method != "PATCH":
+                return HttpResponseNotAllowed(["PATCH"])
             if not optional:
                 for arg in req_args:
                     if arg not in request.DATA:
                         return missing_argument()
             return f(request, *args, **kwargs)
+
         return wrapper
+
     return wrap_func
+
 
 def request_get(*req_args, optional=False):
     def wrap_func(f):
         @wraps(f)
         def wrapper(request, *args, **kwargs):
-            if request.method != 'GET':
-                return HttpResponseNotAllowed(['GET'])
+            if request.method != "GET":
+                return HttpResponseNotAllowed(["GET"])
             if not optional:
                 for arg in req_args:
                     if arg not in request.GET:
                         return missing_argument()
             return f(request, *args, **kwargs)
+
         return wrapper
+
     return wrap_func
 
 
@@ -73,7 +83,9 @@ def required_args(*req_args, optional=False):
                     if arg not in request.DATA:
                         return missing_argument()
             return f(self, request, *args, **kwargs)
+
         return wrapper
+
     return wrap_func
 
 
@@ -84,18 +96,24 @@ def data_dumper(obj):
         return obj
 
 
+class ErrorSchema(Schema):
+    err: str
+
+
 def success(**obj):
-    return JsonResponse(obj, json_dumps_params={'default': data_dumper})
+    return JsonResponse(obj, json_dumps_params={"default": data_dumper})
+
 
 def unauthorized():
-    return JsonResponse({'err': 'Unauthorized'}, status=401)
+    return JsonResponse({"err": "Unauthorized"}, status=401)
+
 
 def not_allowed():
-    return JsonResponse({'err': 'Not allowed'}, status=403)
+    return JsonResponse({"err": "Not allowed"}, status=403)
 
 
 def not_found():
-    return JsonResponse({'err': 'Not found'}, status=404)
+    return JsonResponse({"err": "Not found"}, status=404)
 
 
 def not_possible(msg):
@@ -107,16 +125,18 @@ def unsupported_media_type():
 
 
 def internal_error():
-    return JsonResponse({'err': 'Internal Server Error'}, status=500)
+    return JsonResponse({"err": "Internal Server Error"}, status=500)
 
 
 def missing_argument():
-    return not_possible('Missing argument')
+    return not_possible("Missing argument")
 
 
 def send_file(file_, **kwargs):
-    return FileResponse(open(file_, 'rb'), **kwargs)
+    return FileResponse(open(file_, "rb"), **kwargs)
 
 
 def send_file_obj(file_obj, filename, as_attachment=False, **kwargs):
-    return FileResponse(file_obj, filename=filename, as_attachment=as_attachment, **kwargs)
+    return FileResponse(
+        file_obj, filename=filename, as_attachment=as_attachment, **kwargs
+    )

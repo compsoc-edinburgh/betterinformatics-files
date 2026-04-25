@@ -28,6 +28,7 @@ import { AuthenticatedRoutes } from "./auth/AuthenticatedRoutes";
 import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
 import CategoryPage from "./pages/category-page";
+import ChangelogPage from "./pages/changelog-page";
 import DocumentPage from "./pages/document-page";
 import ExamPage from "./pages/exam-page";
 import FAQ from "./pages/faq-page";
@@ -53,6 +54,7 @@ import {
 import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
+import ChangelogNotifier from "./components/ChangelogNotifier";
 import FlaggedContent from "./pages/flagged-content";
 import { FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
@@ -278,6 +280,7 @@ const App: React.FC<{}> = () => {
       title: "More",
       childItems: [
         { title: "FAQ", href: "/faq" },
+        { title: "What's New", href: "/changelog" },
         { title: "Feedback", href: "/feedback" },
         { title: "Submit Transcript", href: "/submittranscript" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
@@ -369,6 +372,7 @@ const App: React.FC<{}> = () => {
                   title={"Community Solutions"}
                 />
                 <AnnouncementHeader />
+                <ChangelogNotifier />
                 <Box component="main" mt="2em">
                   <TelemetryRoutes>
                     <Route path="*" element={<NotFoundPage />} />
@@ -381,6 +385,7 @@ const App: React.FC<{}> = () => {
                         element={<UploadTranscriptPage />}
                       />
                       <Route path="/faq" element={<FAQ />} />
+                      <Route path="/changelog" element={<ChangelogPage />} />
                       <Route path="/feedback" element={<FeedbackPage />} />
                       <Route
                         path="/category/:slug/*"
@@ -418,7 +423,7 @@ const App: React.FC<{}> = () => {
       </DebugContext.Provider>
       {process.env.NODE_ENV === "development" && (
         <>
-          <Affix position={{ bottom: rem(10), left: rem(10) }}>
+          <Affix position={{ bottom: rem(80), left: rem(0) }}>
             <Button onClick={toggleDebugPanel}>DEBUG</Button>
           </Affix>
           <DebugModal
