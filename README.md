@@ -34,7 +34,7 @@ The main way to develop is to have three separate terminals:
 
 - One for the frontend using node (yarn) with hot-reload
 - One for the backend using python (uv) with hot-reload
-- One for running the remaining services like PostgreSQL/Minio with docker-compose
+- One for running the remaining services like PostgreSQL/rclone with docker-compose
 
 Start the terminals in the following order to ensure a correct startup.
 
@@ -44,11 +44,11 @@ You will need **Docker Compose** to start up any extra services. See the
 [official install instructions](https://docs.docker.com/compose/install/) for
 detailed explanation of how to install Docker.
 
-This will start up required services, like a local postgres and minio. The first
-time around this can take a while to start up.
+This will start up required services, like a local postgres and rclone S3 server.
+The first time around this can take a while to start up.
 
 ```sh
-docker compose up postgres minio createbuckets
+docker compose up postgres rclone rclone-create-bucket
 ```
 
 Key things to look for:
@@ -59,17 +59,10 @@ Key things to look for:
   ...
   postgres  | 2026-02-18 11:03:51.936 UTC [1] LOG:  database system is ready to accept connections
   ```
-- Is minio running successfully?
+- Is rclone running successfully?
   ```sh
-  minio     | Status:         1 Online, 0 Offline.
-  minio     | S3-API: http://172.19.0.2:9000  http://127.0.0.1:9000
-  minio     | Console: http://172.19.0.2:9001 http://127.0.0.1:9001
-  ```
-- Did the `createbuckets` script successfully create a bucket in minio?
-  ```sh
-  createbuckets-1  | Added `myminio` successfully.
-  createbuckets-1  | Bucket created successfully `myminio/community-solutions`.
-  createbuckets-1 exited with code 0
+  rclone-1  | 2026/04/25 21:45:55 NOTICE: Warning: Allow origin set to *. This can cause serious security problems.
+  rclone-1  | 2026/04/25 21:45:55 NOTICE: Local file system at /data: Starting s3 server on [http://[::]:9000/]
   ```
 
 #### Terminal 2 : Backend
@@ -122,13 +115,10 @@ This method is less flexible than running it fully locally, so prefer the above 
 
 > ## IMPORTANT
 >
-> When running the backend with docker-compose, you **HAVE** to add `minio` to your `/etc/hosts` or else documents won't work on the frontend (this is not required if fully using mise)!
+> When running the backend with docker-compose, you **HAVE** to add `rclone` to your `/etc/hosts` or else documents won't work on the frontend (this is not required if fully using mise)!
 >
-> - Edit your host file at `/etc/hosts` to include the line `127.0.0.1 minio`.
->   This will allow your browser to get documents directly from minio.
-> - Go to `localhost:9001` and login to the minio console with the username: minio and
->   password: minio123. There should be a bucket called `community-solutions`. That is where
->   all the documents are stored. If it's not there, create it manually.
+> - Edit your host file at `/etc/hosts` to include the line `127.0.0.1 rclone`.
+>   This will allow your browser to get documents directly from rclone.
 
 If you want to run the _backend_ in docker-compose, remove the targets for the docker compose command for `Terminal 1` and simply run:
 
@@ -141,7 +131,7 @@ If you want to additionally run the _frontend_ in docker-compose, add the `--pro
 ```sh
 docker compose --profile frontend up
 # or if you ONLY want the frontend without backend:
-# docker compose up react-frontend postgres minio createbuckets
+# docker compose up react-frontend postgres rclone rclone-create-bucket
 ```
 
 If you are too lazy to type it every time, create a `.env` file in this directory and add the line `COMPOSE_PROFILES=frontend`.
@@ -279,8 +269,8 @@ make sure you're on the latest commit of the branch with `git pull`.
   force the Postgres service to completely build the database from scratch.
 
 - **`UnknownErrorException` when accessing exams/documents:** This is very likely
-  caused by minio not being in your hosts file. Your browser gets an url with minio
-  as the host, but if minio is not in your hosts file, it won't be redirected correctly.
+  caused by rclone not being in your hosts file. Your browser gets an url with rclone
+  as the host, but if rclone is not in your hosts file, it won't be redirected correctly.
 
 # The important bits
 
