@@ -21,11 +21,8 @@ const ChangelogNotifier: React.FC = () => {
 
   useEffect(() => {
     if (!latestVersion || !user?.loggedin) return;
-    if (lastSeen === null) {
-      setLastSeen(latestVersion);
-    }
     if (lastSeen !== latestVersion) open();
-  }, [lastSeen, open, setLastSeen, user?.loggedin]);
+  }, [lastSeen, open, user?.loggedin]);
 
   const dismiss = () => {
     if (latestVersion) setLastSeen(latestVersion);
