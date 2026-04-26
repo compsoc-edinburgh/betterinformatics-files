@@ -23,7 +23,6 @@ const ChangelogNotifier: React.FC = () => {
     if (!latestVersion || !user?.loggedin) return;
     if (lastSeen === null) {
       setLastSeen(latestVersion);
-      return;
     }
     if (lastSeen !== latestVersion) open();
   }, [lastSeen, open, setLastSeen, user?.loggedin]);
