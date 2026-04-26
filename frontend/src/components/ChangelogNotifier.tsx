@@ -15,6 +15,7 @@ const ChangelogNotifier: React.FC = () => {
     key: STORAGE_KEY,
     defaultValue: null,
     getInitialValueInEffect: false,
+    sync: false,
   });
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -35,10 +36,20 @@ const ChangelogNotifier: React.FC = () => {
   if (!latestVersion) return null;
 
   return (
-    <Modal opened={opened} onClose={dismiss} title="What's New in Community Solutions" size="lg">
+    <Modal
+      opened={opened}
+      onClose={dismiss}
+      title="What's New in Community Solutions"
+      size="lg"
+    >
       <MarkdownText value={entriesSince(lastSeen ?? undefined)} />
       <Group justify="flex-end" mt="md">
-        <Button component={Link} to="/changelog" variant="default" onClick={dismiss}>
+        <Button
+          component={Link}
+          to="/changelog"
+          variant="default"
+          onClick={dismiss}
+        >
           Full changelog
         </Button>
         <Button onClick={dismiss}>Got it</Button>
