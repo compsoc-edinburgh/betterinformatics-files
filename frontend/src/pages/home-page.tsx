@@ -27,7 +27,7 @@ import useSearch from "../hooks/useSearch";
 import useTitle from "../hooks/useTitle";
 import { CategoryMetaData, MetaCategory } from "../interfaces";
 import CourseCategoriesPanel from "../components/course-categories-panel";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconFilter, IconPlus, IconSearch } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { EditMeta1, EditMeta2 } from "../components/edit-meta-categories";
 import CollapseWrapper from "../components/collapse-wrapper";
@@ -270,12 +270,8 @@ export const CategoryList: React.FC = () => {
             autoFocus
             onChange={e => setFilter(e.currentTarget.value)}
             leftSection={
-              <IconSearch style={{ height: "15px", width: "15px" }} />
+              <IconFilter style={{ height: "15px", width: "15px" }} />
             }
-            style={{
-              opacity: filter.length === 0 ? 0 : 1,
-              transition: "opacity 150ms",
-            }}
           />
         </Flex>
       </Container>
