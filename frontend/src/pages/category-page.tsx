@@ -169,7 +169,8 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
   //   (testimonial: CourseTestimonial) => (testimonial.euclid_code == c && testimonial.approval_status == ApprovalStatus.APPROVED
   // ));
 
-  let courseTestimonials = testimonials.filter((testimonial) => (testimonial.category_id === metaData.category_id && testimonial.approval_status == ApprovalStatus.APPROVED)) //filter based on approval status
+  let courseTestimonials = testimonials.filter((testimonial) => (testimonial.slug === metaData.slug && testimonial.approval_status == ApprovalStatus.APPROVED)) //filter based on approval status
+  console.log(courseTestimonials)
   const tabs = useCategoryTabs([
     { name: "Resources", id: "resources" },
     { name: "Testimonials", id: "testimonials", count: courseTestimonials? courseTestimonials.length: 0}, //okay haven't finished.
@@ -452,7 +453,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
         <Stack p={10}>
           {
             tabs.currentTabId=="testimonials" && courseTestimonials.map((testimonial, index) => //add a key to the testimonial
-              <TestimonialCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} category_id={testimonial.category_id} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.testimonial_id)}></TestimonialCard>)
+              <TestimonialCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} slug={testimonial.slug} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.testimonial_id)}></TestimonialCard>)
           }
         </Stack>
 

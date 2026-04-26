@@ -24,7 +24,7 @@ interface CourseNameCategoryLabel {
   label: string;
 }
 const AddTestimonialsPage: React.FC<TestimonialsTableProps> = ({data}) => {
-    const { category_id, course_name } = useParams<{ category_id?: string; course_name?: string }>();
+    const { slug, course_name } = useParams<{ slug?: string; course_name?: string }>();
     const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [listCoursesData, setListCoursesData] = useState<CourseNameCategoryLabel[]>([]);
@@ -40,12 +40,10 @@ const AddTestimonialsPage: React.FC<TestimonialsTableProps> = ({data}) => {
     const [bi_courses_error, bi_courses_loading, bi_courses_data] = useBICourseList();
     //also load the courses!
 
-
-
     useEffect(() => {
-      if (course_name && category_id && courses && testimonials && bi_courses_data) {
+      if (course_name && slug && courses && testimonials && bi_courses_data) {
         setListCoursesData(getTableData(courses, testimonials, bi_courses_data).map((course : CourseWithTestimonial) => ({
-          value: `${course.course_name} - ${course.category_id}`, 
+          value: `${course.course_name} - ${course.slug}`, 
           label: course.course_name, 
         })))
       }
@@ -59,7 +57,7 @@ const AddTestimonialsPage: React.FC<TestimonialsTableProps> = ({data}) => {
         // if (found) {
         //   form.setFieldValue('courseName', `${found.course_name} - ${found.category_id}`);
         // }
-      , [course_name, category_id, courses, testimonials, bi_courses_data]);
+      , [course_name, slug, courses, testimonials, bi_courses_data]);
 
     const form = useForm({
       initialValues: {
@@ -80,13 +78,14 @@ const AddTestimonialsPage: React.FC<TestimonialsTableProps> = ({data}) => {
       setErrorMessage(null);
   
       // fetchPost expects a plain object, and it will construct FormData internally
-      const selectedCategoryId = listCoursesData.find(item => item.label === values.courseName)?.value.split(" - ")[1];
+      const selectedSlug = listCoursesData.find(item => item.label === values.courseName)?.value.split(" - ")[1];
+
       const dataToSend = {
-        category_id: selectedCategoryId,
+        slug: selectedSlug,
         year_taken: values.yearTakenValue,
         testimonial: values.testimonialString, 
       };
-      //understand thens and comments
+
       try {
         const response = await fetchPost('/api/testimonials/addtestimonial/', dataToSend);
 

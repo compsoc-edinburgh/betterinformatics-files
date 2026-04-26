@@ -13,7 +13,7 @@ class Testimonial(models.Model):
     author = models.ForeignKey("auth.User", on_delete=models.CASCADE, default="")
     category = models.ForeignKey(  # Link Testimonial to a Category
         "categories.Category",
-        on_delete=models.CASCADE# Delete testimonials if category is deleted
+        on_delete=models.CASCADE   # Delete testimonials if category is deleted
     )
     testimonial = models.TextField()
     year_taken = models.IntegerField()

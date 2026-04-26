@@ -9,30 +9,32 @@ from ediauth import auth_check
 from util import response, func_cache
 
 
-@response.request_get()
-def list_categories_with_id(request):
-    categories = Category.objects.order_by("displayname").all()
-    res = [
-        {   
-            "category_id": cat.id,
-            "displayname": cat.displayname,
-            "slug": cat.slug,
-            "euclid_codes": [euclidcode.code for euclidcode in cat.euclid_codes.all()]
-        }
-        for cat in categories
-    ]
-    return response.success(value=res)
 
-@response.request_get()
-def list_categories(request):
-    categories = Category.objects.order_by("displayname").all()
-    res = [
-        {
-            "displayname": cat.displayname,
-            "slug": cat.slug,
-        }
-        for cat in categories
-    ]
+@response.request_get("include_euclid_codes", optional=True)
+def list_categories(request, include_euclid_codes: bool = False):
+    include_euclid_codes = request.GET.get('include_euclid_codes')
+    include_euclid_codes = bool(include_euclid_codes)
+    res = []
+    if include_euclid_codes:
+        categories = Category.objects.order_by("displayname").prefetch_related("euclid_codes")
+        res = [
+            {
+                "displayname": cat.displayname,
+                "slug": cat.slug,
+                "euclid_codes": [euclidcode.code for euclidcode in cat.euclid_codes.all()]
+            }
+            for cat in categories
+        ]
+    else:
+        categories = Category.objects.order_by("displayname").all()
+        res = [
+            {
+                "displayname": cat.displayname,
+                "slug": cat.slug,
+            }
+            for cat in categories
+        ]
+
     return response.success(value=res)
 
 
@@ -41,7 +43,6 @@ def list_categories_with_meta(request):
     categories = Category.objects.select_related("meta").order_by("displayname").all()
     res = [
         {
-            "category_id": cat.id,
             "displayname": cat.displayname,
             "slug": cat.slug,
             "examcountpublic": cat.meta.examcount_public,
@@ -168,7 +169,6 @@ def list_exams(request, slug):
 
 def get_category_data(request, cat):
     res = {
-        "category_id": cat.id,
         "displayname": cat.displayname,
         "slug": cat.slug,
         "admins": [],

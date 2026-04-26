@@ -4,65 +4,61 @@ from testimonials.models import Testimonial, ApprovalStatus
 from categories.models import Category
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from datetime import timedelta
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from notifications.notification_util import update_to_testimonial_status
 import ediauth.auth_check as auth_check
+from django.core.exceptions import ValidationError
 
-@response.request_get()
+@response.request_get("slug", optional=True)
 @auth_check.require_login
-def testimonial_metadata(request):
-    testimonials = Testimonial.objects.all()
-    res = [
-        {
-            "author_id": testimonial.author.username,
-            "author_diplay_name": testimonial.author.profile.display_username,
-            "category_id": testimonial.category.id,
-            "euclid_codes": [euclidcode.code for euclidcode in testimonial.category.euclid_codes.all()],
-            "course_name": testimonial.category.displayname,
-            "testimonial": testimonial.testimonial,
-            "testimonial_id": testimonial.id,
-            "year_taken": testimonial.year_taken,
-            "approval_status": testimonial.approval_status,
-        }
-        for testimonial in testimonials
-    ]
+def testimonial_metadata(request, slug: str = ""):
+    res = []
+    if slug != "":
+        slug = request.GET.get('slug')
+        try:
+            category_obj = Category.objects.get(slug=slug)
+        except Category.DoesNotExist:
+            return response.not_possible(f"The category with slug {slug} does not exist in the database.")
+        testimonials = Testimonial.objects.prefetch_related("category__euclid_codes").filter(category=category_obj)
+        res = [
+            {
+                "author_id": testimonial.author.username,
+                "author_diplay_name": testimonial.author.profile.display_username,
+                "slug": testimonial.category.slug,
+                "euclid_codes": [euclidcode.code for euclidcode in testimonial.category.euclid_codes.all()],
+                "course_name": testimonial.category.displayname,
+                "testimonial": testimonial.testimonial,
+                "testimonial_id": testimonial.id,
+                "year_taken": testimonial.year_taken,
+                "approval_status": testimonial.approval_status,
+            }
+            for testimonial in testimonials
+        ]
+    else:
+        testimonials = Testimonial.objects.prefetch_related("category__euclid_codes")
+        res = [
+            {
+                "author_id": testimonial.author.username,
+                "author_diplay_name": testimonial.author.profile.display_username,
+                "slug": testimonial.category.slug,
+                "euclid_codes": [euclidcode.code for euclidcode in testimonial.category.euclid_codes.all()],
+                "course_name": testimonial.category.displayname,
+                "testimonial": testimonial.testimonial,
+                "testimonial_id": testimonial.id,
+                "year_taken": testimonial.year_taken,
+                "approval_status": testimonial.approval_status,
+            }
+            for testimonial in testimonials
+        ]
     return response.success(value=res)
 
-@response.request_get("category_id")
-@auth_check.require_login
-def get_testimonial_metadata_by_code(request):
-    category_id = request.POST.get('category_id')
-    try:
-        category_obj = Category.objects.get(id=category_id)
-    except Category.DoesNotExist:
-        return response.not_possible(f"The category with id {category_id} does not exist in the database.")
-    testimonials = Testimonial.objects.filter(category=category_obj)
-    res = [
-        {
-            "author_id": testimonial.author.username,
-            "author_diplay_name": testimonial.author.profile.display_username,
-            "category_id": testimonial.category.id,
-            "euclid_codes": testimonial.category.euclid_codes,
-            "course_name": testimonial.category.displayname,
-            "testimonial": testimonial.testimonial,
-            "testimonial_id": testimonial.id,
-            "year_taken": testimonial.year_taken,
-            "approval_status": testimonial.approval_status,
-        }
-        for testimonial in testimonials
-    ]
-    return response.success(value=res)
-
-@response.request_post("category_id", "year_taken", optional=True)
+@response.request_post("slug", "year_taken", optional=True)
 @auth_check.require_login
 def add_testimonial(request):
     author = request.user
-    category_id = request.POST.get('category_id') #course code instead of course name
+    slug = request.POST.get('slug')
     year_taken = request.POST.get('year_taken')
     testimonial = request.POST.get('testimonial')
-
+    
     if not author:
         return response.not_possible("Missing argument: author")
     if not year_taken:
@@ -70,24 +66,22 @@ def add_testimonial(request):
     if not testimonial:
         return response.not_possible("Missing argument: testimonial")
 
-    testimonials = Testimonial.objects.all()
-    category_obj = Category.objects.get(id=category_id)
-
-    for t in testimonials:
-        if t.author == author and t.category == category_obj and (t.approval_status == ApprovalStatus.APPROVED):
-            return response.not_possible("You have written a testimonial for this course that has been approved.")
-        elif t.author == author and t.category == category_obj and (t.approval_status == ApprovalStatus.PENDING):
-            return response.not_possible("You have written a testimonial for this course that is currently pending approval.")
-    
-    testimonial = Testimonial.objects.create(
-        author=author,
-        category=category_obj,
-        year_taken=year_taken,
-        approval_status= ApprovalStatus.PENDING,
-        testimonial=testimonial,
-    )
-
-    return response.success(value={"testimonial_id" : testimonial.id, "approved" : False})
+    category_obj = Category.objects.get(slug=slug)
+    try:
+        testimonial = Testimonial(
+            author=author,
+            category=category_obj,
+            year_taken=year_taken,
+            approval_status= ApprovalStatus.PENDING,
+            testimonial=testimonial,
+        )
+        testimonial.validate_constraints()
+        testimonial.save()
+    except ValidationError:
+        return response.not_possible(
+            "You already have a testimonial for this course that is pending or approved."
+        )
+    return response.success(value={"testimonial_id" : testimonial.id})
 
 @response.request_post("username", 'testimonial_id', optional=True)
 @auth_check.require_login
@@ -95,12 +89,13 @@ def remove_testimonial(request):
     username = request.POST.get('username')
     testimonial_id = request.POST.get('testimonial_id')
 
-    testimonial = Testimonial.objects.filter(id=testimonial_id) #Since id is primary key, always returns 1 or none.
+    testimonial = Testimonial.objects.filter(id=testimonial_id).first() #Since id is primary key, always returns 1 or none.
+
 
     if not testimonial:
         return response.not_possible("Testimonial not found for author: " + username + " with id " + testimonial_id)
 
-    if not (testimonial[0].author == request.user or auth_check.has_admin_rights(request)):
+    if not (testimonial.author == request.user or auth_check.has_admin_rights(request)):
         return response.not_possible("No permission to delete this.")
     
     testimonial.delete()
@@ -125,12 +120,25 @@ def update_testimonial_approval_status(request):
     if has_admin_rights:
         testimonial.update(approval_status=approval_status)
         if approval_status == str(ApprovalStatus.APPROVED.value):
-            final_message = f'Your Testimonial to {course_name}: \n"{testimonial[0].testimonial}" has been Accepted, it is now available to see in the Testimonials tab.'
+            final_message = (
+                f"Your testimonial for {course_name} has been accepted 🎉\n\n"
+                f"Testimonial:\n"
+                f"\"{testimonial[0].testimonial}\"\n\n"
+                f"It is now available to view in the Testimonials tab."
+            )
             if (sender != receiver):
                 update_to_testimonial_status(sender, receiver, title, final_message) #notification
             return response.success(value="Testimonial Accepted and the notification has been sent to " + str(receiver) + ".")
         elif approval_status == str(ApprovalStatus.REJECTED.value):
-            final_message = f'Your Testimonial to {course_name}: \n"{testimonial[0].testimonial}" has not been accepted due to: {message}'
+            final_message = (
+                f"Your testimonial for {course_name} has not been accepted.\n\n"
+                f"Testimonial:\n"
+                f"\"{testimonial[0].testimonial}\"\n\n"
+                f"Reason for rejection:\n"
+                f"\"{message}\"\n\n"
+                f"You're welcome to submit another testimonial for the same course after making corrections and we will review it again."
+            )
+
             if (sender != receiver):
                 update_to_testimonial_status(sender, receiver, title, final_message) #notification
             return response.success(value="Testimonial Not Accepted " + "and the notification has been sent to " + str(receiver) + ".")

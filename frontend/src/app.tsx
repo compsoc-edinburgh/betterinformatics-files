@@ -285,7 +285,7 @@ const App: React.FC<{}> = () => {
                     />
                     <UserRoute
                       exact
-                      path="/addtestimonials/:category_id?/:course_name?"
+                      path="/addtestimonials/:slug?/:course_name?"
                       component={AddTestimonialsPage}
                     />
                     <UserRoute

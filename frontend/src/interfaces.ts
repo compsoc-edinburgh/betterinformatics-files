@@ -153,7 +153,6 @@ export interface CategoryMetaDataOverview {
 }
 
 export interface CategoryMetaData {
-  category_id: string;
   displayname: string; // Name of category
   slug: string;
   admins: string[];

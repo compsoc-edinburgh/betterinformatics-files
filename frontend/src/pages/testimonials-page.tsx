@@ -48,7 +48,7 @@ export enum ApprovalStatus {
 export type CourseTestimonial = {
   author_id: string,
   author_diplay_name: string,
-  category_id: string,
+  slug: string,
   euclid_codes: string[],
   course_name: string,
   testimonial: string,
@@ -58,7 +58,7 @@ export type CourseTestimonial = {
 }
 
 export type CourseWithTestimonial = {
-  category_id: string,
+  slug: string,
   course_codes: string[],
   course_name: string,
   course_delivery: string,
@@ -82,9 +82,9 @@ export function getTableData(courses: any, testimonials: any, bi_courses_data: B
 
     for (let i = 0; i < courses.length; i++){
       let course = courses[i];
-
+      console.log(testimonials)
       let currentCourseTestimonials : CourseTestimonial[] = testimonials['value'].filter(
-        (testimonial: CourseTestimonial) => (testimonial.category_id == course.category_id && testimonial.approval_status == ApprovalStatus.APPROVED
+        (testimonial: CourseTestimonial) => (testimonial.slug == course.slug && testimonial.approval_status == ApprovalStatus.APPROVED
       ));
 
       //average of testimonials and etc! 
@@ -115,7 +115,7 @@ export function getTableData(courses: any, testimonials: any, bi_courses_data: B
 
 
       tableData[i] = {
-        category_id: course.category_id,
+        slug: course.slug,
         course_codes: course.euclid_codes, //i need the euclid codes babe
         course_name: currentCourse? currentCourse.name : "undefined",
         course_delivery: currentCourse? String(currentCourse.delivery) : "undefined",
@@ -161,6 +161,7 @@ const TestimonialsPage: React.FC<{}> = () => {
   const { data : courses, loading: loading_courses, error: error_courses} = useRequest(
     () => listCategories()
   );
+
   const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
     () => loadTestimonials()
   );
@@ -237,8 +238,8 @@ const TestimonialsTable: React.FC<TestimonialsTableProps> = ({data, user}) => {
         //scrollAreaProps={{ type: 'never' }}
         columns = {[
           {
-            accessor: 'category_id',
-            title: 'Category ID',
+            accessor: 'slug',
+            title: 'slug',
             width: "12%",
             sortable: true,
             hidden: true,
@@ -313,7 +314,7 @@ const TestimonialsTable: React.FC<TestimonialsTableProps> = ({data, user}) => {
 
         ]}
         records ={allData}
-        idAccessor="category_id"
+        idAccessor="slug"
         rowExpansion={{
           collapseProps: {
             transitionDuration: 150,
@@ -325,7 +326,7 @@ const TestimonialsTable: React.FC<TestimonialsTableProps> = ({data, user}) => {
             <Stack ref ={parent} p={5}>
               <Flex direction="row" justify="space-between" align="center" p={10}>
                 <ShimmerButton
-                  onClick={() => history.push(`/addtestimonials/${record.category_id}/${record.course_name}`)}
+                  onClick={() => history.push(`/addtestimonials/${record.slug}/${record.course_name}`)}
                   leftSection={<IconPlus />}
                   color={computedColorScheme === "dark" ? "compsocMain" : "dark"}
                   variant="outline"
@@ -335,7 +336,7 @@ const TestimonialsTable: React.FC<TestimonialsTableProps> = ({data, user}) => {
               </Flex>
               {
                 record.testimonials.map((testimonial, index) => //add a key to the testimonial
-                  <TestimonialCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} category_id={testimonial.category_id} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.testimonial_id)}></TestimonialCard>
+                  <TestimonialCard key={index} currentUserUsername = {String(user == undefined? "": user.username)} isAdmin={user==undefined? false : user.isAdmin} username={String(testimonial.author_id)} displayName={String(testimonial.author_diplay_name)} slug={testimonial.slug} yearTaken={String(testimonial.year_taken)} testimonial={String(testimonial.testimonial)} testimonial_id={String(testimonial.testimonial_id)}></TestimonialCard>
                 )
               }
             </Stack>
@@ -358,11 +359,11 @@ const RatingBox: React.FC<ratingProps> = ({ratingType, ratingLevel}) => {
 }
 
 interface testimonialCardProps{
-  currentUserUsername: String, isAdmin:boolean, username: String, displayName: String, category_id: String, yearTaken: String, testimonial:String, testimonial_id:String
+  currentUserUsername: String, isAdmin:boolean, username: String, displayName: String, slug: String, yearTaken: String, testimonial:String, testimonial_id:String
 }
 
 
-export const TestimonialCard: React.FC<testimonialCardProps> = ({currentUserUsername, isAdmin, username, displayName, category_id, yearTaken, testimonial, testimonial_id}) => {
+export const TestimonialCard: React.FC<testimonialCardProps> = ({currentUserUsername, isAdmin, username, displayName, slug, yearTaken, testimonial, testimonial_id}) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [deleteSuccess, setDeleteSuccess] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
