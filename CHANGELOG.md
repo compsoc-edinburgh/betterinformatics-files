@@ -2,6 +2,10 @@
 
 All changes to this project are documented in this file.
 
+## v2026.04.edi0 (Based on upstream v2026.04.p0)
+
+- Merged all changes from upstream up to v2026.04.p0. See below for changelog  (#86).
+
 ## v2026.04.p0 - Coding Weekend!
 
 ### Added
