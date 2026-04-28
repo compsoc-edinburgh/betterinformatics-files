@@ -1,3 +1,5 @@
+// See vite.config.ts for details on how this import is resolved during
+// development, where the file doesn't exist.
 import changelogSource from "../../CHANGELOG.md?raw";
 
 const VERSION_HEADING = /^## (v\S+).*[\s]*$/gm;
