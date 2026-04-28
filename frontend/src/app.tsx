@@ -197,7 +197,6 @@ const App: React.FC = () => {
   compsocTheme.components = {
     Badge: {
       defaultProps: {
-        color: "compsocGray",
         variant: "light",
       },
     },
