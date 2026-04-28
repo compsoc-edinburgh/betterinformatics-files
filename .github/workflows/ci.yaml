@@ -127,7 +127,7 @@ jobs:
         run: |
           cd frontend
           yarn config set enableGlobalCache false
-          yarn --ignore-engines
+          yarn
 
       - name: Run typecheck
         run: |
