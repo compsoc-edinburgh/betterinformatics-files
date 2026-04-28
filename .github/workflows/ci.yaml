@@ -106,7 +106,7 @@ jobs:
   typecheck-lint:
     name: Frontend Typecheck & Lint
     runs-on: ubuntu-latest
-    container: node:20
+    container: node:24
     needs: determine-changes
     # Only run for pull requests, since on pushes to the default branch, the
     # Docker image building step will run the frontend build anyway.
@@ -117,14 +117,16 @@ jobs:
       - name: Cache node modules
         uses: actions/cache@v4
         with:
-          path: frontend/.yarn-cache
+          path: frontend/.yarn/cache
           key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/yarn.lock') }}
+
+      - name: Enable Yarn
+        run: corepack enable
 
       - name: Install node dependencies
         run: |
           cd frontend
-          echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
-          echo 'yarn-offline-mirror-pruning true' >> .yarnrc
+          yarn config set enableGlobalCache false
           yarn --ignore-engines
 
       - name: Run typecheck
