@@ -14,6 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.http import Http404
+
 from django.urls import path, re_path, include
 from functools import wraps
 from util import response
@@ -39,6 +41,7 @@ def restrict_proxied(f):
 # documentation generation and type-validated API inputs.
 api = NinjaAPI()
 api.add_router("feedback/", "feedback.api.router")
+api.add_router("image/", "images.api.router")
 
 urlpatterns = [
     path("", include("health.urls")),
@@ -51,7 +54,6 @@ urlpatterns = [
     path("api/faq/", include("faq.urls")),
     path("api/category/", include("categories.urls")),
     path("api/filestore/", include("filestore.urls")),
-    path("api/image/", include("images.urls")),
     path("api/auth/", include("ediauth.urls")),
     path("api/notification/", include("notifications.urls")),
     path("api/scoreboard/", include("scoreboard.urls")),
@@ -75,3 +77,8 @@ handler400 = views.handler400
 handler403 = views.handler403
 handler404 = views.handler404
 handler500 = views.handler500
+
+
+@api.exception_handler(Http404)
+def validation_errors(request, exc):
+    return views.handler404(request, exc)

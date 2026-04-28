@@ -1,26 +1,26 @@
 import {
   Button,
-  Container,
   SimpleGrid,
   Text,
   Group,
   Paper,
   LoadingOverlay,
   Title,
+  Container,
 } from "@mantine/core";
 import React from "react";
 import { logout } from "../api/fetch-utils";
 import { useSetUser, useUser } from "../auth";
 import { UserInfo } from "../interfaces";
 import {
-  Icon,
   IconChevronUp,
   IconFile,
   IconFileUpload,
   IconLogout,
   IconMessage,
   IconPencil,
-  IconProps,
+  IconTrophy,
+  TablerIcon,
 } from "@tabler/icons-react";
 import displayNameClasses from "../utils/display-name.module.css";
 
@@ -34,9 +34,7 @@ function scoreCard(
   userInfo: UserInfo | undefined,
   title: string,
   key: keyof UserInfo,
-  Icon: React.ForwardRefExoticComponent<
-    Omit<IconProps, "ref"> & React.RefAttributes<Icon>
-  >,
+  Icon: TablerIcon,
 ) {
   return (
     <Paper shadow="md" withBorder px="md" py="lg" pos="relative">
@@ -60,6 +58,31 @@ function scoreCard(
   );
 }
 
+function rankCard(userInfo: UserInfo | undefined, Icon: TablerIcon) {
+  return (
+    <Paper shadow="md" withBorder px="md" py="lg" pos="relative">
+      <LoadingOverlay visible={!userInfo} />
+      <Group justify="space-between" mb="xs">
+        <Text inline size="xs" tt="uppercase" component="p" c="dimmed">
+          Score Percentile
+        </Text>
+        <Icon
+          style={{
+            width: "1em",
+            height: "1em",
+            color: "var(--mantine-color-dimmed)",
+          }}
+        />
+      </Group>
+      <Text lh={1} fz="xl" fw={600}>
+        {userInfo
+          ? `Top ${(Math.round((userInfo.rank / userInfo.total_users) * 1000) / 10).toFixed(1)}%`
+          : "-"}
+      </Text>
+    </Paper>
+  );
+}
+
 const UserScoreCard: React.FC<UserScoreCardProps> = ({
   username,
   userInfo,
@@ -70,7 +93,11 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
   return (
     <>
       <Group justify="space-between" mb="sm">
-        <Title order={1} my="md" className={displayNameClasses.shrinkableDisplayName}>
+        <Title
+          order={1}
+          my="md"
+          className={displayNameClasses.shrinkableDisplayName}
+        >
           @{username}{" "}
           {userInfo &&
             userInfo.displayName !== username &&
@@ -96,7 +123,11 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
                   : "View with admin privileges"}
               </Button>
             )}
-            <Button leftSection={<IconLogout />} onClick={() => logout("/")} color="red">
+            <Button
+              leftSection={<IconLogout />}
+              onClick={() => logout("/")}
+              color="red"
+            >
               Log out
             </Button>
           </Group>
@@ -104,9 +135,8 @@ const UserScoreCard: React.FC<UserScoreCardProps> = ({
       </Group>
 
       <Container fluid p={0}>
-        <SimpleGrid
-          cols={{ base: 1, xs: 2, sm: 3, md: 4 }}
-        >
+        <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 4 }}>
+          {rankCard(userInfo, IconTrophy)}
           {scoreCard(userInfo, "Score", "score", IconChevronUp)}
           {scoreCard(userInfo, "Answers", "score_answers", IconPencil)}
           {scoreCard(userInfo, "Comments", "score_comments", IconMessage)}

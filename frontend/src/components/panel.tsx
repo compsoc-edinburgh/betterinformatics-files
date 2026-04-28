@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import React, { CSSProperties } from "react";
+import React, { useRef, CSSProperties } from "react";
 import Transition from "react-transition-group/Transition";
 import { IconArrowLeft, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
@@ -30,6 +30,8 @@ const Panel: React.FC<PanelProps> = ({
   iconPadding = "1em 0",
   buttonText,
 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
   return (
     <>
       <div className={classes.panel}>
@@ -50,13 +52,14 @@ const Panel: React.FC<PanelProps> = ({
           </Button>
         </div>
       </div>
-      <Transition in={isOpen} timeout={duration} unmountOnExit>
+      <Transition in={isOpen} timeout={duration} unmountOnExit nodeRef={ref}>
         {state => (
           <div
             className={classes.panel}
             style={{
               ...transitionStyles[state as keyof typeof transitionStyles],
             }}
+            ref={ref}
           >
             <div
               className={classes.iconContainer}

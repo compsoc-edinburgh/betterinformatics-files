@@ -1,6 +1,11 @@
-import { Flex, Group, HoverCard, Text, useMantineColorScheme } from "@mantine/core";
+import {
+  Group,
+  HoverCard,
+  Text,
+  useMantineColorScheme,
+  Button,
+} from "@mantine/core";
 import { IconMoon, IconSun, IconSunMoon } from "@tabler/icons-react";
-import { Button } from "@mantine/core";
 
 const ColorSchemeToggle = () => {
   const { colorScheme, setColorScheme, clearColorScheme } = useMantineColorScheme();
@@ -20,7 +25,7 @@ const ColorSchemeToggle = () => {
           </Group>
         </HoverCard.Dropdown>
       </HoverCard>
-    </Group >
+    </Group>
   );
 };
 

@@ -6,7 +6,7 @@ interface Props {
   title: React.ReactNode;
   contentOutsideCollapse: React.ReactNode;
   contentInsideCollapse: React.ReactNode;
-  is_collapsed: () => Boolean;
+  is_collapsed: () => boolean;
   collapse_expand: () => void;
 }
 
@@ -26,7 +26,7 @@ const CollapseWrapper: React.FC<Props> = ({
             variant={"transparent"}
             size={"compact-sm"}
             color={"text"}
-            tooltip={`${is_collapsed() ? "Expand" : "Collapse"}`}
+            tooltip={is_collapsed() ? "Expand" : "Collapse"}
             onClick={() => {
               collapse_expand();
             }}
@@ -36,7 +36,7 @@ const CollapseWrapper: React.FC<Props> = ({
         </Group>
         {contentOutsideCollapse}
       </Group>
-      <Collapse in={!is_collapsed()}>{contentInsideCollapse}</Collapse>
+      <Collapse expanded={!is_collapsed()}>{contentInsideCollapse}</Collapse>
     </>
   );
 };

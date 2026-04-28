@@ -24,6 +24,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     <Tooltip
       withinPortal
       label={tooltip}
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       disabled={disabled || loading}
       className={clsx(classes.button, className && className)}
     >
@@ -35,6 +36,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     <ActionIcon
       variant="light"
       {...props}
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       disabled={disabled || loading}
       className={clsx(classes.button, className && className)}
       size={size}

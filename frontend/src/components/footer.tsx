@@ -40,11 +40,20 @@ const Footer: React.FC<FooterProps> = ({
     <Box pt="md" pb="lg">
       <Container size="xl">
         <Divider my="md" />
-        <Flex justify="space-between" direction={{ base: "column", md: "row" }} rowGap="xl" pt="lg">
+        <Flex
+          justify="space-between"
+          direction={{ base: "column", md: "row" }}
+          rowGap="xl"
+          pt="lg"
+        >
           <Flex direction="column" align="start" justify="start">
             <Anchor href="https://betterinformatics.com" underline="never">
               <Group>
-                <img height={32} src={logo} alt="Logo of the student organization" />
+                <img
+                  height={32}
+                  src={logo}
+                  alt="Logo of the student organization"
+                />
                 <Text>Better Informatics</Text>
               </Group>
             </Anchor>
@@ -76,8 +85,8 @@ const Footer: React.FC<FooterProps> = ({
                 c="blue"
               >
                 Tardis
-              </Anchor>
-              {" "}with
+              </Anchor>{" "}
+              with
               <IconHeartFilled
                 style={{
                   position: "relative",
@@ -99,25 +108,31 @@ const Footer: React.FC<FooterProps> = ({
             </Text>
           </Flex>
           <Group align="start">
-            {translate(
-              organizationNav ? organizationNav : globalNav,
-              "en",
-            ).map((item, i) => (
-              <Flex justify="flex-start" direction="column" style={{ width: rem(160) }} key={i}>
-                <Title order={4} c="gray">{item.title as ReactNode}</Title>
-                <Space h="xs" />
-                {item.childItems?.map((childItem, i) => (
-                  <Anchor
-                    onClick={childItem.title === "uwu?" ? setUwu : undefined}
-                    href={childItem.href}
-                    key={i}
-                    c="gray"
-                  >
-                    {childItem.title as ReactNode}
-                  </Anchor>
-                ))}
-              </Flex>
-            ))}
+            {translate(organizationNav ? organizationNav : globalNav, "en").map(
+              (item, i) => (
+                <Flex
+                  justify="flex-start"
+                  direction="column"
+                  style={{ width: rem(160) }}
+                  key={i}
+                >
+                  <Title order={4} c="gray">
+                    {item.title as ReactNode}
+                  </Title>
+                  <Space h="xs" />
+                  {item.childItems?.map((childItem, i) => (
+                    <Anchor
+                      onClick={childItem.title === "uwu?" ? setUwu : undefined}
+                      href={childItem.href}
+                      key={i}
+                      c="gray"
+                    >
+                      {childItem.title as ReactNode}
+                    </Anchor>
+                  ))}
+                </Flex>
+              ),
+            )}
           </Group>
         </Flex>
       </Container>

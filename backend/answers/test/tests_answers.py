@@ -10,7 +10,10 @@ class TestExistingAnswer(ComsolTestExamData):
         answer = self.answers[0]
         self.post(
             "/api/exam/setanswer/{}/".format(answer.answer_section.id),
-            {"text": "New Answer Text"},
+            {
+                "text": "New Answer Text",
+                "kind": "personal",
+            },
         )
         answer.refresh_from_db()
         self.assertEqual(answer.text, "New Answer Text")
@@ -58,6 +61,26 @@ class TestExistingAnswer(ComsolTestExamData):
         self.post("/api/exam/setanswerflagged/{}/".format(answer.id), {"flagged": False})
         answer.refresh_from_db()
         self.assertEqual(answer.flagged.count(), 0)
+
+    def test_mark_as_ai(self):
+        answer = self.answers[1]
+        self.assertEqual(answer.marked_as_ai.count(), 0)
+        self.post(
+            "/api/exam/setanswermarkedasai/{}/".format(answer.id),
+            {"marked_as_ai": False},
+        )
+        self.post(
+            "/api/exam/setanswermarkedasai/{}/".format(answer.id),
+            {"marked_as_ai": True},
+        )
+        answer.refresh_from_db()
+        self.assertEqual(answer.marked_as_ai.count(), 1)
+        self.post(
+            "/api/exam/setanswermarkedasai/{}/".format(answer.id),
+            {"marked_as_ai": False},
+        )
+        answer.refresh_from_db()
+        self.assertEqual(answer.marked_as_ai.count(), 0)
 
     def test_expertvote_nonexpert(self):
         answer = self.answers[1]
@@ -131,7 +154,10 @@ class TestNonexisting(ComsolTestExamData):
         )
         self.post(
             "/api/exam/setanswer/{}/".format(self.mysection.id),
-            {"text": "Test Answer 123",},
+            {
+                "text": "Test Answer 123",
+                "kind": "personal",
+            },
         )
         self.assertEqual(self.mysection.answer_set.count(), 1)
         self.assertTrue(

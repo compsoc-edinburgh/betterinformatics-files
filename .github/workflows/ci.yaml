@@ -64,7 +64,7 @@ jobs:
       - name: Install mc
         # Install mc so that we can create the community-solutions bucket in minio
         run: |
-          curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o mc
+          curl https://dl.min.io/aistor/mc/release/linux-amd64/mc --create-dirs -o mc
           chmod +x ./mc
           ./mc alias set myminio http://minio:9000 minio minio123
           ./mc mb myminio/community-solutions
@@ -106,7 +106,7 @@ jobs:
   typecheck-lint:
     name: Frontend Typecheck & Lint
     runs-on: ubuntu-latest
-    container: node:20
+    container: node:24
     needs: determine-changes
     # Only run for pull requests, since on pushes to the default branch, the
     # Docker image building step will run the frontend build anyway.
@@ -117,15 +117,17 @@ jobs:
       - name: Cache node modules
         uses: actions/cache@v4
         with:
-          path: frontend/.yarn-cache
+          path: frontend/.yarn/cache
           key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/yarn.lock') }}
+
+      - name: Enable Yarn
+        run: corepack enable
 
       - name: Install node dependencies
         run: |
           cd frontend
-          echo 'yarn-offline-mirror ".yarn-cache/"' >> .yarnrc
-          echo 'yarn-offline-mirror-pruning true' >> .yarnrc
-          yarn --ignore-engines
+          yarn config set enableGlobalCache false
+          yarn
 
       - name: Run typecheck
         run: |

@@ -4,6 +4,43 @@ from answers.models import Comment
 
 class TestComment(ComsolTestExamData):
 
+    def test_flag(self):
+        comment = self.comments[1]
+        self.assertEqual(comment.flagged.count(), 0)
+        self.post(
+            "/api/exam/setcommentflagged/{}/".format(comment.id), {"flagged": False}
+        )
+        self.post(
+            "/api/exam/setcommentflagged/{}/".format(comment.id), {"flagged": True}
+        )
+        comment.refresh_from_db()
+        self.assertEqual(comment.flagged.count(), 1)
+        self.post(
+            "/api/exam/setcommentflagged/{}/".format(comment.id), {"flagged": False}
+        )
+        comment.refresh_from_db()
+        self.assertEqual(comment.flagged.count(), 0)
+
+    def test_mark_as_ai(self):
+        comment = self.comments[1]
+        self.assertEqual(comment.marked_as_ai.count(), 0)
+        self.post(
+            "/api/exam/setcommentmarkedasai/{}/".format(comment.id),
+            {"marked_as_ai": False},
+        )
+        self.post(
+            "/api/exam/setcommentmarkedasai/{}/".format(comment.id),
+            {"marked_as_ai": True},
+        )
+        comment.refresh_from_db()
+        self.assertEqual(comment.marked_as_ai.count(), 1)
+        self.post(
+            "/api/exam/setcommentmarkedasai/{}/".format(comment.id),
+            {"marked_as_ai": False},
+        )
+        comment.refresh_from_db()
+        self.assertEqual(comment.marked_as_ai.count(), 0)
+
     def test_add_comment(self):
         answer = self.answers[0]
         self.assertEqual(answer.comments.count(), 3)

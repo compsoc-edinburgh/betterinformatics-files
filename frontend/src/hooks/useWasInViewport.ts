@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 const useWasInViewport = <T extends HTMLElement>() => {
   const observer: React.MutableRefObject<IntersectionObserver | undefined> =
-    useRef<IntersectionObserver | undefined>();
+    useRef<IntersectionObserver | undefined>(undefined);
   const [wasInView, setWasInView] = useState(false);
 
   const ref: React.Ref<T> = (element: T | null) => {

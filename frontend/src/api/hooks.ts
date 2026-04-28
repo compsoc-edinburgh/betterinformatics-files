@@ -33,6 +33,9 @@ import {
   NamedBlob,
 } from "./fetch-utils";
 
+// Interval to consider "close succession" to de-dupe requests
+const RAPID_SUCCESSIVE_REQUESTS_DEDUPE_INTERVAL = 500; // milliseconds
+
 export declare type Mutate<R> = (x: R | undefined | ((data: R) => R)) => void;
 
 const loadUserInfo = async (username: string) => {
@@ -221,6 +224,7 @@ export const loadMetaCategories = async () => {
 export const useMetaCategories = () => {
   const { error, loading, data, mutate } = useRequest(loadMetaCategories, {
     cacheKey: "listmetacategories",
+    staleTime: RAPID_SUCCESSIVE_REQUESTS_DEDUPE_INTERVAL,
   });
   return [error, loading, data, mutate] as const;
 };
@@ -317,8 +321,19 @@ const setAnswerFlagged = async (oid: string, flagged: boolean) => {
     })
   ).value as AnswerSection;
 };
+const setAnswerMarkedAsAi = async (oid: string, marked_as_ai: boolean) => {
+  return (
+    await fetchPost(`/api/exam/setanswermarkedasai/${oid}/`, {
+      marked_as_ai,
+    })
+  ).value as AnswerSection;
+};
 const resetAnswerFlagged = async (oid: string) => {
   return (await fetchPost(`/api/exam/resetanswerflagged/${oid}/`, {}))
+    .value as AnswerSection;
+};
+const resetAnswerMarkedAsAi = async (oid: string) => {
+  return (await fetchPost(`/api/exam/resetanswermarkedasai/${oid}/`, {}))
     .value as AnswerSection;
 };
 const setExamCommentFlagged = async (oid: string, flagged: boolean) => {
@@ -328,17 +343,43 @@ const setExamCommentFlagged = async (oid: string, flagged: boolean) => {
     })
   ).value as AnswerSection;
 };
+const setExamCommentMarkedAsAi = async (oid: string, marked_as_ai: boolean) => {
+  return (
+    await fetchPost(`/api/exam/setcommentmarkedasai/${oid}/`, {
+      marked_as_ai,
+    })
+  ).value as AnswerSection;
+};
 const resetExamCommentFlagged = async (oid: string) => {
   return (await fetchPost(`/api/exam/resetcommentflagged/${oid}/`, {}))
     .value as AnswerSection;
 };
+const resetExamCommentMarkedAsAi = async (oid: string) => {
+  return (await fetchPost(`/api/exam/resetcommentmarkedasai/${oid}/`, {}))
+    .value as AnswerSection;
+};
 const setDocumentCommentFlagged = async (oid: number, flagged: boolean) => {
-  return await fetchPost(`/api/document/setflaggedcomment/${oid}`, {
-    flagged,
-  });
+  return (
+    await fetchPost(`/api/document/setflaggedcomment/${oid}`, { flagged })
+  ).value as DocumentComment;
+};
+const setDocumentCommentMarkedAsAi = async (
+  oid: number,
+  marked_as_ai: boolean,
+) => {
+  return (
+    await fetchPost(`/api/document/setmarkedasaicomment/${oid}`, {
+      marked_as_ai,
+    })
+  ).value as DocumentComment;
 };
 const resetDocumentCommentFlagged = async (oid: number) => {
-  return await fetchPost(`/api/document/resetflaggedcomment/${oid}`, {});
+  return (await fetchPost(`/api/document/resetflaggedcomment/${oid}`, {}))
+    .value as DocumentComment;
+};
+const resetDocumentCommentMarkedAsAi = async (oid: number) => {
+  return (await fetchPost(`/api/document/resetmarkedasaicomment/${oid}`, {}))
+    .value as DocumentComment;
 };
 const setExpertVote = async (oid: string, vote: boolean) => {
   return (
@@ -354,6 +395,16 @@ export const useSetAnswerFlagged = (
   const { loading: setAnswerFlaggedLoading, run: runSetAnswerFlagged } =
     useRequest(setAnswerFlagged, { manual: true, onSuccess: onSectionChanged });
   return [setAnswerFlaggedLoading, runSetAnswerFlagged] as const;
+};
+export const useSetAnswerMarkedAsAi = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const { loading: setAnswerMarkedAsAiLoading, run: runSetAnswerMarkedAsAi } =
+    useRequest(setAnswerMarkedAsAi, {
+      manual: true,
+      onSuccess: onSectionChanged,
+    });
+  return [setAnswerMarkedAsAiLoading, runSetAnswerMarkedAsAi] as const;
 };
 export const useSetExpertVote = (
   onSectionChanged?: (data: AnswerSection) => void,
@@ -374,6 +425,18 @@ export const useResetAnswerFlaggedVote = (
     });
   return [resetAnswerFlaggedLoading, runResetAnswerFlagged] as const;
 };
+export const useResetAnswerMarkedAsAi = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: resetAnswerMarkedAsAiLoading,
+    run: runResetAnswerMarkedAsAi,
+  } = useRequest(resetAnswerMarkedAsAi, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
+  return [resetAnswerMarkedAsAiLoading, runResetAnswerMarkedAsAi] as const;
+};
 export const useSetExamCommentFlagged = (
   onSectionChanged?: (data: AnswerSection) => void,
 ) => {
@@ -385,6 +448,21 @@ export const useSetExamCommentFlagged = (
     onSuccess: onSectionChanged,
   });
   return [setExamCommentFlaggedLoading, runSetExamCommentFlagged] as const;
+};
+export const useSetExamCommentMarkedAsAi = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: setExamCommentMarkedAsAiLoading,
+    run: runSetExamCommentMarkedAsAi,
+  } = useRequest(setExamCommentMarkedAsAi, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
+  return [
+    setExamCommentMarkedAsAiLoading,
+    runSetExamCommentMarkedAsAi,
+  ] as const;
 };
 export const useResetExamCommentFlaggedVote = (
   onSectionChanged?: (data: AnswerSection) => void,
@@ -398,30 +476,68 @@ export const useResetExamCommentFlaggedVote = (
   });
   return [resetExamCommentFlaggedLoading, runResetExamCommentFlagged] as const;
 };
-export const useSetDocumentCommentFlagged = (reload?: () => void) => {
+export const useResetExamCommentMarkedAsAi = (
+  onSectionChanged?: (data: AnswerSection) => void,
+) => {
+  const {
+    loading: resetExamCommentMarkedAsAiLoading,
+    run: runResetExamCommentMarkedAsAi,
+  } = useRequest(resetExamCommentMarkedAsAi, {
+    manual: true,
+    onSuccess: onSectionChanged,
+  });
+  return [
+    resetExamCommentMarkedAsAiLoading,
+    runResetExamCommentMarkedAsAi,
+  ] as const;
+};
+
+export const useSetDocumentCommentFlagged = (
+  onSuccess?: (comment: DocumentComment) => void,
+) => {
   const {
     loading: setDocumentCommentFlaggedLoading,
     run: runSetDocumentCommentFlagged,
-  } = useRequest(setDocumentCommentFlagged, {
-    manual: true,
-    onSuccess: reload,
-  });
+  } = useRequest(setDocumentCommentFlagged, { manual: true, onSuccess });
   return [
     setDocumentCommentFlaggedLoading,
     runSetDocumentCommentFlagged,
   ] as const;
 };
-export const useResetDocumentCommentFlaggedVote = (reload?: () => void) => {
+export const useSetDocumentCommentMarkedAsAi = (
+  onSuccess?: (comment: DocumentComment) => void,
+) => {
+  const {
+    loading: setDocumentCommentMarkedAsAiLoading,
+    run: runSetDocumentCommentMarkedAsAi,
+  } = useRequest(setDocumentCommentMarkedAsAi, { manual: true, onSuccess });
+  return [
+    setDocumentCommentMarkedAsAiLoading,
+    runSetDocumentCommentMarkedAsAi,
+  ] as const;
+};
+export const useResetDocumentCommentFlaggedVote = (
+  onSuccess?: (comment: DocumentComment) => void,
+) => {
   const {
     loading: resetDocumentCommentFlaggedLoading,
     run: runResetDocumentCommentFlagged,
-  } = useRequest(resetDocumentCommentFlagged, {
-    manual: true,
-    onSuccess: reload,
-  });
+  } = useRequest(resetDocumentCommentFlagged, { manual: true, onSuccess });
   return [
     resetDocumentCommentFlaggedLoading,
     runResetDocumentCommentFlagged,
+  ] as const;
+};
+export const useResetDocumentCommentMarkedAsAi = (
+  onSuccess?: (comment: DocumentComment) => void,
+) => {
+  const {
+    loading: resetDocumentCommentMarkedAsAiLoading,
+    run: runResetDocumentCommentMarkedAsAi,
+  } = useRequest(resetDocumentCommentMarkedAsAi, { manual: true, onSuccess });
+  return [
+    resetDocumentCommentMarkedAsAiLoading,
+    runResetDocumentCommentMarkedAsAi,
   ] as const;
 };
 export const useUpdateAnswer = (onSuccess?: (data: AnswerSection) => void) => {
@@ -447,6 +563,10 @@ export const useMutation = <B, T extends any[]>(
 ) => {
   const { loading, run } = useRequest(service, { manual: true, onSuccess });
   return [loading, run] as const;
+};
+
+export const removeExam = async (filename: string) => {
+  await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
 };
 
 export const removeCategory = async (slug: string) => {
@@ -741,3 +861,35 @@ export const useMoveDocumentFile = (
   );
   return [error, loading, run] as const;
 };
+
+export const setFeedbackReply = async (oid: string, reply: string) =>
+  fetchPost(`/api/feedback/reply/${oid}/`, { reply });
+
+export const loadExamUserSolved = async (exam: string) => {
+  return fetchGet<{ user_solved: boolean }>(`/api/exam/${exam}/usersolved`);
+};
+
+export const useLoadExamUserSolved = (exam: string) => {
+  const {
+    error,
+    loading,
+    data,
+    mutate,
+    run: reload,
+  } = useRequest(() => loadExamUserSolved(exam), {
+    cacheKey: `exam-${exam}-usersolved`,
+  });
+  return [error, loading, data, mutate, reload] as const;
+};
+
+export const markExamUserSolved = async (exam: string) => {
+  return fetchPut<{ user_solved: boolean }>(`/api/exam/${exam}/usersolved`, {});
+};
+export const useMarkExamUserSolved = (exam: string) =>
+  useMutation(() => markExamUserSolved(exam));
+
+export const unmarkExamUserSolved = async (exam: string) => {
+  return fetchDelete<{ user_solved: boolean }>(`/api/exam/${exam}/usersolved`);
+};
+export const useUnmarkExamUserSolved = (exam: string) =>
+  useMutation(() => unmarkExamUserSolved(exam));

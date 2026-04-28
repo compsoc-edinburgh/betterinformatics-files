@@ -12,7 +12,7 @@ import UserDocuments from "../components/user-documents";
 import UserScoreCard from "../components/user-score-card";
 import useTitle from "../hooks/useTitle";
 
-const UserPage: React.FC<{}> = () => {
+const UserPage: React.FC = () => {
   const user = useUser()!;
   const { username = user.username } = useParams() as { username?: string };
   useTitle(username);

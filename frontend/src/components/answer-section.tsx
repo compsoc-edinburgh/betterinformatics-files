@@ -11,7 +11,7 @@ import {
   Text,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAnswers, useRemoveSplit } from "../api/hooks";
 import { useUser } from "../auth";
 import useInitialState from "../hooks/useInitialState";
@@ -34,7 +34,6 @@ import {
 import classes from "./answer-section.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import ShimmerButton from "./shimmer-button";
-import { useLocation } from "react-router-dom";
 import AnswerSectionButtons from "./answer-section-buttons";
 import AnswerSectionModal from "./answer-section-overlay";
 
@@ -59,25 +58,71 @@ const AnswerSectionButtonWrapper = (props: CardProps) => (
 
 interface AddButtonProps {
   allowAnswer: boolean;
-  hasAnswerDraft: boolean;
+  allowOfficialAnswer: boolean;
+  draftType: AnswerKind | null;
   onAnswer: () => void;
+  onOfficialAnswer: () => void;
 }
 const AddButton: React.FC<AddButtonProps> = ({
   allowAnswer,
-  hasAnswerDraft,
+  allowOfficialAnswer,
+  draftType,
   onAnswer,
+  onOfficialAnswer,
 }) => {
-  if (allowAnswer) {
+  const [isOpen, setOpen] = useState(false);
+  const toggle = useCallback(() => setOpen(old => !old), []);
+  // Count how many types of answers are allowed.
+  // If one is allowed, we don't use a dropdown
+  const answerTypeCount = +allowAnswer + +allowOfficialAnswer;
+
+  if (answerTypeCount >= 2) {
+    return (
+      <Menu opened={isOpen} withinPortal onChange={toggle}>
+        <Menu.Target>
+          <ShimmerButton rightSection={<IconChevronDown />}>
+            Add Answer
+          </ShimmerButton>
+        </Menu.Target>
+        <Menu.Dropdown>
+          {allowAnswer && (
+            <Menu.Item
+              onClick={onAnswer}
+              disabled={draftType === AnswerKind.Personal}
+            >
+              Add Answer
+            </Menu.Item>
+          )}
+          {allowOfficialAnswer && (
+            <Menu.Item
+              onClick={onOfficialAnswer}
+              disabled={draftType === AnswerKind.Official}
+            >
+              Add Official Answer
+            </Menu.Item>
+          )}
+        </Menu.Dropdown>
+      </Menu>
+    );
+  } else {
     return (
       <Group grow>
         {allowAnswer && (
           <ShimmerButton
             size="sm"
             onClick={onAnswer}
-            disabled={hasAnswerDraft}
-            color="dark"
+            disabled={draftType === AnswerKind.Personal}
           >
             Add Answer
+          </ShimmerButton>
+        )}
+        {allowOfficialAnswer && (
+          <ShimmerButton
+            size="sm"
+            onClick={onOfficialAnswer}
+            disabled={draftType === AnswerKind.Official}
+          >
+            Add Official Answer
           </ShimmerButton>
         )}
       </Group>
@@ -107,7 +152,9 @@ interface Props {
 }
 
 const AnswerSectionComponent: React.FC<Props> = React.memo(
-  ({
+  // See react/display-name (Named functions for display name)
+  // eslint-disable-next-line prefer-arrow-callback
+  function AnswerSectionComponent({
     oid,
     onSectionChange,
     onToggleHidden,
@@ -127,7 +174,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
 
     onHasAnswersChange,
     has_answers,
-  }) => {
+  }) {
     const computedColorScheme = useComputedColorScheme("light");
 
     const [data, setData] = useState<AnswerSection | undefined>();
@@ -161,9 +208,13 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       }
     }, [run, visible, hidden, data]);
 
-    const [hasDraft, setHasDraft] = useState(false);
+    const [draftType, setDraftType] = useState<AnswerKind | null>(null);
     const onAddAnswer = useCallback(() => {
-      setHasDraft(true);
+      setDraftType(AnswerKind.Personal);
+      if (hidden) onToggleHidden();
+    }, [hidden, onToggleHidden]);
+    const onAddOfficialAnswer = useCallback(() => {
+      setDraftType(AnswerKind.Official);
       if (hidden) onToggleHidden();
     }, [hidden, onToggleHidden]);
     const user = useUser()!;
@@ -258,7 +309,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
           if you start a draft on a collapsed question with no answers, and then
           delete the draft, you'll end up with a 'expanded but no answers or
           drafts' state. */}
-          {!hidden && data && (data.answers.length > 0 || hasDraft) && (
+          {!hidden && data && (data.answers.length > 0 || draftType) && (
             <Card
               bg={computedColorScheme === "light" ? "gray.0" : "dark.7"}
               shadow="md"
@@ -275,12 +326,20 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                   answerKind={answer.kind}
                 />
               ))}
-              {hasDraft && (
+              {draftType === AnswerKind.Personal && (
                 <AnswerComponent
                   section={data}
                   onSectionChanged={setAnswerSection}
-                  onDelete={() => setHasDraft(false)}
+                  onDelete={() => setDraftType(null)}
                   answerKind={AnswerKind.Personal}
+                />
+              )}
+              {draftType === AnswerKind.Official && (
+                <AnswerComponent
+                  section={data}
+                  onSectionChanged={setAnswerSection}
+                  onDelete={() => setDraftType(null)}
+                  answerKind={AnswerKind.Official}
                 />
               )}
             </Card>
@@ -322,8 +381,10 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
                         data.allow_new_answer && (
                           <AddButton
                             allowAnswer={data.allow_new_answer}
-                            hasAnswerDraft={hasDraft}
+                            allowOfficialAnswer={data.allow_new_official_answer}
+                            draftType={draftType}
                             onAnswer={onAddAnswer}
+                            onOfficialAnswer={onAddOfficialAnswer}
                           />
                         )
                       )

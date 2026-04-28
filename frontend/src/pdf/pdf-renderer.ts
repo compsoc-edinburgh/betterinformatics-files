@@ -37,20 +37,18 @@ interface MainCanvas {
  */
 export default class PDF {
   document: PDFDocumentProxy;
-  private pageMap: Map<number, Promise<PDFPageProxy>> = new Map();
+  private pageMap = new Map<number, Promise<PDFPageProxy>>();
   // SVGs aren't mentioned in pdf-js types :(
-  // tslint:disable-next-line: no-any
-  private operatorListMap: Map<number, Promise<any[]>> = new Map();
-  // tslint:disable-next-line: no-any
-  private gfxMap: Map<number, any> = new Map();
-  private svgMap: Map<number, SVGElement> = new Map();
-  private embedFontsSvgMap: Map<number, SVGElement> = new Map();
-  private textMap: Map<number, Promise<TextContent>> = new Map();
+  private operatorListMap = new Map<number, Promise<any[]>>();
+  private gfxMap = new Map<number, any>();
+  private svgMap = new Map<number, SVGElement>();
+  private embedFontsSvgMap = new Map<number, SVGElement>();
+  private textMap = new Map<number, Promise<TextContent>>();
   /**
    * Each `Set` once set shouldn't change anymore as it saves us from having to lookup
    * again. You therefore need to clear each set if you want to remove all references.
    */
-  private mainCanvasMap: Map<number, Set<MainCanvas>> = new Map();
+  private mainCanvasMap = new Map<number, Set<MainCanvas>>();
   constructor(document: PDFDocumentProxy) {
     this.document = document;
   }
@@ -62,27 +60,21 @@ export default class PDF {
     this.pageMap.set(pageNumber, loadedPage);
     return loadedPage;
   }
-  // tslint:disable-next-line: no-any
   private async getOperatorList(pageNumber: number): Promise<any[]> {
     const cachedOperatorList = this.operatorListMap.get(pageNumber);
     if (cachedOperatorList !== undefined) return cachedOperatorList;
     const page = await this.getPage(pageNumber);
-    // tslint:disable-next-line: no-any
     const operatorList = (page as any).getOperatorList();
     this.operatorListMap.set(pageNumber, operatorList);
     return operatorList;
   }
-  // tslint:disable-next-line: no-any
   private async getGfx(pageNumber: number): Promise<any> {
     const cachedGfx = this.gfxMap.get(pageNumber);
     if (cachedGfx !== undefined) return cachedGfx;
 
     const page = await this.getPage(pageNumber);
-    // tslint:disable-next-line: no-any
     const gfx = new (pdfjs as any).SVGGraphics(
-      // tslint:disable-next-line: no-any
       (page as any).commonObjs,
-      // tslint:disable-next-line: no-any
       (page as any).objs,
     );
     this.gfxMap.set(pageNumber, gfx);
@@ -200,7 +192,7 @@ export default class PDF {
     // Add the mainCanvas to the correct set
     const existingSet = this.mainCanvasMap.get(pageNumber);
     const newSet = new Set([mainCanvas]);
-    const mainCanvasSet = existingSet || newSet;
+    const mainCanvasSet = existingSet ?? newSet;
     if (existingSet) {
       existingSet.add(mainCanvas);
     } else {

@@ -24,13 +24,12 @@ const UserNotifications: React.FC<UserNotificationsProps> = ({ username }) => {
         </Alert>
       )}
       {notificationsLoading && <Loader />}
-      {notifications &&
-        notifications.map(notification => (
-          <NotificationComponent
-            notification={notification}
-            key={notification.oid}
-          />
-        ))}
+      {notifications?.map(notification => (
+        <NotificationComponent
+          notification={notification}
+          key={notification.oid}
+        />
+      ))}
     </div>
   );
 };

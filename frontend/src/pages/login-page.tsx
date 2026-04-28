@@ -24,10 +24,8 @@ const LoginPage: React.FC<{ isHome?: boolean }> = ({ isHome = false }) => {
   return (
     <>
       <Container size="xl" mb="lg">
-        <Grid gutter="xl">
-          <Grid.Col
-            span={{ base: 12, md: 6, lg: 6, xl: 6 }}
-          >
+        <Grid gap="xl">
+          <Grid.Col span={{ base: 12, md: 6, lg: 6, xl: 6 }}>
             <Flex direction="column" justify="center">
               {uwu ? (
                 <KawaiiBetterInformatics />

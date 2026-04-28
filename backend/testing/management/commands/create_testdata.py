@@ -1,3 +1,5 @@
+from itertools import cycle
+
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from django.conf import settings
@@ -304,6 +306,22 @@ class Command(BaseCommand):
                 reporter = users[(comment.id + i) % len(users)]
                 comment.flagged.add(reporter)
 
+    def create_marked_as_ai_testcases(self):
+        self.stdout.write("Create marked as AI test cases (2, 5, 6 marks)")
+        all_users = list(User.objects.all())
+        answers = list(Answer.objects.all())
+        comments = list(Comment.objects.all())
+
+        for answer, count in zip(answers[::19], cycle([2, 5, 6])):
+            non_authors = [u for u in all_users if u != answer.author]
+            for user in non_authors[:count]:
+                answer.marked_as_ai.add(user)
+
+        for comment, count in zip(comments[::19], cycle([2, 5, 6])):
+            non_authors = [u for u in all_users if u != comment.author]
+            for user in non_authors[:count]:
+                comment.marked_as_ai.add(user)
+
     def create_feedback(self):
         self.stdout.write("Create feedback")
         users = User.objects.all()
@@ -533,6 +551,7 @@ class Command(BaseCommand):
         self.create_answer_sections()
         self.create_answers()
         self.create_comments()
+        self.create_marked_as_ai_testcases()
         self.create_feedback()
         self.create_attachments()
         self.create_notifications()

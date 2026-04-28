@@ -13,8 +13,7 @@ const createStyle = () => {
   return node;
 };
 const removeStyle = (node: HTMLStyleElement | undefined) => {
-  if (node && document.head === node.parentElement)
-    document.head.removeChild(node);
+  if (document.head === node?.parentElement) document.head.removeChild(node);
 };
 type Point = [number, number];
 const useLongPress = <T>(
@@ -23,9 +22,9 @@ const useLongPress = <T>(
   longPressTime: number = 500,
   longPressDistanceSq: number = 20,
 ) => {
-  const timer = useRef<number | undefined>();
+  const timer = useRef<number | undefined>(undefined);
   const pos = useRef<Point>([0, 0]);
-  const style = useRef<HTMLStyleElement | undefined>();
+  const style = useRef<HTMLStyleElement | undefined>(undefined);
   const handler = useCallback(() => {
     timer.current = undefined;
     onHold();
