@@ -2,7 +2,7 @@
 node = "24.14.1"
 prek = "0.3.3"
 uv = "0.10.12"
-yarn = "4.13.0"
+yarn = "4.14.0"
 
 [env]
 _.file = "backend/.env.development"
@@ -10,5 +10,5 @@ _.file = "backend/.env.development"
 SIP_POSTGRES_DB_SERVER = "localhost"
 SIP_S3_FILES_HOST = "localhost"
 
-IS_DEBUG = "true"
 COMSOL_ASSETS_FOLDER = "../frontend/public/"
+IS_DEBUG = "true"
