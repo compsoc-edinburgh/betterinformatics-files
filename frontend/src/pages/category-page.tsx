@@ -220,7 +220,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           }
         />
         <Route
-          path={"/*" /*because useCategoryTabs needs non-exact match*/}
+          path={"*" /*because useCategoryTabs needs non-exact match*/}
           element={
             <>
               <Card withBorder mt="sm">
