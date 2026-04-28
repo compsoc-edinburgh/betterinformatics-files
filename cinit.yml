@@ -126,6 +126,8 @@ programs:
       - BANNED_USERS:
       - ADMIN_UUNS:
 
+      - ALLOWED_HOMEORGS: ethz.ch
+
       - RUNTIME_JWT_PUBLIC_KEY:
       - prometheus_multiproc_dir: /dev/shm
 

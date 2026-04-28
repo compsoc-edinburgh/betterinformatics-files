@@ -41,7 +41,7 @@ const NotificationComponent: React.FC<Props> = ({ notification }) => {
                 </Anchor>
               </Title>
               <Group gap={0}>
-                <Anchor component={Link} to={notification.sender}>
+                <Anchor component={Link} to={`/user/${notification.sender}`}>
                   {notification.senderDisplayName}
                 </Anchor>
                 <Text mx={6} component="span">

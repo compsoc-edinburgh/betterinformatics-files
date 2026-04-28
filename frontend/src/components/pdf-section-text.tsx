@@ -51,10 +51,8 @@ const useTextLayer = (
 };
 
 interface TextElementProps {
-  // tslint:disable-next-line: no-any
   item: any;
   // Style currently isn't used. Setting the font family breaks alignment
-  // tslint:disable-next-line: no-any
   styles: any;
   view: number[];
   scale: number;
@@ -119,7 +117,7 @@ const PdfSectionText: React.FC<Props> = React.memo(
       true,
       renderer,
       page,
-      view || defaultView,
+      view ?? defaultView,
       start,
       end,
     );
@@ -141,7 +139,7 @@ const PdfSectionText: React.FC<Props> = React.memo(
               key={index}
               item={item}
               styles={textContent.styles}
-              view={view || defaultView}
+              view={view ?? defaultView}
               scale={1.0}
             />
           ))}

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Container } from "@mantine/core";
 import classes from "./TopHeader.module.css";
 import type { MantineSize } from "@mantine/core";
+import { Link } from "react-router-dom";
 
 import { globalNav, translate, NavItem } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
@@ -13,7 +14,7 @@ interface Props {
   onLanguageSelect: (language: string) => void;
   organizationNav?: NavItem[];
   orgHomepage: string;
-  logo: string | undefined;
+  logo: string;
   size: MantineSize | undefined;
 }
 
@@ -33,21 +34,17 @@ const TopHeader: React.FC<Props> = ({
       fluid={true}
       style={{ backgroundColor: "var(--mantine-color-dark-6)" }}
     >
-      <Container size={size ? size : "xl"} className={classes.container}>
-        <a href={orgHomepage}>
+      <Container size={size ?? "xl"} className={classes.container}>
+        <Link to={orgHomepage}>
           <img
-            src={
-              logo
-              ? logo
-              : "https://static.vseth.ethz.ch/assets/vseth-0000-vseth/logo-mono.svg"
-            }
+            src={logo}
             className={classes.logo}
             alt="Logo of the student organization"
           />
-        </a>
+        </Link>
         <div className={classes.items}>
           {translate(
-            organizationNav ? organizationNav : globalNav,
+            organizationNav ?? globalNav,
             selectedLanguage,
           ).map((item, i) => (
             <ExternalNavElement

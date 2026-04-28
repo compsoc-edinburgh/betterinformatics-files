@@ -64,22 +64,21 @@ function isInViewPort(el: HTMLElement): boolean {
 
 function useLoad<T extends HTMLElement = HTMLElement>(): [
   InViewport,
-  MutableRefObject<T>,
+  MutableRefObject<T | null>,
 ];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function useLoad<T extends HTMLElement = HTMLElement>(arg: Arg): [InViewport];
 function useLoad<T extends HTMLElement = HTMLElement>(
   ...args: [Arg] | []
-): [InViewport, MutableRefObject<T>?] {
-  const element = useRef<T>();
+): [InViewport, MutableRefObject<T | null>?] {
+  const element = useRef<T>(null);
   const hasPassedInElement = args.length === 1;
   const arg = useRef(args[0]);
-  [arg.current] = args;
   const [inViewPort, setInViewport] = useState<InViewport>(() => {
     const initDOM =
       typeof arg.current === "function" ? arg.current() : arg.current;
 
-    return isInViewPort(initDOM as HTMLElement);
+    return isInViewPort(initDOM!);
   });
 
   useLayoutEffect(() => {
@@ -119,7 +118,7 @@ function useLoad<T extends HTMLElement = HTMLElement>(
     return [inViewPort];
   }
 
-  return [inViewPort, element as MutableRefObject<T>];
+  return [inViewPort, element as MutableRefObject<T | null>];
 }
 
 export default useLoad;

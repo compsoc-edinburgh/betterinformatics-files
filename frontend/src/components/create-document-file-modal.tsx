@@ -46,7 +46,7 @@ const CreateDocumentFileModal: React.FC<Props> = ({
           leftSection={<IconCloudUpload />}
           value={file}
           onChange={setFile}
-          accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg,.docx,.xlsx,.pptx,.epub" // apkg=anki
+          accept=".pdf,.tex,.md,.typ,.txt,.zip,.apkg,.colpkg,.docx,.pptx,.epub,.csv,.xlsx,.xls,.ods" // apkg=anki
         />
         <div>
           PDF, LaTeX, Markdown, Text, Zip, and Anki files are supported. <br />

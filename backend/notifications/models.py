@@ -8,6 +8,7 @@ class NotificationType(enum.Enum):
     NEW_COMMENT_TO_COMMENT = 2
     NEW_ANSWER_TO_ANSWER = 3
     NEW_COMMENT_TO_DOCUMENT = 4
+    NEW_COMMENT_TO_FEEDBACK = 5
 
 
 class Notification(models.Model):
@@ -20,6 +21,7 @@ class Notification(models.Model):
     answer = models.ForeignKey('answers.Answer', null=True, on_delete=models.SET_NULL)
     document = models.ForeignKey('documents.Document', null=True, on_delete=models.SET_NULL)
     read = models.BooleanField(default=False)
+    feedback = models.ForeignKey('feedback.Feedback', null=True, on_delete=models.SET_NULL)
 
 
 class NotificationSetting(models.Model):

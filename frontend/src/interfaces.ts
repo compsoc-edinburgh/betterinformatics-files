@@ -43,6 +43,8 @@ export interface Answer {
   isExpertVoted: boolean; // whether the current user expert upvoted the answer
   isFlagged: boolean; // whether the current user flagged the answer
   flaggedCount: number; // number of flaggings
+  isMarkedAsAi: boolean; // whether the current user marked the answer as AI-generated
+  markedAsAiCount: number; // number of markings as AI-generated
   comments: Comment[];
   text: string;
   time: string; // ISO 8601, creation time
@@ -64,6 +66,8 @@ export interface Comment {
   time: string; // ISO 8601, creation time
   isFlagged: boolean; // whether the current user flagged the comment
   flaggedCount: number; // number of flaggings
+  isMarkedAsAi: boolean; // whether the current user marked the comment as AI-generated
+  markedAsAiCount: number; // number of markings as AI-generated
   edittime: string; // ISO 8601, last edit time
 }
 
@@ -85,6 +89,8 @@ export interface SingleComment {
 
   isFlagged: boolean; // whether the current user flagged the answer
   flaggedCount: number; // number of flaggings
+  isMarkedAsAi: boolean; // whether the current user marked the answer as AI-generated
+  markedAsAiCount: number; // number of markings as AI-generated
 }
 
 export interface PdfSection {
@@ -139,6 +145,7 @@ export interface CategoryExam {
   canView: boolean; // whether the exam can be viewed by the user
   count_cuts: number; // number of cuts in exam
   count_answered: number; // number of cuts with answers in exam
+  user_solved: boolean;
 }
 
 export interface MetaCategory {
@@ -225,6 +232,7 @@ export interface ExamMetaData {
   count_cuts: number;
   count_answered: number;
   attachments: Attachment[];
+  user_solved: boolean;
 
   exam_file?: string;
   solution_file?: string;
@@ -257,6 +265,8 @@ export interface NotificationInfo {
 export interface UserInfo {
   username: string;
   displayName: string;
+  rank: number;
+  total_users: number;
   score: number;
   score_answers: number;
   score_comments: number;
@@ -273,6 +283,8 @@ export interface FeedbackEntry {
   time: string;
   read: boolean;
   done: boolean;
+  reply: string;
+  reply_time: string | null;
 }
 
 export interface FAQEntry {
@@ -282,12 +294,8 @@ export interface FAQEntry {
   order: number;
 }
 
-export interface CutVersions {
-  [oid: string]: number;
-}
-export interface ServerCutResponse {
-  [pageNumber: string]: ServerCutPosition[];
-}
+export type CutVersions = Record<string, number>;
+export type ServerCutResponse = Record<string, ServerCutPosition[]>;
 
 export enum EditMode {
   None,

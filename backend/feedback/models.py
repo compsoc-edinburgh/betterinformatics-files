@@ -8,3 +8,5 @@ class Feedback(models.Model):
     time = models.DateTimeField(default=timezone.now)
     read = models.BooleanField(default=False)
     done = models.BooleanField(default=False)
+    reply = models.TextField(blank=True, default="")
+    reply_time = models.DateTimeField(null=True, blank=True)

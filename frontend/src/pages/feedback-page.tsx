@@ -11,6 +11,7 @@ import {
   Text,
   Textarea,
   Title,
+  Loader,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { User, useUser } from "../auth";
@@ -18,13 +19,12 @@ import FeedbackEntryComponent from "../components/feedback-entry";
 import { loadFeedback, submitFeedback } from "../api/hooks";
 import useTitle from "../hooks/useTitle";
 import serverData from "../utils/server-data";
-import { Loader } from "@mantine/core";
 import { FeedbackEntry } from "../interfaces";
 import { useDisclosure } from "@mantine/hooks";
 import CollapseWrapper from "../components/collapse-wrapper";
 import { parseISO, isValid } from "date-fns";
 
-const FeedbackForm: React.FC<{}> = () => {
+const FeedbackForm: React.FC = () => {
   const [success, setSuccess] = useState(false);
   useEffect(() => {
     if (success) {
@@ -54,7 +54,7 @@ const FeedbackForm: React.FC<{}> = () => {
         <Anchor
           component="a"
           href={`mailto:${serverData.email_address}`}
-          color="blue"
+          c="blue"
         >
           {serverData.email_address}
         </Anchor>
@@ -64,7 +64,7 @@ const FeedbackForm: React.FC<{}> = () => {
         To report issues with the platform you can open an issue in our{" "}
         <Anchor
           component="a"
-          color="blue"
+          c="blue"
           href="https://github.com/compsoc-edinburgh/betterinformatics-files"
           target="_blank"
           rel="noopener noreferrer"
@@ -90,7 +90,7 @@ const FeedbackForm: React.FC<{}> = () => {
   );
 };
 
-const FeedbackReader: React.FC<{}> = () => {
+const FeedbackReader: React.FC = () => {
   const {
     error,
     loading,
@@ -172,7 +172,7 @@ const FeedbackReader: React.FC<{}> = () => {
   );
 };
 
-const FeedbackAdminView: React.FC<{}> = () => {
+const FeedbackAdminView: React.FC = () => {
   const [mode, setMode] = useLocalStorageState<string | null>(
     "feedback-admin-mode",
     "read",
@@ -190,9 +190,9 @@ const FeedbackAdminView: React.FC<{}> = () => {
     </Container>
   );
 };
-const FeedbackPage: React.FC<{}> = () => {
+const FeedbackPage: React.FC = () => {
   useTitle("Feedback");
-  const { isAdmin } = useUser() as User;
+  const { isAdmin } = useUser()!;
   return isAdmin ? (
     <FeedbackAdminView />
   ) : (

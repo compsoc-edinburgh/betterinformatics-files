@@ -73,11 +73,11 @@ const SearchResults: React.FC<Props> = React.memo(({ data }) => {
                     <Stack style={{ flexGrow: "1", flexBasis: "0" }}>
                       {matches.map((part, i) => (
                         <Box key={i}>
-                          <Text component="span" color="dimmed">
+                          <Text component="span" c="dimmed">
                             ...{" "}
                           </Text>
                           <HighlightedContent content={part} key={i} />
-                          <Text component="span" color="dimmed">
+                          <Text component="span" c="dimmed">
                             {" "}
                             ...
                           </Text>

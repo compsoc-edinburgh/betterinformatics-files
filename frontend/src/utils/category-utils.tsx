@@ -7,6 +7,7 @@ import {
   ExamSelectedForDownload,
 } from "../interfaces";
 import { fetchGet } from "../api/fetch-utils";
+import { downloadZipFile, type ZipFileItem } from "./download-zip-file.js";
 
 export function filterMatches(filter: string, name: string): boolean {
   const nameLower = name.replace(/\s/g, "").toLowerCase();
@@ -56,7 +57,7 @@ export function fillMetaCategories(
   categories: CategoryMetaDataOverview[],
   metaCategories: MetaCategory[],
 ): MetaCategoryWithCategories[] {
-  const categoryToMeta: { [key: string]: CategoryMetaDataOverview } = {};
+  const categoryToMeta: Record<string, CategoryMetaDataOverview> = {};
   categories.forEach(cat => {
     categoryToMeta[cat.slug] = cat;
   });
@@ -83,7 +84,7 @@ export function getMetaCategoriesForCategory(
     .map(meta1 => ({
       ...meta1,
       meta2: meta1.meta2.filter(
-        meta2 => meta2.categories.indexOf(category) !== -1,
+        meta2 => meta2.categories.includes(category),
       ),
     }))
     .filter(meta1 => meta1.meta2.length > 0);
@@ -107,46 +108,22 @@ export const mapExamsToExamType = (exams: CategoryExam[]) => {
 export const dlSelectedExams = async (
   selectedExams: ExamSelectedForDownload[],
 ) => {
-  const JSZip = await import("jszip").then(e => e.default);
-  const zip = new JSZip();
-
-  // this is here to check for duplicate filenames and count them
-  const fileNames = new Map<string, number>();
-
-  await Promise.all(
-    selectedExams.map(async exam => {
+  const zipFileItems = selectedExams.map(
+    async (exam): Promise<ZipFileItem | undefined> => {
       const responseUrl = await fetchGet(
         `/api/exam/pdf/exam/${exam.filename}/`,
       );
-      const responseFile = await fetch(responseUrl.value).then(r =>
-        r.arrayBuffer(),
-      );
-      // @gkhromov: There could be collisions if several files have the same display name.
-      // Add "(n)" to duplicates.
-      const ext = exam.filename.substr(exam.filename.lastIndexOf("."));
-      const repNum = fileNames.get(exam.displayname);
-      if (repNum !== undefined) {
-        fileNames.set(exam.displayname, repNum + 1);
-        zip.file(`${exam.displayname} (${repNum})${ext}`, responseFile);
-      } else {
-        fileNames.set(exam.displayname, 1);
-        zip.file(exam.displayname + ext, responseFile);
-      }
-    }),
+      const responseFile = fetch(responseUrl.value).then(r => r.arrayBuffer());
+
+      return {
+        displayName: exam.displayname,
+        filename: exam.filename,
+        file: responseFile,
+      };
+    },
   );
 
-  const content = await zip.generateAsync({ type: "blob" });
-  const name = "exams.zip";
-  const url = window.URL.createObjectURL(content);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  window.URL.revokeObjectURL(url);
+  await downloadZipFile("exams.zip", zipFileItems);
 };
 /**
  * Strip the YAML frontmatter (if it exists) from a raw markdown file content,

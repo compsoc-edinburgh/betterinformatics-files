@@ -22,6 +22,7 @@ import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
 import CategoryPage from "./pages/category-page";
 import DisclaimerPage from "./pages/disclaimer-page";
+import ChangelogPage from "./pages/changelog-page";
 import DocumentPage from "./pages/document-page";
 import ExamPage from "./pages/exam-page";
 import FAQ from "./pages/faq-page";
@@ -49,8 +50,9 @@ import {
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
+import ChangelogNotifier from "./components/ChangelogNotifier";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute, FaroRoutes } from "@grafana/faro-react";
+import { FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import {
   QuickSearchFilter,
@@ -107,7 +109,7 @@ const TelemetryRoutes =
     ? Routes
     : FaroRoutes;
 
-const App: React.FC<{}> = () => {
+const App: React.FC = () => {
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
     // `yarn start` as only certain pages will set the csrf cookie.
@@ -180,6 +182,7 @@ const App: React.FC<{}> = () => {
         "rgb(144, 146, 150)",
       ) as unknown as MantineColorsTuple,
     },
+    defaultRadius: "md",
     primaryColor: "compsocMain",
     primaryShade: 7,
     fontFamily:
@@ -196,6 +199,11 @@ const App: React.FC<{}> = () => {
       defaultProps: {
         color: "compsocGray",
         variant: "light",
+      },
+    },
+    Checkbox: {
+      defaultProps: {
+        radius: "sm",
       },
     },
     // By default, SegmentedControl on dark mode has a "light indicator on dark
@@ -215,6 +223,13 @@ const App: React.FC<{}> = () => {
         },
       },
     }),
+    Modal: {
+      defaultProps: {
+        removeScrollProps: {
+          allowPinchZoom: true,
+        },
+      },
+    },
   };
 
   const adminItems = [
@@ -232,6 +247,7 @@ const App: React.FC<{}> = () => {
       childItems: [
         { title: "FAQ", href: "/faq" },
         { title: "Stats and Scores", href: "/stats" },
+        { title: "What's New", href: "/changelog" },
         { title: "Feedback", href: "/feedback" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
@@ -295,6 +311,7 @@ const App: React.FC<{}> = () => {
                   title={"File Collection"}
                 />
                 <AnnouncementHeader />
+                <ChangelogNotifier />
                 <Box component="main" mt="2em">
                   <TelemetryRoutes>
                     <Route path="*" element={<NotFoundPage />} />
@@ -317,6 +334,7 @@ const App: React.FC<{}> = () => {
                         element={<DissertationDetailPage />}
                       />
                       <Route path="/faq" element={<FAQ />} />
+                      <Route path="/changelog" element={<ChangelogPage />} />
                       <Route path="/feedback" element={<FeedbackPage />} />
                       <Route
                         path="/category/:slug/*"

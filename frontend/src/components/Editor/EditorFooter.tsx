@@ -1,19 +1,16 @@
 import { Button, Group, Modal } from "@mantine/core";
 import * as React from "react";
-import { ImageHandle } from "./utils/types";
 import EditorHelp from "./EditorHelp";
 import classes from "./EditorFooter.module.css";
 import { useDisclosure } from "@mantine/hooks";
 
 interface Props {
-  onOpenOverlay: () => void;
-  attachments: ImageHandle[];
-  onDelete: (handle: ImageHandle) => void;
+  onOpenImageOverlay: () => void;
+  onOpenOfficialAnswerOverlay: () => void;
 }
 const EditorFooter: React.FC<Props> = ({
-  attachments,
-  onDelete,
-  onOpenOverlay,
+  onOpenImageOverlay,
+  onOpenOfficialAnswerOverlay,
 }) => {
   const [isHelpOpen, { toggle: toggleHelpModal, close: closeHelpModal }] =
     useDisclosure();
@@ -26,10 +23,17 @@ const EditorFooter: React.FC<Props> = ({
     <div onClick={e => e.stopPropagation()}>
       <Group justify="right" className={classes.row}>
         <Button.Group>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={onOpenOfficialAnswerOverlay}
+          >
+            Embed PDF
+          </Button>
           <Button variant="default" size="sm" onClick={toggleHelpModal}>
             Supported Functions
           </Button>
-          <Button variant="default" size="sm" onClick={onOpenOverlay}>
+          <Button variant="default" size="sm" onClick={onOpenImageOverlay}>
             Browse Images
           </Button>
         </Button.Group>

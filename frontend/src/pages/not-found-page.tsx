@@ -2,7 +2,7 @@ import { Container, Text, Title } from "@mantine/core";
 import React from "react";
 import useTitle from "../hooks/useTitle";
 
-const NotFoundPage: React.FC<{}> = () => {
+const NotFoundPage: React.FC = () => {
   useTitle("404");
   return (
     <Container size="xl">

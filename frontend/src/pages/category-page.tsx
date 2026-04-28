@@ -26,7 +26,6 @@ import {
   Routes,
   useNavigate,
   useParams,
-  useMatch,
 } from "react-router-dom";
 import {
   loadCategoryMetaData,
@@ -203,12 +202,14 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
           }
           element={
             !user.isCategoryAdmin ? (
-              <Navigate to="." replace />
+              <Navigate to="./.." replace />
             ) : (
               offeredIn && (
                 <CategoryMetaDataEditor
                   onMetaDataChange={editorOnMetaDataChange}
-                  close={() => navigate(".")}
+                  close={() => {
+                    navigate("./..");
+                  }}
                   currentMetaData={metaData}
                   offeredIn={offeredIn.flatMap(b =>
                     b.meta2.map(d => [b.displayname, d.displayname] as const),
@@ -235,7 +236,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                       <Button
                         leftSection={<IconEdit />}
                         component={Link}
-                        to={"edit"}
+                        to="./edit"
                         color="dark"
                       >
                         Edit
@@ -288,7 +289,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                 </Card.Section>
               </Card>
 
-              <Grid my="sm" gutter={{ base: "sm", sm: "md" }}>
+              <Grid my="sm" gap={{ base: "sm", sm: "md" }}>
                 <Grid.Col span={{ base: 12, md: 8 }}>
                   {tabs.currentTabId === "statistics" ? (
                     <Paper withBorder p={{ base: "sm", sm: "md" }}>
@@ -310,7 +311,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                               <List.Item key={att.filename}>
                                 <Anchor
                                   href={`/api/filestore/get/${att.filename}/`}
-                                  color="blue"
+                                  c="blue"
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
@@ -488,13 +489,13 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
             </>
           }
         />
-        <Route path="*" element={<Navigate to="." replace />} />
+        <Route path="*" element={<Navigate to="./.." replace />} />
       </Routes>
     </>
   );
 };
 
-const CategoryPage: React.FC<{}> = () => {
+const CategoryPage: React.FC = () => {
   const { slug } = useParams() as { slug: string };
   const { data, loading, error, mutate } = useRequest(
     () => loadCategoryMetaData(slug),

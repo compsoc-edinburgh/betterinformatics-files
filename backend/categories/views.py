@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 
-from answers.models import Answer
+from answers.models import Answer, ExamUserSolved
 from categories.models import Category, MetaCategory, EuclidCode, CourseStats
 from ediauth import auth_check
 from util import response, func_cache
@@ -25,13 +25,14 @@ def list_categories(request):
 @response.request_get()
 def list_categories_with_meta(request):
     categories = Category.objects.select_related("meta").order_by("displayname").all()
+    categories = Category.objects.select_related("meta").order_by("displayname").all()
     res = [
         {
             "displayname": cat.displayname,
             "slug": cat.slug,
+            "documentcount": cat.meta.documentcount,
             "examcountpublic": cat.meta.examcount_public,
             "examcountanswered": cat.meta.examcount_answered,
-            "documentcount": cat.meta.documentcount,
             "answerprogress": cat.answer_progress(),
         }
         for cat in categories
@@ -138,6 +139,10 @@ def list_exams(request, slug):
                 "canView": ex.current_user_can_view(request),
                 "count_cuts": ex.counts.count_cuts,
                 "count_answered": ex.counts.count_answered,
+                "user_solved": ExamUserSolved.objects.filter(
+                    user=request.user,
+                    exam=ex,
+                ).exists(),
             }
             for ex in cat.exam_set.select_related(
                 "exam_type", "import_claim", "counts"
@@ -487,16 +492,18 @@ def list_euclid_codes(request):
 @auth_check.require_login
 def get_course_stats(request, slug):
     cat = get_object_or_404(Category, slug=slug)
-    
+
     # Get all Euclid codes for this category
     euclid_codes = list(cat.euclid_codes.all().values_list("code", flat=True))
-    
+
     if not euclid_codes:
         return response.success(value=[])
-    
+
     # Get course stats for all Euclid codes associated with this category
-    stats = CourseStats.objects.filter(course_code__in=euclid_codes).order_by('course_code', 'academic_year')
-    
+    stats = CourseStats.objects.filter(course_code__in=euclid_codes).order_by(
+        "course_code", "academic_year"
+    )
+
     res = [
         {
             "course_name": stat.course_name,
@@ -508,5 +515,5 @@ def get_course_stats(request, slug):
         }
         for stat in stats
     ]
-    
+
     return response.success(value=res)

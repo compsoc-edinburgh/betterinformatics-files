@@ -6,9 +6,9 @@ import { CanvasObject } from "./utils";
  * is undefined behavior and will most likely result in no action.
  */
 export class CanvasFactory {
-  private canvasArray: Array<CanvasObject> = [];
-  private objectIndexMap: Map<CanvasObject, number> = new Map();
-  private free: Set<number> = new Set();
+  private canvasArray: CanvasObject[] = [];
+  private objectIndexMap = new Map<CanvasObject, number>();
+  private free = new Set<number>();
   /**
    * Return an index of a free `CanvasObject` if one is available.
    */

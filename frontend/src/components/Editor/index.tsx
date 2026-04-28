@@ -14,6 +14,7 @@ import { ImageHandle, Range } from "./utils/types";
 import { push, redo, undo, UndoStack } from "./utils/undo-stack";
 import classes from "./Editor.module.css";
 import clsx from "clsx";
+import OfficialAnswerOverlay from "../official-answer-overlay.js";
 
 interface Props {
   value: string;
@@ -23,6 +24,7 @@ interface Props {
 
   undoStack: UndoStack;
   setUndoStack: (newStack: UndoStack) => void;
+  allowOfficialAnswer?: boolean;
 }
 
 const Editor: React.FC<Props> = ({
@@ -35,8 +37,9 @@ const Editor: React.FC<Props> = ({
 }) => {
   const [mode, setMode] = useState<string | null>("write");
   const [isDragHovered, setIsDragHovered] = useState(false);
-  const [attachments, setAttachments] = useState<ImageHandle[]>([]);
-  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [imageOverlayOpen, setImageOverlayOpen] = useState(false);
+  const [officialAnswerOverlayOpen, setOfficialAnswerOverlayOpen] =
+    useState(false);
   const textareaElRef = useRef<HTMLTextAreaElement>(
     null,
   ) as React.MutableRefObject<HTMLTextAreaElement>;
@@ -73,6 +76,24 @@ const Editor: React.FC<Props> = ({
         end: selection.start + content.length + 2,
       };
       setCurrent(before + newContent + after, newSelection);
+    },
+    [setCurrent, value],
+  );
+
+  const insertMarkdown = useCallback(
+    (markdown: string) => {
+      const selection = getSelectionRangeRef.current();
+      if (!selection) return;
+      const before = value.substring(0, selection.start);
+      // Don't overwrite currently selected
+      // but also don't use it for anything
+      const after = value.substring(selection.start);
+
+      const newSelection = {
+        start: selection.start + markdown.length,
+        end: selection.end + markdown.length,
+      };
+      setCurrent(before + markdown + after, newSelection);
     },
     [setCurrent, value],
   );
@@ -213,7 +234,6 @@ const Editor: React.FC<Props> = ({
   const onFile = useCallback(
     async (file: File) => {
       const handle = await imageHandler(file);
-      setAttachments(a => [...a, handle]);
       insertImage(handle);
     },
     [imageHandler, insertImage],
@@ -222,7 +242,6 @@ const Editor: React.FC<Props> = ({
   const getHandle = useCallback(
     async (file: File) => {
       const handle = await imageHandler(file);
-      setAttachments(a => [...a, handle]);
       return handle;
     },
     [imageHandler],
@@ -237,14 +256,9 @@ const Editor: React.FC<Props> = ({
     [onFile],
   );
 
-  const onDeleteAttachment = useCallback(async (handle: ImageHandle) => {
-    await handle.remove();
-    setAttachments(a => a.filter(h => h !== handle));
-  }, []);
-
   const onImageDialogClose = useCallback(
     (image: string) => {
-      setOverlayOpen(false);
+      setImageOverlayOpen(false);
       if (image.length === 0) return;
       insertImage({
         name: image,
@@ -255,8 +269,20 @@ const Editor: React.FC<Props> = ({
     [insertImage],
   );
 
-  const onOpenOverlay = useCallback(() => {
-    setOverlayOpen(true);
+  const onOfficialAnswerDialogClose = useCallback(
+    (markdown: string | undefined) => {
+      setOfficialAnswerOverlayOpen(false);
+      if (!markdown) return;
+      insertMarkdown(markdown);
+    },
+    [insertMarkdown],
+  );
+
+  const onOpenImageOverlay = useCallback(() => {
+    setImageOverlayOpen(true);
+  }, []);
+  const onOpenOfficialAnswerOverlay = useCallback(() => {
+    setOfficialAnswerOverlayOpen(true);
   }, []);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -312,15 +338,19 @@ const Editor: React.FC<Props> = ({
   const footer = (
     <>
       <EditorFooter
-        attachments={attachments}
-        onDelete={onDeleteAttachment}
-        onOpenOverlay={onOpenOverlay}
+        onOpenImageOverlay={onOpenImageOverlay}
+        onOpenOfficialAnswerOverlay={onOpenOfficialAnswerOverlay}
       />
       {isDragHovered && <DropZone onDragLeave={onDragLeave} onDrop={onFiles} />}
       <ImageOverlay
-        isOpen={overlayOpen}
+        isOpen={imageOverlayOpen}
         onClose={() => onImageDialogClose("")}
         closeWithImage={onImageDialogClose}
+      />
+      <OfficialAnswerOverlay
+        isOpen={officialAnswerOverlayOpen}
+        onClose={() => onOfficialAnswerDialogClose(undefined)}
+        closeWithOfficialAnswer={onOfficialAnswerDialogClose}
       />
     </>
   );

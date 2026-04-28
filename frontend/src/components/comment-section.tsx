@@ -1,7 +1,7 @@
-import { Button, Flex, Group, Paper, Stack } from "@mantine/core";
+import { Button, Flex, Paper, Stack } from "@mantine/core";
 import classes from "./comment-section.module.css";
 import { IconMessageCirclePlus } from "@tabler/icons-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Answer, AnswerSection } from "../interfaces";
 import CommentComponent from "./comment";
 import { useLocation } from "react-router-dom";

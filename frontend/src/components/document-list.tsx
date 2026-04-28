@@ -1,4 +1,11 @@
-import { Alert, Flex, Group, Tooltip, Title, useComputedColorScheme } from "@mantine/core";
+import {
+  Alert,
+  Flex,
+  Group,
+  Tooltip,
+  Title,
+  useComputedColorScheme,
+} from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { loadDocumentTypes, useDocuments } from "../api/hooks";
 import CreateDocumentForm from "./create-document-modal";
@@ -50,11 +57,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
 
   return (
     <>
-      <CreateDocumentForm
-        isOpen={isOpen}
-        categorySlug={slug}
-        onClose={close}
-      />
+      <CreateDocumentForm isOpen={isOpen} categorySlug={slug} onClose={close} />
       <Title
         order={2}
         mt="xl"

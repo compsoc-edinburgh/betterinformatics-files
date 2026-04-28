@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { download } from "../api/fetch-utils";
 import { Document } from "../interfaces";
+import {
+  downloadZipFile,
+  type ZipFileItem,
+} from "../utils/download-zip-file.js";
 
 export const useDocumentDownload = (doc: Document | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +21,7 @@ export const useDocumentDownload = (doc: Document | undefined) => {
       }
     };
 
-    (async () => {
+    void (async () => {
       if (doc.files.length === 0) return;
       if (doc.files.length === 1) {
         download(`/api/document/${doc.slug}/file/${doc.files[0].filename}`);
@@ -25,55 +29,31 @@ export const useDocumentDownload = (doc: Document | undefined) => {
         return;
       }
 
-      const JSZip = await import("jszip").then(e => e.default);
-      if (cancel) return;
-      const zip = new JSZip();
+      const zipFileItems = doc.files.map(
+        async (file): Promise<ZipFileItem | undefined> => {
+          const controller = new AbortController();
+          controllers.push(controller);
 
-      await Promise.all(
-        doc.files.map(async file => {
-          const controller =
-            window.AbortController !== undefined
-              ? new AbortController()
-              : undefined;
-          if (controller !== undefined) controllers.push(controller);
-          const responseFile = await fetch(
-            `/api/document/${doc.slug}/file/${file.filename}`,
-            {
-              signal: controller?.signal,
-            },
-          )
-            .then(r => r.arrayBuffer())
-            .catch(e => {
-              if (
-                window.DOMException !== undefined &&
-                e instanceof DOMException &&
-                e.name === "AbortError"
-              )
-                return;
-              console.error(e);
-              abort();
-            });
+          const response = await fetch(`/api/document/${doc.slug}/file/${file.filename}`, {
+            signal: controller.signal,
+          }).catch((e: unknown) => {
+            if (e instanceof DOMException && e.name === "AbortError") return;
+            console.error(e);
+            abort();
+          });
           if (cancel) return;
-          if (responseFile === undefined) return;
-          const ext = file.filename.substr(file.filename.lastIndexOf("."));
-          zip.file(file.display_name + ext, responseFile);
-        }),
+          if (response === undefined) return;
+
+          return {
+            displayName: file.display_name,
+            filename: file.filename,
+            file: response.arrayBuffer(),
+          };
+        },
       );
-      if (cancel) return;
 
-      const content = await zip.generateAsync({ type: "blob" });
-      if (cancel) return;
       const name = `${doc.display_name}.zip`;
-      const url = window.URL.createObjectURL(content);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = name;
-
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      await downloadZipFile(name, zipFileItems);
       setIsLoading(false);
     })();
 

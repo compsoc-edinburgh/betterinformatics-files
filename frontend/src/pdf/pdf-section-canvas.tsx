@@ -125,12 +125,12 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       undefined,
     );
     const toggleVisibility = useCallback(
-      () => onSectionHiddenChange(oid ? oid : [page, end], { hidden: !hidden }),
+      () => onSectionHiddenChange(oid ?? [page, end], { hidden: !hidden }),
       [oid, page, end, hidden, onSectionHiddenChange],
     );
     const dpr = useDpr();
     const [canvas, view, width, height, isMainCanvas] = usePdf(
-      almostInView || false,
+      almostInView ?? false,
       renderer,
       page,
       start,
@@ -139,7 +139,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     );
     const inViewportRef = useRef<HTMLDivElement>(null);
     const inViewport = useInViewport(inViewportRef);
-    const v = inViewport || false;
+    const v = inViewport ?? false;
     useEffect(() => {
       if (onInViewChange) onInViewChange(v);
       return () => {
@@ -189,7 +189,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     ]);
 
     const onAddCutHandler = (pos: number) =>
-      onAddCut && onAddCut(start + (end - start) * (pos / containerHeight));
+      onAddCut?.(start + (end - start) * (pos / containerHeight));
 
     let content: React.ReactNode;
     if (canvas) {
@@ -242,7 +242,7 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
                 start={start}
                 end={end}
                 renderer={renderer}
-                scale={currentScale || 1}
+                scale={currentScale ?? 1}
                 view={view}
                 translateY={translateY}
               />

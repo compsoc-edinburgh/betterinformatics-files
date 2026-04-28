@@ -43,7 +43,7 @@ export function logout(redirectUrl = window.location.pathname) {
 
 export function getHeaders() {
   const headers: Record<string, string> = {
-    "X-CSRFToken": getCookie("csrftoken") || "",
+    "X-CSRFToken": getCookie("csrftoken") ?? "",
   };
   if (localStorage.getItem("simulate_nonadmin")) {
     headers["SimulateNonAdmin"] = "true";
@@ -64,7 +64,7 @@ export class NamedBlob {
 async function performDataRequest<T>(
   method: string,
   url: string,
-  data: { [key: string]: any },
+  data: Record<string, any>,
 ) {
   // if (isTokenExpired()) await refreshToken();
 
@@ -137,15 +137,15 @@ export function getCookie(name: string): string | null {
   }
   return cookieValue;
 }
-export function fetchPost<T = any>(url: string, data: { [key: string]: any }) {
+export function fetchPost<T = any>(url: string, data: Record<string, any>) {
   return performDataRequest<T>("POST", url, data);
 }
 
-export function fetchPut<T = any>(url: string, data: { [key: string]: any }) {
+export function fetchPut<T = any>(url: string, data: Record<string, any>) {
   return performDataRequest<T>("PUT", url, data);
 }
 
-export function fetchPatch<T = any>(url: string, data: { [key: string]: any }) {
+export function fetchPatch<T = any>(url: string, data: Record<string, any>) {
   return performDataRequest<T>("PATCH", url, data);
 }
 

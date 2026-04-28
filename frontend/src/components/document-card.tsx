@@ -26,7 +26,9 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
       to={`/document/${document.slug}`}
       fw={600}
     >
-      <Text size="lg" lineClamp={3}>{document.display_name}</Text>
+      <Text size="lg" lineClamp={3}>
+        {document.display_name}
+      </Text>
       <Group justify="space-between" mt="sm">
         {document.anonymised ? (
           <Text c="dimmed">Anonymous</Text>
@@ -51,7 +53,13 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
           </Flex>
         )}
         {showCategory && (
-          <Badge ml="xs" component={Link} to={`/category/${document.category}`} c="blue" style={{ cursor: "pointer" }}>
+          <Badge
+            ml="xs"
+            component={Link}
+            to={`/category/${document.category}`}
+            c="blue"
+            style={{ cursor: "pointer" }}
+          >
             {document.category_display_name}
           </Badge>
         )}

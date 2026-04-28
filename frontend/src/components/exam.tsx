@@ -128,9 +128,9 @@ const Exam: React.FC<Props> = React.memo(
     const answerIdParam = new URLSearchParams(location.search).get("answer");
 
     // We retain legacy support for linking to answers by hashes for any old links
-    const answerIdHash = document.location.hash.substring(1);
+    const answerIdHash = location.hash.substring(1);
     // Prioritise query param over legacy hash support
-    const answerId = answerIdParam || answerIdHash;
+    const answerId = answerIdParam ?? answerIdHash;
 
     // We need to ask the API what section ID the permalinked answer is in. Then,
     // we re-render this component with the new set of expanded states. We have
@@ -140,6 +140,11 @@ const Exam: React.FC<Props> = React.memo(
     useEffect(() => {
       let cancelled = false;
       if (answerId && answerId.length > 0) {
+        // If an element already exists with that id, the browser will
+        // automatically scroll there.
+        if (document.getElementById(answerId))
+          return;
+
         fetchGet(`/api/exam/answer/${answerId}/`)
           .then(res => {
             if (cancelled) return;

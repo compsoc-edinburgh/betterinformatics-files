@@ -61,16 +61,12 @@ const DocumentFileItem: React.FC<Props> = ({
     1,
     reload,
   );
-  const [_, deleteFile] = useDeleteDocumentFile(
-    document.slug,
-    file.oid,
-    () => {
-      mutate(s => ({
-        ...s,
-        files: s.files.filter(f => f.oid !== file.oid),
-      }));
-    },
-  );
+  const [_, deleteFile] = useDeleteDocumentFile(document.slug, file.oid, () => {
+    mutate(s => ({
+      ...s,
+      files: s.files.filter(f => f.oid !== file.oid),
+    }));
+  });
   const [updateLoading, updateFile] = useUpdateDocumentFile(
     document.slug,
     file.oid,
@@ -109,7 +105,7 @@ const DocumentFileItem: React.FC<Props> = ({
           <FileInput
             value={replaceFile}
             onChange={setFile}
-            accept=".pdf,.tex,.md,.txt,.zip,.apkg,.colpkg,.docx,.xlsx,.pptx,.epub" // apkg=anki
+            accept=".pdf,.tex,.md,.typ,.txt,.zip,.apkg,.colpkg,.docx,.pptx,.epub,.csv,.xlsx,.xls,.ods" // apkg=anki
           />
           <Button
             disabled={displayName?.trim() === ""}

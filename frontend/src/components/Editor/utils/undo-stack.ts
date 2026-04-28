@@ -33,7 +33,7 @@ const canBeMerged = (a: UndoState, b: UndoState) => {
   const bLine = bLines[changeLine];
   const [baseContent, newContent] =
     aLine.length < bLine.length ? [aLine, bLine] : [bLine, aLine];
-  if (newContent.indexOf(baseContent) !== 0) return false;
+  if (!newContent.startsWith(baseContent)) return false;
   const diff = newContent.substring(baseContent.length);
   const words = diff.split(/\b/);
   const res = words.length <= 1;

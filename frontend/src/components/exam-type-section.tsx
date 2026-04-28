@@ -12,7 +12,6 @@ import {
 import React from "react";
 import examTypeClasses from "./exam-type-section.module.css";
 import { Link } from "react-router-dom";
-import { fetchPost } from "../api/fetch-utils";
 import { useUser } from "../auth";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { CategoryExam } from "../interfaces";
@@ -21,11 +20,12 @@ import IconButton from "./icon-button";
 import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import ExamGrid from "./exam-grid";
-import { IconTrash } from "@tabler/icons-react";
-
-const removeExam = async (filename: string) => {
-  await fetchPost(`/api/exam/remove/exam/${filename}/`, {});
-};
+import { IconCheck, IconTrash } from "@tabler/icons-react";
+import {
+  markExamUserSolved,
+  removeExam,
+  unmarkExamUserSolved,
+} from "../api/hooks";
 
 interface ExamTypeCardProps {
   examtype: string;
@@ -84,6 +84,22 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
       }
     }
     // If there are no exams selected, the Link component will handle the click.
+  };
+
+  async function handleToggleUserSolved(
+    event: React.SyntheticEvent,
+    exam: CategoryExam,
+  ) {
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (exam.user_solved) {
+      await unmarkExamUserSolved(exam.filename);
+    } else {
+      await markExamUserSolved(exam.filename);
+    }
+
+    reload();
   }
 
   return (
@@ -105,13 +121,15 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
             // Add onClick and onKeydown functionality for when the component
             // is not a Link, i.e. when there are exams selected.
             onClick={(_e: any) => clickOnExam(exam)}
-            onKeyDown={(e: any) => { if (e.code === "Enter") clickOnExam(exam) }}
+            onKeyDown={(e: any) => {
+              if (e.code === "Enter") clickOnExam(exam);
+            }}
             tabIndex={0}
             key={exam.filename}
             fw={600}
             // Prevent navigating away when there are exams selected.
             component={(someSelected ? undefined : Link) as any}
-            style={{ cursor: someSelected ? 'default' : 'pointer' }}
+            style={{ cursor: someSelected ? "default" : "pointer" }}
             to={`/exams/${exam.filename}`}
           >
             <Grid>
@@ -135,13 +153,15 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
               </Grid.Col>
               <Grid.Col span="auto">
                 {exam.canView ? (
-                  <Text size="lg" fw={600} mb="sm">{exam.displayname}</Text>
+                  <Text size="lg" fw={600} mb="sm">
+                    {exam.displayname}
+                  </Text>
                 ) : (
                   exam.displayname
                 )}
                 <div>
                   {exam.remark && (
-                    <Text color="dimmed" size="sm" mb="0.15em">
+                    <Text c="dimmed" size="sm" mb="0.15em">
                       {exam.remark}
                     </Text>
                   )}
@@ -174,6 +194,11 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                         Solution
                       </Badge>
                     )}
+                    {exam.user_solved && (
+                      <Badge title="Marked as already solved" color="grape">
+                        Solved
+                      </Badge>
+                    )}
                   </Flex>
                 </div>
                 {catAdmin && !exam.finished_cuts && (
@@ -181,16 +206,30 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                 )}
               </Grid.Col>
               <Grid.Col span="content">
+                <IconButton
+                  size="md"
+                  color={exam.user_solved ? "grape" : "gray"}
+                  tooltip={
+                    exam.user_solved
+                      ? "Mark exam as unsolved"
+                      : "Mark exam as solved"
+                  }
+                  icon={<IconCheck />}
+                  onClick={(event: React.SyntheticEvent) => {
+                    handleToggleUserSolved(event, exam);
+                  }}
+                />
                 {user.isAdmin && (
                   <IconButton
+                    ms="xs"
                     size="md"
                     color="red"
                     tooltip="Delete exam"
                     icon={<IconTrash />}
                     variant="outline"
-                    onClick={(
-                      e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-                    ) => handleRemoveClick(e, exam)}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                      handleRemoveClick(e, exam)
+                    }
                   />
                 )}
               </Grid.Col>

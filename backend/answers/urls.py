@@ -42,6 +42,11 @@ urlpatterns = [
     ),
     path("status/<str:filename>/", views.get_exam_admin_status, name="status"),
     path("metadata/<str:filename>/", views.exam_metadata, name="metadata"),
+    path(
+        "<str:filename>/usersolved",
+        views.answer_section_user_solved,
+        name="exam_usersolved",
+    ),
     path("setmetadata/<str:filename>/", views.exam_set_metadata, name="setmetadata"),
     path("answer/<str:long_id>/", views_answers.get_answer, name="getanswer"),
     path("setanswer/<int:oid>/", views_answers.set_answer, name="setanswer"),
@@ -60,6 +65,21 @@ urlpatterns = [
         views_answers.reset_flagged,
         name="resetanswerflagged",
     ),
+    path(
+        "setanswermarkedasai/<int:oid>/",
+        views_answers.set_marked_as_ai,
+        name="setanswermarkedasai",
+    ),
+    path(
+        "resetanswerflagged/<int:oid>/",
+        views_answers.reset_flagged,
+        name="resetanswerflagged",
+    ),
+    path(
+        "resetanswermarkedasai/<int:oid>/",
+        views_answers.reset_marked_as_ai,
+        name="resetanswermarkedasai",
+    ),
     path("addcomment/<int:oid>/", views_comments.add_comment, name="addcomment"),
     path("setcomment/<int:oid>/", views_comments.set_comment, name="setcomment"),
     path(
@@ -74,6 +94,21 @@ urlpatterns = [
         "resetcommentflagged/<int:oid>/",
         views_comments.reset_flagged,
         name="resetcommentflagged",
+    ),
+    path(
+        "setcommentmarkedasai/<int:oid>/",
+        views_comments.set_marked_as_ai,
+        name="setcommentmarkedasai",
+    ),
+    path(
+        "resetcommentflagged/<int:oid>/",
+        views_comments.reset_flagged,
+        name="resetcommentflagged",
+    ),
+    path(
+        "resetcommentmarkedasai/<int:oid>/",
+        views_comments.reset_marked_as_ai,
+        name="resetcommentmarkedasai",
     ),
     path("claimexam/<str:filename>/", views.claim_exam, name="claimexam"),
     path("upload/exam/", views_files.upload_exam_pdf, name="upload_exam_pdf"),

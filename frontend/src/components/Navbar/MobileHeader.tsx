@@ -1,11 +1,6 @@
 import * as React from "react";
 import { ReactNode } from "react";
-import {
-  Burger,
-  Container,
-  Group,
-  Stack,
-} from "@mantine/core";
+import { Burger, Container, Group, Stack } from "@mantine/core";
 import { useLocalStorageState } from "ahooks";
 import { NavItem, translate } from "./GlobalNav";
 import ExternalNavElement from "./ExternalNav";
@@ -19,7 +14,7 @@ interface Props {
   appNav: NavItem[];
   title: string;
   loginButton?: ReactNode;
-  signet?: string;
+  signet: string;
 }
 const BottomHeader: React.FC<Props> = ({
   selectedLanguage,
