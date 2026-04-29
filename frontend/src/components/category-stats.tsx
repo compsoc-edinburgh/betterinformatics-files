@@ -1,5 +1,14 @@
 import React, { useMemo } from "react";
-import { Alert, Box, Group, Paper, Skeleton, Stack, Text, Title } from "@mantine/core";
+import {
+  Alert,
+  Box,
+  Group,
+  Paper,
+  Skeleton,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { LineChart } from "@mantine/charts";
 import { useCourseStats } from "../api/hooks";
 import { CourseStats } from "../interfaces";
@@ -8,24 +17,29 @@ interface CategoryStatsProps {
   slug: string;
 }
 
-
 const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
   const [error, loading, stats] = useCourseStats(slug);
 
   // Create a color mapping for course organisers
   const courseOrganiserColors = useMemo(() => {
     if (!stats) return {};
-    
-    const uniqueOrganisers = [...new Set(stats.map(s => s.course_organiser).filter((o): o is string => Boolean(o)))];
+
+    const uniqueOrganisers = [
+      ...new Set(
+        stats
+          .map(s => s.course_organiser)
+          .filter((o): o is string => Boolean(o)),
+      ),
+    ];
     const colors = [
-      "rgba(34, 139, 34, 0.3)",   // Forest Green
-      "rgba(30, 144, 255, 0.3)",  // Dodger Blue
-      "rgba(255, 140, 0, 0.3)",   // Dark Orange
+      "rgba(34, 139, 34, 0.3)", // Forest Green
+      "rgba(30, 144, 255, 0.3)", // Dodger Blue
+      "rgba(255, 140, 0, 0.3)", // Dark Orange
       "rgba(147, 112, 219, 0.3)", // Medium Slate Blue
-      "rgba(220, 20, 60, 0.3)",   // Crimson
+      "rgba(220, 20, 60, 0.3)", // Crimson
     ];
 
-    const mapping: { [key: string]: string } = {};
+    const mapping: Record<string, string> = {};
     uniqueOrganisers.forEach((organiser, index) => {
       mapping[organiser] = colors[index % colors.length];
     });
@@ -60,7 +74,9 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         if (stat?.mean_mark !== null && stat?.mean_mark !== undefined) {
           yearData[code] = Number(stat.mean_mark.toFixed(1));
           // Store standard deviation for tooltip
-          yearData[`${code}_std`] = stat?.std_deviation ? Number(stat.std_deviation.toFixed(1)) : null;
+          yearData[`${code}_std`] = stat?.std_deviation
+            ? Number(stat.std_deviation.toFixed(1))
+            : null;
           // Store organiser for tooltip
           yearData[`${code}_organiser`] = stat.course_organiser;
         }
@@ -70,7 +86,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
 
     // Generate reference lines for course organiser changes
     const refLines: Array<{ x: string; label: string; color: string }> = [];
-    
+
     codes.forEach(code => {
       const courseStats = stats
         .filter(s => s.course_code === code)
@@ -82,9 +98,12 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
       const firstStat = courseStats[0];
       if (firstStat?.course_organiser) {
         const initialLabel = `${code}: ${firstStat.course_organiser}`;
-        const initialColor = courseOrganiserColors[firstStat.course_organiser] 
-          ? courseOrganiserColors[firstStat.course_organiser].replace('0.3', '0.8')
-          : 'gray.6';
+        const initialColor = courseOrganiserColors[firstStat.course_organiser]
+          ? courseOrganiserColors[firstStat.course_organiser].replace(
+              "0.3",
+              "0.8",
+            )
+          : "gray.6";
 
         refLines.push({
           x: firstStat.academic_year,
@@ -100,17 +119,20 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           // Course organiser changed in this year
           const changeLabel = `${code}: ${stat.course_organiser}`;
           const changeColor = courseOrganiserColors[stat.course_organiser!]
-            ? courseOrganiserColors[stat.course_organiser!].replace('0.3', '0.8')
-            : 'gray.6';
+            ? courseOrganiserColors[stat.course_organiser!].replace(
+                "0.3",
+                "0.8",
+              )
+            : "gray.6";
 
           // For the last year, position the label to the left to avoid overflow
           const isLastYear = index === courseStats.length - 1;
-          
+
           refLines.push({
             x: stat.academic_year,
             label: changeLabel,
             color: changeColor,
-            labelPosition: isLastYear ? 'left' : 'right',
+            labelPosition: isLastYear ? "left" : "right",
           } as any); // Use 'as any' to bypass TypeScript check since this property works
         }
         previousOrganiser = stat.course_organiser;
@@ -156,7 +178,8 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
   if (!stats || stats.length === 0) {
     return (
       <Alert color="blue" title="No Data Available">
-        No grade statistics are available for this category. This may be because:
+        No grade statistics are available for this category. This may be
+        because:
         <ul>
           <li>The category doesn't have any associated Euclid codes</li>
           <li>Course data hasn't been loaded for the associated courses</li>
@@ -173,8 +196,9 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           Course Marks Over Time
         </Title>
         <Text size="sm" c="dimmed" mb="md">
-          Hover over data points to see mean marks, standard deviation, and course organiser information.
-          Vertical lines mark course organiser changes.
+          Hover over data points to see mean marks, standard deviation, and
+          course organiser information. Vertical lines mark course organiser
+          changes.
         </Text>
         <Paper withBorder p="md">
           <LineChart
@@ -194,31 +218,51 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             gridAxis="xy"
             yAxisProps={{
               domain: [0, 100],
-              tickFormatter: (value) => `${Math.round(value)}%`,
+              tickFormatter: value => `${Math.round(value)}%`,
             }}
             tooltipProps={{
               content: ({ active, payload, label }) => {
-                if (active && payload && payload.length) {
+                if (active && payload?.length) {
                   return (
                     <Paper p="sm" withBorder shadow="md">
-                      <Text size="md" fw={600} mb="xs">{label}</Text>
+                      <Text size="md" fw={600} mb="xs">
+                        {label}
+                      </Text>
                       {payload.map((entry: any, index: number) => {
                         const courseCode = entry.dataKey;
                         const meanMark = entry.value;
-                        
+
                         // Get the standard deviation and organiser for this course and year
                         const dataPoint = chartData.find(d => d.year === label);
-                        const stdDev = dataPoint ? dataPoint[`${courseCode}_std`] : null;
-                        const organiser = dataPoint ? dataPoint[`${courseCode}_organiser`] : null;
-                        
+                        const stdDev = dataPoint
+                          ? dataPoint[`${courseCode}_std`]
+                          : null;
+                        const organiser = dataPoint
+                          ? dataPoint[`${courseCode}_organiser`]
+                          : null;
+
                         return (
                           <Box key={index}>
-                            <Text size="sm" fw={500} style={{ color: entry.color }}>
+                            <Text
+                              size="sm"
+                              fw={500}
+                              style={{ color: entry.color }}
+                            >
                               {courseCode}: {Number(meanMark).toFixed(1)}%
                             </Text>
                             {organiser && (
                               <Text size="xs" c="dimmed">
-                                CO: <Text span style={{ color: courseOrganiserColors[organiser]?.replace('0.3', '1.0') || 'inherit' }}>
+                                CO:{" "}
+                                <Text
+                                  span
+                                  style={{
+                                    color:
+                                      courseOrganiserColors[organiser]?.replace(
+                                        "0.3",
+                                        "1.0",
+                                      ) || "inherit",
+                                  }}
+                                >
                                   {organiser}
                                 </Text>
                               </Text>
@@ -239,28 +283,33 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             }}
           />
         </Paper>
-        
+
         {/* Course Organiser Information */}
         {Object.keys(courseOrganiserColors).length > 0 && (
           <Box mt="md">
-            <Text size="sm" fw={500} mb="xs">Course Organisers Found:</Text>
+            <Text size="sm" fw={500} mb="xs">
+              Course Organisers Found:
+            </Text>
             <Group gap="md">
-              {Object.entries(courseOrganiserColors).map(([organiser, color]) => (
-                <Group key={organiser} gap="xs">
-                  <Box
-                    w={16}
-                    h={16}
-                    style={{
-                      backgroundColor: color.replace('0.3', '0.8'),
-                      borderRadius: 3,
-                    }}
-                  />
-                  <Text size="xs">{organiser}</Text>
-                </Group>
-              ))}
+              {Object.entries(courseOrganiserColors).map(
+                ([organiser, color]) => (
+                  <Group key={organiser} gap="xs">
+                    <Box
+                      w={16}
+                      h={16}
+                      style={{
+                        backgroundColor: color.replace("0.3", "0.8"),
+                        borderRadius: 3,
+                      }}
+                    />
+                    <Text size="xs">{organiser}</Text>
+                  </Group>
+                ),
+              )}
             </Group>
             <Text size="xs" c="dimmed" mt="xs">
-              Course organisers found in the data. Hover over chart points to see which organiser ran each course in specific years.
+              Course organisers found in the data. Hover over chart points to
+              see which organiser ran each course in specific years.
             </Text>
           </Box>
         )}
@@ -277,12 +326,16 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
               const latestStat = courseStats
                 .sort((a, b) => a.academic_year.localeCompare(b.academic_year))
                 .pop();
-              
+
               return (
                 <Paper key={code} withBorder p="md" style={{ minWidth: 200 }}>
                   <Stack gap={0}>
-                    <Text fw={600} size="lg">{code}</Text>
-                    <Text size="sm" c="dimmed">{latestStat?.course_name}</Text>
+                    <Text fw={600} size="lg">
+                      {code}
+                    </Text>
+                    <Text size="sm" c="dimmed">
+                      {latestStat?.course_name}
+                    </Text>
                     {latestStat?.course_organiser && (
                       <Text size="sm" c="dimmed" mt="xs">
                         CO: {latestStat.course_organiser}
@@ -290,7 +343,10 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
                     )}
                     {latestStat?.mean_mark && (
                       <Text size="md" mt="xs">
-                        Latest Mean: <Text span fw={500}>{latestStat.mean_mark.toFixed(1)}%</Text>
+                        Latest Mean:{" "}
+                        <Text span fw={500}>
+                          {latestStat.mean_mark.toFixed(1)}%
+                        </Text>
                       </Text>
                     )}
                     {latestStat?.std_deviation && (
@@ -299,7 +355,8 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
                       </Text>
                     )}
                     <Text size="xs" c="dimmed" mt="xs">
-                      {courseStats.length} year{courseStats.length !== 1 ? 's' : ''} of data
+                      {courseStats.length} year
+                      {courseStats.length !== 1 ? "s" : ""} of data
                     </Text>
                   </Stack>
                 </Paper>
