@@ -176,7 +176,7 @@ jobs:
             # Set a commit sha-based tag
             type=sha,prefix=,suffix=,format=short
             # Set a 'latest' tag'
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable={{ startsWith(github.ref, 'refs/tags/v') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
