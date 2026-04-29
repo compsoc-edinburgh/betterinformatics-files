@@ -95,13 +95,15 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
             <TooltipButton
               variant={entry.done ? "default" : "filled"}
               tooltip={`Mark as ${entry.done ? "Not Done" : "Done"}`}
-              onClick={() => runSetFlag("done", !entry.done)}>
+              onClick={() => runSetFlag("done", !entry.done)}
+            >
               {entry.done ? <IconCheckbox /> : <IconSquare />}
             </TooltipButton>
             <TooltipButton
               variant={entry.read ? "default" : "filled"}
               tooltip={`Mark as ${entry.read ? "Unread" : "Read"}`}
-              onClick={() => runSetFlag("read", !entry.read)}>
+              onClick={() => runSetFlag("read", !entry.read)}
+            >
               {entry.read ? <IconMail /> : <IconMailOpened />}
             </TooltipButton>
           </Button.Group>
@@ -148,11 +150,13 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
           <Flex justify="space-between" align="center" mb="xs">
             <div>
               <Text fw={700} component="span">
-                LUK
+                Admin
               </Text>
               {entry.reply_time && (
                 <>
-                  <Text component="span" mx={6} c="dimmed">·</Text>
+                  <Text component="span" mx={6} c="dimmed">
+                    ·
+                  </Text>
                   <TimeText time={entry.reply_time} suffix="ago" />
                 </>
               )}
