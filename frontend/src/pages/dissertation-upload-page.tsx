@@ -126,7 +126,7 @@ const DissertationUploadPage: React.FC<Props> = ({
       manual: true,
       onSuccess: data => {
         onEdit?.();
-        navigate(`/dissertations/${data.id}`);
+        void navigate(`/dissertations/${data.id}`);
       },
       onError: (e?: Error) => {
         setClientValidationError(String(e));
@@ -139,7 +139,7 @@ const DissertationUploadPage: React.FC<Props> = ({
     {
       manual: true,
       onSuccess: data => {
-        navigate(`/dissertations/${data.id}`);
+        void navigate(`/dissertations/${data.id}`);
       },
       onError: (e?: Error) => {
         setClientValidationError(String(e));
@@ -163,7 +163,7 @@ const DissertationUploadPage: React.FC<Props> = ({
   const { run: runDeleteDissertation } = useRequest(deleteDissertation, {
     manual: true,
     onSuccess: () => {
-      navigate("/dissertations");
+      void navigate("/dissertations");
     },
     onError: (e?: Error) => {
       setClientValidationError(String(e));
@@ -244,7 +244,7 @@ const DissertationUploadPage: React.FC<Props> = ({
         <Title order={2}>
           {editing_existing ? "Edit your" : "Upload a new"} Dissertation
         </Title>
-        {editing_existing && <CloseButton onClick={_ => navigate(-1)} />}
+        {editing_existing && <CloseButton onClick={_ => void navigate(-1)} />}
       </Group>
 
       {!editing_existing && (
@@ -301,7 +301,7 @@ const DissertationUploadPage: React.FC<Props> = ({
                   Warnings
                 </Button>
               </Group>
-              <Collapse in={warningExpanded}>
+              <Collapse expanded={warningExpanded}>
                 <List>
                   <List.Item>
                     Redaction of your name <b>does not</b> anonymize you, as

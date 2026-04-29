@@ -138,7 +138,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
 
       <div style={{ position: "relative" }}>
         <Collapse
-          in={loadingDebounced}
+          expanded={loadingDebounced}
           style={{ position: "absolute", top: 0, left: 0, right: 0 }}
         >
           <Progress value={100} animated striped />
