@@ -1,8 +1,20 @@
 .answer-wrapper-style {
   margin-bottom: 1em;
-  
+
   @mixin dark {
     background-color: var(--mantine-color-dark-8);
+  }
+}
+
+.answer-wrapper-official-answer {
+  box-shadow: 0px 0px 10px 2px var(--mantine-color-brand-outline);
+}
+
+.answerSectionStyle[data-first-section] {
+  background-color: var(--mantine-color-gray-0);
+
+  @mixin dark {
+    background-color: var(--mantine-color-dark-7);
   }
 }
 

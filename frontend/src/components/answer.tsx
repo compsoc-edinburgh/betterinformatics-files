@@ -1,26 +1,28 @@
 import {
-  Button,
-  Card,
-  Flex,
-  Group,
-  GroupProps,
-  Text,
-  Menu,
   Anchor,
   Box,
+  Button,
+  Card,
+  Group,
+  GroupProps,
+  Menu,
   Paper,
   Switch,
+  Text,
   Tooltip,
 } from "@mantine/core";
 import { differenceInSeconds } from "date-fns";
 import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
 import { imageHandler } from "../api/fetch-utils";
 import {
   useRemoveAnswer,
   useResetAnswerFlaggedVote,
-  useSetExpertVote,
+  useResetAnswerMarkedAsAi,
   useSetAnswerFlagged,
+  useSetAnswerMarkedAsAi,
+  useSetExpertVote,
   useUpdateAnswer,
 } from "../api/hooks";
 import { useUser } from "../auth";
@@ -38,22 +40,25 @@ import Score from "./score";
 import TooltipButton from "./TooltipButton";
 import { useOfficialSolutionLanguage } from "./official-solution";
 import {
+  IconArrowLeft,
   IconChevronDown,
   IconChevronUp,
   IconCode,
   IconDeviceFloppy,
   IconDots,
   IconEdit,
+  IconFileText,
   IconFlag,
   IconLink,
-  IconArrowLeft,
-  IconFileText,
-  IconPencilCancel,
   IconMessageCirclePlus,
+  IconPencilCancel,
+  IconRobot,
+  IconRobotOff,
   IconStarFilled,
   IconTrash,
-  IconX,
 } from "@tabler/icons-react";
+import FlaggedBadge from "./FlaggedBadge";
+import MarkedAsAiBadge from "./MarkedAsAiBadge";
 import classes from "./answer.module.css";
 import displayNameClasses from "../utils/display-name.module.css";
 import { useDisclosure } from "@mantine/hooks";
@@ -84,6 +89,8 @@ const AnswerComponent: React.FC<Props> = ({
     useSetAnswerFlagged(onSectionChanged);
   const [resetFlaggedLoading, resetAnswerFlagged] =
     useResetAnswerFlaggedVote(onSectionChanged);
+  const [, setAnswerMarkedAsAi] = useSetAnswerMarkedAsAi(onSectionChanged);
+  const [, resetAnswerMarkedAsAi] = useResetAnswerMarkedAsAi(onSectionChanged);
   const [setExpertVoteLoading, setExpertVote] =
     useSetExpertVote(onSectionChanged);
   const removeAnswer = useRemoveAnswer(onSectionChanged);
@@ -117,15 +124,14 @@ const AnswerComponent: React.FC<Props> = ({
   }, [section, draftText, update, answerKind, answerIsAnonymous]);
   const remove = useCallback(() => {
     if (answer) removeConfirm("Remove answer?", () => removeAnswer(answer.oid));
-  }, [confirm, removeAnswer, answer]);
+  }, [removeConfirm, removeAnswer, answer]);
   const languages = useOfficialSolutionLanguage();
 
   const isDraft = !answer;
 
   const flaggedLoading = setFlaggedLoading || resetFlaggedLoading;
-  const canEdit = section && onSectionChanged && (answer?.canEdit || false);
-  const canRemove =
-    section && onSectionChanged && (isAdmin || answer?.canEdit || false);
+  const canEdit = section && onSectionChanged && answer?.canEdit;
+  const canRemove = section && onSectionChanged && (isAdmin || answer?.canEdit);
   const { username } = useUser()!;
 
   return (
@@ -137,99 +143,106 @@ const AnswerComponent: React.FC<Props> = ({
         withBorder
         id={hasId ? answer?.longId : undefined}
         classNames={{
+          root: clsx(
+            answerKind === AnswerKind.Official &&
+              classes.answerWrapperOfficialAnswer,
+          ),
           section: classes.answerSectionStyle,
         }}
       >
-        <Card.Section px="md" py="md" withBorder>
+        <Card.Section px="md" py="xs" withBorder>
           <Group gap={0}>
-            {!hasId && (
-              <Tooltip label="View Answer in Exam">
-                <Link
-                  to={
-                    answer ? `/exams/${answer.filename}#${answer.longId}` : ""
-                  }
-                >
-                  <Text mr={8} component="span">
-                    <IconArrowLeft
-                      style={{ marginBottom: "3px", verticalAlign: "middle" }}
-                    />
-                    <IconFileText
-                      style={{ marginBottom: "3px", verticalAlign: "middle" }}
-                    />
-                  </Text>
-                </Link>
-              </Tooltip>
-            )}
-            {answerKind != AnswerKind.Personal ? (
-              isDraft ? (
-                "Official (Draft)"
-              ) : (
-                "Official Answer"
-              )
-            ) : answer?.isAnonymous ? (
-              isAdmin ? (
-                // Admin view of anonymous posts - clickable
-                <Anchor
-                  component={Link}
-                  to={`/user/${answer.authorId}`}
-                  className={displayNameClasses.shrinkableDisplayName}
-                >
+            <Box>
+              {!hasId && (
+                <Tooltip label="View Answer in Exam">
+                  <Link
+                    to={
+                      answer ? `/exams/${answer.filename}#${answer.longId}` : ""
+                    }
+                  >
+                    <Text mr={8} component="span">
+                      <IconArrowLeft
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                      <IconFileText
+                        style={{ marginBottom: "3px", verticalAlign: "middle" }}
+                      />
+                    </Text>
+                  </Link>
+                </Tooltip>
+              )}
+              {answerKind != AnswerKind.Personal ? (
+                isDraft ? (
+                  "Official (Draft)"
+                ) : (
+                  "Official Answer"
+                )
+              ) : answer?.isAnonymous ? (
+                isAdmin ? (
+                  // Admin view of anonymous posts - clickable
+                  <Anchor
+                    component={Link}
+                    to={`/user/${answer.authorId}`}
+                    className={displayNameClasses.shrinkableDisplayName}
+                  >
+                    <Text fw={700} component="span">
+                      {answer.authorDisplayName}{" "}
+                      <Text c="dimmed" component="span">
+                        (Posted anonymously)
+                      </Text>
+                    </Text>
+                  </Anchor>
+                ) : answer?.canEdit ? (
+                  // User's own anonymous post
                   <Text fw={700} component="span">
                     {answer.authorDisplayName}{" "}
                     <Text c="dimmed" component="span">
-                      (Posted anonymously)
+                      (Your anonymous post)
                     </Text>
                   </Text>
-                </Anchor>
-              ) : answer?.canEdit ? (
-                // User's own anonymous post
-                <Text fw={700} component="span">
-                  {answer.authorDisplayName}{" "}
-                  <Text c="dimmed" component="span">
-                    (Your anonymous post)
+                ) : (
+                  // Regular user view of anonymous posts - not clickable
+                  <Text fw={700} component="span">
+                    {answer.authorDisplayName}
                   </Text>
-                </Text>
+                )
               ) : (
-                // Regular user view of anonymous posts - not clickable
-                <Text fw={700} component="span">
-                  {answer.authorDisplayName}
-                </Text>
-              )
-            ) : (
-              // Regular non-anonymous posts
-              <Anchor
-                component={Link}
-                to={`/user/${answer?.authorId ?? username}`}
-                className={displayNameClasses.shrinkableDisplayName}
-              >
-                <Text fw={700} component="span">
-                  {answer?.authorDisplayName ?? "(Draft)"}
-                </Text>
-                <Text ml="0.3em" c="dimmed" component="span">
-                  @{answer?.authorId ?? username}
-                </Text>
-              </Anchor>
-            )}
-            <Text c="dimmed" mx={6} component="span">
-              ·
-            </Text>
-            {answer && <TimeText time={answer.time} suffix="ago" />}
-            {answer &&
-              differenceInSeconds(
-                new Date(answer.edittime),
-                new Date(answer.time),
-              ) > 1 && (
-                <>
-                  <Text color="dimmed" mx={6} component="span">
-                    ·
+                // Regular non-anonymous posts
+                <Anchor
+                  component={Link}
+                  to={`/user/${answer?.authorId ?? username}`}
+                  className={displayNameClasses.shrinkableDisplayName}
+                >
+                  <Text fw={700} component="span">
+                    {answer?.authorDisplayName ?? "(Draft)"}
                   </Text>
-                  <TimeText
-                    time={answer.edittime}
-                    prefix="edited"
-                    suffix="ago"
-                  />
-                </>
+                  <Text ml="0.3em" c="dimmed" component="span">
+                    @{answer?.authorId ?? username}
+                  </Text>
+                </Anchor>
               )}
+              <Text c="dimmed" mx={6} component="span">
+                ·
+              </Text>
+              {answer && <TimeText time={answer.time} suffix="ago" />}
+              {answer &&
+                differenceInSeconds(
+                  new Date(answer.edittime),
+                  new Date(answer.time),
+                ) > 1 && (
+                  <>
+                    <Text c="dimmed" mx={6} component="span">
+                      ·
+                    </Text>
+                    <TimeText
+                      time={answer.edittime}
+                      prefix="edited"
+                      suffix="ago"
+                    />
+                  </>
+                )}
+              {answer && <MarkedAsAiBadge count={answer.markedAsAiCount} />}
+            </Box>
             <AnswerToolbar ml="auto">
               {answer &&
                 (answer.expertvotes > 0 ||
@@ -276,46 +289,16 @@ const AnswerComponent: React.FC<Props> = ({
                     </Button.Group>
                   </Paper>
                 )}
-              {answer &&
-                (answer.isFlagged ||
-                  (answer.flaggedCount > 0 && isAdmin) ||
-                  flaggedLoading) && (
-                  <Paper shadow="xs">
-                    <Button.Group>
-                      <TooltipButton
-                        tooltip="Flagged as Inappropriate"
-                        color="red"
-                        px={12}
-                        variant="filled"
-                      >
-                        <IconFlag />
-                      </TooltipButton>
-                      <TooltipButton
-                        color="red"
-                        miw={30}
-                        tooltip={`${answer.flaggedCount} users consider this answer inappropriate.`}
-                      >
-                        {answer.flaggedCount}
-                      </TooltipButton>
-                      <TooltipButton
-                        px={8}
-                        tooltip={
-                          answer.isFlagged
-                            ? "Remove inappropriate flag"
-                            : "Add inappropriate flag"
-                        }
-                        size="sm"
-                        loading={flaggedLoading}
-                        style={{ borderLeftWidth: 0 }}
-                        onClick={() =>
-                          setAnswerFlagged(answer.oid, !answer.isFlagged)
-                        }
-                      >
-                        {answer.isFlagged ? <IconX /> : <IconChevronUp />}
-                      </TooltipButton>
-                    </Button.Group>
-                  </Paper>
-                )}
+              {answer && (
+                <FlaggedBadge
+                  count={answer.flaggedCount}
+                  isFlagged={answer.isFlagged}
+                  loading={flaggedLoading}
+                  onToggle={() =>
+                    setAnswerFlagged(answer.oid, !answer.isFlagged)
+                  }
+                />
+              )}
               {answer && onSectionChanged && (
                 <Score
                   oid={answer.oid}
@@ -341,7 +324,7 @@ const AnswerComponent: React.FC<Props> = ({
                 undoStack={undoStack}
                 setUndoStack={setUndoStack}
               />
-              <Text mt="xs" color="dimmed">
+              <Text mt="xs" c="dimmed">
                 Your answer will be licensed as{" "}
                 <Anchor
                   c="blue"
@@ -431,6 +414,21 @@ const AnswerComponent: React.FC<Props> = ({
                   </Button>
                 </Menu.Target>
                 <Menu.Dropdown>
+                  {!answer.isMarkedAsAi ? (
+                    <Menu.Item
+                      leftSection={<IconRobot />}
+                      onClick={() => setAnswerMarkedAsAi(answer.oid, true)}
+                    >
+                      Mark as AI-generated
+                    </Menu.Item>
+                  ) : (
+                    <Menu.Item
+                      leftSection={<IconRobotOff />}
+                      onClick={() => setAnswerMarkedAsAi(answer.oid, false)}
+                    >
+                      Remove AI-generated mark
+                    </Menu.Item>
+                  )}
                   {answer.flaggedCount === 0 && (
                     <Menu.Item
                       leftSection={<IconFlag />}
@@ -449,13 +447,25 @@ const AnswerComponent: React.FC<Props> = ({
                   >
                     Copy Permalink
                   </Menu.Item>
-                  {isAdmin && answer.flaggedCount > 0 && (
-                    <Menu.Item
-                      leftSection={<IconFlag />}
-                      onClick={() => resetAnswerFlagged(answer.oid)}
-                    >
-                      Remove all inappropriate flags
-                    </Menu.Item>
+                  {isAdmin && (
+                    <>
+                      {answer.markedAsAiCount > 0 && (
+                        <Menu.Item
+                          leftSection={<IconRobotOff />}
+                          onClick={() => resetAnswerMarkedAsAi(answer.oid)}
+                        >
+                          Remove all AI-generated marks
+                        </Menu.Item>
+                      )}
+                      {answer.flaggedCount > 0 && (
+                        <Menu.Item
+                          leftSection={<IconFlag />}
+                          onClick={() => resetAnswerFlagged(answer.oid)}
+                        >
+                          Remove all inappropriate flags
+                        </Menu.Item>
+                      )}
+                    </>
                   )}
                   {!editing && canEdit && (
                     <Menu.Item leftSection={<IconEdit />} onClick={startEdit}>

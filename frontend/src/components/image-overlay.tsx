@@ -58,40 +58,36 @@ const ImageModal: React.FC<ModalProps> = ({
         </Group>
 
         <SimpleGrid cols={3} mt="sm">
-          {images &&
-            images.map(image => (
-              <div key={image} style={{ padding: "0 0.75em" }}>
-                <Card
-                  color={selected.has(image) ? "primary" : undefined}
-                  style={{
-                    border: selected.has(image) ? "5px solid black" : "",
-                  }}
-                  onClick={e =>
-                    e.metaKey
-                      ? selected.has(image)
-                        ? unselect(image)
-                        : select(image)
-                      : selected.has(image)
-                        ? setSelected()
-                        : setSelected(image)
-                  }
-                >
-                  <Card.Section>
-                    <Image src={`/api/image/get/${image}/`} alt={image} />
-                  </Card.Section>
-                </Card>
-                <Center>
-                  {selected.has(image) && selected.size === 1 && (
-                    <Button
-                      pos="absolute"
-                      onClick={() => closeWithImage(image)}
-                    >
-                      Insert
-                    </Button>
-                  )}
-                </Center>
-              </div>
-            ))}
+          {images?.map(image => (
+            <div key={image} style={{ padding: "0 0.75em" }}>
+              <Card
+                color={selected.has(image) ? "primary" : undefined}
+                style={{
+                  border: selected.has(image) ? "5px solid black" : "",
+                }}
+                onClick={e =>
+                  e.metaKey
+                    ? selected.has(image)
+                      ? unselect(image)
+                      : select(image)
+                    : selected.has(image)
+                      ? setSelected()
+                      : setSelected(image)
+                }
+              >
+                <Card.Section>
+                  <Image src={`/api/image/get/${image}/`} alt={image} />
+                </Card.Section>
+              </Card>
+              <Center>
+                {selected.has(image) && selected.size === 1 && (
+                  <Button pos="absolute" onClick={() => closeWithImage(image)}>
+                    Insert
+                  </Button>
+                )}
+              </Center>
+            </div>
+          ))}
         </SimpleGrid>
       </Modal.Body>
     </Modal>

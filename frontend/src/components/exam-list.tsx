@@ -3,12 +3,10 @@ import {
   Box,
   Button,
   Flex,
-  Group,
   Loader,
   Modal,
   TextInput,
   Title,
-  Popover,
   useComputedColorScheme,
 } from "@mantine/core";
 import { useRequest } from "ahooks";
@@ -26,7 +24,6 @@ import ExamTypeSection from "./exam-type-section";
 import UploadPdfCard from "./upload-pdf-card";
 import { IconDownload, IconPlus, IconSearch } from "@tabler/icons-react";
 import ShimmerButton from "./shimmer-button";
-import { Link } from "react-router-dom";
 
 interface ExamListProps {
   metaData: CategoryMetaData;
@@ -45,9 +42,8 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
   const { isCategoryAdmin } = useUser()!;
   const viewableExams = useMemo(
     () =>
-      data &&
       data
-        .filter(exam => exam.public || isCategoryAdmin)
+        ?.filter(exam => exam.public || isCategoryAdmin)
         .filter(exam => filterMatches(filter, exam.displayname)),
     [data, isCategoryAdmin, filter],
   );
@@ -112,31 +108,31 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           placeholder="Filter..."
           value={filter}
           onChange={e => setFilter(e.currentTarget.value)}
-          leftSection={<IconSearch style={{ height: '15px', width: '15px' }} />}
+          leftSection={<IconSearch style={{ height: "15px", width: "15px" }} />}
         />
       </Flex>
       {error && <Alert color="red">{error.message}</Alert>}
       <Box pos="relative">
-        {loading && <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />}
+        {loading && (
+          <Loader size="xs" color="gray" pos="absolute" top={0} right={0} />
+        )}
       </Box>
 
-      {examTypeMap &&
-        examTypeMap.map(
-          ([examtype, exams]) =>
-            exams.length > 0 && (
-              <ExamTypeSection
-                examtype={examtype}
-                exams={exams}
-                key={examtype}
-                selected={selected}
-                onSelect={onSelect}
-                onDeselect={onDeselect}
-                reload={reload}
-              />
-            ),
-        )
-      }
-      {viewableExams && viewableExams.length === 0 && (
+      {examTypeMap?.map(
+        ([examtype, exams]) =>
+          exams.length > 0 && (
+            <ExamTypeSection
+              examtype={examtype}
+              exams={exams}
+              key={examtype}
+              selected={selected}
+              onSelect={onSelect}
+              onDeselect={onDeselect}
+              reload={reload}
+            />
+          ),
+      )}
+      {viewableExams?.length === 0 && (
         <Alert variant="light" color="orange">
           No exams available to view.
         </Alert>

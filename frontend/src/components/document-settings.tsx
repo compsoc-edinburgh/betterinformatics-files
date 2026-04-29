@@ -57,7 +57,7 @@ const DocumentSettings: React.FC<Props> = ({ data, mutate, reload }) => {
         categories.map(
           category => [category.slug, category.displayname] as const,
         ),
-      ) as { [key: string]: string },
+      ) as Record<string, string>,
     );
 
   const { data: documentTypes } = useRequest(loadDocumentTypes);

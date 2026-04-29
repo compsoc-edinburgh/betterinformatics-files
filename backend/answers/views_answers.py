@@ -11,7 +11,9 @@ from django.utils import timezone
 @auth_check.require_login
 def get_answer(request, long_id):
     try:
-        answer = section_util.prepare_answer_objects(Answer.objects, request).get(long_id=long_id)
+        answer = section_util.prepare_answer_objects(Answer.objects, request).get(
+            long_id=long_id
+        )
         return response.success(value=section_util.get_answer_response(request, answer))
     except Answer.DoesNotExist as e:
         raise Http404()
@@ -29,7 +31,6 @@ def set_answer(request, oid):
             "answer_set__upvotes",
             "answer_set__downvotes",
             "answer_set__expertvotes",
-            "answer_set__flagged",
         ),
         pk=oid,
     )
@@ -170,14 +171,47 @@ def set_flagged(request, oid):
     )
 
 
+@response.request_post("marked_as_ai")
+@auth_check.require_login
+def set_marked_as_ai(request, oid):
+    answer = get_object_or_404(
+        Answer.objects.select_related("answer_section").all(), pk=oid
+    )
+    marked_as_ai = request.POST["marked_as_ai"] != "false"
+    old_marked_as_ai = answer.marked_as_ai.filter(pk=request.user.pk).exists()
+    if marked_as_ai != old_marked_as_ai:
+        if old_marked_as_ai:
+            answer.marked_as_ai.remove(request.user)
+        else:
+            answer.marked_as_ai.add(request.user)
+        answer.save()
+    section_util.increase_section_version(answer.answer_section)
+    return response.success(
+        value=section_util.get_answersection_response(request, answer.answer_section)
+    )
+
+
 @response.request_post()
 @auth_check.require_admin
 def reset_flagged(request, oid):
     answer = get_object_or_404(
-        Answer.objects.select_related("answer_section").all(),
-        pk=oid
+        Answer.objects.select_related("answer_section").all(), pk=oid
     )
     answer.flagged.clear()
+    answer.save()
+    section_util.increase_section_version(answer.answer_section)
+    return response.success(
+        value=section_util.get_answersection_response(request, answer.answer_section)
+    )
+
+
+@response.request_post()
+@auth_check.require_admin
+def reset_marked_as_ai(request, oid):
+    answer = get_object_or_404(
+        Answer.objects.select_related("answer_section").all(), pk=oid
+    )
+    answer.marked_as_ai.clear()
     answer.save()
     section_util.increase_section_version(answer.answer_section)
     return response.success(

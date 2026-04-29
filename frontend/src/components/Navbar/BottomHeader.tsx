@@ -33,8 +33,8 @@ const BottomHeader: React.FC<Props> = ({
     <>
       <Box visibleFrom="md" className={classes.placeholder} />
       <Box visibleFrom="md" className={classes.navbar}>
-        <Container size={size ? size : "md"} className={classes.container}>
-          <Link to={""} className={classes.title}>
+        <Container size={size ?? "md"} className={classes.container}>
+          <Link to="/" className={classes.title}>
             {uwu ? (
               <KawaiiBetterInformatics className={classes.logo} />
             ) : (

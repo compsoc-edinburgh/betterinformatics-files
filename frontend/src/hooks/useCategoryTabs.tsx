@@ -19,12 +19,14 @@ export const useCategoryTabs = (
     // If the current tab is disabled, we redirect to the first enabled tab
     if (currentTab.disabled) {
       const i = tabs.findIndex((tab, i) => !tab.disabled);
-      if (i !== -1) {
-        // Redirect to the first enabled tab (if first, don't append ID to URL)
-        navigate(i > 0 ? tabs[i].id : ".");
+      if (i !== -1 && match) {
+        const slug = match.params.slug;
+        const base = `/category/${slug}`;
+        const target = i > 0 ? `${base}/${tabs[i].id}` : base;
+        navigate(target);
       }
     }
-  }, [currentTab, tabs, navigate]);
+  }, [currentTab, tabs, navigate, match]);
 
   // If tab is disabled or undefined (not found), default to the first enabled tab
   // If no tabs are enabled, default to the first tab in the list
@@ -72,7 +74,7 @@ export const useCategoryTabs = (
               }
               radius={0}
               component={Link}
-              to={i > 0 ? tab.id : "."} // If it's the first tab, hide ID for cleaner URL
+              to={i > 0 ? `../${tab.id}` : "../."} // If it's the first tab, hide ID for cleaner URL
               data-disabled={tab.disabled}
               onClick={
                 tab.disabled ? event => event.preventDefault() : undefined

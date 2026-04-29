@@ -66,58 +66,69 @@ def list_import_exams(request):
 @response.request_get()
 @auth_check.require_admin
 def list_flagged(request):
-    answers = Answer.objects.exclude(flagged=None).select_related(
-        "author", "answer_section__exam"
-    ).annotate(
-        flagged_count=Count("flagged", distinct=True)
+    answers = (
+        Answer.objects.exclude(flagged=None)
+        .select_related("author", "answer_section__exam")
+        .annotate(flagged_count=Count("flagged", distinct=True))
     )
 
-    exam_comments = Comment.objects.exclude(flagged=None).select_related(
-        "author", "answer__answer_section__exam"
-    ).annotate(
-        flagged_count=Count("flagged", distinct=True)
+    exam_comments = (
+        Comment.objects.exclude(flagged=None)
+        .select_related("author", "answer__answer_section__exam")
+        .annotate(flagged_count=Count("flagged", distinct=True))
     )
 
-    document_comments = DocumentComment.objects.exclude(flagged=None).select_related(
-        "author", "document__author"
-    ).annotate(
-        flagged_count=Count("flagged", distinct=True)
+    document_comments = (
+        DocumentComment.objects.exclude(flagged=None)
+        .select_related("author", "document__author")
+        .annotate(flagged_count=Count("flagged", distinct=True))
     )
 
     answer_list = [
         {
-            "link": "/exams/" + answer.answer_section.exam.filename + "?answer=" + answer.long_id,
+            "link": "/exams/"
+            + answer.answer_section.exam.filename
+            + "?answer="
+            + answer.long_id,
             "flaggedCount": answer.flagged_count,
             "author": answer.author.username,
-            "flagType": False
+            "flagType": False,
         }
         for answer in answers
     ]
 
     exam_comment_list = [
         {
-            "link": "/exams/" + comment.answer.answer_section.exam.filename + "?comment=" + comment.long_id + "&answer=" + comment.answer.long_id,
+            "link": "/exams/"
+            + comment.answer.answer_section.exam.filename
+            + "?comment="
+            + comment.long_id
+            + "&answer="
+            + comment.answer.long_id,
             "flaggedCount": comment.flagged_count,
             "author": comment.author.username,
-            "flagType": True
+            "flagType": True,
         }
         for comment in exam_comments
     ]
 
     document_comment_list = [
         {
-            "link": "/user/" + comment.document.author.username + "/document/"  + comment.document.display_name.lower().replace(' ', '-') + "?comment=" + str(comment.id),
+            "link": "/user/"
+            + comment.document.author.username
+            + "/document/"
+            + comment.document.display_name.lower().replace(" ", "-")
+            + "?comment="
+            + str(comment.id),
             "flaggedCount": comment.flagged_count,
             "author": comment.author.username,
-            "flagType": True
+            "flagType": True,
         }
         for comment in document_comments
     ]
 
     combined = answer_list + exam_comment_list + document_comment_list
-    return response.success(
-        value=combined
-    )
+    return response.success(value=combined)
 
 
 @response.request_get()
@@ -126,14 +137,14 @@ def get_by_user(request, username, page=-1):
     # Check if the user is viewing their own profile or is an admin
     is_own_profile = request.user.username == username
     is_admin = has_admin_rights(request)
-    
+
     # Base query to get answers by the user
     query = Answer.objects.filter(author__username=username, kind=Answer.Kind.PERSONAL)
-    
+
     # If not viewing own profile and not an admin, exclude anonymous answers
     if not is_own_profile and not is_admin:
         query = query.filter(is_anonymous=False)
-    
+
     sorted_answers = query.select_related(
         *section_util.get_answer_fields_to_preselect()
     )
@@ -158,13 +169,19 @@ def get_by_user(request, username, page=-1):
 @auth_check.require_login
 def get_comments_by_user(request, username, page=-1):
     sorted_comments = (
-        Comment.objects.filter(author__username=username) \
-        .select_related(*section_util.get_comment_fields_to_preselect()) \
-        .prefetch_related(*section_util.get_comment_fields_to_prefetch()) \
+        Comment.objects.filter(author__username=username)
+        .select_related(*section_util.get_comment_fields_to_preselect())
+        .prefetch_related(*section_util.get_comment_fields_to_prefetch())
         .annotate(
             flagged_count=Count("flagged", distinct=True),
-            is_flagged=Exists(Comment.objects.filter(id=OuterRef("id"), flagged=request.user)),
-        ) \
+            is_flagged=Exists(
+                Comment.objects.filter(id=OuterRef("id"), flagged=request.user)
+            ),
+            marked_as_ai_count=Count("marked_as_ai", distinct=True),
+            is_marked_as_ai=Exists(
+                Comment.objects.filter(id=OuterRef("id"), marked_as_ai=request.user)
+            ),
+        )
         .order_by("-time", "id")
     )
 

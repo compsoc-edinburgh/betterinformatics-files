@@ -85,14 +85,16 @@ const addAttachment = async (
   ).filename as string;
 };
 const editAttachment = async (filename: string, newdisplayname: string) => {
-  await fetchPatch(`/api/filestore/edit/${filename}/`, {newdisplayname});
+  await fetchPatch(`/api/filestore/edit/${filename}/`, { newdisplayname });
 };
 const removeAttachment = async (filename: string) => {
   await fetchPost(`/api/filestore/remove/${filename}/`, {});
 };
 
-export interface CategoryMetaDataDraft
-  extends Omit<CategoryMetaData, "attachments"> {
+export interface CategoryMetaDataDraft extends Omit<
+  CategoryMetaData,
+  "attachments"
+> {
   attachments: EditorAttachment[];
 }
 
@@ -134,7 +136,9 @@ const applyChanges = async (
     }
   }
   for (const attachment of oldMetaData.attachments) {
-    const foundAttachment = newMetaData.attachments.find(otherAttachment => otherAttachment.filename === attachment.filename);
+    const foundAttachment = newMetaData.attachments.find(
+      otherAttachment => otherAttachment.filename === attachment.filename,
+    );
     if (!foundAttachment) {
       await removeAttachment(attachment.filename);
       continue;
@@ -143,7 +147,10 @@ const applyChanges = async (
       newAttachments.push(attachment);
     } else {
       await editAttachment(attachment.filename, foundAttachment.displayname);
-      newAttachments.push({ displayname: foundAttachment.displayname, filename: attachment.filename});
+      newAttachments.push({
+        displayname: foundAttachment.displayname,
+        filename: attachment.filename,
+      });
     }
   }
   for (const [newMeta1, newMeta2] of newOfferedIn) {
@@ -165,34 +172,34 @@ const applyChanges = async (
     }
   }
   for (const admin of newMetaData.admins) {
-    if (oldMetaData.admins.indexOf(admin) === -1) {
+    if (!oldMetaData.admins.includes(admin)) {
       await addUserToSet(newSlug, "admins", admin);
     }
   }
   for (const admin of oldMetaData.admins) {
-    if (newMetaData.admins.indexOf(admin) === -1) {
+    if (!newMetaData.admins.includes(admin)) {
       await removeUserFromSet(newSlug, "admins", admin);
     }
   }
 
   for (const expert of newMetaData.experts) {
-    if (oldMetaData.experts.indexOf(expert) === -1) {
+    if (!oldMetaData.experts.includes(expert)) {
       await addUserToSet(newSlug, "experts", expert);
     }
   }
   for (const expert of oldMetaData.experts) {
-    if (newMetaData.experts.indexOf(expert) === -1) {
+    if (!newMetaData.experts.includes(expert)) {
       await removeUserFromSet(newSlug, "experts", expert);
     }
   }
 
   for (const code of newMetaData.euclid_codes) {
-    if (oldMetaData.euclid_codes.indexOf(code) === -1) {
+    if (!oldMetaData.euclid_codes.includes(code)) {
       await addEuclidCode(newSlug, code);
     }
   }
   for (const code of oldMetaData.euclid_codes) {
-    if (newMetaData.euclid_codes.indexOf(code) === -1) {
+    if (!newMetaData.euclid_codes.includes(code)) {
       await removeEuclidCode(newSlug, code);
     }
   }
@@ -274,8 +281,16 @@ const CategoryMetaDataEditor: React.FC<CategoryMetaDataEditorProps> = ({
         Metadata
       </Title>
       <Stack>
-        <TextInput disabled={currentMetaData.slug === "default"} label="Name" {...registerInput("displayname")} />
-        <TextInput disabled={currentMetaData.slug === "default"} label="Slug" {...registerInput("slug")} />
+        <TextInput
+          disabled={currentMetaData.slug === "default"}
+          label="Name"
+          {...registerInput("displayname")}
+        />
+        <TextInput
+          disabled={currentMetaData.slug === "default"}
+          label="Slug"
+          {...registerInput("slug")}
+        />
         <Grid>
           <Grid.Col span={{ md: 6 }}>
             <NativeSelect

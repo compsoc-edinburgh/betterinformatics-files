@@ -30,7 +30,7 @@ export const FAQPage: React.FC = () => {
     add(
       question,
       answer,
-      (faqs || []).reduce((old, value) => Math.max(old, value.order + 1), 0),
+      (faqs ?? []).reduce((old, value) => Math.max(old, value.order + 1), 0),
     );
     handleDeleteDraft();
   };
@@ -48,18 +48,17 @@ export const FAQPage: React.FC = () => {
           .
         </p>
       </div>
-      {faqs &&
-        faqs.map((faq, idx) => (
-          <FAQEntryComponent
-            key={faq.oid}
-            entry={faq}
-            prevEntry={idx > 0 ? faqs[idx - 1] : undefined}
-            nextEntry={idx + 1 < faqs.length ? faqs[idx + 1] : undefined}
-            onUpdate={changes => update(faq.oid, changes)}
-            onSwap={swap}
-            onRemove={() => remove(faq.oid)}
-          />
-        ))}
+      {faqs?.map((faq, idx) => (
+        <FAQEntryComponent
+          key={faq.oid}
+          entry={faq}
+          prevEntry={idx > 0 ? faqs[idx - 1] : undefined}
+          nextEntry={idx + 1 < faqs.length ? faqs[idx + 1] : undefined}
+          onUpdate={changes => update(faq.oid, changes)}
+          onSwap={swap}
+          onRemove={() => remove(faq.oid)}
+        />
+      ))}
       {hasDraft ? (
         <Card withBorder shadow="md" my="xs">
           <TextInput

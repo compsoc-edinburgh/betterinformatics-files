@@ -5,15 +5,21 @@ import {
   Anchor,
   Loader,
   Alert,
-  Center,
   Container,
   Grid,
   Flex,
   Group,
   Button,
   useComputedColorScheme,
+  Center,
 } from "@mantine/core";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Link,
   Navigate,
@@ -24,7 +30,13 @@ import {
 } from "react-router-dom";
 import { loadSections } from "../api/exam-loader";
 import { fetchPost } from "../api/fetch-utils";
-import { loadCuts, loadExamMetaData, loadSplitRenderer } from "../api/hooks";
+import {
+  loadCuts,
+  loadExamMetaData,
+  loadSplitRenderer,
+  useMarkExamUserSolved,
+  useUnmarkExamUserSolved,
+} from "../api/hooks";
 import { UserContext, useUser } from "../auth";
 import Exam from "../components/exam";
 import ExamMetadataEditor from "../components/exam-metadata-editor";
@@ -34,6 +46,11 @@ import ContentContainer from "../components/secondary-container";
 import { TOC, TOCNode } from "../components/table-of-contents";
 import useSet from "../hooks/useSet";
 import useTitle from "../hooks/useTitle";
+import {
+  RECENT_EXAMS_KEY,
+  pushRecentExam,
+  RecentExam,
+} from "../utils/recently-viewed-exams";
 import {
   CutUpdate,
   EditMode,
@@ -47,10 +64,12 @@ import {
 import PDF from "../pdf/pdf-renderer";
 import { getAnswerSectionId } from "../utils/exam-utils";
 import {
+  IconCheck,
   IconChevronRight,
   IconDownload,
   IconEdit,
   IconLink,
+  IconX,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
@@ -108,18 +127,22 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
       setEditState({ mode: EditMode.None });
     },
   });
+  const [, runMarkExamUserSolved] = useMarkExamUserSolved(metaData.filename);
+  const [, runUnmarkExamUserSolved] = useUnmarkExamUserSolved(
+    metaData.filename,
+  );
   const { run: runUpdate } = useRequest(updateCut, {
     manual: true,
     onSuccess: (_data, [oid, update]) => {
       mutateCuts(oldCuts =>
-        Object.keys(oldCuts).reduce((result, key) => {
+        Object.keys(oldCuts).reduce<ServerCutResponse>((result, key) => {
           result[key] = oldCuts[key].map(cutPosition =>
             cutPosition.oid === oid
               ? { ...cutPosition, ...update }
               : cutPosition,
           );
           return result;
-        }, {} as ServerCutResponse),
+        }, {}),
       );
     },
   });
@@ -139,6 +162,17 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
     },
     [runAddCut, metaData, runUpdate],
   );
+  const toggleExamUserSolved: () => void = async () => {
+    let res: { user_solved: boolean };
+    if (metaData.user_solved) {
+      res = await runUnmarkExamUserSolved();
+    } else {
+      res = await runMarkExamUserSolved();
+    }
+
+    // eslint-disable-next-line react-hooks/immutability
+    metaData.user_solved = res.user_solved;
+  };
 
   const sizeRef = useRef<HTMLDivElement>(null);
   const size = useSize(sizeRef);
@@ -240,10 +274,20 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
           <h1>{metaData.displayname}</h1>
           <Group>
             <IconButton
+              color={metaData.user_solved ? "grape" : "gray"}
+              icon={<IconCheck />}
+              tooltip={
+                metaData.user_solved
+                  ? "Mark exam as unsolved"
+                  : "Mark exam as solved"
+              }
+              onClick={toggleExamUserSolved}
+            />
+            <IconButton
               color="gray"
               icon={<IconDownload />}
               tooltip="Download"
-              onClick={() => window.open(metaData.exam_file, "_blank")}
+              onClick={() => open(metaData.exam_file, "_blank")}
             />
             {user.isCategoryAdmin && (
               <>
@@ -356,6 +400,17 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
               onExpandSections={expandSections}
             />
           )}
+
+          <Center>
+            <Button
+              display={width && sections && renderer ? "block" : "none"}
+              leftSection={metaData.user_solved && <IconCheck />}
+              onClick={toggleExamUserSolved}
+              color={metaData.user_solved ? "grape" : "gray"}
+            >
+              Mark exam as solved
+            </Button>
+          </Center>
         </Container>
       </ContentContainer>
       <ExamPanel
@@ -380,7 +435,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
   );
 };
 
-const ExamPage: React.FC<{}> = () => {
+const ExamPage: React.FC = () => {
   const { filename } = useParams() as { filename: string };
   const {
     error: metaDataError,
@@ -392,6 +447,22 @@ const ExamPage: React.FC<{}> = () => {
     refreshDeps: [filename],
   });
   useTitle(metaData?.displayname ?? filename);
+  useEffect(() => {
+    if (!metaData) return;
+    try {
+      const raw = localStorage.getItem(RECENT_EXAMS_KEY);
+      const list: RecentExam[] = raw ? JSON.parse(raw) : [];
+      const updated = pushRecentExam(list, {
+        filename: metaData.filename,
+        displayname: metaData.displayname,
+        category: metaData.category,
+        category_displayname: metaData.category_displayname,
+      });
+      localStorage.setItem(RECENT_EXAMS_KEY, JSON.stringify(updated));
+    } catch {
+      // corrupted localStorage entry — silently ignore
+    }
+  }, [metaData?.filename]);
   useQuickSearchFilter(
     metaData && {
       slug: metaData.category,
@@ -426,7 +497,7 @@ const ExamPage: React.FC<{}> = () => {
     () => (cuts && pdf ? loadSections(pdf.numPages, cuts) : undefined),
     [pdf, cuts],
   );
-  const error = metaDataError || cutsError || pdfError;
+  const error = metaDataError ?? cutsError ?? pdfError;
   const user = useUser()!;
 
   const navigate = useNavigate();
@@ -445,14 +516,14 @@ const ExamPage: React.FC<{}> = () => {
             to={`/category/${metaData ? metaData.category : ""}`}
             style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
-            {metaData && metaData.category_displayname}
+            {metaData?.category_displayname}
           </Anchor>
           <Anchor
             tt="uppercase"
             size="xs"
             style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
-            {metaData && metaData.displayname}
+            {metaData?.displayname}
           </Anchor>
         </Breadcrumbs>
       </Container>
@@ -468,12 +539,12 @@ const ExamPage: React.FC<{}> = () => {
               path="edit"
               element={
                 !user.isAdmin && !metaData.canEdit ? (
-                  <Navigate to="." replace />
+                  <Navigate to="./.." replace />
                 ) : (
                   <Container size="xl">
                     <ExamMetadataEditor
                       currentMetaData={metaData}
-                      closeEditPage={() => navigate(".")}
+                      closeEditPage={() => navigate("./..")}
                       onMetaDataChange={setMetaData}
                     />
                   </Container>
@@ -486,7 +557,7 @@ const ExamPage: React.FC<{}> = () => {
                 <UserContext.Provider
                   value={{
                     ...user,
-                    isExpert: user.isExpert || metaData.isExpert,
+                    isExpert: user.isExpert ?? metaData.isExpert,
                     isCategoryAdmin: user.isAdmin || metaData.canEdit,
                   }}
                 >
@@ -497,20 +568,20 @@ const ExamPage: React.FC<{}> = () => {
                     reloadCuts={reloadCuts}
                     mutateCuts={mutateCuts}
                     mutateMetaData={setMetaData}
-                    goToEditPage={() => navigate("edit")}
+                    goToEditPage={() => navigate("./edit")}
                   />
                 </UserContext.Provider>
               }
             />
-            <Route path="*" element={<Navigate to="." replace />} />
+            <Route path="*" element={<Navigate to="./.." replace />} />
           </Routes>
         )}
         {(metaDataLoading ||
           ((cutsLoading || pdfLoading) && !metaDataLoading)) && (
-            <Center>
-              <Loader />
-            </Center>
-          )}
+          <Center>
+            <Loader />
+          </Center>
+        )}
       </div>
     </div>
   );

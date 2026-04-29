@@ -9,6 +9,7 @@ import {
   Group,
   Title,
   Text,
+  Tabs,
   Box,
   Tooltip,
 } from "@mantine/core";
@@ -30,12 +31,13 @@ import { useDocumentDownload } from "../hooks/useDocumentDownload";
 import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
-import { Tabs } from "@mantine/core";
 import {
   IconChevronRight,
   IconDownload,
   IconEdit,
   IconFile,
+  IconFileTypePdf,
+  IconFileTypeZip,
   IconMessage,
   IconSettings,
 } from "@tabler/icons-react";
@@ -46,12 +48,11 @@ import { useScrollToPermalink } from "../hooks/useScrollToPermalink";
 
 const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
 const isMarkdown = (file: DocumentFile) =>
-  file.filename.endsWith(".md") &&
-  (file.mime_type === "application/octet-stream" ||
-    file.mime_type === "text/x-markdown" ||
-    file.mime_type === "text/markdown");
-
-const isTex = (file: DocumentFile) => file.mime_type === "application/x-tex";
+  file.filename.toLowerCase().endsWith(".md");
+const isTex = (file: DocumentFile) =>
+  file.filename.toLowerCase().endsWith(".tex");
+const isTypst = (file: DocumentFile) =>
+  file.filename.toLowerCase().endsWith(".typ");
 
 const getComponents = (
   file: DocumentFile | undefined,
@@ -71,7 +72,7 @@ const getComponents = (
   if (isMarkdown(file)) {
     return { Viewer: DocumentMarkdown, Editor: DocumentMarkdownEditor };
   }
-  if (isTex(file)) {
+  if (isTex(file) || isTypst(file)) {
     return { Viewer: DocumentCode, Editor: undefined };
   }
 
@@ -80,6 +81,18 @@ const getComponents = (
 
 const getFile = (document: Document | undefined, oid: number) =>
   document ? document.files.find(x => x.oid === oid) : undefined;
+
+const FileIcon: React.FC<{ filename: string }> = ({ filename }) => {
+  if (filename.endsWith(".pdf")) {
+    return <IconFileTypePdf />;
+  }
+
+  if (filename.endsWith(".zip")) {
+    return <IconFileTypeZip />;
+  }
+
+  return <IconFile />;
+};
 
 interface Props {}
 const DocumentPage: React.FC<Props> = () => {
@@ -99,10 +112,6 @@ const DocumentPage: React.FC<Props> = () => {
   const Components = getComponents(activeFile);
   const [editing, { toggle: toggleEditing }] = useDisclosure();
   const [loadingDownload, startDownload] = useDocumentDownload(data);
-  const reloadComments = async () => {
-    await reload();
-    setTab("comments");
-  };
   const reloadSettings = async () => {
     await reload();
     setTab("settings");
@@ -116,6 +125,15 @@ const DocumentPage: React.FC<Props> = () => {
     }
   }, [searchParams, data]);
   useScrollToPermalink();
+
+  function formatDisplayName(file: DocumentFile): string {
+    const ext = file.filename.split(".").at(-1);
+    if (ext && file.display_name.endsWith(`.${ext}`)) {
+      return file.display_name;
+    }
+
+    return `${file.display_name}.${ext}`;
+  }
 
   return (
     <>
@@ -131,14 +149,14 @@ const DocumentPage: React.FC<Props> = () => {
             to={`/category/${data ? data.category : ""}`}
             style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
-            {data && data.category_display_name}
+            {data?.category_display_name}
           </Anchor>
           <Anchor
             size="xs"
             tt="uppercase"
             style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
-            {data && data.display_name}
+            {data?.display_name}
           </Anchor>
         </Breadcrumbs>
         {data && (
@@ -186,23 +204,27 @@ const DocumentPage: React.FC<Props> = () => {
                   Anonymous
                 </Text>
               )}
-              {data && data.anonymised && (data.can_edit || data.can_delete) && (
-                <Anchor
-                  component={Link}
-                  to={`/user/${data.author}`}
-                  underline="never"
-                  className={displayNameClasses.shrinkableDisplayName}
-                >
-                  <Text ml="0.3em" c="dimmed" component="span">
-                    (
-                    {data.author_displayname !== data.author &&
-                      `${data.author_displayname} `}
-                    @{data.author})
-                  </Text>
-                </Anchor>
-              )}
-              {differenceInSeconds(new Date(data.edittime), new Date(data.time)) >
-                1 && (
+              {data &&
+                data.anonymised &&
+                (data.can_edit || data.can_delete) && (
+                  <Anchor
+                    component={Link}
+                    to={`/user/${data.author}`}
+                    underline="never"
+                    className={displayNameClasses.shrinkableDisplayName}
+                  >
+                    <Text ml="0.3em" c="dimmed" component="span">
+                      (
+                      {data.author_displayname !== data.author &&
+                        `${data.author_displayname} `}
+                      @{data.author})
+                    </Text>
+                  </Anchor>
+                )}
+              {differenceInSeconds(
+                new Date(data.edittime),
+                new Date(data.time),
+              ) > 1 && (
                 <>
                   <Text c="dimmed" mx={6} component="span">
                     ·
@@ -223,7 +245,7 @@ const DocumentPage: React.FC<Props> = () => {
           </Box>
         )}
         {error && <Alert color="red">{error.toString()}</Alert>}
-        {data && data.description && (
+        {data?.description && (
           <div>
             <MarkdownText value={data.description} />
           </div>
@@ -232,18 +254,17 @@ const DocumentPage: React.FC<Props> = () => {
       <Container size="xl" mt="sm">
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
-            {data &&
-              data.files
-                .sort((a, b) => a.order - b.order)
-                .map(file => (
-                  <Tabs.Tab
-                    key={file.oid}
-                    value={file.oid.toString()}
-                    leftSection={<IconFile />}
-                  >
-                    {file.display_name}
-                  </Tabs.Tab>
-                ))}
+            {data?.files
+              .sort((a, b) => a.order - b.order)
+              .map(file => (
+                <Tabs.Tab
+                  key={file.oid}
+                  value={file.oid.toString()}
+                  leftSection={<FileIcon filename={file.filename} />}
+                >
+                  {formatDisplayName(file)}
+                </Tabs.Tab>
+              ))}
             <Tabs.Tab value="comments" leftSection={<IconMessage />}>
               Comments
             </Tabs.Tab>
@@ -321,7 +342,6 @@ const DocumentPage: React.FC<Props> = () => {
                 comment={comment}
                 key={comment.oid}
                 mutate={mutate}
-                reload={reloadComments}
               />
             ))}
             <Card shadow="md" withBorder>

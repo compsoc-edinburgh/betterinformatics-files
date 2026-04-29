@@ -65,9 +65,13 @@ class TestCutVersion(ComsolTestExamData):
     def test_set_answer(self):
         section = self.sections[0]
         oldversion = section.cut_version
-        self.post('/api/exam/setanswer/{}/'.format(section.id), {
-            'text': 'New Test Answer',
-        })
+        self.post(
+            "/api/exam/setanswer/{}/".format(section.id),
+            {
+                "text": "New Test Answer",
+                "kind": "personal",
+            },
+        )
         section.refresh_from_db()
         self.assertGreater(section.cut_version, oldversion)
         self.check_versions()

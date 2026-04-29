@@ -80,8 +80,7 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
               </Title>
             </div>
           ))
-        : metaList &&
-          metaList.map(([meta1display, meta2]) => (
+        : metaList?.map(([meta1display, meta2]) => (
             <div key={meta1display}>
               <Title
                 order={4}

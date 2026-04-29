@@ -10,6 +10,7 @@ import {
   CSSVariablesResolver,
   SegmentedControl,
 } from "@mantine/core";
+import chroma from "chroma-js";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
@@ -22,6 +23,7 @@ import { DebugContext, defaultDebugOptions } from "./components/Debug";
 import DebugModal from "./components/Debug/DebugModal";
 import CategoryPage from "./pages/category-page";
 import DisclaimerPage from "./pages/disclaimer-page";
+import ChangelogPage from "./pages/changelog-page";
 import DocumentPage from "./pages/document-page";
 import ExamPage from "./pages/exam-page";
 import FAQ from "./pages/faq-page";
@@ -49,8 +51,9 @@ import {
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
+import ChangelogNotifier from "./components/ChangelogNotifier";
 import FlaggedContent from "./pages/flagged-content";
-import { FaroRoute, FaroRoutes } from "@grafana/faro-react";
+import { FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import {
   QuickSearchFilter,
@@ -58,29 +61,31 @@ import {
 } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { useScrollToHash } from "./hooks/useScrollToHash";
 
-function calculateShades(primaryColor: string): MantineColorsTuple {
-  const baseHSLcolor = tinycolor(primaryColor).toHsl();
-  const darkerRatio = (0.95 - baseHSLcolor.l) / 7.0;
-  const shadesArray = new Array(10);
-  for (let i = 0; i < 7; i++) {
-    shadesArray[i] = tinycolor({
-      h: baseHSLcolor.h,
-      s: baseHSLcolor.s,
-      l: 0.95 - i * darkerRatio,
-    }).toString("hex6");
-  }
-  shadesArray[7] = primaryColor;
-  shadesArray[8] = tinycolor({
-    h: baseHSLcolor.h,
-    s: baseHSLcolor.s,
-    l: 0.05 + (baseHSLcolor.l - 0.05) / 2.0,
-  }).toString("hex6");
-  shadesArray[9] = tinycolor({
-    h: baseHSLcolor.h,
-    s: baseHSLcolor.s,
-    l: 0.05,
-  }).toString("hex6");
-  return shadesArray as unknown as MantineColorsTuple;
+export function calculateShades(color: string): MantineColorsTuple {
+  const LIGHTNESS_MAP = [
+    0.96, 0.907, 0.805, 0.697, 0.605, 0.547, 0.518, 0.445, 0.395, 0.34,
+  ];
+  const SATURATION_MAP = [0.32, 0.16, 0.08, 0.04, 0, 0, 0.04, 0.08, 0.16, 0.32];
+
+  const colorObject = chroma(color);
+
+  // Force primary color to be at index 7, which is different from Mantine
+  // which puts it wherever it falls in the lightness map.
+  const baseColorIndex = 7;
+
+  const colors = LIGHTNESS_MAP.map(l => colorObject.set("hsl.l", l))
+    .map(c => chroma(c))
+    .map((c, i) => {
+      const saturationDelta =
+        SATURATION_MAP[i] - SATURATION_MAP[baseColorIndex];
+      return saturationDelta >= 0
+        ? c.saturate(saturationDelta)
+        : c.desaturate(saturationDelta * -1);
+    });
+
+  colors[baseColorIndex] = chroma(color);
+
+  return colors.map(c => c.hex()) as unknown as MantineColorsTuple;
 }
 
 /**
@@ -107,7 +112,7 @@ const TelemetryRoutes =
     ? Routes
     : FaroRoutes;
 
-const App: React.FC<{}> = () => {
+const App: React.FC = () => {
   useEffect(() => {
     // We need to manually get the csrf cookie when the frontend is served using
     // `yarn start` as only certain pages will set the csrf cookie.
@@ -176,10 +181,9 @@ const App: React.FC<{}> = () => {
       // A brown-like color for the primary color
       compsocMain: calculateShades("#b89c7c"),
       // Various tones of gray for miscellaneous elements
-      compsocGray: new Array(10).fill(
-        "rgb(144, 146, 150)",
-      ) as unknown as MantineColorsTuple,
+      compsocGray: calculateShades("#909296"),
     },
+    defaultRadius: "md",
     primaryColor: "compsocMain",
     primaryShade: 7,
     fontFamily:
@@ -196,6 +200,11 @@ const App: React.FC<{}> = () => {
       defaultProps: {
         color: "compsocGray",
         variant: "light",
+      },
+    },
+    Checkbox: {
+      defaultProps: {
+        radius: "sm",
       },
     },
     // By default, SegmentedControl on dark mode has a "light indicator on dark
@@ -215,6 +224,13 @@ const App: React.FC<{}> = () => {
         },
       },
     }),
+    Modal: {
+      defaultProps: {
+        removeScrollProps: {
+          allowPinchZoom: true,
+        },
+      },
+    },
   };
 
   const adminItems = [
@@ -232,6 +248,7 @@ const App: React.FC<{}> = () => {
       childItems: [
         { title: "FAQ", href: "/faq" },
         { title: "Stats and Scores", href: "/stats" },
+        { title: "What's New", href: "/changelog" },
         { title: "Feedback", href: "/feedback" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
@@ -295,6 +312,7 @@ const App: React.FC<{}> = () => {
                   title={"File Collection"}
                 />
                 <AnnouncementHeader />
+                <ChangelogNotifier />
                 <Box component="main" mt="2em">
                   <TelemetryRoutes>
                     <Route path="*" element={<NotFoundPage />} />
@@ -317,6 +335,7 @@ const App: React.FC<{}> = () => {
                         element={<DissertationDetailPage />}
                       />
                       <Route path="/faq" element={<FAQ />} />
+                      <Route path="/changelog" element={<ChangelogPage />} />
                       <Route path="/feedback" element={<FeedbackPage />} />
                       <Route
                         path="/category/:slug/*"

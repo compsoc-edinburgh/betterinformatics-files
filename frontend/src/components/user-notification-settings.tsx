@@ -19,10 +19,12 @@ const mapTypeToString = (type: number) => {
       return "Other answer to same question";
     case 4:
       return "Comment to my document";
+    case 5:
+      return "Admin comments on my feedback";
     default:
       return "Unknown";
   }
-}
+};
 
 const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
   username,
@@ -31,7 +33,7 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
     useEnabledNotifications(true);
   const [setEnabledError, setEnabledLoading, setEnabled] =
     useSetEnabledNotifications(reloadEnabled);
-  const error = enabledError || setEnabledError;
+  const error = enabledError ?? setEnabledError;
   const checkboxLoading = enabledLoading || setEnabledLoading;
   return (
     <>
@@ -46,21 +48,33 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {[1, 2, 3, 4].map(type => (
+          {[1, 2, 3, 4, 5].map(type => (
             <Table.Tr key={type}>
               <Table.Td>{mapTypeToString(type)}</Table.Td>
               <Table.Td>
                 <Checkbox
-                  checked={enabled ? enabled.some(v => v.enabled && v.type === type) : false}
+                  checked={
+                    enabled
+                      ? enabled.some(v => v.enabled && v.type === type)
+                      : false
+                  }
                   disabled={checkboxLoading}
-                  onChange={e => setEnabled(type, e.currentTarget.checked, undefined)}
+                  onChange={e =>
+                    setEnabled(type, e.currentTarget.checked, undefined)
+                  }
                 />
               </Table.Td>
               <Table.Td>
                 <Checkbox
-                  checked={enabled ? enabled.some(v => v.email_enabled && v.type === type) : false}
+                  checked={
+                    enabled
+                      ? enabled.some(v => v.email_enabled && v.type === type)
+                      : false
+                  }
                   disabled={checkboxLoading}
-                  onChange={e => setEnabled(type, undefined, e.currentTarget.checked)}
+                  onChange={e =>
+                    setEnabled(type, undefined, e.currentTarget.checked)
+                  }
                 />
               </Table.Td>
             </Table.Tr>

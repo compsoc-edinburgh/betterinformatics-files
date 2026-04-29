@@ -127,6 +127,22 @@ def send_email_notification(
         fail_silently=False,
     )
 
+def send_feedback_notification(sender, receiver, type_, title, message, feedback):
+    if sender == receiver:
+        return
+    if not is_notification_enabled(receiver, type_):
+        return
+    notification = Notification(
+        sender=sender,
+        receiver=receiver,
+        type=type_.value,
+        title=title,
+        text=message,
+        feedback=feedback,
+        answer=None,
+    )
+    notification.save()
+
 
 def get_absolute_notification_url(data: Union[Document, Answer]):
     return (
@@ -139,6 +155,7 @@ def get_relative_notification_url(data: Union[Document, Answer]):
         return f"/exams/{data.answer_section.exam.filename}#{data.long_id}"
     elif isinstance(data, Document):
         return f"/document/{data.slug}"
+    # Feedback Page is admin-only, so makes no sense to link it since notification contains reply anyway.
     return ""
 
 
@@ -206,4 +223,14 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
         "New comment",
         "A new comment was added to your document.\n\n{}".format(new_comment.text),
         document,
+    )
+
+def new_feedback_reply(admin_user, feedback):
+    send_feedback_notification(
+        admin_user,
+        feedback.author,
+        NotificationType.NEW_COMMENT_TO_FEEDBACK,
+        "Reply to your feedback",
+        "An admin has replied to your feedback.\n\n{}".format(feedback.reply),
+        feedback=feedback,
     )

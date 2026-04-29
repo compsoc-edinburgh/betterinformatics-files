@@ -50,7 +50,7 @@ const UploadPdfCard: React.FC<{ preChosenCategory?: string }> = ({
     },
   });
   const [validationError, setValidationError] = useState("");
-  const error = categoriesError || uploadError || validationError;
+  const error = categoriesError ?? uploadError ?? validationError;
   const loading = categoriesLoading || uploadLoading;
   const options = useMemo(
     () =>

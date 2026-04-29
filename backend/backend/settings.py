@@ -45,11 +45,12 @@ COMSOL_FILESTORE_DIR = "files/"
 COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
 COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
     (".pdf", "application/pdf"),
-    (".tex", "application/x-tex"),
+    (".tex", "application/octet-stream"),
     (".tex", "text/x-tex"),
     (".md", "application/octet-stream"),
     (".md", "text/markdown"),
-    (".md", "text/x-markdown"),
+    (".typ", "application/octet-stream"),
+    (".typ", "text/x-typst"),
     (".txt", "text/plain"),
     (".zip", "application/zip"),
     (".zip", "application/octet-stream"),
@@ -62,12 +63,15 @@ COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
         ".docx",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ),
-    (".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
     (
         ".pptx",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     ),
     (".epub", "application/epub+zip"),
+    (".csv", "text/csv"),
+    (".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+    (".xls", "application/vnd.ms-excel"),
+    (".ods", "application/vnd.oasis.opendocument.spreadsheet"),
 }
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
@@ -102,12 +106,16 @@ jwt_public_key_path = (
 # Use keys (and thus RS256 for JWT instead of HS256) if both keys are provided.
 # Otherwise, use a symmetric key (empty string).
 JWT_USE_KEYS = jwt_private_key_path and jwt_public_key_path
-JWT_PRIVATE_KEY = (
-    "" if not jwt_private_key_path else open(jwt_private_key_path, "rb").read()
-)
-JWT_PUBLIC_KEY = (
-    "" if not jwt_public_key_path else open(jwt_public_key_path, "rb").read()
-)
+if jwt_private_key_path:
+    with open(jwt_private_key_path, "rb") as f:
+        JWT_PRIVATE_KEY = f.read()
+else:
+    JWT_PRIVATE_KEY = ""
+if jwt_public_key_path:
+    with open(jwt_public_key_path, "rb") as f:
+        JWT_PUBLIC_KEY = f.read()
+else:
+    JWT_PUBLIC_KEY = ""
 
 # If we don't have a Gsuite credentials file (e.g. during local dev), use the
 # dummy email backend that will write emails to console.

@@ -184,8 +184,7 @@ const FlaggedContent: React.FC = () => {
         <FlaggedTable flaggedList={flaggedListNoGroup} typed={true} />
       )}
       {mode === "byAuthor" &&
-        flaggedListByAuthor &&
-        flaggedListByAuthor.map(([author, [flaggedContent, count]]) => (
+        flaggedListByAuthor?.map(([author, [flaggedContent, count]]) => (
           <FlaggedTableUser
             key={author}
             author={author}

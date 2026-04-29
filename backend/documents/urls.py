@@ -5,9 +5,10 @@ from . import views
 
 urlpatterns = [
     path("listdocumenttypes/", views.list_document_types, name="listdocumenttypes"),
-    path("<str:username>/<str:document_slug>/files/<str:filename>/move/",
+    path(
+        "<str:username>/<str:document_slug>/files/<str:filename>/move/",
         views.move_file,
-        name="move_file"
+        name="move_file",
     ),
     path(
         "<str:document_slug>/files/<int:id>/update/",
@@ -48,6 +49,16 @@ urlpatterns = [
     ),
     path("setflaggedcomment/<int:oid>", views.set_flagged, name="setcommentflagged"),
     path(
+        "setmarkedasaicomment/<int:oid>",
+        views.set_marked_as_ai,
+        name="setcommentmarkedasai",
+    ),
+    path(
         "resetflaggedcomment/<int:oid>", views.reset_flagged, name="resetcommentflagged"
+    ),
+    path(
+        "resetmarkedasaicomment/<int:oid>",
+        views.reset_marked_as_ai,
+        name="resetcommentmarkedasai",
     ),
 ]

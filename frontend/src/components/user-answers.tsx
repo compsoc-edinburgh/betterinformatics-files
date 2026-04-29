@@ -70,23 +70,26 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
       {error && <Alert color="red">{error.message}</Alert>}
       {isOwnProfile && (
         <Box mb="md">
-          <Alert color="blue" title={
-            <Group>
-              <Tooltip
-                label="Your anonymous answers are only visible to you and admins on this page. Other users viewing your profile won't see your anonymous answers."
-                multiline
-                maw={300}
-                withArrow
-                withinPortal
-              >
-                <IconInfoCircle size={16} style={{ cursor: 'pointer' }} />
-              </Tooltip>
-              <Text>Your Answers</Text>
-            </Group>
-          }>
-            {isAdmin ?
-              "As an admin, you can see all answers including anonymous ones." :
-              "This page shows all your answers. Your anonymous answers are only visible to you and admins."}
+          <Alert
+            color="blue"
+            title={
+              <Group>
+                <Tooltip
+                  label="Your anonymous answers are only visible to you and admins on this page. Other users viewing your profile won't see your anonymous answers."
+                  multiline
+                  maw={300}
+                  withArrow
+                  withinPortal
+                >
+                  <IconInfoCircle size={16} style={{ cursor: "pointer" }} />
+                </Tooltip>
+                <Text>Your Answers</Text>
+              </Group>
+            }
+          >
+            {isAdmin
+              ? "As an admin, you can see all answers including anonymous ones."
+              : "This page shows all your answers. Your anonymous answers are only visible to you and admins."}
           </Alert>
         </Box>
       )}
@@ -94,18 +97,21 @@ const UserAnswers: React.FC<UserAnswersProps> = ({ username }) => {
         <Alert color="gray">No answers</Alert>
       )}
       <div className={classes.column}>
-        {answers &&
-          answers.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
-            <div key={answer.oid} style={{ marginBottom: "1rem" }}>
-              <AnswerComponent
-                hasId={false}
-                answer={answer}
-                answerKind={answer.kind}
-                onSectionChanged={reload}
-              />
-            </div>
-          ))}
-        <div ref={elem => setLastElement(elem)} />
+        {answers?.slice(0, (page + 1) * PAGE_SIZE).map(answer => (
+          <div key={answer.oid} style={{ marginBottom: "1rem" }}>
+            <AnswerComponent
+              hasId={false}
+              answer={answer}
+              answerKind={answer.kind}
+              onSectionChanged={reload}
+            />
+          </div>
+        ))}
+        <div
+          ref={elem => {
+            setLastElement(elem);
+          }}
+        />
       </div>
       {loading && <Loader style={{ display: "flex", margin: "auto" }} />}
     </>

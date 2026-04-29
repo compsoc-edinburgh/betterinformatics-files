@@ -57,11 +57,10 @@ export const EuclidCodeBadge = ({
             {badge_data &&
               !badge_data.shadow &&
               `${badge_data.name} (SCQF ${badge_data.level}, Semester ${badge_data.delivery_ordinal})`}
-            {badge_data &&
-              badge_data.shadow &&
+            {badge_data?.shadow &&
               `${badge_data.name} (Shadow of ${badge_data.shadow})`}
             {!loading && !badge_data && "Not Running"}
-            {error && error.message}
+            {error?.message}
           </Text>
         </HoverCardDropdown>
       )}

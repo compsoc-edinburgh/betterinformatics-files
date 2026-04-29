@@ -47,14 +47,16 @@ COPY cinit.yml /etc/cinit.d/community-solutions.yml
 
 # -------------------------------
 
-FROM node:20-alpine AS frontend-base
+FROM node:24-alpine AS frontend-base
 
 WORKDIR /usr/src/app
 COPY ./frontend/package.json \
     ./frontend/yarn.lock \
+    ./frontend/.yarnrc.yml \
     ./frontend/index.html ./
 
-RUN yarn --ignore-engines
+RUN corepack enable
+RUN yarn install --immutable
 
 
 FROM frontend-base AS frontend-build
@@ -69,6 +71,7 @@ COPY ./frontend/tsconfig.json \
     ./frontend/.prettierrc.json ./
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
+COPY ./CHANGELOG.md ./CHANGELOG.md
 ENV VITE_GIT_BRANCH=${git_branch}
 ENV VITE_GIT_COMMIT=${git_commit}
 RUN yarn run build
@@ -101,8 +104,11 @@ CMD uv run manage.py migrate \
 # Frontend
 FROM frontend-base AS frontend-dev
 
-RUN yarn install --ignore-optional
 COPY frontend ./
+COPY ./CHANGELOG.md ./CHANGELOG.md
+
+RUN yarn install
+
 EXPOSE 3000
 CMD ["yarn", "start-docker"]
 

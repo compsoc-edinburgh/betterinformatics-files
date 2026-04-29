@@ -4,13 +4,21 @@ from util import response, func_cache
 from ediauth import auth_check
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, F, Q, Value as V
+from django.db.models import F, Q, Value as V
 from django.db.models.functions import Concat
 
 
 def get_user_scores(user, res):
+    list = get_ranking_list()
+    total_users = User.objects.count()
+    if user.username in list:
+        rank = list.index(user.username) + 1
+    else:
+        rank = total_users
     res.update(
         {
+            "rank": rank,
+            "total_users": total_users,
             "score": user.scores.document_likes
             + user.scores.upvotes
             - user.scores.downvotes,
@@ -22,6 +30,19 @@ def get_user_scores(user, res):
         }
     )
     return res
+
+
+@func_cache.cache(600)
+def get_ranking_list():
+    return list(
+        User.objects.annotate(
+            score=F("scores__document_likes")
+            + F("scores__upvotes")
+            - F("scores__downvotes"),
+        )
+        .order_by("-score")
+        .values_list("username", flat=True)
+    )
 
 
 @func_cache.cache(600)

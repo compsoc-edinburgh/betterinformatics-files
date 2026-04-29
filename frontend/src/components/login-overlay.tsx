@@ -25,7 +25,7 @@ export enum LoginState {
   PROCESSING,
 }
 
-const LoginOverlay: React.FC<{}> = () => {
+const LoginOverlay: React.FC = () => {
   const [uun, setUUN] = useState("");
   const [processingAgreement, setProcessingAgreement] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
@@ -61,9 +61,7 @@ const LoginOverlay: React.FC<{}> = () => {
     }
   };
 
-  const handleProcessingAgreement: FormEventHandler<
-    HTMLFormElement
-  > = e => {
+  const handleProcessingAgreement: FormEventHandler<HTMLFormElement> = e => {
     e.preventDefault();
     if (!processingAgreement) {
       setLoginState(LoginState.AWAITING_UUN_INPUT);

@@ -31,4 +31,5 @@ urlpatterns = [
         views.can_i_haz_csrf_cookie,
         name="can_i_haz_csrf_cookie",
     ),
+    path("changelog/", views.index, name="changelog"),
 ]
