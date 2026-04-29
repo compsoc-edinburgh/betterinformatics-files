@@ -10,6 +10,7 @@ import {
   CSSVariablesResolver,
   SegmentedControl,
 } from "@mantine/core";
+import chroma from "chroma-js";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import React, { useEffect, useState } from "react";
@@ -60,29 +61,31 @@ import {
 } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { useScrollToHash } from "./hooks/useScrollToHash";
 
-function calculateShades(primaryColor: string): MantineColorsTuple {
-  const baseHSLcolor = tinycolor(primaryColor).toHsl();
-  const darkerRatio = (0.95 - baseHSLcolor.l) / 7.0;
-  const shadesArray = new Array(10);
-  for (let i = 0; i < 7; i++) {
-    shadesArray[i] = tinycolor({
-      h: baseHSLcolor.h,
-      s: baseHSLcolor.s,
-      l: 0.95 - i * darkerRatio,
-    }).toString("hex6");
-  }
-  shadesArray[7] = primaryColor;
-  shadesArray[8] = tinycolor({
-    h: baseHSLcolor.h,
-    s: baseHSLcolor.s,
-    l: 0.05 + (baseHSLcolor.l - 0.05) / 2.0,
-  }).toString("hex6");
-  shadesArray[9] = tinycolor({
-    h: baseHSLcolor.h,
-    s: baseHSLcolor.s,
-    l: 0.05,
-  }).toString("hex6");
-  return shadesArray as unknown as MantineColorsTuple;
+export function calculateShades(color: string): MantineColorsTuple {
+  const LIGHTNESS_MAP = [
+    0.96, 0.907, 0.805, 0.697, 0.605, 0.547, 0.518, 0.445, 0.395, 0.34,
+  ];
+  const SATURATION_MAP = [0.32, 0.16, 0.08, 0.04, 0, 0, 0.04, 0.08, 0.16, 0.32];
+
+  const colorObject = chroma(color);
+
+  // Force primary color to be at index 7, which is different from Mantine
+  // which puts it wherever it falls in the lightness map.
+  const baseColorIndex = 7;
+
+  const colors = LIGHTNESS_MAP.map(l => colorObject.set("hsl.l", l))
+    .map(c => chroma(c))
+    .map((c, i) => {
+      const saturationDelta =
+        SATURATION_MAP[i] - SATURATION_MAP[baseColorIndex];
+      return saturationDelta >= 0
+        ? c.saturate(saturationDelta)
+        : c.desaturate(saturationDelta * -1);
+    });
+
+  colors[baseColorIndex] = chroma(color);
+
+  return colors.map(c => c.hex()) as unknown as MantineColorsTuple;
 }
 
 /**
@@ -178,9 +181,7 @@ const App: React.FC = () => {
       // A brown-like color for the primary color
       compsocMain: calculateShades("#b89c7c"),
       // Various tones of gray for miscellaneous elements
-      compsocGray: new Array(10).fill(
-        "rgb(144, 146, 150)",
-      ) as unknown as MantineColorsTuple,
+      compsocGray: calculateShades("#909296"),
     },
     defaultRadius: "md",
     primaryColor: "compsocMain",
@@ -197,6 +198,7 @@ const App: React.FC = () => {
   compsocTheme.components = {
     Badge: {
       defaultProps: {
+        color: "compsocGray",
         variant: "light",
       },
     },
