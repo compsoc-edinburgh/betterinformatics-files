@@ -51,7 +51,6 @@ import {
 } from "./components/Navbar/constants";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
-import ChangelogNotifier from "./components/ChangelogNotifier";
 import FlaggedContent from "./pages/flagged-content";
 import { FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
@@ -312,7 +311,6 @@ const App: React.FC = () => {
                   title={"File Collection"}
                 />
                 <AnnouncementHeader />
-                <ChangelogNotifier />
                 <Box component="main" mt="2em">
                   <TelemetryRoutes>
                     <Route path="*" element={<NotFoundPage />} />

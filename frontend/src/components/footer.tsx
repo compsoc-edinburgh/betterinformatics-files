@@ -14,6 +14,7 @@ import {
 import { useLocalStorageState } from "ahooks";
 import { IconHeartFilled } from "@tabler/icons-react";
 import { NavItem, globalNav, translate } from "./Navbar/GlobalNav";
+import { latestVersion } from "../utils/changelog";
 
 interface FooterProps {
   logo: string;
@@ -105,6 +106,14 @@ const Footer: React.FC<FooterProps> = ({
               >
                 CompSoc
               </Anchor>
+              <br />
+            </Text>
+            <Text size="xs" c="gray.5" mt="md">
+              Version {latestVersion} (
+              <Anchor href="/changelog" c="blue.4">
+                see changelog
+              </Anchor>
+              )
             </Text>
           </Flex>
           <Group align="start">
