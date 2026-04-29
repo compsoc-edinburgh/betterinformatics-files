@@ -2,6 +2,11 @@
 
 All changes to this project are documented in this file.
 
+## v2026.04.edi1
+
+- Fixed visual regressions from previous version
+- Added last edit time of documents in the course page (by user request)
+
 ## v2026.04.edi0 (Based on upstream v2026.04.p0)
 
 - Merged all changes from upstream up to v2026.04.p0. See below for changelog  (#86).
