@@ -5,6 +5,7 @@ import { Anchor, Badge, Card, Flex, Group, Text } from "@mantine/core";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import clsx from "clsx";
 import classes from "../utils/focus-outline.module.css";
+import { formatDistanceToNow } from "date-fns";
 
 interface DocumentCardProps {
   document: Document;
@@ -15,6 +16,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
   document,
   showCategory,
 }) => {
+  const lastUpdated = document.edittime ?? document.time;
   return (
     <Card
       withBorder
@@ -29,7 +31,13 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
       <Text size="lg" lineClamp={3}>
         {document.display_name}
       </Text>
-      <Group justify="space-between" mt="sm">
+
+      {lastUpdated && (
+        <Text c="dimmed" component="span" size="xs">
+          Last updated {formatDistanceToNow(new Date(lastUpdated))} ago
+        </Text>
+      )}
+      <Group justify="space-between" mt="xs">
         {document.anonymised ? (
           <Text c="dimmed">Anonymous</Text>
         ) : (

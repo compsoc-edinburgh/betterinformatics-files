@@ -11,7 +11,6 @@ import {
   Text,
   Tabs,
   Box,
-  Tooltip,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
@@ -30,7 +29,7 @@ import DocumentSettings from "../components/document-settings";
 import { useDocumentDownload } from "../hooks/useDocumentDownload";
 import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
-import { differenceInSeconds, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import {
   IconChevronRight,
   IconDownload,
@@ -135,6 +134,8 @@ const DocumentPage: React.FC<Props> = () => {
     return `${file.display_name}.${ext}`;
   }
 
+  const lastEdited = data?.edittime ?? data?.time;
+
   return (
     <>
       <Container size="xl">
@@ -221,24 +222,14 @@ const DocumentPage: React.FC<Props> = () => {
                     </Text>
                   </Anchor>
                 )}
-              {differenceInSeconds(
-                new Date(data.edittime),
-                new Date(data.time),
-              ) > 1 && (
+              {lastEdited && (
                 <>
                   <Text c="dimmed" mx={6} component="span">
                     ·
                   </Text>
-                  <Tooltip
-                    withArrow
-                    withinPortal
-                    label={`Created ${formatDistanceToNow(new Date(data.time))} ago`}
-                    disabled={data.time === null}
-                  >
-                    <Text c="dimmed" component="span">
-                      updated {formatDistanceToNow(new Date(data.edittime))} ago
-                    </Text>
-                  </Tooltip>
+                  <Text c="dimmed" component="span">
+                    Last updated {formatDistanceToNow(new Date(lastEdited))} ago
+                  </Text>
                 </>
               )}
             </Group>
