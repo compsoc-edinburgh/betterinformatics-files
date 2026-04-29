@@ -30,19 +30,22 @@ interface Props {
 const pluralize = (count: number, noun: string) =>
   `${count} ${noun}${count !== 1 ? "s" : ""}`;
 
-const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle: refresh }) => {
+const CategoryCard: React.FC<Props> = ({
+  category,
+  className,
+  onFavouriteToggle: refresh,
+}) => {
   const navigate = useNavigate();
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.code === "Enter") {
-      if (!authenticated())
-        navigate(`/login/?rd=/category/${category.slug}`);
+      if (!authenticated()) navigate(`/login/?rd=/category/${category.slug}`);
       else navigate(`/category/${category.slug}`);
     }
   };
 
   // Find a secondary text color to use based on the current color scheme, for
   // the document count, exam count, and answer progress.
-  const computedColorScheme = useComputedColorScheme('light');
+  const computedColorScheme = useComputedColorScheme("light");
   const subTextColor = computedColorScheme === "light" ? "gray.8" : "gray.5";
 
   const [favouriteLoading, add] = useMutation(addNewFavourite, res => {
@@ -69,7 +72,7 @@ const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle:
     } else {
       add(category.slug);
     }
-  }
+  };
 
   return (
     <Card
@@ -78,7 +81,9 @@ const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle:
       onClick={e => {
         if (!authenticated()) {
           e.preventDefault();
-          navigate(`/login/?rd=${encodeURIComponent(`/category/${category.slug}`)}`);
+          navigate(
+            `/login/?rd=${encodeURIComponent(`/category/${category.slug}`)}`,
+          );
         }
       }}
       withBorder
@@ -94,7 +99,14 @@ const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle:
           visible={true}
           // Default zIndex is too high (it'll draw over navbar), so lower it
           zIndex={1}
-          loaderProps={{ children: <IconLock style={{ height: "1.5rem", width: "1.5rem" }} aria-label="Locked" /> }}
+          loaderProps={{
+            children: (
+              <IconLock
+                style={{ height: "1.5rem", width: "1.5rem" }}
+                aria-label="Locked"
+              />
+            ),
+          }}
         />
       )}
       <Stack h="100%" justify="space-between">
@@ -112,10 +124,16 @@ const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle:
                 ? highlight(category.displayname, category.match)
                 : category.displayname}
             </Text>
-            <ActionIcon onClick={toggleFavourite} variant="subtle">
-              {category.favourite
-                ? <IconHeartFilled aria-label="Favourite" />
-                : <IconHeart aria-label="Favourite" />}
+            <ActionIcon
+              onClick={toggleFavourite}
+              variant="subtle"
+              c="compsocMain.7"
+            >
+              {category.favourite ? (
+                <IconHeartFilled aria-label="Favourite" />
+              ) : (
+                <IconHeart aria-label="Favourite" />
+              )}
             </ActionIcon>
           </Flex>
           <Text mt={4} c={subTextColor}>
@@ -129,7 +147,9 @@ const CategoryCard: React.FC<Props> = ({ category, className, onFavouriteToggle:
             community
           </Text>
         </div>
-        <Tooltip label={`${((category.answerprogress * 100) | 0).toString()} %`}>
+        <Tooltip
+          label={`${((category.answerprogress * 100) | 0).toString()} %`}
+        >
           <Progress radius={0} value={category.answerprogress * 100} />
         </Tooltip>
       </Stack>
