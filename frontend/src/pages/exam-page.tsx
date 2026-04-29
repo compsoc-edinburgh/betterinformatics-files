@@ -403,6 +403,7 @@ const ExamPageContent: React.FC<ExamPageContentProps> = ({
 
           <Center>
             <Button
+              display={width && sections && renderer ? "block" : "none"}
               leftSection={metaData.user_solved && <IconCheck />}
               onClick={toggleExamUserSolved}
               color={metaData.user_solved ? "grape" : "gray"}
