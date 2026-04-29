@@ -80,7 +80,11 @@ const AddButton: React.FC<AddButtonProps> = ({
     return (
       <Menu opened={isOpen} withinPortal onChange={toggle}>
         <Menu.Target>
-          <ShimmerButton rightSection={<IconChevronDown />}>
+          <ShimmerButton
+            rightSection={<IconChevronDown />}
+            variant="filled"
+            color="black"
+          >
             Add Answer
           </ShimmerButton>
         </Menu.Target>
@@ -109,6 +113,8 @@ const AddButton: React.FC<AddButtonProps> = ({
       <Group grow>
         {allowAnswer && (
           <ShimmerButton
+            variant="filled"
+            color="black"
             size="sm"
             onClick={onAnswer}
             disabled={draftType === AnswerKind.Personal}
@@ -118,6 +124,8 @@ const AddButton: React.FC<AddButtonProps> = ({
         )}
         {allowOfficialAnswer && (
           <ShimmerButton
+            variant="filled"
+            color="black"
             size="sm"
             onClick={onOfficialAnswer}
             disabled={draftType === AnswerKind.Official}
