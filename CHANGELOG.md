@@ -2,6 +2,10 @@
 
 All changes to this project are documented in this file.
 
+## v2026.04.edi2
+
+- Fixed labels overlapping in grade stats graphs (#94)
+
 ## v2026.04.edi1
 
 - Fixed visual regressions from previous version
