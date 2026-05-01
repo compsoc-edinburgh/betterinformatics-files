@@ -12,6 +12,8 @@ import {
 import { LineChart } from "@mantine/charts";
 import { useCourseStats } from "../api/hooks";
 import { CourseStats } from "../interfaces";
+import { LabelProps } from "recharts";
+import { LabelPosition } from "recharts/types/component/Label";
 
 interface CategoryStatsProps {
   slug: string;
@@ -85,7 +87,16 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     });
 
     // Generate reference lines for course organiser changes
-    const refLines: Array<{ x: string; label: string; color: string }> = [];
+    const refLines: Array<{ x: string; label: LabelProps; color: string }> = [];
+
+    const makeLabel = (text: string,position:LabelPosition): LabelProps => ({
+      value: text,
+      angle :-30,
+      position: position,
+      style: {
+      fontWeight: 700,
+      },
+     });
 
     codes.forEach(code => {
       const courseStats = stats
@@ -107,7 +118,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
 
         refLines.push({
           x: firstStat.academic_year,
-          label: initialLabel,
+          label: makeLabel(initialLabel,"insideBottomLeft"),
           color: initialColor,
         });
       }
@@ -130,10 +141,9 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
 
           refLines.push({
             x: stat.academic_year,
-            label: changeLabel,
+            label: makeLabel(changeLabel,isLastYear ? "left" : "right"),
             color: changeColor,
-            labelPosition: isLastYear ? "left" : "right",
-          } as any); // Use 'as any' to bypass TypeScript check since this property works
+          });
         }
         previousOrganiser = stat.course_organiser;
       });
