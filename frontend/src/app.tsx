@@ -31,9 +31,9 @@ import FeedbackPage from "./pages/feedback-page";
 import HomePage from "./pages/home-page";
 import LoginPage from "./pages/login-page";
 import ModQueue from "./pages/modqueue-page";
-import UploadDissertationPage from "./pages/UploadDissertationPage";
-import DissertationListPage from "./pages/DissertationListPage";
-import DissertationDetailPage from "./pages/DissertationDetailPage";
+import DissertationUploadPage from "./pages/dissertation-upload-page";
+import DissertationListPage from "./pages/dissertation-list-page";
+import DissertationDetailPage from "./pages/dissertation-detail-page";
 import NotFoundPage from "./pages/not-found-page";
 import PrivacyPolicyPage from "./pages/privacypolicy-page";
 import Scoreboard from "./pages/scoreboard-page";
@@ -322,14 +322,14 @@ const App: React.FC = () => {
                       <Route path="/uploadpdf" element={<UploadPdfPage />} />
                       <Route
                         path="/upload-dissertation"
-                        element={<UploadDissertationPage />}
+                        element={<DissertationUploadPage />}
                       />
                       <Route
                         path="/dissertations"
                         element={<DissertationListPage />}
                       />
                       <Route
-                        path="/dissertations/:id"
+                        path="/dissertations/:id/*"
                         element={<DissertationDetailPage />}
                       />
                       <Route path="/faq" element={<FAQ />} />

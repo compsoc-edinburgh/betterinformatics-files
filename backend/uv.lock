@@ -273,6 +273,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "boto3" },
+    { name = "defusedxml" },
     { name = "django" },
     { name = "django-csp" },
     { name = "django-ninja" },
@@ -286,6 +287,7 @@ dependencies = [
     { name = "opentelemetry-instrumentation-django" },
     { name = "opentelemetry-instrumentation-psycopg2" },
     { name = "opentelemetry-sdk" },
+    { name = "pdfrw" },
     { name = "psycogreen" },
     { name = "psycopg2-binary" },
     { name = "pyjwt", extra = ["crypto"] },
@@ -307,6 +309,7 @@ dev = [
 requires-dist = [
     { name = "beautifulsoup4", specifier = "==4.9.3" },
     { name = "boto3", specifier = "==1.17.112" },
+    { name = "defusedxml", specifier = ">=0.7.1" },
     { name = "django", specifier = "==4.1.13" },
     { name = "django-csp", specifier = "==3.7" },
     { name = "django-ninja", specifier = ">=1.5.3" },
@@ -320,6 +323,7 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-django", specifier = "==0.57b0" },
     { name = "opentelemetry-instrumentation-psycopg2", specifier = "==0.57b0" },
     { name = "opentelemetry-sdk", specifier = "==1.36.0" },
+    { name = "pdfrw", specifier = ">=0.4" },
     { name = "psycogreen", specifier = "==1.0.2" },
     { name = "psycopg2-binary", specifier = "==2.9.11" },
     { name = "pyjwt", extras = ["crypto"], specifier = "==2.8.0" },
@@ -400,6 +404,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/99/55/181022996c4063fc0e7666a47049a1ca705abb9c8a13830f074edb347495/cryptography-46.0.3-pp311-pypy311_pp73-manylinux_2_34_aarch64.whl", hash = "sha256:9394673a9f4de09e28b5356e7fff97d778f8abad85c9d5ac4a4b7e25a0de7717", size = 4242957, upload-time = "2025-10-15T23:18:22.18Z" },
     { url = "https://files.pythonhosted.org/packages/ba/af/72cd6ef29f9c5f731251acadaeb821559fe25f10852f44a63374c9ca08c1/cryptography-46.0.3-pp311-pypy311_pp73-manylinux_2_34_x86_64.whl", hash = "sha256:94cd0549accc38d1494e1f8de71eca837d0509d0d44bf11d158524b0e12cebf9", size = 4409447, upload-time = "2025-10-15T23:18:24.209Z" },
     { url = "https://files.pythonhosted.org/packages/0d/c3/e90f4a4feae6410f914f8ebac129b9ae7a8c92eb60a638012dde42030a9d/cryptography-46.0.3-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:6b5063083824e5509fdba180721d55909ffacccc8adbec85268b48439423d78c", size = 3438528, upload-time = "2025-10-15T23:18:26.227Z" },
+]
+
+[[package]]
+name = "defusedxml"
+version = "0.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69", size = 75520, upload-time = "2021-03-08T10:59:26.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61", size = 25604, upload-time = "2021-03-08T10:59:24.45Z" },
 ]
 
 [[package]]
@@ -1057,6 +1070,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/fa/36/e27608899f9b8d4dff0617b2d9ab17ca5608956ca44461ac14ac48b44015/pathspec-1.0.4.tar.gz", hash = "sha256:0210e2ae8a21a9137c0d470578cb0e595af87edaa6ebf12ff176f14a02e0e645", size = 131200, upload-time = "2026-01-27T03:59:46.938Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ef/3c/2c197d226f9ea224a9ab8d197933f9da0ae0aac5b6e0f884e2b8d9c8e9f7/pathspec-1.0.4-py3-none-any.whl", hash = "sha256:fb6ae2fd4e7c921a165808a552060e722767cfa526f99ca5156ed2ce45a5c723", size = 55206, upload-time = "2026-01-27T03:59:45.137Z" },
+]
+
+[[package]]
+name = "pdfrw"
+version = "0.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/61/96/cbde98b96115d10694010e584d00d39f7b97905e1c8303e6ffbb84080e6a/pdfrw-0.4.tar.gz", hash = "sha256:0dc0494a0e6561b268542b28ede2280387c2728114f117d3bb5d8e4787b93ef4", size = 95402, upload-time = "2017-09-18T10:08:02.44Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/84/af442c4458756bb0c0d2424102d1200616f3ff9b82c48aaa130e08549bf6/pdfrw-0.4-py2.py3-none-any.whl", hash = "sha256:758289edaa3b672e9a1a67504be73c18ec668d4e5b9d5ac9cbc0dc753d8d196b", size = 69460, upload-time = "2017-09-18T10:08:10.732Z" },
 ]
 
 [[package]]
