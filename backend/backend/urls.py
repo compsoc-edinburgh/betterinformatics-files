@@ -78,14 +78,11 @@ handler400 = views.handler400
 handler403 = views.handler403
 handler404 = views.handler404
 handler500 = views.handler500
-<<<<<<< HEAD
 
 
 @api.exception_handler(Http404)
-def validation_errors(request, exc):
+def not_found_errors(request, exc):
     return views.handler404(request, exc)
-||||||| parent of 948fa2a7 (Fix Django Ninija validation errors not conforming to .err standard across ComSol)
-=======
 
 
 @api.exception_handler(ValidationError)
@@ -101,4 +98,3 @@ def validation_errors(request, exc: ValidationError):
         error += f"{loc} {msg}. "
 
     return JsonResponse({"err": error}, status=422)
->>>>>>> 948fa2a7 (Fix Django Ninija validation errors not conforming to .err standard across ComSol)
