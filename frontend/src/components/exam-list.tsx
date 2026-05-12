@@ -133,7 +133,7 @@ const ExamList: React.FC<ExamListProps> = ({ metaData }) => {
           ),
       )}
       {viewableExams?.length === 0 && (
-        <Alert variant="light" color="orange">
+        <Alert variant="light" color="compsocMain">
           No exams available to view.
         </Alert>
       )}

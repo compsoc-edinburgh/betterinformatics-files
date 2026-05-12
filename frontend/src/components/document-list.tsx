@@ -102,7 +102,7 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
           </React.Fragment>
         ))}
       {sortedDocs && sortedDocs.length === 0 && (
-        <Alert variant="light" color="orange">
+        <Alert variant="light" color="compsocMain">
           No community documents yet. Upload your own to share! Cheatsheets,
           study notes, code implementations of algorithms, Anki decks, and more
           are all welcome.

@@ -1,12 +1,11 @@
 from datetime import timedelta as delta
 from datetime import datetime as dt
 from django.utils import timezone
-from django.conf import settings
-from django.db.models.expressions import F    
 from django.contrib.auth.models import User
 from io import BytesIO
 
 from django.http.multipartparser import MultiPartParser
+
 
 def last_user_activity_middleware(get_response):
     KEY = "last-activity"
@@ -22,10 +21,12 @@ def last_user_activity_middleware(get_response):
                 # If key is old enough, update database.
                 too_old_time = timezone.now() - delta(seconds=3600)
                 if not last_activity or last_activity < too_old_time:
-                    User.objects.filter(id=request.user.id).update(last_login=timezone.now())
+                    User.objects.filter(id=request.user.id).update(
+                        last_login=timezone.now()
+                    )
 
                 request.session[KEY] = timezone.now().isoformat()
-            
+
         response = get_response(request)
 
         return response
@@ -37,11 +38,13 @@ def parse_request_middleware(get_response):
     def middleware(request):
         if request.method == "PUT" or request.method == "PATCH":
             try:
-                parser = MultiPartParser(
-                    request.META, BytesIO(request.body), request.upload_handlers
-                )
-                request.DATA, files = parser.parse()
-                request.FILES.update(files)
+                # Request.POST and FILES has been populated by Django Ninja's
+                # middleware to behave like normal POST requests:
+                # https://github.com/vitalik/django-ninja/blob/master/ninja/compatibility/files.py
+                #
+                # We copy these data into .DATA so that non-Ninja views can
+                # access them in the same way too.
+                request.DATA = request.POST
             except Exception as e:
                 import traceback
 

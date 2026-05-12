@@ -156,7 +156,7 @@ def list_exams(request, slug):
     return response.success(value=res)
 
 
-def get_category_data(request, cat):
+def get_category_data(request, cat: Category):
     res = {
         "displayname": cat.displayname,
         "slug": cat.slug,
@@ -184,6 +184,7 @@ def get_category_data(request, cat):
             ],
             key=lambda x: x["displayname"],
         ),
+        "relevant_dissertation_count": cat.relevant_dissertations.count(),
     }
     if auth_check.has_admin_rights_for_category(request, cat):
         res["admins"] = list(cat.admins.all().values_list("username", flat=True))

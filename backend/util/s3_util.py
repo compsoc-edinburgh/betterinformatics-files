@@ -109,6 +109,21 @@ def delete_files(directory: str, filenames):
     return True
 
 
+def delete_files_older_than(directory: str, prefix: str, cutoff_time):
+    try:
+        objects_to_delete = []
+        for obj in s3_bucket.objects.filter(Prefix=directory + prefix):
+            if obj.last_modified < cutoff_time:
+                objects_to_delete.append({"Key": obj.key})
+        if objects_to_delete:
+            s3_client.delete_objects(
+                Bucket=s3_bucket_name, Delete={"Objects": objects_to_delete}
+            )
+    except ClientError:
+        return False
+    return True
+
+
 def save_file(directory: str, filename: str, destination: str):
     try:
         s3_bucket.download_file(directory + filename, destination)
