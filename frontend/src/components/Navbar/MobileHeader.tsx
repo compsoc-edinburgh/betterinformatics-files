@@ -56,7 +56,7 @@ const BottomHeader: React.FC<Props> = ({
         />
       </Group>
       {opened ? (
-        <Stack align="flex-start" gap="sm" py="xs">
+        <Stack align="flex-start" gap="xs" py="xs">
           {translate(appNav, selectedLanguage).map((item, i) => {
             return (
               <div key={i} onClick={() => setOpened(false)}>
