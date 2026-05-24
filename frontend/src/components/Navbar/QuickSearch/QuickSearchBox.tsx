@@ -19,6 +19,8 @@ import {
   Divider,
   Stack,
   Loader,
+  Space,
+  UnstyledButton,
 } from "@mantine/core";
 import {
   getHotkeyHandler,
@@ -110,7 +112,7 @@ export const QuickSearchBox: React.FC = () => {
   const categoryResults = useSearch(
     // Disable category results (with an empty data list) if we're already
     // searching in a single category
-    isGlobal ? categories.data ?? [] : [],
+    isGlobal ? (categories.data ?? []) : [],
     searchQuery,
     // We only really want to show almost-perfect matches for this component.
     // So the max error score we allow is 4 -- this value was found by trial and
@@ -269,13 +271,21 @@ export const QuickSearchBox: React.FC = () => {
 
   return (
     <>
-      <Button className={classes.navButton} px="md" onClick={openWithHighlight}>
+      <UnstyledButton
+        className={classes.navButton}
+        px="xs"
+        onClick={openWithHighlight}
+        size="xs"
+      >
         <Group wrap="nowrap">
           <IconSearch />
-          <span>Search</span>
-          <Kbd>{os === "macos" ? "⌘" : "Ctrl +"} K</Kbd>
+          <Text size="md">Search...</Text>
+          <Space w="md" />
+          <Kbd size="xs" bd="none">
+            {os === "macos" ? "⌘" : "Ctrl +"} K
+          </Kbd>
         </Group>
-      </Button>
+      </UnstyledButton>
       <Modal
         size="82.5rem"
         opened={opened}
@@ -284,7 +294,7 @@ export const QuickSearchBox: React.FC = () => {
         fullScreen={isMobile}
         transitionProps={{
           transition: "pop",
-          duration: 100,
+          duration: 0,
           timingFunction: "cubic-bezier(0.5, 1, 0.89, 1)", // easeOutQuad
         }}
         // The height of top nav

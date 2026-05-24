@@ -1,11 +1,23 @@
 .navButton {
-  background: var(--mantine-color-gray-light);
+  background: var(--mantine-color-default);
   overflow: visible;
-  color: var(--mantine-color-text);
+  color: var(--mantine-color-placeholder);
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  cursor: text;
 
-  &:hover {
+  margin-bottom: -2px;
+  height: calc(100% - var(--mantine-spacing-xs));
+  border-radius: var(--mantine-radius-md);
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--mantine-color-default-border);
+  box-sizing: border-box;
+
+  &:active {
+    border: 1px solid var(--mantine-primary-color-filled);
     background: var(--mantine-color-gray-light-hover);
-    color: var(--mantine-color-text);
   }
 }
 
