@@ -1,9 +1,9 @@
 .placeholder {
-  height: 3.5rem;
+  height: 2.5rem;
 }
 
 .navbar {
-  height: 3.5rem;
+  height: 2.5rem;
   box-sizing: border-box;
   border-bottom: 2px solid var(--mantine-color-gray-2);
   color: var(--mantine-color-anchor);
@@ -25,13 +25,12 @@
 .container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: nowrap;
   height: 100%;
 }
 
 .logo {
-  height: 2rem;
+  height: 1.5rem;
   padding-right: 1.25rem;
 }
 
