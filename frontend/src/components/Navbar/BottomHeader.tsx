@@ -56,10 +56,11 @@ const BottomHeader: React.FC<Props> = ({
                   mobile={false}
                   isExternal={false}
                   key={i}
+                  titleClassName={classes.navItem}
                 />
               );
             })}
-            <QuickSearchBox/>
+            <QuickSearchBox />
             {loginButton}
           </Group>
           <ColorSchemeToggle />

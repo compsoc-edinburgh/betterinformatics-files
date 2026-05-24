@@ -5,7 +5,6 @@
   display: initial;
   cursor: pointer;
   font-size: 1rem;
-  line-height: 2.5rem;
   white-space: nowrap;
   font-weight: 500;
   /* don't use mantine-color-anchor (applied to all Anchor elements) but instead
@@ -13,30 +12,17 @@
    * mode even on dark background
    */
   color: inherit;
-  opacity: 0.8;
   height: 100%;
   display: flex;
   align-items: center;
   box-sizing: border-box;
   border: solid 2px transparent;
-  padding-bottom: 2px;
-  margin-bottom: -2px;
-  padding-inline: 0.25rem;
   flex: 0;
   /* transition: border-bottom 0.1s linear, opacity 0.1s linear; */
 
   @media (max-width: $mantine-breakpoint-md) {
     text-align: left;
     display: block;
-  }
-
-  &:hover {
-    opacity: 1;
-    border-bottom: solid 2px var(--mantine-primary-color-filled);
-  }
-
-  &:global(.active) {
-    border-bottom: solid 2px var(--mantine-primary-color-filled);
   }
 }
 

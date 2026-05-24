@@ -41,3 +41,24 @@
   font-size: 1.25rem;
   color: inherit; /* don't try to apply default mantine link styles */
 }
+
+.navItem {
+  /** Non-Mobile-specific styles. For common styles between MobileHeader and
+   * BottomHeader, put it in ExternalNav.module.css.
+   */
+
+  line-height: 2.5rem;
+  padding-bottom: 2px;
+  margin-bottom: -2px;
+  padding-inline: 0.25rem;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+    border-bottom: solid 2px var(--mantine-primary-color-filled);
+  }
+
+  &:global(.active) {
+    border-bottom: solid 2px var(--mantine-primary-color-filled);
+  }
+}
