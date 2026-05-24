@@ -240,7 +240,7 @@ const App: React.FC = () => {
   ];
 
   const bottomHeaderNav = [
-    { title: "Home", href: "/" },
+    { title: "Courses", href: "/" },
     { title: "Dissertations", href: "/dissertations" },
     {
       title: "More",
