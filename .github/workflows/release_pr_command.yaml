@@ -1,0 +1,158 @@
+name: Handle /release command
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  handle_release_command:
+    name: Handle /release command
+    runs-on: ubuntu-24.04
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/release ') &&
+      (github.event.comment.author_association == 'OWNER' ||
+       github.event.comment.author_association == 'MEMBER' ||
+       github.event.comment.author_association == 'COLLABORATOR')
+    steps:
+      - name: Parse release name from comment
+        id: parse
+        run: |
+          body="${{ github.event.comment.body }}"
+          release_name=$(echo "$body" | grep -oP '^/release \K\S+' | head -n1)
+          if [[ -z "$release_name" ]]; then
+            echo "No release name found in comment, exiting."
+            exit 1
+          fi
+          echo "release_name=$release_name" >> "$GITHUB_OUTPUT"
+
+      - name: Verify this is the next-release PR
+        id: verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_json=$(gh pr view ${{ github.event.issue.number }} \
+            --repo ${{ github.repository }} \
+            --json headRefName,baseRefName)
+          pr_head=$(echo "$pr_json" | jq -r '.headRefName')
+          base_branch=$(echo "$pr_json" | jq -r '.baseRefName')
+          if [[ "$pr_head" != "next-release" ]]; then
+            echo "This PR is not the next-release PR, exiting."
+            exit 1
+          fi
+          echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Mark PR as ready and set title
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr ready ${{ github.event.issue.number }} \
+            --repo ${{ github.repository }}
+
+          gh pr edit ${{ github.event.issue.number }} \
+            --repo ${{ github.repository }} \
+            --title "Release: ${{ steps.parse.outputs.release_name }}"
+
+      - name: Checkout next-release branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: next-release
+
+      - name: Generate changelog for explicit version
+        id: changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release_name="${{ steps.parse.outputs.release_name }}"
+          base_branch="${{ steps.verify.outputs.base_branch }}"
+
+          git fetch origin "$base_branch":"$base_branch"
+          git reset --hard "origin/$base_branch"
+
+          latest=$(git tag --sort=-version:refname | grep '^v' | head -n1 || true)
+          if [[ -z "$latest" ]]; then
+            echo "No previous tag found."
+            exit 1
+          fi
+
+          # ----------------------------
+          # !! When changing commands here they should also be changed in the
+          # release_pr_creator workflow
+          # ----------------------------
+          docker run --rm -v "$PWD":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator \
+            -u ${{ github.repository_owner }} \
+            -p ${{ github.event.repository.name }} \
+            -t ${{ secrets.GITHUB_TOKEN }} \
+            --since-tag "$latest" \
+            --no-compare-link \
+            --no-author \
+            --pr-label "" \
+            --future "$release_name" \
+            --base CHANGELOG.md
+
+          docker run --rm -v "$PWD":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator \
+            -u ${{ github.repository_owner }} \
+            -p ${{ github.event.repository.name }} \
+            -t ${{ secrets.GITHUB_TOKEN }} \
+            --since-tag "$latest" \
+            --no-compare-link \
+            --no-author \
+            --pr-label "" \
+            --future "$release_name" \
+            --output ONLY_NEW.md
+
+          # Remove footers (last 3 lines)
+          head -n -3 CHANGELOG.md > temp.txt
+          mv temp.txt CHANGELOG.md
+          head -n -3 ONLY_NEW.md > temp.txt
+          mv temp.txt ONLY_NEW.md
+
+          # Remove links (## [abc](..) -> abc) from the headers
+          # This is not customisable in github-changelog-generator
+          sed -i 's/## \[\(.*\)\](.*)/## \1/g' CHANGELOG.md
+          sed -i 's/## \[\(.*\)\](.*)/## \1/g' ONLY_NEW.md
+
+          # Add paranthesis around issue/PR links
+          sed -i 's/\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' CHANGELOG.md
+          sed -i 's/\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' ONLY_NEW.md
+
+          echo "raw_new<<EOF" >> "$GITHUB_OUTPUT"
+          cat ONLY_NEW.md >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Commit changelog update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No changelog changes to commit."
+          else
+            git commit -m "Update changelog for release ${{ steps.parse.outputs.release_name }}"
+            git push --force origin HEAD:next-release
+          fi
+
+      - name: Update PR body with changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          raw_body="${{ steps.changelog.outputs.raw_new }}"
+          printf '%s\n' '<table>' '<tbody>' '<tr>' '<td>' '' "$raw_body" '' '</td>' '</tr>' '</tbody>' '</table>' '' 'This PR auto-rebases when the master branch ref is updated.' '' 'Comment "/release v<version number>" when it is time to release the next version.' 'This will mark the PR as Ready and regenerate the changelog with the specified version. (Note that this will overwrite any manual commits.)' 'Finally, squash-merge this PR to create the release.' > pr-body.txt
+
+          gh pr edit ${{ github.event.issue.number }} \
+            --repo ${{ github.repository }} \
+            --body-file pr-body.txt
+
+      - name: Post instructions comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          release_name="${{ steps.parse.outputs.release_name }}"
+          gh pr comment ${{ github.event.issue.number }} \
+            --repo ${{ github.repository }} \
+            --body "$(printf 'Next release set as %s.\n\nMake any additional changes to the changelog manually, then squash-merge.' "$release_name")"

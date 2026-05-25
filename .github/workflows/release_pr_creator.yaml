@@ -1,0 +1,253 @@
+name: Prepare next release
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*' ]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  determine_base_branch:
+    # We need to find out which branch a tag was created on.
+    # Only tags made on the master branch should get a new changelog PR.
+    name: Determine base branch for tag
+    runs-on: ubuntu-24.04
+    if: startsWith(github.ref, 'refs/tags/')
+    outputs:
+      base_branch: ${{ steps.base_branch.outputs.branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get base branch
+        id: base_branch
+        run: |
+          branch_name=`git for-each-ref | grep ^$GITHUB_SHA | grep origin | grep -v HEAD | head -n1 | sed "s/.*\///"`
+          echo "branch=$branch_name" >> "$GITHUB_OUTPUT"
+
+  check_changelog_pr:
+    # For commits on master (not tags!), look up if they were from a merged
+    # changelog PR. This will be used to tag the commit, so that this same
+    # workflow will be triggered again with the tag ref. The second run will
+    # then create a new changelog PR if necessary.
+    name: Check if push is a merged changelog PR
+    runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/master'
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: Look up merged PR
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for i in {1..2}; do
+            title=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls \
+              --jq '.[] | select(.head.ref == "next-release" and .merged_at != null) | .title')
+            [[ -n "$title" ]] && break
+            sleep 5
+          done
+          echo "title=$title"
+          if [[ "$title" =~ ^Release:\ (v.*)$ ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+            echo "version=${BASH_REMATCH[1]}"
+          fi
+
+  update_release_pr:
+    # Create or update the next release PR if:
+    # - This is a push to master unrelated to a changelog PR
+    # - This is a new tag on master, which should trigger a new PR
+    # Technically the first should be update and the second should be create,
+    # but allowing both to be create-or-update simplifies initial setup and
+    # race conditions.
+    name: Create or update next release PR
+    runs-on: ubuntu-24.04
+    needs: [determine_base_branch, check_changelog_pr]
+    if: |
+      !failure() && !cancelled() && (
+        (github.ref == 'refs/heads/master' && needs.check_changelog_pr.outputs.version == '') ||
+        (startsWith(github.ref, 'refs/tags/') && needs.determine_base_branch.outputs.base_branch == 'master')
+      )
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve since-tag and base branch
+        id: context
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "since_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "base_branch=${{ needs.determine_base_branch.outputs.base_branch }}" >> "$GITHUB_OUTPUT"
+          else
+            latest=$(git tag --sort=-version:refname | grep '^v' | head -n1)
+            echo "since_tag=$latest" >> "$GITHUB_OUTPUT"
+            echo "base_branch=master" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for existing PR title
+        id: existing_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing_title=$(gh pr list \
+            --head next-release \
+            --base ${{ steps.context.outputs.base_branch }} \
+            --json title \
+            --jq '.[0].title // empty')
+
+          if [[ "$existing_title" =~ ^Release:\ (v.*)$ ]]; then
+            version="${BASH_REMATCH[1]}"
+            echo "title=$existing_title" >> "$GITHUB_OUTPUT"
+            echo "future_tag=$version" >> "$GITHUB_OUTPUT"
+          else
+            echo "title=Release: undecided version" >> "$GITHUB_OUTPUT"
+            echo "future_tag=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create changelog
+        id: changelog
+        run: |
+          future_arg=""
+          if [[ -n "${{ steps.existing_pr.outputs.future_tag }}" ]]; then
+            future_arg="--future ${{ steps.existing_pr.outputs.future_tag }}"
+          fi
+
+          # ----------------------------
+          # !! When changing commands here they should also be changed in the
+          # release_pr_command workflow
+          # ----------------------------
+          docker run --rm -v .:/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator \
+            -u ${{ github.repository_owner }} \
+            -p ${{ github.event.repository.name }} \
+            -t ${{ secrets.GITHUB_TOKEN }} \
+            --since-tag ${{ steps.context.outputs.since_tag }} \
+            --no-compare-link \
+            --no-author \
+            --pr-label "" \
+            $future_arg \
+            --base CHANGELOG.md
+
+          docker run --rm -v .:/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator \
+            -u ${{ github.repository_owner }} \
+            -p ${{ github.event.repository.name }} \
+            -t ${{ secrets.GITHUB_TOKEN }} \
+            --since-tag ${{ steps.context.outputs.since_tag }} \
+            --no-compare-link \
+            --no-author \
+            --pr-label "" \
+            $future_arg \
+            --output ONLY_NEW.md
+
+          # Remove footers (last 3 lines)
+          head -n -3 CHANGELOG.md > temp.txt
+          mv temp.txt CHANGELOG.md
+          head -n -3 ONLY_NEW.md > temp.txt
+          mv temp.txt ONLY_NEW.md
+
+          # Remove links (## [abc](..) -> abc) from the headers
+          # This is not customisable in github-changelog-generator
+          sed -i 's/## \[\(.*\)\](.*)/## \1/g' CHANGELOG.md
+          sed -i 's/## \[\(.*\)\](.*)/## \1/g' ONLY_NEW.md
+
+          # Add paranthesis around issue/PR links
+          sed -i 's/\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' CHANGELOG.md
+          sed -i 's/\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' ONLY_NEW.md
+
+          {
+            echo 'raw_new<<CI_RAW_CHANGELOG_NEW'
+            cat ONLY_NEW.md
+            echo
+            echo CI_RAW_CHANGELOG_NEW
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create or update pull request
+        id: create_update_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B next-release
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            # Some commit is necessary otherwise GitHub won't allow empty PR
+            git commit --allow-empty -m "Update Changelog for next release"
+          else
+            git commit -m "Update Changelog for next release"
+          fi
+
+          git push --force origin next-release
+
+          cat > pr-body.txt <<'EOF'
+          <table>
+          <tbody>
+          <tr>
+          <td>
+
+          ${{ steps.changelog.outputs.raw_new }}
+
+          </td>
+          </tr>
+          </tbody>
+          </table>
+
+          This PR auto-rebases when the master branch ref is updated.
+
+          Comment `/release v<version number>` when it is time to release the next version.
+          This will mark the PR as Ready and regenerate the changelog with the specified version.
+          (Note that this will overwrite any manual commits.)
+
+          After `/release`, you can manually edit the changelog if necessary.
+          Finally, squash-merge this PR to create the release.
+          EOF
+
+          existing_pr_number=$(gh pr list \
+            --head next-release \
+            --base ${{ steps.context.outputs.base_branch }} \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [[ -n "$existing_pr_number" ]]; then
+            gh pr edit "$existing_pr_number" \
+              --body-file pr-body.txt
+          else
+            gh pr create \
+              --head next-release \
+              --base ${{ steps.context.outputs.base_branch }} \
+              --title "${{ steps.existing_pr.outputs.title }}" \
+              --body-file pr-body.txt \
+              --draft
+          fi
+
+  tag_release:
+    # On merging the changelog PR, tag automatically.
+    name: Tag new release
+    runs-on: ubuntu-24.04
+    needs: [check_changelog_pr]
+    if: |
+      !failure() && !cancelled() && (
+        needs.check_changelog_pr.outputs.version != ''
+      )
+    steps:
+      - name: Checkout repository with SSH
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          # We need to use a custom deploy key, since GITHUB_TOKEN pushing tags
+          # will not re-trigger the tag push workflow (some default recursion
+          # prevention thing). We need to trigger it to create the new changelog
+          # PR and cause a deployment rollout.
+          ssh-key: ${{ secrets.CI_COMMIT_KEY }}
+
+      - name: Push tag over SSH
+        run: |
+          git tag "${{ needs.check_changelog_pr.outputs.version }}" "${{ github.sha }}"
+          git remote set-url origin "git@github.com:${{ github.repository }}.git"
+          git push origin "refs/tags/${{ needs.check_changelog_pr.outputs.version }}"
