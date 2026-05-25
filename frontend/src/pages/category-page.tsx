@@ -285,7 +285,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                   style={{
                     overflowX:
                       "auto" /* Allow scrolling tabs if they overflow */,
-                    overflowY: "hidden",
+                    overflowY: "hidden" /* Hide vertical scrollbars */,
                   }}
                 >
                   {tabs.Component}
