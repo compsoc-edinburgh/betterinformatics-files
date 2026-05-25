@@ -1,7 +1,5 @@
 # Changelog
 
-All changes to this project are documented in this file.
-
 ## v2026.04.edi2
 
 - Fixed labels overlapping in grade stats graphs (#94)
