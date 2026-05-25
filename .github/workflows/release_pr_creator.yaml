@@ -150,12 +150,16 @@ jobs:
           head -n -3 ONLY_NEW.md > temp.txt
           mv temp.txt ONLY_NEW.md
 
+          # Remove top heading and newlines from ONLY_NEW (first 2 lines)
+          tail -n +3 ONLY_NEW.md > temp.txt
+          mv temp.txt ONLY_NEW.md
+
           # Remove links (## [abc](..) -> abc) from the headers
           # This is not customisable in github-changelog-generator
           sed -i 's/## \[\(.*\)\](.*)/## \1/g' CHANGELOG.md
           sed -i 's/## \[\(.*\)\](.*)/## \1/g' ONLY_NEW.md
 
-          # Add paranthesis around issue/PR links
+          # Add parenthesis around issue/PR links
           sed -i 's/[^(]\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' CHANGELOG.md
           sed -i 's/[^(]\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' ONLY_NEW.md
 
@@ -186,19 +190,14 @@ jobs:
           git push --force origin next-release
 
           cat > pr-body.txt <<'EOF'
-          <table>
-          <tbody>
-          <tr>
-          <td>
+          <table><tbody><tr><td>
 
           ${{ steps.changelog.outputs.raw_new }}
 
-          </td>
-          </tr>
-          </tbody>
-          </table>
+          </td></tr></tbody></table>
 
-          This PR auto-rebases when the master branch ref is updated.
+          This PR tracks the upcoming release and keeps an automatically generated
+          changelog for it. It auto-rebases when the master branch ref is updated.
 
           Comment `/release v<version number>` when it is time to release the next version.
           This will mark the PR as Ready and regenerate the changelog with the specified version.
