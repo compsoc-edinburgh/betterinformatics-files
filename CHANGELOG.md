@@ -1,5 +1,10 @@
 # Changelog
 
+## v2026.05.25
+
+- Improve the dissertation feature ([\#85](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/85))
+- CI improvements for automatic releases ([\#96](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/96)) ([\#98](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/98))
+
 ## v2026.04.edi2
 
 - Fixed labels overlapping in grade stats graphs (#94)
