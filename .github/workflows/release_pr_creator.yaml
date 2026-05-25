@@ -150,12 +150,16 @@ jobs:
           head -n -3 ONLY_NEW.md > temp.txt
           mv temp.txt ONLY_NEW.md
 
+          # Remove top heading and newlines from ONLY_NEW (first 2 lines)
+          tail -n +3 ONLY_NEW.md > temp.txt
+          mv temp.txt ONLY_NEW.md
+
           # Remove links (## [abc](..) -> abc) from the headers
           # This is not customisable in github-changelog-generator
           sed -i 's/## \[\(.*\)\](.*)/## \1/g' CHANGELOG.md
           sed -i 's/## \[\(.*\)\](.*)/## \1/g' ONLY_NEW.md
 
-          # Add paranthesis around issue/PR links
+          # Add parenthesis around issue/PR links
           sed -i 's/[^(]\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' CHANGELOG.md
           sed -i 's/[^(]\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' ONLY_NEW.md
 
