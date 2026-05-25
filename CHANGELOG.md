@@ -2,9 +2,8 @@
 
 ## v2026.05.25
 
-- Rewrite changelog to prepare changing version number scheme ([\#98](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/98))
-- Automatic release PR creation ([\#96](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/96))
 - Improve the dissertation feature ([\#85](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/85))
+- CI improvements for automatic releases ([\#96](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/96)) ([\#98](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/98))
 
 ## v2026.04.edi2
 
