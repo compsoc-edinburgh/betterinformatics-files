@@ -1,9 +1,8 @@
+name: Prepare next release
 on:
   push:
-    tags:
-      - v*
-    branches:
-      - master
+    branches: [ master ]
+    tags: [ 'v*' ]
 
 permissions:
   pull-requests: write
@@ -11,6 +10,8 @@ permissions:
 
 jobs:
   determine_base_branch:
+    # We need to find out which branch a tag was created on.
+    # Only tags made on the master branch should get a new changelog PR.
     name: Determine base branch for tag
     runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/')
@@ -29,6 +30,10 @@ jobs:
           echo "branch=$branch_name" >> "$GITHUB_OUTPUT"
 
   check_changelog_pr:
+    # For commits on master (not tags!), look up if they were from a merged
+    # changelog PR. This will be used to tag the commit, so that this same
+    # workflow will be triggered again with the tag ref. The second run will
+    # then create a new changelog PR if necessary.
     name: Check if push is a merged changelog PR
     runs-on: ubuntu-24.04
     if: github.ref == 'refs/heads/master'
@@ -53,6 +58,12 @@ jobs:
           fi
 
   update_release_pr:
+    # Create or update the next release PR if:
+    # - This is a push to master unrelated to a changelog PR
+    # - This is a new tag on master, which should trigger a new PR
+    # Technically the first should be update and the second should be create,
+    # but allowing both to be create-or-update simplifies initial setup and
+    # race conditions.
     name: Create or update next release PR
     runs-on: ubuntu-24.04
     needs: [determine_base_branch, check_changelog_pr]
@@ -107,6 +118,10 @@ jobs:
             future_arg="--future ${{ steps.existing_pr.outputs.future_tag }}"
           fi
 
+          # ----------------------------
+          # !! When changing commands here they should also be changed in the
+          # release_pr_command workflow
+          # ----------------------------
           docker run --rm -v .:/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator \
             -u ${{ github.repository_owner }} \
             -p ${{ github.event.repository.name }} \
@@ -162,6 +177,7 @@ jobs:
           git checkout -B next-release
           git add CHANGELOG.md
           if git diff --cached --quiet; then
+            # Some commit is necessary otherwise GitHub won't allow empty PR
             git commit --allow-empty -m "Update Changelog for next release"
           else
             git commit -m "Update Changelog for next release"
@@ -211,6 +227,7 @@ jobs:
           fi
 
   tag_release:
+    # On merging the changelog PR, tag automatically.
     name: Tag new release
     runs-on: ubuntu-24.04
     needs: [check_changelog_pr]
@@ -223,6 +240,10 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          # We need to use a custom deploy key, since GITHUB_TOKEN pushing tags
+          # will not re-trigger the tag push workflow (some default recursion
+          # prevention thing). We need to trigger it to create the new changelog
+          # PR and cause a deployment rollout.
           ssh-key: ${{ secrets.CI_COMMIT_KEY }}
 
       - name: Push tag over SSH

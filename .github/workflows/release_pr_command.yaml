@@ -1,3 +1,4 @@
+name: Handle /release command
 on:
   issue_comment:
     types: [created]
@@ -78,6 +79,10 @@ jobs:
             exit 1
           fi
 
+          # ----------------------------
+          # !! When changing commands here they should also be changed in the
+          # release_pr_creator workflow
+          # ----------------------------
           docker run --rm -v "$PWD":/usr/local/src/your-app githubchangeloggenerator/github-changelog-generator \
             -u ${{ github.repository_owner }} \
             -p ${{ github.event.repository.name }} \
