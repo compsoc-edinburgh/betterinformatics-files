@@ -186,19 +186,14 @@ jobs:
           git push --force origin next-release
 
           cat > pr-body.txt <<'EOF'
-          <table>
-          <tbody>
-          <tr>
-          <td>
+          <table><tbody><tr><td>
 
           ${{ steps.changelog.outputs.raw_new }}
 
-          </td>
-          </tr>
-          </tbody>
-          </table>
+          </td></tr></tbody></table>
 
-          This PR auto-rebases when the master branch ref is updated.
+          This PR tracks the upcoming release and keeps an automatically generated
+          changelog for it. It auto-rebases when the master branch ref is updated.
 
           Comment `/release v<version number>` when it is time to release the next version.
           This will mark the PR as Ready and regenerate the changelog with the specified version.

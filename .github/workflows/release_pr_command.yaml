@@ -142,7 +142,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           raw_body="${{ steps.changelog.outputs.raw_new }}"
-          printf '%s\n' '<table>' '<tbody>' '<tr>' '<td>' '' "$raw_body" '' '</td>' '</tr>' '</tbody>' '</table>' '' 'This PR auto-rebases when the master branch ref is updated.' '' 'Comment "/release v<version number>" when it is time to release the next version.' 'This will mark the PR as Ready and regenerate the changelog with the specified version. (Note that this will overwrite any manual commits.)' 'Finally, squash-merge this PR to create the release.' > pr-body.txt
+          printf '%s\n' '<table><tbody><tr><td>' '' "$raw_body" '' '</td></tr></tbody></table>' '' 'This PR tracks the upcoming release and keeps an automatically generated changelog for it. It auto-rebases when the master branch ref is updated.' '' 'Comment "/release v<version number>" when it is time to release the next version.' 'This will mark the PR as Ready and regenerate the changelog with the specified version. (Note that this will overwrite any manual commits.)' 'After "/release", you can manually edit the changelog if necessary.' 'Finally, squash-merge this PR to create the release.' > pr-body.txt
 
           gh pr edit ${{ github.event.issue.number }} \
             --repo ${{ github.repository }} \
