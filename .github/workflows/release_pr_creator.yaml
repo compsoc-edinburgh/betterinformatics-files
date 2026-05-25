@@ -160,8 +160,8 @@ jobs:
           sed -i 's/## \[\(.*\)\](.*)/## \1/g' ONLY_NEW.md
 
           # Add parenthesis around issue/PR links
-          sed -i 's/[^(]\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' CHANGELOG.md
-          sed -i 's/[^(]\(\[\\#[0-9]\+\]([^ ]*)\)/(\1)/g' ONLY_NEW.md
+          sed -i 's/\([^(]\)\(\[\\#[0-9]\+\]([^ ]*)\)/\1(\2)/g' CHANGELOG.md
+          sed -i 's/\([^(]\)\(\[\\#[0-9]\+\]([^ ]*)\)/\1(\2)/g' ONLY_NEW.md
 
           {
             echo 'raw_new<<CI_RAW_CHANGELOG_NEW'
