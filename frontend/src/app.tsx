@@ -266,10 +266,10 @@ const App: React.FC = () => {
               disabled={unreadCount === undefined || unreadCount === 0}
               label={unreadCount}
             >
-              {user?.username ?? "Login"}
+              {user?.loggedin ? user.username : "Login"}
             </Indicator>
           ),
-          href: `/user/${user?.username}`,
+          href: user?.loggedin ? `/user/${user.username}` : "/login",
         }}
       />
     ),
