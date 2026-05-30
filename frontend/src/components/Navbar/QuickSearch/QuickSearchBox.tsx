@@ -21,6 +21,7 @@ import {
   Loader,
   Space,
   UnstyledButton,
+  Badge,
 } from "@mantine/core";
 import {
   getHotkeyHandler,
@@ -281,9 +282,9 @@ export const QuickSearchBox: React.FC = () => {
           <IconSearch />
           <Text size="md">Search...</Text>
           <Space w="md" />
-          <Kbd size="xs" bd="none">
+          <Badge size="xs" radius="xs" variant="default">
             {os === "macos" ? "⌘" : "Ctrl +"} K
-          </Kbd>
+          </Badge>
         </Group>
       </UnstyledButton>
       <Modal
