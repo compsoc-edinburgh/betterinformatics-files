@@ -18,7 +18,23 @@
   box-sizing: border-box;
   border: solid 2px transparent;
   flex: 0;
-  /* transition: border-bottom 0.1s linear, opacity 0.1s linear; */
+
+  @media (min-width: $mantine-breakpoint-md) {
+    line-height: 2.5rem;
+    padding-bottom: 2px;
+    margin-bottom: -2px;
+    padding-inline: 0.25rem;
+    opacity: 0.8;
+
+    &:hover {
+      opacity: 1;
+      border-bottom: solid 2px var(--mantine-primary-color-filled);
+    }
+
+    &:global(.active) {
+      border-bottom: solid 2px var(--mantine-primary-color-filled);
+    }
+  }
 
   @media (max-width: $mantine-breakpoint-md) {
     text-align: left;
