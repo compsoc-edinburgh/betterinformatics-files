@@ -40,7 +40,13 @@ const ExternalNavElement: React.FC<Props> = ({
         ))}
       </>
     ) : (
-      <Menu position="bottom-end" closeOnItemClick={true} width={200} offset={0}>
+      <Menu
+        position="bottom-start"
+        closeOnItemClick={true}
+        width={200}
+        offset={0}
+        trigger="click-hover"
+      >
         <Menu.Target>
           <Anchor
             component="div"
