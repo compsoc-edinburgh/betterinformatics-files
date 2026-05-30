@@ -52,8 +52,6 @@
   cursor: pointer;
   fill: rgba(51, 51, 51, 0.5);
   border-radius: var(--mantine-radius-sm);
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
   border: solid 2px transparent;
   border-left: solid 2px transparent;
   opacity: 0.8;
