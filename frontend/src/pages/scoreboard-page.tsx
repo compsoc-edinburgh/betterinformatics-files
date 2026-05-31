@@ -96,6 +96,7 @@ const statOptions = (
   colors: MantineColorsTuple,
 ) => {
   return {
+    backgroundColor: "transparent",
     grid: {
       top: "0%",
       left: "0%",
@@ -237,9 +238,6 @@ const Scoreboard: React.FC = () => {
 
       if (scheme === "dark") {
         chart.setTheme("dark");
-        chart.setOption({
-          backgroundColor: "transparent",
-        });
       } else {
         chart.setTheme("default");
       }

@@ -80,9 +80,6 @@ export const CategoryGradeStatChart: React.FC<
 
     if (scheme === "dark") {
       chart.setTheme("dark");
-      chart.setOption({
-        backgroundColor: "transparent",
-      });
     } else {
       chart.setTheme("default");
     }
@@ -90,6 +87,7 @@ export const CategoryGradeStatChart: React.FC<
 
   const chartOption = useMemo(() => {
     return {
+      backgroundColor: "transparent",
       xAxis: {
         type: "category",
         data: sortedYears,
