@@ -58,9 +58,32 @@ import {
 } from "@tabler/icons-react";
 import { EuclidCodeBadge } from "../components/euclid-code-badge";
 import { useCategoryTabs } from "../hooks/useCategoryTabs";
-import { PieChart } from "@mantine/charts";
 import CategoryStatsComponent from "../components/category-stats";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
+import EChartsCore from "react-echarts-library/core";
+import * as echarts from "echarts/core";
+import type { EChartsOption } from "echarts";
+import { PieChart } from "echarts/charts";
+import { GridComponent, TitleComponent } from "echarts/components";
+import { SVGRenderer } from "echarts/renderers";
+
+echarts.use([PieChart, GridComponent, TitleComponent, SVGRenderer]);
+
+const pieChartOptions = (cw_exam_ratio: number[]): EChartsOption => ({
+  series: [
+    {
+      type: "pie",
+      data: cw_exam_ratio,
+      labelLine: { show: false },
+      silent: true,
+      radius: "100%",
+      color: [
+        "var(--mantine-primary-color-3)",
+        "var(--mantine-primary-color-9)",
+      ],
+    },
+  ],
+});
 
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
@@ -433,22 +456,10 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                               Semester {course.delivery_ordinal}
                             </Text>
                             <Group gap="xs">
-                              <PieChart
-                                size={20}
-                                startAngle={90}
-                                endAngle={-270}
-                                data={[
-                                  {
-                                    name: "Coursework",
-                                    value: course.cw_exam_ratio[0],
-                                    color: "var(--mantine-primary-color-6)",
-                                  },
-                                  {
-                                    name: "Exam",
-                                    value: course.cw_exam_ratio[1],
-                                    color: "var(--mantine-primary-color-8)",
-                                  },
-                                ]}
+                              <EChartsCore
+                                echarts={echarts}
+                                option={pieChartOptions(course.cw_exam_ratio)}
+                                style={{ height: 20, width: 20 }}
                               />
                               <Text>
                                 {course.cw_exam_ratio[0] > 0 &&

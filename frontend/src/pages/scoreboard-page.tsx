@@ -12,8 +12,17 @@ import {
   Title,
   rem,
 } from "@mantine/core";
-import { LineChart } from "@mantine/charts";
 import React from "react";
+import EChartsCore from "react-echarts-library/core";
+import * as echarts from "echarts/core";
+import type { EChartsOption } from "echarts";
+import { LineChart } from "echarts/charts";
+import {
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+} from "echarts/components";
+import { SVGRenderer } from "echarts/renderers";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
@@ -21,6 +30,14 @@ import { UserInfo, Stats } from "../interfaces";
 import useTitle from "../hooks/useTitle";
 import { IconArrowsUpDown, IconChevronDown } from "@tabler/icons-react";
 import classes from "./scoreboard.module.css";
+
+echarts.use([
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  SVGRenderer,
+]);
 
 const modes = [
   "score",
@@ -67,6 +84,39 @@ function Th({ children, sorted, onSort }: ThProps) {
   );
 }
 
+const statOptions = (xData: string[], yData: Record<string, number[]>) => {
+  return {
+    xAxis: {
+      type: "category" as const,
+      data: xData,
+      boundaryGap: false,
+    },
+    yAxis: {
+      type: "value" as const,
+    },
+    tooltip: {
+      trigger: "axis" as const,
+    },
+    series: Object.keys(yData).map(name => ({
+      name,
+      emphasis: {
+        lineStyle: {
+          width: 5,
+          color: "var(--mantine-color-indigo-6)",
+        },
+      },
+      data: yData[name],
+      type: "line" as const,
+      lineStyle: {
+        color: "var(--mantine-color-indigo-6)",
+      },
+      itemStyle: {
+        color: "var(--mantine-color-indigo-6)",
+      },
+    })),
+  } as EChartsOption;
+};
+
 const Scoreboard: React.FC = () => {
   useTitle("Stats and Scores");
   const [mode, setMode] = useLocalStorageState<Mode>(
@@ -88,6 +138,32 @@ const Scoreboard: React.FC = () => {
     error: statsError,
     loading: statsLoading,
   } = useRequest(loadStats);
+
+  const userStatsOptions: EChartsOption = statOptions(
+    stats?.user_stats[statsGranularity].map(s => s.date) ?? [],
+    {
+      "User Count": stats?.user_stats[statsGranularity].map(s => s.count) || [],
+    },
+  );
+
+  const examStatsOptions: EChartsOption = statOptions(
+    stats?.exam_stats[statsGranularity].map(s => s.date) ?? [],
+    {
+      "Total Answer Count":
+        stats?.exam_stats[statsGranularity].map(s => s.answers_count) || [],
+      "Unique Questions Answered":
+        stats?.exam_stats[statsGranularity].map(s => s.answered_count) || [],
+    },
+  );
+
+  const documentStatsOptions: EChartsOption = statOptions(
+    stats?.document_stats[statsGranularity].map(s => s.date) ?? [],
+    {
+      "Document Count":
+        stats?.document_stats[statsGranularity].map(s => s.count) || [],
+    },
+  );
+
   return (
     <Container size="xl">
       <Title order={1} my="lg">
@@ -110,12 +186,10 @@ const Scoreboard: React.FC = () => {
         User Stats
       </Title>
       <Container size="md">
-        <LineChart
-          h={300}
-          data={stats?.user_stats[statsGranularity] || []}
-          dataKey="date"
-          series={[{ name: "count", label: "User Count", color: "indigo.6" }]}
-          curveType="monotone"
+        <EChartsCore
+          echarts={echarts}
+          option={userStatsOptions}
+          style={{ height: 300 }}
         />
       </Container>
       <Title order={2} my="lg">
@@ -123,23 +197,10 @@ const Scoreboard: React.FC = () => {
         Answered Questions Stats
       </Title>
       <Container size="md">
-        <LineChart
-          h={300}
-          data={stats?.exam_stats[statsGranularity] || []}
-          dataKey="date"
-          series={[
-            {
-              name: "answers_count",
-              label: "Total Answer Count",
-              color: "cyan.6",
-            },
-            {
-              name: "answered_count",
-              label: "Unique Questions Answered",
-              color: "blue.6",
-            },
-          ]}
-          curveType="monotone"
+        <EChartsCore
+          echarts={echarts}
+          option={examStatsOptions}
+          style={{ height: 300 }}
         />
       </Container>
       <Title order={2} my="lg">
@@ -147,15 +208,10 @@ const Scoreboard: React.FC = () => {
         Document Stats
       </Title>
       <Container size="md">
-        <LineChart
-          h={300}
-          data={stats?.document_stats[statsGranularity] || []}
-          dataKey="date"
-          series={[
-            { name: "count", label: "Document Count", color: "green.6" },
-          ]}
-          tickLine="x"
-          curveType="monotone"
+        <EChartsCore
+          echarts={echarts}
+          option={documentStatsOptions}
+          style={{ height: 300 }}
         />
       </Container>
 
