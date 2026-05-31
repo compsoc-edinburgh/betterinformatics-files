@@ -1,36 +1,39 @@
-import { useLocalStorageState, useRequest } from "ahooks";
+import React, { useEffect, useMemo, useState } from "react";
+
 import {
-  Anchor,
   Alert,
+  Anchor,
   Center,
   Container,
   Group,
+  MantineColorsTuple,
   Table,
-  UnstyledButton,
   Text,
   Title,
+  UnstyledButton,
   rem,
+  useComputedColorScheme,
   useMantineTheme,
-  MantineColorsTuple,
 } from "@mantine/core";
-import React, { useMemo } from "react";
-import EChartsCore from "react-echarts-library/core";
-import * as echarts from "echarts/core";
+import { IconArrowsUpDown, IconChevronDown } from "@tabler/icons-react";
+import { useLocalStorageState, useRequest } from "ahooks";
 import type { EChartsOption } from "echarts";
 import { LineChart } from "echarts/charts";
 import {
-  GridComponent,
-  TooltipComponent,
-  TitleComponent,
   DataZoomComponent,
+  GridComponent,
+  TitleComponent,
+  TooltipComponent,
 } from "echarts/components";
+import * as echarts from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
+import EChartsCore, { EChartsReactRef } from "react-echarts-library/core";
 import { Link } from "react-router-dom";
-import LoadingOverlay from "../components/loading-overlay";
+
 import { fetchGet } from "../api/fetch-utils";
-import { UserInfo, Stats } from "../interfaces";
+import LoadingOverlay from "../components/loading-overlay";
 import useTitle from "../hooks/useTitle";
-import { IconArrowsUpDown, IconChevronDown } from "@tabler/icons-react";
+import { Stats, UserInfo } from "../interfaces";
 import classes from "./scoreboard.module.css";
 
 echarts.use([
@@ -178,6 +181,7 @@ const Scoreboard: React.FC = () => {
 
   const theme = useMantineTheme();
 
+  const [userStatRef, setUserStatRef] = useState<EChartsReactRef | null>(null);
   const userStatsOptions: EChartsOption = useMemo(
     () =>
       statOptions(
@@ -190,6 +194,7 @@ const Scoreboard: React.FC = () => {
     [stats, theme],
   );
 
+  const [examStatRef, setExamStatRef] = useState<EChartsReactRef | null>(null);
   const examStatsOptions: EChartsOption = useMemo(
     () =>
       statOptions(
@@ -205,6 +210,8 @@ const Scoreboard: React.FC = () => {
     [stats, theme],
   );
 
+  const [documentStatRef, setDocumentStatRef] =
+    useState<EChartsReactRef | null>(null);
   const documentStatsOptions: EChartsOption = useMemo(
     () =>
       statOptions(
@@ -216,6 +223,28 @@ const Scoreboard: React.FC = () => {
       ),
     [stats, theme],
   );
+
+  // When switching light/dark, toggle the same in the chart
+  const scheme = useComputedColorScheme();
+  useEffect(() => {
+    const charts = [
+      userStatRef?.getEchartsInstance(),
+      examStatRef?.getEchartsInstance(),
+      documentStatRef?.getEchartsInstance(),
+    ];
+    charts.forEach(chart => {
+      if (!chart) return;
+
+      if (scheme === "dark") {
+        chart.setTheme("dark");
+        chart.setOption({
+          backgroundColor: "transparent",
+        });
+      } else {
+        chart.setTheme("default");
+      }
+    });
+  }, [scheme, userStatRef, examStatRef, documentStatRef]);
 
   return (
     <Container size="xl">
@@ -232,6 +261,9 @@ const Scoreboard: React.FC = () => {
           echarts={echarts}
           option={userStatsOptions}
           style={{ height: 300 }}
+          ref={setUserStatRef}
+          // notMerge is required for dynamic setTheme calls
+          notMerge={true}
         />
       </Container>
       <Title order={2} my="lg">
@@ -242,6 +274,9 @@ const Scoreboard: React.FC = () => {
           echarts={echarts}
           option={examStatsOptions}
           style={{ height: 300 }}
+          ref={setExamStatRef}
+          // notMerge is required for dynamic setTheme calls
+          notMerge={true}
         />
       </Container>
       <Title order={2} my="lg">
@@ -252,6 +287,9 @@ const Scoreboard: React.FC = () => {
           echarts={echarts}
           option={documentStatsOptions}
           style={{ height: 300 }}
+          ref={setDocumentStatRef}
+          // notMerge is required for dynamic setTheme calls
+          notMerge={true}
         />
       </Container>
 
