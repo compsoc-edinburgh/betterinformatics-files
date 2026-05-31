@@ -228,7 +228,6 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             "0.8",
           ),
         },
-        z: 3,
         emphasis: {
           lineStyle: {
             width: 9,
@@ -332,6 +331,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             option={chartOption}
             style={{ height: 400 }}
             ref={chartRef}
+            replaceMerge="series"
           />
         </Paper>
       </Box>
