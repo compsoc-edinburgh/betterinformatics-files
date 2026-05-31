@@ -124,6 +124,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         axisPointer: {
           type: "line",
           snap: true,
+          triggerEmphasis: false,
         },
       },
       grid: {
