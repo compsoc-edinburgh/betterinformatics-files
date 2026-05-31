@@ -206,16 +206,25 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           return tooltip;
         },
       },
-      series: codes.map(code => ({
+      series: codes.map((code, ix) => ({
         name: code,
         type: "line",
-        data: combinedData.map(d => [
-          d["year"],
-          d[code],
-          d[`${code}_std`],
-          d[`${code}_organiser`],
-          d[`${code}_organiser_changed`],
-        ]),
+        data: combinedData.map(d => {
+          const value = [
+            d["year"],
+            d[code],
+            d[`${code}_std`],
+            d[`${code}_organiser`],
+            d[`${code}_organiser_changed`],
+          ];
+          if (d[`${code}_organiser_changed`]) {
+            return {
+              value,
+              label: { show: true },
+            };
+          }
+          return value;
+        }),
         lineStyle: {
           color: colors[codes.indexOf(code) % colors.length].replace(
             "0.3",
@@ -238,7 +247,6 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           },
         },
         label: {
-          show: true,
           formatter: (params: any) => {
             // Show only if course organizer changed
             const organiser = params.value[3];
@@ -246,9 +254,9 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             if (organiser && organiserChanged) {
               return `CO: ${organiser}`;
             }
-            return "";
+            return undefined;
           },
-          position: "bottom",
+          position: ix % 2 === 0 ? "top" : "bottom",
           align: "left",
           color: colors[codes.indexOf(code) % colors.length].replace(
             "0.3",
@@ -258,6 +266,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         labelLine: {
           show: true,
           length2: 5,
+          smooth: true,
           lineStyle: {
             color: "#bbb",
           },
@@ -276,7 +285,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
               params.labelRect.x + params.labelRect.width > gridXEnd - 50
                 ? params.labelRect.x - params.labelRect.width - 5
                 : params.labelRect.x,
-            y: params.labelRect.y,
+            y: params.labelRect.y + (ix % 2 === 0 ? -30 : 30),
           };
         },
       })),
