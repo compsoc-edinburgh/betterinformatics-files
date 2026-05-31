@@ -13,6 +13,7 @@ import {
   GridComponent,
   TitleComponent,
   TooltipComponent,
+  LegendComponent,
 } from "echarts/components";
 import * as echarts from "echarts/core";
 import { LabelLayout } from "echarts/features";
@@ -25,8 +26,9 @@ import EChartsCore, {
 echarts.use([
   LineChart,
   GridComponent,
-  TooltipComponent,
   TitleComponent,
+  TooltipComponent,
+  LegendComponent,
   CanvasRenderer,
   LabelLayout,
 ]);
@@ -87,11 +89,16 @@ export const CategoryGradeStatChart: React.FC<
           triggerEmphasis: false,
         },
       },
+      legend: {
+        right: 0,
+        top: 0,
+        data: codes,
+      },
       grid: {
-        top: "0%",
+        top: "10%",
+        bottom: "0%",
         left: "0%",
         right: "0%",
-        bottom: "0%",
         outerBoundsContain: "axisLabel",
       },
       yAxis: {
