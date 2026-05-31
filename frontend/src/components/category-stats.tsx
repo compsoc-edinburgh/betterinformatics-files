@@ -184,7 +184,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
           }
 
           const year = params[0].value[0];
-          let tooltip = `<strong>${year}</strong><br/>`;
+          let tooltip = `<div style="font-size: var(--mantine-font-size-xs); display: flex; flex-direction: column; gap: 0; line-height: var(--mantine-line-height)"><strong>${year}</strong>`;
 
           params.forEach((param: any) => {
             if (param.value[1] === null || param.value[1] === undefined) {
@@ -194,14 +194,15 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
             const meanMark = param.value[1];
             const stdDev = param.value[2];
             const organiser = param.value[3];
-            tooltip += `<span style="color:${param.color}">\u25CF</span> <strong>${code}</strong>: ${meanMark}%<br/>`;
+            tooltip += `<span><span style="color:${param.color}">\u25CF</span> <strong>${code}</strong>: ${meanMark}%</span>`;
             if (organiser) {
-              tooltip += `<span style="color:var(--mantine-color-dimmed); font-size: var(--mantine-font-size-xs)">CO: ${organiser}</span><br/>`;
+              tooltip += `<span style="color:var(--mantine-color-dimmed)">CO: ${organiser}</span>`;
             }
             if (stdDev) {
-              tooltip += `<span style="color:var(--mantine-color-dimmed); font-size: var(--mantine-font-size-xs)">Standard Deviation: ±${stdDev}%</span><br/>`;
+              tooltip += `<span style="color:var(--mantine-color-dimmed)">Standard Deviation: ±${stdDev}%</span>`;
             }
           });
+          tooltip += "</div>";
           return tooltip;
         },
       },
