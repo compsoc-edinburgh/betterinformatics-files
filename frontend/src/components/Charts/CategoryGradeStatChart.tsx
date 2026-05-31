@@ -1,6 +1,6 @@
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
-import { useMantineTheme } from "@mantine/core";
+import { useComputedColorScheme, useMantineTheme } from "@mantine/core";
 import type {
   EChartsOption,
   LabelFormatterCallback,
@@ -70,7 +70,23 @@ export const CategoryGradeStatChart: React.FC<
     [theme],
   );
 
-  const chartRef = useRef<EChartsReactRef>(null);
+  const [chartRef, setChartRef] = useState<EChartsReactRef | null>(null);
+
+  // When switching light/dark, toggle the same in the chart
+  const scheme = useComputedColorScheme();
+  useEffect(() => {
+    const chart = chartRef?.getEchartsInstance();
+    if (!chart) return;
+
+    if (scheme === "dark") {
+      chart.setTheme("dark");
+      chart.setOption({
+        backgroundColor: "transparent",
+      });
+    } else {
+      chart.setTheme("default");
+    }
+  }, [scheme, chartRef]);
 
   const chartOption = useMemo(() => {
     return {
@@ -127,14 +143,14 @@ export const CategoryGradeStatChart: React.FC<
           // Position at nearest x-axis item
           const xIndex = params[0].dataIndex;
 
-          const gridX = chartRef.current
+          const gridX = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, 0);
           if (gridX === undefined) {
             return { left: point[0], bottom: 30 }; // Fallback to cursor position
           }
 
-          const gridXEnd = chartRef.current
+          const gridXEnd = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
           if (gridXEnd === undefined) {
@@ -265,7 +281,7 @@ export const CategoryGradeStatChart: React.FC<
           },
         },
         labelLayout: (params: LabelLayoutOptionCallbackParams) => {
-          const gridXEnd = chartRef.current
+          const gridXEnd = chartRef
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
           if (gridXEnd === undefined) {
@@ -283,14 +299,14 @@ export const CategoryGradeStatChart: React.FC<
         },
       })),
     } as EChartsOption;
-  }, [sortedYears, codes, combinedData, colors]);
+  }, [sortedYears, codes, combinedData, colors, chartRef]);
   return (
     <EChartsCore
       {...props}
       echarts={echarts}
       option={chartOption}
       replaceMerge="series"
-      ref={chartRef}
+      ref={setChartRef}
     />
   );
 };
