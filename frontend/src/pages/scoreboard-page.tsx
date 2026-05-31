@@ -10,6 +10,8 @@ import {
   Text,
   Title,
   rem,
+  useMantineTheme,
+  MantineColorsTuple,
 } from "@mantine/core";
 import React, { useMemo } from "react";
 import EChartsCore from "react-echarts-library/core";
@@ -22,7 +24,7 @@ import {
   TitleComponent,
   DataZoomComponent,
 } from "echarts/components";
-import { SVGRenderer } from "echarts/renderers";
+import { CanvasRenderer } from "echarts/renderers";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../components/loading-overlay";
 import { fetchGet } from "../api/fetch-utils";
@@ -37,7 +39,7 @@ echarts.use([
   TooltipComponent,
   TitleComponent,
   DataZoomComponent,
-  SVGRenderer,
+  CanvasRenderer,
 ]);
 
 const modes = [
@@ -85,22 +87,31 @@ function Th({ children, sorted, onSort }: ThProps) {
   );
 }
 
-const statOptions = (xData: string[], yData: Record<string, number[]>) => {
+const statOptions = (
+  xData: string[],
+  yData: Record<string, number[]>,
+  colors: MantineColorsTuple,
+) => {
   return {
     grid: {
       top: "0%",
       left: "0%",
       right: "0%",
-      bottom: "0%",
       containLabel: true,
     },
     dataZoom: [
       {
-        show: true,
-        realtime: true,
+        // Show last 90 days by default
         startValue: xData.length - 90,
         endValue: xData.length - 1,
-        xAxisIndex: [0, 1],
+        dataBackground: {
+          lineStyle: {
+            color: colors[3],
+          },
+          areaStyle: {
+            color: colors[2],
+          },
+        },
       },
     ],
     xAxis: {
@@ -120,18 +131,30 @@ const statOptions = (xData: string[], yData: Record<string, number[]>) => {
       emphasis: {
         lineStyle: {
           width: 5,
-          color: "var(--mantine-color-indigo-6)",
+          color: colors[6],
         },
       },
       data: yData[name],
       type: "line" as const,
       lineStyle: {
-        color: "var(--mantine-color-indigo-6)",
+        color: colors[6],
       },
       itemStyle: {
-        color: "var(--mantine-color-indigo-6)",
+        color: colors[6],
       },
       symbol: "none",
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: colors[3],
+          },
+          {
+            offset: 1,
+            color: colors[6],
+          },
+        ]),
+      },
     })),
   } as EChartsOption;
 };
@@ -153,30 +176,45 @@ const Scoreboard: React.FC = () => {
     loading: statsLoading,
   } = useRequest(loadStats);
 
+  const theme = useMantineTheme();
+
   const userStatsOptions: EChartsOption = useMemo(
     () =>
-      statOptions(stats?.user_stats.map(s => s.date) ?? [], {
-        "User Count": stats?.user_stats.map(s => s.count) ?? [],
-      }),
-    [stats],
+      statOptions(
+        stats?.user_stats.map(s => s.date) ?? [],
+        {
+          "User Count": stats?.user_stats.map(s => s.count) ?? [],
+        },
+        theme.colors[theme.primaryColor],
+      ),
+    [stats, theme],
   );
 
   const examStatsOptions: EChartsOption = useMemo(
     () =>
-      statOptions(stats?.exam_stats.map(s => s.date) ?? [], {
-        "Total Answer Count": stats?.exam_stats.map(s => s.answers_count) ?? [],
-        "Unique Questions Answered":
-          stats?.exam_stats.map(s => s.answered_count) ?? [],
-      }),
-    [stats],
+      statOptions(
+        stats?.exam_stats.map(s => s.date) ?? [],
+        {
+          "Total Answer Count":
+            stats?.exam_stats.map(s => s.answers_count) ?? [],
+          "Unique Questions Answered":
+            stats?.exam_stats.map(s => s.answered_count) ?? [],
+        },
+        theme.colors[theme.primaryColor],
+      ),
+    [stats, theme],
   );
 
   const documentStatsOptions: EChartsOption = useMemo(
     () =>
-      statOptions(stats?.document_stats.map(s => s.date) ?? [], {
-        "Document Count": stats?.document_stats.map(s => s.count) ?? [],
-      }),
-    [stats],
+      statOptions(
+        stats?.document_stats.map(s => s.date) ?? [],
+        {
+          "Document Count": stats?.document_stats.map(s => s.count) ?? [],
+        },
+        theme.colors[theme.primaryColor],
+      ),
+    [stats, theme],
   );
 
   return (
