@@ -107,6 +107,11 @@ export const CategoryGradeStatChart: React.FC<
         axisLabel: {
           formatter: "{value} %",
         },
+        splitLine: {
+          lineStyle: {
+            type: "dashed",
+          },
+        },
       },
       tooltip: {
         transitionDuration: 0,
