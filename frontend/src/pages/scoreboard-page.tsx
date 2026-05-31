@@ -128,11 +128,6 @@ const Scoreboard: React.FC = () => {
     cacheKey: `scoreboard-${mode}`,
   });
 
-  const [statsGranularity, setStatsGranularity] = useLocalStorageState<string>(
-    "stats-granularity",
-    "weekly",
-  );
-
   const {
     data: stats,
     error: statsError,
@@ -140,27 +135,25 @@ const Scoreboard: React.FC = () => {
   } = useRequest(loadStats);
 
   const userStatsOptions: EChartsOption = statOptions(
-    stats?.user_stats[statsGranularity].map(s => s.date) ?? [],
+    stats?.user_stats.map(s => s.date) ?? [],
     {
-      "User Count": stats?.user_stats[statsGranularity].map(s => s.count) || [],
+      "User Count": stats?.user_stats.map(s => s.count) || [],
     },
   );
 
   const examStatsOptions: EChartsOption = statOptions(
-    stats?.exam_stats[statsGranularity].map(s => s.date) ?? [],
+    stats?.exam_stats.map(s => s.date) ?? [],
     {
-      "Total Answer Count":
-        stats?.exam_stats[statsGranularity].map(s => s.answers_count) || [],
+      "Total Answer Count": stats?.exam_stats.map(s => s.answers_count) || [],
       "Unique Questions Answered":
-        stats?.exam_stats[statsGranularity].map(s => s.answered_count) || [],
+        stats?.exam_stats.map(s => s.answered_count) || [],
     },
   );
 
   const documentStatsOptions: EChartsOption = statOptions(
-    stats?.document_stats[statsGranularity].map(s => s.date) ?? [],
+    stats?.document_stats.map(s => s.date) ?? [],
     {
-      "Document Count":
-        stats?.document_stats[statsGranularity].map(s => s.count) || [],
+      "Document Count": stats?.document_stats.map(s => s.count) || [],
     },
   );
 
@@ -169,21 +162,10 @@ const Scoreboard: React.FC = () => {
       <Title order={1} my="lg">
         Stats
       </Title>
-      <SegmentedControl
-        value={statsGranularity}
-        onChange={setStatsGranularity}
-        data={[
-          // Should equal the values in the backend as it is used as a key
-          { label: "Weekly", value: "weekly" },
-          { label: "Monthly", value: "monthly" },
-          { label: "Semesterly", value: "semesterly" },
-        ]}
-      />
       {statsError && <Alert color="red">{String(statsError)}</Alert>}
 
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
-        User Stats
+        Daily User Stats
       </Title>
       <Container size="md">
         <EChartsCore
@@ -193,8 +175,7 @@ const Scoreboard: React.FC = () => {
         />
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
-        Answered Questions Stats
+        Daily Answered Questions Stats
       </Title>
       <Container size="md">
         <EChartsCore
@@ -204,8 +185,7 @@ const Scoreboard: React.FC = () => {
         />
       </Container>
       <Title order={2} my="lg">
-        {statsGranularity.charAt(0).toUpperCase() + statsGranularity.slice(1)}{" "}
-        Document Stats
+        Daily Document Stats
       </Title>
       <Container size="md">
         <EChartsCore

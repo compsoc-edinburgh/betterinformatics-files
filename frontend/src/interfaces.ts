@@ -433,14 +433,9 @@ export interface DissertationCreate {
 export type DissertationUpdate = Partial<DissertationCreate>;
 
 export interface Stats {
-  user_stats: GranularityStats<UserStat>;
-  exam_stats: GranularityStats<ExamStat>;
-  document_stats: GranularityStats<DocumentStat>;
-}
-
-// Mapping from granularity to list of data points for that granularity
-export interface GranularityStats<T> {
-  [key: string]: T[];
+  user_stats: UserStat[];
+  exam_stats: ExamStat[];
+  document_stats: DocumentStat[];
 }
 
 export interface UserStat {
