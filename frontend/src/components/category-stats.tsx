@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+
 import {
   Alert,
   Box,
@@ -9,6 +10,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+
 import { useCourseStats } from "../api/hooks";
 import { CourseStats } from "../interfaces";
 import {

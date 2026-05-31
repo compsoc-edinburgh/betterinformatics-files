@@ -1,25 +1,26 @@
 import React, { useMemo, useRef } from "react";
-import EChartsCore, {
-  EChartsReactRef,
-  EChartsCoreProps,
-} from "react-echarts-library/core";
-import * as echarts from "echarts/core";
+
+import { useMantineTheme } from "@mantine/core";
 import type {
   EChartsOption,
   LabelFormatterCallback,
   LabelLayoutOptionCallbackParams,
-  TooltipComponentPositionCallbackParams,
   TooltipComponentOption,
+  TooltipComponentPositionCallbackParams,
 } from "echarts";
 import { LineChart } from "echarts/charts";
 import {
   GridComponent,
-  TooltipComponent,
   TitleComponent,
+  TooltipComponent,
 } from "echarts/components";
+import * as echarts from "echarts/core";
 import { LabelLayout } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
-import { useMantineTheme } from "@mantine/core";
+import EChartsCore, {
+  EChartsCoreProps,
+  EChartsReactRef,
+} from "react-echarts-library/core";
 
 echarts.use([
   LineChart,
