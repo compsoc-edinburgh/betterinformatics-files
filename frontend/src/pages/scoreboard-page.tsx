@@ -101,8 +101,8 @@ const statOptions = (
     },
     dataZoom: [
       {
-        // Show last 90 days by default
-        startValue: xData.length - 90,
+        // Show last 6 months by default
+        startValue: xData.length - 183,
         endValue: xData.length - 1,
         dataBackground: {
           lineStyle: {
