@@ -13,7 +13,7 @@ import {
 import chroma from "chroma-js";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import tinycolor from "tinycolor2";
 import { authenticated, fetchGet, getCookie } from "./api/fetch-utils";
@@ -59,6 +59,7 @@ import {
   QuickSearchFilterContext,
 } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { useScrollToHash } from "./hooks/useScrollToHash";
+import ExternalNavElement from "./components/Navbar/ExternalNav";
 
 export function calculateShades(color: string): MantineColorsTuple {
   const LIGHTNESS_MAP = [
@@ -240,7 +241,7 @@ const App: React.FC = () => {
   ];
 
   const bottomHeaderNav = [
-    { title: "Home", href: "/" },
+    { title: "Courses", href: "/" },
     { title: "Dissertations", href: "/dissertations" },
     {
       title: "More",
@@ -252,18 +253,28 @@ const App: React.FC = () => {
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
-    {
-      title: (
-        <Indicator
-          disabled={unreadCount === undefined || unreadCount === 0}
-          label={unreadCount}
-        >
-          Account
-        </Indicator>
-      ),
-      href: `/user/${user?.username}`,
-    },
   ];
+
+  const loginButton = useMemo(
+    () => (
+      <ExternalNavElement
+        isExternal={false}
+        mobile={false}
+        item={{
+          title: (
+            <Indicator
+              disabled={unreadCount === undefined || unreadCount === 0}
+              label={unreadCount}
+            >
+              {user?.loggedin ? user.username : "Login"}
+            </Indicator>
+          ),
+          href: user?.loggedin ? `/user/${user.username}` : "/login",
+        }}
+      />
+    ),
+    [user, unreadCount],
+  );
 
   // Change CSS variables depending on the color scheme in use
   const resolver: CSSVariablesResolver = _ => ({
@@ -303,12 +314,14 @@ const App: React.FC = () => {
                   title={"File Collection"}
                   size="xl"
                   icon={configOptions.logo}
+                  loginButton={loginButton}
                 />
                 <MobileHeader
                   signet={configOptions.logo ?? defaultConfigOptions.logo}
                   selectedLanguage={"en"}
                   appNav={bottomHeaderNav}
                   title={"File Collection"}
+                  loginButton={loginButton}
                 />
                 <AnnouncementHeader />
                 <Box component="main" mt="2em">

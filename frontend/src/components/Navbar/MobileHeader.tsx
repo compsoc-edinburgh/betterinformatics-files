@@ -32,34 +32,31 @@ const BottomHeader: React.FC<Props> = ({
         className={classes.logoLine}
         align="center"
         justify="space-between"
+        gap="0.5rem"
       >
-        <div style={{ display: "flex" }}>
-          {uwu ? (
-            <KawaiiBetterInformatics className={classes.logo} />
-          ) : (
-            <img
-              src={signet}
-              alt="Signet of the student organization"
-              className={classes.logo}
-            />
-          )}
-          <div className={classes.title}>
-            <Link to={""} style={{ color: "inherit", textDecoration: "none" }}>
-              {title}
-            </Link>
-          </div>
-        </div>
-        <Group>
-          <ColorSchemeToggle />
-          <Burger
-            opened={opened}
-            onClick={() => setOpened((o: boolean) => !o)}
-            size="sm"
+        {uwu ? (
+          <KawaiiBetterInformatics className={classes.logo} />
+        ) : (
+          <img
+            src={signet}
+            alt="Signet of the student organization"
+            className={classes.logo}
           />
-        </Group>
+        )}
+        <div className={classes.title}>
+          <Link to={""} style={{ color: "inherit", textDecoration: "none" }}>
+            {title}
+          </Link>
+        </div>
+        <ColorSchemeToggle />
+        <Burger
+          opened={opened}
+          onClick={() => setOpened((o: boolean) => !o)}
+          size="sm"
+        />
       </Group>
       {opened ? (
-        <Stack align="flex-start" gap="sm" py="xs">
+        <Stack align="flex-start" gap="xs" py="xs">
           {translate(appNav, selectedLanguage).map((item, i) => {
             return (
               <div key={i} onClick={() => setOpened(false)}>

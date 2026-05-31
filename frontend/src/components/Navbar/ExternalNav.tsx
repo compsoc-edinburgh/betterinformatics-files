@@ -40,7 +40,13 @@ const ExternalNavElement: React.FC<Props> = ({
         ))}
       </>
     ) : (
-      <Menu position="bottom-end" closeOnItemClick={true} width={200}>
+      <Menu
+        position="bottom-start"
+        closeOnItemClick={true}
+        width={200}
+        offset={0}
+        trigger="click-hover"
+      >
         <Menu.Target>
           <Anchor
             component="div"
@@ -48,7 +54,6 @@ const ExternalNavElement: React.FC<Props> = ({
             className={clsx(classes.navItem, classes.link, textClassName)}
             display="flex"
             style={{
-              padding: 0,
               cursor: "pointer",
             }}
           >
@@ -72,7 +77,6 @@ const ExternalNavElement: React.FC<Props> = ({
                 onClick={childItem.onClick}
                 key={i}
                 pl="xs"
-                py="xs"
               >
                 {childItem.title as ReactNode}
               </Menu.Item>
@@ -85,7 +89,6 @@ const ExternalNavElement: React.FC<Props> = ({
                 onClick={childItem.onClick}
                 key={i}
                 pl="xs"
-                py="xs"
               >
                 {childItem.title as ReactNode}
               </Menu.Item>

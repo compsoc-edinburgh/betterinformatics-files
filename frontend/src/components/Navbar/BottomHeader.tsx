@@ -46,11 +46,9 @@ const BottomHeader: React.FC<Props> = ({
                 />
               )
             )}
-            {title}
           </Link>
 
-          <Group justify="flex-end" wrap="nowrap" gap="2.75rem">
-            <QuickSearchBox />
+          <Group wrap="nowrap" gap="0.5rem" align="center" h="100%" flex="1">
             {translate(appNav, lang).map((item, i) => {
               return (
                 <ExternalNavElement
@@ -58,12 +56,14 @@ const BottomHeader: React.FC<Props> = ({
                   mobile={false}
                   isExternal={false}
                   key={i}
+                  titleClassName={classes.navItem}
                 />
               );
             })}
+            <QuickSearchBox />
             {loginButton}
-            <ColorSchemeToggle />
           </Group>
+          <ColorSchemeToggle />
         </Container>
       </Box>
     </>
