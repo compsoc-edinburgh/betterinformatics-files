@@ -7,12 +7,11 @@ import {
   Group,
   Table,
   UnstyledButton,
-  SegmentedControl,
   Text,
   Title,
   rem,
 } from "@mantine/core";
-import React from "react";
+import React, { useMemo } from "react";
 import EChartsCore from "react-echarts-library/core";
 import * as echarts from "echarts/core";
 import type { EChartsOption } from "echarts";
@@ -21,6 +20,7 @@ import {
   GridComponent,
   TooltipComponent,
   TitleComponent,
+  DataZoomComponent,
 } from "echarts/components";
 import { SVGRenderer } from "echarts/renderers";
 import { Link } from "react-router-dom";
@@ -36,6 +36,7 @@ echarts.use([
   GridComponent,
   TooltipComponent,
   TitleComponent,
+  DataZoomComponent,
   SVGRenderer,
 ]);
 
@@ -86,6 +87,22 @@ function Th({ children, sorted, onSort }: ThProps) {
 
 const statOptions = (xData: string[], yData: Record<string, number[]>) => {
   return {
+    grid: {
+      top: "0%",
+      left: "0%",
+      right: "0%",
+      bottom: "0%",
+      containLabel: true,
+    },
+    dataZoom: [
+      {
+        show: true,
+        realtime: true,
+        startValue: xData.length - 90,
+        endValue: xData.length - 1,
+        xAxisIndex: [0, 1],
+      },
+    ],
     xAxis: {
       type: "category" as const,
       data: xData,
@@ -95,6 +112,7 @@ const statOptions = (xData: string[], yData: Record<string, number[]>) => {
       type: "value" as const,
     },
     tooltip: {
+      transitionDuration: 0,
       trigger: "axis" as const,
     },
     series: Object.keys(yData).map(name => ({
@@ -113,6 +131,7 @@ const statOptions = (xData: string[], yData: Record<string, number[]>) => {
       itemStyle: {
         color: "var(--mantine-color-indigo-6)",
       },
+      symbol: "none",
     })),
   } as EChartsOption;
 };
@@ -134,27 +153,30 @@ const Scoreboard: React.FC = () => {
     loading: statsLoading,
   } = useRequest(loadStats);
 
-  const userStatsOptions: EChartsOption = statOptions(
-    stats?.user_stats.map(s => s.date) ?? [],
-    {
-      "User Count": stats?.user_stats.map(s => s.count) || [],
-    },
+  const userStatsOptions: EChartsOption = useMemo(
+    () =>
+      statOptions(stats?.user_stats.map(s => s.date) ?? [], {
+        "User Count": stats?.user_stats.map(s => s.count) ?? [],
+      }),
+    [stats],
   );
 
-  const examStatsOptions: EChartsOption = statOptions(
-    stats?.exam_stats.map(s => s.date) ?? [],
-    {
-      "Total Answer Count": stats?.exam_stats.map(s => s.answers_count) || [],
-      "Unique Questions Answered":
-        stats?.exam_stats.map(s => s.answered_count) || [],
-    },
+  const examStatsOptions: EChartsOption = useMemo(
+    () =>
+      statOptions(stats?.exam_stats.map(s => s.date) ?? [], {
+        "Total Answer Count": stats?.exam_stats.map(s => s.answers_count) ?? [],
+        "Unique Questions Answered":
+          stats?.exam_stats.map(s => s.answered_count) ?? [],
+      }),
+    [stats],
   );
 
-  const documentStatsOptions: EChartsOption = statOptions(
-    stats?.document_stats.map(s => s.date) ?? [],
-    {
-      "Document Count": stats?.document_stats.map(s => s.count) || [],
-    },
+  const documentStatsOptions: EChartsOption = useMemo(
+    () =>
+      statOptions(stats?.document_stats.map(s => s.date) ?? [], {
+        "Document Count": stats?.document_stats.map(s => s.count) ?? [],
+      }),
+    [stats],
   );
 
   return (
@@ -165,7 +187,7 @@ const Scoreboard: React.FC = () => {
       {statsError && <Alert color="red">{String(statsError)}</Alert>}
 
       <Title order={2} my="lg">
-        Daily User Stats
+        User Stats
       </Title>
       <Container size="md">
         <EChartsCore
@@ -175,7 +197,7 @@ const Scoreboard: React.FC = () => {
         />
       </Container>
       <Title order={2} my="lg">
-        Daily Answered Questions Stats
+        Exam Stats
       </Title>
       <Container size="md">
         <EChartsCore
@@ -185,7 +207,7 @@ const Scoreboard: React.FC = () => {
         />
       </Container>
       <Title order={2} my="lg">
-        Daily Document Stats
+        Document Stats
       </Title>
       <Container size="md">
         <EChartsCore

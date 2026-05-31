@@ -11,8 +11,14 @@ from documents.models import Document
 
 
 @func_cache.cache(3600 * 12)  # Cache for 12 hours
-def get_stats(days: int):
+def get_stats():
     stats = {}
+
+    # Date of first user registration
+    first_user = User.objects.order_by("date_joined").first()
+
+    # Add a week of offset to show we had 0 before
+    days = (timezone.now() - first_user.date_joined).days + 7 if first_user else 0
 
     # Get user count over the last period
     stats.setdefault("user_stats", {})
@@ -62,11 +68,4 @@ def get_stats(days: int):
 @response.request_get()
 @auth_check.require_login
 def stats(request):
-    days = 356
-
-    # Allow overriding the default values via query parameters but only for admins
-    if auth_check.has_admin_rights(request):
-        if "days" in request.GET:
-            days = int(request.GET["days"])
-
-    return response.success(value=get_stats(days))
+    return response.success(value=get_stats())
