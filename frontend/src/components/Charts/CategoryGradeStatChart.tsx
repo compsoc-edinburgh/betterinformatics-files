@@ -6,7 +6,10 @@ import EChartsCore, {
 import * as echarts from "echarts/core";
 import type {
   EChartsOption,
+  LabelFormatterCallback,
+  LabelLayoutOptionCallbackParams,
   TooltipComponentPositionCallbackParams,
+  TooltipComponentOption,
 } from "echarts";
 import { LineChart } from "echarts/charts";
 import {
@@ -27,10 +30,22 @@ echarts.use([
   LabelLayout,
 ]);
 
+interface ChartCourseInstanceStats {
+  mean_mark: number | null;
+  std_deviation: number | null;
+  course_organiser: string | null;
+  organiser_changed: boolean;
+}
+
+export interface ChartCourseStats {
+  academic_year: string;
+  course_code: Record<string, ChartCourseInstanceStats | undefined>;
+}
+
 interface CategoryGradeStatChartProps {
   sortedYears: string[];
   codes: string[];
-  combinedData: any[];
+  combinedData: ChartCourseStats[];
 }
 
 export const CategoryGradeStatChart: React.FC<
@@ -121,24 +136,37 @@ export const CategoryGradeStatChart: React.FC<
 
           return { left: xPos, bottom: 30 };
         },
-        formatter: (params: any) => {
+        formatter: params => {
           if (!Array.isArray(params)) params = [params];
-          if (params.length === 0 || !params[0].value) {
+          if (
+            params.length === 0 ||
+            !params[0].value ||
+            !Array.isArray(params[0].value)
+          ) {
             return ""; // No tooltip if no data
           }
 
-          const year = params[0].value[0];
+          const year = params[0].value[0] as string;
           let tooltip = `<div style="font-size: var(--mantine-font-size-xs); display: flex; flex-direction: column; gap: 0; line-height: var(--mantine-line-height)"><strong>${year}</strong>`;
 
-          params.forEach((param: any) => {
-            if (param.value[1] === null || param.value[1] === undefined) {
-              return; // Skip if mean mark is not available
+          params.forEach(param => {
+            const value = param.value as (
+              | string
+              | number
+              | boolean
+              | null
+              | undefined
+            )[];
+            if (value[1] === null || value[1] === undefined) {
+              // Skip if mean mark is not available
+              return;
             }
             const code = param.seriesName;
-            const meanMark = param.value[1];
-            const stdDev = param.value[2];
-            const organiser = param.value[3];
-            tooltip += `<span><span style="color:${param.color}">\u25CF</span> <strong>${code}</strong>: ${meanMark}%</span>`;
+            const meanMark = value[1];
+            const stdDev = value[2];
+            const organiser = value[3];
+            const color = param.color as string;
+            tooltip += `<span><span style="color: ${color}">\u25CF</span> <strong>${code}</strong>: ${meanMark}%</span>`;
             if (organiser) {
               tooltip += `<span style="color:var(--mantine-color-dimmed)">CO: ${organiser}</span>`;
             }
@@ -149,19 +177,19 @@ export const CategoryGradeStatChart: React.FC<
           tooltip += "</div>";
           return tooltip;
         },
-      },
+      } as TooltipComponentOption,
       series: codes.map((code, ix) => ({
         name: code,
         type: "line",
         data: combinedData.map(d => {
           const value = [
-            d["year"],
-            d[code],
-            d[`${code}_std`],
-            d[`${code}_organiser`],
-            d[`${code}_organiser_changed`],
+            d.academic_year,
+            d.course_code[code]?.mean_mark,
+            d.course_code[code]?.std_deviation,
+            d.course_code[code]?.course_organiser,
+            d.course_code[code]?.organiser_changed,
           ];
-          if (d[`${code}_organiser_changed`]) {
+          if (d.course_code[code]?.organiser_changed) {
             return {
               value,
               label: { show: true },
@@ -191,15 +219,23 @@ export const CategoryGradeStatChart: React.FC<
           },
         },
         label: {
-          formatter: (params: any) => {
+          formatter: (params => {
+            if (!params.value) return undefined;
+            const value = params.value as (
+              | string
+              | number
+              | boolean
+              | null
+              | undefined
+            )[];
             // Show only if course organizer changed
-            const organiser = params.value[3];
-            const organiserChanged = params.value[4];
+            const organiser = value[3];
+            const organiserChanged = value[4];
             if (organiser && organiserChanged) {
               return `CO: ${organiser}`;
             }
             return undefined;
-          },
+          }) as LabelFormatterCallback,
           position: ix % 2 === 0 ? "top" : "bottom",
           align: "left",
           color: colors[codes.indexOf(code) % colors.length].replace(
@@ -215,7 +251,7 @@ export const CategoryGradeStatChart: React.FC<
             color: "#bbb",
           },
         },
-        labelLayout: (params: any) => {
+        labelLayout: (params: LabelLayoutOptionCallbackParams) => {
           const gridXEnd = chartRef.current
             ?.getEchartsInstance()
             ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
@@ -241,6 +277,7 @@ export const CategoryGradeStatChart: React.FC<
       echarts={echarts}
       option={chartOption}
       replaceMerge="series"
+      ref={chartRef}
     />
   );
 };

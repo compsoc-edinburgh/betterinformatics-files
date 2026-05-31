@@ -11,7 +11,10 @@ import {
 } from "@mantine/core";
 import { useCourseStats } from "../api/hooks";
 import { CourseStats } from "../interfaces";
-import CategoryGradeStatChart from "./Charts/CategoryGradeStatChart";
+import {
+  CategoryGradeStatChart,
+  ChartCourseStats,
+} from "./Charts/CategoryGradeStatChart";
 
 interface CategoryStatsProps {
   slug: string;
@@ -49,23 +52,26 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     const codes = Array.from(allCourseCodes).sort();
 
     // Prepare data for chart
-    const combinedData: any[] = sortedYears.map(year => {
-      const yearData: any = { year };
+    const combinedData: ChartCourseStats[] = sortedYears.map(year => {
+      const yearData: ChartCourseStats = {
+        academic_year: year,
+        course_code: {},
+      };
       codes.forEach(code => {
-        const stat = yearGroups[year][code];
+        const stat = yearGroups[year]?.[code];
         if (stat?.mean_mark !== null && stat?.mean_mark !== undefined) {
-          yearData[code] = Number(stat.mean_mark.toFixed(1));
-          // Store standard deviation for tooltip
-          yearData[`${code}_std`] = stat?.std_deviation
-            ? Number(stat.std_deviation.toFixed(1))
-            : null;
-          // Store organiser for tooltip
-          yearData[`${code}_organiser`] = stat.course_organiser;
-          yearData[`${code}_organiser_changed`] =
-            yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
-              ?.course_organiser !== stat.course_organiser ||
-            yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
-              ?.mean_mark === null;
+          yearData.course_code[code] = {
+            mean_mark: Number(stat.mean_mark.toFixed(1)),
+            std_deviation: stat.std_deviation
+              ? Number(stat.std_deviation.toFixed(1))
+              : null,
+            course_organiser: stat.course_organiser,
+            organiser_changed:
+              yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
+                ?.course_organiser !== stat.course_organiser ||
+              yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
+                ?.mean_mark === null,
+          };
         }
       });
       return yearData;
