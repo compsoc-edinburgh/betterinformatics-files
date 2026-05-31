@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   Title,
+  useMantineTheme,
 } from "@mantine/core";
 import { useCourseStats } from "../api/hooks";
 import EChartsCore, { EChartsReactRef } from "react-echarts-library/core";
@@ -23,7 +24,7 @@ import {
   TitleComponent,
 } from "echarts/components";
 import { LabelLayout } from "echarts/features";
-import { SVGRenderer } from "echarts/renderers";
+import { CanvasRenderer } from "echarts/renderers";
 import { CourseStats } from "../interfaces";
 
 echarts.use([
@@ -31,7 +32,7 @@ echarts.use([
   GridComponent,
   TooltipComponent,
   TitleComponent,
-  SVGRenderer,
+  CanvasRenderer,
   LabelLayout,
 ]);
 
@@ -43,16 +44,20 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
   const [error, loading, stats] = useCourseStats(slug);
 
   // Colors for different course codes
-  const colors = [
-    "var(--mantine-primary-color-6)",
-    "var(--mantine-color-blue-6)",
-    "var(--mantine-color-green-6)",
-    "var(--mantine-color-yellow-6)",
-    "var(--mantine-color-red-6)",
-    "var(--mantine-color-violet-6)",
-    "var(--mantine-color-orange-6)",
-    "var(--mantine-color-teal-6)",
-  ];
+  const theme = useMantineTheme();
+  const colors = useMemo(
+    () => [
+      theme.colors[theme.primaryColor][6],
+      theme.colors.blue[6],
+      theme.colors.green[6],
+      theme.colors.yellow[6],
+      theme.colors.red[6],
+      theme.colors.violet[6],
+      theme.colors.orange[6],
+      theme.colors.teal[6],
+    ],
+    [theme],
+  );
   const chartRef = useRef<EChartsReactRef>(null);
 
   const { sortedYears, codes, combinedData } = useMemo(() => {
@@ -275,7 +280,7 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
         },
       })),
     } as EChartsOption;
-  }, [stats, sortedYears, codes, combinedData]);
+  }, [sortedYears, codes, combinedData, colors]);
 
   if (loading && !stats) {
     return (
