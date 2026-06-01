@@ -474,11 +474,13 @@ gantt
         Course Reviews  :reviews, 2026-01-01, 2026-09-01
         Inline-editable knowledgebase  : 2026-05-30, 2026-09-01
         Overhaul dissertation feature  : 2026-04-01, 2026-06-01
+        First-class support for Guides/Resources  : 2026-06-15, 2026-09-01
+        More granular grade statistics  : 2026-09-30, 2026-12-31
     section Maintenance
         Merge upstream features (monthly) : 2026-01-01, 2026-12-31
         Improve deployment infrastructure     : 2026-07-01, 2026-12-31
         Bugfixes as appropriate  : 2026-01-01, 2026-12-31
-        Swap BI and BI Files  : 2026-06-01, 2026-09-01
+        Swap BI and BI Files  : 2026-07-01, 2026-09-01
     section Semester Dates
         Semester 2 : 2026-01-12, 2026-04-03
         Exams : 2026-04-27, 2026-05-22
