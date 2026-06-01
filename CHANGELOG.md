@@ -1,5 +1,13 @@
 # Changelog
 
+## v2026.06.01
+
+- Fix noncompliance of privacy policy with UK GDPR ([\#108](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/108))
+- Fix scroll bar showing up when clicking on category page tabs ([\#101](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/101))
+- Switch from @mantine/charts to Apache ECharts for charts ([\#107](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/107))
+- Make navigation bar slim to save screen space ([\#105](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/105))
+- More CI improvements for automatic releases ([\#102](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/102)) ([\#103](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/103)) ([\#104](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/104))
+
 ## v2026.05.25
 
 - Improve the dissertation feature ([\#85](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/85))
