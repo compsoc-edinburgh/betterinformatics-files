@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.06.01-2
+
+- Hotfix for "Internal Server Error" introduced in v2026.06.01-1 ([\#113](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/113))
+
 ## v2026.06.01-1
 
 - Improve performance of site-wide stat calculation ([\#110](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/110))
