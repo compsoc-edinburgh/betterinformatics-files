@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.db.models import Count, F, Min, Sum, Window
+from django.db.models import Count, Min
 from django.db.models.functions import TruncDate
 
 from ediauth import auth_check
@@ -39,18 +39,15 @@ def get_stats():
         # Group by day and count number of joined users per day
         .values("day")
         .annotate(cnt=Count("id"))
-        # Add a cumulative count column
-        .annotate(total=Window(expression=Sum("cnt"), order_by=F("day").asc()))
-        # Only select the day and cumulative total for output
-        .values("day", "total")
+        .values("day", "cnt")
         .order_by("day")
     )
-    user_counts = {row["day"]: row["total"] for row in user_rows}
+    user_counts = {row["day"]: row["cnt"] for row in user_rows}
     stats["user_stats"] = []
     last_user_count = 0
     for day in days:
         if day in user_counts:
-            last_user_count = user_counts[day]
+            last_user_count += user_counts[day]
         stats["user_stats"].append(
             {"date": day.strftime("%Y-%m-%d"), "count": last_user_count}
         )
@@ -61,13 +58,10 @@ def get_stats():
         # Group by day and count number of answers per day
         .values("day")
         .annotate(cnt=Count("id"))
-        # Add a cumulative count column
-        .annotate(total=Window(expression=Sum("cnt"), order_by=F("day").asc()))
-        # Only select the day and cumulative total for output
-        .values("day", "total")
+        .values("day", "cnt")
         .order_by("day")
     )
-    answers_counts = {row["day"]: row["total"] for row in answer_rows}
+    answers_counts = {row["day"]: row["cnt"] for row in answer_rows}
 
     answered_rows = (
         # Use AnswerSection and find the earliest answer time for each section
@@ -75,22 +69,19 @@ def get_stats():
         # Group by the first answer day and count how many sections were answered
         .values("first_day")
         .annotate(cnt=Count("id"))
-        # Add a cumulative count column
-        .annotate(total=Window(expression=Sum("cnt"), order_by=F("first_day").asc()))
-        # Only select the first answer day and cumulative total for output
-        .values("first_day", "total")
+        .values("first_day", "cnt")
         .order_by("first_day")
     )
-    answered_counts = {row["first_day"]: row["total"] for row in answered_rows}
+    answered_counts = {row["first_day"]: row["cnt"] for row in answered_rows}
 
     stats["exam_stats"] = []
     last_answers_count = 0
     last_answered_count = 0
     for day in days:
         if day in answers_counts:
-            last_answers_count = answers_counts[day]
+            last_answers_count += answers_counts[day]
         if day in answered_counts:
-            last_answered_count = answered_counts[day]
+            last_answered_count += answered_counts[day]
         stats["exam_stats"].append(
             {
                 "date": day.strftime("%Y-%m-%d"),
@@ -109,19 +100,16 @@ def get_stats():
         # Group by day and count number of documents per day
         .values("day")
         .annotate(cnt=Count("id"))
-        # Add a cumulative count column
-        .annotate(total=Window(expression=Sum("cnt"), order_by=F("day").asc()))
-        # Only select the day and cumulative total for output
-        .values("day", "total")
+        .values("day", "cnt")
         .order_by("day")
     )
-    document_counts = {row["day"]: row["total"] for row in document_rows}
+    document_counts = {row["day"]: row["cnt"] for row in document_rows}
 
     stats["document_stats"] = []
     last_document_count = 0
     for day in days:
         if day in document_counts:
-            last_document_count = document_counts[day]
+            last_document_count += document_counts[day]
         stats["document_stats"].append(
             {
                 "date": day.strftime("%Y-%m-%d"),
