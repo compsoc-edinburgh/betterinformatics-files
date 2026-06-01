@@ -1,5 +1,9 @@
 # Changelog
 
+## v2026.06.01-1
+
+- Improve performance of site-wide stat calculation ([\#110](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/110))
+
 ## v2026.06.01
 
 - Fix noncompliance of privacy policy with UK GDPR ([\#108](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/108))
