@@ -2,7 +2,7 @@
 
 ## v2026.06.01-2
 
-- Fix incorrect use of sum on aggregate in stats calculation ([\#113](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/113))
+- Hotfix for "Internal Server Error" introduced in v2026.06.01-1 ([\#113](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/113))
 
 ## v2026.06.01-1
 
