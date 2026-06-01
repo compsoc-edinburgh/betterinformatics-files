@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+
 import {
   Alert,
   Box,
@@ -9,11 +10,13 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { LineChart } from "@mantine/charts";
+
 import { useCourseStats } from "../api/hooks";
 import { CourseStats } from "../interfaces";
-import { LabelProps } from "recharts";
-import { LabelPosition } from "recharts/types/component/Label";
+import {
+  CategoryGradeStatChart,
+  ChartCourseStats,
+} from "./Charts/CategoryGradeStatChart";
 
 interface CategoryStatsProps {
   slug: string;
@@ -22,46 +25,28 @@ interface CategoryStatsProps {
 const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
   const [error, loading, stats] = useCourseStats(slug);
 
-  // Create a color mapping for course organisers
-  const courseOrganiserColors = useMemo(() => {
-    if (!stats) return {};
-
-    const uniqueOrganisers = [
-      ...new Set(
-        stats
-          .map(s => s.course_organiser)
-          .filter((o): o is string => Boolean(o)),
-      ),
-    ];
-    const colors = [
-      "rgba(34, 139, 34, 0.3)", // Forest Green
-      "rgba(30, 144, 255, 0.3)", // Dodger Blue
-      "rgba(255, 140, 0, 0.3)", // Dark Orange
-      "rgba(147, 112, 219, 0.3)", // Medium Slate Blue
-      "rgba(220, 20, 60, 0.3)", // Crimson
-    ];
-
-    const mapping: Record<string, string> = {};
-    uniqueOrganisers.forEach((organiser, index) => {
-      mapping[organiser] = colors[index % colors.length];
-    });
-    return mapping;
-  }, [stats]);
-
-  const { chartData, courseCodes, referenceLines } = useMemo(() => {
+  const { sortedYears, codes, combinedData } = useMemo(() => {
     if (!stats || stats.length === 0) {
-      return { chartData: [], courseCodes: [], referenceLines: [] };
+      return { sortedYears: [], codes: [], combinedData: [] };
     }
 
     // Group stats by year and course code
-    const yearGroups: { [year: string]: { [code: string]: CourseStats } } = {};
+    const yearGroups: Record<
+      string,
+      Record<string, CourseStats | undefined> | undefined
+    > = {};
     const allCourseCodes = new Set<string>();
 
     stats.forEach(stat => {
-      if (!yearGroups[stat.academic_year]) {
-        yearGroups[stat.academic_year] = {};
+      // Mutable reference
+      const yearStat = yearGroups[stat.academic_year];
+      if (!yearStat) {
+        yearGroups[stat.academic_year] = {
+          [stat.course_code]: stat,
+        };
+      } else {
+        yearStat[stat.course_code] = stat;
       }
-      yearGroups[stat.academic_year][stat.course_code] = stat;
       allCourseCodes.add(stat.course_code);
     });
 
@@ -69,104 +54,37 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     const codes = Array.from(allCourseCodes).sort();
 
     // Prepare data for chart
-    const combinedData: any[] = sortedYears.map(year => {
-      const yearData: any = { year };
+    const combinedData: ChartCourseStats[] = sortedYears.map(year => {
+      const yearData: ChartCourseStats = {
+        academic_year: year,
+        course_code: {},
+      };
       codes.forEach(code => {
-        const stat = yearGroups[year][code];
+        const stat = yearGroups[year]?.[code];
         if (stat?.mean_mark !== null && stat?.mean_mark !== undefined) {
-          yearData[code] = Number(stat.mean_mark.toFixed(1));
-          // Store standard deviation for tooltip
-          yearData[`${code}_std`] = stat?.std_deviation
-            ? Number(stat.std_deviation.toFixed(1))
-            : null;
-          // Store organiser for tooltip
-          yearData[`${code}_organiser`] = stat.course_organiser;
+          yearData.course_code[code] = {
+            mean_mark: Number(stat.mean_mark.toFixed(1)),
+            std_deviation: stat.std_deviation
+              ? Number(stat.std_deviation.toFixed(1))
+              : null,
+            course_organiser: stat.course_organiser,
+            organiser_changed:
+              yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
+                ?.course_organiser !== stat.course_organiser ||
+              yearGroups[sortedYears[sortedYears.indexOf(year) - 1]]?.[code]
+                ?.mean_mark === null,
+          };
         }
       });
       return yearData;
     });
 
-    // Generate reference lines for course organiser changes
-    const refLines: Array<{ x: string; label: LabelProps; color: string }> = [];
-
-    const makeLabel = (text: string, position: LabelPosition): LabelProps => ({
-      value: text,
-      angle: -30,
-      position,
-      style: {
-        fontWeight: 700,
-      },
-    });
-
-    codes.forEach(code => {
-      const courseStats = stats
-        .filter(s => s.course_code === code)
-        .sort((a, b) => a.academic_year.localeCompare(b.academic_year));
-
-      if (courseStats.length === 0) return;
-
-      // Add reference line for the initial organiser
-      const firstStat = courseStats[0];
-      if (firstStat?.course_organiser) {
-        const initialLabel = `${code}: ${firstStat.course_organiser}`;
-        const initialColor = courseOrganiserColors[firstStat.course_organiser]
-          ? courseOrganiserColors[firstStat.course_organiser].replace(
-              "0.3",
-              "0.8",
-            )
-          : "gray.6";
-
-        refLines.push({
-          x: firstStat.academic_year,
-          label: makeLabel(initialLabel, "insideBottomLeft"),
-          color: initialColor,
-        });
-      }
-
-      let previousOrganiser = firstStat?.course_organiser;
-
-      courseStats.forEach((stat, index) => {
-        if (index > 0 && stat.course_organiser !== previousOrganiser) {
-          // Course organiser changed in this year
-          const changeLabel = `${code}: ${stat.course_organiser}`;
-          const changeColor = courseOrganiserColors[stat.course_organiser!]
-            ? courseOrganiserColors[stat.course_organiser!].replace(
-                "0.3",
-                "0.8",
-              )
-            : "gray.6";
-
-          // For the last year, position the label to the left to avoid overflow
-          const isLastYear = index === courseStats.length - 1;
-
-          refLines.push({
-            x: stat.academic_year,
-            label: makeLabel(changeLabel, isLastYear ? "left" : "right"),
-            color: changeColor,
-          });
-        }
-        previousOrganiser = stat.course_organiser;
-      });
-    });
-
     return {
-      chartData: combinedData,
-      courseCodes: codes,
-      referenceLines: refLines,
+      sortedYears,
+      codes,
+      combinedData,
     };
   }, [stats]);
-
-  // Colors for different course codes
-  const colors = [
-    "var(--mantine-primary-color-6)",
-    "var(--mantine-color-blue-6)",
-    "var(--mantine-color-green-6)",
-    "var(--mantine-color-yellow-6)",
-    "var(--mantine-color-red-6)",
-    "var(--mantine-color-violet-6)",
-    "var(--mantine-color-orange-6)",
-    "var(--mantine-color-teal-6)",
-  ];
 
   if (loading && !stats) {
     return (
@@ -203,135 +121,30 @@ const CategoryStatsComponent: React.FC<CategoryStatsProps> = ({ slug }) => {
     <Stack gap="lg">
       <Box>
         <Title order={3} mb="md">
-          Course Marks Over Time
+          Course Grades Over Time
         </Title>
         <Text size="sm" c="dimmed" mb="md">
           Hover over data points to see mean marks, standard deviation, and
-          course organiser information. Vertical lines mark course organiser
-          changes.
+          course organiser information. Labels are added where course organisers
+          have changed.
         </Text>
         <Paper withBorder p="md">
-          <LineChart
-            h={400}
-            data={chartData}
-            dataKey="year"
-            series={courseCodes.map((code, index) => ({
-              name: code,
-              color: colors[index % colors.length],
-              strokeWidth: 2,
-            }))}
-            referenceLines={referenceLines}
-            curveType="linear"
-            withLegend
-            withTooltip
-            withDots
-            gridAxis="xy"
-            yAxisProps={{
-              domain: [0, 100],
-              tickFormatter: value => `${Math.round(value)}%`,
-            }}
-            tooltipProps={{
-              content: ({ active, payload, label }) => {
-                if (active && payload?.length) {
-                  return (
-                    <Paper p="sm" withBorder shadow="md">
-                      <Text size="md" fw={600} mb="xs">
-                        {label}
-                      </Text>
-                      {payload.map((entry: any, index: number) => {
-                        const courseCode = entry.dataKey;
-                        const meanMark = entry.value;
-
-                        // Get the standard deviation and organiser for this course and year
-                        const dataPoint = chartData.find(d => d.year === label);
-                        const stdDev = dataPoint
-                          ? dataPoint[`${courseCode}_std`]
-                          : null;
-                        const organiser = dataPoint
-                          ? dataPoint[`${courseCode}_organiser`]
-                          : null;
-
-                        return (
-                          <Box key={index}>
-                            <Text
-                              size="sm"
-                              fw={500}
-                              style={{ color: entry.color }}
-                            >
-                              {courseCode}: {Number(meanMark).toFixed(1)}%
-                            </Text>
-                            {organiser && (
-                              <Text size="xs" c="dimmed">
-                                CO:{" "}
-                                <Text
-                                  span
-                                  style={{
-                                    color:
-                                      courseOrganiserColors[organiser]?.replace(
-                                        "0.3",
-                                        "1.0",
-                                      ) || "inherit",
-                                  }}
-                                >
-                                  {organiser}
-                                </Text>
-                              </Text>
-                            )}
-                            {stdDev && (
-                              <Text size="xs" c="dimmed">
-                                Standard deviation: ±{stdDev}%
-                              </Text>
-                            )}
-                          </Box>
-                        );
-                      })}
-                    </Paper>
-                  );
-                }
-                return null;
-              },
-            }}
+          <CategoryGradeStatChart
+            sortedYears={sortedYears}
+            codes={codes}
+            combinedData={combinedData}
+            style={{ height: 400 }}
           />
         </Paper>
-
-        {/* Course Organiser Information */}
-        {Object.keys(courseOrganiserColors).length > 0 && (
-          <Box mt="md">
-            <Text size="sm" fw={500} mb="xs">
-              Course Organisers Found:
-            </Text>
-            <Group gap="md">
-              {Object.entries(courseOrganiserColors).map(
-                ([organiser, color]) => (
-                  <Group key={organiser} gap="xs">
-                    <Box
-                      w={16}
-                      h={16}
-                      style={{
-                        backgroundColor: color.replace("0.3", "0.8"),
-                        borderRadius: 3,
-                      }}
-                    />
-                    <Text size="xs">{organiser}</Text>
-                  </Group>
-                ),
-              )}
-            </Group>
-            <Text size="xs" c="dimmed" mt="xs">
-              Course organisers found in the data. Hover over chart points to
-              see which organiser ran each course in specific years.
-            </Text>
-          </Box>
-        )}
       </Box>
 
-      {stats && stats.length > 0 && (
+      {stats.length > 0 && (
         <Box>
           <Title order={3} mb="md">
-            Course Overview
+            Data Overview
           </Title>
           <Group gap="md">
-            {courseCodes.map(code => {
+            {codes.map(code => {
               const courseStats = stats.filter(s => s.course_code === code);
               const latestStat = courseStats
                 .sort((a, b) => a.academic_year.localeCompare(b.academic_year))

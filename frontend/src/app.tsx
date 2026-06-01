@@ -12,7 +12,6 @@ import {
 } from "@mantine/core";
 import chroma from "chroma-js";
 import "@mantine/core/styles.css";
-import "@mantine/charts/styles.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import tinycolor from "tinycolor2";
