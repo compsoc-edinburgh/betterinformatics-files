@@ -61,6 +61,7 @@ urlpatterns = [
     path("api/scoreboard/", include("scoreboard.urls")),
     path("api/document/", include("documents.urls")),
     path("api/stats/", include("stats.urls")),
+    path("api/testimonials/", include("testimonials.urls")),
     re_path(
         r"^static/(?P<path>.*)$",
         views.cached_serve,

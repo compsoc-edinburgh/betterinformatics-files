@@ -61,7 +61,9 @@ import { useCategoryTabs } from "../hooks/useCategoryTabs";
 import { PieChart } from "@mantine/charts";
 import CategoryStatsComponent from "../components/category-stats";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
-
+import { loadTestimonialsByCourse } from "../api/testimonials";
+import {TestimonialCard, TestimonialCardProps} from "../components/testimonial-card";
+import test from "node:test";
 interface CategoryPageContentProps {
   onMetaDataChange: (newMetaData: CategoryMetaData) => void;
   metaData: CategoryMetaData;
@@ -169,7 +171,7 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
 
   const tabs = useCategoryTabs([
     { name: "Resources", id: "resources" },
-    { name: "Testimonials", id: "testimonials", count: 0, disabled: true },
+    { name: "Testimonials", id: "testimonials", count: 0},
     { name: "Grade Stats", id: "statistics" },
   ]);
 
@@ -177,6 +179,9 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
     ? bi_courses_data.session.replace("-", "/")
     : "this year's";
 
+  const { data : testimonials, loading: loading_testimonials, error: error_testimonials } = useRequest(
+    () => loadTestimonialsByCourse(metaData.slug)
+  );
   return (
     <>
       {modals}
@@ -353,7 +358,16 @@ const CategoryPageContent: React.FC<CategoryPageContentProps> = ({
                         </Anchor>
                       </Flex>
                     </Paper>
-                  ) : null}
+                  ) : tabs.currentTabId === "testimonials" ? (
+                       <>
+                       {testimonials && (
+                        <Text>
+                          {testimonials["value"].map((testimonial: TestimonialCardProps) => <TestimonialCard author_id={testimonial.author_id} author_diplay_name={testimonial.author_diplay_name} slug={testimonial.slug} testimonial={testimonial.testimonial} yearTaken={testimonial.yearTaken} approval_status={testimonial.approval_status}></TestimonialCard>)}
+                        </Text>
+                       )}
+                       </>
+                  )
+                  : null}
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   {metaData.experts.includes(user.username) && (
