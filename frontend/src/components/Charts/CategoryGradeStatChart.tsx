@@ -3,12 +3,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useComputedColorScheme, useMantineTheme } from "@mantine/core";
 import type {
   EChartsOption,
+  DefaultLabelFormatterCallbackParams,
   LabelFormatterCallback,
   LabelLayoutOptionCallbackParams,
   TooltipComponentOption,
   TooltipComponentPositionCallbackParams,
+  CustomSeriesRenderItemParams,
+  CustomSeriesRenderItemAPI,
 } from "echarts";
-import { LineChart } from "echarts/charts";
+import { LineChart, CustomChart } from "echarts/charts";
 import {
   GridComponent,
   TitleComponent,
@@ -20,11 +23,13 @@ import { LabelLayout } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 import EChartsCore, {
   EChartsCoreProps,
+  EChartsEventsMap,
   EChartsReactRef,
 } from "react-echarts-library/core";
 
 echarts.use([
   LineChart,
+  CustomChart,
   GridComponent,
   TitleComponent,
   TooltipComponent,
@@ -188,6 +193,10 @@ export const CategoryGradeStatChart: React.FC<
               // Skip if mean mark is not available
               return;
             }
+            // Or if name ends with "-stddev" (for custom error bar series)
+            if (param.seriesName?.endsWith("-stddev")) {
+              return;
+            }
             const code = param.seriesName;
             const meanMark = value[1];
             const stdDev = value[2];
@@ -205,104 +214,250 @@ export const CategoryGradeStatChart: React.FC<
           return tooltip;
         },
       } as TooltipComponentOption,
-      series: codes.map((code, ix) => ({
-        name: code,
-        type: "line",
-        data: combinedData.map(d => {
-          const value = [
-            d.academic_year,
-            d.course_code[code]?.mean_mark,
-            d.course_code[code]?.std_deviation,
-            d.course_code[code]?.course_organiser,
-            d.course_code[code]?.organiser_changed,
-          ];
-          if (d.course_code[code]?.organiser_changed) {
-            return {
-              value,
-              label: { show: true },
-            };
-          }
-          return value;
-        }),
-        lineStyle: {
-          color: colors[codes.indexOf(code) % colors.length].replace(
-            "0.3",
-            "0.8",
-          ),
-        },
-        itemStyle: {
-          color: colors[codes.indexOf(code) % colors.length].replace(
-            "0.3",
-            "0.8",
-          ),
-        },
-        emphasis: {
+      series: [
+        // Main line series for each course code
+        ...codes.map((code, ix) => ({
+          name: code,
+          type: "line",
+          triggerEvent: "line",
+          data: combinedData.map(d => {
+            const value = [
+              d.academic_year,
+              d.course_code[code]?.mean_mark,
+              d.course_code[code]?.std_deviation,
+              d.course_code[code]?.course_organiser,
+              d.course_code[code]?.organiser_changed,
+            ];
+            if (d.course_code[code]?.organiser_changed) {
+              return {
+                value,
+                label: { show: true },
+              };
+            }
+            return value;
+          }),
           lineStyle: {
-            width: 9,
             color: colors[codes.indexOf(code) % colors.length].replace(
               "0.3",
-              "1.0",
+              "0.8",
             ),
           },
-        },
-        label: {
-          formatter: (params => {
-            if (!params.value) return undefined;
-            const value = params.value as (
-              | string
-              | number
-              | boolean
-              | null
-              | undefined
-            )[];
-            // Show only if course organizer changed
-            const organiser = value[3];
-            const organiserChanged = value[4];
-            if (organiser && organiserChanged) {
-              return `CO: ${organiser}`;
-            }
-            return undefined;
-          }) as LabelFormatterCallback,
-          position: ix % 2 === 0 ? "top" : "bottom",
-          align: "left",
-          color: colors[codes.indexOf(code) % colors.length].replace(
-            "0.3",
-            "0.8",
-          ),
-        },
-        labelLine: {
-          show: true,
-          length2: 5,
-          smooth: true,
-          lineStyle: {
-            color: "#bbb",
+          itemStyle: {
+            color: colors[codes.indexOf(code) % colors.length].replace(
+              "0.3",
+              "0.8",
+            ),
           },
-        },
-        labelLayout: (params: LabelLayoutOptionCallbackParams) => {
-          const gridXEnd = chartRef
-            ?.getEchartsInstance()
-            ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
-          if (gridXEnd === undefined) {
-            return { x: params.labelRect.x, y: params.labelRect.y }; // Fallback to default position
-          }
+          emphasis: {
+            lineStyle: {
+              width: 9,
+              color: colors[codes.indexOf(code) % colors.length].replace(
+                "0.3",
+                "1.0",
+              ),
+            },
+          },
+          label: {
+            formatter: (params => {
+              if (!params.value) return undefined;
+              const value = params.value as (
+                | string
+                | number
+                | boolean
+                | null
+                | undefined
+              )[];
+              // Show only if course organizer changed
+              const organiser = value[3];
+              const organiserChanged = value[4];
+              if (organiser && organiserChanged) {
+                return `CO: ${organiser}`;
+              }
+              return undefined;
+            }) as LabelFormatterCallback,
+            position: ix % 2 === 0 ? "top" : "bottom",
+            align: "left",
+            color: colors[codes.indexOf(code) % colors.length].replace(
+              "0.3",
+              "0.8",
+            ),
+          },
+          labelLine: {
+            show: true,
+            length2: 5,
+            smooth: true,
+            lineStyle: {
+              color: "#bbb",
+            },
+          },
+          labelLayout: (params: LabelLayoutOptionCallbackParams) => {
+            const gridXEnd = chartRef
+              ?.getEchartsInstance()
+              ?.convertToPixel({ xAxisIndex: 0 }, sortedYears.length - 1);
+            if (gridXEnd === undefined) {
+              return { x: params.labelRect.x, y: params.labelRect.y }; // Fallback to default position
+            }
 
-          return {
-            moveOverlap: true,
-            x:
-              params.labelRect.x + params.labelRect.width > gridXEnd - 50
-                ? params.labelRect.x - params.labelRect.width - 5
-                : params.labelRect.x,
-            y: params.labelRect.y + (ix % 2 === 0 ? -30 : 30),
-          };
-        },
-      })),
+            return {
+              moveOverlap: true,
+              x:
+                params.labelRect.x + params.labelRect.width > gridXEnd - 50
+                  ? params.labelRect.x - params.labelRect.width - 5
+                  : params.labelRect.x,
+              y: params.labelRect.y + (ix % 2 === 0 ? -30 : 30),
+            };
+          },
+        })),
+        // Standard deviation series as custom error bars
+        ...codes.map((code, ix) => ({
+          name: `${code}-stddev`,
+          type: "custom",
+          data: combinedData.map(d => {
+            if (
+              d.course_code[code]?.mean_mark === null ||
+              d.course_code[code]?.mean_mark === undefined
+            ) {
+              return [d.academic_year, null, null];
+            }
+
+            const value = [
+              d.academic_year,
+              d.course_code[code].mean_mark -
+                (d.course_code[code].std_deviation ?? 0),
+              d.course_code[code].mean_mark +
+                (d.course_code[code].std_deviation ?? 0),
+            ];
+
+            return value;
+          }),
+          renderItem: (
+            params: CustomSeriesRenderItemParams,
+            api: CustomSeriesRenderItemAPI,
+          ) => {
+            const xValue = api.value(0);
+            const yLow = api.value(1) as number | null;
+            const yHigh = api.value(2) as number | null;
+            // Show as error bars with one vertical and two horizontal lines
+            if (yLow === null || yHigh === null) {
+              return null; // No error bar if no data
+            }
+            const xCoord = api.coord([xValue, 0])[0];
+            const yLowCoord = api.coord([0, yLow])[1];
+            const yHighCoord = api.coord([0, yHigh])[1];
+            const errorBarWidth = 10;
+
+            // We can't replicate the behaviour of .style() with other funcs:
+            // https://github.com/apache/echarts/issues/16514
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
+            const customStyle = api.style({
+              stroke: colors[codes.indexOf(code) % colors.length].replace(
+                "0.3",
+                "0.8",
+              ),
+              lineWidth: 2,
+              opacity: 0,
+            });
+            const emphasisStyle = {
+              ...customStyle,
+              opacity: 1,
+            };
+            return {
+              type: "group",
+              children: [
+                {
+                  type: "line",
+                  shape: {
+                    x1: xCoord,
+                    y1: yLowCoord,
+                    x2: xCoord,
+                    y2: yHighCoord,
+                  },
+                  style: customStyle,
+                  emphasis: {
+                    style: emphasisStyle,
+                  },
+                },
+                {
+                  type: "line",
+                  shape: {
+                    x1: xCoord - errorBarWidth / 2,
+                    y1: yLowCoord,
+                    x2: xCoord + errorBarWidth / 2,
+                    y2: yLowCoord,
+                  },
+                  style: customStyle,
+                  emphasis: {
+                    style: emphasisStyle,
+                  },
+                },
+                {
+                  type: "line",
+                  shape: {
+                    x1: xCoord - errorBarWidth / 2,
+                    y1: yHighCoord,
+                    x2: xCoord + errorBarWidth / 2,
+                    y2: yHighCoord,
+                  },
+                  style: customStyle,
+                  emphasis: {
+                    style: emphasisStyle,
+                  },
+                },
+              ],
+            };
+          },
+        })),
+      ],
     } as EChartsOption;
   }, [sortedYears, codes, combinedData, colors, chartRef]);
+
+  // We keep a timeout for each series to delay the downplay action, so that the
+  // stddev line doesn't disappear immediately when the mouse leaves the main
+  // line. Important, since without this, stddev will flicker very quickly.
+  const hoverTimeouts = useRef<Record<string, NodeJS.Timeout | undefined>>({});
+
+  // Trigger highlight and downplay via events
+  const handleEvents = useMemo(
+    () =>
+      ({
+        mouseover: (params, chart) => {
+          const code = (params as DefaultLabelFormatterCallbackParams)
+            .seriesName;
+          if (code && !code.endsWith("-stddev")) {
+            if (hoverTimeouts.current[code]) {
+              clearTimeout(hoverTimeouts.current[code]);
+            }
+            chart.dispatchAction({
+              type: "highlight",
+              seriesName: `${code}-stddev`,
+            });
+          }
+        },
+        mouseout: (params, chart) => {
+          const code = (params as DefaultLabelFormatterCallbackParams)
+            .seriesName;
+          if (code && !code.endsWith("-stddev")) {
+            if (hoverTimeouts.current[code]) {
+              clearTimeout(hoverTimeouts.current[code]);
+            }
+            hoverTimeouts.current[code] = setTimeout(() => {
+              chart.dispatchAction({
+                type: "downplay",
+                seriesName: `${code}-stddev`,
+              });
+            }, 1000);
+          }
+        },
+      }) as EChartsEventsMap,
+    [],
+  );
+
   return (
     <EChartsCore
       {...props}
       echarts={echarts}
       option={chartOption}
+      onEvents={handleEvents}
       replaceMerge="series"
       ref={setChartRef}
     />
