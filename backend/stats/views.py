@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.db.models import Count, Min
+from django.db.models import Count, Min, OuterRef, Subquery
 from django.db.models.functions import TruncDate
 
 from ediauth import auth_check
@@ -63,15 +63,20 @@ def get_stats():
     )
     answers_counts = {row["day"]: row["cnt"] for row in answer_rows}
 
+    earliest_answer_subquery = (
+        AnswerSection.objects.filter(pk=OuterRef("pk"))
+        .annotate(min_time=Min("answer__time"))
+        .values(first_day=TruncDate("min_time"))
+    )
+
+    # 2. Main query: Annotate each section with its first day, then group by that day and count
     answered_rows = (
-        # Use AnswerSection and find the earliest answer time for each section
-        AnswerSection.objects.annotate(first_day=TruncDate(Min("answer__time")))
-        # Group by the first answer day and count how many sections were answered
+        AnswerSection.objects.annotate(first_day=Subquery(earliest_answer_subquery))
         .values("first_day")
         .annotate(cnt=Count("id"))
-        .values("first_day", "cnt")
         .order_by("first_day")
     )
+
     answered_counts = {row["first_day"]: row["cnt"] for row in answered_rows}
 
     stats["exam_stats"] = []
