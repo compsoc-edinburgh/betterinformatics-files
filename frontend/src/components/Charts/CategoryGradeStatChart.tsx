@@ -1,19 +1,15 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { useComputedColorScheme, useMantineTheme } from "@mantine/core";
 import type {
   EChartsOption,
-  EChartsType,
+  DefaultLabelFormatterCallbackParams,
   LabelFormatterCallback,
   LabelLayoutOptionCallbackParams,
   TooltipComponentOption,
   TooltipComponentPositionCallbackParams,
+  CustomSeriesRenderItemParams,
+  CustomSeriesRenderItemAPI,
 } from "echarts";
 import { LineChart, CustomChart } from "echarts/charts";
 import {
@@ -27,7 +23,6 @@ import { LabelLayout } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 import EChartsCore, {
   EChartsCoreProps,
-  EChartsEventHandler,
   EChartsEventsMap,
   EChartsReactRef,
 } from "react-echarts-library/core";
@@ -335,10 +330,13 @@ export const CategoryGradeStatChart: React.FC<
 
             return value;
           }),
-          renderItem: (params: any, api: any) => {
+          renderItem: (
+            params: CustomSeriesRenderItemParams,
+            api: CustomSeriesRenderItemAPI,
+          ) => {
             const xValue = api.value(0);
-            const yLow = api.value(1);
-            const yHigh = api.value(2);
+            const yLow = api.value(1) as number | null;
+            const yHigh = api.value(2) as number | null;
             // Show as error bars with one vertical and two horizontal lines
             if (yLow === null || yHigh === null) {
               return null; // No error bar if no data
@@ -348,6 +346,9 @@ export const CategoryGradeStatChart: React.FC<
             const yHighCoord = api.coord([0, yHigh])[1];
             const errorBarWidth = 10;
 
+            // We can't replicate the behaviour of .style() with other funcs:
+            // https://github.com/apache/echarts/issues/16514
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             const customStyle = api.style({
               stroke: colors[codes.indexOf(code) % colors.length].replace(
                 "0.3",
@@ -413,15 +414,16 @@ export const CategoryGradeStatChart: React.FC<
   // We keep a timeout for each series to delay the downplay action, so that the
   // stddev line doesn't disappear immediately when the mouse leaves the main
   // line. Important, since without this, stddev will flicker very quickly.
-  const hoverTimeouts = useRef<Record<string, NodeJS.Timeout>>({});
+  const hoverTimeouts = useRef<Record<string, NodeJS.Timeout | undefined>>({});
 
   // Trigger highlight and downplay via events
   const handleEvents = useMemo(
     () =>
       ({
         mouseover: (params, chart) => {
-          if (!params.seriesName?.endsWith("-stddev")) {
-            const code = params.seriesName;
+          const code = (params as DefaultLabelFormatterCallbackParams)
+            .seriesName;
+          if (code && !code.endsWith("-stddev")) {
             if (hoverTimeouts.current[code]) {
               clearTimeout(hoverTimeouts.current[code]);
             }
@@ -432,8 +434,9 @@ export const CategoryGradeStatChart: React.FC<
           }
         },
         mouseout: (params, chart) => {
-          if (!params.seriesName?.endsWith("-stddev")) {
-            const code = params.seriesName;
+          const code = (params as DefaultLabelFormatterCallbackParams)
+            .seriesName;
+          if (code && !code.endsWith("-stddev")) {
             if (hoverTimeouts.current[code]) {
               clearTimeout(hoverTimeouts.current[code]);
             }
@@ -446,7 +449,7 @@ export const CategoryGradeStatChart: React.FC<
           }
         },
       }) as EChartsEventsMap,
-    [combinedData],
+    [],
   );
 
   return (
