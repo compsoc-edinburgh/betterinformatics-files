@@ -51,11 +51,11 @@ def get_stats():
     )
     user_counts = {row["day"]: row["cnt"] for row in user_rows}
 
-    disabled_user_rows = (
+    inactive_user_rows = (
         # Based on their last login date, add 250 days to it and annotate the
-        # day that they get disabled. Group by this date, filter out anything
-        # in the future, and count how many users were considered no  longer
-        # active on each day.
+        # day that they are officially considered inactive. Group by this date,
+        # filter out anything in the future, and count how many users were added
+        # each day.
         # For those with last login set to NULL, use their date joined instead.
         # (250 was chosen as a slightly arbitrary cutoff that isn't as long as
         # a full year but is long enough to cover two semesters)
@@ -73,21 +73,21 @@ def get_stats():
         .values("day", "cnt")
         .order_by("day")
     )
-    disabled_user_counts = {row["day"]: row["cnt"] for row in disabled_user_rows}
+    inactive_user_counts = {row["day"]: row["cnt"] for row in inactive_user_rows}
 
     stats["user_stats"] = []
     last_user_count = 0
-    last_disabled_user_count = 0
+    last_inactive_user_count = 0
     for day in days:
         if day in user_counts:
             last_user_count += user_counts[day]
-        if day in disabled_user_counts:
-            last_disabled_user_count += disabled_user_counts[day]
+        if day in inactive_user_counts:
+            last_inactive_user_count += inactive_user_counts[day]
         stats["user_stats"].append(
             {
                 "date": day.strftime("%Y-%m-%d"),
                 "count": last_user_count,
-                "active_count": last_user_count - last_disabled_user_count,
+                "active_count": last_user_count - last_inactive_user_count,
             }
         )
 
