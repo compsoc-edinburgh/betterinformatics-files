@@ -188,7 +188,9 @@ const Scoreboard: React.FC = () => {
       statOptions(
         stats?.user_stats.map(s => s.date) ?? [],
         {
-          "User Count": stats?.user_stats.map(s => s.count) ?? [],
+          "Cumulative User Count": stats?.user_stats.map(s => s.count) ?? [],
+          "Active Student User Count":
+            stats?.user_stats.map(s => s.active_count) ?? [],
         },
         theme.colors[theme.primaryColor],
       ),
@@ -263,6 +265,10 @@ const Scoreboard: React.FC = () => {
           // notMerge is required for dynamic setTheme calls
           notMerge={true}
         />
+        <Text mt="sm" c="dimmed">
+          Note: An Active Student User is defined as a user who has logged in in
+          the last 250 days from the date of interest.
+        </Text>
       </Container>
       <Title order={2} my="lg">
         Exam Stats

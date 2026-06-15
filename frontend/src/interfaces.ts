@@ -441,6 +441,7 @@ export interface Stats {
 export interface UserStat {
   date: string;
   count: number;
+  active_count: number;
 }
 
 export interface ExamStat {

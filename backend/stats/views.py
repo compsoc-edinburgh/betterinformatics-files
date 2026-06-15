@@ -2,8 +2,15 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.db.models import Count, Min, OuterRef, Subquery
-from django.db.models.functions import TruncDate
+from django.db.models import (
+    Count,
+    DateField,
+    ExpressionWrapper,
+    Min,
+    OuterRef,
+    Subquery,
+)
+from django.db.models.functions import Coalesce, TruncDate
 
 from ediauth import auth_check
 from util import response, func_cache
@@ -43,13 +50,45 @@ def get_stats():
         .order_by("day")
     )
     user_counts = {row["day"]: row["cnt"] for row in user_rows}
+
+    disabled_user_rows = (
+        # Based on their last login date, add 250 days to it and annotate the
+        # day that they get disabled. Group by this date, filter out anything
+        # in the future, and count how many users were considered no  longer
+        # active on each day.
+        # For those with last login set to NULL, use their date joined instead.
+        # (250 was chosen as a slightly arbitrary cutoff that isn't as long as
+        # a full year but is long enough to cover two semesters)
+        User.objects.annotate(
+            day=TruncDate(
+                ExpressionWrapper(
+                    Coalesce("last_login", "date_joined") + timedelta(days=250),
+                    output_field=DateField(),
+                )
+            )
+        )
+        .filter(day__lte=timezone.now().date())
+        .values("day")
+        .annotate(cnt=Count("id"))
+        .values("day", "cnt")
+        .order_by("day")
+    )
+    disabled_user_counts = {row["day"]: row["cnt"] for row in disabled_user_rows}
+
     stats["user_stats"] = []
     last_user_count = 0
+    last_disabled_user_count = 0
     for day in days:
         if day in user_counts:
             last_user_count += user_counts[day]
+        if day in disabled_user_counts:
+            last_disabled_user_count += disabled_user_counts[day]
         stats["user_stats"].append(
-            {"date": day.strftime("%Y-%m-%d"), "count": last_user_count}
+            {
+                "date": day.strftime("%Y-%m-%d"),
+                "count": last_user_count,
+                "active_count": last_user_count - last_disabled_user_count,
+            }
         )
 
     answer_rows = (
