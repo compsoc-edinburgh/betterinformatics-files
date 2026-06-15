@@ -1,5 +1,11 @@
 # Changelog
 
+## v2026.06.15
+
+- Show number of active student users in stats page ([\#118](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/118))
+- Show standard deviation in grades using error bars ([\#117](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/117))
+- Fix AnswerSection stats not calculating minimum per section ([\#116](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/116))
+
 ## v2026.06.01-2
 
 - Hotfix for "Internal Server Error" introduced in v2026.06.01-1 ([\#113](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/113))
