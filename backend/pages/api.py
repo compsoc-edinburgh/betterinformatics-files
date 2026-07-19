@@ -139,6 +139,10 @@ def create_page(request, data: PageCreateRequest):
         kind=Page.Kind.GUIDE,
         category=category,
         author=author,
-        parents=parents,
     )
     page.save()
+
+    for parent in parents:
+        page.parents.add(parent)
+
+    return {"slug": page.slug}
