@@ -34,6 +34,17 @@ class PageResponse(Schema):
     author: PageAuthorResponse
 
 
+class PageRevisionResponseItem(Schema):
+    id: int
+    created_at: datetime.datetime
+    author: PageAuthorResponse
+    message: str
+
+
+class PageRevisionListResponse(Schema):
+    revisions: list[PageRevisionResponseItem]
+
+
 def get_page_author_response(
     author: PageAuthor, request: HttpRequest
 ) -> PageAuthorResponse:
@@ -231,7 +242,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     return {"slug": page.slug}
 
 
-@router.get("/{slug}/revisions/")
+@router.get("/{slug}/revisions/", response=PageRevisionListResponse)
 @auth_check.require_login
 def list_revisions(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
