@@ -16,7 +16,7 @@ router = Router()
 class PageAuthorResponse(Schema):
     display_name: str
     anonymised: bool
-    registered_username: Optional[str]
+    username: Optional[str]
 
 
 class PageResponse(Schema):
@@ -44,7 +44,7 @@ def get_page_author_response(author: PageAuthor) -> PageAuthorResponse:
     return PageAuthorResponse(
         display_name=display_name,
         anonymised=author.is_anonymous,
-        registered_username=author.user.username if author.user else None,
+        username=author.user.username if author.user else None,
     )
 
 
