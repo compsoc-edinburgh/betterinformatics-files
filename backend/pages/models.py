@@ -1,5 +1,9 @@
+from typing import Optional
+
 from django.utils import timezone
 from django.db import models
+
+from categories.models import Category
 
 
 class Page(models.Model):
@@ -10,7 +14,7 @@ class Page(models.Model):
     title = models.CharField(max_length=256)
     slug = models.CharField(max_length=256, unique=True)
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.GUIDE)
-    category = models.ForeignKey(
+    category: models.ForeignKey[Optional[Category]] = models.ForeignKey(
         "categories.Category",
         on_delete=models.SET_NULL,
         null=True,
