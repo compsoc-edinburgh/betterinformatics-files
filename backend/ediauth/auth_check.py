@@ -5,10 +5,46 @@ from django.shortcuts import get_object_or_404
 
 from util import func_cache, response
 
+from ediauth.models import TemporaryUser
+
 
 def check_api_key(request):
     api_key = request.headers.get("X-COMMUNITY-SOLUTIONS-API-KEY")
     return bool(api_key and api_key == settings.API_KEY)
+
+
+# Wrapper for declaring that a view supports temporary user.
+def supports_temp_user(f):
+    @wraps(f)
+    def wrapper(request, *args, **kwargs):
+        temp_session_id = request.COOKIES.get("temp_session_id")
+
+        if request.user:
+            # If authenticated, remove temp session if it exists
+            request.temp_user = None
+            response = f(request, *args, **kwargs)
+            response.delete_cookie("temp_session_id")
+            return response
+
+        try:
+            if temp_session_id:
+                temp_user = TemporaryUser.objects.get(session_id=temp_session_id)
+                request.temp_user = temp_user
+                return f(request, *args, **kwargs)
+        finally:
+            # If temporary session couldn't be found or wasn't given, create new
+            temp_user = TemporaryUser.objects.create()
+            request.temp_user = temp_user
+            response = f(request, *args, **kwargs)
+            response.set_cookie(
+                "temp_session_id",
+                str(temp_user.session_id),
+                httponly=True,
+                samesite="Lax",
+            )
+            return response
+
+    return wrapper
 
 
 def user_authenticated(request):
