@@ -178,6 +178,7 @@ class PageUpdateRequest(Schema):
     category: Optional[str]
     parents: list[str]
     content: str
+    revision_message: str
     is_anonymous: bool
 
 
@@ -212,6 +213,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     page.edited_at = datetime.datetime.now()
     page.save()
 
+    # Create new revision
     if request.user:
         author, _created = PageAuthor.objects.get_or_create(
             user=request.user, is_anonymous=data.is_anonymous
@@ -228,6 +230,7 @@ def update_page(request, slug: str, data: PageUpdateRequest):
         author=author,
         content_delta=content_patch,
         title_delta=title_patch,
+        message=data.revision_message,
     )
 
     return {"slug": page.slug}
