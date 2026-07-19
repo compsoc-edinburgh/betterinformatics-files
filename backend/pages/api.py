@@ -58,7 +58,7 @@ def get_page(request, slug: str):
         title=page.title,
         slug=page.slug,
         kind=Page.Kind(page.kind),
-        category=page.category.name if page.category else None,
+        category=page.category.slug if page.category else None,
         parents=[parent.slug for parent in page.parents.all()],
         created_at=page.created_at,
         edited_at=page.edited_at,
@@ -116,8 +116,9 @@ def create_page(request, data: PageCreateRequest):
 
     # Double check category exists
     if data.category:
-        category = Category.objects.get(name=data.category)
-        if not category:
+        try:
+            category = Category.objects.get(slug=data.category)
+        except Category.DoesNotExist:
             return 400, f"Category {data.category} does not exist"
 
     # Double check parents exists
