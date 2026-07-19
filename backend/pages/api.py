@@ -135,6 +135,7 @@ def create_page(request, data: PageCreateRequest):
     author = get_page_author(request)
 
     # Double check category exists
+    category = None
     if data.category:
         try:
             category = Category.objects.get(slug=data.category)
