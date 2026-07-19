@@ -19,8 +19,8 @@ class Page(models.Model):
         related_name="pages",
     )
     parents = models.ManyToManyField("self", symmetrical=False, related_name="children")
-    time = models.DateTimeField(default=timezone.now)  # creation time
-    edittime = models.DateTimeField(default=timezone.now)  # last modified time
+    created_at = models.DateTimeField(default=timezone.now)  # creation time
+    edited_at = models.DateTimeField(default=timezone.now)  # last modified time
     content = models.TextField(default="")
     author = models.ForeignKey(
         "pages.PageAuthor", on_delete=models.CASCADE, related_name="authored_pages"
@@ -36,7 +36,7 @@ class Page(models.Model):
 
 class PageRevision(models.Model):
     page = models.ForeignKey("Page", on_delete=models.CASCADE, related_name="revisions")
-    time = models.DateTimeField(default=timezone.now)  # edit time
+    created_at = models.DateTimeField(default=timezone.now)  # edit time
     content_delta = models.TextField(default="")  # diff from before to after
     author = models.ForeignKey(
         "pages.PageAuthor", on_delete=models.CASCADE, related_name="authored_revisions"
