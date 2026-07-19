@@ -167,3 +167,63 @@ def create_page(request, data: PageCreateRequest):
     )
 
     return {"slug": page.slug}
+
+
+class PageUpdateRequest(Schema):
+    title: str
+    category: Optional[str]
+    parents: list[str]
+    content: str
+    is_anonymous: bool
+
+
+@router.put("/{slug}")
+@decorate_view(auth_check.supports_temp_user)
+def update_page(request, slug: str, data: PageUpdateRequest):
+    page = get_object_or_404(Page, slug=slug)
+
+    if data.category:
+        try:
+            category = Category.objects.get(slug=data.category)
+            page.category = category
+        except Category.DoesNotExist:
+            return 400, f"Category {data.category} does not exist"
+
+    title_patch = calculate_patch(page.title, data.title)
+    content_patch = calculate_patch(page.content, data.content)
+
+    page.title = data.title
+    page.content = data.content
+
+    # Update parents
+    parents = []
+    for parent_slug in data.parents:
+        try:
+            parent = Page.objects.get(slug=parent_slug)
+            parents.append(parent)
+        except Page.DoesNotExist:
+            return 400, f"Parent page {parent_slug} does not exist"
+
+    page.parents.set(parents)
+    page.edited_at = datetime.datetime.now()
+    page.save()
+
+    if request.user:
+        author, _created = PageAuthor.objects.get_or_create(
+            user=request.user, is_anonymous=data.is_anonymous
+        )
+    elif request.temp_user:
+        author, _created = PageAuthor.objects.get_or_create(
+            temp_user=request.temp_user, is_anonymous=data.is_anonymous
+        )
+    else:
+        return 400, "Illegal state: no user or temp user found in request"
+
+    PageRevision.objects.create(
+        page=page,
+        author=author,
+        content_delta=content_patch,
+        title_delta=title_patch,
+    )
+
+    return {"slug": page.slug}
