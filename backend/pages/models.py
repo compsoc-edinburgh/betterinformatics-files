@@ -37,6 +37,7 @@ class Page(models.Model):
 
 
 class PageRevision(models.Model):
+    id: int
     page = models.ForeignKey("Page", on_delete=models.CASCADE, related_name="revisions")
     created_at = models.DateTimeField(default=timezone.now)  # edit time
     title_delta = models.TextField(default="")  # diff from before to after

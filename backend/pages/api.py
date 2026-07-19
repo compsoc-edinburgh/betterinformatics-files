@@ -228,3 +228,23 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     )
 
     return {"slug": page.slug}
+
+
+@router.get("/{slug}/revisions/")
+@auth_check.require_login
+def list_revisions(request, slug: str):
+    page = get_object_or_404(Page, slug=slug)
+    revisions = page.revisions.select_related("author").all().order_by("-created_at")
+
+    revision_list = []
+    for rev in revisions:
+        revision_list.append(
+            {
+                "id": rev.id,
+                "created_at": rev.created_at.isoformat(),
+                "author": get_page_author_response(rev.author, request),
+                "message": rev.message,
+            }
+        )
+
+    return {"revisions": revision_list}
