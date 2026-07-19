@@ -122,11 +122,12 @@ def create_page(request, data: PageCreateRequest):
             return 400, f"Category {data.category} does not exist"
 
     # Double check parents exists
+    parents = []
     if data.parents:
-        parents = []
         for parent_slug in data.parents:
-            parent = Page.objects.get(slug=parent_slug)
-            if not parent:
+            try:
+                parent = Page.objects.get(slug=parent_slug)
+            except Page.DoesNotExist:
                 return 400, f"Parent page {parent_slug} does not exist"
             parents.append(parent)
 
