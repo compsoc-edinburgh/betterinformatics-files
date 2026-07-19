@@ -11,7 +11,7 @@ import diff_match_patch as dmp_module
 from categories.models import Category
 from backend import settings
 from ediauth import auth_check
-from pages.models import Page, PageAuthor
+from pages.models import Page, PageAuthor, PageRevision
 
 router = Router()
 
@@ -153,10 +153,17 @@ def create_page(request, data: PageCreateRequest):
         kind=Page.Kind.GUIDE,
         category=category,
         author=author,
+        content="",
     )
     page.save()
 
-    for parent in parents:
-        page.parents.add(parent)
+    page.parents.set(parents)
+
+    content_patch = calculate_patch("", page.content)
+    title_patch = calculate_patch("", page.title)
+
+    PageRevision.objects.create(
+        page=page, author=author, content_delta=content_patch, title_delta=title_patch
+    )
 
     return {"slug": page.slug}
