@@ -106,11 +106,11 @@ def create_page(request, data: PageCreateRequest):
     slug = create_page_slug(data.title)
 
     if request.user:
-        author = PageAuthor.objects.get_or_create(
+        author, _created = PageAuthor.objects.get_or_create(
             user=request.user, is_anonymous=data.is_anonymous
         )
     elif request.temp_user:
-        author = PageAuthor.objects.get_or_create(
+        author, _created = PageAuthor.objects.get_or_create(
             temp_user=request.temp_user, is_anonymous=data.is_anonymous
         )
 
