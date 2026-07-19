@@ -53,6 +53,20 @@ def get_page_author_response(
     )
 
 
+def get_page_author(request) -> PageAuthor:
+    if request.user:
+        author, _created = PageAuthor.objects.get_or_create(
+            user=request.user, is_anonymous=False
+        )
+    elif request.temp_user:
+        author, _created = PageAuthor.objects.get_or_create(
+            temp_user=request.temp_user, is_anonymous=False
+        )
+    else:
+        raise ValueError("No user or temp user found in request")
+    return author
+
+
 @router.get("/{slug}")
 def get_page(request, slug: str):
     page = get_object_or_404(Page, slug=slug)
@@ -118,17 +132,7 @@ def calculate_patch(old_content: str, new_content: str) -> str:
 @decorate_view(auth_check.supports_temp_user)
 def create_page(request, data: PageCreateRequest):
     slug = create_page_slug(data.title)
-
-    if request.user:
-        author, _created = PageAuthor.objects.get_or_create(
-            user=request.user, is_anonymous=data.is_anonymous
-        )
-    elif request.temp_user:
-        author, _created = PageAuthor.objects.get_or_create(
-            temp_user=request.temp_user, is_anonymous=data.is_anonymous
-        )
-    else:
-        return 400, "Illegal state: no user or temp user found in request"
+    author = get_page_author(request)
 
     # Double check category exists
     if data.category:
@@ -186,6 +190,7 @@ class PageUpdateRequest(Schema):
 @decorate_view(auth_check.supports_temp_user)
 def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
+    author = get_page_author(request)
 
     if data.category:
         try:
@@ -214,17 +219,6 @@ def update_page(request, slug: str, data: PageUpdateRequest):
     page.save()
 
     # Create new revision
-    if request.user:
-        author, _created = PageAuthor.objects.get_or_create(
-            user=request.user, is_anonymous=data.is_anonymous
-        )
-    elif request.temp_user:
-        author, _created = PageAuthor.objects.get_or_create(
-            temp_user=request.temp_user, is_anonymous=data.is_anonymous
-        )
-    else:
-        return 400, "Illegal state: no user or temp user found in request"
-
     PageRevision.objects.create(
         page=page,
         author=author,
