@@ -68,9 +68,9 @@ class PageRevisionListResponse(Schema):
 
 
 def get_page_author_response(
-    author: PageAuthor, request: HttpRequest
+    author: PageAuthor, anonymised: bool, request: HttpRequest
 ) -> PageAuthorResponse:
-    if author.is_anonymous and not auth_check.has_admin_rights(request):
+    if anonymised and not auth_check.has_admin_rights(request):
         display_name = "Anonymous"
     elif author.user:
         display_name = author.user.profile.display_username
@@ -81,7 +81,7 @@ def get_page_author_response(
 
     return PageAuthorResponse(
         display_name=display_name,
-        anonymised=author.is_anonymous,
+        anonymised=anonymised,
         username=author.user.username if author.user else None,
     )
 
@@ -137,7 +137,9 @@ def list_pages(
                 "parents": [parent.slug for parent in page.parents.all()],
                 "created_at": page.created_at.isoformat(),
                 "edited_at": page.edited_at.isoformat(),
-                "author": get_page_author_response(page.author, request),
+                "author": get_page_author_response(
+                    page.author, page.anonymised, request
+                ),
             }
         )
     return {"pages": page_list}
@@ -156,7 +158,7 @@ def get_page(request, slug: str):
         created_at=page.created_at,
         edited_at=page.edited_at,
         content=page.content,
-        author=get_page_author_response(page.author, request),
+        author=get_page_author_response(page.author, page.anonymised, request),
     )
 
 
@@ -319,7 +321,7 @@ def list_revisions(request, slug: str):
             {
                 "id": rev.id,
                 "created_at": rev.created_at.isoformat(),
-                "author": get_page_author_response(rev.author, request),
+                "author": get_page_author_response(rev.author, rev.anonymised, request),
                 "message": rev.message,
             }
         )

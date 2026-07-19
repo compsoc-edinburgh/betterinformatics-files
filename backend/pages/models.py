@@ -47,6 +47,9 @@ class PageRevision(models.Model):
         "pages.PageAuthor", on_delete=models.CASCADE, related_name="authored_revisions"
     )
     message = models.TextField(default="")
+    anonymised = models.BooleanField(
+        default=False
+    )  # To users not logged in, author will be hidden regardless of this choice
 
 
 class PageAuthor(models.Model):
@@ -54,7 +57,6 @@ class PageAuthor(models.Model):
     temp_user = models.ForeignKey(
         "ediauth.TemporaryUser", on_delete=models.SET_NULL, null=True
     )
-    is_anonymous = models.BooleanField(default=False)
 
     # Related objects typehints
     authored_pages: models.QuerySet["Page"]
