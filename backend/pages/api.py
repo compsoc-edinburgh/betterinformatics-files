@@ -127,6 +127,8 @@ def create_page(request, data: PageCreateRequest):
         author, _created = PageAuthor.objects.get_or_create(
             temp_user=request.temp_user, is_anonymous=data.is_anonymous
         )
+    else:
+        return 400, "Illegal state: no user or temp user found in request"
 
     # Double check category exists
     if data.category:
