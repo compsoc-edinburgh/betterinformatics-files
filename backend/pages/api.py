@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 from ninja.decorators import decorate_view
 
+import diff_match_patch as dmp_module
 
 from categories.models import Category
 from backend import settings
@@ -100,6 +101,17 @@ def create_page_slug(title: str):
         cnt += 1
 
     return slug
+
+
+def calculate_patch(old_content: str, new_content: str) -> str:
+    dmp = dmp_module.diff_match_patch()
+    (oldChars, newChars, lines) = dmp.diff_linesToChars(old_content, new_content)
+    diffs = dmp.diff_main(oldChars, newChars, False)
+    dmp.diff_charsToLines(diffs, lines)
+    dmp.diff_cleanupSemantic(diffs)
+
+    patch = dmp.patch_make(diffs)
+    return dmp.patch_toText(patch)
 
 
 @router.post("/")

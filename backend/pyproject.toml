@@ -29,6 +29,7 @@ dependencies = [
     "requests==2.25.1",
     "pdfrw>=0.4",
     "defusedxml>=0.7.1",
+    "diff-match-patch>=20241021",
 ]
 
 [dependency-groups]
