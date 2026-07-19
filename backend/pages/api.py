@@ -3,6 +3,7 @@ from typing import Optional
 
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
+from ninja.decorators import decorate_view
 
 
 from categories.models import Category
@@ -101,7 +102,7 @@ def create_page_slug(title: str):
 
 
 @router.post("/")
-@auth_check.supports_temp_user
+@decorate_view(auth_check.supports_temp_user)
 def create_page(request, data: PageCreateRequest):
     slug = create_page_slug(data.title)
 
