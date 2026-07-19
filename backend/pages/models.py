@@ -1,5 +1,3 @@
-import uuid
-
 from django.utils import timezone
 from django.db import models
 
@@ -45,17 +43,14 @@ class PageRevision(models.Model):
 
 class PageAuthor(models.Model):
     user = models.ForeignKey("auth.User", on_delete=models.SET_NULL, null=True)
-    temp_user = models.ForeignKey("TemporaryUser", on_delete=models.SET_NULL, null=True)
+    temp_user = models.ForeignKey(
+        "ediauth.TemporaryUser", on_delete=models.SET_NULL, null=True
+    )
     is_anonymous = models.BooleanField(default=False)
 
     # Related objects typehints
     authored_pages: models.QuerySet["Page"]
     authored_revisions: models.QuerySet["PageRevision"]
-
-
-class TemporaryUser(models.Model):
-    created_at = models.DateTimeField(default=timezone.now)
-    session_id = models.UUIDField(default=uuid.uuid4, editable=False)
 
 
 class Resource(models.Model):

@@ -1,7 +1,9 @@
 import datetime
+import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 
 
 # The 'default' parameter of a field has to be a callable (for it to be run on
@@ -40,3 +42,8 @@ class Profile(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="profile"
     )  # Delete this profile if the user is deleted
+
+
+class TemporaryUser(models.Model):
+    created_at = models.DateTimeField(default=timezone.now)
+    session_id = models.UUIDField(default=uuid.uuid4, editable=False)
