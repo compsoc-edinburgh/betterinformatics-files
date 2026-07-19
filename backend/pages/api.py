@@ -13,7 +13,7 @@ from backend import settings
 from ediauth import auth_check
 from pages.models import Page, PageAuthor, PageRevision
 
-router = Router()
+router = Router(tags=["Pages"])
 
 
 class PageAuthorResponse(Schema):
