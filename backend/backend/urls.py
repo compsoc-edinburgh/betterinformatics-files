@@ -46,6 +46,7 @@ api.add_router("image/", "images.api.router")
 api.add_router("dissertations/", "dissertations.api.router")
 api.add_router("user/", "users.api.router")
 api.add_router("document/", "documents.api.router")
+api.add_router("page/", "pages.api.router")
 
 urlpatterns = [
     path("", include("health.urls")),

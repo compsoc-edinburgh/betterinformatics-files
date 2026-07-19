@@ -262,6 +262,7 @@ INSTALLED_APPS = [
     "ediauth",
     "util.apps.UtilConfig",
     "notifications.apps.NotificationsConfig",
+    "pages.apps.PagesConfig",
     "scoreboard.apps.ScoreboardConfig",
     "testing.apps.TestingConfig",
     "django_probes",
