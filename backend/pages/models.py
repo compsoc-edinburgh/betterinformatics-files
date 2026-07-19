@@ -34,6 +34,7 @@ class Page(models.Model):
     # Related objects typehints
     revisions: models.QuerySet["PageRevision"]
     resources: models.QuerySet["Resource"]
+    children: models.QuerySet["Page"]
 
 
 class PageRevision(models.Model):

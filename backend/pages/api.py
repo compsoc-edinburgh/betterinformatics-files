@@ -101,8 +101,31 @@ def get_page_author(request) -> PageAuthor:
 
 
 @router.get("/", response=PageListResponse)
-def list_pages(request):
-    pages = Page.objects.all().order_by("title")
+def list_pages(
+    request,
+    child_of: Optional[str] = None,
+    category: Optional[str] = None,
+):
+    query = Page.objects.all()
+
+    if child_of and child_of != "":
+        parent_page = get_object_or_404(Page, slug=child_of)
+        query = query.filter(parents=parent_page)
+    elif child_of == "":
+        query = query.filter(parents=None)
+
+    if category and category != "":
+        category_obj = get_object_or_404(Category, slug=category)
+        query = query.filter(category=category_obj)
+    elif category == "":
+        query = query.filter(category=None)
+
+    pages = (
+        query.select_related("author", "category")
+        .prefetch_related("parents")
+        .order_by("title")
+    )
+
     page_list = []
     for page in pages:
         page_list.append(
