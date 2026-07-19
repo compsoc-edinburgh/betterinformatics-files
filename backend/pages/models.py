@@ -44,6 +44,7 @@ class PageRevision(models.Model):
     author = models.ForeignKey(
         "pages.PageAuthor", on_delete=models.CASCADE, related_name="authored_revisions"
     )
+    message = models.TextField(default="")
 
 
 class PageAuthor(models.Model):
