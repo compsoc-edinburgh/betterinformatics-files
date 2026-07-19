@@ -163,7 +163,11 @@ def create_page(request, data: PageCreateRequest):
     title_patch = calculate_patch("", page.title)
 
     PageRevision.objects.create(
-        page=page, author=author, content_delta=content_patch, title_delta=title_patch
+        page=page,
+        author=author,
+        content_delta=content_patch,
+        title_delta=title_patch,
+        message="Created empty page",
     )
 
     return {"slug": page.slug}
