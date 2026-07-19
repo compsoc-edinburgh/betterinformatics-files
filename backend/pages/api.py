@@ -4,6 +4,10 @@ from typing import Optional
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 
+
+from categories.models import Category
+from backend import settings
+from ediauth import auth_check
 from pages.models import Page, PageAuthor
 
 router = Router()
@@ -59,3 +63,76 @@ def get_page(request, slug: str):
         content=page.content,
         author=get_page_author_response(page.author),
     )
+
+
+class PageCreateRequest(Schema):
+    title: str
+    category: Optional[str]
+    parents: list[str]
+    is_anonymous: bool
+
+
+def create_page_slug(title: str):
+    """
+    Create a valid and unique slug for the page title
+    :param title: page title
+    """
+    oslug = "".join(
+        filter(
+            lambda x: x in settings.COMSOL_DOCUMENT_SLUG_CHARS,
+            title.lower().replace(" ", "_"),
+        )
+    )
+    if oslug == "":
+        oslug = "invalid_name"
+
+    def exists(aslug):
+        return Page.objects.filter(slug=aslug).exists()
+
+    slug = oslug
+    cnt = 0
+    while exists(slug):
+        slug = oslug + "-" + str(cnt)
+        cnt += 1
+
+    return slug
+
+
+@router.post("/")
+@auth_check.supports_temp_user
+def create_page(request, data: PageCreateRequest):
+    slug = create_page_slug(data.title)
+
+    if request.user:
+        author = PageAuthor.objects.get_or_create(
+            user=request.user, is_anonymous=data.is_anonymous
+        )
+    elif request.temp_user:
+        author = PageAuthor.objects.get_or_create(
+            temp_user=request.temp_user, is_anonymous=data.is_anonymous
+        )
+
+    # Double check category exists
+    if data.category:
+        category = Category.objects.get(name=data.category)
+        if not category:
+            return 400, f"Category {data.category} does not exist"
+
+    # Double check parents exists
+    if data.parents:
+        parents = []
+        for parent_slug in data.parents:
+            parent = Page.objects.get(slug=parent_slug)
+            if not parent:
+                return 400, f"Parent page {parent_slug} does not exist"
+            parents.append(parent)
+
+    page = Page(
+        title=data.title,
+        slug=slug,
+        kind=Page.Kind.GUIDE,
+        category=category,
+        author=author,
+        parents=parents,
+    )
+    page.save()
