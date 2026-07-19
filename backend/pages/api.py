@@ -1,6 +1,7 @@
 import datetime
 from typing import Optional
 
+from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 from ninja.decorators import decorate_view
