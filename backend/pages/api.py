@@ -34,6 +34,28 @@ class PageResponse(Schema):
     author: PageAuthorResponse
 
 
+class PageListResponseItem(Schema):
+    title: str
+    slug: str
+    kind: Page.Kind
+    category: Optional[str]
+    parents: list[str]
+    created_at: datetime.datetime
+    edited_at: datetime.datetime
+
+
+class PageListResponse(Schema):
+    pages: list[PageListResponseItem]
+
+
+class PageCreateResponse(Schema):
+    slug: str
+
+
+class PageUpdateResponse(Schema):
+    slug: str
+
+
 class PageRevisionResponseItem(Schema):
     id: int
     created_at: datetime.datetime
@@ -76,6 +98,26 @@ def get_page_author(request) -> PageAuthor:
     else:
         raise ValueError("No user or temp user found in request")
     return author
+
+
+@router.get("/", response=PageListResponse)
+def list_pages(request):
+    pages = Page.objects.all().order_by("title")
+    page_list = []
+    for page in pages:
+        page_list.append(
+            {
+                "title": page.title,
+                "slug": page.slug,
+                "kind": page.kind,
+                "category": page.category.slug if page.category else None,
+                "parents": [parent.slug for parent in page.parents.all()],
+                "created_at": page.created_at.isoformat(),
+                "edited_at": page.edited_at.isoformat(),
+                "author": get_page_author_response(page.author, request),
+            }
+        )
+    return {"pages": page_list}
 
 
 @router.get("/{slug}")
@@ -139,7 +181,7 @@ def calculate_patch(old_content: str, new_content: str) -> str:
     return dmp.patch_toText(patch)
 
 
-@router.post("/")
+@router.post("/", response=PageCreateResponse)
 @decorate_view(auth_check.supports_temp_user)
 def create_page(request, data: PageCreateRequest):
     slug = create_page_slug(data.title)
@@ -198,7 +240,7 @@ class PageUpdateRequest(Schema):
     is_anonymous: bool
 
 
-@router.put("/{slug}")
+@router.put("/{slug}", response=PageUpdateResponse)
 @decorate_view(auth_check.supports_temp_user)
 def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
