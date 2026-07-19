@@ -31,8 +31,10 @@ class PageResponse(Schema):
     author: PageAuthorResponse
 
 
-def get_page_author_response(author: PageAuthor) -> PageAuthorResponse:
-    if author.is_anonymous:
+def get_page_author_response(
+    author: PageAuthor, request: HttpRequest
+) -> PageAuthorResponse:
+    if author.is_anonymous and not auth_check.has_admin_rights(request):
         display_name = "Anonymous"
     elif author.user:
         display_name = author.user.profile.display_username
@@ -61,7 +63,7 @@ def get_page(request, slug: str):
         created_at=page.created_at,
         edited_at=page.edited_at,
         content=page.content,
-        author=get_page_author_response(page.author),
+        author=get_page_author_response(page.author, request),
     )
 
 
