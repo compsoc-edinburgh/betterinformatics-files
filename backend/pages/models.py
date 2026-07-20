@@ -14,11 +14,11 @@ class Page(models.Model):
     title = models.CharField(max_length=256)
     slug = models.CharField(max_length=256, unique=True)
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.GUIDE)
-    category: models.ForeignKey[Optional[Category]] = models.ForeignKey(
+    category: models.ForeignKey[Optional[Category]] = models.OneToOneField(
         "categories.Category",
         on_delete=models.SET_NULL,
         null=True,
-        related_name="pages",
+        related_name="page",
     )
     parents = models.ManyToManyField("self", symmetrical=False, related_name="children")
     created_at = models.DateTimeField(default=timezone.now)  # creation time

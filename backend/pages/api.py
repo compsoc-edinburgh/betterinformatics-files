@@ -212,6 +212,10 @@ def create_page(request, data: PageCreateRequest):
     slug = create_page_slug(data.title)
     author = get_page_author(request)
 
+    # Only admins can assign it a category - since they are category pages
+    if data.category and not auth_check.has_admin_rights(request):
+        return 403, "Only admins can assign a category to a page"
+
     # Double check category exists
     category = None
     if data.category:
@@ -270,6 +274,10 @@ class PageUpdateRequest(Schema):
 def update_page(request, slug: str, data: PageUpdateRequest):
     page = get_object_or_404(Page, slug=slug)
     author = get_page_author(request)
+
+    # Only admins can assign it a category - since they are category pages
+    if data.category and not auth_check.has_admin_rights(request):
+        return 403, "Only admins can assign a category to a page"
 
     if data.category:
         try:
