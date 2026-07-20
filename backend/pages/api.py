@@ -335,3 +335,16 @@ def list_revisions(request, slug: str):
         )
 
     return {"revisions": revision_list}
+
+
+@router.delete("/{slug}", response={204: None, 403: str})
+def delete_page(request, slug: str):
+    page = get_object_or_404(Page, slug=slug)
+
+    if not auth_check.has_admin_rights(request) and page.author != get_page_author(
+        request
+    ):
+        return 403, "Only admins or the page author can delete a page"
+
+    page.delete()
+    return 204, None
