@@ -32,4 +32,5 @@ urlpatterns = [
         views.set_metacategory_order,
         name="setmetacategoryorder",
     ),
+    path("<str:slug>/pinned/", views.category_user_pinned, name="category_userpinned"),
 ]

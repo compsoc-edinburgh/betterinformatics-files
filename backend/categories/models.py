@@ -1,4 +1,5 @@
 from django.db import models
+from django_prometheus.models import ExportModelOperationsMixin
 
 
 class Category(models.Model):
@@ -60,3 +61,19 @@ class MetaCategory(models.Model):
     displayname = models.CharField(max_length=256)
     parent = models.ForeignKey("MetaCategory", null=True, on_delete=models.CASCADE)
     order = models.IntegerField(default=0)
+
+
+class CategoryUserPinned(
+    ExportModelOperationsMixin("category_user_pinned"), models.Model
+):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        to="auth.User", on_delete=models.CASCADE, related_name="pinned_categories"
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["category", "user"], name="unique_user_category_pin"
+            )
+        ]

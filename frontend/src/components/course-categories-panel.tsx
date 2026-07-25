@@ -45,12 +45,15 @@ const CourseCategoriesPanel: React.FC<CourseCategoriesPanelProps> = ({
     element?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const headerByMode: Record<string, string> = {
+    alphabetical: "Alphabet",
+    bySemester: "Semester",
+    pinned: "Pinned",
+  };
+  const header = headerByMode[mode] ?? "Semester";
+
   return (
-    <Panel
-      header={mode === "alphabetical" ? "Alphabet" : "Semester"}
-      isOpen={isOpen}
-      toggle={toggle}
-    >
+    <Panel header={header} isOpen={isOpen} toggle={toggle}>
       {mode === "alphabetical"
         ? [...availableLetters].map(([letter, id]) => (
             <div key={letter}>

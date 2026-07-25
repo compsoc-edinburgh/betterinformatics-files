@@ -212,6 +212,13 @@ export const CategoryList: React.FC = () => {
     Math.min(filter.length * 2, 12),
     displayNameGetter,
   );
+  const [pinnedResults, unpinnedResults] = useMemo(
+    () => [
+      searchResult.filter(category => category.pinned),
+      searchResult.filter(category => !category.pinned),
+    ],
+    [searchResult],
+  );
   const [metaList, unassignedList] = useMemo(
     () =>
       metaCategories && categories
@@ -253,6 +260,7 @@ export const CategoryList: React.FC = () => {
             data={[
               { label: "Alphabetical", value: "alphabetical" },
               { label: "By Semester", value: "bySemester" },
+              { label: "Pinned", value: "pinned" },
             ]}
           />
           <TextInput
@@ -274,11 +282,47 @@ export const CategoryList: React.FC = () => {
           )}
           {error ? (
             <Alert color="red">{error.toString()}</Alert>
-          ) : mode === "alphabetical" || filter.length > 0 ? (
+          ) : filter.length > 0 || mode === "alphabetical" ? (
             <>
               <Grid>
                 {searchResult.map(category => (
-                  <CategoryCard category={category} key={category.slug} />
+                  <CategoryCard
+                    category={category}
+                    reload={onChange}
+                    key={category.slug}
+                  />
+                ))}
+                {isAdmin && <AddCategory onAddCategory={onChange} />}
+              </Grid>
+            </>
+          ) : mode === "pinned" ? (
+            <>
+              {pinnedResults.length > 0 && (
+                <>
+                  <Title order={3} my="md">
+                    Pinned
+                  </Title>
+                  <Grid>
+                    {pinnedResults.map(category => (
+                      <CategoryCard
+                        category={category}
+                        reload={onChange}
+                        key={category.slug}
+                      />
+                    ))}
+                  </Grid>
+                </>
+              )}
+              <Title order={3} my="md">
+                Rest
+              </Title>
+              <Grid>
+                {unpinnedResults.map(category => (
+                  <CategoryCard
+                    category={category}
+                    reload={onChange}
+                    key={category.slug}
+                  />
                 ))}
                 {isAdmin && <AddCategory onAddCategory={onChange} />}
               </Grid>
@@ -310,6 +354,7 @@ export const CategoryList: React.FC = () => {
                             {categories.map(category => (
                               <CategoryCard
                                 category={category}
+                                reload={onChange}
                                 key={category.slug}
                               />
                             ))}
@@ -342,6 +387,7 @@ export const CategoryList: React.FC = () => {
                                   {categories.map(category => (
                                     <CategoryCard
                                       category={category}
+                                      reload={onChange}
                                       key={category.slug}
                                     />
                                   ))}
@@ -369,7 +415,11 @@ export const CategoryList: React.FC = () => {
                   </Title>
                   <Grid>
                     {unassignedList.map(category => (
-                      <CategoryCard category={category} key={category.slug} />
+                      <CategoryCard
+                        category={category}
+                        reload={onChange}
+                        key={category.slug}
+                      />
                     ))}
                   </Grid>
                 </>
@@ -388,7 +438,7 @@ export const CategoryList: React.FC = () => {
           )}
         </Container>
       </ContentContainer>
-      {!loading && (
+      {!loading && mode !== "pinned" && (
         <CourseCategoriesPanel
           mode={mode}
           isOpen={panelIsOpen}
