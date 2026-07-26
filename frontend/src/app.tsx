@@ -41,7 +41,7 @@ import {
 import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
-import ChangelogNotifier from "./components/ChangelogNotifier";
+import { useChangelog } from "./hooks/useChangelog";
 import { FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import {
@@ -273,6 +273,8 @@ const App: React.FC = () => {
     },
   };
 
+  const { hasNew } = useChangelog();
+
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
@@ -283,10 +285,31 @@ const App: React.FC = () => {
     { title: "Home", href: "/" },
     { title: "Scoreboard ", href: "/scoreboard" },
     {
-      title: "More",
+      title: (
+        <Group wrap="nowrap" gap="xs">
+          More
+          {hasNew && (
+            <Badge circle color="brand">
+              !?
+            </Badge>
+          )}
+        </Group>
+      ),
       childItems: [
         { title: "FAQ", href: "/faq" },
-        { title: "What's New", href: "/changelog" },
+        {
+          title: (
+            <Group wrap="nowrap" gap="xs">
+              What's New
+              {hasNew && (
+                <Badge circle color="brand">
+                  !?
+                </Badge>
+              )}
+            </Group>
+          ),
+          href: "/changelog",
+        },
         { title: "Feedback", href: "/feedback" },
         { title: "Submit Transcript", href: "/submittranscript" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
@@ -378,7 +401,6 @@ const App: React.FC = () => {
                   title={"Community Solutions"}
                 />
                 <AnnouncementHeader />
-                <ChangelogNotifier />
                 <Box component="main" mt="2em">
                   <Suspense
                     fallback={
