@@ -163,7 +163,7 @@ stages:
       if [[ -n ${CI_MERGE_REQUEST_TARGET_BRANCH_NAME-} ]]; then
         echo 'Checking formatting errors on modified files...'
         yarn run prettier --check $( \
-          git diff --diff-filter=d --name-only --relative $CI_COMMIT_SHA origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME -- \
+          git diff --diff-filter=d --name-only --relative origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME $CI_COMMIT_SHA -- \
             "src/**/*.js" \
             "src/**/*.jsx" \
             "src/**/*.ts" \

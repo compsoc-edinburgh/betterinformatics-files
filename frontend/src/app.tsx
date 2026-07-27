@@ -7,11 +7,11 @@ import {
   Text,
   Affix,
   rem,
-  Group,
   CSSVariablesResolver,
   SegmentedControl,
   Center,
   Loader,
+  ThemeIcon,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React, { lazy, Suspense, useEffect, useState } from "react";
@@ -41,7 +41,7 @@ import {
 import makeVsethTheme from "./makeVsethTheme";
 import { useDisclosure } from "@mantine/hooks";
 import AnnouncementHeader from "./components/Navbar/AnnouncementHeader";
-import ChangelogNotifier from "./components/ChangelogNotifier";
+import { useChangelog } from "./hooks/useChangelog";
 import { FaroRoutes } from "@grafana/faro-react";
 import serverData from "./utils/server-data";
 import {
@@ -49,6 +49,7 @@ import {
   QuickSearchFilterContext,
 } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { useScrollToHash } from "./hooks/useScrollToHash";
+import { IconSparkles2Filled } from "@tabler/icons-react";
 
 const UploadTranscriptPage = lazy(
   () => import("./pages/submittranscript-page"),
@@ -273,11 +274,19 @@ const App: React.FC = () => {
     },
   };
 
+  const { hasNew } = useChangelog();
+
   const adminItems = [
     { title: "Upload Exam", href: "/uploadpdf" },
     { title: "Mod Queue", href: "/modqueue" },
     { title: "Flagged Content", href: "/flagged" },
   ];
+
+  const hasNewBadge = (
+    <ThemeIcon variant="light" radius="xl" color="brand" size="xs">
+      <IconSparkles2Filled style={{ width: 14, height: 14 }} />
+    </ThemeIcon>
+  );
 
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
@@ -286,20 +295,20 @@ const App: React.FC = () => {
       title: "More",
       childItems: [
         { title: "FAQ", href: "/faq" },
-        { title: "What's New", href: "/changelog" },
+        {
+          title: "What's New",
+          indicator: hasNew && hasNewBadge,
+          href: "/changelog",
+        },
         { title: "Feedback", href: "/feedback" },
         { title: "Submit Transcript", href: "/submittranscript" },
         ...(typeof user === "object" && user.isCategoryAdmin ? adminItems : []),
       ],
     },
     {
-      title: (
-        <Group wrap="nowrap" gap="xs">
-          Account
-          {unreadCount !== undefined && unreadCount > 0 && (
-            <Badge mt={2}>{unreadCount}</Badge>
-          )}
-        </Group>
+      title: "Account",
+      indicator: unreadCount !== undefined && unreadCount > 0 && (
+        <Badge mt={2}>{unreadCount}</Badge>
       ),
       href: `/user/${user?.username}`,
     },
@@ -378,7 +387,6 @@ const App: React.FC = () => {
                   title={"Community Solutions"}
                 />
                 <AnnouncementHeader />
-                <ChangelogNotifier />
                 <Box component="main" mt="2em">
                   <Suspense
                     fallback={
