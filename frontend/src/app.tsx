@@ -12,6 +12,7 @@ import {
   SegmentedControl,
   Center,
   Loader,
+  ThemeIcon,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
 import React, { lazy, Suspense, useEffect, useState } from "react";
@@ -49,6 +50,7 @@ import {
   QuickSearchFilterContext,
 } from "./components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { useScrollToHash } from "./hooks/useScrollToHash";
+import { IconSparkles2Filled } from "@tabler/icons-react";
 
 const UploadTranscriptPage = lazy(
   () => import("./pages/submittranscript-page"),
@@ -282,9 +284,9 @@ const App: React.FC = () => {
   ];
 
   const hasNewBadge = (
-    <Badge circle color="brand">
-      !?
-    </Badge>
+    <ThemeIcon variant="light" radius="xl" color="brand" size="xs">
+      <IconSparkles2Filled style={{ width: 14, height: 14 }} />
+    </ThemeIcon>
   );
 
   const bottomHeaderNav = [
