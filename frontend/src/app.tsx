@@ -294,7 +294,6 @@ const App: React.FC = () => {
     { title: "Scoreboard ", href: "/scoreboard" },
     {
       title: "More",
-      indicator: hasNew && hasNewBadge,
       childItems: [
         { title: "FAQ", href: "/faq" },
         {

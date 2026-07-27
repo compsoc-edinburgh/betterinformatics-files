@@ -21,14 +21,20 @@ const ExternalNavElement: React.FC<Props> = ({
   isExternal,
   titleClassName: textClassName,
 }) => {
+  // Use own indicator, or first child indicator if it exists, or null
+  const indicator =
+    item.indicator ??
+    item.childItems?.find(child => Boolean(child.indicator))?.indicator ??
+    null;
+
   return item.childItems ? (
     mobile ? (
       <>
         <div className={clsx(classes.navItem, textClassName)}>
-          {item.indicator ? (
+          {indicator ? (
             <Group wrap="nowrap" gap="xs">
               {item.title as ReactNode}
-              {item.indicator}
+              {indicator}
             </Group>
           ) : (
             (item.title as ReactNode)
@@ -64,10 +70,10 @@ const ExternalNavElement: React.FC<Props> = ({
           >
             <Center>
               <div style={{ lineHeight: "1.75rem", marginRight: "6px" }}>
-                {item.indicator ? (
+                {indicator ? (
                   <Group wrap="nowrap" gap="xs">
                     {item.title as ReactNode}
-                    {item.indicator}
+                    {indicator}
                   </Group>
                 ) : (
                   (item.title as ReactNode)
