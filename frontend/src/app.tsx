@@ -281,6 +281,12 @@ const App: React.FC = () => {
     { title: "Flagged Content", href: "/flagged" },
   ];
 
+  const hasNewBadge = (
+    <Badge circle color="brand">
+      !?
+    </Badge>
+  );
+
   const bottomHeaderNav = [
     { title: "Home", href: "/" },
     { title: "Scoreboard ", href: "/scoreboard" },
@@ -288,11 +294,7 @@ const App: React.FC = () => {
       title: (
         <Group wrap="nowrap" gap="xs">
           More
-          {hasNew && (
-            <Badge circle color="brand">
-              !?
-            </Badge>
-          )}
+          {hasNew && hasNewBadge}
         </Group>
       ),
       childItems: [
@@ -301,11 +303,7 @@ const App: React.FC = () => {
           title: (
             <Group wrap="nowrap" gap="xs">
               What's New
-              {hasNew && (
-                <Badge circle color="brand">
-                  !?
-                </Badge>
-              )}
+              {hasNew && hasNewBadge}
             </Group>
           ),
           href: "/changelog",
