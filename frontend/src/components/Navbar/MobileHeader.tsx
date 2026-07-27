@@ -4,6 +4,7 @@ import {
   Burger,
   Container,
   Group,
+  Indicator,
   Stack,
   useMantineTheme,
 } from "@mantine/core";
@@ -56,12 +57,17 @@ const BottomHeader: React.FC<Props> = ({
         </div>
         <Group>
           <ColorSchemeToggle />
-          <Burger
-            opened={opened}
-            onClick={() => setOpened((o: boolean) => !o)}
-            size="sm"
-            color={theme.colors.gray[0]}
-          />
+          <Indicator
+            disabled={appNav.every(item => !item.indicator)}
+            color="brand"
+          >
+            <Burger
+              opened={opened}
+              onClick={() => setOpened((o: boolean) => !o)}
+              size="sm"
+              color={theme.colors.gray[0]}
+            />
+          </Indicator>
         </Group>
       </Group>
       {opened ? (

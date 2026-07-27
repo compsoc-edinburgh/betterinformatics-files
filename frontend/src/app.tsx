@@ -293,21 +293,13 @@ const App: React.FC = () => {
     { title: "Home", href: "/" },
     { title: "Scoreboard ", href: "/scoreboard" },
     {
-      title: (
-        <Group wrap="nowrap" gap="xs">
-          More
-          {hasNew && hasNewBadge}
-        </Group>
-      ),
+      title: "More",
+      indicator: hasNew && hasNewBadge,
       childItems: [
         { title: "FAQ", href: "/faq" },
         {
-          title: (
-            <Group wrap="nowrap" gap="xs">
-              What's New
-              {hasNew && hasNewBadge}
-            </Group>
-          ),
+          title: "What's New",
+          indicator: hasNew && hasNewBadge,
           href: "/changelog",
         },
         { title: "Feedback", href: "/feedback" },
@@ -316,13 +308,9 @@ const App: React.FC = () => {
       ],
     },
     {
-      title: (
-        <Group wrap="nowrap" gap="xs">
-          Account
-          {unreadCount !== undefined && unreadCount > 0 && (
-            <Badge mt={2}>{unreadCount}</Badge>
-          )}
-        </Group>
+      title: "Account",
+      indicator: unreadCount !== undefined && unreadCount > 0 && (
+        <Badge mt={2}>{unreadCount}</Badge>
       ),
       href: `/user/${user?.username}`,
     },
