@@ -14,8 +14,7 @@ const ChangelogPage: React.FC = () => {
   // a re-render
   const [lastSeenState, _] = React.useState(lastSeen);
 
-  const numberOfNewEntries =
-    versions.findIndex(v => v.version === lastSeenState) - 1;
+  const lastSeenIndex = versions.findIndex(v => v.version === lastSeenState);
 
   // Dismiss in background after 1 second on the page
   React.useEffect(() => {
@@ -28,7 +27,7 @@ const ChangelogPage: React.FC = () => {
   return (
     <Container size="xl">
       <Timeline
-        active={numberOfNewEntries !== -1 ? numberOfNewEntries : -1}
+        active={lastSeenIndex !== -1 ? lastSeenIndex - 1 : versions.length - 1}
         radius="md"
         bulletSize={36}
       >
@@ -38,7 +37,7 @@ const ChangelogPage: React.FC = () => {
               title={
                 <Group wrap="nowrap" gap="xs" mb="lg">
                   <Title order={2}>{version.version}</Title>
-                  {index <= numberOfNewEntries && (
+                  {index < lastSeenIndex && (
                     <Badge color="brand">New since your last visit</Badge>
                   )}
                 </Group>
@@ -49,7 +48,7 @@ const ChangelogPage: React.FC = () => {
                 withBorder
                 p="md"
                 style={
-                  index <= numberOfNewEntries
+                  index < lastSeenIndex
                     ? { borderLeft: "2px solid var(--mantine-color-brand-6)" }
                     : {}
                 }
