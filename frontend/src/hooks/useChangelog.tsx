@@ -8,7 +8,7 @@ export const useChangelog = () => {
     key: STORAGE_KEY,
     defaultValue: null,
     getInitialValueInEffect: false,
-    sync: false,
+    sync: true,
   });
 
   if (!latestVersion)
