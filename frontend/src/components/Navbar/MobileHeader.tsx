@@ -58,7 +58,13 @@ const BottomHeader: React.FC<Props> = ({
         <Group>
           <ColorSchemeToggle />
           <Indicator
-            disabled={appNav.every(item => !item.indicator)}
+            /** All items have no indicators, and all subitems (if they exist) have no indicators */
+            disabled={appNav.every(
+              item =>
+                !item.indicator &&
+                (!item.childItems ||
+                  item.childItems.every(child => !child.indicator)),
+            )}
             color="brand"
           >
             <Burger

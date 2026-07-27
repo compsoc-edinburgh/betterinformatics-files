@@ -7,7 +7,6 @@ import {
   Text,
   Affix,
   rem,
-  Group,
   CSSVariablesResolver,
   SegmentedControl,
   Center,
