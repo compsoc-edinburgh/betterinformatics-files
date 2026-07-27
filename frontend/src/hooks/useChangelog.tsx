@@ -14,6 +14,7 @@ export const useChangelog = () => {
   if (!latestVersion)
     return {
       hasNew: false,
+      lastSeen,
       dismiss: () => {
         /* empty */
       },
@@ -22,6 +23,7 @@ export const useChangelog = () => {
 
   return {
     hasNew,
+    lastSeen,
     dismiss: () => {
       if (latestVersion) setLastSeen(latestVersion);
     },
