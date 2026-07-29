@@ -2,6 +2,13 @@
 
 All changes to this project are documented here.
 
+## v2026.07.p1
+
+### Fixed
+
+- Hotfix for comment drafts not clearing after submission in v2026.07.p0 (!752)
+- Fix incorrect order in which TAB key focuses elements on the homepage (!753)
+
 ## v2026.07.p0
 
 ### Things that affect you
