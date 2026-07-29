@@ -249,32 +249,35 @@ export const CategoryList: React.FC = () => {
   return (
     <>
       <Container size="xl">
-        <Flex
-          gap="md"
-          direction={{ base: "column", sm: "row" }}
-          justify="space-between"
-        >
-          <SegmentedControl
-            value={mode}
-            onChange={setMode}
-            data={[
-              { label: "Alphabetical", value: "alphabetical" },
-              { label: "By Semester", value: "bySemester" },
-              { label: "Pinned", value: "pinned" },
-            ]}
-          />
-          <TextInput
-            placeholder="Filter..."
-            value={filter}
-            autoFocus
-            onChange={e => setFilter(e.currentTarget.value)}
-            leftSection={
-              <IconFilter style={{ height: "15px", width: "15px" }} />
-            }
-          />
+        <Flex gap={0} direction="column-reverse" align="stretch">
+          {/* Flip order semantically since we want TAB from filter to go immediately to category list */}
+          <RecentlyViewedExams />
+          <Flex
+            gap="md"
+            direction={{ base: "column", sm: "row" }}
+            justify="space-between"
+          >
+            <SegmentedControl
+              value={mode}
+              onChange={setMode}
+              data={[
+                { label: "Alphabetical", value: "alphabetical" },
+                { label: "By Semester", value: "bySemester" },
+                { label: "Pinned", value: "pinned" },
+              ]}
+            />
+            <TextInput
+              placeholder="Filter..."
+              value={filter}
+              autoFocus
+              onChange={e => setFilter(e.currentTarget.value)}
+              leftSection={
+                <IconFilter style={{ height: "15px", width: "15px" }} />
+              }
+            />
+          </Flex>
         </Flex>
       </Container>
-      <RecentlyViewedExams />
       <ContentContainer mt="sm">
         <Container size="xl" py="md" pos="relative">
           {loading && !error && (
