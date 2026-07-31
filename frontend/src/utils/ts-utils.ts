@@ -24,4 +24,4 @@ export interface SelectOption<T> {
   label: string;
 }
 export const options = <T extends Options>(map: OptionsResult<T>) =>
-  Object.values(map) as Array<{ value: keyof T & string; label: string }>;
+  Object.values(map) as { value: keyof T & string; label: string }[];

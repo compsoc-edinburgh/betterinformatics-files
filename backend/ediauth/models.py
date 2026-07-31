@@ -1,7 +1,7 @@
 import datetime
 
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 
 # The 'default' parameter of a field has to be a callable (for it to be run on
@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 # (https://docs.djangoproject.com/en/dev/topics/migrations/#serializing-values)
 # so we use a small proxy function instead.
 def current_time():
-    return datetime.datetime.now(datetime.timezone.utc)
+    return datetime.datetime.now(datetime.UTC)
 
 
 class VerificationCode(models.Model):

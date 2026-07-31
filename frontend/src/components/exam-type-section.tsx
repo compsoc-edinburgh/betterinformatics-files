@@ -17,7 +17,7 @@ import useRemoveConfirm from "../hooks/useRemoveConfirm";
 import { CategoryExam } from "../interfaces";
 import ClaimButton from "./claim-button";
 import IconButton from "./icon-button";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import classes from "../utils/focus-outline.module.css";
 import ExamGrid from "./exam-grid";
 import { IconCheck, IconTrash } from "@tabler/icons-react";
@@ -216,7 +216,7 @@ const ExamTypeSection: React.FC<ExamTypeCardProps> = ({
                   }
                   icon={<IconCheck />}
                   onClick={(event: React.SyntheticEvent) => {
-                    handleToggleUserSolved(event, exam);
+                    void handleToggleUserSolved(event, exam);
                   }}
                 />
                 {user.isAdmin && (

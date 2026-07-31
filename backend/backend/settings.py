@@ -43,36 +43,6 @@ COMSOL_DOCUMENT_DIR = "documents/"
 COMSOL_IMAGE_DIR = "imgs/"
 COMSOL_FILESTORE_DIR = "files/"
 COMSOL_EXAM_ALLOWED_EXTENSIONS = {"pdf"}
-COMSOL_DOCUMENT_ALLOWED_EXTENSIONS = {
-    (".pdf", "application/pdf"),
-    (".tex", "application/octet-stream"),
-    (".tex", "text/x-tex"),
-    (".md", "application/octet-stream"),
-    (".md", "text/markdown"),
-    (".typ", "application/octet-stream"),
-    (".typ", "text/x-typst"),
-    (".txt", "text/plain"),
-    (".zip", "application/zip"),
-    (".zip", "application/octet-stream"),
-    (".zip", "multipart/x-zip"),
-    (".zip", "application/zip-compressed"),
-    (".zip", "application/x-zip-compressed"),
-    (".apkg", "application/octet-stream"),  # anki
-    (".colpkg", "application/octet-stream"),  # anki collection
-    (
-        ".docx",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ),
-    (
-        ".pptx",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    ),
-    (".epub", "application/epub+zip"),
-    (".csv", "text/csv"),
-    (".xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
-    (".xls", "application/vnd.ms-excel"),
-    (".ods", "application/vnd.oasis.opendocument.spreadsheet"),
-}
 COMSOL_IMAGE_ALLOWED_EXTENSIONS = {"jfif", "jpg", "jpeg", "png", "svg", "gif", "webp"}
 COMSOL_FILESTORE_ALLOWED_EXTENSIONS = {"pdf", "zip", "tar.gz", "tar.xz"}
 COMSOL_CATEGORY_SLUG_CHARS = (
@@ -146,12 +116,12 @@ for announcement in announcements:
     allowed_keys = {"variant", "color", "title", "icon", "content", "id"}
     mandatory_keys = allowed_keys - {"id", "icon", "variant"}
     assert isinstance(announcement, dict), "An announcement was parsed incorrectly!"
-    assert (
-        announcement.keys() <= allowed_keys
-    ), f"Announcement has at least one invalid key {announcement.keys() - allowed_keys}"
-    assert (
-        announcement.keys() >= mandatory_keys
-    ), f"Announcement has at least one missing key {mandatory_keys - announcement.keys()}"
+    assert announcement.keys() <= allowed_keys, (
+        f"Announcement has at least one invalid key {announcement.keys() - allowed_keys}"
+    )
+    assert announcement.keys() >= mandatory_keys, (
+        f"Announcement has at least one missing key {mandatory_keys - announcement.keys()}"
+    )
 
 announcements = [
     {
@@ -164,6 +134,29 @@ announcements = [
     for announcement in announcements
 ]
 
+DEFAULT_COMSOL_DOCUMENT_SAFE_EXTENSIONS = [
+    "pdf",
+    "tex",
+    "md",
+    "typ",
+    "txt",
+    "zip",
+    "apkg",
+    "colpkg",
+    "csv",
+    "xlsx",
+    "xls",
+    "ods",
+]
+document_download_safe_extensions = os.environ.get(
+    "FRONTEND_DOCUMENT_DOWNLOAD_SAFE_EXTENSIONS"
+)
+document_download_safe_extensions = (
+    DEFAULT_COMSOL_DOCUMENT_SAFE_EXTENSIONS
+    if not document_download_safe_extensions
+    else document_download_safe_extensions.split(",")
+)
+
 FRONTEND_SERVER_DATA = {
     "title_prefix": os.environ.get("FRONTEND_TITLE_PREFIX", ""),
     "title_suffix": os.environ.get("FRONTEND_TITLE_SUFFIX", ""),
@@ -171,6 +164,7 @@ FRONTEND_SERVER_DATA = {
     "imprint": os.environ.get("FRONTEND_IMPRINT", ""),
     "privacy_policy": os.environ.get("FRONTEND_PRIVACY_POLICY", ""),
     "announcements": announcements,
+    "document_download_safe_extensions": document_download_safe_extensions,
 }
 
 FAVICON_URL = os.environ.get("FRONTEND_FAVICON_URL", "/favicon.ico")
@@ -194,9 +188,6 @@ else:
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-# Set up Content Security Policy so only .js files from the frontend /static
-# path (and inline ones) are allowed to be executed. We also assume HTTPS.
-CSP_DEFAULT_SRC = "'self'"
 allowed_script_sources = []
 if DEBUG:
     allowed_script_sources = [
@@ -204,41 +195,49 @@ if DEBUG:
     ]
 else:
     allowed_script_sources = [f"https://{host}/static/" for host in REAL_ALLOWED_HOSTS]
-CSP_SCRIPT_SRC = (
-    "'self'",
-    "'unsafe-eval'",
-    "https://analytics.betterinformatics.com/api/",
-    *allowed_script_sources,
-)
-CSP_STYLE_SRC = (
-    "'self'",
-    "'unsafe-inline'",
-    "https://fonts.googleapis.com",
-)
-CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com")
-CSP_FRAME_SRC = ("'self'", "https://minio.on.tardis.ac:80")
 
 s3_host = os.environ.get("SIP_S3_FILES_HOST", "s3")
 s3_port = os.environ.get("SIP_S3_FILES_PORT", "9000")
-CSP_CONNECT_SRC = (
-    "'self'",
-    "https://" + s3_host + ":" + s3_port,
-    "http://" + s3_host + ":" + s3_port,
-    # Allow fetch()-ing and rendering Markdown files from BetterInformatics
-    # (assumption being that they are relatively safe -- if they contain XSS,
-    # the Markdown renderer should prevent it from being executed)
-    "https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/_sections/",
-    "https://betterinformatics.com/courses.json",
-    # Allow self hosted tracking
-    "https://analytics.betterinformatics.com/api/",
-)
-CSP_IMG_SRC = (
-    "'self'",
-    "data:",
-    "https://betterinformatics.com/static/img/",  # for the camel image
-    "https://comp-soc.com/static/img/",  # for the compsoc logo
-    "https://raw.githubusercontent.com/compsoc-edinburgh/",  # for anything else
-)
+
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        # Set up Content Security Policy so only .js files from the frontend /static
+        # path (and inline ones) are allowed to be executed. We also assume HTTPS.
+        "default-src": ["'self'"],
+        "script-src": [
+            "'self'",
+            "'unsafe-eval'",
+            "https://analytics.betterinformatics.com/api/",
+            *allowed_script_sources,
+        ],
+        "style-src": [
+            "'self'",
+            "'unsafe-inline'",
+            "https://fonts.googleapis.com",
+        ],
+        "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
+        "frame-src": ["'self'", "https://minio.on.tardis.ac:80"],
+        "connect-src": [
+            "'self'",
+            "https://" + s3_host + ":" + s3_port,
+            "http://" + s3_host + ":" + s3_port,
+            # Allow fetch()-ing and rendering Markdown files from BetterInformatics
+            # (assumption being that they are relatively safe -- if they contain XSS,
+            # the Markdown renderer should prevent it from being executed)
+            "https://raw.githubusercontent.com/compsoc-edinburgh/betterinformatics/master/_sections/",
+            "https://betterinformatics.com/courses.json",
+            # Allow self hosted tracking
+            "https://analytics.betterinformatics.com/api/",
+        ],
+        "img-src": [
+            "'self'",
+            "data:",
+            "https://betterinformatics.com/static/img/",  # for the camel image
+            "https://comp-soc.com/static/img/",  # for the compsoc logo
+            "https://raw.githubusercontent.com/compsoc-edinburgh/",  # for anything else
+        ],
+    }
+}
 
 
 # Application definition
@@ -268,6 +267,7 @@ INSTALLED_APPS = [
     "django_probes",
     "dissertations.apps.DissertationsConfig",
     "ninja",
+    "csp",
 ] + (["django_gsuite_email"] if "django_gsuite_email" in EMAIL_BACKEND else [])
 
 MIDDLEWARE = [
@@ -371,8 +371,6 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 
 USE_I18N = False
-
-USE_L10N = False
 
 USE_TZ = True
 

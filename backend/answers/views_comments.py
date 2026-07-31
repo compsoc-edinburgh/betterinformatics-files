@@ -1,35 +1,42 @@
-from util import response
-from ediauth import auth_check
-from answers.models import Answer, Comment
-from answers import section_util
-from notifications import notification_util
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from answers import section_util
+from answers.models import Answer, Comment
+from ediauth import auth_check
+from notifications import notification_util
+from util import response
 
-@response.request_post('text')
+
+@response.request_post("text")
 @auth_check.require_login
 def add_comment(request, oid):
     answer = get_object_or_404(Answer, pk=oid)
-    new_comment = Comment(answer=answer, author=request.user, text=request.POST['text'])
+    new_comment = Comment(answer=answer, author=request.user, text=request.POST["text"])
     new_comment.save()
     notification_util.new_comment_to_answer(answer, new_comment)
     notification_util.new_comment_to_comment(answer, new_comment)
     section_util.increase_section_version(answer.answer_section)
-    return response.success(value=section_util.get_answersection_response(request, answer.answer_section))
+    return response.success(
+        value=section_util.get_answersection_response(request, answer.answer_section)
+    )
 
 
-@response.request_post('text')
+@response.request_post("text")
 @auth_check.require_login
 def set_comment(request, oid):
     comment = get_object_or_404(Comment, pk=oid)
     if comment.author != request.user:
         return response.not_allowed()
-    comment.text = request.POST['text']
+    comment.text = request.POST["text"]
     comment.edittime = timezone.now()
     comment.save()
     section_util.increase_section_version(comment.answer.answer_section)
-    return response.success(value=section_util.get_answersection_response(request, comment.answer.answer_section))
+    return response.success(
+        value=section_util.get_answersection_response(
+            request, comment.answer.answer_section
+        )
+    )
 
 
 @response.request_post()
@@ -41,13 +48,17 @@ def remove_comment(request, oid):
     section = comment.answer.answer_section
     comment.delete()
     section_util.increase_section_version(comment.answer.answer_section)
-    return response.success(value=section_util.get_answersection_response(request, section))
+    return response.success(
+        value=section_util.get_answersection_response(request, section)
+    )
 
 
 @response.request_post("flagged")
 @auth_check.require_login
 def set_flagged(request, oid):
     comment = get_object_or_404(Comment, pk=oid)
+    if request.user == comment.author:
+        return response.not_possible("User can't flag their own comment")
     flagged = request.POST["flagged"] != "false"
     old_flagged = comment.flagged.filter(pk=request.user.pk).exists()
     if flagged != old_flagged:
@@ -68,6 +79,8 @@ def set_flagged(request, oid):
 @auth_check.require_login
 def set_marked_as_ai(request, oid):
     comment = get_object_or_404(Comment, pk=oid)
+    if request.user == comment.author:
+        return response.not_possible("User can't mark their own comment as AI")
     marked_as_ai = request.POST["marked_as_ai"] != "false"
     old_marked_as_ai = comment.marked_as_ai.filter(pk=request.user.pk).exists()
     if marked_as_ai != old_marked_as_ai:

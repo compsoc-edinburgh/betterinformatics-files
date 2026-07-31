@@ -1,21 +1,18 @@
-import { useRequest } from "ahooks";
 import {
   Box,
   Button,
   Card,
   Flex,
   Group,
+  Loader,
   Menu,
   Paper,
   Text,
   Title,
 } from "@mantine/core";
 import * as React from "react";
-import { useState } from "react";
-import { fetchPost, imageHandler } from "../api/fetch-utils";
-import { setFeedbackReply } from "../api/hooks";
+import { lazy, useState, Suspense } from "react";
 import GlobalConsts from "../globalconsts";
-import { FeedbackEntry } from "../interfaces";
 import displayNameClasses from "../utils/display-name.module.css";
 import TooltipButton from "./TooltipButton";
 import {
@@ -31,44 +28,64 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { lightFormat, parseISO } from "date-fns";
-import Editor from "./Editor";
 import { UndoStack } from "./Editor/utils/undo-stack";
 import MarkdownText from "./markdown-text";
 import { useOfficialSolutionLanguage } from "./official-solution";
 import TimeText from "./time-text";
+import {
+  useCreateFeedbackReply,
+  useSetFeedbackFlags,
+} from "../api/hooks/feedback";
+import type { FeedbackOut } from "../api/model";
+import { imageHandler } from "../api/image-utils";
 
-const setFlag = async (oid: string, flag: "done" | "read", value: boolean) => {
-  await fetchPost(`/api/feedback/flags/${oid}/`, {
-    [flag]: value,
-  });
-};
+const Editor = lazy(() => import("./Editor"));
 
 interface Props {
-  entry: FeedbackEntry;
+  entry: FeedbackOut;
   entryChanged: () => void;
 }
 
 const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
-  const { run: runSetFlag } = useRequest(
-    (flag: "done" | "read", value: boolean) => setFlag(entry.oid, flag, value),
-    { manual: true, onSuccess: entryChanged },
-  );
-
   const [editing, setEditing] = useState(false);
   const [draftText, setDraftText] = useState("");
   const [undoStack, setUndoStack] = useState<UndoStack>({ prev: [], next: [] });
   const languages = useOfficialSolutionLanguage();
 
-  const { run: runSetReply, loading: replyLoading } = useRequest(
-    (reply: string) => setFeedbackReply(entry.oid, reply),
-    {
-      manual: true,
-      onSuccess: () => {
-        setEditing(false);
+  const { mutate: mutateReplyFeedback, isPending: isPendingReply } =
+    useCreateFeedbackReply({
+      mutation: {
+        onSuccess() {
+          setEditing(false);
+          entryChanged();
+        },
+      },
+    });
+  const { mutate: mutateFlagFeedback } = useSetFeedbackFlags({
+    mutation: {
+      onSuccess() {
         entryChanged();
       },
     },
-  );
+  });
+
+  function handleSubmit(reply: string) {
+    mutateReplyFeedback({
+      data: {
+        reply,
+      },
+      feedbackid: entry.oid,
+    });
+  }
+
+  function setFlag(flag: "done" | "read", value: boolean) {
+    mutateFlagFeedback({
+      data: {
+        [flag]: value,
+      },
+      feedbackid: entry.oid,
+    });
+  }
 
   const startEditing = () => {
     setDraftText(entry.reply ?? "");
@@ -95,14 +112,14 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
             <TooltipButton
               variant={entry.done ? "default" : "filled"}
               tooltip={`Mark as ${entry.done ? "Not Done" : "Done"}`}
-              onClick={() => runSetFlag("done", !entry.done)}
+              onClick={() => setFlag("done", !entry.done)}
             >
               {entry.done ? <IconCheckbox /> : <IconSquare />}
             </TooltipButton>
             <TooltipButton
               variant={entry.read ? "default" : "filled"}
               tooltip={`Mark as ${entry.read ? "Unread" : "Read"}`}
-              onClick={() => runSetFlag("read", !entry.read)}
+              onClick={() => setFlag("read", !entry.read)}
             >
               {entry.read ? <IconMail /> : <IconMailOpened />}
             </TooltipButton>
@@ -114,36 +131,38 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
       </Box>
       {editing ? (
         <Paper radius="sm" withBorder shadow="none" p="sm" mt="sm">
-          <Editor
-            value={draftText}
-            onChange={setDraftText}
-            imageHandler={imageHandler}
-            preview={value => (
-              <MarkdownText value={value} languages={languages} />
-            )}
-            undoStack={undoStack}
-            setUndoStack={setUndoStack}
-          />
-          <Group justify="flex-end" mt="sm">
-            <Button
-              size="sm"
-              color="red"
-              variant="subtle"
-              onClick={cancelEditing}
-              leftSection={<IconPencilCancel />}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              loading={replyLoading}
-              disabled={draftText.trim().length === 0}
-              onClick={() => runSetReply(draftText.trim())}
-              leftSection={<IconDeviceFloppy />}
-            >
-              Save
-            </Button>
-          </Group>
+          <Suspense fallback={<Loader />}>
+            <Editor
+              value={draftText}
+              onChange={setDraftText}
+              imageHandler={imageHandler}
+              preview={value => (
+                <MarkdownText value={value} languages={languages} />
+              )}
+              undoStack={undoStack}
+              setUndoStack={setUndoStack}
+            />
+            <Group justify="flex-end" mt="sm">
+              <Button
+                size="sm"
+                color="red"
+                variant="subtle"
+                onClick={cancelEditing}
+                leftSection={<IconPencilCancel />}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                loading={isPendingReply}
+                disabled={draftText.trim().length === 0}
+                onClick={() => handleSubmit(draftText.trim())}
+                leftSection={<IconDeviceFloppy />}
+              >
+                Save
+              </Button>
+            </Group>
+          </Suspense>
         </Paper>
       ) : entry.reply ? (
         <Paper radius="sm" withBorder shadow="none" p="sm" mt="sm">
@@ -174,7 +193,7 @@ const FeedbackEntryComponent: React.FC<Props> = ({ entry, entryChanged }) => {
                 <Menu.Item
                   leftSection={<IconTrash />}
                   color="red"
-                  onClick={() => runSetReply("")}
+                  onClick={() => handleSubmit("")}
                 >
                   Clear Reply
                 </Menu.Item>

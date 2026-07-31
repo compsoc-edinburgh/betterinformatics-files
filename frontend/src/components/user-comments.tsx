@@ -40,10 +40,7 @@ const UserComments: React.FC<UserCommentsProps> = ({ username }) => {
   // sets the observer to the last element once it is rendered
   useEffect(() => {
     // called if the last answer is seen, resulting in a new set of answers being loaded
-    const handleObserver = (
-      entities: IntersectionObserverEntry[],
-      observer: IntersectionObserver,
-    ) => {
+    const handleObserver = (entities: IntersectionObserverEntry[]) => {
       const first = entities[0];
       if (first.isIntersecting) {
         setPage(no => no + 1);

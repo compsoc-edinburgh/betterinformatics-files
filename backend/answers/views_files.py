@@ -1,11 +1,13 @@
-from util import response, s3_util
-from ediauth import auth_check
+import os
+
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+
+from answers import pdf_utils
 from answers.models import Exam, ExamType
 from categories.models import Category
-from django.shortcuts import get_object_or_404
-import os
-from answers import pdf_utils
+from ediauth import auth_check
+from util import response, s3_util
 
 
 def prepare_exam_pdf_file(request):

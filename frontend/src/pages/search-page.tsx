@@ -1,7 +1,7 @@
-import { useDebounce, useRequest } from "ahooks";
+import { useRequest } from "ahooks";
 import { Container, TextInput } from "@mantine/core";
 import React, { useEffect, useState } from "react";
-import { StringParam, useQueryParam } from "use-query-params";
+import { useSearchParams } from "react-router-dom";
 import { fetchPost } from "../api/fetch-utils";
 import LoadingOverlay from "../components/loading-overlay";
 import SearchResults from "../components/search-results";
@@ -16,34 +16,41 @@ const loadSearch = async (term: string) => {
 
 const SearchPage: React.FC = () => {
   useTitle("Search");
-  const [query, setQuery] = useQueryParam("q", StringParam);
-  const [optionalTerm, setTerm] = useState(query);
-  const term = optionalTerm ?? "";
-  const debouncedTerm = useDebounce(term, { wait: 300 });
 
-  // Store previous query param so we can use it to check if params changed.
-  // If params did change, our useEffect will create one extra re-render to
-  // update the text input field retroactively if it isn't already matching.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get("q") ?? "";
+
+  const [term, setTerm] = useState(query);
+
+  // If this and url disagree, url has changed (e.g. navigating back)
+  // Without this, we cannot differentiate between the user typing and navigation
   const [prevQuery, setPrevQuery] = useState(query);
-  useEffect(() => {
-    if (query === prevQuery) return; // Make sure we don't enter infinite loop
+  if (query !== prevQuery) {
     setPrevQuery(query);
-
-    // We have a new query param that's different from last render. If this is
-    // caused by something other than our user changing the term (for example,
-    // by quick search bar navigation), then update the input box.
-    if (query === term) return;
     setTerm(query);
-  }, [query, prevQuery, term]);
+  }
 
   useEffect(() => {
-    // Update the query param on user input change
-    setQuery(debouncedTerm);
-  }, [setQuery, debouncedTerm]);
+    if (term === query) return;
+
+    const timeout = setTimeout(() => {
+      setSearchParams(prev => {
+        const result = new URLSearchParams(prev);
+
+        if (term) result.set("q", term);
+        else result.delete("q");
+
+        return result;
+      });
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [term, query, setSearchParams]);
+
   const { data, error, loading } = useRequest(
-    () => (debouncedTerm ? loadSearch(debouncedTerm) : Promise.resolve([])),
+    () => (query ? loadSearch(query) : Promise.resolve([])),
     {
-      refreshDeps: [debouncedTerm],
+      refreshDeps: [query],
     },
   );
   return (
@@ -62,7 +69,7 @@ const SearchPage: React.FC = () => {
         <LoadingOverlay visible={loading} />
         <Container size="xl">
           <div>
-            {data?.length === 0 && debouncedTerm !== "" && (
+            {data?.length === 0 && query !== "" && (
               <div>
                 <h4>No Result</h4>
                 <p>We couldn't find anything matching your search term.</p>

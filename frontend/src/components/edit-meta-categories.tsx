@@ -2,7 +2,6 @@ import { useDisclosure } from "@mantine/hooks";
 import { fetchPost } from "../api/fetch-utils";
 import useInitialState from "../hooks/useInitialState";
 import { useRequest } from "ahooks";
-import { useMetaCategories } from "../api/hooks";
 import { useEffect, useMemo } from "react";
 import {
   ActionIcon,
@@ -66,17 +65,17 @@ export const EditMeta1: React.FC<EditMeta1Props> = ({
       onChange();
     },
   });
-  const { loading: deleteLoading, run: deleteRun } = useRequest(deleteMeta1, {
+  const { run: deleteRun } = useRequest(deleteMeta1, {
     manual: true,
     onSuccess: () => {
       onChange();
     },
   });
   const onSubmit = () => {
-    run(oldMeta1, meta1);
+    void run(oldMeta1, meta1);
   };
   const onDelete = () => {
-    deleteRun(oldMeta1);
+    void deleteRun(oldMeta1);
   };
   const meta1Options: string[] = useMemo(
     () => data?.map(d => d.displayname) ?? [],
@@ -172,7 +171,7 @@ export const EditMeta2: React.FC<EditMeta2Props> = ({
     },
   });
 
-  const { loading: deleteLoading, run: deleteRun } = useRequest(deleteMeta2, {
+  const { run: deleteRun } = useRequest(deleteMeta2, {
     manual: true,
     onSuccess: () => {
       onChange();
@@ -205,10 +204,10 @@ export const EditMeta2: React.FC<EditMeta2Props> = ({
     return value;
   };
   const onSubmit = () => {
-    run(oldMeta2, newMeta2, meta1, newMeta1);
+    void run(oldMeta2, newMeta2, meta1, newMeta1);
   };
   const onDelete = () => {
-    deleteRun(meta1, oldMeta2);
+    void deleteRun(meta1, oldMeta2);
   };
   const onTextChange = (input: string) => {
     setNewMeta2(input);

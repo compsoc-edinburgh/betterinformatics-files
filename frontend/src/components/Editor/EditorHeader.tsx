@@ -13,7 +13,7 @@ import {
   IconPhoto,
 } from "@tabler/icons-react";
 import classes from "./EditorHeader.module.css";
-import clsx from "clsx";
+import { clsx } from "clsx";
 
 interface Props {
   activeMode: string | null;
@@ -38,23 +38,20 @@ const EditorHeader: React.FC<Props> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const onChangeHandler = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const fileInput = fileInputRef.current;
-      if (fileInput === null) return;
-      const fileList = fileInput.files;
-      if (fileList === null) return;
-      const files: File[] = [];
-      for (let i = 0; i < fileList.length; i++) {
-        const file = fileList.item(i);
-        if (file === null) continue;
-        files.push(file);
-      }
-      onFiles(files);
-      fileInput.value = "";
-    },
-    [onFiles],
-  );
+  const onChangeHandler = useCallback(() => {
+    const fileInput = fileInputRef.current;
+    if (fileInput === null) return;
+    const fileList = fileInput.files;
+    if (fileList === null) return;
+    const files: File[] = [];
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList.item(i);
+      if (file === null) continue;
+      files.push(file);
+    }
+    onFiles(files);
+    fileInput.value = "";
+  }, [onFiles]);
 
   return (
     <div className={classes.header}>

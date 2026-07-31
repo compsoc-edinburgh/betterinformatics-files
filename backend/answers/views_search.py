@@ -1,21 +1,21 @@
-import re
+import logging
 import random
-from unicodedata import category
-from django.db.models.functions import Concat
-from django.db.models import Q, F, When, Case, Value as V, Func, TextField
-from ediauth import auth_check
-from util import response
-from answers.models import Answer, Comment, Exam, ExamPage, ExamType
-from ediauth.auth_check import has_admin_rights
+import re
+import time
+
+from django.conf import settings
 from django.contrib.postgres.search import (
     SearchQuery,
     SearchRank,
-    SearchVector,
-    TrigramSimilarity,
 )
-import logging
-import time
-from django.conf import settings
+from django.db.models import Case, F, Func, Q, TextField, When
+from django.db.models import Value as V
+from django.db.models.functions import Concat
+
+from answers.models import Answer, Comment, Exam, ExamPage
+from ediauth import auth_check
+from ediauth.auth_check import has_admin_rights
+from util import response
 
 """
 Search function that uses the full text search capabilities to search for a given query in
@@ -42,10 +42,14 @@ find in this case because only very few documents will be left)
 """
 
 logger = logging.getLogger(__name__)
-flatten = lambda l: [item for sublist in l for item in sublist]
-flatten_and_filter = lambda l: (
-    [item for sublist in l for item in sublist if isinstance(sublist, list)]
-)
+
+
+def flatten(items):
+    return [item for sublist in items for item in sublist]
+
+
+def flatten_and_filter(items):
+    return [item for sublist in items for item in sublist if isinstance(sublist, list)]
 
 
 def parse_recursive(text, start_re, end_re, i, start_len, end_len):
@@ -159,19 +163,12 @@ def headline(
         text,
         query,
         V(
-            'StartSel="{start_sel}", '
-            'StopSel="{stop_sel}", '
-            'FragmentDelimiter="{fragment_delimeter}", '
-            "MaxFragments={max_fragments}, "
-            "MinWords={min_words}, "
-            "MaxWords={max_words}".format(
-                start_sel=start_boundary,
-                stop_sel=end_boundary,
-                fragment_delimeter=fragment_delimeter,
-                max_fragments=max_fragments,
-                min_words=min_words,
-                max_words=max_words,
-            )
+            f'StartSel="{start_boundary}", '
+            f'StopSel="{end_boundary}", '
+            f'FragmentDelimiter="{fragment_delimeter}", '
+            f"MaxFragments={max_fragments}, "
+            f"MinWords={min_words}, "
+            f"MaxWords={max_words}"
         ),
         function="ts_headline",
         output_field=TextField(),
@@ -267,7 +264,6 @@ def search_exams(
         .only("page_number", "exam_id")
     )
 
-    examDict = dict()
     examScore = dict()
     examPages = dict()
     for exam in exams:
@@ -514,18 +510,9 @@ def search(request):
     end = time.time()
     if settings.DEBUG:
         logger.info(
-            "Found: {exam_count} exams, {answer_count} answers, {comment_count} comments".format(
-                exam_count=len(exams),
-                answer_count=len(answers),
-                comment_count=len(comments),
-            )
+            f"Found: {len(exams)} exams, {len(answers)} answers, {len(comments)} comments"
         )
         logger.info(
-            "Time spent: exams: {a} ms, answers: {b} ms, comments: {c} ms, sorting: {d} ms".format(
-                a=(answers_start - exams_start) * 1000,
-                b=(comments_start - answers_start) * 1000,
-                c=(start_merge - comments_start) * 1000,
-                d=(end - start_merge) * 1000,
-            )
+            f"Time spent: exams: {(answers_start - exams_start) * 1000} ms, answers: {(comments_start - answers_start) * 1000} ms, comments: {(start_merge - comments_start) * 1000} ms, sorting: {(end - start_merge) * 1000} ms"
         )
     return response.success(value=res)

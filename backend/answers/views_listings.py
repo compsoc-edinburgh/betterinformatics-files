@@ -1,11 +1,11 @@
-from django.db.models import Q, Count
+from django.db.models import Count, Exists, OuterRef, Q
+
 from answers import section_util
-from answers.models import Answer, Comment, Exam, ExamPage, ExamType
+from answers.models import Answer, Comment, Exam, ExamType
 from documents.models import Comment as DocumentComment
 from ediauth import auth_check
 from ediauth.auth_check import has_admin_rights
 from util import response
-from django.db.models import Count, Exists, OuterRef
 
 
 @response.request_get()

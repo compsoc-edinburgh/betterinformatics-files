@@ -1,6 +1,7 @@
+from django.db.models import Count, Exists, F, Manager, OuterRef, Prefetch
+
+from answers.models import Answer, Comment
 from ediauth import auth_check
-from answers.models import Comment, Answer
-from django.db.models import Count, F, Exists, OuterRef, Manager, Prefetch
 
 
 def prepare_answer_objects(objects: Manager[Answer], request) -> Manager[Answer]:
@@ -112,7 +113,9 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             "expertvotes": answer.expert_count,
             "authorId": author_id,
             "authorDisplayName": author_display_name,
-            "canEdit": answer.author == request.user,
+            "canEdit": answer.author == request.user
+                        or (answer.kind != Answer.Kind.PERSONAL and exam_admin),
+            "isAuthor": answer.author == request.user,
             "isUpvoted": answer.is_upvoted,
             "isDownvoted": answer.is_downvoted,
             "isExpertVoted": answer.is_expertvoted,
@@ -129,10 +132,10 @@ def get_answer_response(request, answer: Answer, ignore_exam_admin=False):
             "isAnonymous": answer.is_anonymous,
             "kind": answer.kind,
         }
-    except AttributeError:
+    except AttributeError as err:
         raise ValueError(
             "The given answer has not been prepared with 'prepare_answer_objects'"
-        )
+        ) from err
 
 
 def get_comment_response(request, comment: Comment):
@@ -160,8 +163,8 @@ def get_comment_response(request, comment: Comment):
             "isMarkedAsAi": comment.is_marked_as_ai,
             "markedAsAiCount": comment.marked_as_ai_count,
         }
-    except AttributeError:
-        raise ValueError("The object is missing the required annotations.")
+    except AttributeError as err:
+        raise ValueError("The object is missing the required annotations.") from err
 
 
 def get_answersection_response(request, section):

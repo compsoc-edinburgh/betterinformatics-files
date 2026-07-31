@@ -1,5 +1,40 @@
 # Changelog
 
+## v2026.08.01
+
+(This release is based on upstream v2026.07.p1)
+
+### Things that affect you
+
+- Answer and comment drafts are now saved in browser storage (!696)
+- You can no longer flag your own answers (!704)
+- Transcripts (and exams, for admins) can be uploaded directly to a course (!720)
+- Removed the limit on uploadable file extensions (!709, !729)
+- Ownership of document bundles can now be transferred between users (!172, !387, !708)
+- You can now pin courses on the homepage (!725)
+- Badges across the app are no longer bugged (!722, !738)
+- "This answer may be AI-generated" only appears after 3 user reports (!703)
+- Overhaul of how changelogs are displayed (!751)
+
+### Behind the scenes
+
+- Reduce initial JavaScript size slightly (!684, !733, !741)
+- Improve developer local environment setup (!674, !698, !739)
+- Adapt to VSETH authentication changes (!688)
+- Upgrade Django from 4.1 to 5.2, Python from 3.9 to 3.12 (!685)
+- Use ruff as the backend code formatter (!686, !689, !699)
+- Fix storage filling up with unreferenced images (!667)
+- Rewrote Documents API to be OpenAPI-compliant (!716, !728, !745)
+- Improve unit test robustness (!700)
+- Fix an instance of N+1 queries in backend SQL (!707)
+- Autogenerate frontend code from backend contracts (!693, !710, !711)
+- Clean up frontend code (!715, !717, !706, !723)
+- Use the React Compiler for optimizations (!721)
+- Improved URL generation when naming documents with umlauts (!730)
+- Minor bug fixes (!726, !692, !734, !752, !753)
+
+Many thanks to contributors Luca, Burak, Yuto, Jacques, Severin, Carole, and Demir.
+
 ## v2026.06.15
 
 - Show number of active student users in stats page ([\#118](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/118))

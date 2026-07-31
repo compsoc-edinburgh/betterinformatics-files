@@ -2,25 +2,27 @@ import datetime
 import os
 import re
 import tempfile
-from typing import Generic, List, Optional, TypeVar, Union
+from typing import Generic, TypeVar
 
-from django.shortcuts import get_object_or_404
 from django.conf import settings
-from categories.models import Category
-from util import response, s3_util
-from ediauth import auth_check
-from .models import Dissertation
-from .pdf_redactor import redactor, RedactorOptions
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from ninja import (
+    Field,
     File,
     Form,
     ModelSchema,
     Router,
     Schema,
-    Field,
     UploadedFile,
 )
+
+from categories.models import Category
+from ediauth import auth_check
+from util import response, s3_util
+
+from .models import Dissertation
+from .pdf_redactor import RedactorOptions, redactor
 
 bucket_name = "dissertations"
 router = Router()
@@ -38,15 +40,15 @@ class SlugDisplayNameSchema(Schema):
 
 
 class DissertationSchema(ModelSchema):
-    uploaded_by: Optional[str] = Field(None, alias="uploaded_by.username")
+    uploaded_by: str | None = Field(None, alias="uploaded_by.username")
     upload_date: str = Field(..., alias="upload_date.isoformat")
-    relevant_categories: List[SlugDisplayNameSchema]
+    relevant_categories: list[SlugDisplayNameSchema]
     can_edit: bool
 
     @staticmethod
     def resolve_relevant_categories(
         dissertation: Dissertation,
-    ) -> List[SlugDisplayNameSchema]:
+    ) -> list[SlugDisplayNameSchema]:
         return [
             SlugDisplayNameSchema(slug=category.slug, displayname=category.displayname)
             for category in dissertation.relevant_categories.all()
@@ -74,7 +76,7 @@ class DissertationSchema(ModelSchema):
 
 
 class DissertationUploadSchema(Schema):
-    words_to_redact: Optional[str] = (
+    words_to_redact: str | None = (
         None  # comma separated, since our frontend doesn't explode arrays
     )
     title: str
@@ -82,7 +84,7 @@ class DissertationUploadSchema(Schema):
     supervisors: str
     notes: str = ""
     study_level: str
-    grade_band: Optional[str] = None
+    grade_band: str | None = None
     year: int
     relevant_categories: str  # comma separated list of category slugs
 
@@ -91,20 +93,20 @@ class DissertationEditSchema(Schema):
     """It would be nice if this could just be PatchDict[DissertationUploadSchema]
     but that doesn't seem to work when combined with Form[]."""
 
-    words_to_redact: Optional[str] = (
+    words_to_redact: str | None = (
         None  # comma separated, since our frontend doesn't explode arrays
     )
-    title: Optional[str] = None
-    field_of_study: Optional[str] = None
-    supervisors: Optional[str] = None
-    notes: Optional[str] = None
-    study_level: Optional[str] = None
-    grade_band: Optional[str] = None
-    year: Optional[int] = None
-    relevant_categories: Optional[str] = None  # comma separated list of category slugs
+    title: str | None = None
+    field_of_study: str | None = None
+    supervisors: str | None = None
+    notes: str | None = None
+    study_level: str | None = None
+    grade_band: str | None = None
+    year: int | None = None
+    relevant_categories: str | None = None  # comma separated list of category slugs
 
 
-def redact_file(file: UploadedFile, words_to_redact: List[str]) -> str:
+def redact_file(file: UploadedFile, words_to_redact: list[str]) -> str:
     """Perform text redaction on a file and write to a temporary file in the
     ComSol upload folder.
 
@@ -224,8 +226,7 @@ def redact_dissertation(
     s3_util.delete_files_older_than(
         bucket_name + "_temp_redacted/",
         "redacted_",
-        cutoff_time=datetime.datetime.now(datetime.timezone.utc)
-        - datetime.timedelta(minutes=5),
+        cutoff_time=datetime.datetime.now(datetime.UTC) - datetime.timedelta(minutes=5),
     )
 
     # Generate a presigned URL for direct access from Minio
@@ -239,13 +240,13 @@ def redact_dissertation(
     return {"value": presigned_url}
 
 
-@router.get("/", response=ValueWrapped[List[DissertationSchema]])
+@router.get("/", response=ValueWrapped[list[DissertationSchema]])
 @auth_check.require_login
 def list_dissertations(
     request,
-    query: Union[str, int] = "",
+    query: str | int = "",
     field: str = "",
-    category: Optional[str] = None,
+    category: str | None = None,
 ):
     dissertations = Dissertation.objects.all()
 
@@ -314,7 +315,7 @@ def update_dissertation(
     request,
     dissertation_id: int,
     data: Form[DissertationEditSchema],
-    pdf_file: File[Optional[UploadedFile]] = None,
+    pdf_file: File[UploadedFile | None] = None,
 ):
     dissertation = get_object_or_404(Dissertation, id=dissertation_id)
 

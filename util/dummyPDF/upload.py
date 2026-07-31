@@ -3,7 +3,6 @@
 import argparse
 import requests
 import getpass
-import os
 import difflib
 
 

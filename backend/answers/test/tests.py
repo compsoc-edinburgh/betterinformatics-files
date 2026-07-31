@@ -1,13 +1,13 @@
-from testing.tests import ComsolTestExamData
 from datetime import timedelta
+
+from testing.tests import ComsolTestExamData
 
 
 class TestMetadata(ComsolTestExamData):
-
     add_sections = False
 
     def test_metadata(self):
-        res = self.get("/api/exam/metadata/{}/".format(self.exam.filename))["value"]
+        res = self.get(f"/api/exam/metadata/{self.exam.filename}/")["value"]
         self.assertEqual(res["filename"], self.exam.filename)
         self.assertEqual(res["displayname"], self.exam.displayname)
         self.assertEqual(res["examtype"], self.exam.exam_type.displayname)
@@ -19,7 +19,7 @@ class TestMetadata(ComsolTestExamData):
 
     def test_set_metadata(self):
         self.post(
-            "/api/exam/setmetadata/{}/".format(self.exam.filename),
+            f"/api/exam/setmetadata/{self.exam.filename}/",
             {
                 "displayname": "New Displayname",
                 "category": "default",
@@ -34,49 +34,46 @@ class TestMetadata(ComsolTestExamData):
         self.exam.refresh_from_db()
         self.test_metadata()
         self.post(
-            "/api/exam/setmetadata/{}/".format(self.exam.filename),
+            f"/api/exam/setmetadata/{self.exam.filename}/",
             {
                 "filename": "cannotchange.pdf",
             },
         )
-        res = self.get("/api/exam/metadata/{}/".format(self.exam.filename))["value"]
+        res = self.get(f"/api/exam/metadata/{self.exam.filename}/")["value"]
         self.assertNotEqual(res["filename"], "cannotchange.pdf")
 
 
 class TestClaim(ComsolTestExamData):
-
     add_sections = False
 
     def test_claim(self):
         self.assertEqual(self.exam.import_claim, None)
-        self.post("/api/exam/claimexam/{}/".format(self.exam.filename), {"claim": True})
+        self.post(f"/api/exam/claimexam/{self.exam.filename}/", {"claim": True})
         self.exam.refresh_from_db()
         self.assertEqual(self.exam.import_claim.username, self.user["username"])
-        self.post(
-            "/api/exam/claimexam/{}/".format(self.exam.filename), {"claim": False}
-        )
+        self.post(f"/api/exam/claimexam/{self.exam.filename}/", {"claim": False})
         self.exam.refresh_from_db()
         self.assertEqual(self.exam.import_claim, None)
 
     def test_claim_reset(self):
-        self.post("/api/exam/claimexam/{}/".format(self.exam.filename), {"claim": True})
+        self.post(f"/api/exam/claimexam/{self.exam.filename}/", {"claim": True})
         self.exam.refresh_from_db()
 
-        self.user = self.loginUsers[1]
+        self.user = self.adminUsers[1]
 
         self.post(
-            "/api/exam/claimexam/{}/".format(self.exam.filename),
+            f"/api/exam/claimexam/{self.exam.filename}/",
             {"claim": True},
             status_code=400,
         )
 
         self.exam.import_claim_time = self.exam.import_claim_time - timedelta(hours=5)
         self.exam.save()
-        self.post("/api/exam/claimexam/{}/".format(self.exam.filename), {"claim": True})
+        self.post(f"/api/exam/claimexam/{self.exam.filename}/", {"claim": True})
 
         self.exam.refresh_from_db()
         self.assertEqual(
-            self.exam.import_claim.username, self.loginUsers[1]["username"]
+            self.exam.import_claim.username, self.adminUsers[1]["username"]
         )
 
-        self.user = self.loginUsers[1]
+        self.user = self.adminUsers[1]

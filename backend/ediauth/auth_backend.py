@@ -1,13 +1,14 @@
 import logging
-import jwt
 
+import jwt
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http.request import HttpRequest
-from django.contrib.auth.models import User
-from notifications.models import NotificationSetting, NotificationType
+
 from ediauth.models import Profile
+from notifications.models import NotificationSetting, NotificationType
 
 logger = logging.getLogger(__name__)
 

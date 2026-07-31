@@ -1,10 +1,8 @@
 import datetime
 import random
-import jwt
-import typing
 
+import jwt
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.http import HttpRequest
 from django.http.response import HttpResponseRedirect, JsonResponse
@@ -20,7 +18,7 @@ ipw = IpWare()
 
 @response.request_get()
 def me_view(request: HttpRequest) -> JsonResponse:
-    if request.user != None:
+    if request.user is not None:
         # There is a user logged in
         return response.success(
             loggedin=True,
@@ -28,6 +26,7 @@ def me_view(request: HttpRequest) -> JsonResponse:
             adminrightscat=auth_check.has_admin_rights_for_any_category(request),
             username=request.user.username,
             displayname=request.user.profile.display_username,
+            userid=request.user.id,
         )
     else:
         # No user logged in
@@ -37,6 +36,7 @@ def me_view(request: HttpRequest) -> JsonResponse:
             adminrightscat=False,
             username="",
             displayname="Not Authorized",
+            userid=-1,
         )
 
 
@@ -67,7 +67,7 @@ def login(request: HttpRequest):
     try:
         codeRow = VerificationCode.objects.get(
             uun=uun,
-            created_at__gt=datetime.datetime.now(datetime.timezone.utc)
+            created_at__gt=datetime.datetime.now(datetime.UTC)
             - verification_code_validity,
         )
     except VerificationCode.DoesNotExist:
@@ -81,11 +81,11 @@ def login(request: HttpRequest):
             # Update/insert the new code and timestamp
             defaults={
                 "code": newCode,
-                "created_at": datetime.datetime.now(datetime.timezone.utc),
+                "created_at": datetime.datetime.now(datetime.UTC),
             },
         )
 
-    ip, _ = ipw.get_client_ip(request.META)
+    _ip, _ = ipw.get_client_ip(request.META)
 
     send_mail(
         "BetterInformatics: Your Verification Code is " + codeRow.code,
@@ -117,7 +117,7 @@ def verify(request: HttpRequest):
     try:
         codeRow = VerificationCode.objects.get(
             uun=uun,
-            created_at__gt=datetime.datetime.now(datetime.timezone.utc)
+            created_at__gt=datetime.datetime.now(datetime.UTC)
             - verification_code_validity,
         )
 
@@ -137,7 +137,7 @@ def verify(request: HttpRequest):
     jwt_claims = {
         "uun": uun,
         "email": uun + "@sms.ed.ac.uk",
-        "exp": datetime.datetime.now(datetime.timezone.utc) + auth_token_validity,
+        "exp": datetime.datetime.now(datetime.UTC) + auth_token_validity,
         "admin": uun in settings.COMSOL_AUTH_ADMIN_UUNS,
     }
 

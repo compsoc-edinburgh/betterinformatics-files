@@ -1,15 +1,16 @@
-import logging
-from django.core import mail
-from testing.tests import ComsolTest
 import re
+
 from django.contrib.auth.models import User
+from django.core import mail
+
+from testing.tests import ComsolTest
 
 
 class TestEdiAuth(ComsolTest):
-
-    loginUser = -1
-
     code_finder = re.compile(r"\b\d{6}\b")
+
+    def setUpLogin(self):
+        self.login_as(None)
 
     def test_sign_in(self):
 

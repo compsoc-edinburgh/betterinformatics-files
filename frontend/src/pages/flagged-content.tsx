@@ -97,36 +97,35 @@ const FlaggedTable: React.FC<FlaggedTableProps> = ({ flaggedList, typed }) => {
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
-        {flaggedList &&
-          flaggedList.map(content => (
-            <Table.Tr key={content.link}>
-              <Table.Td>
-                <Anchor
-                  c="blue"
-                  component={Link}
-                  to={content.link}
-                  target="_blank"
-                  style={{ wordBreak: "break-all" }}
-                >
-                  {content.link}
-                </Anchor>
-              </Table.Td>
-              <Table.Td>
-                <Anchor
-                  c="blue"
-                  component={Link}
-                  to={`/user/${content.author}`}
-                  target="_blank"
-                >
-                  {content.author}
-                </Anchor>
-              </Table.Td>
-              {typed && (
-                <Table.Td>{content.flagType ? "Comment" : "Answer"}</Table.Td>
-              )}
-              <Table.Td>{content.flaggedCount}</Table.Td>
-            </Table.Tr>
-          ))}
+        {flaggedList.map(content => (
+          <Table.Tr key={content.link}>
+            <Table.Td>
+              <Anchor
+                c="blue"
+                component={Link}
+                to={content.link}
+                target="_blank"
+                style={{ wordBreak: "break-all" }}
+              >
+                {content.link}
+              </Anchor>
+            </Table.Td>
+            <Table.Td>
+              <Anchor
+                c="blue"
+                component={Link}
+                to={`/user/${content.author}`}
+                target="_blank"
+              >
+                {content.author}
+              </Anchor>
+            </Table.Td>
+            {typed && (
+              <Table.Td>{content.flagType ? "Comment" : "Answer"}</Table.Td>
+            )}
+            <Table.Td>{content.flaggedCount}</Table.Td>
+          </Table.Tr>
+        ))}
       </Table.Tbody>
     </Table>
   );
@@ -158,12 +157,20 @@ const FlaggedContent: React.FC = () => {
         const [list, count] = byAuthor.get(fs.author) ?? [[], 0];
         list.push(fs);
         byAuthor.set(fs.author, [list, count + fs.flaggedCount]);
-        fs.flagType ? byType.comments.push(fs) : byType.answers.push(fs);
+        if (fs.flagType) {
+          byType.comments.push(fs);
+        } else {
+          byType.answers.push(fs);
+        }
       });
       return [flaggedListNoGroup, Array.from(byAuthor.entries()), byType];
     }, [flaggedList]);
 
   useTitle("Flagged Content");
+
+  if (flaggedError) {
+    return <Text color="red">Could not load flagged content.</Text>;
+  }
 
   return (
     <Container size="xl">

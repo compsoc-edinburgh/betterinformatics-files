@@ -8,8 +8,7 @@ import {
 import { IconMoon, IconSun, IconSunMoon } from "@tabler/icons-react";
 
 const ColorSchemeToggle = () => {
-  const { colorScheme, setColorScheme, clearColorScheme } =
-    useMantineColorScheme();
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
   return (
     <Group justify="center">
       <HoverCard

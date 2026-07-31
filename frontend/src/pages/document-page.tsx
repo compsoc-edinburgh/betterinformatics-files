@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   Alert,
   Anchor,
@@ -10,12 +11,15 @@ import {
   Title,
   Text,
   Tabs,
+  Tooltip,
   Box,
+  Modal,
+  Stack,
+  List,
 } from "@mantine/core";
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { download } from "../api/fetch-utils";
-import { useDocument } from "../api/hooks";
 import IconButton from "../components/icon-button";
 import LikeButton from "../components/like-button";
 import ContentContainer from "../components/secondary-container";
@@ -27,10 +31,11 @@ import DocumentMarkdownEditor from "../components/document-markdown-editor";
 import DocumentPdf from "../components/document-pdf";
 import DocumentSettings from "../components/document-settings";
 import { useDocumentDownload } from "../hooks/useDocumentDownload";
-import { Document, DocumentFile } from "../interfaces";
 import MarkdownText from "../components/markdown-text";
 import { formatDistanceToNow } from "date-fns";
 import {
+  IconArrowBigRightLine,
+  IconCheck,
   IconChevronRight,
   IconDownload,
   IconEdit,
@@ -39,27 +44,47 @@ import {
   IconFileTypeZip,
   IconMessage,
   IconSettings,
+  IconX,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import displayNameClasses from "../utils/display-name.module.css";
 import { useQuickSearchFilter } from "../components/Navbar/QuickSearch/QuickSearchFilterContext";
 import { useScrollToPermalink } from "../hooks/useScrollToPermalink";
+import { useUser, type User } from "../auth";
+import type { DocumentFileSchema } from "../api/model/documentFileSchema";
+import type { DocumentSchema } from "../api/model/documentSchema";
+import {
+  useAcceptDocumentTransfer,
+  useGetDocument,
+  useRejectDocumentTransfer,
+} from "../api/hooks/documents";
+import serverData from "../utils/server-data";
+import type { UserSchema } from "../api/model";
 
-const isPdf = (file: DocumentFile) => file.mime_type === "application/pdf";
-const isMarkdown = (file: DocumentFile) =>
+const isPdf = (file: DocumentFileSchema) =>
+  file.mime_type === "application/pdf";
+const isMarkdown = (file: DocumentFileSchema) =>
   file.filename.toLowerCase().endsWith(".md");
-const isTex = (file: DocumentFile) =>
+const isTex = (file: DocumentFileSchema) =>
   file.filename.toLowerCase().endsWith(".tex");
-const isTypst = (file: DocumentFile) =>
+const isTypst = (file: DocumentFileSchema) =>
   file.filename.toLowerCase().endsWith(".typ");
 
 const getComponents = (
-  file: DocumentFile | undefined,
+  file: DocumentFileSchema | undefined,
 ):
   | {
-      Viewer: React.FC<{ document: Document; file: DocumentFile; url: string }>;
+      Viewer: React.FC<{
+        document: DocumentSchema;
+        file: DocumentFileSchema;
+        url: string;
+      }>;
       Editor:
-        | React.FC<{ document: Document; file: DocumentFile; url: string }>
+        | React.FC<{
+            document: DocumentSchema;
+            file: DocumentFileSchema;
+            url: string;
+          }>
         | undefined;
     }
   | undefined => {
@@ -78,8 +103,8 @@ const getComponents = (
   return undefined;
 };
 
-const getFile = (document: Document | undefined, oid: number) =>
-  document ? document.files.find(x => x.oid === oid) : undefined;
+const getFile = (document: DocumentSchema | undefined, oid: number) =>
+  document ? document.files?.find(x => x.oid === oid) : undefined;
 
 const FileIcon: React.FC<{ filename: string }> = ({ filename }) => {
   if (filename.endsWith(".pdf")) {
@@ -93,40 +118,293 @@ const FileIcon: React.FC<{ filename: string }> = ({ filename }) => {
   return <IconFile />;
 };
 
-interface Props {}
-const DocumentPage: React.FC<Props> = () => {
-  const { slug } = useParams() as { slug: string };
-  const [error, _, data, mutate, reload] = useDocument(slug, document => {
-    if (document.files.length > 0) setTab(document.files[0].oid.toString());
-  });
+interface UserRenderProps {
+  user: UserSchema;
+  anonymised?: boolean;
+  can_see_anonymised?: boolean;
+}
 
-  useQuickSearchFilter(
-    data && { slug: data.category, displayname: data.category_display_name },
+const UserRender: React.FC<UserRenderProps> = ({
+  user,
+  anonymised,
+  can_see_anonymised,
+}) => {
+  return (
+    <>
+      {!anonymised && (
+        <Anchor
+          component={Link}
+          to={`/user/${user.username}`}
+          underline="never"
+          className={displayNameClasses.shrinkableDisplayName}
+        >
+          {user.display_name !== user.username && (
+            <>
+              <Text fw={700} component="span">
+                {user.display_name}
+              </Text>
+              <Text ml="0.3em" c="dimmed" component="span">
+                @{user.username}
+              </Text>
+            </>
+          )}
+          {user.display_name === user.username && (
+            <Text fw={700} component="span">
+              @{user.username}
+            </Text>
+          )}
+        </Anchor>
+      )}
+      {anonymised && (
+        <Text fw={700} component="span">
+          Anonymous
+        </Text>
+      )}
+      {anonymised && can_see_anonymised && (
+        <Anchor
+          component={Link}
+          to={`/user/${user.username}`}
+          underline="never"
+          className={displayNameClasses.shrinkableDisplayName}
+        >
+          <Text ml="0.3em" c="dimmed" component="span">
+            ({user.display_name !== user.username && `${user.display_name} `}@
+            {user.username})
+          </Text>
+        </Anchor>
+      )}
+    </>
+  );
+};
+
+interface AcceptTransferBannerProps {
+  loggedInUser: User | undefined;
+  document: DocumentSchema | undefined;
+  refetch: () => void;
+}
+const AcceptTransferBanner: React.FC<AcceptTransferBannerProps> = ({
+  loggedInUser,
+  document,
+  refetch,
+}) => {
+  const target = document?.pending_transfer_user;
+  const acceptDocument = useAcceptDocumentTransfer({
+    mutation: {
+      onSuccess: async ({ value: newDocument }) => {
+        await navigate(
+          `/user/${newDocument.author.username}/document/${newDocument.slug}`,
+        );
+        refetch();
+      },
+    },
+  });
+  const rejectDocument = useRejectDocumentTransfer({
+    mutation: {
+      onSuccess: () => {
+        refetch();
+      },
+    },
+  });
+  const navigate = useNavigate();
+
+  if (target == null || !loggedInUser?.loggedin || !document) return;
+
+  // Different reasons to show the banner
+  // Is the current user the target, are they an admin, or are they the current owner?
+  // (These aren't mutually exclusive!)
+  const showBecause = {
+    targetUser: loggedInUser.userid === target.id,
+    admin: loggedInUser.isCategoryAdmin || loggedInUser.isAdmin,
+    documentOwner: loggedInUser.userid === document.author.id,
+  };
+
+  if (
+    !showBecause.admin &&
+    !showBecause.targetUser &&
+    !showBecause.documentOwner
+  )
+    return;
+
+  const onAccept = () => {
+    acceptDocument.mutate({
+      slug: document.slug,
+    });
+  };
+
+  const onReject = () => {
+    rejectDocument.mutate({
+      slug: document.slug,
+    });
+  };
+
+  const isSubmitting = acceptDocument.isPending || rejectDocument.isPending;
+
+  const body = showBecause.documentOwner ? (
+    <span>
+      You are in the process of transferring this document to{" "}
+      <UserRender user={target} />. They must accept the transfer before it is
+      completed.
+    </span>
+  ) : showBecause.targetUser ? (
+    <span>
+      <UserRender user={document.author} /> wants to transfer this document to
+      you.
+    </span>
+  ) : (
+    <span>
+      <UserRender user={document.author} /> wants to transfer this document to{" "}
+      <UserRender user={target} />.
+    </span>
   );
 
-  const [tab, setTab] = useState<string | null>("none");
-  const activeFile = !Number.isNaN(Number(tab))
-    ? getFile(data, Number(tab))
-    : undefined;
+  return (
+    <Alert
+      color="gray"
+      title="Transfer Pending"
+      icon={<IconArrowBigRightLine />}
+    >
+      <Flex align="baseline" gap="md" justify="left">
+        {body}
+
+        {/* Only show accept button if user is the target (and not owner self, just in case) */}
+        {showBecause.targetUser && !showBecause.documentOwner ? (
+          <Button
+            color="brand"
+            variant="filled"
+            size="compact-sm"
+            type="button"
+            onClick={() => {
+              onAccept();
+            }}
+            disabled={isSubmitting}
+            rightSection={<IconCheck />}
+          >
+            Accept
+          </Button>
+        ) : (
+          showBecause.admin && (
+            <Button
+              color="red"
+              variant="filled"
+              size="compact-sm"
+              type="button"
+              onClick={() => {
+                onAccept();
+              }}
+              disabled={isSubmitting}
+              rightSection={<IconCheck />}
+            >
+              Accept as admin
+            </Button>
+          )
+        )}
+        <Button
+          color="red"
+          variant="subtle"
+          size="compact-sm"
+          type="button"
+          onClick={() => {
+            onReject();
+          }}
+          disabled={isSubmitting}
+          rightSection={<IconX />}
+        >
+          {showBecause.documentOwner ? "Abort" : "Reject"}
+        </Button>
+      </Flex>
+    </Alert>
+  );
+};
+
+// Calculate tab to show based on state if user hasn't
+// navigated to a tab yet
+function resolveTab(
+  storedTab: string | null | undefined,
+  searchParams: string,
+  document?: DocumentSchema,
+): string | undefined {
+  if (storedTab) return storedTab;
+
+  if (!document) return undefined;
+
+  // If ?comment=... in url and that is a valid comment
+  // navigate to comments
+  const sp = new URLSearchParams(searchParams);
+  const commentId = sp.get("comment");
+  if (
+    commentId &&
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    document.comments!.some(item => String(item.oid) === commentId)
+  ) {
+    return "comments";
+  }
+
+  // Navigate to first file if it exists
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const files = document.files!;
+  if (files.length > 0) {
+    return String(files[0].oid);
+  }
+
+  return undefined;
+}
+
+const DocumentPage: React.FC = () => {
+  const { slug } = useParams() as { slug: string };
+  const {
+    data: document,
+    isSuccess,
+    refetch,
+    isError,
+    error,
+  } = useGetDocument(
+    slug,
+    {
+      include_comments: true,
+      include_files: true,
+    },
+    {
+      query: {
+        select({ value: document }) {
+          return document;
+        },
+      },
+    },
+  );
+
+  useQuickSearchFilter(
+    isSuccess
+      ? { slug: document.category, displayname: document.category_display_name }
+      : undefined,
+  );
+
+  const { search: searchParams } = useLocation();
+
+  const [tab, setTab] = useState<string | null>();
+  const resolvedTab = resolveTab(tab, searchParams, document);
+
+  const activeFile =
+    resolvedTab && !Number.isNaN(Number(resolvedTab))
+      ? getFile(document, Number(resolvedTab))
+      : undefined;
   const Components = getComponents(activeFile);
   const [editing, { toggle: toggleEditing }] = useDisclosure();
-  const [loadingDownload, startDownload] = useDocumentDownload(data);
-  const reloadSettings = async () => {
-    await reload();
-    setTab("settings");
-  };
-  const { search: searchParams } = useLocation();
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const id = params.get("comment");
-    if (id && data?.comments.map(item => String(item.oid)).includes(id)) {
-      setTab("comments");
-    }
-  }, [searchParams, data]);
-  useScrollToPermalink();
+  const [warningFiles, setWarningFiles] = useState<DocumentFileSchema[]>([]);
+  const [
+    showWarningModal,
+    { open: openWarningModal, close: closeWarningModal },
+  ] = useDisclosure();
+  const [loadingDownload, startDownload] = useDocumentDownload(document);
 
-  function formatDisplayName(file: DocumentFile): string {
-    const ext = file.filename.split(".").at(-1);
+  useScrollToPermalink();
+  const user = useUser();
+
+  const getFileExtension = (filename: string): string | undefined => {
+    return filename.split(".").at(-1)?.toLowerCase();
+  };
+
+  function formatDisplayName(file: DocumentFileSchema): string {
+    const ext = getFileExtension(file.filename);
     if (ext && file.display_name.endsWith(`.${ext}`)) {
       return file.display_name;
     }
@@ -134,10 +412,68 @@ const DocumentPage: React.FC<Props> = () => {
     return `${file.display_name}.${ext}`;
   }
 
-  const lastEdited = data?.edittime ?? data?.time;
+  const lastEdited = document?.edittime ?? document?.time;
+
+  const isUnsafeFile = (file: DocumentFileSchema): boolean => {
+    const ext = getFileExtension(file.filename);
+    return (
+      ext !== undefined &&
+      !serverData.document_download_safe_extensions.includes(ext)
+    );
+  };
+
+  const handleDownload = () => {
+    const warningFiles = document?.files?.filter(file => {
+      return isUnsafeFile(file);
+    });
+    if (warningFiles && warningFiles.length > 0) {
+      setWarningFiles(warningFiles);
+      openWarningModal();
+    } else {
+      startDownload();
+    }
+  };
 
   return (
     <>
+      <Modal
+        opened={showWarningModal}
+        onClose={closeWarningModal}
+        withCloseButton={false}
+      >
+        <Stack>
+          <Text>Some requested files have uncommon file extensions.</Text>
+          <Text>
+            Please note that the server has not scanned or verified the files
+            for viruses, and you should exercise caution when downloading
+            user-uploaded files.
+          </Text>
+          <Alert
+            title={`Possibly unsafe file${warningFiles.length > 1 ? "s" : ""}`}
+          >
+            <List spacing={4} size="sm">
+              {warningFiles.map(file => (
+                <List.Item key={file.display_name}>
+                  {formatDisplayName(file)}
+                </List.Item>
+              ))}
+            </List>
+          </Alert>
+          <Text>Are you sure you want to continue?</Text>
+          <Group justify="flex-end">
+            <Button onClick={closeWarningModal}>Cancel</Button>
+            <Button
+              color="red"
+              onClick={() => {
+                startDownload();
+                closeWarningModal();
+              }}
+            >
+              Download
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
       <Container size="xl">
         <Breadcrumbs separator={<IconChevronRight />}>
           <Anchor tt="uppercase" size="xs" component={Link} to="/">
@@ -147,106 +483,79 @@ const DocumentPage: React.FC<Props> = () => {
             size="xs"
             tt="uppercase"
             component={Link}
-            to={`/category/${data ? data.category : ""}`}
+            to={`/category/${document ? document.category : ""}`}
             style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
-            {data?.category_display_name}
+            {document?.category_display_name}
           </Anchor>
           <Anchor
             size="xs"
             tt="uppercase"
             style={{ wordBreak: "break-word", textWrap: "pretty" }}
           >
-            {data?.display_name}
+            {document?.display_name}
           </Anchor>
         </Breadcrumbs>
-        {data && (
+        {document && (
           <Box my="sm">
             <Flex justify="space-between" align="center">
-              <Title>{data.display_name ?? slug}</Title>
+              <Title>{document.display_name}</Title>
               <Group>
                 <IconButton
                   icon={<IconDownload />}
-                  onClick={startDownload}
+                  onClick={handleDownload}
                   color="gray"
                   tooltip="Download"
                   loading={loadingDownload}
                 />
-                <LikeButton document={data} mutate={mutate} />
+                <LikeButton document={document} refetch={refetch} />
               </Group>
             </Flex>
             <Group gap={0}>
-              {data && !data.anonymised && (
-                <Anchor
-                  component={Link}
-                  to={`/user/${data.author}`}
-                  underline="never"
-                  className={displayNameClasses.shrinkableDisplayName}
-                >
-                  {data.author_displayname !== data.author && (
-                    <>
-                      <Text fw={700} component="span">
-                        {data.author_displayname}
-                      </Text>
-                      <Text ml="0.3em" c="dimmed" component="span">
-                        @{data.author}
-                      </Text>
-                    </>
-                  )}
-                  {data.author_displayname === data.author && (
-                    <Text fw={700} component="span">
-                      @{data.author}
-                    </Text>
-                  )}
-                </Anchor>
-              )}
-              {data && data.anonymised && (
-                <Text fw={700} component="span">
-                  Anonymous
-                </Text>
-              )}
-              {data &&
-                data.anonymised &&
-                (data.can_edit || data.can_delete) && (
-                  <Anchor
-                    component={Link}
-                    to={`/user/${data.author}`}
-                    underline="never"
-                    className={displayNameClasses.shrinkableDisplayName}
-                  >
-                    <Text ml="0.3em" c="dimmed" component="span">
-                      (
-                      {data.author_displayname !== data.author &&
-                        `${data.author_displayname} `}
-                      @{data.author})
-                    </Text>
-                  </Anchor>
-                )}
+              <UserRender
+                user={document.author}
+                anonymised={document.anonymised}
+                can_see_anonymised={document.can_edit || document.can_delete}
+              />
               {lastEdited && (
                 <>
                   <Text c="dimmed" mx={6} component="span">
                     ·
                   </Text>
-                  <Text c="dimmed" component="span">
-                    Last updated {formatDistanceToNow(new Date(lastEdited))} ago
-                  </Text>
+                  <Tooltip
+                    withArrow
+                    withinPortal
+                    label={`Created ${formatDistanceToNow(new Date(document.time))} ago`}
+                    disabled={document.time === null}
+                  >
+                    <Text c="dimmed" component="span">
+                      updated {formatDistanceToNow(new Date(document.edittime))}{" "}
+                      ago
+                    </Text>
+                  </Tooltip>
                 </>
               )}
             </Group>
           </Box>
         )}
-        {error && <Alert color="red">{error.toString()}</Alert>}
-        {data?.description && (
+        {isError && <Alert color="red">{String(error)}</Alert>}
+        {document?.description && (
           <div>
-            <MarkdownText value={data.description} />
+            <MarkdownText value={document.description} />
           </div>
         )}
+        <AcceptTransferBanner
+          loggedInUser={user}
+          document={document}
+          refetch={refetch}
+        />
       </Container>
       <Container size="xl" mt="sm">
-        <Tabs value={tab} onChange={setTab}>
+        <Tabs value={resolvedTab} onChange={setTab}>
           <Tabs.List>
-            {data?.files
-              .sort((a, b) => a.order - b.order)
+            {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+            {document
+              ?.files!.sort((a, b) => a.order - b.order)
               .map(file => (
                 <Tabs.Tab
                   key={file.oid}
@@ -259,7 +568,7 @@ const DocumentPage: React.FC<Props> = () => {
             <Tabs.Tab value="comments" leftSection={<IconMessage />}>
               Comments
             </Tabs.Tab>
-            {data && (data.can_delete || data.can_edit) && (
+            {document && (document.can_delete || document.can_edit) && (
               <Tabs.Tab value="settings" leftSection={<IconSettings />}>
                 Settings
               </Tabs.Tab>
@@ -268,10 +577,10 @@ const DocumentPage: React.FC<Props> = () => {
         </Tabs>
       </Container>
 
-      {!Number.isNaN(Number(tab)) &&
-        data &&
+      {activeFile &&
+        document &&
         (Components?.Viewer ? (
-          data.can_edit && Components.Editor !== undefined ? (
+          document.can_edit && Components.Editor !== undefined ? (
             <ContentContainer mt="-2px">
               <Container>
                 <Flex py="sm" justify="center">
@@ -282,16 +591,16 @@ const DocumentPage: React.FC<Props> = () => {
               </Container>
               {!editing && (
                 <Components.Viewer
-                  file={activeFile!}
-                  document={data}
+                  file={activeFile}
+                  document={document}
                   url={`/api/document/${slug}/file/${activeFile?.filename}`}
                 />
               )}
               {editing && (
                 <Container size="xl">
                   <Components.Editor
-                    file={activeFile!}
-                    document={data}
+                    file={activeFile}
+                    document={document}
                     url={`/api/document/${slug}/file/${activeFile?.filename}`}
                   />
                 </Container>
@@ -299,21 +608,30 @@ const DocumentPage: React.FC<Props> = () => {
             </ContentContainer>
           ) : (
             <Components.Viewer
-              file={activeFile!}
-              document={data}
+              file={activeFile}
+              document={document}
               url={`/api/document/${slug}/file/${activeFile?.filename}`}
             />
           )
         ) : (
           <ContentContainer mt="-2px">
             <Container size="xl">
-              <Alert color="blue" my="sm">
-                This file can only be downloaded.
-              </Alert>
+              {activeFile &&
+                (isUnsafeFile(activeFile) ? (
+                  <Alert color="red" my="sm">
+                    This file has an uncommon file extension. Be careful when
+                    downloading it, as the server does not scan user-uploaded
+                    files for viruses.
+                  </Alert>
+                ) : (
+                  <Alert color="blue" my="sm">
+                    This file can only be downloaded.
+                  </Alert>
+                ))}
               <Button
                 leftSection={<IconDownload />}
                 onClick={() =>
-                  download(`/api/document/${slug}/file/${activeFile?.filename}`)
+                  download(`/api/document/${slug}/file/${activeFile.filename}`)
                 }
               >
                 Download
@@ -321,35 +639,33 @@ const DocumentPage: React.FC<Props> = () => {
             </Container>
           </ContentContainer>
         ))}
-      {tab === "comments" && data && (
+      {tab === "comments" && document && (
         <ContentContainer mt="-2px">
           <Container size="xl">
-            {data.comments.length === 0 && (
+            {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+            {document.comments!.length === 0 && (
               <Alert mb="sm">There are no comments yet.</Alert>
             )}
-            {data.comments.map(comment => (
+            {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+            {document.comments!.map(comment => (
               <DocumentCommentComponent
                 documentSlug={slug}
                 comment={comment}
                 key={comment.oid}
-                mutate={mutate}
+                refetch={refetch}
               />
             ))}
             <Card shadow="md" withBorder>
-              <DocumentCommentForm documentSlug={slug} mutate={mutate} />
+              <DocumentCommentForm documentSlug={slug} refetch={refetch} />
             </Card>
           </Container>
         </ContentContainer>
       )}
 
-      {tab === "settings" && data && (
+      {tab === "settings" && document && (
         <ContentContainer mt="-2px">
           <Container size="xl">
-            <DocumentSettings
-              data={data}
-              mutate={mutate}
-              reload={reloadSettings}
-            />
+            <DocumentSettings document={document} refetch={refetch} />
           </Container>
         </ContentContainer>
       )}

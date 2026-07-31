@@ -167,7 +167,6 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     onSectionChange,
     onToggleHidden,
     hidden,
-    cutVersion,
     setCutVersion,
 
     cutName,
@@ -202,7 +201,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
       (newData: AnswerSection) => {
         setCutVersion(newData.cutVersion);
         setData(newData);
-        run(); // refreshes the data if there's a new answer
+        void run(); // refreshes the data if there's a new answer
       },
       [setCutVersion, run],
     );
@@ -212,7 +211,7 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     // initial run to get the answers in a section
     useEffect(() => {
       if ((visible || !hidden) && !data) {
-        run();
+        void run();
       }
     }, [run, visible, hidden, data]);
 
@@ -235,12 +234,12 @@ const AnswerSectionComponent: React.FC<Props> = React.memo(
     const hideAnswerSection = async () => {
       await onHasAnswersChange();
       closeHideWarning();
-      run(); // updates data when setting visibility to hidden
+      void run(); // updates data when setting visibility to hidden
     };
     const hideAnswerSectionWithWarning = () => {
       if (data) {
         if (data.answers.length === 0 || !has_answers) {
-          hideAnswerSection();
+          void hideAnswerSection();
         } else {
           openHideWarning();
         }

@@ -29,7 +29,9 @@ export default defineConfig(
         // TypeScript file that it needs to compile and get types for.
         languageOptions: {
             parserOptions: {
-                projectService: true,
+                projectService: {
+                    allowDefaultProject: ["vite.config.ts", "vite-env.d.ts", "orval.config.ts"],
+                },
             },
         },
 
@@ -69,7 +71,7 @@ export default defineConfig(
             "@typescript-eslint/consistent-generic-constructors": "warn",
             "@typescript-eslint/consistent-indexed-object-style": "warn",
             "@typescript-eslint/consistent-type-definitions": "warn",
-            "@typescript-eslint/dot-notation": "warn",
+            "@typescript-eslint/dot-notation": "off",
             "@typescript-eslint/no-base-to-string": "warn",
             "@typescript-eslint/no-deprecated": "warn",
             "@typescript-eslint/no-duplicate-type-constituents": "warn",
@@ -121,6 +123,9 @@ export default defineConfig(
             globals: {
                 ...globals.browser,
             },
+            parserOptions: {
+                ecmaVersion: 2020,
+            },
         },
 
         // Custom rules
@@ -154,12 +159,24 @@ export default defineConfig(
             "no-prototype-builtins": "warn",
             "react/display-name": "warn",
             "react/no-children-prop": "warn",
-            "react/prop-types": "warn",
-            "react/no-unescaped-entities": "warn",
+            "react/prop-types": "off",
+            "react/no-unescaped-entities": "off",
             "react-hooks/immutability": "warn",
             "react-hooks/preserve-manual-memoization": "warn",
             "react-hooks/refs": "warn",
             "react-hooks/set-state-in-effect": "warn",
         },
-    }
+    },
+    {
+        ignores: ["src/api/hooks", "src/api/model"],
+    },
+    {
+        // Root config files run in Node/CommonJS, not the browser.
+        files: ["**/*.cjs"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
 );

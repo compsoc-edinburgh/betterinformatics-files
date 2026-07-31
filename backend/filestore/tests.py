@@ -1,21 +1,24 @@
+from django.conf import settings
+
 from categories.models import Category
 from testing.tests import ComsolTest
-from django.conf import settings
 
 
 class TestUploadDownload(ComsolTest):
-
     def test_upload_and_download(self):
         category = Category(
-            displayname='Test Category',
-            slug='TestCategory',
+            displayname="Test Category",
+            slug="TestCategory",
         )
         category.save()
-        with open(f'{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf', 'rb') as f:
-            res = self.post('/api/filestore/upload/', {
-                'displayname': 'Test',
-                'category': category.slug,
-                'file': f,
-            })
-        self.get('/api/filestore/get/{}/'.format(res['filename']), as_json=False)
-        self.post('/api/filestore/remove/{}/'.format(res['filename']), {})
+        with open(f"{settings.COMSOL_ASSETS_FOLDER}/exam10.pdf", "rb") as f:
+            res = self.post(
+                "/api/filestore/upload/",
+                {
+                    "displayname": "Test",
+                    "category": category.slug,
+                    "file": f,
+                },
+            )
+        self.get("/api/filestore/get/{}/".format(res["filename"]), as_json=False)
+        self.post("/api/filestore/remove/{}/".format(res["filename"]), {})

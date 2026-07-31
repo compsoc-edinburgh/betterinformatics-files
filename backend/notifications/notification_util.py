@@ -1,10 +1,14 @@
-from notifications.models import Notification, NotificationType, NotificationSetting
-from answers.models import Answer, Comment as AnswerComment
-from documents.models import Document, Comment as DocumentComment
+from typing import Literal, overload
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from typing import overload, Literal, Union
+
+from answers.models import Answer
+from answers.models import Comment as AnswerComment
+from documents.models import Comment as DocumentComment
+from documents.models import Document
+from notifications.models import Notification, NotificationSetting, NotificationType
 
 
 def is_notification_enabled(receiver, notification_type):
@@ -38,7 +42,9 @@ def send_notification(
 def send_notification(
     sender: User,
     receiver: User,
-    type_: Literal[NotificationType.NEW_COMMENT_TO_DOCUMENT],
+    type_: Literal[
+        NotificationType.NEW_COMMENT_TO_DOCUMENT, NotificationType.DOCUMENT_TRANSFER
+    ],
     title: str,
     message: str,
     associated_data: Document,
@@ -51,7 +57,7 @@ def send_notification(
     type_: NotificationType,
     title: str,
     message: str,
-    associated_data: Union[Answer, Document],
+    associated_data: Answer | Document,
 ):
     if sender == receiver:
         return
@@ -97,7 +103,7 @@ def send_email_notification(
     type_: NotificationType,
     title: str,
     message: str,
-    data: Union[Document, Answer],
+    data: Document | Answer,
 ):
     """If the user has email notifications enabled, send an email notification.
 
@@ -127,6 +133,7 @@ def send_email_notification(
         fail_silently=False,
     )
 
+
 def send_feedback_notification(sender, receiver, type_, title, message, feedback):
     if sender == receiver:
         return
@@ -144,13 +151,13 @@ def send_feedback_notification(sender, receiver, type_, title, message, feedback
     notification.save()
 
 
-def get_absolute_notification_url(data: Union[Document, Answer]):
+def get_absolute_notification_url(data: Document | Answer):
     return (
         f"https://{settings.DEPLOYMENT_DOMAINS[0]}{get_relative_notification_url(data)}"
     )
 
 
-def get_relative_notification_url(data: Union[Document, Answer]):
+def get_relative_notification_url(data: Document | Answer):
     if isinstance(data, Answer):
         return f"/exams/{data.answer_section.exam.filename}#{data.long_id}"
     elif isinstance(data, Document):
@@ -167,7 +174,7 @@ def new_comment_to_answer(answer: Answer, new_comment: AnswerComment):
         answer.author,
         NotificationType.NEW_COMMENT_TO_ANSWER,
         "New comment",
-        "A new comment to your answer was added.\n\n{}".format(new_comment.text),
+        f"A new comment to your answer was added.\n\n{new_comment.text}",
         answer,
     )
 
@@ -178,9 +185,7 @@ def _new_comment_to_comment(old_comment: AnswerComment, new_comment: AnswerComme
         old_comment.author,
         NotificationType.NEW_COMMENT_TO_COMMENT,
         "New comment",
-        "A new comment was added to an answer you commented on.\n\n{}".format(
-            new_comment.text
-        ),
+        f"A new comment was added to an answer you commented on.\n\n{new_comment.text}",
         old_comment.answer,
     )
 
@@ -221,9 +226,10 @@ def new_comment_to_document(document: Document, new_comment: DocumentComment):
         document.author,
         NotificationType.NEW_COMMENT_TO_DOCUMENT,
         "New comment",
-        "A new comment was added to your document.\n\n{}".format(new_comment.text),
+        f"A new comment was added to your document.\n\n{new_comment.text}",
         document,
     )
+
 
 def new_feedback_reply(admin_user, feedback):
     send_feedback_notification(
@@ -231,6 +237,49 @@ def new_feedback_reply(admin_user, feedback):
         feedback.author,
         NotificationType.NEW_COMMENT_TO_FEEDBACK,
         "Reply to your feedback",
-        "An admin has replied to your feedback.\n\n{}".format(feedback.reply),
+        f"An admin has replied to your feedback.\n\n{feedback.reply}",
         feedback=feedback,
+    )
+
+
+def new_document_transfer_request(document: Document):
+    sender_displayname = document.author.profile.display_username
+    target_user = document.pending_transfer_user
+    if not target_user:
+        raise ValueError("Received document with pending_transfer_user=None.")
+
+    send_notification(
+        sender=document.author,
+        receiver=target_user,
+        type_=NotificationType.DOCUMENT_TRANSFER,
+        title="New document transfer request",
+        message=f"{sender_displayname} wants to transfer a document to you.",
+        associated_data=document,
+    )
+
+
+# Invariant: Document has already been transferred
+def accepted_document_transfer_request(document: Document, old_owner: User):
+    target_user_displayname = document.author.profile.display_username
+
+    send_notification(
+        sender=document.author,
+        receiver=old_owner,
+        type_=NotificationType.DOCUMENT_TRANSFER,
+        title="Document transfer request accepted",
+        message=f"{target_user_displayname} has accepted your document transfer.",
+        associated_data=document,
+    )
+
+
+def rejected_document_transfer_request(document: Document, target: User):
+    target_user_displayname = target.profile.display_username
+
+    send_notification(
+        sender=target,
+        receiver=document.author,
+        type_=NotificationType.DOCUMENT_TRANSFER,
+        title="Document transfer request rejected",
+        message=f"{target_user_displayname} has rejected your document transfer.",
+        associated_data=document,
     )

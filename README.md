@@ -142,12 +142,15 @@ docker compose up postgres rclone rclone-create-bucket
 Key things to look for:
 
 - Is postgres running successfully? Look for the following lines:
+
   ```sh
   postgres  | 2026-02-18 11:03:51.926 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
   ...
   postgres  | 2026-02-18 11:03:51.936 UTC [1] LOG:  database system is ready to accept connections
   ```
+
 - Is rclone running successfully?
+
   ```sh
   rclone-1  | 2026/04/25 21:45:55 NOTICE: Warning: Allow origin set to *. This can cause serious security problems.
   rclone-1  | 2026/04/25 21:45:55 NOTICE: Local file system at /data: Starting s3 server on [http://[::]:9000/]
@@ -174,6 +177,7 @@ will restart the server automatically without you having to rerun the command.
 cd backend
 mkdir -p intermediate_pdf_storage
 uv run manage.py migrate # only on first run, or if DB schema changed
+uv run manage.py export_openapi # only run on first run, or if any api-related code has changed in the backend
 uv run manage.py runserver 127.0.0.1:8081
 ```
 
@@ -194,7 +198,7 @@ yarn # only if any Node dependencies changed
 yarn start --host
 ```
 
-Website is now accessible at http://localhost:3000
+Website is now accessible at <http://localhost:3000>
 
 ### Alternative Docker-Compose Setup
 
@@ -333,6 +337,28 @@ that you simlink to `data/sql` when switching.
 
 But, sometimes, sadly, nuking your `data/sql` directory and restarting your
 Docker backend to rebuild it is the best.
+
+### Codegen
+
+We use [Orval](https://orval.dev/) to automatically generate API hooks from the
+backend's OpenAPI schema. This ensures the frontend stays in sync with any API
+changes.
+
+Whenever you modify the API, ensure you update the generated frontend code:
+
+1. Export the OpenAPI schema from the backend:
+
+   ```bash
+   uv run manage.py export_openapi
+   ```
+
+2. Generate the new hooks and types in the frontend:
+
+   ```bash
+   yarn codegen
+   ```
+
+   (Running `yarn start` or `yarn build` in the frontend will also run the codegen.)
 
 ### Testing
 

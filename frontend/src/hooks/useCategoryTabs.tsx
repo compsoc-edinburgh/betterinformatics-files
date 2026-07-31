@@ -18,7 +18,7 @@ export const useCategoryTabs = (
   useEffect(() => {
     // If the current tab is disabled, we redirect to the first enabled tab
     if (currentTab.disabled) {
-      const i = tabs.findIndex((tab, i) => !tab.disabled);
+      const i = tabs.findIndex(tab => !tab.disabled);
       if (i !== -1 && match) {
         const slug = match.params.slug;
         const base = `/category/${slug}`;

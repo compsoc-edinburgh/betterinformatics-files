@@ -14,14 +14,12 @@ const setLikeReq = async (oid: string, like: -1 | 0 | 1) => {
 interface Props {
   oid: string;
   upvotes: number;
-  expertUpvotes: number;
   userVote: -1 | 0 | 1;
   onSectionChanged: (newSection: AnswerSection) => void;
 }
 const Score: React.FC<Props> = ({
   oid,
   upvotes,
-  expertUpvotes,
   userVote,
   onSectionChanged,
 }) => {

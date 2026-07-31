@@ -1,10 +1,7 @@
-from testing.tests import ComsolTestExamsData, ComsolTestExamData
-from answers.models import Exam, ExamType
-from categories.models import Category
+from testing.tests import ComsolTestExamData, ComsolTestExamsData
 
 
 class TestListings(ComsolTestExamsData):
-
     def test_exam_types(self):
         res = self.get("/api/exam/listexamtypes/")["value"]
         self.assertEqual(len(res), 5)
@@ -37,7 +34,6 @@ class TestListings(ComsolTestExamsData):
 
 
 class TestListingsWithContent(ComsolTestExamData):
-
     def test_flagged(self):
         res = self.get("/api/exam/listflagged/")["value"]
         self.assertEqual(len(res), 0)

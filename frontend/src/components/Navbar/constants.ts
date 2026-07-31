@@ -1,21 +1,5 @@
 import { NavItem } from "./GlobalNav";
 
-export const _defaultCopyright = "Copyright 2023 VSETH ";
-
-export const _defaultPrivacyPolicy =
-  "https://account.vseth.ethz.ch/legal/privacy";
-
-export const _defaultImpressum = "https://account.vseth.ethz.ch/impressum";
-
-export const _mobileWidth = "43.75rem";
-
-export const COLORS = {
-  CYAN: "#009FE3",
-  RED: "#F03A47",
-  DARKRED: "#AF5B5B",
-  DARKBLUE: "#183059",
-};
-
 export interface ConfigOptions {
   logo: string;
   org_logo: string;

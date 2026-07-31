@@ -38,9 +38,10 @@ USER root
 COPY ./backend/ ./
 COPY ./frontend/public/exam10.pdf ./exam10.pdf
 COPY ./frontend/public/static ./static
+RUN uv run manage.py export_openapi
 
 # prevent guincorn from buffering prints from python workers
-ENV PYTHONUNBUFFERED True
+ENV PYTHONUNBUFFERED=True
 
 COPY ./pgbouncer ./pgbouncer
 COPY cinit.yml /etc/cinit.d/community-solutions.yml
@@ -66,12 +67,14 @@ ARG git_commit
 COPY ./frontend/tsconfig.json \
     ./frontend/postcss.config.cjs \
     ./frontend/vite.config.ts \
+    ./frontend/orval.config.ts \
     ./frontend/eslint.config.mjs \
     ./frontend/.env.production \
     ./frontend/.prettierrc.json ./
 COPY ./frontend/public ./public
 COPY ./frontend/src ./src
 COPY ./CHANGELOG.md ./CHANGELOG.md
+COPY --from=backend /app/static/openapi.json ./public/openapi.json
 ENV VITE_GIT_BRANCH=${git_branch}
 ENV VITE_GIT_COMMIT=${git_commit}
 RUN yarn run build
@@ -97,7 +100,7 @@ EXPOSE 80
 # Backend
 FROM backend AS backend-hotreload
 
-ENV IS_DEBUG true
+ENV IS_DEBUG=true
 CMD uv run manage.py migrate \
     && uv run manage.py runserver 0:8081
 

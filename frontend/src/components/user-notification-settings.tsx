@@ -5,10 +5,6 @@ import {
   useSetEnabledNotifications,
 } from "../api/hooks";
 
-interface UserNotificationsProps {
-  username: string;
-}
-
 const mapTypeToString = (type: number) => {
   switch (type) {
     case 1:
@@ -21,14 +17,14 @@ const mapTypeToString = (type: number) => {
       return "Comment to my document";
     case 5:
       return "Admin comments on my feedback";
+    case 6:
+      return "New document transfer or document transfer accepted";
     default:
       return "Unknown";
   }
 };
 
-const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
-  username,
-}) => {
+const UserNotificationsSettings: React.FC = () => {
   const [enabledError, enabledLoading, enabled, reloadEnabled] =
     useEnabledNotifications(true);
   const [setEnabledError, setEnabledLoading, setEnabled] =
@@ -48,7 +44,7 @@ const UserNotificationsSettings: React.FC<UserNotificationsProps> = ({
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {[1, 2, 3, 4, 5].map(type => (
+          {[1, 2, 3, 4, 5, 6].map(type => (
             <Table.Tr key={type}>
               <Table.Td>{mapTypeToString(type)}</Table.Td>
               <Table.Td>

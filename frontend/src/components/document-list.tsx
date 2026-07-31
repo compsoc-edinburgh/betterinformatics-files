@@ -6,63 +6,61 @@ import {
   Title,
   useComputedColorScheme,
 } from "@mantine/core";
-import React, { useEffect, useState } from "react";
-import { loadDocumentTypes, useDocuments } from "../api/hooks";
+import React, { Fragment, useMemo } from "react";
 import CreateDocumentForm from "./create-document-modal";
 import Grid from "./grid";
 import DocumentCard from "./document-card";
-import { Document } from "../interfaces";
 import { IconPlus } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import ShimmerButton from "./shimmer-button";
+import { useListDocuments, useListDocumentTypes } from "../api/hooks/documents";
+import type { DocumentListSchema } from "../api/model/documentListSchema";
+import type { DocumentSchema } from "../api/model/documentSchema";
 
 interface Props {
   slug: string;
 }
 
+// Take list of documents and mutate it
+// into a record<document-type, documents[]>
+function splitDocuments(
+  documents: DocumentListSchema,
+): Record<string, readonly DocumentSchema[]> {
+  const grouped: Record<string, DocumentSchema[]> = {};
+  for (const document of documents.value) {
+    grouped[document.document_type] ??= [];
+    grouped[document.document_type].push(document);
+  }
+
+  for (const documents of Object.values(grouped)) {
+    documents.sort(
+      (a, b) =>
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        b.like_count! - a.like_count! ||
+        a.display_name.localeCompare(b.display_name),
+    );
+  }
+
+  return grouped;
+}
+
 const DocumentList: React.FC<Props> = ({ slug }) => {
   const [isOpen, { open, close }] = useDisclosure();
-  const [documents] = useDocuments(slug);
-  const [docTypes, setDocTypes] = useState<string[] | null>(null);
-  const [sortedDocs, setSortedDocs] = useState<
-    { type: string; docs: Document[] }[]
-  >([]);
-  useEffect(() => {
-    (async () => {
-      setDocTypes(await loadDocumentTypes());
-    })();
-  }, []);
-  useEffect(() => {
-    const currentDocTypes = new Map<string, Document[]>();
-    if (!docTypes || documents === undefined) {
-      return;
-    }
-    docTypes.forEach(type => currentDocTypes.set(type, []));
-    documents.forEach(doc => currentDocTypes.get(doc.document_type)?.push(doc));
-    currentDocTypes.forEach(docs =>
-      docs.sort(
-        (a, b) =>
-          b.like_count - a.like_count ||
-          a.display_name.localeCompare(b.display_name),
-      ),
-    );
-    setSortedDocs(
-      Array.from(currentDocTypes, ([type, docs]) => ({ type, docs })).filter(
-        value => value.docs.length > 0,
-      ),
-    );
-  }, [docTypes, documents]);
+  const documents = useListDocuments({
+    category: slug,
+  });
+  const docTypes = useListDocumentTypes();
+  const splitDocs = useMemo(
+    () => (documents.isSuccess ? splitDocuments(documents.data) : undefined),
+    [documents.isSuccess, documents.data],
+  );
 
   const computedColorScheme = useComputedColorScheme("light");
 
   return (
     <>
       <CreateDocumentForm isOpen={isOpen} categorySlug={slug} onClose={close} />
-      <Title
-        order={2}
-        mt="xl"
-        mb={sortedDocs[0] && sortedDocs[0].docs.length && "lg"}
-      >
+      <Title order={2} mt="xl" mb="lg">
         Community Documents
       </Title>
       <Flex
@@ -85,23 +83,31 @@ const DocumentList: React.FC<Props> = ({ slug }) => {
           </Tooltip>
         </Group>
       </Flex>
-      {sortedDocs &&
-        sortedDocs.map(obj => (
-          <React.Fragment key={obj.type}>
-            {obj.type !== "Documents" && (
-              <Title order={3} mt="xl" mb="lg">
-                {obj.type}
-              </Title>
-            )}
-            <Grid>
-              {obj.docs &&
-                obj.docs.map(document => (
-                  <DocumentCard key={document.slug} document={document} />
-                ))}
-            </Grid>
-          </React.Fragment>
-        ))}
-      {sortedDocs && sortedDocs.length === 0 && (
+      {documents.isError && (
+        <Alert color="red">{documents.error as unknown as string}</Alert>
+      )}
+      {docTypes.isError && (
+        <Alert color="red">{docTypes.error as string}</Alert>
+      )}
+      {docTypes.isSuccess &&
+        docTypes.data.value.map(
+          type =>
+            splitDocs?.[type] && (
+              <Fragment key={type}>
+                {type !== "Documents" && (
+                  <Title order={3} mt="xl" mb="lg">
+                    {type}
+                  </Title>
+                )}
+                <Grid>
+                  {splitDocs[type].map(document => (
+                    <DocumentCard key={document.slug} document={document} />
+                  ))}
+                </Grid>
+              </Fragment>
+            ),
+        )}
+      {splitDocs && Object.values(splitDocs).every(docs => docs.length === 0) && (
         <Alert variant="light" color="compsocMain">
           No community documents yet. Upload your own to share! Cheatsheets,
           study notes, code implementations of algorithms, Anki decks, and more

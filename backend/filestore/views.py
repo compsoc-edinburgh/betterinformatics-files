@@ -1,10 +1,11 @@
-from util import response, s3_util
-from filestore.models import Attachment
-from categories.models import Category
-from answers.models import Exam
-from ediauth import auth_check
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+
+from answers.models import Exam
+from categories.models import Category
+from ediauth import auth_check
+from filestore.models import Attachment
+from util import response, s3_util
 
 
 @response.request_post("displayname")
@@ -31,6 +32,7 @@ def upload(request):
     s3_util.save_uploaded_file_to_s3(settings.COMSOL_FILESTORE_DIR, filename, file)
     return response.success(filename=filename)
 
+
 @response.request_patch("newdisplayname")
 @auth_check.require_admin
 def edit(request, filename):
@@ -38,6 +40,7 @@ def edit(request, filename):
     att.displayname = request.DATA["newdisplayname"]
     att.save()
     return response.success()
+
 
 @response.request_post()
 @auth_check.require_admin

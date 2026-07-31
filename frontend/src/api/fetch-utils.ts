@@ -1,4 +1,3 @@
-import { ImageHandle } from "../components/Editor/utils/types";
 import { jwtDecode } from "jwt-decode";
 
 /**
@@ -41,82 +40,102 @@ export function logout(redirectUrl = window.location.pathname) {
   )}`;
 }
 
-export function getHeaders() {
-  const headers: Record<string, string> = {
-    "X-CSRFToken": getCookie("csrftoken") ?? "",
-  };
+export function getHeaders(requestInit?: RequestInit) {
+  const headers = new Headers(requestInit?.headers);
+  headers.set("X-CSRFToken", getCookie("csrftoken") ?? "");
   if (localStorage.getItem("simulate_nonadmin")) {
-    headers["SimulateNonAdmin"] = "true";
+    headers.set("SimulateNonAdmin", "true");
   }
-  return headers;
+  return Object.fromEntries(headers);
 }
-/**
- * `NamedBlob` is essentially a 2-tuple consisting of a `Blob` and a `string` acting as
- * a filename. A `NamedBlob` can be passed to `performDataRequest` if the `Blob` should have
- * a multipart filename attached to it.
- */
-export class NamedBlob {
-  constructor(
-    public blob: Blob,
-    public filename: string,
-  ) {}
-}
-async function performDataRequest<T>(
+
+export async function performDataRequest<T>(
   method: string,
-  url: string,
-  data: Record<string, any>,
-) {
+  url: string | URL,
+  data: Record<string, any> | FormData | string | URLSearchParams,
+  requestInit?: RequestInit,
+): Promise<HttpResponse<T>> {
   // if (isTokenExpired()) await refreshToken();
 
-  const formData = new FormData();
-  // Convert the `data` object into a `formData` object by iterating
-  // through the keys and appending the (key, value) pair to the FormData
-  // object. All non-Blob values are converted to a string.
-  for (const key in data) {
-    if (Object.prototype.hasOwnProperty.call(data, key)) {
-      const val = data[key];
-      if (val === undefined) continue;
-      if (val instanceof File || val instanceof Blob) {
-        formData.append(key, val);
-      } else if (val instanceof NamedBlob) {
-        formData.append(key, val.blob, val.filename);
+  let formData: FormData | URLSearchParams | string = new FormData();
+  if (
+    data instanceof FormData ||
+    data instanceof URLSearchParams ||
+    typeof data === "string"
+  ) {
+    formData = data;
+  } else {
+    // Convert the `data` object into a `formData` object by iterating
+    // through the keys and appending the (key, value) pair to the FormData
+    // object. All non-Blob values are converted to a string.
+
+    for (const [key, value] of Object.entries(data)) {
+      if (value === undefined) continue;
+      if (value instanceof File || value instanceof Blob) {
+        formData.append(key, value);
       } else {
-        formData.append(key, val.toString());
+        formData.append(key, value.toString());
       }
     }
   }
 
   const response = await fetch(url, {
+    ...requestInit,
     credentials: "include",
-    headers: getHeaders(),
+    headers: getHeaders(requestInit),
     method,
     body: formData,
   });
   try {
-    const body = await response.json();
-    if (!response.ok) {
-      return Promise.reject(body.err);
+    let body = undefined as T;
+    if (response.status !== 204) {
+      body = (await response.json()) as T;
     }
-    return body as T;
+    if (!response.ok) {
+      return Promise.reject((body as { err: string }).err);
+    }
+    return {
+      data: body,
+      status: response.status,
+      headers: response.headers,
+    };
   } catch (e: any) {
     return Promise.reject(e.toString());
   }
 }
 
-async function performRequest<T>(method: string, url: string) {
+export interface HttpResponse<T> {
+  status: number;
+  headers: Headers;
+  data: T;
+}
+
+export async function performRequest<T>(
+  method: string,
+  url: string | URL,
+  requestInit?: RequestInit,
+): Promise<HttpResponse<T>> {
   // if (isTokenExpired()) await refreshToken();
 
   const response = await fetch(url, {
+    ...requestInit,
     credentials: "include",
-    headers: getHeaders(),
+    headers: getHeaders(requestInit),
     method,
   });
   try {
-    const body = await response.json();
-    if (!response.ok) {
-      return Promise.reject(body.err);
+    let body = undefined as T;
+    if (response.status !== 204) {
+      body = (await response.json()) as T;
     }
-    return body as T;
+    if (!response.ok) {
+      return Promise.reject((body as { err: string }).err);
+    }
+    return {
+      data: body,
+      status: response.status,
+      headers: response.headers,
+    };
   } catch (e: any) {
     return Promise.reject(e.toString());
   }
@@ -137,24 +156,38 @@ export function getCookie(name: string): string | null {
   }
   return cookieValue;
 }
-export function fetchPost<T = any>(url: string, data: Record<string, any>) {
-  return performDataRequest<T>("POST", url, data);
+export async function fetchPost<T = any>(
+  url: string,
+  data: Record<string, any>,
+): Promise<T> {
+  const response = await performDataRequest<T>("POST", url, data);
+  return response.data;
 }
 
-export function fetchPut<T = any>(url: string, data: Record<string, any>) {
-  return performDataRequest<T>("PUT", url, data);
+export async function fetchPut<T = any>(
+  url: string,
+  data: Record<string, any>,
+): Promise<T> {
+  const response = await performDataRequest<T>("PUT", url, data);
+  return response.data;
 }
 
-export function fetchPatch<T = any>(url: string, data: Record<string, any>) {
-  return performDataRequest<T>("PATCH", url, data);
+export async function fetchPatch<T = any>(
+  url: string,
+  data: Record<string, any>,
+): Promise<T> {
+  const response = await performDataRequest<T>("PATCH", url, data);
+  return response.data;
 }
 
-export function fetchDelete<T = any>(url: string) {
-  return performRequest<T>("DELETE", url);
+export async function fetchDelete<T = any>(url: string): Promise<T> {
+  const response = await performRequest<T>("DELETE", url);
+  return response.data;
 }
 
-export function fetchGet<T = any>(url: string) {
-  return performRequest<T>("GET", url);
+export async function fetchGet<T = any>(url: string): Promise<T> {
+  const response = await performRequest<T>("GET", url);
+  return response.data;
 }
 
 export function download(url: string, name?: string) {
@@ -172,22 +205,4 @@ export function download(url: string, name?: string) {
 export async function downloadIndirect(url: string) {
   const { value: signedUrl } = await fetchGet(url);
   download(signedUrl);
-}
-
-export function imageHandler(file: File): Promise<ImageHandle> {
-  return new Promise((resolve, reject) => {
-    fetchPost("/api/image/upload/", {
-      file,
-    })
-      .then(res => {
-        resolve({
-          name: file.name,
-          src: res.filename,
-          remove: async () => {
-            await fetchPost(`/api/image/remove/${res.filename}/`, {});
-          },
-        });
-      })
-      .catch(e => reject(e));
-  });
 }

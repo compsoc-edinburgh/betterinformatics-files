@@ -1,8 +1,8 @@
 import { Button, TextInput, Modal, Stack, Text } from "@mantine/core";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCreateDocument } from "../api/hooks";
 import { IconPlus } from "@tabler/icons-react";
+import { useCreateDocument } from "../api/hooks/documents";
 
 interface Props {
   categorySlug: string;
@@ -17,19 +17,29 @@ const CreateDocumentForm: React.FC<Props> = ({
 }) => {
   const [displayName, setDisplayName] = useState("");
   const navigate = useNavigate();
-  const {error, loading, run} = useCreateDocument(({ slug }) => {
-    navigate(`/document/${slug}/`);
+  const { mutate, isError, isPending } = useCreateDocument({
+    mutation: {
+      onSuccess({ value: document }) {
+        void navigate(`/document/${document.slug}`);
+      },
+    },
   });
+
+  function handleCreateDocument() {
+    mutate({
+      data: {
+        display_name: displayName,
+        category: categorySlug,
+        anonymised: false,
+      },
+    });
+  }
+
   return (
     <Modal opened={isOpen} title="Add Document Bundle" onClose={onClose}>
       <Modal.Body>
         <Stack>
-          {error !== undefined &&
-          <Text
-            c="red"
-          >
-            This is an invalid display name.
-          </Text>}
+          {isError && <Text c="red">This is an invalid display name.</Text>}
           <TextInput
             label="Display Name"
             placeholder="My wonderful summary"
@@ -38,14 +48,14 @@ const CreateDocumentForm: React.FC<Props> = ({
           />
 
           <div>
-            An empty new document bundle will be created. One or more files can be
-            added to the document bundle in the settings tab.
+            An empty new document bundle will be created. One or more files can
+            be added to the document bundle in the settings tab.
           </div>
           <Button
-            disabled={loading || displayName.trim() === ""}
-            onClick={() => run(displayName.trim(), categorySlug)}
+            disabled={isPending || displayName.trim() === ""}
+            onClick={handleCreateDocument}
             leftSection={<IconPlus />}
-            loading={loading}
+            loading={isPending}
           >
             Add
           </Button>

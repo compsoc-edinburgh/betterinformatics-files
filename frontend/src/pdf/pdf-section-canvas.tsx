@@ -13,7 +13,7 @@ import { PdfCanvasReference } from "./reference-counting";
 import { CutUpdate } from "../interfaces";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import classes from "./pdf-section-canvas.module.css";
-import clsx from "clsx";
+import { clsx } from "clsx";
 
 const usePdf = (
   shouldRender: boolean,
@@ -41,9 +41,8 @@ const usePdf = (
       let cancel = false;
       let canvasRef: PdfCanvasReference | undefined;
       let currentPromise:
-        | Promise<[HTMLCanvasElement, boolean, PdfCanvasReference]>
-        | undefined;
-      (async () => {
+        Promise<[HTMLCanvasElement, boolean, PdfCanvasReference]> | undefined;
+      void (async () => {
         const page = await renderer.getPage(pageNumber);
         if (cancel) return;
         setView(page.view);
@@ -71,7 +70,7 @@ const usePdf = (
 
         if (canvasRef) canvasRef.release();
         else if (currentPromise) {
-          currentPromise.then(([, , newRef]) => newRef.release());
+          void currentPromise.then(([, , newRef]) => newRef.release());
         }
       };
     }
@@ -118,7 +117,8 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     const relativeHeight = end - start;
 
     const { displayCanvasType } = useContext(DebugContext);
-    const [almostInView, containerElement] = useAlmostInViewport<HTMLDivElement>();
+    const [almostInView, containerElement] =
+      useAlmostInViewport<HTMLDivElement>();
     const [containerHeight, setContainerHeight] = useState(0);
     const [translateY, setTranslateY] = useState(0);
     const [currentScale, setCurrentScale] = useState<number | undefined>(
@@ -135,7 +135,11 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
       page,
       start,
       end,
-      almostInView ? (currentScale ? currentScale * dpr : undefined) : undefined,
+      almostInView
+        ? currentScale
+          ? currentScale * dpr
+          : undefined
+        : undefined,
     );
     const inViewportRef = useRef<HTMLDivElement>(null);
     const inViewport = useInViewport(inViewportRef);
@@ -264,5 +268,4 @@ const PdfSectionCanvas: React.FC<Props> = React.memo(
     );
   },
 );
-
 export default PdfSectionCanvas;
