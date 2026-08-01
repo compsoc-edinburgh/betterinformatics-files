@@ -8,7 +8,6 @@ import {
 } from "react";
 import {
   Modal,
-  Button,
   Group,
   Text,
   TextInput,
@@ -233,7 +232,7 @@ export const QuickSearchBox: React.FC = () => {
       itemToPath(results[currentSelection.type][currentSelection.index]),
     );
     close();
-  }, [currentSelection, history, results, close]);
+  }, [currentSelection, results, close, navigate]);
 
   useEffect(() => {
     // Do some raw-JS scrollIntoView so that moving up/down via keyboard scrolls

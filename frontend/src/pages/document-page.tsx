@@ -412,8 +412,6 @@ const DocumentPage: React.FC = () => {
     return `${file.display_name}.${ext}`;
   }
 
-  const lastEdited = document?.edittime ?? document?.time;
-
   const isUnsafeFile = (file: DocumentFileSchema): boolean => {
     const ext = getFileExtension(file.filename);
     return (
@@ -517,7 +515,7 @@ const DocumentPage: React.FC = () => {
                 anonymised={document.anonymised}
                 can_see_anonymised={document.can_edit || document.can_delete}
               />
-              {lastEdited && (
+              {document.edittime && (
                 <>
                   <Text c="dimmed" mx={6} component="span">
                     ·
@@ -525,7 +523,10 @@ const DocumentPage: React.FC = () => {
                   <Tooltip
                     withArrow
                     withinPortal
-                    label={`Created ${formatDistanceToNow(new Date(document.time))} ago`}
+                    label={
+                      document.time &&
+                      `Created ${formatDistanceToNow(new Date(document.time))} ago`
+                    }
                     disabled={document.time === null}
                   >
                     <Text c="dimmed" component="span">

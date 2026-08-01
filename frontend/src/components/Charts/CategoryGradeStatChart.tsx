@@ -138,8 +138,8 @@ export const CategoryGradeStatChart: React.FC<
         position: (
           point,
           params: TooltipComponentPositionCallbackParams,
-          dom,
-          rect,
+          _dom,
+          _rect,
           size,
         ) => {
           if (!Array.isArray(params)) params = [params];
@@ -183,11 +183,7 @@ export const CategoryGradeStatChart: React.FC<
 
           params.forEach(param => {
             const value = param.value as (
-              | string
-              | number
-              | boolean
-              | null
-              | undefined
+              string | number | boolean | null | undefined
             )[];
             if (value[1] === null || value[1] === undefined) {
               // Skip if mean mark is not available
@@ -261,11 +257,7 @@ export const CategoryGradeStatChart: React.FC<
             formatter: (params => {
               if (!params.value) return undefined;
               const value = params.value as (
-                | string
-                | number
-                | boolean
-                | null
-                | undefined
+                string | number | boolean | null | undefined
               )[];
               // Show only if course organizer changed
               const organiser = value[3];
@@ -309,7 +301,7 @@ export const CategoryGradeStatChart: React.FC<
           },
         })),
         // Standard deviation series as custom error bars
-        ...codes.map((code, ix) => ({
+        ...codes.map((code, _ix) => ({
           name: `${code}-stddev`,
           type: "custom",
           data: combinedData.map(d => {
@@ -331,7 +323,7 @@ export const CategoryGradeStatChart: React.FC<
             return value;
           }),
           renderItem: (
-            params: CustomSeriesRenderItemParams,
+            _params: CustomSeriesRenderItemParams,
             api: CustomSeriesRenderItemAPI,
           ) => {
             const xValue = api.value(0);
