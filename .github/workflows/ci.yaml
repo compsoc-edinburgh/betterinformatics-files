@@ -32,7 +32,7 @@ jobs:
   tests:
     name: Run Django Unit Tests
     runs-on: ubuntu-latest
-    container: python:3.9  # version when installing python3 from apt (same as Dockerfile)
+    container: python:3.12  # version when installing python3 from apt (same as Dockerfile)
     needs: determine-changes
     if: ${{ needs.determine-changes.outputs.backend == 'true' }}
     services:
@@ -118,6 +118,19 @@ jobs:
         with:
           path: frontend/.yarn/cache
           key: ${{ runner.os }}-node-modules-${{ hashFiles('frontend/yarn.lock') }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.10.12"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Generate OpenAPI spec
+        run: |
+          cd backend
+          uv run manage.py export_openapi
+          cp ./static/openapi.json ../frontend/public/openapi.json
 
       - name: Enable Yarn
         run: corepack enable
