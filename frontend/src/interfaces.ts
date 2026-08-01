@@ -352,36 +352,6 @@ export type SearchResult =
   ExamSearchResult | AnswerSearchResult | CommentSearchResult;
 export type SearchResponse = SearchResult[];
 
-export interface Dissertation {
-  id: number;
-  title: string;
-  field_of_study: string;
-  supervisors: string;
-  notes: string;
-  file_path: string;
-  uploaded_by: string;
-  upload_date: string;
-  study_level: string;
-  grade_band?: string;
-  year: number;
-  relevant_categories: { slug: string; displayname: string }[];
-  can_edit: boolean;
-}
-
-export interface DissertationCreate {
-  words_to_redact: string;
-  title: string;
-  field_of_study: string;
-  supervisors: string;
-  notes: string;
-  study_level: string;
-  grade_band?: string;
-  year: number;
-  relevant_categories: string[];
-}
-
-export type DissertationUpdate = Partial<DissertationCreate>;
-
 export interface Stats {
   user_stats: UserStat[];
   exam_stats: ExamStat[];

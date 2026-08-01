@@ -18,9 +18,6 @@ import {
   SearchResponse,
   AnswerKind,
   BICourseList,
-  DissertationCreate,
-  Dissertation,
-  DissertationUpdate,
 } from "../interfaces";
 import PDF from "../pdf/pdf-renderer";
 import { getDocument } from "../pdf/pdfjs";
@@ -62,8 +59,9 @@ export const useSetUserDisplayUsername = (onSuccess: () => void) => {
 const loadBICourseList = async () => {
   // Use normal fetch() instead of fetchGet as the latter is for internal API
   // and sends some credential cookies
-  return fetch("https://betterinformatics.com/courses.json")
-    .then(r => r.json()) as Promise<BICourseList>;
+  return fetch("https://betterinformatics.com/courses.json").then(r =>
+    r.json(),
+  ) as Promise<BICourseList>;
 };
 
 export const useBICourseList = () => {
@@ -75,7 +73,8 @@ export const useBICourseList = () => {
 
 const loadEnabledNotifications = async (isMyself: boolean) => {
   if (isMyself) {
-    return (await fetchGet(`/api/notification/getenabled/`)).value as NotificationEnabled[];
+    return (await fetchGet(`/api/notification/getenabled/`))
+      .value as NotificationEnabled[];
   } else {
     return undefined;
   }
@@ -90,7 +89,11 @@ export const useEnabledNotifications = (isMyself: boolean) => {
   );
   return [error, loading, data, run] as const;
 };
-const setEnabledNotifications = async (type: number, enabled?: boolean, email_enabled?: boolean) => {
+const setEnabledNotifications = async (
+  type: number,
+  enabled?: boolean,
+  email_enabled?: boolean,
+) => {
   await fetchPost(`/api/notification/setenabled/`, {
     type,
     enabled,
@@ -291,8 +294,13 @@ const updateAnswer = async (
   kind: AnswerKind,
   isAnonymous: boolean = false,
 ) => {
-  return (await fetchPost(`/api/exam/setanswer/${answerId}/`, { text, kind, is_anonymous: isAnonymous }))
-    .value as AnswerSection;
+  return (
+    await fetchPost(`/api/exam/setanswer/${answerId}/`, {
+      text,
+      kind,
+      is_anonymous: isAnonymous,
+    })
+  ).value as AnswerSection;
 };
 const removeAnswer = async (answerId: string) => {
   return (await fetchPost(`/api/exam/removeanswer/${answerId}/`, {}))
@@ -489,7 +497,8 @@ export const useRemoveCategory = (onSuccess?: () => void) =>
 
 // Course Stats
 export const loadCourseStats = async (slug: string) => {
-  return (await fetchGet(`/api/category/stats/${slug}/`)).value as CourseStats[];
+  return (await fetchGet(`/api/category/stats/${slug}/`))
+    .value as CourseStats[];
 };
 
 export const useCourseStats = (slug: string) => {
@@ -533,69 +542,3 @@ export const unmarkExamUserSolved = async (exam: string) => {
 };
 export const useUnmarkExamUserSolved = (exam: string) =>
   useMutation(() => unmarkExamUserSolved(exam));
-
-export const uploadDissertation = async (
-  file: Blob,
-  create_data: DissertationCreate,
-) => {
-  return (await fetchPost<{ value: Dissertation }>("/api/dissertations/", {
-    pdf_file: file,
-    ...create_data,
-  })).value;
-};
-
-export const editDissertation = async (
-  file: Blob | null,
-  id: number,
-  update_data: DissertationUpdate,
-) => {
-  return (await fetchPut<{ value: Dissertation }>(`/api/dissertations/${id}/`, {
-    ...(file ? { pdf_file: file } : {}),
-    ...update_data,
-  })).value;
-};
-
-export const deleteDissertation = async (id: number) => {
-  await fetchDelete(`/api/dissertations/${id}/`);
-};
-
-export const getRedactionPreview = async (
-  file: Blob,
-  words_to_redact: string,
-) => {
-  return (await fetchPost<{ value: string }>("/api/dissertations/redact/", {
-    pdf_file: file,
-    words: words_to_redact,
-  })).value;
-};
-
-export const loadDissertations = async (searchQuery: string, field: string, category?: string) => {
-  return (
-    await fetchGet<{ value: Dissertation[] }>(
-      `/api/dissertations/?${new URLSearchParams({
-        query: searchQuery,
-        field,
-        ...(category ? { category } : {}),
-      }).toString()}`,
-    )
-  ).value;
-};
-
-export const useDissertations = (searchQuery: string, field: string, category?: string) => {
-  const { error, loading, data } = useRequest(
-    () => loadDissertations(searchQuery, field, category),
-    {
-      refreshDeps: [searchQuery, field, category],
-      cacheKey: `dissertations-${field}-${searchQuery}-${category}`,
-    },
-  );
-  return { error, loading, data } as const;
-};
-
-export const loadDissertation = async (id: number) => {
-  return (await fetchGet<{ value: Dissertation }>(`/api/dissertations/${id}/`)).value;
-}
-
-export const loadDissertationPdf = async (id: number) => {
-  return (await fetchGet<{ value: string }>(`/api/dissertations/${id}/download/`)).value;
-}

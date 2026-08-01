@@ -41,6 +41,12 @@ class DissertationSchema(ModelSchema):
     upload_date: str = Field(..., alias="upload_date.isoformat")
     relevant_categories: list[SlugDisplayNameSchema]
     can_edit: bool
+    id: int  # Explicitly include ID due to vitalik/django-ninja#1160
+    year: int  # Explicitly include year due to vitalik/django-ninja#1160
+    grade_band: (
+        str | None
+    )  # Explicitly include grade_band due to vitalik/django-ninja#1160
+    notes: str | None  # Explicitly include notes due to vitalik/django-ninja#1160
 
     @staticmethod
     def resolve_relevant_categories(
@@ -60,15 +66,11 @@ class DissertationSchema(ModelSchema):
     class Meta:
         model = Dissertation
         fields = [
-            "id",
             "title",
             "field_of_study",
             "supervisors",
-            "notes",
             "file_path",
             "study_level",
-            "grade_band",
-            "year",
         ]
 
 
@@ -120,6 +122,13 @@ def redact_file(file: UploadedFile, words_to_redact: list[str]) -> str:
     """
     handle, temp_file_path = tempfile.mkstemp(dir=settings.COMSOL_UPLOAD_FOLDER)
 
+    if not words_to_redact:
+        # If no words to redact, just copy the file to the handle
+        with os.fdopen(handle, "wb") as temp_file:
+            for chunk in file.chunks():
+                temp_file.write(chunk)
+        return temp_file_path
+
     options = RedactorOptions()
     options.content_filters = [
         # Replace each phrase with some periods.
@@ -152,10 +161,13 @@ def upload_dissertation(
     grade_band = data.grade_band
     year = data.year
 
-    temp_file_path = redact_file(
-        pdf_file,
-        [w.strip() for w in (data.words_to_redact or "").split(",") if w.strip()],
-    )
+    try:
+        temp_file_path = redact_file(
+            pdf_file,
+            [w.strip() for w in (data.words_to_redact or "").split(",") if w.strip()],
+        )
+    except Exception as e:
+        return response.not_possible(f"Error redacting file: {str(e)}")
 
     # Upload PDF to Minio
     # Assuming the bucket already exists or is created by Minio setup
@@ -208,14 +220,18 @@ def redact_dissertation(
                 f"Redaction phrase has to be alphanumeric: {word}"
             )
 
-    temp_file_path = redact_file(
-        pdf_file, [w.strip() for w in data.words.split(",") if w.strip()]
-    )
+    try:
+        temp_file_path = redact_file(
+            pdf_file, [w.strip() for w in data.words.split(",") if w.strip()]
+        )
+    except Exception as e:
+        return response.not_possible(f"Error redacting file: {str(e)}")
 
     s3_util.save_file_to_s3(
         bucket_name + "_temp_redacted/",
         f"redacted_{pdf_file.name}",
         temp_file_path,
+        pdf_file.content_type or "application/pdf",
     )
 
     os.remove(temp_file_path)
@@ -358,10 +374,17 @@ def update_dissertation(
             old_file_name = "/".join(old_path_parts[2:])
             s3_util.delete_file(old_bucket_name + "/", old_file_name)
 
-        temp_file_path = redact_file(
-            pdf_file,
-            [w.strip() for w in (data.words_to_redact or "").split(",") if w.strip()],
-        )
+        try:
+            temp_file_path = redact_file(
+                pdf_file,
+                [
+                    w.strip()
+                    for w in (data.words_to_redact or "").split(",")
+                    if w.strip()
+                ],
+            )
+        except Exception as e:
+            return response.not_possible(f"Error redacting file: {str(e)}")
 
         # Upload PDF to Minio
         file_name = f"{dissertation.title.replace(' ', '_')}_{pdf_file.name}"

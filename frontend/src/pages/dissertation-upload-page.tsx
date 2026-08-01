@@ -24,19 +24,19 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useRequest } from "ahooks";
-import {
-  deleteDissertation,
-  editDissertation,
-  getRedactionPreview,
-  loadCategories,
-  uploadDissertation,
-} from "../api/hooks";
+import { loadCategories } from "../api/hooks";
 import serverData from "../utils/server-data";
-import { Dissertation } from "../interfaces";
 import useRemoveConfirm from "../hooks/useRemoveConfirm";
+import { DissertationSchema } from "../api/model";
+import {
+  useDeleteDissertation,
+  useRedactDissertation,
+  useUpdateDissertation,
+  useUploadDissertation,
+} from "../api/hooks/dissertations";
 
 interface Props {
-  editingExisting?: Dissertation;
+  editingExisting?: DissertationSchema;
   onEdit?: () => void;
 }
 
@@ -85,18 +85,17 @@ const DissertationUploadPage: React.FC<Props> = ({
   // Main form
   const form = useForm({
     initialValues: {
-      title: editing_existing ? editing_existing.title : "",
+      title: editing_existing?.title ?? "",
       field_of_study: editing_existing
         ? editing_existing.field_of_study
             .split(",")
             .filter(field => field.trim() !== "")
             .map(s => s.trim())
         : [],
-      supervisors: editing_existing ? editing_existing.supervisors : "",
-      notes: editing_existing ? editing_existing.notes : "",
-      study_level: editing_existing ? editing_existing.study_level : "",
-      grade_band:
-        editing_existing?.grade_band ?? (undefined as string | undefined),
+      supervisors: editing_existing?.supervisors ?? "",
+      notes: editing_existing?.notes ?? "",
+      study_level: editing_existing?.study_level ?? "",
+      grade_band: editing_existing?.grade_band ?? undefined,
       // Mantine Select only accepts strings as data - we need to convert back
       // when we submit
       year: editing_existing
@@ -111,7 +110,7 @@ const DissertationUploadPage: React.FC<Props> = ({
       title: (value: string) => (value ? null : "Title is required"),
       supervisors: (value: string) =>
         value ? null : "Supervisors are required",
-      study_level: (value: string) =>
+      study_level: (value: string | undefined) =>
         value ? null : "Study level is required",
       year: (value: string) =>
         value && /^[0-9]{4}$/.test(value)
@@ -120,65 +119,60 @@ const DissertationUploadPage: React.FC<Props> = ({
     },
   });
 
-  const { error: editError, run: runEditDissertation } = useRequest(
-    editDissertation,
-    {
-      manual: true,
-      onSuccess: data => {
-        onEdit?.();
-        void navigate(`/dissertations/${data.id}`);
-      },
-      onError: (e?: Error) => {
-        setClientValidationError(String(e));
-      },
-    },
-  );
-
-  const { error: uploadError, run: runUploadDissertation } = useRequest(
-    uploadDissertation,
-    {
-      manual: true,
-      onSuccess: data => {
-        void navigate(`/dissertations/${data.id}`);
-      },
-      onError: (e?: Error) => {
-        setClientValidationError(String(e));
-      },
-    },
-  );
-
   const {
-    error: previewError,
-    run: runGetRedactionPreview,
-    data: previewData,
-    loading: previewLoading,
-  } = useRequest(getRedactionPreview, {
-    manual: true,
-    onError: (e?: Error) => {
-      setClientValidationError(String(e));
+    mutate: runEditDissertation,
+    isError: editIsError,
+    error: editError,
+  } = useUpdateDissertation({
+    mutation: {
+      onSuccess: async ({ value: data }) => {
+        onEdit?.();
+        await navigate(`/dissertations/${data.id}`);
+      },
     },
   });
 
-  const [removeConfirm, modals] = useRemoveConfirm();
-  const { run: runDeleteDissertation } = useRequest(deleteDissertation, {
-    manual: true,
-    onSuccess: () => {
-      void navigate("/dissertations");
+  const {
+    mutate: runUploadDissertation,
+    isError: uploadIsError,
+    error: uploadError,
+  } = useUploadDissertation({
+    mutation: {
+      onSuccess: async ({ value: data }) => {
+        await navigate(`/dissertations/${data.id}`);
+      },
     },
-    onError: (e?: Error) => {
-      setClientValidationError(String(e));
+  });
+
+  const {
+    mutate: runGetRedactionPreview,
+    data: previewData,
+    isPending: previewLoading,
+    isError: previewIsError,
+    error: previewError,
+  } = useRedactDissertation();
+
+  const [removeConfirm, modals] = useRemoveConfirm();
+  const { mutate: runDeleteDissertation } = useDeleteDissertation({
+    mutation: {
+      onSuccess: async () => {
+        await navigate("/dissertations");
+      },
+      onError: (e?: Error) => {
+        setClientValidationError(String(e));
+      },
     },
   });
   const remove = useCallback(() => {
     if (editing_existing) {
       removeConfirm(
         "Are you sure you want to delete this dissertation? This action cannot be undone.",
-        () => void runDeleteDissertation(editing_existing.id),
+        () => runDeleteDissertation({ dissertationId: editing_existing.id }),
       );
     }
   }, [removeConfirm, runDeleteDissertation, editing_existing]);
 
-  const handleSubmit = async (values: typeof form.values) => {
+  const handleSubmit = (values: typeof form.values) => {
     setClientValidationError(null);
 
     if (!editing_existing) {
@@ -187,23 +181,10 @@ const DissertationUploadPage: React.FC<Props> = ({
         return;
       }
 
-      await runUploadDissertation(previewForm.values.pdf_file, {
-        // Pass the same words to redact as the preview
-        words_to_redact: previewForm.values.words_to_redact.join(","),
-        title: values.title,
-        field_of_study: values.field_of_study.join(","),
-        supervisors: values.supervisors,
-        notes: values.notes,
-        study_level: values.study_level,
-        grade_band: values.grade_band,
-        year: Number(values.year),
-        relevant_categories: values.relevant_categories,
-      });
-    } else {
-      await runEditDissertation(
-        previewForm.values.pdf_file,
-        editing_existing.id,
-        {
+      runUploadDissertation({
+        data: {
+          pdf_file: previewForm.values.pdf_file,
+          // Pass the same words to redact as the preview
           words_to_redact: previewForm.values.words_to_redact.join(","),
           title: values.title,
           field_of_study: values.field_of_study.join(","),
@@ -212,24 +193,42 @@ const DissertationUploadPage: React.FC<Props> = ({
           study_level: values.study_level,
           grade_band: values.grade_band,
           year: Number(values.year),
-          relevant_categories: values.relevant_categories,
+          relevant_categories: values.relevant_categories.join(","),
         },
-      );
+      });
+    } else {
+      runEditDissertation({
+        dissertationId: editing_existing.id,
+        data: {
+          pdf_file: previewForm.values.pdf_file,
+          words_to_redact: previewForm.values.words_to_redact.join(","),
+          title: values.title,
+          field_of_study: values.field_of_study.join(","),
+          supervisors: values.supervisors,
+          notes: values.notes,
+          study_level: values.study_level,
+          grade_band: values.grade_band,
+          year: Number(values.year),
+          relevant_categories: values.relevant_categories.join(","),
+        },
+      });
     }
   };
 
-  const handlePreviewSubmit = async (values: typeof previewForm.values) => {
+  const handlePreviewSubmit = (values: typeof previewForm.values) => {
     if (!values.pdf_file) {
       return;
     }
 
-    await runGetRedactionPreview(
-      values.pdf_file,
-      values.words_to_redact
-        .map(word => word.trim())
-        .filter(Boolean)
-        .join(","),
-    );
+    runGetRedactionPreview({
+      data: {
+        pdf_file: values.pdf_file,
+        words: values.words_to_redact
+          .map(word => word.trim())
+          .filter(Boolean)
+          .join(","),
+      },
+    });
   };
 
   return (
@@ -359,7 +358,7 @@ const DissertationUploadPage: React.FC<Props> = ({
                 required={!editing_existing} // Only require PDF for new uploads
                 onChange={e => {
                   previewForm.setFieldValue("pdf_file", e);
-                  void handlePreviewSubmit({
+                  handlePreviewSubmit({
                     ...previewForm.values,
                     // new form value isn't reflected until next render, so pass
                     // it directly here
@@ -388,7 +387,7 @@ const DissertationUploadPage: React.FC<Props> = ({
                 {...previewForm.getInputProps("words_to_redact")}
                 onChange={e => {
                   previewForm.setFieldValue("words_to_redact", e);
-                  void handlePreviewSubmit({
+                  handlePreviewSubmit({
                     ...previewForm.values,
                     // new form value isn't reflected until next render, so pass
                     // it directly here
@@ -511,13 +510,10 @@ const DissertationUploadPage: React.FC<Props> = ({
               {...form.getInputProps("notes")}
             />
 
-            {(clientValidationError ??
-              editError?.message ??
-              uploadError?.message) && (
+            {(clientValidationError ?? (editIsError || uploadIsError)) && (
               <Notification title="Upload Failed" color="red" mt="md">
                 {clientValidationError ??
-                  editError?.message ??
-                  uploadError?.message}
+                  (editIsError ? String(editError) : String(uploadError))}
               </Notification>
             )}
 
@@ -538,14 +534,14 @@ const DissertationUploadPage: React.FC<Props> = ({
           )}
         </div>
         <div style={{ flex: 1 }}>
-          {previewError && (
+          {previewIsError && (
             <Notification title="Preview Failed" color="red" mb="md">
               {String(previewError)}
             </Notification>
           )}
           {previewForm.values.pdf_file && previewData && (
             <iframe
-              src={previewData}
+              src={previewData.value}
               width="100%"
               height="100%"
               style={{ border: "none" }}
