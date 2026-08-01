@@ -2,6 +2,10 @@
 
 ## v2026.08.01
 
+- Upstream v2026.07.p1: Type-safe frontend hooks, lots of upgrades ([\#120](https://github.com/compsoc-edinburgh/betterinformatics-files/pull/120))
+
+## v2026.08.01
+
 (This release is based on upstream v2026.07.p1)
 
 ### Things that affect you
