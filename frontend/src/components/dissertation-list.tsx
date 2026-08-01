@@ -31,7 +31,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
 
   const {
     data: dissertations,
-    isLoading,
+    isFetching,
     isError,
     error,
   } = useListDissertations(
@@ -51,7 +51,7 @@ export const DissertationList: React.FC<Props> = ({ slug, disableSearch }) => {
 
   // Show larger loading indicator only if it's taking a while - otherwise it's
   // a bit too annoying. there already is a small spinner in the search box.
-  const [loadingDebounced] = useDebouncedValue(isLoading, 500);
+  const [loadingDebounced] = useDebouncedValue(isFetching, 500);
   const rows = useMemo(() => {
     return dissertations
       ? dissertations.map(dissertation => (
